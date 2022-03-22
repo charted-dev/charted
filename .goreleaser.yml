@@ -1,0 +1,216 @@
+# 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Go.
+# Copyright 2022 Noelware <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+
+project_name: charted-server
+before:
+  hooks:
+    - go mod tidy
+    - go mod download
+
+env:
+  - CGO_ENABLED=0
+  - GO11MODULE=on
+
+builds:
+  - id: "charted-server"
+    binary: "charted-server"
+    ldflags:
+      - -s -w -X noelware.org/charted/server/internal.Version={{ .Version }} -X noelware.org/charted/server/internal.CommitSHA={{ .ShortCommit }} -X noelware.org/charted/server/internal.BuildDate={{ .Date }}
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+      - "386"
+      - arm
+    goarm:
+      - "6"
+      - "7"
+    ignore:
+      - goos: windows
+        goarch: arm64
+      - goos: windows
+        goarm: "6"
+      - goos: windows
+        goarm: "7"
+
+dockers:
+  - image_templates:
+      - noelware/charted-server:latest-amd64
+      - noelware/charted-server:{{ .Version }}-amd64
+      - noelware/charted-server:{{ .Major }}.{{ .Minor }}-amd64
+      - ghcr.io/charted-dev/charted:latest-amd64
+      - ghcr.io/charted-dev/charted:{{ .Version }}-amd64
+      - ghcr.io/charted-dev/charted:{{ .Major }}.{{ .Minor }}-amd64
+    ids:
+      - charted-server
+    goarch: amd64
+    build_flag_templates:
+      - --platform=linux/amd64
+      - --label=org.opencontainers.image.title={{ .ProjectName }}
+      - "--label=org.opencontainers.image.description=Free, open source, and reliable Helm Chart registry made in Go."
+      - --label=org.opencontainers.image.source=https://github.com/charted-dev/charted
+      - --label=org.opencontainers.image.version={{ .Version }}
+      - --label=org.opencontainers.image.created={{ .Date }}
+      - --label=org.opencontainers.image.revision={{ .FullCommit }}
+      - --label=org.opencontainers.image.licenses=MIT
+    dockerfile: goreleaser.Dockerfile
+    use: buildx
+    extra_files:
+      - docker/docker-entrypoint.sh
+      - docker/runner.sh
+      - docker/scripts/liblog.sh
+
+  - image_templates:
+      - noelware/charted-server:latest-arm64
+      - noelware/charted-server:{{ .Version }}-arm64
+      - noelware/charted-server:{{ .Major }}.{{ .Minor }}-arm64
+      - ghcr.io/charted-dev/charted:latest-arm64
+      - ghcr.io/charted-dev/charted:{{ .Version }}-arm64
+      - ghcr.io/charted-dev/charted:{{ .Major }}.{{ .Minor }}-arm64
+    ids:
+      - charted-server
+    goarch: arm64
+    goarm: ""
+    build_flag_templates:
+      - --platform=linux/arm64
+      - --label=org.opencontainers.image.title={{ .ProjectName }}
+      - "--label=org.opencontainers.image.description=Free, open source, and reliable Helm Chart registry made in Go."
+      - --label=org.opencontainers.image.source=https://github.com/charted-dev/charted
+      - --label=org.opencontainers.image.version={{ .Version }}
+      - --label=org.opencontainers.image.created={{ .Date }}
+      - --label=org.opencontainers.image.revision={{ .FullCommit }}
+      - --label=org.opencontainers.image.licenses=MIT
+    dockerfile: goreleaser.Dockerfile
+    use: buildx
+    extra_files:
+      - docker/docker-entrypoint.sh
+      - docker/runner.sh
+      - docker/scripts/liblog.sh
+
+  - image_templates:
+      - noelware/charted-server:latest-armv7
+      - noelware/charted-server:{{ .Version }}-armv7
+      - noelware/charted-server:{{ .Major }}.{{ .Minor }}-armv7
+      - ghcr.io/charted-dev/charted:latest-armv7
+      - ghcr.io/charted-dev/charted:{{ .Version }}-armv7
+      - ghcr.io/charted-dev/charted:{{ .Major }}.{{ .Minor }}-armv7
+    ids:
+      - charted-server
+    goarch: arm
+    goarm: "7"
+    build_flag_templates:
+      - --platform=linux/arm/v7
+      - --label=org.opencontainers.image.title={{ .ProjectName }}
+      - "--label=org.opencontainers.image.description=Free, open source, and reliable Helm Chart registry made in Go."
+      - --label=org.opencontainers.image.source=https://github.com/charted-dev/charted
+      - --label=org.opencontainers.image.version={{ .Version }}
+      - --label=org.opencontainers.image.created={{ .Date }}
+      - --label=org.opencontainers.image.revision={{ .FullCommit }}
+      - --label=org.opencontainers.image.licenses=MIT
+    dockerfile: goreleaser.Dockerfile
+    use: buildx
+    extra_files:
+      - docker/docker-entrypoint.sh
+      - docker/runner.sh
+      - docker/scripts/liblog.sh
+
+docker_manifests:
+  - name_template: noelware/charted-server:{{ .Version }}
+    image_templates:
+      - noelware/charted-server:{{ .Version }}-amd64
+      - noelware/charted-server:{{ .Version }}-arm64
+      - noelware/charted-server:{{ .Version }}-armv7
+
+  - name_template: ghcr.io/charted-dev/charted:{{ .Version }}
+    image_templates:
+      - ghcr.io/charted-dev/charted:{{ .Version }}-amd64
+      - ghcr.io/charted-dev/charted:{{ .Version }}-arm64
+      - ghcr.io/charted-dev/charted:{{ .Version }}-armv7
+
+  - name_template: noelware/charted-server:{{ .Major }}.{{ .Minor }}
+    image_templates:
+      - noelware/charted-server:{{ .Major }}.{{ .Minor }}-amd64
+      - noelware/charted-server:{{ .Major }}.{{ .Minor }}-arm64
+      - noelware/charted-server:{{ .Major }}.{{ .Minor }}-armv7
+
+  - name_template: ghcr.io/charted-dev/charted:{{ .Major }}.{{ .Minor }}
+    image_templates:
+      - ghcr.io/charted-dev/charted:{{ .Major }}.{{ .Minor }}-amd64
+      - ghcr.io/charted-dev/charted:{{ .Major }}.{{ .Minor }}-arm64
+      - ghcr.io/charted-dev/charted:{{ .Major }}.{{ .Minor }}-armv7
+
+  - name_template: noelware/charted-server:latest
+    image_templates:
+      - noelware/charted-server:latest-amd64
+      - noelware/charted-server:latest-arm64
+      - noelware/charted-server:latest-armv7
+
+  - name_template: ghcr.io/charted-dev/charted:latest
+    image_templates:
+      - ghcr.io/charted-dev/charted:latest-amd64
+      - ghcr.io/charted-dev/charted:latest-arm64
+      - gghcr.io/charted-dev/charted:latest-armv7
+
+archives:
+  - id: default
+    builds:
+      - charted_server
+    format_overrides:
+      - goos: windows
+        format: zip
+    replacements:
+      windows: Windows
+      darwin: Darwin
+      386: i386
+      amd64: x86_64
+
+brews:
+  - goarm: "6"
+    tap:
+      owner: Noelware
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    commit_author:
+      name: "Noel"
+      email: "cutie@floofy.dev"
+    homepage: https://github.com/charted-dev/charted
+    description: Free, open source, and reliable Helm Chart registry made in Go.
+    commit_msg_template: "update: {{ .ProjectName }} to v{{ .Version }} :sparkles:"
+
+signs:
+  - artifacts: checksum
+
+checksum:
+  name_template: "checksums.txt"
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-SNAPSHOT"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+release:
+  github:
+    owner: charted-dev
+    name: charted

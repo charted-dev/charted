@@ -1,0 +1,14 @@
+{
+  "name": "charted-server",
+  "dockerComposeFile": "./docker-compose.yml",
+  "service": "workspace",
+  "workspaceFolder": "/workspace",
+  "extensions": [
+    "dbaeumer.vscode-eslint"
+  ],
+  "forwardPorts": [
+    80,
+    443,
+    3939
+  ]
+}
