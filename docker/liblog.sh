@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Go.
 # Copyright 2022 Noelware <team@noelware.org>
 #
@@ -13,29 +15,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This is for Gitpod support for charted-server.
+BLUE='\033[38;2;81;81;140m'
+GREEN='\033[38;2;165;204;165m'
+PINK='\033[38;2;241;204;209m'
+RESET='\033[0m'
+BOLD='\033[1m'
+UNDERLINE='\033[4m'
 
-ports:
-  # By default, charted-server runs on `0.0.0.0:3939`
-  - port: 3939
-    onOpen: ignore
+info() {
+  timestamp=$(date +"%D ~ %r")
+  printf "%b\\n" "${GREEN}${BOLD}info${RESET}  | ${PINK}${BOLD}${timestamp}${RESET} ~ $1"
+}
 
-# Tasks to run
-tasks:
-  - init: make deps && make build
-    command: chmod +x ./docker/gitpod/welcome.sh && ./docker/gitpod/welcome.sh
-    
-# Common extensions needed for Visual Studio Code :)
-vscode:
-  extensions:
-    - golang.go
+debug() {
+  local debug="${TSUBAKI_DEBUG:-false}"
+  shopt -s nocasematch
+  timestamp=$(date +"%D ~%r")
 
-# Adds GitHub support
-github:
-  prebuilds:
-    master: true
-    branches: true
-    pullRequests: true
-    pullRequestsFromForks: true
-    addCheck: true
-    addComment: true
+  if ! [[ "$debug" = "1" || "$debug" =~ ^(no|false)$ ]]; then
+    printf "%b\\n" "${BLUE}${BOLD}debug${RESET} | ${PINK}${BOLD}${timestamp}${RESET} ~ $1"
+  fi
+}

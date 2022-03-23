@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Go.
 # Copyright 2022 Noelware <team@noelware.org>
 #
@@ -13,29 +15,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This is for Gitpod support for charted-server.
+PINK='\033[38;2;241;204;209m'
+RESET='\033[0m'
+BOLD='\033[1m'
 
-ports:
-  # By default, charted-server runs on `0.0.0.0:3939`
-  - port: 3939
-    onOpen: ignore
+log() {
+    local timestamp=$(date +"%D - %r")
+    printf '%b\\n' "${PINK}${timestamp}${RESET} ==> $1"
+}
 
-# Tasks to run
-tasks:
-  - init: make deps && make build
-    command: chmod +x ./docker/gitpod/welcome.sh && ./docker/gitpod/welcome.sh
-    
-# Common extensions needed for Visual Studio Code :)
-vscode:
-  extensions:
-    - golang.go
-
-# Adds GitHub support
-github:
-  prebuilds:
-    master: true
-    branches: true
-    pullRequests: true
-    pullRequestsFromForks: true
-    addCheck: true
-    addComment: true
+info "Welcome to the ${BOLD}charted-server${RESET} Gitpod container!"
+info "   To run ${BOLD}charted-server${RESET}, run \`make build\` to create a local binary,"
+info "   Run \`./bin/charted-server generate\` to create a configuration file,"
+info "   Run \`./bin/charted-server -c ./config.yoml\` to run the server. :)"
+info ""
+info "  Happy coding or contributing!"
+info "~ Noelware"

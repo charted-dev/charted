@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Go.
 # Copyright 2022 Noelware <team@noelware.org>
 #
@@ -13,29 +15,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This is for Gitpod support for charted-server.
+set -o errexit
+set -o nounset
+set -o pipefail
 
-ports:
-  # By default, charted-server runs on `0.0.0.0:3939`
-  - port: 3939
-    onOpen: ignore
+. /app/noelware/charted/server/scripts/liblog.sh
 
-# Tasks to run
-tasks:
-  - init: make deps && make build
-    command: chmod +x ./docker/gitpod/welcome.sh && ./docker/gitpod/welcome.sh
-    
-# Common extensions needed for Visual Studio Code :)
-vscode:
-  extensions:
-    - golang.go
-
-# Adds GitHub support
-github:
-  prebuilds:
-    master: true
-    branches: true
-    pullRequests: true
-    pullRequestsFromForks: true
-    addCheck: true
-    addComment: true
+info "*** starting charted-server! ***"
+exec "/app/noelware/charted/server/charted-server"
