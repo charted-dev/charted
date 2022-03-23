@@ -50,7 +50,7 @@ deps: ## Updates the dependency tree
 .PHONY: build
 build: ## Builds `charted-server` into a binary in ./bin/charted-server
 	@echo Now building charted-server for platform $(GOOS)/$(GOARCH)!
-	go build -ldflags "-s -w -X noelware.org/charted/server/internal.Version=${VERSION} -X noelware.org/charted/server/internal.CommitSHA=${GIT_COMMIT} -x \"noelware.org/charted/server/internal.BuildDate=${BUILD_DATE}\"" -o ./bin/charted-server$(EXTENSION)
+	go build -ldflags "-s -w -X noelware.org/charted/server/internal.Version=${VERSION} -X noelware.org/charted/server/internal.CommitSHA=${GIT_COMMIT} -X \"noelware.org/charted/server/internal.BuildDate=${BUILD_DATE}\"" -o ./bin/charted-server$(EXTENSION)
 	@echo Successfully built charted-server! Use './bin/charted-server$(EXTENSION) -c ./config.toml' to run the server.
 
 # Usage: `make clean`

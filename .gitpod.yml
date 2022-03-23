@@ -22,8 +22,7 @@ ports:
 
 # Tasks to run
 tasks:
-  - init: go get && go build ./... && make build
-    command: go run
+  - init: make deps && make build
     
 # Common extensions needed for Visual Studio Code :)
 vscode:
