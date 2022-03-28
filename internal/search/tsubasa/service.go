@@ -14,3 +14,7 @@
 // limitations under the License.
 
 package tsubasa
+
+type Config struct{}
+
+type Service struct{}

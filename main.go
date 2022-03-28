@@ -15,8 +15,11 @@
 
 package main
 
-import "github.com/sirupsen/logrus"
+import (
+	"noelware.org/charted/server/cmd/charted"
+	"os"
+)
 
 func main() {
-	logrus.Info("Hello, world!")
+	os.Exit(charted.Execute())
 }

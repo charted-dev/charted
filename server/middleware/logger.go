@@ -14,3 +14,31 @@
 // limitations under the License.
 
 package middleware
+
+import (
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/sirupsen/logrus"
+	"net/http"
+	"noelware.org/charted/server/util"
+	"time"
+)
+
+func Log(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		s := time.Now()
+		ww := middleware.NewWrapResponseWriter(w, req.ProtoMajor)
+		next.ServeHTTP(ww, req)
+
+		code := util.GetStatusCode(ww.Status())
+		logrus.Infof("[%s] %s %s HTTP/%s => %d %s (%s | %d bytes [%s])",
+			req.RemoteAddr,
+			req.Method,
+			req.URL.EscapedPath(),
+			req.Proto,
+			ww.Status(),
+			code,
+			req.Header.Get("User-Agent"),
+			ww.BytesWritten(),
+			time.Since(s).String())
+	})
+}

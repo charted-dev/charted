@@ -14,3 +14,22 @@
 // limitations under the License.
 
 package charted
+
+import "github.com/spf13/cobra"
+
+func newPingCommand() *cobra.Command {
+	var configPath string
+
+	cmd := &cobra.Command{
+		Use:           "ping",
+		Short:         "Pings the server to check if its alive.",
+		SilenceUsage:  true,
+		SilenceErrors: true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return nil
+		},
+	}
+
+	cmd.Flags().StringVarP(&configPath, "config.path", "c", "", "Returns the configuration to use.")
+	return cmd
+}

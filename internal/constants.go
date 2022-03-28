@@ -36,5 +36,5 @@ var (
 	//
 	// This is automatically populated in `make build`, which is the
 	// recommended way to build charted-server from the repository.
-	BuildDate = "???"
+	BuildDate = ""
 )

@@ -121,7 +121,7 @@ func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 		}
 	}
 
-	b.WriteString("::")
+	b.WriteString(":: ")
 	b.WriteString(strings.TrimSpace(entry.Message))
 	b.WriteByte('\n')
 

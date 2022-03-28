@@ -13,4 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package routes
+package util
+
+import (
+	"encoding/hex"
+	"math/rand"
+)
+
+func GenerateHash(length int) string {
+	data := make([]byte, length)
+	if _, err := rand.Read(data); err != nil {
+		return ""
+	}
+
+	return hex.EncodeToString(data)
+}

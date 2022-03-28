@@ -14,3 +14,10 @@
 // limitations under the License.
 
 package s3
+
+// Config represents the configuration to use Amazon S3, or any
+// S3-compliant servers for storage.
+type Config struct{}
+
+// Trailer represents the trailer unit to use S3.
+type Trailer struct{}

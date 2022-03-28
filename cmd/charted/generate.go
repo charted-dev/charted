@@ -14,3 +14,90 @@
 // limitations under the License.
 
 package charted
+
+import (
+	"bytes"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"text/template"
+	"time"
+
+	"github.com/spf13/cobra"
+)
+
+var DEFAULT_CONFIG = `
+# The default configuration for {{.ServiceName}}
+# This was generated at {{.CurrentDate}}!
+
+# Returns the PostgreSQL database for the main database of {{.ServiceName}}.
+[database]
+username = "postgres"
+password = "postgres"
+schema = "public"
+port = 5432
+host = "localhost"
+db = "charted_server"
+
+# Returns the Redis configuration for {{.ServiceName}}.
+[redis]
+port = 6379
+host = "localhost"
+
+# Enables search on the server-side of {{.ServiceName}}. The /search endpoint
+# will be available.
+[search]
+enabled = false
+
+# Enables the filesystem storage trailer to store repositories.
+[storage.fs]
+directory = "./.charted/data"
+`
+
+func newGenerateCommand() *cobra.Command {
+	return &cobra.Command{
+		Use:           "generate [DIRECTORY]",
+		Short:         "Generates a configuration file in the working directory or a specified directory.",
+		SilenceErrors: true,
+		SilenceUsage:  true,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cwd, err := os.Getwd()
+
+			if len(args) == 1 {
+				cwd = args[0]
+			} else {
+				if err != nil {
+					fmt.Printf("Unable to get the working directory: %s\n", err)
+					return err
+				}
+			}
+
+			tmpl := template.New("charted-server-config")
+			b := &bytes.Buffer{}
+
+			tmpl, err = tmpl.Parse(DEFAULT_CONFIG)
+			if err != nil {
+				fmt.Printf("Unable to run tmpl.Parse(string): %s\n", err)
+			}
+
+			if err := tmpl.Execute(b, struct {
+				ServiceName string
+				CurrentDate string
+			}{
+				ServiceName: "charted-server",
+				CurrentDate: time.Now().Format("Jan 02, 2006 - 15:04:05 MST"),
+			}); err != nil {
+				fmt.Printf("Unable to run tmpl.Execute(*io.Reader, interface{}): %s\n", err)
+				return err
+			}
+
+			if err := ioutil.WriteFile(fmt.Sprintf("%s/config.toml", cwd), b.Bytes(), 0o666); err != nil {
+				fmt.Printf("Unable to write file '%s': %s\n", fmt.Sprintf("%s/config.toml", cwd), err)
+				return err
+			} else {
+				fmt.Printf("Wrote default configuration in '%s'!\n", fmt.Sprintf("%s/config.toml", cwd))
+				return nil
+			}
+		},
+	}
+}

@@ -14,3 +14,56 @@
 // limitations under the License.
 
 package middleware
+
+import (
+	"crypto/subtle"
+	"net/http"
+	"noelware.org/charted/server/internal"
+	"noelware.org/charted/server/internal/result"
+)
+
+func BasicAuth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		// Check if there is basic authentication enabled
+		if internal.GlobalContainer.Config.Username != nil && internal.GlobalContainer.Config.Password != nil {
+			u := internal.GlobalContainer.Config.Username
+			p := internal.GlobalContainer.Config.Password
+
+			// If there is an Authorization token, let's skip it
+			auth := req.Header.Get("Authorization")
+			if auth != "" {
+				next.ServeHTTP(w, req)
+				return
+			}
+
+			user, pass, ok := req.BasicAuth()
+			if !ok {
+				w.Header().Add("WWW-Authenticate", `Basic realm="Noelware/charted-server"`)
+
+				res := result.Err(http.StatusUnauthorized, "UNABLE_TO_OBTAIN", "Couldn't authenticate due to server being secured by basic auth.")
+				res.Write(w)
+				return
+			}
+
+			if user != *u {
+				w.Header().Add("WWW-Authenticate", `Basic realm="Noelware/charted-server"`)
+
+				res := result.Err(http.StatusUnauthorized, "INVALID_USERNAME", "Invalid username.")
+				res.Write(w)
+				return
+			}
+
+			if subtle.ConstantTimeCompare([]byte(*p), []byte(pass)) != 1 {
+				w.Header().Add("WWW-Authenticate", `Basic realm="Noelware/charted-server"`)
+
+				res := result.Err(http.StatusUnauthorized, "INVALID_PASSWORD", "Invalid password.")
+				res.Write(w)
+				return
+			}
+
+			next.ServeHTTP(w, req)
+		} else {
+			next.ServeHTTP(w, req)
+		}
+	})
+}

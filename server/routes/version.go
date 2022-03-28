@@ -14,3 +14,36 @@
 // limitations under the License.
 
 package routes
+
+import (
+	"github.com/go-chi/chi/v5"
+	"net/http"
+	"noelware.org/charted/server/internal"
+	"noelware.org/charted/server/internal/result"
+	"time"
+)
+
+func NewVersionRouter() chi.Router {
+	router := chi.NewRouter()
+	router.Get("/", func(w http.ResponseWriter, req *http.Request) {
+		flavour := "git"
+		buildDate, _ := time.Parse(time.RFC3339, internal.BuildDate)
+
+		if internal.Docker() {
+			flavour = "docker"
+		}
+
+		res := result.Ok(map[string]any{
+			"version":    internal.Version,
+			"commit_sha": internal.CommitSHA,
+			"build": map[string]any{
+				"date":    buildDate.Format(time.RFC1123),
+				"flavour": flavour,
+			},
+		})
+
+		res.Write(w)
+	})
+
+	return router
+}
