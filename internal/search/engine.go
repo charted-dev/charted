@@ -14,3 +14,35 @@
 // limitations under the License.
 
 package search
+
+// Result represents the result of Engine.Search
+type Result struct {
+	// RequestTimeProcessing returns an int64 of how long it took
+	// to process the request.
+	RequestTimeProcessing int64 `json:"request_time_ms"`
+
+	// ServiceTimeProcessing returns an int64 of how long the service
+	// took to process the request, this is from the service request
+	// body itself, can return -1 if it doesn't support it.
+	ServiceTimeProcessing int64 `json:"service_time_ms"`
+
+	// MaxScore returns the max score of the search itself, this can
+	// be nil if it doesn't support it. This is only in the Elasticsearch
+	// and Tsubasa engines only.
+	MaxScore *int32 `json:"max_score,omitempty"`
+
+	// TotalHits returns how many hits in total from the request body itself.
+	TotalHits int64 `json:"total_hits,omitempty"`
+
+	// Data represents the raw data that came from the service.
+	Data []any `json:"data"`
+}
+
+// Engine is the blueprint to use to implement the search engines.
+type Engine interface {
+	// Search searches through the engine and returns a tuple of []any and error.
+	Search(index string, query string, options ...OptionFunc) (*Result, error)
+
+	// Type returns the EngineType of this Engine.
+	Type() EngineType
+}

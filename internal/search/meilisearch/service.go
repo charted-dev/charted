@@ -14,3 +14,99 @@
 // limitations under the License.
 
 package meilisearch
+
+import (
+	"github.com/meilisearch/meilisearch-go"
+	"github.com/sirupsen/logrus"
+	"github.com/valyala/fasthttp"
+	"noelware.org/charted/server/internal/search"
+	"time"
+)
+
+// Service represents the service for Meilisearch which implements search.Engine
+type Service struct {
+	config *Config
+	client *meilisearch.Client
+}
+
+// Config represents the configuration details for the 'search.meili' config table.
+type Config struct {
+	// MasterKey is the master key if registered on the server.
+	MasterKey *string `toml:"master_key"`
+
+	// Endpoint is the endpoint to Meilisearch.
+	Endpoint string `toml:"endpoint"`
+}
+
+func NewService(config *Config) search.Engine {
+	cfg := meilisearch.ClientConfig{
+		Host: config.Endpoint,
+	}
+
+	if config.MasterKey != nil {
+		cfg.APIKey = *config.MasterKey
+	}
+
+	http := &fasthttp.Client{
+		Name: "charted/meilisearch",
+	}
+
+	client := meilisearch.NewFastHTTPCustomClient(cfg, http)
+	service := Service{config, client}
+	service.createIndexes()
+
+	res, err := client.Version()
+	if err != nil {
+		logrus.Fatalf("Unable to retrieve server version from Meilisearch because: %s", err)
+	}
+
+	logrus.Debugf("Using v%s (commit=%s, build-date=%s) of Meilisearch!",
+		res.PkgVersion,
+		res.CommitSha,
+		res.CommitDate)
+
+	return service
+}
+
+func (s Service) createIndexes() {
+	logrus.Debug("Now creating indexes...")
+}
+
+func (s Service) Type() search.EngineType {
+	return search.Meili
+}
+
+func (s Service) Search(index string, query string, options ...search.OptionFunc) (*search.Result, error) {
+	logrus.Debugf("Now searching query %s on index %s...", query, index)
+
+	optionsObj := &search.Options{}
+	for _, override := range options {
+		override(optionsObj)
+	}
+
+	idx := s.client.Index(index)
+	searchOptions := &meilisearch.SearchRequest{}
+
+	if optionsObj.Offset != 0 {
+		searchOptions.Offset = optionsObj.Offset
+	}
+
+	if optionsObj.Limit != 0 {
+		searchOptions.Limit = optionsObj.Limit
+	}
+
+	t := time.Now()
+	res, err := idx.Search(query, searchOptions)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &search.Result{
+		RequestTimeProcessing: time.Since(t).Milliseconds(),
+		ServiceTimeProcessing: res.ProcessingTimeMs,
+		TotalHits:             res.NbHits,
+		MaxScore:              nil,
+		Data:                  res.Hits,
+	}, nil
+}

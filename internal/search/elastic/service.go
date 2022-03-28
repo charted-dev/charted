@@ -14,3 +14,7 @@
 // limitations under the License.
 
 package elastic
+
+// Config represents the Elasticsearch cluster configuration
+// to connect to.
+type Config struct{}

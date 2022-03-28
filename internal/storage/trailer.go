@@ -14,3 +14,26 @@
 // limitations under the License.
 
 package storage
+
+type BaseStorageTrailer interface {
+	// HandleUpload is the function to handle file uploads in this BaseStorageTrailer.
+	//
+	// @param [storage.UploadRequest] files :: Represents the files to upload that
+	// was calculated on the request.
+	//
+	// @returns [error] :: Returns an error if anything occurred or `nil`.
+	HandleUpload(files []UploadRequest) error
+
+	// GetMetadata is the function to return the repository's metadata
+	// on the trailer itself.
+	//
+	// @param [string] ownerId :: The owner's ID that is used to retrieve.
+	//
+	// @param [string] repoId  :: The repository ID that is used to retrieve it.
+	//
+	// @returns [(*storage.RepositoryMetadata, error)] :: Returns the repository metadata
+	// as a pointer or an `error` as a tuple if anything goes wrong.
+	GetMetadata(ownerId string, repoId string) (*RepositoryMetadata, error)
+	Init()
+	Name() string
+}

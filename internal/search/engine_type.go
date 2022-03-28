@@ -14,3 +14,79 @@
 // limitations under the License.
 
 package search
+
+import "errors"
+
+// EngineType represents the engine type that the Engine is representing.
+type EngineType string
+
+var (
+	// Elasticsearch is the Elastic engine, to use a purified Elastic cluster
+	// to perform search.
+	Elasticsearch EngineType = "elastic"
+
+	// Unknown is a mystery. Good luck.
+	Unknown EngineType = "?"
+
+	// Tsubasa is the engine to use Noel's Tsubasa microservice that abstracts
+	// using Elasticsearch for search.
+	Tsubasa EngineType = "tsubasa"
+
+	// Meili is the Meilisearch engine, to use a Meilisearch instance
+	// rather than Elasticsearch.
+	Meili EngineType = "meili"
+)
+
+// AllEngines represents all the engine types available.
+var AllEngines = []EngineType{Elasticsearch, Tsubasa, Meili}
+
+// DetermineEngineType determines the EngineType of a string.
+func DetermineEngineType(e string) EngineType {
+	for _, engine := range AllEngines {
+		if engine.String() == e {
+			return engine
+		}
+	}
+
+	return Unknown
+}
+
+// String stringifies the EngineType.
+func (e EngineType) String() string {
+	switch e {
+	case Elasticsearch:
+		return "elastic"
+
+	case Tsubasa:
+		return "tsubasa"
+
+	case Meili:
+		return "meili"
+
+	case Unknown:
+		return "?"
+
+	default:
+		return "?"
+	}
+}
+
+func (e EngineType) MarshalJSON() ([]byte, error) {
+	item := e.String()
+	if item == "?" {
+		return nil, errors.New("engine type was not correctly defined :(")
+	}
+
+	return []byte(item), nil
+}
+
+func (e EngineType) UnmarshalJSON(data []byte) error {
+	item := string(data)
+	engineType := DetermineEngineType(item)
+
+	if engineType == Unknown {
+		return errors.New("unable to unmarshal Unknown engine type :(")
+	} else {
+		return nil
+	}
+}
