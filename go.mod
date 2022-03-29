@@ -15,7 +15,7 @@ require (
 	github.com/spf13/cobra v1.4.0
 	github.com/uptrace/bun v1.1.3
 	github.com/uptrace/bun/dialect/pgdialect v1.1.3
-	github.com/uptrace/bun/driver/pgdriver v1.1.2
+	github.com/uptrace/bun/driver/pgdriver v1.1.3
 	github.com/valyala/fasthttp v1.34.0
 )
 
