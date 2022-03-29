@@ -73,6 +73,8 @@ github.com/uptrace/bun/dialect/pgdialect v1.1.3 h1:EMRCC98YKSpo/EXyujsr+5v0PKYkR
 github.com/uptrace/bun/dialect/pgdialect v1.1.3/go.mod h1:2GJogfkVHmCKxt6N88vRbJNSUV5wfPym/rp6N25dShc=
 github.com/uptrace/bun/driver/pgdriver v1.1.2 h1:vKr60gVsIr5ICazUyVS3nbiWMd2TgyvDDxhrsIcSTlI=
 github.com/uptrace/bun/driver/pgdriver v1.1.2/go.mod h1:fe1IeZCaY0VPV4s2J4k38HlO77fwcZdBpC58YhiDHqg=
+github.com/uptrace/bun/driver/pgdriver v1.1.3 h1:WWxEfGnJQCXgODtjU37E+XWEVvCGwvs2fRgCYFqmKAY=
+github.com/uptrace/bun/driver/pgdriver v1.1.3/go.mod h1:D7tTNXLIR9udcf/Dm9W+x1qvY+GDCkYVIRLgQyMElCY=
 github.com/valyala/bytebufferpool v1.0.0 h1:GqA5TC/0021Y/b9FG4Oi9Mr3q7XYx6KllzawFIhcdPw=
 github.com/valyala/bytebufferpool v1.0.0/go.mod h1:6bBcMArwyJ5K/AmCkWv1jt77kVWyCJ6HpOuEn7z0Csc=
 github.com/valyala/fasthttp v1.34.0 h1:d3AAQJ2DRcxJYHm7OXNXtXt2as1vMDfxeIcFvhmGGm4=
