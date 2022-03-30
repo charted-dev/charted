@@ -38,6 +38,8 @@ github.com/meilisearch/meilisearch-go v0.19.0 h1:F/Jwdemv3ne/a/4WgLYLrMsLC+NLuKM
 github.com/meilisearch/meilisearch-go v0.19.0/go.mod h1:amwaVsKaNt5pXWNHLNv2Z6x+kWiTqQnmS1+oyHGomQY=
 github.com/noelware/chi-ratelimit v0.0.1 h1:WQuRSf3Hlo2RfW8LHhqpUSKfa6kmBn/dCQb4eZM2QSM=
 github.com/noelware/chi-ratelimit v0.0.1/go.mod h1:LzBw6OpgGZZi1LL4X6dAH+yVyvWylpz9xuXAZrUItmM=
+github.com/noelware/chi-ratelimit v0.0.2 h1:Uye5JEHlEd2Krx1Ze+KzUWip7nukGIUyckyvo14+ijs=
+github.com/noelware/chi-ratelimit v0.0.2/go.mod h1:LzBw6OpgGZZi1LL4X6dAH+yVyvWylpz9xuXAZrUItmM=
 github.com/nxadm/tail v1.4.8 h1:nPr65rt6Y5JFSKQO7qToXr7pePgD6Gwiw05lkbyAQTE=
 github.com/onsi/ginkgo v1.16.5 h1:8xi0RTUf59SOSfEtZMvwTvXYMzG4gV23XVHOZiXNtnE=
 github.com/onsi/gomega v1.18.1 h1:M1GfJqGRrBrrGGsbxzV5dqM2U2ApXefZCQpkukxYRLE=
