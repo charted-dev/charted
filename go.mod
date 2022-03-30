@@ -9,7 +9,7 @@ require (
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/meilisearch/meilisearch-go v0.19.0
-	github.com/noelware/chi-ratelimit v0.0.1
+	github.com/noelware/chi-ratelimit v0.0.2
 	github.com/pelletier/go-toml/v2 v2.0.0-beta.6
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.4.0
