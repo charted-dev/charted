@@ -13,28 +13,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package routes
+package noop
 
-import (
-	"net/http"
+import "noelware.org/charted/server/internal/search"
 
-	"github.com/go-chi/chi/v5"
-	"noelware.org/charted/server/internal/result"
-	v1 "noelware.org/charted/server/server/routes/api/v1"
-)
+type noopEngine struct{}
 
-func NewMainRouter() chi.Router {
-	router := chi.NewRouter()
+func New() search.Engine {
+	return &noopEngine{}
+}
 
-	router.Mount("/users", v1.NewUsersRouter())
-	router.Get("/", func(w http.ResponseWriter, req *http.Request) {
-		res := result.Ok(map[string]any{
-			"message":  "hello world!",
-			"docs_url": "https://charts.noelware.org/docs",
-		})
+func (*noopEngine) Type() search.EngineType {
+	return search.Unknown
+}
 
-		res.Write(w)
-	})
-
-	return router
+func (*noopEngine) Search(_ string, _ string, _ ...search.OptionFunc) (*search.Result, error) {
+	return nil, nil
 }

@@ -36,8 +36,15 @@ endif
 
 # Usage: `make help`
 .PHONY: help
-help: ## Prints this help usage on how to build `charted-server`
-    @awk 'BEGIN {FS = ":.*##"; printf "Usage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
+help: ## Prints the help usage on the charted-server toolchain.
+	@printf "\033[34m────────────────────────────────────────────────────────────────────────────────────────────\033[0m\n"
+	@printf "This is the help command for building charted-server. To get started, run 'make build' to\n"
+	@printf "begin the build process. You can also generate the database models using 'make db.generate'"
+	@printf "\n"
+	@printf "\n:: Usage ::\n"
+	@printf "make <target> [VARIABLE=value]\n"
+	@printf "\n:: Targets ::\n"
+	@awk 'BEGIN {FS = ":.*##"; } /^[a-zA-Z_-]+:.*?##/ { printf "  make \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 25) } ' $(MAKEFILE_LIST)
 
 # Usage: `make deps`
 .PHONY: deps
@@ -62,5 +69,24 @@ clean: ## Cleans any build artifacts
 	@echo Done!
 
 # Usage: `make fmt`
+.PHONY: fmt
 fmt: ## Formats the project using `go fmt`.
 	go fmt
+
+# Usage: `make db.migrate NAME=...`
+.PHONY: db.migrate
+db.migrate: ## Migrates the database into PostgreSQL
+	@echo Migrating database for development...
+	go run github.com/prisma/prisma-client-go migrate dev --name=$(NAME)
+
+# Usage: `make db.fmt`
+.PHONY: db.fmt
+db.fmt: ## Formats the schema.prisma file
+	@echo Formatting Prisma schema...
+	go run github.com/prisma/prisma-client-go format
+
+# Usage: `make db.generate`
+.PHONY: db.generate
+db.generate: ## Generates the ORM to be used.
+	@echo Generating Prisma artifacts...
+	go run github.com/prisma/prisma-client-go generate

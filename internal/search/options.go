@@ -17,10 +17,11 @@ package search
 
 // Options represents the options that are supposed to be supported in Engine.Search
 type Options struct {
-	// fuzzy represents that it's a fuzzy search rather than a "match all"
-	// operation. Only supported in the Elastic or Tsubasa engines; will silently
-	// fail in the Meilisearch engine.
-	Fuzzy bool
+	// ~ + ~ these options are only supported in ES/Tsubasa engines + ~ + \\
+	// ~ + ~     this will silently fail in Meilisearch engines!    + ~ + \\
+
+	Fuzzy      bool
+	WithClause string
 
 	// ~ + ~ these options are only supported in Meilisearch + ~ + \\
 	// ~ + ~   this will silenty fail in ES/Tsubasa engines  +  ~ + \\
@@ -46,5 +47,11 @@ func WithOffset(offset int64) OptionFunc {
 func WithLimit(limit int64) OptionFunc {
 	return func(o *Options) {
 		o.Limit = limit
+	}
+}
+
+func WithClase(clause string) OptionFunc {
+	return func(o *Options) {
+		o.WithClause = clause
 	}
 }

@@ -1,0 +1,67 @@
+// 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Go.
+// Copyright 2022 Noelware <team@noelware.org>
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+datasource owo {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "go run github.com/prisma/prisma-client-go"
+}
+
+model Users {
+  repositories  Repositories[]
+  connections   UserConnections?
+  gravatarEmail String?          @map("gravatar_email")
+  description   String?
+  avatarUrl     String?
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+  createdAt     DateTime         @default(now()) @map("created_at")
+  username      String           @unique
+  password      String
+  email         String           @unique
+  flags         Int              @default(0)
+  name          String?
+  id            String           @id
+
+  @@map("users")
+}
+
+model Repositories {
+  stargazersCount Int      @default(0) @map("stargazers_count")
+  downloadsCount  Int      @default(0) @map("downloads_count")
+  description     String?
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+  iconUrl         String?  @map("icon_url")
+  ownerId         String
+  owner           Users    @relation(fields: [ownerId], references: [id])
+  name            String
+  id              String   @id
+
+  @@map("repositories")
+}
+
+model UserConnections {
+  noelwareAccountId String? @unique @map("noelware_account_id")
+  googleAccountId   String? @unique @map("google_account_id")
+  appleAccountId    String? @unique @map("apple_account_id")
+  ownerId           String  @unique
+  owner             Users   @relation(fields: [ownerId], references: [id])
+  id                String  @id
+
+  @@map("user_connections")
+}

@@ -14,3 +14,73 @@
 // limitations under the License.
 
 package v1
+
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	"noelware.org/charted/server/internal/controllers"
+	"noelware.org/charted/server/internal/result"
+	"noelware.org/charted/server/util"
+)
+
+func NewUsersRouter() chi.Router {
+	router := chi.NewRouter()
+	controller := controllers.UserController{}
+
+	router.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
+		res := controller.Get(id)
+
+		res.Write(w)
+	})
+
+	router.Put("/", func(w http.ResponseWriter, r *http.Request) {
+		statusCode, data, err := util.GetJsonBody(r)
+		if err != nil {
+			res := result.Err(statusCode, "INVALID_JSON_PAYLOAD", fmt.Sprintf("Unable to decode JSON payload: %s", err))
+			res.Write(w)
+
+			return
+		}
+
+		username, ok := data["username"].(string)
+		if !ok {
+			result.Err(
+				406,
+				"MISSING_IDENTIFIER",
+				"You are missing a required body parameter: `username` -> String",
+			).Write(w)
+
+			return
+		}
+
+		email, ok := data["email"].(string)
+		if !ok {
+			result.Err(
+				406,
+				"MISSING_IDENTIFIER",
+				"You are missing a required body parameter: `email` -> String",
+			).Write(w)
+
+			return
+		}
+
+		password, ok := data["password"].(string)
+		if !ok {
+			result.Err(
+				406,
+				"MISSING_IDENTIFIER",
+				"You are missing a required body parameter: `password` -> String",
+			).Write(w)
+
+			return
+		}
+
+		res := controller.Create(username, password, email)
+		res.Write(w)
+	})
+
+	return router
+}

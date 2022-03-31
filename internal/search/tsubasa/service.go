@@ -15,6 +15,14 @@
 
 package tsubasa
 
-type Config struct{}
+import "net/http"
 
-type Service struct{}
+// Config represents the Tsubasa configuration to use.
+type Config struct {
+	Password *string `toml:"password,omitempty"`
+	Username *string `toml:"username,omitempty"`
+}
+
+type Service struct {
+	client *http.Client
+}

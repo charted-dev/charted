@@ -29,7 +29,7 @@ type Result struct {
 	// MaxScore returns the max score of the search itself, this can
 	// be nil if it doesn't support it. This is only in the Elasticsearch
 	// and Tsubasa engines only.
-	MaxScore *int32 `json:"max_score,omitempty"`
+	MaxScore *float64 `json:"max_score,omitempty"`
 
 	// TotalHits returns how many hits in total from the request body itself.
 	TotalHits int64 `json:"total_hits,omitempty"`

@@ -14,3 +14,25 @@
 // limitations under the License.
 
 package v1
+
+import (
+	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	"noelware.org/charted/server/internal/result"
+)
+
+func NewApiV1Router() chi.Router {
+	router := chi.NewRouter()
+	router.Mount("/users", NewUsersRouter())
+	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		res := result.Ok(map[string]any{
+			"message":  "hello world",
+			"docs_url": "https://charts.noelware.org/docs/api/current",
+		})
+
+		res.Write(w)
+	})
+
+	return router
+}

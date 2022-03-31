@@ -16,9 +16,19 @@
 package main
 
 import (
-	"noelware.org/charted/server/cmd/charted"
 	"os"
+
+	"github.com/joho/godotenv"
+	"noelware.org/charted/server/cmd/charted"
 )
+
+func init() {
+	if _, err := os.Stat("./.env"); err == nil {
+		if err = godotenv.Load("./.env"); err != nil {
+			panic(err)
+		}
+	}
+}
 
 func main() {
 	os.Exit(charted.Execute())

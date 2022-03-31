@@ -16,11 +16,12 @@
 package middleware
 
 import (
+	"net/http"
+	"time"
+
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/sirupsen/logrus"
-	"net/http"
 	"noelware.org/charted/server/util"
-	"time"
 )
 
 func Log(next http.Handler) http.Handler {
@@ -30,15 +31,17 @@ func Log(next http.Handler) http.Handler {
 		next.ServeHTTP(ww, req)
 
 		code := util.GetStatusCode(ww.Status())
-		logrus.Infof("[%s] %s %s HTTP/%s => %d %s (%s | %d bytes [%s])",
-			req.RemoteAddr,
-			req.Method,
-			req.URL.EscapedPath(),
-			req.Proto,
-			ww.Status(),
-			code,
-			req.Header.Get("User-Agent"),
-			ww.BytesWritten(),
-			time.Since(s).String())
+		logrus.
+			WithField("remote-addr", req.RemoteAddr).
+			WithField("ua", req.Header.Get("User-Agent")).
+			Infof("%s %s HTTP/%s => %d %s (%d bytes written | %s)",
+				req.Method,
+				req.URL.EscapedPath(),
+				req.Proto,
+				ww.Status(),
+				code,
+				ww.BytesWritten(),
+				time.Since(s).String(),
+			)
 	})
 }

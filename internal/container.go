@@ -17,23 +17,24 @@ package internal
 
 import (
 	"context"
-	"crypto/tls"
-	"database/sql"
 	"errors"
 	"fmt"
+	"os"
+	"time"
+
 	"github.com/bwmarrin/snowflake"
 	"github.com/getsentry/sentry-go"
 	"github.com/go-redis/redis/v8"
 	ratelimit "github.com/noelware/chi-ratelimit"
-	"github.com/noelware/chi-ratelimit/providers/inmemory"
+	redisrl "github.com/noelware/chi-ratelimit-redis"
 	"github.com/sirupsen/logrus"
-	"github.com/uptrace/bun"
-	"github.com/uptrace/bun/dialect/pgdialect"
-	"github.com/uptrace/bun/driver/pgdriver"
 	"noelware.org/charted/server/internal/search"
+	"noelware.org/charted/server/internal/search/elastic"
+	"noelware.org/charted/server/internal/search/meilisearch"
+	"noelware.org/charted/server/internal/search/noop"
 	"noelware.org/charted/server/internal/storage"
 	"noelware.org/charted/server/internal/storage/filesystem"
-	"time"
+	"noelware.org/charted/server/prisma/db"
 )
 
 // GlobalContainer represents the global Container instance that is constructed using
@@ -42,10 +43,10 @@ var GlobalContainer *Container = nil
 
 type Container struct {
 	Ratelimiter *ratelimit.Ratelimiter
+	Database    *db.PrismaClient
 	Snowflake   *snowflake.Node
-	Database    *bun.DB
 	Storage     storage.BaseStorageTrailer
-	Search      *search.Engine
+	Search      search.Engine
 	Sentry      *sentry.Client
 	Redis       *redis.Client
 	Config      *Config
@@ -68,34 +69,9 @@ func NewContainer(config *Config) {
 		logrus.Fatalf("Unable to create Twitter Snowflake generator because: %s", err)
 	}
 
-	ctx, cancel1 := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel1()
-
-	logrus.Info("Connecting to PostgreSQL...")
-
-	opts := []pgdriver.Option{
-		pgdriver.WithNetwork("tcp"),
-		pgdriver.WithAddr(fmt.Sprintf("%s:%d", config.Database.Host, config.Database.Port)),
-		pgdriver.WithUser(config.Database.Username),
-		pgdriver.WithPassword(config.Database.Password),
-		pgdriver.WithDatabase(config.Database.Db),
-		pgdriver.WithApplicationName("charted_server"),
-		pgdriver.WithReadTimeout(15 * time.Second),
-		pgdriver.WithWriteTimeout(30 * time.Second),
-		pgdriver.WithTLSConfig(nil),
-	}
-
-	if config.Database.EnableTls {
-		opts = append(opts, pgdriver.WithTLSConfig(new(tls.Config)))
-	} else {
-		opts = append(opts, pgdriver.WithTLSConfig(nil))
-	}
-
-	conn := pgdriver.NewConnector(opts...)
-	sqldb := sql.OpenDB(conn)
-	db := bun.NewDB(sqldb, pgdialect.New())
-
-	if _, err := db.Conn(ctx); err != nil {
+	logrus.Info("Now connecting to PostgreSQL...")
+	prisma := db.NewClient()
+	if err := prisma.Connect(); err != nil {
 		logrus.Fatalf("Unable to connect to PostgreSQL: %s", err)
 	}
 
@@ -144,15 +120,22 @@ func NewContainer(config *Config) {
 		})
 	}
 
-	ctx2, cancel2 := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel2()
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
 
-	if err := redisClient.Ping(ctx2).Err(); err != nil {
+	if err := redisClient.Ping(ctx).Err(); err != nil {
 		logrus.Fatalf("Unable to connect to Redis: %s", err)
 	}
 
+	// the only error we'll get if the client is nil,
+	// which shouldn't be in this case >:(
+	redisProvider, _ := redisrl.New(
+		redisrl.WithClient(redisClient),
+		redisrl.WithKeyPrefix("charted:ratelimits"),
+	)
+
 	ratelimiter := ratelimit.NewRatelimiter(
-		ratelimit.WithProvider(inmemory.NewProvider()),
+		ratelimit.WithProvider(redisProvider),
 		ratelimit.WithDefaultLimit(1200))
 
 	logrus.Info("Connected to Redis! Creating storage trailer...")
@@ -188,13 +171,55 @@ func NewContainer(config *Config) {
 
 	logrus.Infof("Initialized the %s storage trailer!", trailer.Name())
 
+	service := noop.New()
+	if config.Search != nil {
+		logrus.Info("Search configuration was defined, now determining which one to use...")
+
+		if config.Search.Elastic != nil {
+			logrus.Info("Detected Elasticsearch configuration, now using!")
+
+			service = elastic.NewService(config.Search.Elastic)
+		}
+
+		if config.Search.Meili != nil {
+			logrus.Info("Detected Meilisearch configuration!")
+			service = meilisearch.NewService(config.Search.Meili)
+		}
+	}
+
+	if service.Type().String() != search.Unknown.String() {
+		logrus.Infof("Initialized the %s search engine!", service.Type())
+	}
+
+	var sentryClient *sentry.Client
+	if config.SentryDSN != nil {
+		logrus.Infof("Sentry DSN was provided, now installing...")
+		hostName, err := os.Hostname()
+		if err != nil {
+			hostName = "localhost"
+		}
+
+		client, err := sentry.NewClient(sentry.ClientOptions{
+			Dsn:              *config.SentryDSN,
+			AttachStacktrace: true,
+			SampleRate:       1.0,
+			ServerName:       fmt.Sprintf("noelware.charted_server v%s @ %s", Version, hostName),
+		})
+
+		if err != nil {
+			logrus.Fatalf("Unable to initialize Sentry: %s", err)
+		}
+
+		sentryClient = client
+	}
+
 	container := &Container{
 		Ratelimiter: ratelimiter,
+		Database:    prisma,
 		Snowflake:   node,
-		Database:    db,
 		Storage:     trailer,
-		Search:      nil,
-		Sentry:      nil,
+		Search:      service,
+		Sentry:      sentryClient,
 		Redis:       redisClient,
 		Config:      config,
 	}

@@ -18,18 +18,20 @@ package server
 import (
 	"context"
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	middie "github.com/go-chi/chi/v5/middleware"
-	"github.com/sirupsen/logrus"
 	"net/http"
-	"noelware.org/charted/server/internal"
-	"noelware.org/charted/server/internal/result"
-	"noelware.org/charted/server/server/middleware"
-	"noelware.org/charted/server/server/routes"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/go-chi/chi/v5"
+	middie "github.com/go-chi/chi/v5/middleware"
+	"github.com/sirupsen/logrus"
+	"noelware.org/charted/server/internal"
+	"noelware.org/charted/server/internal/result"
+	"noelware.org/charted/server/server/middleware"
+	"noelware.org/charted/server/server/routes"
+	v1 "noelware.org/charted/server/server/routes/api/v1"
 )
 
 // Start boots the HTTP service that you can interact with.
@@ -39,16 +41,18 @@ func Start() error {
 	router := chi.NewRouter()
 	router.NotFound(func(w http.ResponseWriter, req *http.Request) {
 		res := result.Err(404, "METHOD_NOT_FOUND", fmt.Sprintf("Unable to find route \"%s %s\"! Are you lost? :blbctscared:",
+			req.Method,
 			req.URL.EscapedPath(),
-			req.Method))
+		))
 
 		res.Write(w)
 	})
 
 	router.MethodNotAllowed(func(w http.ResponseWriter, req *http.Request) {
 		res := result.Err(405, "METHOD_NOT_ALLOWED", fmt.Sprintf(":blbctscared: Cannot call route \"%s %s\" due to methods being different. :(",
+			req.Method,
 			req.URL.EscapedPath(),
-			req.Method))
+		))
 
 		res.Write(w)
 	})
@@ -57,13 +61,13 @@ func Start() error {
 		internal.GlobalContainer.Ratelimiter.Middleware,
 		middleware.Log,
 		middleware.ErrorHandler,
-		middleware.BasicAuth,
 		middie.GetHead,
 		middie.Heartbeat("/ping"),
 		middie.RealIP,
 	)
 
 	router.Mount("/", routes.NewMainRouter())
+	router.Mount("/v1", v1.NewApiV1Router())
 	router.Mount("/version", routes.NewVersionRouter())
 
 	port := 3939
@@ -118,7 +122,7 @@ func Start() error {
 
 	defer func() {
 		logrus.Warn("Closing off PostgreSQL connection...")
-		if err := internal.GlobalContainer.Database.Close(); err != nil {
+		if err := internal.GlobalContainer.Database.Prisma.Disconnect(); err != nil {
 			logrus.Errorf("Unable to close PostgreSQL connection: %s", err)
 		}
 
