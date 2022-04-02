@@ -118,3 +118,66 @@ func (UserController) Create(
 
 	return result.OkWithStatus(201, dbtypes.FromUserDbModel(user))
 }
+
+func (UserController) Update(
+	userId string,
+	update map[string]any,
+) *result.Result {
+	if util.IsEmpty(update) {
+		return result.Err(406, "MISSING_UPDATE_PAYLOAD", "You are missing properties to update.")
+	}
+
+	operations := map[string]bool{}
+
+	user, err := internal.GlobalContainer.Database.Users.FindUnique(db.Users.ID.Equals(userId)).Exec(context.TODO())
+	if err != nil {
+		if errors.Is(err, db.ErrNotFound) {
+			return result.Err(404, "USER_DOESNT_EXIST", fmt.Sprintf("User with ID '%s' doesn't exist.", userId))
+		} else {
+			logrus.Errorf("Unable to find user with ID %s: %s", userId, err)
+			return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to find user with ID '%s' :(", userId))
+		}
+	}
+
+	// Check if we need to set the gravatar email to be used.
+	if gravatarEmail, ok := update["gravatar_email"].(string); ok {
+		_, err := mail.ParseAddress(gravatarEmail)
+		if err != nil {
+			logrus.Errorf("Unable to parse email address '%s': %s", gravatarEmail, err)
+			return result.Err(406, "INVALID_EMAIL_ADDRESS", fmt.Sprintf("Email %s is not a valid email address.", gravatarEmail))
+		}
+
+		// Compare if they are the same email.
+		if user.InnerUsers.GravatarEmail != nil && *user.InnerUsers.GravatarEmail == gravatarEmail {
+			return result.Err(406, "SAME_GRAVATAR_EMAIL_ADDRESS", fmt.Sprintf("Email %s is the same the one stored in the database; cannot update", gravatarEmail))
+		}
+
+		// Let's update it
+		if _, err := internal.GlobalContainer.Database.Users.FindMany(db.Users.ID.Equals(userId)).Update(
+			db.Users.GravatarEmail.Set(gravatarEmail),
+		).Exec(context.TODO()); err != nil {
+			logrus.Errorf("Unable to update entry 'users.%s.gravatar_email' = '%s': %s", userId, gravatarEmail, err)
+			return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to update entry 'users.%s.gravatar_email'.", userId))
+		} else {
+			operations["gravatar_email"] = true
+		}
+	}
+
+	// Check if we need to update the description
+	if description, ok := update["description"].(string); ok {
+		if len(description) > 240 {
+			return result.Err(406, "DESCRIPTION_TOO_LONG", "The description to update was too long, exceeded over 240 characters.")
+		}
+
+		if _, err := internal.GlobalContainer.Database.Users.FindMany(db.Users.ID.Equals(userId)).Update(
+			db.Users.Description.Set(description),
+		).Exec(context.TODO()); err != nil {
+			logrus.Errorf("Unable to update enetry 'users.%s.description' = '%s': %s", userId, description, err)
+			return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to update entry 'users.%s.description'.", userId))
+		} else {
+			operations["description"] = true
+		}
+	}
+
+	return result.Ok(operations)
+}

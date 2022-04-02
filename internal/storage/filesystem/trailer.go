@@ -16,10 +16,12 @@
 package filesystem
 
 import (
-	"github.com/sirupsen/logrus"
-	"noelware.org/charted/server/internal/storage"
+	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/sirupsen/logrus"
+	"noelware.org/charted/server/internal/storage"
 )
 
 // Config represents the configuration for the Trailer.
@@ -30,6 +32,9 @@ type Config struct {
 type Trailer struct {
 	directory string
 }
+
+var projectsPath = `%s/projects`
+var avatarsPath = `%s/avatars`
 
 func NewTrailer(config *Config) storage.BaseStorageTrailer {
 	return Trailer{config.Directory}
@@ -45,13 +50,48 @@ func (fs Trailer) Init() {
 	if _, err := os.Stat(fs.directory); err != nil {
 		if os.IsNotExist(err) {
 			logrus.Debugf("Pre-init: Directory '%s' doesn't exist, now creating...", fs.directory)
-			err = os.MkdirAll(filepath.Dir(fs.directory), 0755)
+			err = os.MkdirAll(filepath.Dir(fs.directory), 0770)
 			if err != nil {
 				logrus.Fatalf("Pre-init: Unable to recursively create parent/sibling directories for directory '%s' because: %s", fs.directory, err)
 			}
 		} else {
 			logrus.Fatalf("Pre-init: Unable to stat directory '%s' because: %s", fs.directory, err)
 		}
+	} else {
+		logrus.Debugf("Pre-init: Directory %s does exist.", fs.directory)
+	}
+
+	// Check if we have `projects/` and `avatars/` enabled.
+	logrus.Debugf("Pre-init: Does directory '%s/projects' exist?", fs.directory)
+	if _, err := os.Stat(fmt.Sprintf(projectsPath, fs.directory)); err != nil {
+		if os.IsNotExist(err) {
+			logrus.Debugf("Pre-init: Directory %s/projects didn't exist! Now creating...", fs.directory)
+			err = os.MkdirAll(filepath.Dir(fmt.Sprintf(projectsPath, fs.directory)), 0770)
+
+			if err != nil {
+				logrus.Fatalf("Pre-init: Unable to recursively create parent/sibling directories for directory '%s/projects' because: %s", fs.directory, err)
+			}
+		} else {
+			logrus.Fatalf("Pre-init: Unable to stat directory '%s' because: %s", fmt.Sprintf(projectsPath, fs.directory), err)
+		}
+	} else {
+		logrus.Debugf("Pre-init: Directory %s/projects does exist.", fs.directory)
+	}
+
+	logrus.Debugf("Pre-init: Does directory '%s/avatars' exist?", fs.directory)
+	if _, err := os.Stat(fmt.Sprintf(avatarsPath, fs.directory)); err != nil {
+		if os.IsNotExist(err) {
+			logrus.Debugf("Pre-init: Directory %s/avatars didn't exist! Now creating...", fs.directory)
+			err = os.MkdirAll(filepath.Dir(fmt.Sprintf(avatarsPath, fs.directory)), 0770)
+
+			if err != nil {
+				logrus.Fatalf("Pre-init: Unable to recursively create parent/sibling directories for directory '%s/avatars' because: %s", fs.directory, err)
+			}
+		} else {
+			logrus.Fatalf("Pre-init: Unable to stat directory '%s' because: %s", fmt.Sprintf(avatarsPath, fs.directory), err)
+		}
+	} else {
+		logrus.Debugf("Pre-init: Directory %s/avatars does exist.", fs.directory)
 	}
 
 	logrus.Debugf("Pre-initialization has completed, we are fine.")

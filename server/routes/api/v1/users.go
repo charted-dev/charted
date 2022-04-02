@@ -36,6 +36,21 @@ func NewUsersRouter() chi.Router {
 		res.Write(w)
 	})
 
+	// TODO: Remove `/{id}` requirement
+	router.Patch("/{id}", func(w http.ResponseWriter, r *http.Request) {
+		// TODO: check sessions here
+		statusCode, data, err := util.GetJsonBody(r)
+		if err != nil {
+			res := result.Err(statusCode, "INVALID_JSON_PAYLOAD", fmt.Sprintf("Unable to decode JSON payload: %s", err))
+			res.Write(w)
+
+			return
+		}
+
+		res := controller.Update(chi.URLParam(r, "id"), data)
+		res.Write(w)
+	})
+
 	router.Put("/", func(w http.ResponseWriter, r *http.Request) {
 		statusCode, data, err := util.GetJsonBody(r)
 		if err != nil {

@@ -30,18 +30,37 @@ func Log(next http.Handler) http.Handler {
 		ww := middleware.NewWrapResponseWriter(w, req.ProtoMajor)
 		next.ServeHTTP(ww, req)
 
-		code := util.GetStatusCode(ww.Status())
-		logrus.
-			WithField("remote-addr", req.RemoteAddr).
-			WithField("ua", req.Header.Get("User-Agent")).
-			Infof("%s %s HTTP/%s => %d %s (%d bytes written | %s)",
-				req.Method,
-				req.URL.EscapedPath(),
-				req.Proto,
-				ww.Status(),
-				code,
-				ww.BytesWritten(),
-				time.Since(s).String(),
-			)
+		uid, ok := req.Context().Value("user_id").(string)
+
+		if ok {
+			code := util.GetStatusCode(ww.Status())
+			logrus.
+				WithField("remote-addr", req.RemoteAddr).
+				WithField("ua", req.Header.Get("User-Agent")).
+				WithField("user_id", uid).
+				Infof("%s %s %s => %d %s (%d bytes written | %s)",
+					req.Method,
+					req.URL.EscapedPath(),
+					req.Proto,
+					ww.Status(),
+					code,
+					ww.BytesWritten(),
+					time.Since(s).String(),
+				)
+		} else {
+			code := util.GetStatusCode(ww.Status())
+			logrus.
+				WithField("remote-addr", req.RemoteAddr).
+				WithField("ua", req.Header.Get("User-Agent")).
+				Infof("%s %s %s => %d %s (%d bytes written | %s)",
+					req.Method,
+					req.URL.EscapedPath(),
+					req.Proto,
+					ww.Status(),
+					code,
+					ww.BytesWritten(),
+					time.Since(s).String(),
+				)
+		}
 	})
 }

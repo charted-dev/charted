@@ -59,11 +59,11 @@ func Start() error {
 
 	router.Use(
 		internal.GlobalContainer.Ratelimiter.Middleware,
+		middie.GetHead,
+		middie.RealIP,
+		middie.Heartbeat("/ping"),
 		middleware.Log,
 		middleware.ErrorHandler,
-		middie.GetHead,
-		middie.Heartbeat("/ping"),
-		middie.RealIP,
 	)
 
 	router.Mount("/", routes.NewMainRouter())

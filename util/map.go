@@ -14,3 +14,7 @@
 // limitations under the License.
 
 package util
+
+func IsEmpty[K comparable, V any](data map[K]V) bool {
+	return len(data) == 0
+}
