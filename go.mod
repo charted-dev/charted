@@ -12,7 +12,7 @@ require (
 	github.com/iancoleman/strcase v0.0.0-20190422225806-e506e3ef7365
 	github.com/joho/godotenv v1.4.0
 	github.com/meilisearch/meilisearch-go v0.19.0
-	github.com/noelware/chi-ratelimit v0.0.2
+	github.com/noelware/chi-ratelimit v0.0.3
 	github.com/noelware/chi-ratelimit-redis v0.0.2
 	github.com/pelletier/go-toml/v2 v2.0.0-beta.6
 	github.com/prisma/prisma-client-go v0.13.1
