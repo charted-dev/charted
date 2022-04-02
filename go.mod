@@ -9,7 +9,7 @@ require (
 	github.com/getsentry/sentry-go v0.13.0
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/iancoleman/strcase v0.0.0-20190422225806-e506e3ef7365
+	github.com/iancoleman/strcase v0.2.0
 	github.com/joho/godotenv v1.4.0
 	github.com/meilisearch/meilisearch-go v0.19.0
 	github.com/noelware/chi-ratelimit v0.0.2
