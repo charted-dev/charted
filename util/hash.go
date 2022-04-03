@@ -16,8 +16,8 @@
 package util
 
 import (
+	"crypto/rand"
 	"encoding/hex"
-	"math/rand"
 )
 
 func GenerateHash(length int) string {

@@ -108,7 +108,7 @@ func GetStatusCode(code int) string {
 }
 
 // WriteJson is a simple utility function to write data into JSON.
-func WriteJson(w http.ResponseWriter, status int, data interface{}) {
+func WriteJson(w http.ResponseWriter, status int, data interface{}) { //nolint
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)
 
@@ -119,7 +119,7 @@ func WriteJson(w http.ResponseWriter, status int, data interface{}) {
 
 // GetJsonBody is a simple utility function to retrieve this http.Request's
 // body as a JSON object.
-func GetJsonBody(req *http.Request) (int, map[string]any, error) {
+func GetJsonBody(req *http.Request) (int, map[string]any, error) { //nolint
 	contentType := req.Header.Get("Content-Type")
 	if contentType != "application/json" {
 		return http.StatusUnsupportedMediaType, nil, fmt.Errorf("content type was not application/json, received %s", contentType)
@@ -135,9 +135,9 @@ func GetJsonBody(req *http.Request) (int, map[string]any, error) {
 	if err != nil {
 		if errors.As(err, &unmarshalErr) {
 			return 406, nil, fmt.Errorf("wrong type provided for field '%s'", unmarshalErr.Field)
-		} else {
-			return 400, nil, err
 		}
+
+		return 400, nil, err
 	}
 
 	return -1, data, nil

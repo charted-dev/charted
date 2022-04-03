@@ -115,7 +115,7 @@ func NewService(config *Config) search.Engine {
 
 	if config.SkipSSLVerify {
 		transport.TLSClientConfig = &tls.Config{
-			InsecureSkipVerify: true,
+			InsecureSkipVerify: true, //nolint
 		}
 	}
 
@@ -247,16 +247,16 @@ func (s *Service) Search(index string, query string, options ...search.OptionFun
 		if err := json.NewDecoder(res.Body).Decode(&data); err != nil {
 			logrus.Errorf("Unable to decode JSON payload from Elastic when received an non-acceptable status code (index '%s'): %s", index, err)
 			return nil, errors.New("unable to decode payload from elastic when received an non-acceptable status code")
-		} else {
-			e := data["error"].(map[string]any)
-			logrus.Errorf("Unable to search '%s' on index %s (%s): %s",
-				query,
-				index,
-				e["type"],
-				e["reason"])
-
-			return nil, fmt.Errorf("unable to search on index '%s' :<", index)
 		}
+
+		e := data["error"].(map[string]any)
+		logrus.Errorf("Unable to search '%s' on index %s (%s): %s",
+			query,
+			index,
+			e["type"],
+			e["reason"])
+
+		return nil, fmt.Errorf("unable to search on index '%s' :<", index)
 	}
 
 	var d map[string]any

@@ -38,10 +38,10 @@ func newValidateCommand() *cobra.Command {
 				if os.IsNotExist(err) {
 					fmt.Printf("Couldn't find configuration path in '%s'.\n", path)
 					return err
-				} else {
-					fmt.Printf("Unable to stat configuration path in '%s': %s", path, err)
-					return err
 				}
+
+				fmt.Printf("Unable to stat configuration path in '%s': %s", path, err)
+				return err
 			}
 
 			// Check if we can parse it
@@ -55,10 +55,10 @@ func newValidateCommand() *cobra.Command {
 			if err := toml.Unmarshal(contents, &d); err != nil {
 				fmt.Printf("Couldn't unmarshal config contents in '%s' because '%s'.\n", path, err)
 				return err
-			} else {
-				fmt.Println("Everything seems alright!")
-				return nil
 			}
+
+			fmt.Println("Everything seems alright!")
+			return nil
 		},
 	}
 }

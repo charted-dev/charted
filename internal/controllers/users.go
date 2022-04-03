@@ -36,10 +36,10 @@ func (UserController) Get(id string) *result.Result {
 	if err != nil {
 		if errors.Is(err, db.ErrNotFound) {
 			return result.Err(404, "USER_NOT_FOUND", fmt.Sprintf("User with ID '%s' was not found.", id))
-		} else {
-			logrus.Errorf("Unable to fetch user '%s': %s", id, err)
-			return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to fetch user '%s'.", id))
 		}
+
+		logrus.Errorf("Unable to fetch user '%s': %s", id, err)
+		return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to fetch user '%s'.", id))
 	}
 
 	return result.Ok(dbtypes.FromUserDbModel(user))
@@ -105,7 +105,7 @@ func (UserController) Create(
 	}
 
 	// Create the user connections
-	connId := internal.GlobalContainer.Snowflake.Generate().String()
+	connId := internal.GlobalContainer.Snowflake.Generate().String() //nolint
 	_, err = internal.GlobalContainer.Database.UserConnections.CreateOne(
 		db.UserConnections.Owner.Link(db.Users.ID.Equals(user.ID)),
 		db.UserConnections.ID.Set(connId),
@@ -120,7 +120,7 @@ func (UserController) Create(
 }
 
 func (UserController) Update(
-	userId string,
+	userId string, //nolint
 	update map[string]any,
 ) *result.Result {
 	if util.IsEmpty(update) {
@@ -133,10 +133,10 @@ func (UserController) Update(
 	if err != nil {
 		if errors.Is(err, db.ErrNotFound) {
 			return result.Err(404, "USER_DOESNT_EXIST", fmt.Sprintf("User with ID '%s' doesn't exist.", userId))
-		} else {
-			logrus.Errorf("Unable to find user with ID %s: %s", userId, err)
-			return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to find user with ID '%s' :(", userId))
 		}
+
+		logrus.Errorf("Unable to fetch user '%s': %s", userId, err)
+		return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to fetch user '%s'.", userId))
 	}
 
 	// Check if we need to set the gravatar email to be used.
@@ -158,9 +158,9 @@ func (UserController) Update(
 		).Exec(context.TODO()); err != nil {
 			logrus.Errorf("Unable to update entry 'users.%s.gravatar_email' = '%s': %s", userId, gravatarEmail, err)
 			return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to update entry 'users.%s.gravatar_email'.", userId))
-		} else {
-			operations["gravatar_email"] = true
 		}
+
+		operations["gravatar_email"] = true
 	}
 
 	// Check if we need to update the description
@@ -174,9 +174,9 @@ func (UserController) Update(
 		).Exec(context.TODO()); err != nil {
 			logrus.Errorf("Unable to update enetry 'users.%s.description' = '%s': %s", userId, description, err)
 			return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to update entry 'users.%s.description'.", userId))
-		} else {
-			operations["description"] = true
 		}
+
+		operations["description"] = true
 	}
 
 	if username, ok := update["username"].(string); ok {
@@ -208,9 +208,9 @@ func (UserController) Update(
 		).Exec(context.TODO()); err != nil {
 			logrus.Errorf("Unable to update entry 'users.%s.username' = '%s': %s", userId, username, err)
 			return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to update entry 'users.%s.username'.", userId))
-		} else {
-			operations["username"] = true
 		}
+
+		operations["username"] = true
 	}
 
 	// TODO: should passwords be its own seperate controller function?
@@ -229,9 +229,9 @@ func (UserController) Update(
 		).Exec(context.TODO()); err != nil {
 			logrus.Errorf("Unable to update 'users.%s.password' = '[REDACTED]': %s", userId, err)
 			return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to update password entry."))
-		} else {
-			operations["password"] = true
 		}
+
+		operations["password"] = true
 	}
 
 	// TODO: include mail service to send out email verification
@@ -252,19 +252,19 @@ func (UserController) Update(
 		).Exec(context.TODO()); err != nil {
 			logrus.Errorf("Unable to update 'users.%s.name' = '%s': %s", userId, name, err)
 			return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to update display name entry."))
-		} else {
-			operations["name"] = true
 		}
+
+		operations["name"] = true
 	}
 
 	return result.Ok(operations)
 }
 
-func (UserController) Delete(userId string) *result.Result {
+func (UserController) Delete(userId string) *result.Result { //nolint
 	if _, err := internal.GlobalContainer.Database.Users.FindUnique(db.Users.ID.Equals(userId)).Delete().Exec(context.TODO()); err != nil {
 		logrus.Errorf("Unable to delete entry 'users.%s': %s", userId, err)
 		return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to delete user with ID %s.", userId))
-	} else {
-		return result.NoContent()
 	}
+
+	return result.NoContent()
 }

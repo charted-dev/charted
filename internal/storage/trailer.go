@@ -33,7 +33,7 @@ type BaseStorageTrailer interface {
 	//
 	// @returns [(*storage.RepositoryMetadata, error)] :: Returns the repository metadata
 	// as a pointer or an `error` as a tuple if anything goes wrong.
-	GetMetadata(ownerId string, repoId string) (*RepositoryMetadata, error)
+	GetMetadata(ownerId string, repoId string) (*RepositoryMetadata, error) //nolint
 	Init()
 	Name() string
 }

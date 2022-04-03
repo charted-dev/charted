@@ -43,26 +43,26 @@ func AuthHeaderCheck(next http.Handler) http.Handler {
 
 				doBasicAuth(w, req, next, user, pass)
 				return
-			} else {
-				next.ServeHTTP(w, req)
-				return
 			}
+
+			next.ServeHTTP(w, req)
 		} else {
 			if strings.HasPrefix(auth, "Bearer ") {
 				// TODO: do session check here
 				next.ServeHTTP(w, req)
-			} else {
-				user, pass, ok := req.BasicAuth()
-				if !ok {
-					w.Header().Add("WWW-Authenticate", `Basic realm="Noelware/charted-server"`)
-
-					res := result.Err(http.StatusUnauthorized, "UNABLE_TO_OBTAIN", "Couldn't authenticate due to server being secured by basic auth.")
-					res.Write(w)
-					return
-				}
-
-				doBasicAuth(w, req, next, user, pass)
+				return
 			}
+
+			user, pass, ok := req.BasicAuth()
+			if !ok {
+				w.Header().Add("WWW-Authenticate", `Basic realm="Noelware/charted-server"`)
+
+				res := result.Err(http.StatusUnauthorized, "UNABLE_TO_OBTAIN", "Couldn't authenticate due to server being secured by basic auth.")
+				res.Write(w)
+				return
+			}
+
+			doBasicAuth(w, req, next, user, pass)
 		}
 	})
 }

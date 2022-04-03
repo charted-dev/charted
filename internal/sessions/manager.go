@@ -36,12 +36,12 @@ type Manager struct {
 type Session struct {
 	RefreshToken string    `json:"refresh_token"`
 	LoggedInAt   time.Time `json:"logged_in_at"`
-	SessionId    string    `json:"session_id"`
-	UserId       string    `json:"user_id"`
+	SessionId    string    `json:"session_id"` //nolint
+	UserId       string    `json:"user_id"`    //nolint
 	Token        string    `json:"token"`
 }
 
-func New(userId string) *Session {
+func New(userId string) *Session { //nolint
 	// Create refresh token which is a JWT that lasts for 7 days.
 	refreshToken, err := jwt.CreateRefreshToken(userId)
 	if err != nil {
@@ -74,7 +74,7 @@ func NewManager(redisClient *redis.Client) *Manager {
 	}
 
 	logrus.Debugf("Took %s to collect %d sessions, now checking expired sessions...", time.Since(t).String(), len(data))
-	t = time.Now()
+	t = time.Now() //nolint
 
 	for key, value := range data {
 		var session *Session
@@ -94,21 +94,22 @@ func NewManager(redisClient *redis.Client) *Manager {
 }
 
 // Get returns a *Session object if it exists or not.
-func (m *Manager) Get(sessionId string) (*Session, error) {
-	if data, err := m.redisClient.HGet(context.TODO(), "charted:sessions", sessionId).Result(); err != nil {
+func (m *Manager) Get(sessionId string) (*Session, error) { //nolint
+	data, err := m.redisClient.HGet(context.TODO(), "charted:sessions", sessionId).Result()
+	if err != nil {
 		if err == redis.Nil {
 			return nil, nil
-		} else {
-			return nil, err
 		}
-	} else {
-		var session *Session
-		if err = json.Unmarshal([]byte(data), &session); err != nil {
-			return nil, err
-		} else {
-			return session, nil
-		}
+
+		return nil, err
 	}
+
+	var session *Session
+	if err := json.Unmarshal([]byte(data), &session); err != nil {
+		return nil, err
+	}
+
+	return session, nil
 }
 
 // GetAll returns all the *Session objects available in Redis, if any.
@@ -131,9 +132,9 @@ func (m *Manager) GetAll() ([]*Session, error) {
 			}
 
 			continue
-		} else {
-			sessions = append(sessions, session)
 		}
+
+		sessions = append(sessions, session)
 	}
 
 	return sessions, nil

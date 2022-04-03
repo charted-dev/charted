@@ -86,7 +86,7 @@ func (e EngineType) UnmarshalJSON(data []byte) error {
 
 	if engineType == Unknown {
 		return errors.New("unable to unmarshal Unknown engine type :(")
-	} else {
-		return nil
 	}
+
+	return nil
 }

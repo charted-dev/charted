@@ -18,13 +18,14 @@ package charted
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/spf13/cobra"
-	"noelware.org/charted/server/internal"
 	"os"
 	"runtime"
 	"strings"
 	"text/template"
 	"time"
+
+	"github.com/spf13/cobra"
+	"noelware.org/charted/server/internal"
 )
 
 type versionHandler struct {
@@ -40,7 +41,7 @@ type versionHandler struct {
 func newVersionCommand() *cobra.Command {
 	var (
 		tmpl    string
-		useJson bool
+		useJson bool //nolint
 	)
 
 	cmd := &cobra.Command{
@@ -64,9 +65,9 @@ func newVersionCommand() *cobra.Command {
 
 				if err := json.NewEncoder(os.Stdout).Encode(&version); err != nil {
 					return err
-				} else {
-					return nil
 				}
+
+				return nil
 			}
 
 			// Check if we need to use a Go template to execute it.
@@ -89,9 +90,9 @@ func newVersionCommand() *cobra.Command {
 
 				if err := t.Execute(os.Stdout, &version); err != nil {
 					return err
-				} else {
-					return nil
 				}
+
+				return nil
 			}
 
 			fmt.Printf("charted-server v%s (commit: %s, build date: %s) on %s/%s (go v%s)",

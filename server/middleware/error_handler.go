@@ -18,13 +18,14 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/getsentry/sentry-go"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/sirupsen/logrus"
-	"net/http"
 	"noelware.org/charted/server/internal"
 	"noelware.org/charted/server/internal/result"
-	"time"
 )
 
 func ErrorHandler(next http.Handler) http.Handler {
@@ -72,7 +73,7 @@ func ErrorHandler(next http.Handler) http.Handler {
 					logrus.Errorf("Received panic on route \"%s %s\": %s", req.Method, req.URL.EscapedPath(), err)
 					middleware.PrintPrettyStack(err)
 
-					eventId := hub.RecoverWithContext(context.WithValue(req.Context(), sentry.RequestContextKey, req), err)
+					eventId := hub.RecoverWithContext(context.WithValue(req.Context(), sentry.RequestContextKey, req), err) //nolint
 					if eventId != nil {
 						hub.Flush(1 * time.Second)
 					}

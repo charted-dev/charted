@@ -22,7 +22,7 @@ import (
 	"noelware.org/charted/server/internal/result"
 )
 
-func NewApiV1Router() chi.Router {
+func NewApiV1Router() chi.Router { //nolint
 	router := chi.NewRouter()
 	router.Mount("/users", NewUsersRouter())
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {

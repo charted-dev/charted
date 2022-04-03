@@ -24,13 +24,13 @@ import (
 type User struct {
 	GravatarEmail *string   `json:"gravatar_email"`
 	Description   *string   `json:"description"`
-	AvatarUrl     *string   `json:"avatar_url"`
+	AvatarUrl     *string   `json:"avatar_url"` //nolint
 	UpdatedAt     time.Time `json:"updated_at"`
 	CreatedAt     time.Time `json:"created_at"`
 	Username      string    `json:"username"`
 	Flags         int       `json:"flags"`
 	Name          *string   `json:"name"`
-	Id            string    `json:"id"`
+	Id            string    `json:"id"` //nolint
 }
 
 func FromUserDbModel(user *db.UsersModel) *User {

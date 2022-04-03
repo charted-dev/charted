@@ -57,7 +57,7 @@ type RepositoryMetadata struct {
 	Description *string `json:"description"`
 
 	// OwnerId is the ID of the owner who owns this repository.
-	OwnerId string `json:"owner_id"`
+	OwnerId string `json:"owner_id"` //nolint
 
 	// Files is a list of files that are available.
 	Files []File `json:"files"`
@@ -66,5 +66,5 @@ type RepositoryMetadata struct {
 	Name string `json:"name"`
 
 	// Id is the repository ID.
-	Id string `json:"id"`
+	Id string `json:"id"` //nolint
 }

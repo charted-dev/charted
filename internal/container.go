@@ -39,7 +39,7 @@ import (
 
 // GlobalContainer represents the global Container instance that is constructed using
 // the NewContainer function.
-var GlobalContainer *Container = nil
+var GlobalContainer *Container
 
 type Container struct {
 	Ratelimiter *ratelimit.Ratelimiter

@@ -44,11 +44,11 @@ SSL certificates, validation of both SSL + config, and ping the server if needed
 	}
 
 	configPath     string
-	logstashTcpUri string
-	logstashUdpUri string
+	logstashTcpUri string //nolint
+	logstashUdpUri string //nolint
 	syslog         = false
 	enableLogstash = false
-	useJsonLogs    = false
+	useJsonLogs    = false //nolint
 	verbose        = false
 )
 
@@ -68,9 +68,9 @@ func init() {
 func Execute() int {
 	if err := rootCmd.Execute(); err != nil {
 		return 1
-	} else {
-		return 0
 	}
+
+	return 0
 }
 
 func runServer(_ *cobra.Command, _ []string) error {

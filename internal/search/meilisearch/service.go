@@ -16,14 +16,15 @@
 package meilisearch
 
 import (
+	"time"
+
 	"github.com/meilisearch/meilisearch-go"
 	"github.com/sirupsen/logrus"
 	"github.com/valyala/fasthttp"
 	"noelware.org/charted/server/internal/search"
-	"time"
 )
 
-// Service represents the service for Meilisearch which implements search.Engine
+// Service represents the service for Meilisearch which implements search.Engine.
 type Service struct {
 	config *Config
 	client *meilisearch.Client

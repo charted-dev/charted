@@ -15,7 +15,7 @@
 
 package search
 
-// Options represents the options that are supposed to be supported in Engine.Search
+// Options represents the options that are supposed to be supported in Engine.Search.
 type Options struct {
 	// ~ + ~ these options are only supported in ES/Tsubasa engines + ~ + \\
 	// ~ + ~     this will silently fail in Meilisearch engines!    + ~ + \\

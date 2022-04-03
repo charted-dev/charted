@@ -8,7 +8,6 @@ import (
 	"strings"
 )
 
-/* cached value cuz why not >:c */
 var isDocker *bool
 var isKube *bool
 var isRoot *bool
@@ -49,7 +48,7 @@ func Kubernetes() bool {
 // Sindre Sorhus. https://npm.im/is-root | https://npm.im/is-admin
 func Root() bool {
 	if runtime.GOOS == "windows" {
-		cmd := exec.Command("fsutil", "dirty", "query", os.Getenv("systemdrive"))
+		cmd := exec.Command("fsutil", "dirty", "query", os.Getenv("systemdrive")) //nolint
 		_, err := cmd.Output()
 		var value = err == nil
 		if !value {
@@ -103,7 +102,7 @@ func hasServiceAccountFile() bool {
 	return hasServiceAccountToken && hasServiceAccountNS
 }
 
-func hasClusterDns() bool {
+func hasClusterDns() bool { //nolint
 	contents, err := ioutil.ReadFile("/etc/resolv.conf")
 	if err != nil {
 		return false

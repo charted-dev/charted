@@ -26,8 +26,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var DEFAULT_CONFIG = `
-# The default configuration for {{.ServiceName}}
+var defaultConfig = `# The default configuration for {{.ServiceName}}
 # This was generated at {{.CurrentDate}}!
 
 # Returns the PostgreSQL database for the main database of {{.ServiceName}}.
@@ -37,21 +36,16 @@ password = "postgres"
 schema = "public"
 port = 5432
 host = "localhost"
-db = "charted_server"
+db = "charted"
 
 # Returns the Redis configuration for {{.ServiceName}}.
 [redis]
 port = 6379
 host = "localhost"
 
-# Enables search on the server-side of {{.ServiceName}}. The /search endpoint
-# will be available.
-[search]
-enabled = false
-
 # Enables the filesystem storage trailer to store repositories.
 [storage.fs]
-directory = "./.charted/data"
+directory = "./data"
 `
 
 func newGenerateCommand() *cobra.Command {
@@ -75,7 +69,7 @@ func newGenerateCommand() *cobra.Command {
 			tmpl := template.New("charted-server-config")
 			b := &bytes.Buffer{}
 
-			tmpl, err = tmpl.Parse(DEFAULT_CONFIG)
+			tmpl, err = tmpl.Parse(defaultConfig)
 			if err != nil {
 				fmt.Printf("Unable to run tmpl.Parse(string): %s\n", err)
 			}
@@ -91,13 +85,13 @@ func newGenerateCommand() *cobra.Command {
 				return err
 			}
 
-			if err := ioutil.WriteFile(fmt.Sprintf("%s/config.toml", cwd), b.Bytes(), 0o666); err != nil {
+			if err := ioutil.WriteFile(fmt.Sprintf("%s/config.toml", cwd), b.Bytes(), 0o666); err != nil { //nolint
 				fmt.Printf("Unable to write file '%s': %s\n", fmt.Sprintf("%s/config.toml", cwd), err)
 				return err
-			} else {
-				fmt.Printf("Wrote default configuration in '%s'!\n", fmt.Sprintf("%s/config.toml", cwd))
-				return nil
 			}
+
+			fmt.Printf("Wrote default configuration in '%s'!\n", fmt.Sprintf("%s/config.toml", cwd))
+			return nil
 		},
 	}
 }

@@ -25,7 +25,7 @@ import (
 	"noelware.org/charted/server/internal"
 )
 
-func CreateRefreshToken(userId string) (string, error) {
+func CreateRefreshToken(userId string) (string, error) { //nolint
 	days := 24 * time.Hour
 	claims := jwt.MapClaims{}
 	claims["user_id"] = userId
@@ -41,7 +41,7 @@ func CreateRefreshToken(userId string) (string, error) {
 	return signed, nil
 }
 
-func CreateAccessToken(userId string) (string, error) {
+func CreateAccessToken(userId string) (string, error) { //nolint
 	claims := jwt.MapClaims{}
 	claims["user_id"] = userId
 	claims["exp"] = time.Now().UTC().Add(24 * time.Hour).Unix()
@@ -73,9 +73,9 @@ func ValidateToken(token string) (bool, error) {
 
 	if _, ok := t.Claims.(jwt.MapClaims); ok && t.Valid {
 		return true, nil
-	} else {
-		return false, errors.New("unable to verify token (is it expired?)")
 	}
+
+	return false, errors.New("unable to verify token (was it expired?)")
 }
 
 func DecodeToken(token string) (jwt.MapClaims, error) {
@@ -94,7 +94,7 @@ func DecodeToken(token string) (jwt.MapClaims, error) {
 
 	if claims, ok := t.Claims.(jwt.MapClaims); ok && t.Valid {
 		return claims, nil
-	} else {
-		return nil, errors.New("unable to verify token (is it expired?)")
 	}
+
+	return nil, errors.New("unable to verify token (is it expired?)")
 }

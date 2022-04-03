@@ -15,7 +15,7 @@
 
 package search
 
-// Result represents the result of Engine.Search
+// Result represents the result of Engine.Search.
 type Result struct {
 	// RequestTimeProcessing returns an int64 of how long it took
 	// to process the request.

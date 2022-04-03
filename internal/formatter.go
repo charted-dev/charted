@@ -76,7 +76,7 @@ func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 
 	// Output the level name
 	levelName := strings.ToUpper(entry.Level.String())
-	levelId := levelName[:4]
+	levelId := levelName[:4] //nolint
 
 	if f.DisableColors {
 		fmt.Fprintf(b, "[%s] ", levelId)

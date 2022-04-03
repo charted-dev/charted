@@ -38,7 +38,7 @@ func EnableSyslog(debug bool) error {
 	if err == nil {
 		logrus.AddHook(hook)
 		return nil
-	} else {
-		return err
 	}
+
+	return nil
 }

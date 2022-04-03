@@ -17,21 +17,22 @@ package internal
 
 import (
 	"errors"
+	"io/ioutil"
+	"os"
+
 	"github.com/pelletier/go-toml/v2"
 	"github.com/sirupsen/logrus"
-	"io/ioutil"
 	"noelware.org/charted/server/internal/search/elastic"
 	"noelware.org/charted/server/internal/search/meilisearch"
 	"noelware.org/charted/server/internal/search/tsubasa"
 	"noelware.org/charted/server/internal/storage/filesystem"
 	"noelware.org/charted/server/internal/storage/s3"
 	"noelware.org/charted/server/util"
-	"os"
 )
 
 var (
-	// NotIntError is an error if a non-integer was provided.
-	NotIntError = errors.New("provided value was not a valid integer")
+	// ErrNotInt is an error if a non-integer was provided.
+	ErrNotInt = errors.New("provided value was not a valid integer")
 )
 
 // Config represents the base configuration for charted-server.
@@ -117,7 +118,7 @@ type StorageConfig struct {
 type PostgresConfig struct {
 	// EnableTLS sets the SSL mode of the connection to `verify-full`. Otherwise,
 	// SSL is disabled.
-	EnableTls bool `toml:"tls_enable,omitempty"`
+	EnableTls bool `toml:"tls_enable,omitempty"` //nolint
 
 	// Timeout for establishing new connections, default is 30s
 	DialTimeout int32 `toml:"dial_timeout,omitempty"`
@@ -251,7 +252,7 @@ func NewConfig(path string) *Config {
 		if err != nil {
 			logrus.Warn("Unable to update configuration path due to config being corrupted.")
 		} else {
-			err = ioutil.WriteFile(path, data, 0o770)
+			err = ioutil.WriteFile(path, data, 0o770) //nolint
 			if err != nil {
 				logrus.Warnf("Unable to update configuration under path '%s' because: %s (is it not writable?)", path, err)
 			}
