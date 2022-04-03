@@ -66,20 +66,20 @@ func NewContainer(config *Config) {
 	// be distributed.
 	node, err := snowflake.NewNode(0)
 	if err != nil {
-		logrus.Fatalf("Unable to create Twitter Snowflake generator because: %s", err)
+		logrus.WithField("step", "bootstrap->snowflake").Fatalf("Unable to create Twitter Snowflake generator because: %s", err)
 	}
 
-	logrus.Info("Now connecting to PostgreSQL...")
+	logrus.WithField("step", "bootstrap->postgres").Info("Now connecting to PostgreSQL...")
 	prisma := db.NewClient()
 	if err := prisma.Connect(); err != nil {
-		logrus.Fatalf("Unable to connect to PostgreSQL: %s", err)
+		logrus.WithField("step", "bootstrap->postgres").Fatalf("Unable to connect to PostgreSQL: %s", err)
 	}
 
-	logrus.Infof("Connected to PostgreSQL! Now connecting to Redis...")
+	logrus.WithField("step", "bootstrap->postgres").Infof("Connected to PostgreSQL! Now connecting to Redis...")
 	var redisClient *redis.Client
 
 	if len(config.Redis.Sentinels) > 0 {
-		logrus.Debug("Detected a Redis sentinel connection!")
+		logrus.WithField("step", "bootstrap->redis").Debug("Detected a Redis sentinel connection!")
 
 		password := ""
 		if config.Redis.Password != nil {
@@ -88,7 +88,7 @@ func NewContainer(config *Config) {
 
 		masterName := ""
 		if config.Redis.MasterName == nil {
-			logrus.Fatal("Missing configuration option 'redis.master_name' to use a Sentinel connection.")
+			logrus.WithField("step", "bootstrap->redis").Fatal("Missing configuration option 'redis.master_name' to use a Sentinel connection.")
 		} else {
 			masterName = *config.Redis.MasterName
 		}
@@ -103,7 +103,7 @@ func NewContainer(config *Config) {
 			WriteTimeout:  15 * time.Second,
 		})
 	} else {
-		logrus.Debug("Detected a Redis standalone connection!")
+		logrus.WithField("step", "bootstrap->redis").Debug("Detected a Redis standalone connection!")
 
 		password := ""
 		if config.Redis.Password != nil {
@@ -124,7 +124,7 @@ func NewContainer(config *Config) {
 	defer cancel()
 
 	if err := redisClient.Ping(ctx).Err(); err != nil {
-		logrus.Fatalf("Unable to connect to Redis: %s", err)
+		logrus.WithField("step", "bootstrap->redis").Fatalf("Unable to connect to Redis: %s", err)
 	}
 
 	// the only error we'll get if the client is nil,
@@ -138,13 +138,13 @@ func NewContainer(config *Config) {
 		ratelimit.WithProvider(redisProvider),
 		ratelimit.WithDefaultLimit(1200))
 
-	logrus.Info("Connected to Redis! Creating storage trailer...")
+	logrus.WithField("step", "bootstrap->redis").Info("Connected to Redis! Creating storage trailer...")
 	var trailer storage.BaseStorageTrailer
 
 	if config.Storage.Fs != nil {
 		// fs is just an alias to filesystem, so let's prevent it.
 		if config.Storage.Filesystem != nil {
-			logrus.Fatalf("Cannot have 'storage.fs' and 'storage.filesystem' present at once.")
+			logrus.WithField("step", "bootstrap->storage->fs").Fatalf("Cannot have 'storage.fs' and 'storage.filesystem' present at once.")
 		}
 
 		trailer = filesystem.NewTrailer(config.Storage.Fs)
@@ -154,7 +154,7 @@ func NewContainer(config *Config) {
 	if config.Storage.Filesystem != nil {
 		// fs is just an alias to filesystem, so let's prevent it.
 		if config.Storage.Fs != nil {
-			logrus.Fatalf("Cannot have 'storage.fs' and 'storage.filesystem' present at once.")
+			logrus.WithField("step", "bootstrap->storage->fs").Fatalf("Cannot have 'storage.fs' and 'storage.filesystem' present at once.")
 		}
 
 		trailer = filesystem.NewTrailer(config.Storage.Filesystem)
@@ -162,38 +162,38 @@ func NewContainer(config *Config) {
 	}
 
 	if config.Storage.S3 != nil {
-		logrus.Info("coming soon!")
+		logrus.WithField("step", "bootstrap->storage->s3").Info("coming soon!")
 	}
 
 	if trailer == nil {
-		logrus.Fatal("Was not able to create storage trailer. Did you provide the right config?")
+		logrus.WithField("step", "bootstrap->storage").Fatal("Was not able to create storage trailer. Did you provide the right config?")
+	} else {
+		logrus.WithField("step", "bootstrap->storage").Infof("Initialized the %s storage trailer!", trailer.Name())
 	}
-
-	logrus.Infof("Initialized the %s storage trailer!", trailer.Name())
 
 	service := noop.New()
 	if config.Search != nil {
-		logrus.Info("Search configuration was defined, now determining which one to use...")
+		logrus.WithField("step", "bootstrap->search").Info("Search configuration was defined, now determining which one to use...")
 
 		if config.Search.Elastic != nil {
-			logrus.Info("Detected Elasticsearch configuration, now using!")
+			logrus.WithField("step", "bootstrap->search->elastic").Info("Detected Elasticsearch configuration, now using!")
 
 			service = elastic.NewService(config.Search.Elastic)
 		}
 
 		if config.Search.Meili != nil {
-			logrus.Info("Detected Meilisearch configuration!")
+			logrus.WithField("step", "bootstrap->search->meili").Info("Detected Meilisearch configuration!")
 			service = meilisearch.NewService(config.Search.Meili)
 		}
 	}
 
 	if service.Type().String() != search.Unknown.String() {
-		logrus.Infof("Initialized the %s search engine!", service.Type())
+		logrus.WithField("step", "bootstrap->search").Infof("Initialized the %s search engine!", service.Type())
 	}
 
 	var sentryClient *sentry.Client
 	if config.SentryDSN != nil {
-		logrus.Infof("Sentry DSN was provided, now installing...")
+		logrus.WithField("step", "bootstrap->sentry").Infof("Sentry DSN was provided, now installing...")
 		hostName, err := os.Hostname()
 		if err != nil {
 			hostName = "localhost"
@@ -207,7 +207,7 @@ func NewContainer(config *Config) {
 		})
 
 		if err != nil {
-			logrus.Fatalf("Unable to initialize Sentry: %s", err)
+			logrus.WithField("step", "bootstrap->sentry").Fatalf("Unable to initialize Sentry: %s", err)
 		}
 
 		sentryClient = client

@@ -16,13 +16,17 @@
 package charted
 
 import (
-	"github.com/bshuster-repo/logrus-logstash-hook"
+	"net"
+	"os"
+	"strings"
+	"time"
+
+	logrustash "github.com/bshuster-repo/logrus-logstash-hook"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"net"
 	"noelware.org/charted/server/internal"
+	noelSyslog "noelware.org/charted/server/internal/syslog"
 	"noelware.org/charted/server/server"
-	"time"
 )
 
 var (
@@ -41,6 +45,8 @@ SSL certificates, validation of both SSL + config, and ping the server if needed
 
 	configPath     string
 	logstashTcpUri string
+	logstashUdpUri string
+	syslog         = false
 	enableLogstash = false
 	useJsonLogs    = false
 	verbose        = false
@@ -49,9 +55,11 @@ SSL certificates, validation of both SSL + config, and ping the server if needed
 func init() {
 	rootCmd.Flags().StringVarP(&configPath, "config.path", "c", "", "Returns the configuration to load from.")
 	rootCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "Enables debug mode, you will receive more logs!")
+	rootCmd.Flags().StringVarP(&logstashUdpUri, "logstash.udp.uri", "u", "?", "Returns the UDP URI to connect to Logstash if running ")
 	rootCmd.Flags().StringVarP(&logstashTcpUri, "logstash.tcp.uri", "t", "?", "Returns the TCP URL to connect to Logstash.")
 	rootCmd.Flags().BoolVarP(&enableLogstash, "logstash.enable", "l", false, "Enables the Logstash hook to connect the ELK stack with charted-server.")
 	rootCmd.Flags().BoolVarP(&useJsonLogs, "json", "j", false, "Uses the JSON formatter instead of the default, pretty formatter for logs.")
+	rootCmd.Flags().BoolVarP(&syslog, "syslog", "s", false, "Enables logrus to output logs to syslog. (UNIX only, no-op on Windows)")
 
 	rootCmd.AddCommand(newValidateCommand(), newGenerateCommand(), newVersionCommand(), newPingCommand())
 }
@@ -66,6 +74,10 @@ func Execute() int {
 }
 
 func runServer(_ *cobra.Command, _ []string) error {
+	if _, ok := os.LookupEnv("PRISMA_CLIENT_GO_LOG"); !ok {
+		_ = os.Setenv("PRISMA_CLIENT_GO_LOG", "debug")
+	}
+
 	// Define the logger stuff
 	logrus.SetReportCaller(true)
 
@@ -81,6 +93,11 @@ func runServer(_ *cobra.Command, _ []string) error {
 		logrus.SetLevel(logrus.InfoLevel)
 	}
 
+	err := noelSyslog.EnableSyslog(verbose)
+	if err != nil {
+		logrus.Errorf("Unable to enable syslogs: %s; skipping", err)
+	}
+
 	if internal.Docker() {
 		logrus.Warn("It is recommended to create a volume if you're using the Filesystem storage trailer for persistence.")
 	}
@@ -91,19 +108,71 @@ func runServer(_ *cobra.Command, _ []string) error {
 
 	// TODO: support UDP connections
 	if enableLogstash {
-		conn, err := net.Dial("tcp", logstashTcpUri)
-		if err != nil {
-			logrus.Fatalf("Unable to dial TCP connection to Logstash ('%s'): %s", logstashTcpUri, err)
+		logrus.Debug("Enabling Logstash support for charted-server...")
+		success := false
+
+		// Check if the user provided both
+		if logstashTcpUri != "?" && logstashUdpUri != "?" {
+			logrus.Fatalf("Using both `--logstash.tcp.uri` and `--logstash.udp.uri` is not supported.")
 		}
 
-		hook := logrustash.New(conn, logrustash.DefaultFormatter(logrus.Fields{
-			"vendor":     "Noelware",
-			"version":    internal.Version,
-			"commit_sha": internal.CommitSHA,
-			"app":        "charted-server",
-		}))
+		// Check if we need to use TCP
+		if logstashTcpUri != "?" {
+			if strings.HasPrefix(logstashTcpUri, "tcp://") {
+				logrus.Warnf("You need to remove the `tcp://` prefix since it'll be automatically used when dialing! But, I'll do it for you.")
+				logstashTcpUri = strings.TrimPrefix(logstashTcpUri, "tcp://")
+			}
 
-		logrus.AddHook(hook)
+			logrus.Debugf("Now connecting to tcp://%s...", logstashTcpUri)
+
+			conn, err := net.Dial("tcp", logstashTcpUri)
+			if err != nil {
+				logrus.Fatalf("Unable to dial TCP connection to Logstash ('%s'): %s", logstashTcpUri, err)
+			}
+
+			logrus.Debugf("Connected to tcp://%s! Enabling Logstash formatter...", logstashTcpUri)
+			hook := logrustash.New(conn, logrustash.DefaultFormatter(logrus.Fields{
+				"vendor":     "Noelware",
+				"version":    internal.Version,
+				"commit_sha": internal.CommitSHA,
+				"app":        "charted-server",
+				"conn_type":  "tcp",
+			}))
+
+			logrus.AddHook(hook)
+			success = true
+		}
+
+		// No? What if we need to use UDP?
+		if !success && logstashUdpUri != "?" {
+			if strings.HasPrefix(logstashUdpUri, "udp://") {
+				logrus.Warnf("You need to remove the `udp://` prefix since it'll be automatically used when dialing! But, I'll do it for you.")
+				logstashUdpUri = strings.TrimPrefix(logstashUdpUri, "udp://")
+			}
+
+			logrus.Debugf("Now connecting to udp://%s...", logstashUdpUri)
+
+			conn, err := net.Dial("udp", logstashUdpUri)
+			if err != nil {
+				logrus.Fatalf("Unable to dial UDP connection to Logstash ('%s'): %s", logstashUdpUri, err)
+			}
+
+			logrus.Debugf("Connected to udp://%s! Enabling Logstash formatter...", logstashTcpUri)
+			hook := logrustash.New(conn, logrustash.DefaultFormatter(logrus.Fields{
+				"vendor":     "Noelware",
+				"version":    internal.Version,
+				"commit_sha": internal.CommitSHA,
+				"app":        "charted-server",
+				"conn_type":  "udp",
+			}))
+
+			logrus.AddHook(hook)
+			success = true
+		}
+
+		if !success {
+			logrus.Fatalf("Unable to dial TCP/UDP connection for Logstash (did you not provide `--logstash.[udp|tcp].uri=...`?)")
+		}
 	}
 
 	buildDate, _ := time.Parse(time.RFC3339, internal.BuildDate)

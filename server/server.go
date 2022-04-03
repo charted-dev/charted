@@ -36,7 +36,7 @@ import (
 
 // Start boots the HTTP service that you can interact with.
 func Start() error {
-	logrus.Info("Starting up HTTP service...")
+	logrus.WithField("type", "server").Info("Starting up HTTP service...")
 
 	router := chi.NewRouter()
 	router.NotFound(func(w http.ResponseWriter, req *http.Request) {
@@ -93,45 +93,45 @@ func Start() error {
 
 	go func() {
 		onWalk := chi.WalkFunc(func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
-			logrus.Debugf("Registered route %s %s!", method, route)
+			logrus.WithField("type", "server->walk").Debugf("Registered route %s %s!", method, route)
 			return nil
 		})
 
 		if err := chi.Walk(router, onWalk); err != nil {
-			logrus.Errorf("Unable to print routes: %s", err)
+			logrus.WithField("type", "server->launch").Errorf("Unable to print routes: %s", err)
 		}
 
-		logrus.Infof("charted-server is now listening under address => %s", addr)
+		logrus.WithField("type", "server->launch").Infof("charted-server is now listening under address => %s", addr)
 		err := server.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
-			logrus.Errorf("Unable to run HTTP server: %s", err)
+			logrus.WithField("type", "server->launch").Errorf("Unable to run HTTP server: %s", err)
 		}
 	}()
 
 	<-sigint
 
-	logrus.Warn("Shutting down HTTP service...")
+	logrus.WithField("type", "server->close").Warn("Shutting down HTTP service...")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 
 	go func() {
 		<-ctx.Done()
 		if ctx.Err() == context.DeadlineExceeded {
-			logrus.Warn("Exceeded deadline when dialing off requests...")
+			logrus.WithField("type", "server->close").Warn("Exceeded deadline when dialing off requests...")
 		}
 	}()
 
 	defer func() {
-		logrus.Warn("Closing off PostgreSQL connection...")
+		logrus.WithField("type", "server->close").Warn("Closing off PostgreSQL connection...")
 		if err := internal.GlobalContainer.Database.Prisma.Disconnect(); err != nil {
-			logrus.Errorf("Unable to close PostgreSQL connection: %s", err)
+			logrus.WithField("type", "server->close->psql").Errorf("Unable to close PostgreSQL connection: %s", err)
 		}
 
 		logrus.Warn("Closed off PostgreSQL connection! Now closing off Redis...")
 		if err := internal.GlobalContainer.Redis.Close(); err != nil {
-			logrus.Errorf("Unable to close Redis connection: %s", err)
+			logrus.WithField("type", "server->close->redis").Errorf("Unable to close Redis connection: %s", err)
 		}
 
-		logrus.Warn("Closed off everything, goodbye.")
+		logrus.WithField("type", "server->close").Warn("Closed off everything, goodbye.")
 		cancel()
 	}()
 

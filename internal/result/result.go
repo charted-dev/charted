@@ -17,6 +17,7 @@ package result
 
 import (
 	"net/http"
+
 	"noelware.org/charted/server/util"
 )
 
@@ -24,7 +25,7 @@ import (
 // in the database controllers.
 type Result struct {
 	// Success determines if this Result was a success.
-	Success bool `json:"success"`
+	Success bool `json:"success,omitempty"`
 
 	// Data returns the underlying data that was successful,
 	// this can be empty if Result.Errors are nil.
@@ -63,7 +64,7 @@ func OkWithStatus(status int, data interface{}) *Result {
 	}
 }
 
-// NoContent a result object using the 201 status code.
+// NoContent a result object using the 204 status code.
 func NoContent() *Result {
 	return &Result{
 		StatusCode: 204,
@@ -109,5 +110,10 @@ func NewError(code string, message string) Error {
 // Write is a convenient method to write this Result object
 // to the response writer.
 func (r *Result) Write(w http.ResponseWriter) {
+	if r.StatusCode == 204 {
+		w.WriteHeader(204)
+		return
+	}
+
 	util.WriteJson(w, r.StatusCode, r)
 }

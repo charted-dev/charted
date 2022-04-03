@@ -153,7 +153,7 @@ func (UserController) Update(
 		}
 
 		// Let's update it
-		if _, err := internal.GlobalContainer.Database.Users.FindMany(db.Users.ID.Equals(userId)).Update(
+		if _, err := internal.GlobalContainer.Database.Users.FindUnique(db.Users.ID.Equals(userId)).Update(
 			db.Users.GravatarEmail.Set(gravatarEmail),
 		).Exec(context.TODO()); err != nil {
 			logrus.Errorf("Unable to update entry 'users.%s.gravatar_email' = '%s': %s", userId, gravatarEmail, err)
@@ -169,7 +169,7 @@ func (UserController) Update(
 			return result.Err(406, "DESCRIPTION_TOO_LONG", "The description to update was too long, exceeded over 240 characters.")
 		}
 
-		if _, err := internal.GlobalContainer.Database.Users.FindMany(db.Users.ID.Equals(userId)).Update(
+		if _, err := internal.GlobalContainer.Database.Users.FindUnique(db.Users.ID.Equals(userId)).Update(
 			db.Users.Description.Set(description),
 		).Exec(context.TODO()); err != nil {
 			logrus.Errorf("Unable to update enetry 'users.%s.description' = '%s': %s", userId, description, err)
@@ -179,5 +179,92 @@ func (UserController) Update(
 		}
 	}
 
+	if username, ok := update["username"].(string); ok {
+		if len(username) > 32 {
+			return result.Err(406, "USERNAME_TOO_LONG", "The username to update was too long, exceeded over 32 characters.")
+		}
+
+		// Check if there is non-ascii characters
+		if !util.IsASCII(username) {
+			return result.Err(406, "INVALID_USERNAME", "The username to update included non-ascii characters.")
+		}
+
+		// Check if someone has the username already
+		user, err := internal.GlobalContainer.Database.Users.FindUnique(db.Users.Username.Equals(username)).Exec(context.TODO())
+		if err != nil {
+			if !errors.Is(err, db.ErrNotFound) {
+				logrus.Errorf("Unable to query information to check if username %s exists: %s", username, err)
+				return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to check if username %s existed.", username))
+			}
+		}
+
+		if user != nil {
+			return result.Err(403, "USERNAME_ALREADY_TAKEN", fmt.Sprintf("Username %s is already taken.", username))
+		}
+
+		// Update it!
+		if _, err := internal.GlobalContainer.Database.Users.FindUnique(db.Users.ID.Equals(userId)).Update(
+			db.Users.Username.Set(username),
+		).Exec(context.TODO()); err != nil {
+			logrus.Errorf("Unable to update entry 'users.%s.username' = '%s': %s", userId, username, err)
+			return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to update entry 'users.%s.username'.", userId))
+		} else {
+			operations["username"] = true
+		}
+	}
+
+	// TODO: should passwords be its own seperate controller function?
+	//       brain is probably mush so idk if im overthinking this or what
+	//       but at this rate, i dont care imma do this >:(
+	if password, ok := update["password"].(string); ok {
+		// Generate the hash for it
+		hash, err := util.GeneratePassword(password)
+		if err != nil {
+			logrus.Errorf("Unable to generate Argon2 password: %s", err)
+			return result.Err(500, "INTERNAL_SERVER_ERROR", "Unknown password algorithm error had occurred.")
+		}
+
+		if _, err := internal.GlobalContainer.Database.Users.FindUnique(db.Users.ID.Equals(userId)).Update(
+			db.Users.Password.Set(hash),
+		).Exec(context.TODO()); err != nil {
+			logrus.Errorf("Unable to update 'users.%s.password' = '[REDACTED]': %s", userId, err)
+			return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to update password entry."))
+		} else {
+			operations["password"] = true
+		}
+	}
+
+	// TODO: include mail service to send out email verification
+	//       and invites if the server is in an invite-only basis.
+	//       so, updating email for users will not be here for now. :pensive:
+
+	// Well, if there is no email updates, what about user flag updates?
+	// You are so wrong. Since flags typically apply administration permissions
+	// (and we do NOT need that); this is only included in the administration
+	// controller.
+
+	// Atleast you can change your display name. :)
+	if name, ok := update["name"].(string); ok {
+		// TODO: should display name include non ascii characters?
+		//       for now, sure it can include non ascii characters.
+		if _, err := internal.GlobalContainer.Database.Users.FindUnique(db.Users.ID.Equals(userId)).Update(
+			db.Users.Name.Set(name),
+		).Exec(context.TODO()); err != nil {
+			logrus.Errorf("Unable to update 'users.%s.name' = '%s': %s", userId, name, err)
+			return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to update display name entry."))
+		} else {
+			operations["name"] = true
+		}
+	}
+
 	return result.Ok(operations)
+}
+
+func (UserController) Delete(userId string) *result.Result {
+	if _, err := internal.GlobalContainer.Database.Users.FindUnique(db.Users.ID.Equals(userId)).Delete().Exec(context.TODO()); err != nil {
+		logrus.Errorf("Unable to delete entry 'users.%s': %s", userId, err)
+		return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to delete user with ID %s.", userId))
+	} else {
+		return result.NoContent()
+	}
 }

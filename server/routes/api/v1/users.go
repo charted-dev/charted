@@ -51,6 +51,11 @@ func NewUsersRouter() chi.Router {
 		res.Write(w)
 	})
 
+	router.Delete("/{id}", func(w http.ResponseWriter, r *http.Request) {
+		res := controller.Delete(chi.URLParam(r, "id"))
+		res.Write(w)
+	})
+
 	router.Put("/", func(w http.ResponseWriter, r *http.Request) {
 		statusCode, data, err := util.GetJsonBody(r)
 		if err != nil {
