@@ -43,13 +43,13 @@ func GetInstanceUUID() string {
 				instanceUUID = &i
 
 				return i
-			} else {
-				instanceUUID = &i
-				return i
 			}
-		} else {
-			logrus.Fatalf("Unable to stat ./instance.uuid: %s", err)
+
+			instanceUUID = &i
+			return i
 		}
+
+		logrus.Fatalf("Unable to stat ./instance.uuid: %s", err)
 	}
 
 	contents, err := ioutil.ReadFile("./instance.uuid")
