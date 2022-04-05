@@ -106,6 +106,9 @@ func runServer(_ *cobra.Command, _ []string) error {
 		logrus.Warn("It is recommended not to run charted-server under root/Administrator!")
 	}
 
+	uuid := internal.GetInstanceUUID()
+	logrus.Debugf("Using instance UUID '%s'! If analytics are enabled, you can visit https://analytics.noelware.org/charted/instance/%s to have a in-depth analysis on the server running.", uuid, uuid)
+
 	// TODO: support UDP connections
 	if enableLogstash {
 		logrus.Debug("Enabling Logstash support for charted-server...")

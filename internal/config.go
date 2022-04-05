@@ -54,6 +54,10 @@ type Config struct {
 	// information and to further improve the experience of Noelware products.
 	Telemetry bool `toml:"telemetry,omitempty"`
 
+	// Analytics enables the server to send analytical data to have a visualization dashboard on the server. This is
+	// different between Telemetry and Analytics, since Analytics don't store data of the server.
+	Analytics bool `toml:"analytics,omitempty"`
+
 	// Metrics enables Prometheus metrics on the server.
 	Metrics bool `toml:"metrics,omitempty"`
 
@@ -69,7 +73,11 @@ type Config struct {
 	// on the server.
 	SentryDSN *string `toml:"sentry_dsn,omitempty"`
 
-	Port *int    `toml:"port"`
+	// Port returns the port to use when connecting to the service via HTTP.
+	Port *int `toml:"port"`
+
+	// Host returns the host to use when running. You can use `127.0.0.1` to only stick on the local network,
+	// by default, it'll be open under `0.0.0.0`
 	Host *string `toml:"host"`
 
 	// Email enables the Email service to send out emails on invitations, user verification,

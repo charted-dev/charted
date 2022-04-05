@@ -527,3 +527,4 @@ FodyWeavers.xsd
 
 config.toml
 .env
+instance.uuid

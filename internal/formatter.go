@@ -71,7 +71,7 @@ func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 	if f.DisableColors {
 		fmt.Fprintf(b, "[%s] ", entry.Time.Format(format))
 	} else {
-		fmt.Fprintf(b, "\x1b[38;2;134;134;134m[%s] \x1b[0m", entry.Time.Format(format))
+		fmt.Fprintf(b, "\x1b[38;2;134;134;134m[%s]\x1b[0m", entry.Time.Format(format))
 	}
 
 	// Output the level name
@@ -87,11 +87,9 @@ func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 	}
 
 	if f.DisableColors {
-		fmt.Fprintf(b, "% 7s ", levelId)
-		// fmt.Fprintf(b, "[%s] ", levelId)
+		fmt.Fprintf(b, "% 7s", levelId)
 	} else {
-		fmt.Fprintf(b, "%s [% 5s] \x1b[0m", level, levelId)
-		// fmt.Fprintf(b, "%s [%s] \x1b[0m", level, levelId)
+		fmt.Fprintf(b, "%s [% 5s]\x1b[0m", level, levelId)
 	}
 
 	// Output the log message fields if any
