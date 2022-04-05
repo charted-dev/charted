@@ -23,11 +23,11 @@ generator client {
 }
 
 model Users {
+  gravatarEmail String?          @map("gravatar_email")
   repositories  Repositories[]
   connections   UserConnections?
-  gravatarEmail String?          @map("gravatar_email")
   description   String?
-  avatarUrl     String?
+  avatarHash    String?          @map("avatar_hash")
   updatedAt     DateTime         @updatedAt @map("updated_at")
   createdAt     DateTime         @default(now()) @map("created_at")
   username      String           @unique
@@ -40,17 +40,34 @@ model Users {
   @@map("users")
 }
 
+model Organization {
+  singleSaslEnabled Boolean        @default(false) @map("single_sasl_enabled")
+  verifiedPublisher Boolean        @default(false) @map("verified_publisher")
+  twitterHandle     String?
+  gravatarEmail     String?
+  repositories      Repositories[]
+  description       String?
+  avatarHash        String?
+  flags             Int            @default(0)
+  name              String?
+  id                String         @id
+
+  @@map("organizations")
+}
+
 model Repositories {
-  stargazersCount Int      @default(0) @map("stargazers_count")
-  downloadsCount  Int      @default(0) @map("downloads_count")
+  stargazersCount Int           @default(0) @map("stargazers_count")
+  downloadsCount  Int           @default(0) @map("downloads_count")
   description     String?
-  updatedAt       DateTime @updatedAt @map("updated_at")
-  createdAt       DateTime @default(now()) @map("created_at")
-  iconUrl         String?  @map("icon_url")
+  organization    Organization? @relation(fields: [orgId], references: [id])
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  iconUrl         String?       @map("icon_url")
   ownerId         String
-  owner           Users    @relation(fields: [ownerId], references: [id])
+  owner           Users?        @relation(fields: [ownerId], references: [id])
+  orgId           String?
   name            String
-  id              String   @id
+  id              String        @id
 
   @@map("repositories")
 }

@@ -73,20 +73,24 @@ clean: ## Cleans any build artifacts
 fmt: ## Formats the project using `go fmt`.
 	go fmt
 
-# Usage: `make db.migrate NAME=...`
-.PHONY: db.migrate
-db.migrate: ## Migrates the database into PostgreSQL
-	@echo Migrating database for development...
+# Usage: `make migrate NAME=...`
+.PHONY: migrate_new
+migrate_new: ## Creates a migration
+	@echo Creating migration '$(NAME)'!
 	go run github.com/prisma/prisma-client-go migrate dev --name=$(NAME)
 
+# Usage: `make migrate`
+migrate: ## Applies all the pending migrations into the database.
+	@echo Migrating database...
+
 # Usage: `make db.fmt`
-.PHONY: db.fmt
-db.fmt: ## Formats the schema.prisma file
+.PHONY: fmtdb
+fmtdb: ## Formats the schema.prisma file
 	@echo Formatting Prisma schema...
 	go run github.com/prisma/prisma-client-go format
 
 # Usage: `make db.generate`
-.PHONY: db.generate
-db.generate: ## Generates the ORM to be used.
+.PHONY: generate
+generate: ## Generates the ORM to be used.
 	@echo Generating Prisma artifacts...
 	go run github.com/prisma/prisma-client-go generate

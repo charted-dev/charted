@@ -24,7 +24,7 @@ import (
 type User struct {
 	GravatarEmail *string   `json:"gravatar_email"`
 	Description   *string   `json:"description"`
-	AvatarUrl     *string   `json:"avatar_url"` //nolint
+	AvatarHash    *string   `json:"avatar_hash"` //nolint
 	UpdatedAt     time.Time `json:"updated_at"`
 	CreatedAt     time.Time `json:"created_at"`
 	Username      string    `json:"username"`
@@ -37,12 +37,28 @@ func FromUserDbModel(user *db.UsersModel) *User {
 	return &User{
 		GravatarEmail: user.InnerUsers.GravatarEmail,
 		Description:   user.InnerUsers.Description,
-		AvatarUrl:     user.InnerUsers.AvatarURL,
+		AvatarHash:    user.InnerUsers.AvatarHash,
 		UpdatedAt:     user.UpdatedAt,
 		CreatedAt:     user.CreatedAt,
 		Username:      user.Username,
 		Flags:         user.Flags,
 		Name:          user.InnerUsers.Name,
 		Id:            user.ID,
+	}
+}
+
+type Connection struct {
+	NoelwareAccountID *string `json:"noelware_account_id"`
+	GoogleAccountID   *string `json:"google_account_id"`
+	AppleAccountID    *string `json:"apple_account_id"`
+	ID                string  `json:"id"`
+}
+
+func FromConnectionDbModel(model *db.UserConnectionsModel) *Connection {
+	return &Connection{
+		NoelwareAccountID: model.InnerUserConnections.NoelwareAccountID,
+		GoogleAccountID:   model.InnerUserConnections.GoogleAccountID,
+		AppleAccountID:    model.InnerUserConnections.AppleAccountID,
+		ID:                model.ID,
 	}
 }

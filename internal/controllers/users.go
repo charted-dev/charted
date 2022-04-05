@@ -261,6 +261,11 @@ func (UserController) Update(
 }
 
 func (UserController) Delete(userId string) *result.Result { //nolint
+	if _, err := internal.GlobalContainer.Database.UserConnections.FindUnique(db.UserConnections.OwnerID.Equals(userId)).Delete().Exec(context.TODO()); err != nil {
+		logrus.Errorf("Unable to delete user connections for user %s: %s", userId, err)
+		return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to delete user connections for user %s.", userId))
+	}
+
 	if _, err := internal.GlobalContainer.Database.Users.FindUnique(db.Users.ID.Equals(userId)).Delete().Exec(context.TODO()); err != nil {
 		logrus.Errorf("Unable to delete entry 'users.%s': %s", userId, err)
 		return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to delete user with ID %s.", userId))

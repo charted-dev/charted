@@ -76,12 +76,22 @@ func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 
 	// Output the level name
 	levelName := strings.ToUpper(entry.Level.String())
-	levelId := levelName[:4] //nolint
+	var levelId string
+
+	if len(levelName) == 4 {
+		levelId = levelName[:4]
+	} else if strings.HasPrefix(levelName, "WARN") { // prettier if it's "warn" rather than "warni"
+		levelId = levelName[:4]
+	} else {
+		levelId = levelName[:5]
+	}
 
 	if f.DisableColors {
-		fmt.Fprintf(b, "[%s] ", levelId)
+		fmt.Fprintf(b, "% 7s ", levelId)
+		// fmt.Fprintf(b, "[%s] ", levelId)
 	} else {
-		fmt.Fprintf(b, "%s [%s] \x1b[0m", level, levelId)
+		fmt.Fprintf(b, "%s [% 5s] \x1b[0m", level, levelId)
+		// fmt.Fprintf(b, "%s [%s] \x1b[0m", level, levelId)
 	}
 
 	// Output the log message fields if any
