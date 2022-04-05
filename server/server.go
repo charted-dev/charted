@@ -27,6 +27,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	middie "github.com/go-chi/chi/v5/middleware"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
 	"noelware.org/charted/server/internal"
 	"noelware.org/charted/server/internal/result"
 	"noelware.org/charted/server/server/middleware"
@@ -37,6 +38,8 @@ import (
 // Start boots the HTTP service that you can interact with.
 func Start() error {
 	logrus.WithField("type", "server").Info("Starting up HTTP service...")
+
+	var grpcServer *grpc.Server
 
 	router := chi.NewRouter()
 	router.NotFound(func(w http.ResponseWriter, req *http.Request) {
@@ -57,6 +60,16 @@ func Start() error {
 		res.Write(w)
 	})
 
+	// Check if we need to enable analytics
+	if internal.GlobalContainer.Config.Analytics {
+		instanceUid := internal.GetInstanceUUID()
+
+		logrus.WithField("analytics", "enabled").WithField("step", "server->grpc").Info("You have enabled the Analytics Engine! If you haven't registered a charted-server instance, do so here: https://analytics.noelware.org/register?product=charted-server")
+		logrus.WithField("analytics", "enabled").WithField("step", "server->grpc").Infof("If you already registered a instance, you can view it here: https://analytics.noelware.org/charted/%s", instanceUid)
+
+		grpcServer = grpc.NewServer()
+	}
+
 	router.Use(
 		internal.GlobalContainer.Ratelimiter.Middleware,
 		middie.GetHead,
@@ -65,6 +78,10 @@ func Start() error {
 		middleware.Log,
 		middleware.ErrorHandler,
 	)
+
+	if grpcServer != nil {
+		router.Use(middleware.GrpcConnection(grpcServer))
+	}
 
 	router.Mount("/", routes.NewMainRouter())
 	router.Mount("/v1", v1.NewApiV1Router())

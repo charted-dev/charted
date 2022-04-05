@@ -26,6 +26,11 @@ import (
 var instanceUUID *string
 
 func GetInstanceUUID() string {
+	// Since we already populated this, it'll just return it.
+	if instanceUUID != nil {
+		return *instanceUUID
+	}
+
 	// Check if it's as an environment variable, let's check
 	if uuid, ok := os.LookupEnv("CHARTED_INSTANCE_UUID"); ok {
 		instanceUUID = &uuid
