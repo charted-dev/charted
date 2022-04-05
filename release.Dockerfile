@@ -21,6 +21,7 @@ RUN apk update && apk add --no-cache bash musl-dev libc-dev gcompat
 
 WORKDIR /app/noelware/charted/server
 COPY docker /app/noelware/charted/server/scripts
+COPY assets /app/noelware/charted/server/assets
 COPY charted-server .
 
 USER 1001

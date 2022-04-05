@@ -22,6 +22,7 @@ import (
 
 	"github.com/pelletier/go-toml/v2"
 	"github.com/sirupsen/logrus"
+	"noelware.org/charted/server/internal/email"
 	"noelware.org/charted/server/internal/search/elastic"
 	"noelware.org/charted/server/internal/search/meilisearch"
 	"noelware.org/charted/server/internal/search/tsubasa"
@@ -70,6 +71,10 @@ type Config struct {
 
 	Port *int    `toml:"port"`
 	Host *string `toml:"host"`
+
+	// Email enables the Email service to send out emails on invitations, user verification,
+	// and more.
+	Email *email.Config `toml:"email"`
 
 	// Search returns a SearchConfig to configure the search endpoint.
 	Search *SearchConfig `toml:"search,omitempty"`

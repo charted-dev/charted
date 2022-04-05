@@ -28,6 +28,7 @@ import (
 	ratelimit "github.com/noelware/chi-ratelimit"
 	redisrl "github.com/noelware/chi-ratelimit-redis"
 	"github.com/sirupsen/logrus"
+	"noelware.org/charted/server/internal/email"
 	"noelware.org/charted/server/internal/search"
 	"noelware.org/charted/server/internal/search/elastic"
 	"noelware.org/charted/server/internal/search/meilisearch"
@@ -49,6 +50,7 @@ type Container struct {
 	Search      search.Engine
 	Sentry      *sentry.Client
 	Redis       *redis.Client
+	Email       *email.Service
 	Config      *Config
 }
 
@@ -213,6 +215,12 @@ func NewContainer(config *Config) {
 		sentryClient = client
 	}
 
+	var emailService *email.Service
+	if config.Email != nil {
+		logrus.WithField("step", "bootstrap->email").Info("Enabling email service...")
+		emailService = email.NewEmailService(config.Email)
+	}
+
 	container := &Container{
 		Ratelimiter: ratelimiter,
 		Database:    prisma,
@@ -222,6 +230,7 @@ func NewContainer(config *Config) {
 		Sentry:      sentryClient,
 		Redis:       redisClient,
 		Config:      config,
+		Email:       emailService,
 	}
 
 	GlobalContainer = container

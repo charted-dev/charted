@@ -31,6 +31,7 @@ FROM alpine:3.15
 WORKDIR /app/noelware/charted/server
 COPY --from=builder /build/charted-server/bin .
 COPY --from=builder /build/charted-server/docker /app/noelware/charted/server/scripts
+COPY --from=builder /build/charted-server/assets /app/noelware/charted/server/assets
 
 USER 1001
 

@@ -76,6 +76,8 @@ dockers:
       - docker/docker-entrypoint.sh
       - docker/runner.sh
       - docker/scripts/liblog.sh
+      - assets/templates/invitiation.html
+      - assets/templates/verify.html
 
   - image_templates:
       - noelware/charted-server:latest-arm64
@@ -103,6 +105,8 @@ dockers:
       - docker/docker-entrypoint.sh
       - docker/runner.sh
       - docker/scripts/liblog.sh
+      - assets/templates/invitiation.html
+      - assets/templates/verify.html
 
   - image_templates:
       - noelware/charted-server:latest-armv7
@@ -130,6 +134,8 @@ dockers:
       - docker/docker-entrypoint.sh
       - docker/runner.sh
       - docker/scripts/liblog.sh
+      - assets/templates/invitiation.html
+      - assets/templates/verify.html
 
 docker_manifests:
   - name_template: noelware/charted-server:{{ .Version }}
