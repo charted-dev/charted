@@ -96,7 +96,6 @@ func (UserController) Create(
 		db.Users.Password.Set(hash),
 		db.Users.Email.Set(email),
 		db.Users.ID.Set(id),
-		db.Users.Repositories.Link(),
 	).Exec(context.TODO())
 
 	if err != nil {

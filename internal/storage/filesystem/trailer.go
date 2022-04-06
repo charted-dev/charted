@@ -17,6 +17,7 @@ package filesystem
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -101,6 +102,45 @@ func (fs Trailer) HandleUpload(_ []storage.UploadRequest) error {
 	return nil
 }
 
-func (fs Trailer) GetMetadata(_ string, _ string) (*storage.RepositoryMetadata, error) {
-	return nil, nil
+func (fs Trailer) GetIndexYaml(ownerID string, projectID string) (string, error) {
+	path := fmt.Sprintf("%s/%s/%s", projectsPath, ownerID, projectID)
+	logrus.Tracef("Does path %s exist?", path)
+
+	// Check if it exists
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			logrus.Warnf("Path %s doesn't exist on disk, creating...", path)
+
+			// dont look at me, os.MkdirAll is not recursive :(
+			for i, p := range []string{ownerID, projectID} {
+				var pathToCreate string
+				switch i {
+				case 0:
+					pathToCreate = fmt.Sprintf("%s/%s", projectsPath, p)
+					break
+
+				case 1:
+					pathToCreate = fmt.Sprintf("%s/%s/%s", projectsPath, ownerID, p)
+					break
+				}
+
+				err := os.MkdirAll(pathToCreate, 0o700)
+				if err != nil {
+					logrus.Errorf("Unable to create path '%s': %s", pathToCreate, err)
+					return "", nil
+				}
+			}
+		} else {
+			logrus.Errorf("Unable to stat path '%s': %s", path, err)
+		}
+	}
+
+	logrus.Tracef("Assuming success on stat %s.", path)
+	contents, err := ioutil.ReadFile(fmt.Sprintf("%s/index.yaml", path))
+	if err != nil {
+		logrus.Errorf("Unable to read contents of '%s/index.yaml': %s", path, err)
+		return "", err
+	}
+
+	return string(contents), err
 }

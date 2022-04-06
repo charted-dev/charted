@@ -24,7 +24,10 @@ import (
 
 func NewApiV1Router() chi.Router { //nolint
 	router := chi.NewRouter()
+
+	router.Mount("/repositories", NewRepositoriesRouter())
 	router.Mount("/users", NewUsersRouter())
+
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		res := result.Ok(map[string]any{
 			"message":  "hello world",

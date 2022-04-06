@@ -36,6 +36,13 @@ func NewUsersRouter() chi.Router {
 		res.Write(w)
 	})
 
+	router.Get("/{id}/repositories", func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
+		res := controllers.GetRepositories(id)
+
+		res.Write(w)
+	})
+
 	// TODO: Remove `/{id}` requirement
 	router.Patch("/{id}", func(w http.ResponseWriter, r *http.Request) {
 		// TODO: check sessions here

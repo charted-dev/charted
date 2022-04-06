@@ -26,7 +26,9 @@ import (
 func NewMainRouter() chi.Router {
 	router := chi.NewRouter()
 
+	router.Mount("/repositories", v1.NewRepositoriesRouter())
 	router.Mount("/users", v1.NewUsersRouter())
+
 	router.Get("/", func(w http.ResponseWriter, req *http.Request) {
 		res := result.Ok(map[string]any{
 			"message":  "hello world!",

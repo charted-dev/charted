@@ -14,3 +14,69 @@
 // limitations under the License.
 
 package controllers
+
+import (
+	"context"
+	"errors"
+	"fmt"
+
+	"github.com/sirupsen/logrus"
+	"noelware.org/charted/server/internal"
+	dbtypes "noelware.org/charted/server/internal/db_types"
+	"noelware.org/charted/server/internal/result"
+	"noelware.org/charted/server/prisma/db"
+)
+
+var repositoryNameRegex = ``
+
+func GetRepository(id string) *result.Result {
+	repository, err := internal.GlobalContainer.Database.Repositories.FindUnique(db.Repositories.ID.Equals(id)).Exec(context.TODO())
+	if err != nil {
+		if errors.Is(err, db.ErrNotFound) {
+			return result.Ok(nil)
+		}
+
+		logrus.Errorf("Unable to query entry 'repositories.%s': %s", id, err)
+		return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to retrieve repository %s.", id))
+	}
+
+	return result.Ok(dbtypes.FromRepositoryDbModel(internal.GlobalContainer.Database, repository))
+}
+
+func GetRepositories(id string) *result.Result {
+	repositories, err := internal.GlobalContainer.Database.Repositories.FindMany(db.Repositories.OwnerID.Equals(id)).Exec(context.TODO())
+	if err != nil {
+		logrus.Errorf("Unable to retrieve repositories for user '%s': %s", id, err)
+		return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to retrieve repositories for user %s.", id))
+	}
+
+	var repos []*dbtypes.Repository
+	for _, repo := range repositories {
+		data := dbtypes.FromRepositoryDbModel(internal.GlobalContainer.Database, &repo)
+		repos = append(repos, data)
+	}
+
+	return result.Ok(repos)
+}
+
+func CreateRepository(name string, ownerID string) *result.Result {
+	// Check if `name`
+
+	id := internal.GlobalContainer.Snowflake.Generate().String()
+	repository, err := internal.GlobalContainer.Database.Repositories.CreateOne(
+		db.Repositories.OwnerID.Set(ownerID),
+		db.Repositories.Name.Set(name),
+		db.Repositories.ID.Set(id),
+	).Exec(context.TODO())
+
+	if err != nil {
+		logrus.Errorf("Unable to create repository %s belonging to owner %s: %s", name, ownerID, err)
+		return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to create repository %s.", name))
+	}
+
+	return result.Ok(dbtypes.FromRepositoryDbModel(internal.GlobalContainer.Database, repository))
+}
+
+func UpdateRepository(id string, updates map[string]any) *result.Result {
+	return nil
+}
