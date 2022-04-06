@@ -143,7 +143,7 @@ func Start() error {
 			logrus.WithField("type", "server->close->psql").Errorf("Unable to close PostgreSQL connection: %s", err)
 		}
 
-		logrus.Warn("Closed off PostgreSQL connection! Now closing off Redis...")
+		logrus.WithField("type", "server->close").Warn("Closed off PostgreSQL connection! Now closing off Redis...")
 		if err := internal.GlobalContainer.Redis.Close(); err != nil {
 			logrus.WithField("type", "server->close->redis").Errorf("Unable to close Redis connection: %s", err)
 		}
@@ -151,6 +151,10 @@ func Start() error {
 		logrus.WithField("type", "server->close").Warn("Closed off everything, goodbye.")
 		cancel()
 	}()
+
+	if internal.GlobalContainer.Sentry != nil {
+		defer internal.GlobalContainer.Sentry.Flush(5 * time.Second)
+	}
 
 	if err := server.Shutdown(ctx); err != nil {
 		return err

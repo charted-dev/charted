@@ -95,7 +95,7 @@ func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 	// Output the log message fields if any
 	if len(fields) != 0 {
 		for k, v := range fields {
-			fmt.Fprintf(b, "[%s->%v] ", k, v)
+			fmt.Fprintf(b, "[%s: %v] ", k, v)
 		}
 	}
 

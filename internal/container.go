@@ -29,6 +29,7 @@ import (
 	redisrl "github.com/noelware/chi-ratelimit-redis"
 	"github.com/sirupsen/logrus"
 	"noelware.org/charted/server/internal/email"
+	"noelware.org/charted/server/internal/loghooks"
 	"noelware.org/charted/server/internal/search"
 	"noelware.org/charted/server/internal/search/elastic"
 	"noelware.org/charted/server/internal/search/meilisearch"
@@ -208,9 +209,31 @@ func NewContainer(config *Config) {
 			ServerName:       fmt.Sprintf("noelware.charted_server v%s @ %s", Version, hostName),
 		})
 
+		sentry.ConfigureScope(func(scope *sentry.Scope) {
+			flavour := "git"
+			buildDate, _ := time.Parse(time.RFC3339, BuildDate)
+
+			if Docker() {
+				flavour = "docker"
+			}
+
+			scope.SetTags(map[string]string{
+				"product":               "charted-server",
+				"vendor":                "Noelware",
+				"server":                hostName,
+				"product.version":       Version,
+				"product.commit.sha":    CommitSHA,
+				"product.build.date":    buildDate.Format(time.RFC3339),
+				"product.build.flavour": flavour,
+			})
+		})
+
 		if err != nil {
 			logrus.WithField("step", "bootstrap->sentry").Fatalf("Unable to initialize Sentry: %s", err)
 		}
+
+		hook := loghooks.NewSentryHook(client)
+		logrus.AddHook(hook)
 
 		sentryClient = client
 	}
