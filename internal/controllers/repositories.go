@@ -27,7 +27,7 @@ import (
 	"noelware.org/charted/server/prisma/db"
 )
 
-var repositoryNameRegex = ``
+var repositoryNameRegex = `` //nolint
 
 func GetRepository(id string) *result.Result {
 	repository, err := internal.GlobalContainer.Database.Repositories.FindUnique(db.Repositories.ID.Equals(id)).Exec(context.TODO())
@@ -43,6 +43,8 @@ func GetRepository(id string) *result.Result {
 	return result.Ok(dbtypes.FromRepositoryDbModel(internal.GlobalContainer.Database, repository))
 }
 
+// TODO(noel/ben/ice): paginate the repositories
+
 func GetRepositories(id string) *result.Result {
 	repositories, err := internal.GlobalContainer.Database.Repositories.FindMany(db.Repositories.OwnerID.Equals(id)).Exec(context.TODO())
 	if err != nil {
@@ -50,9 +52,10 @@ func GetRepositories(id string) *result.Result {
 		return result.Err(500, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Unable to retrieve repositories for user %s.", id))
 	}
 
-	var repos []*dbtypes.Repository
+	repos := make([]*dbtypes.Repository, 0)
 	for _, repo := range repositories {
-		data := dbtypes.FromRepositoryDbModel(internal.GlobalContainer.Database, &repo)
+		// TODO: make this not allocate memory (as much it should) on over >100 repositories.
+		data := dbtypes.FromRepositoryDbModel(internal.GlobalContainer.Database, &repo) //nolint
 		repos = append(repos, data)
 	}
 

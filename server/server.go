@@ -62,10 +62,10 @@ func Start() error {
 
 	// Check if we need to enable analytics
 	if internal.GlobalContainer.Config.Analytics {
-		instanceUid := internal.GetInstanceUUID()
+		instanceUID := internal.GetInstanceUUID()
 
 		logrus.WithField("analytics", "enabled").WithField("step", "server->grpc").Info("You have enabled the Analytics Engine! If you haven't registered a charted-server instance, do so here: https://analytics.noelware.org/register?product=charted-server")
-		logrus.WithField("analytics", "enabled").WithField("step", "server->grpc").Infof("If you already registered a instance, you can view it here: https://analytics.noelware.org/charted/%s", instanceUid)
+		logrus.WithField("analytics", "enabled").WithField("step", "server->grpc").Infof("If you already registered a instance, you can view it here: https://analytics.noelware.org/charted/%s", instanceUID)
 
 		grpcServer = grpc.NewServer()
 	}
