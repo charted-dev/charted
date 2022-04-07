@@ -85,6 +85,9 @@ jobs:
 
       - name: Install protoc
         run: sudo apt install -y protobuf-compiler
+        
+      - name: Generate Protobufs
+        run: protoc --proto_path=protobufs protobufs/*.proto --go_out=. 
 
       - name: Build project to see if it compiles
         run: make build
