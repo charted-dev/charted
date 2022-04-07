@@ -18,6 +18,7 @@ GOARCH     := $(shell go env GOARCH)
 VERSION    := $(shell cat ./version.json | jq .version | tr -d '"')
 GIT_COMMIT := $(shell git rev-parse --short=8 HEAD)
 BUILD_DATE := $(shell go run ./cmd/build-date/main.go)
+MAKEFLAGS  := -s
 
 ifeq ($(GOOS),linux)
 	TARGET_OS ?= linux

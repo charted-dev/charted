@@ -14,70 +14,90 @@
 // limitations under the License.
 
 datasource provider {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
-    provider = "go run github.com/prisma/prisma-client-go"
+  provider = "go run github.com/prisma/prisma-client-go"
 }
 
 model Users {
-    gravatarEmail String?          @map("gravatar_email")
-    connections   UserConnections?
-    description   String?
-    displayName   String?          @map("display_name")
-    avatarHash    String?          @map("avatar_hash")
-    updatedAt     DateTime         @updatedAt @map("updated_at")
-    createdAt     DateTime         @default(now()) @map("created_at")
-    username      String           @unique
-    password      String
-    email         String           @unique
-    flags         Int              @default(0)
-    name          String?
-    id            String           @id
+  gravatarEmail String?                        @map("gravatar_email")
+  connections   UserConnections?
+  description   String?
+  twoFAGoogle   TwoFactorAuthenticationGoogle?
+  twoFAOther    TwoFactorAuthenticationOther?
+  displayName   String?                        @map("display_name")
+  avatarHash    String?                        @map("avatar_hash")
+  updatedAt     DateTime                       @updatedAt @map("updated_at")
+  createdAt     DateTime                       @default(now()) @map("created_at")
+  username      String                         @unique
+  password      String
+  email         String                         @unique
+  flags         Int                            @default(0)
+  name          String?
+  id            String                         @id
 
-    @@map("users")
+  @@map("users")
 }
 
 model Organization {
-    singleSaslEnabled Boolean  @default(false) @map("single_sasl_enabled")
-    verifiedPublisher Boolean  @default(false) @map("verified_publisher")
-    twitterHandle     String?
-    gravatarEmail     String?
-    displayName       String?  @map("display_name")
-    description       String?
-    avatarHash        String?  @map("avatar_hash")
-    updatedAt         DateTime @updatedAt @map("updated_at")
-    createdAt         DateTime @default(now()) @map("created_at")
-    flags             Int      @default(0)
-    name              String   @unique
-    id                String   @id
+  singleSaslEnabled Boolean  @default(false) @map("single_sasl_enabled")
+  verifiedPublisher Boolean  @default(false) @map("verified_publisher")
+  twitterHandle     String?
+  gravatarEmail     String?
+  displayName       String?  @map("display_name")
+  description       String?
+  avatarHash        String?  @map("avatar_hash")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  createdAt         DateTime @default(now()) @map("created_at")
+  flags             Int      @default(0)
+  name              String   @unique
+  id                String   @id
 
-    @@map("organizations")
+  @@map("organizations")
 }
 
 model Repositories {
-    stargazersCount Int      @default(0) @map("stargazers_count")
-    downloadsCount  Int      @default(0) @map("downloads_count")
-    description     String?
-    updatedAt       DateTime @updatedAt @map("updated_at")
-    createdAt       DateTime @default(now()) @map("created_at")
-    iconHash        String?  @map("icon_hash")
-    ownerId         String
-    name            String
-    id              String   @id
+  stargazersCount Int      @default(0) @map("stargazers_count")
+  downloadsCount  Int      @default(0) @map("downloads_count")
+  description     String?
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+  iconHash        String?  @map("icon_hash")
+  ownerId         String
+  name            String
+  id              String   @id
 
-    @@map("repositories")
+  @@map("repositories")
 }
 
 model UserConnections {
-    noelwareAccountId String? @unique @map("noelware_account_id")
-    googleAccountId   String? @unique @map("google_account_id")
-    appleAccountId    String? @unique @map("apple_account_id")
-    ownerId           String  @unique
-    owner             Users   @relation(fields: [ownerId], references: [id])
-    id                String  @id
+  noelwareAccountId String? @unique @map("noelware_account_id")
+  googleAccountId   String? @unique @map("google_account_id")
+  appleAccountId    String? @unique @map("apple_account_id")
+  ownerId           String  @unique
+  owner             Users   @relation(fields: [ownerId], references: [id])
+  id                String  @id
 
-    @@map("user_connections")
+  @@map("user_connections")
+}
+
+model TwoFactorAuthenticationGoogle {
+  ownerId String @unique @map("owner_id")
+  owner   Users  @relation(fields: [ownerId], references: [id])
+  code    String @map("otp_code")
+  id      String @id
+
+  @@map("2fa_google")
+}
+
+model TwoFactorAuthenticationOther {
+  ownerId String @unique @map("owner_id")
+  owner   Users  @relation(fields: [ownerId], references: [id])
+  code    String @map("otp_code")
+  id      String @id
+
+  @@map("2fa_other")
 }
