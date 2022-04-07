@@ -83,37 +83,8 @@ jobs:
       - name: Install dependencies
         run: make deps
 
-      # Modified from: https://lukasjoswiak.com/github-actions-protobuf/
-      # TODO: make this an action? owo
-      - name: Cache Protobufs
-        id: protobuf-cache
-        uses: actions/cache@v3
-        with:
-          path: /home/runner/work/charted/charted/protobuf_core
-          key: ${{ runner.os }}-protobufs
-          restore-keys:
-            ${{ runner.os }}-protobufs
-
-      - name: Build protobufs library
-        if: steps.protobuf-cache.outputs.cache-hit != 'true'
-        run: |
-          # Clone the repository
-          git clone https://github.com/protocolbuffers/protobuf.git protobuf_core
-          cd protobuf_core
-          git submodule update --init --recursive
-          ./autogen.sh
-          ./configure
-          make
-          make check
-
-      - name: Install protobuf library
-        run: cd protobuf_core && sudo make install && sudo ldconfig
-
-      - name: Install `protoc-gen-go` package
-        run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-
-      - name: Generate Protobufs
-        run: protoc --proto_path=protobufs protobufs/*.proto --go_out=. 
+      - name: Install protoc
+        run: sudo apt install -y protobuf-compiler
 
       - name: Build project to see if it compiles
         run: make build
