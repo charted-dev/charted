@@ -19,7 +19,6 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"noelware.org/charted/server/internal/result"
 	v1 "noelware.org/charted/server/server/routes/api/v1"
 )
 
@@ -30,12 +29,14 @@ func NewMainRouter() chi.Router {
 	router.Mount("/users", v1.NewUsersRouter())
 
 	router.Get("/", func(w http.ResponseWriter, req *http.Request) {
-		res := result.Ok(map[string]any{
-			"message":  "hello world!",
-			"docs_url": "https://charts.noelware.org/docs",
-		})
+		panic("owo")
 
-		res.Write(w)
+		// res := result.Ok(map[string]any{
+		// 	"message":  "hello world!",
+		// 	"docs_url": "https://charts.noelware.org/docs",
+		// })
+
+		// res.Write(w)
 	})
 
 	return router

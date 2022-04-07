@@ -16,74 +16,29 @@
 package middleware
 
 import (
-	"context"
-	"fmt"
 	"net/http"
-	"time"
 
-	"github.com/getsentry/sentry-go"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/sirupsen/logrus"
-	"noelware.org/charted/server/internal"
 	"noelware.org/charted/server/internal/result"
 )
 
 func ErrorHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		// If Sentry isn't enabled, let's log the panic
-		if internal.GlobalContainer.Sentry == nil {
-			defer func() {
-				if err := recover(); err != nil {
-					if err == http.ErrAbortHandler {
-						panic(err)
-					}
-
-					logrus.Errorf("Received panic on route \"%s %s\": %s", req.Method, req.URL.EscapedPath(), err)
-					middleware.PrintPrettyStack(err)
-
-					res := result.Err(500, "INTERNAL_SERVER_ERROR", "Unknown error had occurred while executing.")
-					res.Write(w)
+		defer func() {
+			if err := recover(); err != nil {
+				if err == http.ErrAbortHandler {
+					panic(err)
 				}
-			}()
 
-			next.ServeHTTP(w, req)
-		} else {
-			ctx := req.Context()
-			hub := sentry.GetHubFromContext(ctx)
-			if hub == nil {
-				hub = sentry.CurrentHub().Clone()
-				ctx = sentry.SetHubOnContext(ctx, hub)
+				logrus.Errorf("Received panic on route \"%s %s\": %s", req.Method, req.URL.EscapedPath(), err)
+				middleware.PrintPrettyStack(err)
+
+				res := result.Err(500, "INTERNAL_SERVER_ERROR", "Unknown error had occurred while executing.")
+				res.Write(w)
 			}
+		}()
 
-			span := sentry.StartSpan(ctx, "noelware.charted.server.request",
-				sentry.TransactionName(fmt.Sprintf("request %s %s", req.Method, req.URL.EscapedPath())),
-				sentry.ContinueFromRequest(req))
-
-			defer span.Finish()
-
-			req = req.WithContext(span.Context())
-			hub.Scope().SetRequest(req)
-
-			defer func() {
-				if err := recover(); err != nil {
-					if err == http.ErrAbortHandler {
-						panic(err)
-					}
-
-					logrus.Errorf("Received panic on route \"%s %s\": %s", req.Method, req.URL.EscapedPath(), err)
-					middleware.PrintPrettyStack(err)
-
-					eventId := hub.RecoverWithContext(context.WithValue(req.Context(), sentry.RequestContextKey, req), err) //nolint
-					if eventId != nil {
-						hub.Flush(1 * time.Second)
-					}
-
-					res := result.Err(500, "INTERNAL_SERVER_ERROR", "Unknown error had occurred while executing.")
-					res.Write(w)
-				}
-			}()
-
-			next.ServeHTTP(w, req)
-		}
+		next.ServeHTTP(w, req)
 	})
 }

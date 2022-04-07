@@ -16,21 +16,21 @@ require (
 	github.com/noelware/chi-ratelimit v0.0.3
 	github.com/noelware/chi-ratelimit-redis v0.0.2
 	github.com/pelletier/go-toml/v2 v2.0.0-beta.6
-	github.com/prisma/prisma-client-go v0.13.1
+	github.com/prisma/prisma-client-go v0.14.0
 	github.com/shopspring/decimal v1.3.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.4.0
 	github.com/takuoki/gocase v1.0.0
-	github.com/valyala/fasthttp v1.34.0
+	github.com/valyala/fasthttp v1.35.0
 	google.golang.org/grpc v1.45.0
+	google.golang.org/protobuf v1.28.0
 )
 
 require (
 	github.com/golang/protobuf v1.5.2 // indirect
-	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
+	golang.org/x/net v0.0.0-20220403103023-749bd193bc2b // indirect
 	golang.org/x/text v0.3.7 // indirect
-	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
-	google.golang.org/protobuf v1.26.0 // indirect
+	google.golang.org/genproto v0.0.0-20220405205423-9d709892a2bf // indirect
 )
 
 require (
@@ -48,5 +48,5 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	golang.org/x/crypto v0.0.0-20220331220935-ae2d96664a29
-	golang.org/x/sys v0.0.0-20220330033206-e17cdc41300f // indirect
+	golang.org/x/sys v0.0.0-20220406163625-3f8b81556e12 // indirect
 )

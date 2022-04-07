@@ -207,7 +207,13 @@ func NewContainer(config *Config) {
 			AttachStacktrace: true,
 			SampleRate:       1.0,
 			ServerName:       fmt.Sprintf("noelware.charted_server v%s @ %s", Version, hostName),
+			TracesSampleRate: 1.0,
+			Debug:            true,
 		})
+
+		if err != nil {
+			logrus.WithField("step", "bootstrap->sentry").Fatalf("Unable to initialize Sentry: %s", err)
+		}
 
 		sentry.ConfigureScope(func(scope *sentry.Scope) {
 			flavour := "git"
@@ -227,10 +233,6 @@ func NewContainer(config *Config) {
 				"product.build.flavour": flavour,
 			})
 		})
-
-		if err != nil {
-			logrus.WithField("step", "bootstrap->sentry").Fatalf("Unable to initialize Sentry: %s", err)
-		}
 
 		hook := loghooks.NewSentryHook(client)
 		logrus.AddHook(hook)

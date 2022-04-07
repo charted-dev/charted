@@ -24,6 +24,7 @@ import (
 	"syscall"
 	"time"
 
+	sentryhttp "github.com/getsentry/sentry-go/http"
 	"github.com/go-chi/chi/v5"
 	middie "github.com/go-chi/chi/v5/middleware"
 	"github.com/sirupsen/logrus"
@@ -70,19 +71,22 @@ func Start() error {
 		grpcServer = grpc.NewServer()
 	}
 
+	if grpcServer != nil {
+		router.Use(middleware.GrpcConnection(grpcServer))
+	}
+
 	router.Use(
 		internal.GlobalContainer.Ratelimiter.Middleware,
 		middie.GetHead,
 		middie.RealIP,
 		middie.Heartbeat("/ping"),
-		middleware.Log,
-		middleware.ErrorHandler,
 	)
 
-	if grpcServer != nil {
-		router.Use(middleware.GrpcConnection(grpcServer))
+	if internal.GlobalContainer.Sentry != nil {
+		router.Use(sentryhttp.New(sentryhttp.Options{Repanic: true}).Handle, middleware.ErrorHandler)
 	}
 
+	router.Use(middleware.ErrorHandler, middleware.Log)
 	router.Mount("/", routes.NewMainRouter())
 	router.Mount("/v1", v1.NewApiV1Router())
 	router.Mount("/version", routes.NewVersionRouter())

@@ -20,6 +20,7 @@ before:
   hooks:
     - go mod tidy
     - go mod download
+    - protoc --proto_path=protobufs protobufs/*.proto --go_out=.
 
 env:
   - CGO_ENABLED=0

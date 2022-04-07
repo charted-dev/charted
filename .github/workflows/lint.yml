@@ -63,6 +63,16 @@ jobs:
         with:
           go-version: 1.18
 
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-1.18-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-1.18-go-
+
       - name: Setup Prisma schema
         run: |
           echo "DATABASE_URL=postgresql://noel:noeliscutieuwu@localhost:5432/charted?schema=noelware" >> ~/.env
@@ -71,15 +81,39 @@ jobs:
       - name: Install dependencies
         run: go mod download && go get
 
-      - name: Cache Go modules
+      # Modified from: https://lukasjoswiak.com/github-actions-protobuf/
+      # TODO: make this an action? owo
+      - name: Cache Protobufs
+        id: protobuf-cache
         uses: actions/cache@v3
         with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: ${{ runner.os }}-${{ matrix.go-version }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.go-version }}-go-
+          path: ~/.protobufs
+          key: ${{ runner.os }}-protobufs
+          restore-keys:
+            ${{ runner.os }}-protobufs
+
+      - name: Build protobufs library
+        if: steps.protobuf-cache.outputs.cache-hit != 'true'
+        working-directory: ~/.protobufs
+        run: |
+          # Clone the repository
+          git clone https://github.com/protocolbuffers/protobuf.git
+          cd protobuf
+          git submodule update --init --recursive
+          ./autogen.sh
+          ./configure
+          make
+          make check
+
+      - name: Install protobuf library
+        working-directory: ~/.protobufs/protobuf
+        run: sudo make install && sudo ldconfig
+
+      - name: Install `protoc-gen-go` package
+        run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+
+      - name: Generate Protobufs
+        run: protoc --proto_path=protobufs protobufs/*.proto --go_out=. 
 
       - name: Build project to see if it compiles
         run: make build
