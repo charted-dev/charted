@@ -104,7 +104,7 @@ jobs:
         id: protobuf-cache
         uses: actions/cache@v3
         with:
-          path: ~/.protobufs
+          path: /home/runner/work/charted/charted/protobuf_core
           key: ${{ runner.os }}-protobufs
           restore-keys:
             ${{ runner.os }}-protobufs
