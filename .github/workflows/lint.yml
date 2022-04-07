@@ -81,7 +81,7 @@ jobs:
           make generate
 
       - name: Install dependencies
-        run: go mod download && go get
+        run: make deps
 
       # Modified from: https://lukasjoswiak.com/github-actions-protobuf/
       # TODO: make this an action? owo
