@@ -1,6 +1,7 @@
 # 📦 charted-server
-> *Free, open source, and reliable Helm Chart registry made in Go.*
+> *Free, open source, and reliable Helm Chart registry made in Kotlin!*
 
+<!--
 ## Why?
 **charted** (case-sensitive) is a way to distribute your Helm Charts onto the cloud safely and reliable without using an S3 bucket,
 Google Cloud Storage bucket, or your local filesystem, it's centralized in one place.
@@ -151,6 +152,7 @@ address = ""
 # sessions, stargazers/downloads count, and more. Sentinel and Standalone connections are supported.
 [redis]
 ```
+-->
 
 ## License
 **charted-server** is released under the **Apache 2.0** License by [Noelware](https://noelware.org), you can read the full

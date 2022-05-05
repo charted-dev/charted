@@ -1,4 +1,4 @@
-# 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Go.
+# 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
 # Copyright 2022 Noelware <team@noelware.org>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,118 +13,74 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Lint on Commit
+name: ktlint
 on:
-  workflow_dispatch:
   push:
     branches:
       - 'feature/**'
-      - 'bug/gh-**'
       - 'issue/gh-**'
       - nightly
-      - main
+      - master
 
     paths-ignore:
       - '.github/**'
+      - '.husky/**'
       - '.vscode/**'
       - 'assets/**'
+      - 'locales/**'
       - 'docker/**'
-      - '.idea/**'
       - '.dockerignore'
+      - '.eslintignore'
       - '.gitignore'
       - '**.md'
       - 'LICENSE'
       - 'renovate.json'
-permissions:
-  contents: read
+
+  pull_request:
+    branches:
+      - 'feature/**'
+      - 'issue/gh-**'
+      - master
+      - nightly
+
+    paths-ignore:
+      - '.github/**'
+      - '.husky/**'
+      - '.vscode/**'
+      - 'assets/**'
+      - 'locales/**'
+      - 'docker/**'
+      - '.dockerignore'
+      - '.eslintignore'
+      - '.gitignore'
+      - '**.md'
+      - 'LICENSE'
+      - 'renovate.json'
 jobs:
-  lint:
+  ktlint:
+    name: Linting and Unit Tests
     runs-on: ubuntu-latest
-    name: CI Linting
-    services:
-      postgres:
-        image: postgres:latest
-        env:
-          POSTGRES_USER: noel
-          POSTGRES_PASSWORD: noeliscutieuwu
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - '5432:5432'
     steps:
-      - name: Checkout repository
+      - name: Checks out the repository
         uses: actions/checkout@v3
+
+      - name: Sets up Java 17
+        uses: actions/setup-java@v3
         with:
-          submodules: recursive
+          distribution: temurin # Eclipse Temurin is <3
+          java-version: 17
 
-      - name: Setup Go 1.18
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.18
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
 
-      - name: Cache Go modules
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: ${{ runner.os }}-1.18-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-1.18-go-
+      - name: Validate gradle-wrapper.jar
+        uses: gradle/wrapper-validation-action@v1
 
-      - name: Setup Prisma schema
-        run: |
-          echo "DATABASE_URL=postgresql://noel:noeliscutieuwu@localhost:5432/charted?schema=noelware" >> ~/.env
-          make generate
+      - name: Lets ./gradlew be executable
+        run: chmod +x ./gradlew
 
-      - name: Install dependencies
-        run: make deps
+      - name: Lints the repository for any code errors
+        run: ./gradlew spotlessCheck --no-daemon
 
-      # Modified from: https://lukasjoswiak.com/github-actions-protobuf/
-      # TODO: make this an action? owo
-      - name: Cache Protobufs
-        id: protobuf-cache
-        uses: actions/cache@v3
-        with:
-          path: /home/runner/work/charted/charted/protobuf_core
-          key: ${{ runner.os }}-protobufs
-          restore-keys:
-            ${{ runner.os }}-protobufs
-
-      - name: Build protobufs library
-        if: steps.protobuf-cache.outputs.cache-hit != 'true'
-        run: |
-          # Clone the repository
-          git clone https://github.com/protocolbuffers/protobuf.git protobuf_core
-          cd protobuf_core
-          git submodule update --init --recursive
-          ./autogen.sh
-          ./configure
-          make
-          make check
-
-      - name: Install protobuf library
-        run: cd protobuf_core && sudo make install && sudo ldconfig
-
-      - name: Install `protoc-gen-go` package
-        run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-
-      - name: Generate Protobufs
-        run: protoc --proto_path=protobufs protobufs/*.proto --go_out=. 
-
-      - name: Build project to see if it compiles
-        run: make build
-
-      - name: Format project for any formatting to apply
-        run: make fmt
-
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          args: --issues-exit-code=1
-          only-new-issues: false
-          skip-pkg-cache: true
-          skip-build-cache: true
+      - name: Builds the project for any errors
+        run: ./gradlew compileKotlin --no-daemon
