@@ -59,7 +59,7 @@ jobs:
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       # Modified from: https://lukasjoswiak.com/github-actions-protobuf/
       # TODO: make this an action? owo
