@@ -33,5 +33,6 @@ dependencies {
     implementation("com.google.protobuf:protobuf-gradle-plugin:0.8.18")
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21")
     implementation("org.jetbrains.kotlin:kotlin-serialization:1.6.21")
+    implementation("com.netflix.nebula:gradle-ospackage-plugin:9.1.1")
     implementation("dev.floofy.commons:gradle:2.1.0")
 }

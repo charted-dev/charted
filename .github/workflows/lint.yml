@@ -79,6 +79,9 @@ jobs:
       - name: Lets ./gradlew be executable
         run: chmod +x ./gradlew
 
+      - name: Generate Protobufs
+        run: ./gradlew :protobuf-lib:generateProtobuf
+
       - name: Lints the repository for any code errors
         run: ./gradlew spotlessCheck --no-daemon
 

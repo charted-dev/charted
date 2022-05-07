@@ -26,19 +26,19 @@ import kotlinx.serialization.json.jsonPrimitive
 @OptIn(ExperimentalSerializationApi::class)
 object ChartedInfo {
     /**
-     * Represents the current version of **Hazel** from the `build-info.json` file
+     * Represents the current version of **charted-server** from the `build-info.json` file
      * that is present in resources.
      */
     val version: String
 
     /**
-     * Represents the current git commit hash of **Hazel** from the `build-info.json` file
+     * Represents the current git commit hash of **charted-server** from the `build-info.json` file
      * that is present in resources.
      */
     val commitHash: String
 
     /**
-     * Represents the build date of when **Hazel** was built from source in the `build-info.json` file
+     * Represents the build date of when **charted-server** was built from source in the `build-info.json` file
      * that is present in resources.
      */
     val buildDate: String

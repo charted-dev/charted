@@ -29,6 +29,12 @@ dependencies {
     implementation("io.ktor:ktor-serialization:2.0.1")
     implementation("io.ktor:ktor-server-netty:2.0.1")
     implementation("io.ktor:ktor-server-cors:2.0.1")
+    api("io.ktor:ktor-server-core:2.0.1")
+
+    // Ktor (client)
+    implementation("io.ktor:ktor-client-content-negotiation:2.0.1")
+    implementation("io.ktor:ktor-client-okhttp:2.0.1")
+    api("com.squareup.okhttp:okhttp:2.7.5")
 
     // Prometheus (for metrics)
     implementation("io.prometheus:simpleclient_hotspot:0.15.0")
@@ -47,17 +53,10 @@ dependencies {
 
     // Subprojects
     implementation(project(":analytics"))
-    implementation(project(":database"))
-    implementation(project(":engines:charts"))
-    implementation(project(":engines:core"))
-    implementation(project(":engines:oci"))
-    implementation(project(":search:core"))
-    implementation(project(":search:elastic"))
-    implementation(project(":search:meili"))
 
     // Spring (daemon server)
     api("org.springframework.boot:spring-boot:2.6.7")
 
-    // YAML (configuration)
-    implementation("com.charleskorn.kaml:kaml:0.43.0")
+    // JWT
+    implementation("com.auth0:java-jwt:3.19.2")
 }

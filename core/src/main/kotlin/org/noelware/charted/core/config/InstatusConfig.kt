@@ -16,3 +16,11 @@
  */
 
 package org.noelware.charted.core.config
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class InstatusConfig(
+    val apiResponseTimeMetric: String? = null,
+    val token: String
+)

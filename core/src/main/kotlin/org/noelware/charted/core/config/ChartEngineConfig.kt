@@ -16,3 +16,54 @@
  */
 
 package org.noelware.charted.core.config
+
+import kotlinx.serialization.SerialName
+
+@kotlinx.serialization.Serializable
+enum class EngineClass {
+    @SerialName("charts")
+    CHART,
+
+    @SerialName("oci")
+    OCI;
+}
+
+/**
+ * Represents the configuration to use an OCI registry to store Helm charts. Which is
+ * natively supported with `helm push` / `helm pull`.
+ */
+@kotlinx.serialization.Serializable
+data class OciEngineConfig(
+    /**
+     * The username to use for basic authentication. If null, it will try to check
+     * in `~/.docker/config.json` to decipher it, if the path doesn't exist, it'll
+     * just be insecure if [insecure] is set to `true`.
+     */
+    val username: String? = null,
+
+    /**
+     * The password to use for basic authentication. If null, it will try to check
+     * in `~/.docker/config.json` to decipher it, if the path doesn't exist, it'll
+     * just be insecure if [insecure] is set to `true`.
+     */
+    val password: String? = null,
+
+    /**
+     * The registry URI to use to push and pull.
+     */
+    val registryUri: String,
+
+    /**
+     * If the connection should be insecure.
+     */
+    val insecure: Boolean = false
+)
+
+@kotlinx.serialization.Serializable
+data class ChartEngineConfig(
+    @SerialName("class")
+    val engineClass: EngineClass,
+
+    @SerialName("oci")
+    val ociConfig: OciEngineConfig? = null
+)

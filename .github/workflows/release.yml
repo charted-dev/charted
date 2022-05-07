@@ -19,10 +19,6 @@ on:
     types:
       - released
 
-concurrency:
-  group: goreleaser
-  cancel-in-progress: true
-
 permissions:
   contents: write
   packages: write

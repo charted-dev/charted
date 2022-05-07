@@ -16,3 +16,15 @@
  */
 
 package org.noelware.charted.core.config
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class PostgresConfig(
+    val username: String = "postgres",
+    val password: String = "postgres",
+    val schema: String = "public",
+    val host: String = "localhost",
+    val port: Int = 5432,
+    val name: String = "hana"
+)

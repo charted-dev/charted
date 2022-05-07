@@ -30,6 +30,7 @@ group = "org.noelware.charted"
 version = "$VERSION"
 
 repositories {
+    maven("https://repo.perfectdreams.net/")
     mavenCentral()
     mavenLocal()
     noelware()

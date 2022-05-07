@@ -18,3 +18,12 @@
 plugins {
     `charted-module`
 }
+
+dependencies {
+    // Remi
+    api("org.noelware.remi:remi-core:0.1.4-beta.3")
+
+    // Subprojects
+    implementation(project(":database"))
+    implementation(project(":core"))
+}

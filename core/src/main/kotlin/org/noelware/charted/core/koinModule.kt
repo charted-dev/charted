@@ -17,24 +17,18 @@
 
 package org.noelware.charted.core
 
-import com.charleskorn.kaml.Yaml
+import io.ktor.client.*
+import io.ktor.client.engine.okhttp.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.kotlinx.json.*
+import io.sentry.Sentry
 import kotlinx.serialization.json.Json
 import org.koin.dsl.module
-import org.noelware.charted.core.config.Config
-import java.io.File
-import java.nio.charset.Charset
+import org.noelware.charted.core.http.LoggingInterceptor
+import org.noelware.charted.core.http.SentryInterceptor
 
 val chartedModule = module {
-    single {
-        val configPath = System.getenv("CHARTED_CONFIG_PATH") ?: "./config.yml"
-        val configFile = File(configPath)
-
-        if (!configFile.exists())
-            throw IllegalStateException("File $configPath must exist on the disk")
-
-        Yaml.default.decodeFromString(Config.serializer(), configFile.readText(Charset.defaultCharset()))
-    }
-
     single {
         Json {
             ignoreUnknownKeys = true
@@ -42,4 +36,53 @@ val chartedModule = module {
             isLenient = true
         }
     }
+
+    single {
+        val httpClient = HttpClient(OkHttp) {
+            engine {
+                config {
+                    followRedirects(true)
+                }
+
+                addInterceptor(LoggingInterceptor)
+
+                if (Sentry.isEnabled()) {
+                    addInterceptor(SentryInterceptor)
+                }
+            }
+
+            install(ContentNegotiation) {
+                json(get())
+            }
+
+            install(UserAgent) {
+                agent = "Noelware/charted-server (v${ChartedInfo.version}; https://github.com/charted-dev/charted)"
+            }
+        }
+    }
 }
+
+/*
+        val httpClient = HttpClient(OkHttp) {
+            engine {
+                config {
+                    followRedirects(true)
+                    addInterceptor(LogInterceptor())
+
+                    if (Sentry.isEnabled()) {
+                        addInterceptor(SentryInterceptor())
+                    }
+                }
+            }
+
+            install(WebSockets)
+
+            install(ContentNegotiation) {
+                this.json(json)
+            }
+
+            install(UserAgent) {
+                agent = "Nino/DiscordBot (+https://github.com/NinoDiscord/Nino; v${NinoInfo.VERSION})"
+            }
+        }
+ */

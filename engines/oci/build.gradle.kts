@@ -18,3 +18,7 @@
 plugins {
     `charted-module`
 }
+
+dependencies {
+    api("io.ktor:ktor-client-core:2.0.1")
+}

@@ -17,8 +17,26 @@
 
 package org.noelware.charted.core.config
 
+import kotlinx.serialization.SerialName
+
 @kotlinx.serialization.Serializable
 data class Config(
+    @SerialName("jwt_secret_key")
+    val jwtSecretKey: String = "",
+
+    @SerialName("registrations")
+    val registrations: Boolean = true,
+
+    @SerialName("invite_only")
+    val inviteOnly: Boolean = false,
+
+    @SerialName("sentry_dsn")
+    val sentryDsn: String? = null,
     val analytics: AnalyticsConfig? = null,
-    val server: KtorServerConfig = KtorServerConfig()
+    val database: PostgresConfig = PostgresConfig(),
+    val instatus: InstatusConfig? = null,
+    val storage: StorageConfig? = null,
+    val server: KtorServerConfig = KtorServerConfig(),
+    val engine: ChartEngineConfig? = null,
+    val redis: RedisConfig = RedisConfig()
 )

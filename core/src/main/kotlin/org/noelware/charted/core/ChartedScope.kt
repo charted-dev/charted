@@ -31,7 +31,7 @@ object ChartedScope: CoroutineScope {
  * The coroutine is cancelled when the resulting job is [cancelled][Job.cancel].
  *
  * This extension appends the [SentryContext] coroutine context if Sentry has been initialized, this will only
- * be `true` if [Sentry.init] was called and the [coroutine context][HazelScope.coroutineContext] of the Hazel coroutine
+ * be `true` if [Sentry.init] was called and the [coroutine context][ChartedScopeScope.coroutineContext] of the ChartedScope coroutine
  * scope.
  *
  * Read the documentation on [CoroutineScope.launch] for more information on how this works.

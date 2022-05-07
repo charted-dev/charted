@@ -22,11 +22,11 @@ include(
     ":core",
     ":database",
     ":engines:charts",
-    ":engines:core",
     ":engines:oci",
     ":protobuf-lib",
-    ":search:core",
     ":search:elastic",
     ":search:meili",
-    ":server"
+    ":server",
+    ":test",
+    ":util"
 )

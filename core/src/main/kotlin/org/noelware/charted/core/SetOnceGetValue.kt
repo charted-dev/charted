@@ -48,6 +48,8 @@ class SetOnceGetValue<T> {
             }
         }
 
+    var valueOrNull: T? = holder
+
     override fun hashCode(): Int = holder.hashCode()
     override fun equals(other: Any?): Boolean {
         val setOnceGetValue = other as? SetOnceGetValue<*> ?: return false

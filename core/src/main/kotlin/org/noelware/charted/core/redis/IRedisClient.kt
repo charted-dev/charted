@@ -17,6 +17,7 @@
 
 package org.noelware.charted.core.redis
 
+import io.lettuce.core.api.async.RedisAsyncCommands
 import java.io.Closeable
 import kotlin.time.Duration
 
@@ -27,6 +28,7 @@ data class RedisStats(
 )
 
 interface IRedisClient: Closeable {
+    val commands: RedisAsyncCommands<String, String>
     suspend fun stats(): RedisStats
     suspend fun ping(): Duration
     fun connect()

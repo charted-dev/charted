@@ -627,5 +627,8 @@ FodyWeavers.xsd
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
 
+gradle/publishing.properties
 config.toml
 instance.uuid
+!distribution/config.toml
+server/src/main/resources/config/logging.properties

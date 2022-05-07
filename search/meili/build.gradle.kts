@@ -18,3 +18,8 @@
 plugins {
     `charted-module`
 }
+
+dependencies {
+    implementation("com.meilisearch.sdk:meilisearch-java:0.7.0")
+    implementation(project(":database"))
+}

@@ -18,106 +18,97 @@
 package org.noelware.charted.core.redis
 
 import dev.floofy.utils.slf4j.logging
+import io.lettuce.core.RedisURI
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
+import kotlinx.coroutines.future.await
+import kotlinx.coroutines.runBlocking
+import org.apache.commons.lang3.time.StopWatch
 import org.noelware.charted.core.SetOnceGetValue
+import org.noelware.charted.core.config.RedisConfig
 import kotlin.time.Duration
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 import io.lettuce.core.RedisClient as LettuceRedisClient
 
-class RedisClient: IRedisClient {
+class RedisClient(config: RedisConfig): IRedisClient {
     private val _commands: SetOnceGetValue<RedisAsyncCommands<String, String>> = SetOnceGetValue()
     private val _connection: SetOnceGetValue<StatefulRedisConnection<String, String>> = SetOnceGetValue()
     private val log by logging<RedisClient>()
     private val client: LettuceRedisClient
 
+    override val commands: RedisAsyncCommands<String, String>
+        get() = _commands.value
+
     init {
         log.debug("Creating Redis client...")
 
-        client = LettuceRedisClient.create()
-    }
-
-    override suspend fun stats(): RedisStats {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun ping(): Duration {
-        TODO("Not yet implemented")
-    }
-
-    override fun connect() {
-        TODO("Not yet implemented")
-    }
-
-    override fun close() {
-        TODO("Not yet implemented")
-    }
-}
-
-/*
-/*
-class RedisManager(config: HanaConfig): AutoCloseable {
-    private lateinit var connection: StatefulRedisConnection<String, String>
-    lateinit var commands: RedisAsyncCommands<String, String>
-    private val log by logging<RedisManager>()
-    private val client: RedisClient
-
-    init {
-        log.info("* Creating Redis client...")
-
-        val redisUri: RedisURI = if (config.redis.sentinels.isNotEmpty()) {
+        val uri = if (config.sentinels.isNotEmpty()) {
             val builder = RedisURI.builder()
-                .withSentinelMasterId(config.redis.master)
-                .withDatabase(config.redis.index)
+                .withSentinelMasterId(config.master)
+                .withDatabase(config.index)
 
-            for (host in config.redis.sentinels) {
+            for (host in config.sentinels) {
                 val (h, port) = host.split(":")
                 builder.withSentinel(h, Integer.parseInt(port))
             }
 
-            if (config.redis.password != null) {
-                builder.withPassword(config.redis.password.toCharArray())
+            if (config.password != null) {
+                builder.withPassword(config.password.toCharArray())
             }
 
             builder.build()
         } else {
             val builder = RedisURI.builder()
-                .withHost(config.redis.host)
-                .withPort(config.redis.port)
-                .withDatabase(config.redis.index)
+                .withHost(config.host)
+                .withPort(config.port)
+                .withDatabase(config.index)
 
-            if (config.redis.password != null) {
-                builder.withPassword(config.redis.password.toCharArray())
+            if (config.password != null) {
+                builder.withPassword(config.password.toCharArray())
             }
 
             builder.build()
         }
 
-        client = RedisClient.create(redisUri)
+        client = LettuceRedisClient.create(uri)
     }
 
-    override fun close() {
-        if (!::connection.isInitialized) return
+    override suspend fun stats(): RedisStats {
+        try {
+            _connection.value
+        } catch (e: IllegalStateException) {
+            null
+        } catch (e: Throwable) {
+            throw e
+        } ?: return RedisStats(mapOf(), mapOf(), Duration.ZERO)
 
-        log.warn("Closing Redis connection...")
-        connection.close()
-        client.shutdown()
+        val serverStats = commands.info("server").await()
+        val stats = commands.info("stats").await()
+
+        return RedisStats(
+            serverStats!!.split("\r\n?".toRegex()).drop(1).dropLast(1).associate {
+                val (key, value) = it.split(":")
+                key to value
+            },
+
+            stats!!.split("\r\n?".toRegex()).drop(1).dropLast(1).associate {
+                val (key, value) = it.split(":")
+                key to value
+            },
+
+            ping()
+        )
     }
 
-    fun connect() {
-        // Check if the connection was already established
-        if (::connection.isInitialized) return
-
-        log.info("* Creating the Redis connection...")
-        connection = client.connect()
-        commands = connection.async()
-
-        log.info("* Connected to Redis!")
-    }
-
-    suspend fun getPing(): Duration {
-        // If the connection wasn't established,
-        // let's return 0.
-        if (!::connection.isInitialized) return Duration.ZERO
+    override suspend fun ping(): Duration {
+        try {
+            _connection.value
+        } catch (e: IllegalStateException) {
+            null
+        } catch (e: Throwable) {
+            throw e
+        } ?: return Duration.ZERO
 
         val sw = StopWatch.createStarted()
         commands.ping().await()
@@ -126,38 +117,26 @@ class RedisManager(config: HanaConfig): AutoCloseable {
         return sw.time.toDuration(DurationUnit.MICROSECONDS)
     }
 
-    suspend fun getStats(): RedisStats {
-        val ping = getPing()
+    override fun connect() {
+        if (_connection.valueOrNull != null) return
 
-        // get statistics from connection
-        val serverStats = commands.info("server").await()
-        val stats = commands.info("stats").await()
+        log.info("Connecting to Redis...")
+        _connection.value = client.connect()
+        _commands.value = _connection.value.async()
 
-        val mappedServerStats = serverStats!!
-            .split("\r\n?".toRegex())
-            .drop(1)
-            .dropLast(1)
-            .associate {
-                val (key, value) = it.split(":")
-                key to value
-            }
+        log.info("Connected to Redis!")
+    }
 
-        val mappedStats = stats!!
-            .split("\r\n?".toRegex())
-            .drop(1)
-            .dropLast(1)
-            .associate {
-                val (key, value) = it.split(":")
-                key to value
-            }
+    override fun close() {
+        try {
+            _connection.value
+        } catch (e: IllegalStateException) {
+            null
+        } catch (e: Throwable) {
+            throw e
+        } ?: return
 
-        return RedisStats(
-            mappedServerStats,
-            mappedStats,
-            ping
-        )
+        log.warn("Closing Redis client...")
+        runBlocking { _connection.value.closeAsync().await() }
     }
 }
- */
-
- */

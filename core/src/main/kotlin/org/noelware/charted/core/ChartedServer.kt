@@ -101,7 +101,6 @@ class ChartedServer {
         val os = ManagementFactory.getOperatingSystemMXBean()
         val threads = ManagementFactory.getThreadMXBean()
 
-        log.info("+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+")
         log.info("Runtime Information:")
         log.info("  * Free / Total Memory [Max]: ${runtime.freeMemory().sizeToStr()}/${runtime.totalMemory().sizeToStr()} [${runtime.maxMemory().sizeToStr()}]")
         log.info("  * Threads: ${threads.threadCount} (${threads.daemonThreadCount} background threads)")
@@ -109,12 +108,10 @@ class ChartedServer {
         log.info("  * Versions:")
         log.info("      * JVM [JRE]: v${System.getProperty("java.version", "Unknown")} (${System.getProperty("java.vendor", "Unknown")}) [${Runtime.version()}]")
         log.info("      * Kotlin:    v${KotlinVersion.CURRENT}")
-        log.info("      * Hazel:     v${ChartedInfo.version} (${ChartedInfo.commitHash} -- ${ChartedInfo.buildDate})")
+        log.info("      * charted:   v${ChartedInfo.version} (${ChartedInfo.commitHash} -- ${ChartedInfo.buildDate})")
 
         if (ChartedInfo.dediNode != null)
             log.info("  * Dedicated Node: ${ChartedInfo.dediNode}")
-
-        log.info("+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+")
 
         val config: Config = GlobalContext.retrieve()
         val self = this
