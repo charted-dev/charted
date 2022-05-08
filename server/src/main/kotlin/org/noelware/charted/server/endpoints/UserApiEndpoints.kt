@@ -49,13 +49,19 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
 
     @Get
     suspend fun main(call: ApplicationCall) {
-        call.respond(HttpStatusCode.OK, buildJsonObject {
-            put("success", true)
-            put("data", buildJsonObject {
-                put("message", "Welcome to the Users API!")
-                put("docs", "https://charts.noelware.org/docs/api/users")
-            })
-        })
+        call.respond(
+            HttpStatusCode.OK,
+            buildJsonObject {
+                put("success", true)
+                put(
+                    "data",
+                    buildJsonObject {
+                        put("message", "Welcome to the Users API!")
+                        put("docs", "https://charts.noelware.org/docs/api/users")
+                    }
+                )
+            }
+        )
     }
 
     @Post
@@ -64,15 +70,23 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
         val config by inject<Config>()
 
         if (!config.registrations) {
-            call.respond(HttpStatusCode.Forbidden, buildJsonObject {
-                put("success", false)
-                put("errors", buildJsonArray {
-                    add(buildJsonObject {
-                        put("code", "REGISTRATIONS_OFF")
-                        put("message", "This instance is invite only! Please ask an administrator of this instance to give you access.")
-                    })
-                })
-            })
+            call.respond(
+                HttpStatusCode.Forbidden,
+                buildJsonObject {
+                    put("success", false)
+                    put(
+                        "errors",
+                        buildJsonArray {
+                            add(
+                                buildJsonObject {
+                                    put("code", "REGISTRATIONS_OFF")
+                                    put("message", "This instance is invite only! Please ask an administrator of this instance to give you access.")
+                                }
+                            )
+                        }
+                    )
+                }
+            )
 
             return
         }
@@ -85,30 +99,46 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
         }
 
         if (userByName != null) {
-            call.respond(HttpStatusCode.Forbidden, buildJsonObject {
-                put("success", false)
-                put("errors", buildJsonArray {
-                    add(buildJsonObject {
-                        put("code", "USERNAME_ALREADY_TAKEN")
-                        put("message", "Username '${body.username}' already exists.")
-                    })
-                })
-            })
+            call.respond(
+                HttpStatusCode.Forbidden,
+                buildJsonObject {
+                    put("success", false)
+                    put(
+                        "errors",
+                        buildJsonArray {
+                            add(
+                                buildJsonObject {
+                                    put("code", "USERNAME_ALREADY_TAKEN")
+                                    put("message", "Username '${body.username}' already exists.")
+                                }
+                            )
+                        }
+                    )
+                }
+            )
 
             return
         }
 
         val validator = EmailValidator.getInstance(true, true)
         if (!validator.isValid(body.email)) {
-            call.respond(HttpStatusCode.Forbidden, buildJsonObject {
-                put("success", false)
-                put("errors", buildJsonArray {
-                    add(buildJsonObject {
-                        put("code", "INVALID_EMAIL")
-                        put("message", "Email ${body.email} was not a valid email.")
-                    })
-                })
-            })
+            call.respond(
+                HttpStatusCode.Forbidden,
+                buildJsonObject {
+                    put("success", false)
+                    put(
+                        "errors",
+                        buildJsonArray {
+                            add(
+                                buildJsonObject {
+                                    put("code", "INVALID_EMAIL")
+                                    put("message", "Email ${body.email} was not a valid email.")
+                                }
+                            )
+                        }
+                    )
+                }
+            )
 
             return
         }
@@ -121,15 +151,23 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
         }
 
         if (userByEmail != null) {
-            call.respond(HttpStatusCode.Forbidden, buildJsonObject {
-                put("success", false)
-                put("errors", buildJsonArray {
-                    add(buildJsonObject {
-                        put("code", "EMAIL_ALREADY_TAKEN")
-                        put("message", "Email '${body.email}' already exists.")
-                    })
-                })
-            })
+            call.respond(
+                HttpStatusCode.Forbidden,
+                buildJsonObject {
+                    put("success", false)
+                    put(
+                        "errors",
+                        buildJsonArray {
+                            add(
+                                buildJsonObject {
+                                    put("code", "EMAIL_ALREADY_TAKEN")
+                                    put("message", "Email '${body.email}' already exists.")
+                                }
+                            )
+                        }
+                    )
+                }
+            )
 
             return
         }
@@ -180,23 +218,32 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
             UserEntity.findById(session.userId)!!
         }
 
-        call.respond(HttpStatusCode.OK, buildJsonObject {
-            put("success", true)
-            put("data", buildJsonObject {
-                put("gravatar_email", user.gravatarEmail)
-                put("description", user.description)
-                put("avatar_url", user.avatar?.let {
-                    JsonPrimitive("https://cdn.noelware.org/charted/avatars/${user.id}/${user.avatar}.png")
-                } ?: JsonNull)
-                put("created_at", user.createdAt)
-                put("updated_at", user.updatedAt)
-                put("username", user.username)
-                put("avatar", user.avatar)
-                put("email", user.email)
-                put("flags", user.flags)
-                put("name", user.name)
-            })
-        })
+        call.respond(
+            HttpStatusCode.OK,
+            buildJsonObject {
+                put("success", true)
+                put(
+                    "data",
+                    buildJsonObject {
+                        put("gravatar_email", user.gravatarEmail)
+                        put("description", user.description)
+                        put(
+                            "avatar_url",
+                            user.avatar?.let {
+                                JsonPrimitive("https://cdn.noelware.org/charted/avatars/${user.id}/${user.avatar}.png")
+                            } ?: JsonNull
+                        )
+                        put("created_at", user.createdAt)
+                        put("updated_at", user.updatedAt)
+                        put("username", user.username)
+                        put("avatar", user.avatar)
+                        put("email", user.email)
+                        put("flags", user.flags)
+                        put("name", user.name)
+                    }
+                )
+            }
+        )
     }
 
     @Get("/{id}")
@@ -208,35 +255,52 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
         }
 
         if (user == null) {
-            call.respond(HttpStatusCode.NotFound, buildJsonObject {
-                put("success", false)
-                put("errors", buildJsonArray {
-                    add(buildJsonObject {
-                        put("code", "UNKNOWN_USER")
-                        put("message", "Unknown user with ID $params.")
-                    })
-                })
-            })
+            call.respond(
+                HttpStatusCode.NotFound,
+                buildJsonObject {
+                    put("success", false)
+                    put(
+                        "errors",
+                        buildJsonArray {
+                            add(
+                                buildJsonObject {
+                                    put("code", "UNKNOWN_USER")
+                                    put("message", "Unknown user with ID $params.")
+                                }
+                            )
+                        }
+                    )
+                }
+            )
 
             return
         }
 
-        call.respond(HttpStatusCode.OK, buildJsonObject {
-            put("success", true)
-            put("data", buildJsonObject {
-                put("gravatar_email", user.gravatarEmail)
-                put("description", user.description)
-                put("avatar_url", user.avatar?.let {
-                    JsonPrimitive("https://cdn.noelware.org/charted/avatars/${user.id}/${user.avatar}.png")
-                } ?: JsonNull)
-                put("created_at", user.createdAt)
-                put("updated_at", user.updatedAt)
-                put("username", user.username)
-                put("avatar", user.avatar)
-                put("flags", user.flags)
-                put("name", user.name)
-            })
-        })
+        call.respond(
+            HttpStatusCode.OK,
+            buildJsonObject {
+                put("success", true)
+                put(
+                    "data",
+                    buildJsonObject {
+                        put("gravatar_email", user.gravatarEmail)
+                        put("description", user.description)
+                        put(
+                            "avatar_url",
+                            user.avatar?.let {
+                                JsonPrimitive("https://cdn.noelware.org/charted/avatars/${user.id}/${user.avatar}.png")
+                            } ?: JsonNull
+                        )
+                        put("created_at", user.createdAt)
+                        put("updated_at", user.updatedAt)
+                        put("username", user.username)
+                        put("avatar", user.avatar)
+                        put("flags", user.flags)
+                        put("name", user.name)
+                    }
+                )
+            }
+        )
     }
 
     @Patch("/@me")
