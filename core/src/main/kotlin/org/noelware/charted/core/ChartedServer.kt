@@ -184,6 +184,10 @@ class ChartedServer {
                     }
                 }
 
+                if (Sentry.isEnabled()) {
+                    install(org.noelware.charted.core.plugins.Sentry)
+                }
+
                 install(StatusPages) {
                     status(HttpStatusCode.NotFound) { call, _ ->
                         call.respond(

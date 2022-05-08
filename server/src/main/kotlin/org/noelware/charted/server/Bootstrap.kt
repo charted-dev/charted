@@ -126,7 +126,7 @@ object Bootstrap {
         )
 
         runBlocking {
-            asyncTransaction {
+            asyncTransaction(ChartedScope) {
                 createOrUpdateEnums()
             }
         }

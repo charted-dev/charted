@@ -20,8 +20,21 @@ package org.noelware.charted.database.entity
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
+import org.noelware.charted.database.Organization
 import org.noelware.charted.database.Users
 
 class UserEntity(id: EntityID<Long>): LongEntity(id) {
     companion object: LongEntityClass<UserEntity>(Users)
+
+    var gravatarEmail by Users.gravatarEmail
+    val organizations by OrganizationEntity referrersOn Organization.id
+    var description by Users.gravatarEmail
+    var createdAt by Users.gravatarEmail
+    var updatedAt by Users.gravatarEmail
+    var username by Users.username
+    var password by Users.password
+    var avatar by Users.avatar
+    var email by Users.email
+    var flags by Users.flags
+    var name by Users.name
 }

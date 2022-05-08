@@ -19,3 +19,7 @@ plugins {
     `charted-java-module`
     `charted-module`
 }
+
+dependencies {
+    implementation("de.mkammerer:argon2-jvm:2.11")
+}

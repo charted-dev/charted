@@ -66,6 +66,9 @@ dependencies {
 
     // Conditional logic for logback
     implementation("org.codehaus.janino:janino:3.1.7")
+
+    // Commons validator
+    implementation("commons-validator:commons-validator:1.7")
 }
 
 tasks {

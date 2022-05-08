@@ -17,6 +17,8 @@
 
 package org.noelware.charted.core.config
 
+import kotlinx.serialization.SerialName
+
 /**
  * Represents the configuration to configure the Analytics daemon to be connected with
  * [analytics.noelware.org](https://analytics.noelware.org). Once the REST server has been bootstrapped,
@@ -40,6 +42,10 @@ package org.noelware.charted.core.config
 @kotlinx.serialization.Serializable
 data class AnalyticsConfig(
     val port: Long = 9987,
+
+    @SerialName("analytics_id")
     val analyticsId: String,
+
+    @SerialName("signature_secret")
     val signatureSecret: String
 )
