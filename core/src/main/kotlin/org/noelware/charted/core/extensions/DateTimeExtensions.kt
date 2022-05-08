@@ -15,31 +15,20 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.search.elastic
+package org.noelware.charted.core.extensions
 
-import org.noelware.charted.search.SearchBuilder
-
-/**
- * Appends the `?pretty` query URL to retrieve a pretty object.
- */
-fun SearchBuilder.pretty(value: Boolean = true): SearchBuilder {
-    value("pretty", value.toString())
-    return this
-}
+import kotlinx.datetime.Instant
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
 
 /**
- * Appends the `?error_trace` query URL to retrieve a pretty stacktrace when an error
- * has occurred in the request.
+ * Returns an [Instant] object from this [JsonPrimitive].
  */
-fun SearchBuilder.includeStacktrace(value: Boolean = true): SearchBuilder {
-    value("error_trace", value.toString())
-    return this
-}
+val JsonPrimitive.instant: Instant
+    get() = Instant.parse(this.content)
 
 /**
- * Adds additional paths to filter out in the request body.
+ * Returns an [Instant] object from this [JsonPrimitive], or null if [contentOrNull] is null.
  */
-fun SearchBuilder.filterPath(paths: String): SearchBuilder {
-    value("filter_path", paths)
-    return this
-}
+val JsonPrimitive.instantOrNull: Instant?
+    get() = contentOrNull?.let { Instant.parse(it) }

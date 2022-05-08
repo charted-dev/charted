@@ -29,7 +29,7 @@ object OrganizationMember: IdTable<Long>("organization_members") {
     val joinedAt = datetime("joined_at").default(LocalDateTime.now().toKotlinLocalDateTime())
     val updatedAt = datetime("updated_at").default(LocalDateTime.now().toKotlinLocalDateTime())
     val displayName = text("display_name").nullable().default(null)
-    val account = reference("account", Users)
+    val accountId = long("account_id")
     val flags = long("flags").default(0L)
 
     override val id: Column<EntityID<Long>> = long("id").entityId()

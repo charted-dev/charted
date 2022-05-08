@@ -46,7 +46,7 @@ class RedisClient(config: RedisConfig): IRedisClient {
         val uri = if (config.sentinels.isNotEmpty()) {
             val builder = RedisURI.builder()
                 .withSentinelMasterId(config.master)
-                .withDatabase(config.index)
+                .withDatabase(config.index.toInt())
 
             for (host in config.sentinels) {
                 val (h, port) = host.split(":")
@@ -61,8 +61,8 @@ class RedisClient(config: RedisConfig): IRedisClient {
         } else {
             val builder = RedisURI.builder()
                 .withHost(config.host)
-                .withPort(config.port)
-                .withDatabase(config.index)
+                .withPort(config.port.toInt())
+                .withDatabase(config.index.toInt())
 
             if (config.password != null) {
                 builder.withPassword(config.password.toCharArray())

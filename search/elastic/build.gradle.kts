@@ -20,6 +20,6 @@ plugins {
 }
 
 dependencies {
-    implementation("co.elastic.clients:elasticsearch-java:8.2.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.12.3")
+    implementation("org.elasticsearch.client:elasticsearch-rest-client:8.2.0")
+    implementation("org.elasticsearch.client:elasticsearch-rest-client-sniffer:8.2.0")
 }

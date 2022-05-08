@@ -81,5 +81,5 @@ data class KtorServerConfig(
     val extraHeaders: Map<String, String> = mapOf(),
 
     val host: String = "0.0.0.0",
-    val port: Int = 3939
+    val port: Long = 3939
 )

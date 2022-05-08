@@ -32,10 +32,10 @@ object Organization: IdTable<Long>("organizations") {
     val displayName = varchar("display_name", 140).nullable().default(null)
     val createdAt = datetime("created_at").default(LocalDateTime.now().toKotlinLocalDateTime())
     val updatedAt = datetime("updated_at").default(LocalDateTime.now().toKotlinLocalDateTime())
-    val members = reference("members", OrganizationMember)
+//    val members = reference("members", OrganizationMember)
     val handle = varchar("handle", 60)
     val avatar = text("avatar").nullable().default(null)
 
     override val id: Column<EntityID<Long>> = long("id").entityId()
-    override val primaryKey: Table.PrimaryKey = PrimaryKey(members, id, name = "OrganizationPK")
+    override val primaryKey: Table.PrimaryKey = PrimaryKey(id)
 }

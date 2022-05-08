@@ -38,7 +38,7 @@ val chartedModule = module {
     }
 
     single {
-        val httpClient = HttpClient(OkHttp) {
+        HttpClient(OkHttp) {
             engine {
                 config {
                     followRedirects(true)
@@ -61,28 +61,3 @@ val chartedModule = module {
         }
     }
 }
-
-/*
-        val httpClient = HttpClient(OkHttp) {
-            engine {
-                config {
-                    followRedirects(true)
-                    addInterceptor(LogInterceptor())
-
-                    if (Sentry.isEnabled()) {
-                        addInterceptor(SentryInterceptor())
-                    }
-                }
-            }
-
-            install(WebSockets)
-
-            install(ContentNegotiation) {
-                this.json(json)
-            }
-
-            install(UserAgent) {
-                agent = "Nino/DiscordBot (+https://github.com/NinoDiscord/Nino; v${NinoInfo.VERSION})"
-            }
-        }
- */

@@ -90,19 +90,20 @@ class DebugEndpoint(
 
         var searchBackendInfo: JsonElement = JsonNull
         if (elastic != null) {
+            val data = elastic.info()
             searchBackendInfo = buildJsonObject {
                 put("backend", "elasticsearch")
-                put("server_version", "")
-                put("users_count", 0)
-                put("repos_count", 0)
-                put("orgs_count", 0)
-                put("repo_members_count", 0)
-                put("org_members_count", 0)
+                put("server_version", elastic.serverVersion)
+                put("users", data["charted_users"]!!.jsonObject)
+                put("repos", data["charted_repos"]!!.jsonObject)
+                put("orgs", data["charted_orgs"]!!.jsonObject)
+                put("repo_members", data["charted_repo_members"]!!.jsonObject)
+                put("org_members", data["charted_org_members"]!!.jsonObject)
                 put(
                     "cluster",
                     buildJsonObject {
-                        put("name", "noel-es-cluster")
-                        put("id", "jsjdksdasdashbsaisda")
+                        put("name", elastic.clusterName)
+                        put("id", elastic.clusterUUID)
                     }
                 )
             }

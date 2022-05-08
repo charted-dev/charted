@@ -47,11 +47,9 @@ dependencies {
     implementation("org.noelware.remi:remi-support-fs:0.1.4-beta.3")
     api("org.noelware.remi:remi-core:0.1.4-beta.3")
 
-    // Ktor Routing
-    api("org.noelware.ktor:core:0.0.1-beta")
-    implementation("org.noelware.ktor:loader-koin:0.0.1-beta")
-
     // Subprojects
+    implementation(project(":search:elastic"))
+    implementation(project(":search:meili"))
     implementation(project(":analytics"))
 
     // Spring (daemon server)
@@ -59,4 +57,11 @@ dependencies {
 
     // JWT
     implementation("com.auth0:java-jwt:3.19.2")
+
+    // Ratelimit
+    implementation("app.softwork:ratelimit:0.2.1")
+
+    // Ktor Routing
+    implementation("org.noelware.ktor:core:0.1-beta")
+    implementation("org.noelware.ktor:loader-koin:0.1-beta")
 }

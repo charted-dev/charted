@@ -15,6 +15,10 @@
  * limitations under the License.
  */
 
+import org.noelware.charted.gradle.*
+import java.text.SimpleDateFormat
+import java.util.Date
+
 plugins {
     `charted-distribution-module`
     `charted-module`
@@ -50,11 +54,33 @@ dependencies {
     implementation(project(":core"))
 
     // Just for Log4j/JCL -> slf4j
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.17.2")
-    implementation("org.slf4j:log4j-over-slf4j:1.7.32")
-    implementation("org.slf4j:jcl-over-slf4j:1.7.32")
+    implementation("org.slf4j:log4j-over-slf4j:1.7.36")
+    implementation("org.slf4j:jcl-over-slf4j:1.7.36")
 
     // TOML (config parsing)
     implementation("com.akuleshov7:ktoml-core:0.2.11")
     implementation("com.akuleshov7:ktoml-file:0.2.11")
+
+    // Ktor Routing
+    api("org.noelware.ktor:core:0.1-beta")
+
+    // Conditional logic for logback
+    implementation("org.codehaus.janino:janino:3.1.7")
+}
+
+tasks {
+    processResources {
+        filesMatching("build-info.json") {
+            val date = Date()
+            val formatter = SimpleDateFormat("EEE, MMM d, YYYY - HH:mm:ss a")
+
+            expand(
+                mapOf(
+                    "version" to "$VERSION",
+                    "commit_sha" to COMMIT_HASH,
+                    "build_date" to formatter.format(date)
+                )
+            )
+        }
+    }
 }

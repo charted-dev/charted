@@ -25,6 +25,6 @@ data class PostgresConfig(
     val password: String = "postgres",
     val schema: String = "public",
     val host: String = "localhost",
-    val port: Int = 5432,
+    val port: Long = 5432,
     val name: String = "hana"
 )

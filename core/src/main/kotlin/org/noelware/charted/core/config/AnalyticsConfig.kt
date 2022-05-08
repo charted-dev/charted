@@ -39,7 +39,7 @@ package org.noelware.charted.core.config
  */
 @kotlinx.serialization.Serializable
 data class AnalyticsConfig(
-    val port: Int = 9987,
+    val port: Long = 9987,
     val analyticsId: String,
     val signatureSecret: String
 )

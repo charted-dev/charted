@@ -39,6 +39,6 @@ object Users: IdTable<Long>("users") {
     val flags = long("flags").default(0)
     val name = varchar("name", 40).nullable().default(null)
 
-    override val id: Column<EntityID<Long>> = OrganizationMember.long("id").entityId()
+    override val id: Column<EntityID<Long>> = long("id").entityId()
     override val primaryKey: PrimaryKey = PrimaryKey(id, name = "UserPK")
 }

@@ -21,8 +21,6 @@ import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.noelware.charted.database.OrganizationMember
-import org.noelware.charted.database.Users
-import org.noelware.charted.database.Users.references
 
 class OrganizationMemberEntity(id: EntityID<Long>): LongEntity(id) {
     companion object: LongEntityClass<OrganizationMemberEntity>(OrganizationMember)
@@ -30,6 +28,6 @@ class OrganizationMemberEntity(id: EntityID<Long>): LongEntity(id) {
     var updatedAt by OrganizationMember.updatedAt
     var joinedAt by OrganizationMember.joinedAt
     var displayName by OrganizationMember.displayName
-    var account by OrganizationMember.account references Users.id
+    var account by OrganizationMember.accountId
     var flags by OrganizationMember.flags
 }

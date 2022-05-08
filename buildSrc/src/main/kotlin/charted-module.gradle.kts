@@ -54,10 +54,10 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.3.2")
 
     // Noel Utilities
-    implementation("dev.floofy.commons:extensions-kotlin:2.1.0")
-    implementation("dev.floofy.commons:extensions-koin:2.1.0")
-    implementation("dev.floofy.commons:exposed:2.1.0")
-    implementation("dev.floofy.commons:slf4j:2.1.0")
+    implementation("dev.floofy.commons:extensions-kotlin:2.1.0.1")
+    implementation("dev.floofy.commons:extensions-koin:2.1.0.1")
+    implementation("dev.floofy.commons:exposed:2.1.0.1")
+    implementation("dev.floofy.commons:slf4j:2.1.0.1")
 
     // Exposed
     api("org.jetbrains.exposed:exposed-core:0.38.2")

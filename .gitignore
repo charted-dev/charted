@@ -630,5 +630,5 @@ FodyWeavers.xsd
 gradle/publishing.properties
 config.toml
 instance.uuid
-!distribution/config.toml
+!distribution/config/config.toml
 server/src/main/resources/config/logging.properties

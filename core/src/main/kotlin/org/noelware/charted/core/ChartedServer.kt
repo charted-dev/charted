@@ -17,6 +17,7 @@
 
 package org.noelware.charted.core
 
+import app.softwork.ratelimit.RateLimit
 import dev.floofy.utils.koin.retrieve
 import dev.floofy.utils.kotlin.sizeToStr
 import dev.floofy.utils.slf4j.logging
@@ -25,6 +26,7 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.*
 import io.ktor.server.plugins.autohead.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
@@ -43,6 +45,7 @@ import org.noelware.charted.core.config.AnalyticsConfig
 import org.noelware.charted.core.config.Config
 import org.noelware.charted.core.plugins.KtorLogging
 import org.noelware.charted.core.plugins.UserAgentMdc
+import org.noelware.charted.core.ratelimit.LettuceRedisStorage
 import org.noelware.ktor.NoelKtorRoutingPlugin
 import org.noelware.ktor.loader.koin.KoinEndpointLoader
 import org.slf4j.LoggerFactory
@@ -55,6 +58,7 @@ import org.springframework.context.ApplicationListener
 import java.lang.management.ManagementFactory
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import kotlin.time.Duration.Companion.hours
 
 /**
  * Represents the server that is bootstrapped.
@@ -122,7 +126,7 @@ class ChartedServer {
 
             connector {
                 host = config.server.host
-                port = config.server.port
+                port = config.server.port.toInt()
             }
 
             module {
@@ -149,6 +153,34 @@ class ChartedServer {
 
                     for ((key, value) in config.server.extraHeaders) {
                         header(key, value)
+                    }
+                }
+
+                install(RateLimit(LettuceRedisStorage())) {
+                    limit = 1000
+                    timeout = 1.hours
+
+                    host { call ->
+                        var ip = ""
+                        val trueClientIpHeader = call.request.header("True-Client-IP")
+                        if (trueClientIpHeader != null)
+                            ip = trueClientIpHeader
+
+                        val realIpHeader = call.request.header("X-Real-IP")
+                        if (realIpHeader != null)
+                            ip = realIpHeader
+
+                        val xForwardedFor = call.request.header("X-Forwarded-For")
+                        if (xForwardedFor != null) {
+                            var i = xForwardedFor.indexOf(',')
+                            if (i == -1) {
+                                i = xForwardedFor.length
+                            }
+
+                            ip = xForwardedFor.slice(0..i)
+                        }
+
+                        ip.ifEmpty { call.request.origin.remoteHost }
                     }
                 }
 

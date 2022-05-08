@@ -21,8 +21,12 @@ import com.akuleshov7.ktoml.Toml
 import com.akuleshov7.ktoml.TomlConfig
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import dev.floofy.utils.exposed.asyncTransaction
+import dev.floofy.utils.koin.inject
+import dev.floofy.utils.koin.retrieveOrNull
 import dev.floofy.utils.slf4j.logging
 import io.sentry.Sentry
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.DatabaseConfig
@@ -32,18 +36,17 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
-import org.noelware.charted.core.ChartedInfo
-import org.noelware.charted.core.ChartedServer
-import org.noelware.charted.core.StorageWrapper
-import org.noelware.charted.core.chartedModule
+import org.noelware.charted.core.*
 import org.noelware.charted.core.config.Config
 import org.noelware.charted.core.config.EngineClass
 import org.noelware.charted.core.logging.SentryLogger
 import org.noelware.charted.core.redis.IRedisClient
 import org.noelware.charted.core.redis.RedisClient
+import org.noelware.charted.core.sessions.SessionManager
 import org.noelware.charted.database.*
 import org.noelware.charted.engine.oci.OciBackendEngine
 import org.noelware.charted.engines.charts.ChartBackendEngine
+import org.noelware.charted.search.elastic.ElasticSearchBackend
 import org.noelware.charted.server.endpoints.endpointsModule
 import java.io.File
 import java.io.IOError
@@ -59,7 +62,6 @@ object Bootstrap {
         Thread.currentThread().name = "Server-BootstrapThread"
         println("+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+")
         println("+       _                _           _                                      +")
-        println("+   / __| '_ \\ / _` | '__| __/ _ \\/ _` |_____/ __|/ _ \\ '__\\ \\ / / _ \\ '__| +")
         println("+   / __| '_ \\ / _` | '__| __/ _ \\/ _` |_____/ __|/ _ \\ '__\\ \\ / / _ \\ '__| +")
         println("+  | (__| | | | (_| | |  | ||  __/ (_| |_____\\__ \\  __/ |   \\ V /  __/ |    +")
         println("+   \\___|_| |_|\\__,_|_|   \\__\\___|\\__,_|     |___/\\___|_|    \\_/ \\___|_|    +")
@@ -85,7 +87,7 @@ object Bootstrap {
         val toml = Toml(
             TomlConfig(
                 ignoreUnknownNames = true,
-                allowEmptyToml = false,
+                allowEmptyToml = true,
                 allowEmptyValues = false,
                 allowEscapedQuotesInLiteralStrings = true
             )
@@ -123,14 +125,21 @@ object Bootstrap {
             }
         )
 
+        runBlocking {
+            asyncTransaction {
+                createOrUpdateEnums()
+            }
+        }
+
         transaction {
+            // the order matters :(
             SchemaUtils.createMissingTablesAndColumns(
+                Users,
                 Organization,
-                OrganizationMember,
                 Repository,
                 RepositoryMember,
-                UserConnections,
-                Users
+                OrganizationMember,
+                UserConnections
             )
         }
 
@@ -145,6 +154,7 @@ object Bootstrap {
         }
 
         val redis = RedisClient(config.redis)
+        redis.connect()
 
         // Check if we need to enable Sentry
         if (config.sentryDsn != null) {
@@ -176,6 +186,8 @@ object Bootstrap {
                     single { config }
                     single { dataSource }
                     single<IRedisClient> { redis }
+                    single { ChartedServer() }
+                    single { SessionManager(get(), get(), get()) }
 
                     if (config.engine?.engineClass == EngineClass.CHART) {
                         single { ChartBackendEngine(get()) }
@@ -189,6 +201,10 @@ object Bootstrap {
                     wrapper?.let {
                         single { wrapper }
                     }
+
+                    config.search.elastic?.let { elastic ->
+                        single { ElasticSearchBackend(elastic) }
+                    }
                 }
             )
         }
@@ -196,6 +212,8 @@ object Bootstrap {
         runBlocking {
             val server = koin.koin.get<ChartedServer>()
             try {
+                // Initialize the session manager here
+                koin.koin.get<SessionManager>()
                 server.start()
             } catch (e: Exception) {
                 log.error("Unable to bootstrap charted-server:", e)
@@ -220,13 +238,27 @@ object Bootstrap {
     private fun installShutdownHook() {
         val runtime = Runtime.getRuntime()
         runtime.addShutdownHook(
-            thread(start = false, name = "Hazel-ShutdownThread") {
-                log.warn("Shutting down Hazel...")
+            thread(start = false, name = "Charted-ShutdownThread") {
+                log.warn("Shutting down charted-server...")
 
                 // Check if Koin has started
                 val koinStarted = GlobalContext.getKoinApplicationOrNull() != null
                 if (koinStarted) {
-                    // do things here
+                    val server by inject<ChartedServer>()
+                    val elasticsearch = GlobalContext.retrieveOrNull<ElasticSearchBackend>()
+                    val redis by inject<IRedisClient>()
+                    val ds by inject<HikariDataSource>()
+                    val sessions by inject<SessionManager>()
+
+                    elasticsearch?.close()
+                    redis.close()
+                    ds.close()
+                    server.destroy()
+                    sessions.close()
+
+                    runBlocking {
+                        ChartedScope.cancel()
+                    }
                 } else {
                     log.warn("Koin was not started, not destroying server (just yet!)")
                 }

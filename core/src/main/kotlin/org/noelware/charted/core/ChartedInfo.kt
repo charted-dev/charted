@@ -70,7 +70,7 @@ object ChartedInfo {
         val data = Json.decodeFromStream<JsonObject>(stream)
 
         version = data["version"]?.jsonPrimitive?.content ?: error("Unable to retrieve `version` from build-info.json!")
-        commitHash = data["commit_sha"]?.jsonPrimitive?.content ?: error("Unable to retrieve `commit.sha` from build-info.json!")
-        buildDate = data["build_date"]?.jsonPrimitive?.content ?: error("Unable to retrieve `build.date` from build-info.json!")
+        commitHash = data["commit.sha"]?.jsonPrimitive?.content ?: error("Unable to retrieve `commit.sha` from build-info.json!")
+        buildDate = data["build.date"]?.jsonPrimitive?.content ?: error("Unable to retrieve `build.date` from build-info.json!")
     }
 }

@@ -24,8 +24,8 @@ data class RedisConfig(
     val sentinels: List<String> = listOf(),
     val master: String? = null,
     val password: String? = null,
-    val index: Int = 5,
+    val index: Long = 5,
     val host: String = "localhost",
-    val port: Int = 6379,
+    val port: Long = 6379,
     val ssl: Boolean = false
 )

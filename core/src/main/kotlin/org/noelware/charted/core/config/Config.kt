@@ -38,5 +38,6 @@ data class Config(
     val storage: StorageConfig? = null,
     val server: KtorServerConfig = KtorServerConfig(),
     val engine: ChartEngineConfig? = null,
+    val search: SearchConfig = SearchConfig(),
     val redis: RedisConfig = RedisConfig()
 )

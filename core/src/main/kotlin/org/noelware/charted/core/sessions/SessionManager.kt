@@ -131,26 +131,30 @@ class SessionManager(private val redis: IRedisClient, private val json: Json, co
             error("Cannot allow more than one session.")
 
         // Create access token, which is short-lived.
+        val accessExpiresAt = Date.from(Instant.now().plusMillis(12.hours.inWholeMilliseconds))
         val accessToken = JWT.create()
             .withIssuer("Noelware/charted-server")
-            .withExpiresAt(Date.from(Instant.now().plusMillis(12.hours.inWholeMilliseconds)))
+            .withExpiresAt(accessExpiresAt)
             .withHeader(
                 mapOf(
                     "session_id" to sessionId.toString(),
-                    "user_id" to userId
+                    "user_id" to userId,
+                    "expires_in" to accessExpiresAt.toInstant().toString()
                 )
             )
             .sign(algorithm)
 
         // Create refresh token, which is long-lived for 7 days. If you keep refreshing
         // the token with this, it'll invalidate the previous one that was stored.
+        val refreshExpiresAt = Date.from(Instant.now().plusMillis(7.days.inWholeMilliseconds))
         val refreshToken = JWT.create()
             .withIssuer("Noelware/charted-server")
-            .withExpiresAt(Date.from(Instant.now().plusMillis(7.days.inWholeMilliseconds)))
+            .withExpiresAt(refreshExpiresAt)
             .withHeader(
                 mapOf(
                     "session_id" to sessionId,
-                    "user_id" to userId
+                    "user_id" to userId,
+                    "expires_in" to refreshExpiresAt.toInstant().toString()
                 )
             )
             .sign(algorithm)
@@ -164,5 +168,9 @@ class SessionManager(private val redis: IRedisClient, private val json: Json, co
 
         redis.commands.hmset("charted:sessions", mapOf(userId to json.encodeToString(Session.serializer(), session))).await()
         return session
+    }
+
+    suspend fun revokeSession(session: Session) {
+        redis.commands.hdel("charted:sessions", session.sessionId.toString()).await()
     }
 }

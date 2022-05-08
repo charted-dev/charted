@@ -15,4 +15,14 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.core.ratelimiting
+package org.noelware.charted.core.config
+
+import kotlinx.serialization.*
+import org.noelware.charted.search.elastic.ElasticsearchConfig
+import org.noelware.charted.search.meili.MeilisearchConfig
+
+@Serializable
+data class SearchConfig(
+    val elastic: ElasticsearchConfig? = null,
+    val meili: MeilisearchConfig? = null
+)

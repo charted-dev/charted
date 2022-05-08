@@ -21,7 +21,8 @@ package org.noelware.charted.search.elastic
 data class ElasticsearchConfig(
     val cloudId: String? = null,
     val nodes: List<String> = listOf(),
-    val auth: BasicAuth? = null
+    val auth: BasicAuth? = null,
+    val clientSslPath: String? = null
 )
 
 @kotlinx.serialization.Serializable
