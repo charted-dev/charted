@@ -15,24 +15,24 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.database
+package org.noelware.charted.database.tables
 
 import kotlinx.datetime.toKotlinLocalDateTime
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IdTable
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.Table
+import net.perfectdreams.exposedpowerutils.sql.postgresEnumeration
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
-import org.noelware.charted.database.OrganizationMember.default
+import org.noelware.charted.database.enums.RepoType
 import java.time.LocalDateTime
 
-object RepositoryMember: IdTable<Long>("repositories_member") {
-    val joinedAt = datetime("joined_at").default(LocalDateTime.now().toKotlinLocalDateTime())
+object Repositories: LongTable("repositories") {
+    val description = varchar("description", 240).nullable().default(null)
+    val deprecated = bool("deprecated").default(false)
+    val createdAt = datetime("created_at").default(LocalDateTime.now().toKotlinLocalDateTime())
     val updatedAt = datetime("updated_at").default(LocalDateTime.now().toKotlinLocalDateTime())
-    val displayName = text("display_name").nullable().default(null)
-    val account = reference("account", Users)
-    val flags = long("flags").default(0L)
-
-    override val id: Column<EntityID<Long>> = long("id").entityId()
-    override val primaryKey: Table.PrimaryKey = PrimaryKey(id, name = "RepositoryMemberPK")
+    val members = reference("members", RepositoryMember)
+    val homepage = text("homepage").nullable().default(null)
+    val iconHash = text("icon").nullable().default(null)
+    val ownerId = long("owner_id")
+    val flags = long("flags").default(0)
+    val name = varchar("name", 40)
+    val type = postgresEnumeration<RepoType>("type").default(RepoType.APPLICATION)
 }

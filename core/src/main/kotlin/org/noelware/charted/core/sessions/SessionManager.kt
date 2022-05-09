@@ -97,21 +97,14 @@ class SessionManager(private val redis: IRedisClient, private val json: Json, co
     suspend fun getSession(token: String): Session? {
         if (token.isEmpty()) return null
 
-        // Decode the token if we can
-        val sessionId = try {
-            val verifier = JWT.require(algorithm)
-                .withIssuer("Noelware/charted-server")
-                .build()
+        val verifier = JWT.require(algorithm)
+            .withIssuer("Noelware/charted-server")
+            .build()
 
-            val jwt = verifier.verify(token)
-            val payloadString = Base64.getDecoder().decode(jwt.payload.toByteArray())
-            val obj = json.decodeFromString(JsonObject.serializer(), String(payloadString))
-            log.debug("Received following payload: $obj")
-
-            ""
-        } catch (e: Exception) {
-            null
-        } ?: return null
+        val jwt = verifier.verify(token)
+        val payload = String(Base64.getDecoder().decode(jwt.payload.toByteArray()))
+        val payloadAsJson = json.decodeFromString(JsonObject.serializer(), payload)
+        println(payloadAsJson)
 
         return null
     }

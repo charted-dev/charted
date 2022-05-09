@@ -44,6 +44,7 @@ import org.noelware.charted.core.redis.IRedisClient
 import org.noelware.charted.core.redis.RedisClient
 import org.noelware.charted.core.sessions.SessionManager
 import org.noelware.charted.database.*
+import org.noelware.charted.database.tables.*
 import org.noelware.charted.engine.oci.OciBackendEngine
 import org.noelware.charted.engines.charts.ChartBackendEngine
 import org.noelware.charted.search.elastic.ElasticSearchBackend
@@ -134,9 +135,9 @@ object Bootstrap {
         transaction {
             // the order matters :(
             SchemaUtils.createMissingTablesAndColumns(
+                Organizations,
                 Users,
-                Organization,
-                Repository,
+                Repositories,
                 RepositoryMember,
                 OrganizationMember,
                 UserConnections

@@ -15,23 +15,16 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.database
+package org.noelware.charted.database.tables
 
 import kotlinx.datetime.toKotlinLocalDateTime
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IdTable
-import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
-import org.noelware.charted.database.UserConnections.default
 import java.time.LocalDateTime
 
-object OrganizationMember: IdTable<Long>("organization_members") {
-    val joinedAt = datetime("joined_at").default(LocalDateTime.now().toKotlinLocalDateTime())
-    val updatedAt = datetime("updated_at").default(LocalDateTime.now().toKotlinLocalDateTime())
+object OrganizationMember: LongTable("organization_members") {
     val displayName = text("display_name").nullable().default(null)
-    val accountId = long("account_id")
+    val updatedAt = datetime("updated_at").default(LocalDateTime.now().toKotlinLocalDateTime())
+    val joinedAt = datetime("joined_at").default(LocalDateTime.now().toKotlinLocalDateTime())
+    val account = reference("account_id", Users)
     val flags = long("flags").default(0L)
-
-    override val id: Column<EntityID<Long>> = long("id").entityId()
-    override val primaryKey: PrimaryKey = PrimaryKey(id, name = "OrganizationMembersPK")
 }

@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-java-module`
-    `charted-module`
-}
+package org.noelware.charted.core.extensions
 
-dependencies {
-    implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
-}
+import io.ktor.server.application.*
+import io.sentry.ITransaction
+import org.noelware.charted.core.plugins.SentryTransactionKey
+
+val ApplicationCall.transaction: ITransaction?
+    get() = attributes.getOrNull(SentryTransactionKey)

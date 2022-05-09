@@ -25,6 +25,7 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation:2.0.1")
     implementation("io.ktor:ktor-server-auto-head-response:2.0.1")
     implementation("io.ktor:ktor-server-default-headers:2.0.1")
+    implementation("io.ktor:ktor-server-double-receive:2.0.1")
     implementation("io.ktor:ktor-server-status-pages:2.0.1")
     implementation("io.ktor:ktor-serialization:2.0.1")
     implementation("io.ktor:ktor-server-netty:2.0.1")

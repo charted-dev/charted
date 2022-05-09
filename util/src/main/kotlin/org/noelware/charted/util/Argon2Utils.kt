@@ -17,6 +17,9 @@
 
 package org.noelware.charted.util
 
+import org.bouncycastle.crypto.generators.Argon2BytesGenerator
+import org.bouncycastle.crypto.params.Argon2Parameters
+import java.nio.charset.Charset
 import java.security.SecureRandom
 
 private val RANDOM by lazy {
@@ -29,6 +32,23 @@ fun generateSalt(): ByteArray {
 
     return salt
 }
+fun generatePassword(password: String, salt: ByteArray): String {
+    val opsLimit = 4
+    val memoryLimit = 1048576
+    val outputLen = 32
+    val parallelism = 1
 
-// TODO: use https://docs.spring.io/spring-security/site/docs/5.2.0.RELEASE/reference/htmlsingle/#pe-a2pe
-fun generatePassword(password: String, salt: ByteArray): String = ""
+    val builder = Argon2Parameters.Builder(Argon2Parameters.ARGON2_id)
+        .withVersion(Argon2Parameters.ARGON2_VERSION_13)
+        .withIterations(opsLimit)
+        .withMemoryAsKB(memoryLimit)
+        .withParallelism(parallelism)
+        .withSalt(salt)
+
+    val generator = Argon2BytesGenerator()
+    generator.init(builder.build())
+
+    val result = ByteArray(outputLen)
+    generator.generateBytes(password.toByteArray(Charset.defaultCharset()), result, 0, result.size)
+    return String(result)
+}

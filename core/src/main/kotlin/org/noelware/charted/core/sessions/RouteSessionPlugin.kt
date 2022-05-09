@@ -17,7 +17,9 @@
 
 package org.noelware.charted.core.sessions
 
+import com.auth0.jwt.exceptions.JWTDecodeException
 import dev.floofy.utils.koin.inject
+import dev.floofy.utils.slf4j.logging
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -29,13 +31,38 @@ import kotlinx.serialization.json.put
 val SessionKey = AttributeKey<Session>("Session")
 val SessionPlugin = createRouteScopedPlugin("ChartedSessionsPlugin") {
     val sessionManager by inject<SessionManager>()
+    val log by logging("org.noelware.charted.core.sessions.SessionManagerPluginKt")
 
     onCall { call ->
         val auth = call.request.headers[HttpHeaders.Authorization]
 
         if (auth != null) {
             // Check if the authorization header is correct
-            val (prefix, token) = auth.split(":", limit = 2)
+            val data = auth.split(" ", limit = 2)
+            if (data.size != 2) {
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    buildJsonObject {
+                        put("success", false)
+                        put(
+                            "errors",
+                            buildJsonArray {
+                                add(
+                                    buildJsonObject {
+                                        put("code", "INVALID_AUTH_HEADER")
+                                        put("message", "Authorization header must be in the style of \"Bearer <token>\"")
+                                    }
+                                )
+                            }
+                        )
+                    }
+                )
+
+                return@onCall
+            }
+
+            val prefix = data.first()
+            val token = data.last()
             if (prefix != "Bearer") {
                 call.respond(
                     HttpStatusCode.BadRequest,
@@ -58,10 +85,37 @@ val SessionPlugin = createRouteScopedPlugin("ChartedSessionsPlugin") {
                 return@onCall
             }
 
-            val session = sessionManager.getSession(token)
-            if (session == null) {
+            try {
+                val session = sessionManager.getSession(token)
+                if (session == null) {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        buildJsonObject {
+                            put("success", false)
+                            put(
+                                "errors",
+                                buildJsonArray {
+                                    add(
+                                        buildJsonObject {
+                                            put("code", "INVALID_AUTH_PREFIX")
+                                            put(
+                                                "message",
+                                                "JWT doesn't currently have a session occurring. If the refresh token is still active, you can get a new access token by hitting `POST /users/@me/refresh_token`"
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+
+                    return@onCall
+                }
+
+                call.attributes.put(SessionKey, session)
+            } catch (e: JWTDecodeException) {
                 call.respond(
-                    HttpStatusCode.BadRequest,
+                    HttpStatusCode.NotAcceptable,
                     buildJsonObject {
                         put("success", false)
                         put(
@@ -69,19 +123,36 @@ val SessionPlugin = createRouteScopedPlugin("ChartedSessionsPlugin") {
                             buildJsonArray {
                                 add(
                                     buildJsonObject {
-                                        put("code", "INVALID_AUTH_PREFIX")
-                                        put("message", "JWT doesn't currently reside with a session. If the refresh token is still active, you can get a new access token by hitting `POST /users/@me/tokens/refresh`")
+                                        put("code", "JWT_DECODE_ERROR")
+                                        put("message", e.message)
                                     }
                                 )
                             }
                         )
                     }
                 )
-
-                return@onCall
+            } catch (e: Exception) {
+                log.error("Unable to verify JWT token", e)
+                throw e
             }
-
-            call.attributes.put(SessionKey, session)
+        } else {
+            call.respond(
+                HttpStatusCode.Forbidden,
+                buildJsonObject {
+                    put("success", false)
+                    put(
+                        "errors",
+                        buildJsonArray {
+                            add(
+                                buildJsonObject {
+                                    put("code", "MISSING_AUTH_HEADER")
+                                    put("message", "This request requires you to have a proper Authorization header.")
+                                }
+                            )
+                        }
+                    )
+                }
+            )
         }
     }
 }

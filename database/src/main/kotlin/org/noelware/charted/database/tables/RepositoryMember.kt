@@ -15,20 +15,16 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.database.entity
+package org.noelware.charted.database.tables
 
-import org.jetbrains.exposed.dao.LongEntity
-import org.jetbrains.exposed.dao.LongEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
-import org.noelware.charted.database.tables.RepositoryMember
-import org.noelware.charted.database.tables.UserConnections
+import kotlinx.datetime.toKotlinLocalDateTime
+import org.jetbrains.exposed.sql.kotlin.datetime.datetime
+import java.time.LocalDateTime
 
-class RepositoryMemberEntity(id: EntityID<Long>): LongEntity(id) {
-    companion object: LongEntityClass<RepositoryMemberEntity>(RepositoryMember)
-
-    var displayName by RepositoryMember.displayName
-    var updatedAt by UserConnections.updatedAt
-    val createdAt by UserConnections.createdAt
-    val account by UserEntity referencedOn RepositoryMember.account
-    var flags by RepositoryMember.flags
+object RepositoryMember: LongTable("repository_members") {
+    val displayName = text("display_name").nullable().default(null)
+    val updatedAt = datetime("updated_at").default(LocalDateTime.now().toKotlinLocalDateTime())
+    val joinedAt = datetime("joined_at").default(LocalDateTime.now().toKotlinLocalDateTime())
+    val account = reference("account_id", Users)
+    val flags = long("flags").default(0L)
 }

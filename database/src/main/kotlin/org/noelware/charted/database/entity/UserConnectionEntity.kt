@@ -20,14 +20,15 @@ package org.noelware.charted.database.entity
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
-import org.noelware.charted.database.UserConnections
+import org.noelware.charted.database.tables.UserConnections
 
 class UserConnectionEntity(id: EntityID<Long>): LongEntity(id) {
     companion object: LongEntityClass<UserConnectionEntity>(UserConnections)
 
-    var updatedAt by UserConnections.updatedAt
-    var createdAt by UserConnections.createdAt
     var noelwareAccountId by UserConnections.noelwareAccountId
     var googleAccountId by UserConnections.googleAccountId
     var appleAccountId by UserConnections.appleAccountId
+    var updatedAt by UserConnections.updatedAt
+    var createdAt by UserConnections.createdAt
+    val account by UserEntity referencedOn UserConnections.account
 }

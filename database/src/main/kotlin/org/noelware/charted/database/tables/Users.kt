@@ -15,23 +15,22 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.database
+package org.noelware.charted.database.tables
 
 import kotlinx.datetime.toKotlinLocalDateTime
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IdTable
-import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
-import org.noelware.charted.database.Repository.default
 import java.time.LocalDateTime
 
-object UserConnections: IdTable<Long>("user_connections") {
+object Users: LongTable("users") {
+    var gravatarEmail = text("gravatar_email").nullable().default(null)
+    var organizations = reference("organization_id", Organizations)
+    var description = varchar("description", 240).nullable().default(null)
     val createdAt = datetime("created_at").default(LocalDateTime.now().toKotlinLocalDateTime())
     val updatedAt = datetime("updated_at").default(LocalDateTime.now().toKotlinLocalDateTime())
-    val noelwareAccountId = long("noelware_account_id").nullable().default(null)
-    val appleAccountId = text("apple_account_id").nullable().default(null)
-    val googleAccountId = text("google_account_id").nullable().default(null)
-
-    override val id: Column<EntityID<Long>> = long("id").entityId()
-    override val primaryKey: PrimaryKey = PrimaryKey(id, name = "UserConnectionsPK")
+    var username = varchar("username", 60)
+    var password = text("password")
+    var avatar = text("avatar").nullable().default(null)
+    var email = text("email")
+    var flags = long("flags").default(0)
+    var name = varchar("name", 69).nullable().default(null)
 }

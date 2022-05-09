@@ -31,6 +31,7 @@ import io.ktor.server.plugins.autohead.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.defaultheaders.*
+import io.ktor.server.plugins.doublereceive.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -130,6 +131,7 @@ class ChartedServer {
             }
 
             module {
+                install(DoubleReceive)
                 install(AutoHeadResponse)
                 install(KtorLogging)
                 install(UserAgentMdc)
@@ -189,24 +191,26 @@ class ChartedServer {
                 }
 
                 install(StatusPages) {
-                    status(HttpStatusCode.NotFound) { call, _ ->
-                        call.respond(
-                            HttpStatusCode.NotFound,
-                            buildJsonObject {
-                                put("success", false)
-                                put(
-                                    "errors",
-                                    buildJsonArray {
-                                        add(
-                                            buildJsonObject {
-                                                put("code", "UNKNOWN_ROUTE")
-                                                put("message", "Route ${call.request.httpMethod.value} ${call.request.uri} was not found.")
-                                            }
-                                        )
-                                    }
-                                )
-                            }
-                        )
+                    statuses[HttpStatusCode.NotFound] = { call, content, _ ->
+                        if (content.contentLength == null) {
+                            call.respond(
+                                HttpStatusCode.NotFound,
+                                buildJsonObject {
+                                    put("success", false)
+                                    put(
+                                        "errors",
+                                        buildJsonArray {
+                                            add(
+                                                buildJsonObject {
+                                                    put("code", "UNKNOWN_ROUTE")
+                                                    put("message", "Route ${call.request.httpMethod.value} ${call.request.uri} was not found.")
+                                                }
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        }
                     }
 
                     status(HttpStatusCode.MethodNotAllowed) { call, _ ->
@@ -220,7 +224,10 @@ class ChartedServer {
                                         add(
                                             buildJsonObject {
                                                 put("code", "INVALID_METHOD")
-                                                put("message", "Route ${call.request.httpMethod.value} ${call.request.uri} doesn't implement a handler for that specific method.")
+                                                put(
+                                                    "message",
+                                                    "Route ${call.request.httpMethod.value} ${call.request.uri} doesn't implement a handler for that specific method."
+                                                )
                                             }
                                         )
                                     }
@@ -234,7 +241,11 @@ class ChartedServer {
                             Sentry.captureException(cause)
                         }
 
-                        self.log.error("Unable to handle request ${call.request.httpMethod.value} ${call.request.uri}:", cause)
+                        self.log.error(
+                            "Unable to handle request ${call.request.httpMethod.value} ${call.request.uri}:",
+                            cause
+                        )
+
                         call.respond(
                             HttpStatusCode.InternalServerError,
                             buildJsonObject {
@@ -255,8 +266,7 @@ class ChartedServer {
                     }
                 }
 
-                routing {}
-
+                install(Routing)
                 install(NoelKtorRoutingPlugin) {
                     endpointLoader(KoinEndpointLoader)
                 }

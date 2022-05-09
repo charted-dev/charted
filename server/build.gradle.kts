@@ -39,8 +39,8 @@ dependencies {
     implementation("ch.qos.logback:logback-core:1.2.11")
 
     // Ktor Routing
-    api("org.noelware.ktor:core:0.0.1-beta")
-    implementation("org.noelware.ktor:loader-koin:0.0.1-beta")
+    api("org.noelware.ktor:core:0.1.1-beta")
+    implementation("org.noelware.ktor:loader-koin:0.1.1-beta")
 
     // Ktor (server)
     api("io.ktor:ktor-server-core:2.0.1")
@@ -51,6 +51,7 @@ dependencies {
     implementation(project(":engines:oci"))
     implementation(project(":search:meili"))
     implementation(project(":database"))
+    implementation(project(":util"))
     implementation(project(":core"))
 
     // Just for Log4j/JCL -> slf4j

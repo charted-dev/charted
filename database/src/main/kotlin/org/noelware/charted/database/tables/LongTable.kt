@@ -15,21 +15,15 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.database.entity
+package org.noelware.charted.database.tables
 
-import org.jetbrains.exposed.dao.LongEntity
-import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
-import org.noelware.charted.database.tables.OrganizationMember
-import org.noelware.charted.database.tables.RepositoryMember
-import org.noelware.charted.database.tables.UserConnections
+import org.jetbrains.exposed.dao.id.IdTable
+import org.jetbrains.exposed.sql.Column
 
-class OrganizationMemberEntity(id: EntityID<Long>): LongEntity(id) {
-    companion object: LongEntityClass<OrganizationMemberEntity>(OrganizationMember)
-
-    var displayName by RepositoryMember.displayName
-    var updatedAt by UserConnections.updatedAt
-    val createdAt by UserConnections.createdAt
-    val account by UserEntity referencedOn RepositoryMember.account
-    var flags by RepositoryMember.flags
+open class LongTable(name: String): IdTable<Long>(name) {
+    override val id: Column<EntityID<Long>> = long("id").entityId()
+    override val primaryKey: PrimaryKey by lazy {
+        super.primaryKey ?: PrimaryKey(id)
+    }
 }
