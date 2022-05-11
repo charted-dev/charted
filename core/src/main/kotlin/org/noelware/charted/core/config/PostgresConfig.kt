@@ -26,5 +26,5 @@ data class PostgresConfig(
     val schema: String = "public",
     val host: String = "localhost",
     val port: Long = 5432,
-    val name: String = "hana"
+    val name: String = "charted"
 )

@@ -26,3 +26,9 @@ repositories {
     mavenCentral()
     mavenLocal()
 }
+
+// build scans
+extensions.findByName("buildScan")?.withGroovyBuilder {
+    setProperty("termsOrServiceUrl", "https://gradle.com/terms-of-service")
+    setProperty("termsOfServiceAgree", "yes")
+}

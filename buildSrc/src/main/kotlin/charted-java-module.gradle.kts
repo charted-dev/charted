@@ -17,7 +17,6 @@
 
 import dev.floofy.utils.gradle.noel
 import dev.floofy.utils.gradle.noelware
-import gradle.kotlin.dsl.accessors._f892f121978ac8d8e8cd2baa2405cb16.api
 import org.noelware.charted.gradle.*
 
 plugins {

@@ -113,6 +113,16 @@ java {
     targetCompatibility = JAVA_VERSION
 }
 
+tasks.withType<Jar> {
+    manifest {
+        attributes(
+            "Implementation-Title" to "charted-server",
+            "Implementation-Version" to "$VERSION",
+            "Implementation-Vendor" to "Noelware, Inc. <team@noelware.org>"
+        )
+    }
+}
+
 tasks {
     compileKotlin {
         kotlinOptions.jvmTarget = JAVA_VERSION.toString()

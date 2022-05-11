@@ -31,8 +31,8 @@ distributions {
         contents {
             from("${rootProject.projectDir}/distribution/README.txt")
             from("${rootProject.projectDir}/distribution/LICENSE")
-            from("${rootProject.projectDir}/distribution/config.toml")
-            from("${rootProject.projectDir}/distribution/logback.properties")
+            from("${rootProject.projectDir}/distribution/config/config.toml")
+            from("${rootProject.projectDir}/distribution/config/logback.properties")
         }
     }
 }

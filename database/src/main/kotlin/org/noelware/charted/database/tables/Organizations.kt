@@ -18,7 +18,9 @@
 package org.noelware.charted.database.tables
 
 import kotlinx.datetime.toKotlinLocalDateTime
+import org.jetbrains.exposed.sql.LongColumnType
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
+import org.noelware.charted.database.columns.array
 import java.time.LocalDateTime
 
 object Organizations: LongTable("organizations") {
@@ -28,7 +30,7 @@ object Organizations: LongTable("organizations") {
     val displayName = varchar("display_name", 140).nullable().default(null)
     val createdAt = datetime("created_at").default(LocalDateTime.now().toKotlinLocalDateTime())
     val updatedAt = datetime("updated_at").default(LocalDateTime.now().toKotlinLocalDateTime())
-    val members = reference("members", OrganizationMember)
+    val memberIds = array<Long>("member_ids", LongColumnType()) // TODO: make this not shitty
     val owner = reference("owner_id", Users).uniqueIndex()
     val handle = varchar("handle", 60)
     val avatar = text("avatar").nullable().default(null)

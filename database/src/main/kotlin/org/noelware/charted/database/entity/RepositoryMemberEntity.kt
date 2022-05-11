@@ -20,15 +20,14 @@ package org.noelware.charted.database.entity
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
-import org.noelware.charted.database.tables.RepositoryMember
-import org.noelware.charted.database.tables.UserConnections
+import org.noelware.charted.database.tables.RepositoryMembers
 
 class RepositoryMemberEntity(id: EntityID<Long>): LongEntity(id) {
-    companion object: LongEntityClass<RepositoryMemberEntity>(RepositoryMember)
+    companion object: LongEntityClass<RepositoryMemberEntity>(RepositoryMembers)
 
-    var displayName by RepositoryMember.displayName
-    var updatedAt by UserConnections.updatedAt
-    val createdAt by UserConnections.createdAt
-    val account by UserEntity referencedOn RepositoryMember.account
-    var flags by RepositoryMember.flags
+    var displayName by RepositoryMembers.displayName
+    var updatedAt by RepositoryMembers.updatedAt
+    val joinedAt by RepositoryMembers.joinedAt
+    val account by UserEntity referencedOn RepositoryMembers.account
+    var flags by RepositoryMembers.flags
 }

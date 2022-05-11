@@ -19,7 +19,9 @@ package org.noelware.charted.database.tables
 
 import kotlinx.datetime.toKotlinLocalDateTime
 import net.perfectdreams.exposedpowerutils.sql.postgresEnumeration
+import org.jetbrains.exposed.sql.LongColumnType
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
+import org.noelware.charted.database.columns.array
 import org.noelware.charted.database.enums.RepoType
 import java.time.LocalDateTime
 
@@ -28,7 +30,7 @@ object Repositories: LongTable("repositories") {
     val deprecated = bool("deprecated").default(false)
     val createdAt = datetime("created_at").default(LocalDateTime.now().toKotlinLocalDateTime())
     val updatedAt = datetime("updated_at").default(LocalDateTime.now().toKotlinLocalDateTime())
-    val members = reference("members", RepositoryMember)
+    val memberIds = array<Long>("member_ids", LongColumnType()) // TODO: make this not shitty
     val homepage = text("homepage").nullable().default(null)
     val iconHash = text("icon").nullable().default(null)
     val ownerId = long("owner_id")

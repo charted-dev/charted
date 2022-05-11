@@ -20,7 +20,6 @@ package org.noelware.charted.database.entity
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
-import org.noelware.charted.database.tables.OrganizationMember
 import org.noelware.charted.database.tables.Organizations
 
 class OrganizationEntity(id: EntityID<Long>): LongEntity(id) {
@@ -31,7 +30,7 @@ class OrganizationEntity(id: EntityID<Long>): LongEntity(id) {
     var description by Organizations.displayName
     val createdAt by Organizations.createdAt
     var updatedAt by Organizations.updatedAt
-    var members by OrganizationMemberEntity via OrganizationMember
+    var memberIds by Organizations.memberIds
     var handle by Organizations.handle
     var avatar by Organizations.avatar
     val owner by UserEntity referencedOn Organizations.owner

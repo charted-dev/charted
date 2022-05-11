@@ -30,5 +30,4 @@ class UserConnectionEntity(id: EntityID<Long>): LongEntity(id) {
     var appleAccountId by UserConnections.appleAccountId
     var updatedAt by UserConnections.updatedAt
     var createdAt by UserConnections.createdAt
-    val account by UserEntity referencedOn UserConnections.account
 }

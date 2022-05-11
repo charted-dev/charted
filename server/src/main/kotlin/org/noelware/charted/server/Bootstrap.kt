@@ -43,7 +43,7 @@ import org.noelware.charted.core.logging.SentryLogger
 import org.noelware.charted.core.redis.IRedisClient
 import org.noelware.charted.core.redis.RedisClient
 import org.noelware.charted.core.sessions.SessionManager
-import org.noelware.charted.database.*
+import org.noelware.charted.database.createOrUpdateEnums
 import org.noelware.charted.database.tables.*
 import org.noelware.charted.engine.oci.OciBackendEngine
 import org.noelware.charted.engines.charts.ChartBackendEngine
@@ -75,7 +75,7 @@ object Bootstrap {
 
         log.info("Loading configuration...")
 
-        // Configure the Hazel config
+        // Configure the server config
         val fullConfigPath = System.getenv("CHARTED_CONFIG_PATH") ?: "./config.toml"
         val configFile = File(fullConfigPath)
 
@@ -138,7 +138,7 @@ object Bootstrap {
                 Organizations,
                 Users,
                 Repositories,
-                RepositoryMember,
+                RepositoryMembers,
                 OrganizationMember,
                 UserConnections
             )

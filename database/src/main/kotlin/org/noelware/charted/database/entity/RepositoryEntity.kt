@@ -20,8 +20,8 @@ package org.noelware.charted.database.entity
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
+import org.noelware.charted.database.tables.Organizations
 import org.noelware.charted.database.tables.Repositories
-import org.noelware.charted.database.tables.RepositoryMember
 
 class RepositoryEntity(id: EntityID<Long>): LongEntity(id) {
     companion object: LongEntityClass<RepositoryEntity>(Repositories)
@@ -30,7 +30,7 @@ class RepositoryEntity(id: EntityID<Long>): LongEntity(id) {
     var deprecated by Repositories.deprecated
     var createdAt by Repositories.createdAt
     var updatedAt by Repositories.updatedAt
-    var members by RepositoryMemberEntity via RepositoryMember
+    var memberIds by Organizations.memberIds
     var homepage by Repositories.homepage
     var iconHash by Repositories.iconHash
     var ownerId by Repositories.ownerId

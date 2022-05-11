@@ -27,5 +27,4 @@ object UserConnections: LongTable("user_connections") {
     var appleAccountId = text("apple_account_id").nullable().default(null)
     val createdAt = datetime("created_at").default(LocalDateTime.now().toKotlinLocalDateTime())
     val updatedAt = datetime("updated_at").default(LocalDateTime.now().toKotlinLocalDateTime())
-    val account = reference("account_id", Users)
 }

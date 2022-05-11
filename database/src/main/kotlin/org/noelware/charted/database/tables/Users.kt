@@ -23,7 +23,6 @@ import java.time.LocalDateTime
 
 object Users: LongTable("users") {
     var gravatarEmail = text("gravatar_email").nullable().default(null)
-    var organizations = reference("organization_id", Organizations)
     var description = varchar("description", 240).nullable().default(null)
     val createdAt = datetime("created_at").default(LocalDateTime.now().toKotlinLocalDateTime())
     val updatedAt = datetime("updated_at").default(LocalDateTime.now().toKotlinLocalDateTime())

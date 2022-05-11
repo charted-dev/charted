@@ -21,7 +21,7 @@ import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import java.time.LocalDateTime
 
-object RepositoryMember: LongTable("repository_members") {
+object RepositoryMembers: LongTable("repositories_member") {
     val displayName = text("display_name").nullable().default(null)
     val updatedAt = datetime("updated_at").default(LocalDateTime.now().toKotlinLocalDateTime())
     val joinedAt = datetime("joined_at").default(LocalDateTime.now().toKotlinLocalDateTime())
