@@ -21,5 +21,7 @@ plugins {
 
 dependencies {
     implementation("com.meilisearch.sdk:meilisearch-java:0.7.0")
+    implementation("io.ktor:ktor-client-core:2.0.1")
+    implementation("org.json:json:20220320") // used for meilisearch
     implementation(project(":database"))
 }

@@ -21,19 +21,24 @@ package org.noelware.charted.server.endpoints
 import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.koin.inject
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.json.*
 import org.apache.commons.validator.routines.EmailValidator
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.insertAndGetId
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.update
+import org.bouncycastle.crypto.generators.Argon2BytesGenerator
+import org.bouncycastle.crypto.params.Argon2Parameters
+import org.jetbrains.exposed.sql.*
 import org.noelware.charted.core.ChartedScope
+import org.noelware.charted.core.StorageWrapper
 import org.noelware.charted.core.config.Config
 import org.noelware.charted.core.sessions.SessionKey
+import org.noelware.charted.core.sessions.SessionManager
 import org.noelware.charted.core.sessions.SessionPlugin
 import org.noelware.charted.database.entity.UserConnectionEntity
 import org.noelware.charted.database.entity.UserEntity
@@ -46,12 +51,19 @@ import org.noelware.charted.database.tables.Users.gravatarEmail
 import org.noelware.charted.database.tables.Users.name
 import org.noelware.charted.database.tables.Users.updatedAt
 import org.noelware.charted.database.tables.Users.username
+import org.noelware.charted.util.Sha256
 import org.noelware.charted.util.Snowflake
+import org.noelware.charted.util.Util
 import org.noelware.charted.util.generatePassword
 import org.noelware.charted.util.generateSalt
 import org.noelware.ktor.body
 import org.noelware.ktor.endpoints.*
+import org.noelware.remi.core.figureContentType
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.nio.charset.Charset
 import java.sql.BatchUpdateException
+import java.util.Base64
 
 @kotlinx.serialization.Serializable
 data class NewUser(
@@ -72,6 +84,13 @@ data class UpdateUserBody(
 )
 
 @kotlinx.serialization.Serializable
+data class LoginBody(
+    val username: String? = null,
+    val email: String? = null,
+    val password: String
+)
+
+@kotlinx.serialization.Serializable
 data class User(
     val gravatarEmail: String? = null,
     val description: String? = null,
@@ -89,7 +108,7 @@ data class User(
         put(
             "avatar_url",
             avatar?.let {
-                JsonPrimitive("https://cdn.noelware.org/charted/avatars/$id/$avatar.png")
+                JsonPrimitive("https://cdn.noelware.org/charted/avatars/$id/$avatar")
             } ?: JsonNull
         )
         put("created_at", createdAt.toInstant(TimeZone.currentSystemDefault()).toString())
@@ -210,7 +229,7 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
         // Check if a user with the email already exists
         val userByEmail = asyncTransaction(ChartedScope) {
             UserEntity.find {
-                Users.email eq body.email
+                email eq body.email
             }.firstOrNull()
         }
 
@@ -617,14 +636,308 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
     }
 
     @Delete
-    suspend fun deleteCurrent(call: ApplicationCall) {}
+    suspend fun deleteCurrent(call: ApplicationCall) {
+        val session = call.attributes[SessionKey]
+        asyncTransaction {
+            // Delete the user
+            Users.deleteWhere {
+                Users.id eq session.userId
+            }
+
+            // Delete all the repositories the user owned
+            Repositories.deleteWhere {
+                Repositories.ownerId eq session.userId
+            }
+
+            Organizations.deleteWhere {
+                Organizations.owner eq session.userId
+            }
+        }
+
+        call.respond(HttpStatusCode.NoContent)
+    }
 
     @Post("/login")
-    suspend fun login(call: ApplicationCall) {}
+    suspend fun login(call: ApplicationCall) {
+        val body by call.body<LoginBody>()
+        val (value, key) = if (body.username != null)
+            Pair(body.username, username)
+        else if (body.email != null)
+            Pair(body.email, email)
+        else
+            Pair(null, null)
+
+        if (value == null && key == null) {
+            call.respond(
+                HttpStatusCode.BadRequest,
+                buildJsonObject {
+                    put("success", false)
+                    put(
+                        "errors",
+                        buildJsonArray {
+                            add(
+                                buildJsonObject {
+                                    put("code", "UNKNOWN_KEY_TO_USE")
+                                    put("message", "Cannot determine to use username or email to login.")
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+
+            return
+        }
+
+        val user = asyncTransaction {
+            UserEntity.find {
+                key!! eq value!!
+            }.firstOrNull()
+        }
+
+        if (user == null) {
+            call.respond(
+                HttpStatusCode.NotFound,
+                buildJsonObject {
+                    put("success", false)
+                    put(
+                        "errors",
+                        buildJsonArray {
+                            add(
+                                buildJsonObject {
+                                    put("code", "UNKNOWN_USER")
+                                    put("message", "Unable to find user with value '$value'")
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+
+            return
+        }
+
+        // Check if the password is correct
+        println(user.password)
+        val parts = user.password.split("$")
+
+        // determine the salt
+        val salt = parts[4]
+        val saltFromBase64 = Base64.getDecoder().decode(salt.toByteArray())
+
+        val builder = Argon2Parameters.Builder(Argon2Parameters.ARGON2_id)
+            .withVersion(Argon2Parameters.ARGON2_VERSION_13)
+            .withMemoryAsKB(1048576)
+            .withIterations(4)
+            .withParallelism(1)
+            .withSalt(saltFromBase64)
+
+        val generator = Argon2BytesGenerator()
+        generator.init(builder.build())
+
+        val result = ByteArray(32)
+        generator.generateBytes(body.password.toByteArray(Charset.defaultCharset()), result)
+
+        if (!Util.constantTimeArrayEquals(result, body.password.toByteArray())) {
+            call.respond(
+                HttpStatusCode.Forbidden,
+                buildJsonObject {
+                    put("success", false)
+                    put(
+                        "errors",
+                        buildJsonArray {
+                            add(
+                                buildJsonObject {
+                                    put("code", "INVALID_PASSWORD")
+                                    put("message", "Invalid password.")
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+
+            return
+        }
+
+        // Get the session manager
+        val sessions by inject<SessionManager>()
+        val session = sessions.createSession(user.id.toString())
+
+        call.respond(
+            HttpStatusCode.Created,
+            buildJsonObject {
+                put("success", true)
+                put(
+                    "data",
+                    buildJsonObject {
+                        put("access_token", session.accessToken)
+                        put("refresh_token", session.refreshToken)
+                        put("session_id", session.sessionId.toString())
+                    }
+                )
+            }
+        )
+    }
 
     @Post("/@me/avatar")
-    suspend fun avatar(call: ApplicationCall) {}
+    suspend fun avatar(call: ApplicationCall) {
+        val session = call.attributes[SessionKey]
+        val body = call.receiveMultipart()
+        val parts = body.readAllParts()
+
+        val firstPart = parts.firstOrNull()
+        if (firstPart == null) {
+            call.respond(
+                HttpStatusCode.BadRequest,
+                buildJsonObject {
+                    put("success", false)
+                    put(
+                        "errors",
+                        buildJsonArray {
+                            add(
+                                buildJsonObject {
+                                    put("code", "BAD_MULTIPART_REQUEST")
+                                    put("message", "There can be only file descriptor or there was none.")
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+
+            return
+        }
+
+        if (firstPart !is PartData.FileItem) {
+            call.respond(
+                HttpStatusCode.BadRequest,
+                buildJsonObject {
+                    put("success", false)
+                    put(
+                        "errors",
+                        buildJsonArray {
+                            add(
+                                buildJsonObject {
+                                    put("code", "BAD_MULTIPART_REQUEST")
+                                    put("message", "The multipart object must be a file descriptor.")
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+
+            return
+        }
+
+        // Create a SHA256 hash of the file name
+        val hash = Sha256.encode(firstPart.originalFileName ?: "file")
+        val inputStream = firstPart.streamProvider()
+
+        val baos = ByteArrayOutputStream()
+        withContext(Dispatchers.IO) {
+            inputStream.transferTo(baos)
+        }
+
+        val data = baos.toByteArray()
+        val newStream = ByteArrayInputStream(data)
+
+        // We had to clone the input stream, so we can retrieve the content type.
+        val storage by inject<StorageWrapper>()
+
+        when (val contentType = storage.trailer.figureContentType(inputStream)) {
+            ContentType.Image.PNG.toString(), ContentType.Image.GIF.toString(), ContentType.Image.JPEG.toString() -> {
+                val ext = when (contentType) {
+                    ContentType.Image.PNG.toString() -> "png"
+                    ContentType.Image.JPEG.toString() -> "jpg"
+                    ContentType.Image.GIF.toString() -> "gif"
+                    else -> error("should never happen")
+                }
+
+                storage.upload(
+                    "./avatars/${session.userId}/$hash.$ext",
+                    newStream,
+                    contentType
+                )
+
+                asyncTransaction {
+                    Users.update({ Users.id eq session.userId }) {
+                        it[avatar] = "$hash.$ext"
+                    }
+                }
+
+                call.respond(
+                    HttpStatusCode.Created,
+                    buildJsonObject {
+                        put("success", true)
+                    }
+                )
+            }
+
+            else -> call.respond(
+                HttpStatusCode.NotAcceptable,
+                buildJsonObject {
+                    put("success", false)
+                    put(
+                        "errors",
+                        buildJsonArray {
+                            add(
+                                buildJsonObject {
+                                    put("code", "INVALID_FORMAT")
+                                    put("message", "Cannot use content type $contentType.")
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+        }
+    }
 
     @Post("/@me/refresh_token")
-    suspend fun refreshSessionToken(call: ApplicationCall) {}
+    suspend fun refreshSessionToken(call: ApplicationCall) {
+        val sessions by inject<SessionManager>()
+        val session = call.attributes[SessionKey]
+
+        // Check if the access token is not expired.
+        val `continue` = sessions.isExpired(session.accessToken)
+        if (!`continue`) {
+            call.respond(
+                HttpStatusCode.NotAcceptable,
+                buildJsonObject {
+                    put("success", false)
+                    put(
+                        "errors",
+                        buildJsonArray {
+                            add(
+                                buildJsonObject {
+                                    put("code", "NOT_READY_FOR_REFRESH")
+                                    put("message", "The access token is too new, cannot refresh token!")
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+
+            return
+        }
+
+        val newSession = sessions.refreshSession(session)
+        call.respond(
+            HttpStatusCode.Created,
+            buildJsonObject {
+                put("success", true)
+                put(
+                    "data",
+                    buildJsonObject {
+                        put("access_token", newSession.accessToken)
+                        put("refresh_token", newSession.refreshToken)
+                        put("session_id", newSession.sessionId.toString())
+                    }
+                )
+            }
+        )
+    }
 }

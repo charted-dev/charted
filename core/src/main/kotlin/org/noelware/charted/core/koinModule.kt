@@ -17,6 +17,8 @@
 
 package org.noelware.charted.core
 
+import dev.floofy.haru.Scheduler
+import dev.floofy.utils.slf4j.logging
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.*
@@ -57,6 +59,15 @@ val chartedModule = module {
 
             install(UserAgent) {
                 agent = "Noelware/charted-server (v${ChartedInfo.version}; https://github.com/charted-dev/charted)"
+            }
+        }
+    }
+
+    single {
+        val log by logging<Scheduler>()
+        Scheduler {
+            handleError { job, cause ->
+                log.error("Unable to execute job ${job.name}:", cause)
             }
         }
     }

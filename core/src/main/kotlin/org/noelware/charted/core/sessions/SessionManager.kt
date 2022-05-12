@@ -19,6 +19,7 @@ package org.noelware.charted.core.sessions
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.auth0.jwt.exceptions.TokenExpiredException
 import dev.floofy.utils.slf4j.logging
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -94,6 +95,18 @@ class SessionManager(private val redis: IRedisClient, private val json: Json, co
         log.info("Done!")
     }
 
+    fun isExpired(token: String): Boolean = try {
+        JWT.require(algorithm)
+            .withIssuer("Noelware/charted-server")
+            .build()
+
+        false
+    } catch (e: TokenExpiredException) {
+        true
+    } catch (e: Exception) {
+        throw e
+    }
+
     suspend fun getSession(token: String): Session? {
         if (token.isEmpty()) return null
 
@@ -111,17 +124,6 @@ class SessionManager(private val redis: IRedisClient, private val json: Json, co
 
     suspend fun createSession(userId: String): Session {
         val sessionId = UUID.randomUUID()
-
-        // Check if we already have an authenticated user
-        // ATM, we only allow one session per user, but that
-        // may change in the future.
-        val exists = redis.commands.hgetall("charted:session").await().firstNotNullOf {
-            val data = json.decodeFromString(Session.serializer(), it.value)
-            data.userId == userId.toLong()
-        }
-
-        if (exists)
-            error("Cannot allow more than one session.")
 
         // Create access token, which is short-lived.
         val accessExpiresAt = Date.from(Instant.now().plusMillis(12.hours.inWholeMilliseconds))
@@ -159,11 +161,61 @@ class SessionManager(private val redis: IRedisClient, private val json: Json, co
             accessToken
         )
 
-        redis.commands.hmset("charted:sessions", mapOf(userId to json.encodeToString(Session.serializer(), session))).await()
+        redis.commands.set("charted:sessions:$userId-$sessionId", "owo")
+        redis.commands.expire("charted:sessions:$userId-$sessionId", 7.days.inWholeMilliseconds)
+        redis.commands.hmset("charted:sessions", mapOf("$userId-$sessionId" to json.encodeToString(Session.serializer(), session))).await()
         return session
     }
 
     suspend fun revokeSession(session: Session) {
-        redis.commands.hdel("charted:sessions", session.sessionId.toString()).await()
+        redis.commands.hdel("charted:sessions", "${session.userId}-${session.sessionId}").await()
+    }
+
+    suspend fun refreshSession(session: Session): Session {
+        revokeSession(session)
+
+        // Create access token, which is short-lived.
+        val accessExpiresAt = Date.from(Instant.now().plusMillis(12.hours.inWholeMilliseconds))
+        val accessToken = JWT.create()
+            .withIssuer("Noelware/charted-server")
+            .withExpiresAt(accessExpiresAt)
+            .withHeader(
+                mapOf(
+                    "session_id" to session.sessionId.toString(),
+                    "user_id" to session.userId.toString(),
+                    "expires_in" to accessExpiresAt.toInstant().toString()
+                )
+            )
+            .sign(algorithm)
+
+        // Create refresh token, which is long-lived for 7 days. If you keep refreshing
+        // the token with this, it'll invalidate the previous one that was stored.
+        val refreshExpiresAt = Date.from(Instant.now().plusMillis(7.days.inWholeMilliseconds))
+        val refreshToken = JWT.create()
+            .withIssuer("Noelware/charted-server")
+            .withExpiresAt(refreshExpiresAt)
+            .withHeader(
+                mapOf(
+                    "session_id" to session.sessionId.toString(),
+                    "user_id" to session.userId.toString(),
+                    "expires_in" to refreshExpiresAt.toInstant().toString()
+                )
+            )
+            .sign(algorithm)
+
+        val s = Session(
+            session.userId,
+            session.sessionId,
+            refreshToken,
+            accessToken
+        )
+
+        val userId = s.userId
+        val sessionId = s.sessionId
+
+        redis.commands.set("charted:sessions:$userId-$sessionId", "owo")
+        redis.commands.expire("charted:sessions:$userId-$sessionId", 7.days.inWholeMilliseconds)
+        redis.commands.hmset("charted:sessions", mapOf("$userId-$sessionId" to json.encodeToString(Session.serializer(), s))).await()
+        return s
     }
 }

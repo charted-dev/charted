@@ -57,7 +57,6 @@ val INDEX_SETTINGS = mapOf(
                             buildJsonObject {
                                 put("type", "text")
                                 put("analyzer", "ngram")
-                                put("index", true)
                             }
                         )
 
@@ -65,7 +64,6 @@ val INDEX_SETTINGS = mapOf(
                             "username",
                             buildJsonObject {
                                 put("type", "text")
-                                put("index", true)
                             }
                         )
 
@@ -73,7 +71,6 @@ val INDEX_SETTINGS = mapOf(
                             "email",
                             buildJsonObject {
                                 put("type", "keyword")
-                                put("index", true)
                             }
                         )
 
@@ -81,7 +78,6 @@ val INDEX_SETTINGS = mapOf(
                             "name",
                             buildJsonObject {
                                 put("type", "text")
-                                put("index", true)
                             }
                         )
 
@@ -134,7 +130,27 @@ val INDEX_SETTINGS = mapOf(
                             buildJsonObject {
                                 put("type", "text")
                                 put("analyzer", "ngram")
-                                put("index", true)
+                            }
+                        )
+
+                        put(
+                            "updated_at",
+                            buildJsonObject {
+                                put("type", "datetime")
+                            }
+                        )
+
+                        put(
+                            "created_at",
+                            buildJsonObject {
+                                put("type", "datetime")
+                            }
+                        )
+
+                        put(
+                            "owner_id",
+                            buildJsonObject {
+                                put("type", "long")
                             }
                         )
 
@@ -142,7 +158,13 @@ val INDEX_SETTINGS = mapOf(
                             "name",
                             buildJsonObject {
                                 put("type", "text")
-                                put("index", true)
+                            }
+                        )
+
+                        put(
+                            "type",
+                            buildJsonObject {
+                                put("type", "keyword")
                             }
                         )
 
@@ -191,11 +213,32 @@ val INDEX_SETTINGS = mapOf(
                     "properties",
                     buildJsonObject {
                         put(
+                            "verified_publisher",
+                            buildJsonObject {
+                                put("type", "bool")
+                            }
+                        )
+
+                        put(
                             "description",
                             buildJsonObject {
                                 put("type", "text")
                                 put("analyzer", "ngram")
                                 put("index", true)
+                            }
+                        )
+
+                        put(
+                            "updated_at",
+                            buildJsonObject {
+                                put("type", "datetime")
+                            }
+                        )
+
+                        put(
+                            "created_at",
+                            buildJsonObject {
+                                put("type", "datetime")
                             }
                         )
 
@@ -269,10 +312,23 @@ val INDEX_SETTINGS = mapOf(
                         )
 
                         put(
+                            "updated_at",
+                            buildJsonObject {
+                                put("type", "datetime")
+                            }
+                        )
+
+                        put(
+                            "joined_at",
+                            buildJsonObject {
+                                put("type", "datetime")
+                            }
+                        )
+
+                        put(
                             "username",
                             buildJsonObject {
                                 put("type", "text")
-                                put("index", true)
                             }
                         )
 
@@ -280,7 +336,6 @@ val INDEX_SETTINGS = mapOf(
                             "email",
                             buildJsonObject {
                                 put("type", "keyword")
-                                put("index", true)
                             }
                         )
 
@@ -288,7 +343,6 @@ val INDEX_SETTINGS = mapOf(
                             "name",
                             buildJsonObject {
                                 put("type", "text")
-                                put("index", true)
                             }
                         )
 
@@ -296,7 +350,6 @@ val INDEX_SETTINGS = mapOf(
                             "id",
                             buildJsonObject {
                                 put("type", "long")
-                                put("index", true)
                             }
                         )
                     }
@@ -342,6 +395,20 @@ val INDEX_SETTINGS = mapOf(
                                 put("type", "text")
                                 put("analyzer", "ngram")
                                 put("index", true)
+                            }
+                        )
+
+                        put(
+                            "updated_at",
+                            buildJsonObject {
+                                put("type", "datetime")
+                            }
+                        )
+
+                        put(
+                            "created_at",
+                            buildJsonObject {
+                                put("type", "datetime")
                             }
                         )
 

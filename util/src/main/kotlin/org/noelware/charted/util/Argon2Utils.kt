@@ -49,6 +49,6 @@ fun generatePassword(password: String, salt: ByteArray): String {
     generator.init(builder.build())
 
     val result = ByteArray(outputLen)
-    generator.generateBytes(password.toByteArray(Charset.defaultCharset()), result, 0, result.size)
+    generator.generateBytes(password.toByteArray(Charset.defaultCharset()), result)
     return String(result)
 }

@@ -28,6 +28,11 @@ enum class RepoType {
     APPLICATION
 }
 
+fun RepoType.asString(): String = when (this) {
+    RepoType.APPLICATION -> "application"
+    RepoType.LIBRARY -> "application"
+}
+
 fun String.toRepoType(): RepoType = when (this) {
     "library" -> RepoType.LIBRARY
     "application" -> RepoType.APPLICATION

@@ -22,4 +22,5 @@ plugins {
 dependencies {
     implementation("org.elasticsearch.client:elasticsearch-rest-client:8.2.0")
     implementation("org.elasticsearch.client:elasticsearch-rest-client-sniffer:8.2.0")
+    implementation(project(":database"))
 }

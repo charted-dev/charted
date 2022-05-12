@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.search.elastic
+package org.noelware.charted.search.meili
 
 enum class Indexes(val index: String) {
     REPOSITORY("charted_repos"),
@@ -23,14 +23,4 @@ enum class Indexes(val index: String) {
     ORGANIZATION("charted_orgs"),
     ORGANIZATION_MEMBER("charted_org_members"),
     USER("charted_users");
-
-    companion object {
-        fun all(): List<Indexes> = listOf(
-            ORGANIZATION,
-            ORGANIZATION_MEMBER,
-            REPOSITORY,
-            REPOSITORY_MEMBER,
-            USER
-        )
-    }
 }

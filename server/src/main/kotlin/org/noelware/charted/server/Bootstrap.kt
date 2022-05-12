@@ -48,6 +48,7 @@ import org.noelware.charted.database.tables.*
 import org.noelware.charted.engine.oci.OciBackendEngine
 import org.noelware.charted.engines.charts.ChartBackendEngine
 import org.noelware.charted.search.elastic.ElasticSearchBackend
+import org.noelware.charted.search.meili.MeilisearchBackend
 import org.noelware.charted.server.endpoints.endpointsModule
 import java.io.File
 import java.io.IOError
@@ -205,6 +206,10 @@ object Bootstrap {
 
                     config.search.elastic?.let { elastic ->
                         single { ElasticSearchBackend(elastic) }
+                    }
+
+                    config.search.meili?.let { meili ->
+                        single { MeilisearchBackend(meili, get()) }
                     }
                 }
             )

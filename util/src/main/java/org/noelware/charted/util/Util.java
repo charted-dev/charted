@@ -19,12 +19,23 @@ package org.noelware.charted.util;
 
 import org.jetbrains.annotations.Nullable;
 
-public class ObjectUtil {
-  private ObjectUtil() {}
+public class Util {
+  private Util() {}
 
   public static Object requireNotNull(@Nullable Object obj) {
     if (obj == null) throw new IllegalArgumentException();
 
     return obj;
+  }
+
+  public static boolean constantTimeArrayEquals(byte[] expected, byte[] actual) {
+    if (expected.length != actual.length) return false;
+
+    int result = 0;
+    for (var i = 0; i < expected.length; i++) {
+      result |= expected[i] ^ actual[i];
+    }
+
+    return result == 0;
   }
 }

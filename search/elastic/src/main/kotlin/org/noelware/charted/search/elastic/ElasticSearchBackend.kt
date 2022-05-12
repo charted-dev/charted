@@ -17,8 +17,12 @@
 
 package org.noelware.charted.search.elastic
 
+import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.koin.inject
 import dev.floofy.utils.slf4j.logging
+import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.*
 import org.apache.http.HttpHost
@@ -29,6 +33,10 @@ import org.apache.http.ssl.SSLContexts
 import org.elasticsearch.client.*
 import org.elasticsearch.client.sniff.SniffOnFailureListener
 import org.elasticsearch.client.sniff.Sniffer
+import org.jetbrains.exposed.dao.with
+import org.jetbrains.exposed.sql.selectAll
+import org.noelware.charted.database.entity.OrganizationMemberEntity
+import org.noelware.charted.database.tables.Organizations
 import org.noelware.charted.search.elastic.interceptor.ApacheSentryRequestInterceptor
 import org.noelware.charted.search.elastic.interceptor.ApacheSentryResponseInterceptor
 import java.io.Closeable
@@ -140,7 +148,7 @@ class ElasticSearchBackend(config: ElasticsearchConfig): Closeable {
         clusterName = currentCluster
         clusterUUID = currentClusterId
 
-        createIndexes()
+        runBlocking { createIndexes() }
     }
 
     override fun close() {
@@ -150,14 +158,26 @@ class ElasticSearchBackend(config: ElasticsearchConfig): Closeable {
         client?.close()
     }
 
-    private fun createIndexes() {
+    private suspend fun createIndexes() {
         log.info("Creating Elasticsearch indexes if they don't exist...")
 
         for ((index, settings) in INDEX_SETTINGS) {
             log.info("Does index $index exist?...")
             val res1 = client!!.performRequest(Request("HEAD", "/$index"))
             if (res1.statusLine.statusCode == 200) {
-                log.warn("Index $index already exists! Skipping...")
+                log.warn("Index $index already exists! Updating index mappings...")
+
+                val request = Request("PUT", "/$index")
+                request.setJsonEntity(json.encodeToString(JsonObject.serializer(), settings))
+
+                val r = client!!.performRequest(request)
+                if (r.statusLine.statusCode !in 200..300) {
+                    val body = json.decodeFromStream(JsonObject.serializer(), r.entity.content)
+                    log.warn("Unable to create a request to \"PUT /$index\" - $body")
+                } else {
+                    log.info("Index $index's mappings are updated.")
+                }
+
                 continue
             }
 
@@ -172,6 +192,8 @@ class ElasticSearchBackend(config: ElasticsearchConfig): Closeable {
             } else {
                 log.info("Index $index now exists in Elasticsearch :D")
             }
+
+            indexAllData()
         }
     }
 
@@ -258,6 +280,110 @@ class ElasticSearchBackend(config: ElasticsearchConfig): Closeable {
             put("took", payload["took"]!!.jsonPrimitive)
             put("max_score", payload["max_score"]?.let { JsonNull }!!)
             put("hits", JsonArray(payload["hits"]!!.jsonArray.map { it }))
+            put("source", "Elasticsearch v$serverVersion")
+        }
+    }
+
+    suspend fun indexAllData() {
+        log.debug("Indexing all data...")
+
+        for (index in Indexes.all()) {
+            log.debug("Indexing data for ${index.index}!")
+
+            when (index) {
+                Indexes.ORGANIZATION -> {
+                    val data = asyncTransaction {
+                        Organizations.selectAll().toList()
+                    }
+
+                    if (data.isEmpty()) {
+                        log.warn("Skipping index ${index.index} due to no data being available.")
+                        continue
+                    }
+
+                    val jsonBody = StringBuilder()
+                    for (d in data) {
+                        val id = d[Organizations.id].value
+                        val entity = buildJsonObject {
+                            put("id", id)
+                            put("name", d[Organizations.displayName])
+                            put("handle", d[Organizations.handle])
+                            put("owner_id", d[Organizations.owner].value)
+                            put("created_at", d[Organizations.createdAt].toInstant(TimeZone.currentSystemDefault()).toString())
+                            put("updated_at", d[Organizations.updatedAt].toInstant(TimeZone.currentSystemDefault()).toString())
+                            put("verified_publisher", d[Organizations.verifiedPublisher])
+                        }
+
+                        jsonBody.appendLine("{\"index\":\"{\"_id\":$id}}")
+                        jsonBody.appendLine(json.encodeToString(JsonObject.serializer(), entity))
+                    }
+
+                    val request = Request("POST", "/${index.index}/_bulk")
+                    request.setJsonEntity(jsonBody.toString())
+
+                    val res = client!!.performRequest(request)
+                    if (res.statusLine.statusCode !in 200..300) {
+                        val body = json.decodeFromStream(JsonObject.serializer(), res.entity.content)
+                        log.warn("Unable to send a request to \"POST /${index.index}/_bulk\": $body")
+                    } else {
+                        log.debug("Indexed all data for index [${index.index}]")
+                    }
+                }
+
+                Indexes.ORGANIZATION_MEMBER -> {
+                    val data = asyncTransaction {
+                        OrganizationMemberEntity
+                            .all()
+                            .with(OrganizationMemberEntity::account)
+                            .toList()
+                    }
+
+                    if (data.isEmpty()) {
+                        log.warn("Skipping index ${index.index} due to no data being available.")
+                        continue
+                    }
+
+                    val jsonBody = StringBuilder()
+                    for (d in data) {
+                        val id = d.id.value
+                        val entity = buildJsonObject {
+                            put("id", id)
+                            put(
+                                "name",
+                                if (d.displayName != null)
+                                    JsonPrimitive(d.displayName)
+                                else if (d.account.name != null)
+                                    JsonPrimitive(d.account.name)
+                                else
+                                    JsonNull
+                            )
+
+                            put("email", d.account.email)
+                            put("username", d.account.username)
+                            put("description", d.account.description)
+                            put("joined_at", d.joinedAt.toInstant(TimeZone.currentSystemDefault()).toString())
+                            put("updated_at", d.updatedAt.toInstant(TimeZone.currentSystemDefault()).toString())
+                            put("display_name", d.displayName)
+                        }
+
+                        jsonBody.appendLine("{\"index\":\"{\"_id\":$id}}")
+                        jsonBody.appendLine(json.encodeToString(JsonObject.serializer(), entity))
+                    }
+
+                    val request = Request("POST", "/${index.index}/_bulk")
+                    request.setJsonEntity(jsonBody.toString())
+
+                    val res = client!!.performRequest(request)
+                    if (res.statusLine.statusCode !in 200..300) {
+                        val body = json.decodeFromStream(JsonObject.serializer(), res.entity.content)
+                        log.warn("Unable to send a request to \"POST /${index.index}/_bulk\": $body")
+                    } else {
+                        log.debug("Indexed all data for index [${index.index}]")
+                    }
+                }
+
+                else -> log.warn("Index ${index.index} doesn't support indexing at this time.")
+            }
         }
     }
 }

@@ -15,22 +15,30 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.search.elastic
+package org.noelware.charted.search.meili
 
-enum class Indexes(val index: String) {
-    REPOSITORY("charted_repos"),
-    REPOSITORY_MEMBER("charted_repo_members"),
-    ORGANIZATION("charted_orgs"),
-    ORGANIZATION_MEMBER("charted_org_members"),
-    USER("charted_users");
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 
-    companion object {
-        fun all(): List<Indexes> = listOf(
-            ORGANIZATION,
-            ORGANIZATION_MEMBER,
-            REPOSITORY,
-            REPOSITORY_MEMBER,
-            USER
-        )
+fun ArrayList<HashMap<String, Any>>.toJsonArray(): JsonArray {
+    val iter = { value: Any ->
+        if (value is String)
+            JsonPrimitive(value)
+
+        if (value is Int)
+            JsonPrimitive(value)
+
+        if (value is Boolean)
+            JsonPrimitive(value)
+
+        JsonNull
     }
+
+    return JsonArray(
+        map { map ->
+            JsonObject(map.toMap().mapValues(iter))
+        }
+    )
 }

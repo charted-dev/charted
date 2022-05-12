@@ -15,22 +15,10 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.search.elastic
+package org.noelware.telemtry.client
 
-enum class Indexes(val index: String) {
-    REPOSITORY("charted_repos"),
-    REPOSITORY_MEMBER("charted_repo_members"),
-    ORGANIZATION("charted_orgs"),
-    ORGANIZATION_MEMBER("charted_org_members"),
-    USER("charted_users");
-
-    companion object {
-        fun all(): List<Indexes> = listOf(
-            ORGANIZATION,
-            ORGANIZATION_MEMBER,
-            REPOSITORY,
-            REPOSITORY_MEMBER,
-            USER
-        )
-    }
-}
+/**
+ * Represents the client for sending telemetry requests to Noelware for making charted-server
+ * better!
+ */
+class TelemetryClient

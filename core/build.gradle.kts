@@ -65,4 +65,7 @@ dependencies {
     // Ktor Routing
     implementation("org.noelware.ktor:core:0.1-beta")
     implementation("org.noelware.ktor:loader-koin:0.1-beta")
+
+    // Haru (scheduling)
+    implementation("dev.floofy.haru:Haru:1.3.0")
 }

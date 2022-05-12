@@ -19,6 +19,6 @@ package org.noelware.charted.search.meili
 
 @kotlinx.serialization.Serializable
 data class MeilisearchConfig(
-    val endpoint: String = "127.0.0.1:9090",
+    val endpoint: String = "127.0.0.1:7700",
     val masterKey: String? = null
 )

@@ -27,6 +27,7 @@ include(
     ":search:elastic",
     ":search:meili",
     ":server",
+    ":telemetry",
     ":test",
     ":util"
 )

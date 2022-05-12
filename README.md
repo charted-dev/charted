@@ -1,35 +1,49 @@
 # 📦 charted-server
 > *Free, open source, and reliable Helm Chart registry made in Kotlin!*
 
-<!--
-## Why?
-**charted** (case-sensitive) is a way to distribute your Helm Charts onto the cloud safely and reliable without using an S3 bucket,
-Google Cloud Storage bucket, or your local filesystem, it's centralized in one place.
+## What is this?
+**charted-server** is the main backend of the charted project. It is a free, and reliable way to distribute Helm Charts without configuring
+Helm to use a S3 bucket, your local disk, GCS, and more. It is centralized in one place!
 
-**charted** is supposed to be like **Docker Hub**, where you can see the available versions of a certain Helm Chart,
-and shows you what contains in the helm chart, its dependencies, and much more.
+**charted** as a whole is supposed to be a **Docker Hub** equivalent, where you can view different versions of the Helm Chart, and shows
+what dependencies it uses, and more.
 
 ## Installation
-**charted-server** can be installed in a few different ways, you can use:
+**charted-server** can be installed in a few different ways! If you want a small, Rust version of **charted-server**, you might be 
+interested in the Server Lite project that is developed on the side! The [lite edition](https://github.com/charted-dev/server-lite) is for
+very small use cases but not limited to:
 
-- using the [Helm Chart](#helm-chart),
-- using the [Docker Image](#docker-image),
-- binary install with [GitHub Releases](#) or [dl.noelware.org/download.sh](https://dl.noelware.org) script,
-- locally with Git.
+- Small configuration
+- Overhead of CPU and memory usage
+- Easy to contribute
 
+but misses out on the features:
+
+- Proper Helm Chart installation,
+- Proper distribution and load balancing,
+- Proper authorization system,
+- Enterprise use cases like chart visualisation.
+
+You can install the JVM version (which is recommended) from:
+
+- the [Helm Chart](#helm-chart),
+- the [Docker Image](#docker-image),
+- binary install with [GitHub Releases](#binary-github-releases) or with [cURL](#binary-curl),
+- locally with [Git](#git)
+ 
 ### Prerequisites
-If you're going to be running **charted-server**, this is a list software and SDKs that are used with **charted-server**:
+There is a list of other software that **charted-server** supports that you can use:
 
-- (optional) [**Elasticsearch**](https://elastic.co)/[**Meilisearch**](https://meilisearch.com)/[**Tsubasa**](https://github.com/auguwu/tsubasa)
-- PostgreSQL 10 or higher
+- (optional) Elasticsearch or Meilisearch -- Search backend,
+- PostgreSQL 10 or higher,
 - Redis 5 or higher
-- Go 1.18 or higher (applicable with Git installation; not needed in most installations)
-- `protoc` and `protoc-gen-go` binaries installed on your system (applicable with Git installation; not needed in most installations)
-- **2 CPU cores** or higher (applicable with Git installation; not needed in most installations)
-- **2~6GB** or higher of system RAM available.
-    - Note: This is only needed for the Git installation, **charted-server** only allocates a bit of memory to run the server
-            the 2-6GB or higher requirement is for developer tooling (i.e, Visual Studio Code or GoLand)
+- Java 17,
+- 2 CPU cores or higher (applicable with Git/local installation; not needed in Docker/Helm),
+- **2-6**GB or higher on the system.
+   - Note: This is only needed to build from source. The server only really uses ~512-780MB to run, it is only
+           for developer tooling if contributing or building from source (which can take a while!)
 
+### Helm Chart
 ### Helm Chart
 Surprisingly, **charted-server** can be installed as a Helm Chart! Before you install **charted-server** on your Kubernetes
 cluster, you will need **Kubernetes** >=1.22 and Helm 3 installed.
@@ -55,7 +69,7 @@ repository.
 You can bootstrap **charted** using the Docker images hosted on [Docker Hub](https://hub.docker.com/r/noelware/charted-server) or
 on the [GitHub Container Registry]().
 
-**charted-server** only supports the use of Linux containers.
+**charted-server** only supports the use of Linux containers on x86_64 architectures.
 
 ```shell
 # 1. We must pull the image so we can later run it. Read the tag specification for more information
@@ -68,92 +82,70 @@ $ docker run -d -p 12152:12152 -v ~/config.toml:/app/noelware/charted/server/con
 ```
 
 #### Tag Specification
-**charted-server** has different tags that are published when a new release of **charted-server** is published. You can specify:
+#### Version Specification
+**Noelware Analytics** supports a unofficial specification for versioning for Docker images. The versions can look like:
 
-- `latest` with the architecture to run the exporter as the suffix (i.e, `latest` -> `latest-amd64` (uses `linux/amd64`))
-- **Minor**.**Major** with the architecture to run the exporter as the suffix (i.e, `1.0-arm64` (uses `linux/arm64`))
-- **Minor**.**Major**.**Patch** with the architecture to run the exporter as the suffix (i.e, `1.0.2-arm7` (uses `linx/armv7`))
+- **latest** | **latest-[arch]** | **latest-[arch][-os]**
+- **[major].[minor]** | **[major].[minor][-arch]** | **[major].[minor][-arch][-os]**
+- **[major].[minor].[patch]** | **[major].[minor].[patch][-arch]** | **[major].[minor].[patch][-arch][-os]**
 
-### Locally with Git
-; ^ ~ coming soon ~ ^ ;
+| Image Version       | Acceptable | Why?                                                                            |
+|---------------------|------------|---------------------------------------------------------------------------------|
+| `latest`            | 💚         | defines as **linux/amd64** or **linux/arm64** with the latest release.          |
+| `latest-amd64`      | 💚         | defines as **linux/amd64** with the latest release.                             |
+| `latest-windows`    | 💚         | defines as **windows/amd64** with the latest release.                           |
+| `0.2`               | 💚         | defines as **linux/amd64** or **linux/amd64** with the **0.2** release.         |
+| `0.2-windows`       | 💚         | defines as **windows/amd64** with the **0.2** release.                          |
+| `0.2-arm64`         | 💚         | defines as **linux/arm64** with the **0.2** release.                            |
+| `latest-linux`      | ❤️         | Linux releases do not need a `-os` appended.                                    |
+| `0.2-amd64-windows` | ❤️         | Windows releases do not need an architecture since it only uses **amd64** only. |
+| `linux-amd64`       | ❤️         | What version do we need to run? We only know the OS and Architecture.           |
+| `amd64`             | ❤️         | What version or operating system to run? We only know the architecture.         |
+
+### Binary (GitHub Releases)
+You can use [eget](https://github.com/zyedidia/eget) to get the tarball or ZIP version of **charted-server**:
+
+```shell
+$ eget charted-dev/charted
+```
+
+#### Binary (cURL)
+You can use **cURL** to easily get an installation running very quickly:
+
+```shell
+$ curl -fsSl https://cdn.noelware.org/charted/server/install.sh | bash
+```
 
 ## Contributing
-; ^ ~ coming soon ~ ^ ;
+Thanks for considering contributing to **charted-server**! Before you boop your heart out on your keyboard ✧ ─=≡Σ((( つ•̀ω•́)つ, we recommend you to do the following:
+
+- Read the [Code of Conduct](./.github/CODE_OF_CONDUCT.md)
+- Read the [Contributing Guide](./.github/CONTRIBUTING.md)
+
+If you read both if you're a new time contributor, now you can do the following:
+
+- [Fork me! ＊*♡( ⁎ᵕᴗᵕ⁎ ）](https://github.com/charted-dev/charted/fork)
+- Clone your fork on your machine: `git clone https://github.com/your-username/charted`
+- Create a new branch: `git checkout -b some-branch-name`
+- BOOP THAT KEYBOARD!!!! ♡┉ˏ͛ (❛ 〰 ❛)ˊˎ┉♡
+- Commit your changes onto your branch: `git commit -am "add features （｡>‿‿<｡ ）"`
+- Push it to the fork you created: `git push -u origin some-branch-name`
+- Submit a Pull Request and then cry! ｡･ﾟﾟ･(థ Д థ。)･ﾟﾟ･｡
 
 ## Configuration
-The configuration format is formatted as a `.toml` file! **charted-server** will try to find the configuration path in the following order:
+**charted-server** can be configured using a TOML-like file. It will only support the `.toml` extension. It will try to find the configuration path
+in the following order:
 
-- Under `CHARTED_CONFIG_PATH` environment variable;
-- Under the root directory (`./config.toml`)
+- Under the `CHARTED_CONFIG_PATH` environment path to a valid file,
+- Under the root directory where the **charted-server** binary is.
 
-If none was found, **charted-server** will panic and fail to run. You can generate the configuration using the `generate` subcommand once you built **charted-server** with **make**.
+If none was found, **charted-server** will panic and fail to run. In the future, it will generate one instead of just falling into
+exceptions.
 
 ```toml
-# secret_key_base is the JWT signature to use when validating user sessions.
-# If this variable isn't here, charted-server will generate one for you and
-# save it to the file.
-secret_key_base = "<server generated>"
-
-# registrations returns a bool if user creation should be enabled. If this is disabled,
-# server administrators are required to generate a user on the fly with the Administration
-# Dashboard. (requires Pak to do so, or you can use Parcel with `parcel api generate:user`)
-registrations = true
-
-# Telemetry enables Noelware's telemetry service on the server with the `instance.uuid` file
-# it generates on the fly. Read more here: https://telemetry.noelware.org
-telemetry = false
-
-# Analytics enables Noelware's analytical service which will open up a gRPC server so that Noelware Analytics
-# can request server information. Read more here: https://analytics.noelware.org
-analytics = false
-
-# Metrics enables Prometheus metrics to be scraped if enabled.
-metrics = false
-
-# This is for basic authentication on the server that doesn't need the Sessions or API Key authentication
-# methods. This is just the username to parse.
-username = null
-
-# This is for basic authentication on the server that doesn't need the Sessions or API Key authentication
-# methods. This is just the password to parse.
-password = null
-
-# sentry_dsn enables Sentry on the server so you can get errors when any errors were reported.
-sentry_dsn = null
-
-# Port is the HTTP port to use when connecting to charted-server via HTTP. This can be superseded with
-# the `PORT` environment variable.
-port = 3939
-
-# Host returns the host when connecting to charted-server via HTTP. This can be superseded with the
-# `HOST` environment variable.
-host = "0.0.0.0"
-
-# `email` enables the Email service to do invites and email verification for new users.
-# This is disabled by default.
-[email]
-# The password when doing Plain authentication. This is required.
-password = ""
-
-# Address is the SMTP address to send emails to, i.e, for Gmail:
-#    stmp.gmail.com
-address = ""
-
-# `search` enables any search engine of your choice. We currently support Elasticsearch,
-# Meilisearch, and Tsubasa (extended version of ES to do queries more efficient.)
-[search]
-
-# `storage` enables the storage driver of your choice. We currently support Amazon S3 and the filesystem.
-# The server will notify you to keep a volume of it if running on Docker or if ran on Kubernetes,
-# to have a PersistentVolumeClaim of it available.
-[storage]
-
-# `redis` is the Redis server to connect to for caching users (to ease off PSQL queries), ratelimits,
-# sessions, stargazers/downloads count, and more. Sentinel and Standalone connections are supported.
-[redis]
+# soon? :eyes:
 ```
--->
 
 ## License
-**charted-server** is released under the **Apache 2.0** License by [Noelware](https://noelware.org), you can read the full
+**charted-server** is released under the **Apache 2.0** License with love (´｡• ᵕ •｡`) ♡ by [Noelware](https://noelware.org) 💜, you can read the full
 license in the root repository [here](https://github.com/charted-dev/charted/blob/master/LICENSE).

@@ -15,22 +15,12 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.search.elastic
+package org.noelware.charted.core.jobs
 
-enum class Indexes(val index: String) {
-    REPOSITORY("charted_repos"),
-    REPOSITORY_MEMBER("charted_repo_members"),
-    ORGANIZATION("charted_orgs"),
-    ORGANIZATION_MEMBER("charted_org_members"),
-    USER("charted_users");
+import dev.floofy.haru.abstractions.AbstractJob
+import org.koin.dsl.bind
+import org.koin.dsl.module
 
-    companion object {
-        fun all(): List<Indexes> = listOf(
-            ORGANIZATION,
-            ORGANIZATION_MEMBER,
-            REPOSITORY,
-            REPOSITORY_MEMBER,
-            USER
-        )
-    }
+val jobsModule = module {
+    single { IndexDataJob(getOrNull(), getOrNull()) } bind AbstractJob::class
 }
