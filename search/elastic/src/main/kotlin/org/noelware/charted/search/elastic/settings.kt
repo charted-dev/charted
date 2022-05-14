@@ -449,3 +449,293 @@ val INDEX_SETTINGS = mapOf(
         )
     }
 )
+
+val INDEX_MAPPINGS_WITHOUT_SETTINGS = mapOf(
+    "charted_users" to buildJsonObject {
+        put(
+            "mappings",
+            buildJsonObject {
+                put(
+                    "properties",
+                    buildJsonObject {
+                        put(
+                            "description",
+                            buildJsonObject {
+                                put("type", "text")
+                                put("analyzer", "ngram")
+                            }
+                        )
+
+                        put(
+                            "username",
+                            buildJsonObject {
+                                put("type", "text")
+                            }
+                        )
+
+                        put(
+                            "email",
+                            buildJsonObject {
+                                put("type", "keyword")
+                            }
+                        )
+
+                        put(
+                            "name",
+                            buildJsonObject {
+                                put("type", "text")
+                            }
+                        )
+
+                        put(
+                            "id",
+                            buildJsonObject {
+                                put("type", "long")
+                                put("index", true)
+                            }
+                        )
+                    }
+                )
+            }
+        )
+    },
+
+    "charted_repos" to buildJsonObject {
+        put(
+            "properties",
+            buildJsonObject {
+                put(
+                    "description",
+                    buildJsonObject {
+                        put("type", "text")
+                        put("analyzer", "ngram")
+                    }
+                )
+
+                put(
+                    "updated_at",
+                    buildJsonObject {
+                        put("type", "datetime")
+                    }
+                )
+
+                put(
+                    "created_at",
+                    buildJsonObject {
+                        put("type", "datetime")
+                    }
+                )
+
+                put(
+                    "owner_id",
+                    buildJsonObject {
+                        put("type", "long")
+                    }
+                )
+
+                put(
+                    "name",
+                    buildJsonObject {
+                        put("type", "text")
+                    }
+                )
+
+                put(
+                    "type",
+                    buildJsonObject {
+                        put("type", "keyword")
+                    }
+                )
+
+                put(
+                    "id",
+                    buildJsonObject {
+                        put("type", "long")
+                        put("index", true)
+                    }
+                )
+            }
+        )
+    },
+
+    "charted_orgs" to buildJsonObject {
+        put(
+            "properties",
+            buildJsonObject {
+                put(
+                    "verified_publisher",
+                    buildJsonObject {
+                        put("type", "bool")
+                    }
+                )
+
+                put(
+                    "description",
+                    buildJsonObject {
+                        put("type", "text")
+                        put("analyzer", "ngram")
+                        put("index", true)
+                    }
+                )
+
+                put(
+                    "updated_at",
+                    buildJsonObject {
+                        put("type", "datetime")
+                    }
+                )
+
+                put(
+                    "created_at",
+                    buildJsonObject {
+                        put("type", "datetime")
+                    }
+                )
+
+                put(
+                    "handle",
+                    buildJsonObject {
+                        put("type", "keyword")
+                        put("index", true)
+                    }
+                )
+
+                put(
+                    "name",
+                    buildJsonObject {
+                        put("type", "text")
+                        put("index", true)
+                    }
+                )
+
+                put(
+                    "id",
+                    buildJsonObject {
+                        put("type", "long")
+                        put("index", true)
+                    }
+                )
+            }
+        )
+    },
+
+    "charted_org_members" to buildJsonObject {
+        put(
+            "properties",
+            buildJsonObject {
+                put(
+                    "description",
+                    buildJsonObject {
+                        put("type", "text")
+                        put("analyzer", "ngram")
+                        put("index", true)
+                    }
+                )
+
+                put(
+                    "updated_at",
+                    buildJsonObject {
+                        put("type", "datetime")
+                    }
+                )
+
+                put(
+                    "joined_at",
+                    buildJsonObject {
+                        put("type", "datetime")
+                    }
+                )
+
+                put(
+                    "username",
+                    buildJsonObject {
+                        put("type", "text")
+                    }
+                )
+
+                put(
+                    "email",
+                    buildJsonObject {
+                        put("type", "keyword")
+                    }
+                )
+
+                put(
+                    "name",
+                    buildJsonObject {
+                        put("type", "text")
+                    }
+                )
+
+                put(
+                    "id",
+                    buildJsonObject {
+                        put("type", "long")
+                    }
+                )
+            }
+        )
+    },
+
+    "charted_repo_members" to buildJsonObject {
+        put(
+            "properties",
+            buildJsonObject {
+                put(
+                    "description",
+                    buildJsonObject {
+                        put("type", "text")
+                        put("analyzer", "ngram")
+                        put("index", true)
+                    }
+                )
+
+                put(
+                    "updated_at",
+                    buildJsonObject {
+                        put("type", "datetime")
+                    }
+                )
+
+                put(
+                    "created_at",
+                    buildJsonObject {
+                        put("type", "datetime")
+                    }
+                )
+
+                put(
+                    "username",
+                    buildJsonObject {
+                        put("type", "text")
+                        put("index", true)
+                    }
+                )
+
+                put(
+                    "email",
+                    buildJsonObject {
+                        put("type", "keyword")
+                        put("index", true)
+                    }
+                )
+
+                put(
+                    "name",
+                    buildJsonObject {
+                        put("type", "text")
+                        put("index", true)
+                    }
+                )
+
+                put(
+                    "id",
+                    buildJsonObject {
+                        put("type", "long")
+                        put("index", true)
+                    }
+                )
+            }
+        )
+    },
+)

@@ -20,13 +20,14 @@ package org.noelware.charted.core.sessions
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.TokenExpiredException
+import dev.floofy.utils.kotlin.ifNotNull
 import dev.floofy.utils.slf4j.logging
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
+import kotlinx.datetime.Clock
+import kotlinx.serialization.json.*
 import org.apache.commons.lang3.time.StopWatch
 import org.noelware.charted.core.ChartedScope
 import org.noelware.charted.core.config.Config
@@ -96,11 +97,15 @@ class SessionManager(private val redis: IRedisClient, private val json: Json, co
     }
 
     fun isExpired(token: String): Boolean = try {
-        JWT.require(algorithm)
+        val verifier = JWT.require(algorithm)
             .withIssuer("Noelware/charted-server")
             .build()
 
-        false
+        val jwt = verifier.verify(token)
+        val payload = String(Base64.getDecoder().decode(jwt.payload.toByteArray()))
+        val payloadAsJson = json.decodeFromString(JsonObject.serializer(), payload)
+
+        payloadAsJson["exp"]?.jsonPrimitive?.intOrNull?.ifNotNull { it >= Clock.System.now().epochSeconds } ?: true
     } catch (e: TokenExpiredException) {
         true
     } catch (e: Exception) {
@@ -117,9 +122,20 @@ class SessionManager(private val redis: IRedisClient, private val json: Json, co
         val jwt = verifier.verify(token)
         val payload = String(Base64.getDecoder().decode(jwt.payload.toByteArray()))
         val payloadAsJson = json.decodeFromString(JsonObject.serializer(), payload)
-        println(payloadAsJson)
 
-        return null
+        val iss = payloadAsJson["iss"]?.jsonPrimitive?.contentOrNull
+        if (iss == null || iss != "Noelware/charted-server")
+            throw IllegalStateException("Issuer was not a valid issuer. Must be `Noelware/charted-server` or be defined.")
+
+        // this is probably expensive to do but what else can i do?
+        val sessions = redis.commands.hgetall("charted:sessions").await().mapValues {
+            json.decodeFromString(Session.serializer(), it.value)
+        } as Map<String, Session>
+
+        return sessions
+            .filter { it.value.accessToken == token || it.value.refreshToken == token }
+            .values
+            .firstOrNull()
     }
 
     suspend fun createSession(userId: String): Session {

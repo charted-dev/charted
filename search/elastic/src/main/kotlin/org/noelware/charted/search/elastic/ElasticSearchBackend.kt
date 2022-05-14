@@ -164,20 +164,10 @@ class ElasticSearchBackend(config: ElasticsearchConfig): Closeable {
         for ((index, settings) in INDEX_SETTINGS) {
             log.info("Does index $index exist?...")
             val res1 = client!!.performRequest(Request("HEAD", "/$index"))
+
+            // TODO: update index mappings
             if (res1.statusLine.statusCode == 200) {
                 log.warn("Index $index already exists! Updating index mappings...")
-
-                val request = Request("PUT", "/$index")
-                request.setJsonEntity(json.encodeToString(JsonObject.serializer(), settings))
-
-                val r = client!!.performRequest(request)
-                if (r.statusLine.statusCode !in 200..300) {
-                    val body = json.decodeFromStream(JsonObject.serializer(), r.entity.content)
-                    log.warn("Unable to create a request to \"PUT /$index\" - $body")
-                } else {
-                    log.info("Index $index's mappings are updated.")
-                }
-
                 continue
             }
 

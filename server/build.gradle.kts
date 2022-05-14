@@ -71,7 +71,8 @@ dependencies {
     // Commons validator
     implementation("commons-validator:commons-validator:1.7")
 
-    implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
+    // Spring Security (argon2 hashing)
+    implementation("org.springframework.security:spring-security-crypto:5.6.3")
 }
 
 tasks {

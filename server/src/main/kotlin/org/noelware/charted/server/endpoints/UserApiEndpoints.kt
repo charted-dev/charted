@@ -31,8 +31,6 @@ import kotlinx.datetime.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.json.*
 import org.apache.commons.validator.routines.EmailValidator
-import org.bouncycastle.crypto.generators.Argon2BytesGenerator
-import org.bouncycastle.crypto.params.Argon2Parameters
 import org.jetbrains.exposed.sql.*
 import org.noelware.charted.core.ChartedScope
 import org.noelware.charted.core.StorageWrapper
@@ -53,17 +51,13 @@ import org.noelware.charted.database.tables.Users.updatedAt
 import org.noelware.charted.database.tables.Users.username
 import org.noelware.charted.util.Sha256
 import org.noelware.charted.util.Snowflake
-import org.noelware.charted.util.Util
-import org.noelware.charted.util.generatePassword
-import org.noelware.charted.util.generateSalt
 import org.noelware.ktor.body
 import org.noelware.ktor.endpoints.*
 import org.noelware.remi.core.figureContentType
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.nio.charset.Charset
 import java.sql.BatchUpdateException
-import java.util.Base64
 
 @kotlinx.serialization.Serializable
 data class NewUser(
@@ -122,6 +116,7 @@ data class User(
 
 class UserApiEndpoints: AbstractEndpoint("/users") {
     private val validator = EmailValidator.getInstance(true, true)
+    private val encoder = Argon2PasswordEncoder()
 
     init {
         install(HttpMethod.Delete, "/users", SessionPlugin)
@@ -256,8 +251,7 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
         }
 
         val id = Snowflake.generate()
-        val salt = generateSalt()
-        val pwd = generatePassword(body.password, salt)
+        val pwd = encoder.encode(body.password)
         val user = try {
             asyncTransaction(ChartedScope) {
                 val entityID = Users.insertAndGetId {
@@ -527,8 +521,7 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
         }
 
         if (body.password != null) {
-            val salt = generateSalt()
-            val pass = generatePassword(body.password!!, salt)
+            val pass = encoder.encode(body.password)
 
             asyncTransaction(ChartedScope) {
                 Users.update({ Users.id eq session.userId }) {
@@ -718,27 +711,7 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
         }
 
         // Check if the password is correct
-        println(user.password)
-        val parts = user.password.split("$")
-
-        // determine the salt
-        val salt = parts[4]
-        val saltFromBase64 = Base64.getDecoder().decode(salt.toByteArray())
-
-        val builder = Argon2Parameters.Builder(Argon2Parameters.ARGON2_id)
-            .withVersion(Argon2Parameters.ARGON2_VERSION_13)
-            .withMemoryAsKB(1048576)
-            .withIterations(4)
-            .withParallelism(1)
-            .withSalt(saltFromBase64)
-
-        val generator = Argon2BytesGenerator()
-        generator.init(builder.build())
-
-        val result = ByteArray(32)
-        generator.generateBytes(body.password.toByteArray(Charset.defaultCharset()), result)
-
-        if (!Util.constantTimeArrayEquals(result, body.password.toByteArray())) {
+        if (!encoder.matches(body.password, user.password)) {
             call.respond(
                 HttpStatusCode.Forbidden,
                 buildJsonObject {
@@ -846,7 +819,7 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
         // We had to clone the input stream, so we can retrieve the content type.
         val storage by inject<StorageWrapper>()
 
-        when (val contentType = storage.trailer.figureContentType(inputStream)) {
+        when (val contentType = storage.trailer.figureContentType(newStream)) {
             ContentType.Image.PNG.toString(), ContentType.Image.GIF.toString(), ContentType.Image.JPEG.toString() -> {
                 val ext = when (contentType) {
                     ContentType.Image.PNG.toString() -> "png"

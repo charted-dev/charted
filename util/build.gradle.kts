@@ -19,7 +19,3 @@ plugins {
     `charted-java-module`
     `charted-module`
 }
-
-dependencies {
-    implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
-}
