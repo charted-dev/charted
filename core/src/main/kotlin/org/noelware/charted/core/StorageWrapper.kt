@@ -110,4 +110,12 @@ class StorageWrapper(config: StorageConfig) {
         stream: InputStream,
         contentType: String = "application/octet-stream"
     ): Boolean = trailer.upload(path, stream, contentType)
+
+    fun normalizePath(path: String): String = if (trailer !is FilesystemStorageTrailer)
+        path
+    else when {
+        path.startsWith("./") -> (trailer.config.directory + path.replaceFirstChar { "" }).trim()
+        path.startsWith("~/") -> System.getProperty("user.home", "/") + path
+        else -> path
+    }
 }

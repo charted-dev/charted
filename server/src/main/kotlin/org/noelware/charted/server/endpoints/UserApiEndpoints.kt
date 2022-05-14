@@ -54,9 +54,11 @@ import org.noelware.charted.util.Snowflake
 import org.noelware.ktor.body
 import org.noelware.ktor.endpoints.*
 import org.noelware.remi.core.figureContentType
+import org.noelware.remi.filesystem.FilesystemStorageTrailer
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.sql.BatchUpdateException
 
 @kotlinx.serialization.Serializable
@@ -102,7 +104,8 @@ data class User(
         put(
             "avatar_url",
             avatar?.let {
-                JsonPrimitive("https://cdn.noelware.org/charted/avatars/$id/$avatar")
+                // TODO: switch this to `/avatars/:id/:hash.:ext`
+                JsonPrimitive("https://charts.noelware.org/cdn/avatars/$id/$avatar")
             } ?: JsonNull
         )
         put("created_at", createdAt.toInstant(TimeZone.currentSystemDefault()).toString())
@@ -805,7 +808,7 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
         }
 
         // Create a SHA256 hash of the file name
-        val hash = Sha256.encode(firstPart.originalFileName ?: "file")
+        val hash = Sha256.encode(firstPart.originalFileName ?: "file").slice(0..8)
         val inputStream = firstPart.streamProvider()
 
         val baos = ByteArrayOutputStream()
@@ -827,6 +830,14 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
                     ContentType.Image.GIF.toString() -> "gif"
                     else -> error("should never happen")
                 }
+
+                // Check if `./avatars` exist
+                // TODO: move this to org.noelware.charted.core.StorageWrapper
+                if (storage.trailer is FilesystemStorageTrailer && !storage.exists("./avatars"))
+                    File(storage.normalizePath("./avatars")).mkdirs()
+
+                if (storage.trailer is FilesystemStorageTrailer && !storage.exists("./avatars/${session.userId}"))
+                    File(storage.normalizePath("./avatars/${session.userId}")).mkdirs()
 
                 storage.upload(
                     "./avatars/${session.userId}/$hash.$ext",

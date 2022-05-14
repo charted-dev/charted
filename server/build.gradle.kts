@@ -73,6 +73,9 @@ dependencies {
 
     // Spring Security (argon2 hashing)
     implementation("org.springframework.security:spring-security-crypto:5.6.3")
+
+    // Remi types
+    api("org.noelware.remi:remi-support-fs:0.1.4-beta.3")
 }
 
 tasks {
