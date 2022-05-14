@@ -632,3 +632,4 @@ config.toml
 instance.uuid
 !distribution/config/config.toml
 server/src/main/resources/config/logging.properties
+.data/
