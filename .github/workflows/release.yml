@@ -90,7 +90,7 @@ jobs:
         run: sudo make install && sudo ldconfig
 
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v2
+        uses: goreleaser/goreleaser-action@v3
         with:
           distribution: goreleaser
           version: latest
