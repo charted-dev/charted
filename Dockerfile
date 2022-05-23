@@ -26,7 +26,7 @@ COPY . .
 RUN make deps
 RUN make build
 
-FROM alpine:3.15
+FROM alpine:3.16
 
 WORKDIR /app/noelware/charted/server
 COPY --from=builder /build/charted-server/bin .
