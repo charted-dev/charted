@@ -75,7 +75,7 @@ if (YES_NO_REGEX.matches(isPublishing) && listOf("yes", "1", "true").contains(is
             }
 
             repositories {
-                maven("s3://cdn.noelware.org") {
+                maven("s3://cdn.noelware.org/charted/server") {
                     credentials(AwsCredentials::class.java) {
                         accessKey = publishingProps.getProperty("s3.accessKey") ?: ""
                         secretKey = publishingProps.getProperty("s3.secretKey") ?: ""

@@ -25,6 +25,10 @@
             <then>
                 <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
                     <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
+                        <jsonFormatter class="org.noelware.charted.logback.JsonLogbackFormatter">
+                            <prettyPrint>false</prettyPrint>
+                        </jsonFormatter>
+
                         <if condition='isDefined("charted.console.json.timezone")'>
                             <then>
                                 <timestampFormatTimezoneId>${charted.console.json.timezone}</timestampFormatTimezoneId>
@@ -64,7 +68,7 @@
         <then>
             <appender name="Sentry" class="io.sentry.logback.SentryAppender">
                 <options>
-                    <dsn>${charted.sentrydsn}</dsn>
+                    <dsn>${charted.sentry.dsn}</dsn>
                 </options>
             </appender>
         </then>
