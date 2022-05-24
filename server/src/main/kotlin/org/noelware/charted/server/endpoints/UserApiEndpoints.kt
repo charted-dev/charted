@@ -20,11 +20,19 @@ package org.noelware.charted.server.endpoints
 
 import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.koin.inject
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import io.ktor.util.cio.*
+import io.ktor.utils.io.*
+import io.ktor.utils.io.pool.ByteBufferPool
+import io.sentry.Sentry
+import io.sentry.kotlin.SentryContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.*
@@ -330,7 +338,7 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
                         put(
                             "avatar_url",
                             user.avatar?.let {
-                                JsonPrimitive("https://cdn.noelware.org/charted/avatars/${user.id}/${user.avatar}.png")
+                                JsonPrimitive("https://cdn.noelware.org/charted/avatars/${user.id}/${user.avatar}")
                             } ?: JsonNull
                         )
                         put("created_at", user.createdAt.toInstant(TimeZone.currentSystemDefault()).toString())
@@ -340,6 +348,7 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
                         put("email", user.email)
                         put("flags", user.flags)
                         put("name", user.name)
+                        put("id", user.id.value)
                     }
                 )
             }
@@ -422,6 +431,7 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
                         put("avatar", user.avatar)
                         put("flags", user.flags)
                         put("name", user.name)
+                        put("id", user.id.value)
                     }
                 )
             }
@@ -452,7 +462,7 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
             if (!errored) {
                 asyncTransaction(ChartedScope) {
                     Users.update({ Users.id eq session.userId }) {
-                        it[gravatarEmail] = gravatarEmail
+                        it[gravatarEmail] = body.gravatarEmail
                         it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                     }
                 }
@@ -613,7 +623,7 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
         call.respond(
             statusCode,
             buildJsonObject {
-                put("success", errored)
+                put("success", !errored)
 
                 if (errored) {
                     put(
@@ -649,6 +659,9 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
                 Organizations.owner eq session.userId
             }
         }
+
+        val sessions by inject<SessionManager>()
+        sessions.revokeSession(session)
 
         call.respond(HttpStatusCode.NoContent)
     }
@@ -756,6 +769,134 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
         )
     }
 
+    @Get("/{user}/avatar")
+    suspend fun getAvatar(call: ApplicationCall) {
+        val userId = call.parameters["user"]!!
+        val storage by inject<StorageWrapper>()
+        val httpClient by inject<HttpClient>()
+
+        if (userId == "null") { // just to be safe :)
+            call.respond(
+                HttpStatusCode.NotAcceptable,
+                buildJsonObject {
+                    put("success", false)
+                    put(
+                        "errors",
+                        buildJsonArray {
+                            add(
+                                buildJsonObject {
+                                    put("code", "INVALID_USER_ID_OR_NAME")
+                                    put("message", "Cannot use `null` as a parameter")
+                                }
+                            )
+                        }
+                    )
+                }
+            )
+
+            return
+        }
+
+        val session = call.attributes.getOrNull(SessionKey)
+        val user = asyncTransaction(ChartedScope) {
+            Users.select {
+                if (session != null) {
+                    Users.id eq session.userId
+                } else {
+                    if (userId.toLongOrNull() != null) Users.id eq userId.toLong() else (username eq userId)
+                }
+            }.firstOrNull()
+        }
+
+        if (user == null) {
+            if (session != null) {
+                call.respond(
+                    HttpStatusCode.NotFound,
+                    buildJsonObject {
+                        put("success", false)
+                        put(
+                            "errors",
+                            buildJsonArray {
+                                add(
+                                    buildJsonObject {
+                                        put("code", "UNKNOWN_USER")
+                                        put("message", "Cannot find user with user ID ${session.userId}!")
+                                    }
+                                )
+                            }
+                        )
+                    }
+                )
+            } else {
+                call.respond(
+                    HttpStatusCode.NotFound,
+                    buildJsonObject {
+                        put("success", false)
+                        put(
+                            "errors",
+                            buildJsonArray {
+                                add(
+                                    buildJsonObject {
+                                        put("code", "UNKNOWN_USER")
+                                        put("message", "Cannot find user with ID or name $userId.")
+                                    }
+                                )
+                            }
+                        )
+                    }
+                )
+            }
+
+            return
+        }
+
+        // Use Dicebar Avatars if user.avatar is null
+        val id = user[Users.id].value
+        val avatar = user[Users.avatar]
+        if (avatar == null) {
+            val res = httpClient.get("https://avatars.dicebear.com/api/identicon/$id.svg")
+            val body = res.body<ByteArray>()
+
+            call.respond(
+                HttpStatusCode.OK,
+                object: OutgoingContent.ReadChannelContent() {
+                    override val contentType: ContentType = ContentType.parse(res.headers[HttpHeaders.ContentType]!!)
+                    override val contentLength: Long = body.size.toLong()
+                    override fun readFrom(): ByteReadChannel = ByteArrayInputStream(body).toByteReadChannel(
+                        ByteBufferPool(4092, 8192),
+                        if (Sentry.isEnabled()) SentryContext() + ChartedScope.coroutineContext else ChartedScope.coroutineContext
+                    )
+                }
+            )
+        } else {
+            val stream = storage.open("./avatars/$id/$avatar")!!
+
+            // Create a cloned stream, so we can exhaust the
+            // old stream for reading the content type.
+            val baos = ByteArrayOutputStream()
+            withContext(Dispatchers.IO) {
+                stream.transferTo(baos)
+            }
+
+            val data = baos.toByteArray()
+            when (val contentType = storage.trailer.figureContentType(ByteArrayInputStream(data))) {
+                ContentType.Image.PNG.toString(), ContentType.Image.GIF.toString(), ContentType.Image.JPEG.toString() -> {
+                    call.respond(
+                        HttpStatusCode.OK,
+                        object: OutgoingContent.ReadChannelContent() {
+                            override val contentType: ContentType = ContentType.parse(contentType)
+                            override val contentLength: Long = data.size.toLong()
+                            override fun readFrom(): ByteReadChannel = ByteArrayInputStream(data).toByteReadChannel(
+                                ByteBufferPool(4092, 8192),
+                                if (Sentry.isEnabled()) SentryContext() + ChartedScope.coroutineContext else ChartedScope.coroutineContext
+                            )
+                        }
+                    )
+                }
+            }
+        }
+    }
+
     @Post("/@me/avatar")
     suspend fun avatar(call: ApplicationCall) {
         val session = call.attributes[SessionKey]
@@ -831,11 +972,7 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
                     else -> error("should never happen")
                 }
 
-                // Check if `./avatars` exist
-                // TODO: move this to org.noelware.charted.core.StorageWrapper
-                if (storage.trailer is FilesystemStorageTrailer && !storage.exists("./avatars"))
-                    File(storage.normalizePath("./avatars")).mkdirs()
-
+                // Check if `./avatars/userId` exist
                 if (storage.trailer is FilesystemStorageTrailer && !storage.exists("./avatars/${session.userId}"))
                     File(storage.normalizePath("./avatars/${session.userId}")).mkdirs()
 

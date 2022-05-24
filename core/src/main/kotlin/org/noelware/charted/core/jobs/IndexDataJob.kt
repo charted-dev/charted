@@ -19,11 +19,11 @@ package org.noelware.charted.core.jobs
 
 import dev.floofy.haru.abstractions.AbstractJob
 import dev.floofy.utils.slf4j.logging
-import org.noelware.charted.search.elastic.ElasticSearchBackend
+import org.noelware.charted.search.elastic.ElasticsearchBackend
 import org.noelware.charted.search.meili.MeilisearchBackend
 
 class IndexDataJob(
-    private val elastic: ElasticSearchBackend?,
+    private val elastic: ElasticsearchBackend?,
     private val meili: MeilisearchBackend?
 ): AbstractJob("index:data", "@hourly") {
     private val log by logging<IndexDataJob>()

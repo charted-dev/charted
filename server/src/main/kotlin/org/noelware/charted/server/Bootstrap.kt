@@ -39,6 +39,7 @@ import org.koin.dsl.module
 import org.noelware.charted.core.*
 import org.noelware.charted.core.config.Config
 import org.noelware.charted.core.config.EngineClass
+import org.noelware.charted.core.jobs.jobsModule
 import org.noelware.charted.core.logging.SentryLogger
 import org.noelware.charted.core.redis.IRedisClient
 import org.noelware.charted.core.redis.RedisClient
@@ -47,7 +48,7 @@ import org.noelware.charted.database.createOrUpdateEnums
 import org.noelware.charted.database.tables.*
 import org.noelware.charted.engine.oci.OciBackendEngine
 import org.noelware.charted.engines.charts.ChartBackendEngine
-import org.noelware.charted.search.elastic.ElasticSearchBackend
+import org.noelware.charted.search.elastic.ElasticsearchBackend
 import org.noelware.charted.search.meili.MeilisearchBackend
 import org.noelware.charted.server.endpoints.endpointsModule
 import java.io.File
@@ -183,6 +184,7 @@ object Bootstrap {
             modules(
                 chartedModule,
                 endpointsModule,
+                jobsModule,
                 module {
                     single { toml }
                     single { config }
@@ -205,7 +207,7 @@ object Bootstrap {
                     }
 
                     config.search.elastic?.let { elastic ->
-                        single { ElasticSearchBackend(elastic) }
+                        single { ElasticsearchBackend(elastic) }
                     }
 
                     config.search.meili?.let { meili ->
@@ -223,6 +225,13 @@ object Bootstrap {
                 server.start()
             } catch (e: Exception) {
                 log.error("Unable to bootstrap charted-server:", e)
+
+                // we do not let the shutdown hooks run
+                // since in some cases, it'll just error out or whatever
+                //
+                // example: Elasticsearch cannot index all data due to
+                // I/O locks or what not (and it'll keep looping)
+                halt(120)
                 exitProcess(1)
             }
         }
@@ -244,14 +253,14 @@ object Bootstrap {
     private fun installShutdownHook() {
         val runtime = Runtime.getRuntime()
         runtime.addShutdownHook(
-            thread(start = false, name = "Charted-ShutdownThread") {
+            thread(start = false, name = "Server-ShutdownThread") {
                 log.warn("Shutting down charted-server...")
 
                 // Check if Koin has started
                 val koinStarted = GlobalContext.getKoinApplicationOrNull() != null
                 if (koinStarted) {
                     val server by inject<ChartedServer>()
-                    val elasticsearch = GlobalContext.retrieveOrNull<ElasticSearchBackend>()
+                    val elasticsearch = GlobalContext.retrieveOrNull<ElasticsearchBackend>()
                     val redis by inject<IRedisClient>()
                     val ds by inject<HikariDataSource>()
                     val sessions by inject<SessionManager>()
@@ -318,6 +327,15 @@ object Bootstrap {
                 exitProcess(1)
             } else {
                 log.error("Uncaught exception in thread ${t.name} (#${t.id}):", e)
+
+                // If any thread had an exception, let's check if:
+                //  - The server has started (must be set if the Application hook has run)
+                //  - If the thread names are the bootstrap or shutdown thread
+                val started = ChartedServer.hasStarted != null && ChartedServer.hasStarted == true
+                if (!started && (t.name == "Server-BootstrapThread" || t.name == "Server-ShutdownThread")) {
+                    halt(120)
+                    exitProcess(1)
+                }
             }
         }
     }

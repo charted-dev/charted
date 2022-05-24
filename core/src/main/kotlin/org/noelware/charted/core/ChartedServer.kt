@@ -18,7 +18,11 @@
 package org.noelware.charted.core
 
 import app.softwork.ratelimit.RateLimit
+import dev.floofy.haru.Scheduler
+import dev.floofy.haru.abstractions.AbstractJob
+import dev.floofy.utils.koin.inject
 import dev.floofy.utils.koin.retrieve
+import dev.floofy.utils.koin.retrieveAll
 import dev.floofy.utils.kotlin.sizeToStr
 import dev.floofy.utils.slf4j.logging
 import io.ktor.http.*
@@ -46,6 +50,7 @@ import org.noelware.charted.core.config.AnalyticsConfig
 import org.noelware.charted.core.config.Config
 import org.noelware.charted.core.plugins.KtorLogging
 import org.noelware.charted.core.plugins.UserAgentMdc
+import org.noelware.charted.core.plugins.started
 import org.noelware.charted.core.ratelimit.LettuceRedisStorage
 import org.noelware.ktor.NoelKtorRoutingPlugin
 import org.noelware.ktor.loader.koin.KoinEndpointLoader
@@ -67,6 +72,7 @@ import kotlin.time.Duration.Companion.hours
 class ChartedServer {
     companion object {
         val executorPool: ExecutorService = Executors.newCachedThreadPool(createThreadFactory("ChartedServer-Executor"))
+        val hasStarted: Boolean? = started.valueOrNull
     }
 
     private lateinit var server: NettyApplicationEngine
@@ -120,6 +126,9 @@ class ChartedServer {
 
         val config: Config = GlobalContext.retrieve()
         val self = this
+
+        val scheduler by inject<Scheduler>()
+        scheduler.bulkSchedule(*GlobalContext.retrieveAll<AbstractJob>().toTypedArray())
 
         val environment = applicationEngineEnvironment {
             developmentMode = System.getProperty("org.noelware.charted.debug", "false") == "true"

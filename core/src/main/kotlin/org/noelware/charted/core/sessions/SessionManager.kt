@@ -121,21 +121,27 @@ class SessionManager(private val redis: IRedisClient, private val json: Json, co
 
         val jwt = verifier.verify(token)
         val payload = String(Base64.getDecoder().decode(jwt.payload.toByteArray()))
+        val header = String(Base64.getDecoder().decode(jwt.header.toByteArray()))
         val payloadAsJson = json.decodeFromString(JsonObject.serializer(), payload)
+        val headerAsJson = json.decodeFromString(JsonObject.serializer(), header)
 
         val iss = payloadAsJson["iss"]?.jsonPrimitive?.contentOrNull
         if (iss == null || iss != "Noelware/charted-server")
             throw IllegalStateException("Issuer was not a valid issuer. Must be `Noelware/charted-server` or be defined.")
 
-        // this is probably expensive to do but what else can i do?
-        val sessions = redis.commands.hgetall("charted:sessions").await().mapValues {
-            json.decodeFromString(Session.serializer(), it.value)
-        } as Map<String, Session>
+        val userId = headerAsJson["user_id"]?.jsonPrimitive?.contentOrNull
+        val sessionId = headerAsJson["session_id"]?.jsonPrimitive?.contentOrNull
 
-        return sessions
-            .filter { it.value.accessToken == token || it.value.refreshToken == token }
-            .values
-            .firstOrNull()
+        if (userId == null || sessionId == null)
+            throw IllegalStateException("Missing `userId` or `sessionId` in header payload")
+
+        return redis
+            .commands
+            .hget("charted:sessions", "$userId-$sessionId")
+            .await()
+            .ifNotNull {
+                json.decodeFromString(Session.serializer(), it)
+            }
     }
 
     suspend fun createSession(userId: String): Session {
@@ -177,7 +183,6 @@ class SessionManager(private val redis: IRedisClient, private val json: Json, co
             accessToken
         )
 
-        redis.commands.set("charted:sessions:$userId-$sessionId", "owo")
         redis.commands.expire("charted:sessions:$userId-$sessionId", 7.days.inWholeMilliseconds)
         redis.commands.hmset("charted:sessions", mapOf("$userId-$sessionId" to json.encodeToString(Session.serializer(), session))).await()
         return session
@@ -229,7 +234,6 @@ class SessionManager(private val redis: IRedisClient, private val json: Json, co
         val userId = s.userId
         val sessionId = s.sessionId
 
-        redis.commands.set("charted:sessions:$userId-$sessionId", "owo")
         redis.commands.expire("charted:sessions:$userId-$sessionId", 7.days.inWholeMilliseconds)
         redis.commands.hmset("charted:sessions", mapOf("$userId-$sessionId" to json.encodeToString(Session.serializer(), s))).await()
         return s

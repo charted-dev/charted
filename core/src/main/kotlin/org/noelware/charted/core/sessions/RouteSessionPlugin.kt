@@ -18,6 +18,7 @@
 package org.noelware.charted.core.sessions
 
 import com.auth0.jwt.exceptions.JWTDecodeException
+import com.auth0.jwt.exceptions.TokenExpiredException
 import dev.floofy.utils.koin.inject
 import dev.floofy.utils.slf4j.logging
 import io.ktor.http.*
@@ -125,6 +126,24 @@ val SessionPlugin = createRouteScopedPlugin("ChartedSessionsPlugin") {
                                     buildJsonObject {
                                         put("code", "JWT_DECODE_ERROR")
                                         put("message", e.message)
+                                    }
+                                )
+                            }
+                        )
+                    }
+                )
+            } catch (e: TokenExpiredException) {
+                call.respond(
+                    HttpStatusCode.NotAcceptable,
+                    buildJsonObject {
+                        put("success", false)
+                        put(
+                            "errors",
+                            buildJsonArray {
+                                add(
+                                    buildJsonObject {
+                                        put("code", "TOKEN_EXPIRED")
+                                        put("message", "Access or refresh token has been expired!")
                                     }
                                 )
                             }

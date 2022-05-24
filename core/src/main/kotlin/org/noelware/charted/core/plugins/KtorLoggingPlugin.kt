@@ -24,7 +24,10 @@ import io.ktor.server.application.hooks.*
 import io.ktor.server.request.*
 import io.ktor.util.*
 import org.apache.commons.lang3.time.StopWatch
+import org.noelware.charted.core.setOnceAndGet
 import java.util.concurrent.TimeUnit
+
+val started by setOnceAndGet<Boolean>()
 
 val KtorLogging = createApplicationPlugin("NoelKtorLogging") {
     val stopwatchKey = AttributeKey<StopWatch>("Stopwatch")
@@ -32,6 +35,7 @@ val KtorLogging = createApplicationPlugin("NoelKtorLogging") {
 
     environment?.monitor?.subscribe(ApplicationStarted) {
         log.info("HTTP service has started successfully! :3")
+        started.value = true
     }
 
     environment?.monitor?.subscribe(ApplicationStopped) {

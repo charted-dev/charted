@@ -24,11 +24,11 @@ import org.noelware.ktor.endpoints.AbstractEndpoint
 val endpointsModule = module {
     single { DebugEndpoint(getOrNull(), getOrNull(), getOrNull(), getOrNull()) } bind AbstractEndpoint::class
     single { InfoEndpoint(getOrNull(), getOrNull(), getOrNull(), getOrNull()) } bind AbstractEndpoint::class
+    single { SearchEndpoint(getOrNull(), getOrNull()) } bind AbstractEndpoint::class
     single { OrganizationMemberApiEndpoints() } bind AbstractEndpoint::class
     single { RepositoryMemberApiEndpoints() } bind AbstractEndpoint::class
     single { RepositoryApiEndpoints() } bind AbstractEndpoint::class
     single { UserApiEndpoints() } bind AbstractEndpoint::class
     single { MetricsEndpoint() } bind AbstractEndpoint::class
-    single { SearchEndpoint() } bind AbstractEndpoint::class
     single { MainEndpoint() } bind AbstractEndpoint::class
 }

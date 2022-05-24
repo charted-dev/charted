@@ -43,10 +43,10 @@ dependencies {
     implementation("io.prometheus:simpleclient:0.15.0")
 
     // Remi
-    implementation("org.noelware.remi:remi-support-minio:0.1.4-beta.3")
-    implementation("org.noelware.remi:remi-support-s3:0.1.4-beta.3")
-    implementation("org.noelware.remi:remi-support-fs:0.1.4-beta.3")
-    api("org.noelware.remi:remi-core:0.1.4-beta.3")
+    implementation("org.noelware.remi:remi-support-minio:0.1.5-beta")
+    implementation("org.noelware.remi:remi-support-s3:0.1.5-beta")
+    implementation("org.noelware.remi:remi-support-fs:0.1.5-beta")
+    api("org.noelware.remi:remi-core:0.1.5-beta")
 
     // Subprojects
     implementation(project(":search:elastic"))

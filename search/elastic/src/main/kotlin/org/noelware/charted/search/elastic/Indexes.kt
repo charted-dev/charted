@@ -18,11 +18,11 @@
 package org.noelware.charted.search.elastic
 
 enum class Indexes(val index: String) {
-    REPOSITORY("charted_repos"),
-    REPOSITORY_MEMBER("charted_repo_members"),
-    ORGANIZATION("charted_orgs"),
-    ORGANIZATION_MEMBER("charted_org_members"),
-    USER("charted_users");
+    REPOSITORY("charted-repos"),
+    REPOSITORY_MEMBER("charted-repo-members"),
+    ORGANIZATION("charted-orgs"),
+    ORGANIZATION_MEMBER("charted-org-members"),
+    USER("charted-users");
 
     companion object {
         fun all(): List<Indexes> = listOf(

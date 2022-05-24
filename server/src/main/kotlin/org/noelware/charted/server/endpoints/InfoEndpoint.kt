@@ -23,7 +23,7 @@ import io.ktor.server.response.*
 import kotlinx.serialization.json.*
 import org.noelware.charted.core.ChartedInfo
 import org.noelware.charted.engines.charts.ChartBackendEngine
-import org.noelware.charted.search.elastic.ElasticSearchBackend
+import org.noelware.charted.search.elastic.ElasticsearchBackend
 import org.noelware.charted.search.meili.MeilisearchBackend
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.noelware.ktor.endpoints.Get
@@ -31,7 +31,7 @@ import org.noelware.remi.core.StorageTrailer
 import java.lang.management.ManagementFactory
 
 class InfoEndpoint(
-    private val elastic: ElasticSearchBackend?,
+    private val elastic: ElasticsearchBackend?,
     private val meili: MeilisearchBackend?,
     private val chartEngine: ChartBackendEngine?,
     private val storage: StorageTrailer<*>?

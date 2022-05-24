@@ -25,6 +25,7 @@ import org.noelware.remi.core.StorageTrailer
 import org.noelware.remi.filesystem.FilesystemStorageTrailer
 import org.noelware.remi.minio.MinIOStorageTrailer
 import org.noelware.remi.s3.S3StorageTrailer
+import java.io.File
 import java.io.InputStream
 
 /**
@@ -71,6 +72,20 @@ class StorageWrapper(config: StorageConfig) {
             try {
                 log.info("Starting up storage trailer...")
                 trailer.init()
+
+                if (config.storageClass == StorageClass.FILESYSTEM || config.storageClass == StorageClass.FS) {
+                    val t = trailer as FilesystemStorageTrailer
+
+                    if (!t.exists("./avatars")) {
+                        log.warn("Path ${t.config.directory}/avatars didn't exist, creating!")
+                        File(t.normalizePath("./avatars")).mkdirs()
+                    }
+
+                    if (!t.exists("./tarballs")) {
+                        log.debug("Path ${t.config.directory}/tarballs didn't exist, creating!")
+                        File(t.normalizePath("./tarballs")).mkdirs()
+                    }
+                }
             } catch (e: Exception) {
                 if (e is IllegalStateException && e.message?.contains("doesn't support StorageTrailer#init/0") == true)
                     return@runBlocking
@@ -111,11 +126,5 @@ class StorageWrapper(config: StorageConfig) {
         contentType: String = "application/octet-stream"
     ): Boolean = trailer.upload(path, stream, contentType)
 
-    fun normalizePath(path: String): String = if (trailer !is FilesystemStorageTrailer)
-        path
-    else when {
-        path.startsWith("./") -> (trailer.config.directory + path.replaceFirstChar { "" }).trim()
-        path.startsWith("~/") -> System.getProperty("user.home", "/") + path
-        else -> path
-    }
+    fun normalizePath(path: String): String = if (trailer !is FilesystemStorageTrailer) path else trailer.normalizePath(path)
 }

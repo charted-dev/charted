@@ -17,11 +17,14 @@
 
 package org.noelware.charted.server.endpoints
 
+import dev.floofy.utils.koin.inject
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import org.noelware.charted.core.config.Config
+import org.noelware.charted.core.config.EngineClass
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.noelware.ktor.endpoints.Get
 
@@ -38,6 +41,38 @@ class MainEndpoint: AbstractEndpoint() {
                         put("message", "Hello, world! \uD83D\uDC4B")
                         put("tagline", "You know, for Helm charts?")
                         put("docs", "https://charts.noelware.org/docs")
+                    }
+                )
+            }
+        )
+    }
+
+    @Get("/features")
+    suspend fun features(call: ApplicationCall) {
+        val config: Config by inject()
+
+        call.respond(
+            HttpStatusCode.OK,
+            buildJsonObject {
+                put("success", true)
+                put(
+                    "data",
+                    buildJsonObject {
+                        put(
+                            "chart_engine",
+                            when (config.engine?.engineClass) {
+                                null -> "charts"
+                                EngineClass.CHART -> "charts"
+                                EngineClass.OCI -> "oci (private docker registry)"
+                            }
+                        )
+
+                        put("search_enabled", config.search.elastic != null || config.search.meili != null)
+                        put("registrations", config.registrations)
+                        put("invite_only", config.inviteOnly)
+                        put("telemetry", false)
+                        put("analytics", config.analytics != null)
+                        put("lite", false)
                     }
                 )
             }

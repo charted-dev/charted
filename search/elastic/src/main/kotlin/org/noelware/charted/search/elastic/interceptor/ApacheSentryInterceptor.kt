@@ -41,17 +41,11 @@ object ApacheSentryResponseInterceptor: HttpResponseInterceptor {
         val transaction = context.getAttribute("sentry.transaction") as? ITransaction ?: return
         val clientContext = HttpClientContext.adapt(context)
 
-        if (response.statusLine.statusCode !in 200..300) {
-            val hub = HubAdapter.getInstance()
-            val breb = Breadcrumb.http(clientContext.request.requestLine.uri, clientContext.request.requestLine.method)
-            breb.level = SentryLevel.ERROR
-            hub.addBreadcrumb(breb)
-        } else {
-            val hub = HubAdapter.getInstance()
-            val breb = Breadcrumb.http(clientContext.request.requestLine.uri, clientContext.request.requestLine.method)
-            breb.level = SentryLevel.INFO
-            hub.addBreadcrumb(breb)
-        }
+        val hub = HubAdapter.getInstance()
+        val breadcrumb = Breadcrumb.http(clientContext.request.requestLine.uri, clientContext.request.requestLine.method)
+
+        breadcrumb.level = if (response.statusLine.statusCode !in 200..300) SentryLevel.ERROR else SentryLevel.INFO
+        hub.addBreadcrumb(breadcrumb)
 
         transaction.finish(SpanStatus.fromHttpStatusCode(response.statusLine.statusCode))
         context.removeAttribute("sentry.transaction")

@@ -21,27 +21,10 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
 val INDEX_SETTINGS = mapOf(
-    "charted_users" to buildJsonObject {
+    "charted-users" to buildJsonObject {
         put(
             "settings",
             buildJsonObject {
-                put(
-                    "analysis",
-                    buildJsonObject {
-                        put(
-                            "analyzer",
-                            buildJsonObject {
-                                put(
-                                    "ngram",
-                                    buildJsonObject {
-                                        put("tokenizer", "ngram")
-                                    }
-                                )
-                            }
-                        )
-                    }
-                )
-
                 put("number_of_shards", 5)
             }
         )
@@ -56,7 +39,6 @@ val INDEX_SETTINGS = mapOf(
                             "description",
                             buildJsonObject {
                                 put("type", "text")
-                                put("analyzer", "ngram")
                             }
                         )
 
@@ -94,27 +76,10 @@ val INDEX_SETTINGS = mapOf(
         )
     },
 
-    "charted_repos" to buildJsonObject {
+    "charted-repos" to buildJsonObject {
         put(
             "settings",
             buildJsonObject {
-                put(
-                    "analysis",
-                    buildJsonObject {
-                        put(
-                            "analyzer",
-                            buildJsonObject {
-                                put(
-                                    "ngram",
-                                    buildJsonObject {
-                                        put("tokenizer", "ngram")
-                                    }
-                                )
-                            }
-                        )
-                    }
-                )
-
                 put("number_of_shards", 5)
             }
         )
@@ -129,21 +94,20 @@ val INDEX_SETTINGS = mapOf(
                             "description",
                             buildJsonObject {
                                 put("type", "text")
-                                put("analyzer", "ngram")
                             }
                         )
 
                         put(
                             "updated_at",
                             buildJsonObject {
-                                put("type", "datetime")
+                                put("type", "date")
                             }
                         )
 
                         put(
                             "created_at",
                             buildJsonObject {
-                                put("type", "datetime")
+                                put("type", "date")
                             }
                         )
 
@@ -181,27 +145,10 @@ val INDEX_SETTINGS = mapOf(
         )
     },
 
-    "charted_orgs" to buildJsonObject {
+    "charted-orgs" to buildJsonObject {
         put(
             "settings",
             buildJsonObject {
-                put(
-                    "analysis",
-                    buildJsonObject {
-                        put(
-                            "analyzer",
-                            buildJsonObject {
-                                put(
-                                    "ngram",
-                                    buildJsonObject {
-                                        put("tokenizer", "ngram")
-                                    }
-                                )
-                            }
-                        )
-                    }
-                )
-
                 put("number_of_shards", 5)
             }
         )
@@ -215,7 +162,7 @@ val INDEX_SETTINGS = mapOf(
                         put(
                             "verified_publisher",
                             buildJsonObject {
-                                put("type", "bool")
+                                put("type", "boolean")
                             }
                         )
 
@@ -223,7 +170,6 @@ val INDEX_SETTINGS = mapOf(
                             "description",
                             buildJsonObject {
                                 put("type", "text")
-                                put("analyzer", "ngram")
                                 put("index", true)
                             }
                         )
@@ -231,14 +177,14 @@ val INDEX_SETTINGS = mapOf(
                         put(
                             "updated_at",
                             buildJsonObject {
-                                put("type", "datetime")
+                                put("type", "date")
                             }
                         )
 
                         put(
                             "created_at",
                             buildJsonObject {
-                                put("type", "datetime")
+                                put("type", "date")
                             }
                         )
 
@@ -271,27 +217,10 @@ val INDEX_SETTINGS = mapOf(
         )
     },
 
-    "charted_org_members" to buildJsonObject {
+    "charted-org-members" to buildJsonObject {
         put(
             "settings",
             buildJsonObject {
-                put(
-                    "analysis",
-                    buildJsonObject {
-                        put(
-                            "analyzer",
-                            buildJsonObject {
-                                put(
-                                    "ngram",
-                                    buildJsonObject {
-                                        put("tokenizer", "ngram")
-                                    }
-                                )
-                            }
-                        )
-                    }
-                )
-
                 put("number_of_shards", 5)
             }
         )
@@ -306,7 +235,6 @@ val INDEX_SETTINGS = mapOf(
                             "description",
                             buildJsonObject {
                                 put("type", "text")
-                                put("analyzer", "ngram")
                                 put("index", true)
                             }
                         )
@@ -314,14 +242,14 @@ val INDEX_SETTINGS = mapOf(
                         put(
                             "updated_at",
                             buildJsonObject {
-                                put("type", "datetime")
+                                put("type", "date")
                             }
                         )
 
                         put(
                             "joined_at",
                             buildJsonObject {
-                                put("type", "datetime")
+                                put("type", "date")
                             }
                         )
 
@@ -358,27 +286,10 @@ val INDEX_SETTINGS = mapOf(
         )
     },
 
-    "charted_repo_members" to buildJsonObject {
+    "charted-repo-members" to buildJsonObject {
         put(
             "settings",
             buildJsonObject {
-                put(
-                    "analysis",
-                    buildJsonObject {
-                        put(
-                            "analyzer",
-                            buildJsonObject {
-                                put(
-                                    "ngram",
-                                    buildJsonObject {
-                                        put("tokenizer", "ngram")
-                                    }
-                                )
-                            }
-                        )
-                    }
-                )
-
                 put("number_of_shards", 5)
             }
         )
@@ -393,7 +304,6 @@ val INDEX_SETTINGS = mapOf(
                             "description",
                             buildJsonObject {
                                 put("type", "text")
-                                put("analyzer", "ngram")
                                 put("index", true)
                             }
                         )
@@ -401,14 +311,14 @@ val INDEX_SETTINGS = mapOf(
                         put(
                             "updated_at",
                             buildJsonObject {
-                                put("type", "datetime")
+                                put("type", "date")
                             }
                         )
 
                         put(
                             "created_at",
                             buildJsonObject {
-                                put("type", "datetime")
+                                put("type", "date")
                             }
                         )
 
@@ -451,56 +361,7 @@ val INDEX_SETTINGS = mapOf(
 )
 
 val INDEX_MAPPINGS_WITHOUT_SETTINGS = mapOf(
-    "charted_users" to buildJsonObject {
-        put(
-            "mappings",
-            buildJsonObject {
-                put(
-                    "properties",
-                    buildJsonObject {
-                        put(
-                            "description",
-                            buildJsonObject {
-                                put("type", "text")
-                                put("analyzer", "ngram")
-                            }
-                        )
-
-                        put(
-                            "username",
-                            buildJsonObject {
-                                put("type", "text")
-                            }
-                        )
-
-                        put(
-                            "email",
-                            buildJsonObject {
-                                put("type", "keyword")
-                            }
-                        )
-
-                        put(
-                            "name",
-                            buildJsonObject {
-                                put("type", "text")
-                            }
-                        )
-
-                        put(
-                            "id",
-                            buildJsonObject {
-                                put("type", "long")
-                                put("index", true)
-                            }
-                        )
-                    }
-                )
-            }
-        )
-    },
-
-    "charted_repos" to buildJsonObject {
+    "charted-users" to buildJsonObject {
         put(
             "properties",
             buildJsonObject {
@@ -508,21 +369,55 @@ val INDEX_MAPPINGS_WITHOUT_SETTINGS = mapOf(
                     "description",
                     buildJsonObject {
                         put("type", "text")
-                        put("analyzer", "ngram")
+                    }
+                )
+
+                put(
+                    "username",
+                    buildJsonObject {
+                        put("type", "text")
+                    }
+                )
+
+                put(
+                    "email",
+                    buildJsonObject {
+                        put("type", "keyword")
+                    }
+                )
+
+                put(
+                    "name",
+                    buildJsonObject {
+                        put("type", "text")
+                    }
+                )
+            }
+        )
+    },
+
+    "charted-repos" to buildJsonObject {
+        put(
+            "properties",
+            buildJsonObject {
+                put(
+                    "description",
+                    buildJsonObject {
+                        put("type", "text")
                     }
                 )
 
                 put(
                     "updated_at",
                     buildJsonObject {
-                        put("type", "datetime")
+                        put("type", "date")
                     }
                 )
 
                 put(
                     "created_at",
                     buildJsonObject {
-                        put("type", "datetime")
+                        put("type", "date")
                     }
                 )
 
@@ -546,26 +441,18 @@ val INDEX_MAPPINGS_WITHOUT_SETTINGS = mapOf(
                         put("type", "keyword")
                     }
                 )
-
-                put(
-                    "id",
-                    buildJsonObject {
-                        put("type", "long")
-                        put("index", true)
-                    }
-                )
             }
         )
     },
 
-    "charted_orgs" to buildJsonObject {
+    "charted-orgs" to buildJsonObject {
         put(
             "properties",
             buildJsonObject {
                 put(
                     "verified_publisher",
                     buildJsonObject {
-                        put("type", "bool")
+                        put("type", "boolean")
                     }
                 )
 
@@ -573,7 +460,6 @@ val INDEX_MAPPINGS_WITHOUT_SETTINGS = mapOf(
                     "description",
                     buildJsonObject {
                         put("type", "text")
-                        put("analyzer", "ngram")
                         put("index", true)
                     }
                 )
@@ -581,14 +467,14 @@ val INDEX_MAPPINGS_WITHOUT_SETTINGS = mapOf(
                 put(
                     "updated_at",
                     buildJsonObject {
-                        put("type", "datetime")
+                        put("type", "date")
                     }
                 )
 
                 put(
                     "created_at",
                     buildJsonObject {
-                        put("type", "datetime")
+                        put("type", "date")
                     }
                 )
 
@@ -607,19 +493,11 @@ val INDEX_MAPPINGS_WITHOUT_SETTINGS = mapOf(
                         put("index", true)
                     }
                 )
-
-                put(
-                    "id",
-                    buildJsonObject {
-                        put("type", "long")
-                        put("index", true)
-                    }
-                )
             }
         )
     },
 
-    "charted_org_members" to buildJsonObject {
+    "charted-org-members" to buildJsonObject {
         put(
             "properties",
             buildJsonObject {
@@ -627,7 +505,6 @@ val INDEX_MAPPINGS_WITHOUT_SETTINGS = mapOf(
                     "description",
                     buildJsonObject {
                         put("type", "text")
-                        put("analyzer", "ngram")
                         put("index", true)
                     }
                 )
@@ -635,14 +512,14 @@ val INDEX_MAPPINGS_WITHOUT_SETTINGS = mapOf(
                 put(
                     "updated_at",
                     buildJsonObject {
-                        put("type", "datetime")
+                        put("type", "date")
                     }
                 )
 
                 put(
                     "joined_at",
                     buildJsonObject {
-                        put("type", "datetime")
+                        put("type", "date")
                     }
                 )
 
@@ -666,18 +543,11 @@ val INDEX_MAPPINGS_WITHOUT_SETTINGS = mapOf(
                         put("type", "text")
                     }
                 )
-
-                put(
-                    "id",
-                    buildJsonObject {
-                        put("type", "long")
-                    }
-                )
             }
         )
     },
 
-    "charted_repo_members" to buildJsonObject {
+    "charted-repo-members" to buildJsonObject {
         put(
             "properties",
             buildJsonObject {
@@ -685,7 +555,6 @@ val INDEX_MAPPINGS_WITHOUT_SETTINGS = mapOf(
                     "description",
                     buildJsonObject {
                         put("type", "text")
-                        put("analyzer", "ngram")
                         put("index", true)
                     }
                 )
@@ -693,14 +562,14 @@ val INDEX_MAPPINGS_WITHOUT_SETTINGS = mapOf(
                 put(
                     "updated_at",
                     buildJsonObject {
-                        put("type", "datetime")
+                        put("type", "date")
                     }
                 )
 
                 put(
                     "created_at",
                     buildJsonObject {
-                        put("type", "datetime")
+                        put("type", "date")
                     }
                 )
 
@@ -724,14 +593,6 @@ val INDEX_MAPPINGS_WITHOUT_SETTINGS = mapOf(
                     "name",
                     buildJsonObject {
                         put("type", "text")
-                        put("index", true)
-                    }
-                )
-
-                put(
-                    "id",
-                    buildJsonObject {
-                        put("type", "long")
                         put("index", true)
                     }
                 )
