@@ -63,6 +63,8 @@ jobs:
     steps:
       - name: Checks out the repository
         uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
 
       - name: Sets up Java 17
         uses: actions/setup-java@v3
