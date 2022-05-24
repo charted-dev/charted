@@ -29,8 +29,9 @@ distributions {
     main {
         distributionBaseName by "charted"
         contents {
-            from("${rootProject.projectDir}/distribution/README.txt")
             from("${rootProject.projectDir}/distribution/LICENSE")
+            from("${rootProject.projectDir}/distribution/README.txt")
+            from("${rootProject.projectDir}/distribution/bin/charted-server")
             from("${rootProject.projectDir}/distribution/config/config.toml")
             from("${rootProject.projectDir}/distribution/config/logback.properties")
         }
