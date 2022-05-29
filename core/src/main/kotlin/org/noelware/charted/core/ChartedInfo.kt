@@ -44,6 +44,11 @@ object ChartedInfo {
     val buildDate: String
 
     /**
+     * Returns the distribution type.
+     */
+    val distributionType: DistributionType = DistributionType.fromString(System.getProperty("org.noelware.charted.distribution.type", ""))
+
+    /**
      * Returns the dedicated node the server is running off. This is usually
      * present in `cdn.floofy.dev` or `cdn.noelware.org`
      */

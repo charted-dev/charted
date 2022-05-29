@@ -69,7 +69,7 @@ class ChartBackendEngine(private val storage: StorageWrapper) {
 
         // Now, let's upload it.
         storage.upload(
-            "./$ownerId/$projectId/tarballs/${firstPart.originalFileName}",
+            "./tarballs/$ownerId/$projectId/${firstPart.originalFileName}",
             newStream,
             contentType
         )
@@ -120,5 +120,17 @@ class ChartBackendEngine(private val storage: StorageWrapper) {
         )
 
         firstPart.dispose()
+    }
+
+    suspend fun getIndexYaml(ownerId: String): String? {
+        if (!storage.exists("./$ownerId/index.yaml"))
+            return null
+
+        val data = storage.open("./$ownerId/index.yaml")
+            ?: throw IllegalStateException("Cannot open index.yaml file for owner $ownerId.")
+
+        return withContext(Dispatchers.IO) {
+            String(data.readAllBytes())
+        }
     }
 }

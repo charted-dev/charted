@@ -34,7 +34,6 @@ val chartedModule = module {
     single {
         Json {
             ignoreUnknownKeys = true
-            encodeDefaults = true
             isLenient = true
         }
     }

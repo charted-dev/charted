@@ -43,20 +43,24 @@ import org.jetbrains.exposed.sql.*
 import org.noelware.charted.core.ChartedScope
 import org.noelware.charted.core.StorageWrapper
 import org.noelware.charted.core.config.Config
+import org.noelware.charted.core.config.EngineClass
 import org.noelware.charted.core.sessions.SessionKey
 import org.noelware.charted.core.sessions.SessionManager
 import org.noelware.charted.core.sessions.SessionPlugin
 import org.noelware.charted.database.entity.UserConnectionEntity
 import org.noelware.charted.database.entity.UserEntity
 import org.noelware.charted.database.tables.*
+import org.noelware.charted.database.tables.Users.avatar
 import org.noelware.charted.database.tables.Users.createdAt
 import org.noelware.charted.database.tables.Users.description
 import org.noelware.charted.database.tables.Users.email
 import org.noelware.charted.database.tables.Users.flags
 import org.noelware.charted.database.tables.Users.gravatarEmail
+import org.noelware.charted.database.tables.Users.id
 import org.noelware.charted.database.tables.Users.name
 import org.noelware.charted.database.tables.Users.updatedAt
 import org.noelware.charted.database.tables.Users.username
+import org.noelware.charted.engines.charts.ChartBackendEngine
 import org.noelware.charted.util.Sha256
 import org.noelware.charted.util.Snowflake
 import org.noelware.ktor.body
@@ -106,16 +110,27 @@ data class User(
     val name: String? = null,
     val id: Long
 ) {
+    companion object {
+        fun fromResultRow(row: ResultRow): User {
+            val config: Config by inject()
+            return User(
+                row[gravatarEmail],
+                row[description],
+                row[avatar]?.let { "${config.baseUrl ?: "http://${config.server.host}:${config.server.port}"}/users/${row[id].value}/avatars/${row[avatar]}" },
+                row[createdAt],
+                row[updatedAt],
+                row[username],
+                row[flags],
+                row[name],
+                row[id].value
+            )
+        }
+    }
+
     fun toJsonObject(): JsonObject = buildJsonObject {
         put("gravatar_email", gravatarEmail)
         put("description", description)
-        put(
-            "avatar_url",
-            avatar?.let {
-                // TODO: switch this to `/avatars/:id/:hash.:ext`
-                JsonPrimitive("https://charts.noelware.org/cdn/avatars/$id/$avatar")
-            } ?: JsonNull
-        )
+        put("avatar_url", avatar?.let { JsonPrimitive(it) } ?: JsonNull)
         put("created_at", createdAt.toInstant(TimeZone.currentSystemDefault()).toString())
         put("updated_at", updatedAt.toInstant(TimeZone.currentSystemDefault()).toString())
         put("username", username)
@@ -280,7 +295,7 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
                         User(
                             row[gravatarEmail],
                             row[description],
-                            row[Users.avatar],
+                            row[avatar],
                             row[createdAt],
                             row[updatedAt],
                             row[username],
@@ -852,7 +867,7 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
 
         // Use Dicebar Avatars if user.avatar is null
         val id = user[Users.id].value
-        val avatar = user[Users.avatar]
+        val avatar = user[avatar]
         if (avatar == null) {
             val res = httpClient.get("https://avatars.dicebear.com/api/identicon/$id.svg")
             val body = res.body<ByteArray>()
@@ -1058,6 +1073,104 @@ class UserApiEndpoints: AbstractEndpoint("/users") {
                         put("session_id", newSession.sessionId.toString())
                     }
                 )
+            }
+        )
+    }
+
+    @Get("/index.yaml")
+    suspend fun getIndexYaml(call: ApplicationCall) {
+        val session = call.attributes[SessionKey]
+        val config by inject<Config>()
+
+        if (config.engine?.engineClass == EngineClass.OCI) {
+            call.respond(
+                HttpStatusCode.InternalServerError,
+                buildJsonObject {
+                    put("success", false)
+                    putJsonArray("errors") {
+                        addJsonObject {
+                            put("code", "OCI_CHARTS")
+                            put("message", "This instance is using a private Docker registry to host charts. :(")
+                        }
+                    }
+                }
+            )
+
+            return
+        }
+
+        val charts by inject<ChartBackendEngine>()
+        val data = charts.getIndexYaml(session.userId.toString())
+        if (data == null) {
+            call.respond(
+                HttpStatusCode.NotFound,
+                buildJsonObject {
+                    put("success", false)
+                    putJsonArray("errors") {
+                        addJsonObject {
+                            put("code", "NO_CHARTS")
+                            put("message", "We couldn't find any charts that were linked to each other.")
+                        }
+                    }
+                }
+            )
+
+            return
+        }
+
+        return call.respondText(
+            data,
+            ContentType("application", "yaml"),
+            HttpStatusCode.OK
+        )
+    }
+
+    @Put("/index.yaml")
+    suspend fun uploadIndexYaml(call: ApplicationCall) {
+        val session = call.attributes[SessionKey]
+        val config by inject<Config>()
+
+        if (config.engine?.engineClass == EngineClass.OCI) {
+            call.respond(
+                HttpStatusCode.InternalServerError,
+                buildJsonObject {
+                    put("success", false)
+                    putJsonArray("errors") {
+                        addJsonObject {
+                            put("code", "OCI_CHARTS")
+                            put("message", "This instance is using a private Docker registry to host charts. :(")
+                        }
+                    }
+                }
+            )
+
+            return
+        }
+
+        val charts by inject<ChartBackendEngine>()
+        val data = charts.getIndexYaml(session.userId.toString())
+        if (data == null) {
+            call.respond(
+                HttpStatusCode.NotFound,
+                buildJsonObject {
+                    put("success", false)
+                    putJsonArray("errors") {
+                        addJsonObject {
+                            put("code", "NO_CHARTS")
+                            put("message", "We couldn't find any charts that were linked to each other.")
+                        }
+                    }
+                }
+            )
+
+            return
+        }
+
+        charts.uploadIndexYaml(call, session.userId.toString())
+        call.respond(
+            HttpStatusCode.Created,
+            buildJsonObject {
+                put("success", true)
             }
         )
     }

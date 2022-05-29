@@ -159,7 +159,7 @@ class DebugEndpoint(
                         put("version", ChartedInfo.version)
                         put("commit_sha", ChartedInfo.commitHash)
                         put("build_date", ChartedInfo.dediNode)
-                        put("distribution_type", "Docker")
+                        put("distribution_type", ChartedInfo.distributionType.id)
                         put("search", searchBackendInfo)
                         put("engine", chartEngineInfo)
                         put("os", osInfo)

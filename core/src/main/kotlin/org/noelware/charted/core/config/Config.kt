@@ -30,6 +30,9 @@ data class Config(
     @SerialName("invite_only")
     val inviteOnly: Boolean = false,
 
+    @SerialName("base_url")
+    val baseUrl: String? = null,
+
     @SerialName("sentry_dsn")
     val sentryDsn: String? = null,
     val analytics: AnalyticsConfig? = null,

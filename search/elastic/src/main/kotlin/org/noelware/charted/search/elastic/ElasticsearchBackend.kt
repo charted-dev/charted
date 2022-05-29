@@ -261,14 +261,9 @@ class ElasticsearchBackend(config: ElasticsearchConfig): Closeable {
                         )
                     } else {
                         put(
-                            "query",
+                            "match",
                             buildJsonObject {
-                                put(
-                                    "match",
-                                    buildJsonObject {
-                                        put(fieldsToRequest.first(), query)
-                                    }
-                                )
+                                put(fieldsToRequest.first(), query)
                             }
                         )
                     }
