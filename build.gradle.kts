@@ -15,12 +15,14 @@
  * limitations under the License.
  */
 
+import org.noelware.charted.gradle.*
+
 plugins {
     application
 }
 
 group = "org.noelware"
-version = "..."
+version = "$VERSION"
 
 repositories {
     mavenCentral()

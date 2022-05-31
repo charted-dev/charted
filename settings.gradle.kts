@@ -18,16 +18,20 @@
 rootProject.name = "charted-server"
 
 include(
-    ":analytics",
+    ":audit-logs",
+    ":common",
     ":core",
     ":database",
-    ":engines:charts",
-    ":engines:oci",
-    ":protobuf-lib",
-    ":search:elastic",
-    ":search:meili",
+    ":distribution:deb",
+    ":distribution:rpm",
+    ":libs:analytics",
+    ":libs:elasticsearch",
+    ":libs:meilisearch",
+    ":libs:protobufs",
+    ":libs:telemetry",
+    ":libs:testing",
+    ":libs:utils",
+    ":oci-proxy",
     ":server",
-    ":telemetry",
-    ":test",
-    ":util"
+    ":webhooks"
 )

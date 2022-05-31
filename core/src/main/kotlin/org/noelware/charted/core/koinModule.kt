@@ -27,13 +27,13 @@ import io.ktor.serialization.kotlinx.json.*
 import io.sentry.Sentry
 import kotlinx.serialization.json.Json
 import org.koin.dsl.module
-import org.noelware.charted.core.http.LoggingInterceptor
-import org.noelware.charted.core.http.SentryInterceptor
+import org.noelware.charted.common.ChartedInfo
 
 val chartedModule = module {
     single {
         Json {
             ignoreUnknownKeys = true
+            encodeDefaults = true
             isLenient = true
         }
     }
@@ -45,10 +45,9 @@ val chartedModule = module {
                     followRedirects(true)
                 }
 
-                addInterceptor(LoggingInterceptor)
-
+                // addInterceptor(LoggingInterceptor)
                 if (Sentry.isEnabled()) {
-                    addInterceptor(SentryInterceptor)
+                    // addInterceptor(SentryInterceptor)
                 }
             }
 
@@ -66,7 +65,7 @@ val chartedModule = module {
         val log by logging<Scheduler>()
         Scheduler {
             handleError { job, cause ->
-                log.error("Unable to execute job ${job.name}:", cause)
+                log.error("Unable to execute cron job ${job.name}:", cause)
             }
         }
     }

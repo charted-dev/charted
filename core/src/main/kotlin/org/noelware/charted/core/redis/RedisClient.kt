@@ -24,8 +24,8 @@ import io.lettuce.core.api.async.RedisAsyncCommands
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.lang3.time.StopWatch
-import org.noelware.charted.core.SetOnceGetValue
-import org.noelware.charted.core.config.RedisConfig
+import org.noelware.charted.common.SetOnceGetValue
+import org.noelware.charted.common.config.RedisConfig
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -54,7 +54,7 @@ class RedisClient(config: RedisConfig): IRedisClient {
             }
 
             if (config.password != null) {
-                builder.withPassword(config.password.toCharArray())
+                builder.withPassword(config.password!!.toCharArray())
             }
 
             builder.build()
@@ -65,7 +65,7 @@ class RedisClient(config: RedisConfig): IRedisClient {
                 .withDatabase(config.index.toInt())
 
             if (config.password != null) {
-                builder.withPassword(config.password.toCharArray())
+                builder.withPassword(config.password!!.toCharArray())
             }
 
             builder.build()

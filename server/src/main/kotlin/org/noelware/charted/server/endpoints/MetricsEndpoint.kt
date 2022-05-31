@@ -16,12 +16,3 @@
  */
 
 package org.noelware.charted.server.endpoints
-
-import io.ktor.server.application.*
-import org.noelware.ktor.endpoints.AbstractEndpoint
-import org.noelware.ktor.endpoints.Get
-
-class MetricsEndpoint: AbstractEndpoint("/metrics") {
-    @Get
-    suspend fun main(call: ApplicationCall) {}
-}

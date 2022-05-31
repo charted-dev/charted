@@ -23,21 +23,24 @@ import org.noelware.charted.search.elastic.ElasticsearchBackend
 import org.noelware.charted.search.meili.MeilisearchBackend
 
 class IndexDataJob(
-    private val elastic: ElasticsearchBackend?,
-    private val meili: MeilisearchBackend?
-): AbstractJob("index:data", "@hourly") {
+    private val elastic: ElasticsearchBackend? = null,
+    private val meili: MeilisearchBackend? = null
+): AbstractJob("index data to elastic/meilisearch", "@hourly") {
     private val log by logging<IndexDataJob>()
 
     override suspend fun execute() {
-        val source = when {
-            elastic != null -> "Elasticsearch"
-            meili != null -> "Meilisearch"
-            else -> return
+        if (elastic != null) {
+            log.debug("Indexing data to Elasticsearch...")
+
+            elastic.indexData()
+            return
         }
 
-        log.debug("Indexing all data into $source!")
+        if (meili != null) {
+            log.debug("Indexing data to Meilisearch...")
 
-        elastic?.indexAllData()
-        meili?.indexAllData()
+            // meili.indexData()
+            return
+        }
     }
 }

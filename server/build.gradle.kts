@@ -17,6 +17,7 @@
 
 import org.noelware.charted.gradle.*
 import java.text.SimpleDateFormat
+import dev.floofy.utils.gradle.*
 import java.util.Date
 
 plugins {
@@ -26,7 +27,7 @@ plugins {
 }
 
 application {
-    mainClass.set("org.noelware.charted.server.Bootstrap")
+    mainClass by "org.noelware.charted.server.Bootstrap"
 }
 
 dependencies {
@@ -39,31 +40,38 @@ dependencies {
     implementation("ch.qos.logback:logback-core:1.2.11")
 
     // Ktor Routing
-    api("org.noelware.ktor:core:0.1.1-beta")
     implementation("org.noelware.ktor:loader-koin:0.1.1-beta")
+    implementation("org.noelware.ktor:core:0.1.1-beta")
 
     // Ktor (server)
-    api("io.ktor:ktor-server-core:2.0.1")
+    implementation("io.ktor:ktor-serialization-kotlinx-json")
+    implementation("io.ktor:ktor-server-content-negotiation")
+    implementation("io.ktor:ktor-server-auto-head-response")
+    implementation("io.ktor:ktor-server-default-headers")
+    implementation("io.ktor:ktor-server-double-receive")
+    implementation("io.ktor:ktor-server-status-pages")
+    implementation("io.ktor:ktor-serialization")
+    implementation("io.ktor:ktor-server-netty")
+    implementation("io.ktor:ktor-server-cors")
+    api("io.ktor:ktor-server-core")
 
     // Projects
-    implementation(project(":search:elastic"))
-    implementation(project(":engines:charts"))
-    implementation(project(":engines:oci"))
-    implementation(project(":search:meili"))
+    implementation(project(":libs:elasticsearch"))
+    implementation(project(":libs:meilisearch"))
+    implementation(project(":libs:telemetry"))
+    implementation(project(":libs:analytics"))
+    implementation(project(":audit-logs"))
+    implementation(project(":oci-proxy"))
+    implementation(project(":webhooks"))
     implementation(project(":database"))
-    implementation(project(":util"))
     implementation(project(":core"))
+
+    // JWT
+    implementation("com.auth0:java-jwt:3.19.2")
 
     // Just for Log4j/JCL -> slf4j
     implementation("org.slf4j:log4j-over-slf4j:1.7.36")
     implementation("org.slf4j:jcl-over-slf4j:1.7.36")
-
-    // TOML (config parsing)
-    implementation("com.akuleshov7:ktoml-core:0.2.11")
-    implementation("com.akuleshov7:ktoml-file:0.2.11")
-
-    // Ktor Routing
-    api("org.noelware.ktor:core:0.1-beta")
 
     // Conditional logic for logback
     implementation("org.codehaus.janino:janino:3.1.7")
@@ -74,8 +82,8 @@ dependencies {
     // Spring Security (argon2 hashing)
     implementation("org.springframework.security:spring-security-crypto:5.6.3")
 
-    // Remi types
-    api("org.noelware.remi:remi-support-fs:0.1.4-beta.3")
+    // YAML (configuration)
+    implementation("com.charleskorn.kaml:kaml:0.44.0")
 }
 
 tasks {

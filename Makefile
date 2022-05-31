@@ -27,6 +27,5 @@ lint:
 
 clean:
 	rm -rf build
-	rm -rf {analytics,buildSrc,core,database,engines,protobuf-lib,search,server,telemetry,test,util}/build
-	rm -rf engines/{oci,charts}/build
-	rm -rf search/{meili,elastic}/build
+	rm -rf {audit-logs,common,core,database,oci-proxy,server,webhooks}/build
+	rm -rf libs/{analytics,elasticsearch,meilisearch,protobufs,telemetry,testing,utils}/build

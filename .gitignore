@@ -634,3 +634,4 @@ instance.uuid
 server/src/main/resources/config/logging.properties
 .data/
 !distribution/bin
+!distribution/bin/bin

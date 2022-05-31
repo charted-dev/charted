@@ -19,8 +19,7 @@ package org.noelware.charted.core
 
 import dev.floofy.utils.slf4j.logging
 import kotlinx.coroutines.runBlocking
-import org.noelware.charted.core.config.StorageClass
-import org.noelware.charted.core.config.StorageConfig
+import org.noelware.charted.common.config.StorageConfig
 import org.noelware.remi.core.StorageTrailer
 import org.noelware.remi.filesystem.FilesystemStorageTrailer
 import org.noelware.remi.minio.MinIOStorageTrailer
@@ -28,69 +27,46 @@ import org.noelware.remi.s3.S3StorageTrailer
 import java.io.File
 import java.io.InputStream
 
-/**
- * Wrapper for configuring the storage trailer that **hazel** will use.
- */
 class StorageWrapper(config: StorageConfig) {
-    val trailer: StorageTrailer<*>
     private val log by logging<StorageWrapper>()
+    lateinit var trailer: StorageTrailer<*>
 
     init {
-        log.info("Figuring out what storage trailer to use...")
+        log.info("Figuring out what trailer to use...")
+        if (config.filesystem != null)
+            trailer = FilesystemStorageTrailer(config.filesystem!!.directory)
+        else if (config.fs != null)
+            trailer = FilesystemStorageTrailer(config.fs!!.directory)
+        else if (config.s3 != null)
+            trailer = S3StorageTrailer(config.s3!!)
+        else if (config.minio != null)
+            trailer = MinIOStorageTrailer(config.minio!!)
 
-        trailer = when (config.storageClass) {
-            StorageClass.FS -> {
-                assert(config.fs != null) { "Configuration for the local disk is missing." }
-
-                FilesystemStorageTrailer(config.fs!!.directory)
-            }
-
-            StorageClass.FILESYSTEM -> {
-                assert(config.filesystem != null) { "Configuration for the local disk is missing." }
-
-                FilesystemStorageTrailer(config.filesystem!!.directory)
-            }
-
-            StorageClass.S3 -> {
-                assert(config.s3 != null) { "Configuration for Amazon S3 is missing." }
-
-                S3StorageTrailer(config.s3!!)
-            }
-
-            StorageClass.MINIO -> {
-                assert(config.minio != null) { "Configuration for MinIO is missing." }
-
-                MinIOStorageTrailer(config.minio!!)
-            }
-        }
-
-        log.info("Using storage trailer ${config.storageClass}!")
-
-        // block the main thread so the trailer can be
-        // loaded successfully.
+        log.info("Using storage provider ${trailer.name}!")
         runBlocking {
             try {
-                log.info("Starting up storage trailer...")
+                log.info("Setting up...")
                 trailer.init()
-
-                if (config.storageClass == StorageClass.FILESYSTEM || config.storageClass == StorageClass.FS) {
-                    val t = trailer as FilesystemStorageTrailer
-
-                    if (!t.exists("./avatars")) {
-                        log.warn("Path ${t.config.directory}/avatars didn't exist, creating!")
-                        File(t.normalizePath("./avatars")).mkdirs()
-                    }
-
-                    if (!t.exists("./tarballs")) {
-                        log.debug("Path ${t.config.directory}/tarballs didn't exist, creating!")
-                        File(t.normalizePath("./tarballs")).mkdirs()
-                    }
-                }
             } catch (e: Exception) {
-                if (e is IllegalStateException && e.message?.contains("doesn't support StorageTrailer#init/0") == true)
-                    return@runBlocking
+                if (e !is IllegalStateException && e.message?.contains("doesn't support StorageTrailer#init/0") == false)
+                    throw e
+            }
 
-                throw e
+            if (trailer is FilesystemStorageTrailer) {
+                if (!trailer.exists("./avatars")) {
+                    log.warn("Directory ./avatars doesn't exist! Creating...")
+                    File((trailer as FilesystemStorageTrailer).normalizePath("./avatars")).mkdirs()
+                }
+
+                if (!trailer.exists("./tarballs")) {
+                    log.warn("Directory ./tarballs doesn't exist! Creating...")
+                    File((trailer as FilesystemStorageTrailer).normalizePath("./tarballs")).mkdirs()
+                }
+
+                if (!trailer.exists("./prov")) {
+                    log.warn("Directory ./prov doesn't exist! Creating...")
+                    File((trailer as FilesystemStorageTrailer).normalizePath("./prov")).mkdirs()
+                }
             }
         }
     }
@@ -125,6 +101,4 @@ class StorageWrapper(config: StorageConfig) {
         stream: InputStream,
         contentType: String = "application/octet-stream"
     ): Boolean = trailer.upload(path, stream, contentType)
-
-    fun normalizePath(path: String): String = if (trailer !is FilesystemStorageTrailer) path else trailer.normalizePath(path)
 }

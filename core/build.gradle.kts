@@ -20,52 +20,27 @@ plugins {
 }
 
 dependencies {
-    // Ktor Server
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.0.1")
-    implementation("io.ktor:ktor-server-content-negotiation:2.0.1")
-    implementation("io.ktor:ktor-server-auto-head-response:2.0.1")
-    implementation("io.ktor:ktor-server-default-headers:2.0.1")
-    implementation("io.ktor:ktor-server-double-receive:2.0.1")
-    implementation("io.ktor:ktor-server-status-pages:2.0.1")
-    implementation("io.ktor:ktor-serialization:2.0.1")
-    implementation("io.ktor:ktor-server-netty:2.0.1")
-    implementation("io.ktor:ktor-server-cors:2.0.1")
-    api("io.ktor:ktor-server-core:2.0.1")
-
     // Ktor (client)
-    implementation("io.ktor:ktor-client-content-negotiation:2.0.1")
-    implementation("io.ktor:ktor-client-okhttp:2.0.1")
+    implementation("io.ktor:ktor-serialization-kotlinx-json")
+    implementation("io.ktor:ktor-client-content-negotiation")
+    implementation("io.ktor:ktor-serialization")
+    implementation("io.ktor:ktor-client-okhttp")
     api("com.squareup.okhttp:okhttp:2.7.5")
+    api("io.ktor:ktor-server-core")
+    api("io.ktor:ktor-client-core")
 
     // Prometheus (for metrics)
     implementation("io.prometheus:simpleclient_hotspot:0.15.0")
     implementation("io.prometheus:simpleclient_common:0.15.0")
     implementation("io.prometheus:simpleclient:0.15.0")
 
-    // Remi
-    implementation("org.noelware.remi:remi-support-minio:0.1.5-beta")
-    implementation("org.noelware.remi:remi-support-s3:0.1.5-beta")
-    implementation("org.noelware.remi:remi-support-fs:0.1.5-beta")
-    api("org.noelware.remi:remi-core:0.1.5-beta")
+    // Haru (scheduling)
+    implementation("dev.floofy.haru:Haru:1.3.0")
 
-    // Subprojects
-    implementation(project(":search:elastic"))
-    implementation(project(":search:meili"))
-    implementation(project(":analytics"))
-
-    // Spring (daemon server)
-    api("org.springframework.boot:spring-boot:2.6.7")
+    // Projects
+    implementation(project(":libs:elasticsearch"))
+    implementation(project(":libs:meilisearch"))
 
     // JWT
     implementation("com.auth0:java-jwt:3.19.2")
-
-    // Ratelimit
-    implementation("app.softwork:ratelimit:0.2.1")
-
-    // Ktor Routing
-    implementation("org.noelware.ktor:core:0.1-beta")
-    implementation("org.noelware.ktor:loader-koin:0.1-beta")
-
-    // Haru (scheduling)
-    implementation("dev.floofy.haru:Haru:1.3.0")
 }

@@ -16,19 +16,3 @@
  */
 
 package org.noelware.charted.server.endpoints
-
-import org.koin.dsl.bind
-import org.koin.dsl.module
-import org.noelware.ktor.endpoints.AbstractEndpoint
-
-val endpointsModule = module {
-    single { DebugEndpoint(getOrNull(), getOrNull(), getOrNull(), getOrNull()) } bind AbstractEndpoint::class
-    single { InfoEndpoint(getOrNull(), getOrNull(), getOrNull(), getOrNull()) } bind AbstractEndpoint::class
-    single { SearchEndpoint(getOrNull(), getOrNull()) } bind AbstractEndpoint::class
-    single { OrganizationMemberApiEndpoints() } bind AbstractEndpoint::class
-    single { RepositoryMemberApiEndpoints() } bind AbstractEndpoint::class
-    single { RepositoryApiEndpoints(get()) } bind AbstractEndpoint::class
-    single { UserApiEndpoints() } bind AbstractEndpoint::class
-    single { MetricsEndpoint() } bind AbstractEndpoint::class
-    single { MainEndpoint() } bind AbstractEndpoint::class
-}

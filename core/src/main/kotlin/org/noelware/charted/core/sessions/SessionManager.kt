@@ -29,9 +29,9 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.*
 import org.apache.commons.lang3.time.StopWatch
-import org.noelware.charted.core.ChartedScope
-import org.noelware.charted.core.config.Config
-import org.noelware.charted.core.launch
+import org.noelware.charted.common.ChartedScope
+import org.noelware.charted.common.config.Config
+import org.noelware.charted.common.launch
 import org.noelware.charted.core.redis.IRedisClient
 import java.io.Closeable
 import java.time.Instant
@@ -40,13 +40,17 @@ import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 
-class SessionManager(private val redis: IRedisClient, private val json: Json, config: Config): Closeable {
+class SessionManager(
+    config: Config,
+    private val json: Json,
+    private val redis: IRedisClient
+): Closeable {
     private val algorithm = Algorithm.HMAC512(config.jwtSecretKey.toByteArray())
     private val jobs = mutableListOf<Job>()
     private val log by logging<SessionManager>()
 
     init {
-        log.info("Initializing the sessions manager...")
+        log.info("Initializing sessions manager...")
 
         val sw = StopWatch.createStarted()
         val sessions = runBlocking {
@@ -54,28 +58,29 @@ class SessionManager(private val redis: IRedisClient, private val json: Json, co
         }
 
         sw.stop()
-        log.info("Received ${sessions.size} session entries in ${sw.getTime(TimeUnit.MILLISECONDS)}ms, clearing expired entries...")
+        log.info("Received ${sessions.size} session entries in ${sw.getTime(TimeUnit.MILLISECONDS)}ms! Expiring expired sessions...")
 
         sw.reset()
         sw.start()
+
         for (key in sessions.keys) {
-            log.debug("Checking expiration of charted:sessions:$key...")
+            log.debug("Found session $key! Checking expiration...")
             val ttl = runBlocking {
                 redis.commands.ttl("charted:sessions:$key").await()
             }
 
             if (ttl == -1L) {
-                log.debug("Session charted:sessions:$key has expired! Deleting entry...")
+                log.debug("Session with UUID $key has expired! Deleting entry...")
                 runBlocking {
                     redis.commands.hdel("charted:sessions", key).await()
                 }
             } else {
-                log.debug("Session for $key expires in $ttl seconds.")
+                log.debug("Session with UUID $key expires in $ttl seconds.")
                 jobs.add(
                     ChartedScope.launch {
                         delay(ttl / 1000)
-                        log.debug("Session charted:sessions:$key has expired! Deleting entry...")
 
+                        log.debug("Session $key has expired!")
                         redis.commands.hdel("charted:sessions", key).await()
                     }
                 )
@@ -87,13 +92,11 @@ class SessionManager(private val redis: IRedisClient, private val json: Json, co
     }
 
     override fun close() {
-        log.warn("Closing off ${jobs.size} expiration jobs!")
-
-        // TODO: this might be expensive at scale.
+        log.warn("Closing off ${jobs.size} session expiration jobs...")
         for (job in jobs)
             job.cancel()
 
-        log.info("Done!")
+        log.warn("Done!")
     }
 
     fun isExpired(token: String): Boolean = try {
@@ -108,7 +111,7 @@ class SessionManager(private val redis: IRedisClient, private val json: Json, co
         payloadAsJson["exp"]?.jsonPrimitive?.intOrNull?.ifNotNull { it >= Clock.System.now().epochSeconds } ?: true
     } catch (e: TokenExpiredException) {
         true
-    } catch (e: Exception) {
+    } catch (e: Throwable) {
         throw e
     }
 
@@ -129,22 +132,19 @@ class SessionManager(private val redis: IRedisClient, private val json: Json, co
         if (iss == null || iss != "Noelware/charted-server")
             throw IllegalStateException("Issuer was not a valid issuer. Must be `Noelware/charted-server` or be defined.")
 
-        val userId = headerAsJson["user_id"]?.jsonPrimitive?.contentOrNull
         val sessionId = headerAsJson["session_id"]?.jsonPrimitive?.contentOrNull
-
-        if (userId == null || sessionId == null)
-            throw IllegalStateException("Missing `userId` or `sessionId` in header payload")
+            ?: throw IllegalStateException("Missing `sessionId` in header payload")
 
         return redis
             .commands
-            .hget("charted:sessions", "$userId-$sessionId")
+            .hget("charted:sessions", sessionId)
             .await()
             .ifNotNull {
                 json.decodeFromString(Session.serializer(), it)
             }
     }
 
-    suspend fun createSession(userId: String): Session {
+    suspend fun createSession(userId: Long): Session {
         val sessionId = UUID.randomUUID()
 
         // Create access token, which is short-lived.
@@ -177,14 +177,29 @@ class SessionManager(private val redis: IRedisClient, private val json: Json, co
             .sign(algorithm)
 
         val session = Session(
-            userId.toLong(),
+            userId,
             sessionId,
             refreshToken,
             accessToken
         )
 
-        redis.commands.expire("charted:sessions:$userId-$sessionId", 7.days.inWholeMilliseconds)
-        redis.commands.hmset("charted:sessions", mapOf("$userId-$sessionId" to json.encodeToString(Session.serializer(), session))).await()
+        redis.commands.expire("charted:sessions:$sessionId", 7.days.inWholeSeconds).await()
+        redis.commands.hmset(
+            "charted:sessions",
+            mapOf(
+                "$sessionId" to json.encodeToString(Session.serializer(), session)
+            )
+        ).await()
+
+        jobs.add(
+            ChartedScope.launch {
+                delay(7.days.inWholeMilliseconds)
+
+                log.debug("Session $sessionId has expired!")
+                redis.commands.hdel("charted:sessions", "$sessionId").await()
+            }
+        )
+
         return session
     }
 
@@ -231,11 +246,10 @@ class SessionManager(private val redis: IRedisClient, private val json: Json, co
             accessToken
         )
 
-        val userId = s.userId
         val sessionId = s.sessionId
 
-        redis.commands.expire("charted:sessions:$userId-$sessionId", 7.days.inWholeMilliseconds)
-        redis.commands.hmset("charted:sessions", mapOf("$userId-$sessionId" to json.encodeToString(Session.serializer(), s))).await()
+        redis.commands.expire("charted:sessions:$sessionId", 7.days.inWholeSeconds)
+        redis.commands.hmset("charted:sessions", mapOf("$sessionId" to json.encodeToString(Session.serializer(), s))).await()
         return s
     }
 }

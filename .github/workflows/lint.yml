@@ -82,7 +82,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Generate Protobufs
-        run: ./gradlew :protobuf-lib:generateProtobuf
+        run: ./gradlew :libs:protobufs:generateProtobuf --no-daemon
 
       - name: Lints the repository for any code errors
         run: ./gradlew spotlessCheck --no-daemon

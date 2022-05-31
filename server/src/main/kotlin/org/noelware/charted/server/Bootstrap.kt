@@ -17,226 +17,20 @@
 
 package org.noelware.charted.server
 
-import com.akuleshov7.ktoml.Toml
-import com.akuleshov7.ktoml.TomlConfig
-import com.zaxxer.hikari.HikariConfig
-import com.zaxxer.hikari.HikariDataSource
-import dev.floofy.utils.exposed.asyncTransaction
-import dev.floofy.utils.koin.inject
-import dev.floofy.utils.koin.retrieveOrNull
+import com.charleskorn.kaml.Yaml
+import com.charleskorn.kaml.YamlConfiguration
 import dev.floofy.utils.slf4j.logging
-import io.sentry.Sentry
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.runBlocking
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.DatabaseConfig
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
-import org.jetbrains.exposed.sql.transactions.transaction
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.modules.EmptySerializersModule
 import org.koin.core.context.GlobalContext
-import org.koin.core.context.startKoin
-import org.koin.dsl.module
-import org.noelware.charted.core.*
-import org.noelware.charted.core.config.Config
-import org.noelware.charted.core.config.EngineClass
-import org.noelware.charted.core.jobs.jobsModule
-import org.noelware.charted.core.logging.SentryLogger
-import org.noelware.charted.core.redis.IRedisClient
-import org.noelware.charted.core.redis.RedisClient
-import org.noelware.charted.core.sessions.SessionManager
-import org.noelware.charted.database.createOrUpdateEnums
-import org.noelware.charted.database.tables.*
-import org.noelware.charted.engine.oci.OciBackendEngine
-import org.noelware.charted.engines.charts.ChartBackendEngine
-import org.noelware.charted.search.elastic.ElasticsearchBackend
-import org.noelware.charted.search.meili.MeilisearchBackend
-import org.noelware.charted.server.endpoints.endpointsModule
 import java.io.File
 import java.io.IOError
-import java.util.UUID
+import java.util.*
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
 object Bootstrap {
     private val log by logging<Bootstrap>()
-
-    @JvmStatic
-    fun main(args: Array<String>) {
-        Thread.currentThread().name = "Server-BootstrapThread"
-        println("+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+")
-        println("+       _                _           _                                      +")
-        println("+   ___| |__   __ _ _ __| |_ ___  __| |      ___  ___ _ ____   _____ _ __   +")
-        println("+   / __| '_ \\ / _` | '__| __/ _ \\/ _` |_____/ __|/ _ \\ '__\\ \\ / / _ \\ '__| +")
-        println("+  | (__| | | | (_| | |  | ||  __/ (_| |_____\\__ \\  __/ |   \\ V /  __/ |    +")
-        println("+   \\___|_| |_|\\__,_|_|   \\__\\___|\\__,_|     |___/\\___|_|    \\_/ \\___|_|    +")
-        println("+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+")
-        println("")
-
-        installShutdownHook()
-        installDefaultThreadExceptionHandler()
-        createUUID()
-
-        log.info("Loading configuration...")
-
-        // Configure the server config
-        val fullConfigPath = System.getenv("CHARTED_CONFIG_PATH") ?: "./config.toml"
-        val configFile = File(fullConfigPath)
-
-        if (!configFile.exists())
-            throw IllegalArgumentException("Missing configuration path in $fullConfigPath.")
-
-        if (configFile.extension != "toml")
-            throw IllegalStateException("Configuration file $fullConfigPath must be a TOML file (must be `.toml` extension, not ${configFile.extension})")
-
-        val toml = Toml(
-            TomlConfig(
-                ignoreUnknownNames = true,
-                allowEmptyToml = true,
-                allowEmptyValues = false,
-                allowEscapedQuotesInLiteralStrings = true
-            )
-        )
-
-        val config = toml.decodeFromString(Config.serializer(), configFile.readText())
-
-        if (config.jwtSecretKey.isEmpty())
-            throw IllegalStateException("You need to set a JWT secret key!")
-
-        log.info("Loaded configuration in $fullConfigPath! Connecting to PostgreSQL...")
-
-        val dataSource = HikariDataSource(
-            HikariConfig().apply {
-                jdbcUrl = "jdbc:postgresql://${config.database.host}:${config.database.port}/${config.database.name}"
-                username = config.database.username
-                password = config.database.password
-                schema = config.database.schema
-                driverClassName = "org.postgresql.Driver"
-                isAutoCommit = false
-                leakDetectionThreshold = 30 * 1000
-                poolName = "ChartedServer-HikariPool"
-            }
-        )
-
-        Database.connect(
-            dataSource,
-            databaseConfig = DatabaseConfig {
-                defaultRepetitionAttempts = 5
-                sqlLogger = if ((System.getenv("org.noelware.charted.debug") ?: "false") == "true") {
-                    Slf4jSqlDebugLogger
-                } else {
-                    null
-                }
-            }
-        )
-
-        runBlocking {
-            asyncTransaction(ChartedScope) {
-                createOrUpdateEnums()
-            }
-        }
-
-        transaction {
-            // the order matters :(
-            SchemaUtils.createMissingTablesAndColumns(
-                Organizations,
-                Users,
-                Repositories,
-                RepositoryMembers,
-                OrganizationMember,
-                UserConnections
-            )
-        }
-
-        log.info("Connected to PostgreSQL!")
-
-        val wrapper = if (config.storage != null) {
-            log.info("Storage is enabled on the server! Enabling...")
-            StorageWrapper(config.storage!!)
-        } else {
-            log.info("Storage was not enabled on the server, assuming we're using OCI engine.")
-            null
-        }
-
-        val redis = RedisClient(config.redis)
-        redis.connect()
-
-        // Check if we need to enable Sentry
-        if (config.sentryDsn != null) {
-            log.info("Installing Sentry...")
-            Sentry.init {
-                it.setLogger(SentryLogger)
-                it.dsn = config.sentryDsn
-                it.release = "hana v${ChartedInfo.version} (${ChartedInfo.commitHash})"
-            }
-
-            Sentry.configureScope {
-                it.tags += mapOf(
-                    "charted.version" to ChartedInfo.version,
-                    "charted.commit" to ChartedInfo.commitHash,
-                    "charted.build.date" to ChartedInfo.buildDate,
-                    "system.user" to System.getProperty("user.name")
-                )
-            }
-
-            log.info("Sentry is now enabled with DSN ${config.sentryDsn}")
-        }
-
-        val koin = startKoin {
-            modules(
-                chartedModule,
-                endpointsModule,
-                jobsModule,
-                module {
-                    single { toml }
-                    single { config }
-                    single { dataSource }
-                    single<IRedisClient> { redis }
-                    single { ChartedServer() }
-                    single { SessionManager(get(), get(), get()) }
-
-                    if (config.engine?.engineClass == EngineClass.CHART) {
-                        single { ChartBackendEngine(get()) }
-                    }
-
-                    if (config.engine?.engineClass == EngineClass.OCI) {
-                        require(config.engine?.ociConfig != null) { "Missing OCI engine configuration (`config.engine.oci`)" }
-                        single { OciBackendEngine(get()) }
-                    }
-
-                    wrapper?.let {
-                        single { wrapper }
-                    }
-
-                    config.search.elastic?.let { elastic ->
-                        single { ElasticsearchBackend(elastic) }
-                    }
-
-                    config.search.meili?.let { meili ->
-                        single { MeilisearchBackend(meili, get()) }
-                    }
-                }
-            )
-        }
-
-        runBlocking {
-            val server = koin.koin.get<ChartedServer>()
-            try {
-                // Initialize the session manager here
-                koin.koin.get<SessionManager>()
-                server.start()
-            } catch (e: Exception) {
-                log.error("Unable to bootstrap charted-server:", e)
-
-                // we do not let the shutdown hooks run
-                // since in some cases, it'll just error out or whatever
-                //
-                // example: Elasticsearch cannot index all data due to
-                // I/O locks or what not (and it'll keep looping)
-                halt(120)
-                exitProcess(1)
-            }
-        }
-    }
 
     private fun createUUID() {
         val file = File("./instance.uuid")
@@ -260,21 +54,6 @@ object Bootstrap {
                 // Check if Koin has started
                 val koinStarted = GlobalContext.getKoinApplicationOrNull() != null
                 if (koinStarted) {
-                    val server by inject<ChartedServer>()
-                    val elasticsearch = GlobalContext.retrieveOrNull<ElasticsearchBackend>()
-                    val redis by inject<IRedisClient>()
-                    val ds by inject<HikariDataSource>()
-                    val sessions by inject<SessionManager>()
-
-                    elasticsearch?.close()
-                    redis.close()
-                    ds.close()
-                    server.destroy()
-                    sessions.close()
-
-                    runBlocking {
-                        ChartedScope.cancel()
-                    }
                 } else {
                     log.warn("Koin was not started, not destroying server (just yet!)")
                 }
@@ -332,12 +111,51 @@ object Bootstrap {
                 // If any thread had an exception, let's check if:
                 //  - The server has started (must be set if the Application hook has run)
                 //  - If the thread names are the bootstrap or shutdown thread
-                val started = ChartedServer.hasStarted != null && ChartedServer.hasStarted == true
+                val started = ChartedServer.hasStarted.valueOrNull != null && ChartedServer.hasStarted.value
                 if (!started && (t.name == "Server-BootstrapThread" || t.name == "Server-ShutdownThread")) {
                     halt(120)
                     exitProcess(1)
                 }
             }
         }
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    @JvmStatic
+    fun main(args: Array<String>) {
+        println("+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+")
+        println("+       _                _           _                                      +")
+        println("+   ___| |__   __ _ _ __| |_ ___  __| |      ___  ___ _ ____   _____ _ __   +")
+        println("+   / __| '_ \\ / _` | '__| __/ _ \\/ _` |_____/ __|/ _ \\ '__\\ \\ / / _ \\ '__| +")
+        println("+  | (__| | | | (_| | |  | ||  __/ (_| |_____\\__ \\  __/ |   \\ V /  __/ |    +")
+        println("+   \\___|_| |_|\\__,_|_|   \\__\\___|\\__,_|     |___/\\___|_|    \\_/ \\___|_|    +")
+        println("+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+")
+        println("")
+
+        installDefaultThreadExceptionHandler()
+        installShutdownHook()
+        createUUID()
+
+        log.info("Loading configuration...")
+        val fullConfigPath = System.getenv("CHARTED_CONFIG_PATH") ?: "./config.yml"
+        val configFile = File(fullConfigPath)
+
+        if (!configFile.exists()) {
+            log.error("Missing configuration file in path '$configFile'!")
+            exitProcess(1)
+        }
+
+        if (configFile.extension != "yml" || configFile.extension != "yaml") {
+            log.error("Configuration file at path $configFile must be a YAML file. (`.yml` or `.yaml` extensions)")
+            exitProcess(1)
+        }
+
+        val yaml = Yaml(
+            EmptySerializersModule,
+            YamlConfiguration(
+                encodeDefaults = true,
+                strictMode = true
+            )
+        )
     }
 }

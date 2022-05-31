@@ -18,7 +18,7 @@
 package org.noelware.charted.core.sessions
 
 import kotlinx.serialization.*
-import org.noelware.charted.core.serializers.UUIDSerializer
+import org.noelware.charted.common.serializers.UUIDSerializer
 import java.util.UUID
 
 @Serializable

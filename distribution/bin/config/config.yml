@@ -1,0 +1,26 @@
+# This is the default configuration for `charted-server`.
+# You can read more documentation about the "config.yml" file:
+#     https://charts.noelware.org/docs/self-hosting/configuration
+
+jwt_secret_key: "please set a value here"
+registrations: true
+invite_only: false
+debug: false
+
+search:
+  enabled: false
+
+storage:
+  filesystem:
+    directory: ./data
+
+redis:
+  db: 5
+
+clickhouse:
+  enabled: false
+
+postgres:
+  username: postgres
+  password: postgres
+  database: charted

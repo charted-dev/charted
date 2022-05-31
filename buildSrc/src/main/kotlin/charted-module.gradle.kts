@@ -38,53 +38,9 @@ repositories {
 }
 
 dependencies {
-    // Kotlin
-    implementation(kotlin("stdlib"))
-    implementation(kotlin("reflect"))
-
-    // kotlinx.coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
-
-    // kotlinx.serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
-    api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.2")
-
-    // kotlinx.datetime libraries
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.3.2")
-
-    // Noel Utilities
-    implementation("dev.floofy.commons:extensions-kotlin:2.1.0.1")
-    implementation("dev.floofy.commons:extensions-koin:2.1.0.1")
-    implementation("dev.floofy.commons:exposed:2.1.0.1")
-    implementation("dev.floofy.commons:slf4j:2.1.0.1")
-
-    // Exposed
-    api("org.jetbrains.exposed:exposed-core:0.38.2")
-    api("org.jetbrains.exposed:exposed-jdbc:0.38.2")
-    api("org.jetbrains.exposed:exposed-dao:0.38.2")
-
-    // PostgreSQL driver
-    api("org.postgresql:postgresql:42.3.4")
-
-    // Connection pooling
-    api("com.zaxxer:HikariCP:5.0.1")
-
-    // Apache Utilities
-    implementation("org.apache.commons:commons-lang3:3.12.0")
-
-    // Koin
-    implementation("io.insert-koin:koin-core:3.1.6")
-
-    // SLF4J
-    api("org.slf4j:slf4j-api:1.7.36")
-
-    // Sentry
-    implementation("io.sentry:sentry:5.7.3")
-    implementation("io.sentry:sentry-kotlin-extensions:5.7.3")
-
-    // Redis (Lettuce)
-    api("io.lettuce:lettuce-core:6.1.8.RELEASE")
+    if (name != "common") {
+        api(project(":common"))
+    }
 }
 
 spotless {
@@ -118,7 +74,7 @@ tasks.withType<Jar> {
         attributes(
             "Implementation-Title" to "charted-server",
             "Implementation-Version" to "$VERSION",
-            "Implementation-Vendor" to "Noelware, Inc. <team@noelware.org>"
+            "Implementation-Vendor" to "Noelware, LLC. <team@noelware.org>"
         )
     }
 }
