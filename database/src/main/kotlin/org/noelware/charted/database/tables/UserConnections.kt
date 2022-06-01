@@ -15,18 +15,12 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-    `charted-test`
-}
+package org.noelware.charted.database.tables
 
-dependencies {
-    implementation("io.ktor:ktor-serialization-kotlinx-json")
-    implementation("io.ktor:ktor-client-content-negotiation")
-    implementation("io.ktor:ktor-serialization")
-    implementation("io.ktor:ktor-client-okhttp")
-    implementation("io.ktor:ktor-client-core")
-    implementation("io.ktor:ktor-server-core")
-
-    testImplementation("io.ktor:ktor-server-test-host")
+object UserConnections: LongTable("user_connections") {
+    var noelwareAccountId = long("noelware_account_id").nullable().default(null)
+    var googleAccountId = text("google_account_id").nullable().default(null)
+    var githubAccountId = text("github_account_id").nullable().default(null)
+    var appleAccountId = text("apple_account_id").nullable().default(null)
+    val account = reference("account_id", Users)
 }

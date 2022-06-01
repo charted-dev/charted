@@ -37,11 +37,20 @@ import kotlinx.serialization.SerialName
 @kotlinx.serialization.Serializable
 data class Config(
     val registrations: Boolean = true,
+
+    @SerialName("jwt_secret_key")
     val jwtSecretKey: String = "",
+
+    @SerialName("invite_only")
     val inviteOnly: Boolean = false,
     val clickhouse: ClickHouseConfig = ClickHouseConfig(),
     val analytics: AnalyticsConfig = AnalyticsConfig(),
+
+    @SerialName("sentry_dsn")
     val sentryDsn: String? = null,
+
+    @SerialName("oci_proxy")
+    val ociProxy: OciProxyConfig = OciProxyConfig(),
     val postgres: PostgresConfig = PostgresConfig(),
     val storage: StorageConfig = StorageConfig(),
     val metrics: Boolean = true,

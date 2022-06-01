@@ -31,3 +31,133 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: 'recursive'
+
+      - name: Sets up Java 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin # Eclipse Temurin is <3
+          java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Validate gradle-wrapper.jar
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Lets ./gradlew be executable
+        run: chmod +x ./gradlew
+
+      - name: Release!
+        run: ./gradlew :server:publish -Dorg.gradle.s3.endpoint=${{ secrets.S3_ENDPOINT }}
+        env:
+          PUBLISH_TO_S3: true
+          NOEL_PUBLISHING_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
+          NOEL_PUBLISHING_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
+
+      - name: Setup Docker buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx/cache
+          key: ${{ runner.os }}-buildx-cache-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-cache-
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Login into Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: noelware
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Login into GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: charted-dev
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push x86_64 image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./distribution/docker/amd64.Dockerfile
+          platforms: linux/amd64
+          push: true
+          cache-from: type=local,src=/tmp/.buildx/cache
+          cache-to: type=local,dest=/tmp/.buildx/cache
+          tags: |
+            noelware/charted-server:latest-amd64
+            noelware/charted-server:${{steps.tag.outputs.tag}}-amd64
+            ghcr.io/charted-dev/charted:latest-amd64
+            ghcr.io/charted-dev/charted:${{steps.tag.outputs.tag}}-amd64
+
+      - name: Build and push ARM64 image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./distribution/docker/arm64.Dockerfile
+          platforms: linux/arm64
+          push: true
+          cache-from: type=local,src=/tmp/.buildx/cache
+          cache-to: type=local,dest=/tmp/.buildx/cache
+          tags: |
+            noelware/charted-server:latest-arm64
+            noelware/charted-server:${{steps.tag.outputs.tag}}-arm64
+            ghcr.io/charted-dev/charted:latest-arm64
+            ghcr.io/charted-dev/charted:${{steps.tag.outputs.tag}}-arm64
+
+      - name: Push manifests (noelware/charted-server:latest)
+        uses: Noelware/docker-manifest-action@master
+        with:
+          base-image: noelware/charted-server:latest
+          extra-images: noelware/charted-server:latest-amd64,noelware/charted-server:latest-arm64
+          push: true
+
+      - name: Push manifests (noelware/charted-server:${{steps.tag.outputs.tag}})
+        uses: Noelware/docker-manifest-action@master
+        with:
+          base-image: noelware/charted-server:${{steps.tag.outputs.tag}}
+          extra-images: noelware/charted-server:${{steps.tag.outputs.tag}}-amd64,noelware/charted-server:${{steps.tag.outputs.tag}}-arm64
+          push: true
+
+      - name: Push manifests (ghcr.io/charted-dev/charted:latest)
+        uses: Noelware/docker-manifest-action@master
+        with:
+          base-image: ghcr.io/charted-dev/charted:latest
+          extra-images: ghcr.io/charted-dev/charted:latest-amd64,ghcr.io/charted-dev/charted:latest-arm64
+          push: true
+
+      - name: Push manifests (ghcr.io/charted-dev/charted:${{steps.tag.outputs.tag}})
+        uses: Noelware/docker-manifest-action@master
+        with:
+          base-image: ghcr.io/charted-dev/charted:${{steps.tag.outputs.tag}}
+          extra-images: ghcr.io/charted-dev/charted:${{steps.tag.outputs.tag}}-amd64,ghcr.io/charted-dev/charted:${{steps.tag.outputs.tag}}-arm64
+          push: true
+
+  deploy:
+    name: Deploy on Kubernetes
+    runs-on: ubuntu-latest
+    needs:
+      - release
+    steps:
+      - name: Setup Kubeconfig
+        run: |
+          mkdir ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+
+      - name: Get the current git tag to use
+        id: tag
+        uses: dawidd6/action-get-tag@v1
+        with:
+          strip_v: true
+
+      - name: Set tag
+        run: kubectl set image statefulset/charted-server --namespace noelware charted-server=noelware/charted-server:${{steps.tag.outputs.tag}}
+
+      - name: Deploy to Kubernetes!
+        run: kubectl rollout status --namespace noelware statefulset/charted-server

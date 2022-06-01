@@ -17,7 +17,8 @@
 
 run: spotless clean
 	./gradlew :server:installDist
-	./server/build/install/charted/bin/server
+	chmod +x ./server/build/install/charted/charted-server
+	./server/build/install/charted/charted-server
 
 spotless:
 	./gradlew spotlessApply

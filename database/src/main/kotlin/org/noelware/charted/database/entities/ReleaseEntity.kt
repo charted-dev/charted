@@ -15,18 +15,4 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-    `charted-test`
-}
-
-dependencies {
-    implementation("io.ktor:ktor-serialization-kotlinx-json")
-    implementation("io.ktor:ktor-client-content-negotiation")
-    implementation("io.ktor:ktor-serialization")
-    implementation("io.ktor:ktor-client-okhttp")
-    implementation("io.ktor:ktor-client-core")
-    implementation("io.ktor:ktor-server-core")
-
-    testImplementation("io.ktor:ktor-server-test-host")
-}
+package org.noelware.charted.database.entities

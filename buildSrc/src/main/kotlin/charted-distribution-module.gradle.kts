@@ -15,23 +15,6 @@
  * limitations under the License.
  */
 
-/*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright 2022 Noelware <team@noelware.org>
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 import dev.floofy.utils.gradle.by
 import java.io.StringReader
 import java.util.Properties
@@ -45,11 +28,11 @@ distributions {
     main {
         distributionBaseName by "charted"
         contents {
-            from("$projectDir/bin/config/logback.properties")
-            from("$projectDir/bin/config/config.yml")
-            from("$projectDir/bin/bin/charted-server")
-            from("$projectDir/bin/README.txt")
-            from("$projectDir/bin/LICENSE")
+            from("${rootProject.projectDir}/distribution/bin/config/logback.properties")
+            from("${rootProject.projectDir}/distribution/bin/config/config.yml")
+            from("${rootProject.projectDir}/distribution/bin/bin/charted-server")
+            from("${rootProject.projectDir}/distribution/bin/README.txt")
+            from("${rootProject.projectDir}/distribution/bin/LICENSE")
         }
     }
 }

@@ -24,6 +24,7 @@ plugins {
 
 dependencies {
     testImplementation("org.slf4j:slf4j-simple:1.7.36")
+    testImplementation("org.testcontainers:testcontainers")
     testApi(platform("org.testcontainers:testcontainers-bom:1.17.2"))
     testApi(kotlin("test"))
 }

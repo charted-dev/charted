@@ -89,3 +89,6 @@ jobs:
 
       - name: Builds the project for any errors
         run: ./gradlew compileKotlin --no-daemon
+
+      - name: Run all tests
+        run: ./gradlew test --no-daemon

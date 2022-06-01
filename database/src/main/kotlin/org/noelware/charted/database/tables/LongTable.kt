@@ -15,18 +15,15 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-    `charted-test`
-}
+package org.noelware.charted.database.tables
 
-dependencies {
-    implementation("io.ktor:ktor-serialization-kotlinx-json")
-    implementation("io.ktor:ktor-client-content-negotiation")
-    implementation("io.ktor:ktor-serialization")
-    implementation("io.ktor:ktor-client-okhttp")
-    implementation("io.ktor:ktor-client-core")
-    implementation("io.ktor:ktor-server-core")
+import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.dao.id.IdTable
+import org.jetbrains.exposed.sql.Column
 
-    testImplementation("io.ktor:ktor-server-test-host")
+open class LongTable(name: String): IdTable<Long>(name) {
+    override val id: Column<EntityID<Long>> = long("id").entityId()
+    override val primaryKey: PrimaryKey by lazy {
+        super.primaryKey ?: PrimaryKey(id)
+    }
 }

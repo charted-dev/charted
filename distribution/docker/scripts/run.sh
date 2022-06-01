@@ -9,7 +9,7 @@
 #
 #    http://www.apache.org/licenses/LICENSE-2.0
 #
-#  Unless required by applicable law or agreed to in writing, software
+# Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
@@ -19,31 +19,13 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+. /app/charted/server/scripts/liblog.sh
+
 join() {
-  local IFS="$1"
-  shift
-  echo "$*"
+    local IFS="$1"
+    shift
+    echo "$*"
 }
-
-# Resolve links: $0 may be a link
-app_path=$0
-
-# Need this for daisy-chained symlinks.
-while
-    APP_HOME=${app_path%"${app_path##*/}"}  # leaves a trailing /; empty if no leading path
-    [ -h "$app_path" ]
-do
-    ls=$( ls -ld "$app_path" )
-    link=${ls#*' -> '}
-    case $link in             #(
-      /*)   app_path=$link ;; #(
-      *)    app_path=$APP_HOME$link ;;
-    esac
-done
-
-APP_HOME=$( cd "${APP_HOME:-./}" && pwd -P ) || exit
-APP_NAME="charted-server"
-APP_BASE_NAME=${0##*/}
 
 DAEMONIZE=false
 ORIGINAL_ARG_ARRAY=("$@")
@@ -56,6 +38,12 @@ while [ $# -gt 0 ]; do
     shift
   fi
 done
+
+info "*** starting charted-server ***"
+
+debug "Dedicated Node ===> ${WINTERFOX_DEDI_NODE:-unknown}"
+debug "Logback Config ===> ${CHARTED_LOGBACK_PATH:-unknown}"
+debug "JVM Arguments  ===> ${CHARTED_JAVA_OPTS:-unknown}"
 
 RESOLVED_JAVA_OPTS=("-XX:+HeapDumpOnOutOfMemoryError" "-Dfile.encoding=UTF-8")
 
@@ -72,6 +60,7 @@ if [[ -n "${CHARTED_JAVA_OPTS:-}" ]]; then
 fi
 
 export JAVA_OPTS=$(join ' ' "${RESOLVED_JAVA_OPTS[@]}")
+debug "Resolved JVM arguments: $JAVA_OPTS"
 
 # Determine the Java command to use.
 if [ -n "$JAVA_HOME" ]; then
@@ -97,7 +86,7 @@ of the Java installation."
   exit 1
 fi
 
-CHARTED_CLASSPATH=$(find "$APP_HOME/lib" -type f -maxdepth 1 | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/;/g')
+CHARTED_CLASSPATH=$(find /app/charted/server/lib -type f -maxdepth 1 | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/;/g')
 
 if [[ $DAEMONIZE = true ]]; then
   exec \

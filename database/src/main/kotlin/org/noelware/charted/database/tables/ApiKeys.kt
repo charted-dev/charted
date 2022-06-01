@@ -15,18 +15,8 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-    `charted-test`
-}
+package org.noelware.charted.database.tables
 
-dependencies {
-    implementation("io.ktor:ktor-serialization-kotlinx-json")
-    implementation("io.ktor:ktor-client-content-negotiation")
-    implementation("io.ktor:ktor-serialization")
-    implementation("io.ktor:ktor-client-okhttp")
-    implementation("io.ktor:ktor-client-core")
-    implementation("io.ktor:ktor-server-core")
-
-    testImplementation("io.ktor:ktor-server-test-host")
+object ApiKeys: LongTable("api_keys") {
+    val token = text("token")
 }

@@ -15,18 +15,24 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-    `charted-test`
-}
+package org.noelware.charted.common.config
 
-dependencies {
-    implementation("io.ktor:ktor-serialization-kotlinx-json")
-    implementation("io.ktor:ktor-client-content-negotiation")
-    implementation("io.ktor:ktor-serialization")
-    implementation("io.ktor:ktor-client-okhttp")
-    implementation("io.ktor:ktor-client-core")
-    implementation("io.ktor:ktor-server-core")
+@kotlinx.serialization.Serializable
+data class OciProxyConfig(
+    val auth: AuthStrategy = NoAuthStrategy(),
+    val port: Int = 5000,
+    val host: String = "localhost",
+    val ssl: Boolean = false
+)
 
-    testImplementation("io.ktor:ktor-server-test-host")
-}
+@kotlinx.serialization.Serializable
+open class AuthStrategy
+
+@kotlinx.serialization.Serializable
+class NoAuthStrategy: AuthStrategy()
+
+@kotlinx.serialization.Serializable
+data class BasicAuthStrategy(
+    val username: String,
+    val password: String
+): AuthStrategy()
