@@ -15,7 +15,7 @@ require (
 	github.com/meilisearch/meilisearch-go v0.19.1
 	github.com/noelware/chi-ratelimit v0.0.3
 	github.com/noelware/chi-ratelimit-redis v0.0.2
-	github.com/pelletier/go-toml/v2 v2.0.0-beta.6
+	github.com/pelletier/go-toml/v2 v2.0.2
 	github.com/prisma/prisma-client-go v0.14.0
 	github.com/shopspring/decimal v1.3.1
 	github.com/sirupsen/logrus v1.8.1
