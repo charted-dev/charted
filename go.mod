@@ -12,7 +12,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/iancoleman/strcase v0.2.0
 	github.com/joho/godotenv v1.4.0
-	github.com/meilisearch/meilisearch-go v0.19.0
+	github.com/meilisearch/meilisearch-go v0.19.1
 	github.com/noelware/chi-ratelimit v0.0.3
 	github.com/noelware/chi-ratelimit-redis v0.0.2
 	github.com/pelletier/go-toml/v2 v2.0.0-beta.6
