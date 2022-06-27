@@ -47,6 +47,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	golang.org/x/crypto v0.0.0-20220331220935-ae2d96664a29
+	golang.org/x/crypto 05595931fe9d
 	golang.org/x/sys v0.0.0-20220406163625-3f8b81556e12 // indirect
 )
