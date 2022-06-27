@@ -19,7 +19,7 @@ require (
 	github.com/prisma/prisma-client-go v0.16.1
 	github.com/shopspring/decimal v1.3.1
 	github.com/sirupsen/logrus v1.8.1
-	github.com/spf13/cobra v1.4.0
+	github.com/spf13/cobra v1.5.0
 	github.com/takuoki/gocase v1.0.0
 	github.com/valyala/fasthttp v1.38.0
 	google.golang.org/grpc v1.45.0
