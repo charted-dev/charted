@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/bshuster-repo/logrus-logstash-hook v1.0.2
 	github.com/bwmarrin/snowflake v0.3.0
-	github.com/elastic/go-elasticsearch/v8 v8.2.0
+	github.com/elastic/go-elasticsearch/v8 v8.3.0
 	github.com/getsentry/sentry-go v0.13.0
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-redis/redis/v8 v8.11.5
