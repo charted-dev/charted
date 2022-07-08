@@ -7,7 +7,7 @@ url="https://charts.noelware.org"
 license=('MIT')
 depends=('curl')
 source=('git://github.com/charted-dev/charted')
-sha1shms=('SKIP') # TODO: figure this out with `signing` plugin
+sha1sums=('SKIP') # TODO: figure this out with `signing` plugin
 
 package() {
     cd "$pkgname"

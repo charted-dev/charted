@@ -26,7 +26,6 @@ include(
     ":core",
     ":database",
     ":server",
-    ":distribution:aur",
     ":distribution:chart",
     ":distribution:deb",
     ":distribution:docker",
