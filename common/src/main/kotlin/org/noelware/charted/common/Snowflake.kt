@@ -20,19 +20,6 @@ package org.noelware.charted.common
 import kotlinx.datetime.Clock
 import java.util.concurrent.atomic.AtomicLong
 
-private const val PROCESS_ID = 1L
-private const val WORKER_ID = 0L // TODO: make this modifiable per cluster node
-
-@kotlinx.serialization.Serializable
-data class DeconstructedSnowflake(
-    val id: Long,
-    val timestamp: Long,
-    val workerId: Long,
-    val processId: Long,
-    val increment: Long,
-    val epoch: Long = Snowflake.EPOCH
-)
-
 /**
  * A class for generating and destructuring Twitter snowflakes.
  *
@@ -47,23 +34,38 @@ data class DeconstructedSnowflake(
  * ```
  */
 class Snowflake {
+    /**
+     * Represents a deconstructed [Snowflake]
+     */
+    @kotlinx.serialization.Serializable
+    data class Deconstructed(
+        val id: Long,
+        val epoch: Long = EPOCH,
+        val workerID: Long,
+        val timestamp: Long,
+        val processID: Long,
+        val increment: Long
+    )
+
     companion object {
         private val increment = AtomicLong(0)
         val EPOCH = 1651276800000
 
         fun generate(): Long {
             val timestamp = Clock.System.now().toEpochMilliseconds()
-            val newIncrement = increment.getAndIncrement()
-            if (newIncrement >= 4095)
+            val inc = increment.getAndIncrement()
+            if (inc >= 4095) {
                 increment.set(0)
+            }
 
-            return ((timestamp - EPOCH) shl 22) or ((WORKER_ID and 0b11111) shl 17) or ((PROCESS_ID and 0b11111) shl 12) or newIncrement
+            return ((timestamp - EPOCH) shl 22) or ((0 and 0b11111) shl 17) or ((1 and 0b11111) shl 12) or inc
         }
 
-        fun decrypt(id: Long): DeconstructedSnowflake = DeconstructedSnowflake(
+        fun decrypt(id: Long): Deconstructed = Deconstructed(
             id,
-            (id shr 22) + EPOCH,
+            EPOCH,
             (id shr 17) and 0b11111,
+            (id shr 22) + EPOCH,
             (id shr 12) and 0b11111,
             id and 0b111111111111
         )

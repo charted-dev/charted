@@ -7,19 +7,51 @@
 #
 #    http://www.apache.org/licenses/LICENSE-2.0
 #
-# Unless required by applicable law or agreed to in writing, software
+#  Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM auguwu/devcontainers:latest
+FROM buildpack-deps:focal-scm
 
-ARG GO_VERSION="1.18"
-RUN mkdir -p /opt/golang
-RUN curl -L -o /tmp/golang.tar.gz https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz
-RUN tar -xvf /tmp/golang.tar.gz -C /opt/golang
-RUN rm /tmp/golang.tar.gz
-ENV PATH="/opt/golang/go${GO_VERSION}.linux-amd64/bin:$PATH"
+ARG USERNAME=vscode
+ARG UID=1000
+ARG GID=$UID
 
-CMD ["sleep", "infinity"]
+ENV DEBIAN_FRONTEND=noninteractive
+RUN set -ex; \
+    apt-get upgrade && apt-get update; \
+    groupadd --gid $GID $USERNAME; \
+    useradd -s /bin/bash --uid $UID --gid $GID -m $USERNAME; \
+    apt-get install -y sudo; \
+    echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME; \
+    apt-get install -y --no-install-recommends \
+        zip \
+        unzip \
+        bash-completion \
+        build-essential \
+        jq \
+        locales \
+        man-db \
+        software-properties-common \
+        time \
+        vim \
+        lsof \
+        openssh-client iproute2 lsb-release git; \
+    git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.10.0; \
+    echo ". \$HOME/.asdf/asdf.sh" >> ~/.bashrc; \
+    echo ". \$HOME/.asdf/completions/asdf.bash" >> ~/.bashrc; \
+    source ~/.bashrc; \
+    asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git; \
+    asdf plugin add java https://github.com/halcyon/asdf-java.git; \
+    asdf plugin add gradle https://github.com/rfrancis/asdf-gradle.git; \
+    echo "nodejs 18.0.0" >> ~/.tool-versions; \
+    echo "gradle 7.4.2" >> ~/.tool-versions; \
+    echo "java   temurin-18.0.1+10" >> ~/.tool-versions; \
+    asdf install; \
+    apt-get autoremove -y; \
+    apt-get clean -y; \
+    rm -rf /var/lib/apt/lists/*
+
+ENV DEBIAN_FRONTEND=dialog

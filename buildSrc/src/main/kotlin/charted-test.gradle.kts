@@ -15,6 +15,9 @@
  * limitations under the License.
  */
 
+import gradle.kotlin.dsl.accessors._778d9fc59a6b8fe0d4bfb234a622a0a1.testImplementation
+import gradle.kotlin.dsl.accessors._778d9fc59a6b8fe0d4bfb234a622a0a1.testRuntimeOnly
+import groovy.lang.Closure
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
@@ -22,14 +25,23 @@ plugins {
     kotlin("jvm")
 }
 
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
 dependencies {
-    testImplementation("org.slf4j:slf4j-simple:1.7.36")
-    testImplementation("org.testcontainers:testcontainers")
-    testApi(platform("org.testcontainers:testcontainers-bom:1.17.2"))
-    testApi(kotlin("test"))
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+    testImplementation("org.testcontainers:testcontainers:1.17.2")
+    testImplementation("ch.qos.logback:logback-classic:1.2.11")
+    testImplementation("ch.qos.logback:logback-core:1.2.11")
+    testImplementation("org.slf4j:slf4j-api:1.7.36")
+    testImplementation(kotlin("test"))
 }
 
 tasks.withType<Test>().configureEach {
+    outputs.upToDateWhen { false }
     testLogging {
         events.addAll(listOf(TestLogEvent.PASSED, TestLogEvent.FAILED, TestLogEvent.SKIPPED))
         showStandardStreams = true

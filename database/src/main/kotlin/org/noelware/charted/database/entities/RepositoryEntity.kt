@@ -16,3 +16,22 @@
  */
 
 package org.noelware.charted.database.entities
+
+import org.jetbrains.exposed.dao.LongEntity
+import org.jetbrains.exposed.dao.LongEntityClass
+import org.jetbrains.exposed.dao.id.EntityID
+import org.noelware.charted.database.tables.RepositoryTable
+
+class RepositoryEntity(id: EntityID<Long>): LongEntity(id) {
+    companion object: LongEntityClass<RepositoryEntity>(RepositoryTable)
+
+    var description by RepositoryTable.description
+    var deprecated by RepositoryTable.deprecated
+    var createdAt by RepositoryTable.createdAt
+    var updatedAt by RepositoryTable.updatedAt
+    var iconHash by RepositoryTable.iconHash
+    var owner by RepositoryTable.owner
+    var flags by RepositoryTable.flags
+    var name by RepositoryTable.name
+    var type by RepositoryTable.type
+}

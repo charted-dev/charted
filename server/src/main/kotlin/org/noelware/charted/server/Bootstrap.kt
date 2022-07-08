@@ -19,15 +19,63 @@ package org.noelware.charted.server
 
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
+import dev.floofy.utils.koin.inject
+import dev.floofy.utils.koin.injectOrNull
 import dev.floofy.utils.slf4j.logging
+import io.ktor.client.*
+import io.ktor.client.engine.okhttp.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.application.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
+import io.sentry.Sentry
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.EmptySerializersModule
+import net.perfectdreams.exposedpowerutils.sql.createOrUpdatePostgreSQLEnum
+import okhttp3.internal.closeQuietly
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.DatabaseConfig
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.context.GlobalContext
+import org.koin.core.context.startKoin
+import org.koin.dsl.module
+import org.noelware.charted.common.ChartedInfo
+import org.noelware.charted.common.ChartedScope
+import org.noelware.charted.common.IRedisClient
+import org.noelware.charted.common.data.Config
+import org.noelware.charted.common.data.Feature
+import org.noelware.charted.common.data.helm.RepoType
+import org.noelware.charted.core.StorageWrapper
+import org.noelware.charted.core.apikeys.TokenExpirationManager
+import org.noelware.charted.core.chartedModule
+import org.noelware.charted.core.interceptors.LogInterceptor
+import org.noelware.charted.core.interceptors.SentryInterceptor
+import org.noelware.charted.core.loggers.KoinLogger
+import org.noelware.charted.core.loggers.SentryLogger
+import org.noelware.charted.core.ratelimiter.Ratelimiter
+import org.noelware.charted.core.redis.DefaultRedisClient
+import org.noelware.charted.core.sessions.SessionManager
+import org.noelware.charted.database.clickhouse.ClickHouseConnection
+import org.noelware.charted.database.tables.*
+import org.noelware.charted.features.audit.logs.AuditLogsFeature
+import org.noelware.charted.search.elasticsearch.ElasticsearchClient
+import org.noelware.charted.search.meilisearch.MeilisearchClient
+import org.noelware.charted.server.endpoints.endpointsModule
 import java.io.File
 import java.io.IOError
-import java.util.*
+import java.util.UUID
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
+import kotlin.time.Duration.Companion.seconds
 
 object Bootstrap {
     private val log by logging<Bootstrap>()
@@ -36,8 +84,10 @@ object Bootstrap {
         val file = File("./instance.uuid")
         if (!file.exists()) {
             file.writeBytes(UUID.randomUUID().toString().toByteArray())
-            log.warn("Instance UUID didn't exist in ./instance.uuid, so I created it!")
-            log.warn("If this was used with Noelware Analytics, edit the instance!!")
+
+            val root = File(".")
+            log.warn("Instance UUID didn't exist in $root/instance.uuid! So I created it instance.")
+            log.warn("If this was used with Noelware Analytics! Edit the instance via https://analytics.noelware.org/instances")
         }
     }
 
@@ -51,9 +101,27 @@ object Bootstrap {
             thread(start = false, name = "Server-ShutdownThread") {
                 log.warn("Shutting down charted-server...")
 
-                // Check if Koin has started
                 val koinStarted = GlobalContext.getKoinApplicationOrNull() != null
                 if (koinStarted) {
+                    val server: ChartedServer by inject()
+                    val elasticsearch: ElasticsearchClient? by injectOrNull()
+                    val redis: IRedisClient by inject()
+                    val clickhouse: ClickHouseConnection? by injectOrNull()
+                    val ds: HikariDataSource by inject()
+                    val sessions: SessionManager by inject()
+                    val ratelimiter: Ratelimiter by inject()
+
+                    elasticsearch?.closeQuietly()
+                    clickhouse?.closeQuietly()
+                    sessions.closeQuietly()
+                    server.destroy()
+                    ds.closeQuietly()
+                    ratelimiter.closeQuietly()
+                    redis.closeQuietly()
+
+                    runBlocking {
+                        ChartedScope.cancel()
+                    }
                 } else {
                     log.warn("Koin was not started, not destroying server (just yet!)")
                 }
@@ -65,54 +133,52 @@ object Bootstrap {
 
     // credit: https://github.com/elastic/logstash/blob/main/logstash-core/src/main/java/org/logstash/Logstash.java#L98-L133
     private fun installDefaultThreadExceptionHandler() {
-        Thread.setDefaultUncaughtExceptionHandler { t, e ->
-            if (e is Error) {
-                log.error("Uncaught fatal error in thread ${t.name} (#${t.id}):", e)
+        Thread.setDefaultUncaughtExceptionHandler { thread, ex ->
+            if (ex is Error) {
+                log.error("Uncaught fatal error in thread ${thread.name} (#${thread.id}):", ex)
                 log.error("If this keeps occurring, please report it to Noelware: https://github.com/charted-dev/charted/issues")
 
-                var success = false
-
-                if (e is InternalError) {
-                    success = true
+                var hasHalted = false
+                if (ex is InternalError) {
+                    hasHalted = true
                     halt(128)
                 }
 
-                if (e is OutOfMemoryError) {
-                    success = true
+                if (ex is OutOfMemoryError) {
+                    hasHalted = true
                     halt(127)
                 }
 
-                if (e is StackOverflowError) {
-                    success = true
+                if (ex is StackOverflowError) {
+                    hasHalted = true
                     halt(126)
                 }
 
-                if (e is UnknownError) {
-                    success = true
+                if (ex is UnknownError) {
+                    hasHalted = true
                     halt(125)
                 }
 
-                if (e is IOError) {
-                    success = true
+                if (ex is IOError) {
+                    hasHalted = true
                     halt(124)
                 }
 
-                if (e is LinkageError) {
-                    success = true
+                if (ex is LinkageError) {
+                    hasHalted = true
                     halt(123)
                 }
 
-                if (!success) halt(120)
-
+                if (!hasHalted) halt(120)
                 exitProcess(1)
             } else {
-                log.error("Uncaught exception in thread ${t.name} (#${t.id}):", e)
+                log.error("Uncaught exception in thread ${thread.name} (#${thread.id}):", ex)
 
                 // If any thread had an exception, let's check if:
                 //  - The server has started (must be set if the Application hook has run)
                 //  - If the thread names are the bootstrap or shutdown thread
-                val started = ChartedServer.hasStarted.valueOrNull != null && ChartedServer.hasStarted.value
-                if (!started && (t.name == "Server-BootstrapThread" || t.name == "Server-ShutdownThread")) {
+                val started = ChartedServer.hasStarted.wasSet()
+                if (!started && (thread.name == "Server-ShutdownThread" || thread.name == "Server-BootstrapThread")) {
                     halt(120)
                     exitProcess(1)
                 }
@@ -123,6 +189,7 @@ object Bootstrap {
     @OptIn(ExperimentalSerializationApi::class)
     @JvmStatic
     fun main(args: Array<String>) {
+        Thread.currentThread().name = "Server-BootstrapThread"
         println("+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+")
         println("+       _                _           _                                      +")
         println("+   ___| |__   __ _ _ __| |_ ___  __| |      ___  ___ _ ____   _____ _ __   +")
@@ -145,7 +212,7 @@ object Bootstrap {
             exitProcess(1)
         }
 
-        if (configFile.extension != "yml" || configFile.extension != "yaml") {
+        if (!listOf("yml", "yaml").contains(configFile.extension)) {
             log.error("Configuration file at path $configFile must be a YAML file. (`.yml` or `.yaml` extensions)")
             exitProcess(1)
         }
@@ -157,5 +224,175 @@ object Bootstrap {
                 strictMode = true
             )
         )
+
+        val config = yaml.decodeFromString(Config.serializer(), configFile.readText())
+        log.info("Retrieved configuration in path $configFile! Now connecting to PostgreSQL...")
+
+        val ds = HikariDataSource(
+            HikariConfig().apply {
+                leakDetectionThreshold = 30.seconds.inWholeMilliseconds
+                driverClassName = "org.postgresql.Driver"
+                isAutoCommit = false
+                poolName = "Charted-HikariPostgresPool"
+                username = config.postgres.username
+                password = config.postgres.password
+                jdbcUrl = "jdbc:postgresql://${config.postgres.host}:${config.postgres.port}/${config.postgres.name}"
+                schema = config.postgres.schema
+            }
+        )
+
+        val isDebugFromProperties = System.getProperty("org.noelware.charted.debug", "false") == "true"
+        Database.connect(
+            ds,
+            databaseConfig = DatabaseConfig {
+                defaultRepetitionAttempts = 5
+                sqlLogger = if (config.debug || isDebugFromProperties) {
+                    Slf4jSqlDebugLogger
+                } else {
+                    null
+                }
+            }
+        )
+
+        transaction {
+            createOrUpdatePostgreSQLEnum(RepoType.values())
+            SchemaUtils.createMissingTablesAndColumns(
+                OrganizationTable,
+                OrganizationMemberTable,
+                RepositoryReleasesTable,
+                RepositoryMemberTable,
+                RepositoryTable,
+                UserConnectionsTable,
+                UserTable,
+                ApiKeysTable
+            )
+        }
+
+        log.info("Connected to PostgreSQL! Creating storage provider...")
+        val wrapper = StorageWrapper(config.storage)
+        val json = Json {
+            ignoreUnknownKeys = true
+            encodeDefaults = true
+            isLenient = true
+        }
+
+        log.info("Created storage provider! Connecting to Redis...")
+        val redis = DefaultRedisClient(config.redis)
+        redis.connect()
+
+        log.info("Connected to Redis!")
+        if (config.sentryDsn != null) {
+            log.info("Enabling Sentry due to [sentryDsn] was set.")
+            Sentry.init {
+                it.setLogger(SentryLogger)
+
+                it.release = "charted-server v${ChartedInfo.version} (${ChartedInfo.commitHash})"
+                it.dsn = config.sentryDsn
+            }
+
+            Sentry.configureScope {
+                it.tags += mapOf(
+                    "charted.distribution.type" to ChartedInfo.distribution.key,
+                    "charted.build.date" to ChartedInfo.buildDate,
+                    "charted.version" to ChartedInfo.version,
+                    "charted.commit" to ChartedInfo.commitHash,
+                    "system.user" to System.getProperty("user.name")
+                )
+            }
+
+            log.info("Sentry is now enabled!")
+        }
+
+        val clickhouse = if (config.clickhouse != null) {
+            log.info("ClickHouse is enabled via config, now connecting!")
+            ClickHouseConnection(config.clickhouse!!)
+        } else {
+            null
+        }
+
+        val ratelimiter = Ratelimiter(json, redis)
+        val sessions = SessionManager(config, json, redis)
+        val apiKeyExpiration = TokenExpirationManager(redis)
+        val httpClient = HttpClient(OkHttp) {
+            engine {
+                addInterceptor(LogInterceptor)
+                if (Sentry.isEnabled()) {
+                    addInterceptor(SentryInterceptor)
+                }
+            }
+
+            install(ContentNegotiation) {
+                this.json(json)
+            }
+
+            install(UserAgent) {
+                agent = "Noelware/charted-server (v${ChartedInfo.version}; https://github.com/charted-dev/charted)"
+            }
+        }
+
+        val elastic: ElasticsearchClient? = if (config.search.enabled && config.search.elastic != null) {
+            ElasticsearchClient(config.search.elastic!!, json)
+        } else {
+            null
+        }
+
+        val meili: MeilisearchClient? = if (config.search.enabled && config.search.meili != null) {
+            MeilisearchClient(httpClient, config.search.meili!!)
+        } else {
+            null
+        }
+
+        val koin = startKoin {
+            logger(KoinLogger(config))
+            modules(
+                chartedModule,
+                *endpointsModule.toTypedArray(),
+                module {
+                    single { yaml }
+                    single { config }
+                    single { ds }
+                    single { json }
+                    single<IRedisClient> { redis }
+                    single { ChartedServer(get()) }
+                    single { sessions }
+                    single { ratelimiter }
+                    single { wrapper }
+                    single { apiKeyExpiration }
+                    single { httpClient }
+
+                    clickhouse?.let { ch ->
+                        single { ch }
+                        if (config.isFeatureEnabled(Feature.AUDIT_LOGS)) {
+                            single { AuditLogsFeature(ch) }
+                        }
+                    }
+
+                    elastic?.let { e ->
+                        single { e }
+                    }
+
+                    meili?.let { m ->
+                        single { m }
+                    }
+                }
+            )
+        }
+
+        elastic?.connect()
+        clickhouse?.connect()
+        val server = koin.koin.get<ChartedServer>()
+        try {
+            server.start()
+        } catch (e: Exception) {
+            log.error("Unable to bootstrap charted-server:", e)
+
+            // we do not let the shutdown hooks run
+            // since in some cases, it'll just error out or whatever
+            //
+            // example: Elasticsearch cannot index all data due to
+            // I/O locks or what not (and it'll keep looping)
+            halt(120)
+            exitProcess(1)
+        }
     }
 }

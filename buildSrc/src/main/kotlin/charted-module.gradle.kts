@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.noelware.charted.gradle.*
 import dev.floofy.utils.gradle.*
 
@@ -38,6 +39,9 @@ repositories {
 }
 
 dependencies {
+    api(kotlin("reflect"))
+    api(kotlin("stdlib"))
+
     if (name != "common") {
         api(project(":common"))
     }
@@ -45,22 +49,24 @@ dependencies {
 
 spotless {
     kotlin {
-        trimTrailingWhitespace()
         licenseHeaderFile("${rootProject.projectDir}/assets/HEADING")
+        trimTrailingWhitespace()
         endWithNewline()
 
         // We can't use the .editorconfig file, so we'll have to specify it here
         // issue: https://github.com/diffplug/spotless/issues/142
-        // ktlint 0.35.0 (default for Spotless) doesn't support trailing commas
-        ktlint("0.43.0")
-            .userData(
-                mapOf(
-                    "no-consecutive-blank-lines" to "true",
-                    "no-unit-return" to "true",
-                    "disabled_rules" to "no-wildcard-imports,colon-spacing",
-                    "indent_size" to "4"
-                )
-            )
+        ktlint()
+            .setUseExperimental(true)
+            .editorConfigOverride(mapOf(
+                "indent_size" to "4",
+                "disabled_rules" to "no-wildcard-imports,colon-spacing,annotation-spacing,filename",
+                "ij_kotlin_allow_trailing_comma" to "false",
+                "ktlint_code_style" to "official",
+                "experimental:fun-keyword-spacing" to "true",
+                "experimental:unnecessary-parentheses-before-trailing-lambda" to "true",
+                "no-unit-return" to "true",
+                "no-consecutive-blank-lines" to "true"
+            ))
     }
 }
 
@@ -69,20 +75,20 @@ java {
     targetCompatibility = JAVA_VERSION
 }
 
-tasks.withType<Jar> {
-    manifest {
-        attributes(
-            "Implementation-Title" to "charted-server",
-            "Implementation-Version" to "$VERSION",
-            "Implementation-Vendor" to "Noelware, LLC. <team@noelware.org>"
-        )
-    }
-}
-
 tasks {
-    compileKotlin {
-        kotlinOptions.jvmTarget = JAVA_VERSION.toString()
-        kotlinOptions.javaParameters = true
+    withType<Jar> {
+        manifest {
+            attributes(
+                "Implementation-Version" to "$VERSION",
+                "Implementation-Vendor" to "Noelware, LLC. [team@noelware.org]",
+                "Implementation-Title" to "charted-server"
+            )
+        }
+    }
+
+    withType<KotlinCompile> {
         kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+        kotlinOptions.javaParameters = true
+        kotlinOptions.jvmTarget = JAVA_VERSION.toString()
     }
 }

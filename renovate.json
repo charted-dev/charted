@@ -1,7 +1,0 @@
-{
-  "automerge": true,
-  "extends": ["config:base", "default:timezone(America/Phoenix)", "docker:enableMajor"],
-  "vulnerabilityAlerts": {
-    "labels": ["security"]
-  }
-}

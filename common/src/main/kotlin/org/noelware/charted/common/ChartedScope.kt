@@ -17,27 +17,14 @@
 
 package org.noelware.charted.common
 
-import io.sentry.Sentry
-import io.sentry.kotlin.SentryContext
-import kotlinx.coroutines.*
+import dev.floofy.utils.kotlin.threading.createThreadFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.asCoroutineDispatcher
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 
 object ChartedScope: CoroutineScope {
-    override val coroutineContext: CoroutineContext = SupervisorJob() + Executors.newCachedThreadPool(createThreadFactory("CoroutinePool")).asCoroutineDispatcher()
+    override val coroutineContext: CoroutineContext =
+        SupervisorJob() + Executors.newCachedThreadPool(createThreadFactory("Charted-CoroutineExecutor")).asCoroutineDispatcher()
 }
-
-/**
- * Launches a new coroutine without blocking the current thread and returns a reference to the coroutine as a [Job].
- * The coroutine is cancelled when the resulting job is [cancelled][Job.cancel].
- *
- * This extension appends the [SentryContext] coroutine context if Sentry has been initialized, this will only
- * be `true` if [Sentry.init] was called and the [coroutine context][ChartedScopeScope.coroutineContext] of the ChartedScope coroutine
- * scope.
- *
- * Read the documentation on [CoroutineScope.launch] for more information on how this works.
- * @param start The coroutine start option, the default will be [CoroutineStart.DEFAULT].
- * @param block The coroutine core which will be invoked by the context of the provided scope.
- */
-fun ChartedScope.launch(start: CoroutineStart = CoroutineStart.DEFAULT, block: suspend CoroutineScope.() -> Unit): Job =
-    if (Sentry.isEnabled()) launch(SentryContext() + coroutineContext, start, block) else launch(coroutineContext, start, block)

@@ -16,3 +16,22 @@
  */
 
 package org.noelware.charted.database.entities
+
+import org.jetbrains.exposed.dao.LongEntity
+import org.jetbrains.exposed.dao.LongEntityClass
+import org.jetbrains.exposed.dao.id.EntityID
+import org.noelware.charted.database.tables.OrganizationTable
+
+class OrganizationEntity(id: EntityID<Long>): LongEntity(id) {
+    companion object: LongEntityClass<OrganizationEntity>(OrganizationTable)
+
+    var verifiedPublisher by OrganizationTable.verifiedPublisher
+    var twitterHandle by OrganizationTable.twitterHandle
+    var gravatarEmail by OrganizationTable.gravatarEmail
+    var displayName by OrganizationTable.displayName
+    var createdAt by OrganizationTable.createdAt
+    var updatedAt by OrganizationTable.updatedAt
+    var iconHash by OrganizationTable.iconHash
+    var flags by OrganizationTable.flags
+    var name by OrganizationTable.name
+}

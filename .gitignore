@@ -628,10 +628,11 @@ FodyWeavers.xsd
 # Additional files built by Visual Studio
 
 gradle/publishing.properties
-config.toml
+config.yml
 instance.uuid
 !distribution/config/config.toml
 server/src/main/resources/config/logging.properties
 .data/
 !distribution/bin
 !distribution/bin/bin
+.caches/

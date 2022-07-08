@@ -81,11 +81,12 @@ object SentryLogger: ILogger {
      * @return True if a log message would be recorded for the level. Otherwise false.
      */
     override fun isEnabled(level: SentryLevel?): Boolean =
-        if ((System.getenv("org.noelware.charted.debug") ?: "false") == "true")
+        if ((System.getenv("org.noelware.charted.debug") ?: "false") == "true") {
             true
-        else
+        } else {
             when (level) {
                 SentryLevel.ERROR, SentryLevel.FATAL, SentryLevel.WARNING, SentryLevel.INFO -> true
                 else -> false
             }
+        }
 }

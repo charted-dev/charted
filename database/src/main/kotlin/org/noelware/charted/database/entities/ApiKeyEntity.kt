@@ -16,3 +16,18 @@
  */
 
 package org.noelware.charted.database.entities
+
+import org.jetbrains.exposed.dao.LongEntity
+import org.jetbrains.exposed.dao.LongEntityClass
+import org.jetbrains.exposed.dao.id.EntityID
+import org.noelware.charted.database.tables.ApiKeysTable
+
+class ApiKeyEntity(id: EntityID<Long>): LongEntity(id) {
+    companion object: LongEntityClass<ApiKeyEntity>(ApiKeysTable)
+
+    var expiresIn by ApiKeysTable.expiresIn
+    var scopes by ApiKeysTable.scopes
+    var owner by UserEntity referencedOn ApiKeysTable.owner
+    var token by ApiKeysTable.token
+    var name by ApiKeysTable.name
+}

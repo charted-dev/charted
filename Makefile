@@ -13,20 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This is just for mainstream development.
-
-run: spotless clean
-	./gradlew :server:installDist
-	chmod +x ./server/build/install/charted/charted-server
-	./server/build/install/charted/charted-server
+run: clean spotless
+	@./gradlew :server:installDist
+	@chmod +x ./server/build/install/charted-server/charted-server
+	@CHARTED_DISTRIBUTION_TYPE=git ./server/build/install/charted-server/charted-server
 
 spotless:
-	./gradlew spotlessApply
-
-lint:
-	./gradlew spotlessCheck
+	@./gradlew spotlessApply
 
 clean:
-	rm -rf build
-	rm -rf {audit-logs,common,core,database,oci-proxy,server,webhooks}/build
-	rm -rf libs/{analytics,elasticsearch,meilisearch,protobufs,telemetry,testing,utils}/build
+	@./gradlew clean
+
+run.migrations:
+	@cd ./lib/clickhouse/analytics
+	@go build -ldflags "-s -w" -o ./bin/migrations
+	@./bin/migrations

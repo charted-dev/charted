@@ -21,7 +21,7 @@ plugins {
     application
 }
 
-group = "org.noelware"
+group = "org.noelware.charted"
 version = "$VERSION"
 
 repositories {
@@ -29,8 +29,13 @@ repositories {
     mavenLocal()
 }
 
-// build scans
-extensions.findByName("buildScan")?.withGroovyBuilder {
-    setProperty("termsOrServiceUrl", "https://gradle.com/terms-of-service")
-    setProperty("termsOfServiceAgree", "yes")
+tasks {
+    wrapper {
+        version = "7.5-rc-4"
+        distributionType = Wrapper.DistributionType.ALL
+    }
+
+    test {
+        useJUnitPlatform()
+    }
 }

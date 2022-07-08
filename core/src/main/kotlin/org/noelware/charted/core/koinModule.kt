@@ -24,49 +24,25 @@ import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
-import io.sentry.Sentry
-import kotlinx.serialization.json.Json
+import org.apache.commons.validator.routines.EmailValidator
 import org.koin.dsl.module
-import org.noelware.charted.common.ChartedInfo
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
 
 val chartedModule = module {
     single {
-        Json {
-            ignoreUnknownKeys = true
-            encodeDefaults = true
-            isLenient = true
-        }
-    }
-
-    single {
-        HttpClient(OkHttp) {
-            engine {
-                config {
-                    followRedirects(true)
-                }
-
-                // addInterceptor(LoggingInterceptor)
-                if (Sentry.isEnabled()) {
-                    // addInterceptor(SentryInterceptor)
-                }
-            }
-
-            install(ContentNegotiation) {
-                json(get())
-            }
-
-            install(UserAgent) {
-                agent = "Noelware/charted-server (v${ChartedInfo.version}; https://github.com/charted-dev/charted)"
-            }
-        }
-    }
-
-    single {
-        val log by logging<Scheduler>()
+        val log by logging("dev.floofy.haru.Scheduler")
         Scheduler {
-            handleError { job, cause ->
-                log.error("Unable to execute cron job ${job.name}:", cause)
+            handleError { job, t ->
+                log.error("Unable to execute job [${job.name}]:", t)
             }
         }
+    }
+
+    single {
+        EmailValidator.getInstance(true, true)
+    }
+
+    single {
+        Argon2PasswordEncoder()
     }
 }

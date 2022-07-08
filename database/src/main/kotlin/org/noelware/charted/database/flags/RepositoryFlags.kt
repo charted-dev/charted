@@ -16,3 +16,11 @@
  */
 
 package org.noelware.charted.database.flags
+
+import org.noelware.charted.common.Bitfield
+
+private val FLAGS = mapOf(
+    "PRIVATE" to (1 shl 0).toLong()
+)
+
+class RepositoryFlags(originalBits: Long = 0): Bitfield(originalBits, FLAGS)

@@ -17,21 +17,85 @@
 
 rootProject.name = "charted-server"
 
+plugins {
+    id("com.gradle.enterprise") version "3.10.2"
+}
+
 include(
-    ":audit-logs",
     ":common",
     ":core",
     ":database",
-    ":distribution:deb",
-    ":distribution:rpm",
-    ":libs:analytics",
-    ":libs:elasticsearch",
-    ":libs:meilisearch",
-    ":libs:protobufs",
-    ":libs:telemetry",
-    ":libs:testing",
-    ":libs:utils",
-    ":oci-proxy",
     ":server",
-    ":webhooks"
+    ":distribution:aur",
+    ":distribution:chart",
+    ":distribution:deb",
+    ":distribution:docker",
+    ":distribution:rpm",
+    ":distribution:scoop",
+    ":features:audit-logs",
+    ":features:docker-registry",
+    ":features:webhooks",
+    ":lib:analytics:protobufs",
+    ":lib:analytics",
+    ":lib:clickhouse",
+    ":lib:elasticsearch",
+    ":lib:email",
+    ":lib:meilisearch",
+    ":lib:telemetry",
+    ":lib:utils"
 )
+
+gradle.settingsEvaluated {
+    logger.lifecycle("[preinit] Checking if we can overwrite cache to main directory?")
+    val overrideBuildCacheProp: String? = System.getProperty("org.noelware.charted.overwriteCache")
+    if (overrideBuildCacheProp != null && overrideBuildCacheProp.matches("^yes|true|1|si$".toRegex())) {
+        val buildCacheDir = when (val prop = System.getProperty("org.noelware.charted.cachedir")) {
+            null -> "${System.getProperty("user.dir")}/.caches/gradle"
+            else -> when {
+                prop.startsWith("~/") -> "${System.getProperty("user.home")}${prop.substring(1)}"
+                prop.startsWith("./") -> "${System.getProperty("user.dir")}${prop.substring(1)}"
+                else -> prop
+            }
+        }
+
+        logger.lifecycle("[preinit:cache] Setting up build cache directory in [$buildCacheDir]")
+        val file = File(buildCacheDir)
+        if (!file.exists()) file.mkdirs()
+
+        buildCache {
+            local {
+                directory = "$file"
+                removeUnusedEntriesAfterDays = 7
+            }
+        }
+    } else {
+        logger.lifecycle("[preinit] Use `-Dorg.noelware.charted.overwriteCache=true|yes|1|si` to overwrite cache to [${rootProject.projectDir}]")
+    }
+
+//    if (System.getProperty("org.noelware.charted.ignoreJavaCheck") == "true")
+//        return@settingsEvaluated
+//
+//    if (JavaVersion.current() != JavaVersion.VERSION_17) {
+//        throw GradleException("This build of charted-server requires JDK 17. It's currently [${System.getProperty("java.home")}], you can ignroe this check by providing '-Dorg.noelware.charted.ignoreJavaCheck=true'")
+//    }
+}
+
+val buildScanServer = System.getProperty("org.noelware.charted.gradle.build-scan-server", "") ?: ""
+gradleEnterprise {
+    buildScan {
+        if (buildScanServer.isNotEmpty()) {
+            server = buildScanServer
+            isCaptureTaskInputFiles = true
+            publishAlways()
+        } else {
+            termsOfServiceUrl = "https://gradle.com/terms-of-service"
+            termsOfServiceAgree = "yes"
+        }
+
+        obfuscation {
+            ipAddresses { listOf("0.0.0.0") }
+            hostname { "[redacted]" }
+            username { "[redacted]" }
+        }
+    }
+}

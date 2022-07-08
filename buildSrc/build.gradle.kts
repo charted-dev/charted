@@ -28,11 +28,12 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.17.2")
-    implementation("com.diffplug.spotless:spotless-plugin-gradle:6.5.2")
+    implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.18.0")
+    implementation("com.diffplug.spotless:spotless-plugin-gradle:6.8.0")
     implementation("com.google.protobuf:protobuf-gradle-plugin:0.8.18")
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21")
-    implementation("org.jetbrains.kotlin:kotlin-serialization:1.6.21")
     implementation("com.netflix.nebula:gradle-ospackage-plugin:9.1.1")
-    implementation("dev.floofy.commons:gradle:2.1.0")
+    implementation("io.github.z4kn4fein:semver:1.3.3")
+    implementation("dev.floofy.commons:gradle:2.1.1")
+    implementation(kotlin("serialization", "1.7.0"))
+    implementation(kotlin("gradle-plugin", "1.7.0"))
 }

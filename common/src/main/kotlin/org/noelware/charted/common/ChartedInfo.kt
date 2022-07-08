@@ -26,56 +26,51 @@ import kotlinx.serialization.json.jsonPrimitive
 @OptIn(ExperimentalSerializationApi::class)
 object ChartedInfo {
     /**
-     * Represents the current distribution type.
+     * Returns the current distribution type that the server is running from.
      */
-    val distribution = ChartedDistributionType.fromString()
+    val distribution = DistributionType.fromSystemProperty()
 
     /**
-     * Represents the current version of **charted-server** from the `build-info.json` file
-     * that is present in resources.
+     * Returns the current version that the server is running from.
      */
     val version: String
 
     /**
-     * Represents the current git commit hash of **charted-server** from the `build-info.json` file
-     * that is present in resources.
+     * Represents the current Git commit hash of **charted-server** that was distributed from the
+     * [upstream repository](https://github.com/charted-dev/charted).
      */
     val commitHash: String
 
     /**
-     * Represents the build date of when **charted-server** was built from source in the `build-info.json` file
-     * that is present in resources.
+     * Represents the build date as an ISO-8601 represented format that was built from the source
+     * in the [upstream repository](https://github.com/charted-dev/charted).
      */
     val buildDate: String
 
     /**
-     * Returns the dedicated node the server is running off. This is usually
-     * present in `cdn.floofy.dev` or `cdn.noelware.org`
+     * Represents the dedicated node that the server is running off. This is usually
+     * only implemented in the official [distribution](https://charts.noelware.org/api/info).
      */
-    val dediNode by lazy {
-        // Check if we have `winterfox.dediNode` in the Java properties
+    val dedicatedNode by lazy {
         val dediNode1 = System.getProperty("winterfox.dediNode", "")
         if (dediNode1.isNotEmpty()) {
             return@lazy dediNode1
         }
 
-        // Maybe we only have the `WINTERFOX_DEDI_NODE` environment variable?
-        // If we do, we'll assume that it is the dedi node name!
-        val dediNode2 = System.getenv("WINTERFOX_DEDI_NODE")
-        if (dediNode2 != null) {
+        val dediNode2 = System.getenv("WINTERFOX_DEDI_NODE") ?: ""
+        if (dediNode2.isNotEmpty()) {
             return@lazy dediNode2
         }
 
-        // We can't find anything :(
         null
     }
 
     init {
-        val stream = this::class.java.getResourceAsStream("/build-info.json")!!
+        val stream = this::class.java.getResourceAsStream("/build-info.json") ?: error("Unable to retrieve build-info.json file from resources.")
         val data = Json.decodeFromStream<JsonObject>(stream)
 
-        version = data["version"]?.jsonPrimitive?.content ?: error("Unable to retrieve `version` from build-info.json!")
-        commitHash = data["commit.sha"]?.jsonPrimitive?.content ?: error("Unable to retrieve `commit.sha` from build-info.json!")
-        buildDate = data["build.date"]?.jsonPrimitive?.content ?: error("Unable to retrieve `build.date` from build-info.json!")
+        commitHash = data["commit.sha"]?.jsonPrimitive?.content ?: error("Unable to retrieve the `commit.sha` key from build-info.json file")
+        buildDate = data["build.date"]?.jsonPrimitive?.content ?: error("Unable to retrieve the `build.date` key from the build-info.json file")
+        version = data["version"]?.jsonPrimitive?.content ?: error("Unable to retrieve the `version` key from the build-info.json file")
     }
 }

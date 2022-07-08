@@ -19,7 +19,7 @@ package org.noelware.charted.core
 
 import dev.floofy.utils.slf4j.logging
 import kotlinx.coroutines.runBlocking
-import org.noelware.charted.common.config.StorageConfig
+import org.noelware.charted.common.data.StorageConfig
 import org.noelware.remi.core.StorageTrailer
 import org.noelware.remi.filesystem.FilesystemStorageTrailer
 import org.noelware.remi.minio.MinIOStorageTrailer
@@ -29,43 +29,32 @@ import java.io.InputStream
 
 class StorageWrapper(config: StorageConfig) {
     private val log by logging<StorageWrapper>()
-    lateinit var trailer: StorageTrailer<*>
+    val trailer: StorageTrailer<*>
 
     init {
-        log.info("Figuring out what trailer to use...")
-        if (config.filesystem != null)
-            trailer = FilesystemStorageTrailer(config.filesystem!!.directory)
-        else if (config.fs != null)
-            trailer = FilesystemStorageTrailer(config.fs!!.directory)
-        else if (config.s3 != null)
-            trailer = S3StorageTrailer(config.s3!!)
-        else if (config.minio != null)
-            trailer = MinIOStorageTrailer(config.minio!!)
+        trailer = when {
+            config.filesystem != null -> FilesystemStorageTrailer(config.filesystem!!)
+            config.minio != null -> MinIOStorageTrailer(config.minio!!)
+            config.fs != null -> FilesystemStorageTrailer(config.fs!!)
+            config.s3 != null -> S3StorageTrailer(config.s3!!)
+            else -> error("Missing `filesystem`, `minio`, `fs`, or `s3` configuration")
+        }
 
-        log.info("Using storage provider ${trailer.name}!")
+        log.info("Using storage provider [${trailer.name}]")
         runBlocking {
             try {
-                log.info("Setting up...")
+                log.info("Setting up trailer...")
                 trailer.init()
             } catch (e: Exception) {
-                if (e !is IllegalStateException && e.message?.contains("doesn't support StorageTrailer#init/0") == false)
+                if (e !is IllegalStateException && e.message?.contains("doesn't support StorageTrailer#init/0") == false) {
                     throw e
+                }
             }
 
             if (trailer is FilesystemStorageTrailer) {
-                if (!trailer.exists("./avatars")) {
-                    log.warn("Directory ./avatars doesn't exist! Creating...")
-                    File((trailer as FilesystemStorageTrailer).normalizePath("./avatars")).mkdirs()
-                }
-
-                if (!trailer.exists("./tarballs")) {
-                    log.warn("Directory ./tarballs doesn't exist! Creating...")
-                    File((trailer as FilesystemStorageTrailer).normalizePath("./tarballs")).mkdirs()
-                }
-
-                if (!trailer.exists("./prov")) {
-                    log.warn("Directory ./prov doesn't exist! Creating...")
-                    File((trailer as FilesystemStorageTrailer).normalizePath("./prov")).mkdirs()
+                for (folder in listOf("./avatars", "./tarballs", "./metadata")) {
+                    log.warn("Directory doesn't exist: [${trailer.normalizePath(folder)}]")
+                    File(trailer.normalizePath(folder)).mkdirs()
                 }
             }
         }

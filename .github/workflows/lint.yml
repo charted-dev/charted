@@ -7,19 +7,19 @@
 #
 #    http://www.apache.org/licenses/LICENSE-2.0
 #
-# Unless required by applicable law or agreed to in writing, software
+#  Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: ktlint
+name: Linting and Unit Testing
 on:
+  workflow_dispatch:
   push:
     branches:
-      - 'feature/**'
       - 'issue/gh-**'
-      - nightly
+      - 'feat/**'
       - master
 
     paths-ignore:
@@ -38,10 +38,9 @@ on:
 
   pull_request:
     branches:
-      - 'feature/**'
       - 'issue/gh-**'
+      - 'feat/**'
       - master
-      - nightly
 
     paths-ignore:
       - '.github/**'
@@ -56,21 +55,25 @@ on:
       - '**.md'
       - 'LICENSE'
       - 'renovate.json'
+
 jobs:
-  ktlint:
-    name: Linting and Unit Tests
+  lint:
+    name: Linting and Unit Testing
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java-version: [17, 18]
     steps:
-      - name: Checks out the repository
+      - name: Checkout repository
         uses: actions/checkout@v3
         with:
           submodules: 'recursive'
 
-      - name: Sets up Java 17
+      - name: Setup Java ${{ matrix.java-version }}
         uses: actions/setup-java@v3
         with:
-          distribution: temurin # Eclipse Temurin is <3
-          java-version: 17
+          distribution: temurin
+          java-version: ${{ matrix.java-version }}
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
@@ -78,17 +81,17 @@ jobs:
       - name: Validate gradle-wrapper.jar
         uses: gradle/wrapper-validation-action@v1
 
-      - name: Lets ./gradlew be executable
+      - name: Let gradlew be executable
         run: chmod +x ./gradlew
 
-      - name: Generate Protobufs
-        run: ./gradlew :libs:protobufs:generateProtobuf --no-daemon
-
-      - name: Lints the repository for any code errors
+      - name: Lints the repository via Spotless for any linting errors.
         run: ./gradlew spotlessCheck --no-daemon
 
-      - name: Builds the project for any errors
+      - name: Compiles the Kotlin sources for any compiler errors
         run: ./gradlew compileKotlin --no-daemon
 
-      - name: Run all tests
+      - name: Unit test the project
         run: ./gradlew test --no-daemon
+
+      - name: Create build scan
+        uses: ./gradlew --scan

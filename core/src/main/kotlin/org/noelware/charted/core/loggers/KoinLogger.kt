@@ -21,7 +21,7 @@ import dev.floofy.utils.slf4j.logging
 import org.koin.core.logger.Level
 import org.koin.core.logger.Logger
 import org.koin.core.logger.MESSAGE
-import org.noelware.charted.common.config.Config
+import org.noelware.charted.common.data.Config
 
 class KoinLogger(config: Config): Logger(if (config.debug) Level.DEBUG else Level.INFO) {
     private val log by logging<KoinLogger>()

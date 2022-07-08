@@ -16,3 +16,33 @@
  */
 
 package org.noelware.charted.server.endpoints
+
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonObject
+import org.noelware.charted.common.ChartedInfo
+import org.noelware.ktor.endpoints.AbstractEndpoint
+import org.noelware.ktor.endpoints.Get
+
+class InfoEndpoint: AbstractEndpoint("/info") {
+    @Get
+    suspend fun main(call: ApplicationCall) {
+        call.respond(
+            HttpStatusCode.OK,
+            buildJsonObject {
+                put("success", true)
+                putJsonObject("data") {
+                    put("distribution", ChartedInfo.distribution.key)
+                    put("commit_sha", ChartedInfo.commitHash)
+                    put("build_date", ChartedInfo.buildDate)
+                    put("product", "charted-server")
+                    put("version", ChartedInfo.version)
+                    put("vendor", "Noelware")
+                }
+            }
+        )
+    }
+}

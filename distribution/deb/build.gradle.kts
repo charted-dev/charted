@@ -18,40 +18,44 @@
 import com.netflix.gradle.plugins.deb.Deb
 
 plugins {
-    `charted-distribution-module`
     id("nebula.ospackage-base")
 }
 
 ospackage {
-    maintainer = "Noelware, LLC. <team@noelware.org>"
+    maintainer = "Noelware, LCC. <team@noelware.org>"
     summary = "\uD83D\uDCE6 Free, open source, and reliable Helm Chart registry made in Kotlin"
     url = "https://charts.noelware.org"
 
     packageDescription = """
-    |This is a Helm Chart registry to reliably distribute Helm Charts without configuring anything!
+    |charted-server is the backend server for the charted Project by Noelware. It serves to be
+    |a reliable, free, and open sourced Helm Chart registry server to reliable distribute Helm Charts
+    |with a minimal configuration, yet a highly-customizable experience!
     |
-    |For more information, you can read on our documentation:
-    |   https://charts.noelware.org/docs
-    |
-    |Interested to see how charted-server was built? You can check on GitHub (and star it if you like it!):
-    |   https://github.com/charted-dev/charted
-    |
-    |Seen any issues while running charted-server? You can always report it in GitHub Issues:
-    |   https://github.com/charted-dev/charted/issues
-    |
-    |~ Noelware ヾ(*ΦωΦ)ﾉ
+    |This is a RESTful API, if you wish to have a frontend installed, you can install Pak, which is
+    |the web dashboard for charted.
+    |   ❯ https://charts.noelware.org/docs/frontend
+    |   
+    |Want more information? You can read up on our documentation:
+    |   ❯ https://charts.noelware.org/docs
+    |   
+    |Want to demo a instance, or view the official one ran by Noelware?
+    |   ❯ https://charts.noelware.org/demo
+    |   ❯ https://charts.noelware.org
+    |   
+    |Any issues occur while running the server? You can report it to the charted team via
+    |GitHub issues:
+    |   ❯ https://github.com/charted-dev/charted/issues
+    |   
+    |~ Noelware, LLC. ^-^ ヾ(*ΦωΦ)ﾉ
     """.trimMargin()
 
     if (System.getenv("NOELWARE_SIGNING_PASSWORD") != null) {
         signingKeyPassphrase = System.getenv("NOELWARE_SIGNING_PASSWORD")!!
-        signingKeyId = System.getenv("NOELWARE_SIGNING_ID") ?: "0000000"
+        signingKeyId = System.getenv("NOELWARE_SIGNING_ID")!!
 
-        val ringFilePath = System.getenv("NOELWARE_SIGNING_RING_FILE_PATH")
-        signingKeyRingFile = if (ringFilePath != null) {
-            file(ringFilePath)
-        } else {
-            File(File(System.getProperty("user.home") ?: ".gnupg"), "secring.gpg")
-        }
+        val ringPath = System.getenv("NOELWARE_SIGNING_RING_PATH")
+        signingKeyRingFile = if (ringPath != null) file(ringPath) else
+            File(File(System.getProperty("user.home")), ".gnupg/secring.gpg")
     }
 
     permissionGroup = "root"
@@ -59,10 +63,10 @@ ospackage {
     dirMode = "0755".toInt()
     user = "root"
 
-    into("/etc/noelware/charted")
+    into("/etc/noelware/charted/server")
 }
 
-tasks.register<Deb>("debian") {
+tasks.register<Deb>("installDeb") {
     packageDescription = "\uD83D\uDCE6 Free, open source, and reliable Helm Chart registry made in Kotlin"
     release = "1"
     vendor = "Noelware, LLC. <team@noelware.org>"

@@ -16,3 +16,23 @@
  */
 
 package org.noelware.charted.database.entities
+
+import org.jetbrains.exposed.dao.LongEntity
+import org.jetbrains.exposed.dao.LongEntityClass
+import org.jetbrains.exposed.dao.id.EntityID
+import org.noelware.charted.database.tables.UserTable
+
+class UserEntity(id: EntityID<Long>): LongEntity(id) {
+    companion object: LongEntityClass<UserEntity>(UserTable)
+
+    var gravatarEmail by UserTable.gravatarEmail
+    var description by UserTable.description
+    var avatarHash by UserTable.avatarHash
+    var createdAt by UserTable.createdAt
+    var updatedAt by UserTable.updatedAt
+    var username by UserTable.username
+    var password by UserTable.password
+    var email by UserTable.email
+    var flags by UserTable.flags
+    var name by UserTable.name
+}

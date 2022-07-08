@@ -17,45 +17,28 @@
 
 package org.noelware.charted.server.plugins
 
-import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.application.hooks.*
 import io.ktor.server.request.*
 import io.ktor.util.*
 import io.sentry.ITransaction
-import io.sentry.SentryTraceHeader
 import io.sentry.SpanStatus
-import io.sentry.TransactionContext
 import io.sentry.Sentry as SentryClient
 
-val transactionKey = AttributeKey<ITransaction>("Sentry transaction")
+val transactionKey = AttributeKey<ITransaction>("Sentry Transaction")
 val Sentry = createApplicationPlugin("Sentry") {
     onCall { call ->
-        val traceHeader = call.request.header("sentry-trace")
-        val sentryTrace: SentryTraceHeader? = if (traceHeader != null) SentryTraceHeader(traceHeader) else null
+        val transaction = SentryClient.startTransaction(
+            "${call.request.httpMethod.value} ${call.request.uri} [${call.request.httpVersion}]",
+            "http.request"
+        )
 
-        val transaction = if (sentryTrace != null) {
-            SentryClient.startTransaction(
-                TransactionContext.fromSentryTrace(
-                    "${call.request.httpMethod.value} ${call.request.path()} | ${call.request.httpVersion}",
-                    "http.request",
-                    sentryTrace
-                )
-            )
-        } else {
-            SentryClient.startTransaction(
-                "${call.request.httpMethod.value} ${call.request.path()} | ${call.request.httpVersion}",
-                "http.request"
-            )
-        }
-
-        // We might add more additional spans, so we can retrieve
         call.attributes.put(transactionKey, transaction)
     }
 
     on(ResponseSent) { call ->
         val transaction = call.attributes[transactionKey]
-        transaction.status = SpanStatus.fromHttpStatusCode(call.response.status()?.value ?: HttpStatusCode.OK.value)
+        transaction.status = SpanStatus.fromHttpStatusCode(call.response.status()!!.value)
         transaction.finish()
 
         call.attributes.remove(transactionKey)

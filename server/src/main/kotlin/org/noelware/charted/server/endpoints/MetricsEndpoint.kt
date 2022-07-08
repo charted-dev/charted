@@ -16,3 +16,7 @@
  */
 
 package org.noelware.charted.server.endpoints
+
+import org.noelware.ktor.endpoints.AbstractEndpoint
+
+class MetricsEndpoint: AbstractEndpoint("/metrics")

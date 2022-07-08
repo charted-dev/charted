@@ -1,0 +1,148 @@
+# 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+# Copyright 2022 Noelware <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Release a new stable version
+on:
+  release:
+    types:
+      - released
+permissions:
+  contents: write
+  packages: write
+jobs:
+  release-snapshot:
+    name: Release a new snapshot version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Validate gradle-wrapper.jar
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Let gradlew be executable
+        run: chmod +x ./gradlew
+
+      - name: Lints the repository via Spotless for any linting errors.
+        run: ./gradlew spotlessCheck --no-daemon
+
+      - name: Compiles the Kotlin sources for any compiler errors
+        run: ./gradlew compileKotlin --no-daemon
+
+      - name: Build .zip file
+        run: ./gradlew :server:distZip --no-daemon
+
+      - name: Build .tar.gz file
+        run: ./gradlew :server:distTar --no-daemon
+
+      - name: Setup Docker buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx/cache
+          key: ${{ runner.os }}-buildx-cache-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-cache-
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Login into Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Login into GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: charted-dev
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push x86_64 image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./distribution/docker/amd64.Dockerfile
+          platforms: linux/amd64
+          push: true
+          cache-from: type=local,src=/tmp/.buildx/cache
+          cache-to: type=local,dest=/tmp/.buildx/cache
+          tags: |
+            ghcr.io/charted-dev/charted:${{steps.tag.outputs.tag}}-amd64
+            charted/server:${{steps.tag.outputs.tag}}-amd64
+            ghcr.io/charted-dev/charted:latest-amd64
+            charted/server:latest-amd64
+
+      - name: Push manifests (Docker Hub, latest)
+        uses: Noelware/docker-manifest-action@master
+        with:
+          extra-images: charted/server:latest-amd64,charted/server:latest-arm64
+          base-image: charted/server:latest
+          push: true
+
+      - name: Push manifests (Docker Hub, ${{steps.tag.outputs.tag}})
+        uses: Noelware/docker-manifest-action@master
+        with:
+          extra-images: charted/server:${{steps.tag.outputs.tag}}-amd64,charted/server:${{steps.tag.outputs.tag}}-arm64
+          base-image: charted/server:${{steps.tag.outputs.tag}}
+          push: true
+
+      - name: Push manifests (ghcr.io, latest)
+        uses: Noelware/docker-manifest-action@master
+        with:
+          extra-images: ghcr.io/charted-dev/charted:latest-amd64,ghcr.io/charted-dev/charted:latest-arm64
+          base-image: ghcr.io/charted-dev/charted:latest
+          push: true
+
+      - name: Push manifests (Docker Hub, ${{steps.tag.outputs.tag}})
+        uses: Noelware/docker-manifest-action@master
+        with:
+          extra-images: ghcr.io/charted-dev/charted:${{steps.tag.outputs.tag}}-amd64,ghcr.io/charted-dev/charted:${{steps.tag.outputs.tag}}-arm64
+          base-image: ghcr.io/charted-dev/charted:${{steps.tag.outputs.tag}}
+          push: true
+  deploy:
+    name: Deploy on Kubernetes
+    runs-on: ubuntu-latest
+    needs:
+      - release
+    steps:
+      - name: Setup Kubeconfig
+        run: |
+          mkdir ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+
+      - name: Get the current git tag to use
+        id: tag
+        uses: dawidd6/action-get-tag@v1
+        with:
+          strip_v: true
+
+      - name: Set tag
+        run: kubectl set image statefulset/charted-server --namespace noelware charted-server=charted/server:${{steps.tag.outputs.tag}}
+
+      - name: Deploy to Kubernetes!
+        run: kubectl rollout status --namespace noelware statefulset/charted-server

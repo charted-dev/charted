@@ -15,35 +15,32 @@
  * limitations under the License.
  */
 
-import org.noelware.charted.gradle.*
+import dev.floofy.utils.gradle.by
 import java.text.SimpleDateFormat
-import dev.floofy.utils.gradle.*
 import java.util.Date
 
 plugins {
-    `charted-distribution-module`
     `charted-module`
+    `charted-test`
     application
 }
 
-application {
-    mainClass by "org.noelware.charted.server.Bootstrap"
-}
-
 dependencies {
+    // Exposed [Postgres] Utils
+    implementation("net.perfectdreams.exposedpowerutils:postgres-power-utils:1.0.0")
+
     // Logback
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.2.2")
-    implementation("net.logstash.logback:logstash-logback-encoder:7.1.1")
-    implementation("ch.qos.logback.contrib:logback-json-classic:0.1.5")
-    implementation("ch.qos.logback.contrib:logback-jackson:0.1.5")
+    implementation("net.logstash.logback:logstash-logback-encoder:7.2")
     implementation("ch.qos.logback:logback-classic:1.2.11")
     implementation("ch.qos.logback:logback-core:1.2.11")
 
     // Ktor Routing
-    implementation("org.noelware.ktor:loader-koin:0.1.1-beta")
-    implementation("org.noelware.ktor:core:0.1.1-beta")
+    implementation("org.noelware.ktor:loader-koin:0.3.1-beta")
+    implementation("org.noelware.ktor:core:0.3.1-beta")
 
     // Ktor (server)
+    implementation("io.ktor:ktor-serialization-kotlinx-json")
+    implementation("io.ktor:ktor-client-content-negotiation")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
     implementation("io.ktor:ktor-server-content-negotiation")
     implementation("io.ktor:ktor-server-auto-head-response")
@@ -51,18 +48,23 @@ dependencies {
     implementation("io.ktor:ktor-server-double-receive")
     implementation("io.ktor:ktor-server-status-pages")
     implementation("io.ktor:ktor-serialization")
+    implementation("io.ktor:ktor-client-okhttp")
     implementation("io.ktor:ktor-server-netty")
     implementation("io.ktor:ktor-server-cors")
+    api("com.squareup.okhttp3:okhttp:4.10.0")
+    api("io.ktor:ktor-server-core")
+    api("io.ktor:ktor-client-core")
     api("io.ktor:ktor-server-core")
 
     // Projects
-    implementation(project(":libs:elasticsearch"))
-    implementation(project(":libs:meilisearch"))
-    implementation(project(":libs:telemetry"))
-    implementation(project(":libs:analytics"))
-    implementation(project(":audit-logs"))
-    implementation(project(":oci-proxy"))
-    implementation(project(":webhooks"))
+    implementation(project(":features:docker-registry"))
+    implementation(project(":features:audit-logs"))
+    implementation(project(":lib:elasticsearch"))
+    implementation(project(":lib:meilisearch"))
+    implementation(project(":lib:clickhouse"))
+    implementation(project(":lib:analytics"))
+    implementation(project(":lib:telemetry"))
+    implementation(project(":lib:email"))
     implementation(project(":database"))
     implementation(project(":core"))
 
@@ -76,27 +78,39 @@ dependencies {
     // Conditional logic for logback
     implementation("org.codehaus.janino:janino:3.1.7")
 
-    // Commons validator
-    implementation("commons-validator:commons-validator:1.7")
-
-    // Spring Security (argon2 hashing)
-    implementation("org.springframework.security:spring-security-crypto:5.6.3")
-
     // YAML (configuration)
-    implementation("com.charleskorn.kaml:kaml:0.44.0")
+    implementation("com.charleskorn.kaml:kaml:0.46.0")
+}
+
+application {
+    mainClass by "org.noelware.charted.server.Bootstrap"
+}
+
+distributions {
+    main {
+        distributionBaseName by "charted-server"
+        contents {
+            from(
+                "$projectDir/bin/config/logback.properties",
+                "$projectDir/bin/config/config.yml",
+                "$projectDir/bin/charted-server",
+                "$projectDir/bin/README.txt",
+                "$projectDir/bin/LICENSE"
+            )
+        }
+    }
 }
 
 tasks {
     processResources {
         filesMatching("build-info.json") {
-            val date = Date()
-            val formatter = SimpleDateFormat("EEE, MMM d, YYYY - HH:mm:ss a")
+            val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
 
             expand(
                 mapOf(
-                    "version" to "$VERSION",
-                    "commit_sha" to COMMIT_HASH,
-                    "build_date" to formatter.format(date)
+                    "version" to "${org.noelware.charted.gradle.VERSION}",
+                    "commit_sha" to org.noelware.charted.gradle.COMMIT_HASH,
+                    "build_date" to formatter.format(Date())
                 )
             )
         }

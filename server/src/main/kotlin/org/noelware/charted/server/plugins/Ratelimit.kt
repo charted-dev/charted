@@ -26,17 +26,17 @@ import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
-import org.noelware.charted.core.ratelimiting.Ratelimiter
-import org.noelware.charted.core.ratelimiting.exceeded
+import org.noelware.charted.core.ratelimiter.Ratelimiter
+import org.noelware.charted.core.ratelimiter.exceeded
 
 val Ratelimit = createApplicationPlugin("Ratelimit") {
-    val ratelimiter by inject<Ratelimiter>()
+    val ratelimiter: Ratelimiter by inject()
 
     onCall { call ->
         // Was it already handled? Let's not continue.
         if (call.isHandled) return@onCall
 
-        val record = ratelimiter.getRatelimit(call)
+        val record = ratelimiter.retrieve(call)
         call.response.header("X-RateLimit-Limit", record.limit)
         call.response.header("X-RateLimit-Reset", record.resetAt.toEpochMilliseconds())
         call.response.header("X-RateLimit-Remaining", record.remaining)
@@ -57,8 +57,6 @@ val Ratelimit = createApplicationPlugin("Ratelimit") {
                     }
                 }
             )
-
-            return@onCall
         }
     }
 }

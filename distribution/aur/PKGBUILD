@@ -1,0 +1,16 @@
+pkgname=charted-server
+pkgver=${package.version}
+pkgrel=1
+pkgdesc="📦 Free, open source, and reliable Helm Chart registry made in Kotlin"
+arch=("x86_64")
+url="https://charts.noelware.org"
+license=('MIT')
+depends=('curl')
+source=('git://github.com/charted-dev/charted')
+sha1shms=('SKIP') # TODO: figure this out with `signing` plugin
+
+package() {
+    cd "$pkgname"
+    curl -Lo "$pkgname/charted-server.zip" https://dl.noelware.org/charted/server/x86_64/${package.version}.tar.gz
+    mkdir $pkgdir/usr/bin
+}

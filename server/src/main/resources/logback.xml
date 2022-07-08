@@ -17,15 +17,15 @@
 
 <configuration debug="false" packagingData="true">
     <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
-    <property resource="config/logging.properties" />
     <property resource="${org.noelware.charted.logback.config}" />
+    <property resource="config/logging.properties" />
 
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <if condition='isDefined("charted.console.json")'>
             <then>
                 <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
                     <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
-                        <jsonFormatter class="org.noelware.charted.logback.JsonLogbackFormatter">
+                        <jsonFormatter class="org.noelware.charted.core.logback.JsonLogbackFormatter">
                             <prettyPrint>false</prettyPrint>
                         </jsonFormatter>
 
@@ -56,7 +56,7 @@
                             <pattern>${charted.console.format}</pattern>
                         </then>
                         <else>
-                            <pattern>[%d{yyyy-MM-dd | HH:mm:ss, +10}] %boldCyan([%thread]) %highlight([%logger{36}]) %boldMagenta(%-5level) :: %msg%n</pattern>
+                            <pattern>[%d{yyyy-MM-dd | HH:mm:ss, +10}] [%boldCyan(%thread) ~ %highlight(%logger{36})] %boldMagenta(%-5level) :: %msg%n</pattern>
                         </else>
                     </if>
                 </encoder>
@@ -107,6 +107,50 @@
         </then>
     </if>
 
+    <if condition='property("charted.encoders").contains("syslog")'>
+        <then>
+            <appender name="Syslog" class="org.noelware.charted.core.logback.SyslogAppender">
+                <if condition='property("charted.syslog.json")'>
+                    <then>
+                        <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
+                            <jsonFormatter class="org.noelware.charted.core.logback.JsonLogbackFormatter">
+                                <prettyPrint>false</prettyPrint>
+                            </jsonFormatter>
+
+                            <if condition='isDefined("charted.syslog.json.timezone")'>
+                                <then>
+                                    <timestampFormatTimezoneId>${charted.console.json.timezone}</timestampFormatTimezoneId>
+                                </then>
+                                <else>
+                                    <timestampFormatTimezoneId>Etc/UTC</timestampFormatTimezoneId>
+                                </else>
+                            </if>
+
+                            <if condition='isDefined("charted.syslog.json.timestamp.format")'>
+                                <then>
+                                    <timestampFormat>${charted.syslog.json.timestamp.format}</timestampFormat>
+                                </then>
+                                <else>
+                                    <timestampFormat>yyyy-MM-dd'T'HH:mm:ss.SSSX</timestampFormat>
+                                </else>
+                            </if>
+                        </layout>
+                    </then>
+                </if>
+                <else>
+                    <if condition='isDefined("charted.syslog.format")'>
+                        <then>
+                            <pattern>${charted.syslog.format}</pattern>
+                        </then>
+                        <else>
+                            <pattern>[%d{yyyy-MM-dd | HH:mm:ss, +10}] [%thread ~ %logger{36}]] %-5level :: %msg%n</pattern>
+                        </else>
+                    </if>
+                </else>
+            </appender>
+        </then>
+    </if>
+
     <if condition='property("charted.encoders").contains("sentry")'>
         <then>
             <root level="ERROR">
@@ -125,6 +169,12 @@
                         <appender-ref ref="Logstash" />
                     </then>
                 </if>
+
+                <if condition='property("charted.encoders").contains("syslog")'>
+                    <then>
+                        <appender-ref ref="Syslog" />
+                    </then>
+                </if>
             </root>
         </then>
         <else>
@@ -134,6 +184,12 @@
                 <if condition='property("charted.encoders").contains("logstash")'>
                     <then>
                         <appender-ref ref="Logstash" />
+                    </then>
+                </if>
+
+                <if condition='property("charted.encoders").contains("syslog")'>
+                    <then>
+                        <appender-ref ref="Syslog" />
                     </then>
                 </if>
             </root>

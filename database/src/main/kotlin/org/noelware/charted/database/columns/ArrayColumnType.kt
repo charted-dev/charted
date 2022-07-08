@@ -39,23 +39,11 @@ class ArrayColumnType(private val type: ColumnType): ColumnType() {
     @Suppress("UNCHECKED_CAST")
     override fun valueFromDB(value: Any): Array<*> {
         if (value is PgArray) {
-            return if (type.sqlType().endsWith("Enum")) {
-                (value.array as Array<*>).filterNotNull().map {
-                    type.valueFromDB(it)
-                }.toTypedArray()
-            } else {
-                value.array as Array<*>
-            }
+            return value.array as Array<*>
         }
 
         if (value is java.sql.Array) {
-            return if (type.sqlType().endsWith("Enum")) {
-                (value.array as Array<*>).filterNotNull().map {
-                    type.valueFromDB(it)
-                }.toTypedArray()
-            } else {
-                value.array as Array<*>
-            }
+            return value.array as Array<*>
         }
 
         if (value is Array<*>) return value
