@@ -636,3 +636,4 @@ server/src/main/resources/config/logging.properties
 !distribution/bin
 !distribution/bin/bin
 .caches/
+!server/bin
