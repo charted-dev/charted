@@ -66,7 +66,7 @@ import org.noelware.charted.core.redis.DefaultRedisClient
 import org.noelware.charted.core.sessions.SessionManager
 import org.noelware.charted.database.clickhouse.ClickHouseConnection
 import org.noelware.charted.database.tables.*
-import org.noelware.charted.features.audit.logs.AuditLogsFeature
+import org.noelware.charted.features.audit.AuditLogsFeature
 import org.noelware.charted.search.elasticsearch.ElasticsearchClient
 import org.noelware.charted.search.meilisearch.MeilisearchClient
 import org.noelware.charted.server.endpoints.endpointsModule
