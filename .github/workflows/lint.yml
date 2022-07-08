@@ -94,4 +94,4 @@ jobs:
         run: ./gradlew test --no-daemon
 
       - name: Create build scan
-        uses: ./gradlew --scan
+        run: ./gradlew --scan
