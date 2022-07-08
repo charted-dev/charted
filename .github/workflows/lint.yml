@@ -20,7 +20,8 @@ on:
     branches:
       - 'issue/gh-**'
       - 'feat/**'
-      - master
+      - nightly
+      - main
 
     paths-ignore:
       - '.github/**'
@@ -40,7 +41,8 @@ on:
     branches:
       - 'issue/gh-**'
       - 'feat/**'
-      - master
+      - nightly
+      - main
 
     paths-ignore:
       - '.github/**'
