@@ -1,0 +1,61 @@
+// 🧭🐃 analytics-protobufs: Protocol Buffers for Noelware Analytics
+// Copyright (c) 2022 Noelware
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+syntax = "proto3";
+
+package noelware.analytics.protos;
+option java_multiple_files = true;
+option java_package = "org.noelware.charted.analytics.protobufs.v1";
+option go_package = "internal/protobufs";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
+message ConnectionAckRequest {}
+message ConnectionAckResponse {
+  bool connected = 1;
+  string instanceUUID = 2;
+}
+
+message ReceiveStatsRequest {}
+message ReceiveStatsResponse {
+  string product = 1;
+  string version = 2;
+  string commitSha = 3;
+  string buildDate = 4;
+  google.protobuf.Timestamp snapshotDate = 5;
+  BuildFlavour buildFlavour = 6;
+  google.protobuf.Struct data = 7;
+}
+
+enum BuildFlavour {
+  DOCKER = 0; // the product is running from Docker
+  KUBERNETES = 1; // the product is using the Helm chart or the Noel Kubernetes operator
+  DEB = 2; // the product was installed via `apt install charted-server`
+  RPM = 3; // the product was installed via `yum install charted-server`
+  GIT = 4; // the product was installed via the Git repository, pre-defined.
+  ENTERPRISE = 6; // the product is running on a Enterprise scale. This is only supported in charted and Arisu.
+}
+
+service Analytics {
+  rpc ConnectionAck(ConnectionAckRequest) returns (ConnectionAckResponse);
+  rpc RetrieveStats(ReceiveStatsRequest) returns (ReceiveStatsResponse);
+}

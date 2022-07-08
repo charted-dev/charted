@@ -1,4 +1,4 @@
-# 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Go.
+# 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
 # Copyright 2022 Noelware <team@noelware.org>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -7,98 +7,91 @@
 #
 #    http://www.apache.org/licenses/LICENSE-2.0
 #
-# Unless required by applicable law or agreed to in writing, software
+#  Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Lint on Commit
+name: Linting and Unit Testing
 on:
   workflow_dispatch:
   push:
     branches:
-      - 'feature/**'
-      - 'bug/gh-**'
       - 'issue/gh-**'
-      - nightly
-      - main
+      - 'feat/**'
+      - master
 
     paths-ignore:
       - '.github/**'
+      - '.husky/**'
       - '.vscode/**'
       - 'assets/**'
+      - 'locales/**'
       - 'docker/**'
-      - '.idea/**'
       - '.dockerignore'
+      - '.eslintignore'
       - '.gitignore'
       - '**.md'
       - 'LICENSE'
       - 'renovate.json'
-permissions:
-  contents: read
+
+  pull_request:
+    branches:
+      - 'issue/gh-**'
+      - 'feat/**'
+      - master
+
+    paths-ignore:
+      - '.github/**'
+      - '.husky/**'
+      - '.vscode/**'
+      - 'assets/**'
+      - 'locales/**'
+      - 'docker/**'
+      - '.dockerignore'
+      - '.eslintignore'
+      - '.gitignore'
+      - '**.md'
+      - 'LICENSE'
+      - 'renovate.json'
+
 jobs:
   lint:
+    name: Linting and Unit Testing
     runs-on: ubuntu-latest
-    name: CI Linting
-    services:
-      postgres:
-        image: postgres:latest
-        env:
-          POSTGRES_USER: noel
-          POSTGRES_PASSWORD: noeliscutieuwu
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - '5432:5432'
+    strategy:
+      matrix:
+        java-version: [17, 18]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          submodules: recursive
+          submodules: 'recursive'
 
-      - name: Setup Go 1.18
-        uses: actions/setup-go@v3
+      - name: Setup Java ${{ matrix.java-version }}
+        uses: actions/setup-java@v3
         with:
-          go-version: 1.18
+          distribution: temurin
+          java-version: ${{ matrix.java-version }}
 
-      - name: Cache Go modules
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: ${{ runner.os }}-1.18-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-1.18-go-
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
 
-      - name: Setup Prisma schema
-        run: |
-          echo "DATABASE_URL=postgresql://noel:noeliscutieuwu@localhost:5432/charted?schema=noelware" >> ~/.env
-          make generate
+      - name: Validate gradle-wrapper.jar
+        uses: gradle/wrapper-validation-action@v1
 
-      - name: Install dependencies
-        run: make deps
+      - name: Let gradlew be executable
+        run: chmod +x ./gradlew
 
-      - name: Install protoc
-        run: sudo apt install -y protobuf-compiler
-        
-      - name: Generate Protobufs
-        run: protoc --proto_path=protobufs protobufs/*.proto --go_out=. 
+      - name: Lints the repository via Spotless for any linting errors.
+        run: ./gradlew spotlessCheck --no-daemon
 
-      - name: Build project to see if it compiles
-        run: make build
+      - name: Compiles the Kotlin sources for any compiler errors
+        run: ./gradlew compileKotlin --no-daemon
 
-      - name: Format project for any formatting to apply
-        run: make fmt
+      - name: Unit test the project
+        run: ./gradlew test --no-daemon
 
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          args: --issues-exit-code=1 -buildvcs=false
-          only-new-issues: false
-          skip-pkg-cache: true
-          skip-build-cache: true
+      - name: Create build scan
+        run: ./gradlew --scan

@@ -1,14 +1,17 @@
 {
   "name": "charted-server",
+  "dockerFile": "Dockerfile",
+  "remoteUser": "vscode",
   "dockerComposeFile": "./docker-compose.yml",
   "service": "workspace",
   "workspaceFolder": "/workspace",
+  "forwardPorts": [80, 443, 3939, 5432, 6379, 8123, 9000],
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/bash",
+    "java.home": "~/.asdf/installs/java/temurin-18.0.1+10"
+  },
   "extensions": [
-    "dbaeumer.vscode-eslint"
-  ],
-  "forwardPorts": [
-    80,
-    443,
-    3939
+    "eamodio.gitlens",
+    "ms-azuretools.vscode-docker"
   ]
 }

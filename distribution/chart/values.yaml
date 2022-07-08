@@ -1,0 +1,128 @@
+# 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+# Copyright 2022 Noelware <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+fullNameOverride: ""
+nameOverride: ""
+replicas: 3
+jvmOptions: "-Xmx4096 -Xms1024m"
+debugMode: false
+nodeSelector: {}
+tolerations: []
+affinity: {}
+serviceName: ""
+extraEnvVars: []
+
+image:
+  repository: docker.io
+  image: charted/server
+  tag: 1.0.0
+  pullPolicy: IfNotPresent
+
+config:
+  mapName: charted-config
+  path: /app/noelware/charted/server/config.yml
+  config: |
+  # refer to https://charts.noelware.org/docs/self-hosting#configuration
+
+logback:
+  enabled: true
+  mapName: charted-logback
+  path: /app/noelware/charted/server/logback.properties
+  config: |
+  # refer to https://charts.noelware.org/docs/self-hosting#logging
+
+serviceAccount:
+  create: false
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podSecurityContext: {}
+securityContext: {}
+service:
+  type: ClusterIP
+  port: 4321
+  protocol: TCP
+  targetPort: 4321
+
+frontend:
+  enabled: true
+  image:
+    repository: docker.io
+    image: charted/pak
+    tag: 1.0.0
+    pullPolicy: IfNotPresent
+  config:
+    mapName: pak-config
+    path: /app/noelware/charted/pak/config.yml
+    config: |
+    # refer to https://charts.noelware.org/docs/pak/self-hosting#configuration
+  service:
+    type: ClusterIP
+    port: 6731
+    protocol: TCP
+    targetPort: 6731
+  ingress:
+    enabled: false
+    annotations: {}
+    className: ""
+    hosts:
+      - host: pak-chart.local
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls: []
+    # - secretName: pak-tls
+    #   hosts:
+    #   - pak-chart.local
+
+# Configuration for the PostgreSQL instance for charted-server. This is completely
+# optional if you have a PostgreSQL instance already!
+postgres:
+  enabled: false
+
+# Configuration for the Redis instance for charted-server. This is completely optional if you
+# have a Redis instance already!
+redis:
+  enabled: false
+
+# Configuration for the ClickHouse instance for charted-server. This is completely optional if you
+# have a ClickHouse instance already OR if you do not plan on enabling the audit-logs for webhooks
+# feature.
+clickhouse:
+  enabled: false
+  zookeeper: false
+
+resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 780Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 780Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+readinessProbe:
+  failureThreshold: 3
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  successThreshold: 3
+  timeoutSeconds: 5

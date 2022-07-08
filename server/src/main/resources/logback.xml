@@ -1,0 +1,198 @@
+<!--
+~ 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+~ Copyright 2022 Noelware <team@noelware.org>
+~
+~ Licensed under the Apache License, Version 2.0 (the "License");
+~ you may not use this file except in compliance with the License.
+~ You may obtain a copy of the License at
+~
+~    http://www.apache.org/licenses/LICENSE-2.0
+~
+~  Unless required by applicable law or agreed to in writing, software
+~ distributed under the License is distributed on an "AS IS" BASIS,
+~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~ See the License for the specific language governing permissions and
+~ limitations under the License.
+-->
+
+<configuration debug="false" packagingData="true">
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
+    <property resource="${org.noelware.charted.logback.config}" />
+    <property resource="config/logging.properties" />
+
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <if condition='isDefined("charted.console.json")'>
+            <then>
+                <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+                    <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
+                        <jsonFormatter class="org.noelware.charted.core.logback.JsonLogbackFormatter">
+                            <prettyPrint>false</prettyPrint>
+                        </jsonFormatter>
+
+                        <if condition='isDefined("charted.console.json.timezone")'>
+                            <then>
+                                <timestampFormatTimezoneId>${charted.console.json.timezone}</timestampFormatTimezoneId>
+                            </then>
+                            <else>
+                                <timestampFormatTimezoneId>Etc/UTC</timestampFormatTimezoneId>
+                            </else>
+                        </if>
+
+                        <if condition='isDefined("charted.console.json.timestamp.format")'>
+                            <then>
+                                <timestampFormat>${charted.console.json.timestamp.format}</timestampFormat>
+                            </then>
+                            <else>
+                                <timestampFormat>yyyy-MM-dd'T'HH:mm:ss.SSSX</timestampFormat>
+                            </else>
+                        </if>
+                    </layout>
+                </encoder>
+            </then>
+            <else>
+                <encoder>
+                    <if condition='isDefined("charted.console.format")'>
+                        <then>
+                            <pattern>${charted.console.format}</pattern>
+                        </then>
+                        <else>
+                            <pattern>[%d{yyyy-MM-dd | HH:mm:ss, +10}] [%boldCyan(%thread) ~ %highlight(%logger{36})] %boldMagenta(%-5level) :: %msg%n</pattern>
+                        </else>
+                    </if>
+                </encoder>
+            </else>
+        </if>
+    </appender>
+
+    <if condition='property("charted.encoders").contains("sentry")'>
+        <then>
+            <appender name="Sentry" class="io.sentry.logback.SentryAppender">
+                <options>
+                    <dsn>${charted.sentry.dsn}</dsn>
+                </options>
+            </appender>
+        </then>
+    </if>
+
+    <if condition='property("charted.encoders").contains("logstash")'>
+        <then>
+            <appender name="Logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+                <destination>${charted.logstash.endpoint}</destination>
+                <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+                    <providers>
+                        <timestamp />
+                        <message />
+                        <loggerName />
+                        <threadName />
+                        <logLevel />
+                        <callerData />
+                        <stackTrace />
+                        <contextName />
+                        <mdc />
+                        <tags />
+                        <logstashMarkers />
+                        <throwableClassName />
+                        <throwableMessage />
+                        <throwableRootCauseClassName />
+                        <throwableRootCauseMessage />
+                        <includeMdcKeyName>user_agent</includeMdcKeyName>
+                    </providers>
+
+                    <customFields>{"product":"charted-server","vendor":"Noelware"}</customFields>
+                </encoder>
+
+                <keepAliveDuration>5 minutes</keepAliveDuration>
+                <writeVersionAsInteger>true</writeVersionAsInteger>
+            </appender>
+        </then>
+    </if>
+
+    <if condition='property("charted.encoders").contains("syslog")'>
+        <then>
+            <appender name="Syslog" class="org.noelware.charted.core.logback.SyslogAppender">
+                <if condition='property("charted.syslog.json")'>
+                    <then>
+                        <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
+                            <jsonFormatter class="org.noelware.charted.core.logback.JsonLogbackFormatter">
+                                <prettyPrint>false</prettyPrint>
+                            </jsonFormatter>
+
+                            <if condition='isDefined("charted.syslog.json.timezone")'>
+                                <then>
+                                    <timestampFormatTimezoneId>${charted.console.json.timezone}</timestampFormatTimezoneId>
+                                </then>
+                                <else>
+                                    <timestampFormatTimezoneId>Etc/UTC</timestampFormatTimezoneId>
+                                </else>
+                            </if>
+
+                            <if condition='isDefined("charted.syslog.json.timestamp.format")'>
+                                <then>
+                                    <timestampFormat>${charted.syslog.json.timestamp.format}</timestampFormat>
+                                </then>
+                                <else>
+                                    <timestampFormat>yyyy-MM-dd'T'HH:mm:ss.SSSX</timestampFormat>
+                                </else>
+                            </if>
+                        </layout>
+                    </then>
+                </if>
+                <else>
+                    <if condition='isDefined("charted.syslog.format")'>
+                        <then>
+                            <pattern>${charted.syslog.format}</pattern>
+                        </then>
+                        <else>
+                            <pattern>[%d{yyyy-MM-dd | HH:mm:ss, +10}] [%thread ~ %logger{36}]] %-5level :: %msg%n</pattern>
+                        </else>
+                    </if>
+                </else>
+            </appender>
+        </then>
+    </if>
+
+    <if condition='property("charted.encoders").contains("sentry")'>
+        <then>
+            <root level="ERROR">
+                <appender-ref ref="Sentry" />
+            </root>
+        </then>
+    </if>
+
+    <if condition='isDefined("charted.log.level")'>
+        <then>
+            <root level="${charted.log.level}">
+                <appender-ref ref="Console" />
+
+                <if condition='property("charted.encoders").contains("logstash")'>
+                    <then>
+                        <appender-ref ref="Logstash" />
+                    </then>
+                </if>
+
+                <if condition='property("charted.encoders").contains("syslog")'>
+                    <then>
+                        <appender-ref ref="Syslog" />
+                    </then>
+                </if>
+            </root>
+        </then>
+        <else>
+            <root level="INFO">
+                <appender-ref ref="Console" />
+
+                <if condition='property("charted.encoders").contains("logstash")'>
+                    <then>
+                        <appender-ref ref="Logstash" />
+                    </then>
+                </if>
+
+                <if condition='property("charted.encoders").contains("syslog")'>
+                    <then>
+                        <appender-ref ref="Syslog" />
+                    </then>
+                </if>
+            </root>
+        </else>
+    </if>
+</configuration>
