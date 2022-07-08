@@ -72,6 +72,7 @@ import org.noelware.charted.search.meilisearch.MeilisearchClient
 import org.noelware.charted.server.endpoints.endpointsModule
 import java.io.File
 import java.io.IOError
+import java.nio.file.Files
 import java.util.UUID
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
@@ -205,7 +206,12 @@ object Bootstrap {
 
         log.info("Loading configuration...")
         val fullConfigPath = System.getenv("CHARTED_CONFIG_PATH") ?: "./config.yml"
-        val configFile = File(fullConfigPath)
+        var configFile = File(fullConfigPath)
+
+        if (Files.isSymbolicLink(configFile.toPath())) {
+            log.warn("File is under a symbolic link, will be loading from the target file rather than this file.")
+            configFile = File(Files.readSymbolicLink(configFile.toPath()).toString())
+        }
 
         if (!configFile.exists()) {
             log.error("Missing configuration file in path '$configFile'!")
