@@ -37,6 +37,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import org.apache.commons.validator.routines.EmailValidator
+import org.jetbrains.exposed.sql.update
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.IRedisClient
 import org.noelware.charted.common.RandomGenerator
@@ -362,6 +363,13 @@ class UserApiEndpoints(
 
         storage.upload("./avatars/${call.session.userID}/$hash.$ext", ByteArrayInputStream(inputStream.readBytes()), contentType)
         first.dispose()
+
+        asyncTransaction(ChartedScope) {
+            UserTable.update({ UserTable.id eq call.session.userID }) {
+                it[avatarHash] = "$hash.$ext"
+            }
+        }
+
         call.respond(
             HttpStatusCode.Accepted,
             buildJsonObject {
