@@ -59,7 +59,7 @@ object ApiKeyController {
         expiresIn: LocalDateTime? = null
     ): ApiKeys {
         val redis: IRedisClient by inject()
-        val token = RandomGenerator.generate(24)
+        val token = RandomGenerator.generate(64)
         val id = Snowflake.generate()
 
         if (expiresIn != null) {

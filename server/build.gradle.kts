@@ -80,6 +80,9 @@ dependencies {
 
     // YAML (configuration)
     implementation("com.charleskorn.kaml:kaml:0.46.0")
+
+    // Haru (scheduling)
+    implementation("dev.floofy.haru:Haru:1.3.0")
 }
 
 application {

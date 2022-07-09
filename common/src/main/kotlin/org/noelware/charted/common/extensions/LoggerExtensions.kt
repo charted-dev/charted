@@ -35,11 +35,14 @@ fun Logger.measureTime(message: String, block: () -> Unit) {
     }
 
     sw.stop()
-    info(message.replace("%T", sw.getTime(TimeUnit.MILLISECONDS).toString()))
+    info(message.replace("%T", "${sw.getTime(TimeUnit.MILLISECONDS)}ms"))
 }
 
-fun Logger.measureSuspendTime(message: String, block: suspend () -> Unit) {
+fun <T> Logger.measureSuspendTime(message: String, block: suspend () -> T): T {
+    var result: T? = null
     measureTime(message) {
-        runBlocking { block() }
+        runBlocking { result = block() }
     }
+
+    return result!!
 }

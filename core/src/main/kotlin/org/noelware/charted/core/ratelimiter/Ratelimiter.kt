@@ -17,6 +17,7 @@
 
 package org.noelware.charted.core.ratelimiter
 
+import dev.floofy.haru.Scheduler
 import dev.floofy.utils.slf4j.logging
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -38,7 +39,7 @@ import java.io.Closeable
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.hours
 
-class Ratelimiter(private val json: Json, private val redis: IRedisClient): Closeable {
+class Ratelimiter(private val json: Json, private val redis: IRedisClient, private val scheduler: Scheduler): Closeable {
     private val expirationJobs = mutableListOf<Job>()
     private val log by logging<Ratelimiter>()
 
@@ -57,7 +58,7 @@ class Ratelimiter(private val json: Json, private val redis: IRedisClient): Clos
             sw.reset()
             sw.start()
 
-            val ttl = runBlocking { redis.commands.ttl("ratelimit:$key").await() }
+            val ttl = runBlocking { redis.commands.ttl(key).await() }
             sw.stop()
 
             log.debug("|- Took ${sw.getTime(TimeUnit.MILLISECONDS)}ms to find TTL for ratelimit #$index: [$ttl]")
@@ -78,6 +79,19 @@ class Ratelimiter(private val json: Json, private val redis: IRedisClient): Clos
                         redis.commands.hdel("charted:ratelimits", key).await()
                     }
                 )
+            }
+        }
+
+        scheduler.schedule {
+            start = true
+            name = "remove expired ratelimits"
+            expression = "@hourly"
+            executor = {
+                log.debug("Deleting expired ratelimits...")
+                val notActiveJobs = expirationJobs.filterNot { it.isCompleted }
+                for (job in notActiveJobs) {
+                    expirationJobs.remove(job)
+                }
             }
         }
     }

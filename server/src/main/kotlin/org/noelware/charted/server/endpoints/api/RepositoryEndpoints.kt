@@ -38,7 +38,10 @@ import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
+import org.noelware.charted.common.SHAUtils
 import org.noelware.charted.common.data.Config
+import org.noelware.charted.common.data.Feature
+import org.noelware.charted.common.data.formatCdnUrl
 import org.noelware.charted.common.data.helm.ChartIndexSpec
 import org.noelware.charted.common.data.helm.ChartIndexYaml
 import org.noelware.charted.common.data.helm.ChartSpec
@@ -49,10 +52,6 @@ import org.noelware.charted.server.session
 import org.noelware.charted.server.utils.createOutgoingContentWithBytes
 import org.noelware.ktor.endpoints.*
 import org.noelware.remi.core.figureContentType
-import org.noelware.remi.filesystem.FilesystemStorageConfig
-import org.noelware.remi.filesystem.FilesystemStorageTrailer
-import org.noelware.remi.minio.MinIOStorageTrailer
-import org.noelware.remi.s3.S3StorageTrailer
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
@@ -163,6 +162,21 @@ class RepositoryEndpoints(
 
     @Get("/{id}/Chart.yaml")
     suspend fun getChartMetadata(call: ApplicationCall) {
+        if (config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
+            return call.respond(
+                HttpStatusCode.Forbidden,
+                buildJsonObject {
+                    put("success", false)
+                    putJsonArray("errors") {
+                        addJsonObject {
+                            put("code", "CHARTS_NOT_AVAILABLE")
+                            put("message", "This instance is running off a local OCI-based registry, so this endpoint is not available.")
+                        }
+                    }
+                }
+            )
+        }
+
         val id = call.parameters["id"]!!.toLong()
         val repo = RepositoryController.get(id) ?: return call.respond(
             HttpStatusCode.NotFound,
@@ -209,6 +223,21 @@ class RepositoryEndpoints(
 
     @Get("/{id}/values.yaml")
     suspend fun getChartValues(call: ApplicationCall) {
+        if (config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
+            return call.respond(
+                HttpStatusCode.Forbidden,
+                buildJsonObject {
+                    put("success", false)
+                    putJsonArray("errors") {
+                        addJsonObject {
+                            put("code", "CHARTS_NOT_AVAILABLE")
+                            put("message", "This instance is running off a local OCI-based registry, so this endpoint is not available.")
+                        }
+                    }
+                }
+            )
+        }
+
         val id = call.parameters["id"]!!.toLong()
         val repo = RepositoryController.get(id) ?: return call.respond(
             HttpStatusCode.NotFound,
@@ -255,6 +284,21 @@ class RepositoryEndpoints(
 
     @Put("/{id}/Chart.yaml")
     suspend fun uploadChart(call: ApplicationCall) {
+        if (config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
+            return call.respond(
+                HttpStatusCode.Forbidden,
+                buildJsonObject {
+                    put("success", false)
+                    putJsonArray("errors") {
+                        addJsonObject {
+                            put("code", "CHARTS_NOT_AVAILABLE")
+                            put("message", "This instance is running off a local OCI-based registry, so this endpoint is not available.")
+                        }
+                    }
+                }
+            )
+        }
+
         val id = call.parameters["id"]!!.toLong()
         val repo = RepositoryController.get(id) ?: return call.respond(
             HttpStatusCode.NotFound,
@@ -332,45 +376,30 @@ class RepositoryEndpoints(
                 )
             }
 
-            val prefix = if (config.cdnBaseUrl != null) {
-                config.cdnBaseUrl
-            } else {
-                when (storage.trailer) {
-                    is FilesystemStorageTrailer -> "file://"
-                    is S3StorageTrailer -> "s3://"
-                    is MinIOStorageTrailer -> "minio://"
-                    else -> ""
-                }
-            }
+            val url = formatCdnUrl(config, "/tarballs/${repo.ownerID}/$id/${repo.name}-${chartSpec.version}.tar.gz")
+            val checksum = SHAUtils.sha256Checksum(ByteArrayInputStream(data))
 
-            // TODO: configure checksum for the tarball
             helmChart.entries[chartSpec.name]!!.add(
                 ChartIndexSpec.fromSpec(
-                    listOf("$prefix/tarballs/$id/${repo.name}-${chartSpec.version}.tar.gz"),
+                    listOf(if (url.startsWith("http") || url.startsWith("https")) url else "http://${config.server.host}:${config.server.port}$url"),
                     Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
                     false,
-                    spec = chartSpec
+                    checksum,
+                    chartSpec
                 )
             )
         } else {
-            val prefix = if (config.cdnBaseUrl != null) {
-                config.cdnBaseUrl
-            } else {
-                when (storage.trailer) {
-                    is FilesystemStorageTrailer -> "file://${(storage.trailer as FilesystemStorageTrailer).normalizePath((storage.trailer.config as FilesystemStorageConfig).directory)}"
-                    is S3StorageTrailer -> "s3://"
-                    is MinIOStorageTrailer -> "minio://"
-                    else -> ""
-                }
-            }
+            val url = formatCdnUrl(config, "/tarballs/${repo.ownerID}/$id/${repo.name}-${chartSpec.version}.tar.gz")
+            val checksum = SHAUtils.sha256Checksum(ByteArrayInputStream(data))
 
             // TODO: configure checksum for the tarball
             helmChart.entries[chartSpec.name] = mutableListOf(
                 ChartIndexSpec.fromSpec(
-                    listOf("$prefix/tarballs/${repo.ownerID}/$id/${repo.name}-${chartSpec.version}.tar.gz"),
+                    listOf(if (url.startsWith("http") || url.startsWith("https")) url else "http://${config.server.host}:${config.server.port}$url"),
                     Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
                     false,
-                    spec = chartSpec
+                    checksum,
+                    chartSpec
                 )
             )
         }
@@ -393,6 +422,21 @@ class RepositoryEndpoints(
 
     @Put("/{id}/values.yaml")
     suspend fun uploadChartValues(call: ApplicationCall) {
+        if (config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
+            return call.respond(
+                HttpStatusCode.Forbidden,
+                buildJsonObject {
+                    put("success", false)
+                    putJsonArray("errors") {
+                        addJsonObject {
+                            put("code", "CHARTS_NOT_AVAILABLE")
+                            put("message", "This instance is running off a local OCI-based registry, so this endpoint is not available.")
+                        }
+                    }
+                }
+            )
+        }
+
         val id = call.parameters["id"]!!.toLong()
         val repo = RepositoryController.get(id) ?: return call.respond(
             HttpStatusCode.NotFound,
@@ -474,6 +518,21 @@ class RepositoryEndpoints(
 
     @Put("/{id}/tarballs/{version}")
     suspend fun uploadTarballFor(call: ApplicationCall) {
+        if (config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
+            return call.respond(
+                HttpStatusCode.Forbidden,
+                buildJsonObject {
+                    put("success", false)
+                    putJsonArray("errors") {
+                        addJsonObject {
+                            put("code", "CHARTS_NOT_AVAILABLE")
+                            put("message", "This instance is running off a local OCI-based registry, so this endpoint is not available.")
+                        }
+                    }
+                }
+            )
+        }
+
         val id = call.parameters["id"]!!.toLong()
         val version = call.parameters["version"]!!
         val repo = RepositoryController.get(id) ?: return call.respond(

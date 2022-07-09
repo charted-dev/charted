@@ -15,29 +15,13 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.core
+package org.noelware.charted.server
 
-import dev.floofy.haru.Scheduler
-import dev.floofy.utils.slf4j.logging
-import io.ktor.client.*
-import io.ktor.client.engine.okhttp.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.serialization.kotlinx.json.*
 import org.apache.commons.validator.routines.EmailValidator
 import org.koin.dsl.module
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
 
 val chartedModule = module {
-    single {
-        val log by logging("dev.floofy.haru.Scheduler")
-        Scheduler {
-            handleError { job, t ->
-                log.error("Unable to execute job [${job.name}]:", t)
-            }
-        }
-    }
-
     single {
         EmailValidator.getInstance(true, true)
     }

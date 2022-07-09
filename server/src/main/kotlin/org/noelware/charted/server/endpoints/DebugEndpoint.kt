@@ -27,6 +27,7 @@ import org.noelware.charted.search.elasticsearch.ElasticsearchClient
 import org.noelware.charted.search.elasticsearch.index.Index
 import org.noelware.charted.search.meilisearch.MeilisearchClient
 import org.noelware.charted.server.plugins.IsAdminGuard
+import org.noelware.charted.server.plugins.Sessions
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.noelware.ktor.endpoints.Get
 import java.lang.management.ManagementFactory
@@ -41,6 +42,7 @@ class DebugEndpoint(
     private val os = ManagementFactory.getOperatingSystemMXBean()
 
     init {
+        install(Sessions)
         install(IsAdminGuard)
     }
 

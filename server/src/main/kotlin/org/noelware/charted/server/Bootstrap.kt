@@ -21,6 +21,7 @@ import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import dev.floofy.haru.Scheduler
 import dev.floofy.utils.koin.inject
 import dev.floofy.utils.koin.injectOrNull
 import dev.floofy.utils.slf4j.logging
@@ -29,9 +30,6 @@ import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
 import io.sentry.Sentry
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
@@ -56,7 +54,6 @@ import org.noelware.charted.common.data.Feature
 import org.noelware.charted.common.data.helm.RepoType
 import org.noelware.charted.core.StorageWrapper
 import org.noelware.charted.core.apikeys.TokenExpirationManager
-import org.noelware.charted.core.chartedModule
 import org.noelware.charted.core.interceptors.LogInterceptor
 import org.noelware.charted.core.interceptors.SentryInterceptor
 import org.noelware.charted.core.loggers.KoinLogger
@@ -316,7 +313,14 @@ object Bootstrap {
             null
         }
 
-        val ratelimiter = Ratelimiter(json, redis)
+        val scheduler = Scheduler {
+            handleError { job, t ->
+                val logger by logging<Scheduler>()
+                logger.error("Unable to execute job [${job.name}]:", t)
+            }
+        }
+
+        val ratelimiter = Ratelimiter(json, redis, scheduler)
         val sessions = SessionManager(config, json, redis)
         val apiKeyExpiration = TokenExpirationManager(redis)
         val httpClient = HttpClient(OkHttp) {
@@ -348,37 +352,39 @@ object Bootstrap {
             null
         }
 
-        val koin = startKoin {
+        val server = ChartedServer(config)
+        startKoin {
             logger(KoinLogger(config))
             modules(
                 chartedModule,
                 *endpointsModule.toTypedArray(),
                 module {
-                    single { yaml }
-                    single { config }
-                    single { ds }
-                    single { json }
                     single<IRedisClient> { redis }
-                    single { ChartedServer(get()) }
-                    single { sessions }
-                    single { ratelimiter }
-                    single { wrapper }
                     single { apiKeyExpiration }
+                    single { ratelimiter }
                     single { httpClient }
+                    single { scheduler }
+                    single { sessions }
+                    single { wrapper }
+                    single { config }
+                    single { server }
+                    single { yaml }
+                    single { json }
+                    single { ds }
 
-                    clickhouse?.let { ch ->
-                        single { ch }
+                    if (clickhouse != null) {
+                        single { clickhouse }
                         if (config.isFeatureEnabled(Feature.AUDIT_LOGS)) {
-                            single { AuditLogsFeature(ch) }
+                            single { AuditLogsFeature(get()) }
                         }
                     }
 
-                    elastic?.let { e ->
-                        single { e }
+                    if (elastic != null) {
+                        single { elastic }
                     }
 
-                    meili?.let { m ->
-                        single { m }
+                    if (meili != null) {
+                        single { meili }
                     }
                 }
             )
@@ -386,7 +392,7 @@ object Bootstrap {
 
         elastic?.connect()
         clickhouse?.connect()
-        val server = koin.koin.get<ChartedServer>()
+
         try {
             server.start()
         } catch (e: Exception) {
@@ -397,8 +403,7 @@ object Bootstrap {
             //
             // example: Elasticsearch cannot index all data due to
             // I/O locks or what not (and it'll keep looping)
-            halt(120)
-            exitProcess(1)
+            halt(1)
         }
     }
 }

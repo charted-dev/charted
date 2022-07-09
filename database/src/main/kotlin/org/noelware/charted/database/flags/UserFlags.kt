@@ -20,9 +20,10 @@ package org.noelware.charted.database.flags
 import org.noelware.charted.common.Bitfield
 
 private val FLAGS = mapOf(
-    "premium" to (1 shl 0).toLong(),
-    "employee" to (1 shl 1).toLong(),
-    "verified:publisher" to (1 shl 2).toLong()
+    "premium" to (1 shl 0).toLong(), // only available on charts.noelware.org
+    "employee" to (1 shl 1).toLong(), // only available on charts.noelware.org
+    "verified:publisher" to (1 shl 2).toLong(),
+    "admin" to (1 shl 3).toLong()
 )
 
 class UserFlags(originalBits: Long = 0L): Bitfield(originalBits, FLAGS)

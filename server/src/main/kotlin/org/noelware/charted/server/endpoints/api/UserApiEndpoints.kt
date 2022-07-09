@@ -26,16 +26,20 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import org.apache.commons.validator.routines.EmailValidator
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.IRedisClient
+import org.noelware.charted.common.RandomGenerator
 import org.noelware.charted.common.SHAUtils
 import org.noelware.charted.common.data.Config
 import org.noelware.charted.common.data.helm.ChartIndexYaml
@@ -61,6 +65,7 @@ import org.noelware.remi.core.figureContentType
 import org.noelware.remi.filesystem.FilesystemStorageTrailer
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.File
 
 @kotlinx.serialization.Serializable
@@ -290,6 +295,79 @@ class UserApiEndpoints(
                 createOutgoingContentWithBytes(bytes, contentType = ContentType.parse(contentType))
             )
         }
+    }
+
+    @Post("/@me/avatar")
+    suspend fun uploadAvatar(call: ApplicationCall) {
+        val multipart = call.receiveMultipart()
+        val parts = multipart.readAllParts()
+        val first = parts.firstOrNull() ?: return call.respond(
+            HttpStatusCode.BadRequest,
+            buildJsonObject {
+                put("success", false)
+                putJsonArray("errors") {
+                    addJsonObject {
+                        put("code", "MORE_THAN_ONE_PART_SPECIFIED")
+                        put("message", "There can be only one part or there was no parts.")
+                    }
+                }
+            }
+        )
+
+        if (first !is PartData.FileItem) {
+            return call.respond(
+                HttpStatusCode.NotAcceptable,
+                buildJsonObject {
+                    put("success", false)
+                    putJsonArray("errors") {
+                        addJsonObject {
+                            put("code", "NOT_FILE_PART")
+                            put("message", "The multipart item was not a file.")
+                        }
+                    }
+                }
+            )
+        }
+
+        val inputStream = first.streamProvider()
+        val baos = ByteArrayOutputStream()
+        withContext(Dispatchers.IO) {
+            inputStream.transferTo(baos)
+        }
+
+        val data = baos.toByteArray()
+        val contentType = storage.trailer.figureContentType(data)
+        if (!(listOf("image/png", "image/jpeg", "image/jpg", "image/gif").contains(contentType))) {
+            return call.respond(
+                HttpStatusCode.NotAcceptable,
+                buildJsonObject {
+                    put("success", false)
+                    putJsonArray("errors") {
+                        addJsonObject {
+                            put("code", "INVALID_TARBALL")
+                            put("message", "File provided was not a image type.")
+                        }
+                    }
+                }
+            )
+        }
+
+        val hash = RandomGenerator.generate(4)
+        val ext = when (contentType) {
+            "image/png" -> ".png"
+            "image/jpg", "image.jpeg" -> ".jpg"
+            "image/gif" -> ".gif"
+            else -> "" // should never happen!
+        }
+
+        storage.upload("./avatars/${call.session.userID}/$hash.$ext", ByteArrayInputStream(inputStream.readBytes()), contentType)
+        first.dispose()
+        call.respond(
+            HttpStatusCode.Accepted,
+            buildJsonObject {
+                put("success", true)
+            }
+        )
     }
 
     @Post("/@me/refresh_token")

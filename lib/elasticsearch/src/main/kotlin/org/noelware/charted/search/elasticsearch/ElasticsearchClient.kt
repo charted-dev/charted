@@ -84,6 +84,8 @@ class ElasticsearchClient(
         get() = _client.value
 
     fun connect() {
+        if (closed) return
+
         log.debug("Creating connection to Elasticsearch with nodes [${config.nodes.joinToString(", ")}]")
         val builder = if (config.cloudId != null) {
             RestClient.builder(config.cloudId)

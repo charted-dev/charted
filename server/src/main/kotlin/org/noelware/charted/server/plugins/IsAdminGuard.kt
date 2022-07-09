@@ -17,9 +17,29 @@
 
 package org.noelware.charted.server.plugins
 
+import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.response.*
+import org.noelware.charted.database.controllers.UserController
+import org.noelware.charted.database.models.bitfield
 
 val IsAdminGuard = createRouteScopedPlugin("IsAdminGuard") {
     onCall { call ->
+        val session = call.attributes.getOrNull(sessionsKey)
+        if (session != null) {
+            // Fetch the user
+            val user = UserController.get(session.userID)!!
+            if (!user.bitfield.has("admin")) {
+                // should fall under the 404 thing
+                call.respond(HttpStatusCode.NotFound)
+                return@onCall
+            }
+
+            // should process the request rather than rejecting it
+            return@onCall
+        }
+
+        // just keep it as a 404 if there is no session :>
+        call.respond(HttpStatusCode.NotFound)
     }
 }

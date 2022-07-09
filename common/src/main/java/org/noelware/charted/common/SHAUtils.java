@@ -18,10 +18,14 @@
 package org.noelware.charted.common;
 
 import com.google.common.hash.Hashing;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * Represents the utilities for hashing.
+ *
  * @since 07.07.2022
  * @author Noel <cutie@floofy.dev>
  */
@@ -31,5 +35,12 @@ public class SHAUtils {
   @NotNull
   public static String md5(@NotNull String text) {
     return Hashing.md5().hashBytes(text.getBytes(StandardCharsets.UTF_8)).toString();
+  }
+
+  @NotNull
+  public static <T extends @NotNull InputStream> String sha256Checksum(@NotNull T stream)
+      throws IOException {
+    var bytes = stream.readAllBytes();
+    return Hashing.sha256().hashBytes(bytes).toString();
   }
 }

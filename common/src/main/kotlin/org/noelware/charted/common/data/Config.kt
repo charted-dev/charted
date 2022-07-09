@@ -26,9 +26,6 @@ data class Config(
     @SerialName("jwt_secret_key")
     val jwtSecretKey: String = "",
 
-    @SerialName("cdn_base_url")
-    val cdnBaseUrl: String? = null,
-
     @SerialName("invite_only")
     val inviteOnly: Boolean = false,
     val telemetry: Boolean = false,
@@ -51,7 +48,8 @@ data class Config(
     val server: KtorServerConfig = KtorServerConfig(),
     val debug: Boolean = false,
     val redis: RedisConfig = RedisConfig(),
-    val ssl: SSLKeystoreConfig? = null
+    val ssl: SSLKeystoreConfig? = null,
+    val cdn: CdnConfig = CdnConfig()
 ) {
     fun isFeatureEnabled(feature: Feature): Boolean = features.contains(feature)
 }

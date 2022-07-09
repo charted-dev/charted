@@ -18,6 +18,8 @@
 package org.noelware.charted.server
 
 import com.charleskorn.kaml.YamlException
+import dev.floofy.haru.Scheduler
+import dev.floofy.utils.koin.inject
 import dev.floofy.utils.koin.retrieve
 import dev.floofy.utils.kotlin.ifNotNull
 import dev.floofy.utils.kotlin.sizeToStr
@@ -37,6 +39,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.sentry.Sentry
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.*
 import org.koin.core.context.GlobalContext
@@ -46,6 +49,8 @@ import org.noelware.charted.common.data.Config
 import org.noelware.charted.common.data.Feature
 import org.noelware.charted.common.exceptions.ValidationException
 import org.noelware.charted.features.docker.registry.DockerRegistryPlugin
+import org.noelware.charted.server.endpoints.proxyStorageTrailer
+import org.noelware.charted.server.jobs.ReconfigureProxyCdnJob
 import org.noelware.charted.server.plugins.Logging
 import org.noelware.charted.server.plugins.Ratelimit
 import org.noelware.charted.server.plugins.RequestMdc
@@ -64,7 +69,7 @@ class ChartedServer(private val config: Config) {
         val hasStarted: SetOnceGetValue<Boolean> = SetOnceGetValue()
     }
 
-    private lateinit var server: NettyApplicationEngine
+    lateinit var server: NettyApplicationEngine
     private val log by logging<ChartedServer>()
 
     fun start() {
@@ -280,7 +285,17 @@ class ChartedServer(private val config: Config) {
                     }
                 }
 
-                routing {}
+                routing {
+                    if (self.config.cdn.proxyContents) {
+                        runBlocking {
+                            proxyStorageTrailer(GlobalContext.retrieve(), self.config)
+                        }
+
+                        val scheduler: Scheduler by inject()
+                        scheduler.schedule(ReconfigureProxyCdnJob(self, GlobalContext.retrieve(), self.config), start = true)
+                    }
+                }
+
                 install(NoelKtorRouting) {
                     endpointLoader(KoinEndpointLoader)
                 }
