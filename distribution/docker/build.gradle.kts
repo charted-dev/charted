@@ -15,9 +15,8 @@
  * limitations under the License.
  */
 
-import org.noelware.charted.gradle.plugins.docker.BuildDockerImageTask
+import org.noelware.charted.gradle.plugins.docker.tasks.BuildDockerImageTask
 import org.noelware.charted.gradle.plugins.docker
-import org.gradle.internal.os.OperatingSystem
 import org.noelware.charted.gradle.*
 import dev.floofy.utils.gradle.*
 
@@ -27,54 +26,43 @@ plugins {
 
 docker {
     dockerfile(file("./amd64.Dockerfile")) {
-        addBuildArgument("VERSION" to "$VERSION")
-        addBuildArgument("COMMIT_SHA" to COMMIT_HASH)
+        buildArguments += mapOf(
+            "VERSION" to "$VERSION",
+            "COMMIT_SHA" to COMMIT_HASH
+        )
     }
 
     dockerfile(file("./arm64.Dockerfile")) {
         platform = "linux/arm64"
-        addBuildArgument("VERSION" to "$VERSION")
-        addBuildArgument("COMMIT_SHA" to COMMIT_HASH)
-    }
-
-    dockerfile(file("./windows.Dockerfile")) {
-        platform = "windows/amd64"
-        addBuildArgument("VERSION" to "$VERSION")
-        addBuildArgument("COMMIT_SHA" to COMMIT_HASH)
+        buildArguments += mapOf(
+            "VERSION" to "$VERSION",
+            "COMMIT_SHA" to COMMIT_HASH
+        )
     }
 }
 
-val docker = extensions.docker!!
+val extension = extensions.docker!!
 tasks.register<BuildDockerImageTask>("buildLinux64Image") {
-    dockerfile by docker.dockerfiles.single { it.platform == "linux/amd64" }
-    tag by "$VERSION"
-}
+    useDockerBuildx by true
+    dockerContext.set(rootProject.projectDir)
+    dockerfile by extension.findDockerfile { it.platform == "linux/amd64" }!!
 
-tasks.register<BuildDockerImageTask>("buildLinuxArmImage") {
-    doFirst {
-        // TODO: support building with QEMU (fetching images, check if the multi-arch image exists, etc etc)
-        val arch = System.getProperty("os.arch")
-        if (!listOf("arm64", "aarch64").contains(arch)) {
-            throw GradleException("Can't build arm64 image with architecture [$arch]")
-        }
+    val shouldCacheFrom = System.getenv("CHARTED_DOCKER_CACHE_FROM")
+    if (shouldCacheFrom != null) {
+        cacheFrom.set(file(shouldCacheFrom))
     }
 
-    doLast {
-        (this as BuildDockerImageTask).dockerfile by docker.dockerfiles.single { it.platform == "linux/arm64" }
-        tag by "$VERSION"
-    }
-}
-
-tasks.register<BuildDockerImageTask>("buildWindowsImage") {
-    doFirst {
-        val os = OperatingSystem.current()
-        if (!os.isWindows) {
-            throw GradleException("Unable to build Windows image on a non-Windows host.")
-        }
+    val shouldCacheTo = System.getenv("CHARTED_DOCKER_CACHE_TO")
+    if (shouldCacheTo != null) {
+        cacheTo.set(file(shouldCacheTo))
     }
 
-    doLast {
-        (this as BuildDockerImageTask).dockerfile by docker.dockerfiles.single { it.platform == "windows/amd64" }
-        tag by "$VERSION"
+    val shouldCacheValue = if (System.getenv("CHARTED_DOCKER_SHOULD_CACHE") != null) {
+        val value = System.getenv("CHARTED_DOCKER_SHOULD_CACHE")
+        value.matches("no|false|0$".toRegex())
+    } else {
+        true
     }
+
+    shouldCache by shouldCacheValue
 }

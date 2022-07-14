@@ -39,7 +39,7 @@ import java.io.Closeable
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.hours
 
-class Ratelimiter(private val json: Json, private val redis: IRedisClient, private val scheduler: Scheduler): Closeable {
+class Ratelimiter(private val json: Json, private val redis: IRedisClient, scheduler: Scheduler): Closeable {
     private val expirationJobs = mutableListOf<Job>()
     private val log by logging<Ratelimiter>()
 
@@ -58,11 +58,10 @@ class Ratelimiter(private val json: Json, private val redis: IRedisClient, priva
             sw.reset()
             sw.start()
 
-            val ttl = runBlocking { redis.commands.ttl(key).await() }
+            val ttl = runBlocking { redis.commands.ttl("ratelimit:$key").await() }
             sw.stop()
 
             log.debug("|- Took ${sw.getTime(TimeUnit.MILLISECONDS)}ms to find TTL for ratelimit #$index: [$ttl]")
-
             if (ttl == -2L) {
                 log.debug("|  |- TTL key didn't exist for ratelimit #$index!")
                 continue
@@ -87,8 +86,8 @@ class Ratelimiter(private val json: Json, private val redis: IRedisClient, priva
             name = "remove expired ratelimits"
             expression = "@hourly"
             executor = {
-                log.debug("Deleting expired ratelimits...")
-                val notActiveJobs = expirationJobs.filterNot { it.isCompleted }
+                log.debug("Deleting expired ratelimit jobs...")
+                val notActiveJobs = expirationJobs.filter { it.isCompleted }
                 for (job in notActiveJobs) {
                     expirationJobs.remove(job)
                 }
@@ -120,7 +119,8 @@ class Ratelimiter(private val json: Json, private val redis: IRedisClient, priva
         }
 
         val rl = Ratelimit(resetAt = Clock.System.now().plus(1.hours))
-        redis.commands.expire(ip, 1.hours.inWholeSeconds).await()
+        redis.commands.set("ratelimit:$ip", "boop fluff").await()
+        redis.commands.expire("ratelimit:$ip", 3600).await()
         redis.commands.hmset(
             "charted:ratelimits",
             mapOf(ip to json.encodeToString(rl))

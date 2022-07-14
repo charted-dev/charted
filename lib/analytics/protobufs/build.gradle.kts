@@ -58,8 +58,20 @@ sourceSets {
 }
 
 protobuf {
+    // The environment variable was added so the Docker image can compile the server with
+    // `protoc`. The Maven artifact only compiles on glib rather than musl (gcompat didn't work D:), so a simple fix
+    // is the CHARTED_PROTOC_PATH environment variable.
+    //
+    // https://github.com/google/protobuf-gradle-plugin/issues/265#issuecomment-421508779
     protoc {
-        artifact = "com.google.protobuf:protoc:3.21.2"
+        val protocPath = System.getenv("CHARTED_PROTOC_PATH")
+        if (protocPath != null) {
+            logger.lifecycle("Using `protoc` in path [$protocPath]")
+            path = protocPath
+        } else {
+            logger.lifecycle("Using protoc artifact! If you wish to set a custom protoc path, use the `CHARTED_PROTOC_PATH` environment variable~")
+            artifact = "com.google.protobuf:protoc:3.21.2"
+        }
     }
 
     plugins {

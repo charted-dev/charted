@@ -34,6 +34,7 @@ import kotlinx.serialization.json.*
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.IRedisClient
 import org.noelware.charted.common.data.Config
+import org.noelware.charted.common.extensions.measureSuspendTime
 import java.io.Closeable
 import java.time.Instant
 import java.util.*
@@ -46,17 +47,24 @@ class SessionManager(config: Config, private val json: Json, private val redis: 
     private val log by logging<SessionManager>()
 
     init {
-        val sessions = runBlocking { redis.commands.hgetall("charted:sessions").await() }
-        for (key in sessions.keys) {
-            val ttl = runBlocking { redis.commands.ttl(key).await() }
+        log.debug("Collecting sessions...")
 
-            if (ttl == -2L) continue
+        val sessions = log.measureSuspendTime("Took %T to collect all sessions!") {
+            redis.commands.hgetall("charted:sessions").await()
+        }
+
+        for ((key, value) in sessions) {
+            log.debug("|- Session $key:")
+
+            val ttl = runBlocking { redis.commands.ttl(key).await() }
             if (ttl == -1L) {
-                runBlocking { redis.commands.hdel("charted:sessions", key).await() }
+                log.debug("|  |- Session has expired already! Cleaning up...")
+                runBlocking { revoke(json.decodeFromString(value)) }
             } else {
+                log.debug("|  |- Session expires in $ttl seconds!")
                 jobs[UUID.fromString(key)] = ChartedScope.launch {
-                    delay(ttl / 1000)
-                    redis.commands.hdel("charted:sessions", key).await()
+                    delay(ttl * 1000)
+                    revoke(json.decodeFromString(value))
                 }
             }
         }
@@ -77,7 +85,7 @@ class SessionManager(config: Config, private val json: Json, private val redis: 
         val jwt = verifier.verify(token)
         val payload = json.decodeFromString<JsonObject>(String(Base64.getDecoder().decode(jwt.payload.toByteArray())))
 
-        payload["exp"]?.jsonPrimitive?.intOrNull?.ifNotNull { it >= Clock.System.now().epochSeconds } ?: true
+        payload["exp"]?.jsonPrimitive?.intOrNull?.ifNotNull { this >= Clock.System.now().epochSeconds } ?: true
     } catch (e: TokenExpiredException) {
         true
     } catch (e: Exception) {
@@ -104,7 +112,7 @@ class SessionManager(config: Config, private val json: Json, private val redis: 
             ?: error("Missing `session_id` in header payload")
 
         return redis.commands.hget("charted:sessions", sessionID).await().ifNotNull {
-            json.decodeFromString(it)
+            json.decodeFromString(this)
         }
     }
 
@@ -142,7 +150,8 @@ class SessionManager(config: Config, private val json: Json, private val redis: 
             accessToken
         )
 
-        redis.commands.expire(sessionID.toString(), 7.days.inWholeSeconds).await()
+        redis.commands.set(sessionID.toString(), "boop fluff").await()
+        redis.commands.expire(sessionID.toString(), 604800).await()
         redis.commands.hmset(
             "charted:sessions",
             mapOf(
@@ -152,6 +161,7 @@ class SessionManager(config: Config, private val json: Json, private val redis: 
 
         jobs[sessionID] = ChartedScope.launch {
             delay(7.days.inWholeMilliseconds)
+            redis.commands.del(sessionID.toString()).await()
             redis.commands.hdel("charted:sessions", sessionID.toString()).await()
         }
 
@@ -159,6 +169,7 @@ class SessionManager(config: Config, private val json: Json, private val redis: 
     }
 
     suspend fun revoke(session: Session) {
+        redis.commands.del(session.sessionID.toString()).await()
         redis.commands.hdel("charted:sessions", session.sessionID.toString()).await()
         val job = jobs[session.sessionID]
 

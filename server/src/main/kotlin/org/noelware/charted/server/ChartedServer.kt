@@ -126,6 +126,13 @@ class ChartedServer(private val config: Config) {
 
                 install(CORS) {
                     anyHost()
+                    allowHeader(HttpHeaders.ContentType)
+                    allowHeader(HttpHeaders.Authorization)
+                    allowHeader(HttpHeaders.Accept)
+
+                    allowCredentials = true
+                    maxAgeInSeconds = 3600
+                    methods += setOf(HttpMethod.Get, HttpMethod.Patch, HttpMethod.Delete, HttpMethod.Put, HttpMethod.Post)
                     headers += "X-Forwarded-Proto"
                 }
 
@@ -194,8 +201,8 @@ class ChartedServer(private val config: Config) {
 
                                             cause.cause.ifNotNull {
                                                 putJsonObject("caused") {
-                                                    put("message", it.message)
-                                                    put("stacktrace", it.stackTraceToString())
+                                                    put("message", message)
+                                                    put("stacktrace", stackTraceToString())
                                                 }
                                             }
                                         }
@@ -242,8 +249,8 @@ class ChartedServer(private val config: Config) {
                                         if (self.config.debug) {
                                             cause.cause.ifNotNull {
                                                 putJsonObject("cause") {
-                                                    put("message", it.message)
-                                                    put("stacktrace", it.stackTraceToString())
+                                                    put("message", message)
+                                                    put("stacktrace", stackTraceToString())
                                                 }
                                             }
                                         }
@@ -273,8 +280,8 @@ class ChartedServer(private val config: Config) {
 
                                             cause.cause.ifNotNull {
                                                 putJsonObject("cause") {
-                                                    put("message", it.message)
-                                                    put("stacktrace", it.stackTraceToString())
+                                                    put("message", message)
+                                                    put("stacktrace", stackTraceToString())
                                                 }
                                             }
                                         }

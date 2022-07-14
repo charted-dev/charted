@@ -31,5 +31,5 @@ if ! [[ "${CHARTED_ENABLE_WELCOME_PROMPT:-yes}" =~ ^(no|false|0)$ ]]; then
   info ""
 fi
 
-debug "$ tini -s /app/noelware/charted/server/charted-server"
-tini -s "/app/noelware/charted/server/charted-server"
+debug "$ tini -s $@"
+tini -s "$@"

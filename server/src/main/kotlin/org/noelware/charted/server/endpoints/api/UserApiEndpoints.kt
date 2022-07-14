@@ -53,6 +53,7 @@ import org.noelware.charted.database.controllers.RepositoryController
 import org.noelware.charted.database.controllers.UserController
 import org.noelware.charted.database.entities.UserConnectionEntity
 import org.noelware.charted.database.entities.UserEntity
+import org.noelware.charted.database.models.User
 import org.noelware.charted.database.models.UserConnections
 import org.noelware.charted.database.tables.UserTable
 import org.noelware.charted.server.apiKeyOrNull
@@ -353,15 +354,15 @@ class UserApiEndpoints(
             )
         }
 
-        val hash = RandomGenerator.generate(4)
-        val ext = when (contentType) {
-            "image/png" -> ".png"
-            "image/jpg", "image.jpeg" -> ".jpg"
-            "image/gif" -> ".gif"
+        val hash = RandomGenerator.generate(8)
+        val ext = when {
+            contentType.startsWith("image/png") -> ".png"
+            contentType.startsWith("image/jpg") || contentType.startsWith("image/jpeg") -> ".jpg"
+            contentType.startsWith("image/gif") -> ".gif"
             else -> "" // should never happen!
         }
 
-        storage.upload("./avatars/${call.session.userID}/$hash.$ext", ByteArrayInputStream(inputStream.readBytes()), contentType)
+        storage.upload("./avatars/${call.session.userID}/$hash.$ext", ByteArrayInputStream(data), contentType)
         first.dispose()
 
         asyncTransaction(ChartedScope) {
@@ -578,8 +579,8 @@ class UserApiEndpoints(
         call.respond(
             HttpStatusCode.Created,
             buildJsonObject {
-                put("success", false)
-                put("data", session.toJsonObject())
+                put("success", true)
+                put("data", session.toJsonObject(User.fromEntity(user)))
             }
         )
     }

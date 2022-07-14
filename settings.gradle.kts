@@ -29,6 +29,7 @@ include(
     ":distribution:chart",
     ":distribution:deb",
     ":distribution:docker",
+    ":distribution:homebrew",
     ":distribution:rpm",
     ":distribution:scoop",
     ":features:audit-logs",
@@ -47,16 +48,16 @@ include(
 gradle.settingsEvaluated {
     logger.lifecycle("[preinit] Checking if we can overwrite cache to main directory?")
     val overrideBuildCacheProp: String? = System.getProperty("org.noelware.charted.overwriteCache")
-    if (overrideBuildCacheProp != null && overrideBuildCacheProp.matches("^yes|true|1|si$".toRegex())) {
-        val buildCacheDir = when (val prop = System.getProperty("org.noelware.charted.cachedir")) {
-            null -> "${System.getProperty("user.dir")}/.caches/gradle"
-            else -> when {
-                prop.startsWith("~/") -> "${System.getProperty("user.home")}${prop.substring(1)}"
-                prop.startsWith("./") -> "${System.getProperty("user.dir")}${prop.substring(1)}"
-                else -> prop
-            }
+    val buildCacheDir = when (val prop = System.getProperty("org.noelware.charted.cachedir")) {
+        null -> "${System.getProperty("user.dir")}/.caches/gradle"
+        else -> when {
+            prop.startsWith("~/") -> "${System.getProperty("user.home")}${prop.substring(1)}"
+            prop.startsWith("./") -> "${System.getProperty("user.dir")}${prop.substring(1)}"
+            else -> prop
         }
+    }
 
+    if (overrideBuildCacheProp != null && overrideBuildCacheProp.matches("^yes|true|1|si$".toRegex())) {
         logger.lifecycle("[preinit:cache] Setting up build cache directory in [$buildCacheDir]")
         val file = File(buildCacheDir)
         if (!file.exists()) file.mkdirs()
@@ -68,7 +69,7 @@ gradle.settingsEvaluated {
             }
         }
     } else {
-        logger.lifecycle("[preinit] Use `-Dorg.noelware.charted.overwriteCache=true|yes|1|si` to overwrite cache to [${rootProject.projectDir}]")
+        logger.lifecycle("[preinit] Use `-Dorg.noelware.charted.overwriteCache=true|yes|1|si` to overwrite cache to [$buildCacheDir]")
     }
 
 //    if (System.getProperty("org.noelware.charted.ignoreJavaCheck") == "true")

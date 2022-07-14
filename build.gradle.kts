@@ -23,6 +23,7 @@ plugins {
 
 group = "org.noelware.charted"
 version = "$VERSION"
+description = "\uD83D\uDCE6 You know, for Helm Charts?"
 
 repositories {
     mavenCentral()

@@ -14,3 +14,30 @@
 # limitations under the License.
 
 FROM eclipse-temurin:18-jdk-alpine AS builder
+
+RUN apk update && apk add --no-cache git ca-certificates libc6-compat gcompat && apk add --no-cache protobuf-dev --repository=https://dl-cdn.alpinelinux.org/alpine/edge/main
+WORKDIR /build/charted
+
+# https://github.com/google/protobuf-gradle-plugin/issues/265#issuecomment-421508779
+ENV CHARTED_PROTOC_PATH=protoc
+
+COPY . .
+RUN chmod +x ./gradlew
+RUN ./gradlew :server:installDist --stacktrace --scan
+
+FROM eclipse-temurin:18-jdk-alpine
+
+RUN apk update && apk add --no-cache tini bash libc6-compat gcompat
+WORKDIR /app/noelware/charted/server
+
+COPY distribution/docker/scripts/linux /app/noelware/charted/server/scripts
+COPY --from=builder /build/charted/server/build/install/charted-server/charted-server .
+COPY --from=builder /build/charted/server/build/install/charted-server/lib .
+
+RUN chmod +x /app/noelware/charted/server/scripts/docker-entrypoint.sh && \
+    chmod +x /app/noelware/charted/server/charted-server
+
+USER 1001
+
+ENTRYPOINT ["/app/noelware/charted/server/scripts/docker-entrypoint.sh"]
+CMD ["/app/noelware/charted/server/charted-server"]

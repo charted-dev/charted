@@ -26,7 +26,7 @@ dependencies {
     api(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.3"))
     api(platform("org.jetbrains.exposed:exposed-bom:0.38.2"))
     api(platform("org.noelware.remi:remi-bom:0.3.2-beta"))
-    api(platform("dev.floofy.commons:commons-bom:2.1.1"))
+    api(platform("dev.floofy.commons:commons-bom:2.2.1"))
     api(platform("io.ktor:ktor-bom:2.0.3"))
 
     api("org.jetbrains.kotlinx:kotlinx-serialization-json")

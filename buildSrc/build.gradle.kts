@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     `kotlin-dsl`
     groovy
@@ -33,7 +35,12 @@ dependencies {
     implementation("com.google.protobuf:protobuf-gradle-plugin:0.8.18")
     implementation("com.netflix.nebula:gradle-ospackage-plugin:9.1.1")
     implementation("io.github.z4kn4fein:semver:1.3.3")
-    implementation("dev.floofy.commons:gradle:2.1.1")
+    implementation("com.google.code.gson:gson:2.9.0")
+    implementation("dev.floofy.commons:gradle:2.2.1")
     implementation(kotlin("serialization", "1.7.0"))
     implementation(kotlin("gradle-plugin", "1.7.0"))
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    kotlinOptions.jvmTarget = "17"
 }

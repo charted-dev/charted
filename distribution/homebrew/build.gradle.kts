@@ -15,20 +15,15 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.common
+import org.noelware.charted.gradle.plugins.homebrew.GenerateHomebrewFormulaTask
+import org.noelware.charted.gradle.plugins.toRegularFile
+import dev.floofy.utils.gradle.*
 
-import java.security.SecureRandom
+plugins {
+    id("org.noelware.charted.distribution.homebrew")
+}
 
-object RandomGenerator {
-    private val random by lazy { SecureRandom() }
-    private val chars = "abcdefghijklmnopqrstuvwyxzABCDEFGHIJKLMNOPQRSTUVWYX1234567890-_$"
-
-    fun generate(length: Int = 16): String {
-        val buffer = StringBuffer(length)
-        for (index in 0..length) {
-            buffer.append(chars[random.nextInt(chars.length)])
-        }
-
-        return buffer.toString()
-    }
+tasks.register<GenerateHomebrewFormulaTask>("generateHomebrewFormula") {
+    outputs.upToDateWhen { false }
+    homebrewFormulaFile by file("./charted-server.template.rb").toRegularFile()
 }
