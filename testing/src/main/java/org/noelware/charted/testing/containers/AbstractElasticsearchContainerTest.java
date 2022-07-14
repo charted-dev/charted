@@ -17,6 +17,7 @@
 
 package org.noelware.charted.testing.containers;
 
+import java.util.List;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.noelware.charted.common.SetOnceGetValue;
@@ -25,8 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.testcontainers.utility.DockerImageName;
-
-import java.util.List;
 
 /**
  * This is the main test container suite to test the Elasticsearch library from <code>
@@ -55,12 +54,12 @@ public class AbstractElasticsearchContainerTest {
                         .withTag("8.3.0");
 
         var cont = new ElasticsearchContainer(image);
-        cont.setEnv(List.of(
-                "ES_JAVA_OPTS=-Xms1024m -Xmx4096m",
-                "node.name=charted-es-0",
-                "cluster.name=charted-es-cluster",
-                "network.host=0.0.0.0"
-        ));
+        cont.setEnv(
+                List.of(
+                        "ES_JAVA_OPTS=-Xms1024m -Xmx4096m",
+                        "node.name=charted-es-0",
+                        "cluster.name=charted-es-cluster",
+                        "network.host=0.0.0.0"));
 
         cont.setWaitStrategy(new HttpWaitStrategy().forPort(9200));
 

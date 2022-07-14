@@ -17,13 +17,13 @@
 
 package org.noelware.charted.search.elasticsearch.tests
 
-//import org.junit.Test
-//import org.noelware.charted.common.data.ElasticsearchConfig
-//import org.noelware.charted.search.elasticsearch.ElasticsearchClient
-//import org.noelware.charted.testing.containers.AbstractElasticsearchContainerTest
-//import kotlin.test.assertEquals
+// import org.junit.Test
+// import org.noelware.charted.common.data.ElasticsearchConfig
+// import org.noelware.charted.search.elasticsearch.ElasticsearchClient
+// import org.noelware.charted.testing.containers.AbstractElasticsearchContainerTest
+// import kotlin.test.assertEquals
 //
-//class ElasticsearchTests: AbstractElasticsearchContainerTest() {
+// class ElasticsearchTests: AbstractElasticsearchContainerTest() {
 //    private val client: ElasticsearchClient
 //        get() {
 //            val nodes = listOf(getContainer().httpHostAddress)
@@ -35,4 +35,4 @@ package org.noelware.charted.search.elasticsearch.tests
 //        client.connect()
 //        assertEquals("8.3.0", client.serverVersion)
 //    }
-//}
+// }
