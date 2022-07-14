@@ -29,47 +29,47 @@ import org.jetbrains.annotations.Nullable;
  * @since 2022.06.14
  */
 public class SetOnceGetValue<T> {
-  private final AtomicBoolean hasSet = new AtomicBoolean(false);
-  private @Nullable T value;
+    private final AtomicBoolean hasSet = new AtomicBoolean(false);
+    private @Nullable T value;
 
-  public @NotNull T getValue() {
-    if (value == null)
-      throw new IllegalStateException("Cannot retrieve the value due to it not being set.");
+    public @NotNull T getValue() {
+        if (value == null)
+            throw new IllegalStateException("Cannot retrieve the value due to it not being set.");
 
-    return value;
-  }
-
-  public @Nullable T getValueOrNull() {
-    return value;
-  }
-
-  public void setValue(@NotNull T value) {
-    if (hasSet.compareAndSet(false, true)) {
-      this.value = value;
+        return value;
     }
-  }
 
-  public boolean wasSet() {
-    return this.hasSet.get();
-  }
+    public @Nullable T getValueOrNull() {
+        return value;
+    }
 
-  @Override
-  public int hashCode() {
-    return value == null ? 0 : value.hashCode();
-  }
+    public void setValue(@NotNull T value) {
+        if (hasSet.compareAndSet(false, true)) {
+            this.value = value;
+        }
+    }
 
-  @Override
-  public boolean equals(Object value) {
-    if (value == null) return false;
-    if (!(value instanceof SetOnceGetValue<?> setter)) return false;
+    public boolean wasSet() {
+        return this.hasSet.get();
+    }
 
-    if (setter.value == null) return false;
-    return value.equals(setter.value);
-  }
+    @Override
+    public int hashCode() {
+        return value == null ? 0 : value.hashCode();
+    }
 
-  @Override
-  public String toString() {
-    return String.format(
-        "charted.SetOnceGetValue(%s)", value == null ? "<uninit>" : value.toString());
-  }
+    @Override
+    public boolean equals(Object value) {
+        if (value == null) return false;
+        if (!(value instanceof SetOnceGetValue<?> setter)) return false;
+
+        if (setter.value == null) return false;
+        return value.equals(setter.value);
+    }
+
+    @Override
+    public String toString() {
+        return String.format(
+                "charted.SetOnceGetValue(%s)", value == null ? "<uninit>" : value.toString());
+    }
 }

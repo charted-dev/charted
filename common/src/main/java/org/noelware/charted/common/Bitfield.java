@@ -36,82 +36,82 @@ import org.jetbrains.annotations.NotNull;
  * @since 31.05.2022
  */
 public class Bitfield {
-  private final Map<String, Long> flags;
-  private long bits;
+    private final Map<String, Long> flags;
+    private long bits;
 
-  public Bitfield() {
-    this(0, new HashMap<>());
-  }
-
-  public Bitfield(long bits) {
-    this(bits, new HashMap<>());
-  }
-
-  public Bitfield(Map<String, Long> flags) {
-    this(0, flags);
-  }
-
-  public Bitfield(long bits, Map<String, Long> flags) {
-    this.flags = Collections.unmodifiableMap(flags);
-    this.bits = bits;
-  }
-
-  public long getBits() {
-    return bits;
-  }
-
-  @NotNull
-  public Map<String, Long> getFlags() {
-    return flags;
-  }
-
-  @NotNull
-  public List<Long> toList() {
-    return flags.values().stream().toList();
-  }
-
-  @NotNull
-  public Bitfield add(@NotNull String key) {
-    return add(flags.get(key));
-  }
-
-  @NotNull
-  public Bitfield addAll() {
-    for (long i : toList()) {
-      add(i);
+    public Bitfield() {
+        this(0, new HashMap<>());
     }
 
-    return this;
-  }
-
-  @NotNull
-  public Bitfield add(long... bits) {
-    var total = 0L;
-    for (long bit : bits) {
-      total |= bit;
+    public Bitfield(long bits) {
+        this(bits, new HashMap<>());
     }
 
-    this.bits |= total;
-    return this;
-  }
-
-  public boolean has(long bit) {
-    return (bits & bit) != 0;
-  }
-
-  public boolean has(@NotNull String flag) {
-    var flagBit = flags.get(flag);
-    return flagBit != null && has(flagBit);
-  }
-
-  @NotNull
-  public Bitfield remove(long... bits) {
-    var total = 0L;
-    for (long bit : bits) {
-      total |= bit;
+    public Bitfield(Map<String, Long> flags) {
+        this(0, flags);
     }
 
-    this.bits &= ~total;
-    return this;
-  }
+    public Bitfield(long bits, Map<String, Long> flags) {
+        this.flags = Collections.unmodifiableMap(flags);
+        this.bits = bits;
+    }
+
+    public long getBits() {
+        return bits;
+    }
+
+    @NotNull
+    public Map<String, Long> getFlags() {
+        return flags;
+    }
+
+    @NotNull
+    public List<Long> toList() {
+        return flags.values().stream().toList();
+    }
+
+    @NotNull
+    public Bitfield add(@NotNull String key) {
+        return add(flags.get(key));
+    }
+
+    @NotNull
+    public Bitfield addAll() {
+        for (long i : toList()) {
+            add(i);
+        }
+
+        return this;
+    }
+
+    @NotNull
+    public Bitfield add(long... bits) {
+        var total = 0L;
+        for (long bit : bits) {
+            total |= bit;
+        }
+
+        this.bits |= total;
+        return this;
+    }
+
+    public boolean has(long bit) {
+        return (bits & bit) != 0;
+    }
+
+    public boolean has(@NotNull String flag) {
+        var flagBit = flags.get(flag);
+        return flagBit != null && has(flagBit);
+    }
+
+    @NotNull
+    public Bitfield remove(long... bits) {
+        var total = 0L;
+        for (long bit : bits) {
+            total |= bit;
+        }
+
+        this.bits &= ~total;
+        return this;
+    }
 }

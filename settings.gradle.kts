@@ -17,6 +17,14 @@
 
 rootProject.name = "charted-server"
 
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+        mavenLocal()
+    }
+}
+
 plugins {
     id("com.gradle.enterprise") version "3.10.2"
 }
@@ -25,7 +33,6 @@ include(
     ":common",
     ":core",
     ":database",
-    ":server",
     ":distribution:chart",
     ":distribution:deb",
     ":distribution:docker",
@@ -42,7 +49,9 @@ include(
     ":lib:email",
     ":lib:meilisearch",
     ":lib:telemetry",
-    ":lib:utils"
+    ":lib:utils",
+    ":server",
+    ":tools:migrations"
 )
 
 gradle.settingsEvaluated {

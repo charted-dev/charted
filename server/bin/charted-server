@@ -25,6 +25,11 @@ join() {
   echo "$*"
 }
 
+fatal() {
+  echo "FATAL :: $1"
+  exit 1
+}
+
 # Resolve links: $0 may be a link
 app_path=$0
 

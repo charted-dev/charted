@@ -23,36 +23,36 @@ import org.junit.jupiter.api.Test;
 import org.noelware.charted.common.Bitfield;
 
 public class BitfieldTests {
-  @Test
-  public void test_ifWeHaveSpecifiedBits() {
-    var flags = new HashMap<String, Long>();
-    flags.put("PRIVATE", (long) (1));
-    flags.put("OWO", (long) (1 << 1));
-    flags.put("UWU", (long) (1 << 2));
+    @Test
+    public void test_ifWeHaveSpecifiedBits() {
+        var flags = new HashMap<String, Long>();
+        flags.put("PRIVATE", (long) (1));
+        flags.put("OWO", (long) (1 << 1));
+        flags.put("UWU", (long) (1 << 2));
 
-    var bits = new Bitfield(flags);
-    Assertions.assertEquals(bits.getBits(), 0);
-    bits.add(1, 1 << 1);
+        var bits = new Bitfield(flags);
+        Assertions.assertEquals(bits.getBits(), 0);
+        bits.add(1, 1 << 1);
 
-    Assertions.assertEquals(bits.getBits(), 3);
-    Assertions.assertTrue(bits.has(1 << 1));
-    Assertions.assertFalse(bits.has(1 << 6));
-    Assertions.assertTrue(bits.has("OWO"));
-    Assertions.assertFalse(bits.has("ice is cute"));
-  }
+        Assertions.assertEquals(bits.getBits(), 3);
+        Assertions.assertTrue(bits.has(1 << 1));
+        Assertions.assertFalse(bits.has(1 << 6));
+        Assertions.assertTrue(bits.has("OWO"));
+        Assertions.assertFalse(bits.has("ice is cute"));
+    }
 
-  @Test
-  public void test_ifWeCanRemoveBits() {
-    var flags = new HashMap<String, Long>();
-    flags.put("PRIVATE", (long) (1));
-    flags.put("OWO", (long) (1 << 1));
-    flags.put("UWU", (long) (1 << 2));
+    @Test
+    public void test_ifWeCanRemoveBits() {
+        var flags = new HashMap<String, Long>();
+        flags.put("PRIVATE", (long) (1));
+        flags.put("OWO", (long) (1 << 1));
+        flags.put("UWU", (long) (1 << 2));
 
-    var bits = new Bitfield(flags);
-    Assertions.assertEquals(bits.getBits(), 0);
-    bits.add(1, 1 << 1);
+        var bits = new Bitfield(flags);
+        Assertions.assertEquals(bits.getBits(), 0);
+        bits.add(1, 1 << 1);
 
-    Assertions.assertEquals(bits.remove(1 << 1).getBits(), 1);
-    Assertions.assertEquals(bits.remove(1).getBits(), 0);
-  }
+        Assertions.assertEquals(bits.remove(1 << 1).getBits(), 1);
+        Assertions.assertEquals(bits.remove(1).getBits(), 0);
+    }
 }

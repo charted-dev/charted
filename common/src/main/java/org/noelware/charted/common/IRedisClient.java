@@ -29,11 +29,11 @@ import java.io.Closeable;
  * @since 25.06.2022
  */
 public interface IRedisClient extends Closeable {
-  void addPubSubListener(RedisPubSubListener<String, String> listener);
+    void addPubSubListener(RedisPubSubListener<String, String> listener);
 
-  RedisPubSubCommands<String, String> getPubSubCommands();
+    RedisPubSubCommands<String, String> getPubSubCommands();
 
-  RedisAsyncCommands<String, String> getCommands();
+    RedisAsyncCommands<String, String> getCommands();
 
-  void connect();
+    void connect();
 }

@@ -18,11 +18,11 @@
 package org.noelware.charted.common.exceptions;
 
 public class StringOverflowException extends ValidationException {
-  public StringOverflowException(String path, int maxSize) {
-    super(
-        path,
-        String.format(
-            "String overflowed from %d characters, exceeded %d characters",
-            maxSize, path.length() - maxSize));
-  }
+    public StringOverflowException(String path, int maxSize) {
+        super(
+                path,
+                String.format(
+                        "String overflowed from %d characters, exceeded %d characters",
+                        maxSize, path.length() - maxSize));
+    }
 }

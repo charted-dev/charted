@@ -19,28 +19,28 @@ package org.noelware.charted.common.exceptions;
 
 /** Represents a validation exception within a Kotlinx Serialization object. */
 public class ValidationException extends RuntimeException {
-  private final String path;
-  private final String message;
+    private final String path;
+    private final String message;
 
-  public ValidationException(String path, String message) {
-    super(String.format("[%s] %s", path, message));
+    public ValidationException(String path, String message) {
+        super(String.format("[%s] %s", path, message));
 
-    this.message = message;
-    this.path = path;
-  }
+        this.message = message;
+        this.path = path;
+    }
 
-  public ValidationException(String path, String message, Exception cause) {
-    super(String.format("[%s] %s", path, message), cause);
+    public ValidationException(String path, String message, Exception cause) {
+        super(String.format("[%s] %s", path, message), cause);
 
-    this.message = message;
-    this.path = path;
-  }
+        this.message = message;
+        this.path = path;
+    }
 
-  public String getValidationMessage() {
-    return message;
-  }
+    public String getValidationMessage() {
+        return message;
+    }
 
-  public String getPath() {
-    return path;
-  }
+    public String getPath() {
+        return path;
+    }
 }

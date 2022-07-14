@@ -41,6 +41,6 @@ dependencies {
     implementation(kotlin("gradle-plugin", "1.7.0"))
 }
 
-tasks.withType<KotlinCompile>().configureEach {
+tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "17"
 }

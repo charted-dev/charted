@@ -15,9 +15,6 @@
  * limitations under the License.
  */
 
-import gradle.kotlin.dsl.accessors._778d9fc59a6b8fe0d4bfb234a622a0a1.testImplementation
-import gradle.kotlin.dsl.accessors._778d9fc59a6b8fe0d4bfb234a622a0a1.testRuntimeOnly
-import groovy.lang.Closure
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 

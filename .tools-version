@@ -1,0 +1,4 @@
+# This is for asdf users who want to use the correct versions to develop charted-server.
+
+java temurin-18.0.1+10
+go   1.18.3

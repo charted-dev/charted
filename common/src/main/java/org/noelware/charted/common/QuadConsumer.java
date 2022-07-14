@@ -19,5 +19,5 @@ package org.noelware.charted.common;
 
 @FunctionalInterface
 public interface QuadConsumer<A, B, C, D, R> {
-  R accept(A first, B second, C third, D fourth);
+    R accept(A first, B second, C third, D fourth);
 }

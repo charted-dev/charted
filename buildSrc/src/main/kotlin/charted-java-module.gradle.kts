@@ -51,9 +51,9 @@ spotless {
         trimTrailingWhitespace()
         removeUnusedImports()
         endWithNewline()
-
         googleJavaFormat().apply {
             reflowLongStrings()
+            aosp()
         }
     }
 }

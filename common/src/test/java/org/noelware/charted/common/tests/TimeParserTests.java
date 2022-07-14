@@ -24,37 +24,37 @@ import org.junit.Test;
 import org.noelware.charted.common.TimeParser;
 
 public class TimeParserTests {
-  @Test
-  public void test_ifParsesCorrectly() {
-    var year = TimeParser.fromString("1 year");
-    var week = TimeParser.fromString("1 week");
-    var day = TimeParser.fromString("2 days");
-    var minute = TimeParser.fromString("12 minutes");
-    var second = TimeParser.fromString("22 seconds");
-    var ms = TimeParser.fromString("25 milliseconds");
+    @Test
+    public void test_ifParsesCorrectly() {
+        var year = TimeParser.fromString("1 year");
+        var week = TimeParser.fromString("1 week");
+        var day = TimeParser.fromString("2 days");
+        var minute = TimeParser.fromString("12 minutes");
+        var second = TimeParser.fromString("22 seconds");
+        var ms = TimeParser.fromString("25 milliseconds");
 
-    assertEquals(Optional.of(31557600000L).get(), year);
-    assertEquals(Optional.of(604800000L).get(), week);
-    assertEquals(Optional.of(172800000L).get(), day);
-    assertEquals(Optional.of(720000L).get(), minute);
-    assertEquals(Optional.of(22000L).get(), second);
-    assertEquals(Optional.of(25L).get(), ms);
-  }
+        assertEquals(Optional.of(31557600000L).get(), year);
+        assertEquals(Optional.of(604800000L).get(), week);
+        assertEquals(Optional.of(172800000L).get(), day);
+        assertEquals(Optional.of(720000L).get(), minute);
+        assertEquals(Optional.of(22000L).get(), second);
+        assertEquals(Optional.of(25L).get(), ms);
+    }
 
-  @Test
-  public void test_checkIfParsesCorrectlyByString() {
-    var year = TimeParser.fromLong(31557600000L, true);
-    var week = TimeParser.fromLong(604800000L, false);
-    var day = TimeParser.fromLong(172800000L, true);
-    var minute = TimeParser.fromLong(720000L, false);
-    var second = TimeParser.fromLong(22000L, true);
-    var ms = TimeParser.fromLong(22L, false);
+    @Test
+    public void test_checkIfParsesCorrectlyByString() {
+        var year = TimeParser.fromLong(31557600000L, true);
+        var week = TimeParser.fromLong(604800000L, false);
+        var day = TimeParser.fromLong(172800000L, true);
+        var minute = TimeParser.fromLong(720000L, false);
+        var second = TimeParser.fromLong(22000L, true);
+        var ms = TimeParser.fromLong(22L, false);
 
-    assertEquals(year, "1 years");
-    assertEquals(week, "1w");
-    assertEquals(day, "2 days");
-    assertEquals(minute, "12min");
-    assertEquals(second, "22 seconds");
-    assertEquals(ms, "22ms");
-  }
+        assertEquals(year, "1 years");
+        assertEquals(week, "1w");
+        assertEquals(day, "2 days");
+        assertEquals(minute, "12min");
+        assertEquals(second, "22 seconds");
+        assertEquals(ms, "22ms");
+    }
 }

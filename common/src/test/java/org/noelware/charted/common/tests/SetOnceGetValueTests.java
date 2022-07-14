@@ -22,27 +22,27 @@ import org.junit.jupiter.api.Assertions;
 import org.noelware.charted.common.SetOnceGetValue;
 
 public class SetOnceGetValueTests {
-  @Test
-  public void test_valueByDefaultIsNull() {
-    var setter = new SetOnceGetValue<String>();
+    @Test
+    public void test_valueByDefaultIsNull() {
+        var setter = new SetOnceGetValue<String>();
 
-    Assertions.assertNull(setter.getValueOrNull());
-    Assertions.assertThrows(IllegalStateException.class, setter::getValue);
-  }
+        Assertions.assertNull(setter.getValueOrNull());
+        Assertions.assertThrows(IllegalStateException.class, setter::getValue);
+    }
 
-  @Test
-  public void test_setValue() {
-    var setter = new SetOnceGetValue<String>();
-    Assertions.assertFalse(setter.wasSet());
+    @Test
+    public void test_setValue() {
+        var setter = new SetOnceGetValue<String>();
+        Assertions.assertFalse(setter.wasSet());
 
-    setter.setValue("owo da uwu");
-    Assertions.assertTrue(setter.wasSet());
-    Assertions.assertEquals("owo da uwu", setter.getValue());
-    Assertions.assertNotEquals("uwu da owo", setter.getValue());
+        setter.setValue("owo da uwu");
+        Assertions.assertTrue(setter.wasSet());
+        Assertions.assertEquals("owo da uwu", setter.getValue());
+        Assertions.assertNotEquals("uwu da owo", setter.getValue());
 
-    setter.setValue("heck");
-    Assertions.assertTrue(setter.wasSet());
-    Assertions.assertEquals("owo da uwu", setter.getValue());
-    Assertions.assertNotEquals("heck", setter.getValue());
-  }
+        setter.setValue("heck");
+        Assertions.assertTrue(setter.wasSet());
+        Assertions.assertEquals("owo da uwu", setter.getValue());
+        Assertions.assertNotEquals("heck", setter.getValue());
+    }
 }

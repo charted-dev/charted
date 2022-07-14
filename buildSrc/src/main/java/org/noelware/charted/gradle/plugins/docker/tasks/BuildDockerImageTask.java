@@ -1,3 +1,20 @@
+/*
+ * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * Copyright 2022 Noelware <team@noelware.org>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.noelware.charted.gradle.plugins.docker.tasks;
 
 import com.google.gson.Gson;
@@ -10,6 +27,7 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecOperations;
+import org.gradle.work.DisableCachingByDefault;
 import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
 import org.gradle.workers.WorkerExecutor;
@@ -20,6 +38,7 @@ import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.util.Map;
 
+@DisableCachingByDefault(because = "Docker already caches if enabled, so not worth caching.")
 public class BuildDockerImageTask extends DefaultTask {
     private final WorkerExecutor workerExecutor;
     private final Gson gson = new Gson();
@@ -42,6 +61,7 @@ public class BuildDockerImageTask extends DefaultTask {
         this.cacheTo = objectFactory.directoryProperty();
 
         this.shouldCache.convention(true);
+        setGroup("build");
     }
 
     private String replaceLast(String data, String toReplace, String replacement) {
@@ -118,6 +138,7 @@ public class BuildDockerImageTask extends DefaultTask {
             var parameters = getParameters();
             var dockerfile = parameters.getDockerfile().get();
             var projectVersion = parameters.getProjectVersion().get();
+            System.out.println(projectVersion);
             var cacheFrom = parameters.getCacheFrom().getOrNull();
             var cacheTo = parameters.getCacheTo().getOrNull();
             var dockerContext = parameters.getDockerContext().getOrNull();
@@ -145,13 +166,7 @@ public class BuildDockerImageTask extends DefaultTask {
 
                     spec.args("-f", dockerfile.getPath());
                     for (String tag: dockerfile.getTags()) {
-                        var splitVersion = projectVersion.split(".");
-                        var actualTag = tag
-                                .replace("{{major}}", splitVersion[0])
-                                .replace("{{minor}}", splitVersion[1])
-                                .replace("{{patch}}", splitVersion[2]);
-
-                        spec.args("--tag", actualTag);
+                        spec.args("--tag", tag);
                     }
 
                     if (cacheFrom != null) {
