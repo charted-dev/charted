@@ -25,8 +25,3 @@ spotless:
 
 clean:
 	@./gradlew clean
-
-run.migrations:
-	@cd ./lib/clickhouse/analytics
-	@go build -ldflags "-s -w" -o ./bin/migrations
-	@./bin/migrations

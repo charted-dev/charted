@@ -23,4 +23,5 @@ plugins {
 dependencies {
     testImplementation("org.testcontainers:clickhouse:1.17.2")
     testImplementation("org.slf4j:slf4j-simple:1.7.36")
+    testImplementation(project(":testing"))
 }

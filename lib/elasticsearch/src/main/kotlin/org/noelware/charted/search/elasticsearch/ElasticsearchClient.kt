@@ -60,7 +60,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 @OptIn(ExperimentalSerializationApi::class)
 class ElasticsearchClient(
     private val config: ElasticsearchConfig,
-    private val json: Json
+    private val json: Json = Json,
+    private val indexDataWhenInitialized: Boolean = true
 ): Closeable {
     private val _serverVersion: SetOnceGetValue<String> = SetOnceGetValue()
     private val _clusterInfo: SetOnceGetValue<Pair<String, String>> = SetOnceGetValue() // Pair<Name, UUID>
@@ -171,10 +172,13 @@ class ElasticsearchClient(
             _serverVersion.value = version!!
         }
 
-        log.measureTime("Took %T to create indexes and to index all data!") {
-            createIndexes()
-            runBlocking {
-                indexData()
+        // This is usually `false` if tests are enabled.
+        if (indexDataWhenInitialized) {
+            log.measureTime("Took %T to create indexes and to index all data!") {
+                createIndexes()
+                runBlocking {
+                    indexData()
+                }
             }
         }
     }

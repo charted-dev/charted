@@ -23,16 +23,13 @@ import org.noelware.charted.database.clickhouse.ClickHouseConnection
 class AuditLogsFeature(private val clickhouse: ClickHouseConnection) {
     private val log by logging<AuditLogsFeature>()
 
-    init {
-        log.info("Enabled Audit Logs feature!")
-        clickhouse.sql("SET allow_experimental_object_type = 1;")
-    }
+    fun getAuditLog(origin: Long, id: Long): Any? {
+        val result = clickhouse.sql(
+            "SELECT Action, FiredAt, ID, Data, OriginID, OriginType FROM audit_logs WHERE ID = ? AND OriginID = ?;",
+            origin,
+            id
+        )
 
-    suspend fun getRepositoryLogs(id: Long): AuditLog<Any> {
-        return null as AuditLog<Any>
-    }
-
-    suspend fun getOrganizationLogs(id: Long): AuditLog<Any> {
-        return null as AuditLog<Any>
+        return if (result == null) null else "awa"
     }
 }

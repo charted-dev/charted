@@ -51,6 +51,7 @@ include(
     ":lib:telemetry",
     ":lib:utils",
     ":server",
+    ":testing",
     ":tools:migrations"
 )
 

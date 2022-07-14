@@ -43,6 +43,9 @@ dependencies {
     testImplementation("org.slf4j:slf4j-simple:1.7.36")
 
     implementation("org.jetbrains:annotations:20.1.0")
+    if (name != "common") {
+        implementation(project(":common"))
+    }
 }
 
 spotless {
