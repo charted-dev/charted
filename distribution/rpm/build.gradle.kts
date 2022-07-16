@@ -15,6 +15,6 @@
  * limitations under the License.
  */
 
-//plugins {
-//    id("org.noelware.charted.distribution.rpm")
-//}
+plugins {
+    id("org.noelware.charted.distribution.rpm")
+}

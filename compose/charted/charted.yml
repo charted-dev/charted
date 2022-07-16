@@ -1,0 +1,63 @@
+# The secret key to generate JWTs with.
+jwt_secret_key: <some secure string, please edit this to something!>
+
+# If registrations are enabled on the server. If not, the administrators must create
+# users and such.
+registrations: true
+
+# If the server is invite only, (registrations is disabled if this is true)
+invite_only: false
+
+# If you wish this instance should enable Noelware's telemetry service to give insights
+# on how our products are doing. You can read more here: https://telemetry.noelware.org
+telemetry: false
+
+# Uncomment this to enable crash reports with Sentry.
+# sentryDsn: ""
+
+# Uncomment this if you're using a domain to host your server. This will mask
+# the host and port with this URL to define CDN endpoints, if the proxy is enabled.
+# baseUrl: "https://example.com"
+
+# If Prometheus metrics should be enabled.
+metrics: false
+
+# If Ktor's and kotlinx.coroutines debugging should be enabled. You will be granted
+# the /debug/coroutines endpoint to debug kotlinx.coroutines.
+debug: false
+
+# Enables server features. The available server features are:
+# - audit-logs      (1): If the Audit Logs feature should be enabled.
+# - webhooks        (1): If the Webhooks feature should be enabled.
+# - docker_registry (2): If the server should use a local OCI registry rather than charts.
+#
+# - 1: This feature requires a ClickHouse connection.
+# - 2: This will disable the charts engine, so you can't push your Helm charts via the Helm charted
+#      plugin, you will use `helm push`/`helm pull` commands instead.
+features: []
+
+# Uncomment this if you wish to put your instance on Noelware Analytics or
+# on a self-hosted Noelware Analytics server. You can register instances here:
+# https://analytics.noelware.org/new/instance
+# analytics:
+  # The secret key that the analytics server has given you to authenticate with. This must be
+  # kept secret.
+  # secret_key: ""
+
+  # The port the gRPC server should be listening on. This will be exposed on the server via the
+  # /analytics/grpc endpoint which will reroute it to gRPC.
+  # port: 55412
+
+# Uncomment this if you wish to use the Audit Logs or Webhooks features.
+# clickhouse:
+  # If the database should be created when connecting to ClickHouse if it doesn't exist.
+  # create_db_if_not_exists: false
+
+  # The database name, defaults to `charted` if not provided.
+  # database: charted
+
+  # The username if the ClickHouse server uses authentication.
+  # username: ""
+
+  # The password if the ClickHouse server uses authentication.
+  # password: ""

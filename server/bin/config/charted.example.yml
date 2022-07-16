@@ -1,0 +1,10 @@
+# Read the documentation on how to configure charted-server:
+# https://charts.noelware.org/docs/server/configuration
+
+postgres: {}
+metrics: true
+debug: true
+redis: {}
+storage:
+  filesystem:
+    directory: ./.data

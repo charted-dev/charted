@@ -30,7 +30,7 @@ public class ChartedRPMPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         project.getPluginManager().apply("nebula.ospackage-base");
-        ((ExtensionAware) this).getExtensions().configure("ospackage", new Action<ProjectPackagingExtension>() {
+        ((ExtensionAware) project).getExtensions().configure("ospackage", new Action<ProjectPackagingExtension>() {
             @Override
             public void execute(ProjectPackagingExtension extension) {
                 extension.setMaintainer("Noelware, LLC. <team@noelware.org>");

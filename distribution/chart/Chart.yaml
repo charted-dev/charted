@@ -35,3 +35,19 @@ maintainers:
   - name: Noelware Team
     email: team@noelware.org
     url: https://noelware.org
+dependencies:
+  - repository: https://charts.bitnami.com/bitnami
+    condition: values.postgres.enabled
+    version: "~11.6.16"
+    name: postgresql
+  - repository: https://charts.bitnami.com/bitnami
+    condition: values.redis.enabled
+    version: "~17.0.1"
+    name: redis
+  - repository: https://charts.bitnami.com/bitnami
+    condition: values.zookeeper.enabled
+    version: "~10.0.2"
+    name: zookeeper
+#  - repository: https://charts.noelware.org/noelware
+#    condition: values.clickhouse.enabled
+#    name: clickhouse

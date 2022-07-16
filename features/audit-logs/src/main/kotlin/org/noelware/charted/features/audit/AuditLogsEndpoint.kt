@@ -15,12 +15,6 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.gradle.plugins.publisher;
+package org.noelware.charted.features.audit
 
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
-
-public class NoelwarePublisherGradlePlugin implements Plugin<Project> {
-    @Override
-    public void apply(Project project) {}
-}
+class AuditLogsEndpoint

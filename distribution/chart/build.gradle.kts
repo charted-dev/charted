@@ -25,3 +25,27 @@ helm {
     valuesPath by file("./values.yaml")
     chartPath by file("./Chart.yaml")
 }
+
+tasks.register<Exec>("lintChart") {
+    commandLine("helm")
+    args("lint", "${rootProject.projectDir}/distribution/chart")
+
+    standardOutput = System.out
+    errorOutput = System.err
+}
+
+tasks.register<Exec>("updateDependencies") {
+    commandLine("helm")
+    args("dependency", "build", "${rootProject.projectDir}/distribution/chart")
+
+    standardOutput = System.out
+    errorOutput = System.err
+}
+
+tasks.register<Exec>("createTarball") {
+    commandLine("helm")
+    args("package", "${rootProject.projectDir}/distribution/chart")
+
+    standardOutput = System.out
+    errorOutput = System.err
+}

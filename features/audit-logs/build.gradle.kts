@@ -21,5 +21,9 @@ plugins {
 }
 
 dependencies {
+    testImplementation("org.testcontainers:clickhouse:1.17.2")
+    testImplementation("org.slf4j:slf4j-simple:1.7.36")
     implementation(project(":lib:clickhouse"))
+    api("org.noelware.ktor:core:0.3.1-beta")
+    testImplementation(project(":testing"))
 }

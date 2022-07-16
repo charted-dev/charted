@@ -52,10 +52,6 @@ class HelmPlugin: Plugin<Project> {
             }
 
             project.logger.lifecycle("[distribution:helm] Helm v$helmVersion exists on machine!")
-            project.tasks.register<DeployChartTask>("deployChart")
-            project.tasks.register<TestChartTask>("testChart")
-
-            project.logger.lifecycle("Added :deployChart and :testChart tasks~ ^-^")
         } catch (e: Exception) {
             project.logger.lifecycle("Unable to run 'helm version'! Probably doesn't exist on the system.")
         }

@@ -53,10 +53,21 @@ APP_BASE_NAME=${0##*/}
 DAEMONIZE=false
 ORIGINAL_ARG_ARRAY=("$@")
 CHARTED_DISTRIBUTION=${CHARTED_DISTRIBUTION_TYPE:-local}
+CHARTED_CONFIG_PATH=${CHARTED_CONFIG_PATH:-}
+
 while [ $# -gt 0 ]; do
   if [[ $1 == "-d" || $1 == "--daemon" ]]; then
     echo "[preinit] Server process will be ran in the background [experimental]"
     DAEMONIZE=true
+  fi
+
+  if [[ $1 == "-c" || $1 == "--config" ]]; then
+    OUTPUT=$(echo $1 | sed -e 's/^[^=]*=//g')
+    if [[ ! -f "$OUTPUT" ]]; then
+      CHARTED_CONFIG_PATH=$OUTPUT
+    else
+      fatal "File $OUTPUT doesn't exist!"
+    fi
   fi
 
   if [[ $# -gt 0 ]]; then

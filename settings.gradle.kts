@@ -33,6 +33,7 @@ include(
     ":common",
     ":core",
     ":database",
+    ":distribution:aur",
     ":distribution:chart",
     ":distribution:deb",
     ":distribution:docker",

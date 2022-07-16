@@ -56,7 +56,7 @@
                             <pattern>${charted.console.format}</pattern>
                         </then>
                         <else>
-                            <pattern>[%d{yyyy-MM-dd | HH:mm:ss, +10}] [%boldCyan(%thread) ~ %highlight(%logger{36})] %boldMagenta(%-5level) :: %msg%n</pattern>
+                            <pattern>[%d{yyyy-MM-dd | HH:mm:ss, +10}] %boldCyan([%thread]) %highlight([%logger{36}]) %boldMagenta(%-5level) :: %msg%n</pattern>
                         </else>
                     </if>
                 </encoder>

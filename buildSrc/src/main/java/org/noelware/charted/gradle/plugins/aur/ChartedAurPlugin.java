@@ -17,5 +17,46 @@
 
 package org.noelware.charted.gradle.plugins.aur;
 
-public class ChartedAurPlugin {
+import org.gradle.api.GradleException;
+import org.gradle.api.Plugin;
+import org.gradle.api.Project;
+import org.noelware.charted.gradle.OperatingSystem;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Locale;
+
+public class ChartedAurPlugin implements Plugin<Project> {
+    @Override
+    public void apply(Project project) {
+        if (OperatingSystem.current().isWindows() || OperatingSystem.current().isMacOS()) {
+            project.getLogger().lifecycle("[distribution:aur] Disabled because current host system is Windows or MacOS. Use the Docker image at `./distribution/aur/Dockerfile` to publish the AUR package.");
+            return;
+        }
+
+        var release = new File("/etc/os-release");
+        var metadata = new HashMap<String, String>();
+
+        try {
+            var fd = new String(new FileInputStream(release).readAllBytes());
+            var lines = fd.split("\n");
+            for (var line: lines) {
+                var data = line.split("=");
+                metadata.putIfAbsent(data[0].toLowerCase(Locale.ROOT), data[1].replaceAll("\"", ""));
+            }
+        } catch (IOException e) {
+            throw new GradleException("Unable to read /etc/os-release:", e);
+        }
+
+        if (!metadata.containsKey("name"))
+            throw new GradleException("/etc/os-release is corrupted: missing `NAME` attribute.");
+
+        var name = metadata.get("name");
+        if (name != "Arch Linux") {
+            project.getLogger().lifecycle("[distribution:aur] Current host system is not Arch Linux, please use the Docker image as an alternative: `./gradlew :distribution:aur:runAurDockerImage`");
+            return;
+        }
+    }
 }

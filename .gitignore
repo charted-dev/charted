@@ -1,3 +1,4 @@
+### Eclipse ###
 .metadata
 bin/
 tmp/
@@ -62,6 +63,10 @@ local.properties
 ### Eclipse Patch ###
 # Spring Boot Tooling
 .sts4-cache/
+
+### Helm ###
+# Chart dependencies
+**/charts/*.tgz
 
 ### Java ###
 # Compiled class file
@@ -176,6 +181,19 @@ fabric.properties
 
 !.idea/codeStyles
 !.idea/runConfigurations
+
+### Kotlin ###
+# Compiled class file
+
+# Log file
+
+# BlueJ files
+
+# Mobile Tools for Java (J2ME)
+
+# Package Files #
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 
 ### NetBeans ###
 **/nbproject/private/
@@ -627,13 +645,12 @@ FodyWeavers.xsd
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
 
-gradle/publishing.properties
 config.yml
 instance.uuid
-!distribution/config/config.toml
 server/src/main/resources/config/logging.properties
 .data/
-!distribution/bin
-!distribution/bin/bin
 .caches/
 !server/bin
+
+# Ignore the created tarball.
+distribution/chart/**/*.tar.gz

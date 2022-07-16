@@ -94,7 +94,7 @@ public class GenerateHomebrewFormulaTask extends DefaultTask {
     }
 
     private JsonObject getJsonObjectFrom(URI url) throws IOException, InterruptedException {
-                var request = HttpRequest.newBuilder()
+        var request = HttpRequest.newBuilder()
                 .GET()
                 .uri(url)
                 .setHeader("User-Agent", "Noelware/charted-server")

@@ -23,7 +23,7 @@ ENV CHARTED_PROTOC_PATH=protoc
 
 COPY . .
 RUN chmod +x ./gradlew
-RUN ./gradlew :server:installDist --stacktrace --scan
+RUN ./gradlew :server:installDist --stacktrace
 
 FROM eclipse-temurin:18-jdk-alpine
 
@@ -37,6 +37,7 @@ COPY --from=builder /build/charted/server/build/install/charted-server/lib .
 RUN chmod +x /app/noelware/charted/server/scripts/docker-entrypoint.sh && \
     chmod +x /app/noelware/charted/server/charted-server
 
+ENV CHARTED_DISTRIBUTION_TYPE=docker
 USER 1001
 
 ENTRYPOINT ["/app/noelware/charted/server/scripts/docker-entrypoint.sh"]

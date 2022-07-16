@@ -39,6 +39,8 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.sentry.Sentry
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.debug.DebugProbes
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.*
@@ -72,6 +74,7 @@ class ChartedServer(private val config: Config) {
     lateinit var server: NettyApplicationEngine
     private val log by logging<ChartedServer>()
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun start() {
         val runtime = Runtime.getRuntime()
         val os = ManagementFactory.getOperatingSystemMXBean()
@@ -89,6 +92,11 @@ class ChartedServer(private val config: Config) {
         log.info("|-  charted: ${ChartedInfo.version} [${ChartedInfo.commitHash}]")
         log.info("|-  Kotlin:  ${KotlinVersion.CURRENT}")
         log.info("|-  Java:    ${System.getProperty("java.version", "Unknown")} [${System.getProperty("java.vendor", "Unknown")}]")
+
+        if (config.debug) {
+            log.info("Enabling kotlinx.coroutines debug probe...")
+            DebugProbes.install()
+        }
 
         val self = this
         val environment = applicationEngineEnvironment {

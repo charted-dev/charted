@@ -34,6 +34,9 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.2.11")
     implementation("ch.qos.logback:logback-core:1.2.11")
 
+    // kotlinx.coroutines Debug
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug")
+
     // Ktor Routing
     implementation("org.noelware.ktor:loader-koin:0.3.1-beta")
     implementation("org.noelware.ktor:core:0.3.1-beta")
@@ -83,6 +86,10 @@ dependencies {
 
     // Haru (scheduling)
     implementation("dev.floofy.haru:Haru:1.3.0")
+
+    // Prometheus
+    implementation("io.prometheus:simpleclient_hotspot:0.16.0")
+    implementation("io.prometheus:simpleclient:0.16.0")
 }
 
 application {
@@ -95,8 +102,9 @@ distributions {
         contents {
             from(
                 "$projectDir/bin/config/logback.properties",
-                "$projectDir/bin/config/config.yml",
+                "$projectDir/bin/config/charted.example.yml",
                 "$projectDir/bin/charted-server",
+                "$projectDir/charted.service",
                 "$projectDir/bin/README.txt",
                 "$projectDir/bin/LICENSE"
             )

@@ -24,8 +24,13 @@ affinity: {}
 serviceName: ""
 extraEnvVars: []
 
+jwtSecret:
+  generate: true
+  # secretName: ""
+  # secret: ""
+
 image:
-  repository: docker.io
+  repository: docker.noelware.org
   image: charted/server
   tag: 1.0.0
   pullPolicy: IfNotPresent
@@ -60,7 +65,7 @@ service:
 frontend:
   enabled: true
   image:
-    repository: docker.io
+    repository: docker.noelware.org
     image: charted/pak
     tag: 1.0.0
     pullPolicy: IfNotPresent
@@ -88,6 +93,20 @@ frontend:
     #   hosts:
     #   - pak-chart.local
 
+ingress:
+  enabled: false
+  annotations: { }
+  className: ""
+  hosts:
+    - host: charted.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  # - secretName: charted-tls
+  #   hosts:
+  #   - charted.local
+
 # Configuration for the PostgreSQL instance for charted-server. This is completely
 # optional if you have a PostgreSQL instance already!
 postgres:
@@ -103,7 +122,10 @@ redis:
 # feature.
 clickhouse:
   enabled: false
-  zookeeper: false
+
+# If ClickHouse should be replicate data via ZooKeeper.
+zookeeper:
+  enabled: false
 
 resources: {}
   # limits:

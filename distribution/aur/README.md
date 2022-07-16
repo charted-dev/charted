@@ -16,7 +16,7 @@ $ sudo systemctl enable charted-server
 You can access charted-server via `http://localhost:4321`!
 
 ## Development
-The basic [PKGBUILD](./PKGBUILD) is a template to building the server. You can run the following command to get a proper,
+The basic [PKGBUILD](./template.PKGBUILD) is a template to building the server. You can run the following command to get a proper,
 and valid PKGBUILD in `./distribution/aur/.repo/PKGBUILD`:
 
 ```shell

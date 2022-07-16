@@ -15,10 +15,9 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.gradle.plugins.publisher;
+package org.noelware.charted.features.audit
 
-import org.gradle.api.DefaultTask;
-import org.gradle.work.DisableCachingByDefault;
+import org.koin.dsl.module
 
-@DisableCachingByDefault(because = "Not worth caching.")
-public class UploadArtifactTask extends DefaultTask {}
+val auditLogsModule = module {
+}

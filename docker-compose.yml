@@ -1,0 +1,57 @@
+# 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+# Copyright 2022 Noelware <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This is an example Docker Compose file to run charted-server on your machine.
+# If you want the full experience, visit the self-hosted repository:
+#    -> https://github.com/charted-dev/self-hosted
+
+version: '3.8'
+services:
+  server:
+    container_name: charted_server
+    # image: docker.noelware.org/charted/server:latest
+    build:
+      context: ./distribution/docker
+      dockerfile: amd64.Dockerfile
+    depends_on:
+      - postgres
+      - redis
+
+      # charted-server uses ClickHouse to store analytical data for the Audit Logs
+      # and Webhooks features. Remove the comment for `- clickhouse` to deploy a 1
+      # node cluster.
+      #- clickhouse
+
+      # Elasticsearch is the main search engine that powers the Search API. You can also
+      # opt into Meilisearch if you either don't like Elasticsearch or have a running instance
+      # already.
+      #- elasticsearch
+
+      # Meilisearch is a secondary option if you do not wish to use Elasticsearch to power the
+      # Search API.
+      #- meilisearch
+
+      # Kibana is a visualisation tool to visualise your data with Elasticsearch, if the container
+      # exists.
+      #- kibana
+    environment:
+      - CHARTED_CONFIG_PATH=/app/noelware/charted/server/config/charted.yml
+    networks:
+      - charted
+    volumes:
+      - charted_data:/app/noelware/charted/server/data
+      - ./compose/charted/charted.yml:/app/noelware/charted/server/config/charted.yml
+    ports:
+      - "3651:3651"

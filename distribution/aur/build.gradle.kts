@@ -14,11 +14,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import org.noelware.charted.gradle.plugins.aur.InstallPkgBuildRepositoryTask
-
-plugins {
-    id("org.noelware.charted.distribution.aur")
-}
-
-tasks.register<InstallPkgBuildRepositoryTask>("createPkgBuildRepo")

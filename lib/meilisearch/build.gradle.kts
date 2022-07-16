@@ -22,5 +22,6 @@ plugins {
 
 dependencies {
     implementation("dev.floofy.meilisearch:rest-client:1.0")
+    implementation(project(":database"))
     api("io.ktor:ktor-client-core")
 }
