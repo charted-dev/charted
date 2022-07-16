@@ -23,7 +23,6 @@ import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.slf4j.logging
 import io.ktor.client.*
 import io.ktor.http.*
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -33,7 +32,6 @@ import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.SetOnceGetValue
 import org.noelware.charted.common.data.MeilisearchConfig
 import org.noelware.charted.common.extensions.measureSuspendTime
-import org.noelware.charted.common.extensions.measureTime
 import org.noelware.charted.database.tables.UserTable
 
 private val INDEXES = listOf(
