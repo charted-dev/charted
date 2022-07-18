@@ -87,13 +87,10 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Lints the repository via Spotless for any linting errors.
-        run: ./gradlew spotlessCheck --no-daemon
+        run: ./gradlew spotlessCheck --no-daemon --scan
 
       - name: Compiles the Kotlin sources for any compiler errors
-        run: ./gradlew compileKotlin --no-daemon
+        run: ./gradlew compileKotlin --no-daemon --scan
 
       - name: Unit test the project
-        run: ./gradlew test --no-daemon
-
-      - name: Create build scan
-        run: ./gradlew --scan
+        run: ./gradlew test --no-daemon --scan

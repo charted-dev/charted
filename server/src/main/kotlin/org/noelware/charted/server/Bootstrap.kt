@@ -374,9 +374,6 @@ object Bootstrap {
 
                     if (clickhouse != null) {
                         single { clickhouse }
-                        if (config.isFeatureEnabled(Feature.AUDIT_LOGS)) {
-                            single { AuditLogsFeature(get()) }
-                        }
                     }
 
                     if (elastic != null) {
