@@ -15,17 +15,6 @@
  * limitations under the License.
  */
 
-import dev.floofy.utils.gradle.*
-
-plugins {
-    id("org.noelware.charted.distribution.helm")
-}
-
-helm {
-    valuesPath by file("./values.yaml")
-    chartPath by file("./Chart.yaml")
-}
-
 tasks.register<Exec>("lintChart") {
     commandLine("helm")
     args("lint", "${rootProject.projectDir}/distribution/chart")

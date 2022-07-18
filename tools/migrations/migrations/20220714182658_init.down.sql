@@ -1,7 +1,2 @@
-DROP
-    TABLE
-        audit_logs;
-
-DROP
-    TABLE
-        webhook_events;
+DROP TABLE audit_logs;
+DROP TABLE webhook_events;

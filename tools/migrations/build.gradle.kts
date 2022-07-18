@@ -8,49 +8,62 @@
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
-import org.noelware.charted.gradle.plugins.docker.tasks.*
+import org.noelware.charted.gradle.plugins.docker.tasks.BuildDockerImageTask
+import org.noelware.charted.gradle.plugins.docker.Dockerfile
 import org.noelware.charted.gradle.*
 import dev.floofy.utils.gradle.*
 
 plugins {
     id("org.noelware.charted.distribution.docker")
-    id("com.diffplug.spotless")
 }
 
 group = "org.noelware.charted.tools"
 version = "$VERSION"
 
-spotless {
-    sql {
-        target("migrations/*.sql")
-        dbeaver()
-    }
-}
-
+val semver = VERSION.toSemVer(false)
 docker {
-    dockerfile(file("./Dockerfile")) {
-        tags += listOf(
+    addDockerfile(Dockerfile(
+        "./Dockerfile",
+        "linux/amd64",
+        mapOf(),
+        listOf(
+            "docker.noelware.org/charted/ch-migrations:${semver.major}-amd64",
+            "docker.noelware.org/charted/ch-migrations:${semver.major}.${semver.minor}-amd64",
+            "docker.noelware.org/charted/ch-migrations:${semver.major}.${semver.minor}.${semver.patch}-amd64",
             "docker.noelware.org/charted/ch-migrations:latest-amd64",
-            "docker.noelware.org/charted/ch-migrations:$VERSION-amd64",
-            "docker.noelware.org/charted/ch-migrations:${VERSION.major}.${VERSION.minor}-amd64",
-            "ghcr.io/charted-dev/ch-migrations:latest-amd64",
-            "ghcr.io/charted-dev/ch-migrations:$VERSION-amd64",
-            "ghcr.io/charted-dev/ch-migrations:${VERSION.major}.${VERSION.minor}-amd64"
-        )
-    }
+            "ghcr.io/charted-dev/ch-migrations:${semver.major}-amd64",
+            "ghcr.io/charted-dev/ch-migrations:${semver.major}.${semver.minor}-amd64",
+            "ghcr.io/charted-dev/ch-migrations:${semver.major}.${semver.minor}.${semver.patch}-amd64",
+            "ghcr.io/charted-dev/ch-migrations:latest-amd64"
+        ),
+        false
+    ))
+
+    addDockerfile(Dockerfile(
+        "./Dockerfile",
+        "linux/arm64",
+        mapOf(),
+        listOf(
+            "docker.noelware.org/charted/ch-migrations:${semver.major}-amd64",
+            "docker.noelware.org/charted/ch-migrations:${semver.major}.${semver.minor}-amd64",
+            "docker.noelware.org/charted/ch-migrations:${semver.major}.${semver.minor}.${semver.patch}-amd64",
+            "docker.noelware.org/charted/ch-migrations:latest-amd64"
+        ),
+        false
+    ))
 }
 
-tasks.register<BuildDockerImageTask>("buildMigrationsImage") {
+tasks.register<BuildDockerImageTask>("buildx64MigrationsImage") {
     dockerContext.set(projectDir)
     useDockerBuildx by true
-    dockerfile by docker.findDockerfile { it.platform == "linux/amd64" }!!
+    dockerfile by docker.dockerfiles.find { it.platform() == "linux/amd64" }!!
 
     val shouldCacheFrom = System.getenv("CHARTED_DOCKER_CACHE_FROM")
     if (shouldCacheFrom != null) {

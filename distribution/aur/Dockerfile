@@ -18,7 +18,7 @@ FROM archlinux/archlinux:base
 RUN pacman -Syyu --no-confirm && \
     pacman -Syyu --no-confirm pacman-contrib openssh git fakeroot \
     binutils go-pie gcc awk binutils xz libarchive bzip2 coreutils file \
-    findutils gettext grep gzip sed ncurses \
+    findutils gettext grep gzip sed ncurses
 
 RUN useradd -ms /bin/bash github && \
     mkdir -p /home/github/.ssh && \
@@ -29,7 +29,7 @@ RUN chown github:github /home/github -R && \
     chown 600 /home/github/.ssh/* -R
 
 COPY publish.sh .
-COPY build/generated/PKGBUILD .
+COPY build/generated/aur/PKGBUILD .
 
 USER github
 WORKDIR /home/github

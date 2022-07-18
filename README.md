@@ -1,11 +1,11 @@
 # 📦 charted-server
+[![Kotlin v1.7.10](https://img.shields.io/badge/kotlin-1.7.10-blue.svg?logo=kotlin)](https://kotlinlang.org)
+[![GitHub License](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
+
 > *Free, open source, and reliable Helm Chart registry made in Kotlin!*
 
 **charted-server** is the main backend of the charted project. It is a free, and reliable way to distribute Helm Charts without configuring
 Helm to use a S3 bucket, your local disk, GCS, and more. It is centralized in one place!
-
-**charted** as a whole is supposed to be a **Docker Hub** equivalent, where you can view different versions of the Helm Chart, and shows
-what dependencies it uses, and more.
 
 ## Installation
 **charted-server** can be installed in a few different ways! If you want a small, Rust version of **charted-server**, you might be 
@@ -145,30 +145,32 @@ If you read both if you're a new time contributor, now you can do the following:
 
 ### Project Structure
 ```
-├── assets                - Assets directory, contains the license heading for all files in this project, branding, and more.
-├── buildSrc              - Contains the build source for building charted-server
-├── common                - Common source code that is used in all subprojects except this one.
-├── core                  - Core source code that is used to build upon the project.
-├── database              - PostgreSQL database source and tests
-├── distribution          - Distribution files for installing charted-server.
-│       ├── bin           - Code for building the distribution via [:installDist]
-│       ├── charts        - Helm chart source code
-│       ├── deb           - The Debian repository to install charted-server on a Debian-based system.
-│       ├── docker        - Docker image source code
-│       ├── rpm           - The RPM repository to install charted-server on Fedora-based systems
-│       └── scoop         - The scoop bucket for installing charted-server on Windows using Scoop.
-├── features              - Features that can be opted out.
-│       ├── audit-logs    - Audit logs to check on who did what.
-│       └── webhooks      - Service for sending HTTP webhooks based on events someone did.
-├── lib                   - Common library source code that is dependant on more than one subproject.
-│       ├── analytics     - Source code to enable Noelware Analytics on this instance.
-│       │   └── protobufs - Protocol Buffers library for Noelware Analytics
-│       ├── clickhouse    - ClickHouse connection source and tests.
-│       ├── elasticsearch - Enables Elasticsearch as the search backend.
-│       ├── meilisearch   - Enables Meilisearch as the search backend.
-│       ├── telemetry     - Enables Noelware Telemetry on this instance
-│       └── utils         - Common utilities. 
-└── server                - Server source code.
+├── assets                  - Assets directory, contains the license heading for all files in this project, branding, and more.
+├── buildSrc                - Contains the build source for building charted-server
+├── build-tools             - Development Gradle plugins to aid the development of charted-server.
+├── common                  - Common source code that is used in all subprojects.
+├── core                    - Core source code that is used to build upon the project.
+├── database                - PostgreSQL database source and tests
+├── distribution            - Distribution files for installing charted-server.
+│       ├── charts          - Helm chart source code
+│       ├── deb             - The Debian repository to install charted-server on a Debian-based system.
+│       ├── docker          - Docker image source code
+│       ├── homebrew        - Homebrew formula source code
+│       ├── rpm             - The RPM repository to install charted-server on Fedora-based systems
+│       └── scoop           - The scoop bucket for installing charted-server on Windows using Scoop.
+├── features                - Features that can be opted out.
+│       ├── audit-logs      - Audit logs to check on who did what.
+│       ├── docker-registry - Adds OCI support to charted-server.
+│       └── webhooks        - Service for sending HTTP webhooks based on events someone did.
+├── lib                     - Common library source code that is dependant on more than one subproject.
+│       ├── analytics       - Source code to enable Noelware Analytics on this instance.
+│       │   └── protobufs   - Protocol Buffers library for Noelware Analytics
+│       ├── clickhouse      - ClickHouse connection source and tests.
+│       ├── elasticsearch   - Enables Elasticsearch as the search backend.
+│       ├── meilisearch     - Enables Meilisearch as the search backend.
+│       ├── telemetry       - Enables Noelware Telemetry on this instance
+│       └── utils           - Common utilities. 
+└── server                  - Server source code.
 ```
 
 ## Configuration

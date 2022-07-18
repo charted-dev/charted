@@ -7,7 +7,7 @@
 #
 #    http://www.apache.org/licenses/LICENSE-2.0
 #
-#  Unless required by applicable law or agreed to in writing, software
+# Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
@@ -47,7 +47,7 @@ RUN set -ex; \
     asdf plugin add java https://github.com/halcyon/asdf-java.git; \
     asdf plugin add gradle https://github.com/rfrancis/asdf-gradle.git; \
     echo "nodejs 18.0.0" >> ~/.tool-versions; \
-    echo "gradle 7.4.2" >> ~/.tool-versions; \
+    echo "gradle 7.5" >> ~/.tool-versions; \
     echo "java   temurin-18.0.1+10" >> ~/.tool-versions; \
     asdf install; \
     apt-get autoremove -y; \

@@ -8,7 +8,7 @@
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -22,6 +22,7 @@ plugins {
 }
 
 dependencies {
+    // BOM
     api(platform("org.jetbrains.kotlinx:kotlinx-serialization-bom:1.3.3"))
     api(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.3"))
     api(platform("org.jetbrains.exposed:exposed-bom:0.38.2"))
@@ -29,30 +30,50 @@ dependencies {
     api(platform("dev.floofy.commons:commons-bom:2.2.1"))
     api(platform("io.ktor:ktor-bom:2.0.3"))
 
+    // kotlinx.serialization
     api("org.jetbrains.kotlinx:kotlinx-serialization-json")
     api("org.jetbrains.kotlinx:kotlinx-serialization-core")
+
+    // kotlinx.coroutines
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
-    api("org.jetbrains.kotlinx:kotlinx-datetime:0.3.3")
+
+    // kotlinx.datetime
+    api("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+
+    // Logging (slf4j)
+    api("org.slf4j:slf4j-api:1.7.36")
+
+    // Database drivers + Exposed + HikariCP
     api("com.clickhouse:clickhouse-jdbc:0.3.2-patch9")
-    api("io.sentry:sentry-kotlin-extensions:6.1.0")
-    api("org.apache.commons:commons-lang3:3.12.0")
-    api("io.lettuce:lettuce-core:6.1.8.RELEASE")
-    api("dev.floofy.commons:extensions-kotlin")
-    api("org.noelware.remi:remi-support-minio")
-    api("dev.floofy.commons:extensions-koin")
     api("org.jetbrains.exposed:exposed-jdbc")
     api("org.jetbrains.exposed:exposed-core")
-    api("org.noelware.remi:remi-support-s3")
-    api("org.noelware.remi:remi-support-fs")
     api("org.jetbrains.exposed:exposed-dao")
     api("org.postgresql:postgresql:42.3.6")
-    api("com.google.guava:guava:31.1-jre")
-    api("io.insert-koin:koin-core:3.2.0")
-    api("org.noelware.remi:remi-core")
-    api("dev.floofy.commons:exposed")
-    api("org.slf4j:slf4j-api:1.7.36")
     api("com.zaxxer:HikariCP:5.0.1")
+
+    // Redis
+    api("io.lettuce:lettuce-core:6.1.8.RELEASE")
+
+    // Noel's Utilities
+    api("dev.floofy.commons:extensions-kotlin")
+    api("dev.floofy.commons:extensions-koin")
+    api("dev.floofy.commons:exposed")
     api("dev.floofy.commons:slf4j")
+
+    // Apache Utilities
+    api("org.apache.commons:commons-lang3:3.12.0")
+
+    // Remi (storage management)
+    api("org.noelware.remi:remi-support-minio")
+    api("org.noelware.remi:remi-support-s3")
+    api("org.noelware.remi:remi-support-fs")
+    api("org.noelware.remi:remi-core")
+
+    // Sentry
+    api("io.sentry:sentry-kotlin-extensions:6.1.0")
     api("io.sentry:sentry:6.1.0")
+
+    // Koin
+    api("io.insert-koin:koin-core:3.2.0")
 }

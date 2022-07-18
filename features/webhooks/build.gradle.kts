@@ -8,7 +8,7 @@
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -21,5 +21,11 @@ plugins {
 }
 
 dependencies {
+    testImplementation("org.testcontainers:clickhouse:1.17.2")
+    testImplementation("org.slf4j:slf4j-simple:1.7.36")
+    testImplementation(project(":testing"))
+
+    implementation("org.noelware.ktor:core:0.3.1-beta")
+    implementation("io.ktor:ktor-client-core")
     implementation(project(":lib:clickhouse"))
 }
