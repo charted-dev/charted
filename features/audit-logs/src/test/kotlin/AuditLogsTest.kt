@@ -17,38 +17,67 @@
 
 package org.noelware.charted.features.audits.tests
 
-import kotlinx.coroutines.runBlocking
-import org.junit.Test
-import org.junit.jupiter.api.Disabled
-import org.noelware.charted.common.data.ClickHouseConfig
-import org.noelware.charted.database.clickhouse.ClickHouseConnection
-import org.noelware.charted.features.audits.AuditLogsFeature
-import org.noelware.charted.features.audits.DefaultAuditLogsFeature
-import org.noelware.charted.features.audits.data.OriginType
-import org.noelware.charted.testing.containers.AbstractClickHouseContainerTest
-import kotlin.test.assertTrue
-
-@Disabled("Test is not finished or is broken.")
-class AuditLogsTest: AbstractClickHouseContainerTest() {
-    private val clickhouse: ClickHouseConnection
-        get() {
-            val config = ClickHouseConfig(
-                true,
-                host = getContainer().host,
-                port = getContainer().getMappedPort(8123)
-            )
-
-            val ch = ClickHouseConnection(config)
-            runBlocking { ch.connect() }
-
-            return ch
-        }
-
-    private val feature: AuditLogsFeature = DefaultAuditLogsFeature(clickhouse)
-
-    @Test
-    fun `can we query audit logs`() = runBlocking {
-        val auditLogs = feature.getAuditLogs(OriginType.ORGANIZATION, 123)
-        assertTrue(auditLogs.isEmpty(), "audit logs was not empty(?)")
-    }
-}
+// import kotlinx.coroutines.runBlocking
+// import kotlinx.datetime.Clock
+// import kotlinx.datetime.TimeZone
+// import kotlinx.datetime.toLocalDateTime
+// import kotlinx.serialization.json.buildJsonObject
+// import org.junit.Test
+// import org.noelware.charted.common.data.ClickHouseConfig
+// import org.noelware.charted.database.clickhouse.ClickHouseConnection
+// import org.noelware.charted.features.audits.DefaultAuditLogsFeature
+// import org.noelware.charted.features.audits.data.AuditLog
+// import org.noelware.charted.features.audits.data.AuditLogAction
+// import org.noelware.charted.features.audits.data.OriginType
+// import org.noelware.charted.testing.containers.AbstractClickHouseContainerTest
+// import kotlin.test.assertTrue
+//
+// class AuditLogsTest: AbstractClickHouseContainerTest() {
+//    private val clickhouse by lazy {
+//        val config = ClickHouseConfig(
+//            true,
+//            host = getContainer().host,
+//            port = getContainer().getMappedPort(8123)
+//        )
+//
+//        val ch = ClickHouseConnection(config)
+//        runBlocking {
+//            ch.connect()
+//        }
+//
+//        // this looks bad but i hope this works :woeme:
+//        ch.sql(buildString {
+//            append("SET allow_experimental_object_type = 1; ")
+//            append("CREATE TABLE IF NOT EXISTS audit_logs(FiredAt DateTime64, ID UInt64, Action enum(")
+//
+//            val enumMembers = listOf("repo.modify", "repo.starred", "repo.unstarred", "repo.pull", "repo.push", "org.modify", "org.new_member", "org.kicked_member", "org.updated_member")
+//            for ((index, item) in enumMembers.withIndex()) {
+//                append("'$item'${if (index + 1 != enumMembers.size) "," else ""}")
+//            }
+//
+//            append("), Data JSON, OriginID UInt64, OriginType enum('repo', 'org')) ")
+//            append("ENGINE = MergeTree() PARTITION BY toYYYYMM(FiredAt) ORDER BY (Action, FiredAt, ID, OriginID);")
+//        })
+//
+//        ch
+//    }
+//
+//    @Test
+//    fun `can we query audit logs`() = runBlocking {
+//        val feature = DefaultAuditLogsFeature(clickhouse)
+//        val auditLogs = feature.getAuditLogs(OriginType.ORGANIZATION, 123)
+//        assertTrue(auditLogs.isEmpty(), "audit logs was not empty(?)")
+//    }
+//
+//    @Test
+//    fun `insert audit log`() = runBlocking {
+//        val stub = AuditLog(
+//            OriginType.ORGANIZATION,
+//            123,
+//            Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
+//            AuditLogAction.ORGANIZATION_MODIFY,
+//            buildJsonObject {},
+//            444
+//        )
+//    }
+// }

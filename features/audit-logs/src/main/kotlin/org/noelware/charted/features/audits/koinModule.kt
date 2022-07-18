@@ -23,5 +23,5 @@ import org.noelware.ktor.endpoints.AbstractEndpoint
 
 val auditLogsModule = module {
     single { AuditLogsEndpoint() } bind AbstractEndpoint::class
-    single<AuditLogsFeature> { DefaultAuditLogsFeature(get()) }
+//    single<AuditLogsFeature> { DefaultAuditLogsFeature(get()) }
 }

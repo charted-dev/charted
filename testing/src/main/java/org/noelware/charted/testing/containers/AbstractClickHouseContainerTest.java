@@ -67,6 +67,7 @@ public class AbstractClickHouseContainerTest {
             throw new IllegalStateException(
                     "Can't call #destroyContainer if the container was never set.");
 
+        log.warn("Closing container...");
         var cont = container.getValue();
         cont.stop();
     }

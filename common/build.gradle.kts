@@ -45,7 +45,6 @@ dependencies {
     api("org.slf4j:slf4j-api:1.7.36")
 
     // Database drivers + Exposed + HikariCP
-    api("com.clickhouse:clickhouse-jdbc:0.3.2-patch9")
     api("org.jetbrains.exposed:exposed-jdbc")
     api("org.jetbrains.exposed:exposed-core")
     api("org.jetbrains.exposed:exposed-dao")

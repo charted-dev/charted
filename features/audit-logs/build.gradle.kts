@@ -24,6 +24,8 @@ dependencies {
     implementation("org.noelware.ktor:core:0.3.1-beta")
     implementation(project(":lib:clickhouse"))
 
+    // needed for test container :(
+    testImplementation("com.clickhouse:clickhouse-jdbc:0.3.2-patch9")
     testImplementation("org.testcontainers:clickhouse:1.17.2")
     testImplementation("org.slf4j:slf4j-simple:1.7.36")
     testImplementation(project(":testing"))
