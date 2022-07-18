@@ -19,6 +19,7 @@ package org.noelware.charted.features.audits.tests
 
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
+import org.junit.jupiter.api.Disabled
 import org.noelware.charted.common.data.ClickHouseConfig
 import org.noelware.charted.database.clickhouse.ClickHouseConnection
 import org.noelware.charted.features.audits.AuditLogsFeature
@@ -27,6 +28,7 @@ import org.noelware.charted.features.audits.data.OriginType
 import org.noelware.charted.testing.containers.AbstractClickHouseContainerTest
 import kotlin.test.assertTrue
 
+@Disabled("Test is not finished or is broken.")
 class AuditLogsTest: AbstractClickHouseContainerTest() {
     private val clickhouse: ClickHouseConnection
         get() {
