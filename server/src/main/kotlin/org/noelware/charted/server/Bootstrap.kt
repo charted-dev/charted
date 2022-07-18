@@ -50,7 +50,6 @@ import org.noelware.charted.common.ChartedInfo
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.IRedisClient
 import org.noelware.charted.common.data.Config
-import org.noelware.charted.common.data.Feature
 import org.noelware.charted.common.data.helm.RepoType
 import org.noelware.charted.core.StorageWrapper
 import org.noelware.charted.core.apikeys.TokenExpirationManager
@@ -63,7 +62,6 @@ import org.noelware.charted.core.redis.DefaultRedisClient
 import org.noelware.charted.core.sessions.SessionManager
 import org.noelware.charted.database.clickhouse.ClickHouseConnection
 import org.noelware.charted.database.tables.*
-import org.noelware.charted.features.audits.AuditLogsFeature
 import org.noelware.charted.search.elasticsearch.ElasticsearchClient
 import org.noelware.charted.search.meilisearch.MeilisearchClient
 import org.noelware.charted.server.endpoints.endpointsModule
