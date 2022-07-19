@@ -17,25 +17,11 @@
 
 package org.noelware.charted.common.data
 
-import kotlinx.serialization.SerialName
-
-/**
- * Represents the configuration for connecting to ClickHouse.
- *
- * @param createDbIfNotExists If we should create the [database] if it doesn't exist. (default `false`)
- * @param database The database name to connect to. (default `charted`)
- * @param username The username for authentication, default is `null`.
- * @param password The password for authentication, default is `null`.
- * @param host The host to connect to, default is `localhost`
- * @param port The port to connect to, default is 9000.
- */
 @kotlinx.serialization.Serializable
-data class ClickHouseConfig(
-    @SerialName("create_db_if_not_exists")
-    val createDbIfNotExists: Boolean = false,
-    val database: String = "charted",
+data class CassandraConfig(
     val username: String? = null,
     val password: String? = null,
-    val host: String = "localhost",
-    val port: Int = 8123
+    val keyspace: String = "charted",
+    val nodes: List<String> = listOf(),
+    val port: Int = 9042
 )

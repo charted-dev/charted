@@ -22,52 +22,41 @@ import org.junit.BeforeClass;
 import org.noelware.charted.common.SetOnceGetValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.ClickHouseContainer;
-import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
+import org.testcontainers.containers.CassandraContainer;
+import org.testcontainers.containers.wait.CassandraQueryWaitStrategy;
 import org.testcontainers.utility.DockerImageName;
 
 /**
- * This is the main test container suite to test ClickHouse and the server features that it needs.
- *
- * @since 14.07.22
+ * @since 18.07.22
  * @author Noel <cutie@floofy.dev>
  */
-public class AbstractClickHouseContainerTest {
-    private static final SetOnceGetValue<ClickHouseContainer> container = new SetOnceGetValue<>();
+public class AbstractCassandraContainerTests {
+    private static final SetOnceGetValue<CassandraContainer<?>> container = new SetOnceGetValue<>();
     private static final Logger log =
-            LoggerFactory.getLogger(AbstractClickHouseContainerTest.class);
+            LoggerFactory.getLogger(AbstractCassandraContainerTests.class);
 
-    public static ClickHouseContainer getContainer() {
+    public static CassandraContainer<?> getContainer() {
         return container.getValue();
     }
 
-    public static SetOnceGetValue<ClickHouseContainer> getContainerState() {
-        return container;
-    }
-
     @BeforeClass
-    public static void startContainer() {
-        log.info("Starting ClickHouse container...");
+    public static void start() {
+        log.info("Starting Cassandra container...");
 
-        var image =
-                DockerImageName.parse("clickhouse/clickhouse-server")
-                        .withTag("22.6.2.12-alpine")
-                        .asCompatibleSubstituteFor("yandex/clickhouse-server");
-
-        var cont = new ClickHouseContainer(image);
-        cont.setWaitStrategy(new HttpWaitStrategy().forPort(8123));
-        container.setValue(cont);
-
+        var image = DockerImageName.parse("cassandra").withTag("4.0.0");
+        var cont = new CassandraContainer<>(image);
+        cont.setWaitStrategy(new CassandraQueryWaitStrategy());
         cont.start();
+
+        container.setValue(cont);
     }
 
     @AfterClass
-    public static void destroyContainer() {
+    public static void destroy() {
         if (!container.wasSet())
             throw new IllegalStateException(
                     "Can't call #destroyContainer if the container was never set.");
 
-        log.warn("Closing container...");
         var cont = container.getValue();
         cont.stop();
     }

@@ -17,6 +17,35 @@
 
 package org.noelware.charted.server.metrics
 
-import org.noelware.charted.database.clickhouse.ClickHouseConnection
+import com.zaxxer.hikari.HikariDataSource
+import com.zaxxer.hikari.metrics.prometheus.PrometheusMetricsTrackerFactory
+import dev.floofy.utils.slf4j.logging
+import io.prometheus.client.CollectorRegistry
+import io.prometheus.client.Counter
+import io.prometheus.client.Histogram
+import io.prometheus.client.hotspot.DefaultExports
+import org.noelware.charted.database.cassandra.CassandraConnection
 
-class PrometheusHandler(private val clickhouse: ClickHouseConnection? = null)
+class PrometheusHandler(
+    dataStore: HikariDataSource,
+    cassandra: CassandraConnection? = null
+) {
+    private val log by logging<PrometheusHandler>()
+
+    val registry: CollectorRegistry = CollectorRegistry()
+    val requestLatency: Histogram = Histogram.build("charted_request_latency", "The latency between all requests.")
+        .register(registry)
+
+    val requests: Counter = Counter.build("charted_requests", "How many requests the server has handled")
+        .register(registry)
+
+    init {
+        if (cassandra != null) {
+            log.info("Cassandra connection is enabled! Creating metrics...")
+            registry.register(CassandraCollector(cassandra))
+        }
+
+        dataStore.metricsTrackerFactory = PrometheusMetricsTrackerFactory(registry)
+        DefaultExports.register(registry)
+    }
+}

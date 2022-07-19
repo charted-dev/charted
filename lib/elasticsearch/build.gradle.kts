@@ -21,11 +21,11 @@ plugins {
 }
 
 dependencies {
-    implementation("org.elasticsearch.client:elasticsearch-rest-client-sniffer:8.3.0")
-    implementation("org.elasticsearch.client:elasticsearch-rest-client:8.3.0")
     testImplementation("org.testcontainers:elasticsearch:1.17.2")
     testImplementation("org.slf4j:slf4j-simple:1.7.36")
-    implementation(project(":lib:clickhouse"))
     testImplementation(project(":testing"))
+
+    implementation("org.elasticsearch.client:elasticsearch-rest-client-sniffer:8.3.0")
+    implementation("org.elasticsearch.client:elasticsearch-rest-client:8.3.0")
     implementation(project(":database"))
 }

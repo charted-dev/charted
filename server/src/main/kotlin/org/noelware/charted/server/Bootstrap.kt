@@ -50,6 +50,7 @@ import org.noelware.charted.common.ChartedInfo
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.IRedisClient
 import org.noelware.charted.common.data.Config
+import org.noelware.charted.common.data.Feature
 import org.noelware.charted.common.data.helm.RepoType
 import org.noelware.charted.core.StorageWrapper
 import org.noelware.charted.core.apikeys.TokenExpirationManager
@@ -60,11 +61,15 @@ import org.noelware.charted.core.loggers.SentryLogger
 import org.noelware.charted.core.ratelimiter.Ratelimiter
 import org.noelware.charted.core.redis.DefaultRedisClient
 import org.noelware.charted.core.sessions.SessionManager
-import org.noelware.charted.database.clickhouse.ClickHouseConnection
+import org.noelware.charted.database.cassandra.CassandraConnection
 import org.noelware.charted.database.tables.*
+import org.noelware.charted.features.audits.auditLogsModule
+import org.noelware.charted.features.webhooks.webhooksModule
 import org.noelware.charted.search.elasticsearch.ElasticsearchClient
 import org.noelware.charted.search.meilisearch.MeilisearchClient
 import org.noelware.charted.server.endpoints.endpointsModule
+import org.noelware.charted.server.metrics.PrometheusHandler
+import org.noelware.charted.server.websockets.shutdownTickers
 import java.io.File
 import java.io.IOError
 import java.nio.file.Files
@@ -102,13 +107,13 @@ object Bootstrap {
                     val server: ChartedServer by inject()
                     val elasticsearch: ElasticsearchClient? by injectOrNull()
                     val redis: IRedisClient by inject()
-                    val clickhouse: ClickHouseConnection? by injectOrNull()
                     val ds: HikariDataSource by inject()
                     val sessions: SessionManager by inject()
                     val ratelimiter: Ratelimiter by inject()
+                    val cassandra: CassandraConnection? by injectOrNull()
 
                     elasticsearch?.closeQuietly()
-                    clickhouse?.closeQuietly()
+                    cassandra?.close()
                     sessions.closeQuietly()
                     server.destroy()
                     ds.closeQuietly()
@@ -116,6 +121,7 @@ object Bootstrap {
                     redis.closeQuietly()
 
                     runBlocking {
+                        shutdownTickers()
                         ChartedScope.cancel()
                     }
                 } else {
@@ -304,13 +310,6 @@ object Bootstrap {
             log.info("Sentry is now enabled!")
         }
 
-        val clickhouse = if (config.clickhouse != null) {
-            log.info("ClickHouse is enabled via config, now connecting!")
-            ClickHouseConnection(config.clickhouse!!)
-        } else {
-            null
-        }
-
         val scheduler = Scheduler {
             handleError { job, t ->
                 val logger by logging<Scheduler>()
@@ -321,6 +320,7 @@ object Bootstrap {
         val ratelimiter = Ratelimiter(json, redis, scheduler)
         val sessions = SessionManager(config, json, redis)
         val apiKeyExpiration = TokenExpirationManager(redis)
+        val server = ChartedServer(config)
         val httpClient = HttpClient(OkHttp) {
             engine {
                 addInterceptor(LogInterceptor)
@@ -338,55 +338,75 @@ object Bootstrap {
             }
         }
 
-        val elastic: ElasticsearchClient? = if (config.search.enabled && config.search.elastic != null) {
-            ElasticsearchClient(config.search.elastic!!, json)
-        } else {
-            null
+        val elasticsearch = if (config.search.enabled && config.search.elastic != null) ElasticsearchClient(config.search.elastic!!) else null
+        val meilisearch = if (config.search.enabled && config.search.meili != null) MeilisearchClient(httpClient, config.search.meili!!) else null
+        val cassandra = if (config.cassandra != null) CassandraConnection(config.cassandra!!) else null
+
+        val module = module {
+            single<IRedisClient> { redis }
+            single { apiKeyExpiration }
+            single { ratelimiter }
+            single { httpClient }
+            single { scheduler }
+            single { sessions }
+            single { wrapper }
+            single { config }
+            single { server }
+            single { yaml }
+            single { json }
+            single { ds }
+
+            if (elasticsearch != null) {
+                single { elasticsearch }
+            }
+
+            if (meilisearch != null) {
+                single { meilisearch }
+            }
+
+            if (cassandra != null) {
+                single { cassandra }
+            }
+
+            if (config.metrics) {
+                single { PrometheusHandler(get(), getOrNull()) }
+            }
         }
 
-        val meili: MeilisearchClient? = if (config.search.enabled && config.search.meili != null) {
-            MeilisearchClient(httpClient, config.search.meili!!)
-        } else {
-            null
+        val modules = mutableListOf(chartedModule, *endpointsModule.toTypedArray(), module)
+        if (config.isFeatureEnabled(Feature.AUDIT_LOGS)) {
+            log.info("Audit Logs feature is enabled!")
+
+            if (config.cassandra == null) {
+                log.error("You will need to configure Cassandra before enabling audit logs!")
+                exitProcess(1)
+            }
+
+            modules.add(auditLogsModule)
         }
 
-        val server = ChartedServer(config)
+        if (config.isFeatureEnabled(Feature.WEBHOOKS)) {
+            log.info("Webhooks feature is enabled!")
+
+            if (config.cassandra == null) {
+                log.error("You will need to configure Cassandra before enabling webhooks!")
+                exitProcess(1)
+            }
+
+            modules.add(webhooksModule)
+        }
+
         startKoin {
             logger(KoinLogger(config))
             modules(
                 chartedModule,
-                *endpointsModule.toTypedArray(),
-                module {
-                    single<IRedisClient> { redis }
-                    single { apiKeyExpiration }
-                    single { ratelimiter }
-                    single { httpClient }
-                    single { scheduler }
-                    single { sessions }
-                    single { wrapper }
-                    single { config }
-                    single { server }
-                    single { yaml }
-                    single { json }
-                    single { ds }
-
-                    if (clickhouse != null) {
-                        single { clickhouse }
-                    }
-
-                    if (elastic != null) {
-                        single { elastic }
-                    }
-
-                    if (meili != null) {
-                        single { meili }
-                    }
-                }
+                module,
+                *endpointsModule.toTypedArray()
             )
         }
 
-        elastic?.connect()
-        clickhouse?.connect()
+        elasticsearch?.connect()
+        cassandra?.connect()
 
         try {
             server.start()

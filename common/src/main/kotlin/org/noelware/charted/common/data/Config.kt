@@ -29,8 +29,8 @@ data class Config(
     @SerialName("invite_only")
     val inviteOnly: Boolean = false,
     val telemetry: Boolean = false,
-    val clickhouse: ClickHouseConfig? = null,
     val analytics: AnalyticsConfig? = null,
+    val cassandra: CassandraConfig? = null,
 
     @SerialName("sentry_dsn")
     val sentryDsn: String? = null,

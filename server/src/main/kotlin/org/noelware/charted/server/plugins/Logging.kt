@@ -17,17 +17,26 @@
 
 package org.noelware.charted.server.plugins
 
+import dev.floofy.utils.koin.inject
+import dev.floofy.utils.koin.injectOrNull
 import dev.floofy.utils.slf4j.logging
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.application.hooks.*
 import io.ktor.server.request.*
 import io.ktor.util.*
+import io.prometheus.client.Histogram
 import org.apache.commons.lang3.time.StopWatch
+import org.noelware.charted.common.data.Config
+import org.noelware.charted.server.metrics.PrometheusHandler
 import java.util.concurrent.TimeUnit
 
 val Logging = createApplicationPlugin("ChartedKtorLogging") {
     val stopwatchKey = AttributeKey<StopWatch>("StopWatch")
+    val histogramKey = AttributeKey<Histogram.Timer>("Histogram")
+
+    val metrics: PrometheusHandler? by injectOrNull()
+    val config: Config by inject()
     val log by logging("org.noelware.charted.server.plugins.KtorLoggingKt")
 
     environment?.monitor?.subscribe(ApplicationStarted) {
@@ -40,6 +49,10 @@ val Logging = createApplicationPlugin("ChartedKtorLogging") {
 
     onCall { call ->
         call.attributes.put(stopwatchKey, StopWatch.createStarted())
+        if (config.metrics) {
+            metrics!!.requests.inc()
+            call.attributes.put(histogramKey, metrics!!.requestLatency.startTimer())
+        }
     }
 
     on(ResponseSent) { call ->
@@ -49,6 +62,9 @@ val Logging = createApplicationPlugin("ChartedKtorLogging") {
         val status = call.response.status() ?: HttpStatusCode(-1, "Unknown HTTP Method")
         val stopwatch = call.attributes[stopwatchKey]
         val userAgent = call.request.userAgent()
+
+        val histogram = call.attributes.getOrNull(histogramKey)
+        histogram?.observeDuration()
 
         stopwatch.stop()
         log.info(

@@ -21,7 +21,7 @@ WORKDIR /build
 COPY . .
 RUN go mod tidy && \
     go mod download && \
-    go build -ldflags "-s -w" -o ./bin/ch-migrations
+    go build -ldflags "-s -w" -o ./bin/migrations
 
 FROM alpine:3.16
 
@@ -29,9 +29,10 @@ RUN apk update && apk add --no-cache bash
 WORKDIR /app/noelware/charted/tools/migrations
 
 COPY --from=builder /build/bin/ch-migrations .
+COPY --from=builder /build/migrations .
 COPY run.sh /app/noelware/charted/tools/migrations/run.sh
 
-RUN ln -s /app/noelware/charted/tools/migrations/ch-migrations /usr/local/bin/ch-migrations
+RUN ln -s /app/noelware/charted/tools/migrations/migrations /usr/local/bin/migrations
 RUN chmod +x /app/noelware/charted/tools/migrations/run.sh
 USER 1001
 

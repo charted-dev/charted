@@ -15,23 +15,29 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.database.clickhouse.tests
+package org.noelware.charted.database.cassandra.tests
 
 import org.junit.Test
-import org.noelware.charted.testing.containers.AbstractClickHouseContainerTest
-import java.sql.DriverManager
+import org.noelware.charted.common.data.CassandraConfig
+import org.noelware.charted.database.cassandra.CassandraConnection
+import org.noelware.charted.testing.containers.AbstractCassandraContainerTests
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
-class ClickHouseTest: AbstractClickHouseContainerTest() {
+class CassandraTests: AbstractCassandraContainerTests() {
     @Test
-    fun `can we query from container via java sql`() {
-        val container = getContainer()
-        val connection = DriverManager.getConnection("jdbc:clickhouse://${container.host}:${container.getMappedPort(9000)}?client_name=charted-test")
-        val stmt = connection.createStatement()
-        val rs = stmt.executeQuery("SELECT version() AS version;")
+    fun `can we connect`() {
+        val connection = CassandraConnection(
+            CassandraConfig(
+                "",
+                listOf(getContainer().host),
+                getContainer().getMappedPort(9042)
+            )
+        )
 
-        assertTrue(rs.next(), "Was unable to query [SELECT version() AS version;]")
-        assertEquals("22.6.2.12", rs.getString("version"))
+        connection.connect()
+        assertEquals("4.0.0", connection.serverVersion)
+
+        // Close the connection
+        connection.close()
     }
 }

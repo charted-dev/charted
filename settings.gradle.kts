@@ -46,7 +46,7 @@ include(
     ":features:webhooks",
     ":lib:analytics:protobufs",
     ":lib:analytics",
-    ":lib:clickhouse",
+    ":lib:cassandra",
     ":lib:elasticsearch",
     ":lib:email",
     ":lib:meilisearch",

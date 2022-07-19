@@ -15,23 +15,37 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.features.audits.data
+package org.noelware.charted.common.data
 
-import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
-import kotlinx.serialization.json.JsonObject
 
 @kotlinx.serialization.Serializable
-data class AuditLog(
-    @SerialName("origin_type")
-    val originType: OriginType,
+data class IntegrationConfig(
+    val noelware: NoelwareIntegrationConfig? = null,
+    val github: GitHubIntegrationConfig? = null,
+    val google: GoogleIntegrationConfig? = null
+    // val apple: AppleIntegrationConfig? = null
+)
 
-    @SerialName("origin_id")
-    val originID: Long,
+@kotlinx.serialization.Serializable
+data class NoelwareIntegrationConfig(
+    @SerialName("client_id")
+    val clientID: Long,
 
-    @SerialName("fired_at")
-    val firedAt: Instant,
-    val action: AuditLogAction,
-    val data: JsonObject,
-    val id: Long
+    @SerialName("client_secret")
+    val clientSecret: String
+)
+
+@kotlinx.serialization.Serializable
+data class GitHubIntegrationConfig(
+    @SerialName("client_id")
+    val clientID: String,
+
+    @SerialName("client_secret")
+    val clientSecret: String
+)
+
+@kotlinx.serialization.Serializable
+data class GoogleIntegrationConfig(
+    val clientID: String
 )

@@ -15,16 +15,18 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-    `charted-test`
-}
+package org.noelware.charted.common.data
 
-dependencies {
-    implementation("org.noelware.ktor:core:0.3.1-beta")
-    implementation(project(":lib:cassandra"))
-    implementation(project(":database"))
+import kotlinx.serialization.SerialName
 
-    testImplementation("org.slf4j:slf4j-simple:1.7.36")
-    testImplementation(project(":testing"))
-}
+/**
+ * Represents the configuration for configuring LDAP as the session management.
+ */
+@kotlinx.serialization.Serializable
+data class LdapConfiguration(
+    @SerialName("server_url")
+    val serverUrl: String,
+
+    @SerialName("user_dn_format")
+    val userDNFormat: String = "cn=%s,dc=charted,dc=local"
+)

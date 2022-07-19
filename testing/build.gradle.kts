@@ -20,8 +20,8 @@ plugins {
 }
 
 dependencies {
-    implementation("org.testcontainers:elasticsearch:1.17.2")
-    implementation("org.testcontainers:postgresql:1.17.2")
-    implementation("org.testcontainers:clickhouse:1.17.2")
+    implementation("org.testcontainers:elasticsearch:1.17.3")
+    implementation("org.testcontainers:postgresql:1.17.3")
+    implementation("org.testcontainers:cassandra:1.17.3")
     implementation("org.slf4j:slf4j-simple:1.7.36")
 }

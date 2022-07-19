@@ -34,9 +34,9 @@ You can install the JVM version (which is recommended) from:
 There is a list of other software that **charted-server** supports that you can use:
 
 - (optional) Elasticsearch or Meilisearch -- Search backend,
-- (optional) ClickHouse -- persisting audit logs and webhook events,
+- (optional) Apache Cassandra -- persisting audit logs and webhook events,
 - PostgreSQL 10 or higher,
-- Redis 5 or higher
+- Redis 5 or higher,
 - Java 17,
 - 2 CPU cores or higher (applicable with Git/local installation; not needed in Docker/Helm),
 - **2-6**GB or higher on the system.

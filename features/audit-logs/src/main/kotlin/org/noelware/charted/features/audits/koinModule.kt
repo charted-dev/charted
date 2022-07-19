@@ -22,6 +22,6 @@ import org.koin.dsl.module
 import org.noelware.ktor.endpoints.AbstractEndpoint
 
 val auditLogsModule = module {
+    single<AuditLogsFeature> { DefaultAuditLogsFeature(get(), get()) }
     single { AuditLogsEndpoint() } bind AbstractEndpoint::class
-//    single<AuditLogsFeature> { DefaultAuditLogsFeature(get()) }
 }

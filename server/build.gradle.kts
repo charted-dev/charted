@@ -50,6 +50,7 @@ dependencies {
     implementation("io.ktor:ktor-server-default-headers")
     implementation("io.ktor:ktor-server-double-receive")
     implementation("io.ktor:ktor-server-status-pages")
+    implementation("io.ktor:ktor-server-websockets")
     implementation("io.ktor:ktor-serialization")
     implementation("io.ktor:ktor-client-okhttp")
     implementation("io.ktor:ktor-server-netty")
@@ -61,9 +62,10 @@ dependencies {
     // Projects
     implementation(project(":features:docker-registry"))
     implementation(project(":features:audit-logs"))
+    implementation(project(":features:webhooks"))
     implementation(project(":lib:elasticsearch"))
     implementation(project(":lib:meilisearch"))
-    implementation(project(":lib:clickhouse"))
+    implementation(project(":lib:cassandra"))
     implementation(project(":lib:analytics"))
     implementation(project(":lib:telemetry"))
     implementation(project(":lib:email"))
@@ -88,6 +90,7 @@ dependencies {
 
     // Prometheus
     implementation("io.prometheus:simpleclient_hotspot:0.16.0")
+    implementation("io.prometheus:simpleclient_common:0.16.0")
     implementation("io.prometheus:simpleclient:0.16.0")
 }
 

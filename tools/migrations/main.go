@@ -17,14 +17,12 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"os"
-	"strings"
 	"time"
 
-	ch "github.com/ClickHouse/clickhouse-go/v2"
+	"github.com/gocql/gocql"
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/clickhouse"
+	"github.com/golang-migrate/migrate/v4/database/cassandra"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -32,141 +30,97 @@ import (
 
 var (
 	rootCmd = &cobra.Command{
-		Use:           "ch:migrations [ARGS...]",
-		Short:         "Runs the ClickHouse migrations for charted-server.",
+		Use:           "migrations [ARGS...]",
+		Short:         "Runs the Cassandra migrations for charted-server",
 		RunE:          execute,
 		SilenceUsage:  true,
 		SilenceErrors: true,
 	}
 
-	clickhouseConfig *ClickHouseConfig
+	migrationsTable *string
+	hosts           *[]string
+	port            *int
+	protocol        *int
+	timeout         *string
+	username        *string
+	password        *string
+	keyspace        *string
+	//disableHostLookup *bool
 )
 
-type ClickHouseConfig struct {
-	Username *string
-	Password *string
-	Database *string
-	Cluster  *string
-	Host     string
-	Port     int
-}
-
-func (config *ClickHouseConfig) Uri() string {
-	str := &strings.Builder{}
-	str.WriteString("clickhouse://")
-
-	if config.Username != nil && config.Password != nil {
-		if *config.Username != "" && *config.Password != "" {
-			str.WriteString(fmt.Sprintf("%v:%v@", string(*config.Username), string(*config.Password)))
-		}
-	}
-
-	str.WriteString(config.Host)
-	str.WriteString(":")
-	str.WriteString(fmt.Sprint(config.Port))
-
-	dbName := "charted"
-	if config.Database != nil {
-		dbName = *config.Database
-	}
-
-	str.WriteRune('/')
-	str.WriteString(dbName)
-
-	return str.String()
-}
-
 func init() {
-	host := rootCmd.Flags().String("host", "127.0.0.1", "The host to connect to your ClickHouse server")
-	port := rootCmd.Flags().Int("port", 9000, "The port to connect to your ClickHouse server")
-	username := rootCmd.Flags().StringP("username", "u", "", "The username to connect to your ClickHouse server if authentication is enabled [env: CLICKHOUSE_AUTH_USERNAME]")
-	password := rootCmd.Flags().StringP("password", "p", "", "The password to connect to your ClickHouse server if authentication is enabled [env: CLICKHOUSE_AUTH_PASSWORD]")
-	database := rootCmd.Flags().StringP("db", "d", "charted", "The database name")
-	cluster := rootCmd.Flags().StringP("cluster", "c", "", "The cluster name to create the tables if ClickHouse is distributed.")
+	migrationsTable = rootCmd.Flags().String("table", "migrations", "The migrations table to use")
+	hosts = rootCmd.Flags().StringSlice("hosts", []string{"127.0.0.1"}, "The cluster hosts to connect to")
+	port = rootCmd.Flags().Int("port", 9042, "The port to connect to your Cassandra cluster")
+	username = rootCmd.Flags().StringP("username", "u", "", "The username to connect to your Cassandra cluster if authentication is enabled. [env: CASSANDRA_USERNAME]")
+	password = rootCmd.Flags().StringP("password", "p", "", "The password to connect to your Cassandra cluster if authentication is enabled. [env: CASSANDRA_PASSWORD]")
+	protocol = rootCmd.Flags().Int("protocol", 0, "Cassandra protocol to use.")
+	timeout = rootCmd.Flags().StringP("timeout", "t", "1m", "The dial timeout to use when connecting.")
+	keyspace = rootCmd.Flags().StringP("keyspace", "k", "charted", "The keyspace to run migrations on.")
+	//disableHostLookup = rootCmd.Flags().BoolP("disable-lookup", "l", false, "If the migration engine should disable host lookups.")
+}
 
-	clickhouseConfig = &ClickHouseConfig{
-		Host: *host,
-		Port: *port,
+func execute(_ *cobra.Command, _ []string) error {
+	cluster := gocql.NewCluster(*hosts...)
+	cluster.Port = *port
+	cluster.Consistency = gocql.All
+	cluster.Keyspace = *keyspace
+
+	if protocol != nil {
+		cluster.ProtoVersion = *protocol
+	}
+
+	if timeout != nil {
+		t, err := time.ParseDuration(*timeout)
+		if err != nil {
+			logrus.Errorf("Unable to parse duration %s: %s", *timeout, err)
+			return err
+		}
+
+		cluster.Timeout = t
 	}
 
 	if username != nil {
-		clickhouseConfig.Username = username
-	}
-
-	if password != nil {
-		clickhouseConfig.Password = password
-	}
-
-	if database != nil {
-		clickhouseConfig.Database = database
-	}
-
-	if cluster != nil {
-		clickhouseConfig.Cluster = cluster
-	}
-}
-
-func execute(cmd *cobra.Command, args []string) error {
-	opts := &ch.Options{
-		Addr:        []string{fmt.Sprintf("%s:%d", clickhouseConfig.Host, clickhouseConfig.Port)},
-		DialTimeout: 15 * time.Second,
-		Settings: ch.Settings{
-			"allow_experimental_object_type": true,
-		},
-	}
-
-	auth := &ch.Auth{Database: "charted"}
-	if clickhouseConfig.Username != nil && clickhouseConfig.Password != nil {
-		if *clickhouseConfig.Username != "" {
-			auth.Username = *clickhouseConfig.Username
+		if password == nil {
+			logrus.Fatalf("Username was provided but no password?")
 		}
 
-		if *clickhouseConfig.Password != "" {
-			auth.Password = *clickhouseConfig.Password
+		cluster.Authenticator = gocql.PasswordAuthenticator{
+			Username: *username,
+			Password: *password,
 		}
 	}
 
-	opts.Auth = *auth
-
-	// TODO(noel): support SSL
-	//opts.TLS = &tls.Config{InsecureSkipVerify: true}
-
-	db := ch.OpenDB(opts)
-	if err := db.Ping(); err != nil {
-		logrus.Errorf("Unable to open ClickHouse connection: %s", err)
+	logrus.Info("Connecting to cluster...")
+	session, err := cluster.CreateSession()
+	if err != nil {
+		logrus.Errorf("Unable to connect to cluster: %s", err)
 		return err
 	}
 
-	migrationConfig := &clickhouse.Config{
-		MigrationsTable:       "migrations",
+	logrus.Info("Connected to cluster!")
+	config := &cassandra.Config{
+		MigrationsTable:       *migrationsTable,
+		KeyspaceName:          *keyspace,
 		MultiStatementEnabled: true,
 	}
 
-	if clickhouseConfig.Database != nil {
-		migrationConfig.DatabaseName = *clickhouseConfig.Database
-	}
-
-	if clickhouseConfig.Cluster != nil {
-		migrationConfig.ClusterName = *clickhouseConfig.Cluster
-	}
-
-	ch, err := clickhouse.WithInstance(db, migrationConfig)
+	ca, err := cassandra.WithInstance(session, config)
 	if err != nil {
-		logrus.Errorf("Unable to create ClickHouse migration engine due to: %s", err)
+		logrus.Errorf("Unable to create Cassandra migration engine: %s", err)
 		return err
 	}
 
-	migrator, err := migrate.NewWithDatabaseInstance("file://./migrations", "clickhouse", ch)
+	migrator, err := migrate.NewWithDatabaseInstance("file://./migrations", "cassandra", ca)
 	if err != nil {
-		logrus.Errorf("Unable to create migration engine due to: %s", err)
+		logrus.Errorf("Unable to create migration engine: %v", err)
 		return err
 	}
 
-	logrus.Infof("Created migration engine! Running...")
-
+	logrus.Info("Created migration engine!")
 	if err := migrator.Up(); err != nil {
 		if errors.Is(err, migrate.ErrNoChange) {
-			logrus.Info("I already did all the migrations and they were applied~ ^-^")
+			logrus.Info("All the migrations were applied already~ ^-^")
 			return nil
 		}
 
@@ -194,5 +148,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	os.Exit(1)
+	os.Exit(0)
 }

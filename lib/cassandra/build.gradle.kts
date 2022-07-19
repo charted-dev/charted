@@ -21,10 +21,8 @@ plugins {
 }
 
 dependencies {
-    implementation("org.noelware.ktor:core:0.3.1-beta")
-    implementation(project(":lib:cassandra"))
-    implementation(project(":database"))
-
-    testImplementation("org.slf4j:slf4j-simple:1.7.36")
+    testImplementation("org.testcontainers:cassandra:1.17.3")
     testImplementation(project(":testing"))
+
+    api("com.datastax.cassandra:cassandra-driver-core:3.11.2")
 }
