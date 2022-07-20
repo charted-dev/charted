@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS charted.audit_logs(
+CREATE TABLE IF NOT EXISTS audit_logs(
     id bigint PRIMARY KEY,
     origin_id bigint,
     origin_type text, /* 'repo' or 'organization */
@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS charted.audit_logs(
     action text /* action enum string - https://charts.noelware.org/docs/server/features/audit-logs#actions */
 );
 
-CREATE TABLE IF NOT EXISTS charted.webhooks(
+CREATE TABLE IF NOT EXISTS webhooks(
     id bigint PRIMARY KEY,
     origin_id bigint,
     origin_type text, /* 'repo', 'organization', 'user' */

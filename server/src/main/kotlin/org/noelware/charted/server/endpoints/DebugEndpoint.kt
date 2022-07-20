@@ -17,6 +17,8 @@
 
 package org.noelware.charted.server.endpoints
 
+import dev.floofy.utils.exposed.asyncTransaction
+import dev.floofy.utils.kotlin.humanize
 import dev.floofy.utils.kotlin.sizeToStr
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -26,19 +28,26 @@ import kotlinx.coroutines.debug.DebugProbes
 import kotlinx.coroutines.debug.State
 import kotlinx.serialization.json.*
 import org.noelware.charted.common.ChartedInfo
+import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.data.Config
 import org.noelware.charted.common.data.Feature
 import org.noelware.charted.core.StorageWrapper
+import org.noelware.charted.database.cassandra.CassandraConnection
 import org.noelware.charted.search.elasticsearch.ElasticsearchClient
 import org.noelware.charted.search.elasticsearch.index.Index
 import org.noelware.charted.search.meilisearch.MeilisearchClient
+import org.noelware.charted.server.ChartedServer
+import org.noelware.charted.server.plugins.IsAdminGuard
+import org.noelware.charted.server.plugins.Sessions
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.noelware.ktor.endpoints.Get
 import java.lang.management.ManagementFactory
 
+// TODO: move this into an "admin" endpoint
 class DebugEndpoint(
     private val elastic: ElasticsearchClient? = null,
     private val meili: MeilisearchClient? = null,
+    private val cassandra: CassandraConnection? = null,
     private val storage: StorageWrapper,
     private val config: Config
 ): AbstractEndpoint("/debug") {
@@ -46,10 +55,10 @@ class DebugEndpoint(
     private val threads = ManagementFactory.getThreadMXBean()
     private val os = ManagementFactory.getOperatingSystemMXBean()
 
-//    init {
-//        install(IsAdminGuard)
-//        install(Sessions)
-//    }
+    init {
+        install(Sessions)
+        install(IsAdminGuard)
+    }
 
     @Get
     suspend fun main(call: ApplicationCall) {
@@ -110,7 +119,7 @@ class DebugEndpoint(
 
         if (meili != null) {
             searchBackendInfo = buildJsonObject {
-                put("server_version", "unknown")
+                put("server_version", meili.serverVersion)
                 put("backend", "Meilisearch")
                 putJsonObject("users") {}
                 putJsonObject("repos") {}
@@ -141,6 +150,38 @@ class DebugEndpoint(
             put("max_memory", runtime.maxMemory())
         }
 
+        val cassandraStats = if (cassandra != null) {
+            buildJsonObject {
+            }
+        } else {
+            JsonNull
+        }
+
+        val postgres = buildJsonObject {
+            val stats = asyncTransaction(ChartedScope) {
+                exec(
+                    // THIS IS NOT SAFE PLEASE UPDATE THIS INTO A NON SQL INJECTED VALUE
+                    "SELECT datname, numbackends, tup_fetched, tup_inserted, tup_deleted FROM pg_stat_database WHERE datname = '${config.postgres.name}';"
+                ) {
+                    if (!it.next()) return@exec mapOf()
+
+                    val numBackends = it.getInt("numbackends")
+                    val fetched = it.getLong("tup_fetched")
+                    val inserted = it.getLong("tup_inserted")
+                    val deleted = it.getLong("tup_deleted")
+
+                    mapOf(
+                        "num_backends" to JsonPrimitive(numBackends),
+                        "fetched" to JsonPrimitive(fetched),
+                        "inserted" to JsonPrimitive(inserted),
+                        "deleted" to JsonPrimitive(deleted)
+                    )
+                }!!
+            }
+
+            put("database", JsonObject(stats))
+        }
+
         call.respond(
             HttpStatusCode.OK,
             buildJsonObject {
@@ -151,9 +192,12 @@ class DebugEndpoint(
                     put("build_date", ChartedInfo.buildDate)
                     put("storage", storageInfo)
                     put("threads", threadInfo)
+                    put("cassandra", cassandraStats)
                     put("product", "charted-server")
                     put("version", ChartedInfo.version)
                     put("runtime", runtimeInfo)
+                    put("database", postgres)
+                    put("uptime", (System.currentTimeMillis() - ChartedServer.bootTime).humanize())
                     put("search", searchBackendInfo ?: JsonNull)
                     put("vendor", "Noelware")
                     put("jvm", jvmInfo)

@@ -58,7 +58,7 @@ val Logging = createApplicationPlugin("ChartedKtorLogging") {
     on(ResponseSent) { call ->
         val method = call.request.httpMethod
         val version = call.request.httpVersion
-        val endpoint = call.request.uri
+        val endpoint = call.request.path()
         val status = call.response.status() ?: HttpStatusCode(-1, "Unknown HTTP Method")
         val stopwatch = call.attributes[stopwatchKey]
         val userAgent = call.request.userAgent()

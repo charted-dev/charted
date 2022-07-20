@@ -15,13 +15,11 @@
  * limitations under the License.
  */
 
-package org.noelware.sessions.integrations.github
+package org.noelware.charted.sessions.integrations.github
 
-import org.koin.dsl.bind
-import org.koin.dsl.module
-import org.noelware.ktor.endpoints.AbstractEndpoint
+import org.noelware.charted.sessions.Session
+import org.noelware.charted.sessions.SessionManager
 
-val githubIntegration = module {
-    single { GitHubIntegrationEndpoint(get()) } bind AbstractEndpoint::class
-    single<GitHubIntegration> { DefaultGitHubIntegration() }
+class DefaultGitHubIntegration(private val sessions: SessionManager): GitHubIntegration {
+    override suspend fun createSession(id: Long): Session = sessions.createSession(id)
 }

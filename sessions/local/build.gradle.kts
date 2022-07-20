@@ -20,5 +20,6 @@ plugins {
 }
 
 dependencies {
+    implementation("com.auth0:java-jwt:3.19.2")
     implementation(project(":sessions"))
 }

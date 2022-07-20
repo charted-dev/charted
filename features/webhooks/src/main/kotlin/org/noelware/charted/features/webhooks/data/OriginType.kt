@@ -15,20 +15,10 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.core.ratelimiter
+package org.noelware.charted.features.webhooks.data
 
-import kotlinx.datetime.*
-
-@kotlinx.serialization.Serializable
-data class Ratelimit(
-    val remaining: Long = 1200,
-    val resetAt: Instant,
-    val limit: Long = 1200
-)
-
-fun Ratelimit.consume(): Ratelimit = copy(remaining = (remaining - 1).coerceAtLeast(0))
-val Ratelimit.exceeded: Boolean
-    get() = !expired && remaining == 0L
-
-val Ratelimit.expired: Boolean
-    get() = resetAt >= Clock.System.now()
+enum class OriginType(val key: String) {
+    REPOSITORY("repo"),
+    ORGANIZATION("org"),
+    USER("user");
+}

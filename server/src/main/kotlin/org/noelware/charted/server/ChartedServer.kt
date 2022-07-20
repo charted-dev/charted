@@ -54,7 +54,6 @@ import org.noelware.charted.features.docker.registry.DockerRegistryPlugin
 import org.noelware.charted.server.endpoints.proxyStorageTrailer
 import org.noelware.charted.server.jobs.ReconfigureProxyCdnJob
 import org.noelware.charted.server.plugins.Logging
-import org.noelware.charted.server.plugins.Ratelimit
 import org.noelware.charted.server.plugins.RequestMdc
 import org.noelware.ktor.NoelKtorRouting
 import org.noelware.ktor.loader.koin.KoinEndpointLoader
@@ -82,13 +81,13 @@ class ChartedServer(private val config: Config) {
 
         log.info("Runtime Information:")
         log.info("===> Free / Total Memory [Max]: ${runtime.freeMemory().sizeToStr()}/${runtime.totalMemory().sizeToStr()} [${runtime.maxMemory().sizeToStr()}]")
-        log.info("===> Operating System         : ${os.name} ${os.arch} (${os.availableProcessors} processors)")
-        log.info("===> OS Threads               : ${threads.threadCount} (${threads.daemonThreadCount} background threads)")
+        log.info("===> Operating System: ${os.name.lowercase()}${os.arch} (${os.availableProcessors} processors)")
+        log.info("===> OS Threads: ${threads.threadCount} (${threads.daemonThreadCount} background threads)")
         if (ChartedInfo.dedicatedNode != null) {
-            log.info("===> Dedicated Node           : ${ChartedInfo.dedicatedNode}")
+            log.info("===> Dedicated Node: ${ChartedInfo.dedicatedNode}")
         }
 
-        log.info("===> Library Versions         :")
+        log.info("===> Library Versions:")
         log.info("|-  charted: ${ChartedInfo.version} [${ChartedInfo.commitHash}]")
         log.info("|-  Kotlin:  ${KotlinVersion.CURRENT}")
         log.info("|-  Java:    ${System.getProperty("java.version", "Unknown")} [${System.getProperty("java.vendor", "Unknown")}]")
@@ -112,7 +111,6 @@ class ChartedServer(private val config: Config) {
                 install(AutoHeadResponse)
                 install(DoubleReceive)
                 install(RequestMdc)
-                install(Ratelimit)
                 install(Logging)
 
                 if (self.config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
@@ -225,7 +223,7 @@ class ChartedServer(private val config: Config) {
                             SentryClient.captureException(cause)
                         }
 
-                        self.log.error("Received validation in ${cause.path} [${cause.validationMessage}]")
+                        self.log.error("Received validation exception in route [${call.request.httpMethod.value} ${call.request.path()}] ${cause.path} [${cause.validationMessage}]")
                         call.respond(
                             HttpStatusCode.NotAcceptable,
                             buildJsonObject {
@@ -245,7 +243,7 @@ class ChartedServer(private val config: Config) {
                             SentryClient.captureException(cause)
                         }
 
-                        self.log.error("Unknown YAML exception had occurred while handling request [${call.request.httpMethod.value} ${call.request.uri}]:", cause)
+                        self.log.error("Unknown YAML exception had occurred while handling request [${call.request.httpMethod.value} ${call.request.path()}]:", cause)
                         call.respond(
                             HttpStatusCode.NotAcceptable,
                             buildJsonObject {
@@ -273,7 +271,7 @@ class ChartedServer(private val config: Config) {
                             SentryClient.captureException(cause)
                         }
 
-                        self.log.error("Unknown exception had occurred while handling request [${call.request.httpMethod.value} ${call.request.uri}]", cause)
+                        self.log.error("Unknown exception had occurred while handling request [${call.request.httpMethod.value} ${call.request.path()}]", cause)
                         call.respond(
                             HttpStatusCode.InternalServerError,
                             buildJsonObject {

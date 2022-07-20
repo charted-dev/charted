@@ -65,10 +65,13 @@ dependencies {
     implementation(project(":features:webhooks"))
     implementation(project(":lib:elasticsearch"))
     implementation(project(":lib:meilisearch"))
+    implementation(project(":sessions:github"))
+    implementation(project(":sessions:local"))
     implementation(project(":lib:cassandra"))
     implementation(project(":lib:analytics"))
     implementation(project(":lib:telemetry"))
     implementation(project(":lib:email"))
+    implementation(project(":sessions"))
     implementation(project(":database"))
     implementation(project(":core"))
 

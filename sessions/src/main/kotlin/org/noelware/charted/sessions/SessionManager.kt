@@ -17,10 +17,12 @@
 
 package org.noelware.charted.sessions
 
+import java.io.Closeable
+
 /**
  * Represents the manager for handling sessions.
  */
-interface SessionManager {
+interface SessionManager: Closeable {
     /**
      * Retrieves a session from Redis.
      * @param token The JWT token that the session was created from.
@@ -37,10 +39,20 @@ interface SessionManager {
      * Revokes all the user's sessions.
      * @param userID The user's ID
      */
-    suspend fun revokeAllSessions(userID: Long): Session
+    suspend fun revokeAllSessions(userID: Long)
 
     /**
      * Revokes a session object.
      */
     suspend fun revokeSession(session: Session)
+
+    /**
+     * Refreshes the old session with a new session object.
+     */
+    suspend fun refreshSession(session: Session): Session
+
+    /**
+     * Checks if the [token] is expired or not.
+     */
+    fun isExpired(token: String): Boolean
 }

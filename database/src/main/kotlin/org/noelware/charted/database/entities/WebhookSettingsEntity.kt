@@ -15,6 +15,18 @@
  * limitations under the License.
  */
 
-package org.noelware.sessions.integrations.github
+package org.noelware.charted.database.entities
 
-class DefaultGitHubIntegration: GitHubIntegration
+import org.jetbrains.exposed.dao.LongEntity
+import org.jetbrains.exposed.dao.LongEntityClass
+import org.jetbrains.exposed.dao.id.EntityID
+import org.noelware.charted.database.tables.WebhookSettingsTable
+
+class WebhookSettingsEntity(id: EntityID<Long>): LongEntity(id) {
+    companion object: LongEntityClass<WebhookSettingsEntity>(WebhookSettingsTable)
+
+    var authorization by WebhookSettingsTable.authorization
+    var origin by WebhookSettingsTable.origin
+    var events by WebhookSettingsTable.events
+    var url by WebhookSettingsTable.url
+}

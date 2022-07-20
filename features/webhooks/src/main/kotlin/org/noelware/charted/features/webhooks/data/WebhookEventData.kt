@@ -15,10 +15,21 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.sessions.ldap
+package org.noelware.charted.features.webhooks.data
 
-import dev.floofy.utils.slf4j.logging
+import kotlinx.datetime.Instant
+import kotlinx.serialization.json.JsonObject
+import org.noelware.charted.database.tables.WebhookEvent
 
-class LDAPSessionManager(private val config: LDAPConfiguration) {
-    private val log by logging<LDAPSessionManager>()
-}
+data class WebhookEventData(
+    val responseCode: Int,
+    val originType: OriginType,
+    val successful: Boolean,
+    val payload: JsonObject,
+    val firedAt: Instant,
+    val failed: Boolean,
+    val origin: Long,
+    val event: WebhookEvent,
+    val data: JsonObject,
+    val id: Long
+)

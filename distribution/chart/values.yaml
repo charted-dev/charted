@@ -23,6 +23,7 @@ tolerations: []
 affinity: {}
 serviceName: ""
 extraEnvVars: []
+initContainers: []
 
 jwtSecret:
   generate: true
@@ -95,7 +96,7 @@ frontend:
 
 ingress:
   enabled: false
-  annotations: { }
+  annotations: {}
   className: ""
   hosts:
     - host: charted.local
@@ -117,14 +118,9 @@ postgres:
 redis:
   enabled: false
 
-# Configuration for the ClickHouse instance for charted-server. This is completely optional if you
-# have a ClickHouse instance already OR if you do not plan on enabling the audit-logs for webhooks
-# feature.
-clickhouse:
-  enabled: false
-
-# If ClickHouse should be replicate data via ZooKeeper.
-zookeeper:
+# Allows you to have a local Cassandra instance for charted-server. This is mainly for the Audit Logs
+# and Webhooks features.
+cassandra:
   enabled: false
 
 resources: {}

@@ -15,6 +15,17 @@
  * limitations under the License.
  */
 
-package org.noelware.sessions.integrations.github
+package org.noelware.charted.sessions.integrations.github
 
-interface GitHubIntegration
+import org.noelware.charted.sessions.Session
+
+interface GitHubIntegration {
+    /**
+     * Creates a session from the user's GitHub account ID. This is registered
+     * from their user connections which they can "claim" to have sign-in abilities.
+     *
+     * @param id The user's ID
+     * @return A [Session] object.
+     */
+    suspend fun createSession(id: Long): Session
+}

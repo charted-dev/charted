@@ -19,5 +19,6 @@ package org.noelware.charted.features.audits.data
 
 enum class OriginType(val key: String) {
     REPOSITORY("repo"),
-    ORGANIZATION("org");
+    ORGANIZATION("org"),
+    USER("user");
 }

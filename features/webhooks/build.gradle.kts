@@ -21,9 +21,11 @@ plugins {
 }
 
 dependencies {
-    testImplementation("org.slf4j:slf4j-simple:1.7.36")
-    testImplementation(project(":testing"))
-
     implementation("org.noelware.ktor:core:0.3.1-beta")
     implementation("io.ktor:ktor-client-core")
+    implementation(project(":lib:cassandra"))
+    implementation(project(":database"))
+
+    testImplementation("org.slf4j:slf4j-simple:1.7.36")
+    testImplementation(project(":testing"))
 }

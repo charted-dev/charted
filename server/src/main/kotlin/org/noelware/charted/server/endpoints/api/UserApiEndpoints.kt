@@ -46,14 +46,11 @@ import org.noelware.charted.common.data.Config
 import org.noelware.charted.common.data.helm.ChartIndexYaml
 import org.noelware.charted.common.exceptions.ValidationException
 import org.noelware.charted.core.StorageWrapper
-import org.noelware.charted.core.sessions.Session
-import org.noelware.charted.core.sessions.SessionManager
 import org.noelware.charted.database.controllers.NewUserBody
 import org.noelware.charted.database.controllers.RepositoryController
 import org.noelware.charted.database.controllers.UserController
 import org.noelware.charted.database.entities.UserConnectionEntity
 import org.noelware.charted.database.entities.UserEntity
-import org.noelware.charted.database.models.User
 import org.noelware.charted.database.models.UserConnections
 import org.noelware.charted.database.tables.UserTable
 import org.noelware.charted.server.apiKeyOrNull
@@ -61,6 +58,8 @@ import org.noelware.charted.server.plugins.Sessions
 import org.noelware.charted.server.plugins.sessionsKey
 import org.noelware.charted.server.session
 import org.noelware.charted.server.utils.createOutgoingContentWithBytes
+import org.noelware.charted.sessions.Session
+import org.noelware.charted.sessions.SessionManager
 import org.noelware.ktor.body
 import org.noelware.ktor.endpoints.*
 import org.noelware.remi.core.figureContentType
@@ -575,12 +574,12 @@ class UserApiEndpoints(
             )
         }
 
-        val session = sessions.create(user.id.value)
+        val session = sessions.createSession(user.id.value)
         call.respond(
             HttpStatusCode.Created,
             buildJsonObject {
                 put("success", true)
-                put("data", session.toJsonObject(User.fromEntity(user)))
+                put("data", session.toJsonObject(true))
             }
         )
     }

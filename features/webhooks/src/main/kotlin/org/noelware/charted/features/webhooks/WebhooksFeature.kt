@@ -17,4 +17,20 @@
 
 package org.noelware.charted.features.webhooks
 
-interface WebhooksFeature
+import kotlinx.serialization.json.JsonObject
+import org.noelware.charted.database.tables.WebhookEvent
+import org.noelware.charted.features.webhooks.data.OriginType
+import org.noelware.charted.features.webhooks.data.WebhookEventData
+
+interface WebhooksFeature {
+    suspend fun get(id: Long): WebhookEventData?
+    suspend fun all(origin: Long): List<WebhookEventData>
+    suspend fun getAllByEvent(origin: Long, event: WebhookEvent): List<WebhookEventData>
+    suspend fun create(
+        event: WebhookEvent,
+        id: Long,
+        origin: Long,
+        originType: OriginType,
+        data: JsonObject
+    ): WebhookEventData
+}

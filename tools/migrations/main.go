@@ -45,6 +45,7 @@ var (
 	username        *string
 	password        *string
 	keyspace        *string
+	version         *int32
 	//disableHostLookup *bool
 )
 
@@ -57,6 +58,7 @@ func init() {
 	protocol = rootCmd.Flags().Int("protocol", 0, "Cassandra protocol to use.")
 	timeout = rootCmd.Flags().StringP("timeout", "t", "1m", "The dial timeout to use when connecting.")
 	keyspace = rootCmd.Flags().StringP("keyspace", "k", "charted", "The keyspace to run migrations on.")
+	version = rootCmd.Flags().Int32("version", 0, "The migration version to run.")
 	//disableHostLookup = rootCmd.Flags().BoolP("disable-lookup", "l", false, "If the migration engine should disable host lookups.")
 }
 
@@ -117,7 +119,19 @@ func execute(_ *cobra.Command, _ []string) error {
 		return err
 	}
 
-	logrus.Info("Created migration engine!")
+	logrus.Info("Created migration engine! Running...")
+	if version != nil && *version != 0 {
+		if err := migrator.Migrate(uint(*version)); err != nil {
+			if errors.Is(err, migrate.ErrNoChange) {
+				logrus.Info("All the migrations were applied already~ ^-^")
+				return nil
+			}
+
+			logrus.Errorf("Unable to run migration with version [%d] due to: %s", *version, err)
+			return err
+		}
+	}
+
 	if err := migrator.Up(); err != nil {
 		if errors.Is(err, migrate.ErrNoChange) {
 			logrus.Info("All the migrations were applied already~ ^-^")

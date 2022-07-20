@@ -22,6 +22,7 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonObject
 import org.noelware.charted.common.data.Config
 import org.noelware.charted.common.data.Feature
 import org.noelware.ktor.endpoints.AbstractEndpoint
@@ -48,6 +49,7 @@ class MainEndpoint(private val config: Config): AbstractEndpoint() {
 
     @Get("/features")
     suspend fun features(call: ApplicationCall) {
+        val integrations = config.integrations
         call.respond(
             HttpStatusCode.OK,
             buildJsonObject {
@@ -55,6 +57,13 @@ class MainEndpoint(private val config: Config): AbstractEndpoint() {
                 put(
                     "data",
                     buildJsonObject {
+                        putJsonObject("integrations") {
+                            put("enabled", integrations != null)
+                            put("github", integrations?.github != null)
+                            put("noelware", integrations?.noelware != null)
+                            put("google", integrations?.google != null)
+                        }
+
                         put("engine", if (config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) "oci (private docker registry)" else "charts")
                         put("search", config.search.enabled)
                         put("registrations", config.registrations)

@@ -18,6 +18,9 @@
 package org.noelware.charted.sessions
 
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import org.noelware.charted.common.serializers.UUIDSerializer
 import java.util.UUID
 
@@ -35,4 +38,14 @@ data class Session(
 
     @SerialName("user_id")
     val userID: Long
-)
+) {
+    fun toJsonObject(showToken: Boolean = false): JsonObject = buildJsonObject {
+        if (showToken) {
+            put("refresh_token", refreshToken)
+            put("access_token", accessToken)
+        }
+
+        put("session_id", sessionID.toString())
+        put("user_id", userID)
+    }
+}

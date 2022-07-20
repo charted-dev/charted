@@ -19,11 +19,11 @@ package org.noelware.charted.server
 
 import io.ktor.server.application.*
 import io.sentry.ITransaction
-import org.noelware.charted.core.sessions.Session
 import org.noelware.charted.database.models.ApiKeys
 import org.noelware.charted.server.plugins.apiKeyKey
 import org.noelware.charted.server.plugins.sessionsKey
 import org.noelware.charted.server.plugins.transactionKey
+import org.noelware.charted.sessions.Session
 
 val ApplicationCall.transaction: ITransaction?
     get() = attributes.getOrNull(transactionKey)

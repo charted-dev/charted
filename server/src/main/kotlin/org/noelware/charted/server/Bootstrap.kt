@@ -58,9 +58,7 @@ import org.noelware.charted.core.interceptors.LogInterceptor
 import org.noelware.charted.core.interceptors.SentryInterceptor
 import org.noelware.charted.core.loggers.KoinLogger
 import org.noelware.charted.core.loggers.SentryLogger
-import org.noelware.charted.core.ratelimiter.Ratelimiter
 import org.noelware.charted.core.redis.DefaultRedisClient
-import org.noelware.charted.core.sessions.SessionManager
 import org.noelware.charted.database.cassandra.CassandraConnection
 import org.noelware.charted.database.tables.*
 import org.noelware.charted.features.audits.auditLogsModule
@@ -70,6 +68,9 @@ import org.noelware.charted.search.meilisearch.MeilisearchClient
 import org.noelware.charted.server.endpoints.endpointsModule
 import org.noelware.charted.server.metrics.PrometheusHandler
 import org.noelware.charted.server.websockets.shutdownTickers
+import org.noelware.charted.sessions.SessionManager
+import org.noelware.charted.sessions.integrations.github.githubIntegration
+import org.noelware.charted.sessions.local.LocalSessionManager
 import java.io.File
 import java.io.IOError
 import java.nio.file.Files
@@ -109,7 +110,6 @@ object Bootstrap {
                     val redis: IRedisClient by inject()
                     val ds: HikariDataSource by inject()
                     val sessions: SessionManager by inject()
-                    val ratelimiter: Ratelimiter by inject()
                     val cassandra: CassandraConnection? by injectOrNull()
 
                     elasticsearch?.closeQuietly()
@@ -117,7 +117,6 @@ object Bootstrap {
                     sessions.closeQuietly()
                     server.destroy()
                     ds.closeQuietly()
-                    ratelimiter.closeQuietly()
                     redis.closeQuietly()
 
                     runBlocking {
@@ -263,6 +262,8 @@ object Bootstrap {
 
         transaction {
             createOrUpdatePostgreSQLEnum(RepoType.values())
+            createOrUpdatePostgreSQLEnum(WebhookEvent.values())
+
             SchemaUtils.createMissingTablesAndColumns(
                 OrganizationTable,
                 OrganizationMemberTable,
@@ -271,7 +272,8 @@ object Bootstrap {
                 RepositoryTable,
                 UserConnectionsTable,
                 UserTable,
-                ApiKeysTable
+                ApiKeysTable,
+                WebhookSettingsTable
             )
         }
 
@@ -317,8 +319,7 @@ object Bootstrap {
             }
         }
 
-        val ratelimiter = Ratelimiter(json, redis, scheduler)
-        val sessions = SessionManager(config, json, redis)
+        val sessions = LocalSessionManager(config, redis, json)
         val apiKeyExpiration = TokenExpirationManager(redis)
         val server = ChartedServer(config)
         val httpClient = HttpClient(OkHttp) {
@@ -343,12 +344,11 @@ object Bootstrap {
         val cassandra = if (config.cassandra != null) CassandraConnection(config.cassandra!!) else null
 
         val module = module {
+            single<SessionManager> { sessions }
             single<IRedisClient> { redis }
             single { apiKeyExpiration }
-            single { ratelimiter }
             single { httpClient }
             single { scheduler }
-            single { sessions }
             single { wrapper }
             single { config }
             single { server }
@@ -396,13 +396,14 @@ object Bootstrap {
             modules.add(webhooksModule)
         }
 
+        if (config.integrations != null && config.integrations!!.github != null) {
+            log.info("GitHub integration is enabled!")
+            modules.add(githubIntegration)
+        }
+
         startKoin {
             logger(KoinLogger(config))
-            modules(
-                chartedModule,
-                module,
-                *endpointsModule.toTypedArray()
-            )
+            modules(*modules.toTypedArray())
         }
 
         elasticsearch?.connect()

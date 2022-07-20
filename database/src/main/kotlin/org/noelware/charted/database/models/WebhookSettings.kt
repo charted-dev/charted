@@ -15,18 +15,26 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.sessions.ldap
+package org.noelware.charted.database.models
 
-import kotlinx.serialization.SerialName
+import org.noelware.charted.database.entities.WebhookSettingsEntity
+import org.noelware.charted.database.tables.WebhookEvent
 
-/**
- * Represents the configuration for configuring LDAP as the session management.
- */
 @kotlinx.serialization.Serializable
-data class LDAPConfiguration(
-    @SerialName("server_url")
-    val serverUrl: String,
-
-    @SerialName("user_dn_format")
-    val userDNFormat: String = "cn=%s,dc=charted,dc=local"
-)
+data class WebhookSettings(
+    val events: List<WebhookEvent>,
+    val origin: Long,
+    val token: String? = null,
+    val url: String,
+    val id: Long
+) {
+    companion object {
+        fun fromEntity(entity: WebhookSettingsEntity, showToken: Boolean = false): WebhookSettings = WebhookSettings(
+            entity.events.toList(),
+            entity.origin,
+            if (showToken) entity.authorization else null,
+            entity.url,
+            entity.id.value
+        )
+    }
+}

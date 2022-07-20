@@ -15,14 +15,13 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-    `charted-test`
-}
+package org.noelware.charted.sessions.integrations.github
 
-dependencies {
-    testImplementation("org.apache.directory.server:apacheds-server-integ:2.0.0.AM26")
-    testImplementation("org.apache.directory.server:apacheds-core-integ:2.0.0.AM26")
+import org.koin.dsl.bind
+import org.koin.dsl.module
+import org.noelware.ktor.endpoints.AbstractEndpoint
 
-    implementation(project(":sessions"))
+val githubIntegration = module {
+    single { GitHubIntegrationEndpoint(get(), get(), get()) } bind AbstractEndpoint::class
+    single<GitHubIntegration> { DefaultGitHubIntegration(get()) }
 }

@@ -29,12 +29,12 @@ import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
-import org.noelware.charted.core.sessions.Session
-import org.noelware.charted.core.sessions.SessionManager
 import org.noelware.charted.database.controllers.ApiKeyController
 import org.noelware.charted.database.flags.ApiKeyScopeFlags
 import org.noelware.charted.database.models.ApiKeys
 import org.noelware.charted.database.models.bitfield
+import org.noelware.charted.sessions.Session
+import org.noelware.charted.sessions.SessionManager
 
 data class SessionOptions(
     val scopes: ApiKeyScopeFlags = ApiKeyScopeFlags(),
@@ -96,7 +96,7 @@ val Sessions = createRouteScopedPlugin("ChartedSession", ::SessionOptions) {
         when (val prefix = data.first()) {
             "Bearer" -> {
                 try {
-                    val session = sessions.retrieve(token)
+                    val session = sessions.getSession(token)
                     if (session == null) {
                         call.respond(
                             HttpStatusCode.BadRequest,

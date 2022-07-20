@@ -22,6 +22,6 @@ import org.koin.dsl.module
 import org.noelware.ktor.endpoints.AbstractEndpoint
 
 val webhooksModule = module {
+    single<WebhooksFeature> { DefaultWebhookFeature(get(), get(), get()) }
     single { WebhooksEndpoint() } bind AbstractEndpoint::class
-    single<WebhooksFeature> { DefaultWebhookFeature() }
 }

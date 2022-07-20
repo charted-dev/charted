@@ -56,7 +56,6 @@ include(
     ":sessions:apple",
     ":sessions:github",
     ":sessions:google",
-    ":sessions:ldap",
     ":sessions:local",
     ":sessions:noelware",
     ":testing",

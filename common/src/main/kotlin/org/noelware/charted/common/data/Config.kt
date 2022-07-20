@@ -25,6 +25,7 @@ data class Config(
 
     @SerialName("jwt_secret_key")
     val jwtSecretKey: String = "",
+    val integrations: IntegrationConfig? = null,
 
     @SerialName("invite_only")
     val inviteOnly: Boolean = false,

@@ -31,7 +31,6 @@ maintainers:
   - name: Noel
     email: cutie@floofy.dev
     url: https://floofy.dev
-
   - name: Noelware Team
     email: team@noelware.org
     url: https://noelware.org
@@ -45,9 +44,6 @@ dependencies:
     version: "~17.0.1"
     name: redis
   - repository: https://charts.bitnami.com/bitnami
-    condition: values.zookeeper.enabled
-    version: "~10.0.2"
-    name: zookeeper
-#  - repository: https://charts.noelware.org/noelware
-#    condition: values.clickhouse.enabled
-#    name: clickhouse
+    condition: values.cassandra.enabled
+    version: "~9.2.8"
+    name: cassandra

@@ -15,6 +15,16 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.sessions.ldap.tests
+package org.noelware.charted.sessions.integrations.github.responses
 
-class LDAPManagementTests
+import kotlinx.serialization.SerialName
+
+@kotlinx.serialization.Serializable
+data class GitHubOAuth2Response(
+    @SerialName("access_token")
+    val accessToken: String,
+
+    @SerialName("token_type")
+    val tokenType: String,
+    val scope: String
+)
