@@ -28,6 +28,8 @@ class CassandraTests: AbstractCassandraContainerTests() {
     fun `can we connect`() {
         val connection = CassandraConnection(
             CassandraConfig(
+                null,
+                null,
                 "",
                 listOf(getContainer().host),
                 getContainer().getMappedPort(9042)
@@ -35,7 +37,7 @@ class CassandraTests: AbstractCassandraContainerTests() {
         )
 
         connection.connect()
-        assertEquals("4.0.0", connection.serverVersion)
+        assertEquals("4.0.4", connection.serverVersion)
 
         // Close the connection
         connection.close()

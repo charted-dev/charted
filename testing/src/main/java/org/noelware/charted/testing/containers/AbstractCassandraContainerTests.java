@@ -43,7 +43,7 @@ public class AbstractCassandraContainerTests {
     public static void start() {
         log.info("Starting Cassandra container...");
 
-        var image = DockerImageName.parse("cassandra").withTag("4.0.0");
+        var image = DockerImageName.parse("cassandra").withTag("4.0");
         var cont = new CassandraContainer<>(image);
         cont.setWaitStrategy(new CassandraQueryWaitStrategy());
         cont.start();
