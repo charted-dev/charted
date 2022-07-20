@@ -22,7 +22,6 @@ import dev.floofy.haru.Scheduler
 import dev.floofy.utils.koin.inject
 import dev.floofy.utils.koin.retrieve
 import dev.floofy.utils.kotlin.ifNotNull
-import dev.floofy.utils.kotlin.sizeToStr
 import dev.floofy.utils.slf4j.logging
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -80,8 +79,8 @@ class ChartedServer(private val config: Config) {
         val threads = ManagementFactory.getThreadMXBean()
 
         log.info("Runtime Information:")
-        log.info("===> Free / Total Memory [Max]: ${runtime.freeMemory().sizeToStr()}/${runtime.totalMemory().sizeToStr()} [${runtime.maxMemory().sizeToStr()}]")
-        log.info("===> Operating System: ${os.name.lowercase()}${os.arch} (${os.availableProcessors} processors)")
+        log.info("===> Free / Total Memory [Max]: ${runtime.freeMemory().formatToSize()}/${runtime.totalMemory().formatToSize()} [${runtime.maxMemory().formatToSize()}]")
+        log.info("===> Operating System: ${os.name.lowercase()}/${os.arch} (${os.availableProcessors} processors)")
         log.info("===> OS Threads: ${threads.threadCount} (${threads.daemonThreadCount} background threads)")
         if (ChartedInfo.dedicatedNode != null) {
             log.info("===> Dedicated Node: ${ChartedInfo.dedicatedNode}")

@@ -210,6 +210,9 @@ class DebugEndpoint(
     @OptIn(ExperimentalCoroutinesApi::class)
     @Get("/coroutines")
     suspend fun coroutines(call: ApplicationCall) {
+        // TODO: maybe enable probes on prod without stacktraces
+        if (!DebugProbes.isInstalled) return call.respond(HttpStatusCode.NotFound)
+
         val info = DebugProbes.dumpCoroutinesInfo()
         val data = buildJsonArray {
             for (coroutine in info) {
