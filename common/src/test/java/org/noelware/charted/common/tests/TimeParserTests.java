@@ -50,7 +50,7 @@ public class TimeParserTests {
         var second = TimeParser.fromLong(22000L, true);
         var ms = TimeParser.fromLong(22L, false);
 
-        assertEquals(year, "1 years");
+        assertEquals(year, "1 year");
         assertEquals(week, "1w");
         assertEquals(day, "2 days");
         assertEquals(minute, "12min");
