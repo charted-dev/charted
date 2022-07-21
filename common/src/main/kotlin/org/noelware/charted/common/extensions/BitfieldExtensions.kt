@@ -15,13 +15,9 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.database.flags
+package org.noelware.charted.common.extensions
 
 import org.noelware.charted.common.Bitfield
 
-private val FLAGS = mapOf(
-    "verified:publisher" to (1L shl 0),
-    "admin" to (1L shl 1)
-)
-
-class UserFlags(originalBits: Long = 0L): Bitfield(originalBits, FLAGS)
+operator fun Bitfield.contains(key: String): Boolean = has(key)
+operator fun Bitfield.contains(bit: Long): Boolean = has(bit)

@@ -20,7 +20,8 @@ package org.noelware.charted.database.flags
 import org.noelware.charted.common.Bitfield
 
 private val FLAGS = mapOf(
-    "PRIVATE" to (1 shl 0).toLong()
+    // Repository is private and the members of the repository can access it.
+    "PRIVATE" to (1L shl 0)
 )
 
 class RepositoryFlags(originalBits: Long = 0): Bitfield(originalBits, FLAGS)

@@ -77,7 +77,7 @@ public class TimeParser {
                     };
 
             var msAbs = Math.abs(value);
-            if (msAbs >= YEARS) return _pluralize.accept(value, msAbs, YEARS.longValue(), "years");
+            if (msAbs >= YEARS) return _pluralize.accept(value, msAbs, YEARS.longValue(), "year");
             if (msAbs >= WEEKS) return _pluralize.accept(value, msAbs, WEEKS, "week");
             if (msAbs >= DAYS) return _pluralize.accept(value, msAbs, DAYS, "day");
             if (msAbs >= HOURS) return _pluralize.accept(value, msAbs, HOURS, "hour");

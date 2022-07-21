@@ -81,12 +81,14 @@ data class KtorServerConfig(
     val extraHeaders: Map<String, String> = mapOf(),
 
     /**
-     * The connector host to use.
+     * The connector host to use. Defaults to `0.0.0.0` for all connections
+     * to pass through. Use `127.0.0.1` to only allow the connection via your
+     * network.
      */
     val host: String = "0.0.0.0",
 
     /**
-     * The port to listen on.
+     * The port to listen on. Defaults to `3651`.
      */
-    val port: Int = 3939
+    val port: Int = 3651
 )

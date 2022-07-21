@@ -61,7 +61,7 @@ class GitHubIntegrationEndpoint(
         states.add(state)
 
         val redirectUrl = if (config.baseUrl != null) "${config.baseUrl}/integrations/github/callback" else "http://${config.server.host}:${config.server.port}/integrations/github/callback"
-        val clientID = config.integrations!!.github!!.clientID // this is validated in the koin module, so this is safe
+        val clientID = config.sessions.integrations.github!!.clientID // this is validated in the koin module, so this is safe
         val url = "https://github.com/login/oauth/authorize?client_id=$clientID&redirect_url=$redirectUrl&scopes=user&state=$state"
 
         call.respondRedirect(url)
@@ -113,14 +113,14 @@ class GitHubIntegrationEndpoint(
                 }
             )
 
-        val clientID = config.integrations!!.github!!.clientID // this is validated in the koin module, so this is safe
+        val clientID = config.sessions.integrations.github!!.clientID // this is validated in the koin module, so this is safe
         val res = httpClient.post("https://github.com/login/oauth/access_token") {
             header("Content-Type", "application/json")
             header("Accept", "application/json")
             setBody(
                 buildJsonObject {
                     put("client_id", clientID)
-                    put("client_secret", config.integrations!!.github!!.clientSecret)
+                    put("client_secret", config.sessions.integrations.github!!.clientSecret)
                     put("code", code)
                 }
             )

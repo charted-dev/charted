@@ -39,66 +39,115 @@ public class Bitfield {
     private final Map<String, Long> flags;
     private long bits;
 
+    /** Creates a new {@link Bitfield} object with default values. */
     public Bitfield() {
         this(0, new HashMap<>());
     }
 
+    /**
+     * Creates a new bitfield with a specific amount and the default "flags"
+     *
+     * @param bits The bits to represent this {@link Bitfield} object.
+     */
     public Bitfield(long bits) {
         this(bits, new HashMap<>());
     }
 
+    /**
+     * Creates a new Bitfield object with the flags available and defaults to <code>0</code> as the
+     * bit value.
+     *
+     * @param flags The flags.
+     */
     public Bitfield(Map<String, Long> flags) {
         this(0, flags);
     }
 
+    /**
+     * Creates a new {@link Bitfield} object with a specified amount of bits and the flags to
+     * determine the bits to add via the {@link #add(String)} method.
+     *
+     * @param bits The amount of bits that this {@link Bitfield} stores.
+     * @param flags The flags.
+     */
     public Bitfield(long bits, Map<String, Long> flags) {
         this.flags = Collections.unmodifiableMap(flags);
         this.bits = bits;
     }
 
+    /** Returns the remaning bits from this object. */
     public long getBits() {
         return bits;
     }
 
+    /** Returns all the flags used in this bitfield for the {@link #add(String)} method. */
     @NotNull
     public Map<String, Long> getFlags() {
         return flags;
     }
 
+    /** Returns a list of all the values in the flags map. */
     @NotNull
     public List<Long> toList() {
         return flags.values().stream().toList();
     }
 
+    /**
+     * Adds a bit via the flag key. This will return a new cloned {@link Bitfield} instance.
+     *
+     * @param key The flag key to use to determine the bit, returns this {@link Bitfield} instance
+     *     if the flag wasn't found.
+     * @return The cloned {@link Bitfield} object.
+     */
     @NotNull
     public Bitfield add(@NotNull String key) {
-        return add(flags.get(key));
+        var bit = flags.get(key);
+        if (bit == null) return this;
+
+        return add(bit);
     }
 
+    /** Adds all the bits from the flags map, and returns a new cloned {@link Bitfield} object. */
     @NotNull
     public Bitfield addAll() {
-        for (long i : toList()) {
-            add(i);
+        var total = 0L;
+        for (long bit : toList()) {
+            total |= Math.abs(bit);
         }
 
-        return this;
+        return clone(total);
     }
 
+    /**
+     * Adds an array of bits to a new, cloned {@link Bitfield} object.
+     *
+     * @param bits The bits to use.
+     * @return A cloned {@link Bitfield} object.
+     */
     @NotNull
     public Bitfield add(long... bits) {
         var total = 0L;
         for (long bit : bits) {
-            total |= bit;
+            total |= Math.abs(bit); // make sure it's positive
         }
 
-        this.bits |= total;
-        return this;
+        return clone(this.bits | total);
     }
 
+    /**
+     * Checks if the specified bit is in the bits.
+     *
+     * @param bit The bit to check.
+     */
     public boolean has(long bit) {
         return (bits & bit) != 0;
     }
 
+    /**
+     * Checks if the flag specified is in the bitfield
+     *
+     * @param flag The flag.
+     */
     public boolean has(@NotNull String flag) {
         var flagBit = flags.get(flag);
         return flagBit != null && has(flagBit);
@@ -108,10 +157,17 @@ public class Bitfield {
     public Bitfield remove(long... bits) {
         var total = 0L;
         for (long bit : bits) {
-            total |= bit;
+            total |= Math.abs(bit); // make it positive
         }
 
-        this.bits &= ~total;
-        return this;
+        return clone(this.bits & ~total);
+    }
+
+    public Bitfield clone() {
+        return new Bitfield(this.bits, getFlags());
+    }
+
+    public Bitfield clone(long data) {
+        return new Bitfield(data, getFlags());
     }
 }

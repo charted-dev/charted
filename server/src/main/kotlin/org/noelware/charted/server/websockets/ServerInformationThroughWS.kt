@@ -18,10 +18,13 @@
 package org.noelware.charted.server.websockets
 
 import dev.floofy.utils.slf4j.logging
+import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import org.noelware.charted.core.Ticker
+import org.noelware.charted.server.plugins.IsAdminGuard
+import org.noelware.charted.server.plugins.Sessions
 import org.noelware.charted.server.session
 import org.noelware.ktor.realIP
 import kotlin.time.Duration.Companion.seconds
@@ -45,15 +48,16 @@ suspend fun shutdownTickers() {
 fun Routing.handleServerInfoThroughWebSockets(path: String = "/admin/stats") {
     val log by logging("org.noelware.charted.server.websockets.ServerInfoWebSocket")
     webSocket(path) {
-        clients.add(this)
+        install(Sessions)
+        install(IsAdminGuard)
 
+        clients.add(this)
         val session = call.session
         log.debug("Received WebSocket connection from [${call.realIP}]")
         log.info("User [${session.userID}] has connected to the admin statistics socket~")
 
-        val ticker = Ticker("update admin stats [session ${session.sessionID}]", 15.seconds)
-        ticker.launch {
-        }
+        val ticker = Ticker("update admin stats [${session.sessionID}]", 15.seconds)
+        ticker.launch {}
 
         tickers.add(ticker)
     }

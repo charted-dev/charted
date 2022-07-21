@@ -17,46 +17,71 @@
 
 package org.noelware.charted.core.apikeys
 
+import dev.floofy.utils.exposed.asyncTransaction
+import dev.floofy.utils.slf4j.logging
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.apache.commons.lang3.time.StopWatch
+import org.jetbrains.exposed.sql.deleteWhere
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.IRedisClient
-import org.noelware.charted.core.redis.createPubSubListener
-import kotlin.time.Duration.Companion.milliseconds
+import org.noelware.charted.database.tables.ApiKeysTable
+import java.io.Closeable
+import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
-class TokenExpirationManager(private val redis: IRedisClient) {
-    private val jobs = mutableListOf<Job>()
+class TokenExpirationManager(private val redis: IRedisClient): Closeable {
+    private val expirationJobs = mutableListOf<Job>()
+    private val log by logging<TokenExpirationManager>()
 
     init {
+        log.info("Creating expiration jobs for API keys...")
         val tokens = runBlocking { redis.commands.keys("apikeys:*").await() }
+
+        log.info("Found ${tokens.size} API keys~")
+        val sw = StopWatch.createStarted()
         for (key in tokens) {
             val ttl = runBlocking { redis.commands.ttl(key).await() }
 
+            val id = key.split(':').last().toLong()
             if (ttl == -2L) continue
             if (ttl == -1L) {
-                runBlocking { redis.commands.del(key).await() }
-            } else {
-                jobs.add(
-                    ChartedScope.launch {
-                        delay(ttl.milliseconds.inWholeMilliseconds)
+                log.warn("API key [$id] has expired!")
 
-                        redis.commands.del(key).await()
+                runBlocking {
+                    asyncTransaction(ChartedScope) {
+                        ApiKeysTable.deleteWhere { ApiKeysTable.id eq id }
+                    }
+
+                    redis.commands.del(key)
+                }
+            } else {
+                log.info("API key [$id] expires in ${ttl.seconds.inWholeSeconds} seconds")
+                expirationJobs.add(
+                    ChartedScope.launch {
+                        delay(ttl.seconds.inWholeMilliseconds)
+
+                        asyncTransaction(ChartedScope) {
+                            ApiKeysTable.deleteWhere { ApiKeysTable.id eq id }
+                        }
+
+                        redis.commands.del(key)
                     }
                 )
             }
         }
 
-        redis.addPubSubListener(
-            createPubSubListener<String, String>({ channel, message, pattern ->
-                println("[channel=$channel; $message=message; $pattern=pattern]")
+        sw.stop()
+        log.info("Took ${sw.getTime(TimeUnit.MILLISECONDS)}ms to create expiration jobs!")
+    }
 
-                if (!channel.matches("__keyevent@\\d{1,2}__:(\\w+)".toRegex())) {
-                    return@createPubSubListener
-                }
-            })
-        )
+    override fun close() {
+        log.warn("Closing ${expirationJobs.size} jobs...")
+        for (job in expirationJobs) job.cancel()
+
+        log.warn("Done!")
     }
 }

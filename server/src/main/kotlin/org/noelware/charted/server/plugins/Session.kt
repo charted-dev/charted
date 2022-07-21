@@ -104,7 +104,7 @@ val Sessions = createRouteScopedPlugin("ChartedSession", ::SessionOptions) {
                                 put("success", false)
                                 putJsonArray("errors") {
                                     addJsonObject {
-                                        put("code", "INVALID_AUTH_PREFIX")
+                                        put("code", "UNKNOWN_SESSION")
                                         put(
                                             "message",
                                             "JWT doesn't currently have a session occurring. If the refresh token is still active, you can get a new access token by hitting `POST /users/@me/refresh_token`"
@@ -151,7 +151,7 @@ val Sessions = createRouteScopedPlugin("ChartedSession", ::SessionOptions) {
             }
 
             "ApiKey" -> {
-                val apiKey = ApiKeyController.getByToken(token, true)
+                val apiKey = ApiKeyController.getByToken(token)
                 if (apiKey == null) {
                     call.respond(
                         HttpStatusCode.BadRequest,

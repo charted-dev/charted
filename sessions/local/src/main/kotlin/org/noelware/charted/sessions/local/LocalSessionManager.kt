@@ -133,9 +133,6 @@ class LocalSessionManager(
             throw IllegalArgumentException("Malformed JWT token.")
         }
 
-        // Check if it already expired
-        if (isExpired(token)) return null
-
         val sessionID = headers["session_id"]?.jsonPrimitive?.content
             ?: throw IllegalArgumentException("Malformed JWT token.")
 

@@ -29,10 +29,9 @@ services:
       - postgres
       - redis
 
-      # charted-server uses ClickHouse to store analytical data for the Audit Logs
-      # and Webhooks features. Remove the comment for `- clickhouse` to deploy a 1
-      # node cluster.
-      #- clickhouse
+      # Cassandra is a secondary database for handling events like Audit Logs and
+      # Webhooks for fast read/write.
+      #- cassandra
 
       # Elasticsearch is the main search engine that powers the Search API. You can also
       # opt into Meilisearch if you either don't like Elasticsearch or have a running instance
@@ -46,6 +45,9 @@ services:
       # Kibana is a visualisation tool to visualise your data with Elasticsearch, if the container
       # exists.
       #- kibana
+
+      # Pak is the main frontend for charted-server to visualise your charts!
+      #- pak
     environment:
       - CHARTED_CONFIG_PATH=/app/noelware/charted/server/config/charted.yml
     networks:
@@ -55,3 +57,26 @@ services:
       - ./compose/charted/charted.yml:/app/noelware/charted/server/config/charted.yml
     ports:
       - "3651:3651"
+
+networks:
+  charted:
+    driver: bridge
+
+volumes:
+  charted_data:
+    driver: local
+
+  postgres_data:
+    driver: local
+
+  redis_data:
+    driver: local
+
+  # elasticsearch_data:
+  #   driver: local
+
+  # cassandra_data:
+  #   driver: local
+
+  # meilisearch_data:
+  #   driver: local

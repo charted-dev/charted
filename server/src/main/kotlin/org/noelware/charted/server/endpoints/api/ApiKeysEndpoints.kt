@@ -20,9 +20,6 @@ package org.noelware.charted.server.endpoints.api
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.*
 import org.noelware.charted.common.TimeParser
 import org.noelware.charted.common.exceptions.StringOverflowException
@@ -31,7 +28,6 @@ import org.noelware.charted.common.extensions.every
 import org.noelware.charted.database.controllers.ApiKeyController
 import org.noelware.charted.database.flags.ApiKeyScopeFlags
 import org.noelware.charted.database.flags.SCOPE_FLAGS
-import org.noelware.charted.server.apiKey
 import org.noelware.charted.server.plugins.Sessions
 import org.noelware.charted.server.plugins.apiKeyKey
 import org.noelware.charted.server.session
@@ -40,9 +36,9 @@ import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.noelware.ktor.endpoints.Delete
 import org.noelware.ktor.endpoints.Get
 import org.noelware.ktor.endpoints.Put
+import java.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
+import kotlin.time.toKotlinDuration
 
 @kotlinx.serialization.Serializable
 data class CreateApiKeyBody(
@@ -164,9 +160,9 @@ class ApiKeysEndpoints: AbstractEndpoint("/apikeys") {
     @Put
     suspend fun create(call: ApplicationCall) {
         val body by call.body<CreateApiKeyBody>()
-        val expiresIn = if (body.expiresIn != null) {
+        val expiration = if (body.expiresIn != null) {
             val durationInMs = TimeParser.fromString(body.expiresIn!!)
-            Clock.System.now().plus(durationInMs.toDuration(DurationUnit.MILLISECONDS)).toLocalDateTime(TimeZone.currentSystemDefault())
+            Duration.ofMillis(durationInMs).toKotlinDuration()
         } else {
             null
         }
@@ -189,7 +185,7 @@ class ApiKeysEndpoints: AbstractEndpoint("/apikeys") {
             body.name,
             call.session.userID,
             bitfield.bits,
-            expiresIn
+            expiration
         )
 
         call.respond(

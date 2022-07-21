@@ -19,5 +19,6 @@ package org.noelware.charted.common.data
 
 @kotlinx.serialization.Serializable
 data class SessionsConfig(
+    val integrations: IntegrationConfig = IntegrationConfig(),
     val ldap: LdapConfiguration? = null
 )

@@ -25,7 +25,6 @@ data class Config(
 
     @SerialName("jwt_secret_key")
     val jwtSecretKey: String = "",
-    val integrations: IntegrationConfig? = null,
 
     @SerialName("invite_only")
     val inviteOnly: Boolean = false,
@@ -39,10 +38,11 @@ data class Config(
     @SerialName("base_url")
     val baseUrl: String? = null,
 
-    @SerialName("oci")
+    @SerialName("oci_proxy")
     val ociProxy: OciProxyConfig? = null,
     val features: List<Feature> = listOf(),
     val postgres: PostgresConfig = PostgresConfig(),
+    val sessions: SessionsConfig = SessionsConfig(),
     val storage: StorageConfig = StorageConfig(),
     val metrics: Boolean = true,
     val search: SearchConfig = SearchConfig(),

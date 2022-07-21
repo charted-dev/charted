@@ -17,10 +17,14 @@
 
 package org.noelware.charted.common;
 
+import static java.security.MessageDigest.getInstance;
+
 import com.google.common.hash.Hashing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -30,6 +34,16 @@ import org.jetbrains.annotations.NotNull;
  * @author Noel <cutie@floofy.dev>
  */
 public class SHAUtils {
+    private static final MessageDigest sha256;
+
+    static {
+        try {
+            sha256 = getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private SHAUtils() {}
 
     @NotNull
@@ -38,9 +52,27 @@ public class SHAUtils {
     }
 
     @NotNull
+    public static String sha256(@NotNull String text) {
+        return hex(sha256.digest(text.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    @NotNull
     public static <T extends @NotNull InputStream> String sha256Checksum(@NotNull T stream)
             throws IOException {
         var bytes = stream.readAllBytes();
         return Hashing.sha256().hashBytes(bytes).toString();
+    }
+
+    @NotNull
+    private static String hex(byte[] hash) {
+        var hex = new StringBuilder(2 * hash.length);
+        for (byte b : hash) {
+            var h = Integer.toHexString(0xff & b);
+            if (h.length() == 1) hex.append('0');
+
+            hex.append(h);
+        }
+
+        return hex.toString();
     }
 }

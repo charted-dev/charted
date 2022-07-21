@@ -29,15 +29,15 @@ import org.noelware.charted.database.flags.ApiKeyScopeFlags
 data class ApiKeys(
     @SerialName("expires_in")
     val expiresIn: LocalDateTime? = null,
-    val scopes: Long = 0L,
+    val scopes: String = "0",
     val token: String? = null,
     val name: String
 ) {
     companion object {
-        fun fromEntity(entity: ApiKeyEntity, showToken: Boolean = false): ApiKeys = ApiKeys(
+        fun fromEntity(entity: ApiKeyEntity, raw: String? = null): ApiKeys = ApiKeys(
             entity.expiresIn,
-            entity.scopes,
-            if (showToken) entity.token else null,
+            entity.scopes.toString(16),
+            raw,
             entity.name
         )
     }
@@ -54,4 +54,4 @@ data class ApiKeys(
 }
 
 val ApiKeys.bitfield: ApiKeyScopeFlags
-    get() = ApiKeyScopeFlags(scopes)
+    get() = ApiKeyScopeFlags(scopes.toLong())

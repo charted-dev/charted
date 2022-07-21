@@ -15,13 +15,4 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.database.flags
-
-import org.noelware.charted.common.Bitfield
-
-private val FLAGS = mapOf(
-    "verified:publisher" to (1L shl 0),
-    "admin" to (1L shl 1)
-)
-
-class UserFlags(originalBits: Long = 0L): Bitfield(originalBits, FLAGS)
+package org.noelware.charted.server.metrics

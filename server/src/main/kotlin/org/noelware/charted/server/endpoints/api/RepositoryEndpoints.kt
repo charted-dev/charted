@@ -47,6 +47,7 @@ import org.noelware.charted.common.data.helm.ChartIndexYaml
 import org.noelware.charted.common.data.helm.ChartSpec
 import org.noelware.charted.core.StorageWrapper
 import org.noelware.charted.database.controllers.RepositoryController
+import org.noelware.charted.features.webhooks.WebhooksFeature
 import org.noelware.charted.server.plugins.Sessions
 import org.noelware.charted.server.session
 import org.noelware.charted.server.utils.createOutgoingContentWithBytes
@@ -56,6 +57,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
 class RepositoryEndpoints(
+    private val webhooks: WebhooksFeature? = null,
     private val storage: StorageWrapper,
     private val config: Config,
     private val yaml: Yaml
@@ -109,6 +111,22 @@ class RepositoryEndpoints(
 
         install(HttpMethod.Delete, "/repositories/{id}/releases/{tag}", Sessions) {
             addScope("repo:release:delete")
+        }
+
+        install(HttpMethod.Get, "/repositories/{id}/webhooks", Sessions) {
+            addScope("repo:webhooks:list")
+        }
+
+        install(HttpMethod.Put, "/repositories/{id}/webhooks", Sessions) {
+            addScope("repo:webhooks:create")
+        }
+
+        install(HttpMethod.Patch, "/repositories/{id}/webhooks/{webhookId}", Sessions) {
+            addScope("repo:webhooks:update")
+        }
+
+        install(HttpMethod.Delete, "/repositories/{id}/webhooks/{webhookId}", Sessions) {
+            addScope("repo:webhooks:delete")
         }
     }
 
@@ -649,4 +667,19 @@ class RepositoryEndpoints(
 
     @Delete("/{id}/releases/{tag}")
     suspend fun deleteRelease(call: ApplicationCall) {}
+
+    @Get("/{id}/webhooks")
+    suspend fun webhooks(call: ApplicationCall) {}
+
+    @Get("/{id}/webhooks/{webhookId}")
+    suspend fun webhook(call: ApplicationCall) {}
+
+    @Put("/{id}/webhooks")
+    suspend fun createWebhook(call: ApplicationCall) {}
+
+    @Patch("/{id}/webhooks/{webhookId}")
+    suspend fun patchWebhook(call: ApplicationCall) {}
+
+    @Delete("/{id}/webhooks/{webhookId}")
+    suspend fun deleteWebhook(call: ApplicationCall) {}
 }

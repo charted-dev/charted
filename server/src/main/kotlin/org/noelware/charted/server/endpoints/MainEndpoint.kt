@@ -49,7 +49,7 @@ class MainEndpoint(private val config: Config): AbstractEndpoint() {
 
     @Get("/features")
     suspend fun features(call: ApplicationCall) {
-        val integrations = config.integrations
+        val integrations = config.sessions.integrations
         call.respond(
             HttpStatusCode.OK,
             buildJsonObject {
@@ -58,10 +58,9 @@ class MainEndpoint(private val config: Config): AbstractEndpoint() {
                     "data",
                     buildJsonObject {
                         putJsonObject("integrations") {
-                            put("enabled", integrations != null)
-                            put("github", integrations?.github != null)
-                            put("noelware", integrations?.noelware != null)
-                            put("google", integrations?.google != null)
+                            put("github", integrations.github != null)
+                            put("noelware", integrations.noelware != null)
+                            put("google", integrations.google != null)
                         }
 
                         put("engine", if (config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) "oci (private docker registry)" else "charts")

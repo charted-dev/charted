@@ -396,7 +396,7 @@ object Bootstrap {
             modules.add(webhooksModule)
         }
 
-        if (config.integrations != null && config.integrations!!.github != null) {
+        if (config.sessions.integrations.github != null) {
             log.info("GitHub integration is enabled!")
             modules.add(githubIntegration)
         }
