@@ -37,7 +37,7 @@ class CassandraTests: AbstractCassandraContainerTests() {
         )
 
         connection.connect()
-        assertEquals("4.0.4", connection.serverVersion)
+        assertEquals("4.0.5", connection.serverVersion)
 
         // Close the connection
         connection.close()

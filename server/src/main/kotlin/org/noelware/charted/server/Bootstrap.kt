@@ -209,8 +209,10 @@ object Bootstrap {
         var configFile = File(fullConfigPath)
 
         if (Files.isSymbolicLink(configFile.toPath())) {
-            log.warn("File is under a symbolic link, will be loading from the target file rather than this file.")
-            configFile = File(Files.readSymbolicLink(configFile.toPath()).toString())
+            val resolved = Files.readSymbolicLink(configFile.toPath())
+
+            log.warn("File is under a symbolic link, resolved to [$resolved]")
+            configFile = resolved.toFile()
         }
 
         if (!configFile.exists()) {
