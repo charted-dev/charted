@@ -70,6 +70,7 @@ dependencies {
     implementation(project(":lib:cassandra"))
     implementation(project(":lib:analytics"))
     implementation(project(":lib:telemetry"))
+    implementation(project(":lib:metrics"))
     implementation(project(":lib:email"))
     implementation(project(":sessions"))
     implementation(project(":database"))
@@ -90,11 +91,6 @@ dependencies {
 
     // Haru (scheduling)
     implementation("dev.floofy.haru:Haru:1.3.0")
-
-    // Prometheus
-    implementation("io.prometheus:simpleclient_hotspot:0.16.0")
-    implementation("io.prometheus:simpleclient_common:0.16.0")
-    implementation("io.prometheus:simpleclient:0.16.0")
 }
 
 application {

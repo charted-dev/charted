@@ -21,7 +21,7 @@ package org.noelware.charted.email
  * Represents a base email service to send out emails. You can use the [DefaultEmailService] to
  * use the default implementation.
  */
-interface IEmailService {
+interface EmailService {
     /**
      * Sends out an email to the [recipient] with the underlying [content].
      * @param recipient The recipient client to send out the email.

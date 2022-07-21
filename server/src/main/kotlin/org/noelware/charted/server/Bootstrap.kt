@@ -62,12 +62,14 @@ import org.noelware.charted.core.loggers.SentryLogger
 import org.noelware.charted.core.redis.DefaultRedisClient
 import org.noelware.charted.database.cassandra.CassandraConnection
 import org.noelware.charted.database.tables.*
+import org.noelware.charted.email.DefaultEmailService
+import org.noelware.charted.email.EmailService
 import org.noelware.charted.features.audits.auditLogsModule
 import org.noelware.charted.features.webhooks.webhooksModule
+import org.noelware.charted.metrics.PrometheusMetrics
 import org.noelware.charted.search.elasticsearch.ElasticsearchClient
 import org.noelware.charted.search.meilisearch.MeilisearchClient
 import org.noelware.charted.server.endpoints.endpointsModule
-import org.noelware.charted.server.metrics.PrometheusHandler
 import org.noelware.charted.server.websockets.shutdownTickers
 import org.noelware.charted.sessions.SessionManager
 import org.noelware.charted.sessions.integrations.github.githubIntegration
@@ -373,7 +375,7 @@ object Bootstrap {
             }
 
             if (config.metrics) {
-                single { PrometheusHandler(get(), getOrNull()) }
+                single { PrometheusMetrics(get()) }
             }
 
             if (analytics != null) {
@@ -407,6 +409,19 @@ object Bootstrap {
         if (config.sessions.integrations.github != null) {
             log.info("GitHub integration is enabled!")
             modules.add(githubIntegration)
+        }
+
+        if (config.email != null) {
+            log.info("Email service is enabled!")
+
+            // This makes sure the `init {}` block is evaluated since
+            // Koin is lazy-loading the service when you inject it.
+            val email = DefaultEmailService(config.email!!)
+            modules.add(
+                module {
+                    single<EmailService> { email }
+                }
+            )
         }
 
         startKoin {

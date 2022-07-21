@@ -50,6 +50,7 @@ include(
     ":lib:elasticsearch",
     ":lib:email",
     ":lib:meilisearch",
+    ":lib:metrics",
     ":lib:telemetry",
     ":server",
     ":sessions",

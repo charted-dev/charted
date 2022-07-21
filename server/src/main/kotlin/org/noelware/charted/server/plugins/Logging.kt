@@ -28,14 +28,14 @@ import io.ktor.util.*
 import io.prometheus.client.Histogram
 import org.apache.commons.lang3.time.StopWatch
 import org.noelware.charted.common.data.Config
-import org.noelware.charted.server.metrics.PrometheusHandler
+import org.noelware.charted.metrics.PrometheusMetrics
 import java.util.concurrent.TimeUnit
 
 val Logging = createApplicationPlugin("ChartedKtorLogging") {
     val stopwatchKey = AttributeKey<StopWatch>("StopWatch")
     val histogramKey = AttributeKey<Histogram.Timer>("Histogram")
 
-    val metrics: PrometheusHandler? by injectOrNull()
+    val metrics: PrometheusMetrics? by injectOrNull()
     val config: Config by inject()
     val log by logging("org.noelware.charted.server.plugins.KtorLoggingKt")
 

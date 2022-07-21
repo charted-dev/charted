@@ -15,4 +15,12 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.metrics
+plugins {
+    `charted-module`
+}
+
+dependencies {
+    implementation("io.prometheus:simpleclient_hotspot:0.16.0")
+    api("io.prometheus:simpleclient_common:0.16.0")
+    api("io.prometheus:simpleclient:0.16.0")
+}

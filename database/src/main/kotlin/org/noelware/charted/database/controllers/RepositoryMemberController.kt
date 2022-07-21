@@ -16,3 +16,5 @@
  */
 
 package org.noelware.charted.database.controllers
+
+object RepositoryMemberController

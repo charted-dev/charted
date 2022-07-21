@@ -21,20 +21,19 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.prometheus.client.exporter.common.TextFormat
-import org.noelware.charted.server.metrics.PrometheusHandler
+import org.noelware.charted.metrics.PrometheusMetrics
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.noelware.ktor.endpoints.Get
 
-class MetricsEndpoint(private val handler: PrometheusHandler? = null): AbstractEndpoint("/metrics") {
+class MetricsEndpoint(private val handler: PrometheusMetrics? = null): AbstractEndpoint("/metrics") {
     @Get
     suspend fun main(call: ApplicationCall) {
         if (handler == null) {
-            // will probably trigger the status handler
             return call.respond(HttpStatusCode.NotFound)
         }
 
         call.respondTextWriter(ContentType.parse(TextFormat.CONTENT_TYPE_004), HttpStatusCode.OK) {
-            TextFormat.write004(this, handler.registry.metricFamilySamples())
+            handler.writeTo(this)
         }
     }
 }

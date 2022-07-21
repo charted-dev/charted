@@ -630,10 +630,26 @@ class RepositoryEndpoints(
     }
 
     @Patch("/{id}")
-    suspend fun patch(call: ApplicationCall) {}
+    suspend fun patch(call: ApplicationCall) {
+        RepositoryController.update(call.parameters["id"]!!.toLong(), call.receive())
+        call.respond(
+            HttpStatusCode.Accepted,
+            buildJsonObject {
+                put("success", true)
+            }
+        )
+    }
 
     @Delete("/{id}")
-    suspend fun delete(call: ApplicationCall) {}
+    suspend fun delete(call: ApplicationCall) {
+        val success = RepositoryController.delete(call.parameters["id"]!!.toLong())
+        call.respond(
+            HttpStatusCode.Accepted,
+            buildJsonObject {
+                put("success", success)
+            }
+        )
+    }
 
     @Get("/{id}/members")
     suspend fun members(call: ApplicationCall) {}

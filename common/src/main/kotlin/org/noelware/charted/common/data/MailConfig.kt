@@ -17,8 +17,6 @@
 
 package org.noelware.charted.common.data
 
-import kotlinx.serialization.SerialName
-
 /**
  * Represents the configuration for setting up email notifications to send
  * out per event.
@@ -27,28 +25,9 @@ import kotlinx.serialization.SerialName
 data class MailConfig(
     val username: String? = null,
     val password: String? = null,
-    val preset: MailServerPreset = MailServerPreset.NONE,
-    val email: String,
+    val from: String,
     val host: String = "",
     val port: Int = 465,
+    val tls: Boolean = true,
     val ssl: Boolean = false
 )
-
-/**
- * Represents the preset configuration for any common e-mail providers.
- */
-@kotlinx.serialization.Serializable
-enum class MailServerPreset {
-    /**
-     * Sets the mail server to use GMail.
-     */
-    @SerialName("gmail")
-    GMAIL,
-
-    /**
-     * That we are providing values that aren't from any preset. This is the
-     * default option.
-     */
-    @SerialName("none")
-    NONE;
-}

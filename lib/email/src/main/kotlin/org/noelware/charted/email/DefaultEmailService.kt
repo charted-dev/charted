@@ -20,34 +20,48 @@ package org.noelware.charted.email
 import dev.floofy.utils.slf4j.logging
 import org.noelware.charted.common.SetOnceGetValue
 import org.noelware.charted.common.data.MailConfig
-import org.noelware.charted.common.data.MailServerPreset
 import java.util.Properties
+import javax.mail.Authenticator
 import javax.mail.Message
+import javax.mail.PasswordAuthentication
 import javax.mail.Session
 import javax.mail.Transport
 import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeMessage
 
-class DefaultEmailService(private val config: MailConfig): IEmailService {
+class DefaultEmailService(private val config: MailConfig): EmailService {
     private val _session: SetOnceGetValue<Session> = SetOnceGetValue()
     private val log by logging<DefaultEmailService>()
 
     init {
-        log.info("Initializing default email service...")
+        log.info("Initializing session...")
 
-        val props = Properties()
-        props.setProperty("mail.smtp.post", if (config.preset == MailServerPreset.GMAIL) "smtp.gmail.com:465" else "${config.host}:${config.port}")
+        val auth = config.username != null && config.password != null
+        val props = Properties().apply {
+            put("mail.smtp.host", config.host)
+            put("mail.smtp.port", config.port)
+            put("mail.smtp.auth", auth)
 
-        _session.value = Session.getInstance(props)
+            if (config.tls) put("mail.smtp.starttls.enable", "true")
+            if (config.ssl) put("mail.smtp.ssl.trust", config.host)
+        }
+
+        _session.value = Session.getInstance(
+            props,
+            object: Authenticator() {
+                override fun getPasswordAuthentication(): PasswordAuthentication? = if (auth) PasswordAuthentication(config.username!!, config.password!!) else null
+            }
+        )
     }
 
     override fun sendEmail(recipient: String, subject: String, content: String) {
         val message = MimeMessage(_session.value)
-        message.setFrom(InternetAddress(config.email))
+        message.setFrom(InternetAddress(config.from))
         message.addRecipient(Message.RecipientType.TO, InternetAddress(recipient))
 
         message.subject = subject
-        message.setText(content, Charsets.UTF_8.name(), "html")
-        Transport.send(message, if (config.preset == MailServerPreset.GMAIL) config.email else config.username!!, config.password)
+        message.setText(content)
+
+        Transport.send(message)
     }
 }

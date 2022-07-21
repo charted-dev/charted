@@ -182,6 +182,7 @@ object UserController {
             asyncTransaction(ChartedScope) {
                 UserTable.update(whereClause) {
                     it[gravatarEmail] = body.gravatarEmail
+                    it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 }
             }
         }
@@ -190,6 +191,7 @@ object UserController {
             asyncTransaction(ChartedScope) {
                 UserTable.update(whereClause) {
                     it[description] = body.description.ifEmpty { null }
+                    it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 }
             }
         }
@@ -203,6 +205,7 @@ object UserController {
             asyncTransaction(ChartedScope) {
                 UserTable.update(whereClause) {
                     it[username] = body.username
+                    it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 }
             }
         }
@@ -212,6 +215,7 @@ object UserController {
             asyncTransaction(ChartedScope) {
                 UserTable.update(whereClause) {
                     it[password] = newEncodedPassword
+                    it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 }
             }
         }
@@ -225,6 +229,7 @@ object UserController {
             asyncTransaction(ChartedScope) {
                 UserTable.update(whereClause) {
                     it[email] = body.email
+                    it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 }
             }
         }
@@ -233,6 +238,7 @@ object UserController {
             asyncTransaction(ChartedScope) {
                 UserTable.update(whereClause) {
                     it[description] = body.name.ifEmpty { null }
+                    it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 }
             }
         }

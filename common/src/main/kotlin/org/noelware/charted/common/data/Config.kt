@@ -48,6 +48,7 @@ data class Config(
     val search: SearchConfig = SearchConfig(),
     val server: KtorServerConfig = KtorServerConfig(),
     val debug: Boolean = false,
+    val email: MailConfig? = null,
     val redis: RedisConfig = RedisConfig(),
     val ssl: SSLKeystoreConfig? = null,
     val cdn: CdnConfig = CdnConfig()

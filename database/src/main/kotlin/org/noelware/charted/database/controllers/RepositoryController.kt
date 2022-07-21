@@ -19,9 +19,12 @@ package org.noelware.charted.database.controllers
 
 import dev.floofy.utils.exposed.asyncTransaction
 import io.ktor.http.*
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.*
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.and
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.Snowflake
 import org.noelware.charted.common.data.helm.RepoType
@@ -53,17 +56,17 @@ data class NewRepositoryBody(
 @kotlinx.serialization.Serializable
 data class UpdateRepositoryBody(
     val description: String? = null,
-    val deprecated: Boolean = false,
-    val private: Boolean = false,
-    val name: String,
-    val type: RepoType
+    val deprecated: Boolean? = null,
+    val private: Boolean? = null,
+    val name: String? = null,
+    val type: RepoType? = null
 ) {
     init {
         if (description != null && description.length > 240) {
             throw StringOverflowException("body.description", 240)
         }
 
-        if (name.length > 32) {
+        if (name != null && name.length > 32) {
             throw StringOverflowException("body.name", 32)
         }
     }
@@ -123,5 +126,62 @@ object RepositoryController {
             put("success", true)
             put("data", repository.toJsonObject())
         }
+    }
+
+    suspend fun update(id: Long, body: UpdateRepositoryBody) {
+        val whereClause: SqlExpressionBuilder.() -> Op<Boolean> = { RepositoryTable.id eq id }
+        if (body.deprecated != null) {
+            asyncTransaction(ChartedScope) {
+                RepositoryTable.update(whereClause) {
+                    it[deprecated] = body.deprecated
+                    it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                }
+            }
+        }
+
+        if (body.description != null) {
+            asyncTransaction(ChartedScope) {
+                RepositoryTable.update(whereClause) {
+                    it[description] = body.description.ifEmpty { null }
+                    it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                }
+            }
+        }
+
+        if (body.private != null) {
+            val origin = asyncTransaction(ChartedScope) {
+                RepositoryEntity.find(whereClause).first().let { Repository.fromEntity(it) }
+            }
+
+            asyncTransaction(ChartedScope) {
+                RepositoryTable.update(whereClause) {
+                    it[flags] = if (body.private) origin.bitfield.add((1L shl 0)).bits else origin.bitfield.remove((1L shl 0)).bits
+                    it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                }
+            }
+        }
+
+        if (body.name != null) {
+            asyncTransaction(ChartedScope) {
+                RepositoryTable.update(whereClause) {
+                    it[name] = body.name
+                    it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                }
+            }
+        }
+
+        if (body.type != null) {
+            asyncTransaction(ChartedScope) {
+                RepositoryTable.update(whereClause) {
+                    it[type] = body.type
+                    it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                }
+            }
+        }
+    }
+
+    suspend fun delete(id: Long): Boolean = asyncTransaction(ChartedScope) {
+        RepositoryTable.deleteWhere { RepositoryTable.id eq id }
+        true
     }
 }

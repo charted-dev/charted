@@ -15,24 +15,20 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.metrics
+package org.noelware.charted.metrics
 
 import com.zaxxer.hikari.HikariDataSource
 import com.zaxxer.hikari.metrics.prometheus.PrometheusMetricsTrackerFactory
-import dev.floofy.utils.slf4j.logging
+import io.prometheus.client.Collector
 import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.Counter
 import io.prometheus.client.Histogram
+import io.prometheus.client.exporter.common.TextFormat
 import io.prometheus.client.hotspot.DefaultExports
-import org.noelware.charted.database.cassandra.CassandraConnection
+import java.io.Writer
 
-class PrometheusHandler(
-    dataStore: HikariDataSource,
-    cassandra: CassandraConnection? = null
-) {
-    private val log by logging<PrometheusHandler>()
-
-    val registry: CollectorRegistry = CollectorRegistry()
+class PrometheusMetrics(dataStore: HikariDataSource) {
+    private val registry: CollectorRegistry = CollectorRegistry()
     val requestLatency: Histogram = Histogram.build("charted_request_latency", "The latency between all requests.")
         .register(registry)
 
@@ -40,12 +36,15 @@ class PrometheusHandler(
         .register(registry)
 
     init {
-        if (cassandra != null) {
-            log.info("Cassandra connection is enabled! Creating metrics...")
-            registry.register(CassandraCollector(cassandra))
-        }
-
         dataStore.metricsTrackerFactory = PrometheusMetricsTrackerFactory(registry)
         DefaultExports.register(registry)
+    }
+
+    fun <T: Collector> addCollector(collector: T) {
+        registry.register(collector)
+    }
+
+    fun <W: Writer> writeTo(writer: W) {
+        TextFormat.write004(writer, registry.metricFamilySamples())
     }
 }
