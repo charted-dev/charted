@@ -39,12 +39,16 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.sentry.Sentry
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.debug.DebugProbes
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.*
 import org.koin.core.context.GlobalContext
+import org.noelware.charted.analytics.AnalyticsServer
 import org.noelware.charted.common.ChartedInfo
+import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.SetOnceGetValue
 import org.noelware.charted.common.data.Config
 import org.noelware.charted.common.data.Feature
@@ -63,12 +67,13 @@ import java.lang.management.ManagementFactory
 import java.security.KeyStore
 import io.sentry.Sentry as SentryClient
 
-class ChartedServer(private val config: Config) {
+class ChartedServer(private val config: Config, private val analytics: AnalyticsServer? = null) {
     companion object {
         val bootTime = System.currentTimeMillis()
         val hasStarted: SetOnceGetValue<Boolean> = SetOnceGetValue()
     }
 
+    private lateinit var analyticsJob: Job
     lateinit var server: NettyApplicationEngine
     private val log by logging<ChartedServer>()
 
@@ -164,7 +169,7 @@ class ChartedServer(private val config: Config) {
                                     putJsonArray("errors") {
                                         addJsonObject {
                                             put("code", "NOT_FOUND")
-                                            put("message", "Route ${call.request.httpMethod.value} ${call.request.uri} was not found.")
+                                            put("message", "Route ${call.request.httpMethod.value} ${call.request.path()} was not found.")
                                         }
                                     }
                                 }
@@ -180,7 +185,7 @@ class ChartedServer(private val config: Config) {
                                 putJsonArray("errors") {
                                     addJsonObject {
                                         put("code", "INVALID_ROUTE")
-                                        put("message", "Route ${call.request.httpMethod.value} ${call.request.uri} doesn't implement a handler for that specific method.")
+                                        put("message", "Route ${call.request.httpMethod.value} ${call.request.path()} doesn't implement a handler for that specific method.")
                                     }
                                 }
                             }
@@ -192,7 +197,7 @@ class ChartedServer(private val config: Config) {
                             SentryClient.captureException(cause)
                         }
 
-                        self.log.error("Serialization exception had occurred while handling request [Unable to handle request ${call.request.httpMethod.value} ${call.request.uri}]:", cause)
+                        self.log.error("Serialization exception had occurred while handling request [${call.request.httpMethod.value} ${call.request.path()}]:", cause)
                         call.respond(
                             HttpStatusCode.NotAcceptable,
                             buildJsonObject {
@@ -338,11 +343,22 @@ class ChartedServer(private val config: Config) {
             tcpKeepAlive = config.server.tcpKeepAlive
         })
 
+        if (analytics != null) {
+            analyticsJob = ChartedScope.launch {
+                analytics.launch()
+            }
+        }
+
         server.start(wait = true)
     }
 
     fun destroy() {
         if (!::server.isInitialized) return
+        if (::analyticsJob.isInitialized) {
+            analyticsJob.cancel()
+            analytics?.close()
+        }
+
         server.stop()
     }
 }

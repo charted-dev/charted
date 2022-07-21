@@ -46,6 +46,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
+import org.noelware.charted.analytics.AnalyticsServer
 import org.noelware.charted.common.ChartedInfo
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.IRedisClient
@@ -323,7 +324,6 @@ object Bootstrap {
 
         val sessions = LocalSessionManager(config, redis, json)
         val apiKeyExpiration = TokenExpirationManager(redis)
-        val server = ChartedServer(config)
         val httpClient = HttpClient(OkHttp) {
             engine {
                 addInterceptor(LogInterceptor)
@@ -344,6 +344,8 @@ object Bootstrap {
         val elasticsearch = if (config.search.enabled && config.search.elastic != null) ElasticsearchClient(config.search.elastic!!) else null
         val meilisearch = if (config.search.enabled && config.search.meili != null) MeilisearchClient(httpClient, config.search.meili!!) else null
         val cassandra = if (config.cassandra != null) CassandraConnection(config.cassandra!!) else null
+        val analytics = if (config.analytics != null) AnalyticsServer(config.analytics!!) else null
+        val server = ChartedServer(config, analytics)
 
         val module = module {
             single<SessionManager> { sessions }
@@ -372,6 +374,10 @@ object Bootstrap {
 
             if (config.metrics) {
                 single { PrometheusHandler(get(), getOrNull()) }
+            }
+
+            if (analytics != null) {
+                single { analytics }
             }
         }
 

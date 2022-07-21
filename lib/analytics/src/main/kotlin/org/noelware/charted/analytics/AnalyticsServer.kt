@@ -20,6 +20,7 @@ package org.noelware.charted.analytics
 import dev.floofy.utils.slf4j.logging
 import io.grpc.Server
 import io.grpc.ServerBuilder
+import io.grpc.protobuf.services.ProtoReflectionService
 import org.noelware.charted.common.SetOnceGetValue
 import org.noelware.charted.common.data.AnalyticsConfig
 import java.io.Closeable
@@ -37,6 +38,7 @@ class AnalyticsServer(private val config: AnalyticsConfig): Closeable {
 
         _server.value = ServerBuilder.forPort(config.port)
             .addService(AnalyticsService)
+            .addService(ProtoReflectionService.newInstance()) // useful for testing the analytics server via `grpcurl`
             .build()
 
         server.start()
@@ -44,7 +46,7 @@ class AnalyticsServer(private val config: AnalyticsConfig): Closeable {
     }
 
     override fun close() {
-        if (_server.valueOrNull == null) {
+        if (!_server.wasSet()) {
             log.warn("gRPC server was never initialized, skipping!")
             return
         }

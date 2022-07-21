@@ -34,6 +34,7 @@ dependencies {
     runtimeOnly("io.grpc:grpc-netty-shaded:1.46.0")
     api("io.grpc:grpc-kotlin-stub:1.3.0")
     api("io.grpc:grpc-protobuf:1.46.0")
+    api("io.grpc:grpc-services:1.46.0")
     api("io.grpc:grpc-stub:1.46.0")
 }
 

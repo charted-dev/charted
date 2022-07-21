@@ -22,43 +22,41 @@ import org.junit.BeforeClass;
 import org.noelware.charted.common.SetOnceGetValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
 /**
- * @since 14.07.22
+ * @since 20.07.22
  * @author Noel <cutie@floofy.dev>
  */
-public class AbstractPostgreSQLContainerTest {
-    private static final SetOnceGetValue<PostgreSQLContainer<?>> container =
-            new SetOnceGetValue<>();
-    private static final Logger log =
-            LoggerFactory.getLogger(AbstractPostgreSQLContainerTest.class);
+public class AbstractRedisContainerTest {
+    private static final SetOnceGetValue<GenericContainer<?>> container = new SetOnceGetValue<>();
+    private static final Logger log = LoggerFactory.getLogger(AbstractRedisContainerTest.class);
 
-    public static PostgreSQLContainer<?> getContainer() {
+    public static GenericContainer<?> container() {
         return container.getValue();
     }
 
     @BeforeClass
     public static void start() {
-        log.info("Starting PostgreSQL container...");
+        log.info("Starting Redis container...");
 
-        var image = DockerImageName.parse("postgres").withTag("14.3");
-        var cont = new PostgreSQLContainer<>(image);
-        cont.setWaitStrategy(new HttpWaitStrategy().forPort(5432));
+        var image = DockerImageName.parse("redis").withTag("7.0.4");
+        var cont = new GenericContainer<>(image).withExposedPorts(6379);
 
+        cont.waitingFor(Wait.forLogMessage(".*Ready to accept connections.*\\n", 1));
         container.setValue(cont);
+
         cont.start();
     }
 
     @AfterClass
-    public static void destroyContainer() {
+    public static void destroy() {
         if (!container.wasSet())
             throw new IllegalStateException(
                     "Can't call #destroyContainer if the container was never set.");
 
-        var cont = container.getValue();
-        cont.stop();
+        container().stop();
     }
 }

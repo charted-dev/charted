@@ -17,8 +17,11 @@
 
 package org.noelware.charted.analytics
 
+import com.google.protobuf.*
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import org.noelware.charted.analytics.protobufs.v1.*
-import java.time.Instant
+import org.noelware.charted.common.ChartedInfo
 
 object AnalyticsService: AnalyticsGrpcKt.AnalyticsCoroutineImplBase() {
     override suspend fun connectionAck(request: ConnectionAckRequest): ConnectionAckResponse = ConnectionAckResponse.newBuilder()
@@ -27,12 +30,20 @@ object AnalyticsService: AnalyticsGrpcKt.AnalyticsCoroutineImplBase() {
         .build()
 
     override suspend fun retrieveStats(request: ReceiveStatsRequest): ReceiveStatsResponse {
+        val now = Clock.System.now()
         val response = ReceiveStatsResponse.newBuilder().apply {
             product = "charted-server"
-            version = "1.0.0"
-            commitSha = "12345678"
-            buildDate = Instant.now().toString()
-            buildFlavour = BuildFlavour.GIT
+            version = ChartedInfo.version
+            commitSha = ChartedInfo.commitHash
+            buildDate = Instant.parse(ChartedInfo.buildDate).toString()
+            buildFlavour = ChartedInfo.distribution.toBuildFlavour()
+            snapshotDate = timestamp {
+                seconds = now.epochSeconds
+                nanos = now.nanosecondsOfSecond
+            }
+            data = struct {
+                fields.put("owo", Value.newBuilder().setBoolValue(true).build())
+            }
         }
 
         return response.build()

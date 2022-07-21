@@ -1,6 +1,8 @@
 # 📦 charted-server
 [![Kotlin v1.7.10](https://img.shields.io/badge/kotlin-1.7.10-blue.svg?logo=kotlin)](https://kotlinlang.org)
 [![GitHub License](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
+[![Linting and Unit Testing](https://github.com/charted-dev/charted/actions/workflows/lint.yml/badge.svg)](https://github.com/charted-dev/charted/actions/workflows/lint.yml)
+![](https://img.shields.io/github/languages/code-size/charted-dev/charted)
 
 > *Free, open source, and reliable Helm Chart registry made in Kotlin!*
 

@@ -15,13 +15,17 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.common.data
+@file:JvmName("AnalyticsExtensionsKt")
 
-import kotlinx.serialization.SerialName
+package org.noelware.charted.analytics
 
-@kotlinx.serialization.Serializable
-data class AnalyticsConfig(
-    @SerialName("secret_key")
-    val secretKey: String,
-    val port: Int = 55412
-)
+import org.noelware.charted.analytics.protobufs.v1.BuildFlavour
+import org.noelware.charted.common.DistributionType
+
+fun DistributionType.toBuildFlavour(): BuildFlavour = when (this) {
+    DistributionType.DOCKER -> BuildFlavour.DOCKER
+    DistributionType.DEB -> BuildFlavour.DEB
+    DistributionType.RPM -> BuildFlavour.RPM
+    DistributionType.GIT -> BuildFlavour.GIT
+    else -> BuildFlavour.UNRECOGNIZED
+}

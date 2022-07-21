@@ -55,4 +55,7 @@ class AuditLogsEndpoint: AbstractEndpoint("/audit-logs") {
             }
         )
     }
+
+    @Get("/org/{id}")
+    suspend fun organization(call: ApplicationCall) {}
 }

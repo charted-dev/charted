@@ -48,7 +48,7 @@ message ReceiveStatsResponse {
 
 enum BuildFlavour {
   DOCKER = 0; // the product is running from Docker
-  KUBERNETES = 1; // the product is using the Helm chart or the Noel Kubernetes operator
+  KUBERNETES = 1; // the product is using the Helm chart or the Noel on Cloud Kubernetes operator
   DEB = 2; // the product was installed via `apt install charted-server`
   RPM = 3; // the product was installed via `yum install charted-server`
   GIT = 4; // the product was installed via the Git repository, pre-defined.

@@ -40,4 +40,13 @@ class WebhooksEndpoint: AbstractEndpoint("/webhooks") {
             }
         )
     }
+
+    @Get("/settings/{id}")
+    suspend fun settings(call: ApplicationCall) {}
+
+    @Get("/{id}/events")
+    suspend fun events(call: ApplicationCall) {}
+
+    @Get("/{id}/events/{event}")
+    suspend fun event(call: ApplicationCall) {}
 }
