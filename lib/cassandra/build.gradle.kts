@@ -25,4 +25,5 @@ dependencies {
     testImplementation(project(":testing"))
 
     api("com.datastax.cassandra:cassandra-driver-core:3.11.2")
+    implementation(project(":lib:metrics"))
 }

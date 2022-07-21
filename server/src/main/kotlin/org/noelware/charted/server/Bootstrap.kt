@@ -61,6 +61,7 @@ import org.noelware.charted.core.loggers.KoinLogger
 import org.noelware.charted.core.loggers.SentryLogger
 import org.noelware.charted.core.redis.DefaultRedisClient
 import org.noelware.charted.database.cassandra.CassandraConnection
+import org.noelware.charted.database.cassandra.CassandraMetricsCollector
 import org.noelware.charted.database.tables.*
 import org.noelware.charted.email.DefaultEmailService
 import org.noelware.charted.email.EmailService
@@ -348,6 +349,7 @@ object Bootstrap {
         val cassandra = if (config.cassandra != null) CassandraConnection(config.cassandra!!) else null
         val analytics = if (config.analytics != null) AnalyticsServer(config.analytics!!) else null
         val server = ChartedServer(config, analytics)
+        val metrics = PrometheusMetrics(ds)
 
         val module = module {
             single<SessionManager> { sessions }
@@ -375,7 +377,7 @@ object Bootstrap {
             }
 
             if (config.metrics) {
-                single { PrometheusMetrics(get()) }
+                single { metrics }
             }
 
             if (analytics != null) {
@@ -431,6 +433,10 @@ object Bootstrap {
 
         elasticsearch?.connect()
         cassandra?.connect()
+
+        if (config.metrics && cassandra != null) {
+            metrics.addCollector(CassandraMetricsCollector(cassandra))
+        }
 
         try {
             server.start()
