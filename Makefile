@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+.PHONY: run
 run: build
 	@CHARTED_DISTRIBUTION_TYPE=git ./server/build/install/charted-server/charted-server
 
@@ -25,3 +26,6 @@ spotless:
 
 clean:
 	@./gradlew clean
+
+test:
+	@./gradlew test
