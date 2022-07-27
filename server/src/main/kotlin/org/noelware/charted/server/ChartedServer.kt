@@ -24,6 +24,7 @@ import dev.floofy.utils.koin.retrieve
 import dev.floofy.utils.kotlin.ifNotNull
 import dev.floofy.utils.slf4j.logging
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -190,6 +191,23 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
                                     addJsonObject {
                                         put("code", "INVALID_ROUTE")
                                         put("message", "Route ${call.request.httpMethod.value} ${call.request.path()} doesn't implement a handler for that specific method.")
+                                    }
+                                }
+                            }
+                        )
+                    }
+
+                    status(HttpStatusCode.UnsupportedMediaType) { call, _ ->
+                        val header = call.request.header(HttpHeaders.ContentType)
+
+                        call.respond(
+                            HttpStatusCode.MethodNotAllowed,
+                            buildJsonObject {
+                                put("success", false)
+                                putJsonArray("errors") {
+                                    addJsonObject {
+                                        put("code", "UNSUPPORTED_MEDIA_TYPE")
+                                        put("message", if (header == null) "Missing `Content-Type` header. (https://charts.noelware.org/docs/server/reference)" else "Invalid content type [$header], expecting application/json.")
                                     }
                                 }
                             }
