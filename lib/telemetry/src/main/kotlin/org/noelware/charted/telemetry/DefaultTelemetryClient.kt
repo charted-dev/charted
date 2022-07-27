@@ -15,11 +15,8 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-    `charted-test`
-}
+package org.noelware.charted.telemetry
 
-dependencies {
-    implementation("io.ktor:ktor-client-core")
-}
+import io.ktor.client.*
+
+class DefaultTelemetryClient(private val httpClient: HttpClient): TelemetryClient

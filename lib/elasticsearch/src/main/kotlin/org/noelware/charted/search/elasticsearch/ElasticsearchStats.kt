@@ -15,11 +15,20 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-    `charted-test`
-}
+package org.noelware.charted.search.elasticsearch
 
-dependencies {
-    implementation("io.ktor:ktor-client-core")
-}
+@kotlinx.serialization.Serializable
+data class ElasticsearchStats(
+    val documents: Long,
+    val sizeInBytes: Long,
+    val deleted: Long,
+    val indexes: Map<String, IndexStats>
+)
+
+@kotlinx.serialization.Serializable
+data class IndexStats(
+    val sizeInBytes: Long,
+    val documents: Long,
+    val deleted: Long,
+    val health: String
+)

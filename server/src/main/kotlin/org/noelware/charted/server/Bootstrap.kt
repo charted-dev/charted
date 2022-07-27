@@ -69,6 +69,7 @@ import org.noelware.charted.features.audits.auditLogsModule
 import org.noelware.charted.features.webhooks.webhooksModule
 import org.noelware.charted.metrics.PrometheusMetrics
 import org.noelware.charted.search.elasticsearch.ElasticsearchClient
+import org.noelware.charted.search.elasticsearch.ElasticsearchCollector
 import org.noelware.charted.search.meilisearch.MeilisearchClient
 import org.noelware.charted.server.endpoints.endpointsModule
 import org.noelware.charted.server.websockets.shutdownTickers
@@ -436,6 +437,10 @@ object Bootstrap {
 
         if (config.metrics && cassandra != null) {
             metrics.addCollector(CassandraMetricsCollector(cassandra))
+        }
+
+        if (config.metrics && elasticsearch != null) {
+            metrics.addCollector(ElasticsearchCollector(elasticsearch))
         }
 
         try {

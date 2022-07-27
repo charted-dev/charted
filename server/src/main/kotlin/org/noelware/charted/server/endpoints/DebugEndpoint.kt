@@ -19,7 +19,6 @@ package org.noelware.charted.server.endpoints
 
 import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.kotlin.humanize
-import dev.floofy.utils.kotlin.sizeToStr
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -34,16 +33,15 @@ import org.noelware.charted.common.data.Feature
 import org.noelware.charted.core.StorageWrapper
 import org.noelware.charted.database.cassandra.CassandraConnection
 import org.noelware.charted.search.elasticsearch.ElasticsearchClient
-import org.noelware.charted.search.elasticsearch.index.Index
 import org.noelware.charted.search.meilisearch.MeilisearchClient
 import org.noelware.charted.server.ChartedServer
-import org.noelware.charted.server.plugins.IsAdminGuard
-import org.noelware.charted.server.plugins.Sessions
+import org.noelware.charted.server.formatToSize
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.noelware.ktor.endpoints.Get
 import java.lang.management.ManagementFactory
 
 // TODO: move this into an "admin" endpoint
+// TODO: add seperate sections like /admin/stats?sections=threads,jvm
 class DebugEndpoint(
     private val elastic: ElasticsearchClient? = null,
     private val meili: MeilisearchClient? = null,
@@ -55,10 +53,10 @@ class DebugEndpoint(
     private val threads = ManagementFactory.getThreadMXBean()
     private val os = ManagementFactory.getOperatingSystemMXBean()
 
-    init {
-        install(Sessions)
-        install(IsAdminGuard)
-    }
+//    init {
+//        install(Sessions)
+//        install(IsAdminGuard)
+//    }
 
     @Get
     suspend fun main(call: ApplicationCall) {
@@ -107,12 +105,21 @@ class DebugEndpoint(
             searchBackendInfo = buildJsonObject {
                 put("server_version", elastic.serverVersion)
                 put("backend", "Elasticsearch")
-                put("repos", data[Index.REPOSITORIES.name]!!.jsonObject)
-                put("users", data[Index.USERS.name]!!.jsonObject)
-                put("orgs", data[Index.ORGANIZATIONS.name]!!.jsonObject)
                 putJsonObject("cluster") {
                     put("name", elastic.clusterName)
                     put("uuid", elastic.clusterUUID)
+                    put("documents", data.documents)
+                    put("deleted_documents", data.deleted)
+                    put("size_in_bytes", data.sizeInBytes)
+                }
+
+                for ((key, stat) in data.indexes) {
+                    putJsonObject(key.replace('-', '_')) {
+                        put("documents", stat.documents)
+                        put("deleted_documents", stat.deleted)
+                        put("size_in_bytes", stat.sizeInBytes)
+                        put("health", stat.health)
+                    }
                 }
             }
         }
@@ -135,7 +142,9 @@ class DebugEndpoint(
 
         val storageInfo = buildJsonObject {
             put("name", storage.trailer.name)
-            put("chart_size", chartSize?.sizeToStr())
+            if (chartSize != null) {
+                put("chart_size", chartSize.formatToSize())
+            }
         }
 
         val jvmInfo = buildJsonObject {
@@ -151,35 +160,40 @@ class DebugEndpoint(
         }
 
         val cassandraStats = if (cassandra != null) {
+            val rs = cassandra.sql("SELECT cluster_name, data_center FROM system.local;").all().first()
             buildJsonObject {
+                put("db_calls", cassandra.calls)
+                put("version", cassandra.serverVersion)
+                put("data_center", rs.getString("data_center"))
+                put("cluster_name", rs.getString("cluster_name"))
+                put("trashed_connections", cassandra.cluster.metrics.trashedConnections.value)
+                put("request_latency", cassandra.cluster.metrics.requestsTimer.count)
+                put("bytes_received", cassandra.cluster.metrics.bytesReceived.count)
+                put("bytes_sent", cassandra.cluster.metrics.bytesSent.count)
             }
         } else {
             JsonNull
         }
 
         val postgres = buildJsonObject {
-            val stats = asyncTransaction(ChartedScope) {
+            asyncTransaction(ChartedScope) {
                 exec(
                     // THIS IS NOT SAFE PLEASE UPDATE THIS INTO A NON SQL INJECTED VALUE
                     "SELECT datname, numbackends, tup_fetched, tup_inserted, tup_deleted FROM pg_stat_database WHERE datname = '${config.postgres.name}';"
                 ) {
-                    if (!it.next()) return@exec mapOf()
+                    if (!it.next()) return@exec
 
                     val numBackends = it.getInt("numbackends")
                     val fetched = it.getLong("tup_fetched")
                     val inserted = it.getLong("tup_inserted")
                     val deleted = it.getLong("tup_deleted")
 
-                    mapOf(
-                        "num_backends" to JsonPrimitive(numBackends),
-                        "fetched" to JsonPrimitive(fetched),
-                        "inserted" to JsonPrimitive(inserted),
-                        "deleted" to JsonPrimitive(deleted)
-                    )
-                }!!
+                    put("num_backends", numBackends)
+                    put("fetched", fetched)
+                    put("inserted", inserted)
+                    put("deleted", deleted)
+                }
             }
-
-            put("database", JsonObject(stats))
         }
 
         call.respond(
@@ -197,6 +211,7 @@ class DebugEndpoint(
                     put("version", ChartedInfo.version)
                     put("runtime", runtimeInfo)
                     put("database", postgres)
+                    put("uptime_millis", System.currentTimeMillis() - ChartedServer.bootTime)
                     put("uptime", (System.currentTimeMillis() - ChartedServer.bootTime).humanize())
                     put("search", searchBackendInfo ?: JsonNull)
                     put("vendor", "Noelware")

@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-    `charted-test`
-}
+package org.noelware.charted.telemetry
 
-dependencies {
-    implementation("io.ktor:ktor-client-core")
-}
+/**
+ * Represents the telemetry client to implement Noelware's telemetry service into
+ * charted-server *if enabled explicitly* since we do not opt in telemetry by default,
+ * read more [here](https://docs.noelware.org/telemetry)
+ */
+interface TelemetryClient

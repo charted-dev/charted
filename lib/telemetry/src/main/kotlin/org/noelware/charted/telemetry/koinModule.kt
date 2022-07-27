@@ -15,11 +15,10 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-    `charted-test`
-}
+package org.noelware.charted.telemetry
 
-dependencies {
-    implementation("io.ktor:ktor-client-core")
+import org.koin.dsl.module
+
+val telemetryModule = module {
+    single<TelemetryClient> { DefaultTelemetryClient(get()) }
 }
