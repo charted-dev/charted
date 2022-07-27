@@ -29,6 +29,7 @@ import io.prometheus.client.Histogram
 import org.apache.commons.lang3.time.StopWatch
 import org.noelware.charted.common.data.Config
 import org.noelware.charted.metrics.PrometheusMetrics
+import org.noelware.charted.server.ChartedServer
 import java.util.concurrent.TimeUnit
 
 val Logging = createApplicationPlugin("ChartedKtorLogging") {
@@ -41,6 +42,7 @@ val Logging = createApplicationPlugin("ChartedKtorLogging") {
 
     environment?.monitor?.subscribe(ApplicationStarted) {
         log.info("HTTP server has started successfully!")
+        ChartedServer.hasStarted.value = true
     }
 
     environment?.monitor?.subscribe(ApplicationStopped) {

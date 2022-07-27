@@ -19,7 +19,3 @@ plugins {
     `charted-module`
     `charted-test`
 }
-
-dependencies {
-    implementation("io.ktor:ktor-client-core")
-}

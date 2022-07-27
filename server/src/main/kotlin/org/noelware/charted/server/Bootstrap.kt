@@ -120,7 +120,7 @@ object Bootstrap {
                     elasticsearch?.closeQuietly()
                     cassandra?.close()
                     sessions.closeQuietly()
-                    server.destroy()
+                    server.closeQuietly()
                     ds.closeQuietly()
                     redis.closeQuietly()
 

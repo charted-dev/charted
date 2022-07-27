@@ -21,7 +21,6 @@ plugins {
 }
 
 dependencies {
-    implementation("net.perfectdreams.exposedpowerutils:postgres-power-utils:1.0.0")
     implementation("org.springframework.security:spring-security-crypto:5.7.1")
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime")
     implementation("commons-validator:commons-validator:1.7")

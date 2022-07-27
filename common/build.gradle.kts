@@ -75,4 +75,18 @@ dependencies {
 
     // Koin
     api("io.insert-koin:koin-core:3.2.0")
+
+    // YAML (configuration)
+    api("com.charleskorn.kaml:kaml:0.46.0")
+
+    // Haru (scheduling)
+    api("dev.floofy.haru:Haru:1.3.0")
+
+    // Ktor Server + Client
+    api("com.squareup.okhttp3:okhttp:4.10.0")
+    api("io.ktor:ktor-server-core")
+    api("io.ktor:ktor-client-core")
+
+    // Exposed Power Utils
+    api("net.perfectdreams.exposedpowerutils:postgres-power-utils:1.0.0")
 }

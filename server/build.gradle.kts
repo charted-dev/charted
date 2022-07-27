@@ -26,9 +26,6 @@ plugins {
 }
 
 dependencies {
-    // Exposed [Postgres] Utils
-    implementation("net.perfectdreams.exposedpowerutils:postgres-power-utils:1.0.0")
-
     // Logback
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")
     implementation("ch.qos.logback:logback-classic:1.2.11")
@@ -44,7 +41,6 @@ dependencies {
     // Ktor (server)
     implementation("io.ktor:ktor-serialization-kotlinx-json")
     implementation("io.ktor:ktor-client-content-negotiation")
-    implementation("io.ktor:ktor-serialization-kotlinx-json")
     implementation("io.ktor:ktor-server-content-negotiation")
     implementation("io.ktor:ktor-server-auto-head-response")
     implementation("io.ktor:ktor-server-default-headers")
@@ -55,9 +51,6 @@ dependencies {
     implementation("io.ktor:ktor-client-okhttp")
     implementation("io.ktor:ktor-server-netty")
     implementation("io.ktor:ktor-server-cors")
-    api("com.squareup.okhttp3:okhttp:4.10.0")
-    api("io.ktor:ktor-server-core")
-    api("io.ktor:ktor-client-core")
 
     // Projects
     implementation(project(":features:docker-registry"))
@@ -85,12 +78,6 @@ dependencies {
 
     // Conditional logic for logback
     implementation("org.codehaus.janino:janino:3.1.7")
-
-    // YAML (configuration)
-    implementation("com.charleskorn.kaml:kaml:0.46.0")
-
-    // Haru (scheduling)
-    implementation("dev.floofy.haru:Haru:1.3.0")
 }
 
 application {

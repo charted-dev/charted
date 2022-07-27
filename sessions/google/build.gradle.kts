@@ -21,5 +21,4 @@ plugins {
 
 dependencies {
     implementation("org.noelware.ktor:core:0.3.1-beta")
-    implementation("io.ktor:ktor-client-core")
 }

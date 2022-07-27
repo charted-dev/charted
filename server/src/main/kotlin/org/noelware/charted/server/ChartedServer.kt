@@ -62,20 +62,24 @@ import org.noelware.ktor.NoelKtorRouting
 import org.noelware.ktor.loader.koin.KoinEndpointLoader
 import org.noelware.remi.filesystem.ifExists
 import org.slf4j.LoggerFactory
+import java.io.Closeable
 import java.io.File
 import java.lang.management.ManagementFactory
 import java.security.KeyStore
 import io.sentry.Sentry as SentryClient
 
-class ChartedServer(private val config: Config, private val analytics: AnalyticsServer? = null) {
+class ChartedServer(private val config: Config, private val analytics: AnalyticsServer? = null): Closeable {
     companion object {
         val bootTime = System.currentTimeMillis()
         val hasStarted: SetOnceGetValue<Boolean> = SetOnceGetValue()
     }
 
     private lateinit var analyticsJob: Job
-    lateinit var server: NettyApplicationEngine
+    private val _server: SetOnceGetValue<NettyApplicationEngine> = SetOnceGetValue()
     private val log by logging<ChartedServer>()
+
+    val server: NettyApplicationEngine
+        get() = _server.value
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun start() {
@@ -334,7 +338,7 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
             }
         }
 
-        server = embeddedServer(Netty, environment, configure = {
+        _server.value = embeddedServer(Netty, environment, configure = {
             requestQueueLimit = config.server.requestQueueLimit
             runningLimit = config.server.runningLimit
             shareWorkGroup = config.server.shareWorkGroup
@@ -352,8 +356,8 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
         server.start(wait = true)
     }
 
-    fun destroy() {
-        if (!::server.isInitialized) return
+    override fun close() {
+        if (!_server.wasSet()) return
         if (::analyticsJob.isInitialized) {
             analyticsJob.cancel()
             analytics?.close()

@@ -26,7 +26,4 @@ dependencies {
     testImplementation("io.ktor:ktor-client-content-negotiation")
     testImplementation("io.ktor:ktor-client-logging")
     testImplementation("io.ktor:ktor-server-test-host")
-    implementation("io.ktor:ktor-client-okhttp")
-    api("io.ktor:ktor-client-core")
-    api("io.ktor:ktor-server-core")
 }
