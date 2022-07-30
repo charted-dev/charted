@@ -29,9 +29,9 @@ import org.noelware.charted.common.extensions.every
 import org.noelware.charted.database.controllers.ApiKeyController
 import org.noelware.charted.database.flags.ApiKeyScopeFlags
 import org.noelware.charted.database.flags.SCOPE_FLAGS
+import org.noelware.charted.server.currentUser
 import org.noelware.charted.server.plugins.Sessions
 import org.noelware.charted.server.plugins.apiKeyKey
-import org.noelware.charted.server.session
 import org.noelware.ktor.body
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.noelware.ktor.endpoints.Delete
@@ -118,7 +118,7 @@ class ApiKeysEndpoints(private val apikeys: ApiKeyManager): AbstractEndpoint("/a
 
     @Get("/all")
     suspend fun all(call: ApplicationCall) {
-        val keys = ApiKeyController.getAll(call.session.userID)
+        val keys = ApiKeyController.getAll(call.currentUser!!.id)
         call.respond(
             HttpStatusCode.OK,
             buildJsonObject {
@@ -135,7 +135,7 @@ class ApiKeysEndpoints(private val apikeys: ApiKeyManager): AbstractEndpoint("/a
     @Get("/{name}")
     suspend fun byName(call: ApplicationCall) {
         val name = call.parameters["name"]!!
-        val key = ApiKeyController.get(call.session.userID, name)
+        val key = ApiKeyController.get(call.currentUser!!.id, name)
             ?: return call.respond(
                 HttpStatusCode.NotFound,
                 buildJsonObject {
@@ -184,7 +184,7 @@ class ApiKeysEndpoints(private val apikeys: ApiKeyManager): AbstractEndpoint("/a
 
         val apiKey = apikeys.createApiKey(
             body.name,
-            call.session.userID,
+            call.currentUser!!.id,
             bitfield.bits,
             expiration
         )

@@ -15,17 +15,14 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-    `charted-test`
-}
+package org.noelware.charted.common.exceptions;
 
-dependencies {
-    implementation("org.springframework.security:spring-security-crypto:5.7.1")
-    implementation("org.jetbrains.exposed:exposed-kotlin-datetime")
-    implementation("commons-validator:commons-validator:1.7")
-    implementation("dev.samstevens.totp:totp:1.7.1")
-    implementation("io.ktor:ktor-server-core")
-
-    testImplementation("org.testcontainers:postgresql:1.17.2")
+public class StringUnderflowException extends ValidationException {
+    public StringUnderflowException(String path, int length, int maxLen) {
+        super(
+                path,
+                String.format(
+                        "String underflowed from %d characters, need %d more characters.",
+                        maxLen, maxLen - length));
+    }
 }

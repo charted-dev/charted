@@ -21,6 +21,7 @@ import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import com.zaxxer.hikari.util.IsolationLevel
 import dev.floofy.haru.Scheduler
 import dev.floofy.utils.koin.inject
 import dev.floofy.utils.koin.injectOrNull
@@ -264,16 +265,24 @@ object Bootstrap {
         val config = yaml.decodeFromString(Config.serializer(), configFile.readText())
         log.info("Retrieved configuration in path $configFile! Now connecting to PostgreSQL...")
 
+        // Enable debug probes for Noelware Analytics and the administration
+        // dashboard via Pak.
+        DebugProbes.enableCreationStackTraces = config.debug
+        DebugProbes.install()
+
         val ds = HikariDataSource(
             HikariConfig().apply {
+                transactionIsolation = IsolationLevel.TRANSACTION_REPEATABLE_READ.name
                 leakDetectionThreshold = 30.seconds.inWholeMilliseconds
                 driverClassName = "org.postgresql.Driver"
                 isAutoCommit = false
-                poolName = "Charted-HikariPostgresPool"
+                poolName = "Charted-HikariPool"
                 username = config.postgres.username
                 password = config.postgres.password
                 jdbcUrl = "jdbc:postgresql://${config.postgres.host}:${config.postgres.port}/${config.postgres.name}"
                 schema = config.postgres.schema
+
+                addDataSourceProperty("reWriteBatchedInserts", "true")
             }
         )
 
@@ -282,6 +291,7 @@ object Bootstrap {
             ds,
             databaseConfig = DatabaseConfig {
                 defaultRepetitionAttempts = 5
+                // defaultIsolationLevel = IsolationLevel.TRANSACTION_REPEATABLE_READ.levelId
                 sqlLogger = if (config.debug || isDebugFromProperties) {
                     Slf4jSqlDebugLogger
                 } else {
@@ -303,13 +313,9 @@ object Bootstrap {
                 UserConnectionsTable,
                 UserTable,
                 ApiKeysTable,
-                WebhookSettingsTable
+                WebhookSettingsTable,
+                User2faTable
             )
-        }
-
-        if (config.debug) {
-            log.info("Enabling kotlinx.coroutines debug probe...")
-            DebugProbes.install()
         }
 
         log.info("Connected to PostgreSQL! Creating storage provider...")

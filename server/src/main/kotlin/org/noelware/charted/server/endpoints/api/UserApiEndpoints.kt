@@ -37,6 +37,8 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import org.apache.commons.validator.routines.EmailValidator
+import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.update
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.IRedisClient
@@ -44,16 +46,20 @@ import org.noelware.charted.common.RandomGenerator
 import org.noelware.charted.common.SHAUtils
 import org.noelware.charted.common.data.Config
 import org.noelware.charted.common.data.helm.ChartIndexYaml
+import org.noelware.charted.common.exceptions.StringOverflowException
+import org.noelware.charted.common.exceptions.StringUnderflowException
 import org.noelware.charted.common.exceptions.ValidationException
 import org.noelware.charted.core.StorageWrapper
 import org.noelware.charted.database.controllers.NewUserBody
 import org.noelware.charted.database.controllers.RepositoryController
+import org.noelware.charted.database.controllers.User2faController
 import org.noelware.charted.database.controllers.UserController
 import org.noelware.charted.database.entities.UserConnectionEntity
 import org.noelware.charted.database.entities.UserEntity
 import org.noelware.charted.database.models.UserConnections
 import org.noelware.charted.database.tables.UserTable
 import org.noelware.charted.server.apiKeyOrNull
+import org.noelware.charted.server.currentUser
 import org.noelware.charted.server.plugins.Sessions
 import org.noelware.charted.server.plugins.sessionsKey
 import org.noelware.charted.server.session
@@ -77,12 +83,27 @@ data class LoginBody(
 ) {
     init {
         if (username == null && email == null) {
-            throw ValidationException("body", "You must use `username` or `email` when logging in.")
+            throw ValidationException("body.username|email", "You must use `username` or `email` when logging in.")
         }
 
         val validator: EmailValidator by inject()
         if (email != null && !validator.isValid(email)) {
             throw ValidationException("body.email", "Invalid email address.")
+        }
+    }
+}
+
+@kotlinx.serialization.Serializable
+data class Verify2faBody(
+    val code: String
+) {
+    init {
+        if (code.length < 6) {
+            throw StringUnderflowException("body.code", code.length, 6)
+        }
+
+        if (code.length > 6) {
+            throw StringOverflowException("body.code", 6)
         }
     }
 }
@@ -101,6 +122,22 @@ class UserApiEndpoints(
         install(HttpMethod.Delete, "/users/@me/logout", Sessions)
         install(HttpMethod.Get, "/users/@me/sessions", Sessions) {
             addScope("user:sessions:view")
+        }
+
+        install(HttpMethod.Get, "/users/@me/2fa/qr", Sessions) {
+            assertSessionOnly()
+        }
+
+        install(HttpMethod.Post, "/users/{id}/2fa/verify", Sessions) {
+            assertSessionOnly()
+        }
+
+        install(HttpMethod.Put, "/users/@me/2fa", Sessions) {
+            assertSessionOnly()
+        }
+
+        install(HttpMethod.Delete, "/users/@me/2fa", Sessions) {
+            assertSessionOnly()
         }
 
         install(HttpMethod.Delete, "/users", Sessions)
@@ -177,8 +214,8 @@ class UserApiEndpoints(
 
     @Delete
     suspend fun delete(call: ApplicationCall) {
-        UserController.delete(call.session.userID)
-        sessions.revokeAllSessions(call.session.userID)
+        UserController.delete(call.currentUser!!.id)
+        sessions.revokeAllSessions(call.currentUser!!.id)
 
         call.respond(
             HttpStatusCode.Accepted,
@@ -190,7 +227,7 @@ class UserApiEndpoints(
 
     @Get("/@me")
     suspend fun me(call: ApplicationCall) {
-        val user = UserController.get(call.session.userID)
+        val user = UserController.get(call.currentUser!!.id)
             ?: return call.respond(
                 HttpStatusCode.NotFound,
                 buildJsonObject {
@@ -215,7 +252,7 @@ class UserApiEndpoints(
 
     @Patch("/@me")
     suspend fun update(call: ApplicationCall) {
-        UserController.update(call.session.userID, call.receive())
+        UserController.update(call.currentUser!!.id, call.receive())
         call.respond(
             HttpStatusCode.OK,
             buildJsonObject {
@@ -230,7 +267,7 @@ class UserApiEndpoints(
     @Get("/@me/connections")
     suspend fun connections(call: ApplicationCall) {
         val connections = asyncTransaction(ChartedScope) {
-            UserConnectionEntity.findById(call.session.userID)?.let { entity -> UserConnections.fromEntity(entity) }
+            UserConnectionEntity.findById(call.currentUser!!.id)?.let { entity -> UserConnections.fromEntity(entity) }
         } ?: return call.respond(
             HttpStatusCode.NotFound,
             buildJsonObject {
@@ -255,7 +292,7 @@ class UserApiEndpoints(
 
     @Get("/@me/avatar")
     suspend fun myAvatar(call: ApplicationCall) {
-        val user = UserController.get(call.session.userID)!!
+        val user = UserController.get(call.currentUser!!.id)!!
 
         // We'll determine how to use the avatar from Gravatar (if `user.gravatar_email` is not null)
         // or Dicebar Avatars as a last resort.
@@ -276,7 +313,7 @@ class UserApiEndpoints(
                 return
             }
 
-            val res = httpClient.get("https://avatars.dicebear.com/api/identicon/${call.session.userID}.svg")
+            val res = httpClient.get("https://avatars.dicebear.com/api/identicon/${call.currentUser!!.id}.svg")
             val body = res.body<ByteArray>()
 
             call.respond(
@@ -289,7 +326,7 @@ class UserApiEndpoints(
             return
         }
 
-        val stream = storage.open("./avatars/${call.session.userID}/${user.avatarHash}")!!
+        val stream = storage.open("./avatars/${call.currentUser!!.id}/${user.avatarHash}")!!
         val bytes = stream.readBytes()
         when (val contentType = storage.trailer.figureContentType(ByteArrayInputStream(bytes))) {
             ContentType.Image.PNG.toString(), ContentType.Image.GIF.toString(), ContentType.Image.JPEG.toString() -> call.respond(
@@ -361,11 +398,11 @@ class UserApiEndpoints(
             else -> "" // should never happen!
         }
 
-        storage.upload("./avatars/${call.session.userID}/$hash.$ext", ByteArrayInputStream(data), contentType)
+        storage.upload("./avatars/${call.currentUser!!.id}/$hash.$ext", ByteArrayInputStream(data), contentType)
         first.dispose()
 
         asyncTransaction(ChartedScope) {
-            UserTable.update({ UserTable.id eq call.session.userID }) {
+            UserTable.update({ UserTable.id eq call.currentUser!!.id }) {
                 it[avatarHash] = "$hash.$ext"
             }
         }
@@ -399,14 +436,14 @@ class UserApiEndpoints(
             HttpStatusCode.Created,
             buildJsonObject {
                 put("success", true)
-                put("data", newSession.toJsonObject())
+                put("data", newSession.toJsonObject(true))
             }
         )
     }
 
     @Delete("/@me/logout")
     suspend fun logout(call: ApplicationCall) {
-        sessions.revokeAllSessions(call.session.userID)
+        sessions.revokeAllSessions(call.currentUser!!.id)
         call.respond(
             HttpStatusCode.Accepted,
             buildJsonObject {
@@ -425,7 +462,7 @@ class UserApiEndpoints(
             .await()
             .filterValues {
                 val serialized = json.decodeFromString<Session>(it)
-                serialized.userID == call.session.userID
+                serialized.userID == call.currentUser!!.id
             }.map {
                 json.decodeFromString<Session>(it.value)
             }.map { JsonPrimitive(it.sessionID.toString()) }
@@ -542,10 +579,10 @@ class UserApiEndpoints(
     @Post("/login")
     suspend fun login(call: ApplicationCall) {
         val body: LoginBody by call.body()
+
+        val op: Op<Boolean> = if (body.username != null) { UserTable.username eq body.username!! } else { UserTable.email eq body.email!! }
         val user = asyncTransaction {
-            UserEntity.find {
-                if (body.username != null) UserTable.username eq body.username!! else UserTable.email eq body.email!!
-            }.firstOrNull()
+            UserEntity.find(op).firstOrNull()
         } ?: return call.respond(
             HttpStatusCode.NotFound,
             buildJsonObject {
@@ -573,6 +610,17 @@ class UserApiEndpoints(
                 }
             )
         }
+
+        if (User2faController.enabled(user.id.value)) return call.respond(
+            HttpStatusCode.OK,
+            buildJsonObject {
+                put("success", true)
+                putJsonObject("data") {
+                    put("2fa", true)
+                    put("id", user.id.value)
+                }
+            }
+        )
 
         val session = sessions.createSession(user.id.value)
         call.respond(
@@ -603,7 +651,7 @@ class UserApiEndpoints(
 
     @Get("/@me/repositories")
     suspend fun myRepositories(call: ApplicationCall) {
-        val repositories = RepositoryController.getAll(call.session.userID, true)
+        val repositories = RepositoryController.getAll(call.currentUser!!.id, true)
         call.respond(
             HttpStatusCode.OK,
             buildJsonObject {
@@ -614,14 +662,101 @@ class UserApiEndpoints(
     }
 
     @Get("/@me/2fa/qr")
-    suspend fun qrCode(call: ApplicationCall) {}
+    suspend fun qrCode(call: ApplicationCall) {
+        val data = User2faController.qrCode(call.currentUser!!.id)
+            ?: return call.respond(HttpStatusCode.NotFound)
 
-    @Post("/@me/2fa/verify")
-    suspend fun verify2fa(call: ApplicationCall) {}
+        call.respond(
+            HttpStatusCode.OK,
+            createOutgoingContentWithBytes(
+                data.second,
+                contentType = ContentType.parse(data.first)
+            )
+        )
+    }
+
+    @Post("/{id}/2fa/verify")
+    suspend fun verify2fa(call: ApplicationCall) {
+        val id = call.parameters["id"]!!.toLong()
+        val body by call.body<Verify2faBody>()
+        val success = User2faController.verify(id, body.code)
+        val statusCode = if (success) HttpStatusCode.OK else HttpStatusCode.BadRequest
+
+        if (success) {
+            val session = sessions.createSession(id)
+            return call.respond(
+                HttpStatusCode.Created,
+                buildJsonObject {
+                    put("success", true)
+                    put("data", session.toJsonObject(true))
+                }
+            )
+        }
+
+        call.respond(
+            statusCode,
+            buildJsonObject {
+                put("success", false)
+                putJsonArray("errors") {
+                    addJsonObject {
+                        put("message", "Invalid 2FA code.")
+                        put("code", "INVALID_2FA_CODE")
+                    }
+                }
+            }
+        )
+    }
 
     @Put("/@me/2fa")
-    suspend fun enable2fa(call: ApplicationCall) {}
+    suspend fun enable2fa(call: ApplicationCall) {
+        if (User2faController.enabled(call.currentUser!!.id)) {
+            return call.respond(
+                HttpStatusCode.Forbidden,
+                buildJsonObject {
+                    put("success", false)
+                    putJsonArray("errors") {
+                        addJsonObject {
+                            put("message", "2FA is already enabled on this account.")
+                            put("code", "2FA_ENABLED_ALREADY")
+                        }
+                    }
+                }
+            )
+        }
+
+        val (status, result) = User2faController.enable2fa(call.currentUser!!.id)
+        call.respond(
+            status,
+            buildJsonObject {
+                put("success", status.value == 200)
+                put("data", result)
+            }
+        )
+    }
 
     @Delete("/@me/2fa")
-    suspend fun disable2fa(call: ApplicationCall) {}
+    suspend fun disable2fa(call: ApplicationCall) {
+        if (!User2faController.enabled(call.currentUser!!.id)) {
+            return call.respond(
+                HttpStatusCode.Forbidden,
+                buildJsonObject {
+                    put("success", false)
+                    putJsonArray("errors") {
+                        addJsonObject {
+                            put("message", "2FA is already disabled on this account.")
+                            put("code", "2FA_ENABLED_ALREADY")
+                        }
+                    }
+                }
+            )
+        }
+
+        User2faController.disable2fa(call.currentUser!!.id)
+        call.respond(
+            HttpStatusCode.OK,
+            buildJsonObject {
+                put("success", true)
+            }
+        )
+    }
 }

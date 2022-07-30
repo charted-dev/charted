@@ -15,17 +15,14 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-    `charted-test`
-}
+package org.noelware.charted.database.tables
 
-dependencies {
-    implementation("org.springframework.security:spring-security-crypto:5.7.1")
-    implementation("org.jetbrains.exposed:exposed-kotlin-datetime")
-    implementation("commons-validator:commons-validator:1.7")
-    implementation("dev.samstevens.totp:totp:1.7.1")
-    implementation("io.ktor:ktor-server-core")
+import org.jetbrains.exposed.sql.TextColumnType
+import org.noelware.charted.database.SnowflakeTable
+import org.noelware.charted.database.columns.array
 
-    testImplementation("org.testcontainers:postgresql:1.17.2")
+object User2faTable: SnowflakeTable("users_two_factor_auth") {
+    val recoveryKeys = array<String>("recovery_keys", TextColumnType())
+    val account = reference("account_id", UserTable)
+    val secret = text("secret")
 }

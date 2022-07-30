@@ -40,6 +40,15 @@ data class SessionOptions(
     val scopes: ApiKeyScopeFlags = ApiKeyScopeFlags(),
     val isRequired: Boolean = true
 ) {
+    private var shouldAssertSessionOnly = false
+
+    val shouldAssertOnlySession: Boolean
+        get() = shouldAssertSessionOnly
+
+    fun assertSessionOnly() {
+        shouldAssertSessionOnly = true
+    }
+
     fun addScope(scope: String) {
         if (!scopes.flags.containsKey(scope)) {
             throw IllegalStateException("Unknown scope: '$scope'")
@@ -163,6 +172,26 @@ val Sessions = createRouteScopedPlugin("ChartedSession", ::SessionOptions) {
                                     put(
                                         "message",
                                         "Unknown API key."
+                                    )
+                                }
+                            }
+                        }
+                    )
+
+                    return@onCall
+                }
+
+                if (pluginConfig.shouldAssertOnlySession) {
+                    call.respond(
+                        HttpStatusCode.Forbidden,
+                        buildJsonObject {
+                            put("success", false)
+                            putJsonArray("errors") {
+                                addJsonObject {
+                                    put("code", "CANT_USE_API_KEY")
+                                    put(
+                                        "message",
+                                        "This route only should be used with sessions only."
                                     )
                                 }
                             }

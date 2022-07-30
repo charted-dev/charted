@@ -47,8 +47,8 @@ import org.noelware.charted.database.controllers.RepositoryController
 import org.noelware.charted.database.controllers.RepositoryMemberController
 import org.noelware.charted.email.EmailService
 import org.noelware.charted.features.webhooks.WebhooksFeature
+import org.noelware.charted.server.currentUser
 import org.noelware.charted.server.plugins.Sessions
-import org.noelware.charted.server.session
 import org.noelware.charted.server.utils.createOutgoingContentWithBytes
 import org.noelware.ktor.endpoints.*
 import org.noelware.remi.core.figureContentType
@@ -149,7 +149,7 @@ class RepositoryEndpoints(
 
     @Put
     suspend fun create(call: ApplicationCall) {
-        val (status, result) = RepositoryController.create(call.session.userID, call.receive())
+        val (status, result) = RepositoryController.create(call.currentUser!!.id, call.receive())
         call.respond(status, result)
     }
 

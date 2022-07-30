@@ -15,17 +15,17 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-    `charted-test`
-}
+package org.noelware.charted.database.entities
 
-dependencies {
-    implementation("org.springframework.security:spring-security-crypto:5.7.1")
-    implementation("org.jetbrains.exposed:exposed-kotlin-datetime")
-    implementation("commons-validator:commons-validator:1.7")
-    implementation("dev.samstevens.totp:totp:1.7.1")
-    implementation("io.ktor:ktor-server-core")
+import org.jetbrains.exposed.dao.LongEntity
+import org.jetbrains.exposed.dao.LongEntityClass
+import org.jetbrains.exposed.dao.id.EntityID
+import org.noelware.charted.database.tables.User2faTable
 
-    testImplementation("org.testcontainers:postgresql:1.17.2")
+class User2faEntity(id: EntityID<Long>): LongEntity(id) {
+    companion object: LongEntityClass<User2faEntity>(User2faTable)
+
+    var recoveryKeys by User2faTable.recoveryKeys
+    var account by UserEntity referencedOn User2faTable.account
+    var secret by User2faTable.secret
 }

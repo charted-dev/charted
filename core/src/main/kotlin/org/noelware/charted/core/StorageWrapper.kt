@@ -53,7 +53,7 @@ class StorageWrapper(config: StorageConfig) {
 
             if (trailer is FilesystemStorageTrailer) {
                 for (folder in listOf("./avatars", "./tarballs", "./metadata")) {
-                    val file = File(folder)
+                    val file = File(trailer.normalizePath(folder))
                     if (!file.exists()) {
                         log.warn("Directory [${trailer.normalizePath(folder)}] doesn't exist!")
                         file.mkdirs()
