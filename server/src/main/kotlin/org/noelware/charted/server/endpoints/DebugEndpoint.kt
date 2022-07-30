@@ -39,7 +39,9 @@ import org.noelware.charted.server.ChartedServer
 import org.noelware.charted.server.formatToSize
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.noelware.ktor.endpoints.Get
+import org.noelware.remi.filesystem.FilesystemStorageTrailer
 import java.lang.management.ManagementFactory
+import kotlin.time.Duration.Companion.nanoseconds
 
 // TODO: move this into an "admin" endpoint
 // TODO: add seperate sections like /admin/stats?sections=threads,jvm
@@ -51,36 +53,41 @@ class DebugEndpoint(
     private val config: Config,
     private val redis: IRedisClient
 ): AbstractEndpoint("/debug") {
-    private val runtime = Runtime.getRuntime()
+    private val runtime = ManagementFactory.getRuntimeMXBean()
     private val threads = ManagementFactory.getThreadMXBean()
     private val os = ManagementFactory.getOperatingSystemMXBean()
 
     @Get
     suspend fun main(call: ApplicationCall) {
-        val threadInfos = threads.getThreadInfo(threads.allThreadIds)
-        val threadInfo = buildJsonArray {
-            for (info in threadInfos) {
-                addJsonObject {
-                    put("state", info.threadState.name)
-                    put("name", info.threadName)
-                    put("id", info.threadId)
+        val threadInfos = threads.dumpAllThreads(true, true)
+        val threadInfo = buildJsonObject {
+            put("count", threads.threadCount)
+            put("background", threads.daemonThreadCount)
 
-                    if (threads.isThreadCpuTimeEnabled) {
-                        put("cpu_time_ms", threads.getThreadCpuTime(info.threadId))
-                    }
+            putJsonArray("threads") {
+                for (info in threadInfos) {
+                    addJsonObject {
+                        put("state", info.threadState.name)
+                        put("name", info.threadName)
+                        put("id", info.threadId)
 
-                    put("user_time_ms", threads.getThreadUserTime(info.threadId))
-                    putJsonArray("stacktrace") {
-                        for (element in info.stackTrace) {
-                            addJsonObject {
-                                put("class_loader_name", element.classLoaderName)
-                                put("module_name", element.moduleName)
-                                put("module_version", element.moduleVersion)
-                                put("declaring_class", element.className)
-                                put("method_name", element.methodName)
-                                put("file_name", element.fileName)
-                                put("line_num", element.lineNumber)
-                                put("is_native_method", element.isNativeMethod)
+                        if (threads.isThreadCpuTimeEnabled) {
+                            put("cpu_time_ms", threads.getThreadCpuTime(info.threadId).nanoseconds.inWholeMilliseconds)
+                        }
+
+                        put("user_time_ms", threads.getThreadUserTime(info.threadId).nanoseconds.inWholeMilliseconds)
+                        putJsonArray("stacktrace") {
+                            for (element in info.stackTrace) {
+                                addJsonObject {
+                                    put("class_loader_name", element.classLoaderName)
+                                    put("module_name", element.moduleName)
+                                    put("module_version", element.moduleVersion)
+                                    put("declaring_class", element.className)
+                                    put("method_name", element.methodName)
+                                    put("file_name", element.fileName)
+                                    put("line_num", element.lineNumber)
+                                    put("is_native_method", element.isNativeMethod)
+                                }
                             }
                         }
                     }
@@ -142,29 +149,53 @@ class DebugEndpoint(
             if (chartSize != null) {
                 put("chart_size", chartSize.formatToSize())
             }
+
+            if (storage.trailer is FilesystemStorageTrailer) {
+                val trailer = storage.trailer as FilesystemStorageTrailer
+                val stats = trailer.stats()
+                putJsonObject("fs_stats") {
+                    put("unallocated_space_bytes", stats.unallocatedSpace)
+                    put("unallocated_space", stats.unallocatedSpace.formatToSize())
+                    put("usable_space_bytes", stats.usableSpace)
+                    put("usable_space", stats.usableSpace.formatToSize())
+                    put("total_space_bytes", stats.totalSpace)
+                    put("total_space", stats.totalSpace.formatToSize())
+                    put("directory", trailer.directory)
+                    put("drive", stats.drive)
+                    put("type", stats.type)
+                }
+            }
         }
 
-        val jvmInfo = buildJsonObject {
-            put("version", "${Runtime.version()}")
-            put("vendor", System.getProperty("java.vendor"))
-            put("date", System.getProperty("java.version.date"))
-        }
-
+        val rn = Runtime.getRuntime()
         val runtimeInfo = buildJsonObject {
-            put("free_memory", runtime.freeMemory())
-            put("total_memory", runtime.totalMemory())
-            put("max_memory", runtime.maxMemory())
+            put("total_memory_bytes", rn.totalMemory())
+            put("total_memory", rn.totalMemory().formatToSize())
+            put("max_memory_bytes", rn.maxMemory())
+            put("max_memory", rn.maxMemory().formatToSize())
+            put("free_memory_bytes", rn.freeMemory())
+            put("free_memory", rn.freeMemory().formatToSize())
+            put("start_time_ms", runtime.startTime)
+            put("start_time", runtime.startTime.humanize())
+            put("version", "${Runtime.version()}")
+            put("vendor", runtime.vmVendor)
+            put("name", runtime.vmName)
+            put("date", System.getProperty("java.version.date"))
+            put("pid", runtime.pid)
         }
 
         val cassandraStats = if (cassandra != null) {
             val rs = cassandra.sql("SELECT cluster_name, data_center FROM system.local;").all().first()
+            val values = cassandra.cluster.metrics.requestsTimer.snapshot.values
+            val latency = values.fold(0L) { acc, curr -> acc + curr } / values.size
+
             buildJsonObject {
                 put("db_calls", cassandra.calls)
                 put("version", cassandra.serverVersion)
                 put("data_center", rs.getString("data_center"))
                 put("cluster_name", rs.getString("cluster_name"))
                 put("trashed_connections", cassandra.cluster.metrics.trashedConnections.value)
-                put("request_latency", cassandra.cluster.metrics.requestsTimer.count)
+                put("request_latency_ms", latency.nanoseconds.inWholeMilliseconds)
                 put("bytes_received", cassandra.cluster.metrics.bytesReceived.count)
                 put("bytes_sent", cassandra.cluster.metrics.bytesSent.count)
             }
@@ -221,14 +252,13 @@ class DebugEndpoint(
                     put("version", ChartedInfo.version)
                     put("vendor", "Noelware")
 
-                    put("storage", storageInfo)
                     put("threads", threadInfo)
+                    put("storage", storageInfo)
                     put("cassandra", cassandraStats)
                     put("runtime", runtimeInfo)
                     put("database", postgres)
                     put("redis", redisInfo)
                     put("search", searchBackendInfo ?: JsonNull)
-                    put("jvm", jvmInfo)
                     put("os", osInfo)
                 }
             }

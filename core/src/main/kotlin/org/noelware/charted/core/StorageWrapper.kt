@@ -53,8 +53,17 @@ class StorageWrapper(config: StorageConfig) {
 
             if (trailer is FilesystemStorageTrailer) {
                 for (folder in listOf("./avatars", "./tarballs", "./metadata")) {
-                    log.warn("Directory doesn't exist: [${trailer.normalizePath(folder)}]")
-                    File(trailer.normalizePath(folder)).mkdirs()
+                    val file = File(folder)
+                    if (!file.exists()) {
+                        log.warn("Directory [${trailer.normalizePath(folder)}] doesn't exist!")
+                        file.mkdirs()
+                    }
+
+                    if (!file.isDirectory) {
+                        log.warn("Directory [${trailer.normalizePath(folder)}] is not a valid directory.")
+                        file.deleteRecursively()
+                        file.mkdirs()
+                    }
                 }
             }
         }
