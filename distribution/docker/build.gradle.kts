@@ -59,6 +59,23 @@ docker {
         ),
         false
     ))
+
+    addDockerfile(Dockerfile(
+        "./windows.Dockerfile",
+        "windows/amd64",
+        mapOf("VERSION" to "$VERSION", "COMMIT_SHA" to VERSION.getGitCommit()?.trim()),
+        listOf(
+            "docker.noelware.org/charted/server:latest-windows",
+            "docker.noelware.org/charted/server:${semver.major}-windows",
+            "docker.noelware.org/charted/server:${semver.major}.${semver.minor}-windows",
+            "docker.noelware.org/charted/server:${semver.major}.${semver.minor}.${semver.patch}-windows",
+            "ghcr.io/charted-dev/charted:windows",
+            "ghcr.io/charted-dev/charted:${semver.major}-windows",
+            "ghcr.io/charted-dev/charted:${semver.major}.${semver.minor}-windows",
+            "ghcr.io/charted-dev/charted:${semver.major}:${semver.minor}.${semver.patch}-windows"
+        ),
+        true
+    ))
 }
 
 tasks.register<BuildDockerImageTask>("buildLinux64Image") {

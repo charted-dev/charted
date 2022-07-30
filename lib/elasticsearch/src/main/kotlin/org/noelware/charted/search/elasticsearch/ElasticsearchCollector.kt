@@ -52,8 +52,8 @@ class ElasticsearchCollector(private val elasticsearch: ElasticsearchClient): Co
                 GaugeMetricFamily(
                     ELASTICSEARCH_SERVER_VERSION,
                     "Returns the current version of the Elasticsearch cluster the server is connected to.",
-                    listOf(elasticsearch.serverVersion)
-                )
+                    listOf("version")
+                ).apply { addMetric(listOf(elasticsearch.serverVersion), 1.0) }
             )
         }
 
@@ -62,8 +62,8 @@ class ElasticsearchCollector(private val elasticsearch: ElasticsearchClient): Co
                 GaugeMetricFamily(
                     ELASTICSEARCH_CLUSTER,
                     "Returns the current Elasticsearch cluster's name and UUID.",
-                    listOf("${elasticsearch.clusterName} (${elasticsearch.clusterUUID})")
-                )
+                    listOf("cluster")
+                ).apply { addMetric(listOf("${elasticsearch.clusterName} (${elasticsearch.clusterUUID})"), 1.0) }
             )
         }
 
@@ -103,8 +103,8 @@ class ElasticsearchCollector(private val elasticsearch: ElasticsearchClient): Co
                     GaugeMetricFamily(
                         String.format(ELASTICSEARCH_INDEX_HEALTH, key.replace('-', '_')),
                         "Returns the health (red, yellow, green) of index ${key.replace('-', '_')}.",
-                        listOf(stat.health)
-                    )
+                        listOf("health")
+                    ).apply { addMetric(listOf(stat.health), 1.0) }
                 )
             }
 

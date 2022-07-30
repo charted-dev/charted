@@ -22,19 +22,21 @@ import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
-import io.lettuce.core.pubsub.RedisPubSubListener
-import io.lettuce.core.pubsub.StatefulRedisPubSubConnection
-import io.lettuce.core.pubsub.api.sync.RedisPubSubCommands
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
+import org.apache.commons.lang3.time.StopWatch
 import org.noelware.charted.common.IRedisClient
 import org.noelware.charted.common.SetOnceGetValue
 import org.noelware.charted.common.data.RedisConfig
+import org.noelware.charted.common.extensions.associateOrNull
+import org.noelware.charted.common.stats.RedisStats
+import java.util.concurrent.TimeUnit
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
-class DefaultRedisClient(private val config: RedisConfig): IRedisClient {
+class DefaultRedisClient(config: RedisConfig): IRedisClient {
     private val _connection: SetOnceGetValue<StatefulRedisConnection<String, String>> = SetOnceGetValue()
     private val _commands: SetOnceGetValue<RedisAsyncCommands<String, String>> = SetOnceGetValue()
-    private val _pubsub: SetOnceGetValue<StatefulRedisPubSubConnection<String, String>> = SetOnceGetValue()
     private val log by logging<DefaultRedisClient>()
     private val client: RedisClient
 
@@ -71,9 +73,40 @@ class DefaultRedisClient(private val config: RedisConfig): IRedisClient {
     }
 
     override fun getCommands(): RedisAsyncCommands<String, String> = _commands.value
-    override fun getPubSubCommands(): RedisPubSubCommands<String, String> = _pubsub.value.sync()
-    override fun addPubSubListener(listener: RedisPubSubListener<String, String>) {
-        _pubsub.value.addListener(listener)
+
+    override fun getStats(): RedisStats {
+        val ping = runBlocking {
+            val sw = StopWatch.createStarted()
+            commands.ping().await()
+
+            sw.stop(); sw.getTime(TimeUnit.MILLISECONDS)
+        }
+
+        val stats = runBlocking { commands.info().await() }
+            .split("\r\n?".toRegex())
+            .drop(1)
+            .dropLast(1)
+            .filter { !it.startsWith("#") || it.isNotEmpty() }
+            .associateOrNull {
+                if (!it.startsWith("#") && it.isNotEmpty()) {
+                    val (key, value) = it.split(':')
+                    key to value
+                } else {
+                    null
+                }
+            }
+
+        return RedisStats(
+            stats["total_net_input_bytes"]?.toLong() ?: 0,
+            stats["total_net_output_bytes"]?.toLong() ?: 0,
+            stats["total_commands_processed"]?.toLong() ?: 0,
+            stats["total_connections_received"]?.toLong() ?: 0,
+            stats["mem_allocator"]!!,
+            stats["uptime_in_seconds"]?.toLong()?.toDuration(DurationUnit.SECONDS)?.inWholeMilliseconds ?: -1,
+            stats["redis_version"]!!,
+            stats["redis_mode"]!!,
+            ping
+        )
     }
 
     override fun connect() {
@@ -83,16 +116,7 @@ class DefaultRedisClient(private val config: RedisConfig): IRedisClient {
         _connection.value = client.connect()
         _commands.value = _connection.value.async()
 
-        log.info("Connected to Redis! Enabling keyspace notifications...")
-        runBlocking {
-            commands.configSet("notify-keyspace-events", "A").await()
-        }
-
-        log.info("Hopefully keyspace notifications are enabled, creating PubSub connection...")
-        _pubsub.value = client.connectPubSub()
-
-        val pubsubClient = _pubsub.value
-        pubsubClient.sync().subscribe("__keyspace@:${config.index}__:*")
+        log.info("Connected to Redis!")
     }
 
     override fun close() {

@@ -18,9 +18,8 @@
 package org.noelware.charted.common;
 
 import io.lettuce.core.api.async.RedisAsyncCommands;
-import io.lettuce.core.pubsub.RedisPubSubListener;
-import io.lettuce.core.pubsub.api.sync.RedisPubSubCommands;
 import java.io.Closeable;
+import org.noelware.charted.common.stats.RedisStats;
 
 /**
  * Represents a generic Redis client.
@@ -29,11 +28,9 @@ import java.io.Closeable;
  * @since 25.06.2022
  */
 public interface IRedisClient extends Closeable {
-    void addPubSubListener(RedisPubSubListener<String, String> listener);
-
-    RedisPubSubCommands<String, String> getPubSubCommands();
-
     RedisAsyncCommands<String, String> getCommands();
+
+    RedisStats getStats();
 
     void connect();
 }

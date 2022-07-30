@@ -34,10 +34,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.addJsonObject
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
-import kotlinx.serialization.json.putJsonArray
+import kotlinx.serialization.json.*
 import org.noelware.charted.common.SHAUtils
 import org.noelware.charted.common.data.Config
 import org.noelware.charted.common.data.Feature
@@ -47,6 +44,8 @@ import org.noelware.charted.common.data.helm.ChartIndexYaml
 import org.noelware.charted.common.data.helm.ChartSpec
 import org.noelware.charted.core.StorageWrapper
 import org.noelware.charted.database.controllers.RepositoryController
+import org.noelware.charted.database.controllers.RepositoryMemberController
+import org.noelware.charted.email.EmailService
 import org.noelware.charted.features.webhooks.WebhooksFeature
 import org.noelware.charted.server.plugins.Sessions
 import org.noelware.charted.server.session
@@ -60,7 +59,8 @@ class RepositoryEndpoints(
     private val webhooks: WebhooksFeature? = null,
     private val storage: StorageWrapper,
     private val config: Config,
-    private val yaml: Yaml
+    private val yaml: Yaml,
+    private val email: EmailService? = null
 ): AbstractEndpoint("/repositories") {
     private val log by logging<RepositoryEndpoints>()
 
@@ -652,7 +652,16 @@ class RepositoryEndpoints(
     }
 
     @Get("/{id}/members")
-    suspend fun members(call: ApplicationCall) {}
+    suspend fun members(call: ApplicationCall) {
+        val members = RepositoryMemberController.getAll(call.parameters["id"]!!.toLong()).map { it.toJsonObject() }
+        call.respond(
+            HttpStatusCode.OK,
+            buildJsonObject {
+                put("success", true)
+                put("data", JsonArray(members))
+            }
+        )
+    }
 
     @Put("/{id}/members")
     suspend fun inviteMember(call: ApplicationCall) {}

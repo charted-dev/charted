@@ -84,7 +84,7 @@ $ docker run -d -p 12152:12152 -v ~/config.yml:/app/charted/server/config.yaml n
 
 #### Tag Specification
 #### Version Specification
-**Noelware Analytics** supports an unofficial specification for versioning for Docker images. The versions can look like:
+**charted-server** supports an unofficial specification for versioning for Docker images. The versions can look like:
 
 - **latest** | **latest-[arch]** | **latest-[arch][-os]**
 - **[major].[minor]** | **[major].[minor][-arch]** | **[major].[minor][-arch][-os]**

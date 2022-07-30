@@ -44,7 +44,6 @@ data class MeilisearchConfig(
 
 @kotlinx.serialization.Serializable
 data class SearchConfig(
-    val enabled: Boolean = false,
     val elastic: ElasticsearchConfig? = null,
     val meili: MeilisearchConfig? = null
 )

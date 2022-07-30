@@ -64,7 +64,7 @@ class MainEndpoint(private val config: Config): AbstractEndpoint() {
                         }
 
                         put("engine", if (config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) "oci (private docker registry)" else "charts")
-                        put("search", config.search.enabled)
+                        put("search", config.search.elastic != null || config.search.meili != null)
                         put("registrations", config.registrations)
                         put("invite_only", config.inviteOnly)
                         put("telemetry", config.telemetry)

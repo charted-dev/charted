@@ -28,6 +28,7 @@ import kotlinx.coroutines.debug.State
 import kotlinx.serialization.json.*
 import org.noelware.charted.common.ChartedInfo
 import org.noelware.charted.common.ChartedScope
+import org.noelware.charted.common.IRedisClient
 import org.noelware.charted.common.data.Config
 import org.noelware.charted.common.data.Feature
 import org.noelware.charted.core.StorageWrapper
@@ -47,16 +48,12 @@ class DebugEndpoint(
     private val meili: MeilisearchClient? = null,
     private val cassandra: CassandraConnection? = null,
     private val storage: StorageWrapper,
-    private val config: Config
+    private val config: Config,
+    private val redis: IRedisClient
 ): AbstractEndpoint("/debug") {
     private val runtime = Runtime.getRuntime()
     private val threads = ManagementFactory.getThreadMXBean()
     private val os = ManagementFactory.getOperatingSystemMXBean()
-
-//    init {
-//        install(Sessions)
-//        install(IsAdminGuard)
-//    }
 
     @Get
     suspend fun main(call: ApplicationCall) {
@@ -196,6 +193,20 @@ class DebugEndpoint(
             }
         }
 
+        val redisStats = redis.stats
+        val redisInfo = buildJsonObject {
+            put("total_network_input", redisStats.totalNetworkInput)
+            put("total_network_output", redisStats.totalNetworkOutput)
+            put("total_commands_processed", redisStats.totalCommandsProcessed)
+            put("total_connections_received", redisStats.totalConnectionsReceived)
+            put("allocator", redisStats.allocator)
+            put("uptime_millis", redisStats.uptime)
+            put("uptime", redisStats.uptime.humanize())
+            put("version", redisStats.version)
+            put("mode", redisStats.mode)
+            put("ping", redisStats.ping)
+        }
+
         call.respond(
             HttpStatusCode.OK,
             buildJsonObject {
@@ -204,17 +215,19 @@ class DebugEndpoint(
                     put("distribution", ChartedInfo.distribution.key)
                     put("commit_sha", ChartedInfo.commitHash)
                     put("build_date", ChartedInfo.buildDate)
+                    put("uptime_millis", System.currentTimeMillis() - ChartedServer.bootTime)
+                    put("uptime", (System.currentTimeMillis() - ChartedServer.bootTime).humanize())
+                    put("product", "charted-server")
+                    put("version", ChartedInfo.version)
+                    put("vendor", "Noelware")
+
                     put("storage", storageInfo)
                     put("threads", threadInfo)
                     put("cassandra", cassandraStats)
-                    put("product", "charted-server")
-                    put("version", ChartedInfo.version)
                     put("runtime", runtimeInfo)
                     put("database", postgres)
-                    put("uptime_millis", System.currentTimeMillis() - ChartedServer.bootTime)
-                    put("uptime", (System.currentTimeMillis() - ChartedServer.bootTime).humanize())
+                    put("redis", redisInfo)
                     put("search", searchBackendInfo ?: JsonNull)
-                    put("vendor", "Noelware")
                     put("jvm", jvmInfo)
                     put("os", osInfo)
                 }

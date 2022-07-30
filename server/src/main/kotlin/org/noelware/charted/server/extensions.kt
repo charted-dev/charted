@@ -19,7 +19,10 @@ package org.noelware.charted.server
 
 import io.ktor.server.application.*
 import io.sentry.ITransaction
+import kotlinx.coroutines.runBlocking
+import org.noelware.charted.database.controllers.UserController
 import org.noelware.charted.database.models.ApiKeys
+import org.noelware.charted.database.models.User
 import org.noelware.charted.server.plugins.apiKeyKey
 import org.noelware.charted.server.plugins.sessionsKey
 import org.noelware.charted.server.plugins.transactionKey
@@ -36,6 +39,13 @@ val ApplicationCall.apiKey: ApiKeys
 
 val ApplicationCall.apiKeyOrNull: ApiKeys?
     get() = attributes.getOrNull(apiKeyKey)
+
+val ApplicationCall.currentUser: User?
+    get() = when {
+        apiKeyOrNull != null -> apiKey.user
+        attributes.getOrNull(sessionsKey) != null -> runBlocking { UserController.get(session.userID) }
+        else -> null
+    }
 
 fun Long.formatToSize(long: Boolean = false): String {
     val kilo = this / 1024L

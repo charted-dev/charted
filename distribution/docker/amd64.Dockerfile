@@ -31,8 +31,8 @@ RUN apk update && apk add --no-cache tini bash libc6-compat gcompat
 WORKDIR /app/noelware/charted/server
 
 COPY distribution/docker/scripts/linux /app/noelware/charted/server/scripts
-COPY --from=builder /build/charted/server/build/install/charted-server/charted-server .
-COPY --from=builder /build/charted/server/build/install/charted-server/lib .
+COPY --from=builder /build/charted/server/build/install/charted-server/charted-server /app/noelware/charted/server/charted-server
+COPY --from=builder /build/charted/server/build/install/charted-server/lib /app/noelware/charted/server/lib
 
 RUN chmod +x /app/noelware/charted/server/scripts/docker-entrypoint.sh && \
     chmod +x /app/noelware/charted/server/charted-server

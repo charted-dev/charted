@@ -42,7 +42,8 @@ class SearchEndpoint(
 ): AbstractEndpoint("/search") {
     @Post
     suspend fun search(call: ApplicationCall) {
-        if (!config.search.enabled) {
+        val enabled = config.search.elastic != null || config.search.meili != null
+        if (!enabled) {
             call.respond(
                 HttpStatusCode.NotFound,
                 buildJsonObject {

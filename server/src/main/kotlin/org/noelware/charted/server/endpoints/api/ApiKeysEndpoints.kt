@@ -21,6 +21,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import kotlinx.serialization.json.*
+import org.noelware.charted.apikeys.ApiKeyManager
 import org.noelware.charted.common.TimeParser
 import org.noelware.charted.common.exceptions.StringOverflowException
 import org.noelware.charted.common.exceptions.ValidationException
@@ -90,7 +91,7 @@ data class CreateApiKeyBody(
     }
 }
 
-class ApiKeysEndpoints: AbstractEndpoint("/apikeys") {
+class ApiKeysEndpoints(private val apikeys: ApiKeyManager): AbstractEndpoint("/apikeys") {
     init {
         install(HttpMethod.Delete, "/apikeys", Sessions)
         install(HttpMethod.Put, "/apikeys", Sessions)
@@ -181,7 +182,7 @@ class ApiKeysEndpoints: AbstractEndpoint("/apikeys") {
             bitfield.remove(bitfield.flags[key]!!)
         }
 
-        val apiKey = ApiKeyController.create(
+        val apiKey = apikeys.createApiKey(
             body.name,
             call.session.userID,
             bitfield.bits,

@@ -57,6 +57,7 @@ dependencies {
     implementation(project(":features:audit-logs"))
     implementation(project(":features:webhooks"))
     implementation(project(":lib:elasticsearch"))
+    implementation(project(":lib:invitations"))
     implementation(project(":lib:meilisearch"))
     implementation(project(":sessions:github"))
     implementation(project(":sessions:local"))
@@ -64,6 +65,7 @@ dependencies {
     implementation(project(":lib:analytics"))
     implementation(project(":lib:telemetry"))
     implementation(project(":lib:metrics"))
+    implementation(project(":lib:apikeys"))
     implementation(project(":lib:email"))
     implementation(project(":sessions"))
     implementation(project(":database"))
@@ -91,6 +93,7 @@ distributions {
             from(
                 "$projectDir/bin/config/logback.properties",
                 "$projectDir/bin/config/charted.example.yml",
+                "$projectDir/bin/charted-server.ps1",
                 "$projectDir/bin/charted-server",
                 "$projectDir/charted.service",
                 "$projectDir/bin/README.txt",

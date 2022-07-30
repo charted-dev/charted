@@ -48,8 +48,8 @@ class CassandraMetricsCollector(private val cassandra: CassandraConnection): Col
                 GaugeMetricFamily(
                     CASSANDRA_VERSION,
                     "The current cluster version",
-                    listOf(cassandra.serverVersion)
-                )
+                    listOf("version")
+                ).apply { addMetric(listOf(cassandra.serverVersion), 1.0) }
             )
         }
 
@@ -58,8 +58,8 @@ class CassandraMetricsCollector(private val cassandra: CassandraConnection): Col
                 GaugeMetricFamily(
                     CASSANDRA_DATA_CENTER,
                     "The current data center that the Cassandra instance is in.",
-                    listOf(rs.getString("data_center"))
-                )
+                    listOf("data_center")
+                ).apply { addMetric(listOf(rs.getString("data_center")), 1.0) }
             )
         }
 
@@ -68,8 +68,8 @@ class CassandraMetricsCollector(private val cassandra: CassandraConnection): Col
                 GaugeMetricFamily(
                     CASSANDRA_CLUSTER_NAME,
                     "Returns the cluster name of this Cassandra instance.",
-                    listOf(rs.getString("data_center"))
-                )
+                    listOf("cluster_name")
+                ).apply { addMetric(listOf(rs.getString("cluster_name")), 1.0) }
             )
         }
 
@@ -88,7 +88,7 @@ class CassandraMetricsCollector(private val cassandra: CassandraConnection): Col
             mfs.add(
                 GaugeMetricFamily(
                     CASSANDRA_REQUEST_LATENCY,
-                    "The total latency between requests from charted <- -> Cassandra",
+                    "The total latency between requests from charted to/from Cassandra",
                     metrics.requestsTimer.count.toDouble()
                 )
             )

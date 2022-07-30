@@ -31,7 +31,9 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 import io.sentry.Sentry
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.debug.DebugProbes
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
@@ -47,6 +49,8 @@ import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import org.noelware.charted.analytics.AnalyticsServer
+import org.noelware.charted.apikeys.ApiKeyManager
+import org.noelware.charted.apikeys.DefaultApiKeyManager
 import org.noelware.charted.common.ChartedInfo
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.IRedisClient
@@ -54,7 +58,6 @@ import org.noelware.charted.common.data.Config
 import org.noelware.charted.common.data.Feature
 import org.noelware.charted.common.data.helm.RepoType
 import org.noelware.charted.core.StorageWrapper
-import org.noelware.charted.core.apikeys.TokenExpirationManager
 import org.noelware.charted.core.interceptors.LogInterceptor
 import org.noelware.charted.core.interceptors.SentryInterceptor
 import org.noelware.charted.core.loggers.KoinLogger
@@ -67,6 +70,8 @@ import org.noelware.charted.email.DefaultEmailService
 import org.noelware.charted.email.EmailService
 import org.noelware.charted.features.audits.auditLogsModule
 import org.noelware.charted.features.webhooks.webhooksModule
+import org.noelware.charted.invitations.DefaultInvitationManager
+import org.noelware.charted.invitations.InvitationManager
 import org.noelware.charted.metrics.PrometheusMetrics
 import org.noelware.charted.search.elasticsearch.ElasticsearchClient
 import org.noelware.charted.search.elasticsearch.ElasticsearchCollector
@@ -78,6 +83,7 @@ import org.noelware.charted.sessions.integrations.github.githubIntegration
 import org.noelware.charted.sessions.local.LocalSessionManager
 import java.io.File
 import java.io.IOError
+import java.lang.management.ManagementFactory
 import java.nio.file.Files
 import java.util.UUID
 import kotlin.concurrent.thread
@@ -192,7 +198,7 @@ object Bootstrap {
         }
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
+    @OptIn(ExperimentalSerializationApi::class, ExperimentalCoroutinesApi::class)
     @JvmStatic
     fun main(args: Array<String>) {
         Thread.currentThread().name = "Server-BootstrapThread"
@@ -208,6 +214,23 @@ object Bootstrap {
         installDefaultThreadExceptionHandler()
         installShutdownHook()
         createUUID()
+
+        val runtime = Runtime.getRuntime()
+        val os = ManagementFactory.getOperatingSystemMXBean()
+
+        log.info("===> JVM vendor/version: ${System.getProperty("java.vendor", "Unknown")} [${System.getProperty("java.version")}]")
+        log.info("===> Kotlin version: ${KotlinVersion.CURRENT}")
+        log.info("===> charted-server version: ${ChartedInfo.version} [${ChartedInfo.commitHash}]")
+        log.info("===> Heap size: total=${runtime.totalMemory().formatToSize()} free=${runtime.freeMemory().formatToSize()}")
+        log.info("===> Operating System: ${os.name.lowercase()}/${os.arch} (${os.availableProcessors} processors)")
+        if (ChartedInfo.dedicatedNode != null) {
+            log.info("===> Dedicated Node: ${ChartedInfo.dedicatedNode}")
+        }
+
+        for (pool in ManagementFactory.getMemoryPoolMXBeans())
+            log.info("===> ${pool.name} <${pool.type}> -> ${pool.peakUsage}")
+
+        log.info("===> JVM Arguments: [${ManagementFactory.getRuntimeMXBean().inputArguments.joinToString(" ")}]")
 
         log.info("Loading configuration...")
         val fullConfigPath = System.getenv("CHARTED_CONFIG_PATH") ?: "./config.yml"
@@ -284,6 +307,11 @@ object Bootstrap {
             )
         }
 
+        if (config.debug) {
+            log.info("Enabling kotlinx.coroutines debug probe...")
+            DebugProbes.install()
+        }
+
         log.info("Connected to PostgreSQL! Creating storage provider...")
         val wrapper = StorageWrapper(config.storage)
         val json = Json {
@@ -327,7 +355,10 @@ object Bootstrap {
         }
 
         val sessions = LocalSessionManager(config, redis, json)
-        val apiKeyExpiration = TokenExpirationManager(redis)
+        val apiKeysManager = DefaultApiKeyManager(redis)
+        val email = if (config.email != null) DefaultEmailService(config.email!!) else null
+        val invitations = DefaultInvitationManager(email, config, redis, json)
+
         val httpClient = HttpClient(OkHttp) {
             engine {
                 addInterceptor(LogInterceptor)
@@ -345,17 +376,18 @@ object Bootstrap {
             }
         }
 
-        val elasticsearch = if (config.search.enabled && config.search.elastic != null) ElasticsearchClient(config.search.elastic!!) else null
-        val meilisearch = if (config.search.enabled && config.search.meili != null) MeilisearchClient(httpClient, config.search.meili!!) else null
+        val elasticsearch = if (config.search.elastic != null) ElasticsearchClient(config.search.elastic!!) else null
+        val meilisearch = if (config.search.meili != null) MeilisearchClient(httpClient, config.search.meili!!) else null
         val cassandra = if (config.cassandra != null) CassandraConnection(config.cassandra!!) else null
         val analytics = if (config.analytics != null) AnalyticsServer(config.analytics!!) else null
         val server = ChartedServer(config, analytics)
-        val metrics = PrometheusMetrics(ds)
+        val metrics = PrometheusMetrics(ds, redis)
 
         val module = module {
+            single<InvitationManager> { invitations }
             single<SessionManager> { sessions }
+            single<ApiKeyManager> { apiKeysManager }
             single<IRedisClient> { redis }
-            single { apiKeyExpiration }
             single { httpClient }
             single { scheduler }
             single { wrapper }
@@ -364,6 +396,10 @@ object Bootstrap {
             single { yaml }
             single { json }
             single { ds }
+
+            if (email != null) {
+                single<EmailService> { email }
+            }
 
             if (elasticsearch != null) {
                 single { elasticsearch }
@@ -412,19 +448,6 @@ object Bootstrap {
         if (config.sessions.integrations.github != null) {
             log.info("GitHub integration is enabled!")
             modules.add(githubIntegration)
-        }
-
-        if (config.email != null) {
-            log.info("Email service is enabled!")
-
-            // This makes sure the `init {}` block is evaluated since
-            // Koin is lazy-loading the service when you inject it.
-            val email = DefaultEmailService(config.email!!)
-            modules.add(
-                module {
-                    single<EmailService> { email }
-                }
-            )
         }
 
         startKoin {

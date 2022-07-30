@@ -25,9 +25,10 @@ import io.prometheus.client.Counter
 import io.prometheus.client.Histogram
 import io.prometheus.client.exporter.common.TextFormat
 import io.prometheus.client.hotspot.DefaultExports
+import org.noelware.charted.common.IRedisClient
 import java.io.Writer
 
-class PrometheusMetrics(dataStore: HikariDataSource) {
+class PrometheusMetrics(dataStore: HikariDataSource, redis: IRedisClient) {
     private val registry: CollectorRegistry = CollectorRegistry()
     val requestLatency: Histogram = Histogram.build("charted_request_latency", "The latency between all requests.")
         .register(registry)
@@ -38,6 +39,8 @@ class PrometheusMetrics(dataStore: HikariDataSource) {
     init {
         dataStore.metricsTrackerFactory = PrometheusMetricsTrackerFactory(registry)
         DefaultExports.register(registry)
+
+        addCollector(RedisMetricsCollector(redis))
     }
 
     fun <T: Collector> addCollector(collector: T) {

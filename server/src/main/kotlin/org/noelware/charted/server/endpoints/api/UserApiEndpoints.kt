@@ -612,4 +612,16 @@ class UserApiEndpoints(
             }
         )
     }
+
+    @Get("/@me/2fa/qr")
+    suspend fun qrCode(call: ApplicationCall) {}
+
+    @Post("/@me/2fa/verify")
+    suspend fun verify2fa(call: ApplicationCall) {}
+
+    @Put("/@me/2fa")
+    suspend fun enable2fa(call: ApplicationCall) {}
+
+    @Delete("/@me/2fa")
+    suspend fun disable2fa(call: ApplicationCall) {}
 }

@@ -4,7 +4,7 @@ This is a main CLI tool to run ClickHouse migrations on a ClickHouse cluster.
 ## Usage
 ### Docker
 ```shell
-$ docker run --rm docker.noelware.org/charted/ch-migrations --help
+$ docker run --rm /charted/ch-migrations --help
 Runs the ClickHouse migrations for charted-server.
 
 Usage:

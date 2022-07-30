@@ -17,4 +17,41 @@
 
 package org.noelware.charted.database.controllers
 
-object RepositoryMemberController
+import dev.floofy.utils.exposed.asyncTransaction
+import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.and
+import org.noelware.charted.common.ChartedScope
+import org.noelware.charted.database.entities.RepositoryMemberEntity
+import org.noelware.charted.database.models.RepositoryMember
+import org.noelware.charted.database.tables.RepositoryMemberTable
+
+object RepositoryMemberController {
+    suspend fun getAll(repo: Long, showPrivate: Boolean = false): List<RepositoryMember> {
+        val query: Op<Boolean> = if (showPrivate) { RepositoryMemberTable.id eq repo } else {
+            (RepositoryMemberTable.id eq repo) and (RepositoryMemberTable.publicVisibility eq true)
+        }
+
+        return asyncTransaction(ChartedScope) {
+            RepositoryMemberEntity
+                .find(query)
+                .toList()
+                .map { entity ->
+                    RepositoryMember.fromEntity(entity)
+                }
+        }
+    }
+
+    suspend fun get(repo: Long, member: Long): RepositoryMember? = asyncTransaction(ChartedScope) {
+        RepositoryMemberEntity
+            .find { (RepositoryMemberTable.repository eq repo) and (RepositoryMemberTable.id eq member) }
+            .firstOrNull()
+            ?.let { entity ->
+                RepositoryMember.fromEntity(entity)
+            }
+    }
+
+    suspend fun invite(): Boolean {
+        return true
+    }
+}

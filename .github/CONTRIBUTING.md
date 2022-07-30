@@ -1,18 +1,40 @@
 # 📦 Contributing to charted-server
-Hello! This is the contribution guide on how to contribute to **charted-server**!! ✧ ─=≡Σ((( つ•̀ω•́)つ
+**charted-server** is a free and open source Helm Chart registry made in [Kotlin](https://kotlinlang.org) developed by
+[JetBrains](https://www.jetbrains.com). We full heartily accept contributions from the community — you! We accept
+any contribution from major features that might be cool to implement to small, grammatical bugs.
 
-Before you code your heart out, you must follow the [Code of Conduct](CODE_OF_CONDUCT.md)! We expect you to follow
-the conduct or your issue or pull request will be deleted. :)
+## Bug reports
+If you think you found any bugs when running **charted-server**, please test it on the latest installation of [charted-server](https://github.com/charted-dev/charted/releases)
+because it might be fixed! If it wasn't fixed (and it was present in future releases), you can surf through the [issue board](https://github.com/charted-dev/charted/issues)
+and search for the issue.
+
+If the issue is not present in the issue board, you can submit a **Bug Reports** issue. Please make sure to do the following:
+
+- Label the issue with the `bug` label.
+- Be clear and concise with the title, it will help others link their issues and solutions to yours.
+- Specify the ways to reproduce the bug, so we know how to fix it.
+
+We recommend using the terminal (if possible) to check for issues, i.e (simple example to show how it can be reproduced):
+
+```shell
+$ curl -XDELETE -H "Authorization: ApiKey <api key here>" http://localhost:3651/repositories/1/members/2
+{"success": true}
+
+$ curl -XGET http://localhost:3651/repositories/1/members
+{"success":true,"data":[{"display_name":"Noel","joined_at":"2022-07-30T16:09:30.440Z","updated_at":"2022-07-30T16:09:30.440Z","user":{}}]}
+```
 
 ## Security Vulnerabilities
-If you find a security issue within **charted-server**, please contact me on Discord (**August#5820** -- ID: 280158289667555328) or email
-us (**team@noelware.org**) and we can work on the issue together.
+If you found any security vulnerabilities within **charted-server**, you can report it via email: team@noelware.org
 
-## Bug Reporting
-If you find any bugs from using **charted-server**:
+## Code Contributions
+If you wish to contribute to the source code of **charted-server**, this is the guide for you.
 
-- Make sure the issue must be labeled as `bug`
-- Be clear and concise with the title, it will help others link their issues and solutions to yours.
-- Specify the ways to reproduce the bug, so our development team and contributors can reproduce by themselves.
-- Show the output, using logs and screenshots, to help others understand your issue.
-- Clarify the **charted-server** version, specification of the server, distribution type (locally, Docker, Helm chart), and the git commit hash.
+At the moment, we only support [IntelliJ IDEA](https://jetbrains.com/idea) at the moment for developing **charted-server**.
+
+### Prerequisites 
+- PostgreSQL
+- Java 17
+- Redis
+- IntelliJ IDEA
+- 2-8GB of system RAM

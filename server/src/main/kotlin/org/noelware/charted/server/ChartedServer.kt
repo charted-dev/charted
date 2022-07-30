@@ -41,14 +41,12 @@ import io.ktor.server.routing.*
 import io.sentry.Sentry
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.debug.DebugProbes
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.*
 import org.koin.core.context.GlobalContext
 import org.noelware.charted.analytics.AnalyticsServer
-import org.noelware.charted.common.ChartedInfo
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.SetOnceGetValue
 import org.noelware.charted.common.data.Config
@@ -65,7 +63,6 @@ import org.noelware.remi.filesystem.ifExists
 import org.slf4j.LoggerFactory
 import java.io.Closeable
 import java.io.File
-import java.lang.management.ManagementFactory
 import java.security.KeyStore
 import io.sentry.Sentry as SentryClient
 
@@ -84,28 +81,6 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun start() {
-        val runtime = Runtime.getRuntime()
-        val os = ManagementFactory.getOperatingSystemMXBean()
-        val threads = ManagementFactory.getThreadMXBean()
-
-        log.info("Runtime Information:")
-        log.info("===> Free / Total Memory [Max]: ${runtime.freeMemory().formatToSize()}/${runtime.totalMemory().formatToSize()} [${runtime.maxMemory().formatToSize()}]")
-        log.info("===> Operating System: ${os.name.lowercase()}/${os.arch} (${os.availableProcessors} processors)")
-        log.info("===> OS Threads: ${threads.threadCount} (${threads.daemonThreadCount} background threads)")
-        if (ChartedInfo.dedicatedNode != null) {
-            log.info("===> Dedicated Node: ${ChartedInfo.dedicatedNode}")
-        }
-
-        log.info("===> Library Versions:")
-        log.info("|-  charted: ${ChartedInfo.version} [${ChartedInfo.commitHash}]")
-        log.info("|-  Kotlin:  ${KotlinVersion.CURRENT}")
-        log.info("|-  Java:    ${System.getProperty("java.version", "Unknown")} [${System.getProperty("java.vendor", "Unknown")}]")
-
-        if (config.debug) {
-            log.info("Enabling kotlinx.coroutines debug probe...")
-            DebugProbes.install()
-        }
-
         val self = this
         val environment = applicationEngineEnvironment {
             developmentMode = self.config.debug
@@ -199,7 +174,6 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
 
                     status(HttpStatusCode.UnsupportedMediaType) { call, _ ->
                         val header = call.request.header(HttpHeaders.ContentType)
-
                         call.respond(
                             HttpStatusCode.MethodNotAllowed,
                             buildJsonObject {
@@ -207,7 +181,7 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
                                 putJsonArray("errors") {
                                     addJsonObject {
                                         put("code", "UNSUPPORTED_MEDIA_TYPE")
-                                        put("message", if (header == null) "Missing `Content-Type` header. (https://charts.noelware.org/docs/server/reference)" else "Invalid content type [$header], expecting application/json.")
+                                        put("message", "Invalid content type [$header], expecting application/json.")
                                     }
                                 }
                             }

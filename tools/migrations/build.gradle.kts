@@ -34,10 +34,10 @@ docker {
         "linux/amd64",
         mapOf(),
         listOf(
-            "docker.noelware.org/charted/ch-migrations:${semver.major}-amd64",
-            "docker.noelware.org/charted/ch-migrations:${semver.major}.${semver.minor}-amd64",
-            "docker.noelware.org/charted/ch-migrations:${semver.major}.${semver.minor}.${semver.patch}-amd64",
-            "docker.noelware.org/charted/ch-migrations:latest-amd64",
+            "/charted/ch-migrations:${semver.major}-amd64",
+            "/charted/ch-migrations:${semver.major}.${semver.minor}-amd64",
+            "/charted/ch-migrations:${semver.major}.${semver.minor}.${semver.patch}-amd64",
+            "/charted/ch-migrations:latest-amd64",
             "ghcr.io/charted-dev/ch-migrations:${semver.major}-amd64",
             "ghcr.io/charted-dev/ch-migrations:${semver.major}.${semver.minor}-amd64",
             "ghcr.io/charted-dev/ch-migrations:${semver.major}.${semver.minor}.${semver.patch}-amd64",
@@ -51,10 +51,10 @@ docker {
         "linux/arm64",
         mapOf(),
         listOf(
-            "docker.noelware.org/charted/ch-migrations:${semver.major}-amd64",
-            "docker.noelware.org/charted/ch-migrations:${semver.major}.${semver.minor}-amd64",
-            "docker.noelware.org/charted/ch-migrations:${semver.major}.${semver.minor}.${semver.patch}-amd64",
-            "docker.noelware.org/charted/ch-migrations:latest-amd64"
+            "/charted/ch-migrations:${semver.major}-amd64",
+            "/charted/ch-migrations:${semver.major}.${semver.minor}-amd64",
+            "/charted/ch-migrations:${semver.major}.${semver.minor}.${semver.patch}-amd64",
+            "/charted/ch-migrations:latest-amd64"
         ),
         false
     ))

@@ -31,6 +31,7 @@ data class ApiKeys(
     val expiresIn: LocalDateTime? = null,
     val scopes: String = "0",
     val token: String? = null,
+    val user: User,
     val name: String
 ) {
     companion object {
@@ -38,6 +39,7 @@ data class ApiKeys(
             entity.expiresIn,
             entity.scopes.toString(16),
             raw,
+            User.fromEntity(entity.owner),
             entity.name
         )
     }
@@ -49,6 +51,7 @@ data class ApiKeys(
             put("token", token)
         }
 
+        put("user", user.toJsonObject())
         put("name", name)
     }
 }

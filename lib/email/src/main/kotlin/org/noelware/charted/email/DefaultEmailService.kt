@@ -20,7 +20,8 @@ package org.noelware.charted.email
 import dev.floofy.utils.slf4j.logging
 import org.noelware.charted.common.SetOnceGetValue
 import org.noelware.charted.common.data.MailConfig
-import java.util.Properties
+import org.noelware.charted.common.extensions.measureTime
+import java.util.*
 import javax.mail.Authenticator
 import javax.mail.Message
 import javax.mail.PasswordAuthentication
@@ -55,13 +56,17 @@ class DefaultEmailService(private val config: MailConfig): EmailService {
     }
 
     override fun sendEmail(recipient: String, subject: String, content: String) {
-        val message = MimeMessage(_session.value)
-        message.setFrom(InternetAddress(config.from))
-        message.addRecipient(Message.RecipientType.TO, InternetAddress(recipient))
+        log.debug("Sending email to recipient [$recipient]...")
+        log.measureTime("Took %T to send out email to recipient [$recipient]") {
+            val message = MimeMessage(_session.value)
+            message.setFrom(InternetAddress(config.from))
+            message.addRecipient(Message.RecipientType.TO, InternetAddress(recipient))
 
-        message.subject = subject
-        message.setText(content)
+            message.subject = subject
+            message.sentDate = Date()
+            message.setContent(content, "text/html")
 
-        Transport.send(message)
+            Transport.send(message)
+        }
     }
 }
