@@ -611,16 +611,16 @@ class UserApiEndpoints(
             )
         }
 
-        if (User2faController.enabled(user.id.value)) return call.respond(
-            HttpStatusCode.OK,
-            buildJsonObject {
-                put("success", true)
-                putJsonObject("data") {
-                    put("2fa", true)
-                    put("id", user.id.value)
-                }
-            }
-        )
+//        if (User2faController.enabled(user.id.value)) return call.respond(
+//            HttpStatusCode.OK,
+//            buildJsonObject {
+//                put("success", true)
+//                putJsonObject("data") {
+//                    put("2fa", true)
+//                    put("id", user.id.value)
+//                }
+//            }
+//        )
 
         val session = sessions.createSession(user.id.value)
         call.respond(
@@ -661,102 +661,102 @@ class UserApiEndpoints(
         )
     }
 
-    @Get("/@me/2fa/qr")
-    suspend fun qrCode(call: ApplicationCall) {
-        val data = User2faController.qrCode(call.currentUser!!.id)
-            ?: return call.respond(HttpStatusCode.NotFound)
-
-        call.respond(
-            HttpStatusCode.OK,
-            createOutgoingContentWithBytes(
-                data.second,
-                contentType = ContentType.parse(data.first)
-            )
-        )
-    }
-
-    @Post("/{id}/2fa/verify")
-    suspend fun verify2fa(call: ApplicationCall) {
-        val id = call.parameters["id"]!!.toLong()
-        val body by call.body<Verify2faBody>()
-        val success = User2faController.verify(id, body.code)
-        val statusCode = if (success) HttpStatusCode.OK else HttpStatusCode.BadRequest
-
-        if (success) {
-            val session = sessions.createSession(id)
-            return call.respond(
-                HttpStatusCode.Created,
-                buildJsonObject {
-                    put("success", true)
-                    put("data", session.toJsonObject(true))
-                }
-            )
-        }
-
-        call.respond(
-            statusCode,
-            buildJsonObject {
-                put("success", false)
-                putJsonArray("errors") {
-                    addJsonObject {
-                        put("message", "Invalid 2FA code.")
-                        put("code", "INVALID_2FA_CODE")
-                    }
-                }
-            }
-        )
-    }
-
-    @Put("/@me/2fa")
-    suspend fun enable2fa(call: ApplicationCall) {
-        if (User2faController.enabled(call.currentUser!!.id)) {
-            return call.respond(
-                HttpStatusCode.Forbidden,
-                buildJsonObject {
-                    put("success", false)
-                    putJsonArray("errors") {
-                        addJsonObject {
-                            put("message", "2FA is already enabled on this account.")
-                            put("code", "2FA_ENABLED_ALREADY")
-                        }
-                    }
-                }
-            )
-        }
-
-        val (status, result) = User2faController.enable2fa(call.currentUser!!.id)
-        call.respond(
-            status,
-            buildJsonObject {
-                put("success", status.value == 200)
-                put("data", result)
-            }
-        )
-    }
-
-    @Delete("/@me/2fa")
-    suspend fun disable2fa(call: ApplicationCall) {
-        if (!User2faController.enabled(call.currentUser!!.id)) {
-            return call.respond(
-                HttpStatusCode.Forbidden,
-                buildJsonObject {
-                    put("success", false)
-                    putJsonArray("errors") {
-                        addJsonObject {
-                            put("message", "2FA is already disabled on this account.")
-                            put("code", "2FA_ENABLED_ALREADY")
-                        }
-                    }
-                }
-            )
-        }
-
-        User2faController.disable2fa(call.currentUser!!.id)
-        call.respond(
-            HttpStatusCode.OK,
-            buildJsonObject {
-                put("success", true)
-            }
-        )
-    }
+//    @Get("/@me/2fa/qr")
+//    suspend fun qrCode(call: ApplicationCall) {
+//        val data = User2faController.qrCode(call.currentUser!!.id)
+//            ?: return call.respond(HttpStatusCode.NotFound)
+//
+//        call.respond(
+//            HttpStatusCode.OK,
+//            createOutgoingContentWithBytes(
+//                data.second,
+//                contentType = ContentType.parse(data.first)
+//            )
+//        )
+//    }
+//
+//    @Post("/{id}/2fa/verify")
+//    suspend fun verify2fa(call: ApplicationCall) {
+//        val id = call.parameters["id"]!!.toLong()
+//        val body by call.body<Verify2faBody>()
+//        val success = User2faController.verify(id, body.code)
+//        val statusCode = if (success) HttpStatusCode.OK else HttpStatusCode.BadRequest
+//
+//        if (success) {
+//            val session = sessions.createSession(id)
+//            return call.respond(
+//                HttpStatusCode.Created,
+//                buildJsonObject {
+//                    put("success", true)
+//                    put("data", session.toJsonObject(true))
+//                }
+//            )
+//        }
+//
+//        call.respond(
+//            statusCode,
+//            buildJsonObject {
+//                put("success", false)
+//                putJsonArray("errors") {
+//                    addJsonObject {
+//                        put("message", "Invalid 2FA code.")
+//                        put("code", "INVALID_2FA_CODE")
+//                    }
+//                }
+//            }
+//        )
+//    }
+//
+//    @Put("/@me/2fa")
+//    suspend fun enable2fa(call: ApplicationCall) {
+//        if (User2faController.enabled(call.currentUser!!.id)) {
+//            return call.respond(
+//                HttpStatusCode.Forbidden,
+//                buildJsonObject {
+//                    put("success", false)
+//                    putJsonArray("errors") {
+//                        addJsonObject {
+//                            put("message", "2FA is already enabled on this account.")
+//                            put("code", "2FA_ENABLED_ALREADY")
+//                        }
+//                    }
+//                }
+//            )
+//        }
+//
+//        val (status, result) = User2faController.enable2fa(call.currentUser!!.id)
+//        call.respond(
+//            status,
+//            buildJsonObject {
+//                put("success", status.value == 200)
+//                put("data", result)
+//            }
+//        )
+//    }
+//
+//    @Delete("/@me/2fa")
+//    suspend fun disable2fa(call: ApplicationCall) {
+//        if (!User2faController.enabled(call.currentUser!!.id)) {
+//            return call.respond(
+//                HttpStatusCode.Forbidden,
+//                buildJsonObject {
+//                    put("success", false)
+//                    putJsonArray("errors") {
+//                        addJsonObject {
+//                            put("message", "2FA is already disabled on this account.")
+//                            put("code", "2FA_ENABLED_ALREADY")
+//                        }
+//                    }
+//                }
+//            )
+//        }
+//
+//        User2faController.disable2fa(call.currentUser!!.id)
+//        call.respond(
+//            HttpStatusCode.OK,
+//            buildJsonObject {
+//                put("success", true)
+//            }
+//        )
+//    }
 }

@@ -34,6 +34,7 @@ import org.gradle.work.DisableCachingByDefault;
 import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
 import org.gradle.workers.WorkerExecutor;
+import org.noelware.charted.gradle.OperatingSystem;
 import org.noelware.charted.gradle.plugins.docker.Dockerfile;
 
 @DisableCachingByDefault(because = "Docker already caches if enabled, so not worth caching.")
@@ -71,6 +72,12 @@ public class BuildDockerImageTask extends DefaultTask {
 
     @TaskAction
     public void execute() {
+        var current = OperatingSystem.current();
+        if (dockerfile.isPresent() && dockerfile.get().isWindows()) {
+            if (!current.isWindows())
+                throw new IllegalStateException("You must be using Windows to build this image!");
+        }
+
         var shouldUseBuildx = false;
         if (useDockerBuildx.get()) {
             var log = getLogger();
@@ -152,8 +159,6 @@ public class BuildDockerImageTask extends DefaultTask {
         public void execute() {
             var parameters = getParameters();
             var dockerfile = parameters.getDockerfile().get();
-            var projectVersion = parameters.getProjectVersion().get();
-            System.out.println(projectVersion);
             var cacheFrom = parameters.getCacheFrom().getOrNull();
             var cacheTo = parameters.getCacheTo().getOrNull();
             var dockerContext = parameters.getDockerContext().getOrNull();
@@ -181,6 +186,7 @@ public class BuildDockerImageTask extends DefaultTask {
                                         spec.args(".");
                                     }
 
+                                    spec.args("--platform", dockerfile.platform());
                                     spec.args("-f", dockerfile.path());
                                     for (String tag : dockerfile.tags()) {
                                         spec.args("--tag", tag);

@@ -38,14 +38,14 @@ docker {
             "ghcr.io/charted-dev/charted:latest-amd64",
             "ghcr.io/charted-dev/charted:${semver.major}-amd64",
             "ghcr.io/charted-dev/charted:${semver.major}.${semver.minor}-amd64",
-            "ghcr.io/charted-dev/charted:${semver.major}:${semver.minor}.${semver.patch}-amd64"
+            "ghcr.io/charted-dev/charted:${semver.major}.${semver.minor}.${semver.patch}-amd64"
         ),
         false
     ))
 
     addDockerfile(Dockerfile(
         "./arm64.Dockerfile",
-        "linux/amd64",
+        "linux/arm64/v8",
         mapOf("VERSION" to "$VERSION", "COMMIT_SHA" to VERSION.getGitCommit()?.trim()),
         listOf(
             "docker.noelware.org/charted/server:latest-arm64",
@@ -55,7 +55,7 @@ docker {
             "ghcr.io/charted-dev/charted:latest-arm64",
             "ghcr.io/charted-dev/charted:${semver.major}-arm64",
             "ghcr.io/charted-dev/charted:${semver.major}.${semver.minor}-arm64",
-            "ghcr.io/charted-dev/charted:${semver.major}:${semver.minor}.${semver.patch}-arm64"
+            "ghcr.io/charted-dev/charted:${semver.major}.${semver.minor}.${semver.patch}-arm64"
         ),
         false
     ))
@@ -69,10 +69,10 @@ docker {
             "docker.noelware.org/charted/server:${semver.major}-windows",
             "docker.noelware.org/charted/server:${semver.major}.${semver.minor}-windows",
             "docker.noelware.org/charted/server:${semver.major}.${semver.minor}.${semver.patch}-windows",
-            "ghcr.io/charted-dev/charted:windows",
+            "ghcr.io/charted-dev/charted:latest-windows",
             "ghcr.io/charted-dev/charted:${semver.major}-windows",
             "ghcr.io/charted-dev/charted:${semver.major}.${semver.minor}-windows",
-            "ghcr.io/charted-dev/charted:${semver.major}:${semver.minor}.${semver.patch}-windows"
+            "ghcr.io/charted-dev/charted:${semver.major}.${semver.minor}.${semver.patch}-windows"
         ),
         true
     ))
@@ -82,6 +82,56 @@ tasks.register<BuildDockerImageTask>("buildLinux64Image") {
     dockerContext.set(rootProject.projectDir)
     useDockerBuildx by true
     dockerfile by docker.dockerfiles.find { it.platform() == "linux/amd64" }!!
+
+    val shouldCacheFrom = System.getenv("CHARTED_DOCKER_CACHE_FROM")
+    if (shouldCacheFrom != null) {
+        cacheFrom.set(file(shouldCacheFrom))
+    }
+
+    val shouldCacheTo = System.getenv("CHARTED_DOCKER_CACHE_TO")
+    if (shouldCacheTo != null) {
+        cacheTo.set(file(shouldCacheTo))
+    }
+
+    val shouldCacheValue = if (System.getenv("CHARTED_DOCKER_SHOULD_CACHE") != null) {
+        val value = System.getenv("CHARTED_DOCKER_SHOULD_CACHE")
+        value.matches("no|false|0$".toRegex())
+    } else {
+        true
+    }
+
+    shouldCache by shouldCacheValue
+}
+
+tasks.register<BuildDockerImageTask>("buildLinuxArmImage") {
+    dockerContext.set(rootProject.projectDir)
+    useDockerBuildx by true
+    dockerfile by docker.dockerfiles.find { it.platform() == "linux/arm64/v8" }!!
+
+    val shouldCacheFrom = System.getenv("CHARTED_DOCKER_CACHE_FROM")
+    if (shouldCacheFrom != null) {
+        cacheFrom.set(file(shouldCacheFrom))
+    }
+
+    val shouldCacheTo = System.getenv("CHARTED_DOCKER_CACHE_TO")
+    if (shouldCacheTo != null) {
+        cacheTo.set(file(shouldCacheTo))
+    }
+
+    val shouldCacheValue = if (System.getenv("CHARTED_DOCKER_SHOULD_CACHE") != null) {
+        val value = System.getenv("CHARTED_DOCKER_SHOULD_CACHE")
+        value.matches("no|false|0$".toRegex())
+    } else {
+        true
+    }
+
+    shouldCache by shouldCacheValue
+}
+
+tasks.register<BuildDockerImageTask>("buildWindowsImage") {
+    dockerContext.set(rootProject.projectDir)
+    useDockerBuildx by true
+    dockerfile by docker.dockerfiles.find { it.isWindows }!!
 
     val shouldCacheFrom = System.getenv("CHARTED_DOCKER_CACHE_FROM")
     if (shouldCacheFrom != null) {
