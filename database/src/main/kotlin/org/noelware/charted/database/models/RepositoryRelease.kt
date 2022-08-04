@@ -19,6 +19,9 @@ package org.noelware.charted.database.models
 
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import org.noelware.charted.database.entities.RepositoryReleaseEntity
 
 @kotlinx.serialization.Serializable
@@ -32,7 +35,7 @@ data class RepositoryRelease(
     @SerialName("updated_at")
     val updatedAt: LocalDateTime,
     val tag: String,
-    val id: Long
+    val id: String
 ) {
     companion object {
         fun fromEntity(entity: RepositoryReleaseEntity): RepositoryRelease = RepositoryRelease(
@@ -40,18 +43,15 @@ data class RepositoryRelease(
             entity.createdAt,
             entity.updatedAt,
             entity.tag,
-            entity.id.value
+            entity.id.value.toString()
         )
     }
-}
 
-/*
-object RepositoryReleasesTable: SnowflakeTable("repository_releases") {
-    val repository = reference("repository_id", RepositoryTable)
-    val updateText = text("update_text").nullable().default(null)
-    val createdAt = datetime("created_at").default(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()))
-    val updatedAt = datetime("updated_at").default(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()))
-    val tag = text("tag")
+    fun toJsonObject(): JsonObject = buildJsonObject {
+        put("update_text", updateText)
+        put("created_at", createdAt.toString())
+        put("updated_at", updateText.toString())
+        put("tag", tag)
+        put("id", id)
+    }
 }
-
- */

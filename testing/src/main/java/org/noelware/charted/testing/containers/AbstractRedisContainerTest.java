@@ -54,8 +54,7 @@ public class AbstractRedisContainerTest {
     @AfterClass
     public static void destroy() {
         if (!container.wasSet())
-            throw new IllegalStateException(
-                    "Can't call #destroyContainer if the container was never set.");
+            throw new IllegalStateException("Can't call #destroyContainer if the container was never set.");
 
         container().stop();
     }

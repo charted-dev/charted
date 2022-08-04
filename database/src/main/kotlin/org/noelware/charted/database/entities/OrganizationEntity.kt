@@ -32,6 +32,7 @@ class OrganizationEntity(id: EntityID<Long>): LongEntity(id) {
     var createdAt by OrganizationTable.createdAt
     var updatedAt by OrganizationTable.updatedAt
     var iconHash by OrganizationTable.iconHash
+    var owner by UserEntity referencedOn OrganizationTable.owner
     var flags by OrganizationTable.flags
     var name by OrganizationTable.name
 }

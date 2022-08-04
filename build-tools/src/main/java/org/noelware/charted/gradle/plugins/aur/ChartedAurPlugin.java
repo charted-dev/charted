@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
-
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -34,10 +33,9 @@ public class ChartedAurPlugin implements Plugin<Project> {
     public void apply(Project project) {
         if (OperatingSystem.current().isWindows() || OperatingSystem.current().isMacOS()) {
             project.getLogger()
-                    .lifecycle(
-                            "[distribution:aur] Disabled because current host system is Windows or"
-                                + " MacOS. Use the Docker image at `./distribution/aur/Dockerfile`"
-                                + " to publish the AUR package.");
+                    .lifecycle("[distribution:aur] Disabled because current host system is Windows or"
+                            + " MacOS. Use the Docker image at `./distribution/aur/Dockerfile`"
+                            + " to publish the AUR package.");
             return;
         }
 
@@ -49,8 +47,7 @@ public class ChartedAurPlugin implements Plugin<Project> {
             var lines = fd.split("\n");
             for (var line : lines) {
                 var data = line.split("=");
-                metadata.putIfAbsent(
-                        data[0].toLowerCase(Locale.ROOT), data[1].replaceAll("\"", ""));
+                metadata.putIfAbsent(data[0].toLowerCase(Locale.ROOT), data[1].replaceAll("\"", ""));
             }
         } catch (IOException e) {
             throw new GradleException("Unable to read /etc/os-release:", e);
@@ -62,10 +59,9 @@ public class ChartedAurPlugin implements Plugin<Project> {
         var name = metadata.get("name");
         if (!Objects.equals(name, "Arch Linux")) {
             project.getLogger()
-                    .lifecycle(
-                            "[distribution:aur] Current host system is not Arch Linux, please use"
-                                    + " the Docker image as an alternative: `./gradlew"
-                                    + " :distribution:aur:runAurDockerImage`");
+                    .lifecycle("[distribution:aur] Current host system is not Arch Linux, please use"
+                            + " the Docker image as an alternative: `./gradlew"
+                            + " :distribution:aur:runAurDockerImage`");
         }
     }
 }

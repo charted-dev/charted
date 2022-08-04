@@ -32,8 +32,7 @@ import org.testcontainers.utility.DockerImageName;
  */
 public class AbstractCassandraContainerTests {
     private static final SetOnceGetValue<CassandraContainer<?>> container = new SetOnceGetValue<>();
-    private static final Logger log =
-            LoggerFactory.getLogger(AbstractCassandraContainerTests.class);
+    private static final Logger log = LoggerFactory.getLogger(AbstractCassandraContainerTests.class);
 
     public static CassandraContainer<?> getContainer() {
         return container.getValue();
@@ -54,8 +53,7 @@ public class AbstractCassandraContainerTests {
     @AfterClass
     public static void destroy() {
         if (!container.wasSet())
-            throw new IllegalStateException(
-                    "Can't call #destroyContainer if the container was never set.");
+            throw new IllegalStateException("Can't call #destroyContainer if the container was never set.");
 
         var cont = container.getValue();
         cont.stop();

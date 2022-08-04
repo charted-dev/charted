@@ -44,7 +44,7 @@ data class User(
     val username: String,
     val flags: Long = 0L,
     val name: String? = null,
-    val id: Long
+    val id: String
 ) {
     companion object {
         fun fromEntity(entity: UserEntity): User = User(
@@ -56,7 +56,7 @@ data class User(
             entity.username,
             entity.flags,
             entity.name,
-            entity.id.value
+            entity.id.value.toString()
         )
     }
 

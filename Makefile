@@ -23,6 +23,7 @@ build: clean spotless
 
 spotless:
 	@./gradlew spotlessApply
+	@./gradlew :build-tools:spotlessApply
 
 clean:
 	@./gradlew clean

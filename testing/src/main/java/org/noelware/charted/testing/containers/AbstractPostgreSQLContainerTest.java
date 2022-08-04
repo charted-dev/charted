@@ -31,10 +31,8 @@ import org.testcontainers.utility.DockerImageName;
  * @author Noel <cutie@floofy.dev>
  */
 public class AbstractPostgreSQLContainerTest {
-    private static final SetOnceGetValue<PostgreSQLContainer<?>> container =
-            new SetOnceGetValue<>();
-    private static final Logger log =
-            LoggerFactory.getLogger(AbstractPostgreSQLContainerTest.class);
+    private static final SetOnceGetValue<PostgreSQLContainer<?>> container = new SetOnceGetValue<>();
+    private static final Logger log = LoggerFactory.getLogger(AbstractPostgreSQLContainerTest.class);
 
     public static PostgreSQLContainer<?> getContainer() {
         return container.getValue();
@@ -55,8 +53,7 @@ public class AbstractPostgreSQLContainerTest {
     @AfterClass
     public static void destroyContainer() {
         if (!container.wasSet())
-            throw new IllegalStateException(
-                    "Can't call #destroyContainer if the container was never set.");
+            throw new IllegalStateException("Can't call #destroyContainer if the container was never set.");
 
         var cont = container.getValue();
         cont.stop();

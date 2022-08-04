@@ -35,18 +35,16 @@ public class TimeParser {
     private static final Long DAYS = HOURS * 24L;
     private static final Long WEEKS = DAYS * 7;
     private static final Double YEARS = DAYS * 365.25;
-    private static final Pattern REGEX =
-            Pattern.compile(
-                    "^(-?(?:\\d+)?\\.?\\d+)"
-                        + " *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$",
-                    Pattern.CASE_INSENSITIVE);
+    private static final Pattern REGEX = Pattern.compile(
+            "^(-?(?:\\d+)?\\.?\\d+)"
+                    + " *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$",
+            Pattern.CASE_INSENSITIVE);
 
     private TimeParser() {}
 
     public static Long fromString(@NotNull String value) {
         var matcher = REGEX.matcher(value);
-        if (!matcher.matches())
-            throw new IllegalStateException(String.format("Invalid value [%s]", value));
+        if (!matcher.matches()) throw new IllegalStateException(String.format("Invalid value [%s]", value));
 
         var valueAsFloat = Float.parseFloat(matcher.group(1));
         var type = matcher.group(2);
@@ -67,14 +65,12 @@ public class TimeParser {
 
     public static String fromLong(Long value, boolean longSize) {
         if (longSize) {
-            QuadConsumer<Long, Long, Long, String, String> _pluralize =
-                    (ms, msAbs, n, name) -> {
-                        var isPlural = msAbs >= (n * 1.5);
-                        var suffix = isPlural ? "s" : "";
+            QuadConsumer<Long, Long, Long, String, String> _pluralize = (ms, msAbs, n, name) -> {
+                var isPlural = msAbs >= (n * 1.5);
+                var suffix = isPlural ? "s" : "";
 
-                        return String.format(
-                                "%d %s%s", Math.round((double) (ms / n)), name, suffix);
-                    };
+                return String.format("%d %s%s", Math.round((double) (ms / n)), name, suffix);
+            };
 
             var msAbs = Math.abs(value);
             if (msAbs >= YEARS) return _pluralize.accept(value, msAbs, YEARS.longValue(), "year");
@@ -89,10 +85,8 @@ public class TimeParser {
             if (msAbs >= WEEKS) return String.format("%dw", Math.round((double) (value / WEEKS)));
             if (msAbs >= DAYS) return String.format("%dd", Math.round((double) (value / DAYS)));
             if (msAbs >= HOURS) return String.format("%dh", Math.round((double) (value / HOURS)));
-            if (msAbs >= MINUTES)
-                return String.format("%dmin", Math.round((double) (value / MINUTES)));
-            if (msAbs >= SECONDS)
-                return String.format("%ds", Math.round((double) (value / SECONDS)));
+            if (msAbs >= MINUTES) return String.format("%dmin", Math.round((double) (value / MINUTES)));
+            if (msAbs >= SECONDS) return String.format("%ds", Math.round((double) (value / SECONDS)));
         }
 
         return String.format("%dms", value);

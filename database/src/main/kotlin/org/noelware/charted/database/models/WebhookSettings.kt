@@ -17,6 +17,7 @@
 
 package org.noelware.charted.database.models
 
+import kotlinx.serialization.json.*
 import org.noelware.charted.database.entities.WebhookSettingsEntity
 import org.noelware.charted.database.tables.WebhookEvent
 
@@ -26,7 +27,7 @@ data class WebhookSettings(
     val origin: Long,
     val token: String? = null,
     val url: String,
-    val id: Long
+    val id: String
 ) {
     companion object {
         fun fromEntity(entity: WebhookSettingsEntity, showToken: Boolean = false): WebhookSettings = WebhookSettings(
@@ -34,7 +35,16 @@ data class WebhookSettings(
             entity.origin,
             if (showToken) entity.authorization else null,
             entity.url,
-            entity.id.value
+            entity.id.value.toString()
         )
+    }
+
+    fun toJsonObject(): JsonObject = buildJsonObject {
+        put("events", JsonArray(events.map { JsonPrimitive(it.key) }))
+        put("origin", origin)
+        put("url", url)
+        put("id", id)
+
+        if (token != null) put("token", token)
     }
 }

@@ -32,21 +32,17 @@ public class ChartedDockerPlugin implements Plugin<Project> {
 
         var stdout = new ByteArrayOutputStream();
         try {
-            final var result =
-                    project.exec(
-                            spec -> {
-                                spec.setCommandLine("docker");
-                                spec.args("version", "--format='{{.Client.Version}}'");
-                                spec.setStandardOutput(stdout);
-                            });
+            final var result = project.exec(spec -> {
+                spec.setCommandLine("docker");
+                spec.args("version", "--format='{{.Client.Version}}'");
+                spec.setStandardOutput(stdout);
+            });
 
             final var data = stdout.toString();
             if (result.getExitValue() != 0) {
                 project.getLogger()
                         .lifecycle(
-                                "[distribution:docker] Unable to run 'docker version':\n"
-                                        + "[== STDOUT ==]\n\n",
-                                data);
+                                "[distribution:docker] Unable to run 'docker version':\n" + "[== STDOUT ==]\n\n", data);
                 return;
             }
 
@@ -60,19 +56,14 @@ public class ChartedDockerPlugin implements Plugin<Project> {
 
             if (!constraint.isSatisfiedBy(Version.Companion.parse(current, false))) {
                 project.getLogger()
-                        .lifecycle(
-                                String.format(
-                                        "[distribution:docker] Version %s was not satisified by"
-                                                + " constraint %s.",
-                                        current, minVersion));
+                        .lifecycle(String.format(
+                                "[distribution:docker] Version %s was not satisified by" + " constraint %s.",
+                                current, minVersion));
                 return;
             }
 
             project.getLogger()
-                    .lifecycle(
-                            String.format(
-                                    "[distribution:docker] \uD83D\uDC33 Using Docker v%s",
-                                    current));
+                    .lifecycle(String.format("[distribution:docker] \uD83D\uDC33 Using Docker v%s", current));
         } catch (Exception e) {
             project.getLogger().lifecycle("Unable to check if Docker exists on host:", e);
         }

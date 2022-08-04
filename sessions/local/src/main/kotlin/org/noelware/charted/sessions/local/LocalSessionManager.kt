@@ -139,6 +139,14 @@ class LocalSessionManager(
         return redis.commands.hget("charted:sessions", sessionID).await().ifNotNull { json.decodeFromString(this) }
     }
 
+    override suspend fun getSessionById(id: UUID): Session? = redis
+        .commands
+        .hget("charted:sessions", id.toString())
+        .await()
+        .ifNotNull {
+            json.decodeFromString(this)
+        }
+
     /**
      * Creates a session.
      * @param userID The user's ID

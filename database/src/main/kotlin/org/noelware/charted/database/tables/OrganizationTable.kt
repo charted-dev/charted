@@ -31,6 +31,7 @@ object OrganizationTable: SnowflakeTable("organizations") {
     val createdAt = datetime("created_at").default(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()))
     val updatedAt = datetime("updated_at").default(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()))
     val iconHash = text("icon_hash").nullable().default(null)
+    val owner = reference("owner_id", UserTable)
     val flags = long("flags").default(0L)
     val name = varchar("name", 32)
 }

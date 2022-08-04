@@ -34,6 +34,7 @@ include(
     ":common",
     ":core",
     ":database",
+    ":distribution:archives",
     ":distribution:aur",
     ":distribution:chart",
     ":distribution:deb",

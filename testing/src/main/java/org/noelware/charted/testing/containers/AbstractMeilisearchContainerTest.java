@@ -32,8 +32,7 @@ import org.testcontainers.utility.DockerImageName;
  */
 public class AbstractMeilisearchContainerTest {
     private static final SetOnceGetValue<GenericContainer<?>> container = new SetOnceGetValue<>();
-    private static final Logger log =
-            LoggerFactory.getLogger(AbstractMeilisearchContainerTest.class);
+    private static final Logger log = LoggerFactory.getLogger(AbstractMeilisearchContainerTest.class);
 
     public static GenericContainer<?> getContainer() {
         return container.getValue();
@@ -54,8 +53,7 @@ public class AbstractMeilisearchContainerTest {
     @AfterClass
     public static void destroyContainer() {
         if (!container.wasSet())
-            throw new IllegalStateException(
-                    "Can't call #destroyContainer if the container was never set.");
+            throw new IllegalStateException("Can't call #destroyContainer if the container was never set.");
 
         var cont = container.getValue();
         cont.stop();

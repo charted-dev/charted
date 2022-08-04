@@ -46,7 +46,7 @@ data class Repository(
     val flags: Long = 0L,
     val name: String,
     val type: RepoType,
-    val id: Long
+    val id: String
 ) {
     companion object {
         fun fromEntity(entity: RepositoryEntity): Repository = Repository(
@@ -59,7 +59,7 @@ data class Repository(
             entity.flags,
             entity.name,
             entity.type,
-            entity.id.value
+            entity.id.value.toString()
         )
     }
 

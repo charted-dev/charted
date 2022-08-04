@@ -46,7 +46,7 @@ data class Organization(
     val iconHash: String? = null,
     val flags: Long,
     val name: String,
-    val id: Long
+    val id: String
 ) {
     companion object {
         fun fromEntity(entity: OrganizationEntity): Organization = Organization(
@@ -59,7 +59,7 @@ data class Organization(
             entity.iconHash,
             entity.flags,
             entity.name,
-            entity.id.value
+            entity.id.value.toString()
         )
     }
 }

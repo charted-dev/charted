@@ -117,4 +117,13 @@ tasks {
             )
         }
     }
+
+    distZip {
+        archiveFileName by "charted-server.zip"
+    }
+
+    distTar {
+        archiveFileName by "charted-server.tar.gz"
+        compression = Compression.GZIP // use gzip for the compression :>
+    }
 }

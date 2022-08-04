@@ -70,10 +70,7 @@ spotless {
         licenseHeaderFile("${rootProject.projectDir.parentFile}/assets/HEADING")
         trimTrailingWhitespace()
         removeUnusedImports()
+        palantirJavaFormat()
         endWithNewline()
-        googleJavaFormat().apply {
-            reflowLongStrings()
-            aosp()
-        }
     }
 }

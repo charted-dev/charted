@@ -18,6 +18,7 @@
 package org.noelware.charted.sessions
 
 import java.io.Closeable
+import java.util.UUID
 
 /**
  * Represents the manager for handling sessions.
@@ -28,6 +29,12 @@ interface SessionManager: Closeable {
      * @param token The JWT token that the session was created from.
      */
     suspend fun getSession(token: String): Session?
+
+    /**
+     * Retrieves a session by its UUID.
+     * @param id The session's UUID.
+     */
+    suspend fun getSessionById(id: UUID): Session?
 
     /**
      * Creates a session.

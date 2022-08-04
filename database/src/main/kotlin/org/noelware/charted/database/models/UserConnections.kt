@@ -45,7 +45,7 @@ data class UserConnections(
 
     @SerialName("updated_at")
     val updatedAt: LocalDateTime,
-    val id: Long
+    val id: String
 ) {
     companion object {
         fun fromEntity(entity: UserConnectionEntity): UserConnections = UserConnections(
@@ -55,7 +55,7 @@ data class UserConnections(
             entity.appleAccountID,
             entity.createdAt,
             entity.updatedAt,
-            entity.id.value
+            entity.id.value.toString()
         )
     }
 

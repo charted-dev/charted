@@ -149,7 +149,7 @@ class RepositoryEndpoints(
 
     @Put
     suspend fun create(call: ApplicationCall) {
-        val (status, result) = RepositoryController.create(call.currentUser!!.id, call.receive())
+        val (status, result) = RepositoryController.create(call.currentUser!!.id.toLong(), call.receive())
         call.respond(status, result)
     }
 

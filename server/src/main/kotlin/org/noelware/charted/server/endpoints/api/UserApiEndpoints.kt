@@ -39,6 +39,7 @@ import kotlinx.serialization.json.*
 import org.apache.commons.validator.routines.EmailValidator
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.update
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.IRedisClient
@@ -52,11 +53,12 @@ import org.noelware.charted.common.exceptions.ValidationException
 import org.noelware.charted.core.StorageWrapper
 import org.noelware.charted.database.controllers.NewUserBody
 import org.noelware.charted.database.controllers.RepositoryController
-import org.noelware.charted.database.controllers.User2faController
 import org.noelware.charted.database.controllers.UserController
 import org.noelware.charted.database.entities.UserConnectionEntity
 import org.noelware.charted.database.entities.UserEntity
 import org.noelware.charted.database.models.UserConnections
+import org.noelware.charted.database.tables.OrganizationTable
+import org.noelware.charted.database.tables.RepositoryTable
 import org.noelware.charted.database.tables.UserTable
 import org.noelware.charted.server.apiKeyOrNull
 import org.noelware.charted.server.currentUser
@@ -74,6 +76,7 @@ import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.util.*
 
 @kotlinx.serialization.Serializable
 data class LoginBody(
@@ -119,29 +122,42 @@ class UserApiEndpoints(
     private val argon2: Argon2PasswordEncoder
 ): AbstractEndpoint("/users") {
     init {
-        install(HttpMethod.Delete, "/users/@me/logout", Sessions)
+        install(HttpMethod.Delete, "/users/@me/logout", Sessions) {
+            assertSessionOnly()
+        }
+
         install(HttpMethod.Get, "/users/@me/sessions", Sessions) {
             addScope("user:sessions:view")
         }
 
-        install(HttpMethod.Get, "/users/@me/2fa/qr", Sessions) {
+        install(HttpMethod.Delete, "/users/@me/sessions/{sessionId}", Sessions) {
             assertSessionOnly()
         }
 
-        install(HttpMethod.Post, "/users/{id}/2fa/verify", Sessions) {
+//        install(HttpMethod.Get, "/users/@me/2fa/qr", Sessions) {
+//            assertSessionOnly()
+//        }
+//
+//        install(HttpMethod.Post, "/users/{id}/2fa/verify", Sessions) {
+//            assertSessionOnly()
+//        }
+//
+//        install(HttpMethod.Put, "/users/@me/2fa", Sessions) {
+//            assertSessionOnly()
+//        }
+//
+//        install(HttpMethod.Delete, "/users/@me/2fa", Sessions) {
+//            assertSessionOnly()
+//        }
+
+        install(HttpMethod.Delete, "/users", Sessions) {
             assertSessionOnly()
         }
 
-        install(HttpMethod.Put, "/users/@me/2fa", Sessions) {
+        install("/users/@me/refresh_token", Sessions) {
             assertSessionOnly()
         }
 
-        install(HttpMethod.Delete, "/users/@me/2fa", Sessions) {
-            assertSessionOnly()
-        }
-
-        install(HttpMethod.Delete, "/users", Sessions)
-        install("/users/@me/refresh_token", Sessions)
         install("/users/@me/connections", Sessions) {
             addScope("user:connections")
         }
@@ -214,8 +230,18 @@ class UserApiEndpoints(
 
     @Delete
     suspend fun delete(call: ApplicationCall) {
-        UserController.delete(call.currentUser!!.id)
-        sessions.revokeAllSessions(call.currentUser!!.id)
+        UserController.delete(call.currentUser!!.id.toLong())
+        sessions.revokeAllSessions(call.currentUser!!.id.toLong())
+
+        // Delete all the user's repositories
+        asyncTransaction(ChartedScope) {
+            RepositoryTable.deleteWhere { RepositoryTable.owner eq call.currentUser!!.id.toLong() }
+        }
+
+        // Delete all the user's organizations
+        asyncTransaction(ChartedScope) {
+            OrganizationTable.deleteWhere { OrganizationTable.owner eq call.currentUser!!.id.toLong() }
+        }
 
         call.respond(
             HttpStatusCode.Accepted,
@@ -227,7 +253,7 @@ class UserApiEndpoints(
 
     @Get("/@me")
     suspend fun me(call: ApplicationCall) {
-        val user = UserController.get(call.currentUser!!.id)
+        val user = UserController.get(call.currentUser!!.id.toLong())
             ?: return call.respond(
                 HttpStatusCode.NotFound,
                 buildJsonObject {
@@ -252,7 +278,7 @@ class UserApiEndpoints(
 
     @Patch("/@me")
     suspend fun update(call: ApplicationCall) {
-        UserController.update(call.currentUser!!.id, call.receive())
+        UserController.update(call.currentUser!!.id.toLong(), call.receive())
         call.respond(
             HttpStatusCode.OK,
             buildJsonObject {
@@ -267,7 +293,7 @@ class UserApiEndpoints(
     @Get("/@me/connections")
     suspend fun connections(call: ApplicationCall) {
         val connections = asyncTransaction(ChartedScope) {
-            UserConnectionEntity.findById(call.currentUser!!.id)?.let { entity -> UserConnections.fromEntity(entity) }
+            UserConnectionEntity.findById(call.currentUser!!.id.toLong())?.let { entity -> UserConnections.fromEntity(entity) }
         } ?: return call.respond(
             HttpStatusCode.NotFound,
             buildJsonObject {
@@ -292,7 +318,7 @@ class UserApiEndpoints(
 
     @Get("/@me/avatar")
     suspend fun myAvatar(call: ApplicationCall) {
-        val user = UserController.get(call.currentUser!!.id)!!
+        val user = UserController.get(call.currentUser!!.id.toLong())!!
 
         // We'll determine how to use the avatar from Gravatar (if `user.gravatar_email` is not null)
         // or Dicebar Avatars as a last resort.
@@ -398,11 +424,11 @@ class UserApiEndpoints(
             else -> "" // should never happen!
         }
 
-        storage.upload("./avatars/${call.currentUser!!.id}/$hash.$ext", ByteArrayInputStream(data), contentType)
+        storage.upload("./avatars/${call.currentUser!!.id.toLong()}/$hash.$ext", ByteArrayInputStream(data), contentType)
         first.dispose()
 
         asyncTransaction(ChartedScope) {
-            UserTable.update({ UserTable.id eq call.currentUser!!.id }) {
+            UserTable.update({ UserTable.id eq call.currentUser!!.id.toLong() }) {
                 it[avatarHash] = "$hash.$ext"
             }
         }
@@ -443,7 +469,7 @@ class UserApiEndpoints(
 
     @Delete("/@me/logout")
     suspend fun logout(call: ApplicationCall) {
-        sessions.revokeAllSessions(call.currentUser!!.id)
+        sessions.revokeAllSessions(call.currentUser!!.id.toLong())
         call.respond(
             HttpStatusCode.Accepted,
             buildJsonObject {
@@ -462,7 +488,7 @@ class UserApiEndpoints(
             .await()
             .filterValues {
                 val serialized = json.decodeFromString<Session>(it)
-                serialized.userID == call.currentUser!!.id
+                serialized.userID == call.currentUser!!.id.toLong()
             }.map {
                 json.decodeFromString<Session>(it.value)
             }.map { JsonPrimitive(it.sessionID.toString()) }
@@ -475,6 +501,12 @@ class UserApiEndpoints(
                 put("data", result)
             }
         )
+    }
+
+    @Delete("/@me/sessions/{sessionId}")
+    suspend fun revokeSession(call: ApplicationCall) {
+        val sessionId = call.parameters["sessionId"]!!
+        val session = sessions.getSessionById(UUID.fromString(sessionId))
     }
 
     @Get("/{id}")
@@ -651,7 +683,7 @@ class UserApiEndpoints(
 
     @Get("/@me/repositories")
     suspend fun myRepositories(call: ApplicationCall) {
-        val repositories = RepositoryController.getAll(call.currentUser!!.id, true)
+        val repositories = RepositoryController.getAll(call.currentUser!!.id.toLong(), true)
         call.respond(
             HttpStatusCode.OK,
             buildJsonObject {

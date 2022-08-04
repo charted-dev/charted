@@ -32,7 +32,8 @@ data class ApiKeys(
     val scopes: String = "0",
     val token: String? = null,
     val user: User,
-    val name: String
+    val name: String,
+    val id: String
 ) {
     companion object {
         fun fromEntity(entity: ApiKeyEntity, raw: String? = null): ApiKeys = ApiKeys(
@@ -40,7 +41,8 @@ data class ApiKeys(
             entity.scopes.toString(16),
             raw,
             User.fromEntity(entity.owner),
-            entity.name
+            entity.name,
+            entity.id.value.toString()
         )
     }
 
@@ -53,6 +55,7 @@ data class ApiKeys(
 
         put("user", user.toJsonObject())
         put("name", name)
+        put("id", id)
     }
 }
 

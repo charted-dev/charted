@@ -29,19 +29,15 @@ public class ChartedRpmPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         project.getPluginManager().apply("nebula.ospackage-base");
-        ((ExtensionAware) project)
-                .getExtensions()
-                .configure(
-                        "ospackage",
-                        (Action<ProjectPackagingExtension>) extension -> {
-                            extension.setMaintainer("Noelware, LLC. <team@noelware.org>");
-                            extension.setSummary(
-                                    "\uD83D\uDCE6 Free, open source, and reliable Helm Chart"
-                                            + " registry made in Kotlin");
-                            extension.setUrl("https://charts.noelware.org");
+        ((ExtensionAware) project).getExtensions().configure("ospackage", (Action<ProjectPackagingExtension>)
+                extension -> {
+                    extension.setMaintainer("Noelware, LLC. <team@noelware.org>");
+                    extension.setSummary(
+                            "\uD83D\uDCE6 Free, open source, and reliable Helm Chart" + " registry made in Kotlin");
+                    extension.setUrl("https://charts.noelware.org");
 
-                            extension.setPackageDescription(
-                                    """
+                    extension.setPackageDescription(
+                            """
             charted-server is the main backend server for the charted Platform created and
             maintained by Noelware. It serves as a free, reliable, and open source Helm Chart
             registry server for public or private instances to distribute Helm Charts easily
@@ -63,39 +59,30 @@ public class ChartedRpmPlugin implements Plugin<Project> {
             ~ Noelware, LLC. ^-^
             """);
 
-                            var signingPassword = System.getenv("NOELWARE_SIGNING_PASSWORD");
-                            if (signingPassword != null) {
-                                extension.setSigningKeyPassphrase(signingPassword);
-                                extension.setSigningKeyId(
-                                        System.getenv("NOELWARE_SIGNING_KEY_ID"));
+                    var signingPassword = System.getenv("NOELWARE_SIGNING_PASSWORD");
+                    if (signingPassword != null) {
+                        extension.setSigningKeyPassphrase(signingPassword);
+                        extension.setSigningKeyId(System.getenv("NOELWARE_SIGNING_KEY_ID"));
 
-                                var ringPath = System.getenv("NOELWARE_SIGNING_RING_PATH");
-                                extension.setSigningKeyRingFile(
-                                        new File(
-                                                ringPath != null
-                                                        ? ringPath
-                                                        : System.getProperty("user.home"),
-                                                ".gnupg/secring.gpg"));
-                            }
+                        var ringPath = System.getenv("NOELWARE_SIGNING_RING_PATH");
+                        extension.setSigningKeyRingFile(new File(
+                                ringPath != null ? ringPath : System.getProperty("user.home"), ".gnupg/secring.gpg"));
+                    }
 
-                            extension.setPermissionGroup("root");
-                            extension.setFileMode(0644);
-                            extension.setDirMode(0755);
-                            extension.setUser("root");
-                            extension.into("/etc/noelware/charted/server");
-                        });
+                    extension.setPermissionGroup("root");
+                    extension.setFileMode(0644);
+                    extension.setDirMode(0755);
+                    extension.setUser("root");
+                    extension.into("/etc/noelware/charted/server");
+                });
 
         var tasks = project.getTasks();
-        tasks.register(
-                "installRpm",
-                Rpm.class,
-                rpm -> {
-                    rpm.setPackageDescription(
-                            "\uD83D\uDCE6 Free, open source, and reliable Helm Chart registry"
-                                    + " made in Kotlin");
-                    rpm.setRelease("1");
-                    rpm.setMaintainer("Noelware, LLC. <team@noelware.org>");
-                    rpm.setVendor("Noelware, LLC. <team@noelware.org>");
-                });
+        tasks.register("installRpm", Rpm.class, rpm -> {
+            rpm.setPackageDescription(
+                    "\uD83D\uDCE6 Free, open source, and reliable Helm Chart registry" + " made in Kotlin");
+            rpm.setRelease("1");
+            rpm.setMaintainer("Noelware, LLC. <team@noelware.org>");
+            rpm.setVendor("Noelware, LLC. <team@noelware.org>");
+        });
     }
 }

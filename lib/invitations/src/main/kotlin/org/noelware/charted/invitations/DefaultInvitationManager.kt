@@ -74,7 +74,7 @@ class DefaultInvitationManager(
         log.info("Sending out invitation to user [${user.id}]")
 
         val code = RandomGenerator.generate(6)
-        val invitation = Invitation(InvitationAction.JOIN_REPOSITORY, user.id.value, code, repository.id)
+        val invitation = Invitation(InvitationAction.JOIN_REPOSITORY, user.id.value, code, repository.id.toLong())
 
         redis.commands.set(
             "charted:invitations:$code",
@@ -104,7 +104,7 @@ class DefaultInvitationManager(
         log.info("Sending out invitation to user [${user.id}]")
 
         val code = RandomGenerator.generate(6)
-        val invitation = Invitation(InvitationAction.JOIN_ORGANIZATION, user.id.value, code, organization.id)
+        val invitation = Invitation(InvitationAction.JOIN_ORGANIZATION, user.id.value, code, organization.id.toLong())
 
         redis.commands.set(
             "charted:invitations:$code",

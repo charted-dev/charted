@@ -22,7 +22,6 @@ public class StringUnderflowException extends ValidationException {
         super(
                 path,
                 String.format(
-                        "String underflowed from %d characters, need %d more characters.",
-                        maxLen, maxLen - length));
+                        "String underflowed from %d characters, need %d more characters.", maxLen, maxLen - length));
     }
 }

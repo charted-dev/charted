@@ -46,6 +46,6 @@ data class Session(
         }
 
         put("session_id", sessionID.toString())
-        put("user_id", userID)
+        put("user_id", userID.toString())
     }
 }

@@ -57,8 +57,7 @@ public class SHAUtils {
     }
 
     @NotNull
-    public static <T extends @NotNull InputStream> String sha256Checksum(@NotNull T stream)
-            throws IOException {
+    public static <T extends @NotNull InputStream> String sha256Checksum(@NotNull T stream) throws IOException {
         var bytes = stream.readAllBytes();
         return Hashing.sha256().hashBytes(bytes).toString();
     }

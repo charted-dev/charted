@@ -118,7 +118,7 @@ class ApiKeysEndpoints(private val apikeys: ApiKeyManager): AbstractEndpoint("/a
 
     @Get("/all")
     suspend fun all(call: ApplicationCall) {
-        val keys = ApiKeyController.getAll(call.currentUser!!.id)
+        val keys = ApiKeyController.getAll(call.currentUser!!.id.toLong())
         call.respond(
             HttpStatusCode.OK,
             buildJsonObject {
@@ -135,7 +135,7 @@ class ApiKeysEndpoints(private val apikeys: ApiKeyManager): AbstractEndpoint("/a
     @Get("/{name}")
     suspend fun byName(call: ApplicationCall) {
         val name = call.parameters["name"]!!
-        val key = ApiKeyController.get(call.currentUser!!.id, name)
+        val key = ApiKeyController.get(call.currentUser!!.id.toLong(), name)
             ?: return call.respond(
                 HttpStatusCode.NotFound,
                 buildJsonObject {
@@ -184,7 +184,7 @@ class ApiKeysEndpoints(private val apikeys: ApiKeyManager): AbstractEndpoint("/a
 
         val apiKey = apikeys.createApiKey(
             body.name,
-            call.currentUser!!.id,
+            call.currentUser!!.id.toLong(),
             bitfield.bits,
             expiration
         )

@@ -34,14 +34,16 @@ data class RepositoryMember(
 
     @SerialName("joined_at")
     val joinedAt: LocalDateTime,
-    val user: User
+    val user: User,
+    val id: String
 ) {
     companion object {
         fun fromEntity(entity: RepositoryMemberEntity): RepositoryMember = RepositoryMember(
             entity.displayName,
             entity.updatedAt,
             entity.joinedAt,
-            User.fromEntity(entity.account)
+            User.fromEntity(entity.account),
+            entity.id.value.toString()
         )
     }
 
@@ -50,5 +52,6 @@ data class RepositoryMember(
         put("updated_at", updatedAt.toString())
         put("joined_at", joinedAt.toString())
         put("user", user.toJsonObject())
+        put("id", id)
     }
 }

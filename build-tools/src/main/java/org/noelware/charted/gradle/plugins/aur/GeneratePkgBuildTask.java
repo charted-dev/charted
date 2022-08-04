@@ -43,7 +43,8 @@ public class GeneratePkgBuildTask extends DefaultTask {
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final Gson gson = new Gson();
 
-    @InputFile private RegularFileProperty aurTemplateFile;
+    @InputFile
+    private RegularFileProperty aurTemplateFile;
 
     @Inject
     public GeneratePkgBuildTask(ObjectFactory objectFactory) {
@@ -58,10 +59,7 @@ public class GeneratePkgBuildTask extends DefaultTask {
     public void execute() throws IOException, ClassNotFoundException {
         var project = getProject().getRootProject();
         var version = project.getVersion().toString();
-        var bindings =
-                Map.ofEntries(
-                        Map.entry("package.version", version),
-                        Map.entry("package.checksum", "abcdef"));
+        var bindings = Map.ofEntries(Map.entry("package.version", version), Map.entry("package.checksum", "abcdef"));
 
         var templateFile = aurTemplateFile.get().getAsFile();
         var template = templateEngine.createTemplate(new FileReader(templateFile));
@@ -80,12 +78,11 @@ public class GeneratePkgBuildTask extends DefaultTask {
     }
 
     private JsonObject getJsonObjectFrom(URI url) throws IOException, InterruptedException {
-        var request =
-                HttpRequest.newBuilder()
-                        .GET()
-                        .uri(url)
-                        .setHeader("User-Agent", "Noelware/charted-server")
-                        .build();
+        var request = HttpRequest.newBuilder()
+                .GET()
+                .uri(url)
+                .setHeader("User-Agent", "Noelware/charted-server")
+                .build();
 
         var response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
         var data = gson.fromJson(new InputStreamReader(response.body()), JsonObject.class);

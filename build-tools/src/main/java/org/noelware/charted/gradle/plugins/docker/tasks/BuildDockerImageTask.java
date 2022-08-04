@@ -65,17 +65,14 @@ public class BuildDockerImageTask extends DefaultTask {
 
     private String replaceLast(String data, String toReplace, String replacement) {
         var pos = data.lastIndexOf(toReplace);
-        return pos > -1
-                ? data.substring(0, pos) + replacement + data.substring(pos + toReplace.length())
-                : data;
+        return pos > -1 ? data.substring(0, pos) + replacement + data.substring(pos + toReplace.length()) : data;
     }
 
     @TaskAction
     public void execute() {
         var current = OperatingSystem.current();
         if (dockerfile.isPresent() && dockerfile.get().isWindows()) {
-            if (!current.isWindows())
-                throw new IllegalStateException("You must be using Windows to build this image!");
+            if (!current.isWindows()) throw new IllegalStateException("You must be using Windows to build this image!");
         }
 
         var shouldUseBuildx = false;
@@ -84,22 +81,15 @@ public class BuildDockerImageTask extends DefaultTask {
             log.lifecycle("Checking if `buildx` is available...");
 
             var stdout = new ByteArrayOutputStream();
-            var result =
-                    getProject()
-                            .exec(
-                                    (spec) -> {
-                                        spec.setCommandLine("docker");
-                                        spec.args(
-                                                "info",
-                                                "--format",
-                                                "\"{{json .ClientInfo.Plugins}}\"");
-                                        spec.setStandardOutput(stdout);
-                                    });
+            var result = getProject().exec((spec) -> {
+                spec.setCommandLine("docker");
+                spec.args("info", "--format", "\"{{json .ClientInfo.Plugins}}\"");
+                spec.setStandardOutput(stdout);
+            });
 
             if (result.getExitValue() != 0) {
-                log.lifecycle(
-                        "Unable to run 'docker info --format \"{{json .ClientInfo.Plugins}}\"', not"
-                                + " using Docker buildx!");
+                log.lifecycle("Unable to run 'docker info --format \"{{json .ClientInfo.Plugins}}\"', not"
+                        + " using Docker buildx!");
             } else {
                 var stdoutData = replaceLast(stdout.toString().replaceFirst("\"", ""), "\"", "");
                 var plugins = gson.fromJson(stdoutData, JsonArray.class);
@@ -119,11 +109,10 @@ public class BuildDockerImageTask extends DefaultTask {
                 if (found == null) {
                     log.lifecycle("Docker Buildx plugin wasn't found in client tree, skipping.");
                 } else {
-                    log.lifecycle(
-                            String.format(
-                                    "Found Docker Buildx plugin %s in [%s]",
-                                    found.getAsJsonPrimitive("Version").getAsString(),
-                                    found.getAsJsonPrimitive("Path").getAsString()));
+                    log.lifecycle(String.format(
+                            "Found Docker Buildx plugin %s in [%s]",
+                            found.getAsJsonPrimitive("Version").getAsString(),
+                            found.getAsJsonPrimitive("Path").getAsString()));
 
                     shouldUseBuildx = true;
                 }
@@ -131,20 +120,24 @@ public class BuildDockerImageTask extends DefaultTask {
         }
 
         boolean finalShouldUseBuildx = shouldUseBuildx;
-        workerExecutor
-                .noIsolation()
-                .submit(
-                        BuildDockerImage.class,
-                        params -> {
-                            params.getDockerfile().set(dockerfile);
-                            params.getProjectVersion()
-                                    .set((String) getProject().getRootProject().getVersion());
-                            params.getCacheFrom().set(cacheFrom);
-                            params.getCacheTo().set(cacheTo);
-                            params.getDockerContext().set(dockerContext);
-                            params.getShouldCache().set(shouldCache);
-                            params.getDockerBuildxAvailable().set(finalShouldUseBuildx);
-                        });
+        workerExecutor.noIsolation().submit(BuildDockerImage.class, params -> {
+            params.getDockerfile().set(dockerfile);
+            params.getProjectVersion()
+                    .set((String) getProject().getRootProject().getVersion());
+            params.getCacheFrom().set(cacheFrom);
+            params.getCacheTo().set(cacheTo);
+            params.getDockerContext().set(dockerContext);
+            params.getShouldCache().set(shouldCache);
+            params.getDockerBuildxAvailable().set(finalShouldUseBuildx);
+        });
+
+        var isCi = System.getenv("CI") != null;
+        if (isCi) {
+            var df = dockerfile.get();
+            var images = String.join(" ", df.tags());
+
+            System.out.printf("::set-output name=images::%s%n", images);
+        }
     }
 
     public abstract static class BuildDockerImage implements WorkAction<Parameters> {
@@ -166,61 +159,50 @@ public class BuildDockerImageTask extends DefaultTask {
             var isDockerBuildxAvailable = parameters.getDockerBuildxAvailable().getOrElse(false);
 
             try {
-                var result =
-                        this.operations.exec(
-                                (spec) -> {
-                                    spec.setCommandLine("docker");
-                                    spec.setStandardOutput(System.out);
-                                    spec.setErrorOutput(System.err);
-                                    spec.setIgnoreExitValue(true);
+                var result = this.operations.exec((spec) -> {
+                    spec.setCommandLine("docker");
+                    spec.setStandardOutput(System.out);
+                    spec.setErrorOutput(System.err);
+                    spec.setIgnoreExitValue(true);
 
-                                    if (isDockerBuildxAvailable) {
-                                        spec.args("buildx", "build");
-                                    } else {
-                                        spec.args("build");
-                                    }
+                    if (isDockerBuildxAvailable) {
+                        spec.args("buildx", "build");
+                    } else {
+                        spec.args("build");
+                    }
 
-                                    if (dockerContext != null) {
-                                        spec.args(dockerContext.getAsFile().getAbsolutePath());
-                                    } else {
-                                        spec.args(".");
-                                    }
+                    if (dockerContext != null) {
+                        spec.args(dockerContext.getAsFile().getAbsolutePath());
+                    } else {
+                        spec.args(".");
+                    }
 
-                                    spec.args("--platform", dockerfile.platform());
-                                    spec.args("-f", dockerfile.path());
-                                    for (String tag : dockerfile.tags()) {
-                                        spec.args("--tag", tag);
-                                    }
+                    spec.args("--platform", dockerfile.platform());
+                    spec.args("-f", dockerfile.path());
+                    for (String tag : dockerfile.tags()) {
+                        spec.args("--tag", tag);
+                    }
 
-                                    if (cacheFrom != null) {
-                                        spec.args(
-                                                "--cache-from",
-                                                cacheFrom.getAsFile().getAbsolutePath());
-                                    }
+                    if (cacheFrom != null) {
+                        spec.args("--cache-from", cacheFrom.getAsFile().getAbsolutePath());
+                    }
 
-                                    if (cacheTo != null) {
-                                        spec.args(
-                                                "--cache-to",
-                                                cacheTo.getAsFile().getAbsolutePath());
-                                    }
+                    if (cacheTo != null) {
+                        spec.args("--cache-to", cacheTo.getAsFile().getAbsolutePath());
+                    }
 
-                                    if (!shouldCache) {
-                                        spec.args("--no-cache");
-                                    }
+                    if (!shouldCache) {
+                        spec.args("--no-cache");
+                    }
 
-                                    for (Map.Entry<String, String> buildArgs :
-                                            dockerfile.buildArguments().entrySet()) {
-                                        spec.args(
-                                                "--build-arg",
-                                                String.format(
-                                                        "%s=%s",
-                                                        buildArgs.getKey(), buildArgs.getValue()));
-                                    }
-                                });
+                    for (Map.Entry<String, String> buildArgs :
+                            dockerfile.buildArguments().entrySet()) {
+                        spec.args("--build-arg", String.format("%s=%s", buildArgs.getKey(), buildArgs.getValue()));
+                    }
+                });
 
                 if (result.getExitValue() != 0) {
-                    throw new Exception(
-                            "Unable to build Docker image (^ view output above to see why!)");
+                    throw new Exception("Unable to build Docker image (^ view output above to see why!)");
                 }
             } catch (Exception e) {
                 throw new RuntimeException("Unable to build Docker image", e);

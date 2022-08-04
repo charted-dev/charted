@@ -35,11 +35,9 @@ import org.testcontainers.utility.DockerImageName;
  * @author Noel <cutie@floofy.dev>
  */
 public class AbstractElasticsearchContainerTest {
-    private static final SetOnceGetValue<ElasticsearchContainer> container =
-            new SetOnceGetValue<>();
+    private static final SetOnceGetValue<ElasticsearchContainer> container = new SetOnceGetValue<>();
 
-    private static final Logger log =
-            LoggerFactory.getLogger(AbstractElasticsearchContainerTest.class);
+    private static final Logger log = LoggerFactory.getLogger(AbstractElasticsearchContainerTest.class);
 
     public static ElasticsearchContainer getContainer() {
         return container.getValue();
@@ -49,17 +47,15 @@ public class AbstractElasticsearchContainerTest {
     public static void startElasticsearchContainer() {
         log.info("Starting Elasticsearch container...");
 
-        var image =
-                DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch")
-                        .withTag("8.3.0");
+        var image = DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch")
+                .withTag("8.3.0");
 
         var cont = new ElasticsearchContainer(image);
-        cont.setEnv(
-                List.of(
-                        "ES_JAVA_OPTS=-Xms1024m -Xmx4096m",
-                        "node.name=charted-es-0",
-                        "cluster.name=charted-es-cluster",
-                        "network.host=0.0.0.0"));
+        cont.setEnv(List.of(
+                "ES_JAVA_OPTS=-Xms1024m -Xmx4096m",
+                "node.name=charted-es-0",
+                "cluster.name=charted-es-cluster",
+                "network.host=0.0.0.0"));
 
         cont.setWaitStrategy(new HttpWaitStrategy().forPort(9200));
 
@@ -70,8 +66,7 @@ public class AbstractElasticsearchContainerTest {
     @AfterClass
     public static void destroyContainer() {
         if (!container.wasSet())
-            throw new IllegalStateException(
-                    "Can't call #destroyContainer if the container was never set.");
+            throw new IllegalStateException("Can't call #destroyContainer if the container was never set.");
 
         var cont = container.getValue();
         cont.stop();

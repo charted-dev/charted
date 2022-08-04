@@ -22,9 +22,5 @@ import java.util.List;
 import java.util.Map;
 
 public record Dockerfile(
-        String path,
-        String platform,
-        Map<String, String> buildArguments,
-        List<String> tags,
-        boolean isWindows)
+        String path, String platform, Map<String, String> buildArguments, List<String> tags, boolean isWindows)
         implements Serializable {}

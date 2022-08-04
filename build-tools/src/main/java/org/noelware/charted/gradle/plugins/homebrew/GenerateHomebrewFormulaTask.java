@@ -45,7 +45,8 @@ public class GenerateHomebrewFormulaTask extends DefaultTask {
     private final HttpClient client = HttpClient.newHttpClient();
     private final Gson gson = new Gson();
 
-    @InputFile private RegularFileProperty homebrewFormulaFile;
+    @InputFile
+    private RegularFileProperty homebrewFormulaFile;
 
     @Inject
     public GenerateHomebrewFormulaTask(ObjectFactory objectFactory) {
@@ -61,16 +62,12 @@ public class GenerateHomebrewFormulaTask extends DefaultTask {
         var project = getProject().getRootProject();
         var description = project.getDescription();
         var version = project.getVersion().toString();
-        var bindings =
-                Map.ofEntries(
-                        Map.entry("description", description),
-                        Map.entry("version", version),
-                        Map.entry("url", "https://boop.com"),
-                        Map.entry("checksum", "abcdef"),
-                        Map.entry(
-                                "generatedAt",
-                                new SimpleDateFormat("MMM dd, YYYY 'at' HH:mm:ss")
-                                        .format(new Date())));
+        var bindings = Map.ofEntries(
+                Map.entry("description", description),
+                Map.entry("version", version),
+                Map.entry("url", "https://boop.com"),
+                Map.entry("checksum", "abcdef"),
+                Map.entry("generatedAt", new SimpleDateFormat("MMM dd, YYYY 'at' HH:mm:ss").format(new Date())));
 
         var homebrewFile = this.homebrewFormulaFile.get().getAsFile();
         var template = templateEngine.createTemplate(new FileReader(homebrewFile));
@@ -89,12 +86,11 @@ public class GenerateHomebrewFormulaTask extends DefaultTask {
     }
 
     private JsonObject getJsonObjectFrom(URI url) throws IOException, InterruptedException {
-        var request =
-                HttpRequest.newBuilder()
-                        .GET()
-                        .uri(url)
-                        .setHeader("User-Agent", "Noelware/charted-server")
-                        .build();
+        var request = HttpRequest.newBuilder()
+                .GET()
+                .uri(url)
+                .setHeader("User-Agent", "Noelware/charted-server")
+                .build();
 
         var response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
         var data = gson.fromJson(new InputStreamReader(response.body()), JsonObject.class);

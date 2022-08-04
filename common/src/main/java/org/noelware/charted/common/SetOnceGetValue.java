@@ -33,9 +33,7 @@ public class SetOnceGetValue<T> {
     private @Nullable T value;
 
     public @NotNull T getValue() {
-        if (value == null)
-            throw new IllegalStateException("Cannot retrieve the value due to it not being set.");
-
+        if (value == null) throw new IllegalStateException("Cannot retrieve the value due to it not being set.");
         return value;
     }
 
@@ -69,7 +67,6 @@ public class SetOnceGetValue<T> {
 
     @Override
     public String toString() {
-        return String.format(
-                "charted.SetOnceGetValue(%s)", value == null ? "<uninit>" : value.toString());
+        return String.format("charted.SetOnceGetValue(%s)", value == null ? "<uninit>" : value.toString());
     }
 }

@@ -21,7 +21,6 @@ import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import com.zaxxer.hikari.util.IsolationLevel
 import dev.floofy.haru.Scheduler
 import dev.floofy.utils.koin.inject
 import dev.floofy.utils.koin.injectOrNull
@@ -272,7 +271,7 @@ object Bootstrap {
 
         val ds = HikariDataSource(
             HikariConfig().apply {
-                transactionIsolation = IsolationLevel.TRANSACTION_REPEATABLE_READ.name
+                // transactionIsolation = IsolationLevel.TRANSACTION_REPEATABLE_READ.name
                 leakDetectionThreshold = 30.seconds.inWholeMilliseconds
                 driverClassName = "org.postgresql.Driver"
                 isAutoCommit = false
