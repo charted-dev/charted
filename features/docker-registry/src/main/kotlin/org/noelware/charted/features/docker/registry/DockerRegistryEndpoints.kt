@@ -15,20 +15,9 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-    //`charted-test`
-}
+package org.noelware.charted.features.docker.registry
 
-dependencies {
-    implementation("org.noelware.ktor:core:0.3.1-beta")
-    implementation(project(":lib:metrics"))
-    implementation(project(":lib:stats"))
-    implementation(project(":database"))
+import org.noelware.ktor.endpoints.AbstractEndpoint
 
-//    testImplementation("io.ktor:ktor-serialization-kotlinx-json")
-//    testImplementation("io.ktor:ktor-client-content-negotiation")
-//    testImplementation("io.ktor:ktor-server-test-host")
-//    testImplementation("io.ktor:ktor-client-logging")
-//    testImplementation("io.ktor:ktor-client-okhttp")
-}
+// we have to prefix it with `/v2` so it can work with `helm push`/`helm pull`.
+class DockerRegistryEndpoints(private val registry: DockerRegistry): AbstractEndpoint("/v2")

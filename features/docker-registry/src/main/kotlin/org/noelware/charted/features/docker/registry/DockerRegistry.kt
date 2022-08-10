@@ -15,20 +15,12 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-    //`charted-test`
-}
+package org.noelware.charted.features.docker.registry
 
-dependencies {
-    implementation("org.noelware.ktor:core:0.3.1-beta")
-    implementation(project(":lib:metrics"))
-    implementation(project(":lib:stats"))
-    implementation(project(":database"))
+import java.io.Closeable
 
-//    testImplementation("io.ktor:ktor-serialization-kotlinx-json")
-//    testImplementation("io.ktor:ktor-client-content-negotiation")
-//    testImplementation("io.ktor:ktor-server-test-host")
-//    testImplementation("io.ktor:ktor-client-logging")
-//    testImplementation("io.ktor:ktor-client-okhttp")
-}
+/**
+ * Represents using the OCI registry specification for storing Helm Charts. It acts like the same way
+ * the official implementation works but with charted's user management system and such.
+ */
+interface DockerRegistry: Closeable

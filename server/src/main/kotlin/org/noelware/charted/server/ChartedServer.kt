@@ -24,7 +24,6 @@ import dev.floofy.utils.koin.retrieve
 import dev.floofy.utils.kotlin.ifNotNull
 import dev.floofy.utils.slf4j.logging
 import io.ktor.http.*
-import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -50,9 +49,7 @@ import org.noelware.charted.analytics.AnalyticsServer
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.SetOnceGetValue
 import org.noelware.charted.common.data.Config
-import org.noelware.charted.common.data.Feature
 import org.noelware.charted.common.exceptions.ValidationException
-import org.noelware.charted.features.docker.registry.DockerRegistryPlugin
 import org.noelware.charted.server.endpoints.proxyStorageTrailer
 import org.noelware.charted.server.jobs.ReconfigureProxyCdnJob
 import org.noelware.charted.server.plugins.Logging
@@ -96,15 +93,6 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
                 install(DoubleReceive)
                 install(RequestMdc)
                 install(Logging)
-
-                if (self.config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
-                    install(DockerRegistryPlugin) {
-                        basicAuth = self.config.ociProxy!!.auth
-                        port = self.config.ociProxy!!.port
-                        host = self.config.ociProxy!!.host
-                        ssl = self.config.ociProxy!!.ssl
-                    }
-                }
 
                 if (Sentry.isEnabled()) {
                     install(org.noelware.charted.server.plugins.Sentry)

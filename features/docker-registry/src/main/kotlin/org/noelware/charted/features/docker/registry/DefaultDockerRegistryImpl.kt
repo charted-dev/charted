@@ -15,20 +15,14 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-    //`charted-test`
-}
+package org.noelware.charted.features.docker.registry
 
-dependencies {
-    implementation("org.noelware.ktor:core:0.3.1-beta")
-    implementation(project(":lib:metrics"))
-    implementation(project(":lib:stats"))
-    implementation(project(":database"))
+import dev.floofy.utils.slf4j.logging
 
-//    testImplementation("io.ktor:ktor-serialization-kotlinx-json")
-//    testImplementation("io.ktor:ktor-client-content-negotiation")
-//    testImplementation("io.ktor:ktor-server-test-host")
-//    testImplementation("io.ktor:ktor-client-logging")
-//    testImplementation("io.ktor:ktor-client-okhttp")
+class DefaultDockerRegistryImpl: DockerRegistry {
+    private val log by logging<DefaultDockerRegistryImpl>()
+
+    override fun close() {
+        // TODO: this
+    }
 }

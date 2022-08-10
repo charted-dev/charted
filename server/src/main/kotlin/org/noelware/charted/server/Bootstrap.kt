@@ -70,6 +70,10 @@ import org.noelware.charted.database.tables.*
 import org.noelware.charted.email.DefaultEmailService
 import org.noelware.charted.email.EmailService
 import org.noelware.charted.features.audits.auditLogsModule
+import org.noelware.charted.features.docker.registry.DockerRegistryMetrics
+import org.noelware.charted.features.docker.registry.dockerRegistryModule
+import org.noelware.charted.features.docker.registry.tables.BlobTable
+import org.noelware.charted.features.docker.registry.tables.ContainersTable
 import org.noelware.charted.features.webhooks.webhooksModule
 import org.noelware.charted.invitations.DefaultInvitationManager
 import org.noelware.charted.invitations.InvitationManager
@@ -82,6 +86,7 @@ import org.noelware.charted.server.websockets.shutdownTickers
 import org.noelware.charted.sessions.SessionManager
 import org.noelware.charted.sessions.integrations.github.githubIntegration
 import org.noelware.charted.sessions.local.LocalSessionManager
+import org.noelware.charted.stats.StatisticsCollector
 import java.io.File
 import java.io.IOError
 import java.lang.management.ManagementFactory
@@ -266,7 +271,8 @@ object Bootstrap {
         log.info("Retrieved configuration in path $configFile! Now connecting to PostgreSQL...")
 
         // Enable debug probes for Noelware Analytics and the administration
-        // dashboard via Pak.
+        // dashboard via Pak. The stacktraces for the coroutines are only allowed
+        // in debug mode since it can cause issues when using in production.
         DebugProbes.enableCreationStackTraces = config.debug
         DebugProbes.install()
 
@@ -316,6 +322,13 @@ object Bootstrap {
                 WebhookSettingsTable,
                 User2faTable
             )
+
+            if (config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
+                SchemaUtils.createMissingTablesAndColumns(
+                    BlobTable,
+                    ContainersTable
+                )
+            }
         }
 
         log.info("Connected to PostgreSQL! Creating storage provider...")
@@ -388,6 +401,11 @@ object Bootstrap {
         val analytics = if (config.analytics != null) AnalyticsServer(config.analytics!!) else null
         val server = ChartedServer(config, analytics)
         val metrics = PrometheusMetrics(ds, redis)
+        val stats = StatisticsCollector().apply {
+            if (elasticsearch != null) {
+                register("elasticsearch" to elasticsearch)
+            }
+        }
 
         val module = module {
             single<InvitationManager> { invitations }
@@ -399,6 +417,7 @@ object Bootstrap {
             single { wrapper }
             single { config }
             single { server }
+            single { stats }
             single { yaml }
             single { json }
             single { ds }
@@ -449,6 +468,13 @@ object Bootstrap {
             }
 
             modules.add(webhooksModule)
+        }
+
+        if (config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
+            log.info("Using Docker Registry specification instead of Helm Charts!")
+            modules.add(dockerRegistryModule)
+
+            metrics.addCollector(DockerRegistryMetrics())
         }
 
         if (config.sessions.integrations.github != null) {
