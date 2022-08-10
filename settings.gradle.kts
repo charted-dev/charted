@@ -54,6 +54,7 @@ include(
     ":lib:invitations",
     ":lib:meilisearch",
     ":lib:metrics",
+    ":lib:stats",
     ":lib:telemetry",
     ":server",
     ":sessions",

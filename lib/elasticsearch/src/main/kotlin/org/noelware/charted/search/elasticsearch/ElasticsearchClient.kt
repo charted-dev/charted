@@ -49,6 +49,8 @@ import org.noelware.charted.common.extensions.measureSuspendTime
 import org.noelware.charted.common.extensions.measureTime
 import org.noelware.charted.database.tables.UserTable
 import org.noelware.charted.search.elasticsearch.index.Index
+import org.noelware.charted.stats.StatCollector
+import org.noelware.charted.stats.StatisticsCollector
 import java.io.ByteArrayOutputStream
 import java.io.Closeable
 import java.nio.file.Files
@@ -62,7 +64,7 @@ class ElasticsearchClient(
     private val config: ElasticsearchConfig,
     private val json: Json = Json,
     private val indexDataWhenInitialized: Boolean = true
-): Closeable {
+): Closeable, StatCollector<ElasticsearchStats> {
     private val _serverVersion: SetOnceGetValue<String> = SetOnceGetValue()
     private val _clusterInfo: SetOnceGetValue<Pair<String, String>> = SetOnceGetValue() // Pair<Name, UUID>
     private val _closed: AtomicBoolean = AtomicBoolean(false)
@@ -189,6 +191,58 @@ class ElasticsearchClient(
         log.measureTime("Closed REST client in %T") {
             client.closeQuietly()
         }
+    }
+
+    override suspend fun collect(): ElasticsearchStats {
+        val config: Config by inject()
+        val indexStats = mutableMapOf<String, IndexStats>()
+        val indexes = Index.indexes.toMutableList()
+
+        if (config.isFeatureEnabled(Feature.AUDIT_LOGS)) {
+            indexes.add(Index.AUDIT_LOGS)
+        }
+
+        if (config.isFeatureEnabled(Feature.WEBHOOKS)) {
+            indexes.add(Index.WEBHOOK_EVENTS)
+        }
+
+        var deletedDocs: Long = 0
+        var sizeInBytes: Long = 0
+        var documents: Long = 0
+
+        try {
+            // Index statistics
+            val indexStat = client.performRequest(Request("GET", "/${indexes.joinToString(",") { it.name }}/_stats"))
+            val allStats = client.performRequest(Request("GET", "/_stats"))
+
+            // Collect main stats
+            val allStatData = json.decodeFromStream<JsonObject>(allStats.entity.content)
+            val indexStatData = json.decodeFromStream<JsonObject>(indexStat.entity.content)
+
+            deletedDocs = allStatData["_all"]!!.jsonObject["total"]!!.jsonObject["docs"]!!.jsonObject["deleted"]!!.jsonPrimitive.long
+            sizeInBytes = allStatData["_all"]!!.jsonObject["total"]!!.jsonObject["store"]!!.jsonObject["size_in_bytes"]!!.jsonPrimitive.long
+            documents = allStatData["_all"]!!.jsonObject["total"]!!.jsonObject["docs"]!!.jsonObject["count"]!!.jsonPrimitive.long
+
+            for (index in indexes) {
+                val d = indexStatData["indices"]!!.jsonObject[index.name]!!.jsonObject
+
+                indexStats[index.name] = IndexStats(
+                    d["primaries"]!!.jsonObject["store"]!!.jsonObject["size_in_bytes"]!!.jsonPrimitive.long,
+                    d["primaries"]!!.jsonObject["docs"]!!.jsonObject["count"]!!.jsonPrimitive.long,
+                    d["primaries"]!!.jsonObject["docs"]!!.jsonObject["deleted"]!!.jsonPrimitive.long,
+                    d["health"]!!.jsonPrimitive.content
+                )
+            }
+        } catch (e: Exception) {
+            log.error("Unable to retrieve index stats:", e)
+        }
+
+        return ElasticsearchStats(
+            documents,
+            sizeInBytes,
+            deletedDocs,
+            indexStats.toMap()
+        )
     }
 
     fun search(
@@ -360,57 +414,5 @@ class ElasticsearchClient(
                 }
             }
         }
-    }
-
-    fun info(): ElasticsearchStats {
-        val config: Config by inject()
-        val indexStats = mutableMapOf<String, IndexStats>()
-        val indexes = Index.indexes.toMutableList()
-
-        if (config.isFeatureEnabled(Feature.AUDIT_LOGS)) {
-            indexes.add(Index.AUDIT_LOGS)
-        }
-
-        if (config.isFeatureEnabled(Feature.WEBHOOKS)) {
-            indexes.add(Index.WEBHOOK_EVENTS)
-        }
-
-        var deletedDocs: Long = 0
-        var sizeInBytes: Long = 0
-        var documents: Long = 0
-
-        try {
-            // Index statistics
-            val indexStat = client.performRequest(Request("GET", "/${indexes.joinToString(",") { it.name }}/_stats"))
-            val allStats = client.performRequest(Request("GET", "/_stats"))
-
-            // Collect main stats
-            val allStatData = json.decodeFromStream<JsonObject>(allStats.entity.content)
-            val indexStatData = json.decodeFromStream<JsonObject>(indexStat.entity.content)
-
-            deletedDocs = allStatData["_all"]!!.jsonObject["total"]!!.jsonObject["docs"]!!.jsonObject["deleted"]!!.jsonPrimitive.long
-            sizeInBytes = allStatData["_all"]!!.jsonObject["total"]!!.jsonObject["store"]!!.jsonObject["size_in_bytes"]!!.jsonPrimitive.long
-            documents = allStatData["_all"]!!.jsonObject["total"]!!.jsonObject["docs"]!!.jsonObject["count"]!!.jsonPrimitive.long
-
-            for (index in indexes) {
-                val d = indexStatData["indices"]!!.jsonObject[index.name]!!.jsonObject
-
-                indexStats[index.name] = IndexStats(
-                    d["primaries"]!!.jsonObject["store"]!!.jsonObject["size_in_bytes"]!!.jsonPrimitive.long,
-                    d["primaries"]!!.jsonObject["docs"]!!.jsonObject["count"]!!.jsonPrimitive.long,
-                    d["primaries"]!!.jsonObject["docs"]!!.jsonObject["deleted"]!!.jsonPrimitive.long,
-                    d["health"]!!.jsonPrimitive.content
-                )
-            }
-        } catch (e: Exception) {
-            log.error("Unable to retrieve index stats:", e)
-        }
-
-        return ElasticsearchStats(
-            documents,
-            sizeInBytes,
-            deletedDocs,
-            indexStats.toMap()
-        )
     }
 }

@@ -37,6 +37,7 @@ import org.jetbrains.exposed.sql.update
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.Snowflake
 import org.noelware.charted.common.exceptions.StringOverflowException
+import org.noelware.charted.common.exceptions.StringUnderflowException
 import org.noelware.charted.common.exceptions.ValidationException
 import org.noelware.charted.database.entities.UserConnectionEntity
 import org.noelware.charted.database.entities.UserEntity
@@ -57,6 +58,18 @@ data class NewUserBody(
 
         if (username.length > 64) {
             throw StringOverflowException("body.path", 64)
+        }
+
+        if (!username.matches("^([A-z]|-|_|\\d{0,9}){0,16}".toRegex())) {
+            throw ValidationException("body.username", "Username can only contain letters, digits, dashes, or underscores.")
+        }
+
+        if (password.length < 8) {
+            throw StringUnderflowException("body.password", password.length, 8)
+        }
+
+        if (!password.matches("^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#\$%&? \"])?.*\$".toRegex())) {
+            throw ValidationException("body.password", "Password can only contain letters, digits, and special characters.")
         }
     }
 }

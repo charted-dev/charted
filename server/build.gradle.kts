@@ -67,12 +67,13 @@ dependencies {
     implementation(project(":lib:metrics"))
     implementation(project(":lib:apikeys"))
     implementation(project(":lib:email"))
+    implementation(project(":lib:stats"))
     implementation(project(":sessions"))
     implementation(project(":database"))
     implementation(project(":core"))
 
     // JWT
-    implementation("com.auth0:java-jwt:3.19.2")
+    implementation("com.auth0:java-jwt:4.0.0")
 
     // Just for Log4j/JCL -> slf4j
     implementation("org.slf4j:log4j-over-slf4j:1.7.36")

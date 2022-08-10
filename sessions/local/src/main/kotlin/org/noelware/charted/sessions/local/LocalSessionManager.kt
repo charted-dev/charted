@@ -167,7 +167,7 @@ class LocalSessionManager(
                 )
             ).sign(algorithm)
 
-        // Create a "long-lived" token that can be refreshed after the 12 hour
+        // Create a "long-lived" token that can be refreshed after the 12-hour
         // period is up. If you're just doing API requests and not session management,
         // it is best recommended to go with an API key which allow a permissions system
         // to not mess around with any data.

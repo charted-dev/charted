@@ -1,28 +1,32 @@
-# ClickHouse Migrations for charted-server
+# Cassandra Migrations for charted-server
 This is a main CLI tool to run ClickHouse migrations on a ClickHouse cluster.
 
 ## Usage
 ### Docker
 ```shell
-$ docker run --rm /charted/ch-migrations --help
-Runs the ClickHouse migrations for charted-server.
+$ docker run --rm docker.noelware.org/charted/migrations:latest --help
+Runs the Cassandra migrations for charted-server
 
 Usage:
-  ch:migrations [ARGS...] [flags]
+  migrations [ARGS...] [flags]
 
 Flags:
-  -c, --cluster string    The cluster name to create the tables if ClickHouse is distributed.
-  -d, --db string         The database name (default "charted")
-  -h, --help              help for ch:migrations
-      --host string       The host to connect to your ClickHouse server (default "127.0.0.1")
-  -p, --password string   The password to connect to your ClickHouse server if authentication is enabled [env: CLICKHOUSE_AUTH_PASSWORD]
-      --port int          The port to connect to your ClickHouse server (default 9000)
-  -u, --username string   The username to connect to your ClickHouse server if authentication is enabled [env: CLICKHOUSE_AUTH_USERNAME]
+  -h, --help              help for migrations
+      --hosts strings     The cluster hosts to connect to (default [127.0.0.1])
+  -k, --keyspace string   The keyspace to run migrations on. (default "charted")
+  -p, --password string   The password to connect to your Cassandra cluster if authentication is enabled. [env: CASSANDRA_PASSWORD]
+      --port int          The port to connect to your Cassandra cluster (default 9042)
+      --protocol int      Cassandra protocol to use.
+      --table string      The migrations table to use (default "migrations")
+  -t, --timeout string    The dial timeout to use when connecting. (default "1m")
+  -u, --username string   The username to connect to your Cassandra cluster if authentication is enabled. [env: CASSANDRA_USERNAME]
+      --version int32     The migration version to run.
+
 ```
 
 ### Binary
 ```shell
 $ cd tools/migrations
-$ go build -o ./bin/ch-migrations # append `.exe` if on Windows
-$ ./bin/ch-migrations[.exe]
+$ go build -o ./bin/migrations # append `.exe` if on Windows
+$ ./bin/migrations[.exe]
 ```

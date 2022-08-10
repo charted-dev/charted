@@ -57,6 +57,7 @@ import org.noelware.charted.common.IRedisClient
 import org.noelware.charted.common.data.Config
 import org.noelware.charted.common.data.Feature
 import org.noelware.charted.common.data.helm.RepoType
+import org.noelware.charted.common.extensions.formatToSize
 import org.noelware.charted.core.StorageWrapper
 import org.noelware.charted.core.interceptors.LogInterceptor
 import org.noelware.charted.core.interceptors.SentryInterceptor

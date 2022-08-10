@@ -22,6 +22,7 @@ package org.noelware.charted.server.endpoints.api
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlException
 import com.charleskorn.kaml.decodeFromStream
+import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.slf4j.logging
 import io.ktor.http.*
 import io.ktor.http.content.*
@@ -35,6 +36,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
+import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.SHAUtils
 import org.noelware.charted.common.data.Config
 import org.noelware.charted.common.data.Feature
@@ -45,6 +47,9 @@ import org.noelware.charted.common.data.helm.ChartSpec
 import org.noelware.charted.core.StorageWrapper
 import org.noelware.charted.database.controllers.RepositoryController
 import org.noelware.charted.database.controllers.RepositoryMemberController
+import org.noelware.charted.database.entities.RepositoryEntity
+import org.noelware.charted.database.models.Repository
+import org.noelware.charted.database.tables.RepositoryTable
 import org.noelware.charted.email.EmailService
 import org.noelware.charted.features.webhooks.WebhooksFeature
 import org.noelware.charted.server.currentUser
@@ -155,8 +160,14 @@ class RepositoryEndpoints(
 
     @Get("/{id}")
     suspend fun get(call: ApplicationCall) {
-        val id = call.parameters["id"]!!.toLong()
-        val repository = RepositoryController.get(id) ?: return call.respond(
+        val id = call.parameters["id"]!!
+        val repository = if (id.toLongOrNull() != null) {
+            RepositoryController.get(id.toLong())
+        } else {
+            asyncTransaction(ChartedScope) {
+                RepositoryEntity.find { RepositoryTable.name eq id }.firstOrNull()?.let { entity -> Repository.fromEntity(entity) }
+            }
+        } ?: return call.respond(
             HttpStatusCode.NotFound,
             buildJsonObject {
                 put("success", false)
@@ -234,7 +245,7 @@ class RepositoryEndpoints(
         call.respond(
             createOutgoingContentWithBytes(
                 data,
-                contentType = ContentType.parse("application/yaml; charset=utf-8")
+                contentType = ContentType.parse("text/plain; charset=utf-8")
             )
         )
     }
@@ -295,7 +306,7 @@ class RepositoryEndpoints(
         call.respond(
             createOutgoingContentWithBytes(
                 data,
-                contentType = ContentType.parse("application/yaml; charset=utf-8")
+                contentType = ContentType.parse("text/plain; charset=utf-8")
             )
         )
     }

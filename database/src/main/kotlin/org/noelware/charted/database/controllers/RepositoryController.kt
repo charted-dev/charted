@@ -29,6 +29,7 @@ import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.Snowflake
 import org.noelware.charted.common.data.helm.RepoType
 import org.noelware.charted.common.exceptions.StringOverflowException
+import org.noelware.charted.common.exceptions.ValidationException
 import org.noelware.charted.database.entities.RepositoryEntity
 import org.noelware.charted.database.flags.RepositoryFlags
 import org.noelware.charted.database.models.Repository
@@ -49,6 +50,10 @@ data class NewRepositoryBody(
 
         if (name.length > 32) {
             throw StringOverflowException("body.name", 32)
+        }
+
+        if (!name.matches("^([A-z]|-|_|\\d{0,9}){0,16}".toRegex())) {
+            throw ValidationException("body.name", "Repository name can only contain alphabet characters, digits, underscores, and dashes.")
         }
     }
 }

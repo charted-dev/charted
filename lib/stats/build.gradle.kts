@@ -17,17 +17,9 @@
 
 plugins {
     `charted-module`
-    `charted-test`
 }
 
 dependencies {
-    testImplementation("org.testcontainers:elasticsearch:1.17.2")
-    testImplementation("org.slf4j:slf4j-simple:1.7.36")
-    testImplementation(project(":testing"))
-
-    implementation("org.elasticsearch.client:elasticsearch-rest-client-sniffer:8.3.0")
-    implementation("org.elasticsearch.client:elasticsearch-rest-client:8.3.0")
-    implementation(project(":lib:metrics"))
-    implementation(project(":lib:stats"))
-    implementation(project(":database"))
+    // kotlinx.coroutines Debug
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug")
 }

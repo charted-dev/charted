@@ -243,6 +243,9 @@ class UserApiEndpoints(
             OrganizationTable.deleteWhere { OrganizationTable.owner eq call.currentUser!!.id.toLong() }
         }
 
+        // Delete their metadata and the tarball releases.
+        storage.trailer.delete("./metadata/${call.currentUser!!.id}/index.yaml")
+
         call.respond(
             HttpStatusCode.Accepted,
             buildJsonObject {
@@ -507,23 +510,49 @@ class UserApiEndpoints(
     suspend fun revokeSession(call: ApplicationCall) {
         val sessionId = call.parameters["sessionId"]!!
         val session = sessions.getSessionById(UUID.fromString(sessionId))
-    }
-
-    @Get("/{id}")
-    suspend fun user(call: ApplicationCall) {
-        val user = UserController.get(call.parameters["id"]!!.toLong())
             ?: return call.respond(
                 HttpStatusCode.NotFound,
                 buildJsonObject {
                     put("success", false)
                     putJsonArray("errors") {
                         addJsonObject {
-                            put("code", "UNKNOWN_USER")
-                            put("message", "Unknown user with ID: ${call.parameters["id"]!!.toLong()}")
+                            put("code", "UNKNOWN_SESSION")
+                            put("message", "Unknown session with UUID [$sessionId]")
                         }
                     }
                 }
             )
+
+        // no token 4 u
+        call.respond(
+            HttpStatusCode.OK,
+            buildJsonObject {
+                put("success", true)
+                put("data", session.toJsonObject())
+            }
+        )
+    }
+
+    @Get("/{id}")
+    suspend fun user(call: ApplicationCall) {
+        val user = if (call.parameters["id"]!!.toLongOrNull() != null) {
+            val id = call.parameters["id"]!!.toLong()
+            UserController.get(id)
+        } else {
+            val name = call.parameters["id"]!!
+            UserController.getByUsername(name)
+        } ?: return call.respond(
+            HttpStatusCode.NotFound,
+            buildJsonObject {
+                put("success", false)
+                putJsonArray("errors") {
+                    addJsonObject {
+                        put("code", "UNKNOWN_USER")
+                        put("message", "Unknown user with ID or username: ${call.parameters["id"]}")
+                    }
+                }
+            }
+        )
 
         call.respond(
             HttpStatusCode.OK,
@@ -603,7 +632,7 @@ class UserApiEndpoints(
 
         call.respondText(
             String(bytes),
-            ContentType.parse("application/yaml; charset=utf-8"),
+            ContentType.parse("text/plain; charset=utf-8"),
             HttpStatusCode.OK
         )
     }

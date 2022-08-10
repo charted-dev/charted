@@ -31,12 +31,12 @@ import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.IRedisClient
 import org.noelware.charted.common.data.Config
 import org.noelware.charted.common.data.Feature
+import org.noelware.charted.common.extensions.formatToSize
 import org.noelware.charted.core.StorageWrapper
 import org.noelware.charted.database.cassandra.CassandraConnection
 import org.noelware.charted.search.elasticsearch.ElasticsearchClient
 import org.noelware.charted.search.meilisearch.MeilisearchClient
 import org.noelware.charted.server.ChartedServer
-import org.noelware.charted.server.formatToSize
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.noelware.ktor.endpoints.Get
 import org.noelware.remi.filesystem.FilesystemStorageTrailer
@@ -105,7 +105,7 @@ class DebugEndpoint(
 
         var searchBackendInfo: JsonElement? = null
         if (elastic != null) {
-            val data = elastic.info()
+            val data = elastic.collect()
             searchBackendInfo = buildJsonObject {
                 put("server_version", elastic.serverVersion)
                 put("backend", "Elasticsearch")
@@ -175,8 +175,8 @@ class DebugEndpoint(
             put("max_memory", rn.maxMemory().formatToSize())
             put("free_memory_bytes", rn.freeMemory())
             put("free_memory", rn.freeMemory().formatToSize())
-            put("start_time_ms", runtime.startTime)
-            put("start_time", runtime.startTime.humanize())
+            put("start_time_ms", System.currentTimeMillis() - runtime.startTime)
+            put("start_time", (System.currentTimeMillis() - runtime.startTime).humanize())
             put("version", "${Runtime.version()}")
             put("vendor", runtime.vmVendor)
             put("name", runtime.vmName)

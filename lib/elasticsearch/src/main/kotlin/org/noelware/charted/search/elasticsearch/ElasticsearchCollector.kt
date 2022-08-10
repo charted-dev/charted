@@ -21,6 +21,7 @@ import io.prometheus.client.Collector
 import io.prometheus.client.GaugeMetricFamily
 import io.prometheus.client.Predicate
 import io.prometheus.client.SampleNameFilter
+import kotlinx.coroutines.runBlocking
 
 /**
  * Represents the collector for collecting Elasticsearch metrics and outputs it
@@ -36,7 +37,7 @@ class ElasticsearchCollector(private val elasticsearch: ElasticsearchClient): Co
     }
 
     private fun collectSamples(mfs: MutableList<MetricFamilySamples>, sampleNameFilter: Predicate<String>) {
-        val stats = elasticsearch.info()
+        val stats = runBlocking { elasticsearch.collect() }
         if (sampleNameFilter.test(ELASTICSEARCH_DOCUMENTS)) {
             mfs.add(
                 GaugeMetricFamily(
