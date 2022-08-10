@@ -50,7 +50,6 @@ import org.noelware.charted.common.extensions.measureTime
 import org.noelware.charted.database.tables.UserTable
 import org.noelware.charted.search.elasticsearch.index.Index
 import org.noelware.charted.stats.StatCollector
-import org.noelware.charted.stats.StatisticsCollector
 import java.io.ByteArrayOutputStream
 import java.io.Closeable
 import java.nio.file.Files
