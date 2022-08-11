@@ -5,13 +5,17 @@
   "dockerComposeFile": "./docker-compose.yml",
   "service": "workspace",
   "workspaceFolder": "/workspace",
-  "forwardPorts": [80, 443, 3939, 5432, 6379, 8123, 9000],
+  "forwardPorts": [80, 443, 3939, 5432, 6379, 9042, 5601, 9200],
+  "postCreateCommand": ". ./.devcontainer/scripts/bootstrap-cassandra.sh",
   "settings": {
-    "terminal.integrated.shell.linux": "/bin/bash",
-    "java.home": "~/.asdf/installs/java/temurin-18.0.1+10"
+    "java.jdt.ls.java.home": "/opt/java/jdk-18.0.1+10",
+    "terminal.integrated.defaultProfile.linux": "zsh"
   },
   "extensions": [
     "eamodio.gitlens",
-    "ms-azuretools.vscode-docker"
+    "ms-azuretools.vscode-docker",
+    "redhat.java",
+    "fwcd.kotlin",
+    "vscjava.vscode-gradle"
   ]
 }

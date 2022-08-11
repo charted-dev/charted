@@ -21,8 +21,6 @@ ARG GID=$UID
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt upgrade && apt update && \
-    groupadd --gid $GID $USERNAME && \
-    useradd -s /bin/bash --uid $UID --gid $GID -m $USERNAME && \
     apt install -y sudo && \
     echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME && \
     apt install -y --no-install-recommends zip unzip bash bash-completion build-essential \
@@ -38,8 +36,8 @@ RUN curl -L -o /tmp/java.tar.gz $JAVA_INSTALL && \
 ENV JAVA_HOME="/opt/java/jdk-18.0.1+10"
 ENV PATH="$PATH:/opt/java/jdk-18.0.1+10/bin"
 
-# Install Gradle 7.5
-ENV GRADLE_INSTALL="https://services.gradle.org/distributions/gradle-7.5-all.zip"
+# Install Gradle 7.5.1
+ENV GRADLE_INSTALL="https://services.gradle.org/distributions/gradle-7.5.1-all.zip"
 RUN curl -L -o /tmp/gradle.zip $GRADLE_INSTALL && \
     mkdir -p /opt/gradle && \
     unzip -d /opt/gradle /tmp/gradle.zip && \
