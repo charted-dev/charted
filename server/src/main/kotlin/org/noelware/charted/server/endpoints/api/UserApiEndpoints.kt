@@ -46,6 +46,7 @@ import org.noelware.charted.common.IRedisClient
 import org.noelware.charted.common.RandomGenerator
 import org.noelware.charted.common.SHAUtils
 import org.noelware.charted.common.data.Config
+import org.noelware.charted.common.data.Feature
 import org.noelware.charted.common.data.helm.ChartIndexYaml
 import org.noelware.charted.common.exceptions.StringOverflowException
 import org.noelware.charted.common.exceptions.StringUnderflowException
@@ -214,16 +215,18 @@ class UserApiEndpoints(
         val serialized = yaml.encodeToString(ChartIndexYaml())
         val id = result["data"]!!.jsonObject["id"]!!.jsonPrimitive.content
 
-        if (storage.trailer is FilesystemStorageTrailer) {
-            val userFolder = File((storage.trailer as FilesystemStorageTrailer).normalizePath("./metadata/$id"))
-            userFolder.mkdirs()
-        }
+        if (!config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
+            if (storage.trailer is FilesystemStorageTrailer) {
+                val userFolder = File((storage.trailer as FilesystemStorageTrailer).normalizePath("./metadata/$id"))
+                userFolder.mkdirs()
+            }
 
-        storage.upload(
-            "./metadata/$id/index.yaml",
-            ByteArrayInputStream(serialized.toByteArray(Charsets.UTF_8)),
-            "application/yaml"
-        )
+            storage.upload(
+                "./metadata/$id/index.yaml",
+                ByteArrayInputStream(serialized.toByteArray(Charsets.UTF_8)),
+                "application/yaml"
+            )
+        }
 
         call.respond(status, result)
     }
@@ -623,6 +626,21 @@ class UserApiEndpoints(
 
     @Get("/{id}/index.yaml")
     suspend fun indexYaml(call: ApplicationCall) {
+        if (config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
+            return call.respond(
+                HttpStatusCode.Forbidden,
+                buildJsonObject {
+                    put("success", false)
+                    putJsonArray("errors") {
+                        addJsonObject {
+                            put("code", "CHARTS_NOT_AVAILABLE")
+                            put("message", "This instance is running off a local OCI-based registry, so this endpoint is not available.")
+                        }
+                    }
+                }
+            )
+        }
+
         val uid = call.parameters["id"]!!.toLong()
 
         // This should never happen since when a user is created, a blank index.yaml file

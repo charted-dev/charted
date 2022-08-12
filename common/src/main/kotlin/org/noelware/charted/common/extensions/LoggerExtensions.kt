@@ -24,7 +24,6 @@ import java.util.concurrent.TimeUnit
 
 fun Logger.measureTime(message: String, block: () -> Unit) {
     val sw = StopWatch.createStarted()
-
     try {
         block()
     } catch (e: Exception) {

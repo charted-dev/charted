@@ -72,6 +72,7 @@ import org.noelware.charted.email.EmailService
 import org.noelware.charted.features.audits.auditLogsModule
 import org.noelware.charted.features.docker.registry.DockerRegistryMetrics
 import org.noelware.charted.features.docker.registry.dockerRegistryModule
+import org.noelware.charted.features.docker.registry.servicetokens.ServiceTokenManager
 import org.noelware.charted.features.docker.registry.tables.BlobTable
 import org.noelware.charted.features.docker.registry.tables.ContainersTable
 import org.noelware.charted.features.webhooks.webhooksModule
@@ -87,6 +88,7 @@ import org.noelware.charted.sessions.SessionManager
 import org.noelware.charted.sessions.integrations.github.githubIntegration
 import org.noelware.charted.sessions.local.LocalSessionManager
 import org.noelware.charted.stats.StatisticsCollector
+import org.noelware.charted.stats.collectors.RedisStatCollector
 import java.io.File
 import java.io.IOError
 import java.lang.management.ManagementFactory
@@ -332,7 +334,7 @@ object Bootstrap {
         }
 
         log.info("Connected to PostgreSQL! Creating storage provider...")
-        val wrapper = StorageWrapper(config.storage)
+        val wrapper = StorageWrapper(config)
         val json = Json {
             ignoreUnknownKeys = true
             encodeDefaults = true
@@ -402,9 +404,15 @@ object Bootstrap {
         val server = ChartedServer(config, analytics)
         val metrics = PrometheusMetrics(ds, redis)
         val stats = StatisticsCollector().apply {
+            register("redis" to RedisStatCollector(redis))
+
             if (elasticsearch != null) {
                 register("elasticsearch" to elasticsearch)
             }
+
+            // if (cassandra != null) {
+            //    register("cassandra" to cassandra)
+            // }
         }
 
         val module = module {
@@ -438,10 +446,6 @@ object Bootstrap {
                 single { cassandra }
             }
 
-            if (config.metrics) {
-                single { metrics }
-            }
-
             if (analytics != null) {
                 single { analytics }
             }
@@ -472,14 +476,36 @@ object Bootstrap {
 
         if (config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
             log.info("Using Docker Registry specification instead of Helm Charts!")
-            modules.add(dockerRegistryModule)
+            val serviceTokens = ServiceTokenManager(config, redis, json)
 
+            modules.addAll(
+                module {
+                    single { serviceTokens }
+                } + dockerRegistryModule
+            )
             metrics.addCollector(DockerRegistryMetrics())
         }
 
         if (config.sessions.integrations.github != null) {
             log.info("GitHub integration is enabled!")
             modules.add(githubIntegration)
+        }
+
+        if (config.metrics && cassandra != null) {
+            metrics.addCollector(CassandraMetricsCollector(cassandra))
+        }
+
+        if (config.metrics && elasticsearch != null) {
+            metrics.addCollector(ElasticsearchCollector(elasticsearch))
+        }
+
+        if (config.metrics) {
+            log.info("Metrics with Prometheus is enabled.")
+            modules.add(
+                module {
+                    single { metrics }
+                }
+            )
         }
 
         startKoin {
@@ -489,14 +515,6 @@ object Bootstrap {
 
         elasticsearch?.connect()
         cassandra?.connect()
-
-        if (config.metrics && cassandra != null) {
-            metrics.addCollector(CassandraMetricsCollector(cassandra))
-        }
-
-        if (config.metrics && elasticsearch != null) {
-            metrics.addCollector(ElasticsearchCollector(elasticsearch))
-        }
 
         try {
             server.start()

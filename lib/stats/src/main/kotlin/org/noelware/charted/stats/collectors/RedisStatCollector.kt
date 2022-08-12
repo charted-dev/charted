@@ -15,22 +15,12 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-    //`charted-test`
-}
+package org.noelware.charted.stats.collectors
 
-dependencies {
-    implementation("org.noelware.ktor:core:0.3.1-beta")
-    implementation("com.auth0:java-jwt:4.0.0")
-    implementation(project(":lib:metrics"))
-    implementation(project(":lib:stats"))
-    implementation(project(":database"))
-    implementation(project(":core"))
+import org.noelware.charted.common.IRedisClient
+import org.noelware.charted.common.stats.RedisStats
+import org.noelware.charted.stats.StatCollector
 
-//    testImplementation("io.ktor:ktor-serialization-kotlinx-json")
-//    testImplementation("io.ktor:ktor-client-content-negotiation")
-//    testImplementation("io.ktor:ktor-server-test-host")
-//    testImplementation("io.ktor:ktor-client-logging")
-//    testImplementation("io.ktor:ktor-client-okhttp")
+class RedisStatCollector(private val redis: IRedisClient): StatCollector<RedisStats> {
+    override suspend fun collect(): RedisStats = redis.stats
 }

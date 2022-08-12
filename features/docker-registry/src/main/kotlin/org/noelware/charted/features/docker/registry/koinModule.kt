@@ -22,6 +22,6 @@ import org.koin.dsl.module
 import org.noelware.ktor.endpoints.AbstractEndpoint
 
 val dockerRegistryModule = module {
-    single<DockerRegistry> { DefaultDockerRegistryImpl() }
-    single { DockerRegistryEndpoints(get()) } bind AbstractEndpoint::class
+    single<DockerRegistry> { DefaultDockerRegistryImpl(get()) }
+    single { DockerRegistryEndpoints(get(), get(), get(), get()) } bind AbstractEndpoint::class
 }

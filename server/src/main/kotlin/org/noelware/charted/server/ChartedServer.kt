@@ -38,7 +38,6 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.sentry.Sentry
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -50,6 +49,8 @@ import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.SetOnceGetValue
 import org.noelware.charted.common.data.Config
 import org.noelware.charted.common.exceptions.ValidationException
+import org.noelware.charted.features.docker.registry.RegistryException
+import org.noelware.charted.features.docker.registry.doRespond
 import org.noelware.charted.server.endpoints.proxyStorageTrailer
 import org.noelware.charted.server.jobs.ReconfigureProxyCdnJob
 import org.noelware.charted.server.plugins.Logging
@@ -60,6 +61,7 @@ import org.noelware.remi.filesystem.ifExists
 import org.slf4j.LoggerFactory
 import java.io.Closeable
 import java.io.File
+import java.lang.reflect.InvocationTargetException
 import java.security.KeyStore
 import io.sentry.Sentry as SentryClient
 
@@ -76,7 +78,6 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
     val server: NettyApplicationEngine
         get() = _server.value
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     fun start() {
         val self = this
         val environment = applicationEngineEnvironment {
@@ -170,6 +171,44 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
                                     addJsonObject {
                                         put("code", "UNSUPPORTED_MEDIA_TYPE")
                                         put("message", "Invalid content type [$header], expecting application/json.")
+                                    }
+                                }
+                            }
+                        )
+                    }
+
+                    // This should call the exception handler(s) for the exception's cause instead
+                    // of outright throwing it.
+                    exception<InvocationTargetException> { call, cause ->
+                        for (handler in exceptions.values) {
+                            try {
+                                handler(call, cause.cause!!)
+                                break
+                            } catch (e: java.lang.ClassCastException) {
+                                continue
+                            } catch (e: Exception) {
+                                exceptions[e::class]?.invoke(call, e) ?: exceptions[Exception::class]!!.invoke(call, e)
+                            }
+                        }
+                    }
+
+                    exception<RegistryException> { call, cause ->
+                        if (SentryClient.isEnabled()) {
+                            SentryClient.captureException(cause)
+                        }
+
+                        self.log.error("Received Docker registry exception while handling request [${call.request.httpMethod.value} ${call.request.path()}]:", cause)
+                        call.doRespond(
+                            cause.status,
+                            buildJsonObject {
+                                putJsonArray("errors") {
+                                    addJsonObject {
+                                        put("code", cause.code)
+                                        put("message", cause.description)
+
+                                        if (cause.detail != null) {
+                                            put("detail", cause.detail!!)
+                                        }
                                     }
                                 }
                             }

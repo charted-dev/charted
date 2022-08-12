@@ -15,22 +15,15 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-    //`charted-test`
-}
+package org.noelware.charted.features.docker.registry.servicetokens
 
-dependencies {
-    implementation("org.noelware.ktor:core:0.3.1-beta")
-    implementation("com.auth0:java-jwt:4.0.0")
-    implementation(project(":lib:metrics"))
-    implementation(project(":lib:stats"))
-    implementation(project(":database"))
-    implementation(project(":core"))
-
-//    testImplementation("io.ktor:ktor-serialization-kotlinx-json")
-//    testImplementation("io.ktor:ktor-client-content-negotiation")
-//    testImplementation("io.ktor:ktor-server-test-host")
-//    testImplementation("io.ktor:ktor-client-logging")
-//    testImplementation("io.ktor:ktor-client-okhttp")
-}
+/**
+ * Represents a service token for using the Docker Registry. This is needed, so we don't use
+ * the session tokens (since it can do any REST operation on a user, so let's just keep it safe
+ * and only let it use the `/v2/` endpoints.)
+ */
+@kotlinx.serialization.Serializable
+data class DockerRegistryServiceToken(
+    val userID: Long,
+    val token: String
+)

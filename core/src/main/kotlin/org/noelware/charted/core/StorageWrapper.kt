@@ -19,7 +19,8 @@ package org.noelware.charted.core
 
 import dev.floofy.utils.slf4j.logging
 import kotlinx.coroutines.runBlocking
-import org.noelware.charted.common.data.StorageConfig
+import org.noelware.charted.common.data.Config
+import org.noelware.charted.common.data.Feature
 import org.noelware.remi.core.StorageTrailer
 import org.noelware.remi.filesystem.FilesystemStorageTrailer
 import org.noelware.remi.minio.MinIOStorageTrailer
@@ -27,16 +28,16 @@ import org.noelware.remi.s3.S3StorageTrailer
 import java.io.File
 import java.io.InputStream
 
-class StorageWrapper(config: StorageConfig) {
+class StorageWrapper(config: Config) {
     private val log by logging<StorageWrapper>()
     val trailer: StorageTrailer<*>
 
     init {
         trailer = when {
-            config.filesystem != null -> FilesystemStorageTrailer(config.filesystem!!)
-            config.minio != null -> MinIOStorageTrailer(config.minio!!)
-            config.fs != null -> FilesystemStorageTrailer(config.fs!!)
-            config.s3 != null -> S3StorageTrailer(config.s3!!)
+            config.storage.filesystem != null -> FilesystemStorageTrailer(config.storage.filesystem!!)
+            config.storage.minio != null -> MinIOStorageTrailer(config.storage.minio!!)
+            config.storage.fs != null -> FilesystemStorageTrailer(config.storage.fs!!)
+            config.storage.s3 != null -> S3StorageTrailer(config.storage.s3!!)
             else -> error("Missing `filesystem`, `minio`, `fs`, or `s3` configuration")
         }
 
@@ -52,7 +53,13 @@ class StorageWrapper(config: StorageConfig) {
             }
 
             if (trailer is FilesystemStorageTrailer) {
-                for (folder in listOf("./avatars", "./tarballs", "./metadata")) {
+                val folders = if (config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
+                    listOf("./avatars", "./layers")
+                } else {
+                    listOf("./tarballs", "./metadata", "./avatars")
+                }
+
+                for (folder in folders) {
                     val file = File(trailer.normalizePath(folder))
                     if (!file.exists()) {
                         log.warn("Directory [${trailer.normalizePath(folder)}] doesn't exist!")
