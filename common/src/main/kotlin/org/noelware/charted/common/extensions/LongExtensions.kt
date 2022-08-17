@@ -17,6 +17,10 @@
 
 package org.noelware.charted.common.extensions
 
+import dev.floofy.utils.kotlin.humanize
+import org.apache.commons.lang3.time.StopWatch
+import java.util.concurrent.TimeUnit
+
 fun Long.formatToSize(long: Boolean = false): String {
     val kilo = this / 1024L
     val mega = kilo / 1024L
@@ -24,10 +28,22 @@ fun Long.formatToSize(long: Boolean = false): String {
     val tera = giga / 1024L
 
     return when {
-        kilo < 1024 -> "${kilo.toDouble()}${if (long) " kilobytes" else "KiB"}"
-        mega < 1024 -> "${mega.toDouble()}${if (long) " megabytes" else "MiB"}"
-        giga < 1024 -> "${giga.toDouble()}${if (long) " gigabytes" else "GiB"}"
-        tera < 1024 -> "${tera.toDouble()}${if (long) " terabytes" else "TiB"}"
+        kilo < 1024 -> "$kilo${if (long) " kilobytes" else "KiB"}"
+        mega < 1024 -> "$mega${if (long) " megabytes" else "MiB"}"
+        giga < 1024 -> "$giga${if (long) " gigabytes" else "GiB"}"
+        tera < 1024 -> "$tera${if (long) " terabytes" else "TiB"}"
         else -> "${toDouble()}${if (long) " bytes" else "B"}"
     }
+}
+
+fun StopWatch.doFormatTime(): String {
+    val time = nanoTime
+    if (time == 0L) return "<uninit>"
+
+    // this is going to get real ugly, real quick.
+    if (time < 1000) return "${time}ns"
+    if (time < 1000000) return "${time}µs"
+
+    val ms = TimeUnit.MILLISECONDS.convert(time, TimeUnit.NANOSECONDS)
+    return ms.humanize(long = false, includeMs = true)
 }

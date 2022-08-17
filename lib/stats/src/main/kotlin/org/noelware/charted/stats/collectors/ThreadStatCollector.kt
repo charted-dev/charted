@@ -55,13 +55,13 @@ data class ThreadInfo(
 @kotlinx.serialization.Serializable
 data class ThreadStackTrace(
     @SerialName("class_loader_name")
-    val classLoaderName: String,
+    val classLoaderName: String? = null,
 
     @SerialName("module_name")
-    val moduleName: String,
+    val moduleName: String? = null,
 
     @SerialName("module_version")
-    val moduleVersion: String,
+    val moduleVersion: String? = null,
 
     @SerialName("declaring_class")
     val declaringClass: String,

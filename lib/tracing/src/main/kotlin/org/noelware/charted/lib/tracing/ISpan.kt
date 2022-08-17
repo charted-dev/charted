@@ -15,17 +15,26 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.common.stats
+package org.noelware.charted.lib.tracing
 
-@kotlinx.serialization.Serializable
-data class RedisStats(
-    val totalNetworkInput: Long,
-    val totalNetworkOutput: Long,
-    val totalCommandsProcessed: Long,
-    val totalConnectionsReceived: Long,
-    val allocator: String,
-    val uptime: Long,
-    val version: String,
-    val mode: String,
-    val ping: String
-)
+/**
+ * Represents a trace span, which can include external metadata about a trace.
+ */
+interface ISpan {
+    /** The operation the span is doing. */
+    val operation: String
+
+    /** All the span's events that occurred. */
+    val events: List<IEvent>
+
+    /** The name of the span */
+    val name: String
+
+    /**
+     * Starts a span event.
+     * @param description The description of the span event.
+     * @param metadata Any metadata to append to the span event.
+     * @return a [span event][IEvent] spawned.
+     */
+    fun startEvent(description: String, metadata: Map<String, Any>): IEvent
+}

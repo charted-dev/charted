@@ -15,17 +15,8 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.common.stats
+package org.noelware.charted.server.endpoints
 
-@kotlinx.serialization.Serializable
-data class RedisStats(
-    val totalNetworkInput: Long,
-    val totalNetworkOutput: Long,
-    val totalCommandsProcessed: Long,
-    val totalConnectionsReceived: Long,
-    val allocator: String,
-    val uptime: Long,
-    val version: String,
-    val mode: String,
-    val ping: String
-)
+import org.noelware.ktor.endpoints.AbstractEndpoint
+
+class AdminEndpoint: AbstractEndpoint("/admin")

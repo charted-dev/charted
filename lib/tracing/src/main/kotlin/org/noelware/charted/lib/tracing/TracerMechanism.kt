@@ -15,17 +15,24 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.common.stats
+package org.noelware.charted.lib.tracing
 
-@kotlinx.serialization.Serializable
-data class RedisStats(
-    val totalNetworkInput: Long,
-    val totalNetworkOutput: Long,
-    val totalCommandsProcessed: Long,
-    val totalConnectionsReceived: Long,
-    val allocator: String,
-    val uptime: Long,
-    val version: String,
-    val mode: String,
-    val ping: String
-)
+/**
+ * Represents a mechanism for tracing objects within the server. charted-server supports tracing
+ * via OpenTelemetry, APM, and Prometheus (which can be linked with the `:lib:metrics` submodule).
+ */
+interface TracerMechanism {
+    /**
+     * Creates a context for a trace.
+     * @param name The name of the trace context.
+     * @param attributes The attributes this [TraceContext] should have.
+     */
+    fun createContext(name: String, attributes: Map<String, String>): TraceContext
+
+    /**
+     * Initializes this [tracing mechanism][TracerMechanism].
+     */
+    fun init() {
+        // void 0
+    }
+}

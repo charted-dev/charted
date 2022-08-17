@@ -15,7 +15,7 @@
 
 # This is an example Docker Compose file to run charted-server on your machine.
 # If you want the full experience, visit the self-hosted repository:
-#    -> https://github.com/charted-dev/self-hosted
+#      -> https://github.com/charted-dev/self-hosted <-
 
 version: '3.8'
 services:

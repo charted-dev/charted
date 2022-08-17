@@ -15,7 +15,8 @@
 
 [CmdletBinding()]
 Param(
-    [String]$ConfigPath
+    [String]$ConfigPath = "",
+    [Boolean]$EnableElasticAPM = $false
 )
 
 function Fatal {
@@ -77,6 +78,10 @@ if ([Environment]::GetEnvironmentVariable("WINTERFOX_DEDI_NODE")) {
 
 if ([Environment]::GetEnvironmentVariable("CHARTED_JAVA_OPTS")) {
     $ResolvedJavaOpts.Add($Env:CHARTED_JAVA_OPTS)
+}
+
+if ($EnableElasticAPM == $true) {
+    $ResolvedJavaOpts.Add("-Dorg.noelware.charted.tracing=apm")
 }
 
 $JavaOpts = $ResolvedJavaOpts -join " "

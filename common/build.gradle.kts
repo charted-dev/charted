@@ -30,6 +30,9 @@ dependencies {
     api(platform("org.noelware.remi:remi-bom:0.4.1-beta"))
     api(platform("io.ktor:ktor-bom:2.0.3"))
 
+    // SemVer
+    api("io.github.z4kn4fein:semver:1.3.3")
+
     // kotlinx.serialization
     api("org.jetbrains.kotlinx:kotlinx-serialization-json")
     api("org.jetbrains.kotlinx:kotlinx-serialization-core")

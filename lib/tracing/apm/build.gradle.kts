@@ -15,17 +15,14 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.common.stats
+plugins {
+    `charted-java-module`
+    `charted-module`
+}
 
-@kotlinx.serialization.Serializable
-data class RedisStats(
-    val totalNetworkInput: Long,
-    val totalNetworkOutput: Long,
-    val totalCommandsProcessed: Long,
-    val totalConnectionsReceived: Long,
-    val allocator: String,
-    val uptime: Long,
-    val version: String,
-    val mode: String,
-    val ping: String
-)
+dependencies {
+    implementation("co.elastic.apm:apm-agent-attach:1.33.0")
+    implementation("co.elastic.apm:apm-agent-api:1.33.0")
+    implementation("io.ktor:ktor-server-core")
+    implementation(project(":lib:tracing"))
+}

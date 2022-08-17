@@ -38,6 +38,7 @@ import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.websocket.*
 import io.sentry.Sentry
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -95,6 +96,7 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
                 install(AutoHeadResponse)
                 install(DoubleReceive)
                 install(RequestMdc)
+                install(WebSockets)
                 install(Logging)
 
                 if (self.config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {

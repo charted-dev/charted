@@ -73,6 +73,8 @@ import org.noelware.charted.features.audits.auditLogsModule
 import org.noelware.charted.features.webhooks.webhooksModule
 import org.noelware.charted.invitations.DefaultInvitationManager
 import org.noelware.charted.invitations.InvitationManager
+import org.noelware.charted.lib.tracing.TracerMechanism
+import org.noelware.charted.lib.tracing.apm.ApmTracingMechanism
 import org.noelware.charted.metrics.PrometheusMetrics
 import org.noelware.charted.search.elasticsearch.ElasticsearchClient
 import org.noelware.charted.search.elasticsearch.ElasticsearchCollector
@@ -82,6 +84,7 @@ import org.noelware.charted.server.websockets.shutdownTickers
 import org.noelware.charted.sessions.SessionManager
 import org.noelware.charted.sessions.integrations.github.githubIntegration
 import org.noelware.charted.sessions.local.LocalSessionManager
+import org.noelware.charted.stats.StatisticsCollector
 import java.io.File
 import java.io.IOError
 import java.lang.management.ManagementFactory
@@ -385,7 +388,13 @@ object Bootstrap {
         val elasticsearch = if (config.search.elastic != null) ElasticsearchClient(config.search.elastic!!) else null
         val meilisearch = if (config.search.meili != null) MeilisearchClient(httpClient, config.search.meili!!) else null
         val cassandra = if (config.cassandra != null) CassandraConnection(config.cassandra!!) else null
-        val analytics = if (config.analytics != null) AnalyticsServer(config.analytics!!) else null
+        val stats = StatisticsCollector().apply {
+            if (elasticsearch != null) {
+                register("elasticsearch" to elasticsearch)
+            }
+        }
+
+        val analytics = if (config.analytics != null) AnalyticsServer(config.analytics!!, stats) else null
         val server = ChartedServer(config, analytics)
         val metrics = PrometheusMetrics(ds, redis)
 
@@ -454,6 +463,25 @@ object Bootstrap {
         if (config.sessions.integrations.github != null) {
             log.info("GitHub integration is enabled!")
             modules.add(githubIntegration)
+        }
+
+        val tracingEnabled = System.getProperty("org.noelware.charted.tracing", "none")
+        if (tracingEnabled.matches("^(apm|opentelemetry|otel|opentl|none)$".toRegex())) {
+            log.info("Tracing was set to [$tracingEnabled]")
+            when (tracingEnabled) {
+                "apm" -> {
+                    val mechanism = ApmTracingMechanism()
+                    mechanism.init()
+                    modules.add(
+                        module {
+                            single<TracerMechanism> { mechanism }
+                        }
+                    )
+                }
+
+                "none" -> log.warn("Not enabling tracing due to system property [org.noelware.charted.tracing] set to \"none\".")
+                else -> log.warn("Unknown tracing mechanism type [$tracingEnabled], skipping.")
+            }
         }
 
         startKoin {

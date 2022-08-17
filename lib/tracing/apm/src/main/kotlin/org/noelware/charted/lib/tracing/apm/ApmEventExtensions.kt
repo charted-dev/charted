@@ -15,17 +15,13 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.common.stats
+package org.noelware.charted.lib.tracing.apm
 
-@kotlinx.serialization.Serializable
-data class RedisStats(
-    val totalNetworkInput: Long,
-    val totalNetworkOutput: Long,
-    val totalCommandsProcessed: Long,
-    val totalConnectionsReceived: Long,
-    val allocator: String,
-    val uptime: Long,
-    val version: String,
-    val mode: String,
-    val ping: String
-)
+import org.noelware.charted.lib.tracing.events.EventType
+
+/**
+ * Returns the given [Exception] if this [ApmEvent] has failed, and if the
+ * event's type is [EventType.Exception], otherwise, `null` is returned.
+ */
+val ApmEvent.exception: Exception?
+    get() = if (type == EventType.Exception) this["exception"] else null

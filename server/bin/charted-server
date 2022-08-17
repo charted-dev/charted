@@ -54,6 +54,7 @@ DAEMONIZE=false
 ORIGINAL_ARG_ARRAY=("$@")
 CHARTED_DISTRIBUTION=${CHARTED_DISTRIBUTION_TYPE:-local}
 CHARTED_CONFIG_PATH=${CHARTED_CONFIG_PATH:-}
+ENABLE_APM_TRACING=${CHARTED_ENABLE_APM_TRACING:-false}
 
 while [ $# -gt 0 ]; do
   if [[ $1 == "-d" || $1 == "--daemon" ]]; then
@@ -68,6 +69,18 @@ while [ $# -gt 0 ]; do
     else
       fatal "File $OUTPUT doesn't exist!"
     fi
+
+    shift
+  fi
+
+  if [[ $1 == "-t" || $1 == "--tracing" ]]; then
+    OUTPUT=$(echo $1 | sed -e 's/^[^=]*=//g')
+    if [[ "$OUTPUT" =~ ^(yes|true|si|si*|1)$ ]]; then
+      echo "[preinit] Enabling Elastic APM tracing..."
+      ENABLE_APM_TRACING=true
+    fi
+
+    shift
   fi
 
   if [[ $# -gt 0 ]]; then
@@ -91,6 +104,10 @@ RESOLVED_JAVA_OPTS=(
 
 if [[ -n "${CHARTED_LOGBACK_PATH:-}" && -f "${CHARTED_LOGBACK_PATH}" ]]; then
   RESOLVED_JAVA_OPTS+=("-Dorg.noelware.charted.logback.config=$CHARTED_LOGBACK_PATH")
+fi
+
+if [[ "${ENABLE_APM_TRACING:-}" =~ ^(yes|true|1|si|si*)$ ]]; then
+  RESOLVED_JAVA_OPTS+=("-Dorg.noelware.charted.tracing=apm")
 fi
 
 if [[ -n "${WINTERFOX_DEDI_NODE:-}" ]]; then

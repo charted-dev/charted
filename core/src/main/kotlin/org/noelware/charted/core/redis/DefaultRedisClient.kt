@@ -29,8 +29,8 @@ import org.noelware.charted.common.IRedisClient
 import org.noelware.charted.common.SetOnceGetValue
 import org.noelware.charted.common.data.RedisConfig
 import org.noelware.charted.common.extensions.associateOrNull
+import org.noelware.charted.common.extensions.doFormatTime
 import org.noelware.charted.common.stats.RedisStats
-import java.util.concurrent.TimeUnit
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -79,7 +79,7 @@ class DefaultRedisClient(config: RedisConfig): IRedisClient {
             val sw = StopWatch.createStarted()
             commands.ping().await()
 
-            sw.stop(); sw.getTime(TimeUnit.MILLISECONDS)
+            sw.stop(); sw.doFormatTime()
         }
 
         val stats = runBlocking { commands.info().await() }

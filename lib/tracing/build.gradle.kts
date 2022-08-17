@@ -15,17 +15,6 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.common.stats
-
-@kotlinx.serialization.Serializable
-data class RedisStats(
-    val totalNetworkInput: Long,
-    val totalNetworkOutput: Long,
-    val totalCommandsProcessed: Long,
-    val totalConnectionsReceived: Long,
-    val allocator: String,
-    val uptime: Long,
-    val version: String,
-    val mode: String,
-    val ping: String
-)
+plugins {
+    `charted-module`
+}

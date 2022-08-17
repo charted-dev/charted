@@ -15,17 +15,11 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.common.stats
+package org.noelware.charted.lib.tracing.apm
 
-@kotlinx.serialization.Serializable
-data class RedisStats(
-    val totalNetworkInput: Long,
-    val totalNetworkOutput: Long,
-    val totalCommandsProcessed: Long,
-    val totalConnectionsReceived: Long,
-    val allocator: String,
-    val uptime: Long,
-    val version: String,
-    val mode: String,
-    val ping: String
-)
+import org.koin.dsl.module
+import org.noelware.charted.lib.tracing.TracerMechanism
+
+val apmTracingModule = module {
+    single<TracerMechanism> { ApmTracingMechanism() }
+}
