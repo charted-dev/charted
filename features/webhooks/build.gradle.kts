@@ -21,10 +21,10 @@ plugins {
 }
 
 dependencies {
-    implementation("org.noelware.ktor:core:0.3.1-beta")
+    implementation(libs.noelware.ktor.routing.core)
     implementation(project(":lib:cassandra"))
     implementation(project(":database"))
 
-    testImplementation("org.slf4j:slf4j-simple:1.7.36")
     testImplementation(project(":testing"))
+    testImplementation(libs.slf4j.simple)
 }

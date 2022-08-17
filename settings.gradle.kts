@@ -67,6 +67,14 @@ include(
     ":tools:migrations"
 )
 
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("libs") {
+            from(files("./gradle/build.versions.toml"))
+        }
+    }
+}
+
 gradle.settingsEvaluated {
     logger.lifecycle("[preinit] Checking if we can overwrite cache to main directory?")
     val overrideBuildCacheProp: String? = System.getProperty("org.noelware.charted.overwriteCache")

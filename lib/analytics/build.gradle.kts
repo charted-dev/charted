@@ -21,8 +21,9 @@ plugins {
 }
 
 dependencies {
-    testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
-    testImplementation("org.mockito:mockito-core:4.6.1")
     implementation(project(":lib:analytics:protobufs"))
-    testImplementation("io.grpc:grpc-testing:1.47.0")
+
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.grpc.testing)
 }

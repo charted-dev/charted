@@ -21,13 +21,13 @@ plugins {
 }
 
 dependencies {
-    testImplementation("org.testcontainers:elasticsearch:1.17.2")
-    testImplementation("org.slf4j:slf4j-simple:1.7.36")
-    testImplementation(project(":testing"))
-
-    implementation("org.elasticsearch.client:elasticsearch-rest-client-sniffer:8.3.0")
-    implementation("org.elasticsearch.client:elasticsearch-rest-client:8.3.0")
+    implementation(libs.elasticsearch.rest.client.sniffer)
+    implementation(libs.elasticsearch.rest.client)
     implementation(project(":lib:metrics"))
     implementation(project(":lib:stats"))
     implementation(project(":database"))
+
+    testImplementation(libs.testcontainers.elasticsearch)
+    testImplementation(project(":testing"))
+    testImplementation(libs.slf4j.simple)
 }

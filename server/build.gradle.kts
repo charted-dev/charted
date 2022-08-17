@@ -26,31 +26,31 @@ plugins {
 }
 
 dependencies {
-    // Logback
-    implementation("net.logstash.logback:logstash-logback-encoder:7.2")
-    implementation("ch.qos.logback:logback-classic:1.2.11")
-    implementation("ch.qos.logback:logback-core:1.2.11")
+    // Logstash
+    implementation(libs.logback.logstash)
+    implementation(libs.logback.classic)
+    implementation(libs.logback.core)
 
     // kotlinx.coroutines Debug
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug")
+    implementation(libs.kotlinx.coroutines.debug)
 
     // Ktor Routing
-    implementation("org.noelware.ktor:loader-koin:0.3.1-beta")
-    implementation("org.noelware.ktor:core:0.3.1-beta")
+    implementation(libs.noelware.ktor.routing.loaders.koin)
+    implementation(libs.noelware.ktor.routing.core)
 
-    // Ktor (server)
-    implementation("io.ktor:ktor-serialization-kotlinx-json")
-    implementation("io.ktor:ktor-client-content-negotiation")
-    implementation("io.ktor:ktor-server-content-negotiation")
-    implementation("io.ktor:ktor-server-auto-head-response")
-    implementation("io.ktor:ktor-server-default-headers")
-    implementation("io.ktor:ktor-server-double-receive")
-    implementation("io.ktor:ktor-server-status-pages")
-    implementation("io.ktor:ktor-server-websockets")
-    implementation("io.ktor:ktor-serialization")
-    implementation("io.ktor:ktor-client-okhttp")
-    implementation("io.ktor:ktor-server-netty")
-    implementation("io.ktor:ktor-server-cors")
+    // Ktor (Server)
+    implementation(libs.ktor.client.content.negotitation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.server.content.negotiation)
+    implementation(libs.ktor.server.auto.head.response)
+    implementation(libs.ktor.server.default.headers)
+    implementation(libs.ktor.server.double.receive)
+    implementation(libs.ktor.server.status.pages)
+    implementation(libs.ktor.server.websockets)
+    implementation(libs.ktor.serialization)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.server.netty)
+    implementation(libs.ktor.server.cors)
 
     // Projects
     implementation(project(":features:docker-registry"))
@@ -73,14 +73,14 @@ dependencies {
     implementation(project(":core"))
 
     // JWT
-    implementation("com.auth0:java-jwt:4.0.0")
+    implementation(libs.jwt)
 
     // Just for Log4j/JCL -> slf4j
-    implementation("org.slf4j:log4j-over-slf4j:1.7.36")
-    implementation("org.slf4j:jcl-over-slf4j:1.7.36")
+    implementation(libs.slf4j.over.log4j)
+    implementation(libs.slf4j.over.jcl)
 
     // Conditional logic for logback
-    implementation("org.codehaus.janino:janino:3.1.7")
+    implementation(libs.janino)
 }
 
 application {

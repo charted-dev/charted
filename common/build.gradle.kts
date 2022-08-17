@@ -22,7 +22,6 @@ plugins {
 }
 
 dependencies {
-    // BOM
     api(platform("org.jetbrains.kotlinx:kotlinx-serialization-bom:1.3.3"))
     api(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.3"))
     api(platform("org.jetbrains.exposed:exposed-bom:0.38.2"))
@@ -31,62 +30,68 @@ dependencies {
     api(platform("io.ktor:ktor-bom:2.0.3"))
 
     // kotlinx.serialization
-    api("org.jetbrains.kotlinx:kotlinx-serialization-json")
-    api("org.jetbrains.kotlinx:kotlinx-serialization-core")
+    api(libs.kotlinx.serialization.core)
+    api(libs.kotlinx.serialization.json)
 
     // kotlinx.coroutines
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core")
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
+    api(libs.kotlinx.coroutines.core)
+    api(libs.kotlinx.coroutines.jdk8)
 
     // kotlinx.datetime
-    api("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+    api(libs.kotlinx.datetime)
 
     // Logging (slf4j)
-    api("org.slf4j:slf4j-api:1.7.36")
+    api(libs.slf4j.api)
 
     // Database drivers + Exposed + HikariCP
-    api("org.jetbrains.exposed:exposed-jdbc")
-    api("org.jetbrains.exposed:exposed-core")
-    api("org.jetbrains.exposed:exposed-dao")
-    api("org.postgresql:postgresql:42.3.6")
-    api("com.zaxxer:HikariCP:5.0.1")
+    api(libs.exposed.jdbc)
+    api(libs.exposed.core)
+    api(libs.exposed.dao)
+    api(libs.postgresql)
+    api(libs.hikaricp)
 
     // Redis
-    api("io.lettuce:lettuce-core:6.1.8.RELEASE")
+    api(libs.lettuce)
 
     // Noel's Utilities
-    api("dev.floofy.commons:extensions-kotlin")
-    api("dev.floofy.commons:extensions-koin")
-    api("dev.floofy.commons:exposed")
-    api("dev.floofy.commons:slf4j")
+    api(libs.noel.commons.extensions.kotlin)
+    api(libs.noel.commons.extensions.koin)
+    api(libs.noel.commons.exposed)
+    api(libs.noel.commons.slf4j)
 
     // Apache Utilities
-    api("org.apache.commons:commons-lang3:3.12.0")
+    api(libs.apache.commons.lang3)
 
     // Remi (storage management)
-    api("org.noelware.remi:remi-support-minio")
-    api("org.noelware.remi:remi-support-s3")
-    api("org.noelware.remi:remi-support-fs")
-    api("org.noelware.remi:remi-core")
+    api(libs.remi.support.minio)
+    api(libs.remi.support.s3)
+    api(libs.remi.support.fs)
+    api(libs.remi.core)
 
     // Sentry
-    api("io.sentry:sentry-kotlin-extensions:6.1.0")
-    api("io.sentry:sentry:6.1.0")
+    api(libs.sentry.kotlin.extensions)
+    api(libs.sentry)
 
     // Koin
-    api("io.insert-koin:koin-core:3.2.0")
+    api(libs.koin)
 
     // YAML (configuration)
-    api("com.charleskorn.kaml:kaml:0.46.0")
+    api(libs.kaml)
 
     // Haru (scheduling)
-    api("dev.floofy.haru:Haru:1.3.0")
+    api(libs.haru)
 
     // Ktor Server + Client
-    api("com.squareup.okhttp3:okhttp:4.10.0")
-    api("io.ktor:ktor-server-core")
-    api("io.ktor:ktor-client-core")
+    api(libs.ktor.server.core)
+    api(libs.ktor.client.core)
+    api(libs.okhttp)
 
     // Exposed Power Utils
-    api("net.perfectdreams.exposedpowerutils:postgres-power-utils:1.0.0")
+    api(libs.exposed.powergamer.tools)
+
+    // Apache Commons Validator
+    api(libs.apache.commons.validator)
+
+    // Spring Security Crypto
+    api(libs.spring.security.crypto)
 }

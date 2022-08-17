@@ -21,11 +21,8 @@ plugins {
 }
 
 dependencies {
-    implementation("org.springframework.security:spring-security-crypto:5.7.1")
-    implementation("org.jetbrains.exposed:exposed-kotlin-datetime")
-    implementation("commons-validator:commons-validator:1.7")
-    implementation("dev.samstevens.totp:totp:1.7.1")
-    implementation("io.ktor:ktor-server-core")
+    implementation(libs.exposed.kotlin.datetime)
+    implementation(libs.totp)
 
-    testImplementation("org.testcontainers:postgresql:1.17.2")
+    testImplementation(libs.testcontainers.postgresql)
 }

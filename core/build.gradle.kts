@@ -21,35 +21,11 @@ plugins {
 }
 
 dependencies {
-    // Ktor
-    implementation("io.ktor:ktor-serialization-kotlinx-json")
-    implementation("io.ktor:ktor-client-content-negotiation")
-    implementation("io.ktor:ktor-serialization")
-    implementation("io.ktor:ktor-client-okhttp")
-    api("com.squareup.okhttp3:okhttp:4.10.0")
-    api("io.ktor:ktor-server-core")
-    api("io.ktor:ktor-client-core")
-
-    // Ktor Routing
-    implementation("org.noelware.ktor:core:0.3.1-beta")
-
-    // Haru (scheduling)
-    implementation("dev.floofy.haru:Haru:1.3.0")
-
-    // JWT
-    implementation("com.auth0:java-jwt:3.19.2")
-
     // Logback (for json logback formatter)
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.3")
-    implementation("ch.qos.logback.contrib:logback-json-classic:0.1.5")
-    implementation("ch.qos.logback.contrib:logback-jackson:0.1.5")
+    implementation(libs.logback.contrib.json.classic)
+    implementation(libs.logback.contrib.jackson)
+    implementation(libs.jackson)
 
     // Projects
     implementation(project(":database"))
-
-    // Apache Commons Validator
-    api("commons-validator:commons-validator:1.7")
-
-    // Spring Security Crypto
-    api("org.springframework.security:spring-security-crypto:5.7.1")
 }
