@@ -26,4 +26,5 @@ dependencies {
     testImplementation(libs.ktor.serialization.kotlinx.json)
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.ktor.client.logging)
+    testImplementation(libs.ktor.client.okhttp)
 }
