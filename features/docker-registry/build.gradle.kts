@@ -22,9 +22,9 @@ plugins {
 }
 
 dependencies {
-    testImplementation("io.ktor:ktor-serialization-kotlinx-json")
-    testImplementation("io.ktor:ktor-client-content-negotiation")
-    testImplementation("io.ktor:ktor-server-test-host")
-    testImplementation("io.ktor:ktor-client-logging")
-    testImplementation("io.ktor:ktor-client-okhttp")
+    testImplementation(libs.ktor.client.content.negotitation)
+    testImplementation(libs.ktor.serialization.kotlinx.json)
+    testImplementation(libs.ktor.server.test.host)
+    testImplementation(libs.ktor.client.logging)
+    testImplementation(libs.ktor.client.okhttp)
 }

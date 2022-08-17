@@ -20,7 +20,7 @@ plugins {
 }
 
 dependencies {
-    implementation("com.github.spullara.mustache.java:compiler:0.9.10")
+    implementation(libs.mustache.compiler)
     implementation(project(":lib:email"))
     implementation(project(":database"))
 }

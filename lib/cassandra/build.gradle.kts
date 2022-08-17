@@ -21,9 +21,9 @@ plugins {
 }
 
 dependencies {
-    testImplementation("org.testcontainers:cassandra:1.17.3")
-    testImplementation(project(":testing"))
-
-    api("com.datastax.cassandra:cassandra-driver-core:3.11.2")
     implementation(project(":lib:metrics"))
+    api(libs.cassandra.driver)
+
+    testImplementation(libs.testcontainers.cassandra)
+    testImplementation(project(":testing"))
 }

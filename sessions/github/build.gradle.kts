@@ -20,7 +20,7 @@ plugins {
 }
 
 dependencies {
-    implementation("org.noelware.ktor:core:0.3.1-beta")
+    implementation(libs.noelware.ktor.routing.core)
     implementation(project(":database"))
     implementation(project(":sessions"))
 }

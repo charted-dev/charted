@@ -20,7 +20,7 @@ plugins {
 }
 
 dependencies {
-    implementation("io.prometheus:simpleclient_hotspot:0.16.0")
-    api("io.prometheus:simpleclient_common:0.16.0")
-    api("io.prometheus:simpleclient:0.16.0")
+    implementation(libs.prometheus.simpleclient.hotspot)
+    api(libs.prometheus.simpleclient.common)
+    api(libs.prometheus.simpleclient)
 }

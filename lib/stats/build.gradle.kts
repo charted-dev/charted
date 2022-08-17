@@ -21,5 +21,5 @@ plugins {
 
 dependencies {
     // kotlinx.coroutines Debug
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug")
+    implementation(libs.kotlinx.coroutines.debug)
 }

@@ -28,14 +28,15 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.apache.tomcat:annotations-api:6.0.53")
-    api("com.google.protobuf:protobuf-kotlin:3.20.1")
-    api("com.google.protobuf:protobuf-java:3.20.1")
-    runtimeOnly("io.grpc:grpc-netty-shaded:1.46.0")
-    api("io.grpc:grpc-kotlin-stub:1.3.0")
-    api("io.grpc:grpc-protobuf:1.46.0")
-    api("io.grpc:grpc-services:1.46.0")
-    api("io.grpc:grpc-stub:1.46.0")
+    compileOnly(libs.tomcat.annotations.api)
+    runtimeOnly(libs.grpc.netty.shaded)
+
+    api(libs.grpc.kotlin.stub)
+    api(libs.protobufs.kotlin)
+    api(libs.protobufs.java)
+    api(libs.grpc.protobuf)
+    api(libs.grpc.services)
+    api(libs.grpc.stub)
 }
 
 sourceSets {
