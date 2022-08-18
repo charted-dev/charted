@@ -32,10 +32,11 @@ class StatisticsCollector {
         register("jvm" to JvmStatCollector())
     }
 
-    fun <I, C: StatCollector<I>> register(mapping: Pair<String, C>) {
+    fun <I: Any, C: StatCollector<I>> register(mapping: Pair<String, C>) {
         val (name, collector) = mapping
         collectors[name] = collector
     }
 
+    @Suppress("UNCHECKED_CAST")
     suspend fun <T> collect(name: String): T? = (collectors[name] as? StatCollector<T>)?.collect()
 }

@@ -16,15 +16,10 @@
  */
 
 plugins {
-    `charted-java-module`
     `charted-module`
     `charted-test`
 }
 
 dependencies {
-    implementation(project(":lib:metrics"))
-    api(libs.cassandra.driver)
-
-    testImplementation(libs.testcontainers.cassandra)
-    testImplementation(libs.testcontainers.core)
+    implementation(project(":core"))
 }

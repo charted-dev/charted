@@ -15,16 +15,11 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-java-module`
-    `charted-module`
-    `charted-test`
-}
+package org.noelware.charted.engine.charts
 
-dependencies {
-    implementation(project(":lib:metrics"))
-    api(libs.cassandra.driver)
+import dev.floofy.utils.slf4j.logging
+import org.noelware.charted.core.StorageWrapper
 
-    testImplementation(libs.testcontainers.cassandra)
-    testImplementation(libs.testcontainers.core)
+class DefaultChartsEngine(private val storage: StorageWrapper): ChartsEngine {
+    private val log by logging<DefaultChartsEngine>()
 }

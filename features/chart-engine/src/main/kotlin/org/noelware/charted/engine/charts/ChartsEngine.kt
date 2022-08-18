@@ -15,16 +15,9 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-java-module`
-    `charted-module`
-    `charted-test`
-}
+package org.noelware.charted.engine.charts
 
-dependencies {
-    implementation(project(":lib:metrics"))
-    api(libs.cassandra.driver)
-
-    testImplementation(libs.testcontainers.cassandra)
-    testImplementation(libs.testcontainers.core)
-}
+/**
+ * Represents the engine for handling Helm Charts.
+ */
+interface ChartsEngine

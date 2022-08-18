@@ -43,6 +43,7 @@ include(
     ":distribution:rpm",
     ":distribution:scoop",
     ":features:audit-logs",
+    ":features:chart-engine",
     ":features:docker-registry",
     ":features:webhooks",
     ":lib:analytics:protobufs",
@@ -102,12 +103,12 @@ gradle.settingsEvaluated {
         logger.lifecycle("[preinit] Use `-Dorg.noelware.charted.overwriteCache=true|yes|1|si` to overwrite cache to [$buildCacheDir]")
     }
 
-//    if (System.getProperty("org.noelware.charted.ignoreJavaCheck") == "true")
-//        return@settingsEvaluated
-//
-//    if (JavaVersion.current() != JavaVersion.VERSION_17) {
-//        throw GradleException("This build of charted-server requires JDK 17. It's currently [${System.getProperty("java.home")}], you can ignroe this check by providing '-Dorg.noelware.charted.ignoreJavaCheck=true'")
-//    }
+    if (System.getProperty("org.noelware.charted.ignoreJavaCheck", "false").matches("^(yes|true|1|si|si*)$".toRegex()))
+        return@settingsEvaluated
+
+    val version = JavaVersion.current()
+    if (version.majorVersion.toInt() < 17)
+        throw GradleException("Developing charted-server requires JDK 17, it is currently set in [${System.getProperty("java.home")}, ${System.getProperty("java.version")}] - You can ignore this check by providing the `-Dorg.noelware.charted.ignoreJavaCheck=true` system property.")
 }
 
 val buildScanServer = System.getProperty("org.noelware.charted.gradle.build-scan-server", "") ?: ""
@@ -120,6 +121,11 @@ gradleEnterprise {
         } else {
             termsOfServiceUrl = "https://gradle.com/terms-of-service"
             termsOfServiceAgree = "yes"
+
+            // Always publish if we're on CI.
+            if (System.getenv("CI") != null) {
+                publishAlways()
+            }
         }
 
         obfuscation {

@@ -22,12 +22,14 @@ import com.datastax.driver.core.ResultSet
 import com.datastax.driver.core.Session
 import dev.floofy.utils.slf4j.logging
 import okhttp3.internal.closeQuietly
+import org.intellij.lang.annotations.Language
 import org.noelware.charted.common.SetOnceGetValue
 import org.noelware.charted.common.data.CassandraConfig
+import java.io.Closeable
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 
-class CassandraConnection(private val config: CassandraConfig): AutoCloseable {
+class CassandraConnection(private val config: CassandraConfig): Closeable {
     private val _serverVersion: SetOnceGetValue<String> = SetOnceGetValue()
     private val _session: SetOnceGetValue<Session> = SetOnceGetValue()
     private val _cluster: SetOnceGetValue<Cluster> = SetOnceGetValue()
@@ -50,8 +52,8 @@ class CassandraConnection(private val config: CassandraConfig): AutoCloseable {
     val calls: Long
         get() = _calls.get()
 
-    fun sql(sql: String): ResultSet = sql(sql, *arrayOf())
-    fun sql(sql: String, vararg args: Any?): ResultSet = try {
+    fun sql(@Language("sql") sql: String): ResultSet = sql(sql, *arrayOf())
+    fun sql(@Language("sql") sql: String, vararg args: Any?): ResultSet = try {
         val rs = session.execute(sql, *args)
         _calls.incrementAndGet()
 

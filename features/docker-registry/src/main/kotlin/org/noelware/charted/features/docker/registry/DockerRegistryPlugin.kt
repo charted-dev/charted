@@ -31,6 +31,7 @@ import io.ktor.server.response.*
 import io.ktor.util.*
 import io.ktor.utils.io.*
 import kotlinx.serialization.json.*
+import org.apache.commons.lang3.time.StopWatch
 import org.slf4j.Logger
 import java.util.*
 
@@ -106,13 +107,13 @@ val DockerRegistryPlugin = createApplicationPlugin("DockerRegistryPlugin", ::Reg
             return@onCall
         }
 
-        log.info("Proxying request to [${call.request.httpMethod} http${if (pluginConfig.ssl) "s" else ""}://${pluginConfig.host}:${pluginConfig.port}${call.request.uri}]")
         val channel = call.request.receiveChannel()
         val size = channel.availableForRead
         val byteArray = ByteArray(size)
         channel.readFully(byteArray, 0, size)
         log.debug("Read body channel! received [${byteArray.size}] bytes")
 
+        val sw = StopWatch.createStarted()
         try {
             val content = httpClient.doRequest(
                 call,
@@ -133,9 +134,13 @@ val DockerRegistryPlugin = createApplicationPlugin("DockerRegistryPlugin", ::Reg
                 )
             } ?: return@onCall
 
+            sw.stop()
+            log.info("Took ${sw.formatTime()} to complete proxy request.")
+
             call.respond(content)
         } catch (e: Exception) {
-            log.error("Unable to request to ${call.request.httpMethod} http${if (pluginConfig.ssl) "s" else ""}://${pluginConfig.host}:${pluginConfig.port}${call.request.uri}:", e)
+            sw.stop()
+            log.error("Unable to request to ${call.request.httpMethod} http${if (pluginConfig.ssl) "s" else ""}://${pluginConfig.host}:${pluginConfig.port}${call.request.uri} [took ${sw.formatTime()}]:", e)
             call.respond(
                 HttpStatusCode.InternalServerError,
                 buildJsonObject {

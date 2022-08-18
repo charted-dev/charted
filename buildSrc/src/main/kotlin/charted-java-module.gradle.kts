@@ -19,6 +19,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.noelware.charted.gradle.*
 import dev.floofy.utils.gradle.*
+import gradle.kotlin.dsl.accessors._657ac3b2e5072282e18494eb2b5fc9d6.testImplementation
 
 plugins {
     id("com.diffplug.spotless")
@@ -38,11 +39,6 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains:annotations:20.1.0")
-
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
-    testImplementation("org.testcontainers:testcontainers:1.17.3")
-    testImplementation("org.slf4j:slf4j-simple:1.7.36")
 
     if (name != "common") {
         implementation(project(":common"))

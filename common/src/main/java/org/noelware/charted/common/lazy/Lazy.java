@@ -15,16 +15,16 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-java-module`
-    `charted-module`
-    `charted-test`
-}
+package org.noelware.charted.common.lazy;
 
-dependencies {
-    implementation(project(":lib:metrics"))
-    api(libs.cassandra.driver)
-
-    testImplementation(libs.testcontainers.cassandra)
-    testImplementation(libs.testcontainers.core)
+/**
+ * Represents a value that is lazily evaluated.
+ * @author Noel <cutie@floofy.dev>
+ * @since 17.08.22
+ */
+public interface Lazy<T> {
+    /**
+     * Returns the lazily evaluated value as T.
+     */
+    T get();
 }

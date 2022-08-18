@@ -30,7 +30,8 @@ repositories {
 dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
-    testImplementation("org.testcontainers:testcontainers:1.17.2")
+    testImplementation("org.testcontainers:testcontainers:1.17.3")
+    testImplementation("org.testcontainers:junit-jupiter:1.17.3")
     testImplementation("ch.qos.logback:logback-classic:1.2.11")
     testImplementation("ch.qos.logback:logback-core:1.2.11")
     testImplementation("org.slf4j:slf4j-simple:1.7.36")
@@ -39,6 +40,9 @@ dependencies {
 
 tasks.withType<Test>().configureEach {
     outputs.upToDateWhen { false }
+    maxParallelForks = Runtime.getRuntime().availableProcessors()
+    failFast = true // kill gradle if a test fails
+
     testLogging {
         events.addAll(listOf(TestLogEvent.PASSED, TestLogEvent.FAILED, TestLogEvent.SKIPPED))
         showStandardStreams = true

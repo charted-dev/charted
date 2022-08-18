@@ -15,16 +15,28 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-java-module`
-    `charted-module`
-    `charted-test`
-}
+package org.noelware.charted.common.lazy;
 
-dependencies {
-    implementation(project(":lib:metrics"))
-    api(libs.cassandra.driver)
+public class LazyImpl<T> implements Lazy<T> {
+    private static final Object UNINIT = new Object();
+    private static volatile Object _instance = UNINIT;
 
-    testImplementation(libs.testcontainers.cassandra)
-    testImplementation(libs.testcontainers.core)
+    private final LazilyProvide<T> provider;
+    private final Object _lock = new Object();
+
+    public LazyImpl(LazilyProvide<T> provider) {
+        this.provider = provider;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public T get() {
+        synchronized (_lock) {
+            if (_instance == UNINIT) {
+                _instance = provider.get();
+            }
+        }
+
+        return (T) _instance;
+    }
 }
