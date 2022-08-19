@@ -15,19 +15,24 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-java-module`
-    `charted-module`
-    `charted-test`
-}
+package org.noelware.charted.core.logback;
 
-dependencies {
-    // Logback
-    implementation(libs.logback.contrib.json.classic)
-    implementation(libs.logback.contrib.jackson)
-    implementation(libs.logback.core)
-    implementation(libs.jackson)
+import ch.qos.logback.contrib.json.JsonFormatter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.StringWriter;
+import java.util.Map;
 
-    // Projects
-    implementation(project(":database"))
+public class LogbackJsonFormatter implements JsonFormatter {
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    @Override
+    public String toJsonString(Map m) throws Exception {
+        final var writer = new StringWriter(512);
+        final var generator = mapper.getFactory().createGenerator(writer);
+
+        mapper.writeValue(generator, m);
+        writer.flush();
+
+        return writer + "\n";
+    }
 }

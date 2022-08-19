@@ -17,10 +17,11 @@
 
 package org.noelware.charted.tests.cassandra;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 import org.junit.Test;
+import org.noelware.charted.common.Provider;
 import org.noelware.charted.common.data.CassandraConfig;
 import org.noelware.charted.common.lazy.Lazy;
 import org.noelware.charted.common.lazy.LazyImpl;
@@ -39,15 +40,39 @@ public class CassandraTests {
     private final Lazy<CassandraConfig> configuration = new LazyImpl<>(
             () -> new CassandraConfig(null, null, "", List.of(container.getHost()), container.getMappedPort(9042)));
 
-    @Test
-    public void assertIsRunning() {
+    private void createConnection(Provider.Param1<CassandraConnection> provider) {
         if (!container.isRunning()) container.start();
         try (final var connection = new CassandraConnection(configuration.get())) {
             assertFalse(connection.getClosed());
             assertThrows(IllegalStateException.class, connection::getServerVersion);
 
             connection.connect();
-            assertEquals("4.0.5", connection.getServerVersion());
+            provider.get(connection);
         }
+    }
+
+    @Test
+    public void assertIsRunning() {
+        createConnection((connection) -> assertEquals("4.0.5", connection.getServerVersion()));
+    }
+
+    @Test
+    public void testCrudOperations() {
+        createConnection((connection) -> {
+            assertDoesNotThrow(() -> {
+                connection.sql(
+                        "CREATE KEYSPACE testdb WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 2};");
+            });
+
+            var keyspaces =
+                    connection.sql("select * from system_schema.keyspaces").all();
+            assertNotEquals(0, keyspaces.size());
+
+            var notSystemKs = keyspaces.stream()
+                    .filter(it -> !it.getString("keyspace_name").startsWith("system"))
+                    .count();
+
+            assertEquals(1, notSystemKs);
+        });
     }
 }

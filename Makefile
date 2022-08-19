@@ -17,7 +17,7 @@
 run: build
 	@CHARTED_DISTRIBUTION_TYPE=git ./server/build/install/charted-server/charted-server
 
-build: clean spotless
+build: spotless
 	@./gradlew :server:installDist
 	@chmod +x ./server/build/install/charted-server/charted-server
 

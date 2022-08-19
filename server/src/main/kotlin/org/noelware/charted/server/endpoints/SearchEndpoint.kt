@@ -22,6 +22,7 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import kotlinx.serialization.json.*
 import org.noelware.charted.common.data.Config
+import org.noelware.charted.common.data.responses.Response
 import org.noelware.charted.search.elasticsearch.ElasticsearchClient
 import org.noelware.charted.search.meilisearch.MeilisearchClient
 import org.noelware.ktor.body
@@ -46,15 +47,7 @@ class SearchEndpoint(
         if (!enabled) {
             call.respond(
                 HttpStatusCode.NotFound,
-                buildJsonObject {
-                    put("success", false)
-                    putJsonArray("errors") {
-                        addJsonObject {
-                            put("code", "SEARCH_NOT_ENABLED")
-                            put("message", "The search API is not enabled due to no backend being configured.")
-                        }
-                    }
-                }
+                Response.err("SEARCH_NOT_ENABLED", "The search API is not enabled due to no backend being configured.")
             )
 
             return
@@ -65,10 +58,7 @@ class SearchEndpoint(
             val result = elasticsearch.search(body.query, body.limit, body.offset)
             call.respond(
                 HttpStatusCode.OK,
-                buildJsonObject {
-                    put("success", true)
-                    put("data", result)
-                }
+                Response.ok(result)
             )
 
             return

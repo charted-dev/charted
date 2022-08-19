@@ -15,22 +15,13 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.core.logback
+package org.noelware.charted.core.logback;
 
-import ch.qos.logback.contrib.json.JsonFormatter
-import com.fasterxml.jackson.databind.ObjectMapper
-import java.io.StringWriter
+import ch.qos.logback.classic.pattern.NamedConverter;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 
-class JsonLogbackFormatter: JsonFormatter {
-    private val mapper: ObjectMapper = ObjectMapper()
-
-    override fun toJsonString(m: MutableMap<Any?, Any?>?): String {
-        val writer = StringWriter(512)
-        val generator = mapper.factory.createGenerator(writer)
-
-        mapper.writeValue(generator, m)
-        writer.flush()
-
-        return writer.toString() + "\n"
+public class ThreadNameComposite extends NamedConverter {
+    protected String getFullyQualifiedName(ILoggingEvent event) {
+        return event.getThreadName();
     }
 }

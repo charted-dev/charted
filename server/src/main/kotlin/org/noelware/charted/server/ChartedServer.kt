@@ -21,6 +21,7 @@ import com.charleskorn.kaml.YamlException
 import dev.floofy.haru.Scheduler
 import dev.floofy.utils.koin.inject
 import dev.floofy.utils.koin.retrieve
+import dev.floofy.utils.kotlin.humanize
 import dev.floofy.utils.kotlin.ifNotNull
 import dev.floofy.utils.slf4j.logging
 import io.ktor.http.*
@@ -38,6 +39,7 @@ import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.netty.util.Version
 import io.sentry.Sentry
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -278,8 +280,6 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
                                 put("success", false)
                                 putJsonArray("errors") {
                                     addJsonObject {
-                                        put("message", "Unknown exception had occurred.")
-                                        put("code", "UNKNOWN_EXCEPTION")
                                         if (self.config.debug) {
                                             put("message", cause.message)
                                             put("stacktrace", cause.stackTraceToString())
@@ -290,6 +290,9 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
                                                     put("stacktrace", stackTraceToString())
                                                 }
                                             }
+                                        } else {
+                                            put("message", "Unknown exception had occurred.")
+                                            put("code", "UNKNOWN_EXCEPTION")
                                         }
                                     }
                                 }
@@ -345,6 +348,10 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
             }
         }
 
+        val versions = Version.identify()
+        val version = versions[versions.keys.first()]!!
+
+        log.info("Using Netty v${version.artifactVersion()} [${version.shortCommitHash()}, ${(System.currentTimeMillis() - version.buildTimeMillis()).humanize(true)} ago]")
         server.start(wait = true)
     }
 

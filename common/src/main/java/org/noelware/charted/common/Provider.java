@@ -15,19 +15,17 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-java-module`
-    `charted-module`
-    `charted-test`
-}
+package org.noelware.charted.common;
 
-dependencies {
-    // Logback
-    implementation(libs.logback.contrib.json.classic)
-    implementation(libs.logback.contrib.jackson)
-    implementation(libs.logback.core)
-    implementation(libs.jackson)
+/**
+ * Represents a generic provider function.
+ * @param <T> value returned.
+ */
+@FunctionalInterface
+public interface Provider<T> {
+    T get();
 
-    // Projects
-    implementation(project(":database"))
+    interface Param1<U> {
+        void get(U first);
+    }
 }
