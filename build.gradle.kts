@@ -41,7 +41,7 @@ tasks {
     }
 
     create<Copy>("gitHooks") {
-        from(file("${project.rootDir}/scripts/git-hook.sh"))
+        from(file("${project.rootDir}/scripts/pre-commit"))
         into(file("${project.rootDir}/.git/hooks"))
     }
 }
