@@ -22,7 +22,7 @@ import kotlinx.serialization.SerialName
 import org.noelware.charted.stats.StatCollector
 import java.lang.management.ManagementFactory
 import java.lang.management.ThreadMXBean
-import kotlin.time.Duration.Companion.nanoseconds
+import java.time.Duration
 
 @kotlinx.serialization.Serializable
 data class ThreadStats(
@@ -33,6 +33,8 @@ data class ThreadStats(
 
 @kotlinx.serialization.Serializable
 data class ThreadInfo(
+    val stacktrace: List<ThreadStackTrace> = listOf(),
+
     @SerialName("user_time_ms")
     val userTimeMs: Long,
 
@@ -44,7 +46,6 @@ data class ThreadInfo(
 
     @SerialName("cpu_time_human")
     val cpuTimeHuman: String? = null,
-    val stacktrace: List<ThreadStackTrace> = listOf(),
     val suspended: Boolean,
     val background: Boolean,
     val state: String,
@@ -55,13 +56,13 @@ data class ThreadInfo(
 @kotlinx.serialization.Serializable
 data class ThreadStackTrace(
     @SerialName("class_loader_name")
-    val classLoaderName: String,
+    val classLoaderName: String? = null,
 
     @SerialName("module_name")
-    val moduleName: String,
+    val moduleName: String? = null,
 
     @SerialName("module_version")
-    val moduleVersion: String,
+    val moduleVersion: String? = null,
 
     @SerialName("declaring_class")
     val declaringClass: String,
@@ -86,10 +87,6 @@ class ThreadStatCollector: StatCollector<ThreadStats> {
             val cpuTimeMs = if (threads.isThreadCpuTimeEnabled) threads.getThreadCpuTime(it.threadId) else -1
 
             ThreadInfo(
-                if (userTimeMs == -1L) -1 else userTimeMs.nanoseconds.inWholeMilliseconds,
-                if (userTimeMs == -1L) null else userTimeMs.nanoseconds.inWholeMilliseconds.humanize(),
-                if (cpuTimeMs == -1L) -1 else cpuTimeMs.nanoseconds.inWholeMilliseconds,
-                if (cpuTimeMs == -1L) null else cpuTimeMs.nanoseconds.inWholeMilliseconds.humanize(),
                 it.stackTrace.map { element ->
                     ThreadStackTrace(
                         element.classLoaderName,
@@ -103,6 +100,10 @@ class ThreadStatCollector: StatCollector<ThreadStats> {
                     )
                 },
 
+                if (userTimeMs == -1L) -1 else Duration.ofNanos(userTimeMs).toMillis(),
+                if (userTimeMs == -1L) null else Duration.ofNanos(userTimeMs).toMillis().humanize(),
+                if (cpuTimeMs == -1L) -1 else Duration.ofNanos(cpuTimeMs).toMillis(),
+                if (cpuTimeMs == -1L) null else Duration.ofNanos(cpuTimeMs).toMillis().humanize(),
                 it.isSuspended,
                 it.isDaemon,
                 it.threadState.name,

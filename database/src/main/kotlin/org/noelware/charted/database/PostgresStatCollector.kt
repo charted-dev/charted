@@ -49,13 +49,37 @@ class PostgresStatCollector(private val config: Config): StatCollector<PostgresS
 
         // this will be in seconds, so we need to transform it into milliseconds to get the humanized
         // time correctly.
-        val uptime = exec("SELECT extract(epoch FROM current_timestamp - pg_postmaster_start_time()) AS uptime;") { rs -> rs.getLong("uptime").toDuration(DurationUnit.MILLISECONDS) }
-        val version = exec("SHOW server_version;") { rs -> rs.getString("server_version") }
+        val uptime = exec("SELECT extract(epoch FROM current_timestamp - pg_postmaster_start_time()) AS uptime;") { rs ->
+            if (!rs.next()) return@exec 0L
+
+            rs.getLong("uptime").toDuration(DurationUnit.MILLISECONDS).inWholeMilliseconds
+        }
+
+        val version = exec("SELECT version();") { rs ->
+            if (!rs.next()) return@exec "???"
+
+            val version = rs.getString("version").trim()
+            version.split(" ").first { it.matches("\\d{0,9}.\\d{0,9}?\\d{0,9}".toRegex()) }
+        }
 
         exec(
             "SELECT numbackends, tup_fetched, tup_inserted, tup_deleted FROM pg_stat_database WHERE datname = ?;",
             listOf(TextColumnType() to config.postgres.name)
         ) { rs ->
+            if (!rs.next()) {
+                return@exec PostgresStats(
+                    o,
+                    version!!,
+                    r,
+                    0,
+                    0,
+                    0,
+                    0,
+                    uptime!!,
+                    u
+                )
+            }
+
             PostgresStats(
                 o,
                 version!!,
@@ -64,7 +88,7 @@ class PostgresStatCollector(private val config: Config): StatCollector<PostgresS
                 rs.getLong("tup_inserted"),
                 rs.getLong("tup_deleted"),
                 rs.getLong("tup_fetched"),
-                uptime!!.inWholeMilliseconds,
+                uptime!!,
                 u
             )
         }!!

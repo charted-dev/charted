@@ -133,10 +133,14 @@ sealed class Response<out T>(val success: Boolean) {
             APIError(
                 "INTERNAL_SERVER_ERROR",
                 throwable.message ?: "(empty message)",
-                if (DebugUtils.isDebugEnabled()) APIError.APIErrorCause(
-                    throwable.cause!!.message ?: "(empty message)",
-                    throwable.cause!!.stackTraceToString()
-                ) else null
+                if (DebugUtils.isDebugEnabled() && throwable.cause != null) {
+                    APIError.APIErrorCause(
+                        throwable.cause!!.message ?: "(empty message)",
+                        throwable.cause!!.stackTraceToString()
+                    )
+                } else {
+                    null
+                }
             )
         )
     }

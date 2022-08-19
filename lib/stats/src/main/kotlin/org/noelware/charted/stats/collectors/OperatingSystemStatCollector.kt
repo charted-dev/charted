@@ -40,14 +40,19 @@ class OperatingSystemStatCollector: StatCollector<OsStats> {
 
     override suspend fun collect(): OsStats {
         val distro: String? = if (OperatingSystem.current().isLinux) {
-            val releases = File("/etc/os-release").readText(Charset.defaultCharset())
-            val data = releases.split("\n\r?".toRegex()).associate { value ->
-                val (key, v) = value.split("=")
+            try {
+                val releases = File("/etc/os-release").readText(Charset.defaultCharset())
+                val data = releases.split("\n\r?".toRegex()).dropLast(1).associate { value ->
+                    val (key, v) = value.split("=")
 
-                key to v.replace("\"", "")
+                    key to v.replace("\"", "")
+                }
+
+                "${data["NAME"]} (${data["ID"]})"
+            } catch (e: Exception) {
+                // return blank because we probably can't read the file :(
+                ""
             }
-
-            "${data["NAME"]} (${data["ID"]})"
         } else {
             null
         }

@@ -45,7 +45,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.*
 import org.koin.core.context.GlobalContext
 import org.noelware.charted.analytics.AnalyticsServer
@@ -53,6 +52,7 @@ import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.SetOnceGetValue
 import org.noelware.charted.common.data.Config
 import org.noelware.charted.common.data.Feature
+import org.noelware.charted.common.data.responses.Response
 import org.noelware.charted.common.exceptions.ValidationException
 import org.noelware.charted.features.docker.registry.DockerRegistryPlugin
 import org.noelware.charted.server.endpoints.proxyStorageTrailer
@@ -190,36 +190,6 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
                         )
                     }
 
-                    exception<SerializationException> { call, cause ->
-                        if (SentryClient.isEnabled()) {
-                            SentryClient.captureException(cause)
-                        }
-
-                        self.log.error("Serialization exception had occurred while handling request [${call.request.httpMethod.value} ${call.request.path()}]:", cause)
-                        call.respond(
-                            HttpStatusCode.NotAcceptable,
-                            buildJsonObject {
-                                put("success", false)
-                                putJsonArray("errors") {
-                                    addJsonObject {
-                                        put("message", cause.message!!)
-                                        put("code", "SERIALIZATION_ERROR")
-                                        if (self.config.debug) {
-                                            put("stacktrace", cause.stackTraceToString())
-
-                                            cause.cause.ifNotNull {
-                                                putJsonObject("caused") {
-                                                    put("message", message)
-                                                    put("stacktrace", stackTraceToString())
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        )
-                    }
-
                     exception<ValidationException> { call, cause ->
                         if (SentryClient.isEnabled()) {
                             SentryClient.captureException(cause)
@@ -228,15 +198,7 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
                         self.log.error("Received validation exception in route [${call.request.httpMethod.value} ${call.request.path()}] ${cause.path} [${cause.validationMessage}]")
                         call.respond(
                             HttpStatusCode.NotAcceptable,
-                            buildJsonObject {
-                                put("success", false)
-                                putJsonArray("errors") {
-                                    addJsonObject {
-                                        put("message", cause.validationMessage)
-                                        put("code", "VALIDATION_EXCEPTION")
-                                    }
-                                }
-                            }
+                            Response.err("VALIDATION_EXCEPTION", cause.validationMessage)
                         )
                     }
 
@@ -276,27 +238,7 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
                         self.log.error("Unknown exception had occurred while handling request [${call.request.httpMethod.value} ${call.request.path()}]", cause)
                         call.respond(
                             HttpStatusCode.InternalServerError,
-                            buildJsonObject {
-                                put("success", false)
-                                putJsonArray("errors") {
-                                    addJsonObject {
-                                        if (self.config.debug) {
-                                            put("message", cause.message)
-                                            put("stacktrace", cause.stackTraceToString())
-
-                                            cause.cause.ifNotNull {
-                                                putJsonObject("cause") {
-                                                    put("message", message)
-                                                    put("stacktrace", stackTraceToString())
-                                                }
-                                            }
-                                        } else {
-                                            put("message", "Unknown exception had occurred.")
-                                            put("code", "UNKNOWN_EXCEPTION")
-                                        }
-                                    }
-                                }
-                            }
+                            Response.err(cause)
                         )
                     }
                 }
