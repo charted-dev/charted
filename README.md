@@ -53,13 +53,13 @@ Since **charted-server** is distributed using the official server, you can easil
 for future installations of Noelware's products:
 
 ```shell
-$ helm repo add noelware https://charts.noelware.org/noelware
+$ helm repo add charted https://charts.noelware.org/r/charted
 ```
 
-Now you have indexed all of Noelware's repositories from the official server, you can install **charted-server**:
+Now you have indexed all of charted's repositories from the official server, you can install the server:
 
 ```shell
-$ helm install <my-release> noelware/charted-server
+$ helm install <my-release> charted/server
 ```
 
 This will bootstrap the server and the frontend UI available at [charted-dev/pak](https://github.com/charted-dev/pak). If you want
@@ -67,19 +67,19 @@ to see the official server's frontend source code, you can visit the [Noelware/c
 repository.
 
 ### Docker Image
-You can bootstrap **charted** using the Docker images hosted on [Docker Hub](https://hub.docker.com/r/noelware/charted-server) or
-on the [GitHub Container Registry]().
+You can bootstrap **charted** using the Docker images hosted on Noelware's Docker Registry @ docker.noelware.org, or use nightly builds
+on the GitHub Container Registry.
 
 **charted-server** only supports the use of Linux containers on x86_64 architectures.
 
 ```shell
 # 1. We must pull the image so we can later run it. Read the tag specification for more information
 # about the `[tag]` suffix in this example. You can append `ghcr.io` in the image (i.e: `ghcr.io/charted-dev/charted:[tag]`)
-# to use GitHub's Container Registry rather than Docker Hub.
-$ docker pull noelware/charted-server:[tag]
+# to use GitHub's Container Registry.
+$ docker pull docker.noelware.org/charted/server:[tag]
 
 # 2. Run the image!
-$ docker run -d -p 12152:12152 -v ~/config.yml:/app/charted/server/config.yaml noelware/charted-server:[tag]
+$ docker run -d -p 3651:3651 -v ~/config.yml:/app/charted/server/config.yaml docker.noelware.org/charted/server:[tag]
 ```
 
 #### Tag Specification
@@ -114,7 +114,7 @@ $ eget charted-dev/charted
 You can use **cURL** to easily get an installation running very quickly:
 
 ```shell
-$ curl -fsSl https://cdn.noelware.org/charted/server/install.sh | bash
+$ curl -fsSl https://dl.noelware.org/charted/server/install.sh | bash
 ```
 
 ## Locally with Git
