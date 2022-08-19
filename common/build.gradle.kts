@@ -94,4 +94,7 @@ dependencies {
 
     // Spring Security Crypto
     api(libs.spring.security.crypto)
+
+    // SemVer validation
+    api(libs.semver)
 }

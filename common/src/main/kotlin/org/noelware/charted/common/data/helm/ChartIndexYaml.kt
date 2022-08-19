@@ -29,5 +29,5 @@ data class ChartIndexYaml(
     val entries: MutableMap<String, MutableList<ChartIndexSpec>> = mutableMapOf(),
 
     @kotlinx.serialization.Serializable(with = HelmLocalDateTimeSerializer::class)
-    var generated: LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+    val generated: LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 )

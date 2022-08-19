@@ -36,6 +36,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
+import okhttp3.internal.closeQuietly
 import org.apache.commons.validator.routines.EmailValidator
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -46,7 +47,9 @@ import org.noelware.charted.common.IRedisClient
 import org.noelware.charted.common.RandomGenerator
 import org.noelware.charted.common.SHAUtils
 import org.noelware.charted.common.data.Config
+import org.noelware.charted.common.data.Feature
 import org.noelware.charted.common.data.helm.ChartIndexYaml
+import org.noelware.charted.common.data.responses.Response
 import org.noelware.charted.common.exceptions.StringOverflowException
 import org.noelware.charted.common.exceptions.StringUnderflowException
 import org.noelware.charted.common.exceptions.ValidationException
@@ -56,14 +59,13 @@ import org.noelware.charted.database.controllers.RepositoryController
 import org.noelware.charted.database.controllers.UserController
 import org.noelware.charted.database.entities.UserConnectionEntity
 import org.noelware.charted.database.entities.UserEntity
+import org.noelware.charted.database.models.User
 import org.noelware.charted.database.models.UserConnections
 import org.noelware.charted.database.tables.OrganizationTable
 import org.noelware.charted.database.tables.RepositoryTable
 import org.noelware.charted.database.tables.UserTable
-import org.noelware.charted.server.apiKeyOrNull
 import org.noelware.charted.server.currentUser
 import org.noelware.charted.server.plugins.Sessions
-import org.noelware.charted.server.plugins.sessionsKey
 import org.noelware.charted.server.session
 import org.noelware.charted.server.utils.createOutgoingContentWithBytes
 import org.noelware.charted.sessions.Session
@@ -97,9 +99,7 @@ data class LoginBody(
 }
 
 @kotlinx.serialization.Serializable
-data class Verify2faBody(
-    val code: String
-) {
+data class Verify2faBody(val code: String) {
     init {
         if (code.length < 6) {
             throw StringUnderflowException("body.code", code.length, 6)
@@ -110,6 +110,12 @@ data class Verify2faBody(
         }
     }
 }
+
+@kotlinx.serialization.Serializable
+private data class UserResponse(
+    val message: String,
+    val docs: String
+)
 
 class UserApiEndpoints(
     private val config: Config,
@@ -181,16 +187,12 @@ class UserApiEndpoints(
     suspend fun main(call: ApplicationCall) {
         call.respond(
             HttpStatusCode.OK,
-            buildJsonObject {
-                put("success", true)
-                put(
-                    "data",
-                    buildJsonObject {
-                        put("message", "Welcome to the Users API!")
-                        put("docs", "https://charts.noelware.org/docs/api/users")
-                    }
+            Response.ok(
+                UserResponse(
+                    message = "Welcome to the Users API!",
+                    docs = "https://charts.noelware.org/docs/server/api/users"
                 )
-            }
+            )
         )
     }
 
@@ -199,33 +201,29 @@ class UserApiEndpoints(
         val body: NewUserBody by call.body()
         if (!config.registrations) return call.respond(
             HttpStatusCode.Forbidden,
-            buildJsonObject {
-                put("success", false)
-                putJsonArray("errors") {
-                    addJsonObject {
-                        put("code", "REGISTRATIONS_OFF")
-                        put("message", "This instance is invite only! Please ask an administrator of this instance to give you access.")
-                    }
-                }
-            }
+            Response.err("REGISTRATIONS_DISABLED", "This instance has registrations disabled")
         )
 
         val (status, result) = UserController.create(body)
-        val serialized = yaml.encodeToString(ChartIndexYaml())
-        val id = result["data"]!!.jsonObject["id"]!!.jsonPrimitive.content
+        if (status != HttpStatusCode.OK) return call.respond(status, result)
 
-        if (storage.trailer is FilesystemStorageTrailer) {
-            val userFolder = File((storage.trailer as FilesystemStorageTrailer).normalizePath("./metadata/$id"))
-            userFolder.mkdirs()
+        if (!config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
+            val serialized = yaml.encodeToString(ChartIndexYaml())
+            val id = (result as Response.Ok<User>).data!!.id
+
+            if (storage.trailer is FilesystemStorageTrailer) {
+                val userFolder = File((storage.trailer as FilesystemStorageTrailer).normalizePath("./metadata/$id"))
+                userFolder.mkdirs()
+            }
+
+            storage.upload(
+                "./metadata/$id/index.yaml",
+                ByteArrayInputStream(serialized.toByteArray(Charsets.UTF_8)),
+                "application/yaml"
+            )
         }
 
-        storage.upload(
-            "./metadata/$id/index.yaml",
-            ByteArrayInputStream(serialized.toByteArray(Charsets.UTF_8)),
-            "application/yaml"
-        )
-
-        call.respond(status, result)
+        return call.respond(HttpStatusCode.OK, result)
     }
 
     @Delete
@@ -243,8 +241,10 @@ class UserApiEndpoints(
             OrganizationTable.deleteWhere { OrganizationTable.owner eq call.currentUser!!.id.toLong() }
         }
 
-        // Delete their metadata and the tarball releases.
-        storage.trailer.delete("./metadata/${call.currentUser!!.id}/index.yaml")
+        if (!config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
+            // Delete their metadata and the tarball releases.
+            storage.trailer.delete("./metadata/${call.currentUser!!.id}/index.yaml")
+        }
 
         call.respond(
             HttpStatusCode.Accepted,
@@ -259,23 +259,12 @@ class UserApiEndpoints(
         val user = UserController.get(call.currentUser!!.id.toLong())
             ?: return call.respond(
                 HttpStatusCode.NotFound,
-                buildJsonObject {
-                    put("success", false)
-                    putJsonArray("errors") {
-                        addJsonObject {
-                            put("code", "UNKNOWN_USER")
-                            put("message", "Can't retrieve user if their account was previously deleted!")
-                        }
-                    }
-                }
+                Response.err("UNKNOWN_USER", "Can't retrieve this user since their account was deleted.")
             )
 
         call.respond(
             HttpStatusCode.OK,
-            buildJsonObject {
-                put("success", true)
-                put("data", user.toJsonObject())
-            }
+            Response.ok(user)
         )
     }
 
@@ -284,12 +273,7 @@ class UserApiEndpoints(
         UserController.update(call.currentUser!!.id.toLong(), call.receive())
         call.respond(
             HttpStatusCode.OK,
-            buildJsonObject {
-                put("success", true)
-                putJsonObject("data") {
-                    put("acknowledged", true)
-                }
-            }
+            Response.ok()
         )
     }
 
@@ -299,29 +283,22 @@ class UserApiEndpoints(
             UserConnectionEntity.findById(call.currentUser!!.id.toLong())?.let { entity -> UserConnections.fromEntity(entity) }
         } ?: return call.respond(
             HttpStatusCode.NotFound,
-            buildJsonObject {
-                put("success", false)
-                putJsonArray("errors") {
-                    addJsonObject {
-                        put("code", "UNKNOWN_USER")
-                        put("message", "Can't retrieve user if their account was previously deleted!")
-                    }
-                }
-            }
+            Response.err("UNKNOWN_USER", "Can't retrieve this user since their account was deleted.")
         )
 
         call.respond(
             HttpStatusCode.OK,
-            buildJsonObject {
-                put("success", true)
-                put("data", connections.toJsonObject())
-            }
+            Response.ok(connections)
         )
     }
 
-    @Get("/@me/avatar")
+    @Get("/@me/avatars/current.png")
     suspend fun myAvatar(call: ApplicationCall) {
-        val user = UserController.get(call.currentUser!!.id.toLong())!!
+        val user = UserController.get(call.currentUser!!.id.toLong())
+            ?: return call.respond(
+                HttpStatusCode.NotFound,
+                Response.err("UNKNOWN_USER", "Can't retrieve this user since their account was deleted.")
+            )
 
         // We'll determine how to use the avatar from Gravatar (if `user.gravatar_email` is not null)
         // or Dicebar Avatars as a last resort.
@@ -364,35 +341,75 @@ class UserApiEndpoints(
         }
     }
 
+    @Get("/@me/avatars/{hash}")
+    suspend fun getUserAvatarByHash(call: ApplicationCall) {
+        val user = UserController.get(call.currentUser!!.id.toLong())
+            ?: return call.respond(
+                HttpStatusCode.NotFound,
+                Response.err("UNKNOWN_USER", "Can't retrieve this user since their account was deleted.")
+            )
+
+        val hash = call.parameters["hash"]!!
+
+        // We'll determine how to use the avatar from Gravatar (if `user.gravatar_email` is not null)
+        // or Dicebar Avatars as a last resort.
+        if (user.avatarHash == null) {
+            if (user.gravatarEmail != null) {
+                val md5Hash = SHAUtils.md5(user.gravatarEmail!!)
+                val url = "https://www.gravatar.com/avatar/$md5Hash.png"
+                val res = httpClient.get(url)
+                val body = res.body<ByteArray>()
+
+                call.respond(
+                    createOutgoingContentWithBytes(
+                        body,
+                        contentType = ContentType.parse(res.headers[HttpHeaders.ContentType]!!)
+                    )
+                )
+
+                return
+            }
+
+            val res = httpClient.get("https://avatars.dicebear.com/api/identicon/${call.currentUser!!.id}.svg")
+            val body = res.body<ByteArray>()
+
+            call.respond(
+                createOutgoingContentWithBytes(
+                    body,
+                    contentType = ContentType.parse(res.headers[HttpHeaders.ContentType]!!)
+                )
+            )
+
+            return
+        }
+
+        val stream = storage.open("./avatars/${call.currentUser!!.id}/$hash")
+            ?: return call.respond(HttpStatusCode.NotFound)
+
+        val bytes = stream.readBytes()
+        when (val contentType = storage.trailer.figureContentType(ByteArrayInputStream(bytes))) {
+            ContentType.Image.PNG.toString(), ContentType.Image.GIF.toString(), ContentType.Image.JPEG.toString() -> {
+                stream.closeQuietly()
+                call.respond(
+                    createOutgoingContentWithBytes(bytes, contentType = ContentType.parse(contentType))
+                )
+            }
+        }
+    }
+
     @Post("/@me/avatar")
     suspend fun uploadAvatar(call: ApplicationCall) {
         val multipart = call.receiveMultipart()
         val parts = multipart.readAllParts()
         val first = parts.firstOrNull() ?: return call.respond(
             HttpStatusCode.BadRequest,
-            buildJsonObject {
-                put("success", false)
-                putJsonArray("errors") {
-                    addJsonObject {
-                        put("code", "MORE_THAN_ONE_PART_SPECIFIED")
-                        put("message", "There can be only one part or there was no parts.")
-                    }
-                }
-            }
+            Response.err("EXCESSIVE_MULTIPART_AMOUNT", "There can be only one multipart in this request.")
         )
 
         if (first !is PartData.FileItem) {
             return call.respond(
                 HttpStatusCode.NotAcceptable,
-                buildJsonObject {
-                    put("success", false)
-                    putJsonArray("errors") {
-                        addJsonObject {
-                            put("code", "NOT_FILE_PART")
-                            put("message", "The multipart item was not a file.")
-                        }
-                    }
-                }
+                Response.err("NOT_FILE_PART", "The multipart object must be a File object.")
             )
         }
 
@@ -403,6 +420,8 @@ class UserApiEndpoints(
         }
 
         val data = baos.toByteArray()
+        baos.closeQuietly()
+
         val contentType = storage.trailer.figureContentType(data)
         if (!(listOf("image/png", "image/jpeg", "image/jpg", "image/gif").contains(contentType))) {
             return call.respond(
@@ -438,9 +457,7 @@ class UserApiEndpoints(
 
         call.respond(
             HttpStatusCode.Accepted,
-            buildJsonObject {
-                put("success", true)
-            }
+            Response.ok()
         )
     }
 
@@ -449,24 +466,13 @@ class UserApiEndpoints(
         val hasExpired = sessions.isExpired(call.session.accessToken)
         if (!hasExpired) return call.respond(
             HttpStatusCode.NotAcceptable,
-            buildJsonObject {
-                put("success", false)
-                putJsonArray("errors") {
-                    addJsonObject {
-                        put("code", "ACCESS_TOKEN_STILL_NEW")
-                        put("message", "Access token is still new! Please use your refresh token once it expires.")
-                    }
-                }
-            }
+            Response.err("ACCESS_TOKEN_STILL_NEW", "Access token hasn't expired yet! Please use your refresh token to expire it.")
         )
 
         val newSession = sessions.refreshSession(call.session)
         call.respond(
             HttpStatusCode.Created,
-            buildJsonObject {
-                put("success", true)
-                put("data", newSession.toJsonObject(true))
-            }
+            Response.ok(newSession.toJsonObject(true))
         )
     }
 
@@ -475,9 +481,7 @@ class UserApiEndpoints(
         sessions.revokeAllSessions(call.currentUser!!.id.toLong())
         call.respond(
             HttpStatusCode.Accepted,
-            buildJsonObject {
-                put("success", true)
-            }
+            Response.ok()
         )
     }
 
@@ -499,10 +503,7 @@ class UserApiEndpoints(
         val result = JsonArray(collected)
         call.respond(
             HttpStatusCode.OK,
-            buildJsonObject {
-                put("success", true)
-                put("data", result)
-            }
+            Response.ok(result)
         )
     }
 
@@ -512,73 +513,39 @@ class UserApiEndpoints(
         val session = sessions.getSessionById(UUID.fromString(sessionId))
             ?: return call.respond(
                 HttpStatusCode.NotFound,
-                buildJsonObject {
-                    put("success", false)
-                    putJsonArray("errors") {
-                        addJsonObject {
-                            put("code", "UNKNOWN_SESSION")
-                            put("message", "Unknown session with UUID [$sessionId]")
-                        }
-                    }
-                }
+                Response.err("UNKNOWN_SESSION", "Unknown session with UUID [$sessionId]")
             )
 
         // no token 4 u
         call.respond(
             HttpStatusCode.OK,
-            buildJsonObject {
-                put("success", true)
-                put("data", session.toJsonObject())
-            }
+            Response.ok(session.toJsonObject())
         )
     }
 
     @Get("/{id}")
     suspend fun user(call: ApplicationCall) {
-        val user = if (call.parameters["id"]!!.toLongOrNull() != null) {
-            val id = call.parameters["id"]!!.toLong()
-            UserController.get(id)
-        } else {
-            val name = call.parameters["id"]!!
-            UserController.getByUsername(name)
-        } ?: return call.respond(
-            HttpStatusCode.NotFound,
-            buildJsonObject {
-                put("success", false)
-                putJsonArray("errors") {
-                    addJsonObject {
-                        put("code", "UNKNOWN_USER")
-                        put("message", "Unknown user with ID or username: ${call.parameters["id"]}")
-                    }
-                }
-            }
-        )
+        val id = call.parameters["id"]!!
+        val user = when {
+            id.toLongOrNull() != null -> UserController.get(id.toLong())
+            id.matches("^([A-z]|-|_|\\d{0,9}){0,32}".toRegex()) -> UserController.getByUsername(id)
+            else -> null
+        } ?: return call.respond(HttpStatusCode.NotFound, Response.err("UNKNOWN_USER", "Unknown user with ID or username [$id]"))
 
         call.respond(
             HttpStatusCode.OK,
-            buildJsonObject {
-                put("success", true)
-                put("data", user.toJsonObject())
-            }
+            Response.ok(user)
         )
     }
 
-    @Get("/{id}/avatar")
+    @Get("/{id}/avatar/current.png")
     suspend fun avatar(call: ApplicationCall) {
-        val userID = call.parameters["id"]!!
-        val user = UserController.get(userID.toLong())
-            ?: return call.respond(
-                HttpStatusCode.NotFound,
-                buildJsonObject {
-                    put("success", false)
-                    putJsonArray("errors") {
-                        addJsonObject {
-                            put("code", "UNKNOWN_USER")
-                            put("message", "Unknown user by ID $userID")
-                        }
-                    }
-                }
-            )
+        val id = call.parameters["id"]!!
+        val user = when {
+            id.toLongOrNull() != null -> UserController.get(id.toLong())
+            id.matches("^([A-z]|-|_|\\d{0,9}){0,32}".toRegex()) -> UserController.getByUsername(id)
+            else -> null
+        } ?: return call.respond(HttpStatusCode.NotFound, Response.err("UNKNOWN_USER", "Unknown user with ID or username [$id]"))
 
         // We'll determine how to use the avatar from Gravatar (if `user.gravatar_email` is not null)
         // or Dicebar Avatars as a last resort.
@@ -599,7 +566,7 @@ class UserApiEndpoints(
                 return
             }
 
-            val res = httpClient.get("https://avatars.dicebear.com/api/identicon/$userID.svg")
+            val res = httpClient.get("https://avatars.dicebear.com/api/identicon/${user.id}.svg")
             val body = res.body<ByteArray>()
 
             call.respond(
@@ -612,22 +579,87 @@ class UserApiEndpoints(
             return
         }
 
-        val stream = storage.open("./avatars/$userID/${user.avatarHash}")!!
+        val stream = storage.open("./avatars/${user.id}/${user.avatarHash}")!!
         val bytes = stream.readBytes()
         when (val contentType = storage.trailer.figureContentType(ByteArrayInputStream(bytes))) {
-            ContentType.Image.PNG.toString(), ContentType.Image.GIF.toString(), ContentType.Image.JPEG.toString() -> call.respond(
-                createOutgoingContentWithBytes(bytes, contentType = ContentType.parse(contentType))
+            ContentType.Image.PNG.toString(), ContentType.Image.GIF.toString(), ContentType.Image.JPEG.toString() -> {
+                stream.closeQuietly()
+                call.respond(
+                    createOutgoingContentWithBytes(bytes, contentType = ContentType.parse(contentType))
+                )
+            }
+        }
+    }
+
+    @Get("/{id}/avatars/{hash}")
+    suspend fun getUserAvatarHash2(call: ApplicationCall) {
+        val id = call.parameters["id"]!!
+        val user = when {
+            id.toLongOrNull() != null -> UserController.get(id.toLong())
+            id.matches("^([A-z]|-|_|\\d{0,9}){0,32}".toRegex()) -> UserController.getByUsername(id)
+            else -> null
+        } ?: return call.respond(HttpStatusCode.NotFound, Response.err("UNKNOWN_USER", "Unknown user with ID or username [$id]"))
+
+        val hash = call.parameters["hash"]!!
+
+        // We'll determine how to use the avatar from Gravatar (if `user.gravatar_email` is not null)
+        // or Dicebar Avatars as a last resort.
+        if (user.avatarHash == null) {
+            if (user.gravatarEmail != null) {
+                val md5Hash = SHAUtils.md5(user.gravatarEmail!!)
+                val url = "https://www.gravatar.com/avatar/$md5Hash.png"
+                val res = httpClient.get(url)
+                val body = res.body<ByteArray>()
+
+                call.respond(
+                    createOutgoingContentWithBytes(
+                        body,
+                        contentType = ContentType.parse(res.headers[HttpHeaders.ContentType]!!)
+                    )
+                )
+
+                return
+            }
+
+            val res = httpClient.get("https://avatars.dicebear.com/api/identicon/${user.id}.svg")
+            val body = res.body<ByteArray>()
+
+            call.respond(
+                createOutgoingContentWithBytes(
+                    body,
+                    contentType = ContentType.parse(res.headers[HttpHeaders.ContentType]!!)
+                )
             )
+
+            return
+        }
+
+        val stream = storage.open("./avatars/${user.id}/$hash")
+            ?: return call.respond(HttpStatusCode.NotFound)
+
+        val bytes = stream.readBytes()
+        when (val contentType = storage.trailer.figureContentType(ByteArrayInputStream(bytes))) {
+            ContentType.Image.PNG.toString(), ContentType.Image.GIF.toString(), ContentType.Image.JPEG.toString() -> {
+                stream.closeQuietly()
+                call.respond(
+                    createOutgoingContentWithBytes(bytes, contentType = ContentType.parse(contentType))
+                )
+            }
         }
     }
 
     @Get("/{id}/index.yaml")
     suspend fun indexYaml(call: ApplicationCall) {
-        val uid = call.parameters["id"]!!.toLong()
+        val id = call.parameters["id"]!!
+        val user = when {
+            id.toLongOrNull() != null -> UserController.get(id.toLong())
+            id.matches("^([A-z]|-|_|\\d{0,9}){0,32}".toRegex()) -> UserController.getByUsername(id)
+            else -> null
+        } ?: return call.respond(HttpStatusCode.NotFound, Response.err("UNKNOWN_USER", "Unknown user with ID or username [$id]"))
 
         // This should never happen since when a user is created, a blank index.yaml file
         // is created in ./metadata/$uid/index.yaml!
-        val result = storage.open("./metadata/$uid/index.yaml")!!
+        val result = storage.open("./metadata/${user.id}/index.yaml")!!
         val bytes = result.readBytes()
 
         call.respondText(
@@ -646,29 +678,13 @@ class UserApiEndpoints(
             UserEntity.find(op).firstOrNull()
         } ?: return call.respond(
             HttpStatusCode.NotFound,
-            buildJsonObject {
-                put("success", false)
-                putJsonArray("errors") {
-                    addJsonObject {
-                        put("code", "UNKNOWN_USER")
-                        put("message", "Unable to find user from their ${if (body.username != null) "username" else "email"}.")
-                    }
-                }
-            }
+            Response.err("UNKNOWN_USER", "Unable to find user with ${if (body.username != null) "username" else "email"}.")
         )
 
         if (!argon2.matches(body.password, user.password)) {
             return call.respond(
                 HttpStatusCode.Forbidden,
-                buildJsonObject {
-                    put("success", false)
-                    putJsonArray("errors") {
-                        addJsonObject {
-                            put("code", "INVALID_PASSWORD")
-                            put("message", "Invalid password.")
-                        }
-                    }
-                }
+                Response.err("INVALID_PASSWORD", "Invalid password was provided.")
             )
         }
 
@@ -686,10 +702,7 @@ class UserApiEndpoints(
         val session = sessions.createSession(user.id.value)
         call.respond(
             HttpStatusCode.Created,
-            buildJsonObject {
-                put("success", true)
-                put("data", session.toJsonObject(true))
-            }
+            Response.ok(session.toJsonObject(true))
         )
     }
 
@@ -698,15 +711,17 @@ class UserApiEndpoints(
     // repositories.
     @Get("/{id}/repositories")
     suspend fun repositories(call: ApplicationCall) {
-        val isSessionOrApiKey = call.attributes.getOrNull(sessionsKey) != null || call.apiKeyOrNull != null
-        val repositories = RepositoryController.getAll(call.parameters["id"]!!.toLong(), isSessionOrApiKey)
+        val id = call.parameters["id"]!!
+        val user = when {
+            id.toLongOrNull() != null -> UserController.get(id.toLong())
+            id.matches("^([A-z]|-|_|\\d{0,9}){0,32}".toRegex()) -> UserController.getByUsername(id)
+            else -> null
+        } ?: return call.respond(HttpStatusCode.NotFound, Response.err("UNKNOWN_USER", "Unknown user with ID or username [$id]"))
 
+        val repositories = RepositoryController.getAll(user.id.toLong(), false)
         call.respond(
             HttpStatusCode.OK,
-            buildJsonObject {
-                put("success", true)
-                put("data", JsonArray(repositories.map { it.toJsonObject() }))
-            }
+            Response.ok(repositories)
         )
     }
 
@@ -715,10 +730,7 @@ class UserApiEndpoints(
         val repositories = RepositoryController.getAll(call.currentUser!!.id.toLong(), true)
         call.respond(
             HttpStatusCode.OK,
-            buildJsonObject {
-                put("success", true)
-                put("data", JsonArray(repositories.map { it.toJsonObject() }))
-            }
+            Response.ok(repositories)
         )
     }
 

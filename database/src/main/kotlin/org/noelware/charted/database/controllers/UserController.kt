@@ -24,10 +24,6 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.SerialName
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
 import org.apache.commons.validator.routines.EmailValidator
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
@@ -36,6 +32,7 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.update
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.Snowflake
+import org.noelware.charted.common.data.responses.Response
 import org.noelware.charted.common.exceptions.StringOverflowException
 import org.noelware.charted.common.exceptions.StringUnderflowException
 import org.noelware.charted.common.exceptions.ValidationException
@@ -56,11 +53,11 @@ data class NewUserBody(
             throw ValidationException("body.email", "Email [$email] was not a valid email.")
         }
 
-        if (username.length > 64) {
-            throw StringOverflowException("body.path", 64)
+        if (username.length > 32) {
+            throw StringOverflowException("body.username", 32)
         }
 
-        if (!username.matches("^([A-z]|-|_|\\d{0,9}){0,16}".toRegex())) {
+        if (!username.matches("^([A-z]|-|_|\\d{0,9}){0,32}".toRegex())) {
             throw ValidationException("body.username", "Username can only contain letters, digits, dashes, or underscores.")
         }
 
@@ -127,41 +124,15 @@ object UserController {
             ?.let { entity -> User.fromEntity(entity) }
     }
 
-    suspend fun create(body: NewUserBody): Pair<HttpStatusCode, JsonObject> {
+    suspend fun create(body: NewUserBody): Pair<HttpStatusCode, Response<User>> {
         val userByUsername = getByUsername(body.username)
         if (userByUsername != null) {
-            return HttpStatusCode.Forbidden to buildJsonObject {
-                put("success", false)
-                put(
-                    "errors",
-                    buildJsonArray {
-                        add(
-                            buildJsonObject {
-                                put("code", "USERNAME_ALREADY_TAKEN")
-                                put("message", "Username '${body.username}' already exists.")
-                            }
-                        )
-                    }
-                )
-            }
+            return HttpStatusCode.Forbidden to Response.err("USERNAME_ALREADY_TAKEN", "Username [${body.username}] already exists.")
         }
 
         val emailUser = getByEmail(body.email)
         if (emailUser != null) {
-            return HttpStatusCode.Forbidden to buildJsonObject {
-                put("success", false)
-                put(
-                    "errors",
-                    buildJsonArray {
-                        add(
-                            buildJsonObject {
-                                put("code", "EMAIL_ALREADY_TAKEN")
-                                put("message", "Email '${body.email}' already exists.")
-                            }
-                        )
-                    }
-                )
-            }
+            return HttpStatusCode.Forbidden to Response.err("USERNAME_ALREADY_TAKEN", "Email [${body.email}] already exists.")
         }
 
         val id = Snowflake.generate()
@@ -183,10 +154,7 @@ object UserController {
             }
         }
 
-        return HttpStatusCode.Created to buildJsonObject {
-            put("success", true)
-            put("data", user.toJsonObject())
-        }
+        return HttpStatusCode.Created to Response.ok(user)
     }
 
     suspend fun update(id: Long, body: UpdateUserBody) {

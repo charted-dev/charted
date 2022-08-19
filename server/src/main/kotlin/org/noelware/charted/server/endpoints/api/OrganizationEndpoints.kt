@@ -20,25 +20,26 @@ package org.noelware.charted.server.endpoints.api
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import org.noelware.charted.common.data.responses.Response
 import org.noelware.ktor.endpoints.*
+
+@kotlinx.serialization.Serializable
+data class OrganizationsResponse(
+    val message: String,
+    val docs: String
+)
 
 class OrganizationEndpoints: AbstractEndpoint("/organizations") {
     @Get
     suspend fun main(call: ApplicationCall) {
         call.respond(
             HttpStatusCode.OK,
-            buildJsonObject {
-                put("success", true)
-                put(
-                    "data",
-                    buildJsonObject {
-                        put("message", "Welcome to the Organizations API!")
-                        put("docs", "https://charts.noelware.org/docs/api/organizations")
-                    }
+            Response.ok(
+                OrganizationsResponse(
+                    message = "Welcome to the Organizations API!",
+                    docs = "https://charts.noelware.org/docs/server/api/organizations"
                 )
-            }
+            )
         )
     }
 

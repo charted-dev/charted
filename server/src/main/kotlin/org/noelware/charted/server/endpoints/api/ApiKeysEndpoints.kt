@@ -23,6 +23,7 @@ import io.ktor.server.response.*
 import kotlinx.serialization.json.*
 import org.noelware.charted.apikeys.ApiKeyManager
 import org.noelware.charted.common.TimeParser
+import org.noelware.charted.common.data.responses.Response
 import org.noelware.charted.common.exceptions.StringOverflowException
 import org.noelware.charted.common.exceptions.ValidationException
 import org.noelware.charted.common.extensions.every
@@ -91,6 +92,12 @@ data class CreateApiKeyBody(
     }
 }
 
+@kotlinx.serialization.Serializable
+private data class ApiKeysResponse(
+    val message: String,
+    val docs: String
+)
+
 class ApiKeysEndpoints(private val apikeys: ApiKeyManager): AbstractEndpoint("/apikeys") {
     init {
         install(HttpMethod.Delete, "/apikeys", Sessions)
@@ -103,16 +110,12 @@ class ApiKeysEndpoints(private val apikeys: ApiKeyManager): AbstractEndpoint("/a
     suspend fun main(call: ApplicationCall) {
         call.respond(
             HttpStatusCode.OK,
-            buildJsonObject {
-                put("success", true)
-                put(
-                    "data",
-                    buildJsonObject {
-                        put("message", "Welcome to the API Keys API!")
-                        put("docs", "https://charts.noelware.org/docs/api/api-keys")
-                    }
+            Response.ok(
+                ApiKeysResponse(
+                    message = "Welcome to the API Keys API!",
+                    docs = "https://charts.noelware.org/docs/api/api-keys"
                 )
-            }
+            )
         )
     }
 
@@ -121,14 +124,7 @@ class ApiKeysEndpoints(private val apikeys: ApiKeyManager): AbstractEndpoint("/a
         val keys = ApiKeyController.getAll(call.currentUser!!.id.toLong())
         call.respond(
             HttpStatusCode.OK,
-            buildJsonObject {
-                put("success", true)
-                putJsonArray("data") {
-                    for (key in keys) {
-                        add(key.toJsonObject())
-                    }
-                }
-            }
+            Response.ok(JsonArray(keys.map { it.toJsonObject() }))
         )
     }
 
@@ -138,23 +134,12 @@ class ApiKeysEndpoints(private val apikeys: ApiKeyManager): AbstractEndpoint("/a
         val key = ApiKeyController.get(call.currentUser!!.id.toLong(), name)
             ?: return call.respond(
                 HttpStatusCode.NotFound,
-                buildJsonObject {
-                    put("success", false)
-                    putJsonArray("errors") {
-                        addJsonObject {
-                            put("code", "UNKNOWN_API_KEY")
-                            put("message", "Unknown API key with name [$name]")
-                        }
-                    }
-                }
+                Response.err("UNKNOWN_API_KEY", "Unknown API key with the name [$name]")
             )
 
         call.respond(
             HttpStatusCode.OK,
-            buildJsonObject {
-                put("success", true)
-                put("data", key.toJsonObject())
-            }
+            Response.ok(key.toJsonObject())
         )
     }
 
@@ -191,10 +176,7 @@ class ApiKeysEndpoints(private val apikeys: ApiKeyManager): AbstractEndpoint("/a
 
         call.respond(
             HttpStatusCode.OK,
-            buildJsonObject {
-                put("success", false)
-                put("data", apiKey.toJsonObject())
-            }
+            Response.ok(apiKey.toJsonObject())
         )
     }
 
@@ -203,23 +185,13 @@ class ApiKeysEndpoints(private val apikeys: ApiKeyManager): AbstractEndpoint("/a
         val token = call.attributes.getOrNull(apiKeyKey)
             ?: return call.respond(
                 HttpStatusCode.Forbidden,
-                buildJsonObject {
-                    put("success", false)
-                    putJsonArray("errors") {
-                        addJsonObject {
-                            put("code", "MUST_USE_API_KEY")
-                            put("message", "You must supply a API key, not a session token to delete a API key.")
-                        }
-                    }
-                }
+                Response.err("MUST_USE_API_KEY", "You need to supply a API key, not a session token to delete it.")
             )
 
         val success = ApiKeyController.delete(token.token!!)
         call.respond(
             if (success) HttpStatusCode.Accepted else HttpStatusCode.Forbidden,
-            buildJsonObject {
-                put("success", success)
-            }
+            Response.ok()
         )
     }
 }

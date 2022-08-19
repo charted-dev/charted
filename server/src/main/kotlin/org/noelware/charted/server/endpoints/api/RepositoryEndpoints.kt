@@ -24,18 +24,22 @@ import com.charleskorn.kaml.YamlException
 import com.charleskorn.kaml.decodeFromStream
 import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.slf4j.logging
+import io.github.z4kn4fein.semver.VersionFormatException
+import io.github.z4kn4fein.semver.toVersion
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
+import okhttp3.internal.closeQuietly
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.SHAUtils
 import org.noelware.charted.common.data.Config
@@ -44,6 +48,7 @@ import org.noelware.charted.common.data.formatCdnUrl
 import org.noelware.charted.common.data.helm.ChartIndexSpec
 import org.noelware.charted.common.data.helm.ChartIndexYaml
 import org.noelware.charted.common.data.helm.ChartSpec
+import org.noelware.charted.common.data.responses.Response
 import org.noelware.charted.core.StorageWrapper
 import org.noelware.charted.database.controllers.RepositoryController
 import org.noelware.charted.database.controllers.RepositoryMemberController
@@ -145,7 +150,7 @@ class RepositoryEndpoints(
                     "data",
                     buildJsonObject {
                         put("message", "Welcome to the Repositories API!")
-                        put("docs", "https://charts.noelware.org/docs/api/repositories")
+                        put("docs", "https://charts.noelware.org/docs/server/api/repositories")
                     }
                 )
             }
@@ -169,23 +174,12 @@ class RepositoryEndpoints(
             }
         } ?: return call.respond(
             HttpStatusCode.NotFound,
-            buildJsonObject {
-                put("success", false)
-                putJsonArray("errors") {
-                    addJsonObject {
-                        put("code", "UNKNOWN_REPOSITORY")
-                        put("message", "Couldn't find repository by ID [$id]")
-                    }
-                }
-            }
+            Response.err("UNKNOWN_REPOSITORY", "Unable to find repository by ID [$id]")
         )
 
         call.respond(
             HttpStatusCode.OK,
-            buildJsonObject {
-                put("success", true)
-                put("data", repository.toJsonObject())
-            }
+            Response.ok(repository)
         )
     }
 
@@ -194,43 +188,19 @@ class RepositoryEndpoints(
         if (config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
             return call.respond(
                 HttpStatusCode.Forbidden,
-                buildJsonObject {
-                    put("success", false)
-                    putJsonArray("errors") {
-                        addJsonObject {
-                            put("code", "CHARTS_NOT_AVAILABLE")
-                            put("message", "This instance is running off a local OCI-based registry, so this endpoint is not available.")
-                        }
-                    }
-                }
+                Response.err("CHARTS_NOT_AVAILABLE", "This instance is running off a local OCI-based registry, so this endpoint is not available.")
             )
         }
 
         val id = call.parameters["id"]!!.toLong()
         val repo = RepositoryController.get(id) ?: return call.respond(
             HttpStatusCode.NotFound,
-            buildJsonObject {
-                put("success", false)
-                putJsonArray("errors") {
-                    addJsonObject {
-                        put("code", "UNKNOWN_REPOSITORY")
-                        put("message", "Couldn't find repository by ID [$id]")
-                    }
-                }
-            }
+            Response.err("UNKNOWN_REPOSITORY", "Unable to find repository by ID [$id]")
         )
 
         val chart = storage.trailer.fetch("./metadata/${repo.ownerID}/$id/Chart.yaml") ?: return call.respond(
             HttpStatusCode.NotFound,
-            buildJsonObject {
-                put("success", false)
-                putJsonArray("errors") {
-                    addJsonObject {
-                        put("code", "MISSING_CHART_FILE")
-                        put("message", "The repository is missing a Chart.yaml file! Did you upload it via PUT /$id/Chart.yaml?")
-                    }
-                }
-            }
+            Response.err("MISSING_CHART_FILE", "The repository is missing a Chart.yaml file! Did you push to the registry with the Helm plugin?")
         )
 
         val baos = ByteArrayOutputStream()
@@ -255,43 +225,19 @@ class RepositoryEndpoints(
         if (config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
             return call.respond(
                 HttpStatusCode.Forbidden,
-                buildJsonObject {
-                    put("success", false)
-                    putJsonArray("errors") {
-                        addJsonObject {
-                            put("code", "CHARTS_NOT_AVAILABLE")
-                            put("message", "This instance is running off a local OCI-based registry, so this endpoint is not available.")
-                        }
-                    }
-                }
+                Response.err("CHARTS_NOT_AVAILABLE", "This instance is running off a local OCI-based registry, so this endpoint is not available.")
             )
         }
 
         val id = call.parameters["id"]!!.toLong()
         val repo = RepositoryController.get(id) ?: return call.respond(
             HttpStatusCode.NotFound,
-            buildJsonObject {
-                put("success", false)
-                putJsonArray("errors") {
-                    addJsonObject {
-                        put("code", "UNKNOWN_REPOSITORY")
-                        put("message", "Couldn't find repository by ID [$id]")
-                    }
-                }
-            }
+            Response.err("UNKNOWN_REPOSITORY", "Unable to find repository by ID [$id]")
         )
 
         val values = storage.trailer.fetch("./metadata/${repo.ownerID}/$id/values.yaml") ?: return call.respond(
             HttpStatusCode.NotFound,
-            buildJsonObject {
-                put("success", false)
-                putJsonArray("errors") {
-                    addJsonObject {
-                        put("code", "MISSING_VALUES_FILE")
-                        put("message", "The repository is missing a values.yaml file! Did you upload it via PUT /$id/values.yaml?")
-                    }
-                }
-            }
+            Response.err("MISSING_VALUES_FILE", "The repository is missing a values.yaml file! Did you push to the registry with the Helm plugin?")
         )
 
         val baos = ByteArrayOutputStream()
@@ -316,59 +262,27 @@ class RepositoryEndpoints(
         if (config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
             return call.respond(
                 HttpStatusCode.Forbidden,
-                buildJsonObject {
-                    put("success", false)
-                    putJsonArray("errors") {
-                        addJsonObject {
-                            put("code", "CHARTS_NOT_AVAILABLE")
-                            put("message", "This instance is running off a local OCI-based registry, so this endpoint is not available.")
-                        }
-                    }
-                }
+                Response.err("CHARTS_NOT_AVAILABLE", "This instance is running off a local OCI-based registry, so this endpoint is not available.")
             )
         }
 
         val id = call.parameters["id"]!!.toLong()
         val repo = RepositoryController.get(id) ?: return call.respond(
             HttpStatusCode.NotFound,
-            buildJsonObject {
-                put("success", false)
-                putJsonArray("errors") {
-                    addJsonObject {
-                        put("code", "UNKNOWN_REPOSITORY")
-                        put("message", "Couldn't find repository by ID [$id]")
-                    }
-                }
-            }
+            Response.err("UNKNOWN_REPOSITORY", "Unable to find repository by ID [$id]")
         )
 
         val multipart = call.receiveMultipart()
         val parts = multipart.readAllParts()
         val first = parts.firstOrNull() ?: return call.respond(
             HttpStatusCode.BadRequest,
-            buildJsonObject {
-                put("success", false)
-                putJsonArray("errors") {
-                    addJsonObject {
-                        put("code", "MORE_THAN_ONE_PART_SPECIFIED")
-                        put("message", "There can be only one part or there was no parts.")
-                    }
-                }
-            }
+            Response.err("EXCESSIVE_MULTIPART_AMOUNT", "There can be only one multipart in this request.")
         )
 
         if (first !is PartData.FileItem) {
             return call.respond(
                 HttpStatusCode.NotAcceptable,
-                buildJsonObject {
-                    put("success", false)
-                    putJsonArray("errors") {
-                        addJsonObject {
-                            put("code", "NOT_FILE_PART")
-                            put("message", "The multipart item was not a file.")
-                        }
-                    }
-                }
+                Response.err("NOT_FILE_PART", "The multipart object must be a File object.")
             )
         }
 
@@ -383,32 +297,30 @@ class RepositoryEndpoints(
         // See if the contents is a Chart.yaml file type.
         // It'll throw an error if it's not valid.
         val chartSpec = yaml.decodeFromString<ChartSpec>(String(data))
-
-        // Merge the owner's helm charts with the `Chart.yaml` file
         val indexYaml = storage.open("./metadata/${repo.ownerID}/index.yaml")!!
-        val helmChart = yaml.decodeFromStream<ChartIndexYaml>(indexYaml)
-        if (helmChart.entries.containsKey(chartSpec.name)) {
-            // Check if the version already exists in this spec
-            val foundVersion = helmChart.entries[chartSpec.name]!!.singleOrNull { it.version == chartSpec.version }
+        val chartIndex = yaml.decodeFromStream<ChartIndexYaml>(indexYaml)
+        val mergedIndex: ChartIndexYaml = if (chartIndex.entries.containsKey(chartSpec.name)) {
+            // There can be only one version (or should it merge either way?)
+            val foundVersion = chartIndex.entries[chartSpec.name]!!.singleOrNull { it.version == chartSpec.version }
             if (foundVersion != null) {
                 return call.respond(
                     HttpStatusCode.NotAcceptable,
-                    buildJsonObject {
-                        put("success", false)
-                        putJsonArray("errors") {
-                            addJsonObject {
-                                put("code", "VERSION_EXISTS")
-                                put("message", "Can't override current Chart.yaml for version ${chartSpec.version}. This endpoint is mainly for uploading new versions of the `Chart.yaml` file.")
-                            }
-                        }
-                    }
+                    Response.err("VERSION_ALREADY_RELEASED", "There is a version for ${chartSpec.version} already published.")
                 )
+            }
+
+            // Versions should abide by SemVer
+            // https://helm.sh/docs/topics/charts/#charts-and-versioning
+            val semver = try {
+                chartSpec.version.toVersion(true)
+            } catch (e: VersionFormatException) {
+                return call.respond(HttpStatusCode.NotAcceptable, Response.err("INVALID_SEMVER", e.message!!))
             }
 
             val url = formatCdnUrl(config, "/tarballs/${repo.ownerID}/$id/${repo.name}-${chartSpec.version}.tar.gz")
             val checksum = SHAUtils.sha256Checksum(ByteArrayInputStream(data))
-
-            helmChart.entries[chartSpec.name]!!.add(
+            val entries = chartIndex.entries.toMutableMap()
+            entries[chartSpec.name]!!.add(
                 ChartIndexSpec.fromSpec(
                     listOf(if (url.startsWith("http") || url.startsWith("https")) url else "http://${config.server.host}:${config.server.port}$url"),
                     Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
@@ -417,12 +329,13 @@ class RepositoryEndpoints(
                     chartSpec
                 )
             )
+
+            chartIndex.copy(entries = entries, generated = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()))
         } else {
             val url = formatCdnUrl(config, "/tarballs/${repo.ownerID}/$id/${repo.name}-${chartSpec.version}.tar.gz")
             val checksum = SHAUtils.sha256Checksum(ByteArrayInputStream(data))
-
-            // TODO: configure checksum for the tarball
-            helmChart.entries[chartSpec.name] = mutableListOf(
+            val entries = chartIndex.entries.toMutableMap()
+            entries[chartSpec.name]!!.add(
                 ChartIndexSpec.fromSpec(
                     listOf(if (url.startsWith("http") || url.startsWith("https")) url else "http://${config.server.host}:${config.server.port}$url"),
                     Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
@@ -431,22 +344,27 @@ class RepositoryEndpoints(
                     chartSpec
                 )
             )
+
+            chartIndex.copy(entries = entries, generated = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()))
         }
 
-        helmChart.generated = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
         val os = ByteArrayOutputStream()
-        yaml.encodeToStream(ChartIndexYaml.serializer(), helmChart, os)
+        yaml.encodeToStream(ChartIndexYaml.serializer(), mergedIndex, os)
 
-        storage.upload("./metadata/${repo.ownerID}/$id/Chart.yaml", ByteArrayInputStream(data), "application/yaml")
-        storage.upload("./metadata/${repo.ownerID}/index.yaml", ByteArrayInputStream(os.toByteArray()), "application/yaml")
-        first.dispose() // dispose of it to release it to the wild~
-
-        call.respond(
-            HttpStatusCode.Accepted,
-            buildJsonObject {
-                put("success", true)
+        ByteArrayInputStream(data).use {
+            runBlocking {
+                storage.upload("./metadata/${repo.ownerID}/$id/index.yaml", it, "")
             }
-        )
+        }
+
+        os.use {
+            runBlocking {
+                storage.upload("./metadata/${repo.ownerID}/index.yaml", ByteArrayInputStream(it.toByteArray()), "")
+            }
+        }
+
+        first.dispose()
+        call.respond(HttpStatusCode.Accepted, Response.ok())
     }
 
     @Put("/{id}/values.yaml")
@@ -454,59 +372,27 @@ class RepositoryEndpoints(
         if (config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
             return call.respond(
                 HttpStatusCode.Forbidden,
-                buildJsonObject {
-                    put("success", false)
-                    putJsonArray("errors") {
-                        addJsonObject {
-                            put("code", "CHARTS_NOT_AVAILABLE")
-                            put("message", "This instance is running off a local OCI-based registry, so this endpoint is not available.")
-                        }
-                    }
-                }
+                Response.err("CHARTS_NOT_AVAILABLE", "This instance is running off a local OCI-based registry, so this endpoint is not available.")
             )
         }
 
         val id = call.parameters["id"]!!.toLong()
         val repo = RepositoryController.get(id) ?: return call.respond(
             HttpStatusCode.NotFound,
-            buildJsonObject {
-                put("success", false)
-                putJsonArray("errors") {
-                    addJsonObject {
-                        put("code", "UNKNOWN_REPOSITORY")
-                        put("message", "Couldn't find repository by ID [$id]")
-                    }
-                }
-            }
+            Response.err("UNKNOWN_REPOSITORY", "Unable to find repository by ID [$id]")
         )
 
         val multipart = call.receiveMultipart()
         val parts = multipart.readAllParts()
         val first = parts.firstOrNull() ?: return call.respond(
             HttpStatusCode.BadRequest,
-            buildJsonObject {
-                put("success", false)
-                putJsonArray("errors") {
-                    addJsonObject {
-                        put("code", "MORE_THAN_ONE_PART_SPECIFIED")
-                        put("message", "There can be only one part or there was no parts.")
-                    }
-                }
-            }
+            Response.err("EXCESSIVE_MULTIPART_AMOUNT", "There can be only one multipart in this request.")
         )
 
         if (first !is PartData.FileItem) {
             return call.respond(
                 HttpStatusCode.NotAcceptable,
-                buildJsonObject {
-                    put("success", false)
-                    putJsonArray("errors") {
-                        addJsonObject {
-                            put("code", "NOT_FILE_PART")
-                            put("message", "The multipart item was not a file.")
-                        }
-                    }
-                }
+                Response.err("NOT_FILE_PART", "The multipart object must be a File object.")
             )
         }
 
@@ -519,6 +405,7 @@ class RepositoryEndpoints(
         val data = baos.toByteArray()
         try {
             yaml.parseToYamlNode(String(data))
+            baos.closeQuietly()
         } catch (e: YamlException) {
             return call.respond(
                 HttpStatusCode.NotAcceptable,
@@ -534,9 +421,11 @@ class RepositoryEndpoints(
             )
         }
 
-        storage.upload("./metadata/${repo.ownerID}/$id/values.yaml", ByteArrayInputStream(data), "application/yaml")
-        first.dispose() // dispose of it to release it to the wild~
+        ByteArrayInputStream(data).use {
+            storage.upload("./metadata/${repo.ownerID}/$id/values.yaml", it, "application/yaml")
+        }
 
+        first.dispose()
         call.respond(
             HttpStatusCode.Accepted,
             buildJsonObject {
@@ -550,60 +439,37 @@ class RepositoryEndpoints(
         if (config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
             return call.respond(
                 HttpStatusCode.Forbidden,
-                buildJsonObject {
-                    put("success", false)
-                    putJsonArray("errors") {
-                        addJsonObject {
-                            put("code", "CHARTS_NOT_AVAILABLE")
-                            put("message", "This instance is running off a local OCI-based registry, so this endpoint is not available.")
-                        }
-                    }
-                }
+                Response.err("CHARTS_NOT_AVAILABLE", "This instance is running off a local OCI-based registry, so this endpoint is not available.")
             )
         }
 
         val id = call.parameters["id"]!!.toLong()
         val version = call.parameters["version"]!!
+
+        // Versions should abide by SemVer
+        // https://helm.sh/docs/topics/charts/#charts-and-versioning
+        val semver = try {
+            version.toVersion(true)
+        } catch (e: VersionFormatException) {
+            return call.respond(HttpStatusCode.NotAcceptable, Response.err("INVALID_SEMVER", e.message!!))
+        }
+
         val repo = RepositoryController.get(id) ?: return call.respond(
             HttpStatusCode.NotFound,
-            buildJsonObject {
-                put("success", false)
-                putJsonArray("errors") {
-                    addJsonObject {
-                        put("code", "UNKNOWN_REPOSITORY")
-                        put("message", "Couldn't find repository by ID [$id]")
-                    }
-                }
-            }
+            Response.err("UNKNOWN_REPOSITORY", "Unable to find repository by ID [$id]")
         )
 
         val multipart = call.receiveMultipart()
         val parts = multipart.readAllParts()
         val first = parts.firstOrNull() ?: return call.respond(
             HttpStatusCode.BadRequest,
-            buildJsonObject {
-                put("success", false)
-                putJsonArray("errors") {
-                    addJsonObject {
-                        put("code", "MORE_THAN_ONE_PART_SPECIFIED")
-                        put("message", "There can be only one part or there was no parts.")
-                    }
-                }
-            }
+            Response.err("EXCESSIVE_MULTIPART_AMOUNT", "There can be only one multipart in this request.")
         )
 
         if (first !is PartData.FileItem) {
             return call.respond(
                 HttpStatusCode.NotAcceptable,
-                buildJsonObject {
-                    put("success", false)
-                    putJsonArray("errors") {
-                        addJsonObject {
-                            put("code", "NOT_FILE_PART")
-                            put("message", "The multipart item was not a file.")
-                        }
-                    }
-                }
+                Response.err("NOT_FILE_PART", "The multipart object must be a File object.")
             )
         }
 
@@ -630,13 +496,11 @@ class RepositoryEndpoints(
             )
         }
 
-        storage.upload("./tarballs/${repo.ownerID}/$id/${repo.name}-$version.tar.gz", ByteArrayInputStream(data), contentType)
+        storage.upload("./tarballs/${repo.ownerID}/$id/${repo.name}-$semver.tar.gz", ByteArrayInputStream(data), contentType)
         first.dispose()
         call.respond(
             HttpStatusCode.Accepted,
-            buildJsonObject {
-                put("success", true)
-            }
+            Response.ok()
         )
     }
 
@@ -645,9 +509,7 @@ class RepositoryEndpoints(
         RepositoryController.update(call.parameters["id"]!!.toLong(), call.receive())
         call.respond(
             HttpStatusCode.Accepted,
-            buildJsonObject {
-                put("success", true)
-            }
+            Response.ok()
         )
     }
 
@@ -656,9 +518,7 @@ class RepositoryEndpoints(
         val success = RepositoryController.delete(call.parameters["id"]!!.toLong())
         call.respond(
             HttpStatusCode.Accepted,
-            buildJsonObject {
-                put("success", success)
-            }
+            Response.ok()
         )
     }
 
@@ -667,10 +527,7 @@ class RepositoryEndpoints(
         val members = RepositoryMemberController.getAll(call.parameters["id"]!!.toLong()).map { it.toJsonObject() }
         call.respond(
             HttpStatusCode.OK,
-            buildJsonObject {
-                put("success", true)
-                put("data", JsonArray(members))
-            }
+            Response.ok(members)
         )
     }
 

@@ -28,6 +28,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.Snowflake
 import org.noelware.charted.common.data.helm.RepoType
+import org.noelware.charted.common.data.responses.Response
 import org.noelware.charted.common.exceptions.StringOverflowException
 import org.noelware.charted.common.exceptions.ValidationException
 import org.noelware.charted.database.entities.RepositoryEntity
@@ -97,7 +98,7 @@ object RepositoryController {
             }
     }
 
-    suspend fun create(ownerID: Long, body: NewRepositoryBody): Pair<HttpStatusCode, JsonObject> {
+    suspend fun create(ownerID: Long, body: NewRepositoryBody): Pair<HttpStatusCode, Response<Repository>> {
         val repoExists = asyncTransaction(ChartedScope) {
             RepositoryEntity.find {
                 (RepositoryTable.owner eq ownerID) and (RepositoryTable.name eq body.name)
@@ -105,15 +106,7 @@ object RepositoryController {
         }
 
         if (repoExists != null) {
-            return HttpStatusCode.NotAcceptable to buildJsonObject {
-                put("success", false)
-                putJsonArray("errors") {
-                    addJsonObject {
-                        put("code", "REPOSITORY_EXISTS")
-                        put("message", "Repository with name ${body.name} already exists.")
-                    }
-                }
-            }
+            return HttpStatusCode.NotAcceptable to Response.err("REPOSITORY_EXISTS", "Repository with name [${body.name}] already exists.")
         }
 
         val id = Snowflake.generate()
@@ -127,10 +120,7 @@ object RepositoryController {
             }.let { entity -> Repository.fromEntity(entity) }
         }
 
-        return HttpStatusCode.Created to buildJsonObject {
-            put("success", true)
-            put("data", repository.toJsonObject())
-        }
+        return HttpStatusCode.Created to Response.ok(repository)
     }
 
     suspend fun update(id: Long, body: UpdateRepositoryBody) {
