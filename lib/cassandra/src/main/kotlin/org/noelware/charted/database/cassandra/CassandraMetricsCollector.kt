@@ -32,7 +32,9 @@ class CassandraMetricsCollector(private val cassandra: CassandraConnection): Col
     }
 
     private fun collectSamples(mfs: MutableList<MetricFamilySamples>, sampleNameFilter: Predicate<String>) {
-        val rs = cassandra.sql("SELECT cluster_name, data_center FROM system.local;").all().first()
+        val rs = cassandra.sql("SELECT data_center FROM system.local;").all().first()
+        val cluster = cassandra.cluster
+
         if (sampleNameFilter.test(CASSANDRA_DB_CALLS)) {
             mfs.add(
                 GaugeMetricFamily(
@@ -69,7 +71,7 @@ class CassandraMetricsCollector(private val cassandra: CassandraConnection): Col
                     CASSANDRA_CLUSTER_NAME,
                     "Returns the cluster name of this Cassandra instance.",
                     listOf("cluster_name")
-                ).apply { addMetric(listOf(rs.getString("cluster_name")), 1.0) }
+                ).apply { addMetric(listOf(cluster.clusterName), 1.0) }
             )
         }
 

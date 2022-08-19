@@ -22,6 +22,7 @@ plugins {
 
 dependencies {
     implementation(libs.exposed.kotlin.datetime)
+    implementation(project(":lib:stats"))
     implementation(libs.totp)
 
     testImplementation(libs.testcontainers.postgresql)

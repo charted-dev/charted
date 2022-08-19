@@ -23,6 +23,7 @@ plugins {
 
 dependencies {
     implementation(project(":lib:metrics"))
+    implementation(project(":lib:stats"))
     api(libs.cassandra.driver)
 
     testImplementation(libs.testcontainers.cassandra)

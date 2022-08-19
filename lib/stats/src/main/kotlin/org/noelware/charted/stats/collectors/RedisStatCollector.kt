@@ -15,24 +15,12 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.search.elasticsearch
+package org.noelware.charted.stats.collectors
 
-import kotlinx.serialization.SerialName
+import org.noelware.charted.common.IRedisClient
+import org.noelware.charted.common.stats.RedisStats
+import org.noelware.charted.stats.StatCollector
 
-@kotlinx.serialization.Serializable
-data class ElasticsearchStats(
-    @SerialName("size_in_bytes")
-    val sizeInBytes: Long,
-    val documents: Long,
-    val deleted: Long,
-    val indexes: Map<String, IndexStats>
-)
-
-@kotlinx.serialization.Serializable
-data class IndexStats(
-    @SerialName("size_in_bytes")
-    val sizeInBytes: Long,
-    val documents: Long,
-    val deleted: Long,
-    val health: String
-)
+class RedisStatCollector(private val redis: IRedisClient): StatCollector<RedisStats> {
+    override suspend fun collect(): RedisStats = redis.stats
+}

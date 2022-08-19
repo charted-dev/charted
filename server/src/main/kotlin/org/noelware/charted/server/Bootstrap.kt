@@ -64,8 +64,10 @@ import org.noelware.charted.core.interceptors.SentryInterceptor
 import org.noelware.charted.core.loggers.KoinLogger
 import org.noelware.charted.core.loggers.SentryLogger
 import org.noelware.charted.core.redis.DefaultRedisClient
+import org.noelware.charted.database.PostgresStatCollector
 import org.noelware.charted.database.cassandra.CassandraConnection
 import org.noelware.charted.database.cassandra.CassandraMetricsCollector
+import org.noelware.charted.database.cassandra.CassandraStatCollector
 import org.noelware.charted.database.tables.*
 import org.noelware.charted.email.DefaultEmailService
 import org.noelware.charted.email.EmailService
@@ -82,6 +84,8 @@ import org.noelware.charted.server.websockets.shutdownTickers
 import org.noelware.charted.sessions.SessionManager
 import org.noelware.charted.sessions.integrations.github.githubIntegration
 import org.noelware.charted.sessions.local.LocalSessionManager
+import org.noelware.charted.stats.StatisticsCollector
+import org.noelware.charted.stats.collectors.RedisStatCollector
 import java.io.File
 import java.io.IOError
 import java.lang.management.ManagementFactory
@@ -385,6 +389,19 @@ object Bootstrap {
         val elasticsearch = if (config.search.elastic != null) ElasticsearchClient(config.search.elastic!!) else null
         val meilisearch = if (config.search.meili != null) MeilisearchClient(httpClient, config.search.meili!!) else null
         val cassandra = if (config.cassandra != null) CassandraConnection(config.cassandra!!) else null
+        val stats = StatisticsCollector().apply {
+            register("postgres", PostgresStatCollector(config))
+            register("redis", RedisStatCollector(redis))
+
+            if (cassandra != null) {
+                register("cassandra", CassandraStatCollector(cassandra))
+            }
+
+            if (elasticsearch != null) {
+                register("elasticsearch", elasticsearch)
+            }
+        }
+
         val analytics = if (config.analytics != null) AnalyticsServer(config.analytics!!) else null
         val server = ChartedServer(config, analytics)
         val metrics = PrometheusMetrics(ds, redis)
@@ -399,6 +416,7 @@ object Bootstrap {
             single { wrapper }
             single { config }
             single { server }
+            single { stats }
             single { yaml }
             single { json }
             single { ds }

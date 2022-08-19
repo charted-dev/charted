@@ -39,4 +39,9 @@ tasks {
     test {
         useJUnitPlatform()
     }
+
+    create<Copy>("gitHooks") {
+        from(file("${project.rootDir}/scripts/git-hook.sh"))
+        into(file("${project.rootDir}/.git/hooks"))
+    }
 }

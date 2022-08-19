@@ -17,23 +17,20 @@
 
 package org.noelware.charted.stats
 
-import org.noelware.charted.stats.collectors.CoroutineStatCollector
-import org.noelware.charted.stats.collectors.JvmStatCollector
-import org.noelware.charted.stats.collectors.MemoryPoolStatCollector
-import org.noelware.charted.stats.collectors.ThreadStatCollector
+import org.noelware.charted.stats.collectors.*
 
 class StatisticsCollector {
     private val collectors = mutableMapOf<String, StatCollector<*>>()
 
     init {
-        register("memory_pools" to MemoryPoolStatCollector())
-        register("coroutines" to CoroutineStatCollector())
-        register("threads" to ThreadStatCollector())
-        register("jvm" to JvmStatCollector())
+        register("memory_pools", MemoryPoolStatCollector())
+        register("coroutines", CoroutineStatCollector())
+        register("threads", ThreadStatCollector())
+        register("jvm", JvmStatCollector())
+        register("os", OperatingSystemStatCollector())
     }
 
-    fun <I: Any, C: StatCollector<I>> register(mapping: Pair<String, C>) {
-        val (name, collector) = mapping
+    fun <I: Any, C: StatCollector<I>> register(name: String, collector: C) {
         collectors[name] = collector
     }
 
