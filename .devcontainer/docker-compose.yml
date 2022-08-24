@@ -17,10 +17,10 @@ version: '3.8'
 services:
   workspace:
     container_name: charted
-    depends_on:
-      - postgres
-      - redis
-      #- cassandra
+    #depends_on:
+      #-postgres
+      #-redis
+      #-cassandra
       #-elasticsearch
       #-kibana
     build:
@@ -29,26 +29,26 @@ services:
     volumes:
       - ..:/workspace/cache
 
-  postgres:
-    image: bitnami/postgresql:14.4.0
-    container_name: postgres
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRESQL_POSTGRES_PASSWORD=noeliscutieuwu
-      - POSTGRES_USERNAME=noel
-      - POSTGRES_PASSWORD=noeliscutieuwu
-    volumes:
-      - postgres:/bitnami/postgresql
+  # postgres:
+  #   image: bitnami/postgresql:14.4.0
+  #   container_name: postgres
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     - POSTGRESQL_POSTGRES_PASSWORD=noeliscutieuwu
+  #     - POSTGRES_USERNAME=noel
+  #     - POSTGRES_PASSWORD=noeliscutieuwu
+  #   volumes:
+  #     - postgres:/bitnami/postgresql
 
-  redis:
-    image: bitnami/redis:7.0.4
-    container_name: redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis:/bitnami/redis/data
+  # redis:
+  #   image: bitnami/redis:7.0.4
+  #   container_name: redis
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis:/bitnami/redis/data
 
-volumes:
-  postgres:
-  redis:
+# volumes:
+#   postgres:
+#   redis:

@@ -43,13 +43,13 @@ RUN curl -L -o /tmp/gradle.zip $GRADLE_INSTALL && \
     unzip -d /opt/gradle /tmp/gradle.zip && \
     rm /tmp/gradle.zip
 
-ENV GO_INSTALL="https://go.dev/dl/go1.19.linux-amd64.tar.gz"
-RUN curl -L -o /tmp/go.tar.gz $GO_INSTALL && \
-    mkdir -p /opt/golang && \
-    tar -xvf /tmp/go.tar.gz -C /opt/golang/go && \
-    rm /tmp/go.tar.gz
+# ENV GO_INSTALL="https://go.dev/dl/go1.19.linux-amd64.tar.gz"
+# RUN curl -L -o /tmp/go.tar.gz $GO_INSTALL && \
+#     mkdir -p /opt/golang && \
+#     tar -xvf /tmp/go.tar.gz -C /opt/golang && \
+#     rm /tmp/go.tar.gz
 
-ENV PATH="$PATH:/opt/gradle/gradle-7.5/bin:/opt/golang/go/bin"
+ENV PATH="$PATH:/opt/gradle/gradle-7.5.1/bin"
 RUN apt autoremove -y && \
     apt clean -y && \
     rm -rf /var/lib/apt/lists/*
