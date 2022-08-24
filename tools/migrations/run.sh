@@ -19,4 +19,4 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-exec "/app/noelware/charted/tools/migrations/ch-migrations" "$@"
+exec migrations "$@"

@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.18-alpine3.16 AS builder
+FROM golang:1.19-alpine3.16 AS builder
 
 RUN apk update && apk add --no-cache git ca-certificates
 WORKDIR /build
@@ -28,8 +28,7 @@ FROM alpine:3.16
 RUN apk update && apk add --no-cache bash
 WORKDIR /app/noelware/charted/tools/migrations
 
-COPY --from=builder /build/bin/ch-migrations .
-COPY --from=builder /build/migrations .
+COPY --from=builder /build/bin/migrations .
 COPY run.sh /app/noelware/charted/tools/migrations/run.sh
 
 RUN ln -s /app/noelware/charted/tools/migrations/migrations /usr/local/bin/migrations

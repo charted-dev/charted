@@ -1,11 +1,10 @@
 {
   "name": "charted-server",
-  "dockerFile": "Dockerfile",
   "remoteUser": "vscode",
   "dockerComposeFile": "./docker-compose.yml",
   "service": "workspace",
   "workspaceFolder": "/workspace",
-  "forwardPorts": [80, 443, 3939, 5432, 6379, 9042, 5601, 9200],
+  "forwardPorts": [80, 443],
   "postCreateCommand": ". ./.devcontainer/scripts/bootstrap-cassandra.sh",
   "settings": {
     "java.jdt.ls.java.home": "/opt/java/jdk-18.0.1+10",
