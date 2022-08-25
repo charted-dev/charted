@@ -26,9 +26,9 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.encoding.encodeStructure
 import kotlinx.serialization.json.JsonEncoder
-import org.noelware.charted.common.DebugUtils
+import kotlinx.serialization.serializer
 
-internal class KResponseSerializer<T>(private val dataSerializer: KSerializer<T>): KSerializer<Response<T>> {
+private class KResponseSerializer<T>(private val dataSerializer: KSerializer<T>): KSerializer<Response<T>> {
     private val apiErrorSerializer = ListSerializer(APIError.serializer())
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("charted.APIResponse") {
         element("success", Boolean.serializer().descriptor)
@@ -42,43 +42,57 @@ internal class KResponseSerializer<T>(private val dataSerializer: KSerializer<T>
 
     override fun serialize(encoder: Encoder, value: Response<T>) {
         require(encoder is JsonEncoder) { "JSON serialisation is only supported, not encoder=${encoder::class}" }
+        val composite = encoder.beginStructure(descriptor)
+        composite.encodeBooleanElement(descriptor, 0, value is Response.Ok)
 
-        encoder.encodeStructure(descriptor) {
-            encodeBooleanElement(descriptor, 0, value is Response.Ok)
-
-            when (value) {
-                is Response.Ok -> {
-                    if (value.data != null) {
-                        // This has to happen since using `encodeSerializableElement` doesn't include
-                        // the payload as "data": T, so we have to do this for now. If there is any other way,
-                        // then submit a PR. :)
-                        encoder.encodeSerializableElement(descriptor, 1, dataSerializer, value.data)
-                    } else {
-                        // do nothing, kotlin is complaining :(
-                    }
+        when (value) {
+            is Response.Ok -> {
+                if (value.data != null) {
+                    composite.encodeSerializableElement(descriptor, 1, dataSerializer, value.data)
                 }
-
-                is Response.Error -> encodeSerializableElement(descriptor, 2, apiErrorSerializer, value.errors)
             }
+
+            // do nothing
+            else -> {}
         }
+
+        composite.endStructure(descriptor)
+    }
+}
+
+// This was used so it can serialize `Response.Error` correctly, because it won't go
+// towards the parent serializer (KResponseSerializer), so this was a hacky solution
+// for now.
+private object KErrorResponseSerializer: KSerializer<Response.Error> {
+    private val apiErrorSerializer = ListSerializer(APIError.serializer())
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("charted.ApiError") {
+        element("success", Boolean.serializer().descriptor)
+        element("errors", apiErrorSerializer.descriptor)
+    }
+
+    override fun deserialize(decoder: Decoder): Response.Error {
+        throw IllegalAccessException("Deserialization is not supported in KErrorResponseSerializer.")
+    }
+
+    override fun serialize(encoder: Encoder, value: Response.Error) = encoder.encodeStructure(descriptor) {
+        encodeBooleanElement(descriptor, 0, false)
+        encodeSerializableElement(descriptor, 1, apiErrorSerializer, value.errors)
     }
 }
 
 /**
  * Represents a generic API response. You might want to use the [Ok] and [Error] classes
  * for sending out API responses.
- *
- * @param success If the request was successful or not.
  */
 @kotlinx.serialization.Serializable(with = KResponseSerializer::class)
-sealed class Response<out T>(val success: Boolean) {
+sealed class Response<out T> {
     /**
      * Represents a successful response, with data attached if any.
      * @param data The data to use to send out the response. The [T] generic
      *             must be marked with [Serializable][kotlinx.serialization.Serializable] or
      *             the server will error out.
      */
-    data class Ok<out T>(val data: T? = null): Response<T>(true)
+    data class Ok<out T>(val data: T? = null): Response<T>()
 
     /**
      * Represents an unsuccessful response, with any errors that might've occurred during
@@ -86,7 +100,8 @@ sealed class Response<out T>(val success: Boolean) {
      *
      * @param errors A list of API errors that might've occurred when invoking the request.
      */
-    data class Error(val errors: List<APIError>): Response<Nothing>(false)
+    @kotlinx.serialization.Serializable(with = KErrorResponseSerializer::class)
+    data class Error(val errors: List<APIError>): Response<Nothing>()
 
     companion object {
         /**
@@ -129,19 +144,21 @@ sealed class Response<out T>(val success: Boolean) {
          * Sends out a response from a generic [Throwable] object. It'll transform the
          * exception into an [APIError] that the serializer can serialize.
          */
-        fun <T: Throwable> err(throwable: T): Response<Nothing> = err(
-            APIError(
-                "INTERNAL_SERVER_ERROR",
-                throwable.message ?: "(empty message)",
-                if (DebugUtils.isDebugEnabled() && throwable.cause != null) {
-                    APIError.APIErrorCause(
-                        throwable.cause!!.message ?: "(empty message)",
-                        throwable.cause!!.stackTraceToString()
-                    )
-                } else {
-                    null
-                }
-            )
-        )
+        fun <T: Throwable> err(throwable: T): Response<Nothing> = err("INTERNAL_SERVER_ERROR", throwable.message ?: "(empty message)")
+
+//       err(
+//            APIError(
+//                "INTERNAL_SERVER_ERROR",
+//                throwable.message ?: "(empty message)",
+//                if (DebugUtils.isDebugEnabled() && throwable.cause != null) {
+//                    APIError.APIErrorCause(
+//                        throwable.cause!!.message ?: "(empty message)",
+//                        throwable.cause!!.stackTraceToString()
+//                    )
+//                } else {
+//                    null
+//                }
+//            )
+//        )
     }
 }

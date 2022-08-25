@@ -15,16 +15,9 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.database.tables
-
-import org.jetbrains.exposed.sql.kotlin.datetime.datetime
-import org.noelware.charted.database.SnowflakeTable
-
-object ApiKeysTable: SnowflakeTable("api_keys") {
-    val description = varchar("description", 140).nullable().default(null)
-    val expiresIn = datetime("expires_in").nullable().default(null)
-    val scopes = long("scopes").default(0L)
-    val owner = reference("owner_id", UserTable)
-    val token = text("token") // TODO: should this be encrypted?
-    val name = varchar("name", 32)
+plugins {
+    `charted-java-module`
+    `charted-module`
 }
+
+dependencies {}

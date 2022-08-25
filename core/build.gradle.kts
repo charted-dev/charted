@@ -25,8 +25,8 @@ dependencies {
     // Logback
     implementation(libs.logback.contrib.json.classic)
     implementation(libs.logback.contrib.jackson)
+    implementation(libs.jackson.databind)
     implementation(libs.logback.core)
-    implementation(libs.jackson)
 
     // Projects
     implementation(project(":database"))

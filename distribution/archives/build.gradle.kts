@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-import org.noelware.charted.gradle.*
 import java.util.Properties
 import java.io.StringReader
 
@@ -51,14 +50,24 @@ val isNightlyRelease = run {
 publishing {
     publications {
         create<MavenPublication>("charted") {
-            // TODO: run the `:server:distZip`
+            val serverProject = project.findProject(":server")!!
+            val distZip: Zip by serverProject.tasks
+            val distTar: Tar by serverProject.tasks
+
+            artifact(distZip) {
+                extension = "zip"
+            }
+
+            artifact(distTar) {
+                extension = "tar.gz"
+            }
         }
     }
 
     repositories {
         val arch = System.getProperty("os.arch")
         val architecture = when {
-            arch == "amd64" -> "x64"
+            arch.matches("^(amd64|x86_64)$".toRegex()) -> "x64"
             arch.matches("^(arm64|aarch64)$".toRegex()) -> "aarch64"
             else -> error("Architecture $arch is not supported.")
         }

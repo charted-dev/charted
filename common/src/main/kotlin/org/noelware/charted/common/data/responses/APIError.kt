@@ -17,6 +17,14 @@
 
 package org.noelware.charted.common.data.responses
 
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.encoding.encodeStructure
+
 /**
  * Represents an error that occurred when invoking a REST handler.
  *
@@ -24,7 +32,7 @@ package org.noelware.charted.common.data.responses
  * @param message The message of what happened.
  * @param cause The exception cause, that might've occurred.
  */
-@kotlinx.serialization.Serializable
+@kotlinx.serialization.Serializable(with = APIError.Companion::class)
 data class APIError(
     val code: String,
     val message: String,
@@ -42,4 +50,27 @@ data class APIError(
         val message: String,
         val stacktrace: String
     )
+
+    // this only exists so `cause` isn't present in the response even though it exists as `null`!
+    //
+    // kotlinx.serialization doesn't have a `@SkipIfNull` annotation, so this is the best we'll do.
+    companion object: KSerializer<APIError> {
+        override val descriptor: SerialDescriptor = buildClassSerialDescriptor("charted.APIError") {
+            element("code", String.serializer().descriptor)
+            element("message", String.serializer().descriptor)
+            element("cause", APIErrorCause.serializer().descriptor, isOptional = true)
+        }
+
+        override fun deserialize(decoder: Decoder): APIError {
+            throw IllegalAccessException("Deserialization is not supported in APIError.")
+        }
+
+        override fun serialize(encoder: Encoder, value: APIError) = encoder.encodeStructure(descriptor) {
+            encodeStringElement(descriptor, 0, value.code)
+            encodeStringElement(descriptor, 1, value.message)
+            if (value.cause != null) {
+                encodeSerializableElement(descriptor, 2, APIErrorCause.serializer(), value.cause)
+            }
+        }
+    }
 }

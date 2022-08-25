@@ -31,11 +31,11 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.18.0")
-    implementation("com.diffplug.spotless:spotless-plugin-gradle:6.8.0")
+    implementation("com.diffplug.spotless:spotless-plugin-gradle:6.10.0")
     implementation("com.google.protobuf:protobuf-gradle-plugin:0.8.18")
-    implementation("dev.floofy.commons:gradle:2.2.1")
-    implementation(kotlin("serialization", "1.7.0"))
-    implementation(kotlin("gradle-plugin", "1.7.0"))
+    implementation("dev.floofy.commons:gradle:2.3.0")
+    implementation(kotlin("serialization", "1.7.10"))
+    implementation(kotlin("gradle-plugin", "1.7.10"))
 }
 
 tasks.withType<KotlinCompile> {

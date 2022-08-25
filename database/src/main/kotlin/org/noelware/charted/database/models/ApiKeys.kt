@@ -27,6 +27,8 @@ import org.noelware.charted.database.flags.ApiKeyScopeFlags
 
 @kotlinx.serialization.Serializable
 data class ApiKeys(
+    val description: String? = null,
+
     @SerialName("expires_in")
     val expiresIn: LocalDateTime? = null,
     val scopes: String = "0",
@@ -37,6 +39,7 @@ data class ApiKeys(
 ) {
     companion object {
         fun fromEntity(entity: ApiKeyEntity, raw: String? = null): ApiKeys = ApiKeys(
+            entity.description,
             entity.expiresIn,
             entity.scopes.toString(16),
             raw,
@@ -47,6 +50,7 @@ data class ApiKeys(
     }
 
     fun toJsonObject(): JsonObject = buildJsonObject {
+        put("description", description)
         put("expires_in", expiresIn?.let { JsonPrimitive(it.toInstant(TimeZone.currentSystemDefault()).toString()) } ?: JsonNull)
         put("scopes", scopes)
         if (token != null) {

@@ -27,7 +27,7 @@ public class LogLevelColorComposite extends ForegroundCompositeConverterBase<ILo
     protected String getForegroundColorCode(ILoggingEvent event) {
         final var level = event.getLevel();
         return switch (level.toInt()) {
-            case Level.ERROR_INT -> ANSIConstants.BOLD + "38;2;18;18;140"; // red
+            case Level.ERROR_INT -> ANSIConstants.BOLD + "38;2;166;76;76"; // red
             case Level.WARN_INT -> ANSIConstants.BOLD + "38;2;234;234;208"; // yellow
             case Level.INFO_INT -> ANSIConstants.BOLD + "38;2;81;81;140"; // bluuu
             case Level.DEBUG_INT -> ANSIConstants.BOLD + "38;2;241;204;209"; // pink

@@ -25,6 +25,7 @@ import org.noelware.charted.database.tables.ApiKeysTable
 class ApiKeyEntity(id: EntityID<Long>): LongEntity(id) {
     companion object: LongEntityClass<ApiKeyEntity>(ApiKeysTable)
 
+    var description by ApiKeysTable.description
     var expiresIn by ApiKeysTable.expiresIn
     var scopes by ApiKeysTable.scopes
     var owner by UserEntity referencedOn ApiKeysTable.owner

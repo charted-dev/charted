@@ -13,20 +13,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-.PHONY: run
-run: build
-	@CHARTED_DISTRIBUTION_TYPE=git ./server/build/install/charted-server/charted-server
-
-build: clean spotless
-	@./gradlew :server:installDist
-	@chmod +x ./server/build/install/charted-server/charted-server
-
-spotless:
-	@./gradlew spotlessApply
-	@./gradlew :build-tools:spotlessApply
-
-clean:
-	@./gradlew clean
-
-test:
-	@./gradlew test
+version: "1.0"
+linter: jetbrains/qodana-jvm-community:2022.2

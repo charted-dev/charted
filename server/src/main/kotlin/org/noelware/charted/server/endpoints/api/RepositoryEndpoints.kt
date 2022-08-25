@@ -80,15 +80,15 @@ class RepositoryEndpoints(
         }
 
         install(HttpMethod.Put, "/repositories/{id}/Chart.yaml", Sessions) {
-            addScope("repo:update")
+            addScope("repo:write")
         }
 
         install(HttpMethod.Put, "/repositories/{id}/values.yaml", Sessions) {
-            addScope("repo:update")
+            addScope("repo:write")
         }
 
         install(HttpMethod.Put, "/repositories/{id}/tarballs/{version}", Sessions) {
-            addScope("repo:update")
+            addScope("repo:write")
         }
 
         install(HttpMethod.Patch, "/repositories/{id}", Sessions) {

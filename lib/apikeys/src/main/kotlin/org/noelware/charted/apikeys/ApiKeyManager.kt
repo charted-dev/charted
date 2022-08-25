@@ -24,6 +24,7 @@ import kotlin.time.Duration
 interface ApiKeyManager: Closeable {
     suspend fun createApiKey(
         name: String,
+        description: String?,
         owner: Long,
         scopes: Long,
         expiresIn: Duration?

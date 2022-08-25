@@ -72,7 +72,13 @@ class DefaultApiKeyManager(private val redis: IRedisClient): ApiKeyManager {
         }
     }
 
-    override suspend fun createApiKey(name: String, owner: Long, scopes: Long, expiresIn: Duration?): ApiKeys {
+    override suspend fun createApiKey(
+        name: String,
+        description: String?,
+        owner: Long,
+        scopes: Long,
+        expiresIn: Duration?
+    ): ApiKeys {
         val token = RandomGenerator.generate(128)
         val id = Snowflake.generate()
 

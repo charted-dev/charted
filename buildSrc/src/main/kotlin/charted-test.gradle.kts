@@ -32,8 +32,6 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
     testImplementation("org.testcontainers:testcontainers:1.17.3")
     testImplementation("org.testcontainers:junit-jupiter:1.17.3")
-    testImplementation("ch.qos.logback:logback-classic:1.2.11")
-    testImplementation("ch.qos.logback:logback-core:1.2.11")
     testImplementation("org.slf4j:slf4j-simple:1.7.36")
     testImplementation(kotlin("test"))
 }

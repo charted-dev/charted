@@ -23,7 +23,9 @@ plugins {
 dependencies {
     implementation(libs.elasticsearch.rest.client.sniffer)
     implementation(libs.elasticsearch.rest.client)
+    implementation(libs.elasticsearch.java.client)
     implementation(project(":lib:metrics"))
+    implementation(libs.jackson.databind)
     implementation(project(":lib:stats"))
     implementation(project(":database"))
 

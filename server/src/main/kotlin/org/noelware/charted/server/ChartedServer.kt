@@ -22,7 +22,6 @@ import dev.floofy.haru.Scheduler
 import dev.floofy.utils.koin.inject
 import dev.floofy.utils.koin.retrieve
 import dev.floofy.utils.kotlin.humanize
-import dev.floofy.utils.kotlin.ifNotNull
 import dev.floofy.utils.slf4j.logging
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.*
@@ -41,7 +40,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.netty.util.Version
 import io.sentry.Sentry
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -81,7 +79,6 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
     val server: NettyApplicationEngine
         get() = _server.value
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     fun start() {
         val self = this
         val environment = applicationEngineEnvironment {
@@ -146,15 +143,7 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
                         if (content.contentLength == null) {
                             call.respond(
                                 HttpStatusCode.NotFound,
-                                buildJsonObject {
-                                    put("success", false)
-                                    putJsonArray("errors") {
-                                        addJsonObject {
-                                            put("code", "NOT_FOUND")
-                                            put("message", "Route ${call.request.httpMethod.value} ${call.request.path()} was not found.")
-                                        }
-                                    }
-                                }
+                                Response.err("NOT_FOUND", "Route ${call.request.httpMethod.value} ${call.request.path()} was not found")
                             )
                         }
                     }
@@ -162,15 +151,10 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
                     status(HttpStatusCode.MethodNotAllowed) { call, _ ->
                         call.respond(
                             HttpStatusCode.MethodNotAllowed,
-                            buildJsonObject {
-                                put("success", false)
-                                putJsonArray("errors") {
-                                    addJsonObject {
-                                        put("code", "INVALID_ROUTE")
-                                        put("message", "Route ${call.request.httpMethod.value} ${call.request.path()} doesn't implement a handler for that specific method.")
-                                    }
-                                }
-                            }
+                            Response.err(
+                                "INVALID_ROUTE",
+                                "Route ${call.request.httpMethod.value} ${call.request.path()} doesn't have a REST handler"
+                            )
                         )
                     }
 
@@ -178,15 +162,7 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
                         val header = call.request.header(HttpHeaders.ContentType)
                         call.respond(
                             HttpStatusCode.MethodNotAllowed,
-                            buildJsonObject {
-                                put("success", false)
-                                putJsonArray("errors") {
-                                    addJsonObject {
-                                        put("code", "UNSUPPORTED_MEDIA_TYPE")
-                                        put("message", "Invalid content type [$header], expecting application/json.")
-                                    }
-                                }
-                            }
+                            Response.err("UNSUPPORTED_MEDIA_TYPE", "Invalid content type [$header], expecting application/json")
                         )
                     }
 
@@ -210,23 +186,7 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
                         self.log.error("Unknown YAML exception had occurred while handling request [${call.request.httpMethod.value} ${call.request.path()}]:", cause)
                         call.respond(
                             HttpStatusCode.NotAcceptable,
-                            buildJsonObject {
-                                put("success", false)
-                                putJsonArray("errors") {
-                                    addJsonObject {
-                                        put("code", "INVALID_YAML")
-                                        put("message", cause.message)
-                                        if (self.config.debug) {
-                                            cause.cause.ifNotNull {
-                                                putJsonObject("cause") {
-                                                    put("message", message)
-                                                    put("stacktrace", stackTraceToString())
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            Response.err(cause)
                         )
                     }
 

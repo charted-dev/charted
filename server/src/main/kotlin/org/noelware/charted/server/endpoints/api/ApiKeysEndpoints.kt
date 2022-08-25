@@ -23,6 +23,7 @@ import io.ktor.server.response.*
 import kotlinx.serialization.json.*
 import org.noelware.charted.apikeys.ApiKeyManager
 import org.noelware.charted.common.TimeParser
+import org.noelware.charted.common.data.responses.APIError
 import org.noelware.charted.common.data.responses.Response
 import org.noelware.charted.common.exceptions.StringOverflowException
 import org.noelware.charted.common.exceptions.ValidationException
@@ -44,11 +45,18 @@ import kotlin.time.toKotlinDuration
 
 @kotlinx.serialization.Serializable
 data class CreateApiKeyBody(
+    val description: String? = null,
     val expiresIn: String? = null,
     val scopes: List<String> = listOf(),
     val name: String
 ) {
     init {
+        if (description != null) {
+            if (description.length > 140) {
+                throw StringOverflowException("body.description", 140)
+            }
+        }
+
         if (expiresIn != null) {
             if (expiresIn.toLongOrNull() == null) {
                 val res = try {
@@ -157,8 +165,24 @@ class ApiKeysEndpoints(private val apikeys: ApiKeyManager): AbstractEndpoint("/a
         if (body.scopes.size == 1 && body.scopes.first() == "*") {
             bitfield.addAll()
         } else {
+            val keys = mutableListOf<String>()
             for (key in body.scopes) {
-                bitfield.add(key)
+                if (!SCOPE_FLAGS.containsKey(key)) {
+                    keys.add(key)
+                } else {
+                    bitfield.add(key)
+                }
+            }
+
+            if (keys.size > 0) {
+                return call.respond(
+                    HttpStatusCode.NotAcceptable,
+                    Response.err(
+                        keys.map { key ->
+                            APIError("UNKNOWN_BITFIELD_FLAG", "Bitfield flag [$key] doesn't exist in APiKeyScopeFlags.")
+                        }
+                    )
+                )
             }
         }
 
@@ -169,6 +193,7 @@ class ApiKeysEndpoints(private val apikeys: ApiKeyManager): AbstractEndpoint("/a
 
         val apiKey = apikeys.createApiKey(
             body.name,
+            body.description,
             call.currentUser!!.id.toLong(),
             bitfield.bits,
             expiration

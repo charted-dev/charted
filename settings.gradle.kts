@@ -31,6 +31,7 @@ plugins {
 
 includeBuild("build-tools")
 include(
+    ":benchmarking",
     ":common",
     ":core",
     ":database",
@@ -52,6 +53,7 @@ include(
     ":lib:cassandra",
     ":lib:elasticsearch",
     ":lib:email",
+    ":lib:gc",
     ":lib:invitations",
     ":lib:meilisearch",
     ":lib:metrics",

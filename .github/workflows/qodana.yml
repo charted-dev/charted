@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Linting and Unit Testing
+name: Qodana - Code Quality
 on:
   workflow_dispatch:
   push:
@@ -24,6 +24,7 @@ on:
       - main
 
     paths-ignore:
+      - '.github/**'
       - '.husky/**'
       - '.vscode/**'
       - 'assets/**'
@@ -44,6 +45,7 @@ on:
       - main
 
     paths-ignore:
+      - '.github/**'
       - '.husky/**'
       - '.vscode/**'
       - 'assets/**'
@@ -55,40 +57,22 @@ on:
       - '**.md'
       - 'LICENSE'
       - 'renovate.json'
-
 jobs:
-  lint:
-    name: Linting and Unit Testing
+  qodana:
+    name: Qodana [Code Quality]
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java-version: [17, 18]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          submodules: 'recursive'
+          fetch-depth: 0
 
-      - name: Setup Java ${{ matrix.java-version }}
-        uses: actions/setup-java@v3
+      - name: Qodana Scan
+        uses: JetBrains/qodana-action@v2022.1.1
+
+      - name: Upload SARIF Results to GitHub
+        uses: github/codeql-action/upload-sarif@v2
         with:
-          distribution: temurin
-          java-version: ${{ matrix.java-version }}
+          sarif_file: ${{ runner.temp }}/qodana/results/qodana.sarif.json
 
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-
-      - name: Validate gradle-wrapper.jar
-        uses: gradle/wrapper-validation-action@v1
-
-      - name: Let gradlew be executable
-        run: chmod +x ./gradlew
-
-      - name: Lints the repository via Spotless for any linting errors.
-        run: ./gradlew spotlessCheck --no-daemon --scan
-
-      - name: Compiles the Kotlin sources for any compiler errors
-        run: ./gradlew compileKotlin --no-daemon --scan
-
-      - name: Unit test the project
-        run: ./gradlew test --no-daemon --scan
+      # TODO: store code quality results in Noelware's Elasticsearch instance
