@@ -69,6 +69,10 @@ import org.noelware.charted.database.cassandra.CassandraConnection
 import org.noelware.charted.database.cassandra.CassandraMetricsCollector
 import org.noelware.charted.database.cassandra.CassandraStatCollector
 import org.noelware.charted.database.tables.*
+import org.noelware.charted.elasticsearch.DefaultElasticsearchService
+import org.noelware.charted.elasticsearch.ElasticsearchMetricsCollector
+import org.noelware.charted.elasticsearch.ElasticsearchService
+import org.noelware.charted.elasticsearch.ElasticsearchStatCollector
 import org.noelware.charted.email.DefaultEmailService
 import org.noelware.charted.email.EmailService
 import org.noelware.charted.features.audits.auditLogsModule
@@ -76,8 +80,6 @@ import org.noelware.charted.features.webhooks.webhooksModule
 import org.noelware.charted.invitations.DefaultInvitationManager
 import org.noelware.charted.invitations.InvitationManager
 import org.noelware.charted.metrics.PrometheusMetrics
-import org.noelware.charted.search.elasticsearch.ElasticsearchClient
-import org.noelware.charted.search.elasticsearch.ElasticsearchCollector
 import org.noelware.charted.search.meilisearch.MeilisearchClient
 import org.noelware.charted.server.endpoints.endpointsModule
 import org.noelware.charted.server.websockets.shutdownTickers
@@ -122,7 +124,7 @@ object Bootstrap {
                 val koinStarted = GlobalContext.getKoinApplicationOrNull() != null
                 if (koinStarted) {
                     val server: ChartedServer by inject()
-                    val elasticsearch: ElasticsearchClient? by injectOrNull()
+                    val elasticsearch: ElasticsearchService? by injectOrNull()
                     val redis: IRedisClient by inject()
                     val ds: HikariDataSource by inject()
                     val sessions: SessionManager by inject()
@@ -386,7 +388,7 @@ object Bootstrap {
             }
         }
 
-        val elasticsearch = if (config.search.elastic != null) ElasticsearchClient(config.search.elastic!!) else null
+        val elasticsearch = if (config.search.elastic != null) DefaultElasticsearchService(config, json) else null
         val meilisearch = if (config.search.meili != null) MeilisearchClient(httpClient, config.search.meili!!) else null
         val cassandra = if (config.cassandra != null) CassandraConnection(config.cassandra!!) else null
         val stats = StatisticsCollector().apply {
@@ -398,7 +400,7 @@ object Bootstrap {
             }
 
             if (elasticsearch != null) {
-                register("elasticsearch", elasticsearch)
+                register("elasticsearch", ElasticsearchStatCollector(elasticsearch))
             }
         }
 
@@ -426,7 +428,7 @@ object Bootstrap {
             }
 
             if (elasticsearch != null) {
-                single { elasticsearch }
+                single<ElasticsearchService> { elasticsearch }
             }
 
             if (meilisearch != null) {
@@ -479,15 +481,17 @@ object Bootstrap {
             modules(*modules.toTypedArray())
         }
 
-        elasticsearch?.connect()
         cassandra?.connect()
+        runBlocking {
+            elasticsearch?.connect()
+        }
 
         if (config.metrics && cassandra != null) {
             metrics.addCollector(CassandraMetricsCollector(cassandra))
         }
 
         if (config.metrics && elasticsearch != null) {
-            metrics.addCollector(ElasticsearchCollector(elasticsearch))
+            metrics.addCollector(ElasticsearchMetricsCollector(elasticsearch))
         }
 
         try {

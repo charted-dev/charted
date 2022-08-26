@@ -1,0 +1,33 @@
+{
+  "settings": {
+    "index": {
+      "number_of_shards": 5,
+      "gc_deletes": "30s"
+    }
+  },
+  "mappings": {
+    "_routing": {
+      "required": true
+    },
+    "properties": {
+      "description": {
+        "type": "keyword"
+      },
+      "updated_at": {
+        "type": "date"
+      },
+      "created_at": {
+        "type": "date"
+      },
+      "engine": {
+        "type": "keyword"
+      },
+      "name": {
+        "type": "keyword"
+      },
+      "id": {
+        "type": "long"
+      }
+    }
+  }
+}

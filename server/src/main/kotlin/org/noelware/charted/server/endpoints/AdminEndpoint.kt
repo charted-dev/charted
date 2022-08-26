@@ -27,7 +27,7 @@ import org.noelware.charted.common.data.responses.Response
 import org.noelware.charted.common.stats.RedisStats
 import org.noelware.charted.database.PostgresStats
 import org.noelware.charted.database.cassandra.CassandraStats
-import org.noelware.charted.search.elasticsearch.ElasticsearchStats
+import org.noelware.charted.elasticsearch.stats.ElasticsearchStats
 import org.noelware.charted.server.ChartedServer
 import org.noelware.charted.stats.StatisticsCollector
 import org.noelware.charted.stats.collectors.*

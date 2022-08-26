@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.search.elasticsearch
+package org.noelware.charted.elasticsearch
 
 import io.prometheus.client.Collector
 import io.prometheus.client.GaugeMetricFamily
@@ -23,11 +23,7 @@ import io.prometheus.client.Predicate
 import io.prometheus.client.SampleNameFilter
 import kotlinx.coroutines.runBlocking
 
-/**
- * Represents the collector for collecting Elasticsearch metrics and outputs it
- * into Prometheus.
- */
-class ElasticsearchCollector(private val elasticsearch: ElasticsearchClient): Collector() {
+class ElasticsearchMetricsCollector(private val elasticsearch: ElasticsearchService): Collector() {
     override fun collect(): MutableList<MetricFamilySamples> = collect(null)
     override fun collect(sampleNameFilter: Predicate<String>?): MutableList<MetricFamilySamples> {
         val mfs = mutableListOf<MetricFamilySamples>()
@@ -88,6 +84,36 @@ class ElasticsearchCollector(private val elasticsearch: ElasticsearchClient): Co
             )
         }
 
+        if (sampleNameFilter.test(ELASTICSEARCH_CLUSTER_MEMORY_FREE)) {
+            mfs.add(
+                GaugeMetricFamily(
+                    ELASTICSEARCH_CLUSTER_MEMORY_FREE,
+                    "Returns how much free memory the cluster has (in bytes)",
+                    stats.memory.freeBytes.toDouble()
+                )
+            )
+        }
+
+        if (sampleNameFilter.test(ELASTICSEARCH_CLUSTER_MEMORY_USED)) {
+            mfs.add(
+                GaugeMetricFamily(
+                    ELASTICSEARCH_CLUSTER_MEMORY_FREE,
+                    "Returns how much used memory the cluster has used (in bytes)",
+                    stats.memory.usedBytes.toDouble()
+                )
+            )
+        }
+
+        if (sampleNameFilter.test(ELASTICSEARCH_CLUSTER_MEMORY_TOTAL)) {
+            mfs.add(
+                GaugeMetricFamily(
+                    ELASTICSEARCH_CLUSTER_MEMORY_FREE,
+                    "Returns how much total memory the cluster has (in bytes)",
+                    stats.memory.totalBytes.toDouble()
+                )
+            )
+        }
+
         for ((key, stat) in stats.indexes) {
             if (sampleNameFilter.test(String.format(ELASTICSEARCH_INDEXED_DOCUMENTS, key.replace('-', '_')))) {
                 mfs.add(
@@ -141,5 +167,8 @@ class ElasticsearchCollector(private val elasticsearch: ElasticsearchClient): Co
         const val ELASTICSEARCH_INDEXED_DOCUMENTS = "charted_elasticsearch_%s_documents"
         const val ELASTICSEARCH_INDEX_DELETED_DOCUMENTS = "charted_elasticsearch_%s_deleted_documents"
         const val ELASTICSEARCH_INDEX_HEALTH = "charted_elasticsearch_%s_health"
+        const val ELASTICSEARCH_CLUSTER_MEMORY_FREE = "charted_elasticsearch_memory_free_bytes"
+        const val ELASTICSEARCH_CLUSTER_MEMORY_USED = "charted_elasticsearch_memory_used_bytes"
+        const val ELASTICSEARCH_CLUSTER_MEMORY_TOTAL = "charted_elasticsearch_memory_total_bytes"
     }
 }

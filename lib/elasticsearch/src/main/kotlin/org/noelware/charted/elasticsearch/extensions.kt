@@ -15,24 +15,23 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.search.elasticsearch
+@file:JvmName("ElasticsearchKotlinExtensions")
 
-import kotlinx.serialization.SerialName
+package org.noelware.charted.elasticsearch
 
-@kotlinx.serialization.Serializable
-data class ElasticsearchStats(
-    @SerialName("size_in_bytes")
-    val sizeInBytes: Long,
-    val documents: Long,
-    val deleted: Long,
-    val indexes: Map<String, IndexStats>
-)
+import io.ktor.util.reflect.*
+import kotlinx.coroutines.future.await
+import org.noelware.charted.common.extensions.unsafeCast
+import java.util.concurrent.CompletionStage
+import kotlin.reflect.KClass
 
-@kotlinx.serialization.Serializable
-data class IndexStats(
-    @SerialName("size_in_bytes")
-    val sizeInBytes: Long,
-    val documents: Long,
-    val deleted: Long,
-    val health: String
-)
+suspend fun <T, E: Throwable> CompletionStage<T>.awaitOrError(cls: KClass<E>): Pair<T?, E?> = try {
+    await() to null
+} catch (e: Throwable) {
+    if (!e.instanceOf(cls)) {
+        throw e
+    }
+
+    // TODO: could this be safely casted?
+    (null to e).unsafeCast()
+}

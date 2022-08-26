@@ -17,5 +17,8 @@
 
 package org.noelware.charted.common.extensions
 
+/**
+ * Does a unsafe, unchecked cast. Beware!
+ */
 @Suppress("UNCHECKED_CAST")
-fun <T, U> T.cast(): U = this as? U ?: error("Unable to cast")
+fun <T, U> T.unsafeCast(): U = this as U

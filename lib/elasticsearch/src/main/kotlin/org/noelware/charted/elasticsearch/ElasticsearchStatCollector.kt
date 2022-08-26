@@ -15,22 +15,11 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-    `charted-test`
-}
+package org.noelware.charted.elasticsearch
 
-dependencies {
-    implementation(libs.elasticsearch.rest.client.sniffer)
-    implementation(libs.elasticsearch.rest.client)
-    implementation(libs.elasticsearch.java.client)
-    implementation(libs.jackson.kotlin.module)
-    implementation(project(":lib:metrics"))
-    implementation(libs.jackson.databind)
-    implementation(project(":lib:stats"))
-    implementation(project(":database"))
+import org.noelware.charted.elasticsearch.stats.ElasticsearchStats
+import org.noelware.charted.stats.StatCollector
 
-    testImplementation(libs.testcontainers.elasticsearch)
-    testImplementation(project(":testing"))
-    testImplementation(libs.slf4j.simple)
+class ElasticsearchStatCollector(private val service: ElasticsearchService): StatCollector<ElasticsearchStats> {
+    override suspend fun collect(): ElasticsearchStats = service.collect()
 }

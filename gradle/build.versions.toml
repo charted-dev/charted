@@ -162,7 +162,7 @@ prometheus-simpleclient-common = { module = "io.prometheus:simpleclient_common",
 prometheus-simpleclient = { module = "io.prometheus:simpleclient", version.ref = "prometheus-java" }
 
 # jackson libraries
-jackson-kotlin-module = { module = "com.fasterxml.jackson.modules:jackson-module-kotlin", version.ref = "jackson" }
+jackson-kotlin-module = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
 
 # external libraries
