@@ -61,7 +61,7 @@ on:
     - cron: '21 2 * * 4'
 jobs:
   codeql:
-    name: CodeQL Analyze
+    name: Analyze
     runs-on: ubuntu-latest
     permissions:
       security-events: write
@@ -70,26 +70,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language:
-          - java
-          #- kotlin
+        java-version: [17.x, 18.x]
+        languages: [java]
+        #languages: [java,kotlin]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup Java 18
+      - name: Setup Java ${{ matrix.java-version }}
         uses: actions/setup-java@v3
         with:
-          distribution: temurin
-          java-version: 18
+          java-version: ${{ matrix.java-version }}
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
         with:
-          languages: ${{ matrix.language }}
+          languages: ${{ matrix.languages }}
 
       - name: Autobuild
         uses: github/codeql-action/autobuild@v2
 
-       - name: Perform CodeQL Analysis
-         uses: github/codeql-action/analyze@v1
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v1

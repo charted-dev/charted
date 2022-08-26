@@ -53,7 +53,7 @@ public class CassandraTests {
 
     @Test
     public void assertIsRunning() {
-        createConnection((connection) -> assertEquals("4.0.5", connection.getServerVersion()));
+        createConnection((connection) -> assertEquals("4.0.6", connection.getServerVersion()));
     }
 
     @Test
@@ -66,6 +66,7 @@ public class CassandraTests {
 
             var keyspaces =
                     connection.sql("select * from system_schema.keyspaces").all();
+
             assertNotEquals(0, keyspaces.size());
 
             var notSystemKs = keyspaces.stream()
