@@ -24,7 +24,6 @@ on:
       - main
 
     paths-ignore:
-      - '.github/**'
       - '.husky/**'
       - '.vscode/**'
       - 'assets/**'
@@ -45,7 +44,6 @@ on:
       - main
 
     paths-ignore:
-      - '.github/**'
       - '.husky/**'
       - '.vscode/**'
       - 'assets/**'
@@ -70,7 +68,7 @@ jobs:
       - name: Qodana Scan
         uses: JetBrains/qodana-action@v2022.1.1
         with:
-          args: --baseline,qodana.sarif.json -e CHARTED_DISABLE_JAVA_SANITY_CHECK=true
+          args: --baseline,qodana.sarif.json,--property,org.noelware.charted.ignoreJavaCheck=true
 
       - name: Upload SARIF Results to GitHub
         uses: github/codeql-action/upload-sarif@v2

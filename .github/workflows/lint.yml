@@ -90,5 +90,8 @@ jobs:
       - name: Compiles the Kotlin sources for any compiler errors
         run: ./gradlew compileKotlin --no-daemon --scan
 
+      - name: Compile the Java sources for any compiler errors
+        run: ./gradlew compileJava --no-daemon --scan
+
       - name: Unit test the project
         run: ./gradlew test --no-daemon --scan
