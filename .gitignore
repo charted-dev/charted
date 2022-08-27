@@ -651,6 +651,7 @@ server/src/main/resources/config/logging.properties
 .data/
 .caches/
 !server/bin
+!.idea/misc.xml
 
 # Ignore the created tarball.
 distribution/chart/**/*.tar.gz
