@@ -34,6 +34,7 @@ testcontainers = "1.17.2"
 mockito-kotlin = "4.0.0"
 noel-commons = "2.2.1.1"
 ktor-routing = "0.3.1-beta"
+elastic-apm = "1.33.0"
 grpc-kotlin = "1.3.0"
 postgresql = "42.3.6"
 java-mail = "1.5.0-b01"
@@ -155,6 +156,11 @@ mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 elasticsearch-rest-client-sniffer = { module = "org.elasticsearch.client:elasticsearch-rest-client-sniffer", version.ref = "elasticsearch-rest" }
 elasticsearch-rest-client = { module = "org.elasticsearch.client:elasticsearch-rest-client", version.ref = "elasticsearch-rest" }
 elasticsearch-java-client = { module = "co.elastic.clients:elasticsearch-java", version.ref = "elasticsearch-rest" }
+
+# elastic apm
+elastic-apm-agent-plugin-sdk = { module = "co.elastic.apm:apm-agent-plugin-sdk", version.ref = "elastic-apm" }
+elastic-apm-agent-attach = { module = "co.elastic.apm:apm-agent-attach", version.ref = "elastic-apm" }
+elastic-apm-agent-api = { module = "co.elastic.apm:apm-agent-api", version.ref = "elastic-apm" }
 
 # prometheus
 prometheus-simpleclient-hotspot = { module = "io.prometheus:simpleclient_hotspot", version.ref = "prometheus-java" }

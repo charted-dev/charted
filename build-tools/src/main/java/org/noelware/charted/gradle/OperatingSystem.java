@@ -26,9 +26,9 @@ import org.jetbrains.annotations.NotNull;
  * @author Noel <cutie@floofy.dev>
  */
 public enum OperatingSystem {
-    WINDOWS,
-    MACOS,
-    LINUX;
+    WINDOWS("windows"),
+    MACOS("darwin"),
+    LINUX("linux");
 
     /** Returns the current operating system. */
     public static @NotNull OperatingSystem current() {
@@ -38,6 +38,16 @@ public enum OperatingSystem {
         if (os.startsWith("Linux")) return OperatingSystem.LINUX;
 
         throw new RuntimeException(String.format("Unknown operating system: [%s]", os));
+    }
+
+    final String key;
+
+    OperatingSystem(String key) {
+        this.key = key;
+    }
+
+    public String key() {
+        return key;
     }
 
     public boolean isWindows() {
@@ -50,5 +60,9 @@ public enum OperatingSystem {
 
     public boolean isLinux() {
         return this == OperatingSystem.LINUX;
+    }
+
+    public boolean isUnix() {
+        return isMacOS() || isLinux();
     }
 }

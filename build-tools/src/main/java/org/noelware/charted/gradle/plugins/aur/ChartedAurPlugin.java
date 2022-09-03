@@ -17,51 +17,38 @@
 
 package org.noelware.charted.gradle.plugins.aur;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Locale;
 import java.util.Objects;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.noelware.charted.gradle.OperatingSystem;
+import org.jetbrains.annotations.NotNull;
+import org.noelware.charted.gradle.UnixUtils;
 
 public class ChartedAurPlugin implements Plugin<Project> {
     @Override
-    public void apply(Project project) {
-        if (OperatingSystem.current().isWindows() || OperatingSystem.current().isMacOS()) {
-            project.getLogger()
-                    .lifecycle("[distribution:aur] Disabled because current host system is Windows or"
-                            + " MacOS. Use the Docker image at `./distribution/aur/Dockerfile`"
-                            + " to publish the AUR package.");
-            return;
-        }
-
-        var release = new File("/etc/os-release");
-        var metadata = new HashMap<String, String>();
-
+    public void apply(@NotNull Project project) {
         try {
-            var fd = new String(new FileInputStream(release).readAllBytes());
-            var lines = fd.split("\n");
-            for (var line : lines) {
-                var data = line.split("=");
-                metadata.putIfAbsent(data[0].toLowerCase(Locale.ROOT), data[1].replaceAll("\"", ""));
+            final var distro = UnixUtils.getDistroName();
+            if (distro == null) {
+                project.getLogger()
+                        .lifecycle(
+                                "[distribution:aur] AUR plugin is disabled because current host system was Windows or macOS,"
+                                        + " please use the Docker image if you wish to use the AUR plugin located at ./distribution/aur/Dockerfile,"
+                                        + " with the :buildAurDockerImage task.");
             }
+
+            if (!Objects.equals(distro, "Arch Linux")) {
+                project.getLogger()
+                        .lifecycle(
+                                "[distribution:aur] AUR plugin is disabled because current distribution was not Arch Linux."
+                                        + " Please us the Docker image if you wish to continue using the AUR plugin located in ./distribution/aur/Dockerfile, or"
+                                        + " with the :buildAurDockerImage task.");
+            }
+
+            project.getLogger().lifecycle("[distribution:aur] AUR plugin is enabled for publishing! ^-^");
         } catch (IOException e) {
-            throw new GradleException("Unable to read /etc/os-release:", e);
-        }
-
-        if (!metadata.containsKey("name"))
-            throw new GradleException("/etc/os-release is corrupted: missing `NAME` attribute.");
-
-        var name = metadata.get("name");
-        if (!Objects.equals(name, "Arch Linux")) {
-            project.getLogger()
-                    .lifecycle("[distribution:aur] Current host system is not Arch Linux, please use"
-                            + " the Docker image as an alternative: `./gradlew"
-                            + " :distribution:aur:runAurDockerImage`");
+            throw new GradleException("Unexpected IO exception occurred:", e);
         }
     }
 }

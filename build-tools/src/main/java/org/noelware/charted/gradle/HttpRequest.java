@@ -17,4 +17,52 @@
 
 package org.noelware.charted.gradle;
 
-public class HttpRequest {}
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpResponse;
+
+public class HttpRequest {
+    private static final HttpClient httpClient = HttpClient.newHttpClient();
+    private static final Gson gson = new Gson();
+
+    public static InputStream request(String url) throws IOException, InterruptedException {
+        return request(URI.create(url));
+    }
+
+    public static InputStream request(URI url) throws IOException, InterruptedException {
+        final var request = java.net.http.HttpRequest.newBuilder(url)
+                .GET()
+                .setHeader("User-Agent", "Noelware/charted-server")
+                .build();
+
+        final var response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
+        return response.body();
+    }
+
+    public static JsonObject json(String url) throws IOException, InterruptedException {
+        return json(URI.create(url));
+    }
+
+    public static JsonObject json(URI url) throws IOException, InterruptedException {
+        final var response = request(url);
+        try (final var reader = new InputStreamReader(response)) {
+            return gson.fromJson(reader, JsonObject.class);
+        }
+    }
+
+    public static String text(String url) throws IOException, InterruptedException {
+        return text(URI.create(url));
+    }
+
+    public static String text(URI url) throws IOException, InterruptedException {
+        try (final var is = request(url)) {
+            final var bytes = is.readAllBytes();
+            return new String(bytes);
+        }
+    }
+}

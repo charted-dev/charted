@@ -17,77 +17,87 @@
 
 package org.noelware.charted.gradle.plugins.aur;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import groovy.text.GStringTemplateEngine;
+import groovy.text.SimpleTemplateEngine;
 import groovy.text.TemplateEngine;
 import java.io.*;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Map;
 import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.process.ExecOperations;
 import org.gradle.work.DisableCachingByDefault;
+import org.noelware.charted.gradle.Architecture;
 
 @DisableCachingByDefault(because = "Not worth caching")
 public class GeneratePkgBuildTask extends DefaultTask {
-    private final TemplateEngine templateEngine = new GStringTemplateEngine();
-    private final HttpClient httpClient = HttpClient.newHttpClient();
-    private final Gson gson = new Gson();
+    private final TemplateEngine engine = new SimpleTemplateEngine();
+    private final ExecOperations execOperations;
 
     @InputFile
-    private RegularFileProperty aurTemplateFile;
+    private final RegularFileProperty templateFile;
 
     @Inject
-    public GeneratePkgBuildTask(ObjectFactory objectFactory) {
-        this.aurTemplateFile = objectFactory.fileProperty();
+    public GeneratePkgBuildTask(ObjectFactory objectFactory, ExecOperations operations) {
+        this.execOperations = operations;
+        this.templateFile = objectFactory.fileProperty();
     }
 
-    public RegularFileProperty getAurTemplateFile() {
-        return aurTemplateFile;
+    public RegularFileProperty getTemplateFile() {
+        return templateFile;
     }
 
     @TaskAction
-    public void execute() throws IOException, ClassNotFoundException {
-        var project = getProject().getRootProject();
-        var version = project.getVersion().toString();
-        var bindings = Map.ofEntries(Map.entry("package.version", version), Map.entry("package.checksum", "abcdef"));
+    public void execute() throws IOException, InterruptedException, ClassNotFoundException {
+        final var project = getProject().getRootProject();
+        final var version = (String) project.getVersion();
 
-        var templateFile = aurTemplateFile.get().getAsFile();
-        var template = templateEngine.createTemplate(new FileReader(templateFile));
-        var outputDirectory = new File(getProject().getBuildDir(), "generated/aur");
-        if (!outputDirectory.exists()) {
-            Files.createDirectories(outputDirectory.toPath());
+        // Get the checksum from the downloads repository
+        final var arch = Architecture.current();
+        final var checksum = "beepboop";
+        //        final var checksum = HttpRequest.text(
+        //                "https://dl.noelware.org/charted/server/%s/%s/charted-server.tar.gz.sha256".formatted(version,
+        // arch));
+
+        getLogger().lifecycle("Received checksum for charted-server.tar.gz.sha256 [{}]", checksum);
+
+        final var file = templateFile.getAsFile().get();
+        final var od = new File(getProject().getBuildDir(), "generated/aur");
+        if (!od.exists()) {
+            Files.createDirectories(od.toPath());
         }
 
-        var outputFile = new File(outputDirectory, "PKGBUILD");
-        outputFile.createNewFile();
+        try (final var is = new FileInputStream(file)) {
+            final var destination = new File(od, "PKGBUILD");
+            destination.createNewFile();
 
-        var output = template.make(bindings).toString();
-        try (var os = new FileOutputStream(outputFile)) {
-            os.write(output.getBytes(StandardCharsets.UTF_8));
+            var output = new String(is.readAllBytes());
+            output = output.replace("${version}", "1.0");
+            output = output.replace("${checksum}", checksum);
+
+            try (final var os = new FileOutputStream(destination)) {
+                os.write(output.getBytes(StandardCharsets.UTF_8));
+            }
         }
-    }
 
-    private JsonObject getJsonObjectFrom(URI url) throws IOException, InterruptedException {
-        var request = HttpRequest.newBuilder()
-                .GET()
-                .uri(url)
-                .setHeader("User-Agent", "Noelware/charted-server")
-                .build();
+        // since we wrote it, let's create a virtual environment,
+        // it'll live in build/generated/aur since the AUR doesn't
+        // accept files in other directories in the current working
+        // directory.
+        final var makepkgsumsResult = execOperations.exec(spec -> {
+            spec.commandLine("makepkg");
+            spec.args("-si");
+            spec.setWorkingDir(od);
+            spec.setIgnoreExitValue(true);
+            spec.setStandardOutput(System.out);
+            spec.setErrorOutput(System.err);
+        });
 
-        var response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
-        var data = gson.fromJson(new InputStreamReader(response.body()), JsonObject.class);
-        response.body().close();
-
-        return data;
+        if (makepkgsumsResult.getExitValue() != 0) {
+            getLogger().lifecycle("Couldn't run 'makepkg' command in directory [{}]", od);
+        }
     }
 }

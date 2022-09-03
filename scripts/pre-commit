@@ -2,7 +2,8 @@
 
 echo "[::charted-server] Checking Spotless..."
 
-./gradlew spotlessCheck
+./gradlew :spotlessCheck
+./gradlew :build-tools:spotlessCheck
 ret_val=$?
 
 if [[ "$ret_val" != "0" ]]; then

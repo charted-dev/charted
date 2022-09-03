@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.endpoints
+package org.noelware.charted.server.endpoints.api
 
 import dev.floofy.utils.kotlin.humanize
 import io.ktor.http.*
@@ -141,6 +141,8 @@ class AdminEndpoint(private val statistics: StatisticsCollector): AbstractEndpoi
 
     @Post("/gc")
     suspend fun runGarbageCollector(call: ApplicationCall) {
-        call.respond(HttpStatusCode.NotImplemented, Response.err("NOT_SUPPORTED", "REST handler POST /admin/gc is not supported."))
+        call.respond(
+            HttpStatusCode.NotImplemented
+        )
     }
 }

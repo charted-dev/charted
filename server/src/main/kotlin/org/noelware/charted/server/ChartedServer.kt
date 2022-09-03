@@ -52,6 +52,7 @@ import org.noelware.charted.common.data.Config
 import org.noelware.charted.common.data.Feature
 import org.noelware.charted.common.data.responses.Response
 import org.noelware.charted.common.exceptions.ValidationException
+import org.noelware.charted.core.StorageWrapper
 import org.noelware.charted.features.docker.registry.DockerRegistryPlugin
 import org.noelware.charted.server.endpoints.proxyStorageTrailer
 import org.noelware.charted.server.jobs.ReconfigureProxyCdnJob
@@ -204,9 +205,10 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
                 }
 
                 routing {
+                    val storage: StorageWrapper by inject()
                     if (self.config.cdn.proxyContents) {
                         runBlocking {
-                            proxyStorageTrailer(GlobalContext.retrieve(), self.config)
+                            proxyStorageTrailer(storage, self.config)
                         }
 
                         val scheduler: Scheduler by inject()

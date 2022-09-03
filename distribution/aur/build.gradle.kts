@@ -38,10 +38,10 @@ docker {
 
 tasks.register<GeneratePkgBuildTask>("generatePkgRepo") {
     outputs.upToDateWhen { false }
-    aurTemplateFile by file("./template.PKGBUILD").toRegularFile()
+    templateFile by file("./template.PKGBUILD").toRegularFile()
 }
 
-tasks.register<BuildDockerImageTask>("buildAurPackage") {
+tasks.register<BuildDockerImageTask>("buildAurDockerImage") {
     dockerContext.set(projectDir)
     useDockerBuildx by true
     dockerfile by docker.dockerfiles.find { it.platform() == "linux/amd64" }!!

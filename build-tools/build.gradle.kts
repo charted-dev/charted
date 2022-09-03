@@ -16,7 +16,7 @@
  */
 
 plugins {
-    id("com.diffplug.spotless") version "6.8.0"
+    id("com.diffplug.spotless") version "6.10.0"
     `java-gradle-plugin`
     java
 }

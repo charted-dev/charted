@@ -26,7 +26,7 @@ pluginManagement {
 }
 
 plugins {
-    id("com.gradle.enterprise") version "3.10.2"
+    id("com.gradle.enterprise") version "3.11.1"
 }
 
 includeBuild("build-tools")
@@ -34,6 +34,9 @@ include(
     ":benchmarking",
     ":common",
     ":core",
+    ":config",
+    ":config:kotlin-script",
+    ":config:yaml",
     ":database",
     ":distribution:archives",
     ":distribution:aur",
@@ -59,6 +62,10 @@ include(
     ":lib:metrics",
     ":lib:stats",
     ":lib:telemetry",
+    ":lib:tracing",
+    ":lib:tracing:apm",
+    ":lib:tracing:opentelemetry",
+    ":lib:tracing:apm:instrumented",
     ":server",
     ":sessions",
     ":sessions:apple",

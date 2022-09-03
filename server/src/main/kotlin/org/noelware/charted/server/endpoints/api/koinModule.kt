@@ -25,4 +25,5 @@ val apiEndpointsModule = module {
     single { UserApiEndpoints(get(), get(), get(), get(), get(), get(), get(), get()) } bind AbstractEndpoint::class
     single { RepositoryEndpoints(getOrNull(), get(), get(), get(), getOrNull()) } bind AbstractEndpoint::class
     single { ApiKeysEndpoints(get()) } bind AbstractEndpoint::class
+    single { AdminEndpoint(get()) } bind AbstractEndpoint::class
 }
