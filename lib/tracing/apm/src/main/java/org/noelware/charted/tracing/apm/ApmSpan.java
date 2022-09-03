@@ -17,8 +17,39 @@
 
 package org.noelware.charted.tracing.apm;
 
+import java.util.List;
+import java.util.Map;
+import org.jetbrains.annotations.NotNull;
+import org.noelware.charted.tracing.api.Event;
 import org.noelware.charted.tracing.api.Span;
 
 public class ApmSpan implements Span {
     public ApmSpan() {}
+
+    @NotNull
+    @Override
+    public String getOperation() {
+        return null;
+    }
+
+    @NotNull
+    @Override
+    public List<Event> getEvents() {
+        return null;
+    }
+
+    @NotNull
+    @Override
+    public String getName() {
+        return null;
+    }
+
+    @NotNull
+    @Override
+    public Event startEvent(@NotNull String description, @NotNull Map<String, ?> metadata) {
+        return null;
+    }
+
+    @Override
+    public void release(@NotNull Event event) {}
 }
