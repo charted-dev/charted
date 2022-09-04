@@ -15,11 +15,11 @@
 
 .PHONY: run
 run: build
-	@CHARTED_DISTRIBUTION_TYPE=git ./server/build/install/charted-server/charted-server
+	@CHARTED_DISTRIBUTION_TYPE=git ./server/build/install/charted-server/bin/charted-server
 
 build: clean spotless
 	@./gradlew :server:installDist
-	@chmod +x ./server/build/install/charted-server/charted-server
+	@chmod +x ./server/build/install/charted-server/bin/charted-server
 
 spotless:
 	@./gradlew spotlessApply

@@ -99,7 +99,6 @@ import kotlin.time.Duration.Companion.seconds
 
 object Bootstrap {
     private val log by logging<Bootstrap>()
-
     private fun createUUID() {
         val file = File("./instance.uuid")
         if (!file.exists()) {
