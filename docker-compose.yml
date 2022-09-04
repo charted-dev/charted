@@ -21,7 +21,6 @@ version: '3.8'
 services:
   server:
     container_name: charted_server
-    # image: docker.noelware.org/charted/server:latest
     build:
       context: ./distribution/docker
       dockerfile: amd64.Dockerfile
