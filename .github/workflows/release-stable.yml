@@ -53,10 +53,10 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       - name: Lint build tools with Spotless
-        uses: ./gradlew :build-tools:spotlessCheck --scan --no-daemon
+        run: ./gradlew :build-tools:spotlessCheck --scan --no-daemon
 
       - name: Lint repository with Spotless
-        uses: ./gradlew spotlessCheck --scan --no-daemon
+        run: ./gradlew spotlessCheck --scan --no-daemon
 
       - name: Compile the Kotlin sources for any compiler errors
         run: ./gradlew compileKotlin --scan --no-daemon
