@@ -17,7 +17,7 @@ name: Release a new stable version
 on:
   release:
     types:
-      - published
+      - released
 permissions:
   contents: write
   packages: write
@@ -145,6 +145,8 @@ jobs:
   docker-manifests:
     runs-on: ubuntu-latest
     name: Apply Docker manifests
+    needs:
+      - docker-image
     steps:
       - name: Get current git tag
         id: tag
