@@ -132,7 +132,7 @@ jobs:
             ghcr.io/charted-dev/charted:nightly-${{ matrix.platform.tag-suffix }}
             ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}-nightly-${{ matrix.platform.tag-suffix }}
             ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-nightly-${{ matrix.platform.tag-suffix }}
-            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.version }}-nightly-${{ matrix.platform.tag-suffix }}
+            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-${{ matrix.platform.tag-suffix }}
 
   docker-manifests:
     runs-on: ubuntu-latest
@@ -175,3 +175,11 @@ jobs:
           base-image: ghcr.io/charted-dev/charted:${{ steps.tag.outputs.version }}-nightly
           extra-images: |
             ghcr.io/charted-dev/charted:${{ steps.tag.outputs.version }}-nightly-amd64
+
+      - name: Apply manifests for tag ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly
+        uses: Noelware/docker-manifest-action@master
+        with:
+          push: true
+          base-image: ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly
+          extra-images: |
+            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-amd64
