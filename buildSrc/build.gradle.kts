@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.18.0")
+    implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.18.3")
     implementation("com.diffplug.spotless:spotless-plugin-gradle:6.10.0")
     implementation("com.google.protobuf:protobuf-gradle-plugin:0.8.19")
     implementation("dev.floofy.commons:gradle:2.3.0")
