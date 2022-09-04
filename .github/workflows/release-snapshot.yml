@@ -71,7 +71,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: charted-server-x64-nightly-${{ steps.tag.outputs.version }}.${{ matrix.tasks.ext }}
-          path: ./server/build/distributions/charted-server.${{ matrix.tasks.ext }}
+          path: ./server/build/distributions/charted-server${{ matrix.tasks.ext }}
 
       # - name: Upload artifacts to Noelware's downloads repository
       #   uses: Noelware/s3-action@master
@@ -138,8 +138,8 @@ jobs:
       # https://github.com/moby/buildkit/issues/1896
       - name: Move cache
         run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          rm -rf /tmp/.buildx/cache
+          mv /tmp/.buildx/cache-new /tmp/.buildx/cache
 
   docker-manifests:
     runs-on: ubuntu-latest
