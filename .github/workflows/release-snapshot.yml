@@ -28,8 +28,8 @@ jobs:
     strategy:
       matrix:
         tasks:
-          - { ext: ".tar.gz", task: "distZip" }
-          - { ext: ".zip", task: "zip" }
+          - { ext: ".tar.gz", task: "distTar" }
+          - { ext: ".zip", task: "distZip" }
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -127,12 +127,19 @@ jobs:
           file: ${{ matrix.platform.path }}
           push: true
           cache-from: type=local,src=/tmp/.buildx/cache
-          cache-to: type=local,dest=/tmp/.buildx.cache-new,mode=max
+          cache-to: type=local,dest=/tmp/.buildx/cache-new,mode=max
           tags: |
             ghcr.io/charted-dev/charted:nightly-${{ matrix.platform.tag-suffix }}
             ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}-nightly-${{ matrix.platform.tag-suffix }}
             ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-nightly-${{ matrix.platform.tag-suffix }}
             ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-${{ matrix.platform.tag-suffix }}
+
+      # https://github.com/docker/build-push-action/issues/252
+      # https://github.com/moby/buildkit/issues/1896
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
   docker-manifests:
     runs-on: ubuntu-latest

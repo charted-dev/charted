@@ -27,13 +27,10 @@ RUN apk update && \
 FROM eclipse-temurin:18-jdk-alpine AS gradle-build
 
 RUN apk update && \
-    apk add --no-cache git ca-certificates && \
+    apk add --no-cache git ca-certificates gcompat libc6-compat && \
     apk add --no-cache protobuf-dev --repository=https://dl-cdn.alpinelinux.org/alpine/edge/main
 
 WORKDIR /build
-
-# https://github.com/google/protobuf-gradle-plugin/issues/265#issuecomment-421508779
-ENV CHARTED_PROTOC_PATH=protoc
 
 COPY . .
 RUN chmod +x ./gradlew && ./gradlew :server:installDist --stacktrace
@@ -45,8 +42,8 @@ WORKDIR /app/noelware/charted/server
 
 ENV JAVA_HOME="/opt/openjdk/java"
 COPY --from=jdk-runtime /runtime /opt/openjdk/java
-COPY --from=gradle-build /build/build/install/charted-server/lib /app/noelware/charted/server/lib
-COPY --from=gradle-build /build/build/install/charted-server/charted-server /app/noelware/charted/server/bin/charted-server
+COPY --from=gradle-build /build/server/build/install/charted-server/lib /app/noelware/charted/server/lib
+COPY --from=gradle-build /build/server/build/install/charted-server/bin /app/noelware/charted/server/bin
 COPY distribution/docker/scripts/linux /app/noelware/charted/server/scripts
 
 ENV CHARTED_DISTRIBUTION_TYPE=docker
@@ -58,4 +55,4 @@ RUN chown 1001:1001 /app/noelware/charted/server && \
 
 USER charted
 ENTRYPOINT ["/app/noelware/charted/server/scripts/docker-entrypoint.sh"]
-CMD ["/app/noelware/charted/server/charted-server"]
+CMD ["/app/noelware/charted/server/bin/charted-server"]
