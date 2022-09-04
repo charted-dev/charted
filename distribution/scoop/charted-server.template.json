@@ -5,7 +5,7 @@
   "description": "\uD83D\uDCE6 You know, for Helm Charts?",
   "architecture": {
     "64bit": {
-      "url": "https://dl.noelware.org/charted/server/${version}/x86_64/charted-server.zip",
+      "url": "https://artifacts.noelware.org/charted/server/${version}/x86_64/charted-server.zip",
       "bin": ["charted-server/charted-server.bat"],
       "hash": "${checksum}"
     }

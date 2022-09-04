@@ -7,4 +7,4 @@ debug: true
 redis: {}
 storage:
   filesystem:
-    directory: ./.data
+    directory: /var/lib/noelware/charted/server/data

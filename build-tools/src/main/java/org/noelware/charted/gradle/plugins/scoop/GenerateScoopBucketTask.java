@@ -15,28 +15,6 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.frontend
+package org.noelware.charted.gradle.plugins.scoop;
 
-import java.io.File
-import java.io.InputStream
-
-/**
- * Host for getting the generated content into the frontend binary that is used in production
- * by the server.
- */
-object FrontendHost {
-    /**
-     * Returns all the static content as a key-value hash of {route => stream}.
-     */
-    fun getStaticContent(): Map<String, InputStream> {
-        val loader = Thread.currentThread().contextClassLoader
-
-        // Probably used in development, let's just return an
-        // empty map (for now)
-        val url = loader.getResource("/frontend")
-            ?: return mapOf()
-
-        println(File(url.path).listFiles())
-        return mapOf()
-    }
-}
+public class GenerateScoopBucketTask {}

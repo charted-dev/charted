@@ -62,6 +62,11 @@ gradlePlugin {
             id = "org.noelware.charted.distribution.homebrew"
             implementationClass = "org.noelware.charted.gradle.plugins.homebrew.ChartedHomebrewPlugin"
         }
+
+        create("scoop") {
+            id = "org.noelware.charted.distribution.scoop"
+            implementationClass = "org.noelware.charted.gradle.plugins.scoop.ChartedScoopPlugin"
+        }
     }
 }
 

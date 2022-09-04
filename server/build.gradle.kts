@@ -91,12 +91,17 @@ distributions {
     main {
         distributionBaseName by "charted-server"
         contents {
+            into("bin") {
+                from("$projectDir/bin/charted-server.ps1")
+                from("$projectDir/bin/charted-server")
+            }
+
+            into("config") {
+                from("$projectDir/bin/config/logback.properties")
+                from("$projectDir/bin/config/charted.yml")
+            }
+
             from(
-                "$projectDir/bin/config/logback.properties",
-                "$projectDir/bin/config/charted.example.yml",
-                "$projectDir/bin/charted-server.ps1",
-                "$projectDir/bin/charted-server",
-                "$projectDir/charted.service",
                 "$projectDir/bin/README.txt",
                 "$projectDir/bin/LICENSE"
             )
@@ -126,5 +131,9 @@ tasks {
     distTar {
         archiveFileName by "charted-server.tar.gz"
         compression = Compression.GZIP // use gzip for the compression :>
+    }
+
+    startScripts {
+        enabled = false
     }
 }

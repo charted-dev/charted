@@ -17,19 +17,28 @@ name: Release a new stable version
 on:
   release:
     types:
-      - released
+      - published
 permissions:
   contents: write
   packages: write
 jobs:
-  release-snapshot:
-    name: Release a new snapshot version
+  archives:
     runs-on: ubuntu-latest
+    name: Release a new stable version [${{ matrix.tasks.ext }}]
+    strategy:
+      matrix:
+        tasks:
+          - { ext: ".tar.gz", task: "distZip" }
+          - { ext: ".zip", task: "distTar" }
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          submodules: 'recursive'
+          submodules: recursive
+
+      - name: Get current git tag
+        id: tag
+        uses: auguwu/git-tag-action@master
 
       - name: Setup Java 17
         uses: actions/setup-java@v3
@@ -40,109 +49,186 @@ jobs:
       - name: Validate gradle-wrapper.jar
         uses: gradle/wrapper-validation-action@v1
 
-      - name: Let gradlew be executable
-        run: chmod +x ./gradlew
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
 
-      - name: Lints the repository via Spotless for any linting errors.
-        run: ./gradlew spotlessCheck --no-daemon
+      - name: Lint build tools with Spotless
+        uses: ./gradlew :build-tools:spotlessCheck --scan --no-daemon
 
-      - name: Compiles the Kotlin sources for any compiler errors
-        run: ./gradlew compileKotlin --no-daemon
+      - name: Lint repository with Spotless
+        uses: ./gradlew spotlessCheck --scan --no-daemon
 
-      - name: Build .zip file
-        run: ./gradlew :server:distZip --no-daemon
+      - name: Compile the Kotlin sources for any compiler errors
+        run: ./gradlew compileKotlin --scan --no-daemon
 
-      - name: Build .tar.gz file
-        run: ./gradlew :server:distTar --no-daemon
+      - name: Compile the Java sources for any compiler errors
+        run: ./gradlew compileJava --scan --no-daemon
 
-      - name: Setup Docker buildx
-        uses: docker/setup-buildx-action@v1
+      - name: Build artifacts
+        run: ./gradlew :server:${{ matrix.tasks.task }}
 
-      - name: Cache Docker layers
+      - name: Upload artifact to release
+        uses: actions/upload-artifact@v3
+        with:
+          name: charted-server-x64-${{ steps.tag.outputs.version }}.${{ matrix.tasks.ext }}
+          path: ./server/build/distributions/charted-server.${{ matrix.tasks.ext }}
+
+      - name: Upload artifacts to Noelware's downloads repository
+        uses: Noelware/s3-action@master
+        with:
+          directories: ./server/build/distributions
+          access-key: ${{ secrets.S3_ACCESS_KEY }}
+          secret-key: ${{ secrets.S3_SECRET_KEY }}
+          bucket: artifacts.noelware.org
+
+  docker-image:
+    runs-on: ${{ matrix.platform.runner }}
+    name: Release a new stable Docker release [${{ matrix.platform.key }}]
+    strategy:
+      matrix:
+        platform:
+          - { key: linux/amd64, runner: ubuntu-latest, path: ./distribution/docker/amd64.Dockerfile, tag-suffix: amd64 }
+          #- { key: linux/arm64, runner: ubuntu-latest, path: ./distribution/docker/arm64.Dockerfile, tag-suffix: arm64 }
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Get current git tag
+        id: tag
+        uses: auguwu/git-tag-action@master
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Setup Docker layer cache
         uses: actions/cache@v3
         with:
           path: /tmp/.buildx/cache
-          key: ${{ runner.os }}-buildx-cache-${{ github.sha }}
+          key: ${{ runner.os }}-buildx-cache-${{ matrix.platform.key }}
           restore-keys: |
             ${{ runner.os }}-buildx-cache-
 
-      - name: Setup QEMU
-        uses: docker/setup-qemu-action@v2
-
-      - name: Login into Docker Hub
-        uses: docker/login-action@v2
+      - name: Log into Noelware's container registry
+        uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: docker.noelware.org
+          username: noel-ci
+          password: ${{ secrets.CI_PASSWORD }}
 
       - name: Login into GitHub Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: charted-dev
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push x86_64 image
+      - name: Build and push for platform ${{ matrix.platform.key }}
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: ./distribution/docker/amd64.Dockerfile
-          platforms: linux/amd64
+          file: ${{ matrix.platform.path }}
           push: true
           cache-from: type=local,src=/tmp/.buildx/cache
-          cache-to: type=local,dest=/tmp/.buildx/cache
+          cache-to: type=local,dest=/tmp/.buildx/.cache-new,mode=max
           tags: |
-            ghcr.io/charted-dev/charted:${{steps.tag.outputs.tag}}-amd64
-            charted/server:${{steps.tag.outputs.tag}}-amd64
-            ghcr.io/charted-dev/charted:latest-amd64
-            charted/server:latest-amd64
+            docker.noelware.org/charted/server:latest-${{ matrix.platform.tag-suffix }}
+            docker.noelware.org/charted/server:${{ steps.tag.outputs.major }}-${{ matrix.platform.tag-suffix }}
+            docker.noelware.org/charted/server:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-${{ matrix.platform.tag-suffix }}
+            docker.noelware.org/charted/server:${{ steps.tag.outputs.version }}-${{ matrix.platform.tag-suffix }}
+            ghcr.io/charted-dev/charted:latest-${{ matrix.platform.tag-suffix }}
+            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}-${{ matrix.platform.tag-suffix }}
+            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-${{ matrix.platform.tag-suffix }}
+            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.version }}-${{ matrix.platform.tag-suffix }}
 
-      - name: Push manifests (Docker Hub, latest)
-        uses: Noelware/docker-manifest-action@master
-        with:
-          extra-images: charted/server:latest-amd64,charted/server:latest-arm64
-          base-image: charted/server:latest
-          push: true
-
-      - name: Push manifests (Docker Hub, ${{steps.tag.outputs.tag}})
-        uses: Noelware/docker-manifest-action@master
-        with:
-          extra-images: charted/server:${{steps.tag.outputs.tag}}-amd64,charted/server:${{steps.tag.outputs.tag}}-arm64
-          base-image: charted/server:${{steps.tag.outputs.tag}}
-          push: true
-
-      - name: Push manifests (ghcr.io, latest)
-        uses: Noelware/docker-manifest-action@master
-        with:
-          extra-images: ghcr.io/charted-dev/charted:latest-amd64,ghcr.io/charted-dev/charted:latest-arm64
-          base-image: ghcr.io/charted-dev/charted:latest
-          push: true
-
-      - name: Push manifests (Docker Hub, ${{steps.tag.outputs.tag}})
-        uses: Noelware/docker-manifest-action@master
-        with:
-          extra-images: ghcr.io/charted-dev/charted:${{steps.tag.outputs.tag}}-amd64,ghcr.io/charted-dev/charted:${{steps.tag.outputs.tag}}-arm64
-          base-image: ghcr.io/charted-dev/charted:${{steps.tag.outputs.tag}}
-          push: true
-  deploy:
-    name: Deploy on Kubernetes
+  docker-manifests:
     runs-on: ubuntu-latest
-    needs:
-      - release
+    name: Apply Docker manifests
     steps:
-      - name: Setup Kubeconfig
-        run: |
-          mkdir ~/.kube
-          echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
-
-      - name: Get the current git tag to use
+      - name: Get current git tag
         id: tag
-        uses: dawidd6/action-get-tag@v1
+        uses: auguwu/git-tag-action@master
+
+      - name: Apply manifests for docker.noelware.org/charted/server:latest tag
+        uses: Noelware/docker-manifest-action@master
         with:
-          strip_v: true
+          push: true
+          base-image: docker.noelware.org/charted/server:latest
+          extra-images: |
+            docker.noelware.org/charted/server:latest-amd64
 
-      - name: Set tag
-        run: kubectl set image statefulset/charted-server --namespace noelware charted-server=charted/server:${{steps.tag.outputs.tag}}
+      - name: Apply manifests for tag docker.noelware.org/charted/server:${{ steps.tag.outputs.major }}
+        uses: Noelware/docker-manifest-action@master
+        with:
+          push: true
+          base-image: docker.noelware.org/charted/server:${{ steps.tag.outputs.major }}
+          extra-images: |
+            docker.noelware.org/charted/server:${{ steps.tag.outputs.major }}-amd64
 
-      - name: Deploy to Kubernetes!
-        run: kubectl rollout status --namespace noelware statefulset/charted-server
+      - name: Apply manifests for tag docker.noelware.org/charted/server:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}
+        uses: Noelware/docker-manifest-action@master
+        with:
+          push: true
+          base-image: docker.noelware.org/charted/server:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}
+          extra-images: |
+            docker.noelware.org/charted/server:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-amd64
+
+      - name: Apply manifests for tag docker.noelware.org/charted/server:${{ steps.tag.outputs.version }}
+        uses: Noelware/docker-manifest-action@master
+        with:
+          push: true
+          base-image: docker.noelware.org/charted/server:${{ steps.tag.outputs.version }}
+          extra-images: |
+            docker.noelware.org/charted/server:${{ steps.tag.outputs.version }}-amd64
+
+      - name: Apply manifests for ghcr.io/charted-dev/charted:latest tag
+        uses: Noelware/docker-manifest-action@master
+        with:
+          push: true
+          base-image: ghcr.io/charted-dev/charted:latest
+          extra-images: |
+            ghcr.io/charted-dev/charted:latest-amd64
+
+      - name: Apply manifests for tag ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}
+        uses: Noelware/docker-manifest-action@master
+        with:
+          push: true
+          base-image: ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}
+          extra-images: |
+            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}-amd64
+
+      - name: Apply manifests for tag ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}
+        uses: Noelware/docker-manifest-action@master
+        with:
+          push: true
+          base-image: ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}
+          extra-images: |
+            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-amd64
+
+      - name: Apply manifests for tag ghcr.io/charted-dev/charted:${{ steps.tag.outputs.version }}
+        uses: Noelware/docker-manifest-action@master
+        with:
+          push: true
+          base-image: ghcr.io/charted-dev/charted:${{ steps.tag.outputs.version }}
+          extra-images: |
+            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.version }}-amd64
+
+  kubernetes:
+    runs-on: ubuntu-latest
+    name: Deploy to Noelware's Kubernetes cluster
+    needs:
+      - docker-image
+    steps:
+      - name: Get current git tag
+        id: tag
+        uses: auguwu/git-tag-action@master
+
+      - name: Add kubeconfig
+        run: echo ${{ secrets.KUBECONFIG }} >> ~/.kube/config
+
+      - name: Set image
+        run: kubectl set image --namespace=noelware deployment/charted-server charted-server=docker.noelware.org/charted/server:${{ steps.tag.outputs.version }}
+
+      - name: Deploy!
+        run: kubectl rollout status --namespace=noelware deployment/charted-server
