@@ -64,11 +64,6 @@ service:
 
 frontend:
   enabled: true
-  image:
-    repository: docker.noelware.org
-    image: charted/pak
-    tag: 1.0.0
-    pullPolicy: IfNotPresent
   config:
     mapName: pak-config
     path: /app/noelware/charted/pak/config.yml
