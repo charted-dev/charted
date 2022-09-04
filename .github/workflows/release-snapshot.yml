@@ -73,17 +73,17 @@ jobs:
           name: charted-server-x64-nightly-${{ steps.tag.outputs.version }}.${{ matrix.tasks.ext }}
           path: ./server/build/distributions/charted-server.${{ matrix.tasks.ext }}
 
-      - name: Upload artifacts to Noelware's downloads repository
-        uses: Noelware/s3-action@master
-        with:
-          directories: ./server/build/distributions
-          access-key: ${{ secrets.S3_ACCESS_KEY }}
-          secret-key: ${{ secrets.S3_SECRET_KEY }}
-          bucket: artifacts.noelware.org
+      # - name: Upload artifacts to Noelware's downloads repository
+      #   uses: Noelware/s3-action@master
+      #   with:
+      #     directories: ./server/build/distributions
+      #     access-key: ${{ secrets.S3_ACCESS_KEY }}
+      #     secret-key: ${{ secrets.S3_SECRET_KEY }}
+      #     bucket: artifacts.noelware.org
 
   docker-image:
     runs-on: ${{ matrix.platform.runner }}
-    name: Release a new nightly release
+    name: Release a new nightly release [${{ matrix.platform.key }}]
     strategy:
       matrix:
         platform:
