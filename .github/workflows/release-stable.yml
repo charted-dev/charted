@@ -155,6 +155,20 @@ jobs:
     needs:
       - docker-image
     steps:
+      - name: Log into Noelware's container registry
+        uses: docker/login-action@v3
+        with:
+          registry: docker.noelware.org
+          username: noel-ci
+          password: ${{ secrets.CI_PASSWORD }}
+
+      - name: Login into GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: charted-dev
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Get current git tag
         id: tag
         uses: auguwu/git-tag-action@master
