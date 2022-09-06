@@ -32,7 +32,7 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
     testImplementation("org.testcontainers:testcontainers:1.17.3")
     testImplementation("org.testcontainers:junit-jupiter:1.17.3")
-    testImplementation("org.slf4j:slf4j-simple:1.7.36")
+    testImplementation("org.slf4j:slf4j-simple:2.0.0")
     testImplementation(kotlin("test"))
 }
 
