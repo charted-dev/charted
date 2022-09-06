@@ -1,12 +1,12 @@
 dependencies:
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
-  version: 11.6.16
+  version: 11.6.26
 - name: redis
   repository: https://charts.bitnami.com/bitnami
-  version: 17.0.1
-- name: zookeeper
+  version: 17.0.11
+- name: cassandra
   repository: https://charts.bitnami.com/bitnami
-  version: 10.0.2
-digest: sha256:6a5cbd13094b90e7b00950489486d4c5f31b3b08940e3908b1d70126bb38e34e
-generated: "2022-07-15T19:55:28.550893808-07:00"
+  version: 9.4.2
+digest: sha256:1efa91e472a5067c9154731dc102b51e2638f23947223a18e605a54870c31520
+generated: "2022-09-06T17:26:15.420041501Z"
