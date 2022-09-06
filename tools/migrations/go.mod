@@ -1,6 +1,6 @@
 module noelware.org/charted/server/tools/migrations
 
-go 1.18
+go 1.19
 
 require github.com/spf13/cobra v1.5.0
 
