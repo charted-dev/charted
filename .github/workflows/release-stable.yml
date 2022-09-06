@@ -67,11 +67,16 @@ jobs:
       - name: Build artifacts
         run: ./gradlew :server:${{ matrix.tasks.task }}
 
-      - name: Upload artifact to release
+      - name: Upload artifact to workflow
         uses: actions/upload-artifact@v3
         with:
-          name: charted-server-x64-${{ steps.tag.outputs.version }}.${{ matrix.tasks.ext }}
+          name: charted-server-x64-nightly-${{ steps.tag.outputs.version }}${{ matrix.tasks.ext }}
           path: ./server/build/distributions/charted-server${{ matrix.tasks.ext }}
+          
+      - name: Upload artifact to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./server/build/distributions/charted-server${{ matrix.tasks.ext }}
 
       - name: Upload artifacts to Noelware's downloads repository
         uses: Noelware/s3-action@master
