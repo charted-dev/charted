@@ -30,7 +30,7 @@ RUN apt upgrade && apt update && \
 ENV JAVA_INSTALL="https://github.com/adoptium/temurin18-binaries/releases/download/jdk-18.0.1%2B10/OpenJDK18U-jdk_x64_linux_hotspot_18.0.1_10.tar.gz"
 RUN curl -L -o /tmp/java.tar.gz $JAVA_INSTALL && \
     mkdir -p /opt/java && \
-    tar -xvf /tmp/java.tar.gz -C /opt/java && \
+    tar -xf /tmp/java.tar.gz -C /opt/java && \
     rm /tmp/java.tar.gz
 
 ENV JAVA_HOME="/opt/java/jdk-18.0.1+10"
@@ -40,14 +40,14 @@ ENV PATH="$PATH:/opt/java/jdk-18.0.1+10/bin"
 ENV GRADLE_INSTALL="https://services.gradle.org/distributions/gradle-7.5.1-all.zip"
 RUN curl -L -o /tmp/gradle.zip $GRADLE_INSTALL && \
     mkdir -p /opt/gradle && \
-    unzip -d /opt/gradle /tmp/gradle.zip && \
+    unzip -qd /opt/gradle /tmp/gradle.zip && \
     rm /tmp/gradle.zip
 
-# ENV GO_INSTALL="https://go.dev/dl/go1.19.linux-amd64.tar.gz"
-# RUN curl -L -o /tmp/go.tar.gz $GO_INSTALL && \
-#     mkdir -p /opt/golang && \
-#     tar -xvf /tmp/go.tar.gz -C /opt/golang && \
-#     rm /tmp/go.tar.gz
+ENV GO_INSTALL="https://go.dev/dl/go1.19.linux-amd64.tar.gz"
+RUN curl -L -o /tmp/go.tar.gz $GO_INSTALL && \
+    mkdir -p /opt/golang && \
+    tar -xf /tmp/go.tar.gz -C /opt/golang && \
+    rm /tmp/go.tar.gz
 
 ENV PATH="$PATH:/opt/gradle/gradle-7.5.1/bin"
 RUN apt autoremove -y && \

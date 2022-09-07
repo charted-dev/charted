@@ -1,8 +1,7 @@
 {
   "name": "charted-server",
   "remoteUser": "vscode",
-  "dockerComposeFile": "./docker-compose.yml",
-  "service": "workspace",
+  "dockerFile": "Dockerfile",
   "workspaceFolder": "/workspace",
   "forwardPorts": [80, 443],
   "postCreateCommand": ". ./.devcontainer/scripts/bootstrap-cassandra.sh",
