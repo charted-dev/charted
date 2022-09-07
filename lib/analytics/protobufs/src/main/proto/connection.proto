@@ -21,13 +21,14 @@
 
 syntax = "proto3";
 
-package noelware.analytics.protos;
+package noelware.analytics.protobufs;
+option java_package = "org.noelware.analytics.protobufs.v1";
 option java_multiple_files = true;
-option java_package = "org.noelware.charted.analytics.protobufs.v1";
 option go_package = "internal/protobufs";
+option objc_class_prefix = "ANLY";
 
-import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
 
 message ConnectionAckRequest {}
 message ConnectionAckResponse {
@@ -48,7 +49,7 @@ message ReceiveStatsResponse {
 
 enum BuildFlavour {
   DOCKER = 0; // the product is running from Docker
-  KUBERNETES = 1; // the product is using the Helm chart or the Noel on Cloud Kubernetes operator
+  KUBERNETES = 1; // the product is using the Helm chart or the Noel Kubernetes operator
   DEB = 2; // the product was installed via `apt install charted-server`
   RPM = 3; // the product was installed via `yum install charted-server`
   GIT = 4; // the product was installed via the Git repository, pre-defined.

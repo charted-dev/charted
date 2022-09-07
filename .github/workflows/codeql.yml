@@ -24,7 +24,7 @@ on:
       - main
 
     paths-ignore:
-      - '.husky/**'
+      - '.github/**'
       - '.vscode/**'
       - 'assets/**'
       - 'locales/**'
@@ -44,7 +44,7 @@ on:
       - main
 
     paths-ignore:
-      - '.husky/**'
+      - '.github/**'
       - '.vscode/**'
       - 'assets/**'
       - 'locales/**'
@@ -90,4 +90,4 @@ jobs:
         uses: github/codeql-action/autobuild@v2
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v1
+        uses: github/codeql-action/analyze@v2

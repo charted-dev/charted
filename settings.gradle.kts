@@ -38,7 +38,6 @@ include(
     ":config:kotlin-script",
     ":config:yaml",
     ":database",
-    ":distribution:archives",
     ":distribution:aur",
     ":distribution:chart",
     ":distribution:deb",

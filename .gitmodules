@@ -1,0 +1,3 @@
+[submodule "vendor/protobufs"]
+	path = vendor/protobufs
+	url = https://github.com/Noelware/analytics-protobufs

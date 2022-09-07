@@ -15,7 +15,7 @@
 
 name: Linting and Unit Testing
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
   push:
     branches:
       - 'issue/gh-**'
@@ -24,6 +24,7 @@ on:
       - main
 
     paths-ignore:
+      - '.github/**'
       - '.husky/**'
       - '.vscode/**'
       - 'assets/**'
@@ -44,6 +45,7 @@ on:
       - main
 
     paths-ignore:
+      - '.github/**'
       - '.husky/**'
       - '.vscode/**'
       - 'assets/**'

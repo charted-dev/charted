@@ -72,7 +72,7 @@ protobuf {
             path = protocPath
         } else {
             logger.lifecycle("Using protoc artifact! If you wish to set a custom protoc path, use the `CHARTED_PROTOC_PATH` environment variable~")
-            artifact = "com.google.protobuf:protoc:3.21.2"
+            artifact = "com.google.protobuf:protoc:3.21.5"
         }
     }
 
@@ -99,6 +99,7 @@ protobuf {
 }
 
 tasks.register<Copy>("copyProtobuf") {
-    from(file("${rootProject.projectDir}/protobufs/*.proto"))
-    into(file("$projectDir/src/main/proto"))
+    from(file("${rootProject.projectDir}/vendor/protobufs/*.proto")) {
+        into(file("$projectDir/src/main/proto"))
+    }
 }
