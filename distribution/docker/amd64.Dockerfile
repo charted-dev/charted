@@ -49,10 +49,10 @@ COPY distribution/docker/scripts/linux /app/noelware/charted/server/scripts
 ENV CHARTED_DISTRIBUTION_TYPE=docker
 EXPOSE 3651
 
-RUN chown 1001:1001 /app/noelware/charted/server && \
-    addgroup -g 1001 charted && \
-    adduser -h "/app/noelware/charted/server" -u 1001 -G charted -s /bin/bash -D noelware
+RUN chown 1001:1001 /app/noelware/charted/server
+#    addgroup -g 1001 charted && \
+#    adduser -h "/app/noelware/charted/server" -u 1001 -G charted -s /bin/bash -D noelware
 
-USER charted
+USER 1001
 ENTRYPOINT ["/app/noelware/charted/server/scripts/docker-entrypoint.sh"]
 CMD ["/app/noelware/charted/server/bin/charted-server"]

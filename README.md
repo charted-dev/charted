@@ -15,6 +15,24 @@ you need is a Postgres and Redis database, and you're all set
 This README used to be filled with information, but as we reached a stage that **charted-server** will be in Alpha, we removed the information
 since it'll be outdated from alpha to release!
 
+## Installation
+At the moment, you can use the [Docker image](https://github.com/charted-dev/charted/pkgs/container/charted) on the GitHub Container Registry to get started. And,
+this is currently alpha software and things can break!
+
+You are required a PostgreSQL and Redis cluster before running the server.
+
+```shell
+$ docker pull ghcr.io/charted-dev/charted:nightly-amd64
+$ docker run -d -p 3651:3651 -v $(pwd)/config.yml:/app/noelware/charted/server/charted.yml --name charted-server ghcr.io/charted-dev/charted:nightly-amd64
+```
+
+### Example `config.yml` file
+```yml
+storage:
+  filesystem:
+    directory: /var/lib/noelware/charted/server/data
+```
+
 ## License
 **charted-server** is released under the **Apache 2.0** License with love (´｡• ᵕ •｡`) ♡ by [Noelware](https://noelware.org) 💜, you can read the full
 license in the root repository [here](https://github.com/charted-dev/charted/blob/master/LICENSE).
