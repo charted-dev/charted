@@ -24,7 +24,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.AdditionalAnswers
 import org.mockito.kotlin.mock
-import org.noelware.charted.analytics.protobufs.v1.*
+import org.noelware.analytics.protobufs.v1.*
 import org.noelware.charted.common.SetOnceGetValue
 import java.time.Instant
 import kotlin.test.BeforeTest

@@ -20,7 +20,7 @@ package org.noelware.charted.analytics
 import com.google.protobuf.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import org.noelware.charted.analytics.protobufs.v1.*
+import org.noelware.analytics.protobufs.v1.*
 import org.noelware.charted.common.ChartedInfo
 
 object AnalyticsService: AnalyticsGrpcKt.AnalyticsCoroutineImplBase() {

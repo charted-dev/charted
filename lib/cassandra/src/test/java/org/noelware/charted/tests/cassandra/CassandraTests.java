@@ -61,7 +61,7 @@ public class CassandraTests {
         createConnection((connection) -> {
             assertDoesNotThrow(() -> {
                 connection.sql(
-                        "CREATE KEYSPACE testdb WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 2};");
+                        "CREATE KEYSPACE testdb WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};");
             });
 
             var keyspaces =

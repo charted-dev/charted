@@ -19,7 +19,7 @@
 
 package org.noelware.charted.analytics
 
-import org.noelware.charted.analytics.protobufs.v1.BuildFlavour
+import org.noelware.analytics.protobufs.v1.BuildFlavour
 import org.noelware.charted.common.DistributionType
 
 fun DistributionType.toBuildFlavour(): BuildFlavour = when (this) {
