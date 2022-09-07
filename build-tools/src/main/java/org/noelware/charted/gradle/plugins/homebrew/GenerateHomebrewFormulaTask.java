@@ -67,7 +67,7 @@ public class GenerateHomebrewFormulaTask extends DefaultTask {
                 Map.entry("version", version),
                 Map.entry("url", "https://boop.com"),
                 Map.entry("checksum", "abcdef"),
-                Map.entry("generatedAt", new SimpleDateFormat("MMM dd, YYYY 'at' HH:mm:ss").format(new Date())));
+                Map.entry("generatedAt", new SimpleDateFormat("MMM dd, yyyy 'at' HH:mm:ss").format(new Date())));
 
         var homebrewFile = this.homebrewFormulaFile.get().getAsFile();
         var template = templateEngine.createTemplate(new FileReader(homebrewFile));
