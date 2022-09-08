@@ -44,6 +44,7 @@ ENV JAVA_HOME="/opt/openjdk/java"
 COPY --from=jdk-runtime /runtime /opt/openjdk/java
 COPY --from=gradle-build /build/server/build/install/charted-server/lib /app/noelware/charted/server/lib
 COPY --from=gradle-build /build/server/build/install/charted-server/bin /app/noelware/charted/server/bin
+COPY --from=gradle-build /build/server/build/install/charted-server/config /app/noelware/charted/server/config
 COPY distribution/docker/scripts/linux /app/noelware/charted/server/scripts
 
 ENV CHARTED_DISTRIBUTION_TYPE=docker

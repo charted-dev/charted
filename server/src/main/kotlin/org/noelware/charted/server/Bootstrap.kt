@@ -204,7 +204,7 @@ object Bootstrap {
         }
     }
 
-    @OptIn(ExperimentalSerializationApi::class, ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
     @JvmStatic
     fun main(args: Array<String>) {
         Thread.currentThread().name = "Server-BootstrapThread"
@@ -260,7 +260,7 @@ object Bootstrap {
         }
 
         val yaml = Yaml(
-            EmptySerializersModule,
+            EmptySerializersModule(),
             YamlConfiguration(
                 encodeDefaults = true,
                 strictMode = true
@@ -480,8 +480,8 @@ object Bootstrap {
             modules(*modules.toTypedArray())
         }
 
-        cassandra?.connect()
         runBlocking {
+            cassandra?.connect()
             elasticsearch?.connect()
         }
 

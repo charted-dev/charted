@@ -18,6 +18,18 @@
 package org.noelware.charted.common.extensions
 
 /**
+ * Returns a list of the iterators results.
+ */
+fun <T> Iterator<T>.toList(): List<T> {
+    val items = mutableListOf<T>()
+    for (item in this) {
+        items.add(item)
+    }
+
+    return items
+}
+
+/**
  * Extension method similar to [associate], but the transformation function returns `null`
  * to not include it in the destination map.
  */

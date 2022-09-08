@@ -86,6 +86,9 @@ RESOLVED_JAVA_OPTS=(
 
 if [[ -n "${CHARTED_LOGBACK_PATH:-}" && -f "${CHARTED_LOGBACK_PATH}" ]]; then
   RESOLVED_JAVA_OPTS+=("-Dorg.noelware.charted.logback.config=$CHARTED_LOGBACK_PATH")
+else
+  # All distributions include a default Logback profile.
+  RESOLVED_JAVA_OPTS+=("-Dorg.noelware.charted.logback.config=config/logback.properties")
 fi
 
 if [[ -n "${WINTERFOX_DEDI_NODE:-}" ]]; then

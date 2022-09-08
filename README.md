@@ -24,6 +24,32 @@ You are required a PostgreSQL and Redis cluster before running the server.
 ```shell
 $ docker pull ghcr.io/charted-dev/charted:nightly-amd64
 $ docker run -d -p 3651:3651 -v $(pwd)/config.yml:/app/noelware/charted/server/charted.yml --name charted-server ghcr.io/charted-dev/charted:nightly-amd64
+# info  | 09/07/22 ~ 01:47:25 AM ~ 
+# info  | 09/07/22 ~ 01:47:25 AM ~   Welcome to the charted-server container image.
+# info  | 09/07/22 ~ 01:47:25 AM ~   📦 Free, open source, and reliable Helm Chart registry made in Kotlin.
+# info  | 09/07/22 ~ 01:47:25 AM ~ 
+# info  | 09/07/22 ~ 01:47:25 AM ~   * Subscribe to the project for updates:        https://github.com/charted-dev/charted
+# info  | 09/07/22 ~ 01:47:25 AM ~   * Any issues occur? Report it to us at GitHub: https://github.com/charted-dev/charted/issues
+# info  | 09/07/22 ~ 01:47:25 AM ~ 
+# [preinit] Resolved JAVA_OPTS ==> -XX:+HeapDumpOnOutOfMemoryError -XX:+ExitOnOutOfMemoryError -XX:ErrorFile=logs/hs_err_pid%p.log -XX:SurvivorRatio=8 -Dfile.encoding=UTF-8 -Djava.awt.headless=true
+# +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+# +       _                _           _                                      +
+# +   ___| |__   __ _ _ __| |_ ___  __| |      ___  ___ _ ____   _____ _ __   +
+# +   / __| '_ \ / _` | '__| __/ _ \/ _` |_____/ __|/ _ \ '__\ \ / / _ \ '__| +
+# +  | (__| | | | (_| | |  | ||  __/ (_| |_____\__ \  __/ |   \ V /  __/ |    +
+# +   \___|_| |_|\__,_|_|   \__\___|\__,_|     |___/\___|_|    \_/ \___|_|    +
+# +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+# <logs here!!!>
+
+$ curl http://localhost:3651
+# {
+#   "success": true,
+#   "data": {
+#     "message": "Hello, world! 👋",
+#     "docs_uri": "https://charts.noelware.org/docs",
+#     "tagline": "You know, for Helm Charts?"
+#   }
+#}
 ```
 
 ### Example `config.yml` file

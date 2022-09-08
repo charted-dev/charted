@@ -17,47 +17,45 @@
 
 package org.noelware.charted.database.cassandra
 
-import kotlinx.serialization.SerialName
 import org.noelware.charted.stats.StatCollector
 
 @kotlinx.serialization.Serializable
 data class CassandraStats(
-    @SerialName("trashed_connections")
-    val trashedConnections: Long,
-
-    @SerialName("opened_connections")
-    val openedConnections: Long,
-
-    @SerialName("bytes_received")
-    val bytesReceived: Long,
+//    @SerialName("trashed_connections")
+//    val trashedConnections: Long,
+//
+//    @SerialName("opened_connections")
+//    val openedConnections: Long,
+//
+//    @SerialName("bytes_received")
+//    val bytesReceived: Long,
     val datacenter: String,
 
-    @SerialName("bytes_sent")
-    val bytesSent: Long,
-
-    @SerialName("request_latency_ms")
-    val latency: Long,
-    val cluster: String,
+//    @SerialName("bytes_sent")
+//    val bytesSent: Long,
+//
+//    @SerialName("request_latency_ms")
+//    val latency: Long,
+//    val cluster: String,
     val version: String,
     val calls: Long
 )
 
 class CassandraStatCollector(private val cassandra: CassandraConnection): StatCollector<CassandraStats> {
     override suspend fun collect(): CassandraStats {
-        val rs = cassandra.sql("SELECT data_center FROM system.local;").all().first()
-        val cluster = cassandra.cluster
-        val metrics = cassandra.cluster.metrics
+        val rs = cassandra.sql("SELECT data_center FROM system.local;").one()!!
+        //val metrics = cassandra.session.metrics
 
         return CassandraStats(
-            metrics.trashedConnections.value.toLong(),
-            metrics.openConnections.value.toLong(),
-            metrics.bytesReceived.count,
-            rs.getString("data_center"),
-            metrics.bytesSent.count,
-            metrics.requestsTimer.snapshot.values.fold(0L) { acc, curr -> acc + curr } /
-                metrics.requestsTimer.snapshot.values.size,
+//            metrics.trashedConnections.value.toLong(),
+//            metrics.openConnections.value.toLong(),
+//            metrics.bytesReceived.count,
+            rs.getString("data_center")!!,
+//            metrics.bytesSent.count,
+//            metrics.requestsTimer.snapshot.values.fold(0L) { acc, curr -> acc + curr } /
+//                metrics.requestsTimer.snapshot.values.size,
 
-            cluster.clusterName,
+//            cluster.clusterName,
             cassandra.serverVersion,
             cassandra.calls
         )

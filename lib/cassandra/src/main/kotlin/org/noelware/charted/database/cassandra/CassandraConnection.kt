@@ -17,93 +17,147 @@
 
 package org.noelware.charted.database.cassandra
 
-import com.datastax.driver.core.Cluster
-import com.datastax.driver.core.ResultSet
-import com.datastax.driver.core.Session
+import com.datastax.dse.driver.api.core.cql.reactive.ReactiveResultSet
+import com.datastax.oss.driver.api.core.CqlSession
+import com.datastax.oss.driver.api.core.CqlSessionBuilder
+import com.datastax.oss.driver.api.core.cql.AsyncResultSet
+import com.datastax.oss.driver.api.core.cql.ResultSet
+import com.datastax.oss.driver.api.core.cql.SimpleStatement
+import com.datastax.oss.driver.api.core.session.Session
+import com.datastax.oss.driver.api.core.type.reflect.GenericType
 import dev.floofy.utils.slf4j.logging
-import okhttp3.internal.closeQuietly
+import io.sentry.Sentry
+import kotlinx.coroutines.future.await
+import kotlinx.coroutines.reactive.awaitLast
 import org.intellij.lang.annotations.Language
 import org.noelware.charted.common.SetOnceGetValue
 import org.noelware.charted.common.data.CassandraConfig
+import org.noelware.charted.common.extensions.ifSentryEnabled
 import java.io.Closeable
+import java.net.InetSocketAddress
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 
+/**
+ * Represents a wrapper for the connection to Apache Cassandra.
+ */
 class CassandraConnection(private val config: CassandraConfig): Closeable {
     private val _serverVersion: SetOnceGetValue<String> = SetOnceGetValue()
-    private val _session: SetOnceGetValue<Session> = SetOnceGetValue()
-    private val _cluster: SetOnceGetValue<Cluster> = SetOnceGetValue()
+    private val _connected: AtomicBoolean = AtomicBoolean(false)
+    private val _session: SetOnceGetValue<CqlSession> = SetOnceGetValue()
     private val _closed = AtomicBoolean(false)
     private val _calls = AtomicLong(0L)
     private val log by logging<CassandraConnection>()
 
+    /**
+     * Returns the server version to Cassandra.
+     */
     val serverVersion: String
         get() = _serverVersion.value
 
+    /**
+     * Whether the connection is closed or not.
+     */
     val closed: Boolean
         get() = _closed.get()
 
-    val cluster: Cluster
-        get() = _cluster.value
-
-    val session: Session
+    /**
+     * The [CqlSession] that is connected to Cassandra.
+     */
+    val session: CqlSession
         get() = _session.value
 
+    /**
+     * How many database calls occurred. Does not reflect on using [#execute][CqlSession.execute],
+     * [#executeAsync][CqlSession.executeAsync], or [#executeReactive][CqlSession.executeReactive], only
+     * on [#sql][sql]
+     */
     val calls: Long
         get() = _calls.get()
 
-    fun sql(@Language("sql") sql: String): ResultSet = sql(sql, *arrayOf())
-    fun sql(@Language("sql") sql: String, vararg args: Any?): ResultSet = try {
-        val rs = session.execute(sql, *args)
+    /**
+     * Closes the underlying [session] that was used in [#connect][connect].
+     */
+    override fun close() {
+        if (_closed.compareAndSet(false, true)) {
+            log.warn("Closing connection from Cassandra...")
+            session.close()
+        }
+    }
+
+    /**
+     * Executes a line of SQL and returns the [AsyncResultSet] of the underlying call.
+     * @param sql The line of SQL to execute.
+     */
+    suspend fun sql(@Language("sql") sql: String): AsyncResultSet = sql(sql, *arrayOf())
+
+    /**
+     * Executes a line of SQL and returns the [AsyncResultSet] of the underlying call.
+     * @param sql The line of SQL to execute.
+     * @param args variadic arguments representing as parameters in the [sql] code.
+     */
+    suspend fun sql(@Language("sql") sql: String, vararg args: Any?): AsyncResultSet = sql(SimpleStatement.newInstance(sql, *args))
+
+    /**
+     * Execute the [statement][SimpleStatement] to the current session and returns
+     * the underlying [AsyncResultSet] object.
+     */
+    suspend fun sql(stmt: SimpleStatement): AsyncResultSet = try {
+        val rs = session.executeAsync(stmt).await()
         _calls.incrementAndGet()
 
         rs
     } catch (e: Exception) {
-        log.error("Unable to execute SQL [$sql]", e)
+        Sentry.captureException(e)
         throw e
     }
 
-    fun connect() {
-        log.info("Connecting to Cassandra with nodes [${config.nodes.joinToString(", ")}] on port ${config.port}!")
-        val builder = Cluster.builder().apply {
-            for (node in config.nodes) {
-                addContactPoint(node)
-            }
+    /**
+     * Connects to Cassandra. This method can be called multiple times but the first
+     * instance of the [#connect][connect] call establishes the connection, any other calls
+     * will be dropped and the connection won't be established.
+     */
+    suspend fun connect() {
+        if (config.keyspace.isEmpty())
+            log.warn("Configuration key 'cassandra.keyspace' is empty, please set this to a keyspace and not globally.")
 
-            if (config.username != null && config.password != null) {
-                withCredentials(config.username, config.password)
-            }
-
-            withPort(config.port)
+        if (_connected.get()) {
+            log.warn("Connection has been established already.")
         }
 
-        _cluster.value = builder.build()
-        log.info("Created cluster connection, now creating session!")
+        if (_connected.compareAndSet(false, true)) {
+            try {
+                log.info("Connecting to Cassandra with nodes [${config.nodes.joinToString(", ")}]")
+                val builder = CqlSession.builder().apply {
+                    withKeyspace(config.keyspace)
+                    addContactPoints(config.nodes.map {
+                        val mapping = it.split(":", limit = 2)
+                        if (mapping.size != 2)
+                            throw IllegalArgumentException("Node mapping must be host:port")
 
-        try {
-            val sess = if (config.keyspace.isEmpty()) cluster.connect() else cluster.connect(config.keyspace)
-            log.info("Established session with Cassandra! Collecting server version...")
+                        InetSocketAddress(mapping.first(), mapping.last().toInt())
+                    })
 
-            _session.value = sess
+                    if (config.username != null) {
+                        if (config.password == null)
+                            throw IllegalArgumentException("Missing required `password` property.")
 
-            val data = sql("SELECT release_version FROM system.local;").all()
-            if (data.isEmpty()) {
-                throw IllegalStateException("Can't retrieve server version due to no data.")
+                        withAuthCredentials(config.username!!, config.password!!)
+                    }
+                }
+
+                _session.value = builder.buildAsync().await()
+                log.info("Established connection with Cassandra! Collecting server version...")
+
+                val rs = sql("SELECT release_version FROM system.local;").one()
+                    ?: throw IllegalStateException("system.local didn't return release_version! Are you using the right Cassandra version?")
+
+                _serverVersion.value = rs.getString("release_version")!!
+                log.info("Using v$serverVersion of Cassandra.")
+            } catch (e: Exception) {
+                Sentry.captureException(e)
+                throw e
             }
-
-            _serverVersion.value = data.first().getString("release_version")
-            log.info("Using Cassandra v$serverVersion!")
-        } catch (e: Exception) {
-            log.error("Unable to connect to Cassandra:", e)
-            throw e
         }
-    }
-
-    override fun close() {
-        if (closed) return
-
-        session.closeQuietly()
-        cluster.closeQuietly()
-        _closed.set(true)
     }
 }

@@ -21,6 +21,7 @@ import io.prometheus.client.Collector
 import io.prometheus.client.GaugeMetricFamily
 import io.prometheus.client.Predicate
 import io.prometheus.client.SampleNameFilter
+import kotlinx.coroutines.runBlocking
 
 class CassandraMetricsCollector(private val cassandra: CassandraConnection): Collector() {
     override fun collect(): MutableList<MetricFamilySamples> = collect(null)
@@ -32,8 +33,7 @@ class CassandraMetricsCollector(private val cassandra: CassandraConnection): Col
     }
 
     private fun collectSamples(mfs: MutableList<MetricFamilySamples>, sampleNameFilter: Predicate<String>) {
-        val rs = cassandra.sql("SELECT data_center FROM system.local;").all().first()
-        val cluster = cassandra.cluster
+        val rs = runBlocking { cassandra.sql("SELECT data_center FROM system.local;").one()!! }
 
         if (sampleNameFilter.test(CASSANDRA_DB_CALLS)) {
             mfs.add(
@@ -65,36 +65,36 @@ class CassandraMetricsCollector(private val cassandra: CassandraConnection): Col
             )
         }
 
-        if (sampleNameFilter.test(CASSANDRA_CLUSTER_NAME)) {
-            mfs.add(
-                GaugeMetricFamily(
-                    CASSANDRA_CLUSTER_NAME,
-                    "Returns the cluster name of this Cassandra instance.",
-                    listOf("cluster_name")
-                ).apply { addMetric(listOf(cluster.clusterName), 1.0) }
-            )
-        }
+//        if (sampleNameFilter.test(CASSANDRA_CLUSTER_NAME)) {
+//            mfs.add(
+//                GaugeMetricFamily(
+//                    CASSANDRA_CLUSTER_NAME,
+//                    "Returns the cluster name of this Cassandra instance.",
+//                    listOf("cluster_name")
+//                ).apply { addMetric(listOf(cluster.clusterName), 1.0) }
+//            )
+//        }
 
-        val metrics = cassandra.cluster.metrics
-        if (sampleNameFilter.test(CASSANDRA_TRASHED_CONNECTIONS)) {
-            mfs.add(
-                GaugeMetricFamily(
-                    CASSANDRA_TRASHED_CONNECTIONS,
-                    "Returns the total number of currently \"trashed\" connections to Cassandra hosts.",
-                    metrics.trashedConnections.value.toDouble()
-                )
-            )
-        }
-
-        if (sampleNameFilter.test(CASSANDRA_REQUEST_LATENCY)) {
-            mfs.add(
-                GaugeMetricFamily(
-                    CASSANDRA_REQUEST_LATENCY,
-                    "The total latency between requests from charted to/from Cassandra",
-                    metrics.requestsTimer.count.toDouble()
-                )
-            )
-        }
+        val metrics = cassandra.session.metrics.get()
+//        if (sampleNameFilter.test(CASSANDRA_TRASHED_CONNECTIONS)) {
+//            mfs.add(
+//                GaugeMetricFamily(
+//                    CASSANDRA_TRASHED_CONNECTIONS,
+//                    "Returns the total number of currently \"trashed\" connections to Cassandra hosts.",
+//                    metrics.trashedConnections.value.toDouble()
+//                )
+//            )
+//        }
+//
+//        if (sampleNameFilter.test(CASSANDRA_REQUEST_LATENCY)) {
+//            mfs.add(
+//                GaugeMetricFamily(
+//                    CASSANDRA_REQUEST_LATENCY,
+//                    "The total latency between requests from charted to/from Cassandra",
+//                    metrics.requestsTimer.count.toDouble()
+//                )
+//            )
+//        }
     }
 
     companion object {

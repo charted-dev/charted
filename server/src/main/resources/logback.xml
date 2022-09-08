@@ -18,182 +18,122 @@
 
 <configuration debug="false" packagingData="true">
     <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
-    <property resource="${org.noelware.charted.logback.config}" />
-    <property resource="config/logging.properties" />
+    <property resource="${org.noelware.charted.logback.config:-config/logback.properties}" />
 
     <conversionRule conversionWord="logLevel" converterClass="org.noelware.charted.core.logback.LogLevelColorComposite" />
     <conversionRule conversionWord="threadName" converterClass="org.noelware.charted.core.logback.ThreadNameComposite" />
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
-        <withJansi>true</withJansi>
-        <if condition='isDefined("charted.console.json")'>
+        <if condition='isNull("charted.console.json")'>
             <then>
-                <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-                    <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
-                        <jsonFormatter class="org.noelware.charted.core.logback.LogbackJsonFormatter">
-                            <prettyPrint>false</prettyPrint>
-                        </jsonFormatter>
-
-                        <if condition='isDefined("charted.console.json.timezone")'>
-                            <then>
-                                <timestampFormatTimezoneId>${charted.console.json.timezone}</timestampFormatTimezoneId>
-                            </then>
-                            <else>
-                                <timestampFormatTimezoneId>Etc/UTC</timestampFormatTimezoneId>
-                            </else>
-                        </if>
-
-                        <if condition='isDefined("charted.console.json.timestamp.format")'>
-                            <then>
-                                <timestampFormat>${charted.console.json.timestamp.format}</timestampFormat>
-                            </then>
-                            <else>
-                                <timestampFormat>yyyy-MM-dd'T'HH:mm:ss.SSSX</timestampFormat>
-                            </else>
-                        </if>
-                    </layout>
+                <encoder>
+                    <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS, +10}] %boldCyan([%threadName]) %logLevel([%level]) [%logger{36}:%line] :: %msg%n</pattern>
+                    <charset>utf-8</charset>
                 </encoder>
             </then>
             <else>
-                <encoder>
-                    <if condition='isDefined("charted.console.format")'>
-                        <then>
-                            <pattern>${charted.console.format}</pattern>
-                        </then>
-                        <else>
-                            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS, +10}] %boldCyan([%threadName]) %logLevel([%-5level]) [%logger{24}:%line] :: %msg%n</pattern>
-                        </else>
-                    </if>
+                <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+                    <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
+                        <jsonFormatter class="org.noelware.charted.core.logback.LogbackJsonFormatter" />
+                    </layout>
                 </encoder>
             </else>
         </if>
     </appender>
 
-    <if condition='property("charted.encoders").contains("sentry")'>
+    <if condition='isDefined("charted.encoders")'>
         <then>
-            <appender name="Sentry" class="io.sentry.logback.SentryAppender">
-                <options>
-                    <dsn>${charted.sentry.dsn}</dsn>
-                </options>
-            </appender>
-        </then>
-    </if>
+            <if condition='property("charted.encoders").contains("sentry")'>
+                <then>
+                    <appender name="Sentry" class="io.sentry.logback.SentryAppender">
+                        <options>
+                            <dsn>${charted.sentry.dsn}</dsn>
+                        </options>
+                    </appender>
 
-    <if condition='property("charted.encoders").contains("logstash")'>
-        <then>
-            <appender name="Logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-                <destination>${charted.logstash.endpoint}</destination>
-                <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
-                    <providers>
-                        <timestamp />
-                        <message />
-                        <loggerName />
-                        <threadName />
-                        <logLevel />
-                        <callerData />
-                        <stackTrace />
-                        <contextName />
-                        <mdc />
-                        <tags />
-                        <logstashMarkers />
-                        <throwableClassName />
-                        <throwableMessage />
-                        <throwableRootCauseClassName />
-                        <throwableRootCauseMessage />
-                        <includeMdcKeyName>user_agent</includeMdcKeyName>
-                    </providers>
+                    <root level="ERROR">
+                        <appender-ref ref="Sentry" />
+                    </root>
+                </then>
+            </if>
 
-                    <customFields>{"product":"charted-server","vendor":"Noelware"}</customFields>
-                </encoder>
-
-                <keepAliveDuration>5 minutes</keepAliveDuration>
-                <writeVersionAsInteger>true</writeVersionAsInteger>
-            </appender>
-        </then>
-    </if>
-
-    <if condition='property("charted.encoders").contains("syslog")'>
-        <then>
-            <appender name="Syslog" class="org.noelware.charted.core.logback.SyslogAppender">
-                <if condition='property("charted.syslog.json")'>
-                    <then>
-                        <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
-                            <jsonFormatter class="org.noelware.charted.core.logback.JsonLogbackFormatter">
-                                <prettyPrint>false</prettyPrint>
-                            </jsonFormatter>
-
-                            <if condition='isDefined("charted.syslog.json.timezone")'>
-                                <then>
-                                    <timestampFormatTimezoneId>${charted.console.json.timezone}</timestampFormatTimezoneId>
-                                </then>
-                                <else>
-                                    <timestampFormatTimezoneId>Etc/UTC</timestampFormatTimezoneId>
-                                </else>
-                            </if>
-
-                            <if condition='isDefined("charted.syslog.json.timestamp.format")'>
-                                <then>
-                                    <timestampFormat>${charted.syslog.json.timestamp.format}</timestampFormat>
-                                </then>
-                                <else>
-                                    <timestampFormat>yyyy-MM-dd'T'HH:mm:ss.SSSX</timestampFormat>
-                                </else>
-                            </if>
-                        </layout>
-                    </then>
-                </if>
-                <else>
-                    <if condition='isDefined("charted.syslog.format")'>
+            <if condition='property("charted.encoders").contains("logstash")'>
+                <then>
+                    <if condition='isDefined("charted.logstash.endpoint")'>
                         <then>
-                            <pattern>${charted.syslog.format}</pattern>
+                            <appender name="Logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+                                <destination>${charted.logstash.endpoint}</destination>
+                                <keepAliveDuration>5 minutes</keepAliveDuration>
+                                <writeVersionAsInteger>true</writeVersionAsInteger>
+                                <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+                                    <providers>
+                                        <timestamp />
+                                        <message />
+                                        <loggerName />
+                                        <threadName />
+                                        <logLevel />
+                                        <callerData />
+                                        <stackTrace />
+                                        <contextName />
+                                        <mdc />
+                                        <tags />
+                                        <logstashMarkers />
+                                        <throwableClassName />
+                                        <throwableMessage />
+                                        <throwableRootCauseClassName />
+                                        <throwableRootCauseMessage />
+                                        <includeMdcKeyName>user_agent</includeMdcKeyName>
+                                    </providers>
+                                    <customFields>{"product":"charted-server","vendor":"Noelware"}</customFields>
+                                </encoder>
+                            </appender>
                         </then>
-                        <else>
-                            <pattern>[%d{yyyy-MM-dd | HH:mm:ss, +10}] [%thread ~ %logger{36}]] %-5level :: %msg%n</pattern>
-                        </else>
                     </if>
-                </else>
-            </appender>
+                </then>
+            </if>
         </then>
     </if>
 
-    <if condition='property("charted.encoders").contains("sentry")'>
-        <then>
-            <root level="ERROR">
-                <appender-ref ref="Sentry" />
-            </root>
-        </then>
-    </if>
-
-    <if condition='isDefined("charted.log.level")'>
-        <then>
-            <root level="${charted.log.level}">
-                <appender-ref ref="Console" />
-
+    <root level="DEBUG">
+        <appender-ref ref="Console" />
+        <if condition='isDefined("charted.encoders")'>
+            <then>
                 <if condition='property("charted.encoders").contains("logstash")'>
                     <then>
                         <appender-ref ref="Logstash" />
                     </then>
                 </if>
+            </then>
+        </if>
+    </root>
 
-                <if condition='property("charted.encoders").contains("syslog")'>
+    <!-- Default to INFO if not defined -->
+    <if condition='isNull("charted.log.level")'>
+        <then>
+            <root level="INFO">
+                <appender-ref ref="Console" />
+
+                <if condition='isDefined("charted.encoders")'>
                     <then>
-                        <appender-ref ref="Syslog" />
+                        <if condition='property("charted.encoders").contains("logstash")'>
+                            <then>
+                                <appender-ref ref="Logstash" />
+                            </then>
+                        </if>
                     </then>
                 </if>
             </root>
         </then>
         <else>
-            <root level="INFO">
+            <root level="${charted.log.level}">
                 <appender-ref ref="Console" />
 
-                <if condition='property("charted.encoders").contains("logstash")'>
+                <if condition='isDefined("charted.encoders")'>
                     <then>
-                        <appender-ref ref="Logstash" />
-                    </then>
-                </if>
-
-                <if condition='property("charted.encoders").contains("syslog")'>
-                    <then>
-                        <appender-ref ref="Syslog" />
+                        <if condition='property("charted.encoders").contains("logstash")'>
+                            <then>
+                                <appender-ref ref="Logstash" />
+                            </then>
+                        </if>
                     </then>
                 </if>
             </root>

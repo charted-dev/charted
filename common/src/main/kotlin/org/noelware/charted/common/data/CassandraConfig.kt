@@ -22,6 +22,5 @@ data class CassandraConfig(
     val username: String? = null,
     val password: String? = null,
     val keyspace: String = "charted",
-    val nodes: List<String> = listOf(),
-    val port: Int = 9042
+    val nodes: List<String> = listOf()
 )

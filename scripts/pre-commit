@@ -3,12 +3,15 @@
 echo "[::charted-server] Checking Spotless..."
 
 ./gradlew :spotlessCheck
-./gradlew :build-tools:spotlessCheck
-ret_val=$?
-
-if [[ "$ret_val" != "0" ]]; then
+if [[ "$?" != "0" ]]; then
   echo "[::charted-server] Run \`make spotless\` and commit again."
-  exit $ret_val
+  exit $?
+fi
+
+./gradlew :build-tools:spotlessCheck
+if [[ "$?" != "0" ]]; then
+  echo "[::charted-server] Run \`make spotless\` and commit again."
+  exit $?
 else
   echo "[::charted-server] 👍 Everything seems ok!"
 fi
