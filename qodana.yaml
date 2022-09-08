@@ -15,8 +15,6 @@
 
 version: "1.0"
 linter: jetbrains/qodana-jvm-community:2022.2
-profile:
-  name: qodana.recommended
 exclude:
   # Most confusing one out of them all. Just read up on what Qodana generated
   # here: https://github.com/charted-dev/charted/security/code-scanning/36
@@ -33,3 +31,9 @@ exclude:
   # This might have to be checked up on later, since I think the ospackage
   # Gradle plugin depends on #setFileMode(int)/#setDirMode(int) to be octal literals?
   - name: OctalLiteral
+  
+  # In most cases, this is usually present in the Gradle plugins for debugging, so
+  # let's disable this rule in build tools.
+  - name: SystemOutErr
+    paths:
+      - build-tools
