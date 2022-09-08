@@ -44,7 +44,7 @@ data class CassandraStats(
 class CassandraStatCollector(private val cassandra: CassandraConnection): StatCollector<CassandraStats> {
     override suspend fun collect(): CassandraStats {
         val rs = cassandra.sql("SELECT data_center FROM system.local;").one()!!
-        //val metrics = cassandra.session.metrics
+        // val metrics = cassandra.session.metrics
 
         return CassandraStats(
 //            metrics.trashedConnections.value.toLong(),

@@ -17,22 +17,15 @@
 
 package org.noelware.charted.database.cassandra
 
-import com.datastax.dse.driver.api.core.cql.reactive.ReactiveResultSet
 import com.datastax.oss.driver.api.core.CqlSession
-import com.datastax.oss.driver.api.core.CqlSessionBuilder
 import com.datastax.oss.driver.api.core.cql.AsyncResultSet
-import com.datastax.oss.driver.api.core.cql.ResultSet
 import com.datastax.oss.driver.api.core.cql.SimpleStatement
-import com.datastax.oss.driver.api.core.session.Session
-import com.datastax.oss.driver.api.core.type.reflect.GenericType
 import dev.floofy.utils.slf4j.logging
 import io.sentry.Sentry
 import kotlinx.coroutines.future.await
-import kotlinx.coroutines.reactive.awaitLast
 import org.intellij.lang.annotations.Language
 import org.noelware.charted.common.SetOnceGetValue
 import org.noelware.charted.common.data.CassandraConfig
-import org.noelware.charted.common.extensions.ifSentryEnabled
 import java.io.Closeable
 import java.net.InetSocketAddress
 import java.util.concurrent.atomic.AtomicBoolean
@@ -118,8 +111,9 @@ class CassandraConnection(private val config: CassandraConfig): Closeable {
      * will be dropped and the connection won't be established.
      */
     suspend fun connect() {
-        if (config.keyspace.isEmpty())
+        if (config.keyspace.isEmpty()) {
             log.warn("Configuration key 'cassandra.keyspace' is empty, please set this to a keyspace and not globally.")
+        }
 
         if (_connected.get()) {
             log.warn("Connection has been established already.")
@@ -130,17 +124,21 @@ class CassandraConnection(private val config: CassandraConfig): Closeable {
                 log.info("Connecting to Cassandra with nodes [${config.nodes.joinToString(", ")}]")
                 val builder = CqlSession.builder().apply {
                     withKeyspace(config.keyspace)
-                    addContactPoints(config.nodes.map {
-                        val mapping = it.split(":", limit = 2)
-                        if (mapping.size != 2)
-                            throw IllegalArgumentException("Node mapping must be host:port")
+                    addContactPoints(
+                        config.nodes.map {
+                            val mapping = it.split(":", limit = 2)
+                            if (mapping.size != 2) {
+                                throw IllegalArgumentException("Node mapping must be host:port")
+                            }
 
-                        InetSocketAddress(mapping.first(), mapping.last().toInt())
-                    })
+                            InetSocketAddress(mapping.first(), mapping.last().toInt())
+                        }
+                    )
 
                     if (config.username != null) {
-                        if (config.password == null)
+                        if (config.password == null) {
                             throw IllegalArgumentException("Missing required `password` property.")
+                        }
 
                         withAuthCredentials(config.username!!, config.password!!)
                     }
