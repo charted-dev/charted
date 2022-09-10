@@ -64,7 +64,13 @@ jobs:
     strategy:
       matrix:
         java-version: [17, 18]
-        runner: [windows-latest, macos-latest, ubuntu-latest, self-hosted]
+        runner:
+          - windows-latest
+          - ubuntu-latest
+          - self-hosted
+
+          # the official macOS runner doesn't have Docker capabilities yet.
+          #- macos-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
