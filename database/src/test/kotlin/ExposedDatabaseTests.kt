@@ -28,6 +28,8 @@ import org.jetbrains.exposed.sql.DatabaseConfig
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
 import org.junit.Test
+import org.junit.jupiter.api.condition.DisabledOnOs
+import org.junit.jupiter.api.condition.OS
 import org.noelware.charted.common.data.helm.RepoType
 import org.noelware.charted.database.tables.*
 import org.testcontainers.containers.PostgreSQLContainer
@@ -38,6 +40,7 @@ import kotlin.time.Duration.Companion.seconds
 /**
  * Represents tests for connecting to PostgreSQL, for now.
  */
+@DisabledOnOs(value = [OS.MAC, OS.WINDOWS])
 @Testcontainers(disabledWithoutDocker = true)
 class ExposedDatabaseTests {
     private val container: PostgreSQLContainer<*> = PostgreSQLContainer(DockerImageName.parse("postgres").withTag("14.5"))

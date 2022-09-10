@@ -17,15 +17,14 @@
 
 package org.noelware.charted.gradle.plugins.golang;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.jetbrains.annotations.NotNull;
 import org.noelware.charted.gradle.OperatingSystem;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
 
 public class GoPlugin implements Plugin<Project> {
     @Override

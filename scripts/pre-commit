@@ -12,6 +12,6 @@ fi
 if [[ "$?" != "0" ]]; then
   echo "[::charted-server] Run \`make spotless\` and commit again."
   exit $?
-else
-  echo "[::charted-server] 👍 Everything seems ok!"
 fi
+
+echo "[::charted-server] 👍 Everything seems ok!"

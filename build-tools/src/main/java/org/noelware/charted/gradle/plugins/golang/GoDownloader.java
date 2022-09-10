@@ -17,10 +17,9 @@
 
 package org.noelware.charted.gradle.plugins.golang;
 
+import java.io.File;
 import org.gradle.api.Project;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.File;
 
 /**
  * Represents the downloader to install Golang in the root project's build directory.
@@ -61,7 +60,5 @@ public class GoDownloader {
         return root == null ? null : new File(root, "bin");
     }
 
-    public void download() {
-
-    }
+    public void download() {}
 }

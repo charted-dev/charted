@@ -22,6 +22,8 @@ import okhttp3.internal.closeQuietly
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.condition.DisabledOnOs
+import org.junit.jupiter.api.condition.OS
 import org.noelware.charted.common.extensions.toList
 import org.noelware.charted.configuration.dsl.CassandraConfig
 import org.noelware.charted.database.cassandra.CassandraConnection
@@ -34,6 +36,7 @@ import org.testcontainers.utility.DockerImageName
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 
+@DisabledOnOs(value = [OS.MAC, OS.WINDOWS])
 @Testcontainers(disabledWithoutDocker = true)
 class CassandraTests {
     @Container

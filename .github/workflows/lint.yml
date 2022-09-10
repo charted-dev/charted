@@ -68,9 +68,7 @@ jobs:
           - windows-latest
           - ubuntu-latest
           - self-hosted
-
-          # the official macOS runner doesn't have Docker capabilities yet.
-          #- macos-latest
+          - macos-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3

@@ -13,11 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-LOGBACK_FILE := $(shell realpath ./server/src/main/resources/config/logback.properties)
-
 .PHONY: run
 run: build
-	@CHARTED_DISTRIBUTION_TYPE=git CHARTED_LOGBACK_PATH=${LOGBACK_FILE} ./server/build/install/charted-server/bin/charted-server
+	@CHARTED_DISTRIBUTION_TYPE=git ./server/build/install/charted-server/bin/charted-server
 
 build: clean spotless
 	@./gradlew :server:installDist

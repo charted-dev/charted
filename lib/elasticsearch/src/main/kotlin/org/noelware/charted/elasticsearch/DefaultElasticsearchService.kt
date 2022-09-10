@@ -53,6 +53,7 @@ import java.nio.file.Paths
 import java.security.KeyStore
 import java.security.cert.CertificateFactory
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.net.ssl.SSLContext
 
 class DefaultElasticsearchService(
     private val config: Config,
@@ -62,7 +63,18 @@ class DefaultElasticsearchService(
     private val _cluster: SetOnceGetValue<Pair<String, String>> = SetOnceGetValue()
     private val _closed: AtomicBoolean = AtomicBoolean(false)
     private val _client: SetOnceGetValue<ElasticsearchAsyncClient> = SetOnceGetValue()
+    private var _sslContext: SSLContext? = null
     private val log by logging<DefaultElasticsearchService>()
+
+    /**
+     * Represents the SSL context to use to create the REST client. This is primarily used in tests
+     * and shouldn't be touched at all.
+     */
+    var sslContext: SSLContext?
+        get() = _sslContext
+        set(value) {
+            _sslContext = value
+        }
 
     /**
      * Returns a list of indexes the service is responsible for.
@@ -138,7 +150,8 @@ class DefaultElasticsearchService(
                     "[]"
                 }
 
-                log.warn("Elasticsearch node [${node.name}@${node.host} v${node.version}] $attrs has failed executing an action!")
+                val nodeName = if (node.name == null) "(unknown)" else node.name
+                log.warn("Elasticsearch node [$nodeName@${node.host} on v${node.version}] $attrs has failed executing an action!")
                 listener.onFailure(node)
             }
         })
@@ -188,6 +201,11 @@ class DefaultElasticsearchService(
                     )
 
                     it.setDefaultCredentialsProvider(provider)
+                }
+
+                if (sslContext != null) {
+                    log.warn("Provided SSL context was set. Please refrain from using this in production code.")
+                    it.setSSLContext(sslContext)
                 }
 
                 it.addInterceptorFirst(SentryApacheHttpClientRequestInterceptor())

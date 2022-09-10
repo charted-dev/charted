@@ -121,8 +121,8 @@ object Bootstrap {
             thread(start = false, name = "Server-ShutdownThread") {
                 log.warn("Shutting down charted-server...")
 
-                val koinStarted = GlobalContext.getKoinApplicationOrNull() != null
-                if (koinStarted) {
+                val koin = GlobalContext.getKoinApplicationOrNull()
+                if (koin != null) {
                     val server: ChartedServer by inject()
                     val elasticsearch: ElasticsearchService? by injectOrNull()
                     val redis: IRedisClient by inject()
@@ -136,6 +136,7 @@ object Bootstrap {
                     server.closeQuietly()
                     ds.closeQuietly()
                     redis.closeQuietly()
+                    koin.close()
 
                     runBlocking {
                         shutdownTickers()
@@ -211,7 +212,7 @@ object Bootstrap {
         Thread.currentThread().name = "Server-BootstrapThread"
         println("+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+")
         println("+       _                _           _                                      +")
-        println("+    ___| |__   __ _ _ __| |_ ___  __| |      ___  ___ _ ____   _____ _ __   +")
+        println("+    ___| |__   __ _ _ __| |_ ___  __| |      ___  ___ _ ____   _____ _ __  +")
         println("+   / __| '_ \\ / _` | '__| __/ _ \\/ _` |_____/ __|/ _ \\ '__\\ \\ / / _ \\ '__| +")
         println("+  | (__| | | | (_| | |  | ||  __/ (_| |_____\\__ \\  __/ |   \\ V /  __/ |    +")
         println("+   \\___|_| |_|\\__,_|_|   \\__\\___|\\__,_|     |___/\\___|_|    \\_/ \\___|_|    +")
