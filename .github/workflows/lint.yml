@@ -65,10 +65,10 @@ jobs:
       matrix:
         java-version: [17, 18]
         runner:
-          - windows-latest
+          #- windows-latest
           - ubuntu-latest
           - self-hosted
-          - macos-latest
+          #- macos-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
