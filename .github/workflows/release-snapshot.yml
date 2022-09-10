@@ -93,7 +93,7 @@ jobs:
       matrix:
         platform:
           - { key: linux/amd64, runner: ubuntu-latest, path: ./distribution/docker/amd64.Dockerfile, tag-suffix: amd64 }
-          - { key: linux/arm/v8, runner: self-hosted, path: ./distribution/docker/arm64.Dockerfile, tag-suffix: arm64 }
+          #- { key: linux/arm64/v8, runner: self-hosted, path: ./distribution/docker/arm64.Dockerfile, tag-suffix: arm64 }
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
