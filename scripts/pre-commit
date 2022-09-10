@@ -2,7 +2,7 @@
 
 echo "[::charted-server] Checking Spotless..."
 
-./gradlew :spotlessCheck
+./gradlew spotlessCheck
 if [[ "$?" != "0" ]]; then
   echo "[::charted-server] Run \`make spotless\` and commit again."
   exit $?
