@@ -25,6 +25,5 @@ dependencies {
     implementation(project(":lib:cassandra"))
     implementation(project(":database"))
 
-    testImplementation(project(":testing"))
     testImplementation(libs.slf4j.simple)
 }

@@ -31,6 +31,5 @@ dependencies {
     implementation(project(":database"))
 
     testImplementation(libs.testcontainers.elasticsearch)
-    testImplementation(project(":testing"))
     testImplementation(libs.slf4j.simple)
 }

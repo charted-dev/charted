@@ -21,6 +21,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import okhttp3.internal.closeQuietly
 import org.junit.Test
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.condition.DisabledOnOs
 import org.junit.jupiter.api.condition.OS
@@ -39,6 +40,7 @@ import kotlin.test.assertFalse
 
 @DisabledOnOs(value = [OS.MAC, OS.WINDOWS])
 @Testcontainers(disabledWithoutDocker = true)
+@Disabled("Can't run the Docker image (for now), will need to fix.")
 class ElasticsearchTests {
     private val container: ElasticsearchContainer = ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch").withTag("8.4.1"))
         .apply {

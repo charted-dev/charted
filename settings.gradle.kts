@@ -72,7 +72,6 @@ include(
     ":sessions:google",
     ":sessions:local",
     ":sessions:noelware",
-    ":testing",
     ":tools:cli",
     ":tools:cli:ssl",
     ":tools:migrations",
