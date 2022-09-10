@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import org.noelware.charted.common.extensions.toList
+import org.noelware.charted.configuration.dsl.CassandraConfig
 import org.noelware.charted.database.cassandra.CassandraConnection
 import org.noelware.charted.database.cassandra.extensions.hasNext
 import org.noelware.charted.database.cassandra.extensions.iterator
