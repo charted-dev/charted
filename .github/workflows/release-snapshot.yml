@@ -191,14 +191,6 @@ jobs:
         uses: Noelware/docker-manifest-action@master
         with:
           push: true
-          base-image: ghcr.io/charted-dev/charted:${{ steps.tag.outputs.version }}-nightly
+          base-image: ghcr.io/charted-dev/charted:${{ steps.tag.outputs.version }}
           extra-images: |
-            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.version }}-nightly-amd64
-
-      - name: Apply manifests for tag ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly
-        uses: Noelware/docker-manifest-action@master
-        with:
-          push: true
-          base-image: ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly
-          extra-images: |
-            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-amd64
+            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.version }}-amd64
