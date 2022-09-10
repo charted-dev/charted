@@ -32,7 +32,7 @@ class YamlConfigTests {
         val file = File(yamlFile.file)
         assertTrue(file.exists())
 
-        val config = YamlConfigurationHost.loadConfig(file)
+        val config = YamlConfigurationHost().loadConfig(file)
         assertTrue(config.debug)
     }
 }
