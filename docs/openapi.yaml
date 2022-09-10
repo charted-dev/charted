@@ -30,30 +30,14 @@ info:
 servers:
   - url: https://charts.noelware.org/api
     description: Production Server
+components:
+  schemas:
+    {{ .Schemas }}
+
+  responses:
+    {{ .Responses }}
+
+  requestBodies:
+    {{ .RequestBodies }}
 paths:
-  /:
-    get:
-      description: Basic information about the server.
-      responses:
-        "200":
-          description: Returns a basic JSON payload.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    description: Indicates if the request was a success or not.
-                    type: boolean
-                  data:
-                    type: object
-                    properties:
-                      message:
-                        type: string
-                        description: "Hello, world! 👋"
-                      docs_uri:
-                        type: string
-                        description: The documentation URI.
-                      tagline:
-                        type: string
-                        description: You know, for Helm Charts?
+  {{ .Paths }}

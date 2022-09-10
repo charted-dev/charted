@@ -24,7 +24,6 @@ import dev.floofy.utils.koin.retrieve
 import dev.floofy.utils.kotlin.humanize
 import dev.floofy.utils.slf4j.logging
 import io.ktor.http.*
-import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -43,28 +42,22 @@ import io.sentry.Sentry
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.json.*
 import org.koin.core.context.GlobalContext
 import org.noelware.charted.analytics.AnalyticsServer
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.SetOnceGetValue
-import org.noelware.charted.common.data.Config
-import org.noelware.charted.common.data.Feature
 import org.noelware.charted.common.data.responses.Response
 import org.noelware.charted.common.exceptions.ValidationException
+import org.noelware.charted.configuration.dsl.Config
 import org.noelware.charted.core.StorageWrapper
-import org.noelware.charted.features.docker.registry.DockerRegistryPlugin
 import org.noelware.charted.server.endpoints.proxyStorageTrailer
 import org.noelware.charted.server.jobs.ReconfigureProxyCdnJob
 import org.noelware.charted.server.plugins.Logging
 import org.noelware.charted.server.plugins.RequestMdc
 import org.noelware.ktor.NoelKtorRouting
 import org.noelware.ktor.loader.koin.KoinEndpointLoader
-import org.noelware.remi.filesystem.ifExists
 import org.slf4j.LoggerFactory
 import java.io.Closeable
-import java.io.File
-import java.security.KeyStore
 import io.sentry.Sentry as SentryClient
 
 class ChartedServer(private val config: Config, private val analytics: AnalyticsServer? = null): Closeable {
@@ -97,14 +90,14 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
                 install(RequestMdc)
                 install(Logging)
 
-                if (self.config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
-                    install(DockerRegistryPlugin) {
-                        basicAuth = self.config.ociProxy!!.auth
-                        port = self.config.ociProxy!!.port
-                        host = self.config.ociProxy!!.host
-                        ssl = self.config.ociProxy!!.ssl
-                    }
-                }
+//                if (self.config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
+//                    install(DockerRegistryPlugin) {
+//                        basicAuth = self.config.ociProxy!!.auth
+//                        port = self.config.ociProxy!!.port
+//                        host = self.config.ociProxy!!.host
+//                        ssl = self.config.ociProxy!!.ssl
+//                    }
+//                }
 
                 if (Sentry.isEnabled()) {
                     install(org.noelware.charted.server.plugins.Sentry)
@@ -206,9 +199,9 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
 
                 routing {
                     val storage: StorageWrapper by inject()
-                    if (self.config.cdn.proxyContents) {
+                    if (self.config.cdn) {
                         runBlocking {
-                            proxyStorageTrailer(storage, self.config)
+                            proxyStorageTrailer(storage)
                         }
 
                         val scheduler: Scheduler by inject()
@@ -221,20 +214,20 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
                 }
             }
 
-            if (self.config.ssl != null) {
-                self.log.info("Received SSL configuration! Loading Keystore...")
-                val file = File(self.config.ssl!!.path)
-                val keystore = file.ifExists {
-                    self.log.info("SSL keystore exists in path ${self.config.ssl!!.path}!")
-                    val inputStream = inputStream()
-                    val keystore = KeyStore.getInstance("JKS")
-                    keystore.load(inputStream, self.config.ssl!!.password.toCharArray())
-
-                    keystore
-                } ?: error("Keystore path ${self.config.ssl!!.path} doesn't exist.")
-
-                sslConnector(keystore, "charted.ssl", { self.config.ssl!!.password.toCharArray() }, { self.config.ssl!!.password.toCharArray() }, {})
-            }
+//            if (self.config.ssl != null) {
+//                self.log.info("Received SSL configuration! Loading Keystore...")
+//                val file = File(self.config.ssl!!.path)
+//                val keystore = file.ifExists {
+//                    self.log.info("SSL keystore exists in path ${self.config.ssl!!.path}!")
+//                    val inputStream = inputStream()
+//                    val keystore = KeyStore.getInstance("JKS")
+//                    keystore.load(inputStream, self.config.ssl!!.password.toCharArray())
+//
+//                    keystore
+//                } ?: error("Keystore path ${self.config.ssl!!.path} doesn't exist.")
+//
+//                sslConnector(keystore, "charted.ssl", { self.config.ssl!!.password.toCharArray() }, { self.config.ssl!!.password.toCharArray() }, {})
+//            }
         }
 
         _server.value = embeddedServer(Netty, environment, configure = {

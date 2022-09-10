@@ -27,7 +27,7 @@ import io.ktor.server.request.*
 import io.ktor.util.*
 import io.prometheus.client.Histogram
 import org.apache.commons.lang3.time.StopWatch
-import org.noelware.charted.common.data.Config
+import org.noelware.charted.configuration.dsl.Config
 import org.noelware.charted.metrics.PrometheusMetrics
 import org.noelware.charted.server.ChartedServer
 import java.util.concurrent.TimeUnit

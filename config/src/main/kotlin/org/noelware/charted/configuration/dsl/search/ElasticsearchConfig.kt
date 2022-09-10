@@ -16,3 +16,48 @@
  */
 
 package org.noelware.charted.configuration.dsl.search
+
+import kotlinx.serialization.SerialName
+
+@kotlinx.serialization.Serializable
+data class ElasticsearchConfig(
+    @SerialName("client_ssl_path")
+    val clientSslPath: String? = null,
+
+    @SerialName("cloud_id")
+    val cloudId: String? = null,
+    val nodes: List<String> = listOf(),
+    val auth: ElasticBasicAuth? = null
+) {
+    class Builder {
+        private var auth: ElasticBasicAuth? = null
+        private val nodes = mutableListOf<String>()
+
+        var clientSslPath: String? = null
+        var cloudId: String? = null
+
+        fun basic(username: String, password: String): Builder {
+            if (cloudId != null) throw IllegalStateException("Can't use #basic(String, String) when Elastic Cloud ID is enabled.")
+            if (auth != null) return this
+
+            auth = ElasticBasicAuth(username, password)
+            return this
+        }
+
+        fun node(host: String, port: Int): Builder = node("$host:$port")
+        fun node(node: String): Builder {
+            if (nodes.contains(node)) return this
+            nodes.add(node)
+
+            return this
+        }
+
+        fun build(): ElasticsearchConfig = ElasticsearchConfig(clientSslPath, cloudId, nodes, auth)
+    }
+}
+
+@kotlinx.serialization.Serializable
+data class ElasticBasicAuth(
+    val username: String,
+    val password: String
+)

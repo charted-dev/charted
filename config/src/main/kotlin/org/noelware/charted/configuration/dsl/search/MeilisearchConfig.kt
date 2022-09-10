@@ -16,3 +16,18 @@
  */
 
 package org.noelware.charted.configuration.dsl.search
+
+import kotlin.properties.Delegates
+
+@kotlinx.serialization.Serializable
+data class MeilisearchConfig(
+    val endpoint: String = "http://127.0.0.1:7700",
+    val masterKey: String? = null
+) {
+    class Builder {
+        var endpoint: String by Delegates.notNull()
+        var masterKey: String? = null
+
+        fun build(): MeilisearchConfig = MeilisearchConfig(endpoint, masterKey)
+    }
+}

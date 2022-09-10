@@ -16,3 +16,28 @@
  */
 
 package org.noelware.charted.configuration.dsl
+
+@kotlinx.serialization.Serializable
+data class CassandraConfig(
+    val username: String? = null,
+    val password: String? = null,
+    val keyspace: String = "charted",
+    val nodes: List<String> = listOf()
+) {
+    class Builder {
+        private val nodes = mutableListOf<String>()
+        var username: String? = null
+        var password: String? = null
+        var keyspace: String = "charted"
+
+        fun addNode(host: String, port: Int): Builder = addNode("$host:$port")
+        fun addNode(node: String): Builder {
+            if (nodes.contains(node)) return this
+
+            nodes.add(node)
+            return this
+        }
+
+        fun build(): CassandraConfig = CassandraConfig(username, password, keyspace, nodes)
+    }
+}

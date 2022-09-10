@@ -16,3 +16,6 @@
  */
 
 package org.noelware.charted.configuration.dsl.features
+
+@kotlinx.serialization.Serializable
+data class KtorSSLConfig(val keystore: String = "./ssl/keystore.jks", val password: String = "")

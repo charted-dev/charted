@@ -26,19 +26,18 @@ import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
-import org.noelware.charted.common.data.Config
 import org.noelware.charted.common.extensions.measureTime
 import org.noelware.charted.core.StorageWrapper
 import org.noelware.charted.server.utils.createOutgoingContentWithBytes
 import org.noelware.remi.filesystem.FilesystemStorageConfig
 import org.noelware.remi.filesystem.FilesystemStorageTrailer
 
-suspend fun Routing.proxyStorageTrailer(storage: StorageWrapper, config: Config) {
+suspend fun Routing.proxyStorageTrailer(storage: StorageWrapper) {
     val log by logging("org.noelware.charted.server.endpoints.CdnEndpointsKt\$proxyStorageTrailer")
     log.debug("Configuring CDN endpoints from storage trailer...")
 
     val contents = storage.trailer.listAll()
-    val cdnPrefix = config.cdn.proxyPrefix
+    val cdnPrefix = "/cdn" // TODO: add it back?
     log.measureTime("Took %T to configure the storage trailer proxy.") {
         for (content in contents) {
             val prefix = if (storage.trailer is FilesystemStorageTrailer) {

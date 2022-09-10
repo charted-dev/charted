@@ -17,4 +17,8 @@
 
 package org.noelware.charted.gradle.plugins.golang.tasks;
 
-public class GoBuild {}
+import org.gradle.api.DefaultTask;
+import org.gradle.work.DisableCachingByDefault;
+
+@DisableCachingByDefault(because = "Go builds aren't cacheable")
+public class GoBuild extends DefaultTask {}

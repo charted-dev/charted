@@ -20,7 +20,7 @@ package org.noelware.charted.database
 import dev.floofy.utils.exposed.asyncTransaction
 import org.jetbrains.exposed.sql.TextColumnType
 import org.noelware.charted.common.ChartedScope
-import org.noelware.charted.common.data.Config
+import org.noelware.charted.configuration.dsl.Config
 import org.noelware.charted.database.entities.OrganizationEntity
 import org.noelware.charted.database.entities.RepositoryEntity
 import org.noelware.charted.database.entities.UserEntity

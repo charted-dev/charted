@@ -73,7 +73,10 @@ include(
     ":sessions:local",
     ":sessions:noelware",
     ":testing",
-    ":tools:migrations"
+    ":tools:cli",
+    ":tools:cli:ssl",
+    ":tools:migrations",
+    ":tools:openapi"
 )
 
 dependencyResolutionManagement {

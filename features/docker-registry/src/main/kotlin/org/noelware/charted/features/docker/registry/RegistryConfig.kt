@@ -17,11 +17,8 @@
 
 package org.noelware.charted.features.docker.registry
 
-import org.noelware.charted.common.data.BasicAuthStrategy
-
 @kotlinx.serialization.Serializable
 data class RegistryConfig(
-    var basicAuth: BasicAuthStrategy? = null,
     var host: String = "localhost",
     var port: Int = 5000,
     var ssl: Boolean = false

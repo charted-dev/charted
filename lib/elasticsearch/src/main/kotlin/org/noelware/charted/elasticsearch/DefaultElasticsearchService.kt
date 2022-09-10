@@ -42,9 +42,9 @@ import org.elasticsearch.client.sniff.SniffOnFailureListener
 import org.elasticsearch.client.sniff.Sniffer
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.SetOnceGetValue
-import org.noelware.charted.common.data.Config
-import org.noelware.charted.common.data.Feature
 import org.noelware.charted.common.extensions.measureSuspendTime
+import org.noelware.charted.configuration.dsl.Config
+import org.noelware.charted.configuration.dsl.features.Feature
 import org.noelware.charted.elasticsearch.apache.SentryApacheHttpClientRequestInterceptor
 import org.noelware.charted.elasticsearch.apache.SentryApacheHttpClientResponseInterceptor
 import org.noelware.charted.elasticsearch.stats.ElasticsearchStats
@@ -269,11 +269,6 @@ class DefaultElasticsearchService(
     }
 
     private suspend fun createOrUpdateIndexes() {
-        val indexes = mutableListOf("charted_users", "charted_repositories", "charted_organizations")
-        if (config.isFeatureEnabled(Feature.WEBHOOKS)) {
-            indexes.add("charted_webhook_events")
-        }
-
         log.info("Creating or updating indexes [${indexes.joinToString(", ")}]")
         for (index in indexes) {
             val exists = client.indices().exists { it.index(index) }.await().value()

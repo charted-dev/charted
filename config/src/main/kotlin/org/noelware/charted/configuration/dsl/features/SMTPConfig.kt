@@ -16,3 +16,29 @@
  */
 
 package org.noelware.charted.configuration.dsl.features
+
+/**
+ * Represents the configuration for setting up email notifications to send
+ * out per event.
+ */
+@kotlinx.serialization.Serializable
+data class SMTPConfig(
+    val username: String? = null,
+    val password: String? = null,
+    val from: String,
+    val host: String = "",
+    val port: Int = 465,
+    val tls: Boolean = true,
+    val ssl: Boolean = false
+) {
+    class Builder(private val from: String) {
+        var username: String? = null
+        var password: String? = null
+        var host: String = ""
+        var port: Int = 465
+        var tls: Boolean = true
+        var ssl: Boolean = false
+
+        fun build(): SMTPConfig = SMTPConfig(username, password, from, host, port, tls, ssl)
+    }
+}

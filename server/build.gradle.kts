@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 plugins {
+    id("com.google.devtools.ksp")
     `charted-module`
     `charted-test`
     application
@@ -29,6 +30,7 @@ dependencies {
     // Logstash
     implementation(libs.logback.logstash)
     implementation(libs.logback.classic)
+    implementation(libs.sentry.logback)
     implementation(libs.logback.core)
 
     // kotlinx.coroutines Debug
@@ -54,6 +56,7 @@ dependencies {
 
     // Projects
     implementation(project(":features:docker-registry"))
+    implementation(project(":config:kotlin-script"))
     implementation(project(":features:audit-logs"))
     implementation(project(":features:webhooks"))
     implementation(project(":lib:elasticsearch"))
@@ -64,12 +67,15 @@ dependencies {
     implementation(project(":lib:cassandra"))
     implementation(project(":lib:analytics"))
     implementation(project(":lib:telemetry"))
+    implementation(project(":tools:openapi"))
+    implementation(project(":config:yaml"))
     implementation(project(":lib:metrics"))
     implementation(project(":lib:apikeys"))
     implementation(project(":lib:email"))
     implementation(project(":lib:stats"))
     implementation(project(":sessions"))
     implementation(project(":database"))
+    implementation(project(":config"))
     implementation(project(":core"))
 
     // JWT
@@ -81,6 +87,9 @@ dependencies {
 
     // Conditional logic for logback
     implementation(libs.janino)
+
+    // KSP
+    ksp(project(":tools:openapi"))
 }
 
 application {

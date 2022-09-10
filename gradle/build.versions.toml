@@ -99,6 +99,7 @@ remi-core = { module = "org.noelware.remi:remi-core", version.ref = "remi" }
 
 # sentry libraries
 sentry-kotlin-extensions = { module = "io.sentry:sentry-kotlin-extensions", version.ref = "sentry" }
+sentry-logback = { module = "io.sentry:sentry-logback", version.ref = "sentry" }
 sentry = { module = "io.sentry:sentry", version.ref = "sentry" }
 
 # ktor server and client libraries

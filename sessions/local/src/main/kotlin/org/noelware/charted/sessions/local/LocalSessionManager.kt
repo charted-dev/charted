@@ -37,8 +37,8 @@ import kotlinx.serialization.json.jsonPrimitive
 import org.apache.commons.lang3.time.StopWatch
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.IRedisClient
-import org.noelware.charted.common.data.Config
 import org.noelware.charted.common.extensions.measureSuspendTime
+import org.noelware.charted.configuration.dsl.Config
 import org.noelware.charted.sessions.Session
 import org.noelware.charted.sessions.SessionManager
 import java.time.Instant
@@ -74,7 +74,7 @@ class LocalSessionManager(
             }
 
             log.debug("Collecting TTL for session [$key]")
-            val ttl = runBlocking { redis.commands.ttl("sessions:$key").await() }
+            val ttl = runBlocking { redis.commands.ttl(key).await() }
             if (ttl == -2L) continue
             if (ttl == -1L) {
                 log.debug("Session $key expires! Deleting session...")

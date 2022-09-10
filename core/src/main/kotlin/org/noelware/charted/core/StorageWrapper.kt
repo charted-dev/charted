@@ -19,7 +19,7 @@ package org.noelware.charted.core
 
 import dev.floofy.utils.slf4j.logging
 import kotlinx.coroutines.runBlocking
-import org.noelware.charted.common.data.StorageConfig
+import org.noelware.charted.configuration.dsl.StorageConfig
 import org.noelware.remi.core.StorageTrailer
 import org.noelware.remi.filesystem.FilesystemStorageTrailer
 import org.noelware.remi.minio.MinIOStorageTrailer

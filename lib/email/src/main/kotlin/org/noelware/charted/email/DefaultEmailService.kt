@@ -19,8 +19,8 @@ package org.noelware.charted.email
 
 import dev.floofy.utils.slf4j.logging
 import org.noelware.charted.common.SetOnceGetValue
-import org.noelware.charted.common.data.MailConfig
 import org.noelware.charted.common.extensions.measureTime
+import org.noelware.charted.configuration.dsl.features.SMTPConfig
 import java.util.*
 import javax.mail.Authenticator
 import javax.mail.Message
@@ -30,7 +30,7 @@ import javax.mail.Transport
 import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeMessage
 
-class DefaultEmailService(private val config: MailConfig): EmailService {
+class DefaultEmailService(private val config: SMTPConfig): EmailService {
     private val _session: SetOnceGetValue<Session> = SetOnceGetValue()
     private val log by logging<DefaultEmailService>()
 

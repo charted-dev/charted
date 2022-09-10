@@ -25,7 +25,7 @@ import io.sentry.Sentry
 import kotlinx.coroutines.future.await
 import org.intellij.lang.annotations.Language
 import org.noelware.charted.common.SetOnceGetValue
-import org.noelware.charted.common.data.CassandraConfig
+import org.noelware.charted.configuration.dsl.CassandraConfig
 import java.io.Closeable
 import java.net.InetSocketAddress
 import java.util.concurrent.atomic.AtomicBoolean

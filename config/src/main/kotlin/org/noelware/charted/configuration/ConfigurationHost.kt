@@ -17,9 +17,15 @@
 
 package org.noelware.charted.configuration
 
+import org.noelware.charted.configuration.dsl.Config
+import java.io.File
+
 /**
  * Represents a host for loading up the configuration for **charted-server**.
  */
 interface ConfigurationHost {
-    fun loadConfig()
+    /**
+     * Loads the configuration in the [path] that is given.
+     */
+    fun loadConfig(path: File): Config
 }

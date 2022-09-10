@@ -17,4 +17,8 @@
 
 package org.noelware.charted.gradle.plugins.golang.tasks;
 
-public class GoFmt {}
+import org.gradle.api.DefaultTask;
+import org.gradle.work.DisableCachingByDefault;
+
+@DisableCachingByDefault(because = "Go's formatting tool isn't cacheable")
+public class GoFmt extends DefaultTask {}

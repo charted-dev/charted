@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+import kotlinx.atomicfu.plugin.gradle.AtomicFUGradlePlugin
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.noelware.charted.gradle.*
 import dev.floofy.utils.gradle.*
@@ -25,7 +26,7 @@ plugins {
     kotlin("jvm")
 }
 
-apply(plugin = "kotlinx-atomicfu")
+apply<AtomicFUGradlePlugin>()
 
 group = "org.noelware.charted"
 version = "$VERSION"
@@ -44,6 +45,7 @@ dependencies {
 
     if (name != "common") {
         api(project(":common"))
+        api(project(":config"))
     }
 }
 
@@ -52,6 +54,9 @@ spotless {
         licenseHeaderFile("${rootProject.projectDir}/assets/HEADING")
         trimTrailingWhitespace()
         endWithNewline()
+
+        // it's for testing purposes, spotless is just a bork in chat.
+        targetExclude("**/*.charted.kts")
 
         // We can't use the .editorconfig file, so we'll have to specify it here
         // issue: https://github.com/diffplug/spotless/issues/142

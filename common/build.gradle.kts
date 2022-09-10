@@ -68,9 +68,6 @@ dependencies {
     // Koin
     api(libs.koin)
 
-    // YAML (configuration)
-    api(libs.kaml)
-
     // Haru (scheduling)
     api(libs.haru)
 

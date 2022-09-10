@@ -18,9 +18,9 @@
 package org.noelware.charted.stats.collectors
 
 import kotlinx.serialization.SerialName
-import org.noelware.charted.common.data.Config
-import org.noelware.charted.common.data.Feature
 import org.noelware.charted.common.extensions.formatToSize
+import org.noelware.charted.configuration.dsl.*
+import org.noelware.charted.configuration.dsl.features.Feature
 import org.noelware.charted.stats.StatCollector
 import org.noelware.remi.core.StorageTrailer
 import org.noelware.remi.filesystem.FilesystemStorageTrailer

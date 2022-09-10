@@ -22,11 +22,11 @@ import io.grpc.Server
 import io.grpc.ServerBuilder
 import io.grpc.protobuf.services.ProtoReflectionService
 import org.noelware.charted.common.SetOnceGetValue
-import org.noelware.charted.common.data.AnalyticsConfig
+import org.noelware.charted.configuration.dsl.features.NoelwareAnalyticsConfig
 import java.io.Closeable
 import java.util.concurrent.TimeUnit
 
-class AnalyticsServer(private val config: AnalyticsConfig): Closeable {
+class AnalyticsServer(private val config: NoelwareAnalyticsConfig): Closeable {
     private val _server: SetOnceGetValue<Server> = SetOnceGetValue()
     private val log by logging<AnalyticsServer>()
 

@@ -46,13 +46,13 @@ import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.IRedisClient
 import org.noelware.charted.common.RandomGenerator
 import org.noelware.charted.common.SHAUtils
-import org.noelware.charted.common.data.Config
-import org.noelware.charted.common.data.Feature
 import org.noelware.charted.common.data.helm.ChartIndexYaml
 import org.noelware.charted.common.data.responses.Response
 import org.noelware.charted.common.exceptions.StringOverflowException
 import org.noelware.charted.common.exceptions.StringUnderflowException
 import org.noelware.charted.common.exceptions.ValidationException
+import org.noelware.charted.configuration.dsl.Config
+import org.noelware.charted.configuration.dsl.features.Feature
 import org.noelware.charted.core.StorageWrapper
 import org.noelware.charted.database.controllers.NewUserBody
 import org.noelware.charted.database.controllers.RepositoryController

@@ -17,4 +17,42 @@
 
 package org.noelware.charted.configuration.kotlin.tests
 
-class KotlinScriptTests
+import org.junit.Test
+import org.junit.jupiter.api.assertDoesNotThrow
+import org.noelware.charted.configuration.kotlin.KotlinScriptConfigurationHost
+import org.noelware.charted.configuration.kotlin.KotlinScriptHandle
+import kotlin.script.experimental.api.valueOrThrow
+import kotlin.script.experimental.host.toScriptSource
+import kotlin.script.experimental.jvm.dependenciesFromClassContext
+import kotlin.script.experimental.jvm.jvm
+import kotlin.script.experimental.jvmhost.BasicJvmScriptingHost
+import kotlin.script.experimental.jvmhost.createJvmCompilationConfigurationFromTemplate
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
+
+class KotlinScriptTests {
+    @Test
+    fun `check if source code can be compiled`() {
+        val compilationConfig = createJvmCompilationConfigurationFromTemplate<KotlinScriptHandle> {
+            jvm {
+                dependenciesFromClassContext(KotlinScriptConfigurationHost::class, wholeClasspath = true)
+            }
+        }
+
+        val result = BasicJvmScriptingHost().eval(
+            """
+        |debug = true
+        |metrics = true
+            """.trimMargin().toScriptSource("main.charted.kts"),
+            compilationConfig,
+            null
+        )
+
+        val res = assertDoesNotThrow { result.valueOrThrow() }
+        val handle = (res.returnValue.scriptInstance as? KotlinScriptHandle)
+        assertNotNull(handle)
+        assertTrue(handle.debug)
+        assertFalse(handle.inviteOnly)
+    }
+}

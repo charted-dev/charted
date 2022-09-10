@@ -20,8 +20,8 @@ package org.noelware.charted.server.endpoints
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
-import org.noelware.charted.common.data.Config
 import org.noelware.charted.common.data.responses.Response
+import org.noelware.charted.configuration.dsl.Config
 import org.noelware.charted.elasticsearch.ElasticsearchService
 import org.noelware.charted.search.meilisearch.MeilisearchClient
 import org.noelware.ktor.endpoints.AbstractEndpoint

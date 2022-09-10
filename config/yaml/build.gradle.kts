@@ -17,4 +17,13 @@
 
 plugins {
     `charted-module`
+    `charted-test`
+}
+
+dependencies {
+    // definitions
+    implementation(project(":config"))
+
+    // YAML (configuration)
+    api(libs.kaml)
 }

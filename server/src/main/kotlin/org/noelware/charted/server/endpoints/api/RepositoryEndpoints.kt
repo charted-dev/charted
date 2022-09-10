@@ -42,13 +42,12 @@ import kotlinx.serialization.json.*
 import okhttp3.internal.closeQuietly
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.SHAUtils
-import org.noelware.charted.common.data.Config
-import org.noelware.charted.common.data.Feature
-import org.noelware.charted.common.data.formatCdnUrl
 import org.noelware.charted.common.data.helm.ChartIndexSpec
 import org.noelware.charted.common.data.helm.ChartIndexYaml
 import org.noelware.charted.common.data.helm.ChartSpec
 import org.noelware.charted.common.data.responses.Response
+import org.noelware.charted.configuration.dsl.Config
+import org.noelware.charted.configuration.dsl.features.Feature
 import org.noelware.charted.core.StorageWrapper
 import org.noelware.charted.database.controllers.RepositoryController
 import org.noelware.charted.database.controllers.RepositoryMemberController
@@ -317,7 +316,12 @@ class RepositoryEndpoints(
                 return call.respond(HttpStatusCode.NotAcceptable, Response.err("INVALID_SEMVER", e.message!!))
             }
 
-            val url = formatCdnUrl(config, "/tarballs/${repo.ownerID}/$id/${repo.name}-${chartSpec.version}.tar.gz")
+            val url = if (config.cdn) {
+                "${config.baseUrl ?: "http://localhost:${config.server.port}"}/cdn/tarballs/${repo.ownerID}/$id/${repo.name}-${chartSpec.version}.tar.gz"
+            } else {
+                "${config.baseUrl ?: "http://localhost:${config.server.port}"}/repositories/$id/tarballs/${repo.name}-${chartSpec.version}.tar.gz"
+            }
+
             val checksum = SHAUtils.sha256Checksum(ByteArrayInputStream(data))
             val entries = chartIndex.entries.toMutableMap()
             entries[chartSpec.name]!!.add(
@@ -332,7 +336,12 @@ class RepositoryEndpoints(
 
             chartIndex.copy(entries = entries, generated = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()))
         } else {
-            val url = formatCdnUrl(config, "/tarballs/${repo.ownerID}/$id/${repo.name}-${chartSpec.version}.tar.gz")
+            val url = if (config.cdn) {
+                "${config.baseUrl ?: "http://localhost:${config.server.port}"}/cdn/tarballs/${repo.ownerID}/$id/${repo.name}-${chartSpec.version}.tar.gz"
+            } else {
+                "${config.baseUrl ?: "http://localhost:${config.server.port}"}/repositories/$id/tarballs/${repo.name}-${chartSpec.version}.tar.gz"
+            }
+
             val checksum = SHAUtils.sha256Checksum(ByteArrayInputStream(data))
             val entries = chartIndex.entries.toMutableMap()
             entries[chartSpec.name]!!.add(

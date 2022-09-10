@@ -53,10 +53,12 @@ import org.noelware.charted.apikeys.DefaultApiKeyManager
 import org.noelware.charted.common.ChartedInfo
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.IRedisClient
-import org.noelware.charted.common.data.Config
-import org.noelware.charted.common.data.Feature
 import org.noelware.charted.common.data.helm.RepoType
 import org.noelware.charted.common.extensions.formatToSize
+import org.noelware.charted.configuration.ConfigurationHost
+import org.noelware.charted.configuration.dsl.features.Feature
+import org.noelware.charted.configuration.kotlin.KotlinScriptConfigurationHost
+import org.noelware.charted.configuration.yaml.YamlConfigurationHost
 import org.noelware.charted.core.StorageWrapper
 import org.noelware.charted.core.interceptors.LogInterceptor
 import org.noelware.charted.core.interceptors.SentryInterceptor
@@ -237,27 +239,6 @@ object Bootstrap {
 
         log.info("===> JVM Arguments: [${ManagementFactory.getRuntimeMXBean().inputArguments.joinToString(" ")}]")
 
-        log.info("Loading configuration...")
-        val fullConfigPath = System.getenv("CHARTED_CONFIG_PATH") ?: "./config.yml"
-        var configFile = File(fullConfigPath)
-
-        if (Files.isSymbolicLink(configFile.toPath())) {
-            val resolved = Files.readSymbolicLink(configFile.toPath())
-
-            log.warn("File is under a symbolic link, resolved to [$resolved]")
-            configFile = resolved.toFile()
-        }
-
-        if (!configFile.exists()) {
-            log.error("Missing configuration file in path '$configFile'!")
-            exitProcess(1)
-        }
-
-        if (!listOf("yml", "yaml").contains(configFile.extension)) {
-            log.error("Configuration file at path $configFile must be a YAML file. (`.yml` or `.yaml` extensions)")
-            exitProcess(1)
-        }
-
         val yaml = Yaml(
             EmptySerializersModule(),
             YamlConfiguration(
@@ -266,8 +247,25 @@ object Bootstrap {
             )
         )
 
-        val config = yaml.decodeFromString(Config.serializer(), configFile.readText())
-        log.info("Retrieved configuration in path $configFile! Now connecting to PostgreSQL...")
+        val fullConfigPath = System.getenv("CHARTED_CONFIG_PATH") ?: "./config.yml"
+        var configFile = File(fullConfigPath)
+        if (Files.isSymbolicLink(configFile.toPath())) {
+            val resolved = Files.readSymbolicLink(configFile.toPath())
+
+            log.warn("Configuration file [$configFile] is a symbolic link towards [$resolved]")
+            configFile = resolved.toFile()
+        }
+
+        val host: ConfigurationHost = if (listOf("yaml", "yml").contains(configFile.extension)) {
+            YamlConfigurationHost(yaml)
+        } else if (configFile.extension.contains("kts")) {
+            KotlinScriptConfigurationHost
+        } else {
+            throw IllegalStateException("Unable to determine configuration host to use")
+        }
+
+        val config = host.loadConfig(configFile)
+        log.info("Loaded configuration in path in [$configFile]")
 
         // Enable debug probes for Noelware Analytics and the administration
         // dashboard via Pak.
@@ -405,7 +403,6 @@ object Bootstrap {
         val analytics = if (config.analytics != null) AnalyticsServer(config.analytics!!) else null
         val server = ChartedServer(config, analytics)
         val metrics = PrometheusMetrics(ds, redis)
-
         val module = module {
             single<InvitationManager> { invitations }
             single<SessionManager> { sessions }

@@ -21,6 +21,9 @@ plugins {
 }
 
 dependencies {
+    // testing :quantD:
+    testImplementation(project(":config"))
+
     // definitions
     implementation(project(":config"))
 

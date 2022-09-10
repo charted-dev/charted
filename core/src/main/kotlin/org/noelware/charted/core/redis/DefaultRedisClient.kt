@@ -27,9 +27,9 @@ import kotlinx.coroutines.runBlocking
 import org.apache.commons.lang3.time.StopWatch
 import org.noelware.charted.common.IRedisClient
 import org.noelware.charted.common.SetOnceGetValue
-import org.noelware.charted.common.data.RedisConfig
 import org.noelware.charted.common.extensions.associateOrNull
 import org.noelware.charted.common.stats.RedisStats
+import org.noelware.charted.configuration.dsl.RedisConfig
 import java.util.concurrent.TimeUnit
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration

@@ -75,7 +75,7 @@ public class Bitfield {
         this.bits = bits;
     }
 
-    /** Returns the remaning bits from this object. */
+    /** Returns the remaining bits from this object. */
     public long getBits() {
         return bits;
     }
@@ -115,7 +115,7 @@ public class Bitfield {
             total |= Math.abs(bit);
         }
 
-        return clone(total);
+        return new Bitfield(total, getFlags());
     }
 
     /**
@@ -131,7 +131,7 @@ public class Bitfield {
             total |= Math.abs(bit); // make sure it's positive
         }
 
-        return clone(this.bits | total);
+        return new Bitfield(this.bits | total, getFlags());
     }
 
     /**
@@ -160,14 +160,6 @@ public class Bitfield {
             total |= Math.abs(bit); // make it positive
         }
 
-        return clone(this.bits & ~total);
-    }
-
-    public Bitfield clone() {
-        return new Bitfield(this.bits, getFlags());
-    }
-
-    public Bitfield clone(long data) {
-        return new Bitfield(data, getFlags());
+        return new Bitfield(this.bits & ~total, getFlags());
     }
 }

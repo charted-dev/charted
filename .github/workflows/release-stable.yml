@@ -242,6 +242,30 @@ jobs:
           extra-images: |
             ghcr.io/charted-dev/charted:${{ steps.tag.outputs.version }}-amd64
 
+  sentry-release:
+    runs-on: ubuntu-latest
+    name: Deploy release to Noelware's Sentry instance
+    if: ${{ github.repository == 'charted/charted-dev' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Get current git tag
+        id: tag
+        uses: auguwu/git-tag-action@master
+
+      - name: Release!
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: noelware
+          SENTRY_PROJECT: charted-server
+          SENTRY_URL: https://sentry.noelware.org
+        with:
+          environment: production
+
   kubernetes:
     runs-on: ubuntu-latest
     name: Deploy to Noelware's Kubernetes cluster

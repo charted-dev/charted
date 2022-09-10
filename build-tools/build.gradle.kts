@@ -67,6 +67,11 @@ gradlePlugin {
             id = "org.noelware.charted.distribution.scoop"
             implementationClass = "org.noelware.charted.gradle.plugins.scoop.ChartedScoopPlugin"
         }
+
+        create("golang") {
+            id = "org.noelware.charted.golang"
+            implementationClass = "org.noelware.charted.gradle.plugins.golang.GoPlugin"
+        }
     }
 }
 

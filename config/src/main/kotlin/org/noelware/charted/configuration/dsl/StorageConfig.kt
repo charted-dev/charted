@@ -16,3 +16,68 @@
  */
 
 package org.noelware.charted.configuration.dsl
+
+import org.noelware.remi.filesystem.FilesystemStorageConfig
+import org.noelware.remi.minio.MinIOStorageConfig
+import org.noelware.remi.s3.S3StorageConfig
+
+/**
+ * Represents the storage configuration for charted-server to use.
+ */
+@kotlinx.serialization.Serializable
+data class StorageConfig(
+    /**
+     * Configures the filesystem as a storage source!
+     */
+    val filesystem: FilesystemStorageConfig? = null,
+
+    /**
+     * Configures a MinIO server as a storage source.
+     */
+    val minio: MinIOStorageConfig? = null,
+
+    /**
+     * Alias for [filesystem].
+     */
+    val fs: FilesystemStorageConfig? = null,
+
+    /**
+     * Configures Amazon S3 or a S3-compatible server to use for storing data.
+     */
+    val s3: S3StorageConfig? = null
+) {
+    class Builder {
+        private var filesystem: FilesystemStorageConfig? = null
+        private var minio: MinIOStorageConfig? = null
+        private var s3: S3StorageConfig? = null
+
+        fun filesystem(directory: String): Builder {
+            if (s3 != null || minio != null) {
+                throw IllegalStateException("Property 'filesystem' can't be configured since a storage trailer has been initialized already.")
+            }
+
+            filesystem = FilesystemStorageConfig(directory)
+            return this
+        }
+
+        fun minio(block: MinIOStorageConfig.() -> Unit = {}): Builder {
+            if (s3 != null || filesystem != null) {
+                throw IllegalStateException("Property 'minio' can't be configured since a storage trailer has been initialized already.")
+            }
+
+            minio = MinIOStorageConfig().apply(block)
+            return this
+        }
+
+        fun s3(block: S3StorageConfig.() -> Unit = {}): Builder {
+            if (filesystem != null || minio != null) {
+                throw IllegalStateException("Property 's3' can't be configured since a storage trailer has been initialized already.")
+            }
+
+            s3 = S3StorageConfig().apply(block)
+            return this
+        }
+
+        fun build(): StorageConfig = StorageConfig(filesystem, minio, null, s3)
+    }
+}

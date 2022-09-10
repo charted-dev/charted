@@ -27,7 +27,7 @@ import io.ktor.server.response.*
 import kotlinx.serialization.json.*
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.RandomGenerator
-import org.noelware.charted.common.data.Config
+import org.noelware.charted.configuration.dsl.Config
 import org.noelware.charted.database.entities.UserConnectionEntity
 import org.noelware.charted.database.tables.UserConnectionsTable
 import org.noelware.charted.sessions.integrations.github.responses.GitHubOAuth2Response

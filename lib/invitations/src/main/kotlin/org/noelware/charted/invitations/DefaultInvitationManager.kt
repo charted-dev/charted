@@ -28,7 +28,7 @@ import kotlinx.serialization.json.Json
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.IRedisClient
 import org.noelware.charted.common.RandomGenerator
-import org.noelware.charted.common.data.Config
+import org.noelware.charted.configuration.dsl.Config
 import org.noelware.charted.database.entities.UserEntity
 import org.noelware.charted.database.models.Organization
 import org.noelware.charted.database.models.Repository

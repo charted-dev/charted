@@ -84,11 +84,15 @@ RESOLVED_JAVA_OPTS=(
   "-Djava.awt.headless=true"
 )
 
+# The directory is probably in bin/, so let's just resolve it to the current directory.
+# We should only use this if `CHARTED_LOGBACK_PATH` isn't specified so there isn't duplicated
+# entries in the system properties.
+if [[ -f "$(realpath ./config/logback.properties)" && -z "${CHARTED_LOGBACK_PATH:-}" ]]; then
+    RESOLVED_JAVA_OPTS+=("-Dorg.noelware.charted.logback.config=$(realpath ./config/logback.properties)")
+fi
+
 if [[ -n "${CHARTED_LOGBACK_PATH:-}" && -f "${CHARTED_LOGBACK_PATH}" ]]; then
   RESOLVED_JAVA_OPTS+=("-Dorg.noelware.charted.logback.config=$CHARTED_LOGBACK_PATH")
-else
-  # All distributions include a default Logback profile.
-  RESOLVED_JAVA_OPTS+=("-Dorg.noelware.charted.logback.config=config/logback.properties")
 fi
 
 if [[ -n "${WINTERFOX_DEDI_NODE:-}" ]]; then
@@ -100,7 +104,7 @@ if [[ -n "${CHARTED_JAVA_OPTS:-}" ]]; then
 fi
 
 export JAVA_OPTS=$(join ' ' "${RESOLVED_JAVA_OPTS[@]}")
-echo "[preinit] Resolved JAVA_OPTS ==> $JAVA_OPTS"
+echo "[preinit] Resolved Java Options ==> $JAVA_OPTS"
 
 # Determine the Java command to use.
 if [ -n "$JAVA_HOME" ]; then

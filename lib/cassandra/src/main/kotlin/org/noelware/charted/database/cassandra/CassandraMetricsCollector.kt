@@ -75,7 +75,7 @@ class CassandraMetricsCollector(private val cassandra: CassandraConnection): Col
 //            )
 //        }
 
-        val metrics = cassandra.session.metrics.get()
+        // val metrics = cassandra.session.metrics.get()
 //        if (sampleNameFilter.test(CASSANDRA_TRASHED_CONNECTIONS)) {
 //            mfs.add(
 //                GaugeMetricFamily(

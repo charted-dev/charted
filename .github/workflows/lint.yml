@@ -57,14 +57,14 @@ on:
       - '**.md'
       - 'LICENSE'
       - 'renovate.json'
-
 jobs:
   lint:
-    name: Linting and Unit Testing
-    runs-on: ubuntu-latest
+    name: Linting and Unit Testing [${{ matrix.runner }}]
+    runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
         java-version: [17, 18]
+        runner: [windows-latest, macos-latest, ubuntu-latest, self-hosted]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3

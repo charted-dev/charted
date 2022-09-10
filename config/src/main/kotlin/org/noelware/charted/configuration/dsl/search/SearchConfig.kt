@@ -16,3 +16,32 @@
  */
 
 package org.noelware.charted.configuration.dsl.search
+
+@kotlinx.serialization.Serializable
+data class SearchConfig(
+    val elastic: ElasticsearchConfig? = null,
+    val meili: MeilisearchConfig? = null
+) {
+    class Builder {
+        private var elasticsearch: ElasticsearchConfig? = null
+        private var meilisearch: MeilisearchConfig? = null
+
+        fun elasticsearch(block: ElasticsearchConfig.Builder.() -> Unit = {}): Builder {
+            if (meilisearch != null) throw IllegalStateException("Configuration key 'meilisearch' can't be used with 'elasticsearch'")
+            if (elasticsearch != null) return this
+
+            elasticsearch = ElasticsearchConfig.Builder().apply(block).build()
+            return this
+        }
+
+        fun meilisearch(block: MeilisearchConfig.Builder.() -> Unit = {}): Builder {
+            if (elasticsearch != null) throw IllegalStateException("Configuration key 'elasticsearch' can't be used with 'meilisearch'")
+            if (meilisearch != null) return this
+
+            meilisearch = MeilisearchConfig.Builder().apply(block).build()
+            return this
+        }
+
+        fun build(): SearchConfig = SearchConfig(elasticsearch, meilisearch)
+    }
+}

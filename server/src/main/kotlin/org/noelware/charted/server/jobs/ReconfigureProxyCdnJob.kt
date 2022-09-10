@@ -21,7 +21,7 @@ import dev.floofy.haru.abstractions.AbstractJob
 import dev.floofy.utils.slf4j.logging
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
-import org.noelware.charted.common.data.Config
+import org.noelware.charted.configuration.dsl.Config
 import org.noelware.charted.core.StorageWrapper
 import org.noelware.charted.server.ChartedServer
 import org.noelware.charted.server.endpoints.proxyStorageTrailer
@@ -40,6 +40,6 @@ class ReconfigureProxyCdnJob(
         log.debug("Reconfiguring CDN proxy...")
 
         val routing = server.server.application.plugin(Routing)
-        routing.proxyStorageTrailer(storage, config)
+        routing.proxyStorageTrailer(storage)
     }
 }

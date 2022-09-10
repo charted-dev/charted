@@ -30,8 +30,8 @@ import kotlinx.serialization.json.put
 import org.jetbrains.exposed.sql.selectAll
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.SetOnceGetValue
-import org.noelware.charted.common.data.MeilisearchConfig
 import org.noelware.charted.common.extensions.measureSuspendTime
+import org.noelware.charted.configuration.dsl.search.MeilisearchConfig
 import org.noelware.charted.database.tables.UserTable
 
 private val INDEXES = listOf(

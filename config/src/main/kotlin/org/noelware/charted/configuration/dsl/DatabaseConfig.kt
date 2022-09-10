@@ -16,3 +16,28 @@
  */
 
 package org.noelware.charted.configuration.dsl
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class DatabaseConfig(
+    val username: String = "postgres",
+    val password: String = "postgres",
+    val schema: String = "public",
+    val host: String = "localhost",
+    val port: Long = 5432,
+    val name: String = "charted",
+    val uri: String? = null
+) {
+    class Builder {
+        var username: String = "postgres"
+        var password: String = "postgres"
+        var schema: String = "public"
+        var host: String = "localhost"
+        var port: Long = 5432
+        var name: String = "charted"
+        var uri: String? = null
+
+        fun build(): DatabaseConfig = DatabaseConfig(username, password, schema, host, port, name, uri)
+    }
+}

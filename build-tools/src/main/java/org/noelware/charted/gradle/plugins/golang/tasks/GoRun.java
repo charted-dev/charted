@@ -17,4 +17,8 @@
 
 package org.noelware.charted.gradle.plugins.golang.tasks;
 
-public class GoRun {}
+import org.gradle.api.DefaultTask;
+import org.gradle.work.DisableCachingByDefault;
+
+@DisableCachingByDefault(because = "Go's runner doesn't support caching.")
+public class GoRun extends DefaultTask {}

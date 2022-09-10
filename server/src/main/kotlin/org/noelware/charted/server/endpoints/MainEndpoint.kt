@@ -21,9 +21,11 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import kotlinx.serialization.SerialName
-import org.noelware.charted.common.data.Config
-import org.noelware.charted.common.data.Feature
 import org.noelware.charted.common.data.responses.Response
+import org.noelware.charted.configuration.dsl.Config
+import org.noelware.charted.configuration.dsl.features.Feature
+import org.noelware.charted.tools.ksp.openapi.annotations.OpenAPIDescription
+import org.noelware.charted.tools.ksp.openapi.annotations.ResponseDataType
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.noelware.ktor.endpoints.Get
 
@@ -34,9 +36,19 @@ import org.noelware.ktor.endpoints.Get
  * @param docs The documentation URL.
  */
 @kotlinx.serialization.Serializable
+@ResponseDataType(
+    statusCode = 200,
+    contentTypes = ["application/json"],
+    description = "Response type of the GET / REST handler."
+)
 private data class MainResponse(
+    @OpenAPIDescription("Hello, world!")
     val message: String,
+
+    @OpenAPIDescription("You know, for Helm Charts?")
     val tagline: String,
+
+    @OpenAPIDescription("Documentation URL.")
     val docs: String
 )
 
@@ -69,21 +81,44 @@ private data class MainResponse(
  *                     false on the JVM source code.
  */
 @kotlinx.serialization.Serializable
+@ResponseDataType(statusCode = 200, description = "Response of the GET /features REST handler.", contentTypes = ["application/json"])
 private data class FeaturesResponse(
+    @OpenAPIDescription("If registrations are enabled on the server. This is configurable from the [`config.registrations`](https://charts.noelware.org/docs/server/self-hosting/configuration#registrations) property.")
     val registrations: Boolean,
+
+    @OpenAPIDescription("Mapping of the session integrations enabled on the server.")
     val integrations: Map<String, Boolean> = mapOf(),
+
+    @OpenAPIDescription("If the server is running on the Enterprise server.")
     val enterprise: Boolean,
 
+    @OpenAPIDescription("Whether invites are only allowed by the administrations of this instance.")
     @SerialName("invite_only")
     val inviteOnly: Boolean,
+
+    @OpenAPIDescription("Whether Noelware Analytics is enabled on the server or not.")
     val analytics: Boolean,
+
+    @OpenAPIDescription("Whether Noelware's telemetry service is enabled on the server or not.")
     val telemetry: Boolean,
+
+    @OpenAPIDescription("Whether the search engine for charted-server is enabled or not.")
     val search: Boolean,
+
+    @OpenAPIDescription("What engine the server is using.")
     val engine: String,
+
+    @OpenAPIDescription("Whether the server is the lightweight, Rust port of charted-server.")
     val lite: Boolean
 )
 
 class MainEndpoint(private val config: Config): AbstractEndpoint() {
+    /**
+     * REST handler for the GET / handler.
+     * @returns Main
+     * @statusCodes 200
+     * @methods GET
+     */
     @Get
     suspend fun main(call: ApplicationCall) {
         call.respond(
@@ -98,6 +133,12 @@ class MainEndpoint(private val config: Config): AbstractEndpoint() {
         )
     }
 
+    /**
+     * Rest handler for GET /features.
+     * @returns Features
+     * @statusCodes 200
+     * @methods GET
+     */
     @Get("/features")
     suspend fun features(call: ApplicationCall) {
         val integrations = config.sessions.integrations
@@ -111,8 +152,8 @@ class MainEndpoint(private val config: Config): AbstractEndpoint() {
                     // done something wrong.
                     mapOf(
                         Pair("github", integrations.github != null),
-                        Pair("noelware", integrations.noelware != null),
-                        Pair("google", integrations.google != null)
+                        Pair("noelware", integrations.noelware != null)
+//                        Pair("google", integrations.google != null)
                     ),
 
                     false,
