@@ -35,6 +35,7 @@ mockito-kotlin = "4.0.0"
 noel-commons = "2.3.0"
 ktor-routing = "0.3.1-beta"
 elastic-apm = "1.33.0"
+bouncycastle = "1.71"
 grpc-kotlin = "1.3.0"
 postgresql = "42.5.0"
 java-mail = "1.5.0-b01"
@@ -182,6 +183,7 @@ meilisearch-rest-client = { module = "dev.floofy.meilisearch:rest-client", versi
 tomcat-annotations-api = { module = "org.apache.tomcat:annotations-api", version.ref = "tomcat-annotations-api" }
 spring-security-crypto = { module = "org.springframework.security:spring-security-crypto", version.ref = "spring-security-crypto" }
 mustache-compiler = { module = "com.github.spullara.mustache.java:compiler", version.ref = "mustache-compiler" }
+bouncycastle = { module = "org.bouncycastle:bcpkix-jdk15to18", version.ref = "bouncycastle" }
 javax-mail = { module = "javax.mail:mail", version.ref = "java-mail" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }

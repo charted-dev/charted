@@ -87,4 +87,7 @@ dependencies {
 
     // SemVer validation
     api(libs.semver)
+
+    // Bouncycastle
+    api(libs.bouncycastle)
 }

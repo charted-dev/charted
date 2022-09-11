@@ -32,7 +32,9 @@ import org.jetbrains.annotations.NotNull;
  *
  * @since 07.07.2022
  * @author Noel <cutie@floofy.dev>
+ * @deprecated Use the new {@link CryptoUtils} methods.
  */
+@Deprecated(since = "1.1.1-nightly", forRemoval = true)
 public class SHAUtils {
     private static final MessageDigest sha256;
 
