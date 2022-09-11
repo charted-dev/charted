@@ -32,7 +32,7 @@ jwtSecret:
 
 image:
   repository: ghcr.io/charted-dev/charted
-  tag: 1.0.0-nightly
+  tag: 1.1.1-nightly
   pullPolicy: IfNotPresent
 
 config:
