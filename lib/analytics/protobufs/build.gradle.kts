@@ -101,9 +101,8 @@ protobuf {
 // Update whenever the Protobuf code gets updated.
 val protoFiles = listOf("connection.proto")
 tasks.register<Copy>("copyProtobuf") {
-    into("$projectDir/src/main/proto") {
-        for (file in protoFiles) {
-            from("${rootProject.projectDir}/vendor/protobufs/$file")
-        }
+    destinationDir = file("${rootProject.projectDir}/src/main/proto")
+    for (file in protoFiles) {
+        from("${rootProject.projectDir}/vendor/protobufs/$file")
     }
 }
