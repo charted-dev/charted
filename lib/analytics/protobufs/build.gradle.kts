@@ -68,10 +68,10 @@ protobuf {
     protoc {
         val protocPath = System.getenv("CHARTED_PROTOC_PATH")
         if (protocPath != null) {
-            logger.lifecycle("Using `protoc` in path [$protocPath]")
+            logger.lifecycle("Using specified `protoc` path in [$protocPath]")
             path = protocPath
         } else {
-            logger.lifecycle("Using protoc artifact! If you wish to set a custom protoc path, use the `CHARTED_PROTOC_PATH` environment variable~")
+            logger.lifecycle("Defaulting to the protoc artifact on Maven Central! If you wish to set a custom path to protoc, use the `CHARTED_PROTOC_PATH` environment variable.")
             artifact = "com.google.protobuf:protoc:3.21.5"
         }
     }

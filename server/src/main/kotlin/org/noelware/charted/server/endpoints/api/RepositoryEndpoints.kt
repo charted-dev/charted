@@ -296,7 +296,7 @@ class RepositoryEndpoints(
         // See if the contents is a Chart.yaml file type.
         // It'll throw an error if it's not valid.
         val chartSpec = yaml.decodeFromString<ChartSpec>(String(data))
-        val indexYaml = storage.open("./metadata/${repo.ownerID}/index.yaml")!!
+        val indexYaml = storage.trailer.open("./metadata/${repo.ownerID}/index.yaml")!!
         val chartIndex = yaml.decodeFromStream<ChartIndexYaml>(indexYaml)
         val mergedIndex: ChartIndexYaml = if (chartIndex.entries.containsKey(chartSpec.name)) {
             // There can be only one version (or should it merge either way?)
@@ -362,13 +362,13 @@ class RepositoryEndpoints(
 
         ByteArrayInputStream(data).use {
             runBlocking {
-                storage.upload("./metadata/${repo.ownerID}/$id/index.yaml", it, "")
+                storage.trailer.upload("./metadata/${repo.ownerID}/$id/index.yaml", it, "")
             }
         }
 
         os.use {
             runBlocking {
-                storage.upload("./metadata/${repo.ownerID}/index.yaml", ByteArrayInputStream(it.toByteArray()), "")
+                storage.trailer.upload("./metadata/${repo.ownerID}/index.yaml", ByteArrayInputStream(it.toByteArray()), "")
             }
         }
 
@@ -431,7 +431,7 @@ class RepositoryEndpoints(
         }
 
         ByteArrayInputStream(data).use {
-            storage.upload("./metadata/${repo.ownerID}/$id/values.yaml", it, "application/yaml")
+            storage.trailer.upload("./metadata/${repo.ownerID}/$id/values.yaml", it, "application/yaml")
         }
 
         first.dispose()
@@ -505,7 +505,7 @@ class RepositoryEndpoints(
             )
         }
 
-        storage.upload("./tarballs/${repo.ownerID}/$id/${repo.name}-$semver.tar.gz", ByteArrayInputStream(data), contentType)
+        storage.trailer.upload("./tarballs/${repo.ownerID}/$id/${repo.name}-$semver.tar.gz", ByteArrayInputStream(data), contentType)
         first.dispose()
         call.respond(
             HttpStatusCode.Accepted,

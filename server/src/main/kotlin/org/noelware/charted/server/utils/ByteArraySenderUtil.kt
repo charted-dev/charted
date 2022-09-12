@@ -29,8 +29,8 @@ import java.io.ByteArrayInputStream
 
 fun createOutgoingContentWithBytes(
     bytes: ByteArray,
-    contentLength: Long = bytes.size.toLong(),
     contentType: ContentType,
+    contentLength: Long = bytes.size.toLong(),
     statusCode: HttpStatusCode = HttpStatusCode.OK
 ): OutgoingContent.ReadChannelContent = object: OutgoingContent.ReadChannelContent() {
     override val contentType: ContentType = contentType

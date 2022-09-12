@@ -15,16 +15,14 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.core
+package org.noelware.charted.lib.avatars
 
-import org.noelware.remi.core.StorageTrailer
+import org.koin.dsl.module
+import org.noelware.charted.lib.avatars.fetcher.GravatarAvatarFetcher
+import org.noelware.charted.lib.avatars.fetcher.IdenticonAvatarFetcher
 
-/**
- * Represents a wrapper for handling storage with Remi.
- */
-interface StorageWrapper {
-    /**
-     * The trailer that is used to connect us to the local disk or S3.
-     */
-    val trailer: StorageTrailer<*>
+val avatarsModule = module {
+    single { AvatarStorageUtil(get(), get(), get()) }
+    single { IdenticonAvatarFetcher(get()) }
+    single { GravatarAvatarFetcher(get()) }
 }

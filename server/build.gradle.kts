@@ -71,6 +71,7 @@ dependencies {
     implementation(project(":config:yaml"))
     implementation(project(":lib:metrics"))
     implementation(project(":lib:apikeys"))
+    implementation(project(":lib:avatars"))
     implementation(project(":lib:email"))
     implementation(project(":lib:stats"))
     implementation(project(":sessions"))

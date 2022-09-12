@@ -15,16 +15,18 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.core
-
-import org.noelware.remi.core.StorageTrailer
+package org.noelware.charted.lib.avatars
 
 /**
- * Represents a wrapper for handling storage with Remi.
+ * Represents an interface to fetch avatars from different sources.
  */
-interface StorageWrapper {
+interface AvatarFetcher {
     /**
-     * The trailer that is used to connect us to the local disk or S3.
+     * Fetches the avatar based off the [seed] and returns a [ByteArray] of
+     * the image itself.
+     *
+     * @param seed The seed that is used to fetch the avatar.
+     * @return image binary as a [ByteArray].
      */
-    val trailer: StorageTrailer<*>
+    suspend fun fetch(seed: String): ByteArray
 }

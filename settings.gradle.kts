@@ -52,6 +52,7 @@ include(
     ":lib:analytics:protobufs",
     ":lib:analytics",
     ":lib:apikeys",
+    ":lib:avatars",
     ":lib:cassandra",
     ":lib:elasticsearch",
     ":lib:email",

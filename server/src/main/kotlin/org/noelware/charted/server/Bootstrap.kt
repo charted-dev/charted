@@ -62,6 +62,7 @@ import org.noelware.charted.configuration.yaml.YamlConfigurationHost
 import org.noelware.charted.core.StorageWrapper
 import org.noelware.charted.core.interceptors.LogInterceptor
 import org.noelware.charted.core.interceptors.SentryInterceptor
+import org.noelware.charted.core.internal.DefaultStorageWrapper
 import org.noelware.charted.core.loggers.KoinLogger
 import org.noelware.charted.core.loggers.SentryLogger
 import org.noelware.charted.core.redis.DefaultRedisClient
@@ -80,6 +81,7 @@ import org.noelware.charted.features.audits.auditLogsModule
 import org.noelware.charted.features.webhooks.webhooksModule
 import org.noelware.charted.invitations.DefaultInvitationManager
 import org.noelware.charted.invitations.InvitationManager
+import org.noelware.charted.lib.avatars.avatarsModule
 import org.noelware.charted.metrics.PrometheusMetrics
 import org.noelware.charted.search.meilisearch.MeilisearchClient
 import org.noelware.charted.server.endpoints.endpointsModule
@@ -322,7 +324,7 @@ object Bootstrap {
         }
 
         log.info("Connected to PostgreSQL! Creating storage provider...")
-        val wrapper = StorageWrapper(config.storage)
+        val wrapper = DefaultStorageWrapper(config.storage)
         val json = Json {
             ignoreUnknownKeys = true
             encodeDefaults = true
@@ -367,7 +369,6 @@ object Bootstrap {
         val apiKeysManager = DefaultApiKeyManager(redis)
         val email = if (config.email != null) DefaultEmailService(config.email!!) else null
         val invitations = DefaultInvitationManager(email, config, redis, json)
-
         val httpClient = HttpClient(OkHttp) {
             engine {
                 addInterceptor(LogInterceptor)
@@ -407,11 +408,11 @@ object Bootstrap {
         val module = module {
             single<InvitationManager> { invitations }
             single<SessionManager> { sessions }
+            single<StorageWrapper> { wrapper }
             single<ApiKeyManager> { apiKeysManager }
             single<IRedisClient> { redis }
             single { httpClient }
             single { scheduler }
-            single { wrapper }
             single { config }
             single { server }
             single { stats }
@@ -444,7 +445,13 @@ object Bootstrap {
             }
         }
 
-        val modules = mutableListOf(chartedModule, *endpointsModule.toTypedArray(), module)
+        val modules = mutableListOf(
+            chartedModule,
+            *endpointsModule.toTypedArray(),
+            avatarsModule,
+            module
+        )
+
         if (config.isFeatureEnabled(Feature.AUDIT_LOGS)) {
             log.info("Audit Logs feature is enabled!")
 

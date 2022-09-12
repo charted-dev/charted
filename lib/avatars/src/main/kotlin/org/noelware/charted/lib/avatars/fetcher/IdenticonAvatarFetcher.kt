@@ -15,16 +15,13 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.core
+package org.noelware.charted.lib.avatars.fetcher
 
-import org.noelware.remi.core.StorageTrailer
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import org.noelware.charted.lib.avatars.AvatarFetcher
 
-/**
- * Represents a wrapper for handling storage with Remi.
- */
-interface StorageWrapper {
-    /**
-     * The trailer that is used to connect us to the local disk or S3.
-     */
-    val trailer: StorageTrailer<*>
+class IdenticonAvatarFetcher(private val httpClient: HttpClient): AvatarFetcher {
+    override suspend fun fetch(seed: String): ByteArray = httpClient.get("https://avatars.dicebear.com/api/identicon/$seed.svg").body()
 }

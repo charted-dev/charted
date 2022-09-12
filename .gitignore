@@ -652,6 +652,7 @@ server/src/main/resources/config/logback.properties
 .caches/
 !server/bin
 !.idea/misc.xml
+!features/chart-engine/src/test/resources/*.tar.gz
 
 # Ignore the created tarball.
 distribution/chart/**/*.tar.gz

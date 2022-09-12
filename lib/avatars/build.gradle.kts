@@ -15,16 +15,12 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.core
+plugins {
+    `charted-module`
+}
 
-import org.noelware.remi.core.StorageTrailer
-
-/**
- * Represents a wrapper for handling storage with Remi.
- */
-interface StorageWrapper {
-    /**
-     * The trailer that is used to connect us to the local disk or S3.
-     */
-    val trailer: StorageTrailer<*>
+dependencies {
+    implementation(libs.ktor.client.core)
+    implementation(project(":database"))
+    implementation(project(":core"))
 }
