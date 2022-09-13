@@ -122,8 +122,6 @@ ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 
 # logback libraries
-logback-contrib-json-classic = { module = "ch.qos.logback.contrib:logback-json-classic", version.ref = "logback-contrib-json" }
-logback-contrib-jackson = { module = "ch.qos.logback.contrib:logback-jackson", version.ref = "logback-contrib-json" }
 logback-logstash = { module = "net.logstash.logback:logstash-logback-encoder", version.ref = "logstash-logback" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }

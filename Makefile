@@ -30,3 +30,7 @@ clean:
 
 test:
 	@./gradlew test
+
+# Not recommended but whatever
+kill-gradle-daemons:
+	@pkill -f '.*GradleDaemon.*'

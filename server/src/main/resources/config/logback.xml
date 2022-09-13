@@ -25,10 +25,8 @@
         <if condition='isDefined("charted.console.json")'>
             <then>
                 <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-                    <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
-                        <jsonFormatter class="org.noelware.charted.core.logback.LogbackJsonFormatter" />
-                        <timestampFormat>yyyy-MM-dd'T'HH:mm:ss.SSSX</timestampFormat>
-                        <timestampFormatTimezoneId>Etc/UTC</timestampFormatTimezoneId>
+                    <layout class="org.noelware.charted.core.logback.json.ClassicJsonLayout">
+                        <jsonFormatter class="org.noelware.charted.core.logback.json.jackson.JsonJacksonFormatter" />
                     </layout>
                 </encoder>
             </then>
@@ -129,8 +127,4 @@
             </if>
         </else>
     </if>
-
-<!--    <root level="info">-->
-<!--        <appender-ref ref="Console" />-->
-<!--    </root>-->
 </configuration>

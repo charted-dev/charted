@@ -15,24 +15,19 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.core.logback;
+package org.noelware.charted.core.logback.json;
 
-import ch.qos.logback.contrib.json.JsonFormatter;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.StringWriter;
 import java.util.Map;
 
-public class LogbackJsonFormatter implements JsonFormatter {
-    private final ObjectMapper mapper = new ObjectMapper();
-
-    @Override
-    public String toJsonString(Map m) throws Exception {
-        final var writer = new StringWriter(512);
-        final var generator = mapper.getFactory().createGenerator(writer);
-
-        mapper.writeValue(generator, m);
-        writer.flush();
-
-        return writer + "\n";
-    }
+/**
+ * Represents a formatter to construct a JSON string from a Java map.
+ */
+public interface JsonFormatter {
+    /**
+     * Formats the given {@link Map} to return a JSON string.
+     * @param data The data that is given by {@link JsonLayoutBase}
+     * @return JSON string
+     * @throws Exception If anything occurred while transforming.
+     */
+    String doFormat(Map<String, Object> data) throws Exception;
 }

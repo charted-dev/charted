@@ -23,9 +23,8 @@ plugins {
 
 dependencies {
     // Logback
-    implementation(libs.logback.contrib.json.classic)
-    implementation(libs.logback.contrib.jackson)
     implementation(libs.jackson.databind)
+    implementation(libs.logback.classic)
     implementation(libs.logback.core)
 
     // Projects
