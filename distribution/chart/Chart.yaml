@@ -45,5 +45,5 @@ dependencies:
     name: redis
   - repository: https://charts.bitnami.com/bitnami
     condition: values.cassandra.enabled
-    version: "~9.4.0"
+    version: "~9.5.0"
     name: cassandra

@@ -7,6 +7,6 @@ dependencies:
   version: 17.1.4
 - name: cassandra
   repository: https://charts.bitnami.com/bitnami
-  version: 9.4.2
-digest: sha256:077a9281b305c88900b85a8b91422b370991ca331797aa473e3b6dd6e09119d9
-generated: "2022-09-13T15:59:42.408975545Z"
+  version: 9.5.0
+digest: sha256:9973190a44b13492ceda05ec4c03245ddd7c094190cbb51856e8fe580887e4ac
+generated: "2022-09-14T05:44:02.444301559Z"
