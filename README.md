@@ -22,8 +22,8 @@ this is currently alpha software and things can break!
 You are required a PostgreSQL and Redis cluster before running the server.
 
 ```shell
-$ docker pull ghcr.io/charted-dev/charted:nightly-amd64
-$ docker run -d -p 3651:3651 -v $(pwd)/config.yml:/app/noelware/charted/server/charted.yml --name charted-server ghcr.io/charted-dev/charted:nightly-amd64
+$ docker pull ghcr.io/charted-dev/charted:nightly
+$ docker run -d -p 3651:3651 -v $(pwd)/config.yml:/app/noelware/charted/server/charted.yml --name charted-server ghcr.io/charted-dev/charted:nightly
 # info  | 09/07/22 ~ 01:47:25 AM ~ 
 # info  | 09/07/22 ~ 01:47:25 AM ~   Welcome to the charted-server container image.
 # info  | 09/07/22 ~ 01:47:25 AM ~   📦 Free, open source, and reliable Helm Chart registry made in Kotlin.

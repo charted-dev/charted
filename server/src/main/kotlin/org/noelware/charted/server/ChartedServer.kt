@@ -54,6 +54,8 @@ import org.noelware.charted.server.endpoints.proxyStorageTrailer
 import org.noelware.charted.server.jobs.ReconfigureProxyCdnJob
 import org.noelware.charted.server.plugins.Logging
 import org.noelware.charted.server.plugins.RequestMdc
+import org.noelware.charted.tracing.apm.APM
+import org.noelware.charted.tracing.apm.apmTransaction
 import org.noelware.ktor.NoelKtorRouting
 import org.noelware.ktor.loader.koin.KoinEndpointLoader
 import org.slf4j.LoggerFactory
@@ -101,6 +103,10 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
 
                 if (Sentry.isEnabled()) {
                     install(org.noelware.charted.server.plugins.Sentry)
+                }
+
+                if (self.config.tracing.apm != null) {
+                    install(APM)
                 }
 
                 install(ContentNegotiation) {
@@ -165,6 +171,7 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
                             SentryClient.captureException(cause)
                         }
 
+                        call.apmTransaction?.captureException(cause)
                         self.log.error("Received validation exception in route [${call.request.httpMethod.value} ${call.request.path()}] ${cause.path} [${cause.validationMessage}]")
                         call.respond(
                             HttpStatusCode.NotAcceptable,
@@ -177,6 +184,7 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
                             SentryClient.captureException(cause)
                         }
 
+                        call.apmTransaction?.captureException(cause)
                         self.log.error("Unknown YAML exception had occurred while handling request [${call.request.httpMethod.value} ${call.request.path()}]:", cause)
                         call.respond(
                             HttpStatusCode.NotAcceptable,
@@ -189,6 +197,7 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
                             SentryClient.captureException(cause)
                         }
 
+                        call.apmTransaction?.captureException(cause)
                         self.log.error("Unknown exception had occurred while handling request [${call.request.httpMethod.value} ${call.request.path()}]", cause)
                         call.respond(
                             HttpStatusCode.InternalServerError,

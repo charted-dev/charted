@@ -20,8 +20,11 @@ package org.noelware.charted.core.logback.json;
 import ch.qos.logback.classic.pattern.ThrowableHandlingConverter;
 import ch.qos.logback.classic.pattern.ThrowableProxyConverter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TimeZone;
 import org.noelware.charted.common.ChartedInfo;
 
 public class ClassicJsonLayout extends JsonLayoutBase<ILoggingEvent> {
@@ -34,12 +37,10 @@ public class ClassicJsonLayout extends JsonLayoutBase<ILoggingEvent> {
     @Override
     Map<String, Object> toJsonMap(ILoggingEvent event) {
         final Map<String, Object> data = new LinkedHashMap<>();
+        final var formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
+        formatter.setTimeZone(TimeZone.getDefault());
 
-        // === logger info ===
-        //        data.put(
-        //                "@timestamp",
-        //                DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").format(event.getInstant()));
-
+        data.put("@timestamp", formatter.format(new Date(event.getTimeStamp())));
         data.put("message", event.getFormattedMessage());
         data.put("thread", event.getThreadName());
         data.put("log.context", event.getLoggerContextVO().getName());
@@ -56,6 +57,17 @@ public class ClassicJsonLayout extends JsonLayoutBase<ILoggingEvent> {
 
         if (info.getDedicatedNode() != null) {
             data.put("metadata.dedi.node", info.getDedicatedNode());
+        }
+
+        final var mdc = event.getMDCPropertyMap();
+        data.putAll(mdc);
+
+        final var throwableProxy = event.getThrowableProxy();
+        if (throwableProxy != null) {
+            final var exception = throwableProxyConverter.convert(event);
+            if (exception != null && !exception.isEmpty()) {
+                data.put("exception", exception);
+            }
         }
 
         return data;

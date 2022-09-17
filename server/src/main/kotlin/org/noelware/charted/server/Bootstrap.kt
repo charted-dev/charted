@@ -91,6 +91,7 @@ import org.noelware.charted.sessions.integrations.github.githubIntegration
 import org.noelware.charted.sessions.local.LocalSessionManager
 import org.noelware.charted.stats.StatisticsCollector
 import org.noelware.charted.stats.collectors.RedisStatCollector
+import org.noelware.charted.tracing.apm.ElasticAPM
 import java.io.File
 import java.io.IOError
 import java.lang.management.ManagementFactory
@@ -269,6 +270,11 @@ object Bootstrap {
 
         val config = host.loadConfig(configFile)
         log.info("Loaded configuration in path in [$configFile]")
+
+        if (config.tracing.apm != null) {
+            log.info("Loading tracing early!")
+            ElasticAPM.install(config.tracing.apm!!)
+        }
 
         // Enable debug probes for Noelware Analytics and the administration
         // dashboard via Pak.

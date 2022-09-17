@@ -39,7 +39,7 @@
         </if>
     </appender>
 
-    <if condition='isDefined("charted.encoders")'>
+    <if condition='isDefined("charted.appenders")'>
         <then>
             <if condition='property("charted.appenders").contains("sentry")'>
                 <appender name="Sentry" class="io.sentry.logback.SentryAppender">

@@ -21,6 +21,7 @@ import kotlinx.serialization.SerialName
 import org.noelware.charted.common.ChartedInfo
 import org.noelware.charted.configuration.dsl.tracing.apm.Instrumentation
 import java.net.InetAddress
+import kotlin.properties.Delegates
 
 /**
  * Represents the configuration for using Elastic APM for the tracing mechanism.
@@ -116,7 +117,28 @@ data class ElasticAPMConfig(
      *
      * [read more here](https://www.elastic.co/guide/en/apm/agent/java/current/config-core.html#config-global-labels)
      */
-    val globalLabels: List<String> = listOf()
+    @SerialName("global_labels")
+    val globalLabels: Map<String, String> = mapOf(),
+
+    /**
+     * APM server URL to connect to Elastic APM. Must be a valid HTTP or HTTPS url. You will need to
+     * expose :8200 from the Elastic Agent container if using Docker, if APM server was installed
+     * with Fleet.
+     */
+    @SerialName("server_url")
+    val serverUrl: String,
+
+    /**
+     * API Key authentication method to use when fanning out events to APM server.
+     */
+    @SerialName("api_key")
+    val apiKey: String? = null,
+
+    /**
+     * If a secret token was configured from the APM server configuration.
+     */
+    @SerialName("secret_token")
+    val secretToken: String? = null
 ) {
     class Builder {
         private var enabledInstrumentations = mutableListOf<Instrumentation>()
@@ -207,7 +229,11 @@ data class ElasticAPMConfig(
          *
          * [read more here](https://www.elastic.co/guide/en/apm/agent/java/current/config-core.html#config-global-labels)
          */
-        var globalLabels: List<String> = listOf()
+        val globalLabels: MutableMap<String, String> = mutableMapOf()
+
+        var serverUrl: String by Delegates.notNull()
+        var apiKey: String? = null
+        var secretToken: String? = null
 
         fun enable(vararg instrumentations: Instrumentation): Builder {
             for (instrumentation in instrumentations) {
@@ -240,7 +266,10 @@ data class ElasticAPMConfig(
             enabledInstrumentations,
             captureBody,
             captureHeaders,
-            globalLabels
+            globalLabels,
+            serverUrl,
+            apiKey,
+            secretToken
         )
     }
 }

@@ -63,6 +63,7 @@ dependencies {
     implementation(project(":lib:invitations"))
     implementation(project(":lib:meilisearch"))
     implementation(project(":sessions:github"))
+    implementation(project(":lib:tracing:apm"))
     implementation(project(":sessions:local"))
     implementation(project(":lib:cassandra"))
     implementation(project(":lib:analytics"))

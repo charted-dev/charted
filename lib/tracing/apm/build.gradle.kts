@@ -16,11 +16,11 @@
  */
 
 plugins {
-    `charted-java-module`
+    `charted-module`
 }
 
 dependencies {
     implementation(libs.elastic.apm.agent.attach)
-    implementation(libs.elastic.apm.agent.api)
-    implementation(project(":lib:tracing"))
+    implementation(project(":config"))
+    api(libs.elastic.apm.agent.api)
 }

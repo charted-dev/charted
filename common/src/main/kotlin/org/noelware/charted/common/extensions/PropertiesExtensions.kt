@@ -15,28 +15,15 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.tracing.api
+package org.noelware.charted.common.extensions
 
-/**
- * Represents a generic clock used for [span events][Event].
- */
-interface Clock {
-    /**
-     * Represents a [Clock] that is calculated by nanosecond precision.
-     */
-    object NanoTime: Clock {
-        override fun provide(): Long = System.nanoTime()
+import java.util.Properties
+
+fun Properties.toStringMap(): Map<String, String> {
+    val destination = mutableMapOf<String, String>()
+    for ((key, value) in entries) {
+        destination[key.toString()] = value.toString()
     }
 
-    /**
-     * Represents a [Clock] that is calculated by millisecond precision.
-     */
-    object MillisecondTime: Clock {
-        override fun provide(): Long = System.currentTimeMillis()
-    }
-
-    /**
-     * Provides the timestamp for this specific clock.
-     */
-    fun provide(): Long
+    return destination.toMap()
 }
