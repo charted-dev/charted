@@ -110,3 +110,42 @@ jobs:
 
       - name: Unit test the project
         run: ./gradlew test --no-daemon --scan
+
+  golangci:
+    name: Go CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Go 1.19
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-1.19-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-1.19-go-
+
+      - name: Install dependencies
+        working-directory: ./tools/migrations
+        run: |
+          go mod download
+          go get
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          working-directory: ./tools/migrations
+          args: --issues-exit-code=1
+          only-new-issues: false
+          skip-pkg-cache: true
+          skip-build-cache: true

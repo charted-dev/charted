@@ -21,6 +21,7 @@ import dev.floofy.utils.slf4j.logging
 import io.grpc.Server
 import io.grpc.ServerBuilder
 import io.grpc.protobuf.services.ProtoReflectionService
+import org.noelware.charted.analytics.interceptors.CallLoggingInterceptor
 import org.noelware.charted.common.SetOnceGetValue
 import org.noelware.charted.configuration.dsl.features.NoelwareAnalyticsConfig
 import java.io.Closeable
@@ -29,6 +30,7 @@ import java.util.concurrent.TimeUnit
 class AnalyticsServer(private val config: NoelwareAnalyticsConfig): Closeable {
     private val _server: SetOnceGetValue<Server> = SetOnceGetValue()
     private val log by logging<AnalyticsServer>()
+    val logInterceptor: CallLoggingInterceptor = CallLoggingInterceptor()
 
     val server: Server
         get() = _server.value
@@ -37,7 +39,8 @@ class AnalyticsServer(private val config: NoelwareAnalyticsConfig): Closeable {
         log.info("Launching gRPC server for Noelware Analytics...")
 
         _server.value = ServerBuilder.forPort(config.port)
-            .addService(AnalyticsService)
+            .intercept(logInterceptor)
+            .addService(AnalyticsService(this))
             .addService(ProtoReflectionService.newInstance()) // useful for testing the analytics server via `grpcurl`
             .build()
 

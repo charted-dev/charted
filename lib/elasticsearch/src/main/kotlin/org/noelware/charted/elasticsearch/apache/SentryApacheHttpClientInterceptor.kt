@@ -29,6 +29,7 @@ import org.apache.http.HttpResponse
 import org.apache.http.HttpResponseInterceptor
 import org.apache.http.client.protocol.HttpClientContext
 import org.apache.http.protocol.HttpContext
+import org.noelware.charted.common.extensions.doFormatTime
 import org.noelware.charted.common.extensions.ifSentryEnabled
 import org.noelware.charted.common.extensions.unsafeCast
 
@@ -42,7 +43,7 @@ class SentryApacheHttpClientRequestInterceptor: HttpRequestInterceptor {
 
         log.info("<- ${requestLine.method} ${requestLine.uri} [${request.protocolVersion}]")
         val transaction = ifSentryEnabled {
-            Sentry.startTransaction("apache.http.request", "{requestLine.method} ${requestLine.uri} [${request.protocolVersion}]")
+            Sentry.startTransaction("apache.http.request", "${requestLine.method} ${requestLine.uri} [${request.protocolVersion}]")
         }
 
         context.setAttribute(STOPWATCH_NAME, StopWatch.createStarted())
@@ -67,7 +68,7 @@ class SentryApacheHttpClientResponseInterceptor: HttpResponseInterceptor {
         }
 
         val bytesReceived = response.entity?.contentLength ?: 0
-        log.info("-> ${req.requestLine.method} ${req.requestLine.uri} [${req.protocolVersion}] ~> ${response.statusLine.statusCode} ${response.statusLine.reasonPhrase} [$bytesReceived bytes received, ~${stopwatch.formatTime()}]")
+        log.info("-> ${req.requestLine.method} ${req.requestLine.uri} [${req.protocolVersion}] ~> ${response.statusLine.statusCode} ${response.statusLine.reasonPhrase} [$bytesReceived bytes received, ~${stopwatch.doFormatTime()}]")
         transaction?.finish(SpanStatus.fromHttpStatusCode(response.statusLine.statusCode))
     }
 }

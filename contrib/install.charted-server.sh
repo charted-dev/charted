@@ -15,18 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-echo "[::charted-server] Checking Spotless..."
-
-./gradlew spotlessCheck
-if [[ "$?" != "0" ]]; then
-  echo "[::charted-server] Run \`make spotless\` and commit again."
-  exit $?
-fi
-
-./gradlew :build-tools:spotlessCheck
-if [[ "$?" != "0" ]]; then
-  echo "[::charted-server] Run \`make spotless\` and commit again."
-  exit $?
-fi
-
-echo "[::charted-server] 👍 Everything seems ok!"
+# This script installs charted-server into /etc/noelware/charted/server, all data
+# will be used in /var/lib/noelware/charted/server/data, and it'll have a bundled JDK
+# installed if there isn't one on the system or `FORCE_BUNDLE_JDK="yes|true|si|1"` is used.

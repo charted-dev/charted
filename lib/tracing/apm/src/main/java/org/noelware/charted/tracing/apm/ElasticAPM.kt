@@ -54,7 +54,7 @@ object ElasticAPM {
             put("capture_body", if (config.captureBody) "ON" else "OFF")
             put("global_labels", config.globalLabels)
             put("capture_headers", config.captureHeaders)
-            put("instrumentations", config.instrumentations.joinToString(", ") { it.key })
+            put("enable_instrumentations", config.instrumentations.joinToString(", ") { it.key })
             put("global_labels", config.globalLabels.map { "${it.key}=${it.value}" }.joinToString(","))
             put("application_packages", "org.noelware.charted")
             put("server_url", config.serverUrl)

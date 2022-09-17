@@ -22,6 +22,11 @@ plugins {
 
 dependencies {
     implementation(project(":lib:analytics:protobufs"))
+    implementation(project(":lib:elasticsearch"))
+    implementation(project(":lib:tracing:apm"))
+    implementation(project(":lib:cassandra"))
+    implementation(project(":lib:stats"))
+    implementation(project(":database"))
 
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.mockito.core)

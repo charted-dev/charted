@@ -20,7 +20,6 @@ package org.noelware.charted.common.extensions
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.lang3.time.StopWatch
 import org.slf4j.Logger
-import java.util.concurrent.TimeUnit
 
 fun Logger.measureTime(message: String, block: () -> Unit) {
     val sw = StopWatch.createStarted()
@@ -30,12 +29,12 @@ fun Logger.measureTime(message: String, block: () -> Unit) {
     } catch (e: Exception) {
         sw.stop()
 
-        val ex = Exception(e.message?.replace("%T", "${sw.getTime(TimeUnit.MILLISECONDS)}ms"), e)
+        val ex = Exception(e.message?.replace("%T", sw.doFormatTime()), e)
         throw ex
     }
 
     sw.stop()
-    info(message.replace("%T", "${sw.getTime(TimeUnit.MILLISECONDS)}ms"))
+    info(message.replace("%T", sw.doFormatTime()))
 }
 
 fun <T> Logger.measureSuspendTime(message: String, block: suspend () -> T): T {

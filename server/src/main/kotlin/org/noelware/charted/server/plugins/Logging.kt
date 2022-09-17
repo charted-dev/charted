@@ -27,10 +27,10 @@ import io.ktor.server.request.*
 import io.ktor.util.*
 import io.prometheus.client.Histogram
 import org.apache.commons.lang3.time.StopWatch
+import org.noelware.charted.common.extensions.doFormatTime
 import org.noelware.charted.configuration.dsl.Config
 import org.noelware.charted.metrics.PrometheusMetrics
 import org.noelware.charted.server.ChartedServer
-import java.util.concurrent.TimeUnit
 
 val Logging = createApplicationPlugin("ChartedKtorLogging") {
     val stopwatchKey = AttributeKey<StopWatch>("StopWatch")
@@ -70,9 +70,7 @@ val Logging = createApplicationPlugin("ChartedKtorLogging") {
 
         stopwatch.stop()
         log.info(
-            "${method.value} $version $endpoint :: ${status.value} ${status.description} [$userAgent] [${stopwatch.getTime(
-                TimeUnit.MILLISECONDS
-            )}ms]"
+            "${method.value} $version $endpoint :: ${status.value} ${status.description} [$userAgent] [${stopwatch.doFormatTime()}]"
         )
     }
 }

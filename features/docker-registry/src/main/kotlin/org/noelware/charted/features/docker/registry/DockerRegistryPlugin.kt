@@ -32,6 +32,7 @@ import io.ktor.util.*
 import io.ktor.utils.io.*
 import kotlinx.serialization.json.*
 import org.apache.commons.lang3.time.StopWatch
+import org.noelware.charted.common.extensions.doFormatTime
 import org.slf4j.Logger
 import java.util.*
 
@@ -135,12 +136,11 @@ val DockerRegistryPlugin = createApplicationPlugin("DockerRegistryPlugin", ::Reg
             } ?: return@onCall
 
             sw.stop()
-            log.info("Took ${sw.formatTime()} to complete proxy request.")
-
+            log.info("Took ${sw.doFormatTime()} to complete proxy request.")
             call.respond(content)
         } catch (e: Exception) {
             sw.stop()
-            log.error("Unable to request to ${call.request.httpMethod} http${if (pluginConfig.ssl) "s" else ""}://${pluginConfig.host}:${pluginConfig.port}${call.request.uri} [took ${sw.formatTime()}]:", e)
+            log.error("Unable to request to ${call.request.httpMethod} http${if (pluginConfig.ssl) "s" else ""}://${pluginConfig.host}:${pluginConfig.port}${call.request.uri} [took ${sw.doFormatTime()}]:", e)
             call.respond(
                 HttpStatusCode.InternalServerError,
                 buildJsonObject {
