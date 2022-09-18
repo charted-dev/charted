@@ -26,8 +26,8 @@ import org.noelware.charted.lib.avatars.AvatarFetcher
 class GravatarAvatarFetcher(private val httpClient: HttpClient): AvatarFetcher {
     // seed = gravatar email from database
     override suspend fun fetch(seed: String): ByteArray {
-        val hash = CryptoUtils.md5(seed)
-        val resp = httpClient.get("https://www.gravatar.com/avatar/$hash")
+        val hash = CryptoUtils.md5Hex(seed)
+        val resp = httpClient.get("https://secure.gravatar.com/avatar/$hash")
 
         return resp.body()
     }

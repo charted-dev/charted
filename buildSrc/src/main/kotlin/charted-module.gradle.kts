@@ -64,7 +64,7 @@ spotless {
             .setUseExperimental(true)
             .editorConfigOverride(mapOf(
                 "indent_size" to "4",
-                "disabled_rules" to "no-wildcard-imports,colon-spacing,annotation-spacing,filename",
+                "ktlint_disabled_rules" to "no-wildcard-imports,colon-spacing,annotation-spacing,filename",
                 "ij_kotlin_allow_trailing_comma" to "false",
                 "ktlint_code_style" to "official",
                 "experimental:fun-keyword-spacing" to "true",
