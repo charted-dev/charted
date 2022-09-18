@@ -32,7 +32,7 @@ repositories {
 dependencies {
     implementation("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:1.7.10-1.0.6")
     implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.18.3")
-    implementation("com.diffplug.spotless:spotless-plugin-gradle:6.10.0")
+    implementation("com.diffplug.spotless:spotless-plugin-gradle:6.11.0")
     implementation("com.google.protobuf:protobuf-gradle-plugin:0.8.19")
     implementation("dev.floofy.commons:gradle:2.3.0")
     implementation(kotlin("serialization", "1.7.10"))
