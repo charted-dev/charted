@@ -54,11 +54,15 @@ class CoroutineStatCollector: StatCollector<List<CoroutineStats>> {
                 CoroutineStats(
                     state,
                     coroutine.context.toString(),
-                    if (coroutine.job != null) CoroutineJobInfo(
-                        coroutine.job!!.isActive,
-                        coroutine.job!!.isCompleted,
-                        coroutine.job!!.isCancelled
-                    ) else null,
+                    if (coroutine.job != null) {
+                        CoroutineJobInfo(
+                            coroutine.job!!.isActive,
+                            coroutine.job!!.isCompleted,
+                            coroutine.job!!.isCancelled
+                        )
+                    } else {
+                        null
+                    },
 
                     coroutine.creationStackTrace.map { element ->
                         ThreadStackTrace(

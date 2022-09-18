@@ -191,10 +191,12 @@ class UserApiEndpoints(
     @Put
     suspend fun create(call: ApplicationCall) {
         val body: NewUserBody by call.body()
-        if (!config.registrations) return call.respond(
-            HttpStatusCode.Forbidden,
-            Response.err("REGISTRATIONS_DISABLED", "This instance has registrations disabled")
-        )
+        if (!config.registrations) {
+            return call.respond(
+                HttpStatusCode.Forbidden,
+                Response.err("REGISTRATIONS_DISABLED", "This instance has registrations disabled")
+            )
+        }
 
         val (status, result) = UserController.create(body)
         if (status != HttpStatusCode.OK) return call.respond(status, result)
@@ -334,10 +336,12 @@ class UserApiEndpoints(
     @Post("/@me/refresh_token")
     suspend fun refreshToken(call: ApplicationCall) {
         val hasExpired = sessions.isExpired(call.session.accessToken)
-        if (!hasExpired) return call.respond(
-            HttpStatusCode.NotAcceptable,
-            Response.err("ACCESS_TOKEN_STILL_NEW", "Access token hasn't expired yet! Please use your refresh token to expire it.")
-        )
+        if (!hasExpired) {
+            return call.respond(
+                HttpStatusCode.NotAcceptable,
+                Response.err("ACCESS_TOKEN_STILL_NEW", "Access token hasn't expired yet! Please use your refresh token to expire it.")
+            )
+        }
 
         val newSession = sessions.refreshSession(call.session)
         call.respond(

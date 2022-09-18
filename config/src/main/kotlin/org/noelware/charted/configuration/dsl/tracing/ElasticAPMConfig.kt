@@ -173,10 +173,14 @@ data class ElasticAPMConfig(
          * [read more here](https://www.elastic.co/guide/en/apm/agent/java/current/config-core.html#config-service-node-name)
          */
         @SerialName("service_node_name")
-        var serviceNodeName: String = if (ChartedInfo.dedicatedNode != null) ChartedInfo.dedicatedNode!! else try {
-            InetAddress.getLocalHost().hostName
-        } catch (e: Exception) {
-            ""
+        var serviceNodeName: String = if (ChartedInfo.dedicatedNode != null) {
+            ChartedInfo.dedicatedNode!!
+        } else {
+            try {
+                InetAddress.getLocalHost().hostName
+            } catch (e: Exception) {
+                ""
+            }
         }
 
         /**

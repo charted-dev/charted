@@ -87,10 +87,15 @@ class DefaultInvitationManager(
             redis.commands.del("charted:invitations:$code").await()
         }
 
-        val url = if (config.baseUrl != null) "${config.baseUrl}/repositories/members/invitations/$code"
-        else "http://${config.server.host}:${config.server.port}/repositories/members/invitations/$code"
+        val url = if (config.baseUrl != null) {
+            "${config.baseUrl}/repositories/members/invitations/$code"
+        } else {
+            "http://${config.server.host}:${config.server.port}/repositories/members/invitations/$code"
+        }
 
-        return if (email == null) url else {
+        return if (email == null) {
+            url
+        } else {
             sendEmail(url, user.email, repository.name, InvitationAction.JOIN_REPOSITORY)
             return url
         }
@@ -117,10 +122,15 @@ class DefaultInvitationManager(
             redis.commands.del("charted:invitations:$code").await()
         }
 
-        val url = if (config.baseUrl != null) "${config.baseUrl}/organizations/members/invitations/$code"
-        else "http://${config.server.host}:${config.server.port}/organizations/members/invitations/$code"
+        val url = if (config.baseUrl != null) {
+            "${config.baseUrl}/organizations/members/invitations/$code"
+        } else {
+            "http://${config.server.host}:${config.server.port}/organizations/members/invitations/$code"
+        }
 
-        return if (email == null) url else {
+        return if (email == null) {
+            url
+        } else {
             sendEmail(url, user.email, organization.displayName ?: organization.name, InvitationAction.JOIN_REPOSITORY)
             return url
         }

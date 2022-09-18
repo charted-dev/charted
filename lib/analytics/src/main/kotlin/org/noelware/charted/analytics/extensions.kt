@@ -56,8 +56,11 @@ fun StructKt.Dsl.put(key: String, value: Boolean?) {
     fields.put(
         key,
         Value.newBuilder().apply {
-            if (value != null) boolValue = value
-            else nullValue = NullValue.NULL_VALUE
+            if (value != null) {
+                boolValue = value
+            } else {
+                nullValue = NullValue.NULL_VALUE
+            }
         }.build()
     )
 }
@@ -66,8 +69,11 @@ fun StructKt.Dsl.put(key: String, value: String?) {
     fields.put(
         key,
         Value.newBuilder().apply {
-            if (value != null) stringValue = value
-            else nullValue = NullValue.NULL_VALUE
+            if (value != null) {
+                stringValue = value
+            } else {
+                nullValue = NullValue.NULL_VALUE
+            }
         }.build()
     )
 }
@@ -76,8 +82,11 @@ fun StructKt.Dsl.put(key: String, value: Number?) {
     fields.put(
         key,
         Value.newBuilder().apply {
-            if (value != null) numberValue = value.toDouble()
-            else nullValue = NullValue.NULL_VALUE
+            if (value != null) {
+                numberValue = value.toDouble()
+            } else {
+                nullValue = NullValue.NULL_VALUE
+            }
         }.build()
     )
 }
@@ -86,8 +95,11 @@ fun StructKt.Dsl.put(key: String, value: Number?) {
 fun StructKt.Dsl.put(key: String, value: List<String?>) {
     val values = value.map { v ->
         Value.newBuilder().apply {
-            if (v != null) stringValue = v
-            else nullValue = NullValue.NULL_VALUE
+            if (v != null) {
+                stringValue = v
+            } else {
+                nullValue = NullValue.NULL_VALUE
+            }
         }.build()
     }
 
@@ -98,8 +110,11 @@ fun StructKt.Dsl.put(key: String, value: List<String?>) {
 fun StructKt.Dsl.put(key: String, value: List<Boolean?>) {
     val values = value.map { v ->
         Value.newBuilder().apply {
-            if (v != null) boolValue = v
-            else nullValue = NullValue.NULL_VALUE
+            if (v != null) {
+                boolValue = v
+            } else {
+                nullValue = NullValue.NULL_VALUE
+            }
         }.build()
     }
 
@@ -110,8 +125,11 @@ fun StructKt.Dsl.put(key: String, value: List<Boolean?>) {
 fun StructKt.Dsl.put(key: String, value: List<Number?>) {
     val values = value.map { v ->
         Value.newBuilder().apply {
-            if (v != null) numberValue = v.toDouble()
-            else nullValue = NullValue.NULL_VALUE
+            if (v != null) {
+                numberValue = v.toDouble()
+            } else {
+                nullValue = NullValue.NULL_VALUE
+            }
         }.build()
     }
 
@@ -122,8 +140,11 @@ fun StructKt.Dsl.put(key: String, value: List<Number?>) {
 fun StructKt.Dsl.put(key: String, value: List<Struct?>) {
     val values = value.map { v ->
         Value.newBuilder().apply {
-            if (v != null) structValue = v
-            else nullValue = NullValue.NULL_VALUE
+            if (v != null) {
+                structValue = v
+            } else {
+                nullValue = NullValue.NULL_VALUE
+            }
         }.build()
     }
 

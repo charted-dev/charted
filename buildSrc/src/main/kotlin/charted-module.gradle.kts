@@ -64,13 +64,14 @@ spotless {
             .setUseExperimental(true)
             .editorConfigOverride(mapOf(
                 "indent_size" to "4",
-                "ktlint_disabled_rules" to "no-wildcard-imports,colon-spacing,annotation-spacing,filename",
+                "disabled_rules" to "colon-spacing,annotation-spacing,filename,no-wildcard-imports",
                 "ij_kotlin_allow_trailing_comma" to "false",
                 "ktlint_code_style" to "official",
-                "experimental:fun-keyword-spacing" to "true",
-                "experimental:unnecessary-parentheses-before-trailing-lambda" to "true",
+                "no-unused-imports" to "true",
                 "no-unit-return" to "true",
-                "no-consecutive-blank-lines" to "true"
+                "no-consecutive-blank-lines" to "true",
+                "experimental:fun-keyword-spacing" to "true",
+                "experimental:unnecessary-parentheses-before-trailing-lambda" to "true"
             ))
     }
 }
