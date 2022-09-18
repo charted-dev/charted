@@ -15,17 +15,20 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.common;
+package org.noelware.charted.common.tests;
 
-/**
- * Represents a generic provider function.
- * @param <T> value returned.
- */
-@FunctionalInterface
-public interface Provider<T> {
-    T get();
+import static org.junit.jupiter.api.Assertions.*;
 
-    interface Param1<U> {
-        void get(U first);
+import org.junit.Test;
+import org.noelware.charted.common.lazy.Lazy;
+import org.noelware.charted.common.lazy.LazyImpl;
+
+public class LazyTests {
+    @Test
+    public void test_lazyValue() {
+        final Lazy<String> lazy = new LazyImpl<>(() -> "we do the freaky here.");
+        assertEquals("we do the freaky here.", lazy.get());
+        assertEquals("we do the freaky here.", lazy.get());
+        assertNotEquals("we do not do the freaky here.", lazy.get());
     }
 }

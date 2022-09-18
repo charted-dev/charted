@@ -29,9 +29,9 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.deleteWhere
 import org.noelware.charted.common.ChartedScope
+import org.noelware.charted.common.CryptoUtils
 import org.noelware.charted.common.IRedisClient
 import org.noelware.charted.common.RandomGenerator
-import org.noelware.charted.common.SHAUtils
 import org.noelware.charted.common.Snowflake
 import org.noelware.charted.database.entities.ApiKeyEntity
 import org.noelware.charted.database.entities.UserEntity
@@ -82,7 +82,7 @@ class DefaultApiKeyManager(private val redis: IRedisClient): ApiKeyManager {
         val token = RandomGenerator.generate(128)
         val id = Snowflake.generate()
 
-        val hashedToken = SHAUtils.sha256(token)
+        val hashedToken = CryptoUtils.sha256Hex(token)
         if (expiresIn != null) {
             redis.commands.set("charted:apikeys:$id", "What are you doing in here, trying to steal something? You know, you could be caught, you know~ <3", SetArgs().ex(expiresIn.toJavaDuration())).await()
         }

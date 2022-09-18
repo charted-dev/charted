@@ -17,22 +17,23 @@
 
 package org.noelware.charted.common;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Utilities for using crypto hashing methods in pure Java. This set of static methods
- * replace the ones used in SHAUtils so we don't have unstable API usages.
+ * Utilities for using crypto hashing methods in pure Java.
  *
  * @author Noel
  * @since 10.09.22
  */
 public class CryptoUtils {
-    private static final String ALGORITHM_MD5 = "MD5";
-    private static final String ALGORITHM_SHA1 = "SHA1";
-    private static final String ALGORITHM_SHA256 = "SHA-256";
+    public static final String ALGORITHM_MD5 = "MD5";
+    public static final String ALGORITHM_SHA256 = "SHA-256";
 
     @NotNull
     private static String bytesToHex(byte[] hex) {
@@ -45,6 +46,12 @@ public class CryptoUtils {
         }
 
         return str.toString();
+    }
+
+    @NotNull
+    private static String doHexHash(@NotNull MessageDigest md, byte[] data) {
+        md.update(data);
+        return bytesToHex(md.digest());
     }
 
     /**
@@ -66,57 +73,30 @@ public class CryptoUtils {
      * @param text The text to use to hash.
      */
     @NotNull
-    public static String md5(String text) {
+    public static String md5Hex(String text) {
         final var digest = getDigest(ALGORITHM_MD5);
         assert digest != null : "Digest was not found."; // this should never happen, but whatever
 
         digest.update(text.getBytes());
         return bytesToHex(digest.digest());
     }
-}
 
-/*
-    MessageDigest md = MessageDigest.getInstance("MD5");
-    md.update(Files.readAllBytes(Paths.get(filename)));
-    byte[] digest = md.digest();
-    String myChecksum = DatatypeConverter
-      .printHexBinary(digest).toUpperCase();
+    public static <I extends InputStream> String checksumHex(String algorithm, I stream)
+            throws NoSuchAlgorithmException, IOException {
+        final var md = MessageDigest.getInstance(algorithm);
+        final var dis = new DigestInputStream(stream, md);
 
-    assertThat(myChecksum.equals(checksum)).isTrue();
-
-@NotNull
-    private static Digest getDigestForName(String algorithm) {
-        return switch (algorithm) {
-            case "md5" -> new MD5Digest();
-            case "sha256" -> new SHA256Digest();
-            case "sha512" -> new SHA512Digest();
-            default -> throw new IllegalArgumentException("Unknown digest method [%s]".formatted(algorithm));
-        };
+        do {
+            /* stuff here? */
+        } while (dis.read() > 0);
+        return bytesToHex(md.digest());
     }
 
     @NotNull
-    private static String hmac(String algorithm, String data, String key) {
-        final var digest = getDigestForName(algorithm);
-        final var hmac = new HMac(digest);
-        hmac.init(new KeyParameter(key.getBytes()));
+    public static String sha256Hex(String text) {
+        final var digest = getDigest(ALGORITHM_SHA256);
+        assert digest != null : "Digest was not found.";
 
-        final var in = data.getBytes();
-        hmac.update(in, 0, in.length);
-        final var out = new byte[hmac.getMacSize()];
-
-        hmac.doFinal(out, 0);
-        return bytesToHex(out);
+        return doHexHash(digest, text.getBytes());
     }
-
-    public String hmacSha256(String data, String key) {
-        return hmac("sha256", data, key);
-    }
-
-    public String hmacSha512(String data, String key) {
-        return hmac("sha512", data, key);
-    }
-
-    public String hmacMD5(String data, String key) {
-        return hmac("md5", data, key);
-    }
- */
+}

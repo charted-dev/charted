@@ -17,9 +17,54 @@
 
 package org.noelware.charted.engine.charts
 
+import com.charleskorn.kaml.Yaml
+import com.charleskorn.kaml.decodeFromStream
 import dev.floofy.utils.slf4j.logging
+import io.ktor.http.content.*
+import org.noelware.charted.common.data.helm.ChartSpec
+import org.noelware.charted.configuration.dsl.Config
+import org.noelware.charted.configuration.dsl.features.Feature
 import org.noelware.charted.core.StorageWrapper
+import org.noelware.charted.database.models.Repository
 
-class DefaultChartsEngine(private val storage: StorageWrapper): ChartsEngine {
+class DefaultChartsEngine(
+    private val storage: StorageWrapper,
+    private val config: Config,
+    private val yaml: Yaml
+): ChartsEngine {
     private val log by logging<DefaultChartsEngine>()
+
+    override suspend fun getChartMetadata(repository: Repository): ChartSpec? {
+        if (config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
+            throw IllegalStateException("CHARTS_NOT_AVAILABLE")
+        }
+
+        val chart = storage.trailer.open("./metadata/${repository.ownerID}/${repository.id}/Chart.yaml")
+            ?: return null
+
+        return yaml.decodeFromStream(chart)
+    }
+
+    override suspend fun getChartValues(repository: Repository): String? {
+        if (config.isFeatureEnabled(Feature.DOCKER_REGISTRY)) {
+            throw IllegalStateException("CHARTS_NOT_AVAILABLE")
+        }
+
+        val chart = storage.trailer.open("./metadata/${repository.ownerID}/${repository.id}/values.yaml")
+            ?: return null
+
+        return yaml.decodeFromStream(chart)
+    }
+
+    override suspend fun getChartTarball(repository: Repository, version: String) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun uploadChartMetadata(repository: Repository, part: PartData.FileItem) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun uploadChartValues(repository: Repository, part: PartData.FileItem) {
+        TODO("Not yet implemented")
+    }
 }

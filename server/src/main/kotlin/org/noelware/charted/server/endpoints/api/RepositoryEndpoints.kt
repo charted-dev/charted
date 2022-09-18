@@ -22,7 +22,6 @@ package org.noelware.charted.server.endpoints.api
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlException
 import com.charleskorn.kaml.decodeFromStream
-import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.slf4j.logging
 import io.github.z4kn4fein.semver.VersionFormatException
 import io.github.z4kn4fein.semver.toVersion
@@ -40,8 +39,7 @@ import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
 import okhttp3.internal.closeQuietly
-import org.noelware.charted.common.ChartedScope
-import org.noelware.charted.common.SHAUtils
+import org.noelware.charted.common.CryptoUtils
 import org.noelware.charted.common.data.helm.ChartIndexSpec
 import org.noelware.charted.common.data.helm.ChartIndexYaml
 import org.noelware.charted.common.data.helm.ChartSpec
@@ -51,9 +49,6 @@ import org.noelware.charted.configuration.dsl.features.Feature
 import org.noelware.charted.core.StorageWrapper
 import org.noelware.charted.database.controllers.RepositoryController
 import org.noelware.charted.database.controllers.RepositoryMemberController
-import org.noelware.charted.database.entities.RepositoryEntity
-import org.noelware.charted.database.models.Repository
-import org.noelware.charted.database.tables.RepositoryTable
 import org.noelware.charted.email.EmailService
 import org.noelware.charted.features.webhooks.WebhooksFeature
 import org.noelware.charted.server.currentUser
@@ -165,12 +160,10 @@ class RepositoryEndpoints(
     @Get("/{id}")
     suspend fun get(call: ApplicationCall) {
         val id = call.parameters["id"]!!
-        val repository = if (id.toLongOrNull() != null) {
-            RepositoryController.get(id.toLong())
-        } else {
-            asyncTransaction(ChartedScope) {
-                RepositoryEntity.find { RepositoryTable.name eq id }.firstOrNull()?.let { entity -> Repository.fromEntity(entity) }
-            }
+        val repository = when {
+            id.toLongOrNull() != null -> RepositoryController.get(id.toLong())
+            id.matches("^([A-z]|-|_|\\d{0,9}){0,16}".toRegex()) -> RepositoryController.getByName(id)
+            else -> null
         } ?: return call.respond(
             HttpStatusCode.NotFound,
             Response.err("UNKNOWN_REPOSITORY", "Unable to find repository by ID [$id]")
@@ -310,7 +303,7 @@ class RepositoryEndpoints(
 
             // Versions should abide by SemVer
             // https://helm.sh/docs/topics/charts/#charts-and-versioning
-            val semver = try {
+            try {
                 chartSpec.version.toVersion(true)
             } catch (e: VersionFormatException) {
                 return call.respond(HttpStatusCode.NotAcceptable, Response.err("INVALID_SEMVER", e.message!!))
@@ -322,7 +315,7 @@ class RepositoryEndpoints(
                 "${config.baseUrl ?: "http://localhost:${config.server.port}"}/repositories/$id/tarballs/${repo.name}-${chartSpec.version}.tar.gz"
             }
 
-            val checksum = SHAUtils.sha256Checksum(ByteArrayInputStream(data))
+            val checksum = CryptoUtils.checksumHex(CryptoUtils.ALGORITHM_SHA256, ByteArrayInputStream(data))
             val entries = chartIndex.entries.toMutableMap()
             entries[chartSpec.name]!!.add(
                 ChartIndexSpec.fromSpec(
@@ -342,7 +335,7 @@ class RepositoryEndpoints(
                 "${config.baseUrl ?: "http://localhost:${config.server.port}"}/repositories/$id/tarballs/${repo.name}-${chartSpec.version}.tar.gz"
             }
 
-            val checksum = SHAUtils.sha256Checksum(ByteArrayInputStream(data))
+            val checksum = CryptoUtils.checksumHex(CryptoUtils.ALGORITHM_SHA256, ByteArrayInputStream(data))
             val entries = chartIndex.entries.toMutableMap()
             entries[chartSpec.name]!!.add(
                 ChartIndexSpec.fromSpec(
@@ -524,7 +517,7 @@ class RepositoryEndpoints(
 
     @Delete("/{id}")
     suspend fun delete(call: ApplicationCall) {
-        val success = RepositoryController.delete(call.parameters["id"]!!.toLong())
+        RepositoryController.delete(call.parameters["id"]!!.toLong())
         call.respond(
             HttpStatusCode.Accepted,
             Response.ok()

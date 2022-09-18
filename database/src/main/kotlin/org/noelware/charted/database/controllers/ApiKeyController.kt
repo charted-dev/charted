@@ -21,7 +21,7 @@ import dev.floofy.utils.exposed.asyncTransaction
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.noelware.charted.common.ChartedScope
-import org.noelware.charted.common.SHAUtils
+import org.noelware.charted.common.CryptoUtils
 import org.noelware.charted.database.entities.ApiKeyEntity
 import org.noelware.charted.database.models.ApiKeys
 import org.noelware.charted.database.tables.ApiKeysTable
@@ -34,7 +34,7 @@ object ApiKeyController {
     }
 
     suspend fun getByToken(token: String): ApiKeys? = asyncTransaction(ChartedScope) {
-        val hashedToken = SHAUtils.sha256(token)
+        val hashedToken = CryptoUtils.sha256Hex(token)
         ApiKeyEntity.find { ApiKeysTable.token eq hashedToken }.firstOrNull()?.let { entity ->
             ApiKeys.fromEntity(entity)
         }
@@ -48,7 +48,7 @@ object ApiKeyController {
 
     suspend fun delete(token: String): Boolean {
         // Check if the hashes are the same
-        val hashed = SHAUtils.sha256(token)
+        val hashed = CryptoUtils.sha256Hex(token)
         asyncTransaction(ChartedScope) {
             ApiKeyEntity.find { ApiKeysTable.token eq hashed }.firstOrNull()
         } ?: return false

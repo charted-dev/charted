@@ -21,10 +21,10 @@ public class LazyImpl<T> implements Lazy<T> {
     private static final Object UNINIT = new Object();
     private static volatile Object _instance = UNINIT;
 
-    private final LazilyProvide<T> provider;
+    private final Lazy<T> provider;
     private final Object _lock = new Object();
 
-    public LazyImpl(LazilyProvide<T> provider) {
+    public LazyImpl(Lazy<T> provider) {
         this.provider = provider;
     }
 

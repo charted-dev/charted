@@ -22,6 +22,7 @@ package org.noelware.charted.common.lazy;
  * @author Noel <cutie@floofy.dev>
  * @since 17.08.22
  */
+@FunctionalInterface
 public interface Lazy<T> {
     /**
      * Returns the lazily evaluated value as T.

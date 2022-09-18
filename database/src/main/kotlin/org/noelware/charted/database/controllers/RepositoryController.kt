@@ -31,6 +31,7 @@ import org.noelware.charted.common.data.helm.RepoType
 import org.noelware.charted.common.data.responses.Response
 import org.noelware.charted.common.exceptions.StringOverflowException
 import org.noelware.charted.common.exceptions.ValidationException
+import org.noelware.charted.common.extensions.contains
 import org.noelware.charted.database.entities.RepositoryEntity
 import org.noelware.charted.database.flags.RepositoryFlags
 import org.noelware.charted.database.models.Repository
@@ -79,6 +80,17 @@ data class UpdateRepositoryBody(
 }
 
 object RepositoryController {
+    suspend fun getByName(name: String): Repository? = asyncTransaction(ChartedScope) {
+        RepositoryEntity
+            .find { RepositoryTable.name eq id }
+            .firstOrNull()?.let { entity ->
+                val repo = Repository.fromEntity(entity)
+                if (repo.bitfield.contains("PRIVATE")) return@asyncTransaction null
+
+                repo
+            }
+    }
+
     suspend fun getAll(owner: Long, showPrivate: Boolean = false): List<Repository> = asyncTransaction(ChartedScope) {
         RepositoryEntity
             .find { RepositoryTable.owner eq owner }
