@@ -42,7 +42,6 @@ config:
   # refer to https://charts.noelware.org/docs/self-hosting#configuration
 
 logback:
-  enabled: true
   mapName: charted-logback
   path: /app/noelware/charted/server/logback.properties
   config: |
@@ -115,6 +114,54 @@ redis:
 # Allows you to have a local Cassandra instance for charted-server. This is mainly for the Audit Logs
 # and Webhooks features.
 cassandra:
+  enabled: false
+
+# Allows you to have a local Elasticsearch + Kibana instance for charted-server. This is mainly for
+# advanced search and metrics with Metricbeat. This is not compatible with `meilisearch`.
+#
+# If `elasticsearch.metricbeat.enabled` is set to true, this will enable the Prometheus metrics endpoint (GET /metrics)
+# on the server!
+elasticsearch:
+  enabled: false
+  metricbeat:
+    enabled: false
+    environment:
+      existingSecret: true
+      username: ''
+      password: ''
+      hosts: 'elasticsearch:9200'
+    config: |
+      metricbeat.config:
+        modules:
+          path: ${path.config}/modules.d/*.yml
+          reload.enabled: false
+      metricbeat.modules:
+      - module: prometheus
+        period: 10s
+        metricsets: ["collector"]
+        hosts: ["localhost:3651"]
+        metrics_path: /metrics
+      outputs.elasticsearch:
+        hosts: '${ELASTICSEARCH_HOSTS:elasticsearch:9200}'
+        username: '${ELASTICSEARCH_USERNAME:}'
+        password: '${ELASTICSEARCH_PASSWORD:}'
+      http:
+        enabled: true
+        host: 0.0.0.0
+        port: 5066
+    image:
+      repository: docker.elastic.co/beats/metricbeat
+      tag: 8.4.1
+      pullPolicy: IfNotPresent
+
+# Allows you to have a local Kibana instance to analyze the data that charted-server is pushing out. You can also
+# see the metrics that Metricbeat collects if elasticsearch.metricbeat.enabled is true. This is not compatible
+# with `meilisearch`.
+kibana:
+  enabled: false
+
+# Allows you to have Meilisearch as another search backend. This is not compatible with `elasticsearch` or `kibana`.
+meilisearch:
   enabled: false
 
 resources: {}

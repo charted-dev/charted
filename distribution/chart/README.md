@@ -6,7 +6,7 @@ The official **charted-server** Helm chart that is available at [https://charts.
 - Helm 3
 
 ```shell
-$ helm repo pull charted https://charts.noelware.org/charted
+$ helm repo pull charted https://charts.noelware.org/~/charted
 $ helm install charted/server
 ```
 

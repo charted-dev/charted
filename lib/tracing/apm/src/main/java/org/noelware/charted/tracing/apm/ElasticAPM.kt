@@ -31,13 +31,17 @@ object ElasticAPM {
     fun install(config: ElasticAPMConfig) {
         log.info("Enabling tracing with Elastic APM...")
 
+        // This is used in the Kubernetes Helm chart.
+        val nodeNameEnv = System.getenv("NODE_NAME")
+        val podNameEnv = System.getenv("POD_NAME")
         val nodeName = when {
+            nodeNameEnv != null && podNameEnv != null -> "$podNameEnv@$nodeNameEnv"
             ChartedInfo.dedicatedNode != null -> ChartedInfo.dedicatedNode!!
             config.serviceNodeName != null -> config.serviceNodeName!!
             else -> {
                 log.warn("Getting service node name from hostname!")
                 try {
-                    InetAddress.getLocalHost().hostName ?: ""
+                    InetAddress.getLocalHost().hostName?.let { "${System.getProperty("user.name")}@$it" } ?: ""
                 } catch (e: Exception) {
                     ""
                 }

@@ -12,3 +12,31 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "charted.fullname" . }}
+  labels:
+    {{- include "charted.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "charted.fullname" . }}
+  replicas: {{ .Values.replicas | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "charted.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "charted.labels" . | nindent 8 }}
+    spec:
+      serviceName: {{ include "charted.fullname" . }}
+      containers:
+      {{- if .Values.elasticsearch.metricbeat.enabled }}
+      - name: metricbeat
+        image: "{{ .Values.elasticsearch.metricbeat.image.repository }}:{{ .Values.elasticsearch.metricbeat.image.tag }}"
+        imagePullPolicy: {{ .Values.elasticsearch.metricbeat.image.pullPolicy }}
+      {{- end }}
+      - name: {{ include "charted.fullname" . }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}

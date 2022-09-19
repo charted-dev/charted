@@ -47,3 +47,15 @@ dependencies:
     condition: values.cassandra.enabled
     version: "~9.5.0"
     name: cassandra
+  # - repository: https://helm.elastic.co
+  #   condition: values.elasticsearch.enabled
+  #   version: "8.4.1"
+  #   name: elasticsearch
+  # - repository: https://helm.elastic.co
+  #   condition: values.kibana.enabled
+  #   version: "8.4.1"
+  #   name: kibana
+  - repository: https://meilisearch.github.io/meilisearch-kubernetes
+    condition: values.meilisearch.enabled
+    version: "~0.1.39"
+    name: meilisearch

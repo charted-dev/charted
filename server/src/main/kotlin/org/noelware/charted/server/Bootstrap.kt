@@ -55,6 +55,7 @@ import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.IRedisClient
 import org.noelware.charted.common.data.helm.RepoType
 import org.noelware.charted.common.extensions.formatToSize
+import org.noelware.charted.common.extensions.toRealPath
 import org.noelware.charted.configuration.ConfigurationHost
 import org.noelware.charted.configuration.dsl.features.Feature
 import org.noelware.charted.configuration.kotlin.KotlinScriptConfigurationHost
@@ -104,13 +105,17 @@ import kotlin.time.Duration.Companion.seconds
 object Bootstrap {
     private val log by logging<Bootstrap>()
     private fun createUUID() {
-        val file = File("./instance.uuid")
-        if (!file.exists()) {
-            file.writeBytes(UUID.randomUUID().toString().toByteArray())
+        val env = System.getenv("CHARTED_NO_ANALYTICS") ?: "true"
+        if (env.matches("^(yes|true|si|si*|1)$".toRegex())) {
+            val file = File("./instance.uuid")
+            if (!file.exists()) {
+                file.writeBytes(UUID.randomUUID().toString().toByteArray())
 
-            val root = File(".")
-            log.warn("Instance UUID didn't exist in $root/instance.uuid! So I created it instance.")
-            log.warn("If this was used with Noelware Analytics! Edit the instance via https://analytics.noelware.org/instances")
+                val root = File(".").toRealPath()
+                log.warn("Created instance UUID for Noelware Analytics in [$root/instance.uuid]")
+                log.warn("If you do not wish to create this file to identify this product, you can use the `CHARTED_NO_ANALYTICS` environment variable to skip this step.")
+                log.warn("If you do wish to use this instance UUID for Noelware Analytics, edit your instance to connect the instance UUID: https://analytics.noelware.org/instances")
+            }
         }
     }
 
