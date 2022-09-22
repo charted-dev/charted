@@ -4,12 +4,12 @@ dependencies:
   version: 11.9.1
 - name: redis
   repository: https://charts.bitnami.com/bitnami
-  version: 17.1.6
+  version: 17.1.8
 - name: cassandra
   repository: https://charts.bitnami.com/bitnami
-  version: 9.5.0
+  version: 9.6.1
 - name: meilisearch
   repository: https://meilisearch.github.io/meilisearch-kubernetes
-  version: 0.1.39
-digest: sha256:a9a5d85bf0871ec6a9f259da6732440acfd97a8617bea91f359047ad783683e5
-generated: "2022-09-18T19:43:05.535073069-07:00"
+  version: 0.1.40
+digest: sha256:522cba7023ffe40020491f263992dee99b5bfcca686b9ca68fe11c38ffeac7fa
+generated: "2022-09-22T11:14:14.762959547Z"
