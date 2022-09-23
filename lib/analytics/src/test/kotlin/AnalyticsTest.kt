@@ -21,7 +21,7 @@ import io.grpc.inprocess.InProcessChannelBuilder
 import io.grpc.inprocess.InProcessServerBuilder
 import io.grpc.testing.GrpcCleanupRule
 import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.mockito.AdditionalAnswers
 import org.mockito.kotlin.mock
 import org.noelware.analytics.protobufs.v1.*

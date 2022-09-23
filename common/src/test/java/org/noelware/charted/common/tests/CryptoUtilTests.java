@@ -24,7 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.atomic.AtomicReference;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.noelware.charted.common.CryptoUtils;
 
 public class CryptoUtilTests {

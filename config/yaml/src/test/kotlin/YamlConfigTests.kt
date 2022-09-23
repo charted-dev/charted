@@ -17,7 +17,7 @@
 
 package org.noelware.charted.configuration.yaml.tests
 
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.noelware.charted.configuration.yaml.YamlConfigurationHost
 import java.io.File
 import kotlin.test.assertNotNull

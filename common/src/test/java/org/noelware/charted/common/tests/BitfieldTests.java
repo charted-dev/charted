@@ -17,8 +17,9 @@
 
 package org.noelware.charted.common.tests;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.util.HashMap;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.noelware.charted.common.Bitfield;
 
@@ -31,14 +32,14 @@ public class BitfieldTests {
         flags.put("UWU", (long) (1 << 2));
 
         var bits = new Bitfield(flags);
-        Assertions.assertEquals(bits.getBits(), 0);
+        assertEquals(bits.getBits(), 0);
         bits.add(1, 1 << 1);
 
-        Assertions.assertEquals(bits.getBits(), 3);
-        Assertions.assertTrue(bits.has(1 << 1));
-        Assertions.assertFalse(bits.has(1 << 6));
-        Assertions.assertTrue(bits.has("OWO"));
-        Assertions.assertFalse(bits.has("ice is cute"));
+        assertEquals(3, bits.getBits());
+        assertTrue(bits.has(1 << 1));
+        assertFalse(bits.has(1 << 6));
+        assertTrue(bits.has("OWO"));
+        assertFalse(bits.has("ice is cute"));
     }
 
     @Test
@@ -49,10 +50,11 @@ public class BitfieldTests {
         flags.put("UWU", (long) (1 << 2));
 
         var bits = new Bitfield(flags);
-        Assertions.assertEquals(bits.getBits(), 0);
+        assertEquals(bits.getBits(), 0);
         bits.add(1, 1 << 1);
 
-        Assertions.assertEquals(bits.remove(1 << 1).getBits(), 1);
-        Assertions.assertEquals(bits.remove(1).getBits(), 0);
+        assertEquals(3, bits.getBits());
+        assertEquals(1, bits.remove(1 << 1).getBits());
+        assertEquals(0, bits.remove(1).getBits());
     }
 }

@@ -17,7 +17,7 @@
 
 package org.noelware.charted.configuration.kotlin.tests
 
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.noelware.charted.configuration.kotlin.KotlinScriptConfigurationHost
 import org.noelware.charted.configuration.kotlin.KotlinScriptHandle

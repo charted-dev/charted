@@ -26,5 +26,6 @@ val endpointsModule = apiEndpointsModule + module {
     single { SearchEndpoint(getOrNull(), getOrNull(), get()) } bind AbstractEndpoint::class
     single { MetricsEndpoint(getOrNull()) } bind AbstractEndpoint::class
     single { MainEndpoint(get()) } bind AbstractEndpoint::class
+    single { HealthEndpoint() } bind AbstractEndpoint::class
     single { InfoEndpoint() } bind AbstractEndpoint::class
 }

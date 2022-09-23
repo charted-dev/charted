@@ -115,7 +115,8 @@ public class Bitfield {
             total |= Math.abs(bit);
         }
 
-        return new Bitfield(total, getFlags());
+        this.bits |= total;
+        return this;
     }
 
     /**
@@ -131,7 +132,8 @@ public class Bitfield {
             total |= Math.abs(bit); // make sure it's positive
         }
 
-        return new Bitfield(this.bits | total, getFlags());
+        this.bits |= total;
+        return this;
     }
 
     /**
@@ -160,6 +162,7 @@ public class Bitfield {
             total |= Math.abs(bit); // make it positive
         }
 
-        return new Bitfield(this.bits & ~total, getFlags());
+        this.bits &= ~total;
+        return this;
     }
 }

@@ -27,7 +27,7 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.DatabaseConfig
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.DisabledOnOs
 import org.junit.jupiter.api.condition.OS
 import org.noelware.charted.common.data.helm.RepoType

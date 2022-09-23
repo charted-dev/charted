@@ -37,6 +37,7 @@ dependencies {
 }
 
 tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
     outputs.upToDateWhen { false }
     maxParallelForks = Runtime.getRuntime().availableProcessors()
     failFast = true // kill gradle if a test fails

@@ -49,6 +49,12 @@ class CassandraConnection(private val config: CassandraConfig): Closeable {
         get() = _serverVersion.value
 
     /**
+     * Whether the connection is connected or not.
+     */
+    val connected: Boolean
+        get() = _connected.get()
+
+    /**
      * Whether the connection is closed or not.
      */
     val closed: Boolean
@@ -144,7 +150,7 @@ class CassandraConnection(private val config: CassandraConfig): Closeable {
                     }
                 }
 
-                _session.value = builder.buildAsync().await()
+                _session.value = builder.build()
                 log.info("Established connection with Cassandra! Collecting server version...")
 
                 val rs = sql("SELECT release_version FROM system.local;").one()

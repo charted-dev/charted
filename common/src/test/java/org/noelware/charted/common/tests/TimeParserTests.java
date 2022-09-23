@@ -20,7 +20,7 @@ package org.noelware.charted.common.tests;
 import static org.junit.Assert.*;
 
 import java.util.Optional;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.noelware.charted.common.TimeParser;
 
 public class TimeParserTests {
