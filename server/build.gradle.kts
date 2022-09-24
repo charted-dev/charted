@@ -18,9 +18,9 @@
 import dev.floofy.utils.gradle.by
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.io.File
 
 plugins {
-    id("com.google.devtools.ksp")
     `charted-module`
     `charted-test`
     application
@@ -68,7 +68,6 @@ dependencies {
     implementation(project(":lib:cassandra"))
     implementation(project(":lib:analytics"))
     implementation(project(":lib:telemetry"))
-    implementation(project(":tools:openapi"))
     implementation(project(":config:yaml"))
     implementation(project(":lib:metrics"))
     implementation(project(":lib:apikeys"))
@@ -89,9 +88,6 @@ dependencies {
 
     // Conditional logic for logback
     implementation(libs.janino)
-
-    // KSP
-    ksp(project(":tools:openapi"))
 }
 
 application {
@@ -120,6 +116,19 @@ distributions {
     }
 }
 
+val buildWebUI by tasks.registering(Exec::class) {
+    workingDir(project(":web").projectDir)
+    commandLine("yarn")
+    args("build")
+}
+
+val collectWebUI by tasks.registering(Copy::class) {
+    dependsOn(buildWebUI)
+
+    from(File(project(":web").projectDir, "dist"))
+    into(File(projectDir, "build/resources/main/frontend"))
+}
+
 tasks {
     processResources {
         filesMatching("build-info.json") {
@@ -142,6 +151,10 @@ tasks {
     distTar {
         archiveFileName by "charted-server.tar.gz"
         compression = Compression.GZIP // use gzip for the compression :>
+    }
+
+    installDist {
+        dependsOn(collectWebUI)
     }
 
     startScripts {

@@ -81,8 +81,13 @@ java {
     targetCompatibility = JAVA_VERSION
 }
 
+val fullPath = path.substring(1).replace(':', '-').replace("lib-", "")
+// transforms :sessions -> sessions
+// or :sessions:noelware -> sessions-noelware
+
 tasks {
     withType<Jar> {
+        archiveFileName by "charted-$fullPath-$VERSION.jar"
         manifest {
             attributes(
                 "Implementation-Version" to "$VERSION",

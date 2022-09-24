@@ -31,6 +31,7 @@ repositories {
 
 dependencies {
     implementation("com.netflix.nebula:gradle-ospackage-plugin:9.1.1")
+    implementation("de.undercouch:gradle-download-task:5.2.0")
     implementation("io.github.z4kn4fein:semver:1.3.3")
     implementation("com.google.code.gson:gson:2.9.1")
     implementation(gradleApi())
@@ -71,6 +72,11 @@ gradlePlugin {
         create("golang") {
             id = "org.noelware.charted.golang"
             implementationClass = "org.noelware.charted.gradle.plugins.golang.GoPlugin"
+        }
+
+        create("nodejs") {
+            id = "org.noelware.charted.nodejs"
+            implementationClass = "org.noelware.charted.gradle.plugins.nodejs.ChartedNodeJsPlugin"
         }
     }
 }

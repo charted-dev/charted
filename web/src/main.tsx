@@ -8,19 +8,32 @@
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
-package org.noelware.charted.gradle
+import { createRoot } from 'react-dom/client';
+import App from './App';
 
-import org.gradle.api.file.RegularFile
-import java.io.File
+const print = () => {
+  console.info('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+  console.info(
+    `%c     _           _         _
+ ___| |_ ___ ___| |_ ___ _| |
+|  _|   | .'|  _|  _| -_| . |
+|___|_|_|__,|_| |_| |___|___|`,
+    'color:#F4B5D5;font-weight:bold;'
+  );
+  console.info('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+};
 
-/**
- * Returns this file as a [RegularFile].
- */
-fun File.toRegularFile(): RegularFile = RegularFile { this }
+print();
+
+const rootEl = document.getElementById('root');
+if (!rootEl) throw new Error('Unable to find div#root element!');
+
+const root = createRoot(rootEl);
+root.render(<App />);

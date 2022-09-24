@@ -20,12 +20,14 @@ package org.noelware.charted.gradle.plugins.golang;
 import java.io.File;
 import org.gradle.api.Project;
 import org.jetbrains.annotations.Nullable;
+import org.noelware.charted.gradle.Architecture;
+import org.noelware.charted.gradle.OperatingSystem;
 
 /**
  * Represents the downloader to install Golang in the root project's build directory.
  */
 public class GoDownloader {
-    private final String GOLANG_DOWNLOAD_URL = "https://go.dev/dl/go%s%s-%s.tar.gz";
+    private static final String GOLANG_DOWNLOAD_URL = "https://go.dev/dl/go%s%s-%s%s";
     private final Project rootProject;
 
     public GoDownloader(Project rootProject) {
@@ -60,5 +62,15 @@ public class GoDownloader {
         return root == null ? null : new File(root, "bin");
     }
 
-    public void download() {}
+    public void download() {
+        // guard just in case this was called more than once
+        if (isDownloaded()) return;
+
+        final var os = OperatingSystem.current();
+        final var arch = Architecture.current();
+        final var downloadUrl = os.isWindows()
+                ? "https://go.dev/dl/go%s.windows-%s.zip".formatted("1.19.1", arch.isX64() ? "amd64" : "arm64")
+                : "https://go.dev/dl/go%s.%s-%s.tar.gz"
+                        .formatted("1.19.1", os.isMacOS() ? "darwin" : "linux", arch.isX64() ? "amd64" : "arm64");
+    }
 }

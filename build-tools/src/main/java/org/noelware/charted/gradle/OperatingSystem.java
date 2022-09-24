@@ -65,4 +65,8 @@ public enum OperatingSystem {
     public boolean isUnix() {
         return isMacOS() || isLinux();
     }
+
+    public String getExecutableSuffix() {
+        return isWindows() ? ".exe" : "";
+    }
 }

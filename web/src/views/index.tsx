@@ -8,19 +8,22 @@
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
-package org.noelware.charted.gradle
+import { useSessionStore } from '~/lib';
+import type { FC } from 'react';
+import { Text } from '@mantine/core';
 
-import org.gradle.api.file.RegularFile
-import java.io.File
+const Index: FC = () => {
+  const state = useSessionStore.getState();
+  console.log(state);
 
-/**
- * Returns this file as a [RegularFile].
- */
-fun File.toRegularFile(): RegularFile = RegularFile { this }
+  return <Text>Hello, world?</Text>;
+};
+
+export default Index;

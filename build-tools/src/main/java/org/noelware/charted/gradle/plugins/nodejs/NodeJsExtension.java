@@ -15,10 +15,25 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-java-module`
-}
+package org.noelware.charted.gradle.plugins.nodejs;
 
-dependencies {
-    implementation(libs.joptsimple)
+import org.gradle.api.provider.Property;
+
+public abstract class NodeJsExtension {
+    /** Returns the default Node.js version */
+    public static String NODEJS_VERSION = "18.9.1";
+
+    /** Returns the default Node.js distributions URL. */
+    public static String NODEJS_DIST_URL = "https://nodejs.org/dist";
+
+    /**
+     * Returns the Node.js distribution URL to use, if used with a web proxy
+     * as an example.
+     */
+    public abstract Property<String> getNodeDistUrl();
+
+    /**
+     * Returns the Node.js version to use.
+     */
+    public abstract Property<String> getNodeVersion();
 }

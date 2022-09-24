@@ -124,6 +124,7 @@ public class BuildDockerImageTask extends DefaultTask {
             params.getDockerfile().set(dockerfile);
             params.getProjectVersion()
                     .set((String) getProject().getRootProject().getVersion());
+
             params.getCacheFrom().set(cacheFrom);
             params.getCacheTo().set(cacheTo);
             params.getDockerContext().set(dockerContext);

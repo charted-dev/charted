@@ -8,19 +8,15 @@
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
-package org.noelware.charted.gradle
-
-import org.gradle.api.file.RegularFile
-import java.io.File
-
-/**
- * Returns this file as a [RegularFile].
- */
-fun File.toRegularFile(): RegularFile = RegularFile { this }
+export interface Mutation<T = {}> {
+  set<K extends keyof T>(key: K, value: T[K]): void;
+  get<K extends keyof T>(key: K): T[K] | null;
+  invalidate(): void;
+}

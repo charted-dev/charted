@@ -20,44 +20,46 @@ package org.noelware.charted.gradle.plugins.rpm;
 import com.netflix.gradle.plugins.packaging.ProjectPackagingExtension;
 import com.netflix.gradle.plugins.rpm.Rpm;
 import java.io.File;
+import java.util.List;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ExtensionAware;
 
 public class ChartedRpmPlugin implements Plugin<Project> {
+    public static final String DESCRIPTION = String.join(
+            "\n",
+            List.of(
+                    "charted-server is the backend server for powering Noelware's Charts Platform.",
+                    "It is a fully open sourced and reliable registry for providing Kubernetes Helm Charts",
+                    "made in Kotlin made by JetBrains.",
+                    "",
+                    "The software packaged is from the main repository hosted on GitHub",
+                    "and distributed to Noelware's APT repository hosted at",
+                    "https://artifacts.noelware.org/deb/charted/server",
+                    "",
+                    "As the backend only exposes a RESTful transport layer, you can install",
+                    "Pak, another component created by Noelware to bring a web UI to visualise",
+                    "your Helm Charts. You can learn more here: https://charts.noelware.org/docs/frontend",
+                    "",
+                    "❯ Want to more information about how Noelware's Charts Platform began? You can read up",
+                    "❯ on the documentation site: https://charts.noelware.org/docs",
+                    "",
+                    "❯ Received any issues while running charted-server? You can read up on the",
+                    "❯ common troubleshooting page: https://charts.noelware.org/docs/server/troubleshooting",
+                    "",
+                    "~ Noelware, LLC. <team@noelware.org> ^~^"));
+
     @Override
     public void apply(Project project) {
         project.getPluginManager().apply("nebula.ospackage-base");
         ((ExtensionAware) project).getExtensions().configure("ospackage", (Action<ProjectPackagingExtension>)
                 extension -> {
                     extension.setMaintainer("Noelware, LLC. <team@noelware.org>");
+                    extension.setUrl("https://charts.noelware.org");
+                    extension.setPackageDescription(DESCRIPTION);
                     extension.setSummary(
                             "\uD83D\uDCE6 Free, open source, and reliable Helm Chart" + " registry made in Kotlin");
-                    extension.setUrl("https://charts.noelware.org");
-
-                    extension.setPackageDescription(
-                            """
-            charted-server is the main backend server for the charted Platform created and
-            maintained by Noelware. It serves as a free, reliable, and open source Helm Chart
-            registry server for public or private instances to distribute Helm Charts easily
-            while being easily configurable.
-
-            This only exposes a RESTful transport layer, if you wish to have a frontend UI to
-            visualise your data or how the server is dying, you can install Pak, which is the
-            official frontend UI for charted-server.
-            ❯ https://charts.noelware.org/docs/pak
-
-            If you want more information on how the charted Platform works or why we choose
-            Kotlin? You can read up on via our documentation site:
-            ❯ https://charts.noelware.org/docs
-
-            Any issues pop up while running charted-server? Security issues? Data loss while
-            upgrading? You can report it to the charted team at Noelware via GitHub Issues:
-            ❯ https://github.com/charted-dev/charted/issues
-
-            ~ Noelware, LLC. ^-^
-            """);
 
                     var signingPassword = System.getenv("NOELWARE_SIGNING_PASSWORD");
                     if (signingPassword != null) {

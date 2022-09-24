@@ -8,19 +8,26 @@
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
-package org.noelware.charted.gradle
+import { Suspense, lazy, type FC } from 'react';
+import { Routes, Route } from 'react-router-dom';
 
-import org.gradle.api.file.RegularFile
-import java.io.File
+// lazy load all components
+const Index = lazy(() => import('./views/index'));
 
-/**
- * Returns this file as a [RegularFile].
- */
-fun File.toRegularFile(): RegularFile = RegularFile { this }
+const AppRouter: FC = () => (
+  // the loader will be replaced with a cute spinner :3
+  <Suspense fallback={<div>Loading...</div>}>
+    <Routes>
+      <Route index element={<Index />} />
+    </Routes>
+  </Suspense>
+);
+
+export default AppRouter;

@@ -38,6 +38,7 @@ elastic-apm = "1.34.0"
 bouncycastle = "1.71"
 grpc-kotlin = "1.3.0"
 postgresql = "42.5.0"
+joptsimple = "5.0.4"
 java-mail = "1.5.0-b01"
 protobuf = "3.21.6"
 hikaricp = "5.0.1"
@@ -182,6 +183,7 @@ tomcat-annotations-api = { module = "org.apache.tomcat:annotations-api", version
 spring-security-crypto = { module = "org.springframework.security:spring-security-crypto", version.ref = "spring-security-crypto" }
 mustache-compiler = { module = "com.github.spullara.mustache.java:compiler", version.ref = "mustache-compiler" }
 bouncycastle = { module = "org.bouncycastle:bcpkix-jdk15to18", version.ref = "bouncycastle" }
+joptsimple = { module = "net.sf.jopt-simple:jopt-simple", version.ref = "joptsimple" }
 javax-mail = { module = "javax.mail:mail", version.ref = "java-mail" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
