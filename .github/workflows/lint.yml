@@ -59,7 +59,7 @@ on:
       - 'renovate.json'
 jobs:
   lint:
-    name: Linting and Unit Testing [${{ matrix.runner }}, Java ${{ matrix.java-version }}]
+    name: ${{ matrix.runner }}, Java ${{ matrix.java-version }}
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:

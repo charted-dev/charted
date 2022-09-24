@@ -31,7 +31,10 @@ exclude:
   # This might have to be checked up on later, since I think the ospackage
   # Gradle plugin depends on #setFileMode(int)/#setDirMode(int) to be octal literals?
   - name: OctalLiteral
-  
+  - name: UnstableApiUsage
+    paths:
+      - settings.gradle.kts
+
   # In most cases, this is usually present in the Gradle plugins for debugging, so
   # let's disable this rule in build tools.
   - name: SystemOutErr

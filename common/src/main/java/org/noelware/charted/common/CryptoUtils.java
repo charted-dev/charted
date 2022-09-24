@@ -84,12 +84,10 @@ public class CryptoUtils {
     public static <I extends InputStream> String checksumHex(String algorithm, I stream)
             throws NoSuchAlgorithmException, IOException {
         final var md = MessageDigest.getInstance(algorithm);
-        final var dis = new DigestInputStream(stream, md);
+        final var bytes = stream.readAllBytes();
+        stream.close();
 
-        do {
-            /* stuff here? */
-        } while (dis.read() > 0);
-        return bytesToHex(md.digest());
+        return bytesToHex(md.digest(bytes));
     }
 
     @NotNull
