@@ -377,7 +377,7 @@ __metadata:
     "@mantine/dropzone": 5.4.1
     "@mantine/form": 5.4.1
     "@mantine/hooks": 5.4.1
-    "@mantine/modals": 5.4.0
+    "@mantine/modals": 5.4.1
     "@mantine/notifications": 5.4.0
     "@noelware/utils": 2.2.0
     "@tabler/icons": 1.100.0
@@ -804,17 +804,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mantine/modals@npm:5.4.0":
-  version: 5.4.0
-  resolution: "@mantine/modals@npm:5.4.0"
+"@mantine/modals@npm:5.4.1":
+  version: 5.4.1
+  resolution: "@mantine/modals@npm:5.4.1"
   dependencies:
-    "@mantine/utils": 5.4.0
+    "@mantine/utils": 5.4.1
   peerDependencies:
-    "@mantine/core": 5.4.0
-    "@mantine/hooks": 5.4.0
+    "@mantine/core": 5.4.1
+    "@mantine/hooks": 5.4.1
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
-  checksum: 14122cc2ac726645a44ddb3dd98ad68b20c4cfa494194270766bb51c7aa873b46655400e4d4c6cae94e037c00ab62de1a49fdcbe4a4ff25086fde736163e1d5e
+  checksum: 998b3f76aa70dd4c031aa5a320041a3247bed9f721eb53e1fb1b2f0596989caabe7a495f22a212376b66bd57039712adb4a6974193e807abfb0b09b98f7055a0
   languageName: node
   linkType: hard
 
