@@ -5,7 +5,7 @@ __metadata:
   version: 6
   cacheKey: 8
 
-"@actions/core@npm:^1.9.1":
+"@actions/core@npm:1.9.1":
   version: 1.9.1
   resolution: "@actions/core@npm:1.9.1"
   dependencies:
@@ -365,7 +365,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@charted/web@workspace:."
   dependencies:
-    "@actions/core": ^1.9.1
+    "@actions/core": 1.9.1
     "@augu/eslint-config": 3.0.0
     "@augu/tsconfig": 1.1.1
     "@elastic/charts": 50.0.0
@@ -379,7 +379,7 @@ __metadata:
     "@mantine/hooks": 5.4.0
     "@mantine/modals": 5.4.0
     "@mantine/notifications": 5.4.0
-    "@noelware/utils": ^2.2.0
+    "@noelware/utils": 2.2.0
     "@tabler/icons": 1.100.0
     "@tanstack/react-query": 4.3.9
     "@tanstack/react-query-devtools": 4.3.9
@@ -885,7 +885,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noelware/utils@npm:^2.2.0":
+"@noelware/utils@npm:2.2.0":
   version: 2.2.0
   resolution: "@noelware/utils@npm:2.2.0"
   checksum: 3270eae7a59c288f616e94f79eccab2f018ce3db35fa3a1c3ae6be1cef5321727e5a0b42ffcbb781fb5bf79a2d3c0887094e0816f1c420feba29e18e70c7b36a
