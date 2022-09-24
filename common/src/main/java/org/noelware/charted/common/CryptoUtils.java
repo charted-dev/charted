@@ -19,7 +19,6 @@ package org.noelware.charted.common;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import org.jetbrains.annotations.NotNull;
