@@ -379,7 +379,7 @@ __metadata:
     "@mantine/hooks": 5.4.1
     "@mantine/modals": 5.4.1
     "@mantine/notifications": 5.4.1
-    "@noelware/utils": 2.2.0
+    "@noelware/utils": 2.2.1
     "@tabler/icons": 1.100.0
     "@tanstack/react-query": 4.3.9
     "@tanstack/react-query-devtools": 4.3.9
@@ -883,10 +883,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noelware/utils@npm:2.2.0":
-  version: 2.2.0
-  resolution: "@noelware/utils@npm:2.2.0"
-  checksum: 3270eae7a59c288f616e94f79eccab2f018ce3db35fa3a1c3ae6be1cef5321727e5a0b42ffcbb781fb5bf79a2d3c0887094e0816f1c420feba29e18e70c7b36a
+"@noelware/utils@npm:2.2.1":
+  version: 2.2.1
+  resolution: "@noelware/utils@npm:2.2.1"
+  checksum: 1d9e9a2e89297eecba202c3ebb1284d26527f07ba4b5e72c632222c37b9b0d9cd9c25a960a205d0eabcdce446ba36def73bc6e34fc15218dbdf530eb11e4088f
   languageName: node
   linkType: hard
 
