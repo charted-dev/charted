@@ -27,10 +27,17 @@ exclude:
   # Mainly on Gradle's worker executor classes, so nothing we
   # can do about it.
   - name: AbstractClassNeverImplemented
+    paths:
+      - build-tools
 
   # This might have to be checked up on later, since I think the ospackage
   # Gradle plugin depends on #setFileMode(int)/#setDirMode(int) to be octal literals?
   - name: OctalLiteral
+    paths:
+      - build-tools
+  
+  # Since Gradle's version catalog is incubating, it doesn't feel right
+  # for this to be enabled in settings.gradle.kts
   - name: UnstableApiUsage
     paths:
       - settings.gradle.kts
@@ -38,5 +45,10 @@ exclude:
   # In most cases, this is usually present in the Gradle plugins for debugging, so
   # let's disable this rule in build tools.
   - name: SystemOutErr
+    paths:
+      - build-tools
+      
+  # Gives out false warnings in build-tools, since it's validated anyway.
+  - name: ConstantConditions
     paths:
       - build-tools
