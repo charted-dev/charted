@@ -19,5 +19,3 @@ plugins {
     `charted-java-module`
     `charted-module`
 }
-
-dependencies {}

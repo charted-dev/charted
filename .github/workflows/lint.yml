@@ -99,7 +99,10 @@ jobs:
       - name: Let gradlew be executable
         run: chmod +x ./gradlew
 
-      - name: Lints the repository via Spotless for any linting errors.
+      - name: Lints build-tools with Spotless
+        run: ./gradlew :build-tools:spotlessCheck --no-daemon --scan
+
+      - name: Lints the repository with Spotless
         run: ./gradlew spotlessCheck --no-daemon --scan
 
       - name: Compiles the Kotlin sources for any compiler errors
@@ -151,7 +154,7 @@ jobs:
             ${{ runner.os }}-${{ matrix.node-version }}-nodemodules-
 
       - name: Install dependencies
-        if: ${{ steps.cache-yarn-cache.outputs.cache-hit != 'true' || steps.cache-node-modules.outputs.cache-hit != 'true' }}
+        if: ${{ steps.yarn-cache.outputs.cache-hit != 'true' || steps.cache-node-modules.outputs.cache-hit != 'true' }}
         working-directory: ./web
         run: yarn
 
@@ -192,6 +195,8 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          skip-cache: false
           working-directory: ./tools/migrations
           args: --issues-exit-code=1
           only-new-issues: false
