@@ -381,8 +381,8 @@ __metadata:
     "@mantine/notifications": 5.4.1
     "@noelware/utils": 2.2.1
     "@tabler/icons": 1.100.0
-    "@tanstack/react-query": 4.6.0
-    "@tanstack/react-query-devtools": 4.6.0
+    "@tanstack/react-query": 4.6.1
+    "@tanstack/react-query-devtools": 4.6.1
     "@types/node": 18.7.19
     "@types/react": 18.0.21
     "@types/react-dom": 18.0.6
@@ -1095,32 +1095,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:4.6.0":
-  version: 4.6.0
-  resolution: "@tanstack/query-core@npm:4.6.0"
-  checksum: 945a3b1ddc89ddf484f828cee0be5db0939f51865b2518f8c4ef351c6a3fc992f8c9fbbd32a5bf16b97d0250e95f43c1e571d5a1dfefd99ab835ffe0f934b159
+"@tanstack/query-core@npm:4.6.1":
+  version: 4.6.1
+  resolution: "@tanstack/query-core@npm:4.6.1"
+  checksum: 893fa934b81d222c1db665250799cdb3288ccb077f041eadd28a7120ed91984c386a3edb999dccc4f0cc959cfb080c311a3472c4d497ea5ad8ffa21ef2aa7205
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-devtools@npm:4.6.0":
-  version: 4.6.0
-  resolution: "@tanstack/react-query-devtools@npm:4.6.0"
+"@tanstack/react-query-devtools@npm:4.6.1":
+  version: 4.6.1
+  resolution: "@tanstack/react-query-devtools@npm:4.6.1"
   dependencies:
     "@tanstack/match-sorter-utils": ^8.1.1
     use-sync-external-store: ^1.2.0
   peerDependencies:
-    "@tanstack/react-query": 4.6.0
+    "@tanstack/react-query": 4.6.1
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: 6815bfa614f0c6794e263d7836cb346c87919a930e00bcf7a7a6444d183b73ef13a2a6635f12bbe77f6937dda27815c93db2bba4a6e702edc947d50d0ac97c03
+  checksum: 801d9ad831c709cc6a1eba4f4f1091b56d5798ab5b6df7f81b8bab7c67d4e915e5520c9d401d986dc2947dc924d2d7f83eabc1002ae27487fbc892fd9fb6ccfb
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:4.6.0":
-  version: 4.6.0
-  resolution: "@tanstack/react-query@npm:4.6.0"
+"@tanstack/react-query@npm:4.6.1":
+  version: 4.6.1
+  resolution: "@tanstack/react-query@npm:4.6.1"
   dependencies:
-    "@tanstack/query-core": 4.6.0
+    "@tanstack/query-core": 4.6.1
     use-sync-external-store: ^1.2.0
   peerDependencies:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -1131,7 +1131,7 @@ __metadata:
       optional: true
     react-native:
       optional: true
-  checksum: 39b9f5a71b1c699927db515419889b04e60410472481c5b08645eda8310c73c0c8acfcdffd9d63a5730eefff5e74a4a84939082fbe467d3af0571d837978fbb5
+  checksum: 7fd9a0707fb3823cc8e712751e22dc00d480038110bc7f8ba0614b80f80f9df4945caf4b27d9aa3d0f5c28aeaed9cbd4dfb3ed6febf5c9f973a9272ecdbf3dd1
   languageName: node
   linkType: hard
 
