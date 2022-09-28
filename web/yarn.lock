@@ -368,7 +368,7 @@ __metadata:
     "@actions/core": 1.9.1
     "@augu/eslint-config": 3.0.0
     "@augu/tsconfig": 1.1.1
-    "@elastic/charts": 50.0.0
+    "@elastic/charts": 50.0.1
     "@emotion/react": 11.10.4
     "@fontsource/cantarell": 4.5.8
     "@fontsource/inter": 4.5.12
@@ -411,9 +411,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@elastic/charts@npm:50.0.0":
-  version: 50.0.0
-  resolution: "@elastic/charts@npm:50.0.0"
+"@elastic/charts@npm:50.0.1":
+  version: 50.0.1
+  resolution: "@elastic/charts@npm:50.0.1"
   dependencies:
     "@popperjs/core": ^2.4.0
     bezier-easing: ^2.1.0
@@ -440,7 +440,7 @@ __metadata:
     moment-timezone: ^0.5.32
     react: ^16.12 || ^17.0 || ^18.0
     react-dom: ^16.12 || ^17.0 || ^18.0
-  checksum: 83d85b42a1facba359f82a9906348e793c2846e513bd30451faf10c0bc0835da9295e4e06b9f337b93670985c8cc913cb69423838575197611f0a4ac7f6c997e
+  checksum: 394cc889f35c64b68ad3b9092e82bfb9ab592ed4c8726bfbf70389876503348649096745fba57a802ffc7a6e47d6d4840d06fc56290210d8442520bff54b6074
   languageName: node
   linkType: hard
 
