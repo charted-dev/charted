@@ -15,7 +15,7 @@
     "dev": "vite"
   },
   "dependencies": {
-    "@elastic/charts": "50.0.0",
+    "@elastic/charts": "50.0.1",
     "@emotion/react": "11.10.4",
     "@fontsource/cantarell": "4.5.8",
     "@fontsource/inter": "4.5.12",
