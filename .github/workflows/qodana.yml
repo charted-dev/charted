@@ -74,5 +74,25 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: ${{ runner.temp }}/qodana/results/qodana.sarif.json
-
-      # TODO: store code quality results in Noelware's Elasticsearch instance
+          
+      # These are public, you can view them at:
+      # https://qodana.noelware.cloud/charted/server/{branch|commit}
+      #
+      # You can see the published artifact here:
+      #    https://github.com/Noelware/qodana-reports
+      - name: Upload HTML report to GitHub Pages
+        if: ${{ github.repository == 'charted-dev/charted' }}
+        run: |
+          echo "cloning Noelware/qodana-reports repository"
+          REPORTS_DIR=$(mktemp -d)
+          
+          git clone https://github.com/Noelware/qodana-reports $REPORTS_DIR/qodana-reports
+          SUFFIX=""
+          
+          if [[ $GITHUB_REF == ref/heads/* ]]; then
+            SUFFIX=$(echo $GITHUB_REF | sed -e 's/\/.*\///g')
+            echo "Using branch [$SUFFIX]"
+          else if [[ $GITHUB_REF == ref/pulls/* ]]; then
+            SUFFIX=$(echo "$GITHUB_REF//[^0-9]/")
+            echo "Using PR #$SUFFIX"
+          fi
