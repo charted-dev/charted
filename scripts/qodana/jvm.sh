@@ -14,3 +14,34 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+# This script will allow you to upload Qodana Reports to GitHub and access
+# them with the url: https://qodana.noelware.cloud/charted/server/{branch/commit/pr}
+
+# If you're going to use this script, please update this to the repository you're using!
+REPO="Noelware/qodana-reports"
+REPORTS_DIR=$(mktemp -d)
+SUFFIX=""
+
+echo "Cloning repository $REPO to $REPORTS_DIR/qodana"
+git clone https://github.com/Noelware/qodana-reports $REPORTS_DIR/qodana
+
+# Get the tag to use
+# For branches, it'll use the branch name, so:
+#   - charted/server/main
+#   - charted/server/issue/gh-192
+
+if [[ $GITHUB_REF == ref/heads/* ]]; then
+  SUFFIX=$(echo $GITHUB_REF | sed -e 's/\/.*\///g' -e 's/ref//')
+  if [[ "$SUFFIX" == gh-* ]]; then
+    SUFFIX="issue/gh-$SUFFIX"
+  fi
+
+  echo "Using branch path [charted/web/$SUFFIX]"
+elif [[ $GITHUB_REF == ref/prs/* ]]; then
+  SUFFIX="pr/$(echo $GITHUB_REF | grep -o '[[:digit:]]' | tr -d '\n')"
+  echo "Using PR path [charted/web/$SUFFIX]"
+else
+  echo "Unable to collect reports path! Skipping..."
+  exit 1
+fi

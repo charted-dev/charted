@@ -56,8 +56,8 @@ on:
       - 'LICENSE'
       - 'renovate.json'
 jobs:
-  qodana:
-    name: Qodana [Code Quality]
+  jvm:
+    name: Qodana JVM [Code Quality]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -68,7 +68,7 @@ jobs:
       - name: Qodana Scan
         uses: JetBrains/qodana-action@v2022.2.1
         with:
-          args: --baseline,qodana.sarif.json,--property,org.noelware.charted.ignoreJavaCheck=true
+          args: --baseline,qodana.sarif.json,--property,org.noelware.charted.ignoreJavaCheck=true,--save-report
 
       - name: Upload SARIF Results to GitHub
         uses: github/codeql-action/upload-sarif@v2
@@ -80,19 +80,30 @@ jobs:
       #
       # You can see the published artifact here:
       #    https://github.com/Noelware/qodana-reports
-      - name: Upload HTML report to GitHub Pages
-        if: ${{ github.repository == 'charted-dev/charted' }}
-        run: |
-          echo "cloning Noelware/qodana-reports repository"
-          REPORTS_DIR=$(mktemp -d)
-          
-          git clone https://github.com/Noelware/qodana-reports $REPORTS_DIR/qodana-reports
-          SUFFIX=""
-          
-          if [[ $GITHUB_REF == ref/heads/* ]]; then
-            SUFFIX=$(echo $GITHUB_REF | sed -e 's/\/.*\///g')
-            echo "Using branch [$SUFFIX]"
-          else if [[ $GITHUB_REF == ref/pulls/* ]]; then
-            SUFFIX=$(echo "$GITHUB_REF//[^0-9]/")
-            echo "Using PR #$SUFFIX"
-          fi
+
+  js:
+    name: Qodana JS [Code Quality]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Qodana Scan
+        uses: JetBrains/qodana-action@v2022.2.1
+        with:
+          args: --baseline,qodana.sarif.json,--property,org.noelware.charted.ignoreJavaCheck=true,--save-report,--project-dir,./web
+
+      - name: Upload SARIF Results to GitHub
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: ${{ runner.temp }}/qodana/results/qodana.sarif.json
+
+      # These are public, you can view them at:
+      # https://qodana.noelware.cloud/charted/web/{branch|commit}
+      #
+      # You can see the published artifact here:
+      #    https://github.com/Noelware/qodana-reports
+      - name: Upload artifacts
+        run: chmod +x ./scripts/qodana/js.sh && ./scripts/qodana/js.sh

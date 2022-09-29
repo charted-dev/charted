@@ -20,3 +20,28 @@
 
 # If you're going to use this script, please update this to the repository you're using!
 REPO="Noelware/qodana-reports"
+REPORTS_DIR=$(mktemp -d)
+SUFFIX=""
+
+echo "Cloning repository $REPO to $REPORTS_DIR/qodana"
+git clone https://github.com/Noelware/qodana-reports $REPORTS_DIR/qodana
+
+# Get the tag to use
+# For branches, it'll use the branch name, so:
+#   - charted/web/main
+#   - charted/web/issue/gh-192
+
+if [[ $GITHUB_REF == ref/heads/* ]]; then
+  SUFFIX=$(echo $GITHUB_REF | sed -e 's/\/.*\///g' -e 's/ref//')
+  if [[ "$SUFFIX" == gh-* ]]; then
+    SUFFIX="issue/$SUFFIX"
+  fi
+
+  echo "Using branch path [charted/web/$SUFFIX]"
+elif [[ $GITHUB_REF == ref/prs/* ]]; then
+  SUFFIX="pr/$(echo $GITHUB_REF | grep -o '[[:digit:]]' | tr -d '\n')"
+  echo "Using PR path [charted/web/$SUFFIX]"
+else
+  echo "Unable to collect reports path! Skipping..."
+  exit 1
+fi
