@@ -17,6 +17,11 @@
 
 echo "[::charted-server] Checking Spotless..."
 
+if [[ ! -z "${SPOTLESS_SKIP:-}" ]]; then
+  echo "[::charted-server] Skipping checks!"
+  exit 0
+fi
+
 ./gradlew spotlessCheck
 if [[ "$?" != "0" ]]; then
   echo "[::charted-server] Run \`make spotless\` and commit again."
