@@ -24,7 +24,7 @@ REPORTS_DIR=$(mktemp -d)
 SUFFIX=""
 
 echo "Cloning repository $REPO to $REPORTS_DIR/qodana"
-git clone https://github.com/Noelware/qodana-reports $REPORTS_DIR/qodana
+git clone https://github.com/Noelware/qodana-reports $REPORTS_DIR/qodana -b gh-pages
 
 if [[ $GITHUB_REF == refs/heads/* ]]; then
   SUFFIX=$(echo $GITHUB_REF | sed -e 's/\/.*\///g' -e 's/refs//')
@@ -44,7 +44,7 @@ fi
 echo "Now collecting from Qodana..."
 QODANA_REPORTS_DIR=$RUNNER_TEMP/qodana/results/report
 
-mkdir -p charted/web/$SUFFIX
+mkdir -p $REPORTS_DIR/qodana/charted/server/$SUFFIX
 cp -r $QODANA_REPORTS_DIR $REPORTS_DIR/qodana/charted/server/$SUFFIX
 
 git config user.email $GIT_EMAIL
@@ -52,5 +52,7 @@ git config user.name $GIT_USER
 
 cd $REPORTS_DIR/qodana
 git add .
-git commit -m "Upload charted/server Qodana for JVM artifacts"
+git commit -m "Upload charted/server Qodana for JS artifacts"
 git push -u origin gh-pages
+
+rm -rf $REPORTS_DIR

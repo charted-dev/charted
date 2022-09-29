@@ -38,9 +38,6 @@ git clone https://$GIT_USER:$GIT_TOKEN@github.com/Noelware/qodana-reports $REPOR
 #   - charted/web/main
 #   - charted/web/issue/gh-192
 
-echo "GITHUB_REF  = $GITHUB_REF"
-echo "RUNNER_TEMP = $RUNNER_TEMP"
-
 if [[ $GITHUB_REF == refs/heads/* ]]; then
   SUFFIX=$(echo $GITHUB_REF | sed -e 's/\/.*\///g' -e 's/refs//')
   if [[ "$SUFFIX" == gh-* ]]; then
@@ -59,7 +56,7 @@ fi
 echo "Now collecting from Qodana..."
 QODANA_REPORTS_DIR=$RUNNER_TEMP/qodana/results/report
 
-mkdir -p charted/web/$SUFFIX
+mkdir -p $REPORTS_DIR/qodana/charted/web/$SUFFIX
 cp -r $QODANA_REPORTS_DIR $REPORTS_DIR/qodana/charted/web/$SUFFIX
 
 git config user.email $GIT_EMAIL
@@ -69,3 +66,5 @@ cd $REPORTS_DIR/qodana
 git add .
 git commit -m "Upload charted/web Qodana for JS artifacts"
 git push -u origin gh-pages
+
+rm -rf $REPORTS_DIR
