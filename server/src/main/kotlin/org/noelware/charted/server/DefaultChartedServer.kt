@@ -17,16 +17,12 @@
 
 package org.noelware.charted.server
 
-import com.charleskorn.kaml.YamlException
-import dev.floofy.haru.Scheduler
-import dev.floofy.utils.koin.inject
-import dev.floofy.utils.koin.retrieve
-import dev.floofy.utils.kotlin.humanize
 import dev.floofy.utils.slf4j.logging
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
+import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.autohead.*
 import io.ktor.server.plugins.contentnegotiation.*
@@ -38,56 +34,42 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.netty.util.Version
-import io.sentry.Sentry
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import org.koin.core.context.GlobalContext
-import org.noelware.charted.analytics.AnalyticsServer
-import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.SetOnceGetValue
-import org.noelware.charted.common.data.responses.Response
-import org.noelware.charted.common.exceptions.ValidationException
 import org.noelware.charted.configuration.dsl.Config
-import org.noelware.charted.core.StorageWrapper
-import org.noelware.charted.server.endpoints.proxyStorageTrailer
-import org.noelware.charted.server.jobs.ReconfigureProxyCdnJob
-import org.noelware.charted.server.plugins.Logging
-import org.noelware.charted.server.plugins.RequestMdc
-import org.noelware.charted.tracing.apm.APM
-import org.noelware.charted.tracing.apm.apmTransaction
-import org.noelware.ktor.NoelKtorRouting
-import org.noelware.ktor.loader.koin.KoinEndpointLoader
+import org.noelware.charted.core.DebugUtils
+import org.noelware.charted.core.server.ChartedServer
 import org.slf4j.LoggerFactory
-import java.io.Closeable
-import io.sentry.Sentry as SentryClient
+import java.io.IOException
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.jvm.Throws
 
-class ChartedServer(private val config: Config, private val analytics: AnalyticsServer? = null): Closeable {
-    companion object {
-        val bootTime = System.currentTimeMillis()
-        val hasStarted: SetOnceGetValue<Boolean> = SetOnceGetValue()
-    }
-
-    private lateinit var analyticsJob: Job
+class DefaultChartedServer(private val config: Config): ChartedServer<NettyApplicationEngine> {
     private val _server: SetOnceGetValue<NettyApplicationEngine> = SetOnceGetValue()
-    private val log by logging<ChartedServer>()
+    private val log by logging<DefaultChartedServer>()
 
-    val server: NettyApplicationEngine
+    /**
+     * Checks if the server has been previously started or not.
+     */
+    override val started: Boolean
+        get() = hasStarted.get()
+
+    /**
+     * The server instance, for whatever reason you need it for.
+     */
+    override val server: NettyApplicationEngine
         get() = _server.value
 
-    fun start() {
-        val self = this
-        val environment = applicationEngineEnvironment {
-            developmentMode = self.config.debug
-            log = LoggerFactory.getLogger("org.noelware.charted.server.KtorApplication")
+    /**
+     * Extension function to tailor the application module for this [ChartedServer]
+     * instance.
+     */
+    override fun Application.module() {
+        TODO("Not yet implemented")
+    }
 
-            connector {
-                host = self.config.server.host
-                port = self.config.server.port
-            }
-
-            module {
-                install(AutoHeadResponse)
+    /*
+                    install(AutoHeadResponse)
                 install(DoubleReceive)
                 install(RequestMdc)
                 install(Logging)
@@ -214,29 +196,36 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
                         }
 
                         val scheduler: Scheduler by inject()
-                        scheduler.schedule(ReconfigureProxyCdnJob(self, GlobalContext.retrieve(), self.config), start = true)
+                        scheduler.schedule(
+                            ReconfigureProxyCdnJob(self, GlobalContext.retrieve(), self.config),
+                            true
+                        )
                     }
                 }
 
                 install(NoelKtorRouting) {
                     endpointLoader(KoinEndpointLoader)
                 }
+     */
+
+    /**
+     * Starts the server, this will be a no-op if [started] was already
+     * set to `true`.
+     */
+    override fun start() {
+        log.info("Starting API server...")
+
+        val self = this
+        val environment = applicationEngineEnvironment {
+            developmentMode = DebugUtils.isDebugEnabled(self.config)
+            log = LoggerFactory.getLogger("org.noelware.charted.ktor.Application")
+
+            connector {
+                host = self.config.server.host
+                port = self.config.server.port
             }
 
-//            if (self.config.ssl != null) {
-//                self.log.info("Received SSL configuration! Loading Keystore...")
-//                val file = File(self.config.ssl!!.path)
-//                val keystore = file.ifExists {
-//                    self.log.info("SSL keystore exists in path ${self.config.ssl!!.path}!")
-//                    val inputStream = inputStream()
-//                    val keystore = KeyStore.getInstance("JKS")
-//                    keystore.load(inputStream, self.config.ssl!!.password.toCharArray())
-//
-//                    keystore
-//                } ?: error("Keystore path ${self.config.ssl!!.path} doesn't exist.")
-//
-//                sslConnector(keystore, "charted.ssl", { self.config.ssl!!.password.toCharArray() }, { self.config.ssl!!.password.toCharArray() }, {})
-//            }
+            module { module() }
         }
 
         _server.value = embeddedServer(Netty, environment, configure = {
@@ -248,26 +237,36 @@ class ChartedServer(private val config: Config, private val analytics: Analytics
             tcpKeepAlive = config.server.tcpKeepAlive
         })
 
-        if (analytics != null) {
-            analyticsJob = ChartedScope.launch {
-                analytics.launch()
-            }
-        }
-
         val versions = Version.identify()
-        val version = versions[versions.keys.first()]!!
+        val netty = versions[versions.keys.first()]!!
+        log.info("Server is using Netty v${netty.artifactVersion()} (commit ${netty.shortCommitHash()}) [${netty.artifactId()}]")
 
-        log.info("Using Netty v${version.artifactVersion()} [${version.shortCommitHash()}, ${(System.currentTimeMillis() - version.buildTimeMillis()).humanize(true)} ago]")
-        server.start(wait = true)
+        server.start(true)
     }
 
+    /**
+     * Closes this stream and releases any system resources associated
+     * with it. If the stream is already closed then invoking this
+     * method has no effect.
+     *
+     * As noted in [AutoCloseable.close], cases where the
+     * close may fail require careful attention. It is strongly advised
+     * to relinquish the underlying resources and to internally
+     * *mark* the `Closeable` as closed, prior to throwing
+     * the `IOException`.
+     *
+     * @throws java.io.IOException if an I/O error occurs
+     */
+    @Throws(IOException::class)
     override fun close() {
-        if (!_server.wasSet()) return
-        if (::analyticsJob.isInitialized) {
-            analyticsJob.cancel()
-            analytics?.close()
-        }
+        if (!started) return
 
-        server.stop()
+        log.warn("Shutting down server...")
+        server.stop(500, 10, TimeUnit.SECONDS)
+    }
+
+    companion object {
+        val hasStarted: AtomicBoolean = AtomicBoolean(false)
+        val bootTime: Long = System.nanoTime()
     }
 }

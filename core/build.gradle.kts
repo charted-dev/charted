@@ -27,6 +27,10 @@ dependencies {
     implementation(libs.logback.classic)
     implementation(libs.logback.core)
 
+    // Ktor
+    implementation(libs.ktor.server.netty) // so we can get types for the application engines
+    implementation(libs.ktor.server.core)
+
     // Projects
     implementation(project(":database"))
 }

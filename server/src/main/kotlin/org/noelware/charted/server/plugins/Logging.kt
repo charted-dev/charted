@@ -19,6 +19,7 @@ package org.noelware.charted.server.plugins
 
 import dev.floofy.utils.koin.inject
 import dev.floofy.utils.koin.injectOrNull
+import dev.floofy.utils.kotlin.doFormatTime
 import dev.floofy.utils.slf4j.logging
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -30,7 +31,7 @@ import org.apache.commons.lang3.time.StopWatch
 import org.noelware.charted.common.extensions.doFormatTime
 import org.noelware.charted.configuration.dsl.Config
 import org.noelware.charted.metrics.PrometheusMetrics
-import org.noelware.charted.server.ChartedServer
+import org.noelware.charted.server.DefaultChartedServer
 
 val Logging = createApplicationPlugin("ChartedKtorLogging") {
     val stopwatchKey = AttributeKey<StopWatch>("StopWatch")
@@ -41,12 +42,14 @@ val Logging = createApplicationPlugin("ChartedKtorLogging") {
     val log by logging("org.noelware.charted.server.plugins.KtorLoggingKt")
 
     environment?.monitor?.subscribe(ApplicationStarted) {
-        log.info("HTTP server has started successfully!")
-        ChartedServer.hasStarted.value = true
+        val time = (System.nanoTime() - DefaultChartedServer.bootTime).doFormatTime()
+
+        log.info("HTTP server has started in $time")
+        DefaultChartedServer.hasStarted.set(true)
     }
 
     environment?.monitor?.subscribe(ApplicationStopped) {
-        log.warn("HTTP server has stopped. :(")
+        log.warn("HTTP server has been stopped!")
     }
 
     onCall { call ->
@@ -67,8 +70,8 @@ val Logging = createApplicationPlugin("ChartedKtorLogging") {
 
         val histogram = call.attributes.getOrNull(histogramKey)
         histogram?.observeDuration()
-
         stopwatch.stop()
+
         log.info(
             "${method.value} $version $endpoint :: ${status.value} ${status.description} [$userAgent] [${stopwatch.doFormatTime()}]"
         )

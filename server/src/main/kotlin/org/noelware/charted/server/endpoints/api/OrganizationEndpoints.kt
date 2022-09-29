@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UNUSED")
+
 package org.noelware.charted.server.endpoints.api
 
 import io.ktor.http.*
@@ -44,29 +46,47 @@ class OrganizationEndpoints: AbstractEndpoint("/organizations") {
     }
 
     @Put
-    suspend fun create(call: ApplicationCall) {}
+    suspend fun create(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Get("/{id}")
-    suspend fun get(call: ApplicationCall) {}
+    suspend fun get(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Patch("/{id}")
-    suspend fun patch(call: ApplicationCall) {}
+    suspend fun patch(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Delete("/{id}")
-    suspend fun delete(call: ApplicationCall) {}
+    suspend fun delete(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Get("/{id}/members")
-    suspend fun members(call: ApplicationCall) {}
+    suspend fun members(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Put("/{id}/members")
-    suspend fun inviteMember(call: ApplicationCall) {}
+    suspend fun inviteMember(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Patch("/{id}/members")
-    suspend fun patchMember(call: ApplicationCall) {}
+    suspend fun patchMember(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Delete("/{id}/members")
-    suspend fun kickMember(call: ApplicationCall) {}
+    suspend fun kickMember(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Get("/{id}/members/{memberId}")
-    suspend fun memberById(call: ApplicationCall) {}
+    suspend fun memberById(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 }

@@ -31,10 +31,9 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 import io.sentry.Sentry
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.cancel
+import io.sentry.kotlin.SentryContext
+import kotlinx.coroutines.*
 import kotlinx.coroutines.debug.DebugProbes
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.EmptySerializersModule
 import net.perfectdreams.exposedpowerutils.sql.createOrUpdatePostgreSQLEnum
@@ -53,6 +52,7 @@ import org.noelware.charted.apikeys.DefaultApiKeyManager
 import org.noelware.charted.common.ChartedInfo
 import org.noelware.charted.common.ChartedScope
 import org.noelware.charted.common.IRedisClient
+import org.noelware.charted.common.SetOnceGetValue
 import org.noelware.charted.common.data.helm.RepoType
 import org.noelware.charted.common.extensions.formatToSize
 import org.noelware.charted.common.extensions.toRealPath
@@ -103,7 +103,9 @@ import kotlin.system.exitProcess
 import kotlin.time.Duration.Companion.seconds
 
 object Bootstrap {
+    private val analyticsThread: SetOnceGetValue<Job> = SetOnceGetValue()
     private val log by logging<Bootstrap>()
+
     private fun createUUID() {
         val env = System.getenv("CHARTED_NO_ANALYTICS") ?: "true"
         if (env.matches("^(yes|true|si|si*|1)$".toRegex())) {
@@ -131,22 +133,28 @@ object Bootstrap {
 
                 val koin = GlobalContext.getKoinApplicationOrNull()
                 if (koin != null) {
-                    val server: ChartedServer by inject()
                     val elasticsearch: ElasticsearchService? by injectOrNull()
+                    val cassandra: CassandraConnection? by injectOrNull()
+                    val analytics: AnalyticsServer? by injectOrNull()
+                    val sessions: SessionManager by inject()
+                    val server: DefaultChartedServer by inject()
                     val redis: IRedisClient by inject()
                     val ds: HikariDataSource by inject()
-                    val sessions: SessionManager by inject()
-                    val cassandra: CassandraConnection? by injectOrNull()
 
                     elasticsearch?.closeQuietly()
-                    cassandra?.close()
+                    cassandra?.closeQuietly()
+                    analytics?.closeQuietly()
                     sessions.closeQuietly()
                     server.closeQuietly()
-                    ds.closeQuietly()
                     redis.closeQuietly()
                     koin.close()
+                    ds.closeQuietly()
 
                     runBlocking {
+                        if (analyticsThread.wasSet()) {
+                            analyticsThread.value.cancelAndJoin()
+                        }
+
                         shutdownTickers()
                         ChartedScope.cancel()
                     }
@@ -205,7 +213,7 @@ object Bootstrap {
                 // If any thread had an exception, let's check if:
                 //  - The server has started (must be set if the Application hook has run)
                 //  - If the thread names are the bootstrap or shutdown thread
-                val started = ChartedServer.hasStarted.wasSet()
+                val started = DefaultChartedServer.hasStarted.get()
                 if (!started && (thread.name == "Server-ShutdownThread" || thread.name == "Server-BootstrapThread")) {
                     halt(120)
                     exitProcess(1)
@@ -356,16 +364,6 @@ object Bootstrap {
                 it.dsn = config.sentryDsn
             }
 
-            Sentry.configureScope {
-                it.tags += mapOf(
-                    "charted.distribution.type" to ChartedInfo.distribution.key,
-                    "charted.build.date" to ChartedInfo.buildDate,
-                    "charted.version" to ChartedInfo.version,
-                    "charted.commit" to ChartedInfo.commitHash,
-                    "system.user" to System.getProperty("user.name")
-                )
-            }
-
             log.info("Sentry is now enabled!")
         }
 
@@ -414,7 +412,7 @@ object Bootstrap {
         }
 
         val analytics = if (config.analytics != null) AnalyticsServer(config.analytics!!) else null
-        val server = ChartedServer(config, analytics)
+        val server = DefaultChartedServer(config)
         val metrics = PrometheusMetrics(ds, redis)
         val module = module {
             single<InvitationManager> { invitations }
@@ -509,6 +507,13 @@ object Bootstrap {
         }
 
         try {
+            if (analytics != null) {
+                log.info("Starting Analytics server in a seperate thread...")
+                analyticsThread.value = ChartedScope.launch(if (Sentry.isEnabled()) SentryContext() + ChartedScope.coroutineContext else ChartedScope.coroutineContext) {
+                    analytics.launch()
+                }
+            }
+
             server.start()
         } catch (e: Exception) {
             log.error("Unable to bootstrap charted-server:", e)

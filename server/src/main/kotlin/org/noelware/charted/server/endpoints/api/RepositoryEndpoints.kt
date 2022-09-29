@@ -534,47 +534,77 @@ class RepositoryEndpoints(
     }
 
     @Put("/{id}/members")
-    suspend fun inviteMember(call: ApplicationCall) {}
+    suspend fun inviteMember(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Post("/{id}/members/invitations/{inviteId}")
-    suspend fun joinRepository(call: ApplicationCall) {}
+    suspend fun joinRepository(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Patch("/{id}/members/{memberId}")
-    suspend fun patchMember(call: ApplicationCall) {}
+    suspend fun patchMember(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Delete("/{id}/members/{memberId}")
-    suspend fun kickMember(call: ApplicationCall) {}
+    suspend fun kickMember(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Get("/{id}/members/{memberId}")
-    suspend fun memberById(call: ApplicationCall) {}
+    suspend fun memberById(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Get("/{id}/releases")
-    suspend fun releases(call: ApplicationCall) {}
+    suspend fun releases(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Put("/{id}/releases")
-    suspend fun createRelease(call: ApplicationCall) {}
+    suspend fun createRelease(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Get("/{id}/releases/{tag}")
-    suspend fun release(call: ApplicationCall) {}
+    suspend fun release(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Patch("/{id}/releases/{tag}")
-    suspend fun patchRelease(call: ApplicationCall) {}
+    suspend fun patchRelease(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Delete("/{id}/releases/{tag}")
-    suspend fun deleteRelease(call: ApplicationCall) {}
+    suspend fun deleteRelease(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Get("/{id}/webhooks")
-    suspend fun webhooks(call: ApplicationCall) {}
+    suspend fun webhooks(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Get("/{id}/webhooks/{webhookId}")
-    suspend fun webhook(call: ApplicationCall) {}
+    suspend fun webhook(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Put("/{id}/webhooks")
-    suspend fun createWebhook(call: ApplicationCall) {}
+    suspend fun createWebhook(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Patch("/{id}/webhooks/{webhookId}")
-    suspend fun patchWebhook(call: ApplicationCall) {}
+    suspend fun patchWebhook(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Delete("/{id}/webhooks/{webhookId}")
-    suspend fun deleteWebhook(call: ApplicationCall) {}
+    suspend fun deleteWebhook(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 }

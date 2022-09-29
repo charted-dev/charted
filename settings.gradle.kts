@@ -73,9 +73,25 @@ include(
     ":sessions:google",
     ":sessions:local",
     ":sessions:noelware",
+    ":testing",
+    ":testing:helm",
+    ":testing:kubernetes",
+    ":testing:server",
     ":tools:cli",
     ":tools:migrations",
-    ":web"
+    ":web",
+    ":web:distribution",
+    ":web:distribution:docker",
+    ":web:distribution:helm",
+    ":workers",
+    ":workers:gc",
+    ":workers:indexers",
+    ":workers:indexers:elasticsearch",
+    ":workers:indexers:meilisearch",
+    ":workers:messaging",
+    ":workers:messaging:kafka",
+    ":workers:messaging:redis",
+    ":workers:queue"
 )
 
 dependencyResolutionManagement {

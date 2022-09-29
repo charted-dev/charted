@@ -24,6 +24,7 @@ import { MantineProvider, ColorSchemeProvider, type ColorScheme } from '@mantine
 import { defineMantineTheme } from './mantine.config';
 import { useLocalStorage } from '@mantine/hooks';
 import { BrowserRouter } from 'react-router-dom';
+import { ErrorBoundary } from '~/components';
 import type { FC } from 'react';
 import AppRouter from './router';
 
@@ -40,9 +41,11 @@ const App: FC = () => {
   return (
     <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
       <MantineProvider withGlobalStyles withNormalizeCSS theme={defineMantineTheme(colorScheme)}>
-        <BrowserRouter>
-          <AppRouter />
-        </BrowserRouter>
+        <ErrorBoundary>
+          <BrowserRouter>
+            <AppRouter />
+          </BrowserRouter>
+        </ErrorBoundary>
       </MantineProvider>
     </ColorSchemeProvider>
   );

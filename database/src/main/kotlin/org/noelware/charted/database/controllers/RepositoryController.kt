@@ -82,7 +82,7 @@ data class UpdateRepositoryBody(
 object RepositoryController {
     suspend fun getByName(name: String): Repository? = asyncTransaction(ChartedScope) {
         RepositoryEntity
-            .find { RepositoryTable.name eq id }
+            .find { RepositoryTable.name eq name }
             .firstOrNull()?.let { entity ->
                 val repo = Repository.fromEntity(entity)
                 if (repo.bitfield.contains("PRIVATE")) return@asyncTransaction null

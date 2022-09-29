@@ -36,6 +36,9 @@ export default defineConfig({
       }
     ]
   },
+  build: {
+    sourcemap: true
+  },
   server: {
     port: 4000,
     proxy:
@@ -43,8 +46,7 @@ export default defineConfig({
         ? {
             '/api': {
               target: serverUrl,
-              changeOrigin: true,
-              rewrite: (path) => path.replace(/^\/api/, '')
+              changeOrigin: true
             }
           }
         : undefined

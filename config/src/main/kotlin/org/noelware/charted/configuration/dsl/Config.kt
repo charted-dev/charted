@@ -36,6 +36,7 @@ data class Config(
     @SerialName("invite_only")
     val inviteOnly: Boolean = false,
     val telemetry: Boolean = false,
+    val frontend: Boolean = true,
 
     @SerialName("sentry_dsn")
     val sentryDsn: String? = null,
