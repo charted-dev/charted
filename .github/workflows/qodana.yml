@@ -90,6 +90,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup Node.js v18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
       - name: Qodana Scan
         uses: JetBrains/qodana-action@v2022.2.1
         with:

@@ -15,3 +15,4 @@
 
 version: "1.0"
 linter: jetbrains/qodana-js:2022.2-eap
+bootstrap: yarn install
