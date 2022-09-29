@@ -407,7 +407,7 @@ __metadata:
     twemoji: 14.0.2
     typescript: 4.8.4
     validator: 13.7.0
-    vite: 3.1.3
+    vite: 3.1.4
     winston: 3.8.2
     winston-daily-rotate-file: 4.7.1
     winston-elasticsearch: 0.17.1
@@ -6021,9 +6021,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:3.1.3":
-  version: 3.1.3
-  resolution: "vite@npm:3.1.3"
+"vite@npm:3.1.4":
+  version: 3.1.4
+  resolution: "vite@npm:3.1.4"
   dependencies:
     esbuild: ^0.15.6
     fsevents: ~2.3.2
@@ -6049,7 +6049,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: af13c9820c292792f02d0a25fd46d8557e627b93f95bc05b5f7f1261e9565e9e69fda2df0c0898f248edb811ebcac5400a85a81625ef29749f50b18273439d91
+  checksum: f3e532952b896ca7f746de0e51fc8c98ac482b2a5f0b89538ec89ac615f6edbfe45628fe4fbabab4c5fe07f6e4c2e624360af00d8c5c454af31771952b8c6e72
   languageName: node
   linkType: hard
 
