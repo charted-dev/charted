@@ -14,3 +14,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+# This script will allow you to upload Qodana Reports to GitHub and access
+# them with the url: https://qodana.noelware.cloud/charted/server/{branch/commit/pr}
+
+# If you're going to use this script, please update this to the repository you're using!
+REPO="Noelware/qodana-reports"
