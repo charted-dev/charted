@@ -131,7 +131,7 @@ class AdminEndpoint(private val statistics: StatisticsCollector): AbstractEndpoi
                     ChartedInfo.distribution.key,
                     ChartedInfo.commitHash,
                     ChartedInfo.buildDate,
-                    (System.currentTimeMillis() - DefaultChartedServer.bootTime).doFormatTime(),
+                    (System.nanoTime() - DefaultChartedServer.bootTime).doFormatTime(),
                     ChartedInfo.version,
                     "charted-server",
                     "Noelware"
