@@ -87,7 +87,7 @@ jobs:
 
           # Soon, it will have botto@noelware.org
           GIT_EMAIL: ohlookitsaugust@gmail.com
-          GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_TOKEN: ${{ secrets.NOEL_TOKEN }}
 
   js:
     name: Qodana JS [Code Quality]
@@ -125,4 +125,4 @@ jobs:
 
           # Soon, it will have botto@noelware.org
           GIT_EMAIL: ohlookitsaugust@gmail.com
-          GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_TOKEN: ${{ secrets.NOEL_TOKEN }}
