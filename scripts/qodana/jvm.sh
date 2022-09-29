@@ -26,22 +26,31 @@ SUFFIX=""
 echo "Cloning repository $REPO to $REPORTS_DIR/qodana"
 git clone https://github.com/Noelware/qodana-reports $REPORTS_DIR/qodana
 
-# Get the tag to use
-# For branches, it'll use the branch name, so:
-#   - charted/server/main
-#   - charted/server/issue/gh-192
-
-if [[ $GITHUB_REF == ref/heads/* ]]; then
-  SUFFIX=$(echo $GITHUB_REF | sed -e 's/\/.*\///g' -e 's/ref//')
+if [[ $GITHUB_REF == refs/heads/* ]]; then
+  SUFFIX=$(echo $GITHUB_REF | sed -e 's/\/.*\///g' -e 's/refs//')
   if [[ "$SUFFIX" == gh-* ]]; then
-    SUFFIX="issue/gh-$SUFFIX"
+    SUFFIX="issue/$SUFFIX"
   fi
 
   echo "Using branch path [charted/web/$SUFFIX]"
-elif [[ $GITHUB_REF == ref/prs/* ]]; then
+elif [[ $GITHUB_REF == refs/prs/* ]]; then
   SUFFIX="pr/$(echo $GITHUB_REF | grep -o '[[:digit:]]' | tr -d '\n')"
   echo "Using PR path [charted/web/$SUFFIX]"
 else
   echo "Unable to collect reports path! Skipping..."
   exit 1
 fi
+
+echo "Now collecting from Qodana..."
+QODANA_REPORTS_DIR=$RUNNER_TEMP/qodana/results/report
+
+mkdir -p charted/web/$SUFFIX
+cp -r $QODANA_REPORTS_DIR $REPORTS_DIR/qodana/charted/server/$SUFFIX
+
+git config user.email $GIT_EMAIL
+git config user.name $GIT_USER
+
+cd $REPORTS_DIR/qodana
+git add .
+git commit -m "Upload charted/server Qodana for JVM artifacts"
+git push -u origin gh-pages

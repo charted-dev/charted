@@ -76,10 +76,18 @@ jobs:
           sarif_file: ${{ runner.temp }}/qodana/results/qodana.sarif.json
           
       # These are public, you can view them at:
-      # https://qodana.noelware.cloud/charted/server/{branch|commit}
+      # https://qodana.noelware.cloud/charted/web/{branch|commit}
       #
       # You can see the published artifact here:
       #    https://github.com/Noelware/qodana-reports
+      - name: Upload artifacts
+        run: chmod +x ./scripts/qodana/jvm.sh && ./scripts/qodana/jvm.sh
+        env:
+          GIT_USER: noelbot
+
+          # Soon, it will have botto@noelware.org
+          GIT_EMAIL: ohlookitsaugust@gmail.com
+          GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   js:
     name: Qodana JS [Code Quality]
@@ -112,3 +120,9 @@ jobs:
       #    https://github.com/Noelware/qodana-reports
       - name: Upload artifacts
         run: chmod +x ./scripts/qodana/js.sh && ./scripts/qodana/js.sh
+        env:
+          GIT_USER: noelbot
+
+          # Soon, it will have botto@noelware.org
+          GIT_EMAIL: ohlookitsaugust@gmail.com
+          GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}

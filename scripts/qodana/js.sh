@@ -22,9 +22,16 @@
 REPO="Noelware/qodana-reports"
 REPORTS_DIR=$(mktemp -d)
 SUFFIX=""
+GIT_USER=${GIT_USER:-}
+GIT_EMAIL=${GIT_EMAIL:-}
+
+if [[ -z "$GIT_USER" || -z "$GIT_EMAIL" ]]; then
+  echo "Missing \`GIT_USER\` or \`GIT_EMAIL\` environment variables"
+  exit 1
+fi
 
 echo "Cloning repository $REPO to $REPORTS_DIR/qodana"
-git clone https://github.com/Noelware/qodana-reports $REPORTS_DIR/qodana
+git clone https://$GIT_USER:$GIT_TOKEN@github.com/Noelware/qodana-reports $REPORTS_DIR/qodana -b gh-pages
 
 # Get the tag to use
 # For branches, it'll use the branch name, so:
@@ -35,7 +42,7 @@ echo "GITHUB_REF  = $GITHUB_REF"
 echo "RUNNER_TEMP = $RUNNER_TEMP"
 
 if [[ $GITHUB_REF == refs/heads/* ]]; then
-  SUFFIX=$(echo $GITHUB_REF | sed -e 's/\/.*\///g' -e 's/ref//')
+  SUFFIX=$(echo $GITHUB_REF | sed -e 's/\/.*\///g' -e 's/refs//')
   if [[ "$SUFFIX" == gh-* ]]; then
     SUFFIX="issue/$SUFFIX"
   fi
@@ -48,3 +55,17 @@ else
   echo "Unable to collect reports path! Skipping..."
   exit 1
 fi
+
+echo "Now collecting from Qodana..."
+QODANA_REPORTS_DIR=$RUNNER_TEMP/qodana/results/report
+
+mkdir -p charted/web/$SUFFIX
+cp -r $QODANA_REPORTS_DIR $REPORTS_DIR/qodana/charted/web/$SUFFIX
+
+git config user.email $GIT_EMAIL
+git config user.name $GIT_USER
+
+cd $REPORTS_DIR/qodana
+git add .
+git commit -m "Upload charted/web Qodana for JS artifacts"
+git push -u origin gh-pages
