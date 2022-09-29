@@ -18,7 +18,6 @@
 // @ts-check
 
 const { info, warning, error } = require('@actions/core');
-const { assertIsError } = require('@noelware/utils');
 const { ESLint } = require('eslint');
 
 const main = async () => {

@@ -21,6 +21,4 @@ async function main() {
   /* todo: this */
 }
 
-main().catch((ex) => {
-  /* do more stuff here? */
-});
+main();

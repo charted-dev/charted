@@ -30,7 +30,8 @@ class ErrorBoundary extends Component<PropsWithChildren<{}>, Record<string, any>
     return { error };
   }
 
-  override componentDidCatch(error: Error, info: ErrorInfo) {
+  // signature: error: Error, info: ErrorInfo
+  override componentDidCatch() {
     // TODO: find a way to send to Sentry. Since we don't know what
     //       Sentry instance to use at build-time, this is a bit tricky.
   }
