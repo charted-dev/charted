@@ -17,7 +17,7 @@
 
 package org.noelware.charted.server.endpoints.api
 
-import dev.floofy.utils.kotlin.humanize
+import dev.floofy.utils.kotlin.doFormatTime
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -28,12 +28,13 @@ import org.noelware.charted.common.stats.RedisStats
 import org.noelware.charted.database.PostgresStats
 import org.noelware.charted.database.cassandra.CassandraStats
 import org.noelware.charted.elasticsearch.stats.ElasticsearchStats
-import org.noelware.charted.server.ChartedServer
+import org.noelware.charted.server.DefaultChartedServer
 import org.noelware.charted.stats.StatisticsCollector
 import org.noelware.charted.stats.collectors.*
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.noelware.ktor.endpoints.Get
 import org.noelware.ktor.endpoints.Post
+import java.util.concurrent.TimeUnit
 
 @kotlinx.serialization.Serializable
 private data class AdminResponse(
@@ -126,11 +127,11 @@ class AdminEndpoint(private val statistics: StatisticsCollector): AbstractEndpoi
                     jvm,
                     os,
 
-                    System.currentTimeMillis() - ChartedServer.bootTime,
+                    TimeUnit.MILLISECONDS.convert(System.nanoTime() - DefaultChartedServer.bootTime, TimeUnit.NANOSECONDS),
                     ChartedInfo.distribution.key,
                     ChartedInfo.commitHash,
                     ChartedInfo.buildDate,
-                    (System.currentTimeMillis() - ChartedServer.bootTime).humanize(),
+                    (System.currentTimeMillis() - DefaultChartedServer.bootTime).doFormatTime(),
                     ChartedInfo.version,
                     "charted-server",
                     "Noelware"

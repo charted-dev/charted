@@ -23,11 +23,11 @@ import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import org.noelware.charted.configuration.dsl.Config
 import org.noelware.charted.core.StorageWrapper
-import org.noelware.charted.server.ChartedServer
+import org.noelware.charted.server.DefaultChartedServer
 import org.noelware.charted.server.endpoints.proxyStorageTrailer
 
 class ReconfigureProxyCdnJob(
-    private val server: ChartedServer,
+    private val server: DefaultChartedServer,
     private val storage: StorageWrapper,
     private val config: Config
 ): AbstractJob(

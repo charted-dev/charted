@@ -17,26 +17,4 @@
 
 package org.noelware.charted.testing.server.junit
 
-import dev.floofy.utils.slf4j.logging
-import org.junit.jupiter.api.extension.AfterEachCallback
-import org.junit.jupiter.api.extension.ExtensionContext
-import org.noelware.charted.configuration.dsl.Config
-import org.noelware.charted.testing.server.ChartedTestServer
-
-class ServerCleanupExtension: AfterEachCallback {
-    private val servers: MutableList<ChartedTestServer> = mutableListOf()
-    private val log by logging<ServerCleanupExtension>()
-
-    fun createServer(configure: Config.() -> Unit = {}): ChartedTestServer {
-        val server = ChartedTestServer(configure)
-        servers.add(server)
-
-        return server
-    }
-
-    override fun afterEach(context: ExtensionContext) {
-        log.info("Shutting down ${servers.size} servers!")
-        for (server in servers) {
-        }
-    }
-}
+class ServerCleanupExtension
