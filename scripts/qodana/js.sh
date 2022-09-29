@@ -59,8 +59,8 @@ QODANA_REPORTS_DIR=$RUNNER_TEMP/qodana/results/report
 mkdir -p $REPORTS_DIR/qodana/charted/web/$SUFFIX
 cp -r $QODANA_REPORTS_DIR $REPORTS_DIR/qodana/charted/web/$SUFFIX
 
-git config user.email $GIT_EMAIL
-git config user.name $GIT_USER
+git config --global user.email $GIT_EMAIL
+git config --global user.name $GIT_USER
 
 cd $REPORTS_DIR/qodana
 git add .
