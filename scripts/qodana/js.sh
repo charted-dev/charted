@@ -31,6 +31,9 @@ git clone https://github.com/Noelware/qodana-reports $REPORTS_DIR/qodana
 #   - charted/web/main
 #   - charted/web/issue/gh-192
 
+echo "GITHUB_REF  = $GITHUB_REF"
+echo "RUNNER_TEMP = $RUNNER_TEMP"
+
 if [[ $GITHUB_REF == ref/heads/* ]]; then
   SUFFIX=$(echo $GITHUB_REF | sed -e 's/\/.*\///g' -e 's/ref//')
   if [[ "$SUFFIX" == gh-* ]]; then
