@@ -65,7 +65,10 @@ git config --global user.name $GIT_USER
 
 cd $REPORTS_DIR/qodana
 git add .
-git commit -m "Upload charted/web Qodana for JS artifacts\nReferenced from commit: $GITHUB_SHA\n\nhttps://github.com/charted-dev/charted/commits/$GITHUB_SHA"
-git push -u origin gh-pages
+git commit -m "Upload charted/web Qodana for JVM artifacts
 
+Referenced from commit: $GITHUB_SHA
+https://github.com/charted-dev/charted/commits/$GITHUB_SHA"
+
+git push -u origin gh-pages
 rm -rf $REPORTS_DIR
