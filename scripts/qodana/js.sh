@@ -34,14 +34,14 @@ git clone https://github.com/Noelware/qodana-reports $REPORTS_DIR/qodana
 echo "GITHUB_REF  = $GITHUB_REF"
 echo "RUNNER_TEMP = $RUNNER_TEMP"
 
-if [[ $GITHUB_REF == ref/heads/* ]]; then
+if [[ $GITHUB_REF == refs/heads/* ]]; then
   SUFFIX=$(echo $GITHUB_REF | sed -e 's/\/.*\///g' -e 's/ref//')
   if [[ "$SUFFIX" == gh-* ]]; then
     SUFFIX="issue/$SUFFIX"
   fi
 
   echo "Using branch path [charted/web/$SUFFIX]"
-elif [[ $GITHUB_REF == ref/prs/* ]]; then
+elif [[ $GITHUB_REF == refs/prs/* ]]; then
   SUFFIX="pr/$(echo $GITHUB_REF | grep -o '[[:digit:]]' | tr -d '\n')"
   echo "Using PR path [charted/web/$SUFFIX]"
 else
