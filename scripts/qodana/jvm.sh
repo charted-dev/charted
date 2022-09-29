@@ -22,9 +22,17 @@
 REPO="Noelware/qodana-reports"
 REPORTS_DIR=$(mktemp -d)
 SUFFIX=""
+GIT_USER=${GIT_USER:-}
+GIT_EMAIL=${GIT_EMAIL:-}
+GIT_TOKEN=${GIT_TOKEN:-GITHUB_TOKEN:-}
+
+if [[ -z "$GIT_USER" || -z "$GIT_EMAIL" || -z "$GIT_TOKEN" ]]; then
+  echo "Missing \`GIT_USER\`, \`GIT_EMAIL\`, or \`GIT_TOKEN\` environment variables"
+  exit 1
+fi
 
 echo "Cloning repository $REPO to $REPORTS_DIR/qodana"
-git clone https://github.com/Noelware/qodana-reports $REPORTS_DIR/qodana -b gh-pages
+git clone https://$GIT_USER:$GIT_TOKEN@github.com/Noelware/qodana-reports $REPORTS_DIR/qodana -b gh-pages
 
 if [[ $GITHUB_REF == refs/heads/* ]]; then
   SUFFIX=$(echo $GITHUB_REF | sed -e 's/\/.*\///g' -e 's/refs//')
@@ -52,7 +60,7 @@ git config --global user.name $GIT_USER
 
 cd $REPORTS_DIR/qodana
 git add .
-git commit -m "Upload charted/server Qodana for JS artifacts"
+git commit -m "Upload charted/server Qodana for JVM artifacts\nReferenced from commit: $GITHUB_SHA\n\nhttps://github.com/charted-dev/charted/commits/$GITHUB_SHA"
 git push -u origin gh-pages
 
 rm -rf $REPORTS_DIR

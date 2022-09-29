@@ -24,9 +24,10 @@ REPORTS_DIR=$(mktemp -d)
 SUFFIX=""
 GIT_USER=${GIT_USER:-}
 GIT_EMAIL=${GIT_EMAIL:-}
+GIT_TOKEN=${GIT_TOKEN:-GITHUB_TOKEN:-}
 
-if [[ -z "$GIT_USER" || -z "$GIT_EMAIL" ]]; then
-  echo "Missing \`GIT_USER\` or \`GIT_EMAIL\` environment variables"
+if [[ -z "$GIT_USER" || -z "$GIT_EMAIL" || -z "$GIT_TOKEN" ]]; then
+  echo "Missing \`GIT_USER\`, \`GIT_EMAIL\`, or \`GIT_TOKEN\` environment variables"
   exit 1
 fi
 
@@ -64,7 +65,7 @@ git config --global user.name $GIT_USER
 
 cd $REPORTS_DIR/qodana
 git add .
-git commit -m "Upload charted/web Qodana for JS artifacts"
+git commit -m "Upload charted/web Qodana for JS artifacts\nReferenced from commit: $GITHUB_SHA\n\nhttps://github.com/charted-dev/charted/commits/$GITHUB_SHA"
 git push -u origin gh-pages
 
 rm -rf $REPORTS_DIR
