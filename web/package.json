@@ -30,7 +30,7 @@
     "@noelware/utils": "2.2.1",
     "@tabler/icons": "1.101.0",
     "@tanstack/react-query": "4.7.1",
-    "@tanstack/react-query-devtools": "4.7.1",
+    "@tanstack/react-query-devtools": "4.7.2",
     "markdown-it": "13.0.1",
     "markdown-it-emoji": "2.0.2",
     "markdown-it-shiki": "0.5.1",
