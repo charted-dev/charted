@@ -81,6 +81,7 @@ jobs:
       # You can see the published artifact here:
       #    https://github.com/Noelware/qodana-reports
       - name: Upload artifacts
+        if: ${{ github.repository == 'charted-dev/charted' && github.event == 'push' }}
         run: chmod +x ./scripts/qodana/jvm.sh && ./scripts/qodana/jvm.sh
         env:
           GIT_USER: noelbot
@@ -119,6 +120,7 @@ jobs:
       # You can see the published artifact here:
       #    https://github.com/Noelware/qodana-reports
       - name: Upload artifacts
+        if: ${{ github.repository == 'charted-dev/charted' && github.event == 'push' }}
         run: chmod +x ./scripts/qodana/js.sh && ./scripts/qodana/js.sh
         env:
           GIT_USER: noelbot
