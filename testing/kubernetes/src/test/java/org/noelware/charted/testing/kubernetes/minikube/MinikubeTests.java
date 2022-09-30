@@ -18,8 +18,8 @@
 package org.noelware.charted.testing.kubernetes.minikube;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.noelware.charted.testing.kubernetes.Assertions.*;
 
-import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -52,6 +52,6 @@ public class MinikubeTests {
                 .toList();
 
         assertEquals(items.size(), 4);
-        assertEquals(List.of("default", "kube-node-lease", "kube-public", "kube-system"), namespaces);
+        assertHasElements(namespaces, "default", "kube-node-lease", "kube-public", "kube-system");
     }
 }

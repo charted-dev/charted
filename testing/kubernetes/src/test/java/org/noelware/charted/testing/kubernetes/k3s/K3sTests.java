@@ -18,9 +18,9 @@
 package org.noelware.charted.testing.kubernetes.k3s;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.noelware.charted.testing.kubernetes.Assertions.*;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -72,6 +72,6 @@ public class K3sTests {
                 .toList();
 
         assertEquals(items.size(), 4);
-        assertEquals(List.of("default", "kube-system", "kube-public", "kube-node-lease"), namespaces);
+        assertHasElements(namespaces, "default", "kube-node-lease", "kube-public", "kube-system");
     }
 }
