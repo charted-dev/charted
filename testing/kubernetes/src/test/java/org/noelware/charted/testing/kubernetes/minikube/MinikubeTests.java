@@ -23,13 +23,15 @@ import static org.noelware.charted.testing.kubernetes.Assertions.*;
 import java.util.Objects;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.noelware.charted.testing.kubernetes.KubernetesEnvironment;
 import org.noelware.charted.testing.kubernetes.junit.InstallMinikubeIfNotFound;
 import org.noelware.charted.testing.kubernetes.junit.MinikubeManagerSource;
 import org.noelware.charted.testing.kubernetes.minikube.internal.DefaultMinikubeManager;
 
-@DisabledOnOs(architectures = {"arm64", "aarch64"})
+// macos is already disabled so !
+@DisabledOnOs({OS.WINDOWS})
 @InstallMinikubeIfNotFound
 public class MinikubeTests {
     @ParameterizedTest

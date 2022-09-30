@@ -31,9 +31,7 @@ import org.junit.jupiter.api.condition.OS;
 import org.noelware.charted.testing.kubernetes.KubernetesEnvironment;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-@DisabledOnOs(
-        value = {OS.WINDOWS, OS.MAC},
-        architectures = {"arm64", "aarch64"})
+@DisabledOnOs({OS.WINDOWS, OS.MAC})
 @Testcontainers(disabledWithoutDocker = true)
 public class K3sTests {
     private static final K3SContainer container = new K3SContainer();
