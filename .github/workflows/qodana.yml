@@ -35,26 +35,6 @@ on:
       - '**.md'
       - 'LICENSE'
       - 'renovate.json'
-
-  pull_request:
-    branches:
-      - 'issue/gh-**'
-      - 'feat/**'
-      - nightly
-      - main
-
-    paths-ignore:
-      - '.github/**'
-      - '.vscode/**'
-      - 'assets/**'
-      - 'locales/**'
-      - 'docker/**'
-      - '.dockerignore'
-      - '.eslintignore'
-      - '.gitignore'
-      - '**.md'
-      - 'LICENSE'
-      - 'renovate.json'
 jobs:
   jvm:
     name: Qodana JVM [Code Quality]
