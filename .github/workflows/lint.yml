@@ -67,7 +67,6 @@ jobs:
         runner:
           - windows-latest
           - ubuntu-latest
-          - self-hosted
           - macos-latest
     steps:
       - name: Checkout repository
