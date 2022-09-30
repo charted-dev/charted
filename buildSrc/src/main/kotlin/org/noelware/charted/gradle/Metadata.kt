@@ -24,7 +24,7 @@ import java.io.File
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
-val VERSION = Version(1, 2, 0, 0, ReleaseType("nightly"))
+val VERSION = Version(0, 2, 0, 0, ReleaseType("nightly"))
 val JAVA_VERSION = JavaVersion.VERSION_17
 val COMMIT_HASH by lazy {
     try {

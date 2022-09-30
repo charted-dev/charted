@@ -15,15 +15,19 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-java-module`
-    `charted-test`
-}
+package org.noelware.charted.testing.kubernetes.minikube;
 
-dependencies {
-    implementation(libs.junit.jupiter.params)
-    implementation(libs.testcontainers.k3s)
-    implementation(libs.junit.jupiter.api)
-    implementation(libs.kubernetes.client)
-    implementation(libs.okhttp)
+import org.noelware.charted.common.Builder;
+
+/**
+ * Represents the builder for creating a {@link MinikubeManager}.
+ */
+public class MinikubeManagerBuilder implements Builder<MinikubeManager> {
+    /**
+     * Builds the builder and returns the object it wants.
+     */
+    @Override
+    public MinikubeManager build() {
+        return null;
+    }
 }

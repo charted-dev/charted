@@ -15,15 +15,12 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-java-module`
-    `charted-test`
-}
+package org.noelware.charted.testing.kubernetes.minikube.downloader.binary;
 
-dependencies {
-    implementation(libs.junit.jupiter.params)
-    implementation(libs.testcontainers.k3s)
-    implementation(libs.junit.jupiter.api)
-    implementation(libs.kubernetes.client)
-    implementation(libs.okhttp)
+/**
+ * Represents a generic interface to listen on the download progress.
+ */
+@FunctionalInterface
+public interface ProgressCallback {
+    void onProgress(double progress);
 }

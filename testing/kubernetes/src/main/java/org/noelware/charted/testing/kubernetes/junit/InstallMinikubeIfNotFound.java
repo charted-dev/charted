@@ -15,15 +15,18 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-java-module`
-    `charted-test`
-}
+package org.noelware.charted.testing.kubernetes.junit;
 
-dependencies {
-    implementation(libs.junit.jupiter.params)
-    implementation(libs.testcontainers.k3s)
-    implementation(libs.junit.jupiter.api)
-    implementation(libs.kubernetes.client)
-    implementation(libs.okhttp)
-}
+import java.lang.annotation.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+/**
+ * Represents a JUnit annotation to instruct the Kubernetes extension to install the latest
+ * version of Minikube, it might take a while depending on your internet connection. Use the {@link DisabledIfNoMinikube}
+ * annotation to not run the tests at all.
+ */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@ExtendWith(NoelKubeExtension.class)
+@Inherited
+public @interface InstallMinikubeIfNotFound {}

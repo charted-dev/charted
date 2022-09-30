@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-java-module`
-    `charted-test`
-}
+package org.noelware.charted.testing.kubernetes.k3s;
 
-dependencies {
-    implementation(libs.junit.jupiter.params)
-    implementation(libs.testcontainers.k3s)
-    implementation(libs.junit.jupiter.api)
-    implementation(libs.kubernetes.client)
-    implementation(libs.okhttp)
+import io.kubernetes.client.openapi.ApiClient;
+import io.kubernetes.client.openapi.apis.CoreV1Api;
+import org.noelware.charted.testing.kubernetes.KubernetesEnvironment;
+
+public record K3SKubernetesEnvironment(ApiClient client) implements KubernetesEnvironment {
+    @Override
+    public CoreV1Api getCoreV1Api() {
+        return new CoreV1Api(client);
+    }
 }

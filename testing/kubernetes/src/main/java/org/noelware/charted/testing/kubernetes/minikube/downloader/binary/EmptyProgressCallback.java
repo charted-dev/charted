@@ -15,15 +15,14 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-java-module`
-    `charted-test`
-}
+package org.noelware.charted.testing.kubernetes.minikube.downloader.binary;
 
-dependencies {
-    implementation(libs.junit.jupiter.params)
-    implementation(libs.testcontainers.k3s)
-    implementation(libs.junit.jupiter.api)
-    implementation(libs.kubernetes.client)
-    implementation(libs.okhttp)
+/**
+ * Represents an empty progress callback.
+ */
+public class EmptyProgressCallback implements ProgressCallback {
+    public static final EmptyProgressCallback INSTANCE = new EmptyProgressCallback();
+
+    @Override
+    public void onProgress(double progress) {}
 }

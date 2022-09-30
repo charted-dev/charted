@@ -15,15 +15,17 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-java-module`
-    `charted-test`
-}
+package org.noelware.charted.testing.kubernetes;
 
-dependencies {
-    implementation(libs.junit.jupiter.params)
-    implementation(libs.testcontainers.k3s)
-    implementation(libs.junit.jupiter.api)
-    implementation(libs.kubernetes.client)
-    implementation(libs.okhttp)
+import io.kubernetes.client.openapi.ApiClient;
+import io.kubernetes.client.openapi.apis.CoreV1Api;
+
+/**
+ * Represents the environment of the current Kubernetes cluster that JUnit is using
+ * for testing.
+ */
+public interface KubernetesEnvironment {
+    CoreV1Api getCoreV1Api();
+
+    ApiClient client();
 }

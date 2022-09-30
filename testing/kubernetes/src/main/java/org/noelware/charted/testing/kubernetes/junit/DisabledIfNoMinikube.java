@@ -15,15 +15,17 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-java-module`
-    `charted-test`
-}
+package org.noelware.charted.testing.kubernetes.junit;
 
-dependencies {
-    implementation(libs.junit.jupiter.params)
-    implementation(libs.testcontainers.k3s)
-    implementation(libs.junit.jupiter.api)
-    implementation(libs.kubernetes.client)
-    implementation(libs.okhttp)
-}
+import java.lang.annotation.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+/**
+ * Represents an JUnit annotation to disable the test altogether if Minikube was not installed
+ * on the host machine.
+ */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@ExtendWith(NoelKubeExtension.class)
+@Inherited
+public @interface DisabledIfNoMinikube {}

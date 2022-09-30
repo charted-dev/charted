@@ -51,4 +51,16 @@ public enum OperatingSystem {
     public boolean isLinux() {
         return this == OperatingSystem.LINUX;
     }
+
+    public boolean isUnix() {
+        return isLinux() || isMacOS();
+    }
+
+    public String key() {
+        return switch (this) {
+            case WINDOWS -> "windows";
+            case LINUX -> "linux";
+            case MACOS -> "darwin";
+        };
+    }
 }

@@ -15,15 +15,14 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-java-module`
-    `charted-test`
-}
+package org.noelware.charted.common;
 
-dependencies {
-    implementation(libs.junit.jupiter.params)
-    implementation(libs.testcontainers.k3s)
-    implementation(libs.junit.jupiter.api)
-    implementation(libs.kubernetes.client)
-    implementation(libs.okhttp)
+/**
+ * Represents a generic builder pattern.
+ */
+public interface Builder<T> {
+    /**
+     * Builds the builder and returns the object it wants.
+     */
+    T build();
 }
