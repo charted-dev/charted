@@ -41,7 +41,7 @@ if [[ $GITHUB_REF == refs/heads/* ]]; then
   fi
 
   echo "Using branch path [charted/web/$SUFFIX]"
-elif [[ $GITHUB_REF == refs/prs/* ]]; then
+elif [[ $GITHUB_REF == refs/pr/* ]]; then
   SUFFIX="pr/$(echo $GITHUB_REF | grep -o '[[:digit:]]' | tr -d '\n')"
   echo "Using PR path [charted/web/$SUFFIX]"
 else
