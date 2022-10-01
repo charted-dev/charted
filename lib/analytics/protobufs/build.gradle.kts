@@ -72,7 +72,7 @@ protobuf {
             path = protocPath
         } else {
             logger.lifecycle("Defaulting to the protoc artifact on Maven Central! If you wish to set a custom path to protoc, use the `CHARTED_PROTOC_PATH` environment variable.")
-            artifact = "com.google.protobuf:protoc:3.21.6"
+            artifact = "com.google.protobuf:protoc:3.21.7"
         }
     }
 
