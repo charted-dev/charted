@@ -17,7 +17,7 @@
   "dependencies": {
     "@elastic/charts": "50.0.1",
     "@emotion/react": "11.10.4",
-    "@fastify/http-proxy": "8.2.2",
+    "@fastify/http-proxy": "8.2.3",
     "@fontsource/cantarell": "4.5.8",
     "@fontsource/inter": "4.5.12",
     "@fontsource/jetbrains-mono": "4.5.10",
