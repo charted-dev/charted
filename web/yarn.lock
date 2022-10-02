@@ -371,9 +371,9 @@ __metadata:
     "@elastic/charts": 50.0.1
     "@emotion/react": 11.10.4
     "@fastify/http-proxy": 8.2.3
-    "@fontsource/cantarell": 4.5.8
-    "@fontsource/inter": 4.5.12
-    "@fontsource/jetbrains-mono": 4.5.10
+    "@fontsource/cantarell": 4.5.9
+    "@fontsource/inter": 4.5.13
+    "@fontsource/jetbrains-mono": 4.5.11
     "@mantine/core": 5.4.2
     "@mantine/dropzone": 5.4.2
     "@mantine/form": 5.4.2
@@ -736,24 +736,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fontsource/cantarell@npm:4.5.8":
-  version: 4.5.8
-  resolution: "@fontsource/cantarell@npm:4.5.8"
-  checksum: acb2242142d47da18281a6d7e49c3a0bb3b5554e659a025991f062e7c268611c2268a18b27bed244b483312307f259dfa8a4ce041f630c7811e5d3a31c06c5e9
+"@fontsource/cantarell@npm:4.5.9":
+  version: 4.5.9
+  resolution: "@fontsource/cantarell@npm:4.5.9"
+  checksum: cc5ca94e092acb1b61c19852cf7779159ddc11965b67c411a7591ae5a1d49966f657cd7c0e6463bd6ff049dce6a9adab79628c0a8525bf9f1080fab2084a4793
   languageName: node
   linkType: hard
 
-"@fontsource/inter@npm:4.5.12":
-  version: 4.5.12
-  resolution: "@fontsource/inter@npm:4.5.12"
-  checksum: 7637978d4355f52cf348bbe40a2e1bfa535c290057bef27c022343234b00c07b138c86a2b52260825c1ecc5cc9f59c68fd6ff08311111c70c04f82ace592920b
+"@fontsource/inter@npm:4.5.13":
+  version: 4.5.13
+  resolution: "@fontsource/inter@npm:4.5.13"
+  checksum: 427ff437d6b46c008537d2b09e324e6dc542220c72b1dcdecc6c3efd7a3f56ab99c9bf6ecdd6592c8409d53b8400c0b3c59c07bf5fbf17b44521f3f76b41fc13
   languageName: node
   linkType: hard
 
-"@fontsource/jetbrains-mono@npm:4.5.10":
-  version: 4.5.10
-  resolution: "@fontsource/jetbrains-mono@npm:4.5.10"
-  checksum: 712be535b21708208f1f2e86b60467afd2699900bab04bb761456b62d3b52eea4e843aaf9016f8141017524e7988fbe640fb8af6259c7044fb8721b0f6976f9a
+"@fontsource/jetbrains-mono@npm:4.5.11":
+  version: 4.5.11
+  resolution: "@fontsource/jetbrains-mono@npm:4.5.11"
+  checksum: 2f794029028287093b1b6499d8d04058d70a832932631e27ede235fcba025c42099515dbd46d483eb376cf3c27c604d0104c092dc73505f769bef201ffe17c7b
   languageName: node
   linkType: hard
 
