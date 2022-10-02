@@ -15,6 +15,11 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-}
+package org.noelware.charted.workers.messaging.queue.annotations
+
+import kotlin.reflect.KClass
+
+annotation class WorkerTrigger(
+    val name: String,
+    val args: Array<KClass<*>> = []
+)

@@ -37,7 +37,7 @@ import org.noelware.ktor.endpoints.Get
  * @param vendor The vendor that maintains this project, will always be Noelware.
  */
 @kotlinx.serialization.Serializable
-private data class InfoResponse(
+data class InfoResponse(
     val distribution: String,
 
     @SerialName("commit_sha")

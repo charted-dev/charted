@@ -116,6 +116,18 @@ distributions {
     }
 }
 
+val openapi = project(":openapi")
+val generateOpenAPIJson by openapi.tasks.getting(JavaExec::class)
+val generateOpenAPIYaml by openapi.tasks.getting(JavaExec::class)
+
+sourceSets {
+    main {
+        resources {
+            srcDirs += file("${openapi.buildDir}/openapi")
+        }
+    }
+}
+
 tasks {
     processResources {
         filesMatching("build-info.json") {
@@ -129,6 +141,10 @@ tasks {
                 )
             )
         }
+    }
+
+    installDist {
+        dependsOn(generateOpenAPIJson, generateOpenAPIYaml)
     }
 
     distZip {

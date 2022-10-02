@@ -34,7 +34,7 @@ import org.noelware.ktor.endpoints.Get
  * @param docs The documentation URL.
  */
 @kotlinx.serialization.Serializable
-private data class MainResponse(
+data class MainResponse(
     val message: String,
     val tagline: String,
     val docs: String
@@ -69,7 +69,7 @@ private data class MainResponse(
  *                     false on the JVM source code.
  */
 @kotlinx.serialization.Serializable
-private data class FeaturesResponse(
+data class FeaturesResponse(
     val registrations: Boolean,
     val integrations: Map<String, Boolean> = mapOf(),
     val enterprise: Boolean,

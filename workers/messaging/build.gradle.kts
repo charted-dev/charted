@@ -15,5 +15,7 @@
  * limitations under the License.
  */
 
-// intentionally blank to make it as a subproject root for the children in
-// this directory.
+plugins {
+    `charted-module`
+    `charted-test`
+}

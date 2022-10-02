@@ -147,7 +147,6 @@ object Bootstrap {
                     sessions.closeQuietly()
                     server.closeQuietly()
                     redis.closeQuietly()
-                    koin.close()
                     ds.closeQuietly()
 
                     runBlocking {
@@ -158,6 +157,8 @@ object Bootstrap {
                         shutdownTickers()
                         ChartedScope.cancel()
                     }
+
+                    koin.close()
                 } else {
                     log.warn("Koin was not started, not destroying server (just yet!)")
                 }
@@ -354,7 +355,6 @@ object Bootstrap {
         val redis = DefaultRedisClient(config.redis)
         redis.connect()
 
-        log.info("Connected to Redis!")
         if (config.sentryDsn != null) {
             log.info("Enabling Sentry due to [sentryDsn] was set.")
             Sentry.init {

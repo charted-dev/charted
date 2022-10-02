@@ -15,10 +15,21 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-}
+package org.noelware.charted.workers.messaging.queue.tests
 
-dependencies {
-    implementation(project(":workers:messaging"))
+import org.noelware.charted.workers.messaging.queue.WorkerQueue
+import org.noelware.charted.workers.messaging.queue.annotations.WorkerTrigger
+
+class BaseWorkerQueue: WorkerQueue {
+    override val name: String = "basic"
+
+    @WorkerTrigger("owo")
+    fun handle() {
+        println("was handled!")
+    }
+
+    @WorkerTrigger("heck", [String::class])
+    fun handleString(value: String) {
+        println("received $value!")
+    }
 }

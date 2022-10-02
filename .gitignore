@@ -648,6 +648,7 @@ FodyWeavers.xsd
 config.yml
 instance.uuid
 server/src/main/resources/config/logback.properties
+server/src/main/resources/openapi/
 .data/
 .caches/
 !server/bin

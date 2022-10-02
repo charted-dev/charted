@@ -22,9 +22,7 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
-import org.noelware.charted.database.controllers.RepositoryController
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.noelware.ktor.endpoints.Get
 
@@ -45,17 +43,11 @@ class AuditLogsEndpoint: AbstractEndpoint("/audit-logs") {
 
     @Get("/repo/{id}")
     suspend fun repo(call: ApplicationCall) {
-        val id = call.parameters["id"]!!.toLong()
-        val repo = RepositoryController.get(id) ?: return call.respond(
-            HttpStatusCode.NotFound,
-            buildJsonObject {
-                put("success", false)
-                putJsonArray("errors") {
-                }
-            }
-        )
+        call.respond(HttpStatusCode.NotImplemented)
     }
 
     @Get("/org/{id}")
-    suspend fun organization(call: ApplicationCall) {}
+    suspend fun organization(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 }

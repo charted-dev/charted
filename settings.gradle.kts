@@ -66,6 +66,7 @@ include(
     ":lib:tracing:apm",
     ":lib:tracing:opentelemetry",
     ":lib:tracing:apm:instrumented",
+    ":openapi",
     ":server",
     ":sessions",
     ":sessions:apple",
@@ -90,8 +91,7 @@ include(
     ":workers:indexers:meilisearch",
     ":workers:messaging",
     ":workers:messaging:kafka",
-    ":workers:messaging:redis",
-    ":workers:queue"
+    ":workers:messaging:redis"
 )
 
 dependencyResolutionManagement {

@@ -15,10 +15,12 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-}
+package org.noelware.charted.workers.messaging.redis
 
-dependencies {
-    implementation(project(":workers:messaging"))
-}
+import org.noelware.charted.workers.messaging.queue.BaseMessagingQueue
+
+/**
+ * Represents a Redis Pub/Sub messaging queue. The publisher (this queue) will send out events
+ * to the subscribers (worker queues) to handle communication.
+ */
+interface RedisPubSubMessagingQueue: BaseMessagingQueue

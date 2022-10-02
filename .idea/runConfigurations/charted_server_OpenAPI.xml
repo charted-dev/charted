@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="charted-server OpenAPI" type="KotlinStandaloneScriptRunConfigurationType" singleton="false">
+    <module name="charted-server.lib.cassandra.main" />
+    <shortenClasspath name="CLASSPATH_FILE" />
+    <option name="filePath" value="$PROJECT_DIR$/openapi/server.openapi.kts" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

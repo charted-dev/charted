@@ -42,11 +42,17 @@ class WebhooksEndpoint: AbstractEndpoint("/webhooks") {
     }
 
     @Get("/settings/{id}")
-    suspend fun settings(call: ApplicationCall) {}
+    suspend fun settings(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Get("/{id}/events")
-    suspend fun events(call: ApplicationCall) {}
+    suspend fun events(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 
     @Get("/{id}/events/{event}")
-    suspend fun event(call: ApplicationCall) {}
+    suspend fun event(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 }

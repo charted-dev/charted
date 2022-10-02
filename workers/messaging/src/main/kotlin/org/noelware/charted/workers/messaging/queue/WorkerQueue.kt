@@ -15,10 +15,14 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-}
+package org.noelware.charted.workers.messaging.queue
 
-dependencies {
-    implementation(project(":workers:messaging"))
+/**
+ * Represents a queue for workers to handle processes in a [base messaging queue][BaseMessagingQueue].
+ */
+interface WorkerQueue {
+    /**
+     * Returns the name of the worker queue.
+     */
+    val name: String
 }
