@@ -370,7 +370,7 @@ __metadata:
     "@augu/tsconfig": 1.1.1
     "@elastic/charts": 50.0.1
     "@emotion/react": 11.10.4
-    "@fastify/http-proxy": 8.2.2
+    "@fastify/http-proxy": 8.2.3
     "@fontsource/cantarell": 4.5.8
     "@fontsource/inter": 4.5.12
     "@fontsource/jetbrains-mono": 4.5.10
@@ -670,13 +670,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fastify/http-proxy@npm:8.2.2":
-  version: 8.2.2
-  resolution: "@fastify/http-proxy@npm:8.2.2"
+"@fastify/http-proxy@npm:8.2.3":
+  version: 8.2.3
+  resolution: "@fastify/http-proxy@npm:8.2.3"
   dependencies:
     "@fastify/reply-from": ^8.0.0
     ws: ^8.4.2
-  checksum: c3ae9dbaba98bbca09d1177938f92f49d886a09192d5f8c1d865169aca89d71a789c96cabd7c0662ca0b421e773d00ca84cd41a24bdf6ab9d36d567187195f19
+  checksum: 8a5c26ef96f24fc14d4a0ea79be9a5d7a560df094d0d29cab67378ef35258eb67edd7e9604e1733c519aa6cfcb7ce2654b12e594e37f7ba01d11450d2bde062e
   languageName: node
   linkType: hard
 
