@@ -376,7 +376,7 @@ __metadata:
     "@fontsource/jetbrains-mono": 4.5.11
     "@mantine/core": 5.5.0
     "@mantine/dropzone": 5.5.0
-    "@mantine/form": 5.4.2
+    "@mantine/form": 5.5.0
     "@mantine/hooks": 5.4.2
     "@mantine/modals": 5.4.2
     "@mantine/notifications": 5.4.2
@@ -880,15 +880,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mantine/form@npm:5.4.2":
-  version: 5.4.2
-  resolution: "@mantine/form@npm:5.4.2"
+"@mantine/form@npm:5.5.0":
+  version: 5.5.0
+  resolution: "@mantine/form@npm:5.5.0"
   dependencies:
     fast-deep-equal: ^3.1.3
     klona: ^2.0.5
   peerDependencies:
     react: ">=16.8.0"
-  checksum: 6e63bca380e227d6e5bdb81ec55e0d02148caae50b0eaf3d1517dd2e67bfb0f66e0180b7c8cb923a7ecc73b2f9ec1d778641e1526ef41479cc3f0b343e8513ab
+  checksum: 34eef581705fc7b1f15c599ae19e4f10fe0ceb38ad0394edb2cc679c234cb0ca9f3c987d849e286e1f7df17502fc2114c78f6e528478bf7b16b764fb04c06500
   languageName: node
   linkType: hard
 
