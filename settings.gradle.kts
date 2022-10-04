@@ -66,7 +66,6 @@ include(
     ":lib:tracing:apm",
     ":lib:tracing:opentelemetry",
     ":lib:tracing:apm:instrumented",
-    ":openapi",
     ":server",
     ":sessions",
     ":sessions:apple",

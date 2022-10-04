@@ -37,7 +37,7 @@ import org.noelware.ktor.endpoints.Post
 import java.util.concurrent.TimeUnit
 
 @kotlinx.serialization.Serializable
-private data class AdminResponse(
+data class AdminResponse(
     val message: String,
 
     @SerialName("docs_uri")
@@ -58,7 +58,7 @@ private data class AdminResponse(
  * @param os            The statistics from the operating system.
  */
 @kotlinx.serialization.Serializable
-private data class AdminStatsResponse(
+data class AdminStatsResponse(
     val elasticsearch: ElasticsearchStats?,
 
     @SerialName("memory_pools")

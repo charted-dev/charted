@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
+import org.noelware.charted.gradle.*
 import dev.floofy.utils.gradle.by
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.io.File
 
 plugins {
     `charted-module`
@@ -88,6 +88,9 @@ dependencies {
 
     // Conditional logic for logback
     implementation(libs.janino)
+
+    // OpenAPI
+    implementation("guru.zoroark.tegral:tegral-openapi-dsl:0.0.3")
 }
 
 application {
@@ -116,35 +119,18 @@ distributions {
     }
 }
 
-val openapi = project(":openapi")
-val generateOpenAPIJson by openapi.tasks.getting(JavaExec::class)
-val generateOpenAPIYaml by openapi.tasks.getting(JavaExec::class)
-
-sourceSets {
-    main {
-        resources {
-            srcDirs += file("${openapi.buildDir}/openapi")
-        }
-    }
-}
-
 tasks {
     processResources {
         filesMatching("build-info.json") {
             val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
-
             expand(
                 mapOf(
-                    "version" to "${org.noelware.charted.gradle.VERSION}",
-                    "commit_sha" to org.noelware.charted.gradle.COMMIT_HASH,
+                    "version" to "$VERSION",
+                    "commit_sha" to COMMIT_HASH,
                     "build_date" to formatter.format(Date())
                 )
             )
         }
-    }
-
-    installDist {
-        dependsOn(generateOpenAPIJson, generateOpenAPIYaml)
     }
 
     distZip {

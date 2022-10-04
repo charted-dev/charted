@@ -101,7 +101,7 @@ data class CreateApiKeyBody(
 }
 
 @kotlinx.serialization.Serializable
-private data class ApiKeysResponse(
+data class ApiKeysResponse(
     val message: String,
     val docs: String
 )

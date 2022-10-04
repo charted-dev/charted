@@ -22,6 +22,10 @@ import dev.floofy.haru.Scheduler
 import dev.floofy.utils.koin.inject
 import dev.floofy.utils.koin.retrieve
 import dev.floofy.utils.slf4j.logging
+import guru.zoroark.tegral.openapi.dsl.OpenApiVersion
+import guru.zoroark.tegral.openapi.dsl.openApi
+import guru.zoroark.tegral.openapi.dsl.toJson
+import guru.zoroark.tegral.openapi.dsl.toYaml
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -39,9 +43,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.netty.util.Version
 import io.sentry.Sentry
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
 import org.koin.core.context.GlobalContext
 import org.noelware.charted.common.SetOnceGetValue
@@ -54,9 +56,9 @@ import org.noelware.charted.core.StorageWrapper
 import org.noelware.charted.core.server.ChartedServer
 import org.noelware.charted.server.endpoints.proxyStorageTrailer
 import org.noelware.charted.server.jobs.ReconfigureProxyCdnJob
+import org.noelware.charted.server.openapi.chartedServer
 import org.noelware.charted.server.plugins.Logging
 import org.noelware.charted.server.plugins.RequestMdc
-import org.noelware.charted.server.utils.createOutgoingContentWithBytes
 import org.noelware.charted.tracing.apm.APM
 import org.noelware.charted.tracing.apm.apmTransaction
 import org.noelware.ktor.NoelKtorRouting
@@ -210,22 +212,18 @@ class DefaultChartedServer(private val config: Config): ChartedServer<NettyAppli
         }
 
         routing {
-            get("/openapi.json") {
-                val resource = withContext(Dispatchers.IO) {
-                    self::class.java.getResource("/openapi/openapi.json")!!.openStream()
-                }
+            val openapi = openApi {
+                chartedServer()
+            }
 
-                val bytes = resource.use { it.readBytes() }
-                call.respond(HttpStatusCode.OK, createOutgoingContentWithBytes(bytes, ContentType.Application.Json))
+            get("/openapi.json") {
+                val result = openapi.toJson(OpenApiVersion.V3_1)
+                call.respondText(result, ContentType.Application.Json, HttpStatusCode.OK)
             }
 
             get("/openapi.yaml") {
-                val resource = withContext(Dispatchers.IO) {
-                    self::class.java.getResource("/openapi/openapi.yaml")!!.openStream()
-                }
-
-                val bytes = resource.use { it.readBytes() }
-                call.respond(HttpStatusCode.OK, createOutgoingContentWithBytes(bytes, ContentType.parse("text/plain; charset=utf-8")))
+                val result = openapi.toYaml(OpenApiVersion.V3_1)
+                call.respondText(result, ContentType("text", "plain"), HttpStatusCode.OK)
             }
 
             val storage: StorageWrapper by inject()

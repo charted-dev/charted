@@ -41,7 +41,7 @@ private class KResponseSerializer<T>(private val dataSerializer: KSerializer<T>)
     }
 
     override fun serialize(encoder: Encoder, value: Response<T>) {
-        require(encoder is JsonEncoder) { "JSON serialisation is only supported, not encoder=${encoder::class}" }
+        require(encoder is JsonEncoder) { "JSON serialisation is only supported, not encoder ${encoder::class}" }
         val composite = encoder.beginStructure(descriptor)
         composite.encodeBooleanElement(descriptor, 0, value is Response.Ok)
 
@@ -92,7 +92,8 @@ sealed class Response<out T> {
      *             must be marked with [Serializable][kotlinx.serialization.Serializable] or
      *             the server will error out.
      */
-    data class Ok<out T>(val data: T? = null): Response<T>()
+    // `success` should never be modified here, this is only for the OpenAPI generator
+    data class Ok<out T>(val data: T? = null, val success: Boolean = true): Response<T>()
 
     /**
      * Represents an unsuccessful response, with any errors that might've occurred during
@@ -100,9 +101,9 @@ sealed class Response<out T> {
      *
      * @param errors A list of API errors that might've occurred when invoking the request.
      */
+    // `success` should never be modified here, this is only for the OpenAPI generator
     @kotlinx.serialization.Serializable(with = KErrorResponseSerializer::class)
-    data class Error(val errors: List<APIError>): Response<Nothing>()
-
+    data class Error(val errors: List<APIError>, val success: Boolean = false): Response<Nothing>()
     companion object {
         /**
          * Sends out an empty response payload with only the success marker.
