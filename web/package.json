@@ -7,7 +7,7 @@
   "license": "Apache-2.0",
   "repository": "https://github.com/charted-dev/charted",
   "bugs": "https://github.com/charted-dev/charted/issues",
-  "packageManager": "yarn@3.2.3",
+  "packageManager": "yarn@3.2.4",
   "scripts": {
     "lint:ci": "node scripts/eslint-ci",
     "build": "vite build",
