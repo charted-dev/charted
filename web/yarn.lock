@@ -375,7 +375,7 @@ __metadata:
     "@fontsource/inter": 4.5.13
     "@fontsource/jetbrains-mono": 4.5.11
     "@mantine/core": 5.5.2
-    "@mantine/dropzone": 5.5.1
+    "@mantine/dropzone": 5.5.2
     "@mantine/form": 5.5.1
     "@mantine/hooks": 5.5.1
     "@mantine/modals": 5.4.2
@@ -865,18 +865,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mantine/dropzone@npm:5.5.1":
-  version: 5.5.1
-  resolution: "@mantine/dropzone@npm:5.5.1"
+"@mantine/dropzone@npm:5.5.2":
+  version: 5.5.2
+  resolution: "@mantine/dropzone@npm:5.5.2"
   dependencies:
-    "@mantine/utils": 5.5.1
+    "@mantine/utils": 5.5.2
     react-dropzone: 14.2.2
   peerDependencies:
-    "@mantine/core": 5.5.1
-    "@mantine/hooks": 5.5.1
+    "@mantine/core": 5.5.2
+    "@mantine/hooks": 5.5.2
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
-  checksum: d607d876ab38fde4e7a6b99c63e667d7f22616b78ed6ea7456fe6ab57479441226c097e82a80d13b196f5af4f2e1d13cd4bf960b94a807612ff6e2df5ad81d76
+  checksum: aaa801848f2f277b805d622944747619b74b797417f9eaf9c86f23310e6480dbd38367067f7ca7ca3a4df3086425c52f64fd8f1f68d7513010bc16c60ae9ffa3
   languageName: node
   linkType: hard
 
@@ -950,15 +950,6 @@ __metadata:
   peerDependencies:
     react: ">=16.8.0"
   checksum: 27d47618c862b2ad482bf8ab8f6d5884e67be8aaac124893e54c1d1400d99d15b192dd91d32a30415286987a78e633881a746907ecdc996f19797a781d74ccbc
-  languageName: node
-  linkType: hard
-
-"@mantine/utils@npm:5.5.1":
-  version: 5.5.1
-  resolution: "@mantine/utils@npm:5.5.1"
-  peerDependencies:
-    react: ">=16.8.0"
-  checksum: 22783760760510d1335757e838e12b2fa9f82dc0bf029661385ee7e3aaddf52adc2b3edbe3719e7f84a1dc0121d6e31f5f4a09dd625d1acca714acbfbbf87cba
   languageName: node
   linkType: hard
 
