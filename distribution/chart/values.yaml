@@ -151,7 +151,7 @@ elasticsearch:
         port: 5066
     image:
       repository: docker.elastic.co/beats/metricbeat
-      tag: 8.4.2
+      tag: 8.4.3
       pullPolicy: IfNotPresent
 
 # Allows you to have a local Kibana instance to analyze the data that charted-server is pushing out. You can also
