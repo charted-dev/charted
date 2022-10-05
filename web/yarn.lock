@@ -374,7 +374,7 @@ __metadata:
     "@fontsource/cantarell": 4.5.9
     "@fontsource/inter": 4.5.13
     "@fontsource/jetbrains-mono": 4.5.11
-    "@mantine/core": 5.5.2
+    "@mantine/core": 5.5.4
     "@mantine/dropzone": 5.5.2
     "@mantine/form": 5.5.2
     "@mantine/hooks": 5.5.1
@@ -848,20 +848,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mantine/core@npm:5.5.2":
-  version: 5.5.2
-  resolution: "@mantine/core@npm:5.5.2"
+"@mantine/core@npm:5.5.4":
+  version: 5.5.4
+  resolution: "@mantine/core@npm:5.5.4"
   dependencies:
     "@floating-ui/react-dom-interactions": ^0.10.1
-    "@mantine/styles": 5.5.2
-    "@mantine/utils": 5.5.2
+    "@mantine/styles": 5.5.4
+    "@mantine/utils": 5.5.4
     "@radix-ui/react-scroll-area": 1.0.0
     react-textarea-autosize: 8.3.4
   peerDependencies:
-    "@mantine/hooks": 5.5.2
+    "@mantine/hooks": 5.5.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
-  checksum: ab0eeaf71436ae78469830df7d54a231f2422cefdc1b169239a19a17667a0a2b0821ef216a91e8a3f0a8981916aec2e18cdf023b961ebc1c0ee2efeb2418dcab
+  checksum: bc89283a88164e8ba4c3daeaef0ad498e86a745e03b82d7bc3234cddd576c690889ccb50c5257253175312ebdb4f9a28006d93cbe3b321d8575e44432834f5d5
   languageName: node
   linkType: hard
 
@@ -930,9 +930,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mantine/styles@npm:5.5.2":
-  version: 5.5.2
-  resolution: "@mantine/styles@npm:5.5.2"
+"@mantine/styles@npm:5.5.4":
+  version: 5.5.4
+  resolution: "@mantine/styles@npm:5.5.4"
   dependencies:
     clsx: 1.1.1
     csstype: 3.0.9
@@ -940,7 +940,7 @@ __metadata:
     "@emotion/react": ">=11.9.0"
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
-  checksum: 2719c4c3efcdfdaa2f60c42c443fba43021a8742b3680fdb94f8b3b1cd6fbec0496dc1f39f35fdd9588a291545a973483d215edcc667a122302fb478cd8002b6
+  checksum: c38de2afa73781697ab6804e79f471fde0a6624d283ef8588fc387ba74f630a4ced846de75f72179d25cdebab20e301b5bb457967b4dafac3d4e495e9346f821
   languageName: node
   linkType: hard
 
@@ -959,6 +959,15 @@ __metadata:
   peerDependencies:
     react: ">=16.8.0"
   checksum: 353c87d0ac82d1de00b6c2bb74e72298d745c0e7c220f58e774b738542a5639baa552011b70732fcf6f842c1eacd21d5e011ba67631fd6dc99a8c9f0b4cee48d
+  languageName: node
+  linkType: hard
+
+"@mantine/utils@npm:5.5.4":
+  version: 5.5.4
+  resolution: "@mantine/utils@npm:5.5.4"
+  peerDependencies:
+    react: ">=16.8.0"
+  checksum: 61456229402ac741b4e7946f494285cda097c45dba067658faf0a578ed395c779f1dcac51798ae093fa12414b578e9423c882a7892f19fdb043f1440ac6e0ea4
   languageName: node
   linkType: hard
 
