@@ -97,7 +97,7 @@ jobs:
           - { os: linux, arch: arm64, ext: "" }
           - { os: windows, arch: amd64, ext: ".exe" }
           - { os: windows, arch: arm64, ext: ".exe" }
-          - { gs: windows, arch: i386, ext: ".exe" }
+          - { os: windows, arch: i386, ext: ".exe" }
           - { os: darwin, arch: amd64, ext: "" }
           - { os: darwin, arch: arm64, ext: "" }
     steps:
@@ -190,7 +190,7 @@ jobs:
           push: true
           cache-from: type=local,src=/tmp/.buildx/cache
           cache-to: type=local,dest=/tmp/.buildx/cache-new,mode=max
-          platform: ${{ matrix.platform.key }}
+          platforms: ${{ matrix.platform.key }}
           tags: |
             ghcr.io/charted-dev/charted:nightly-${{ matrix.platform.tag-suffix }}
             ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}-nightly-${{ matrix.platform.tag-suffix }}
@@ -254,7 +254,7 @@ jobs:
           push: true
           cache-from: type=local,src=/tmp/.buildx/cache
           cache-to: type=local,dest=/tmp/.buildx/cache-new,mode=max
-          platform: ${{ matrix.docker-platform.key }}
+          platforms: ${{ matrix.docker-platform.key }}
           tags: |
             ghcr.io/charted-dev/charted/migrations:nightly-${{ matrix.docker-platform.suffix }}
             ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}-nightly-${{ matrix.docker-platform.suffix }}
@@ -316,7 +316,7 @@ jobs:
           push: true
           cache-from: type=local,src=/tmp/.buildx/cache
           cache-to: type=local,dest=/tmp/.buildx/cache-new,mode=max
-          platform: ${{ matrix.platform.key }}
+          platforms: ${{ matrix.platform.key }}
           tags: |
             ghcr.io/charted-dev/charted/web:nightly-${{ matrix.platform.tag-suffix }}
             ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.major }}-nightly-${{ matrix.platform.tag-suffix }}

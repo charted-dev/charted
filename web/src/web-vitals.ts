@@ -15,4 +15,17 @@
  * limitations under the License.
  */
 
-export {};
+import type { ReportCallback } from 'web-vitals';
+
+export const reportWebVitals = (onEntry?: ReportCallback) => {
+  if (onEntry && typeof onEntry === 'function') {
+    import('web-vitals').then(({ onCLS, onFCP, onFID, onINP, onLCP, onTTFB }) => {
+      onCLS(onEntry);
+      onFID(onEntry);
+      onFCP(onEntry);
+      onINP(onEntry);
+      onLCP(onEntry);
+      onTTFB(onEntry);
+    });
+  }
+};

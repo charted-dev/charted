@@ -15,4 +15,25 @@
  * limitations under the License.
  */
 
-export {};
+import { createRoot } from 'react-dom/client';
+import App from './App';
+
+const print = () => {
+  console.info('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+  console.info(
+    `%c     _           _         _
+ ___| |_ ___ ___| |_ ___ _| |
+|  _|   | .'|  _|  _| -_| . |
+|___|_|_|__,|_| |_| |___|___|`,
+    'color:#F4B5D5;font-weight:bold;'
+  );
+  console.info('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+};
+
+print();
+
+const rootEl = document.getElementById('root');
+if (!rootEl) throw new Error('Unable to find div#root element!');
+
+const root = createRoot(rootEl);
+root.render(<App />);

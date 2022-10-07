@@ -15,25 +15,38 @@
  * limitations under the License.
  */
 
+import { reportWebVitals } from './web-vitals';
 import { createRoot } from 'react-dom/client';
+import { StrictMode } from 'react';
 import App from './App';
 
-const print = () => {
-  console.info('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-  console.info(
-    `%c     _           _         _
+console.info(
+  `%c     _           _         _
  ___| |_ ___ ___| |_ ___ _| |
 |  _|   | .'|  _|  _| -_| . |
 |___|_|_|__,|_| |_| |___|___|`,
-    'color:#F4B5D5;font-weight:bold;'
-  );
-  console.info('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-};
-
-print();
+  'color:#F4B5D5;font-weight:bold;',
+  '\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+);
 
 const rootEl = document.getElementById('root');
-if (!rootEl) throw new Error('Unable to find div#root element!');
+if (!rootEl) throw new Error('Cannot find root element!');
 
 const root = createRoot(rootEl);
-root.render(<App />);
+root.render(
+  <StrictMode>
+    <App />
+  </StrictMode>
+);
+
+if (import.meta.env.DEV) {
+  reportWebVitals((metric) => {
+    console.log(
+      `[${metric.name} / ${metric.rating} (navigation: ${metric.navigationType})] Took ~${
+        metric.delta === metric.value
+          ? `${metric.value.toFixed(2)}ms (first reporting web vital)`
+          : `${(metric.delta - metric.value).toFixed(2)}ms`
+      } to complete`
+    );
+  });
+}

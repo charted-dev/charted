@@ -20,35 +20,42 @@ import '@fontsource/cantarell/index.css';
 import '@fontsource/inter/index.css';
 import './styles/twemoji.css';
 
-import { MantineProvider, ColorSchemeProvider, type ColorScheme } from '@mantine/core';
-import { defineMantineTheme } from './mantine.config';
-import { useLocalStorage } from '@mantine/hooks';
-import { BrowserRouter } from 'react-router-dom';
-import { ErrorBoundary } from '~/components';
 import type { FC } from 'react';
-import AppRouter from './router';
+import CommandMenu from './components/CommandMenu';
 
-const App: FC = () => {
-  const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
-    key: 'pak.prefs.color-scheme',
-    defaultValue: 'light',
-    getInitialValueInEffect: true
-  });
-
-  const toggleColorScheme = (value?: ColorScheme) =>
-    setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
-
-  return (
-    <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
-      <MantineProvider withGlobalStyles withNormalizeCSS theme={defineMantineTheme(colorScheme)}>
-        <ErrorBoundary>
-          <BrowserRouter>
-            <AppRouter />
-          </BrowserRouter>
-        </ErrorBoundary>
-      </MantineProvider>
-    </ColorSchemeProvider>
-  );
-};
+const App: FC = () => <CommandMenu />;
 
 export default App;
+
+// import { MantineProvider, ColorSchemeProvider, type ColorScheme } from '@mantine/core';
+// import { defineMantineTheme } from './mantine.config';
+// import { useLocalStorage } from '@mantine/hooks';
+// import { BrowserRouter } from 'react-router-dom';
+// import { ErrorBoundary } from '~/components';
+// import type { FC } from 'react';
+// import AppRouter from './router';
+
+// const App: FC = () => {
+//   const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
+//     key: 'pak.prefs.color-scheme',
+//     defaultValue: 'light',
+//     getInitialValueInEffect: true
+//   });
+
+//   const toggleColorScheme = (value?: ColorScheme) =>
+//     setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
+
+//   return (
+//     <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
+//       <MantineProvider withGlobalStyles withNormalizeCSS theme={defineMantineTheme(colorScheme)}>
+//         <ErrorBoundary>
+//           <BrowserRouter>
+//             <AppRouter />
+//           </BrowserRouter>
+//         </ErrorBoundary>
+//       </MantineProvider>
+//     </ColorSchemeProvider>
+//   );
+// };
+
+// export default App;

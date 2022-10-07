@@ -13,11 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: "1.0"
+version: '1.0'
 linter: jetbrains/qodana-js:2022.2-eap
 bootstrap: yarn install
 exclude:
-  # Disable every JS file in .yarn since it's false.
+  # Disable every JS inspection in the .yarn/ since it's meant
+  # to be used at all by any user.
   - name: All
     paths:
       - .yarn
