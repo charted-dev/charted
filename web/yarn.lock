@@ -379,7 +379,7 @@ __metadata:
     "@mantine/form": 5.5.4
     "@mantine/hooks": 5.5.4
     "@mantine/modals": 5.5.4
-    "@mantine/notifications": 5.4.2
+    "@mantine/notifications": 5.5.4
     "@noelware/utils": 2.2.1
     "@tabler/icons": 1.101.0
     "@tanstack/react-query": 4.9.0
@@ -915,18 +915,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mantine/notifications@npm:5.4.2":
-  version: 5.4.2
-  resolution: "@mantine/notifications@npm:5.4.2"
+"@mantine/notifications@npm:5.5.4":
+  version: 5.5.4
+  resolution: "@mantine/notifications@npm:5.5.4"
   dependencies:
-    "@mantine/utils": 5.4.2
+    "@mantine/utils": 5.5.4
     react-transition-group: 4.4.2
   peerDependencies:
-    "@mantine/core": 5.4.2
-    "@mantine/hooks": 5.4.2
+    "@mantine/core": 5.5.4
+    "@mantine/hooks": 5.5.4
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
-  checksum: f7dc5e82390927979f4f56fcff7be6ec909809e2443f7bc402dc580fc4132995362a34899c1233bb2de9135f2800229e8affddd8a65af74cd77c641e58728539
+  checksum: 221660b49a7c4aafe9df241b593562198da68d985f5858d4392b02330a6f106e07b761ca797b7f8b1134b962574cb2d2434a99a964459678cb595329176a78fa
   languageName: node
   linkType: hard
 
@@ -941,15 +941,6 @@ __metadata:
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
   checksum: c38de2afa73781697ab6804e79f471fde0a6624d283ef8588fc387ba74f630a4ced846de75f72179d25cdebab20e301b5bb457967b4dafac3d4e495e9346f821
-  languageName: node
-  linkType: hard
-
-"@mantine/utils@npm:5.4.2":
-  version: 5.4.2
-  resolution: "@mantine/utils@npm:5.4.2"
-  peerDependencies:
-    react: ">=16.8.0"
-  checksum: 27d47618c862b2ad482bf8ab8f6d5884e67be8aaac124893e54c1d1400d99d15b192dd91d32a30415286987a78e633881a746907ecdc996f19797a781d74ccbc
   languageName: node
   linkType: hard
 
