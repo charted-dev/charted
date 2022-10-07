@@ -149,7 +149,7 @@ jobs:
       matrix:
         platform:
           - { key: linux/amd64, runner: ubuntu-latest, path: ./distribution/docker/amd64.Dockerfile, tag-suffix: amd64, buildx: true }
-          - { key: linux/arm64, runner: self-hosted, path: ./distribution/docker/arm64.Dockerfile, tag-suffix: arm64, buildx: false }
+          #- { key: linux/arm64, runner: self-hosted, path: ./distribution/docker/arm64.Dockerfile, tag-suffix: arm64, buildx: false }
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -161,7 +161,6 @@ jobs:
         uses: auguwu/git-tag-action@master
 
       - name: Setup Docker Buildx
-        if: ${{ matrix.platform.buildx == 'true' }}
         uses: docker/setup-buildx-action@v2
 
       - name: Setup Docker layer cache
@@ -200,7 +199,6 @@ jobs:
       # https://github.com/docker/build-push-action/issues/252
       # https://github.com/moby/buildkit/issues/1896
       - name: Move cache
-        if: ${{ matrix.platform.buildx == 'true' }}
         run: |
           rm -rf /tmp/.buildx/cache
           mv /tmp/.buildx/cache-new /tmp/.buildx/cache
@@ -275,7 +273,7 @@ jobs:
       matrix:
         platform:
           - { key: linux/amd64, runner: ubuntu-latest, path: ./web/distribution/docker/amd64.Dockerfile, suffix: amd64, buildx: true }
-          - { key: linux/arm64, runner: self-hosted, path: ./web/distribution/docker/amd64.Dockerfile, suffix: arm64, buildx: false }
+          #- { key: linux/arm64, runner: self-hosted, path: ./web/distribution/docker/amd64.Dockerfile, suffix: arm64, buildx: false }
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
