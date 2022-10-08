@@ -191,7 +191,7 @@ jobs:
           platforms: ${{ matrix.platform.key }}
           tags: |
             ghcr.io/charted-dev/charted:nightly-${{ matrix.platform.tag-suffix }}
-            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.version }}-nightly-${{ matrix.platform.tag-suffix }}
+            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.version }}-${{ matrix.platform.tag-suffix }}
             ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}-nightly-${{ matrix.platform.tag-suffix }}
             ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-nightly-${{ matrix.platform.tag-suffix }}
             ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-${{ matrix.platform.tag-suffix }}
@@ -257,7 +257,7 @@ jobs:
           platforms: ${{ matrix.docker-platform.key }}
           tags: |
             ghcr.io/charted-dev/charted/migrations:nightly-${{ matrix.docker-platform.suffix }}
-            ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.version }}-nightly-${{ matrix.platform.suffix }}
+            ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.version }}-${{ matrix.platform.suffix }}
             ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}-nightly-${{ matrix.docker-platform.suffix }}
             ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-nightly-${{ matrix.docker-platform.suffix }}
             ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-${{ matrix.docker-platform.suffix }}
@@ -319,7 +319,7 @@ jobs:
           platforms: ${{ matrix.platform.key }}
           tags: |
             ghcr.io/charted-dev/charted/web:nightly-${{ matrix.platform.tag-suffix }}
-            ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.version }}-nightly-${{ matrix.platform.tag-suffix }}
+            ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.version }}-${{ matrix.platform.tag-suffix }}
             ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.major }}-nightly-${{ matrix.platform.tag-suffix }}
             ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-nightly-${{ matrix.platform.tag-suffix }}
             ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-${{ matrix.platform.tag-suffix }}
@@ -382,13 +382,13 @@ jobs:
           extra-images: |
             ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-amd64
 
-      - name: "[server] Apply manifest for \"${{ steps.tag.outputs.version }}-nightly\" tag"
+      - name: "[server] Apply manifest for \"${{ steps.tag.outputs.version }}\" tag"
         uses: Noelware/docker-manifest-action@master
         with:
           push: true
-          base-image: ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}-nightly
+          base-image: ghcr.io/charted-dev/charted:${{ steps.tag.outputs.version }}
           extra-images: |
-            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.version }}-nightly-amd64
+            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.version }}-amd64
 
       - name: "[migrations] Apply manifest for \"nightly\" tag"
         uses: Noelware/docker-manifest-action@master
@@ -436,11 +436,11 @@ jobs:
         uses: Noelware/docker-manifest-action@master
         with:
           push: true
-          base-image: ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.version }}-nightly
+          base-image: ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.version }}
           extra-images: |
-            ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-amd64,
-            ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-arm64,
-            ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-armv7
+            ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.version }}-amd64,
+            ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.version }}-arm64,
+            ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.version }}-armv7
 
       - name: "[webui] Apply manifest for \"nightly\" tag"
         uses: Noelware/docker-manifest-action@master
@@ -478,6 +478,6 @@ jobs:
         uses: Noelware/docker-manifest-action@master
         with:
           push: true
-          base-image: ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.major }}-nightly
+          base-image: ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.version }}
           extra-images: |
-            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.version }}-nightly-amd64
+            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.version }}-amd64
