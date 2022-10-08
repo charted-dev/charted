@@ -191,6 +191,7 @@ jobs:
           platforms: ${{ matrix.platform.key }}
           tags: |
             ghcr.io/charted-dev/charted:nightly-${{ matrix.platform.tag-suffix }}
+            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.version }}-nightly-${{ matrix.platform.tag-suffix }}
             ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}-nightly-${{ matrix.platform.tag-suffix }}
             ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-nightly-${{ matrix.platform.tag-suffix }}
             ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-${{ matrix.platform.tag-suffix }}
@@ -256,6 +257,7 @@ jobs:
           platforms: ${{ matrix.docker-platform.key }}
           tags: |
             ghcr.io/charted-dev/charted/migrations:nightly-${{ matrix.docker-platform.suffix }}
+            ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.version }}-nightly-${{ matrix.platform.suffix }}
             ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}-nightly-${{ matrix.docker-platform.suffix }}
             ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-nightly-${{ matrix.docker-platform.suffix }}
             ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-${{ matrix.docker-platform.suffix }}
@@ -317,6 +319,7 @@ jobs:
           platforms: ${{ matrix.platform.key }}
           tags: |
             ghcr.io/charted-dev/charted/web:nightly-${{ matrix.platform.tag-suffix }}
+            ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.version }}-nightly-${{ matrix.platform.tag-suffix }}
             ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.major }}-nightly-${{ matrix.platform.tag-suffix }}
             ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-nightly-${{ matrix.platform.tag-suffix }}
             ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-${{ matrix.platform.tag-suffix }}
