@@ -210,7 +210,6 @@ jobs:
         docker-platform:
           - { key: linux/amd64, suffix: amd64 }
           - { key: linux/arm64, suffix: arm64 }
-          - { key: linux/386, suffix: i386 }
           - { key: linux/arm/v7, suffix: armv7 }
     steps:
       - name: Checkout repository
@@ -418,7 +417,6 @@ jobs:
           extra-images: |
             ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-nightly-amd64,
             ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-nightly-arm64,
-            ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-nightly-i386,
             ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-nightly-armv7
 
       - name: "[migrations] Apply manifest for \"${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly\" tag"
@@ -429,7 +427,6 @@ jobs:
           extra-images: |
             ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-amd64,
             ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-arm64,
-            ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-i386,
             ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-armv7
 
       - name: "[server] Apply manifest for \"${{ steps.tag.outputs.version }}-nightly\" tag"
@@ -440,7 +437,6 @@ jobs:
           extra-images: |
             ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-amd64,
             ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-arm64,
-            ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-i386,
             ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-armv7
 
       - name: "[webui] Apply manifest for \"nightly\" tag"
