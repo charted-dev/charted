@@ -274,7 +274,7 @@ jobs:
     strategy:
       matrix:
         platform:
-          - { key: linux/amd64, runner: ubuntu-latest, path: ./web/distribution/docker/amd64.Dockerfile, suffix: amd64, buildx: true }
+          - { key: linux/amd64, runner: ubuntu-latest, path: ./web/distribution/docker/amd64.Dockerfile, tag-suffix: amd64, buildx: true }
           #- { key: linux/arm64, runner: self-hosted, path: ./web/distribution/docker/amd64.Dockerfile, suffix: arm64, buildx: false }
     steps:
       - name: Checkout repository
