@@ -76,7 +76,7 @@ jobs:
       - name: Upload artifact to release
         uses: softprops/action-gh-release@v1
         with:
-          files: ./server/build/distributions/charted-server.${{ matrix.tasks.ext }}
+          files: ./server/build/distributions/charted-server.${{ matrix.task.ext }}
 
       # This will directly upload to artifacts.noelware.cloud
       # - name: Upload artifacts to Noelware's downloads repository
@@ -186,8 +186,8 @@ jobs:
           context: .
           file: ${{ matrix.platform.path }}
           push: true
-          cache-from: type=local,src=/tmp/.buildx/cache
-          cache-to: type=local,dest=/tmp/.buildx/cache-new,mode=max
+          #cache-from: type=local,src=/tmp/.buildx/cache
+          #cache-to: type=local,dest=/tmp/.buildx/cache-new,mode=max
           platforms: ${{ matrix.platform.key }}
           tags: |
             ghcr.io/charted-dev/charted:nightly-${{ matrix.platform.tag-suffix }}
@@ -249,11 +249,11 @@ jobs:
       - name: Build and push for platform ${{ matrix.docker-platform.key }}
         uses: docker/build-push-action@v3
         with:
-          context: .
+          context: ./tools/migrations
           file: ./tools/migrations/Dockerfile
           push: true
-          cache-from: type=local,src=/tmp/.buildx/cache
-          cache-to: type=local,dest=/tmp/.buildx/cache-new,mode=max
+          #cache-from: type=local,src=/tmp/.buildx/cache
+          #cache-to: type=local,dest=/tmp/.buildx/cache-new,mode=max
           platforms: ${{ matrix.docker-platform.key }}
           tags: |
             ghcr.io/charted-dev/charted/migrations:nightly-${{ matrix.docker-platform.suffix }}

@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM eclipse-temurin:19-jdk-alpine AS jdk-runtime
+FROM eclipse-temurin:18.0.2.1_1-jdk-alpine AS jdk-runtime
 
 RUN apk update && \
     apk add --no-cache binutils && \
