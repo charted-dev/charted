@@ -354,8 +354,7 @@ jobs:
           push: true
           base-image: ghcr.io/charted-dev/charted:nightly
           extra-images: |
-            ghcr.io/charted-dev/charted:nightly-amd64,
-            ghcr.io/charted-dev/charted:nightly-arm64
+            ghcr.io/charted-dev/charted:nightly-amd64
 
       - name: "[server] Apply manifest for \"${{ steps.tag.outputs.major }}-nightly\" tag"
         uses: Noelware/docker-manifest-action@master
@@ -363,8 +362,7 @@ jobs:
           push: true
           base-image: ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}-nightly
           extra-images: |
-            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}-nightly-amd64,
-            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}-nightly-arm64
+            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}-nightly-amd64
 
       - name: "[server] Apply manifest for \"${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-nightly\" tag"
         uses: Noelware/docker-manifest-action@master
@@ -372,8 +370,7 @@ jobs:
           push: true
           base-image: ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}-nightly
           extra-images: |
-            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-nightly-amd64,
-            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-nightly-arm64
+            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-nightly-amd64
 
       - name: "[server] Apply manifest for \"${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly\" tag"
         uses: Noelware/docker-manifest-action@master
@@ -381,8 +378,15 @@ jobs:
           push: true
           base-image: ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}-nightly
           extra-images: |
-            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-amd64,
-            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-arm64
+            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-amd64
+
+      - name: "[server] Apply manifest for \"${{ steps.tag.outputs.version }}-nightly\" tag"
+        uses: Noelware/docker-manifest-action@master
+        with:
+          push: true
+          base-image: ghcr.io/charted-dev/charted:${{ steps.tag.outputs.major }}-nightly
+          extra-images: |
+            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.version }}-nightly-amd64
 
       - name: "[migrations] Apply manifest for \"nightly\" tag"
         uses: Noelware/docker-manifest-action@master
@@ -410,7 +414,7 @@ jobs:
         uses: Noelware/docker-manifest-action@master
         with:
           push: true
-          base-image: ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}-nightly
+          base-image: ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-nightly
           extra-images: |
             ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-nightly-amd64,
             ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-nightly-arm64,
@@ -421,7 +425,18 @@ jobs:
         uses: Noelware/docker-manifest-action@master
         with:
           push: true
-          base-image: ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}-nightly
+          base-image: ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly
+          extra-images: |
+            ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-amd64,
+            ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-arm64,
+            ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-i386,
+            ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-armv7
+
+      - name: "[server] Apply manifest for \"${{ steps.tag.outputs.version }}-nightly\" tag"
+        uses: Noelware/docker-manifest-action@master
+        with:
+          push: true
+          base-image: ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.version }}-nightly
           extra-images: |
             ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-amd64,
             ghcr.io/charted-dev/charted/migrations:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-arm64,
@@ -434,8 +449,7 @@ jobs:
           push: true
           base-image: ghcr.io/charted-dev/charted/web:nightly
           extra-images: |
-            ghcr.io/charted-dev/charted/web:nightly-amd64,
-            ghcr.io/charted-dev/charted/web:nightly-arm64
+            ghcr.io/charted-dev/charted/web:nightly-amd64
 
       - name: "[webui] Apply manifest for \"${{ steps.tag.outputs.major }}-nightly\" tag"
         uses: Noelware/docker-manifest-action@master
@@ -443,8 +457,7 @@ jobs:
           push: true
           base-image: ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.major }}-nightly
           extra-images: |
-            ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.major }}-nightly-amd64,
-            ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.major }}-nightly-arm64
+            ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.major }}-nightly-amd64
 
       - name: "[webui] Apply manifest for \"${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-nightly\" tag"
         uses: Noelware/docker-manifest-action@master
@@ -452,8 +465,7 @@ jobs:
           push: true
           base-image: ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.major }}-nightly
           extra-images: |
-            ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-nightly-amd64,
-            ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-nightly-arm64
+            ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}-nightly-amd64
 
       - name: "[webui] Apply manifest for \"${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly\" tag"
         uses: Noelware/docker-manifest-action@master
@@ -461,5 +473,12 @@ jobs:
           push: true
           base-image: ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.major }}-nightly
           extra-images: |
-            ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-amd64,
-            ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-arm64
+            ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.major }}.${{ steps.tag.outputs.minor }}.${{ steps.tag.outputs.patch }}-nightly-amd64
+
+      - name: "[webui] Apply manifest for \"${{ steps.tag.outputs.version }}-nightly\" tag"
+        uses: Noelware/docker-manifest-action@master
+        with:
+          push: true
+          base-image: ghcr.io/charted-dev/charted/web:${{ steps.tag.outputs.major }}-nightly
+          extra-images: |
+            ghcr.io/charted-dev/charted:${{ steps.tag.outputs.version }}-nightly-amd64
