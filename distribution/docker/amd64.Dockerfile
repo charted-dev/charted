@@ -24,7 +24,7 @@ RUN apk update && \
             --compress=2 \
             --output /runtime
 
-FROM eclipse-temurin:19-jdk-alpine AS gradle-build
+FROM eclipse-temurin:18.0.2.1_1-jdk-alpine AS gradle-build
 
 RUN apk update && \
     apk add --no-cache git ca-certificates gcompat libc6-compat && \
