@@ -402,7 +402,7 @@ __metadata:
     "@stitches/react": 1.2.8
     "@tabler/icons": 1.101.0
     "@tanstack/react-query": 4.10.3
-    "@tanstack/react-query-devtools": 4.10.4
+    "@tanstack/react-query-devtools": 4.11.0
     "@types/node": 18.7.19
     "@types/react": 18.0.21
     "@types/react-dom": 18.0.6
@@ -1742,9 +1742,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-devtools@npm:4.10.4":
-  version: 4.10.4
-  resolution: "@tanstack/react-query-devtools@npm:4.10.4"
+"@tanstack/react-query-devtools@npm:4.11.0":
+  version: 4.11.0
+  resolution: "@tanstack/react-query-devtools@npm:4.11.0"
   dependencies:
     "@tanstack/match-sorter-utils": ^8.1.1
     superjson: ^1.10.0
@@ -1753,7 +1753,7 @@ __metadata:
     "@tanstack/react-query": 4.10.3
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: 0717dcb8c178455d8aac0a36dc30d21ccdac9d287a046137ca3fafa5dc6a3b7b61e7a416688d9121720ea163ff71540cbd1af691fa71c07601a885a1ba59e31f
+  checksum: 02e076d946f11ec7470e4f9a3dfca0047228450480a84ac79c0263202d7e6d66133190be41fb3676c3ae879076197cefb5b2d1a47ac959b28b656afd9616176f
   languageName: node
   linkType: hard
 
