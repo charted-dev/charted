@@ -15,7 +15,7 @@
     "dev": "vite"
   },
   "dependencies": {
-    "@elastic/charts": "50.0.1",
+    "@elastic/charts": "50.0.2",
     "@fastify/http-proxy": "8.2.3",
     "@fontsource/cantarell": "4.5.9",
     "@fontsource/inter": "4.5.13",
