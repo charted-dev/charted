@@ -374,7 +374,7 @@ __metadata:
     "@fontsource/inter": 4.5.13
     "@fontsource/jetbrains-mono": 4.5.11
     "@mantine/core": 5.5.5
-    "@mantine/dropzone": 5.5.4
+    "@mantine/dropzone": 5.5.5
     "@mantine/form": 5.5.4
     "@mantine/hooks": 5.5.4
     "@mantine/modals": 5.5.4
@@ -742,18 +742,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mantine/dropzone@npm:5.5.4":
-  version: 5.5.4
-  resolution: "@mantine/dropzone@npm:5.5.4"
+"@mantine/dropzone@npm:5.5.5":
+  version: 5.5.5
+  resolution: "@mantine/dropzone@npm:5.5.5"
   dependencies:
-    "@mantine/utils": 5.5.4
+    "@mantine/utils": 5.5.5
     react-dropzone: 14.2.2
   peerDependencies:
-    "@mantine/core": 5.5.4
-    "@mantine/hooks": 5.5.4
+    "@mantine/core": 5.5.5
+    "@mantine/hooks": 5.5.5
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
-  checksum: 77999b3c3a968a937ab30a5f522fc220fbca131e33833627950caec345b2e657df515f1fe90099ac4c2da5ac8c03a98ee6f0b867707ee25d7a9e714f82ed4be6
+  checksum: 066fba87fb410dbb82a7e93b9963384c9bcd14b5494c87f8e79e1e2543e0c3da98df1f1791fb6cfbaa1bb2f4d3b2db6181c1590b9be148b4ae515fcd222f1eb7
   languageName: node
   linkType: hard
 
