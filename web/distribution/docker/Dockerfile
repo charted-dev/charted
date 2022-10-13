@@ -14,3 +14,24 @@
 # limitations under the License.
 
 FROM node:18.10-alpine3.16 AS builder
+
+RUN apk update && apk add --no-cache git ca-certificates
+WORKDIR /build
+
+COPY package.json .
+COPY .yarn/ ./.yarn/
+COPY .yarnrc.yml .
+
+ENV NODE_ENV=production
+RUN yarn install
+
+COPY . .
+RUN TS_NODE_PROJECT=./scripts/tsconfig.json yarn build
+
+# We could use NGINX but caddy is simple :3
+FROM caddy:2.6.1-alpine
+
+WORKDIR /app/noelware/charted/web
+
+COPY --from=builder /build/dist /app/noelware/charted/web
+COPY distribution/docker/Caddyfile /etc/caddy/Caddyfile

@@ -15,5 +15,8 @@
  * limitations under the License.
  */
 
-export { default as ErrorBoundary } from './ErrorBoundary';
-export { default as Navigation } from './Navigation';
+import type { FC } from 'react';
+
+const Main: FC = () => null;
+
+export default Main;

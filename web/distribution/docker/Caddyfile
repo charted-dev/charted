@@ -13,4 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM node:18.10-alpine3.16 AS builder
+localhost:2134 {
+  encode gzip
+
+  # if you want to proxy over charted-server:
+  # handle /api/* {
+  #   reverse_proxy <location to charted-server>:<port>
+  # }
+
+  handle {
+    root * /app/noelware/charted/web
+    file_server
+  }
+}

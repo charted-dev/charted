@@ -20,42 +20,25 @@ import '@fontsource/cantarell/index.css';
 import '@fontsource/inter/index.css';
 import './styles/twemoji.css';
 
+import { globalCss, light, dark } from './stitches.config';
+import { ThemeProvider } from 'next-themes';
 import type { FC } from 'react';
-import CommandMenu from './components/CommandMenu';
+import Router from './router';
 
-const App: FC = () => <CommandMenu />;
+const App: FC = () => {
+  globalCss();
+
+  return (
+    <ThemeProvider
+      disableTransitionOnChange
+      defaultTheme="system"
+      enableSystem={true}
+      attribute="class"
+      value={{ light: light.className, dark: dark.className }}
+    >
+      <Router />
+    </ThemeProvider>
+  );
+};
 
 export default App;
-
-// import { MantineProvider, ColorSchemeProvider, type ColorScheme } from '@mantine/core';
-// import { defineMantineTheme } from './mantine.config';
-// import { useLocalStorage } from '@mantine/hooks';
-// import { BrowserRouter } from 'react-router-dom';
-// import { ErrorBoundary } from '~/components';
-// import type { FC } from 'react';
-// import AppRouter from './router';
-
-// const App: FC = () => {
-//   const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
-//     key: 'pak.prefs.color-scheme',
-//     defaultValue: 'light',
-//     getInitialValueInEffect: true
-//   });
-
-//   const toggleColorScheme = (value?: ColorScheme) =>
-//     setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
-
-//   return (
-//     <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
-//       <MantineProvider withGlobalStyles withNormalizeCSS theme={defineMantineTheme(colorScheme)}>
-//         <ErrorBoundary>
-//           <BrowserRouter>
-//             <AppRouter />
-//           </BrowserRouter>
-//         </ErrorBoundary>
-//       </MantineProvider>
-//     </ColorSchemeProvider>
-//   );
-// };
-
-// export default App;

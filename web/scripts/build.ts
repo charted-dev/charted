@@ -15,9 +15,15 @@
  * limitations under the License.
  */
 
-img.emoji {
-  display: inline-block;
-  width: auto;
-  height: 1em;
-  vertical-align: -0.125em;
+import { build } from 'vite';
+import log from './util/log';
+
+async function main() {
+  log.info('building web ui code...');
+  await build();
 }
+
+main().catch((ex) => {
+  log.error(ex);
+  process.exit(1);
+});

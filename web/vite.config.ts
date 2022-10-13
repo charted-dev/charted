@@ -15,17 +15,18 @@
  * limitations under the License.
  */
 
+import { hasOwnProperty } from '@noelware/utils';
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import react from '@vitejs/plugin-react';
 
 const MODE = Object.prototype.hasOwnProperty.call(process.env, 'NODE_ENV') ? process.env.NODE_ENV! : 'development';
-const serverUrl = Object.prototype.hasOwnProperty.call(process.env, 'SERVER')
-  ? process.env.SERVER!
-  : 'http://localhost:3651';
+const SERVER_URL = hasOwnProperty(process.env, 'CHARTED_SERVER_URL')
+  ? process.env.CHARTED_SERVER_URL!
+  : 'http://127.0.0.1:3651';
 
 export default defineConfig({
-  envPrefix: 'CHARTED_',
+  envPrefix: 'WEB_',
   plugins: [react()],
   mode: MODE,
   resolve: {
@@ -40,15 +41,13 @@ export default defineConfig({
     sourcemap: true
   },
   server: {
-    port: 4000,
-    proxy:
-      MODE === 'development'
-        ? {
-            '/api': {
-              target: serverUrl,
-              changeOrigin: true
-            }
-          }
-        : undefined
+    port: 2134,
+    proxy: {
+      '/api': {
+        followRedirects: true,
+        target: SERVER_URL,
+        secure: MODE === 'production'
+      }
+    }
   }
 });

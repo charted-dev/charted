@@ -19,6 +19,7 @@ import { reportWebVitals } from './web-vitals';
 import { createRoot } from 'react-dom/client';
 import { StrictMode } from 'react';
 import App from './App';
+import { BrowserRouter } from 'react-router-dom';
 
 console.info(
   `%c     _           _         _
@@ -35,7 +36,9 @@ if (!rootEl) throw new Error('Cannot find root element!');
 const root = createRoot(rootEl);
 root.render(
   <StrictMode>
-    <App />
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </StrictMode>
 );
 

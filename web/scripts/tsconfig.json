@@ -4,14 +4,15 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "moduleResolution": "node",
+    "target": "ESNext",
     "skipLibCheck": true,
     "allowJs": true,
     "module": "CommonJS",
     "jsx": "preserve",
-    "typeRoots": ["../node_modules/@types", "./@types"],
+    "typeRoots": ["./node_modules/@types"],
     "baseUrl": ".",
-    "noEmit": true // esbuild will output it instead of `tsc`.
+    "noEmit": true
   },
-  "include": ["**/*.ts"],
-  "exclude": ["../node_modules"]
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
 }

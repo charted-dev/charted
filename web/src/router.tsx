@@ -15,6 +15,15 @@
  * limitations under the License.
  */
 
-import { createStyles } from '@mantine/core';
+import { Suspense, lazy, type FC } from 'react';
+import { Routes, Route } from 'react-router-dom';
 
-export const useStyles = createStyles(() => ({}));
+const Router: FC = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <Routes>
+      <Route index />
+    </Routes>
+  </Suspense>
+);
+
+export default Router;

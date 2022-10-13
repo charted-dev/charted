@@ -15,6 +15,24 @@
  * limitations under the License.
  */
 
-export * from './Server';
-export * from './Logger';
-export * from './Config';
+import { format, transports, createLogger } from 'winston';
+import { colors } from 'leeks.js';
+
+export default createLogger({
+  transports: [
+    new transports.Console({
+      level: 'silly',
+      handleExceptions: true,
+      handleRejections: true
+    })
+  ],
+  format: format.combine(
+    format.timestamp({ format: 'MMMM Do, YYYY [@] HH:mm:ss A' }),
+    format.colorize({ level: true }),
+    format.padLevels(),
+    format.printf(
+      ({ level, message, timestamp }) =>
+        `${colors.grey('[')}${colors.grey(timestamp)}${colors.grey(']')} ${level}${message}`
+    )
+  )
+});

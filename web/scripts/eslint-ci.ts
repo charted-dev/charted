@@ -17,8 +17,8 @@
 
 // @ts-check
 
-const { info, warning, error } = require('@actions/core');
-const { ESLint } = require('eslint');
+import { info, warning, error } from '@actions/core';
+import { ESLint } from 'eslint';
 
 const main = async () => {
   info('starting linter...');
@@ -27,13 +27,30 @@ const main = async () => {
     useEslintrc: true
   });
 
-  info('linting frontend files...');
+  info('linting files...');
   const results = await eslint.lintFiles(['src/**/*.{ts,tsx}']);
 
   for (const result of results) {
     for (const message of result.messages) {
       const fn = message.severity === 1 ? warning : error;
-      fn(`${result.filePath}:${message.line}:${message.column} [${message.ruleId}] :: ${message.message}`, {
+      fn(`[web] ${result.filePath}:${message.line}:${message.column} [${message.ruleId}] :: ${message.message}`, {
+        file: result.filePath,
+        endColumn: message.endColumn,
+        endLine: message.endLine,
+        startColumn: message.column,
+        startLine: message.line,
+        title: `[${message.ruleId}] ${message.message}`
+      });
+    }
+  }
+
+  info('linting server files...');
+  const res = await eslint.lintFiles(['server/**/*.{ts,tsx}']);
+
+  for (const result of res) {
+    for (const message of result.messages) {
+      const fn = message.severity === 1 ? warning : error;
+      fn(`[server] ${result.filePath}:${message.line}:${message.column} [${message.ruleId}] :: ${message.message}`, {
         file: result.filePath,
         endColumn: message.endColumn,
         endLine: message.endLine,
