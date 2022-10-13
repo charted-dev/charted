@@ -161,6 +161,8 @@ jobs:
       - name: Lint project
         working-directory: ./web
         run: yarn lint:ci
+        env:
+          TS_NODE_PROJECT: ./scripts/tsconfig.json
 
   goci:
     name: Go CI
