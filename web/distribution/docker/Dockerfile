@@ -29,7 +29,7 @@ COPY . .
 RUN TS_NODE_PROJECT=./scripts/tsconfig.json yarn build
 
 # We could use NGINX but caddy is simple :3
-FROM caddy:2.6.1-alpine
+FROM caddy:2.6.2-alpine
 
 WORKDIR /app/noelware/charted/web
 
