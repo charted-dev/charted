@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:1.7.20-1.0.6")
+    implementation("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:1.7.20-1.0.7")
     implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.18.4")
     implementation("com.diffplug.spotless:spotless-plugin-gradle:6.11.0")
     implementation("com.google.protobuf:protobuf-gradle-plugin:0.8.19")
