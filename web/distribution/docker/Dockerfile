@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM node:18.10-alpine3.16 AS builder
+FROM node:18.11-alpine3.16 AS builder
 
 RUN apk update && apk add --no-cache git ca-certificates
 WORKDIR /build
