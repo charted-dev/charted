@@ -370,7 +370,7 @@ __metadata:
     "@augu/tsconfig": 1.1.1
     "@elastic/charts": 50.0.2
     "@fontsource/cantarell": 4.5.9
-    "@fontsource/inter": 4.5.13
+    "@fontsource/inter": 4.5.14
     "@fontsource/jetbrains-mono": 4.5.11
     "@noelware/utils": 2.2.1
     "@radix-ui/colors": 0.1.8
@@ -576,10 +576,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fontsource/inter@npm:4.5.13":
-  version: 4.5.13
-  resolution: "@fontsource/inter@npm:4.5.13"
-  checksum: 427ff437d6b46c008537d2b09e324e6dc542220c72b1dcdecc6c3efd7a3f56ab99c9bf6ecdd6592c8409d53b8400c0b3c59c07bf5fbf17b44521f3f76b41fc13
+"@fontsource/inter@npm:4.5.14":
+  version: 4.5.14
+  resolution: "@fontsource/inter@npm:4.5.14"
+  checksum: 4e2eb9e54f8de0025bca7ad8e0822549f1873c5d9a634b8f99630d7bba750b1c86263229bae99375fc82489daa38df41e0304c77c3efda2d9a2f78d0eba3ec56
   languageName: node
   linkType: hard
 
