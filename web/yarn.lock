@@ -376,7 +376,7 @@ __metadata:
     "@radix-ui/colors": 0.1.8
     "@radix-ui/react-alert-dialog": 1.0.2
     "@radix-ui/react-avatar": 1.0.1
-    "@radix-ui/react-checkbox": 1.0.0
+    "@radix-ui/react-checkbox": 1.0.1
     "@radix-ui/react-dialog": 1.0.0
     "@radix-ui/react-dropdown-menu": 1.0.0
     "@radix-ui/react-hover-card": 1.0.0
@@ -838,24 +838,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-checkbox@npm:1.0.0":
-  version: 1.0.0
-  resolution: "@radix-ui/react-checkbox@npm:1.0.0"
+"@radix-ui/react-checkbox@npm:1.0.1":
+  version: 1.0.1
+  resolution: "@radix-ui/react-checkbox@npm:1.0.1"
   dependencies:
     "@babel/runtime": ^7.13.10
     "@radix-ui/primitive": 1.0.0
     "@radix-ui/react-compose-refs": 1.0.0
     "@radix-ui/react-context": 1.0.0
-    "@radix-ui/react-label": 1.0.0
     "@radix-ui/react-presence": 1.0.0
-    "@radix-ui/react-primitive": 1.0.0
+    "@radix-ui/react-primitive": 1.0.1
     "@radix-ui/react-use-controllable-state": 1.0.0
     "@radix-ui/react-use-previous": 1.0.0
     "@radix-ui/react-use-size": 1.0.0
   peerDependencies:
     react: ^16.8 || ^17.0 || ^18.0
     react-dom: ^16.8 || ^17.0 || ^18.0
-  checksum: 33f1f57f19632f50dae4514f5149669b22874c0629e21a472275fb4bf48984018fc1fbb17412c5fc1f6238a71ae2f5d969773b19844fdfca3b122f527d57f76b
+  checksum: f197909a3a2db85c6d8c7de96dcdafb99e97c0b9696aa47a224eae82ba993d6d0eb9238e6096c5447e7909e9c91cdd9626825433fe943e0bb09a05dd69f0e8d9
   languageName: node
   linkType: hard
 
