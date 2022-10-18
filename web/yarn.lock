@@ -391,7 +391,7 @@ __metadata:
     "@radix-ui/react-tabs": 1.0.0
     "@radix-ui/react-toast": 1.0.0
     "@radix-ui/react-toolbar": 1.0.0
-    "@radix-ui/react-tooltip": 1.0.0
+    "@radix-ui/react-tooltip": 1.0.2
     "@stitches/react": 1.2.8
     "@tabler/icons": 1.104.0
     "@tanstack/react-query": 4.12.0
@@ -1570,27 +1570,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-tooltip@npm:1.0.0":
-  version: 1.0.0
-  resolution: "@radix-ui/react-tooltip@npm:1.0.0"
+"@radix-ui/react-tooltip@npm:1.0.2":
+  version: 1.0.2
+  resolution: "@radix-ui/react-tooltip@npm:1.0.2"
   dependencies:
     "@babel/runtime": ^7.13.10
     "@radix-ui/primitive": 1.0.0
     "@radix-ui/react-compose-refs": 1.0.0
     "@radix-ui/react-context": 1.0.0
-    "@radix-ui/react-dismissable-layer": 1.0.0
+    "@radix-ui/react-dismissable-layer": 1.0.2
     "@radix-ui/react-id": 1.0.0
-    "@radix-ui/react-popper": 1.0.0
-    "@radix-ui/react-portal": 1.0.0
+    "@radix-ui/react-popper": 1.0.1
+    "@radix-ui/react-portal": 1.0.1
     "@radix-ui/react-presence": 1.0.0
-    "@radix-ui/react-primitive": 1.0.0
-    "@radix-ui/react-slot": 1.0.0
+    "@radix-ui/react-primitive": 1.0.1
+    "@radix-ui/react-slot": 1.0.1
     "@radix-ui/react-use-controllable-state": 1.0.0
-    "@radix-ui/react-visually-hidden": 1.0.0
+    "@radix-ui/react-visually-hidden": 1.0.1
   peerDependencies:
     react: ^16.8 || ^17.0 || ^18.0
     react-dom: ^16.8 || ^17.0 || ^18.0
-  checksum: 038ae1bf703c058d53f159f08caa7d771139f8785e975788038400f99fa0c6bd53357102adcf9d5a2338b368eff51b275ace72786ead5a1efec9a6e96ad54593
+  checksum: b6d5201c88fc1f842da0af93da9aa0ab0a1b7a538c0d8a2bd59862a1b8f30a08ccce7ca8502012568b1f3c5f1663a7ff9eb307ed583d666d78a7544127e4e5d2
   languageName: node
   linkType: hard
 
@@ -1697,6 +1697,19 @@ __metadata:
     react: ^16.8 || ^17.0 || ^18.0
     react-dom: ^16.8 || ^17.0 || ^18.0
   checksum: af10e54db17d208877b873f110ad071640038e17b4431854008d257ae9794650b0cd415b04c8beec0c0d00a1b48087c4156f0efa9eda62f4338f63ec87592806
+  languageName: node
+  linkType: hard
+
+"@radix-ui/react-visually-hidden@npm:1.0.1":
+  version: 1.0.1
+  resolution: "@radix-ui/react-visually-hidden@npm:1.0.1"
+  dependencies:
+    "@babel/runtime": ^7.13.10
+    "@radix-ui/react-primitive": 1.0.1
+  peerDependencies:
+    react: ^16.8 || ^17.0 || ^18.0
+    react-dom: ^16.8 || ^17.0 || ^18.0
+  checksum: 03e9103c4939b9455ee4614e93e7b12bc9e70397d4a86296526b86f63c35f6ac3555b824aa1bcd325baf3766dfcae5c22c63b3f3b8eada7a327f704e47a6b907
   languageName: node
   linkType: hard
 
