@@ -390,7 +390,7 @@ __metadata:
     "@radix-ui/react-switch": 1.0.1
     "@radix-ui/react-tabs": 1.0.0
     "@radix-ui/react-toast": 1.0.0
-    "@radix-ui/react-toolbar": 1.0.0
+    "@radix-ui/react-toolbar": 1.0.1
     "@radix-ui/react-tooltip": 1.0.2
     "@stitches/react": 1.2.8
     "@tabler/icons": 1.104.0
@@ -887,6 +887,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@radix-ui/react-collection@npm:1.0.1":
+  version: 1.0.1
+  resolution: "@radix-ui/react-collection@npm:1.0.1"
+  dependencies:
+    "@babel/runtime": ^7.13.10
+    "@radix-ui/react-compose-refs": 1.0.0
+    "@radix-ui/react-context": 1.0.0
+    "@radix-ui/react-primitive": 1.0.1
+    "@radix-ui/react-slot": 1.0.1
+  peerDependencies:
+    react: ^16.8 || ^17.0 || ^18.0
+    react-dom: ^16.8 || ^17.0 || ^18.0
+  checksum: 4922b358baf54aa343da5235fd061a289bedef9488254696bb4eb09b320da9da91bf55e148d89f07df80afa5429804f8a203159978cddeea423e58fdea703cd0
+  languageName: node
+  linkType: hard
+
 "@radix-ui/react-compose-refs@npm:1.0.0":
   version: 1.0.0
   resolution: "@radix-ui/react-compose-refs@npm:1.0.0"
@@ -1350,6 +1366,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@radix-ui/react-roving-focus@npm:1.0.1":
+  version: 1.0.1
+  resolution: "@radix-ui/react-roving-focus@npm:1.0.1"
+  dependencies:
+    "@babel/runtime": ^7.13.10
+    "@radix-ui/primitive": 1.0.0
+    "@radix-ui/react-collection": 1.0.1
+    "@radix-ui/react-compose-refs": 1.0.0
+    "@radix-ui/react-context": 1.0.0
+    "@radix-ui/react-direction": 1.0.0
+    "@radix-ui/react-id": 1.0.0
+    "@radix-ui/react-primitive": 1.0.1
+    "@radix-ui/react-use-callback-ref": 1.0.0
+    "@radix-ui/react-use-controllable-state": 1.0.0
+  peerDependencies:
+    react: ^16.8 || ^17.0 || ^18.0
+    react-dom: ^16.8 || ^17.0 || ^18.0
+  checksum: a8f1d22086622d7439b36ee5d38c6eb412bb99e71fa6986c25ed4506528ac48f32cbc06ed329bc7844fc9c9d402dec06e749b6272bef3ea26688620ad6b11fad
+  languageName: node
+  linkType: hard
+
 "@radix-ui/react-scroll-area@npm:1.0.1":
   version: 1.0.1
   resolution: "@radix-ui/react-scroll-area@npm:1.0.1"
@@ -1401,19 +1438,6 @@ __metadata:
     react: ^16.8 || ^17.0 || ^18.0
     react-dom: ^16.8 || ^17.0 || ^18.0
   checksum: 5b91585d20967cee68f0ff1b2a3ef6e1abccc05fb61adc584562524f147cec5888e5b981798789ee1229811e97ac588670863f5a8fbeea5aa08158963424091a
-  languageName: node
-  linkType: hard
-
-"@radix-ui/react-separator@npm:1.0.0":
-  version: 1.0.0
-  resolution: "@radix-ui/react-separator@npm:1.0.0"
-  dependencies:
-    "@babel/runtime": ^7.13.10
-    "@radix-ui/react-primitive": 1.0.0
-  peerDependencies:
-    react: ^16.8 || ^17.0 || ^18.0
-    react-dom: ^16.8 || ^17.0 || ^18.0
-  checksum: 19056da055ec89ce0613a3d60608f13e27b778228fbb0df7ada3ebda89c292e71a514ab6e0061a74d0a0d4963354fde1ffd8b8848628cb3275f216d05423a7a5
   languageName: node
   linkType: hard
 
@@ -1517,56 +1541,56 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-toggle-group@npm:1.0.0":
-  version: 1.0.0
-  resolution: "@radix-ui/react-toggle-group@npm:1.0.0"
+"@radix-ui/react-toggle-group@npm:1.0.1":
+  version: 1.0.1
+  resolution: "@radix-ui/react-toggle-group@npm:1.0.1"
   dependencies:
     "@babel/runtime": ^7.13.10
     "@radix-ui/primitive": 1.0.0
     "@radix-ui/react-context": 1.0.0
     "@radix-ui/react-direction": 1.0.0
-    "@radix-ui/react-primitive": 1.0.0
-    "@radix-ui/react-roving-focus": 1.0.0
-    "@radix-ui/react-toggle": 1.0.0
+    "@radix-ui/react-primitive": 1.0.1
+    "@radix-ui/react-roving-focus": 1.0.1
+    "@radix-ui/react-toggle": 1.0.1
     "@radix-ui/react-use-controllable-state": 1.0.0
   peerDependencies:
     react: ^16.8 || ^17.0 || ^18.0
     react-dom: ^16.8 || ^17.0 || ^18.0
-  checksum: f0f91633ad45ff13ff49866118c15997a311fa31019c6eb1b60e6118e85a8973b6504a7eef739f37be74abdc2f465a0f7e02c57ce8e45856bd49e4471ca4cd55
+  checksum: 310c061a7e8184efe8e97870fa9806f2eb6da2b66a54640f7902ce357439e4ca09ff139e85686585cd8bf6b53559a906aeedc33b19572026c2d2a2a372651764
   languageName: node
   linkType: hard
 
-"@radix-ui/react-toggle@npm:1.0.0":
-  version: 1.0.0
-  resolution: "@radix-ui/react-toggle@npm:1.0.0"
+"@radix-ui/react-toggle@npm:1.0.1":
+  version: 1.0.1
+  resolution: "@radix-ui/react-toggle@npm:1.0.1"
   dependencies:
     "@babel/runtime": ^7.13.10
     "@radix-ui/primitive": 1.0.0
-    "@radix-ui/react-primitive": 1.0.0
+    "@radix-ui/react-primitive": 1.0.1
     "@radix-ui/react-use-controllable-state": 1.0.0
   peerDependencies:
     react: ^16.8 || ^17.0 || ^18.0
     react-dom: ^16.8 || ^17.0 || ^18.0
-  checksum: 6e4de11b0446e18245b6aceabd9d0f84ec08320b6945f0111d00d322f9397eb8f8bf4626eee292f6640ca5c5a6c416842472f955d3eac69b5822cf268f05c08a
+  checksum: 9754df4add6c1d4bced810431e51696cd482465aaf84ffca008caf13f5f33e6e4133ce146ae208fede93acfedbfffcee3808794d4f147c949cc15465f3cc22a7
   languageName: node
   linkType: hard
 
-"@radix-ui/react-toolbar@npm:1.0.0":
-  version: 1.0.0
-  resolution: "@radix-ui/react-toolbar@npm:1.0.0"
+"@radix-ui/react-toolbar@npm:1.0.1":
+  version: 1.0.1
+  resolution: "@radix-ui/react-toolbar@npm:1.0.1"
   dependencies:
     "@babel/runtime": ^7.13.10
     "@radix-ui/primitive": 1.0.0
     "@radix-ui/react-context": 1.0.0
     "@radix-ui/react-direction": 1.0.0
-    "@radix-ui/react-primitive": 1.0.0
-    "@radix-ui/react-roving-focus": 1.0.0
-    "@radix-ui/react-separator": 1.0.0
-    "@radix-ui/react-toggle-group": 1.0.0
+    "@radix-ui/react-primitive": 1.0.1
+    "@radix-ui/react-roving-focus": 1.0.1
+    "@radix-ui/react-separator": 1.0.1
+    "@radix-ui/react-toggle-group": 1.0.1
   peerDependencies:
     react: ^16.8 || ^17.0 || ^18.0
     react-dom: ^16.8 || ^17.0 || ^18.0
-  checksum: ec8447f49d632e55739e341d656c59e0efd0315698f7adccc623deceda5c737875fd92d6a9ffa79dff1c31f322deea476c4048c950c19f992350ac8f67b1321b
+  checksum: 0007bc416356a231ead4b25ef90653904bee59ccc0cddaee568084e01838bfa829101af571a711f2c4b7d0e1d38ea2d7308b3e18b04ecd892d196cd67f5588ab
   languageName: node
   linkType: hard
 
