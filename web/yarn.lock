@@ -386,7 +386,7 @@ __metadata:
     "@radix-ui/react-radio-group": 1.0.0
     "@radix-ui/react-scroll-area": 1.0.1
     "@radix-ui/react-select": 1.0.0
-    "@radix-ui/react-separator": 1.0.0
+    "@radix-ui/react-separator": 1.0.1
     "@radix-ui/react-switch": 1.0.0
     "@radix-ui/react-tabs": 1.0.0
     "@radix-ui/react-toast": 1.0.0
@@ -1414,6 +1414,19 @@ __metadata:
     react: ^16.8 || ^17.0 || ^18.0
     react-dom: ^16.8 || ^17.0 || ^18.0
   checksum: 19056da055ec89ce0613a3d60608f13e27b778228fbb0df7ada3ebda89c292e71a514ab6e0061a74d0a0d4963354fde1ffd8b8848628cb3275f216d05423a7a5
+  languageName: node
+  linkType: hard
+
+"@radix-ui/react-separator@npm:1.0.1":
+  version: 1.0.1
+  resolution: "@radix-ui/react-separator@npm:1.0.1"
+  dependencies:
+    "@babel/runtime": ^7.13.10
+    "@radix-ui/react-primitive": 1.0.1
+  peerDependencies:
+    react: ^16.8 || ^17.0 || ^18.0
+    react-dom: ^16.8 || ^17.0 || ^18.0
+  checksum: c7d7aa21f4b00127da07452cf17bca59d02fe40c62ba662d72d4a906b6722173de28a5fd647ed5d11fc483fa62fa74f075433764d8803b07f2721c957e5ec13a
   languageName: node
   linkType: hard
 
