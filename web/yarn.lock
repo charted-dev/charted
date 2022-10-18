@@ -384,7 +384,7 @@ __metadata:
     "@radix-ui/react-navigation-menu": 1.0.0
     "@radix-ui/react-popover": 1.0.2
     "@radix-ui/react-radio-group": 1.0.0
-    "@radix-ui/react-scroll-area": 1.0.0
+    "@radix-ui/react-scroll-area": 1.0.1
     "@radix-ui/react-select": 1.0.0
     "@radix-ui/react-separator": 1.0.0
     "@radix-ui/react-switch": 1.0.0
@@ -1350,9 +1350,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-scroll-area@npm:1.0.0":
-  version: 1.0.0
-  resolution: "@radix-ui/react-scroll-area@npm:1.0.0"
+"@radix-ui/react-scroll-area@npm:1.0.1":
+  version: 1.0.1
+  resolution: "@radix-ui/react-scroll-area@npm:1.0.1"
   dependencies:
     "@babel/runtime": ^7.13.10
     "@radix-ui/number": 1.0.0
@@ -1361,13 +1361,13 @@ __metadata:
     "@radix-ui/react-context": 1.0.0
     "@radix-ui/react-direction": 1.0.0
     "@radix-ui/react-presence": 1.0.0
-    "@radix-ui/react-primitive": 1.0.0
+    "@radix-ui/react-primitive": 1.0.1
     "@radix-ui/react-use-callback-ref": 1.0.0
     "@radix-ui/react-use-layout-effect": 1.0.0
   peerDependencies:
     react: ^16.8 || ^17.0 || ^18.0
     react-dom: ^16.8 || ^17.0 || ^18.0
-  checksum: 0b7756f1df19ac13c570941461794668d0fb15fd576f37a698a6d0a39f48b728db751455f8de202e5ccb8750c3d9f31a02ada7b79d9f064347aa96e780d8f104
+  checksum: 26ddfe7bd5c68212d2b04ae31168e1172739c8e94aa853034c8c7f5418ec68e2bd9fe0028a0d1c915a8ccf3ca97b26418e1273d0bef0f51175aa6d3d53b23a66
   languageName: node
   linkType: hard
 
