@@ -429,7 +429,7 @@ __metadata:
     typescript: 4.8.4
     validator: 13.7.0
     vite: 3.1.8
-    web-vitals: 3.0.3
+    web-vitals: 3.0.4
     winston: 3.8.2
     zustand: 4.1.2
   languageName: unknown
@@ -6520,10 +6520,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"web-vitals@npm:3.0.3":
-  version: 3.0.3
-  resolution: "web-vitals@npm:3.0.3"
-  checksum: 77df36f83590afbab6872f94f01e9df536ec4b0a4421833b500306f5ee5f9cdebdcd9139cfd94801edfb555a56ad61d8a5d28529ade8c645f6c82b76aebca19e
+"web-vitals@npm:3.0.4":
+  version: 3.0.4
+  resolution: "web-vitals@npm:3.0.4"
+  checksum: b618a8e049e0c64948eea09c372db490802bcc8bcb30230a2bc69d9e243b1a2fa54d0f0ae19d5e63f19381df86db2a9260ca15ef620e10024888eab487a77d56
   languageName: node
   linkType: hard
 
