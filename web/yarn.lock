@@ -389,7 +389,7 @@ __metadata:
     "@radix-ui/react-separator": 1.0.1
     "@radix-ui/react-switch": 1.0.1
     "@radix-ui/react-tabs": 1.0.1
-    "@radix-ui/react-toast": 1.0.0
+    "@radix-ui/react-toast": 1.1.1
     "@radix-ui/react-toolbar": 1.0.1
     "@radix-ui/react-tooltip": 1.0.2
     "@stitches/react": 1.2.8
@@ -1517,27 +1517,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-toast@npm:1.0.0":
-  version: 1.0.0
-  resolution: "@radix-ui/react-toast@npm:1.0.0"
+"@radix-ui/react-toast@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@radix-ui/react-toast@npm:1.1.1"
   dependencies:
     "@babel/runtime": ^7.13.10
     "@radix-ui/primitive": 1.0.0
-    "@radix-ui/react-collection": 1.0.0
+    "@radix-ui/react-collection": 1.0.1
     "@radix-ui/react-compose-refs": 1.0.0
     "@radix-ui/react-context": 1.0.0
-    "@radix-ui/react-dismissable-layer": 1.0.0
-    "@radix-ui/react-portal": 1.0.0
+    "@radix-ui/react-dismissable-layer": 1.0.2
+    "@radix-ui/react-portal": 1.0.1
     "@radix-ui/react-presence": 1.0.0
-    "@radix-ui/react-primitive": 1.0.0
+    "@radix-ui/react-primitive": 1.0.1
     "@radix-ui/react-use-callback-ref": 1.0.0
     "@radix-ui/react-use-controllable-state": 1.0.0
     "@radix-ui/react-use-layout-effect": 1.0.0
-    "@radix-ui/react-visually-hidden": 1.0.0
+    "@radix-ui/react-visually-hidden": 1.0.1
   peerDependencies:
     react: ^16.8 || ^17.0 || ^18.0
     react-dom: ^16.8 || ^17.0 || ^18.0
-  checksum: 3d5ddd13a41d02871ffbf6c49470ae09d6a5bbfa2d6aaec43467026e1bd6b1d214d54ca0c9caa168fabcc823e1417d41ca44b9b6bced467d6b9faed0de87e29c
+  checksum: fdf115c319ba2463bf46d3a4b9fe62af9f791bdeb5f7f8ccb89862d2cec80d4bcfd7b2d17be2fa1db4231cec95780382b4196353f8f3b33919a07a430bb70a34
   languageName: node
   linkType: hard
 
