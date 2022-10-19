@@ -388,7 +388,7 @@ __metadata:
     "@radix-ui/react-select": 1.0.0
     "@radix-ui/react-separator": 1.0.1
     "@radix-ui/react-switch": 1.0.1
-    "@radix-ui/react-tabs": 1.0.0
+    "@radix-ui/react-tabs": 1.0.1
     "@radix-ui/react-toast": 1.0.0
     "@radix-ui/react-toolbar": 1.0.1
     "@radix-ui/react-tooltip": 1.0.2
@@ -1497,9 +1497,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-tabs@npm:1.0.0":
-  version: 1.0.0
-  resolution: "@radix-ui/react-tabs@npm:1.0.0"
+"@radix-ui/react-tabs@npm:1.0.1":
+  version: 1.0.1
+  resolution: "@radix-ui/react-tabs@npm:1.0.1"
   dependencies:
     "@babel/runtime": ^7.13.10
     "@radix-ui/primitive": 1.0.0
@@ -1507,13 +1507,13 @@ __metadata:
     "@radix-ui/react-direction": 1.0.0
     "@radix-ui/react-id": 1.0.0
     "@radix-ui/react-presence": 1.0.0
-    "@radix-ui/react-primitive": 1.0.0
-    "@radix-ui/react-roving-focus": 1.0.0
+    "@radix-ui/react-primitive": 1.0.1
+    "@radix-ui/react-roving-focus": 1.0.1
     "@radix-ui/react-use-controllable-state": 1.0.0
   peerDependencies:
     react: ^16.8 || ^17.0 || ^18.0
     react-dom: ^16.8 || ^17.0 || ^18.0
-  checksum: 162413906c80a1fd2a3dddc9ac7f951b5e789cd69cc829f309735ac4ce6a21a9832c2abf71295a176a042fa6deb8a70dc597e219966d268d125e08d3a39f0596
+  checksum: d5e8ac40d40b6c795bb0e1d1b942fd133b9c1978b21f07d06352159182e229b2bb2d0d3b9a04d288692d41cff3ba90f128a5e95995e0cc59352cc82d1ee72599
   languageName: node
   linkType: hard
 
