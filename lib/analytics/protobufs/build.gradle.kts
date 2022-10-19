@@ -72,13 +72,13 @@ protobuf {
             path = protocPath
         } else {
             logger.lifecycle("Defaulting to the protoc artifact on Maven Central! If you wish to set a custom path to protoc, use the `CHARTED_PROTOC_PATH` environment variable.")
-            artifact = "com.google.protobuf:protoc:3.21.7"
+            artifact = "com.google.protobuf:protoc:3.21.8"
         }
     }
 
     plugins {
         id("grpc") {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.50.0"
+            artifact = "io.grpc:protoc-gen-grpc-java:1.50.1"
         }
 
         id("grpc-kotlin") {
