@@ -385,7 +385,7 @@ __metadata:
     "@radix-ui/react-popover": 1.0.2
     "@radix-ui/react-radio-group": 1.1.0
     "@radix-ui/react-scroll-area": 1.0.1
-    "@radix-ui/react-select": 1.0.0
+    "@radix-ui/react-select": 1.1.1
     "@radix-ui/react-separator": 1.0.1
     "@radix-ui/react-switch": 1.0.1
     "@radix-ui/react-tabs": 1.0.1
@@ -1407,36 +1407,35 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-select@npm:1.0.0":
-  version: 1.0.0
-  resolution: "@radix-ui/react-select@npm:1.0.0"
+"@radix-ui/react-select@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@radix-ui/react-select@npm:1.1.1"
   dependencies:
     "@babel/runtime": ^7.13.10
     "@radix-ui/number": 1.0.0
     "@radix-ui/primitive": 1.0.0
-    "@radix-ui/react-collection": 1.0.0
+    "@radix-ui/react-collection": 1.0.1
     "@radix-ui/react-compose-refs": 1.0.0
     "@radix-ui/react-context": 1.0.0
     "@radix-ui/react-direction": 1.0.0
-    "@radix-ui/react-dismissable-layer": 1.0.0
+    "@radix-ui/react-dismissable-layer": 1.0.2
     "@radix-ui/react-focus-guards": 1.0.0
-    "@radix-ui/react-focus-scope": 1.0.0
+    "@radix-ui/react-focus-scope": 1.0.1
     "@radix-ui/react-id": 1.0.0
-    "@radix-ui/react-label": 1.0.0
-    "@radix-ui/react-portal": 1.0.0
-    "@radix-ui/react-primitive": 1.0.0
-    "@radix-ui/react-slot": 1.0.0
+    "@radix-ui/react-portal": 1.0.1
+    "@radix-ui/react-primitive": 1.0.1
+    "@radix-ui/react-slot": 1.0.1
     "@radix-ui/react-use-callback-ref": 1.0.0
     "@radix-ui/react-use-controllable-state": 1.0.0
     "@radix-ui/react-use-layout-effect": 1.0.0
     "@radix-ui/react-use-previous": 1.0.0
-    "@radix-ui/react-visually-hidden": 1.0.0
+    "@radix-ui/react-visually-hidden": 1.0.1
     aria-hidden: ^1.1.1
-    react-remove-scroll: 2.5.4
+    react-remove-scroll: 2.5.5
   peerDependencies:
     react: ^16.8 || ^17.0 || ^18.0
     react-dom: ^16.8 || ^17.0 || ^18.0
-  checksum: 5b91585d20967cee68f0ff1b2a3ef6e1abccc05fb61adc584562524f147cec5888e5b981798789ee1229811e97ac588670863f5a8fbeea5aa08158963424091a
+  checksum: 17a42eaeee7ec47a8a61104817ebb9e709c3325a37b4aebd6af845002bd374ac7269e4530d49b01ebbb356eae3c93a2dd6cec05f28d9557770177ea9e7bf82e4
   languageName: node
   linkType: hard
 
@@ -1707,19 +1706,6 @@ __metadata:
   peerDependencies:
     react: ^16.8 || ^17.0 || ^18.0
   checksum: b319564668512bb5c8c64530e3c12810c4b7c75c19a00d5ef758c246e8d85cd5015df19688e174db1cc44b0584c8d7f22411eb00af5f8ac6c2e789aa5c8e34f5
-  languageName: node
-  linkType: hard
-
-"@radix-ui/react-visually-hidden@npm:1.0.0":
-  version: 1.0.0
-  resolution: "@radix-ui/react-visually-hidden@npm:1.0.0"
-  dependencies:
-    "@babel/runtime": ^7.13.10
-    "@radix-ui/react-primitive": 1.0.0
-  peerDependencies:
-    react: ^16.8 || ^17.0 || ^18.0
-    react-dom: ^16.8 || ^17.0 || ^18.0
-  checksum: af10e54db17d208877b873f110ad071640038e17b4431854008d257ae9794650b0cd415b04c8beec0c0d00a1b48087c4156f0efa9eda62f4338f63ec87592806
   languageName: node
   linkType: hard
 
