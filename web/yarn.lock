@@ -381,7 +381,7 @@ __metadata:
     "@radix-ui/react-dropdown-menu": 1.0.0
     "@radix-ui/react-hover-card": 1.0.2
     "@radix-ui/react-label": 1.0.0
-    "@radix-ui/react-navigation-menu": 1.0.0
+    "@radix-ui/react-navigation-menu": 1.1.1
     "@radix-ui/react-popover": 1.0.2
     "@radix-ui/react-radio-group": 1.0.0
     "@radix-ui/react-scroll-area": 1.0.1
@@ -1161,29 +1161,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-navigation-menu@npm:1.0.0":
-  version: 1.0.0
-  resolution: "@radix-ui/react-navigation-menu@npm:1.0.0"
+"@radix-ui/react-navigation-menu@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@radix-ui/react-navigation-menu@npm:1.1.1"
   dependencies:
     "@babel/runtime": ^7.13.10
     "@radix-ui/primitive": 1.0.0
-    "@radix-ui/react-collection": 1.0.0
+    "@radix-ui/react-collection": 1.0.1
     "@radix-ui/react-compose-refs": 1.0.0
     "@radix-ui/react-context": 1.0.0
     "@radix-ui/react-direction": 1.0.0
-    "@radix-ui/react-dismissable-layer": 1.0.0
+    "@radix-ui/react-dismissable-layer": 1.0.2
     "@radix-ui/react-id": 1.0.0
     "@radix-ui/react-presence": 1.0.0
-    "@radix-ui/react-primitive": 1.0.0
+    "@radix-ui/react-primitive": 1.0.1
     "@radix-ui/react-use-callback-ref": 1.0.0
     "@radix-ui/react-use-controllable-state": 1.0.0
     "@radix-ui/react-use-layout-effect": 1.0.0
     "@radix-ui/react-use-previous": 1.0.0
-    "@radix-ui/react-visually-hidden": 1.0.0
+    "@radix-ui/react-visually-hidden": 1.0.1
   peerDependencies:
     react: ^16.8 || ^17.0 || ^18.0
     react-dom: ^16.8 || ^17.0 || ^18.0
-  checksum: 7bceb17ba58559e30c3968e3ce3709511d1905a9c28ee0a56802e2c844dd8ddac93592a379390fe969c02dc059fbad21070d0f9d613f8249c7e951d5d4fd4b48
+  checksum: 2a8e604d3e2e66acc2a3f01590c58d4ba08d37c4b25c9a1b7e07ccbc203a2a046110330af33ae5628c0cff6d049f539058fd0e28f362bb3a909a5d7141680bf1
   languageName: node
   linkType: hard
 
