@@ -380,7 +380,7 @@ __metadata:
     "@radix-ui/react-dialog": 1.0.2
     "@radix-ui/react-dropdown-menu": 2.0.1
     "@radix-ui/react-hover-card": 1.0.2
-    "@radix-ui/react-label": 1.0.0
+    "@radix-ui/react-label": 2.0.0
     "@radix-ui/react-navigation-menu": 1.1.1
     "@radix-ui/react-popover": 1.0.2
     "@radix-ui/react-radio-group": 1.1.0
@@ -1086,19 +1086,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-label@npm:1.0.0":
-  version: 1.0.0
-  resolution: "@radix-ui/react-label@npm:1.0.0"
+"@radix-ui/react-label@npm:2.0.0":
+  version: 2.0.0
+  resolution: "@radix-ui/react-label@npm:2.0.0"
   dependencies:
     "@babel/runtime": ^7.13.10
-    "@radix-ui/react-compose-refs": 1.0.0
-    "@radix-ui/react-context": 1.0.0
-    "@radix-ui/react-id": 1.0.0
-    "@radix-ui/react-primitive": 1.0.0
+    "@radix-ui/react-primitive": 1.0.1
   peerDependencies:
     react: ^16.8 || ^17.0 || ^18.0
     react-dom: ^16.8 || ^17.0 || ^18.0
-  checksum: 707a222b86c3ad5dd75e7116e1e4f451a91b7d96175d05c017f290299b7550401616204a8c77e749dc70c0971dd061e333e7a4489b4fab0fc124403833e489c7
+  checksum: 7ff57bd696d643c428425f4cdffcc54d1fa24b2e33a7a0f0fdc2ab0db10ddbe338fee22084db5706a2e27b7da75c40e11b8f4dde23546f78efcf2e53f83ec6d6
   languageName: node
   linkType: hard
 
