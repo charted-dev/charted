@@ -412,7 +412,7 @@ __metadata:
     leeks.js: 0.2.4
     markdown-it: 13.0.1
     markdown-it-emoji: 2.0.2
-    markdown-it-shiki: 0.5.1
+    markdown-it-shiki: 0.6.0
     moment: 2.29.4
     moment-timezone: 0.5.38
     next-themes: 0.2.1
@@ -738,7 +738,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pkgr/utils@npm:^2.3.0":
+"@pkgr/utils@npm:^2.3.1":
   version: 2.3.1
   resolution: "@pkgr/utils@npm:2.3.1"
   dependencies:
@@ -4597,14 +4597,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"markdown-it-shiki@npm:0.5.1":
-  version: 0.5.1
-  resolution: "markdown-it-shiki@npm:0.5.1"
+"markdown-it-shiki@npm:0.6.0":
+  version: 0.6.0
+  resolution: "markdown-it-shiki@npm:0.6.0"
   dependencies:
     debug: ^4.3.4
-    shiki: ^0.10.1
-    synckit: ^0.7.0
-  checksum: 955d418512843f50ad84cd165c7d6950de5469bec672ebab94f58a21df03b61b2719555e2c160b01b4effdef0f4b8e47a6988870fc589fd990ea0f5b50cfa592
+    shiki: ^0.11.1
+    synckit: ^0.8.4
+  checksum: 5c3b01562f79c7944ea94665b967e1157a672a6d522442e6c240c76d763176172117029b13eb62a2f3f936e32f61e9283b5ecfc646f8ef8cba74baf86c34bc62
   languageName: node
   linkType: hard
 
@@ -5711,14 +5711,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"shiki@npm:^0.10.1":
-  version: 0.10.1
-  resolution: "shiki@npm:0.10.1"
+"shiki@npm:^0.11.1":
+  version: 0.11.1
+  resolution: "shiki@npm:0.11.1"
   dependencies:
     jsonc-parser: ^3.0.0
     vscode-oniguruma: ^1.6.1
-    vscode-textmate: 5.2.0
-  checksum: fb746f3cb3de7e545e3b10a6cb658d3938f840e4ccc9a3c90ceb7e69a8f89dbb432171faac1e9f02a03f103684dad88ee5e54b5c4964fa6b579fca6e8e26424d
+    vscode-textmate: ^6.0.0
+  checksum: 2a4ebc3b466816263fc244ae4f67a4ff96aa74d863b9c5e7e4affc50f37fd6d1a781405de0dbf763b777bc33e49a0d441de7ff3fededb8b01e3b8dbb37e2927d
   languageName: node
   linkType: hard
 
@@ -5989,13 +5989,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"synckit@npm:^0.7.0":
-  version: 0.7.3
-  resolution: "synckit@npm:0.7.3"
+"synckit@npm:^0.8.4":
+  version: 0.8.4
+  resolution: "synckit@npm:0.8.4"
   dependencies:
-    "@pkgr/utils": ^2.3.0
+    "@pkgr/utils": ^2.3.1
     tslib: ^2.4.0
-  checksum: 15b1841c16e80e84e4eb7b43680f37ad94377a032cd9f5f6fd1c9cbd32bb1b7d1cf1c32111821d4f1b5477dffb599aeda7f0c1e70c7333fbedd80951d41bf5e8
+  checksum: 83e054fe4494dab42114fc4ed36a11b85e18742d304ade3f40d3afb4ba4145d76183adba1f29e2c36e9a0a453b93a83e2387505f96a0efd901f562927a968c44
   languageName: node
   linkType: hard
 
@@ -6426,10 +6426,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vscode-textmate@npm:5.2.0":
-  version: 5.2.0
-  resolution: "vscode-textmate@npm:5.2.0"
-  checksum: 5449b42d451080f6f3649b66948f4b5ee4643c4e88cfe3558a3b31c84c78060cfdd288c4958c1690eaa5cd65d09992fa6b7c3bef9d4aa72b3651054a04624d20
+"vscode-textmate@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "vscode-textmate@npm:6.0.0"
+  checksum: ff6f17a406c2906586afc14ef01cb122e33acd35312e815abb5c924347a777c6783ce3fe7db8b83f1760ebf843c669843b9390f905b69c433b3395af28e4b483
   languageName: node
   linkType: hard
 
