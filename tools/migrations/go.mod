@@ -2,7 +2,7 @@ module noelware.org/charted/server/tools/migrations
 
 go 1.19
 
-require github.com/spf13/cobra v1.6.0
+require github.com/spf13/cobra v1.6.1
 
 require (
 	github.com/golang/snappy v0.0.4 // indirect
