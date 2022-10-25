@@ -70,7 +70,7 @@
     "@augu/tsconfig": "1.1.1",
     "@noelware/utils": "2.2.1",
     "@types/eslint": "8.4.7",
-    "@types/node": "18.7.19",
+    "@types/node": "18.11.5",
     "@types/react": "18.0.22",
     "@types/react-dom": "18.0.7",
     "@types/rimraf": "3.0.2",
