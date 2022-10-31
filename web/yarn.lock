@@ -466,7 +466,7 @@ __metadata:
     twemoji: 14.0.2
     typescript: 4.8.4
     validator: 13.7.0
-    vite: 3.2.1
+    vite: 3.2.2
     web-vitals: 3.0.4
     winston: 3.8.2
     zustand: 4.1.3
@@ -6436,9 +6436,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:3.2.1":
-  version: 3.2.1
-  resolution: "vite@npm:3.2.1"
+"vite@npm:3.2.2":
+  version: 3.2.2
+  resolution: "vite@npm:3.2.2"
   dependencies:
     esbuild: ^0.15.9
     fsevents: ~2.3.2
@@ -6467,7 +6467,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: d33f6f4c80f85f327cf74c56d2189f1ba1d808987501eae9455c65bbb1ba5ea96af0f68647e18fe0c61e82126ea91f10480c1e80964a6836a751502647a42f2b
+  checksum: 7197ac91c612dda922367a95afa1b210353d6168d41845c186e2217bda1328d17b021b93d8089e336f9533b94645ae5dca18bb10937759f559c87006dd957fcd
   languageName: node
   linkType: hard
 
