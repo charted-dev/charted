@@ -432,8 +432,8 @@ __metadata:
     "@radix-ui/react-tooltip": 1.0.2
     "@stitches/react": 1.2.8
     "@tabler/icons": 1.108.0
-    "@tanstack/react-query": 4.13.4
-    "@tanstack/react-query-devtools": 4.13.4
+    "@tanstack/react-query": 4.13.5
+    "@tanstack/react-query-devtools": 4.13.5
     "@types/eslint": 8.4.9
     "@types/node": 18.11.7
     "@types/react": 18.0.24
@@ -1735,24 +1735,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-devtools@npm:4.13.4":
-  version: 4.13.4
-  resolution: "@tanstack/react-query-devtools@npm:4.13.4"
+"@tanstack/react-query-devtools@npm:4.13.5":
+  version: 4.13.5
+  resolution: "@tanstack/react-query-devtools@npm:4.13.5"
   dependencies:
     "@tanstack/match-sorter-utils": ^8.1.1
     superjson: ^1.10.0
     use-sync-external-store: ^1.2.0
   peerDependencies:
-    "@tanstack/react-query": 4.13.4
+    "@tanstack/react-query": 4.13.5
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: 6f48ab8555b0c0bb20efa56a239e957026737c691c0b9347d39cf5c2d86847b850370597235274a1b98ccd934a4218f640bcd77243b10e7881f97b6cba656a33
+  checksum: 94f4195e2957c8b1eeb04cd459635224d2abd2cc6fb4afb0231b53ab15ecf68c65ea0c17fac1f8511558799b859f91f759ac2b4d644d170e0eeba5fe52bfe328
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:4.13.4":
-  version: 4.13.4
-  resolution: "@tanstack/react-query@npm:4.13.4"
+"@tanstack/react-query@npm:4.13.5":
+  version: 4.13.5
+  resolution: "@tanstack/react-query@npm:4.13.5"
   dependencies:
     "@tanstack/query-core": 4.13.4
     use-sync-external-store: ^1.2.0
@@ -1765,7 +1765,7 @@ __metadata:
       optional: true
     react-native:
       optional: true
-  checksum: d5a39459528cb9e1f194813901fbee6883c3d0d5c4c8bfe612a223d5dabb294bb82d66fde83caafafad221f7b3f03b03cabbb750323362fb7c9f86bf5986a93b
+  checksum: 0e10a0aafa8f1d2810b6359a315f83a074f376b4359c4b5f4b3e378c87ea4832efecfc385aca692cd66fa3db91c840b27e51ed3a1987f2c37440380496aa2e29
   languageName: node
   linkType: hard
 
