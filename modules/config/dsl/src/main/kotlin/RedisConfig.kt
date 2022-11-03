@@ -16,3 +16,36 @@
  */
 
 package org.noelware.charted.configuration.kotlin.dsl
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class RedisConfig(
+    val sentinels: List<String> = listOf(),
+    val master: String? = null,
+    val password: String? = null,
+    val index: Long = 5,
+    val host: String = "localhost",
+    val port: Long = 6379,
+    val ssl: Boolean = false
+) {
+    class Builder: org.noelware.charted.common.Builder<RedisConfig> {
+        private var sentinels = mutableListOf<String>()
+        var masterName: String? = null
+        var password: String? = null
+        var index: Long = 5
+        var host: String = "localhost"
+        var port: Long = 6379
+        var ssl: Boolean = false
+
+        fun addSentinel(host: String, port: Int): Builder = addSentinel("$host:$port")
+        fun addSentinel(sentinel: String): Builder {
+            if (sentinels.contains(sentinel)) return this
+
+            sentinels.add(sentinel)
+            return this
+        }
+
+        override fun build(): RedisConfig = RedisConfig(sentinels, masterName, password, index, host, port, ssl)
+    }
+}

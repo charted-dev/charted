@@ -53,6 +53,13 @@ public enum Architecture {
         return this == AARCH64;
     }
 
+    public String key() {
+        return switch (this) {
+            case AARCH64 -> "aarch64";
+            case X64 -> "amd64";
+        };
+    }
+
     @Override
     public String toString() {
         return "Architecture(%s)".formatted(isAarch64() ? "arm64" : "amd64");

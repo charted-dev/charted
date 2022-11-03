@@ -14,3 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import org.noelware.charted.gradle.*
+
+plugins {
+    application
+}
+
+group = "org.noelware.charted"
+version = "$VERSION"
+description = "\uD83D\uDCE6 You know, for Helm Charts?"
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+tasks {
+    wrapper {
+        version = "7.5.1"
+        distributionType = Wrapper.DistributionType.ALL
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+}

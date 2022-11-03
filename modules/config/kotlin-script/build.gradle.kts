@@ -14,3 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+plugins {
+    `charted-module`
+}
+
+dependencies {
+    // testing :quantD:
+    testImplementation(project(":modules:config"))
+
+    // definitions
+    implementation(project(":modules:config"))
+
+    // kotlin scripting host
+    implementation(kotlin("scripting-jvm-host"))
+    implementation(kotlin("scripting-common"))
+    implementation(kotlin("scripting-jvm"))
+}

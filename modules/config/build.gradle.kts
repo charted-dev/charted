@@ -18,3 +18,7 @@
 plugins {
     `charted-module`
 }
+
+dependencies {
+    api(project(":modules:config:dsl"))
+}

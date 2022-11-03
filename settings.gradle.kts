@@ -31,7 +31,9 @@ plugins {
 
 include(
     ":benchmarks",
+    ":cli",
     ":common",
+    ":distribution:archives",
     ":server",
     ":web",
     ":databases:clickhouse",
@@ -57,6 +59,7 @@ include(
     ":modules:sessions:local",
     ":modules:sessions:integrations:github",
     ":modules:sessions:integrations:noelware",
+    ":modules:storage",
     ":modules:telemetry",
     ":modules:tracing",
     ":modules:tracing:apm",

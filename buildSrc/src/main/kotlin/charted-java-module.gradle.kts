@@ -19,6 +19,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.noelware.charted.gradle.*
 import dev.floofy.utils.gradle.*
+import gradle.kotlin.dsl.accessors._9229aba57b46c4ac76b10a8165ef1aad.implementation
 
 plugins {
     id("com.diffplug.spotless")
@@ -45,6 +46,13 @@ dependencies {
     testImplementation("org.testcontainers:testcontainers:1.17.5")
     testImplementation("org.testcontainers:junit-jupiter:1.17.5")
     testImplementation("org.slf4j:slf4j-simple:2.0.3")
+
+    if (name != "common") {
+        implementation(project(":common"))
+        if (path != ":modules:config:dsl") {
+            implementation(project(":modules:config:dsl"))
+        }
+    }
 }
 
 spotless {

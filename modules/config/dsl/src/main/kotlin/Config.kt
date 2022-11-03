@@ -17,7 +17,10 @@
 
 package org.noelware.charted.configuration.kotlin.dsl
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+
+const val DO_NOT_USE_THIS_VALUE_IN_YOUR_JWT_SECRET_KEY_OR_I_WILL_LAUGH_AT_YOU = "__DO NOT USE THIS AS THE SECRET KEY__"
 
 /**
  * Represents the configuration object that is used to configure the server to your heart's content~!
@@ -26,26 +29,99 @@ import kotlinx.serialization.Serializable
  * ```kotlin
  * import org.noelware.charted.configuration.kotlin.dsl.*
  * import org.noelware.charted.configuration.kotlin.host.KotlinScriptHost
+ * import org.noelware.charted.configuration.yaml.host.ConfigYamlHost
  *
  * fun main() {
  *    val config = KotlinScriptHost.load("./path/to/config.charted.kts")
  *    // => org.noelware.charted.configuration.kotlin.dsl.Config?
+ *
+ *    val config2 = ConfigYamlHost.load("./path/to/config.yaml")
+ *    // => org.noelware.charted.configuration.kotlin.dsl.Config?
  * }
  * ```
+ *
+ * @param registrations If registrations are enabled on the server. If not, administrators of this
+ *                      instance will have to create a user via the `PUT /admin/users/create` endpoint
+ *                      or through the built-in admin UI portal the web UI bundles in.
+ * @param jwtSecretKey  The secret key for encoding JWTs for all sessions. Please do not use
+ *                      the `DO_NOT_USE_THIS_VALUE_IN_YOUR_JWT_SECRET_KEY_OR_I_WILL_LAUGH_AT_YOU` variable,
+ *                      or you will be laughed at.
+ * @param inviteOnly    If the server is only invited by an invitation system that the admins of the instance
+ *                      can invite you, and you can create your user and begin using charted-server~!
+ * @param telemetry     If [Noelware Telemetry](https://telemetry.noelware.org) should be enabled on this instance.
+ *                      This is completely optional and opt-in if you wish to send out service metadata and error reports
+ *                      to the Noelware Team, you can read in the documentation what we collect, and you can visit the
+ *                      [open sourced project](https://github.com/Noelware/telemetry) if you're still thinking about not
+ *                      using our products. :(
+ * @param sentryDsn     If Sentry should be enabled on the server or not. This will send out error reports to the Sentry server
+ *                      you decide to use.
+ * @param baseUrl       The base URL for formatting purposes in the chart's download URL. It will default to `http(s)://<server.host>:<server.port>`
+ *                      by default.
+ * @param debug         If debug mode is enabled on the server. You will be granted access to the `/debug` REST handler for seeing
+ *                      what the server is doing and whatnot.
+ * @param clickhouse    **charted-server** uses ClickHouse to store analytical features (i.e, audit logs and webhook events) to be as fast for reading
+ *                      and processing many documents at once.
+ * @param database      **charted-server** uses PostgreSQL to store metadata about each user, repository, and organization (or other features if needed), so this
+ *                      is highly recommended to be configured.
+ * @param server        Server configuration to update default settings that the server will choose or adds additional/security headers, and more~!
  */
 @Serializable
 data class Config(
+    val registrations: Boolean = true,
+
+    @SerialName("jwt_secret_key")
+    val jwtSecretKey: String = DO_NOT_USE_THIS_VALUE_IN_YOUR_JWT_SECRET_KEY_OR_I_WILL_LAUGH_AT_YOU,
+
+    @SerialName("invite_only")
+    val inviteOnly: Boolean = false,
+    val telemetry: Boolean = false,
+
+    @SerialName("sentry_dsn")
+    val sentryDsn: String? = null,
+
+    @SerialName("base_url")
+    val baseUrl: String? = null,
+    val debug: Boolean = false,
+
+    val clickhouse: ClickHouseConfig? = null,
     val database: DatabaseConfig = DatabaseConfig(),
+    val features: List<ServerFeature> = listOf(),
     val storage: StorageConfig = StorageConfig(),
-    val server: KtorServerConfig = KtorServerConfig()
+    val server: KtorServerConfig = KtorServerConfig(),
+    val redis: RedisConfig? = null,
+    val smtp: SMTPConfig? = null
 ) {
     /**
      * Represents a builder class for building a [Config] object.
      */
-    class Builder: org.noelware.charted.common.Builder<Config> {
+    open class Builder: org.noelware.charted.common.Builder<Config> {
+        var registrations: Boolean = true
+        var jwtSecretKey: String = DO_NOT_USE_THIS_VALUE_IN_YOUR_JWT_SECRET_KEY_OR_I_WILL_LAUGH_AT_YOU
+        var inviteOnly: Boolean = false
+        var telemetry: Boolean = false
+        var sentryDsn: String? = null
+        var baseUrl: String? = null
+        var debug: Boolean = false
+
+        private var _clickhouse: ClickHouseConfig? = null
+        private var _features: MutableList<ServerFeature> = mutableListOf()
         private var _database: DatabaseConfig = DatabaseConfig()
         private var _storage: StorageConfig = StorageConfig()
         private var _server: KtorServerConfig = KtorServerConfig()
+        private var _redis: RedisConfig? = null
+        private var _smtp: SMTPConfig? = null
+
+        fun clickhouse(builder: ClickHouseConfig.Builder.() -> Unit = {}): Builder {
+            _clickhouse = ClickHouseConfig.Builder().apply(builder).build()
+            return this
+        }
+
+        fun feature(feature: ServerFeature): Builder {
+            if (_features.contains(feature)) return this
+
+            _features.add(feature)
+            return this
+        }
 
         fun database(builder: DatabaseConfig.Builder.() -> Unit = {}): Builder {
             _database = DatabaseConfig.Builder().apply(builder).build()
@@ -62,6 +138,29 @@ data class Config(
             return this
         }
 
-        override fun build(): Config = Config(_database)
+        fun redis(builder: RedisConfig.Builder.() -> Unit = {}): Builder {
+            _redis = RedisConfig.Builder().apply(builder).build()
+            return this
+        }
+
+        fun smtp(from: String, builder: SMTPConfig.Builder.() -> Unit = {}): Builder {
+            _smtp = SMTPConfig.Builder(from).apply(builder).build()
+            return this
+        }
+
+        override fun build(): Config = Config(
+            registrations,
+            jwtSecretKey,
+            inviteOnly,
+            telemetry,
+            sentryDsn,
+            baseUrl,
+            debug,
+            _clickhouse,
+            _database,
+            _features.toList(),
+            _storage,
+            _server
+        )
     }
 }

@@ -52,6 +52,9 @@ dependencies {
 
     if (name != "common") {
         implementation(project(":common"))
+        if (path != ":modules:config:dsl") {
+            implementation(project(":modules:config:dsl"))
+        }
     }
 }
 

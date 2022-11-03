@@ -132,25 +132,3 @@ private class KResponseSerializer<T>(private val kSerializer: KSerializer<T>): K
         }
     }
 }
-
-/*
-// This was used so it can serialize `Response.Error` correctly, because it won't go
-// towards the parent serializer (KResponseSerializer), so this was a hacky solution
-// for now.
-private object KErrorResponseSerializer: KSerializer<Response.Error> {
-    private val apiErrorSerializer = ListSerializer(APIError.serializer())
-    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("charted.ApiError") {
-        element("success", Boolean.serializer().descriptor)
-        element("errors", apiErrorSerializer.descriptor)
-    }
-
-    override fun deserialize(decoder: Decoder): Response.Error {
-        throw IllegalAccessException("Deserialization is not supported in KErrorResponseSerializer.")
-    }
-
-    override fun serialize(encoder: Encoder, value: Response.Error) = encoder.encodeStructure(descriptor) {
-        encodeBooleanElement(descriptor, 0, false)
-        encodeSerializableElement(descriptor, 1, apiErrorSerializer, value.errors)
-    }
-}
- */

@@ -14,3 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+plugins {
+    `charted-module`
+}
+
+dependencies {
+    // definitions
+    implementation(project(":modules:config"))
+
+    // YAML (configuration)
+    api(libs.kaml)
+}

@@ -88,6 +88,11 @@ data class KtorServerConfig(
     val maxDataPayload: Long = ByteSizeValue.fromString("50mb"),
 
     /**
+     * Configures SSL on the server.
+     */
+    val ssl: KtorSSLConfig? = null,
+
+    /**
      * The connector host to use. Defaults to `0.0.0.0` for all connections
      * to pass through. Use `127.0.0.1` to only allow the connection via your
      * network.
@@ -147,6 +152,11 @@ data class KtorServerConfig(
         private val extraHeaders: MutableMap<String, String> = mutableMapOf()
 
         /**
+         * Configures SSL on the server.
+         */
+        private var ssl: KtorSSLConfig? = null
+
+        /**
          * Returns how many bytes that any request can send back to the server. The default
          * is 50MB before the server will throw a INTERNAL_SERVER_ERROR code. This is tailoured to
          * your liking, 50MB is just a nice default.
@@ -171,6 +181,12 @@ data class KtorServerConfig(
             extraHeaders[key] = value
             return this
         }
+
+        fun ssl(builder: KtorSSLConfig.Builder.() -> Unit = {}): Builder {
+            ssl = KtorSSLConfig.Builder().apply(builder).build()
+            return this
+        }
+
         override fun build(): KtorServerConfig = KtorServerConfig(
             securityHeaders,
             requestQueueLimit,
@@ -181,6 +197,7 @@ data class KtorServerConfig(
             tcpKeepAlive,
             extraHeaders,
             maxDataPayload,
+            ssl,
             host,
             port
         )

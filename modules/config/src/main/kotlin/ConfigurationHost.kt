@@ -17,4 +17,11 @@
 
 package org.noelware.charted.configuration.host
 
-interface ConfigurationHost
+import org.noelware.charted.configuration.kotlin.dsl.Config
+
+/**
+ * Host interface to load a [Config] object from a specified path
+ */
+interface ConfigurationHost {
+    fun load(path: String): Config?
+}
