@@ -17,12 +17,16 @@
 
 package org.noelware.charted.common.lazy;
 
+/**
+ * Represents an implementation class for {@link Lazy<T>}.
+ * @param <T> Resolvent type for lazily providing the value
+ */
 public class LazyImpl<T> implements Lazy<T> {
     private static final Object UNINIT = new Object();
-    private static volatile Object _instance = UNINIT;
+    private static volatile Object _value = UNINIT;
 
     private final Lazy<T> provider;
-    private final Object _lock = new Object();
+    private final Object MUTEX = new Object();
 
     public LazyImpl(Lazy<T> provider) {
         this.provider = provider;
@@ -31,12 +35,12 @@ public class LazyImpl<T> implements Lazy<T> {
     @SuppressWarnings("unchecked")
     @Override
     public T get() {
-        synchronized (_lock) {
-            if (_instance == UNINIT) {
-                _instance = provider.get();
+        synchronized (MUTEX) {
+            if (_value == UNINIT) {
+                _value = provider.get();
             }
         }
 
-        return (T) _instance;
+        return (T) _value;
     }
 }

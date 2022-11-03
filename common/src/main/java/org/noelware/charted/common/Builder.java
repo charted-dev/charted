@@ -18,11 +18,11 @@
 package org.noelware.charted.common;
 
 /**
- * Represents a generic builder pattern.
+ * Represents a generic builder interface
+ * @param <T> resolvent type
+ * @since 01.11.22
+ * @author Noel
  */
 public interface Builder<T> {
-    /**
-     * Builds the builder and returns the object it wants.
-     */
     T build();
 }

@@ -1,2 +1,0 @@
-//@spotless:off
-debug = true

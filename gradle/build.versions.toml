@@ -16,16 +16,13 @@
 [versions]
 apache-commons-validator = "1.7"
 exposed-powergamer-tools = "1.1.0"
-tomcat-annotations-api = "6.0.53"
-spring-security-crypto = "5.7.5"
+spring-security-crypto = "5.7.4"
 kotlinx-serialization = "1.4.1"
 apache-commons-lang3 = "3.12.0"
-apache-commons-io = "2.11.0"
 logback-contrib-json = "0.1.5"
 kotlinx-coroutines = "1.6.4"
-elasticsearch-rest = "8.5.0"
-mustache-compiler = "0.9.10"
-cassandra-driver = "4.15.0"
+elasticsearch-rest = "8.4.3"
+apache-commons-io = "2.11.0"
 meilisearch-rest = "1.0"
 kotlinx-datetime = "0.4.0"
 logstash-logback = "7.2"
@@ -33,16 +30,13 @@ prometheus-java = "0.16.0"
 testcontainers = "1.17.5"
 mockito-kotlin = "4.0.0"
 noel-commons = "2.3.0"
-ktor-routing = "0.3.1-beta"
-kafka-client = "3.3.1"
+ktor-routing = "0.4-beta"
 elastic-apm = "1.34.1"
-kubernetes = "16.0.1"
 bouncycastle = "1.72"
-grpc-kotlin = "1.3.0"
+clickhouse = "0.3.2-test3"
+kubernetes = "16.0.1"
 postgresql = "42.5.0"
-joptsimple = "5.0.4"
 java-mail = "1.5.0-b01"
-protobuf = "3.21.9"
 hikaricp = "5.0.1"
 lettuce = "6.2.1.RELEASE"
 jackson = "2.13.4"
@@ -53,15 +47,14 @@ junit5 = "5.9.1"
 janino = "3.1.8"
 sentry = "6.6.0"
 okhttp = "4.10.0"
-semver = "1.3.3"
 slf4j = "2.0.3"
-grpc = "1.50.2"
 koin = "3.2.2"
 kaml = "0.49.0"
 haru = "1.3.0"
 remi = "0.4.1-beta"
 ktor = "2.1.3"
 totp = "1.7.1"
+otel = "1.19.2-alpha"
 jwt = "4.2.1"
 
 [libraries]
@@ -138,20 +131,8 @@ testcontainers-core = { module = "org.testcontainers:testcontainers", version.re
 testcontainers-k3s = { module = "org.testcontainers:k3s", version.ref = "testcontainers" }
 
 # noelware's ktor routing
-noelware-ktor-routing-loaders-koin = { module = "org.noelware.ktor:loader-koin", version.ref = "ktor-routing" }
-noelware-ktor-routing-core = { module = "org.noelware.ktor:core", version.ref = "ktor-routing" }
-
-# protobufs library
-protobufs-kotlin = { module = "com.google.protobuf:protobuf-kotlin", version.ref = "protobuf" }
-protobufs-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
-
-# grpc library
-grpc-netty-shaded = { module = "io.grpc:grpc-netty-shaded", version.ref = "grpc" }
-grpc-kotlin-stub = { module = "io.grpc:grpc-kotlin-stub", version.ref = "grpc-kotlin" }
-grpc-protobuf = { module = "io.grpc:grpc-protobuf", version.ref = "grpc" }
-grpc-services = { module = "io.grpc:grpc-services", version.ref = "grpc" }
-grpc-testing = { module = "io.grpc:grpc-testing", version.ref = "grpc" }
-grpc-stub = { module = "io.grpc:grpc-stub", version.ref = "grpc" }
+noelware-ktor-routing-loaders-koin = { module = "org.noelware.ktor:ktor-routing-loader-koin", version.ref = "ktor-routing" }
+noelware-ktor-routing-core = { module = "org.noelware.ktor:ktor-routing-core", version.ref = "ktor-routing" }
 
 # mockito
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito-kotlin" }
@@ -176,33 +157,28 @@ prometheus-simpleclient = { module = "io.prometheus:simpleclient", version.ref =
 jackson-kotlin-module = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
 
-# cassandra
-cassandra-query-builder = { module = "com.datastax.oss:java-driver-query-builder", version.ref = "cassandra-driver" }
-cassandra-driver = { module = "com.datastax.oss:java-driver-core", version.ref = "cassandra-driver" }
-
 # junit
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit5" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5" }
 
-# kafka
-kafka-client = { module = "org.apache.kafka:kafka-clients", version.ref = "kafka-client" }
+# clickhouse
+clickhouse-jdbc = { module = "com.clickhouse:clickhouse-jdbc", version.ref = "clickhouse" }
+
+# opentelemetry
+opentelemetry-annotations = { module = "io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations", version.ref = "otel" }
 
 # external libraries
+spring-security-crypto = { module = "org.springframework.security:spring-security-crypto", version.ref = "spring-security-crypto" }
 exposed-powergamer-tools = { module = "net.perfectdreams.exposedpowerutils:postgres-power-utils", version.ref = "exposed-powergamer-tools" }
 meilisearch-rest-client = { module = "dev.floofy.meilisearch:rest-client", version.ref = "meilisearch-rest" }
-tomcat-annotations-api = { module = "org.apache.tomcat:annotations-api", version.ref = "tomcat-annotations-api" }
 kubernetes-client = { module = "io.kubernetes:client-java", version.ref = "kubernetes" }
-spring-security-crypto = { module = "org.springframework.security:spring-security-crypto", version.ref = "spring-security-crypto" }
-mustache-compiler = { module = "com.github.spullara.mustache.java:compiler", version.ref = "mustache-compiler" }
 bouncycastle = { module = "org.bouncycastle:bcpkix-jdk15to18", version.ref = "bouncycastle" }
-joptsimple = { module = "net.sf.jopt-simple:jopt-simple", version.ref = "joptsimple" }
 javax-mail = { module = "javax.mail:mail", version.ref = "java-mail" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
 lettuce = { module = "io.lettuce:lettuce-core", version.ref = "lettuce" }
 janino = { module = "org.codehaus.janino:janino", version.ref = "janino" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
-semver = { module = "io.github.z4kn4fein:semver", version.ref = "semver" }
 koin = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
 haru = { module = "dev.floofy.haru:Haru", version.ref = "haru" }

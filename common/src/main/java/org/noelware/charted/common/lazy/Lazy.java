@@ -18,14 +18,21 @@
 package org.noelware.charted.common.lazy;
 
 /**
- * Represents a value that is lazily evaluated.
- * @author Noel <cutie@floofy.dev>
- * @since 17.08.22
+ * Represents a lazily evaluated expression that can only be initialized once.
  */
 @FunctionalInterface
 public interface Lazy<T> {
     /**
-     * Returns the lazily evaluated value as T.
+     * Lazily retrieves the value that was given in the lambda function.
      */
     T get();
+
+    /**
+     * Creates a new {@link Lazy<T>} value from the provider function given.
+     * @param provider The provider function to retrieve the value.
+     * @param <T> Resolvent type.
+     */
+    static <T> Lazy<T> create(Lazy<T> provider) {
+        return new LazyImpl<>(provider);
+    }
 }

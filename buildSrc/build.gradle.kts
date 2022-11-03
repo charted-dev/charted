@@ -18,8 +18,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+    `java-gradle-plugin`
     `kotlin-dsl`
-    groovy
+    java
 }
 
 repositories {
@@ -30,13 +31,22 @@ repositories {
 }
 
 dependencies {
-    implementation("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:1.7.20-1.0.7")
     implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.18.5")
     implementation("com.diffplug.spotless:spotless-plugin-gradle:6.11.0")
-    implementation("com.google.protobuf:protobuf-gradle-plugin:0.8.19")
+    implementation("com.netflix.nebula:gradle-ospackage-plugin:10.0.0")
     implementation("dev.floofy.commons:gradle:2.3.0")
     implementation(kotlin("serialization", "1.7.20"))
     implementation(kotlin("gradle-plugin", "1.7.20"))
+    implementation("com.google.code.gson:gson:2.10")
+}
+
+gradlePlugin {
+    plugins {
+        create("nebula") {
+            id = "org.noelware.charted.dist.nebula"
+            implementationClass = "org.noelware.charted.gradle.plugins.nebula.ChartedNebulaPlugin"
+        }
+    }
 }
 
 tasks.withType<KotlinCompile> {
