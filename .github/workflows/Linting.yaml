@@ -60,6 +60,7 @@ on:
 jobs:
   spotless:
     name: Spotless [${{matrix.runner}}, Java ${{matrix.java-version}}]
+    runs-on: ${{matrix.runner}}
     strategy:
       matrix:
         java-version: [17, 18, 19]
