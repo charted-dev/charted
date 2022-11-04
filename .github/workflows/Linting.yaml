@@ -1,0 +1,194 @@
+# 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+# Copyright 2022 Noelware <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Linting and Unit Testing
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - 'issue/gh-**'
+      - 'feat/**'
+      - nightly
+      - main
+
+    paths-ignore:
+      - '.github/**'
+      - '.husky/**'
+      - '.vscode/**'
+      - 'assets/**'
+      - 'locales/**'
+      - 'docker/**'
+      - '.dockerignore'
+      - '.eslintignore'
+      - '.gitignore'
+      - '**.md'
+      - 'LICENSE'
+      - 'renovate.json'
+
+  pull_request:
+    branches:
+      - 'issue/gh-**'
+      - 'feat/**'
+      - nightly
+      - main
+
+    paths-ignore:
+      - '.github/**'
+      - '.husky/**'
+      - '.vscode/**'
+      - 'assets/**'
+      - 'locales/**'
+      - 'docker/**'
+      - '.dockerignore'
+      - '.eslintignore'
+      - '.gitignore'
+      - '**.md'
+      - 'LICENSE'
+      - 'renovate.json'
+jobs:
+  spotless:
+    name: Spotless [${{matrix.runner}}, Java ${{matrix.java-version}}]
+    strategy:
+      matrix:
+        java-version: [17, 18, 19]
+        runner: [windows-latest, ubuntu-latest, macos-latest, self-hosted]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Java ${{matrix.java-version}}
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{matrix.java-version}}
+          distribution: temurin
+          architecture: ${{matrix.runner == 'self-hosted' && "aarch64" || "amd64"}}
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Lint code-base with Spotless
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: spotlessCheck --no-daemon --scan
+
+      - name: Compiles Kotlin source sets
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: compileKotlin --no-daemon --scan
+
+      - name: Compiles Java source sets
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: compileJava --no-daemon --scan
+
+      - name: Run unit and integration tests
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: test --no-daemon --scan
+  nodejs:
+    name: Node.js CI [${{matrix.node-version}}]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x, 19.x]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Node.js v${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+#      - name: Get yarn cache directory path
+#        id: yarn-cache-dir-path
+#        working-directory: ./web
+#        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
+#
+#      - name: Cache Yarn
+#        uses: actions/cache@v3
+#        id: yarn-cache
+#        with:
+#          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+#          key: ${{ runner.os }}-yarn-${{ hashFiles('**/web/yarn.lock') }}
+#          restore-keys: |
+#            ${{ runner.os }}-yarn-
+#
+#      - name: Cache node_modules
+#        id: cache-node-modules
+#        uses: actions/cache@v3
+#        with:
+#          path: "./web/node_modules"
+#          key: ${{ runner.os }}-${{ matrix.node-version }}-nodemodules-${{ hashFiles('**/web/yarn.lock') }}
+#          restore-keys: |
+#            ${{ runner.os }}-${{ matrix.node-version }}-nodemodules-
+#
+#      - name: Install dependencies
+#        if: ${{ steps.yarn-cache.outputs.cache-hit != 'true' || steps.cache-node-modules.outputs.cache-hit != 'true' }}
+#        working-directory: ./web
+#        run: yarn
+#
+#      - name: Lint project
+#        working-directory: ./web
+#        run: yarn lint:ci
+#        env:
+#          TS_NODE_PROJECT: ./scripts/tsconfig.json
+  golang:
+    name: Go CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Go 1.19
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-1.19-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-1.19-go-
+
+      - name: Install dependencies
+        working-directory: ./tools/migrations
+        run: |
+          go mod download
+          go get
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          skip-cache: false
+          working-directory: ./tools/migrations
+          args: --issues-exit-code=1
+          only-new-issues: false
+          skip-pkg-cache: true
+          skip-build-cache: true

@@ -74,9 +74,9 @@ public class ByteSizeValue {
 
             final long result = Math.abs(value);
             if (result >= TERABYTE) return pluralize.accept(value, result, TERABYTE, "terabyte");
-            if (result >= GIGABYTE) return pluralize.accept(value, result, GIGABYTE, "terabyte");
-            if (result >= MEGABYTE) return pluralize.accept(value, result, MEGABYTE, "terabyte");
-            if (result >= KILOBYTE) return pluralize.accept(value, result, KILOBYTE, "terabyte");
+            if (result >= GIGABYTE) return pluralize.accept(value, result, GIGABYTE, "gigabyte");
+            if (result >= MEGABYTE) return pluralize.accept(value, result, MEGABYTE, "megabyte");
+            if (result >= KILOBYTE) return pluralize.accept(value, result, KILOBYTE, "kilobyte");
 
             return pluralize.accept(value, result, BYTE, "byte");
         } else {
