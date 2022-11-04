@@ -32,6 +32,14 @@ public class ClassicLogbackJsonLayout extends LogbackJsonLayout<ILoggingEvent> {
     private final ThrowableHandlingConverter throwableProxyConverter = new ThrowableProxyConverter();
 
     /**
+     * Sets the default JSON formatter's pretty printing status.
+     * @param value boolean.
+     */
+    public void setIsPrettyPrinting(boolean value) {
+        super.setIsPrettyPrinting(value);
+    }
+
+    /**
      * Transforms the given event into a {@link Map}.
      * @param event The event object that was given from {@link LogbackJsonLayout#doLayout(Object)}.
      */

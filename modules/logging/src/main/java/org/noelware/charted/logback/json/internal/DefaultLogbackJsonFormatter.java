@@ -25,7 +25,7 @@ import org.noelware.charted.logback.json.LogbackJsonLayout;
 
 public class DefaultLogbackJsonFormatter implements LogbackJsonFormatter {
     private final ObjectMapper MAPPER = new ObjectMapper();
-    private boolean usePrettyPrint = true;
+    private boolean usePrettyPrint = false;
 
     /**
      * Returns whether pretty printing should be enabled. Enabled by default,

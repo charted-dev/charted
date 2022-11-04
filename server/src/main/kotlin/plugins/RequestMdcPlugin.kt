@@ -15,6 +15,23 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
+package org.noelware.charted.server.plugins
+
+import io.ktor.server.application.*
+import io.ktor.server.application.hooks.*
+import io.ktor.server.request.*
+import org.slf4j.MDC
+
+val RequestMdc = createApplicationPlugin("RequestMdc") {
+    onCall { call ->
+        MDC.put("request.uri", call.request.uri)
+        MDC.put("request.method", call.request.httpMethod.value)
+        MDC.put("http.version", call.request.httpVersion)
+    }
+
+    on(ResponseSent) {
+        MDC.remove("request.uri")
+        MDC.remove("request.method")
+        MDC.remove("http.version")
+    }
 }

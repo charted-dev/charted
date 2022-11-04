@@ -41,6 +41,14 @@ public abstract class LogbackJsonLayout<E> extends LayoutBase<E> {
     }
 
     /**
+     * Sets the default JSON formatter's pretty printing status.
+     * @param value boolean.
+     */
+    public void setIsPrettyPrinting(boolean value) {
+        ((DefaultLogbackJsonFormatter) FORMATTER).setUsePrettyPrint(value);
+    }
+
+    /**
      * Transforms the given event into a {@link Map}.
      * @param event The event object that was given from {@link #doLayout(E)}.
      */

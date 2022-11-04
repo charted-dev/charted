@@ -51,7 +51,7 @@ distributions {
 
             into("config") {
                 from("$projectDir/distribution/config/logback.properties")
-                from("$projectDir/distribution/config/charted.yml")
+                from("$projectDir/distribution/config/charted.yaml")
             }
 
             from(
@@ -69,7 +69,7 @@ tasks {
             expand(
                 mapOf(
                     "version" to "$VERSION",
-                    "commit_sha" to VERSION.getGitCommit(),
+                    "commit_sha" to VERSION.getGitCommit()!!.trim(),
                     "build_date" to formatter.format(Date())
                 )
             )

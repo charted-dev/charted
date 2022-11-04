@@ -20,6 +20,67 @@ plugins {
 }
 
 dependencies {
+    // Projects required to run the server :quantD:
+    implementation(project(":modules:audit-logs"))
+    implementation(project(":modules:avatars"))
+    implementation(project(":modules:config:kotlin-script"))
+    implementation(project(":modules:config:yaml"))
+    implementation(project(":modules:config"))
+    implementation(project(":modules:docker-registry"))
+    implementation(project(":modules:elasticsearch"))
+    implementation(project(":modules:emails"))
+    implementation(project(":modules:helm-charts"))
+    implementation(project(":modules:invitations"))
     implementation(project(":modules:logging"))
+    implementation(project(":modules:meilisearch"))
+    implementation(project(":modules:metrics"))
+    implementation(project(":modules:redis"))
+    implementation(project(":modules:sessions:integrations:github"))
+    implementation(project(":modules:sessions:integrations"))
+    implementation(project(":modules:sessions:ldap"))
+    implementation(project(":modules:sessions:local"))
+    implementation(project(":modules:sessions"))
+    implementation(project(":modules:storage"))
+    implementation(project(":modules:telemetry"))
+    implementation(project(":modules:tracing:otel"))
+    implementation(project(":modules:tracing:apm"))
+    implementation(project(":modules:tracing"))
+    implementation(project(":modules:webhooks"))
+
+    // kotlinx.coroutines debug
+    implementation(libs.kotlinx.coroutines.debug)
+
+    // Ktor Routing
+    implementation(libs.noelware.ktor.routing.loaders.koin)
+    implementation(libs.noelware.ktor.routing.core)
+
+    // Ktor (Server)
+    implementation(libs.ktor.client.content.negotitation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.server.content.negotiation)
+    implementation(libs.ktor.server.auto.head.response)
+    implementation(libs.ktor.server.default.headers)
+    implementation(libs.ktor.server.double.receive)
+    implementation(libs.ktor.server.status.pages)
+    implementation(libs.ktor.server.websockets)
+    implementation(libs.ktor.serialization)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.server.netty)
+    implementation(libs.ktor.server.cors)
+
+    // JWT
+    implementation(libs.jwt)
+
+    // Just for Log4j/JCL -> slf4j
+    implementation(libs.slf4j.over.log4j)
+    implementation(libs.slf4j.over.jcl)
+
+    // Sentry~!
+    implementation(libs.sentry.kotlin.extensions)
+
+    // Tegral OpenAPI
+    implementation(libs.tegral.openapi)
+
+    // Janino (for logback)
     implementation(libs.janino)
 }

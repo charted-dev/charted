@@ -26,6 +26,11 @@
             <then>
                 <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
                     <layout class="org.noelware.charted.logback.json.ClassicLogbackJsonLayout">
+                        <if condition="isDefined('charted.console.json.pretty')">
+                            <then>
+                                <isPrettyPrint>${charted.console.json.pretty}</isPrettyPrint>
+                            </then>
+                        </if>
                     </layout>
                 </encoder>
             </then>

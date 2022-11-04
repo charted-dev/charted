@@ -45,6 +45,7 @@ jackson = "2.13.4"
 mockito = "4.8.1"
 exposed = "0.39.2"
 logback = "1.4.4"
+tegral = "0.0.3"
 junit5 = "5.9.1"
 janino = "3.1.8"
 sentry = "6.6.0"
@@ -174,6 +175,7 @@ spring-security-crypto = { module = "org.springframework.security:spring-securit
 exposed-powergamer-tools = { module = "net.perfectdreams.exposedpowerutils:postgres-power-utils", version.ref = "exposed-powergamer-tools" }
 meilisearch-rest-client = { module = "dev.floofy.meilisearch:rest-client", version.ref = "meilisearch-rest" }
 kubernetes-client = { module = "io.kubernetes:client-java", version.ref = "kubernetes" }
+tegral-openapi = { module = "guru.zoroark.tegral:tegral-openapi-dsl", version.ref = "tegral" }
 bouncycastle = { module = "org.bouncycastle:bcpkix-jdk15to18", version.ref = "bouncycastle" }
 joptsimple = { module = "net.sf.jopt-simple:jopt-simple", version.ref = "joptsimple" }
 javax-mail = { module = "javax.mail:mail", version.ref = "java-mail" }

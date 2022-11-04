@@ -48,23 +48,30 @@ RUN apk update && apk add --no-cache bash tini libc6-compat gcompat
 WORKDIR /app/noelware/charted/server
 
 ENV JAVA_HOME=/opt/openjdk/java
-COPY --from=gradle-build /build/cli/build/install/charted/config /app/noelware/charted/server/config
-COPY --from=gradle-build /build/cli/build/install/charted/lib    /app/noelware/charted/server/lib
-COPY --from=gradle-build /build/cli/build/install/charted/bin    /app/noelware/charted/server/bin
-COPY                     distributions/docker/scripts/linux      /app/noelware/charted/server/scripts
-COPY --from=migrations   /build/migrations/bin/migrations        /app/noelware/charted/server/bin/ch-migrations
-COPY --from=jdk-runtime  /runtime                                /opt/openjdk/java
+COPY --from=gradle-build /build/server/cli/build/install/charted/config /app/noelware/charted/server/config
+COPY --from=gradle-build /build/server/cli/build/install/charted/lib    /app/noelware/charted/server/lib
+COPY --from=gradle-build /build/server/cli/build/install/charted/bin    /app/noelware/charted/server/bin
+COPY                     distribution/docker/scripts/linux              /app/noelware/charted/server/scripts
+COPY --from=migrations   /build/migrations/bin/migrations               /app/noelware/charted/server/bin/ch-migrations
+COPY --from=jdk-runtime  /runtime                                       /opt/openjdk/java
+
+# Remove the PowerShell script (since it's useless on *UNIX)
+RUN rm /app/noelware/charted/server/bin/charted.ps1
 
 ENV CHARTED_DISTRIBUTION_TYPE=docker
 EXPOSE 3651
 VOLUME /var/lib/noelware/charted/data
 
 RUN mkdir -p /var/lib/noelware/charted/data
-RUN addgroup -g 1001 charted && \
-    adduser -h "/app/noelware/charted/server" -u 1001 -G charted -s /bin/bash -D noelware && \
+RUN addgroup -g 1001 noelware && \
+    adduser -DSH -u 1001 -G noelware noelware && \
     chown -R noelware:noelware /app/noelware/charted/server && \
     chown -R noelware:noelware /var/lib/noelware/charted/data && \
-    chmod +x /app/noelware/charted/server/bin/charted
+    chmod +x /app/noelware/charted/server/bin/charted /app/noelware/charted/server/scripts/docker-entrypoint.sh
+
+# Create a symbolic link so you can just run `charted` without specifying
+# the full path.
+RUN ln -s /app/noelware/charted/server/bin/charted /usr/bin/charted
 
 USER noelware
 ENTRYPOINT ["/app/noelware/charted/server/scripts/docker-entrypoint.sh"]
