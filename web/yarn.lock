@@ -431,7 +431,7 @@ __metadata:
     "@radix-ui/react-toolbar": 1.0.1
     "@radix-ui/react-tooltip": 1.0.2
     "@stitches/react": 1.2.8
-    "@tabler/icons": 1.109.0
+    "@tabler/icons": 1.110.0
     "@tanstack/react-query": 4.14.3
     "@tanstack/react-query-devtools": 4.14.3
     "@types/eslint": 8.4.10
@@ -1704,9 +1704,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tabler/icons@npm:1.109.0":
-  version: 1.109.0
-  resolution: "@tabler/icons@npm:1.109.0"
+"@tabler/icons@npm:1.110.0":
+  version: 1.110.0
+  resolution: "@tabler/icons@npm:1.110.0"
   peerDependencies:
     react: ^16.x || 17.x || 18.x
     react-dom: ^16.x || 17.x || 18.x
@@ -1715,7 +1715,7 @@ __metadata:
       optional: true
     react-dom:
       optional: true
-  checksum: 920d5f34ea92f360c5cd05d1328f83b333dce630113d4d786a0a7df109e1c96435997d0e26523168320b66e4b41e7583d9ba8133a26dca38a107dcb64833ae9c
+  checksum: a2a68c6367cdfd278b01fd0d595a292d53413e0c0d24543057e60f04bc39ca1b2769e18a9c0ef0e116ab6a504f616b78aa48c1ba0c4f02c845b0ab250fa315a0
   languageName: node
   linkType: hard
 
