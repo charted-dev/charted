@@ -24,7 +24,7 @@ on:
       - main
 
     paths-ignore:
-      - '.github/**'
+      #- '.github/**'
       - '.husky/**'
       - '.vscode/**'
       - 'assets/**'
@@ -75,7 +75,7 @@ jobs:
         with:
           java-version: ${{matrix.java-version}}
           distribution: temurin
-          architecture: ${{matrix.runner == 'self-hosted' && "aarch64" || "amd64"}}
+          architecture: ${{matrix.runner == 'self-hosted' && 'aarch64' || 'amd64'}}
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
