@@ -30,24 +30,6 @@ clean:
 test:
 	@./gradlew test
 
-#.PHONY: run
-#run: build
-#	@CHARTED_DISTRIBUTION_TYPE=git ./server/build/install/charted-server/bin/charted-server
-#
-#build: clean spotless
-#	@./gradlew :server:installDist
-#	@chmod +x ./server/build/install/charted-server/bin/charted-server
-#
-#spotless:
-#	@./gradlew spotlessApply
-#	@./gradlew :build-tools:spotlessApply
-#
-#clean:
-#	@./gradlew clean
-#
-#test:
-#	@./gradlew test
-#
-## Not recommended but whatever
-#kill-gradle-daemons:
-#	@pkill -f '.*GradleDaemon.*'
+# Not recommended but whatever
+kill-gradle-daemons:
+	@pkill -f '.*GradleDaemon.*'
