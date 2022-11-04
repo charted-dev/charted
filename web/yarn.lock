@@ -434,7 +434,7 @@ __metadata:
     "@tabler/icons": 1.109.0
     "@tanstack/react-query": 4.14.1
     "@tanstack/react-query-devtools": 4.14.1
-    "@types/eslint": 8.4.9
+    "@types/eslint": 8.4.10
     "@types/node": 18.11.9
     "@types/react": 18.0.25
     "@types/react-dom": 18.0.8
@@ -1804,13 +1804,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/eslint@npm:8.4.9":
-  version: 8.4.9
-  resolution: "@types/eslint@npm:8.4.9"
+"@types/eslint@npm:8.4.10":
+  version: 8.4.10
+  resolution: "@types/eslint@npm:8.4.10"
   dependencies:
     "@types/estree": "*"
     "@types/json-schema": "*"
-  checksum: 9eda34e000f1e09850f447d8d65b671f59153aa5b580aca5b95185cf42b047b9cfda86eea83a6295aa883931b769a79236ce439601be7ab4485be88ce77b69ad
+  checksum: 21e009ed9ed9bc8920fdafc6e11ff321c4538b4cc18a56fdd59dc5184ea7bbf363c71638c9bdb59fc1254dddcdd567485136ed68b0ee4750948d4e32cb79c689
   languageName: node
   linkType: hard
 
