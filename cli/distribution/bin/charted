@@ -1,0 +1,99 @@
+#!/bin/bash
+
+# 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+# Copyright 2022 Noelware <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+function fatal {
+  echo "FATAL :: $1"
+  exit 1
+}
+
+function join {
+  local IFS="$1"
+  shift
+
+  echo "$*"
+}
+
+# Resolve links: $0 may be a link
+app_path=$0
+
+# Need this for daisy-chained symlinks.
+while
+    APP_HOME=${app_path%"${app_path##*/}"}  # leaves a trailing /; empty if no leading path
+    [ -h "$app_path" ]
+do
+    ls=$( ls -ld "$app_path" )
+    link=${ls#*' -> '}
+    case $link in             #(
+      /*)   app_path=$link ;; #(
+      *)    app_path=$APP_HOME$link ;;
+    esac
+done
+
+APP_HOME=$( cd "${APP_HOME:-./}" && pwd -P ) || exit
+APP_NAME="charted"
+APP_BASE_NAME=${0##*/}
+CHARTED_DISTRIBUTION=${CHARTED_DISTRIBUTION:-git}
+RESOLVED_JAVA_OPTS=(
+  "-XX:+HeapDumpOnOutOfMemoryError"
+  "-XX:+ExitOnOutOfMemoryError"
+  "-XX:ErrorFile=logs/hs_err_pid%p.log"
+  "-XX:SurvivorRatio=8"
+  "-XX:+UseSerialGC"
+  "-Dfile.encoding=UTF-8"
+  "-Djava.awt.headless=true"
+)
+
+export JAVA_OPTS=$(join ' ' "${RESOLVED_JAVA_OPTS[@]}")
+echo "[preinit] Resolved Java Options ==> $JAVA_OPTS"
+
+# Determine the Java command to use.
+if [ -n "$JAVA_HOME" ]; then
+  if [ -x "$JAVA_HOME/jre/sh/java" ]; then
+    JAVA_EXEC=$JAVA_HOME/jre/sh/java
+  else
+    JAVA_EXEC=$JAVA_HOME/bin/java
+  fi
+
+  if [ ! -x "$JAVA_EXEC" ]; then
+    fatal "The home path for Java was set to an invalid directory: $JAVA_HOME
+Please set the location of the JAVA_HOME environment variable to match the location
+of the Java installation."
+
+    exit 1
+  fi
+else
+  JAVA_EXEC=java
+  which java >/dev/null 2>&1 || fatal "The JAVA_HOME environment variable was not set and no 'java' command can be
+found in the current PATH.
+Please set the location of the JAVA_HOME environment variable to match the location
+of the Java installation."
+  exit 1
+fi
+
+# $APP_HOME = bin/, so we need to go back so we can load up the classpath
+CHARTED_CLASSPATH="$APP_HOME/../lib/*"
+exec \
+  "$JAVA_EXEC" \
+  $JAVA_OPTS \
+  -Dorg.noelware.charted.distribution.type="$CHARTED_DISTRIBUTION" \
+  -cp "$CHARTED_CLASSPATH" \
+  org.noelware.charted.cli.CliMainKt \
+  "$@"

@@ -821,3 +821,19 @@ FodyWeavers.xsd
 
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
+
+config.yml
+instance.uuid
+server/src/main/resources/config/logback.properties
+.data/
+.caches/
+!.idea/misc.xml
+!**/distribution/bin/
+!modules/helm-charts/src/test/resources/*.tar.gz
+
+### Helm ###
+# Chart dependencies
+**/charts/*.tgz
+
+# Ignore the created tarball.
+distribution/helm/**/*.tar.gz

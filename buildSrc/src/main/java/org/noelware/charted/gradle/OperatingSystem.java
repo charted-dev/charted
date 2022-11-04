@@ -27,9 +27,9 @@ public enum OperatingSystem {
     UNSUPPORTED;
 
     public static OperatingSystem current() {
-        final String os = System.getenv("os.name");
-        if (os == "Linux") return LINUX;
-        if (os == "Mac OS X") return MACOS;
+        final String os = System.getProperty("os.name");
+        if (os.equals("Linux")) return LINUX;
+        if (os.equals("Mac OS X")) return MACOS;
         if (os.startsWith("Windows")) return WINDOWS;
 
         return UNSUPPORTED;

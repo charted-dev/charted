@@ -15,6 +15,23 @@
  * limitations under the License.
  */
 
-plugins {
-    id("org.noelware.charted.golang")
+package org.noelware.charted.server
+
+import dev.floofy.utils.slf4j.logging
+import java.io.File
+
+/**
+ * Represents the server bootstrap, which... bootstraps and loads the server.
+ */
+object Bootstrap {
+    private val log by logging<Bootstrap>()
+
+    /**
+     * Bootstraps and starts the server.
+     * @param configPath The configuration path
+     */
+    fun start(configPath: File) {
+        Thread.currentThread().name = "Charted-BootstrapThread"
+        log.info("Hello, world~!")
+    }
 }

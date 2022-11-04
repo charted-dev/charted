@@ -34,14 +34,21 @@ dependencies {
     implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.18.5")
     implementation("com.diffplug.spotless:spotless-plugin-gradle:6.11.0")
     implementation("com.netflix.nebula:gradle-ospackage-plugin:10.0.0")
+    implementation("de.undercouch:gradle-download-task:5.3.0")
     implementation("dev.floofy.commons:gradle:2.3.0")
     implementation(kotlin("serialization", "1.7.20"))
     implementation(kotlin("gradle-plugin", "1.7.20"))
     implementation("com.google.code.gson:gson:2.10")
+    implementation("org.slf4j:slf4j-simple:1.7.36")
 }
 
 gradlePlugin {
     plugins {
+        create("golang") {
+            id = "org.noelware.charted.golang"
+            implementationClass = "org.noelware.charted.gradle.plugins.golang.GolangPlugin"
+        }
+
         create("nebula") {
             id = "org.noelware.charted.dist.nebula"
             implementationClass = "org.noelware.charted.gradle.plugins.nebula.ChartedNebulaPlugin"
@@ -49,6 +56,6 @@ gradlePlugin {
     }
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "17"
+tasks.withType<KotlinCompile>().forEach {
+    it.kotlinOptions.jvmTarget = "17"
 }

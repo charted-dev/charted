@@ -15,6 +15,19 @@
  * limitations under the License.
  */
 
-plugins {
-    id("org.noelware.charted.golang")
+package org.noelware.charted.logback.json;
+
+import java.util.Map;
+
+/**
+ * Represents a interface for formatting a Map object into a JSON string.
+ */
+public interface LogbackJsonFormatter {
+    /**
+     * Formats the given {@link Map} to return a JSON string.
+     * @param data The data that is given by {@link LogbackJsonLayout}
+     * @return JSON string
+     * @throws Exception If anything occurred while transforming.
+     */
+    String doFormat(Map<String, Object> data) throws Exception;
 }

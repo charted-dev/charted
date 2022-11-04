@@ -15,6 +15,4 @@
  * limitations under the License.
  */
 
-plugins {
-    id("org.noelware.charted.golang")
-}
+package org.noelware.charted.cli.commands

@@ -16,5 +16,12 @@
  */
 
 plugins {
-    id("org.noelware.charted.golang")
+    `charted-java-module`
+}
+
+dependencies {
+    implementation(libs.logback.logstash)
+    implementation(libs.logback.classic)
+    implementation(libs.sentry.logback)
+    implementation(libs.logback.core)
 }

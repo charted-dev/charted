@@ -25,7 +25,7 @@ public enum Architecture {
     AARCH64;
 
     public static Architecture current() {
-        final String arch = System.getenv("os.arch");
+        final String arch = System.getProperty("os.arch");
         return switch (arch) {
             case "x86_64", "amd64" -> X64;
             case "aarch64", "arm64" -> AARCH64;

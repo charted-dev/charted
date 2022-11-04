@@ -51,6 +51,7 @@ include(
     ":modules:garbage-collector",
     ":modules:helm-charts",
     ":modules:invitations",
+    ":modules:logging",
     ":modules:meilisearch",
     ":modules:metrics",
     ":modules:redis",

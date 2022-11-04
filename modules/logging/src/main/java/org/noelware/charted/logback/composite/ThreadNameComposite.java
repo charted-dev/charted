@@ -15,6 +15,13 @@
  * limitations under the License.
  */
 
-plugins {
-    id("org.noelware.charted.golang")
+package org.noelware.charted.logback.composite;
+
+import ch.qos.logback.classic.pattern.NamedConverter;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+
+public class ThreadNameComposite extends NamedConverter {
+    protected String getFullyQualifiedName(ILoggingEvent event) {
+        return event.getThreadName();
+    }
 }
