@@ -24,7 +24,7 @@ on:
       - main
 
     paths-ignore:
-      #- '.github/**'
+      - '.github/**'
       - '.husky/**'
       - '.vscode/**'
       - 'assets/**'
