@@ -17,9 +17,7 @@
 
 package org.noelware.charted.databases.clickhouse
 
-import org.intellij.lang.annotations.Language
 import java.io.Closeable
-import java.sql.ResultSet
 
 /**
  * Represents an abstraction layer over the ClickHouse server itself. You can execute
@@ -41,31 +39,6 @@ interface ClickHouseConnection: Closeable {
      * Returns how many database calls were processed using the [#sql][sql] methods.
      */
     val calls: Long
-
-    /**
-     * Executes arbitrary SQL and returns the underlying [ResultSet] that was returned
-     * from the server.
-     *
-     * @param sql Arbitrary SQL code to execute
-     * @param args Any additional parameterized arguments for the SQL to be executable.
-     */
-    fun sql(
-        @Language("sql") sql: String,
-        vararg args: Any? = arrayOf()
-    ): ResultSet?
-
-    /**
-     * Executes arbitrary SQL and returns [U] from the [FromResultSet] that was passed in. Read
-     * the documentation for [FromResultSet] for more information.
-     *
-     * @param sql Arbitrary SQL code to execute
-     * @param args Any additional parameterized arguments for the SQL to be executable.
-     */
-    fun <U: Any> sql(
-        @Language("sql") sql: String,
-        from: FromResultSet<U>,
-        vararg args: Any? = arrayOf()
-    ): U?
 
     /**
      * Connects to the server.

@@ -15,12 +15,10 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-}
+package org.noelware.charted.modules.docker.registry
 
-dependencies {
-    implementation(project(":modules:metrics"))
-    implementation(libs.clickhouse.jdbc)
-    implementation(libs.hikaricp)
+import dev.floofy.utils.slf4j.logging
+
+class DefaultDockerRegistry: DockerRegistry {
+    private val log by logging<DefaultDockerRegistry>()
 }

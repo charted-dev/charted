@@ -20,5 +20,10 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.noelware.ktor.routing.core)
+    implementation(libs.spring.security.crypto)
     implementation(project(":modules:storage"))
+    implementation(project(":modules:redis"))
+    implementation(libs.ktor.server.core)
+    implementation(libs.jwt)
 }

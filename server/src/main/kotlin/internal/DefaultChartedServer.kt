@@ -49,6 +49,7 @@ import org.noelware.charted.ValidationException
 import org.noelware.charted.common.SetOnce
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.extensions.ifSentryEnabled
+import org.noelware.charted.modules.docker.registry.DockerRegistryException
 import org.noelware.charted.server.ChartedServer
 import org.noelware.charted.server.hasStarted
 import org.noelware.charted.server.openapi.charted
@@ -194,6 +195,13 @@ class DefaultChartedServer(private val config: Config): ChartedServer {
                     HttpStatusCode.NotAcceptable,
                     cause.exceptions().map { ApiError("VALIDATION_EXCEPTION", it.validationMessage) }
                 )
+            }
+
+            exception<DockerRegistryException> { call, cause ->
+                ifSentryEnabled { Sentry.captureException(cause) }
+
+                self.log.error("Unable to run registry endpoint [${call.request.httpMethod.value} ${call.request.path()}]", cause)
+                call.respond(cause.status, cause.toApiError())
             }
 
             exception<ValidationException> { call, cause ->

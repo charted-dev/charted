@@ -34,10 +34,15 @@ import org.koin.dsl.module
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.ChartedScope
 import org.noelware.charted.configuration.host.ConfigurationHost
+import org.noelware.charted.configuration.kotlin.dsl.ServerFeature
 import org.noelware.charted.configuration.kotlin.host.KotlinScriptHost
 import org.noelware.charted.configuration.yaml.YamlConfigurationHost
+import org.noelware.charted.databases.clickhouse.ClickHouseConnection
+import org.noelware.charted.databases.clickhouse.DefaultClickHouseConnection
 import org.noelware.charted.extensions.formatToSize
 import org.noelware.charted.modules.avatars.avatarsModule
+import org.noelware.charted.modules.docker.registry.dockerRegistryModule
+import org.noelware.charted.modules.docker.registry.tokens.RegistryServiceTokenManager
 import org.noelware.charted.modules.metrics.PrometheusMetrics
 import org.noelware.charted.modules.redis.DefaultRedisClient
 import org.noelware.charted.modules.redis.RedisClient
@@ -249,11 +254,39 @@ object Bootstrap {
                 metrics.addMetricCollector(RedisMetricsCollector(redis, config.metrics))
             }
 
+            if (config.features.contains(ServerFeature.DOCKER_REGISTRY)) {
+                val serviceTokenManager = RegistryServiceTokenManager(redis, json, config)
+                modules.add(
+                    module {
+                        single { serviceTokenManager }
+                    }
+                )
+            }
+
             modules.add(
                 module {
                     single<RedisClient> { redis }
                 }
             )
+        }
+
+        if (config.clickhouse != null) {
+            val clickhouse = DefaultClickHouseConnection(config.clickhouse!!)
+            clickhouse.connect()
+
+            modules.add(
+                module {
+                    single<ClickHouseConnection> { clickhouse }
+                }
+            )
+        }
+
+        if (config.features.contains(ServerFeature.DOCKER_REGISTRY)) {
+            if (config.redis == null) {
+                throw IllegalStateException("To use the docker_registry feature, you will need to configure Redis!")
+            }
+
+            modules.add(dockerRegistryModule)
         }
 
         if (config.metrics.enabled) {

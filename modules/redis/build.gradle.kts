@@ -21,5 +21,5 @@ plugins {
 
 dependencies {
     implementation(project(":modules:metrics"))
-    implementation(libs.lettuce)
+    api(libs.lettuce)
 }

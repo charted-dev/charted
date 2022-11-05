@@ -17,4 +17,8 @@
 
 package org.noelware.charted.modules.docker.registry
 
+/**
+ * Represents using the OCI registry specification for storing Helm Charts. It acts like the same way
+ * the official implementation works but with charted's user management system and such.
+ */
 interface DockerRegistry

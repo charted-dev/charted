@@ -33,7 +33,6 @@ include(
     ":benchmarks",
     ":cli",
     ":common",
-    ":distribution:archives",
     ":server",
     ":web",
     ":databases:clickhouse",

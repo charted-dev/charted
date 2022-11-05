@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-}
+package org.noelware.charted.modules.docker.registry
 
-dependencies {
-    implementation(project(":modules:metrics"))
-    implementation(libs.clickhouse.jdbc)
-    implementation(libs.hikaricp)
+import org.koin.dsl.bind
+import org.koin.dsl.module
+import org.noelware.ktor.endpoints.AbstractEndpoint
+
+val dockerRegistryModule = module {
+    single { DockerRegistryEndpoints(get(), get(), get()) } bind AbstractEndpoint::class
+    single<DockerRegistry> { DefaultDockerRegistry() }
 }

@@ -17,22 +17,24 @@
 
 package org.noelware.charted.databases.clickhouse
 
-import co.elastic.apm.api.CaptureSpan
-import co.elastic.apm.api.CaptureTransaction
+import co.elastic.apm.api.Traced
+import com.clickhouse.jdbc.JdbcConfig
+import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import dev.floofy.utils.slf4j.logging
 import io.sentry.Sentry
 import io.sentry.SpanStatus
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.toJavaLocalDateTime
+import okhttp3.internal.closeQuietly
+import org.apache.commons.lang3.time.StopWatch
 import org.noelware.charted.common.SetOnce
+import org.noelware.charted.configuration.kotlin.dsl.ClickHouseConfig
+import org.noelware.charted.extensions.doFormatTime
 import org.noelware.charted.extensions.ifSentryEnabled
 import java.sql.Connection
-import java.sql.ResultSet
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 
-class DefaultClickHouseConnection: ClickHouseConnection {
+class DefaultClickHouseConnection(private val config: ClickHouseConfig): ClickHouseConnection {
     private val _serverVersion: SetOnce<String> = SetOnce()
     private val _dataSource: SetOnce<HikariDataSource> = SetOnce()
     private val _closed: AtomicBoolean = AtomicBoolean()
@@ -48,8 +50,8 @@ class DefaultClickHouseConnection: ClickHouseConnection {
     override val calls: Long
         get() = _calls.get()
 
-    @CaptureTransaction("DefaultClickHouseConnection#grabConnection", type = "database")
-    private fun <T> connection(block: Connection.() -> T): T {
+    @Traced("DefaultClickHouseConnection#grabConnection", type = "database")
+    fun <T> connection(block: Connection.() -> T): T {
         if (!_dataSource.wasSet()) throw IllegalAccessException("Can't grab connection due to no connection being set!")
 
         val connection = _dataSource.value.connection
@@ -64,39 +66,10 @@ class DefaultClickHouseConnection: ClickHouseConnection {
             }
         } catch (e: Exception) {
             transaction?.finish(SpanStatus.INTERNAL_ERROR)
-            log.error("Received SQL exception when running:", e)
             ifSentryEnabled { Sentry.captureException(e) }
 
             throw e
         }
-    }
-
-    override fun <U: Any> sql(sql: String, from: FromResultSet<U>, vararg args: Any?): U? =
-        sql(sql, *args)?.let(from::fromResultSet)
-
-    @CaptureSpan("DefaultClickHouseConnection#sql", type = "database", action = "sql")
-    override fun sql(sql: String, vararg args: Any?): ResultSet? = connection {
-        log.debug("Received connection! Now executing SQL code...")
-        if (args.isEmpty()) {
-            val stmt = createStatement()
-            return@connection stmt.executeQuery(sql)
-                ?: return@connection null
-        }
-
-        val stmt = prepareStatement(sql)
-        for ((i, arg) in args.withIndex()) {
-            when (arg) {
-                is String -> stmt.setString(i + 1, arg)
-                is Int -> stmt.setInt(i + 1, arg)
-                is Long -> stmt.setLong(i + 1, arg)
-                is LocalDateTime -> stmt.setObject(i + 1, arg.toJavaLocalDateTime())
-                else -> {
-                    log.warn("Discarding argument in index #$i (${if (arg == null) "(null)" else "(${arg::class})"})")
-                }
-            }
-        }
-
-        stmt.executeQuery(sql) ?: return@connection null
     }
 
     override fun connect() {
@@ -110,12 +83,9 @@ class DefaultClickHouseConnection: ClickHouseConnection {
             return
         }
 
-        val jdbcUrl = "jdbc:clickhouse://"
-    }
-
-    /*
+        val sw = StopWatch.createStarted()
         val jdbcUrl = "jdbc:clickhouse://${config.host}:${config.port}/${config.database}"
-        log.debug("Connecting to JDBC URL [$jdbcUrl]")
+        log.debug("Connecting to ClickHouse with JDBC URL [$jdbcUrl]")
 
         _dataSource.value = HikariDataSource(
             HikariConfig().apply {
@@ -124,28 +94,39 @@ class DefaultClickHouseConnection: ClickHouseConnection {
                 username = config.username
                 password = config.password
 
-                addDataSourceProperty(JdbcConfig.PROP_CREATE_DATABASE, "${config.createDbIfNotExists}")
                 addDataSourceProperty(JdbcConfig.PROP_WRAPPER_OBJ, "true")
             }
         )
 
-        log.info("Created the Hikari data source, checking if we can connect...")
+        log.info("Created the connection pool! Checking if we can query...")
         try {
-            sql("SELECT 1;")
-            log.info("Connection was a success! Retrieving server information...")
+            connection {
+                val stmt = createStatement()
+                stmt.execute("SELECT 1;")
+            }
+
+            sw.stop()
+            log.info("Connection was a success! Took ${sw.doFormatTime()} to create data source and query to ClickHouse!")
         } catch (e: Exception) {
-            log.error("Unable to connect to ClickHouse:", e)
+            ifSentryEnabled { Sentry.captureException(e) }
             throw e
         }
 
-        val version = sql("SELECT version() AS version;") {
-            it.getString("version")
-        } ?: throw IllegalStateException("Connection was successful, but can't retrieve server version?")
+        val version = connection {
+            val stmt = createStatement()
+            stmt.execute("SELECT version();")
+
+            stmt.resultSet.getString(0)
+        } ?: throw IllegalStateException("Connection was successful, but can't get server version?")
 
         _serverVersion.value = version
-        log.warn("Using ClickHouse v$version")
-     */
+        log.info("Server is using ClickHouse v$version!")
+    }
 
     override fun close() {
+        if (_closed.compareAndSet(false, true)) {
+            log.warn("Closing ClickHouse connection...")
+            _dataSource.value.closeQuietly()
+        }
     }
 }

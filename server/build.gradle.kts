@@ -21,6 +21,8 @@ plugins {
 
 dependencies {
     // Projects required to run the server :quantD:
+    implementation(project(":databases:clickhouse"))
+    implementation(project(":databases:postgres"))
     implementation(project(":modules:audit-logs"))
     implementation(project(":modules:avatars"))
     implementation(project(":modules:config:kotlin-script"))

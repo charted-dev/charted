@@ -15,12 +15,23 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-}
+package org.noelware.charted.modules.docker.registry.types
 
-dependencies {
-    implementation(project(":modules:metrics"))
-    implementation(libs.clickhouse.jdbc)
-    implementation(libs.hikaricp)
-}
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class ImageManifest(
+    val schemaVersion: Int = 2,
+    val config: Descriptor,
+    val layers: List<Descriptor>,
+    val annotations: Map<String, String>
+)
+
+@Serializable
+data class Descriptor(
+    val mediaType: String,
+    val size: Long,
+    val digest: Digest,
+    val urls: List<String> = listOf(),
+    val annotations: Map<String, String>
+)

@@ -26,7 +26,7 @@ import kotlinx.serialization.Serializable
  * @param username            The username for authentication, default is `null`.
  * @param password            The password for authentication, default is `null`.
  * @param host                The host to connect to, default is `localhost`
- * @param port                The port to connect to, default is 9000.
+ * @param port                The port to connect to, default is 8123.
  */
 @Serializable
 data class ClickHouseConfig(
@@ -34,7 +34,7 @@ data class ClickHouseConfig(
     val username: String? = null,
     val password: String? = null,
     val host: String = "localhost",
-    val port: Int = 9000
+    val port: Int = 8123
 ) {
     class Builder: org.noelware.charted.common.Builder<ClickHouseConfig> {
         /** Username for connecting to ClickHouse if authentication is enabled. */

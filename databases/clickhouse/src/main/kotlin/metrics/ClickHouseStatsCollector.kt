@@ -15,12 +15,4 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-}
-
-dependencies {
-    implementation(project(":modules:metrics"))
-    implementation(libs.clickhouse.jdbc)
-    implementation(libs.hikaricp)
-}
+package org.noelware.charted.databases.clickhouse.metrics

@@ -15,12 +15,17 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-}
+package org.noelware.charted.modules.docker.registry.tokens
 
-dependencies {
-    implementation(project(":modules:metrics"))
-    implementation(libs.clickhouse.jdbc)
-    implementation(libs.hikaricp)
-}
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+/**
+ * Represents a service token that is allowed to push and pull Helm Charts.
+ */
+@Serializable
+data class RegistryServiceToken(
+    @SerialName("user_id")
+    val userID: Long,
+    val token: String
+)

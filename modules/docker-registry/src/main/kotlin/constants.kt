@@ -14,3 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:JvmName("RegistryConstantsKt")
+
+package org.noelware.charted.modules.docker.registry
+
+/** Regular expression for an OCI containers' repository name */
+val REPOSITORY_NAME_REGEX: Regex = "[a-z0-9]+([._-][a-z0-9]+)*(/[a-z0-9]+([._-][a-z0-9]+)*)*".toRegex()
+
+/** Regular expression for an OCI container tag */
+val TAG_REGEX: Regex = "[a-zA-Z0-9_][a-zA-Z0-9._-]{0,127}".toRegex()
