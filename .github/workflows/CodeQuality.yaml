@@ -68,7 +68,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: [17.x, 18.x, 19.x]
+        java-version: [17, 18]
         languages: [java]
         #languages: [java,kotlin]
     steps:
