@@ -63,7 +63,7 @@ jobs:
     runs-on: ${{matrix.runner}}
     strategy:
       matrix:
-        java-version: [17, 18, 19]
+        java-version: [17, 19]
         runner: [windows-latest, ubuntu-latest, macos-latest, self-hosted]
     steps:
       - name: Checkout repository
@@ -108,7 +108,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [16.x, 18.x, 19.x]
+        node-version: [16.x, 19.x]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -178,9 +178,10 @@ jobs:
             ${{ runner.os }}-1.19-go-
 
       - name: Install dependencies
-        working-directory: ./tools/migrations
+        working-directory: ./databases/clickhouse/migrations
         run: |
           go mod download
+          go mod vendor
           go get
 
       - name: golangci-lint
@@ -188,7 +189,7 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           skip-cache: false
-          working-directory: ./tools/migrations
+          working-directory: ./databases/clickhouse/migrations
           args: --issues-exit-code=1
           only-new-issues: false
           skip-pkg-cache: true
