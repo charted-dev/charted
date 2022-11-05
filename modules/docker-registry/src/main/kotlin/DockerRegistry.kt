@@ -15,10 +15,6 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-}
+package org.noelware.charted.modules.docker.registry
 
-dependencies {
-    implementation(project(":modules:storage"))
-}
+interface DockerRegistry

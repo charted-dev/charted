@@ -15,10 +15,21 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-}
+package org.noelware.charted.configuration.kotlin.dsl.metrics
 
-dependencies {
-    implementation(project(":modules:storage"))
+import kotlinx.serialization.Serializable
+import org.noelware.charted.configuration.kotlin.dsl.metrics.keys.RedisMetricKeys
+
+@Serializable
+data class MetricSets(val redis: List<RedisMetricKeys> = listOf()) {
+    class Builder: org.noelware.charted.common.Builder<MetricSets> {
+        private val _redis: MutableList<RedisMetricKeys> = mutableListOf()
+
+        fun redis(key: RedisMetricKeys): Builder {
+            _redis.add(key)
+            return this
+        }
+
+        override fun build(): MetricSets = MetricSets(_redis)
+    }
 }

@@ -25,6 +25,7 @@ import com.github.ajalt.mordant.terminal.Terminal
 import joptsimple.OptionSet
 import joptsimple.OptionSpec
 import joptsimple.ValueConverter
+import kotlinx.coroutines.runBlocking
 import org.noelware.charted.cli.Command
 import org.noelware.charted.server.Bootstrap
 import java.io.File
@@ -68,6 +69,9 @@ object ServerCommand: Command("server", "Bootstraps and starts the server") {
             File("./config.yml")
         }
 
-        Bootstrap.start(configPath)
+        // It will block the main thread anyway.
+        runBlocking {
+            Bootstrap.start(configPath)
+        }
     }
 }

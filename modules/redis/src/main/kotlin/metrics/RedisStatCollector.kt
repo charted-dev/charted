@@ -15,10 +15,12 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-}
+package org.noelware.charted.modules.redis.metrics
 
-dependencies {
-    implementation(project(":modules:storage"))
+import org.noelware.charted.modules.metrics.GenericStatCollector
+import org.noelware.charted.modules.redis.RedisClient
+
+class RedisStatCollector(private val redis: RedisClient): GenericStatCollector<RedisServerStats> {
+    override val name: String = "redis"
+    override fun collect(): RedisServerStats = redis.stats()
 }

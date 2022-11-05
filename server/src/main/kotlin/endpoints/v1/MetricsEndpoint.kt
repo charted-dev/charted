@@ -15,4 +15,24 @@
  * limitations under the License.
  */
 
+@file:Suppress("UNUSED")
+
 package org.noelware.charted.server.endpoints.v1
+
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import org.noelware.charted.modules.metrics.PrometheusMetrics
+import org.noelware.ktor.endpoints.AbstractEndpoint
+import org.noelware.ktor.endpoints.Get
+
+class MetricsEndpoint(private val prometheus: PrometheusMetrics? = null): AbstractEndpoint("/metrics") {
+    @Get
+    suspend fun main(call: ApplicationCall) = if (prometheus == null) {
+        call.respond(HttpStatusCode.NotFound)
+    } else {
+        call.respondTextWriter(ContentType.parse("text/plain; version=0.0.4; charset=utf-8"), HttpStatusCode.OK) {
+            prometheus.writeIn(this)
+        }
+    }
+}

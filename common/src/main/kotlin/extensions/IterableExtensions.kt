@@ -15,10 +15,18 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-}
+package org.noelware.charted.extensions
 
-dependencies {
-    implementation(project(":modules:storage"))
+/**
+ * Extension method similar to [associate], but the transformation function returns `null`
+ * to not include it in the destination map.
+ */
+inline fun <T, K, V> Iterable<T>.associateOrNull(transform: (T) -> Pair<K, V>?): Map<K, V> {
+    val destination = LinkedHashMap<K, V>()
+    for (element in this) {
+        val el = transform(element)
+        if (el != null) destination += el
+    }
+
+    return destination
 }

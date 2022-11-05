@@ -47,7 +47,7 @@ sealed class ApiResponse<out T>(val success: Boolean) {
      *
      * @param errors A list of API errors that might've occurred when invoking the request.
      */
-    data class Err(val errors: List<ApiError>): ApiResponse<Nothing>(false)
+    data class Err(val errors: List<ApiError>): ApiResponse<Unit>(false)
 
     companion object {
         /**
@@ -68,7 +68,7 @@ sealed class ApiResponse<out T>(val success: Boolean) {
          *
          * @param errors A list of errors to prepend to the payload itself.
          */
-        fun err(errors: List<ApiError>): ApiResponse<Nothing> = Err(errors)
+        fun err(errors: List<ApiError>): ApiResponse<Unit> = Err(errors)
 
         /**
          * Sends out a response that represents a single error that might've happened during
@@ -76,7 +76,7 @@ sealed class ApiResponse<out T>(val success: Boolean) {
          *
          * @param error the [APIError] object to use.
          */
-        fun err(error: ApiError): ApiResponse<Nothing> = err(listOf(error))
+        fun err(error: ApiError): ApiResponse<Unit> = err(listOf(error))
 
         /**
          * Sends out a response that still represents a single error, but the [code] and [message]
@@ -85,19 +85,19 @@ sealed class ApiResponse<out T>(val success: Boolean) {
          * @param code The error code that gives a human-readable message in the documentation.
          * @param message The message of what happened.
          */
-        fun err(code: String, message: String): ApiResponse<Nothing> = err(ApiError(code, message))
+        fun err(code: String, message: String): ApiResponse<Unit> = err(ApiError(code, message))
 
         fun err(
             code: String,
             message: String,
             detail: Any
-        ): ApiResponse<Nothing> = err(ApiError(code, message, detail))
+        ): ApiResponse<Unit> = err(ApiError(code, message, detail))
 
         /**
          * Sends out a response from a generic [Throwable] object. It'll transform the
          * exception into an [APIError] that the serializer can serialize.
          */
-        fun <T: Throwable> err(throwable: T): ApiResponse<Nothing> = err("INTERNAL_SERVER_ERROR", throwable.message ?: "(empty message)")
+        fun <T: Throwable> err(throwable: T): ApiResponse<Unit> = err("INTERNAL_SERVER_ERROR", throwable.message ?: "(empty message)")
     }
 }
 

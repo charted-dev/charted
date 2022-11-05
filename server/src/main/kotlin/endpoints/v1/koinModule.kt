@@ -22,5 +22,6 @@ import org.koin.dsl.module
 import org.noelware.ktor.endpoints.AbstractEndpoint
 
 val endpointsModule = module {
+    single { MetricsEndpoint(getOrNull()) } bind AbstractEndpoint::class
     single { MainEndpoint() } bind AbstractEndpoint::class
 }

@@ -18,3 +18,11 @@
 plugins {
     `charted-module`
 }
+
+dependencies {
+    implementation(libs.prometheus.simpleclient.hotspot)
+    implementation(libs.hikaricp)
+
+    api(libs.prometheus.simpleclient.common)
+    api(libs.prometheus.simpleclient)
+}

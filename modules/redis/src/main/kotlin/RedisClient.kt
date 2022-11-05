@@ -15,10 +15,28 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-}
+package org.noelware.charted.modules.redis
 
-dependencies {
-    implementation(project(":modules:storage"))
+import io.lettuce.core.api.async.RedisAsyncCommands
+import org.noelware.charted.modules.redis.metrics.RedisServerStats
+import java.io.Closeable
+
+/**
+ * Represents a wrapper over Lettuce's low-level client.
+ */
+interface RedisClient: Closeable {
+    /**
+     * Returns all the commands you can execute on the Redis server.
+     */
+    val commands: RedisAsyncCommands<String, String>
+
+    /**
+     * Returns the [RedisServerStats] object from the Redis server itself.
+     */
+    fun stats(): RedisServerStats
+
+    /**
+     * Connects to the Redis server
+     */
+    suspend fun connect()
 }

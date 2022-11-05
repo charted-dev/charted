@@ -20,14 +20,14 @@ package org.noelware.charted.server
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
 import dev.floofy.utils.koin.inject
+import dev.floofy.utils.koin.injectOrNull
 import dev.floofy.utils.slf4j.logging
 import io.sentry.Sentry
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 import kotlinx.coroutines.debug.DebugProbes
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.EmptySerializersModule
+import okhttp3.internal.closeQuietly
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
@@ -38,6 +38,13 @@ import org.noelware.charted.configuration.kotlin.host.KotlinScriptHost
 import org.noelware.charted.configuration.yaml.YamlConfigurationHost
 import org.noelware.charted.extensions.formatToSize
 import org.noelware.charted.modules.avatars.avatarsModule
+import org.noelware.charted.modules.metrics.PrometheusMetrics
+import org.noelware.charted.modules.redis.DefaultRedisClient
+import org.noelware.charted.modules.redis.RedisClient
+import org.noelware.charted.modules.redis.metrics.RedisMetricsCollector
+import org.noelware.charted.modules.redis.metrics.RedisStatCollector
+import org.noelware.charted.modules.storage.DefaultStorageHandler
+import org.noelware.charted.modules.storage.StorageHandler
 import org.noelware.charted.server.endpoints.v1.endpointsModule
 import org.noelware.charted.server.internal.DefaultChartedServer
 import java.io.File
@@ -81,7 +88,10 @@ object Bootstrap {
                 val koin = GlobalContext.getKoinApplicationOrNull()
                 if (koin != null) {
                     val server: ChartedServer by inject()
-                    server.close()
+                    val redis: RedisClient? by injectOrNull()
+
+                    redis?.closeQuietly()
+                    server.closeQuietly()
 
                     runBlocking {
                         ChartedScope.cancel()
@@ -156,7 +166,7 @@ object Bootstrap {
      * @param configPath The configuration path
      */
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun start(configPath: File) {
+    suspend fun start(configPath: File) {
         Thread.currentThread().name = "Charted-BootstrapThread"
         installDefaultThreadExceptionHandler()
         installShutdownHook()
@@ -194,8 +204,9 @@ object Bootstrap {
             throw IllegalStateException("Unable to determine which configuration host to use")
         }
 
-        val config = configHost.load(configPath.toPath().toRealPath().toString()) ?: throw IllegalStateException("Unable to load configuration")
-        log.info("Loaded configuration in path [${configPath.toPath().toRealPath()}]")
+        val realPath = configPath.toPath().toRealPath()
+        val config = configHost.load(realPath.toString()) ?: throw IllegalStateException("Unable to load configuration")
+        log.info("Loaded configuration in path [$realPath]")
 
         DebugProbes.enableCreationStackTraces = config.debug
         DebugProbes.install()
@@ -210,6 +221,9 @@ object Bootstrap {
             log.info("Sentry is now enabled!")
         }
 
+        val storage = DefaultStorageHandler(config.storage)
+        storage.init()
+
         val json = Json {
             ignoreUnknownKeys = true
             encodeDefaults = true
@@ -217,13 +231,39 @@ object Bootstrap {
         }
 
         val koinModule = module {
+            single<StorageHandler> { storage }
             single<ChartedServer> { DefaultChartedServer(config) }
             single { config }
             single { yaml }
             single { json }
         }
 
+        val metrics = PrometheusMetrics()
         val modules = mutableListOf(endpointsModule, avatarsModule, koinModule)
+        if (config.redis != null) {
+            val redis = DefaultRedisClient(config.redis!!)
+            redis.connect()
+
+            if (config.metrics.enabled) {
+                metrics.addGenericCollector(RedisStatCollector(redis))
+                metrics.addMetricCollector(RedisMetricsCollector(redis, config.metrics))
+            }
+
+            modules.add(
+                module {
+                    single<RedisClient> { redis }
+                }
+            )
+        }
+
+        if (config.metrics.enabled) {
+            modules.add(
+                module {
+                    single { metrics }
+                }
+            )
+        }
+
         startKoin {
             modules(*modules.toTypedArray())
         }

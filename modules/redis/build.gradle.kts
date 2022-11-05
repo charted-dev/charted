@@ -18,3 +18,8 @@
 plugins {
     `charted-module`
 }
+
+dependencies {
+    implementation(project(":modules:metrics"))
+    implementation(libs.lettuce)
+}

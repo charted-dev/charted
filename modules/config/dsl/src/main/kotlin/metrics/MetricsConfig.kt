@@ -21,6 +21,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class MetricsConfig(
+    val metricsets: MetricSets = MetricSets(),
     val enabled: Boolean = true,
     val path: String = "/metrics"
 )

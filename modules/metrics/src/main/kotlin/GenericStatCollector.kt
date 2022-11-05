@@ -15,10 +15,18 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-}
+package org.noelware.charted.modules.metrics
 
-dependencies {
-    implementation(project(":modules:storage"))
+/**
+ * Represents a generic statistics collector. This interface is only for collecting generic
+ * statistics that the [MetricStatCollector] and other sources can consume
+ */
+interface GenericStatCollector<T> {
+    /** Returns the name of this statistics collector */
+    val name: String
+
+    /**
+     * Collects all the statistics and returns the result.
+     */
+    fun collect(): T
 }

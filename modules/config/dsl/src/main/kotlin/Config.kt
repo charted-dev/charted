@@ -19,6 +19,8 @@ package org.noelware.charted.configuration.kotlin.dsl
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.noelware.charted.ValidationException
+import org.noelware.charted.configuration.kotlin.dsl.metrics.MetricsConfig
 
 const val DO_NOT_USE_THIS_VALUE_IN_YOUR_JWT_SECRET_KEY_OR_I_WILL_LAUGH_AT_YOU = "__DO NOT USE THIS AS THE SECRET KEY__"
 
@@ -88,9 +90,20 @@ data class Config(
     val features: List<ServerFeature> = listOf(),
     val storage: StorageConfig = StorageConfig(),
     val server: KtorServerConfig = KtorServerConfig(),
+    val metrics: MetricsConfig = MetricsConfig(),
     val redis: RedisConfig? = null,
     val smtp: SMTPConfig? = null
 ) {
+    init {
+        if (jwtSecretKey == DO_NOT_USE_THIS_VALUE_IN_YOUR_JWT_SECRET_KEY_OR_I_WILL_LAUGH_AT_YOU) {
+            throw IllegalStateException("haha! You used the default secret key! Please change it.")
+        }
+
+        if (registrations && inviteOnly) {
+            throw ValidationException("body.registrations|invite_only", "registrations and invite_only are mutually exclusive")
+        }
+    }
+
     /**
      * Represents a builder class for building a [Config] object.
      */
