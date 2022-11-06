@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UNUSED")
+
 package org.noelware.charted.server.endpoints.v1
 
 import io.ktor.http.*

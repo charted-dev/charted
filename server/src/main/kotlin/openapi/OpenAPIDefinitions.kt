@@ -19,6 +19,9 @@ package org.noelware.charted.server.openapi
 
 import guru.zoroark.tegral.openapi.dsl.*
 import org.noelware.charted.ChartedInfo
+import org.noelware.charted.server.endpoints.v1.InfoResponse
+import org.noelware.charted.server.endpoints.v1.MainResponse
+import org.noelware.charted.types.responses.ApiResponse
 
 /**
  * Represents the definition for charted-server's OpenAPI specification.
@@ -40,6 +43,7 @@ fun RootDsl.charted() {
 
     servers()
     securitySchemes()
+    mainEndpoints()
 }
 
 fun RootDsl.servers() {
@@ -64,5 +68,75 @@ fun RootDsl.securitySchemes() {
         description = "Security scheme to use a generated API Key to do operations with the API"
         scheme = "ApiKey"
         name = "API Key"
+    }
+}
+
+fun RootDsl.mainEndpoints() {
+    "/" get {
+        summary = "Generic main entrypoint"
+        externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api#GET-/"
+
+        200 response {
+            "application/json" content {
+                schema<ApiResponse.Ok<MainResponse>>()
+                example = ApiResponse.ok(
+                    MainResponse(
+                        message = "Hello, world! \uD83D\uDC4B",
+                        tagline = "You know, for Helm charts?",
+                        docs = "https://charts.noelware.org/docs"
+                    )
+                )
+            }
+        }
+    }
+
+    "/metrics" get {
+        summary = "Returns the Prometheus metrics, if enabled on the server"
+        externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api#GET-/metrics"
+
+        200 response {
+            "text/plain; version=0.0.4; charset=utf-8" content {
+                schema<String>()
+            }
+        }
+
+        404 response {
+            "application/json" content {
+                schema<ApiResponse.Err>()
+            }
+        }
+    }
+
+    "/heartbeat" get {
+        summary = "Endpoint to signify that the server is healthy"
+        externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api#GET-/heartbeat"
+
+        200 response {
+            "text/plain" content {
+                schema<String>()
+                example = "OK"
+            }
+        }
+    }
+
+    "/info" get {
+        summary = "Returns any non-revealing information about the server"
+        externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api#GET-/info"
+
+        200 response {
+            "application/json" content {
+                schema<ApiResponse.Ok<InfoResponse>>()
+                example = ApiResponse.Ok(
+                    InfoResponse(
+                        distribution = ChartedInfo.distribution.key,
+                        commitHash = ChartedInfo.commitHash,
+                        buildDate = ChartedInfo.buildDate,
+                        product = "charted-server",
+                        version = ChartedInfo.version,
+                        vendor = "Noelware"
+                    )
+                )
+            }
+        }
     }
 }

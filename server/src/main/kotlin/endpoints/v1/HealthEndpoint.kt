@@ -15,4 +15,16 @@
  * limitations under the License.
  */
 
+@file:Suppress("UNUSED")
+
 package org.noelware.charted.server.endpoints.v1
+
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import org.noelware.ktor.endpoints.AbstractEndpoint
+import org.noelware.ktor.endpoints.Get
+
+class HealthEndpoint: AbstractEndpoint("/heartbeat") {
+    @Get
+    suspend fun main(call: ApplicationCall) = call.respond("OK")
+}

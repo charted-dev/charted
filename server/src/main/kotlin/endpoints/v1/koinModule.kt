@@ -23,5 +23,7 @@ import org.noelware.ktor.endpoints.AbstractEndpoint
 
 val endpointsModule = module {
     single { MetricsEndpoint(getOrNull()) } bind AbstractEndpoint::class
+    single { HealthEndpoint() } bind AbstractEndpoint::class
+    single { InfoEndpoint() } bind AbstractEndpoint::class
     single { MainEndpoint() } bind AbstractEndpoint::class
 }

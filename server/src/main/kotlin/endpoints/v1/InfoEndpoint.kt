@@ -15,4 +15,59 @@
  * limitations under the License.
  */
 
+@file:Suppress("UNUSED")
+
 package org.noelware.charted.server.endpoints.v1
+
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import org.noelware.charted.ChartedInfo
+import org.noelware.charted.types.responses.ApiResponse
+import org.noelware.ktor.endpoints.AbstractEndpoint
+import org.noelware.ktor.endpoints.Get
+
+/**
+ * Represents the response for the `GET /info` REST handler.
+ *
+ * @param distribution The distribution the server is running off from.
+ * @param commitHash The commit hash from the Git repository.
+ * @param buildDate The build date, in ISO-8601 format.
+ * @param product The product name, will always be `charted-server`
+ * @param version The version of the server.
+ * @param vendor The vendor that maintains this project, will always be Noelware.
+ */
+@Serializable
+data class InfoResponse(
+    val distribution: String,
+
+    @SerialName("commit_sha")
+    val commitHash: String,
+
+    @SerialName("build_date")
+    val buildDate: String,
+    val product: String,
+    val version: String,
+    val vendor: String
+)
+
+class InfoEndpoint: AbstractEndpoint("/info") {
+    @Get
+    suspend fun main(call: ApplicationCall) {
+        call.respond(
+            HttpStatusCode.OK,
+            ApiResponse.ok(
+                InfoResponse(
+                    ChartedInfo.distribution.key,
+                    ChartedInfo.commitHash,
+                    ChartedInfo.buildDate,
+                    "charted-server",
+                    ChartedInfo.version,
+                    "Noelware"
+                )
+            )
+        )
+    }
+}
