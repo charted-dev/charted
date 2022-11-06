@@ -25,6 +25,7 @@ import kotlin.test.assertEquals
 class AvatarModuleTests {
     private val module = DefaultAvatarModule(
         Config.Builder().apply {
+            jwtSecretKey = "woah"
             baseUrl = "https://charts.noelware.org/api"
         }.build()
     )

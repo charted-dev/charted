@@ -51,12 +51,11 @@ class DefaultClickHouseConnection(private val config: ClickHouseConfig): ClickHo
         get() = _calls.get()
 
     @Traced("DefaultClickHouseConnection#grabConnection", type = "database")
-    fun <T> connection(block: Connection.() -> T): T {
+    override fun <T> connection(block: Connection.() -> T): T {
         if (!_dataSource.wasSet()) throw IllegalAccessException("Can't grab connection due to no connection being set!")
 
         val connection = _dataSource.value.connection
         val transaction = ifSentryEnabled { Sentry.startTransaction("ClickHouse#grabConnection", "SQL") }
-
         return try {
             connection.block().let {
                 _calls.incrementAndGet()
@@ -102,7 +101,8 @@ class DefaultClickHouseConnection(private val config: ClickHouseConfig): ClickHo
         try {
             connection {
                 val stmt = createStatement()
-                stmt.execute("SELECT 1;")
+                stmt.execute("SELECT 1")
+                stmt.close()
             }
 
             sw.stop()
@@ -114,9 +114,17 @@ class DefaultClickHouseConnection(private val config: ClickHouseConfig): ClickHo
 
         val version = connection {
             val stmt = createStatement()
-            stmt.execute("SELECT version();")
+            stmt.execute("SELECT version() AS version")
 
-            stmt.resultSet.getString(0)
+            if (!stmt.resultSet.next()) {
+                stmt.close()
+                null
+            } else {
+                val version = stmt.resultSet.getString("version")
+                stmt.close()
+
+                version
+            }
         } ?: throw IllegalStateException("Connection was successful, but can't get server version?")
 
         _serverVersion.value = version

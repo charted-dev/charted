@@ -15,22 +15,29 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.configuration.kotlin.dsl.search
+package org.noelware.charted.configuration.kotlin.dsl.search.elasticsearch
 
 import kotlinx.serialization.Serializable
-import org.noelware.charted.configuration.kotlin.dsl.search.elasticsearch.ElasticsearchConfig
 
 @Serializable
-data class SearchConfig(
-    val elasticsearch: ElasticsearchConfig? = null
+data class ElasticsearchConfig(
+    val auth: AuthenticationStrategy = AuthenticationStrategy.None,
+    val nodes: List<String> = listOf("127.0.0.1:9200")
 ) {
-    class Builder: org.noelware.charted.common.Builder<SearchConfig> {
-        private var _elasticsearch: ElasticsearchConfig? = null
-        fun elasticsearch(builder: ElasticsearchConfig.Builder.() -> Unit = {}): Builder {
-            _elasticsearch = ElasticsearchConfig.Builder().apply(builder).build()
+    class Builder: org.noelware.charted.common.Builder<ElasticsearchConfig> {
+        private val nodes = mutableListOf<String>()
+        private var _auth: AuthenticationStrategy = AuthenticationStrategy.None
+
+        fun auth(strategy: AuthenticationStrategy): Builder {
+            _auth = strategy
             return this
         }
 
-        override fun build(): SearchConfig = SearchConfig(_elasticsearch)
+        fun node(host: String, port: Int): Builder {
+            nodes.add("$host:$port")
+            return this
+        }
+
+        override fun build(): ElasticsearchConfig = ElasticsearchConfig(_auth, nodes)
     }
 }

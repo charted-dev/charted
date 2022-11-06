@@ -15,4 +15,10 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.configuration.kotlin.dsl.search
+package org.noelware.charted.modules.elasticsearch
+
+import org.koin.dsl.module
+
+val elasticsearchModule = module {
+    single<ElasticsearchModule> { DefaultElasticsearchModule(get(), get()) }
+}

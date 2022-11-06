@@ -67,6 +67,7 @@ class KotlinScriptTests {
         val result = assertDoesNotThrow {
             runScript<KotlinConfigHandle>(
                 """
+            |jwtSecretKey = "woah"
             |debug = true
             |server {
             |  host = "0.0.0.0"

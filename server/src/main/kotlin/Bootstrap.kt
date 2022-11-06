@@ -43,6 +43,8 @@ import org.noelware.charted.extensions.formatToSize
 import org.noelware.charted.modules.avatars.avatarsModule
 import org.noelware.charted.modules.docker.registry.dockerRegistryModule
 import org.noelware.charted.modules.docker.registry.tokens.RegistryServiceTokenManager
+import org.noelware.charted.modules.elasticsearch.DefaultElasticsearchModule
+import org.noelware.charted.modules.elasticsearch.ElasticsearchModule
 import org.noelware.charted.modules.metrics.PrometheusMetrics
 import org.noelware.charted.modules.redis.DefaultRedisClient
 import org.noelware.charted.modules.redis.RedisClient
@@ -266,6 +268,18 @@ object Bootstrap {
             modules.add(
                 module {
                     single<RedisClient> { redis }
+                }
+            )
+        }
+
+        if (config.search != null && config.search!!.elasticsearch != null) {
+            log.info("Elasticsearch is enabled!")
+
+            val elasticsearch = DefaultElasticsearchModule(config, json)
+            elasticsearch.connect()
+            modules.add(
+                module {
+                    single<ElasticsearchModule> { elasticsearch }
                 }
             )
         }

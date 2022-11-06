@@ -17,8 +17,12 @@
 
 package org.noelware.charted.serializers.tests
 
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -27,6 +31,17 @@ import org.junit.jupiter.api.Test
 import org.noelware.charted.serializers.NothingSerializer
 import org.noelware.charted.types.responses.ApiResponse
 
+private object UnitSerializer: KSerializer<Unit> {
+    override val descriptor: SerialDescriptor = NothingSerializer.descriptor
+    override fun deserialize(decoder: Decoder) {
+        NothingSerializer.deserialize(decoder)
+    }
+
+    override fun serialize(encoder: Encoder, value: Unit) {
+        throw SerializationException("Can't serialize this object.")
+    }
+}
+
 class ApiResponseSerializationTests {
     @Test
     fun `test if it can serialize ApiResponse elements`() {
@@ -34,7 +49,7 @@ class ApiResponseSerializationTests {
         assertEquals("""{"success":true,"data":"heck uwu!!!"}""", Json.encodeToString(res))
 
         val res2 = ApiResponse.err(SerializationException("oh no!!!"))
-        assertEquals("""{"success":false,"errors":[{"code":"INTERNAL_SERVER_ERROR","message":"oh no!!!"}]}""", Json.encodeToString(ApiResponse.serializer(NothingSerializer), res2))
+        assertEquals("""{"success":false,"errors":[{"code":"INTERNAL_SERVER_ERROR","message":"oh no!!!"}]}""", Json.encodeToString(ApiResponse.serializer(UnitSerializer), res2))
 
         val res3 = ApiResponse.err(
             "puby gang", "you are in puby gang, not polar gang :(",
@@ -43,6 +58,6 @@ class ApiResponseSerializationTests {
             }
         )
 
-        assertEquals("""{"success":false,"errors":[{"code":"puby gang","message":"you are in puby gang, not polar gang :(","detail":{"woof":true}}]}""", Json.encodeToString(ApiResponse.serializer(NothingSerializer), res3))
+        assertEquals("""{"success":false,"errors":[{"code":"puby gang","message":"you are in puby gang, not polar gang :(","detail":{"woof":true}}]}""", Json.encodeToString(ApiResponse.serializer(UnitSerializer), res3))
     }
 }

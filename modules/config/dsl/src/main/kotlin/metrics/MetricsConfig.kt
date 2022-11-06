@@ -24,4 +24,17 @@ data class MetricsConfig(
     val metricsets: MetricSets = MetricSets(),
     val enabled: Boolean = true,
     val path: String = "/metrics"
-)
+) {
+    class Builder: org.noelware.charted.common.Builder<MetricsConfig> {
+        private var _metricsets: MetricSets = MetricSets()
+        var enabled: Boolean = true
+        var path: String = "/metrics"
+
+        fun metricsets(builder: MetricSets.Builder.() -> Unit = {}): Builder {
+            _metricsets = MetricSets.Builder().apply(builder).build()
+            return this
+        }
+
+        override fun build(): MetricsConfig = MetricsConfig()
+    }
+}

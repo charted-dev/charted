@@ -18,6 +18,7 @@
 package org.noelware.charted.databases.clickhouse
 
 import java.io.Closeable
+import java.sql.Connection
 
 /**
  * Represents an abstraction layer over the ClickHouse server itself. You can execute
@@ -39,6 +40,8 @@ interface ClickHouseConnection: Closeable {
      * Returns how many database calls were processed using the [#sql][sql] methods.
      */
     val calls: Long
+
+    fun <T> connection(block: Connection.() -> T): T
 
     /**
      * Connects to the server.

@@ -21,6 +21,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.noelware.charted.ValidationException
 import org.noelware.charted.configuration.kotlin.dsl.metrics.MetricsConfig
+import org.noelware.charted.configuration.kotlin.dsl.search.SearchConfig
 
 const val DO_NOT_USE_THIS_VALUE_IN_YOUR_JWT_SECRET_KEY_OR_I_WILL_LAUGH_AT_YOU = "__DO NOT USE THIS AS THE SECRET KEY__"
 
@@ -91,6 +92,7 @@ data class Config(
     val storage: StorageConfig = StorageConfig(),
     val server: KtorServerConfig = KtorServerConfig(),
     val metrics: MetricsConfig = MetricsConfig(),
+    val search: SearchConfig? = null,
     val redis: RedisConfig? = null,
     val smtp: SMTPConfig? = null
 ) {
@@ -120,7 +122,9 @@ data class Config(
         private var _features: MutableList<ServerFeature> = mutableListOf()
         private var _database: DatabaseConfig = DatabaseConfig()
         private var _storage: StorageConfig = StorageConfig()
+        private var _metrics: MetricsConfig = MetricsConfig()
         private var _server: KtorServerConfig = KtorServerConfig()
+        private var _search: SearchConfig? = null
         private var _redis: RedisConfig? = null
         private var _smtp: SMTPConfig? = null
 
@@ -146,8 +150,18 @@ data class Config(
             return this
         }
 
+        fun metrics(builder: MetricsConfig.Builder.() -> Unit = {}): Builder {
+            _metrics = MetricsConfig.Builder().apply(builder).build()
+            return this
+        }
+
         fun server(builder: KtorServerConfig.Builder.() -> Unit = {}): Builder {
             _server = KtorServerConfig.Builder().apply(builder).build()
+            return this
+        }
+
+        fun search(builder: SearchConfig.Builder.() -> Unit = {}): Builder {
+            _search = SearchConfig.Builder().apply(builder).build()
             return this
         }
 
@@ -173,7 +187,11 @@ data class Config(
             _database,
             _features.toList(),
             _storage,
-            _server
+            _server,
+            _metrics,
+            _search,
+            _redis,
+            _smtp
         )
     }
 }

@@ -23,4 +23,6 @@ dependencies {
     implementation(project(":modules:metrics"))
     implementation(libs.clickhouse.jdbc)
     implementation(libs.hikaricp)
+
+    testImplementation(libs.testcontainers.clickhouse)
 }
