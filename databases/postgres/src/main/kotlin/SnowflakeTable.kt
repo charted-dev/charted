@@ -15,22 +15,15 @@
  * limitations under the License.
  */
 
-import dev.floofy.utils.gradle.*
+package org.noelware.charted.databases.postgres
 
-plugins {
-    `charted-module`
-}
+import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.dao.id.IdTable
+import org.jetbrains.exposed.sql.Column
 
-dependencies {
-    implementation(libs.exposed.powergamer.tools)
-    implementation(libs.exposed.kotlin.datetime)
-    implementation(project(":modules:metrics"))
-    implementation(libs.exposed.jdbc)
-    implementation(libs.postgresql)
-    implementation(libs.hikaricp)
-
-    floofy("commons", "exposed", "2.3.0")
-
-    api(libs.exposed.dao)
-    api(libs.exposed.core)
+open class SnowflakeTable(name: String): IdTable<Long>(name) {
+    override val id: Column<EntityID<Long>> = long("id").entityId()
+    override val primaryKey: PrimaryKey by lazy {
+        super.primaryKey ?: PrimaryKey(id, name = "pk_${name.lowercase()}")
+    }
 }

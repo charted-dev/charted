@@ -219,7 +219,7 @@ object Bootstrap {
         DebugProbes.install()
 
         if (config.sentryDsn != null) {
-            log.info("Enabling Sentry due to [sentryDsn] was set.")
+            log.info("Enabling Sentry due to [config.sentryDsn] was set.")
             Sentry.init {
                 it.release = "charted-server v${ChartedInfo.version}+${ChartedInfo.commitHash}"
                 it.dsn = config.sentryDsn

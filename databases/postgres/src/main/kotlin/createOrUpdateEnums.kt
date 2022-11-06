@@ -15,22 +15,7 @@
  * limitations under the License.
  */
 
-import dev.floofy.utils.gradle.*
+package org.noelware.charted.databases.postgres
 
-plugins {
-    `charted-module`
-}
-
-dependencies {
-    implementation(libs.exposed.powergamer.tools)
-    implementation(libs.exposed.kotlin.datetime)
-    implementation(project(":modules:metrics"))
-    implementation(libs.exposed.jdbc)
-    implementation(libs.postgresql)
-    implementation(libs.hikaricp)
-
-    floofy("commons", "exposed", "2.3.0")
-
-    api(libs.exposed.dao)
-    api(libs.exposed.core)
+fun createOrUpdateEnums() {
 }

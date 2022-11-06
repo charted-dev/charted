@@ -15,22 +15,13 @@
  * limitations under the License.
  */
 
-import dev.floofy.utils.gradle.*
+package org.noelware.charted.databases.postgres.flags
 
-plugins {
-    `charted-module`
-}
+import org.noelware.charted.common.Bitfield
 
-dependencies {
-    implementation(libs.exposed.powergamer.tools)
-    implementation(libs.exposed.kotlin.datetime)
-    implementation(project(":modules:metrics"))
-    implementation(libs.exposed.jdbc)
-    implementation(libs.postgresql)
-    implementation(libs.hikaricp)
+private val FLAGS = mapOf(
+    "PRIVATE" to (1L shl 0), // Repository is private and the members of the repository can access it.
+    "EXPERIMENTS" to (1L shl 1) // repository enabled experiments
+)
 
-    floofy("commons", "exposed", "2.3.0")
-
-    api(libs.exposed.dao)
-    api(libs.exposed.core)
-}
+class RepositoryFlags(originalBits: Long = 0): Bitfield(originalBits, FLAGS)
