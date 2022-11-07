@@ -1,0 +1,60 @@
+# 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+# Copyright 2022 Noelware <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: "3.8"
+services:
+  server:
+    container_name: charted_server
+    image: cr.noelware.cloud/charted/server:latest
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3651:3651"
+    environment:
+      - CHARTED_CREATE_CONFIG_ON_START="true"
+      - CHARTED_CONFIG_PATH=/app/noelware/charted/server/config/charted.yaml
+    volumes:
+      - charted_data:/var/lib/noelware/charted/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:3651/health | grep \"OK\""]
+      interval: 15s
+  web:
+    container_name: charted_web
+    image: cr.noelware.cloud/charted/web:latest
+    restart: always
+    depends_on:
+      charted_server:
+        condition: service_healthy
+    ports:
+      - "2134:2134"
+    environment:
+      - CHARTED_SERVER_ENDPOINT=http://charted_server:3651
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:2134"]
+      interval: 15s
+  postgres:
+    container_name: postgres
+    image: bitnami/postgresql:14.5
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRESQL_DATABASE=charted
+      - ALLOW_EMPTY_PASSWORD=yes
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d charted" ]
+      interval: 15s

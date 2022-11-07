@@ -18,6 +18,7 @@
 package org.noelware.charted.server.plugins
 
 import dev.floofy.utils.koin.inject
+import dev.floofy.utils.koin.injectOrNull
 import dev.floofy.utils.kotlin.doFormatTime
 import dev.floofy.utils.slf4j.logging
 import io.ktor.http.*
@@ -25,15 +26,19 @@ import io.ktor.server.application.*
 import io.ktor.server.application.hooks.*
 import io.ktor.server.request.*
 import io.ktor.util.*
+import io.prometheus.client.Histogram
 import org.apache.commons.lang3.time.StopWatch
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.extensions.doFormatTime
+import org.noelware.charted.modules.metrics.PrometheusMetrics
 import org.noelware.charted.server.bootTime
 import org.noelware.charted.server.hasStarted
 
 val Logging = createApplicationPlugin("ChartedKtorLogging") {
     val stopwatchKey = AttributeKey<StopWatch>("StopWatch")
+    val histogramKey = AttributeKey<Histogram.Timer>("Histogram")
 
+    val prometheus: PrometheusMetrics? by injectOrNull()
     val config: Config by inject()
     val log by logging("org.noelware.charted.server.plugins.LogPluginKt")
 
@@ -51,6 +56,9 @@ val Logging = createApplicationPlugin("ChartedKtorLogging") {
 
     onCall { call ->
         call.attributes.put(stopwatchKey, StopWatch.createStarted())
+        if (config.metrics.enabled) {
+            call.attributes.put(histogramKey, prometheus!!.requestLatency.labels(call.request.httpMethod.value, call.request.path(), call.request.httpVersion).startTimer())
+        }
     }
 
     on(ResponseSent) { call ->
@@ -58,11 +66,12 @@ val Logging = createApplicationPlugin("ChartedKtorLogging") {
         val version = call.request.httpVersion
         val endpoint = call.request.path()
         val status = call.response.status() ?: HttpStatusCode(-1, "Unknown HTTP Method")
+        val histogram = call.attributes.getOrNull(histogramKey)
         val stopwatch = call.attributes[stopwatchKey]
         val userAgent = call.request.userAgent()
 
         stopwatch.stop()
-
+        histogram?.observeDuration()
         log.info(
             "${method.value} $version $endpoint :: ${status.value} ${status.description} [$userAgent] [${stopwatch.doFormatTime()}]"
         )

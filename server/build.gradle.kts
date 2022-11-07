@@ -56,6 +56,9 @@ dependencies {
     implementation(libs.noelware.ktor.routing.loaders.koin)
     implementation(libs.noelware.ktor.routing.core)
 
+    // HikariCP (for database)
+    implementation(libs.hikaricp)
+
     // Ktor (Server)
     implementation(libs.ktor.client.content.negotitation)
     implementation(libs.ktor.serialization.kotlinx.json)

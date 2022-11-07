@@ -22,14 +22,11 @@ import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.noelware.charted.databases.postgres.SnowflakeTable
 import java.time.LocalDateTime
 
-object UserTable: SnowflakeTable("users") {
-    val gravatarEmail = text("gravatar_email").nullable().default(null)
-    val description = varchar("description", 240).nullable().default(null)
-    val avatarHash = text("avatar_hash").nullable().default(null)
+object UserConnectionsTable: SnowflakeTable("user_connections") {
+    val noelwareAccountID = long("noelware_account_id").nullable().default(null)
+    val googleAccountID = text("google_account_id").nullable().default(null)
+    val githubAccountID = text("github_account_id").nullable().default(null)
+    val appleAccountID = text("apple_account_id").nullable().default(null)
     val createdAt = datetime("created_at").default(LocalDateTime.now().toKotlinLocalDateTime())
     val updatedAt = datetime("updated_at").default(LocalDateTime.now().toKotlinLocalDateTime())
-    val username = varchar("username", 64).uniqueIndex()
-    val password = text("password").nullable() // It is only null if other sources (unlike local) is being used
-    val email = text("email").uniqueIndex()
-    val name = varchar("name", 64).nullable().default(null)
 }

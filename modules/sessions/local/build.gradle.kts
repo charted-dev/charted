@@ -18,3 +18,9 @@
 plugins {
     `charted-module`
 }
+
+dependencies {
+    implementation(project(":modules:sessions"))
+    implementation(project(":modules:redis"))
+    implementation(libs.jwt)
+}

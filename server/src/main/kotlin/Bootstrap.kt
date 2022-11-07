@@ -19,30 +19,44 @@ package org.noelware.charted.server
 
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import dev.floofy.utils.koin.inject
 import dev.floofy.utils.koin.injectOrNull
 import dev.floofy.utils.slf4j.logging
+import io.ktor.client.*
+import io.ktor.client.engine.okhttp.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.kotlinx.json.*
 import io.sentry.Sentry
 import kotlinx.coroutines.*
 import kotlinx.coroutines.debug.DebugProbes
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.EmptySerializersModule
 import okhttp3.internal.closeQuietly
+import org.apache.commons.lang3.time.StopWatch
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.DatabaseConfig
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.ChartedScope
 import org.noelware.charted.configuration.host.ConfigurationHost
-import org.noelware.charted.configuration.kotlin.dsl.ServerFeature
 import org.noelware.charted.configuration.kotlin.host.KotlinScriptHost
 import org.noelware.charted.configuration.yaml.YamlConfigurationHost
 import org.noelware.charted.databases.clickhouse.ClickHouseConnection
 import org.noelware.charted.databases.clickhouse.DefaultClickHouseConnection
+import org.noelware.charted.databases.postgres.createOrUpdateEnums
+import org.noelware.charted.databases.postgres.metrics.PostgresMetricsCollector
+import org.noelware.charted.databases.postgres.metrics.PostgresStatsCollector
+import org.noelware.charted.databases.postgres.tables.*
+import org.noelware.charted.extensions.doFormatTime
 import org.noelware.charted.extensions.formatToSize
 import org.noelware.charted.modules.avatars.avatarsModule
-import org.noelware.charted.modules.docker.registry.dockerRegistryModule
-import org.noelware.charted.modules.docker.registry.tokens.RegistryServiceTokenManager
 import org.noelware.charted.modules.elasticsearch.DefaultElasticsearchModule
 import org.noelware.charted.modules.elasticsearch.ElasticsearchModule
 import org.noelware.charted.modules.metrics.PrometheusMetrics
@@ -60,6 +74,7 @@ import java.lang.management.ManagementFactory
 import java.util.*
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Represents the server bootstrap, which... bootstraps and loads the server.
@@ -90,13 +105,19 @@ object Bootstrap {
         val runtime = Runtime.getRuntime()
         runtime.addShutdownHook(
             thread(start = false, name = "Server-ShutdownThread") {
-                log.warn("Shutting down charted-server...")
+                log.warn("Shutting down API server...")
 
                 val koin = GlobalContext.getKoinApplicationOrNull()
                 if (koin != null) {
+                    val elasticsearch: ElasticsearchModule? by injectOrNull()
+                    val clickhouse: ClickHouseConnection? by injectOrNull()
+                    val hikari: HikariDataSource by inject()
                     val server: ChartedServer by inject()
                     val redis: RedisClient? by injectOrNull()
 
+                    elasticsearch?.closeQuietly()
+                    clickhouse?.closeQuietly()
+                    hikari.closeQuietly()
                     redis?.closeQuietly()
                     server.closeQuietly()
 
@@ -106,7 +127,7 @@ object Bootstrap {
 
                     koin.close()
                 } else {
-                    log.warn("Koin was not started, not destroying server (just yet!)")
+                    log.warn("Koin was not started, not doing anything.")
                 }
 
                 log.warn("charted-server has completely shutdown, goodbye! ｡･ﾟﾟ･(థ Д థ。)･ﾟﾟ･｡")
@@ -211,6 +232,7 @@ object Bootstrap {
             throw IllegalStateException("Unable to determine which configuration host to use")
         }
 
+        val sw = StopWatch.createStarted()
         val realPath = configPath.toPath().toRealPath()
         val config = configHost.load(realPath.toString()) ?: throw IllegalStateException("Unable to load configuration")
         log.info("Loaded configuration in path [$realPath]")
@@ -218,6 +240,56 @@ object Bootstrap {
         DebugProbes.enableCreationStackTraces = config.debug
         DebugProbes.install()
 
+        sw.stop()
+        log.info("Initialized configuration in ${sw.doFormatTime()}, now connecting to PostgreSQL")
+        sw.reset()
+        sw.start()
+
+        val ds = HikariDataSource(
+            HikariConfig().apply {
+                leakDetectionThreshold = 30.seconds.inWholeMilliseconds
+                driverClassName = "org.postgresql.Driver"
+                isAutoCommit = false
+                poolName = "Postgres-HikariPool"
+                username = config.database.username
+                password = config.database.password
+                jdbcUrl = "jdbc:postgresql://${config.database.host}:${config.database.port}/${config.database.database}"
+                schema = config.database.schema
+
+                addDataSourceProperty("reWriteBatchedInserts", "true")
+            }
+        )
+
+        Database.connect(
+            ds,
+            databaseConfig = DatabaseConfig {
+                defaultRepetitionAttempts = 5
+                sqlLogger = if (config.debug || System.getProperty("org.noelware.charted.debug", "false") == "true") {
+                    Slf4jSqlDebugLogger
+                } else {
+                    null
+                }
+            }
+        )
+
+        sw.stop()
+        log.info("Created Postgres connection in ${sw.doFormatTime()}, now running migrations!")
+
+        transaction {
+            createOrUpdateEnums()
+            SchemaUtils.createMissingTablesAndColumns(
+                ApiKeysTable,
+                OrganizationTable,
+                OrganizationMemberTable,
+                RepositoryTable,
+                RepositoryMemberTable,
+                RepositoryReleasesTable,
+                UserTable,
+                UserConnectionsTable
+            )
+        }
+
+        log.info("Finished running migrations!")
         if (config.sentryDsn != null) {
             log.info("Enabling Sentry due to [config.sentryDsn] was set.")
             Sentry.init {
@@ -237,15 +309,30 @@ object Bootstrap {
             isLenient = true
         }
 
+        val httpClient = HttpClient(OkHttp) {
+            engine {
+                config {
+                    followSslRedirects(true)
+                    followRedirects(true)
+                }
+            }
+
+            install(ContentNegotiation) {
+                this.json(json)
+            }
+        }
+
         val koinModule = module {
             single<StorageHandler> { storage }
             single<ChartedServer> { DefaultChartedServer(config) }
+            single { httpClient }
             single { config }
             single { yaml }
             single { json }
+            single { ds }
         }
 
-        val metrics = PrometheusMetrics()
+        val metrics = PrometheusMetrics(ds)
         val modules = mutableListOf(endpointsModule, avatarsModule, koinModule)
         if (config.redis != null) {
             val redis = DefaultRedisClient(config.redis!!)
@@ -254,15 +341,6 @@ object Bootstrap {
             if (config.metrics.enabled) {
                 metrics.addGenericCollector(RedisStatCollector(redis))
                 metrics.addMetricCollector(RedisMetricsCollector(redis, config.metrics))
-            }
-
-            if (config.features.contains(ServerFeature.DOCKER_REGISTRY)) {
-                val serviceTokenManager = RegistryServiceTokenManager(redis, json, config)
-                modules.add(
-                    module {
-                        single { serviceTokenManager }
-                    }
-                )
             }
 
             modules.add(
@@ -295,15 +373,9 @@ object Bootstrap {
             )
         }
 
-        if (config.features.contains(ServerFeature.DOCKER_REGISTRY)) {
-            if (config.redis == null) {
-                throw IllegalStateException("To use the docker_registry feature, you will need to configure Redis!")
-            }
-
-            modules.add(dockerRegistryModule)
-        }
-
         if (config.metrics.enabled) {
+            metrics.addGenericCollector(PostgresStatsCollector)
+            metrics.addMetricCollector(PostgresMetricsCollector(config))
             modules.add(
                 module {
                     single { metrics }
@@ -320,13 +392,7 @@ object Bootstrap {
             server.start()
         } catch (e: Exception) {
             log.error("Unable to bootstrap charted-server:", e)
-
-            // we do not let the shutdown hooks run
-            // since in some cases, it'll just error out or whatever
-            //
-            // example: Elasticsearch cannot index all data due to
-            // I/O locks or what not (and it'll keep looping)
-            halt(1)
+            throw e
         }
     }
 }

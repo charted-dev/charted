@@ -18,6 +18,7 @@
 package org.noelware.charted.modules.storage
 
 import org.noelware.remi.core.Object
+import org.noelware.remi.core.StorageTrailer
 import java.io.InputStream
 
 /**
@@ -25,6 +26,12 @@ import java.io.InputStream
  * tracing and extensibility.
  */
 interface StorageHandler {
+    /**
+     * Returns the underlying [storage trailer][StorageTrailer] itself. It is not recommended to
+     * use this directly.
+     */
+    val trailer: StorageTrailer<*>
+
     /**
      * Initializes the storage handler, and calls [StorageTrailer#init][org.noelware.remi.core.StorageTrailer.init] afterwards.
      */

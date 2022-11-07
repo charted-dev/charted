@@ -17,13 +17,14 @@
 
 package org.noelware.charted.modules.metrics
 
+import com.zaxxer.hikari.HikariDataSource
+import com.zaxxer.hikari.metrics.prometheus.PrometheusMetricsTrackerFactory
 import io.prometheus.client.*
 import io.prometheus.client.exporter.common.TextFormat
 import io.prometheus.client.hotspot.DefaultExports
 import java.io.Writer
 
-// class PrometheusMetrics(dataSource: HikariDataSource) {
-class PrometheusMetrics {
+class PrometheusMetrics(dataSource: HikariDataSource) {
     private val _collectors: MutableList<GenericStatCollector<*>> = mutableListOf()
     private val registry: CollectorRegistry = CollectorRegistry()
 
@@ -38,7 +39,7 @@ class PrometheusMetrics {
         .register(registry)
 
     init {
-        // dataSource.metricsTrackerFactory = PrometheusMetricsTrackerFactory(registry)
+        dataSource.metricsTrackerFactory = PrometheusMetricsTrackerFactory(registry)
         DefaultExports.register(registry)
     }
 

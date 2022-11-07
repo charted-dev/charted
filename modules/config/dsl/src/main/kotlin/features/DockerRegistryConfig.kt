@@ -15,17 +15,26 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.modules.docker.registry.tokens
+package org.noelware.charted.configuration.kotlin.dsl.features
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-/**
- * Represents a service token that is allowed to push and pull Helm Charts.
- */
 @Serializable
-data class RegistryServiceToken(
-    @SerialName("user_id")
-    val userID: Long,
-    val token: String
-)
+data class DockerRegistryConfig(
+    val headers: Map<String, String> = mapOf(),
+    val host: String = "127.0.0.1",
+    val port: Int = 5000
+) {
+    class Builder: org.noelware.charted.common.Builder<DockerRegistryConfig> {
+        private val headers: MutableMap<String, String> = mutableMapOf()
+        var host: String = "127.0.0.1"
+        var port: Int = 5000
+
+        fun header(key: String, value: String): Builder {
+            headers[key] = value
+            return this
+        }
+
+        override fun build(): DockerRegistryConfig = DockerRegistryConfig(headers, host, port)
+    }
+}

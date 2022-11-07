@@ -33,6 +33,7 @@ import org.noelware.charted.extensions.ifSentryEnabled
 import java.sql.Connection
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.time.Duration.Companion.seconds
 
 class DefaultClickHouseConnection(private val config: ClickHouseConfig): ClickHouseConnection {
     private val _serverVersion: SetOnce<String> = SetOnce()
@@ -60,6 +61,7 @@ class DefaultClickHouseConnection(private val config: ClickHouseConfig): ClickHo
             connection.block().let {
                 _calls.incrementAndGet()
                 transaction?.finish()
+                connection.close()
 
                 it
             }
@@ -88,8 +90,10 @@ class DefaultClickHouseConnection(private val config: ClickHouseConfig): ClickHo
 
         _dataSource.value = HikariDataSource(
             HikariConfig().apply {
+                leakDetectionThreshold = 30.seconds.inWholeMilliseconds
                 this.jdbcUrl = jdbcUrl
                 driverClassName = "com.clickhouse.jdbc.ClickHouseDriver"
+                poolName = "ClickHouse-HikariPool"
                 username = config.username
                 password = config.password
 

@@ -16,3 +16,23 @@
  */
 
 package org.noelware.charted.databases.postgres.tables
+
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import net.perfectdreams.exposedpowerutils.sql.postgresEnumeration
+import org.jetbrains.exposed.sql.kotlin.datetime.datetime
+import org.noelware.charted.databases.postgres.SnowflakeTable
+import org.noelware.charted.types.helm.RepoType
+
+object RepositoryTable: SnowflakeTable("repositories") {
+    val description = varchar("description", 64).nullable().default(null)
+    val deprecated = bool("deprecated").default(false)
+    val createdAt = datetime("created_at").default(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()))
+    val updatedAt = datetime("updated_at").default(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()))
+    val iconHash = text("icon_hash").nullable().default(null)
+    val owner = long("owner_id").uniqueIndex()
+    val flags = long("flags").default(0L)
+    val name = varchar("name", 32)
+    val type = postgresEnumeration<RepoType>("type").default(RepoType.APPLICATION)
+}

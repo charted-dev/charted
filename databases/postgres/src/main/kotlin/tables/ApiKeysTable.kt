@@ -15,12 +15,16 @@
  * limitations under the License.
  */
 
-@file:JvmName("RegistryConstantsKt")
+package org.noelware.charted.databases.postgres.tables
 
-package org.noelware.charted.modules.docker.registry
+import org.jetbrains.exposed.sql.kotlin.datetime.datetime
+import org.noelware.charted.databases.postgres.SnowflakeTable
 
-/** Regular expression for an OCI containers' repository name */
-val REPOSITORY_NAME_REGEX: Regex = "[a-z0-9]+([._-][a-z0-9]+)*(/[a-z0-9]+([._-][a-z0-9]+)*)*".toRegex()
-
-/** Regular expression for an OCI container tag */
-val TAG_REGEX: Regex = "[a-zA-Z0-9_][a-zA-Z0-9._-]{0,127}".toRegex()
+object ApiKeysTable: SnowflakeTable("api_keys") {
+    val description = varchar("description", 140).nullable().default(null)
+    val expiresIn = datetime("expires_in").nullable().default(null)
+    val scopes = long("scopes").default(0L)
+    val owner = reference("owner_id", UserTable)
+    val token = text("token") // TODO: should this be encrypted?
+    val name = varchar("name", 32)
+}

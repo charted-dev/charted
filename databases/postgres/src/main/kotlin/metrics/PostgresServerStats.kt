@@ -15,23 +15,15 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.modules.docker.registry.types
+package org.noelware.charted.databases.postgres.metrics
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ImageManifest(
-    val schemaVersion: Int = 2,
-    val config: Descriptor,
-    val layers: List<Descriptor>,
-    val annotations: Map<String, String>
-)
-
-@Serializable
-data class Descriptor(
-    val mediaType: String,
-    val size: Long,
-    val digest: Digest,
-    val urls: List<String> = listOf(),
-    val annotations: Map<String, String>
+data class PostgresServerStats(
+    val organizations: Long,
+    val repositories: Long,
+    val version: String,
+    val uptime: Long,
+    val users: Long
 )

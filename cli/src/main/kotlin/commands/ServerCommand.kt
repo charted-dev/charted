@@ -70,15 +70,8 @@ object ServerCommand: Command("server", "Bootstraps and starts the server") {
         }
 
         // It will block the main thread anyway.
-        try {
-            runBlocking {
-                Bootstrap.start(configPath)
-            }
-        } catch (e: Exception) {
-            // Interrupt the thread, so it can tear down successfully without
-            // being stuck
-            Thread.currentThread().interrupt()
-            throw e
+        runBlocking {
+            Bootstrap.start(configPath)
         }
     }
 }

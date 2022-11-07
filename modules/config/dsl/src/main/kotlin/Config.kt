@@ -20,6 +20,7 @@ package org.noelware.charted.configuration.kotlin.dsl
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.noelware.charted.ValidationException
+import org.noelware.charted.configuration.kotlin.dsl.features.DockerRegistryConfig
 import org.noelware.charted.configuration.kotlin.dsl.metrics.MetricsConfig
 import org.noelware.charted.configuration.kotlin.dsl.search.SearchConfig
 
@@ -86,6 +87,8 @@ data class Config(
     val baseUrl: String? = null,
     val debug: Boolean = false,
 
+    @SerialName("docker_registry")
+    val dockerRegistry: DockerRegistryConfig? = null,
     val clickhouse: ClickHouseConfig? = null,
     val database: DatabaseConfig = DatabaseConfig(),
     val features: List<ServerFeature> = listOf(),
@@ -104,6 +107,10 @@ data class Config(
         if (registrations && inviteOnly) {
             throw ValidationException("body.registrations|invite_only", "registrations and invite_only are mutually exclusive")
         }
+
+        if (features.contains(ServerFeature.DOCKER_REGISTRY) && dockerRegistry == null) {
+            throw ValidationException("body.docker_registry", "The docker_registry feature must have a docker registry configuration object connecting to a valid OCI registry")
+        }
     }
 
     /**
@@ -118,6 +125,7 @@ data class Config(
         var baseUrl: String? = null
         var debug: Boolean = false
 
+        private var _dockerRegistry: DockerRegistryConfig? = null
         private var _clickhouse: ClickHouseConfig? = null
         private var _features: MutableList<ServerFeature> = mutableListOf()
         private var _database: DatabaseConfig = DatabaseConfig()
@@ -127,6 +135,11 @@ data class Config(
         private var _search: SearchConfig? = null
         private var _redis: RedisConfig? = null
         private var _smtp: SMTPConfig? = null
+
+        fun dockerRegistry(builder: DockerRegistryConfig.Builder.() -> Unit): Builder {
+            _dockerRegistry = DockerRegistryConfig.Builder().apply(builder).build()
+            return this
+        }
 
         fun clickhouse(builder: ClickHouseConfig.Builder.() -> Unit = {}): Builder {
             _clickhouse = ClickHouseConfig.Builder().apply(builder).build()
@@ -183,6 +196,7 @@ data class Config(
             sentryDsn,
             baseUrl,
             debug,
+            _dockerRegistry,
             _clickhouse,
             _database,
             _features.toList(),

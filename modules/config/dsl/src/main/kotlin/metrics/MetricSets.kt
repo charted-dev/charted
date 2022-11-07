@@ -18,18 +18,28 @@
 package org.noelware.charted.configuration.kotlin.dsl.metrics
 
 import kotlinx.serialization.Serializable
+import org.noelware.charted.configuration.kotlin.dsl.metrics.keys.PostgresMetricKeys
 import org.noelware.charted.configuration.kotlin.dsl.metrics.keys.RedisMetricKeys
 
 @Serializable
-data class MetricSets(val redis: List<RedisMetricKeys> = listOf()) {
+data class MetricSets(
+    val postgres: List<PostgresMetricKeys> = listOf(),
+    val redis: List<RedisMetricKeys> = listOf()
+) {
     class Builder: org.noelware.charted.common.Builder<MetricSets> {
+        private val _postgres: MutableList<PostgresMetricKeys> = mutableListOf()
         private val _redis: MutableList<RedisMetricKeys> = mutableListOf()
+
+        fun postgres(key: PostgresMetricKeys): Builder {
+            _postgres.add(key)
+            return this
+        }
 
         fun redis(key: RedisMetricKeys): Builder {
             _redis.add(key)
             return this
         }
 
-        override fun build(): MetricSets = MetricSets(_redis)
+        override fun build(): MetricSets = MetricSets(_postgres, _redis)
     }
 }

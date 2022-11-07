@@ -48,8 +48,9 @@ import org.noelware.charted.MultiValidationException
 import org.noelware.charted.ValidationException
 import org.noelware.charted.common.SetOnce
 import org.noelware.charted.configuration.kotlin.dsl.Config
+import org.noelware.charted.configuration.kotlin.dsl.ServerFeature
 import org.noelware.charted.extensions.ifSentryEnabled
-import org.noelware.charted.modules.docker.registry.DockerRegistryException
+import org.noelware.charted.modules.docker.registry.RegistryKtorPlugin
 import org.noelware.charted.server.ChartedServer
 import org.noelware.charted.server.hasStarted
 import org.noelware.charted.server.openapi.charted
@@ -59,6 +60,7 @@ import org.noelware.charted.types.responses.ApiError
 import org.noelware.charted.types.responses.ApiResponse
 import org.noelware.ktor.NoelKtorRouting
 import org.noelware.ktor.loader.koin.KoinEndpointLoader
+import org.slf4j.LoggerFactory
 import java.io.IOException
 
 class DefaultChartedServer(private val config: Config): ChartedServer {
@@ -101,23 +103,28 @@ class DefaultChartedServer(private val config: Config): ChartedServer {
         // Installs Sentry onto the middleware for tracing purposes,
         // though we also need to add APM and OpenTelemetry here.
 
+        // Installs the Docker Registry proxy plugin if it is available
+        if (config.features.contains(ServerFeature.DOCKER_REGISTRY) && config.dockerRegistry != null) {
+            install(RegistryKtorPlugin)
+        }
+
         // So we can use kotlinx.serialization for the `application/json` content type
         install(ContentNegotiation) {
             json(GlobalContext.retrieve())
         }
 
         // TODO(@auguwu): make this optional with `server.cors` configuration key
-        install(CORS) {
-            anyHost()
-            allowHeader(HttpHeaders.ContentType)
-            allowHeader(HttpHeaders.Authorization)
-            allowHeader(HttpHeaders.Accept)
-
-            allowCredentials = true
-            maxAgeInSeconds = 3600
-            methods += setOf(HttpMethod.Get, HttpMethod.Patch, HttpMethod.Delete, HttpMethod.Put, HttpMethod.Post)
-            headers += "X-Forwarded-Proto"
-        }
+//        install(CORS) {
+//            anyHost()
+//            allowHeader(HttpHeaders.ContentType)
+//            allowHeader(HttpHeaders.Authorization)
+//            allowHeader(HttpHeaders.Accept)
+//
+//            allowCredentials = true
+//            maxAgeInSeconds = 3600
+//            methods += setOf(HttpMethod.Get, HttpMethod.Patch, HttpMethod.Delete, HttpMethod.Put, HttpMethod.Post)
+//            headers += "X-Forwarded-Proto"
+//        }
 
         // Adds caching and security headers (if enabled)
         install(DefaultHeaders) {
@@ -195,13 +202,6 @@ class DefaultChartedServer(private val config: Config): ChartedServer {
                     HttpStatusCode.NotAcceptable,
                     cause.exceptions().map { ApiError("VALIDATION_EXCEPTION", it.validationMessage) }
                 )
-            }
-
-            exception<DockerRegistryException> { call, cause ->
-                ifSentryEnabled { Sentry.captureException(cause) }
-
-                self.log.error("Unable to run registry endpoint [${call.request.httpMethod.value} ${call.request.path()}]", cause)
-                call.respond(cause.status, cause.toApiError())
             }
 
             exception<ValidationException> { call, cause ->
@@ -294,6 +294,7 @@ class DefaultChartedServer(private val config: Config): ChartedServer {
         val self = this
         val environment = applicationEngineEnvironment {
             developmentMode = self.config.debug
+            log = LoggerFactory.getLogger("org.noelware.charted.ktor.Application")
 
             connector {
                 host = self.config.server.host

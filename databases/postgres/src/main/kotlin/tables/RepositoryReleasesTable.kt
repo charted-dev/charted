@@ -17,19 +17,16 @@
 
 package org.noelware.charted.databases.postgres.tables
 
-import kotlinx.datetime.toKotlinLocalDateTime
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.noelware.charted.databases.postgres.SnowflakeTable
-import java.time.LocalDateTime
 
-object UserTable: SnowflakeTable("users") {
-    val gravatarEmail = text("gravatar_email").nullable().default(null)
-    val description = varchar("description", 240).nullable().default(null)
-    val avatarHash = text("avatar_hash").nullable().default(null)
-    val createdAt = datetime("created_at").default(LocalDateTime.now().toKotlinLocalDateTime())
-    val updatedAt = datetime("updated_at").default(LocalDateTime.now().toKotlinLocalDateTime())
-    val username = varchar("username", 64).uniqueIndex()
-    val password = text("password").nullable() // It is only null if other sources (unlike local) is being used
-    val email = text("email").uniqueIndex()
-    val name = varchar("name", 64).nullable().default(null)
+object RepositoryReleasesTable: SnowflakeTable("repository_releases") {
+    val repository = reference("repository_id", RepositoryTable)
+    val updateText = text("update_text").nullable().default(null)
+    val createdAt = datetime("created_at").default(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()))
+    val updatedAt = datetime("updated_at").default(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()))
+    val tag = text("tag")
 }

@@ -15,4 +15,9 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.databases.postgres.tables
+package org.noelware.charted.modules.sessions.local.tests
+
+import org.testcontainers.junit.jupiter.Testcontainers
+
+@Testcontainers(disabledWithoutDocker = true)
+class LocalSessionManagerTests

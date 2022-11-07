@@ -17,5 +17,10 @@
 
 package org.noelware.charted.databases.postgres
 
-fun createOrUpdateEnums() {
+import net.perfectdreams.exposedpowerutils.sql.*
+import org.jetbrains.exposed.sql.Transaction
+import org.noelware.charted.types.helm.RepoType
+
+fun Transaction.createOrUpdateEnums() {
+    createOrUpdatePostgreSQLEnum(RepoType.values())
 }

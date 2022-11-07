@@ -33,30 +33,37 @@ import org.noelware.remi.s3.S3StorageTrailer
 import java.io.InputStream
 
 class DefaultStorageHandler(private val config: StorageConfig): StorageHandler {
-    private val trailer: SetOnce<StorageTrailer<*>> = SetOnce()
+    private val _trailer: SetOnce<StorageTrailer<*>> = SetOnce()
     private val log by logging<DefaultStorageHandler>()
+
+    /**
+     * Returns the underlying [storage trailer][StorageTrailer] itself. It is not recommended to
+     * use this directly.
+     */
+    override val trailer: StorageTrailer<*>
+        get() = _trailer.value
 
     /**
      * Initializes the storage handler, and calls [StorageTrailer#init][org.noelware.remi.core.StorageTrailer.init] afterwards.
      */
     @Traced
     override suspend fun init() {
-        if (trailer.wasSet()) {
+        if (_trailer.wasSet()) {
             log.warn("#init was called more than once! this might be a bug")
             return
         }
 
         log.info("Determining which storage trailer to use...")
-        trailer.value = when {
+        _trailer.value = when {
             config.filesystem != null -> FilesystemStorageTrailer(config.filesystem!!)
             config.minio != null -> MinIOStorageTrailer(config.minio!!)
             config.s3 != null -> S3StorageTrailer(config.s3!!)
             else -> throw IllegalStateException("Unable to load storage handler due to invalid configuration")
         }
 
-        log.info("Using storage trailer ${trailer.value.name}!")
+        log.info("Using storage trailer ${trailer.name}!")
         try {
-            trailer.value.init()
+            trailer.init()
         } catch (e: NotImplementedError) {
             // skip this for now
         } catch (e: Exception) {
@@ -72,7 +79,7 @@ class DefaultStorageHandler(private val config: StorageConfig): StorageHandler {
      * @param path The path to locate
      * @return [InputStream] if file exists, otherwise null.
      */
-    override suspend fun open(path: String): InputStream? = trailer.value.open(path)
+    override suspend fun open(path: String): InputStream? = trailer.open(path)
 
     /**
      * Uploads a file to the storage trailer (i.e, Amazon S3). Calls the [StorageTrailer#upload][org.noelware.remi.core.StorageTrailer.upload]
@@ -89,7 +96,7 @@ class DefaultStorageHandler(private val config: StorageConfig): StorageHandler {
         }
 
         if (size == 0) throw IllegalStateException("Input stream is 0 bytes, make sure you didn't consume it before using #upload")
-        return trailer.value.upload(path, `is`, contentType)
+        return trailer.upload(path, `is`, contentType)
     }
 
     /**
@@ -99,7 +106,7 @@ class DefaultStorageHandler(private val config: StorageConfig): StorageHandler {
      * @param path The path to locate
      * @return boolean to indicate if it exists
      */
-    override suspend fun exists(path: String): Boolean = trailer.value.exists(path)
+    override suspend fun exists(path: String): Boolean = trailer.exists(path)
 
     /**
      * Deletes a file on the trailer. Calls the [StorageTrailer#delete][org.noelware.remi.core.StorageTrailer.delete] method
@@ -108,13 +115,13 @@ class DefaultStorageHandler(private val config: StorageConfig): StorageHandler {
      * @param path The path to locate
      * @return boolean to indicate if the file was deleted or not
      */
-    override suspend fun delete(path: String): Boolean = trailer.value.delete(path)
+    override suspend fun delete(path: String): Boolean = trailer.delete(path)
 
     /**
      * Recursively collects all the files available in the trailer. Calls the [StorageTrailer#listAll][org.noelware.remi.core.StorageTrailer.listAll]
      * method internally.
      */
-    override suspend fun list(): List<Object> = trailer.value.listAll(true)
+    override suspend fun list(): List<Object> = trailer.listAll(true)
 
     /**
      * Unlike [open], which returns a [InputStream], [get] returns all the metadata (and including input stream)
@@ -124,5 +131,5 @@ class DefaultStorageHandler(private val config: StorageConfig): StorageHandler {
      * @param path The path to locate
      * @return the [Object] metadata if the file was found, otherwise null.
      */
-    override suspend fun get(path: String): Object? = trailer.value.fetch(path)
+    override suspend fun get(path: String): Object? = trailer.fetch(path)
 }

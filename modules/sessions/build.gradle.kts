@@ -18,3 +18,7 @@
 plugins {
     `charted-module`
 }
+
+dependencies {
+    implementation(project(":databases:postgres"))
+}

@@ -15,13 +15,20 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.modules.docker.registry
+package org.noelware.charted.databases.postgres.entities
 
-import org.koin.dsl.bind
-import org.koin.dsl.module
-import org.noelware.ktor.endpoints.AbstractEndpoint
+import org.jetbrains.exposed.dao.LongEntity
+import org.jetbrains.exposed.dao.LongEntityClass
+import org.jetbrains.exposed.dao.id.EntityID
+import org.noelware.charted.databases.postgres.tables.ApiKeysTable
 
-val dockerRegistryModule = module {
-    single { DockerRegistryEndpoints(get(), get(), get()) } bind AbstractEndpoint::class
-    single<DockerRegistry> { DefaultDockerRegistry() }
+class ApiKeyEntity(id: EntityID<Long>): LongEntity(id) {
+    companion object: LongEntityClass<ApiKeyEntity>(ApiKeysTable)
+
+    var description by ApiKeysTable.description
+    var expiresIn by ApiKeysTable.expiresIn
+    var scopes by ApiKeysTable.scopes
+    var owner by UserEntity referencedOn ApiKeysTable.owner
+    var token by ApiKeysTable.token
+    var name by ApiKeysTable.name
 }
