@@ -16,7 +16,7 @@
     "dev": "yarn fmt && yarn lint && vite"
   },
   "dependencies": {
-    "@elastic/charts": "50.1.0",
+    "@elastic/charts": "50.2.0",
     "@fontsource/cantarell": "4.5.9",
     "@fontsource/inter": "4.5.14",
     "@fontsource/jetbrains-mono": "4.5.11",

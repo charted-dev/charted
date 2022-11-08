@@ -406,7 +406,7 @@ __metadata:
     "@actions/core": 1.10.0
     "@augu/eslint-config": 3.0.0
     "@augu/tsconfig": 1.1.1
-    "@elastic/charts": 50.1.0
+    "@elastic/charts": 50.2.0
     "@fontsource/cantarell": 4.5.9
     "@fontsource/inter": 4.5.14
     "@fontsource/jetbrains-mono": 4.5.11
@@ -500,9 +500,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@elastic/charts@npm:50.1.0":
-  version: 50.1.0
-  resolution: "@elastic/charts@npm:50.1.0"
+"@elastic/charts@npm:50.2.0":
+  version: 50.2.0
+  resolution: "@elastic/charts@npm:50.2.0"
   dependencies:
     "@popperjs/core": ^2.4.0
     bezier-easing: ^2.1.0
@@ -529,7 +529,7 @@ __metadata:
     moment-timezone: ^0.5.32
     react: ^16.12 || ^17.0 || ^18.0
     react-dom: ^16.12 || ^17.0 || ^18.0
-  checksum: 5baadc9fc7398b945f4f04d6fc7c8517f420cc51fd2eb9e515884224e8765fe600f2272b88b35516a4ed3ac8c5a0469f1503b08a6c07b5615a37b1c921970c9d
+  checksum: 0c7d94b38fe80424a3323f819d298ffc6fda9e34f00c04efe3e75d5e6ab840039089c8949be3b837657dc4ad6575556cc0fda4b15e32e604401eb529e2b031cd
   languageName: node
   linkType: hard
 
