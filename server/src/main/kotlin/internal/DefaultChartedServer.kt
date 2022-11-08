@@ -56,6 +56,8 @@ import org.noelware.charted.server.hasStarted
 import org.noelware.charted.server.openapi.charted
 import org.noelware.charted.server.plugins.Logging
 import org.noelware.charted.server.plugins.RequestMdc
+import org.noelware.charted.server.plugins.SentryPlugin
+import org.noelware.charted.server.plugins.SessionsPlugin
 import org.noelware.charted.types.responses.ApiError
 import org.noelware.charted.types.responses.ApiResponse
 import org.noelware.ktor.NoelKtorRouting
@@ -100,8 +102,14 @@ class DefaultChartedServer(private val config: Config): ChartedServer {
         // Logging middleware, nothing to expect here.
         install(Logging)
 
+        // Sessions middleware, nothing to expect here
+        install(SessionsPlugin)
+
         // Installs Sentry onto the middleware for tracing purposes,
         // though we also need to add APM and OpenTelemetry here.
+        ifSentryEnabled {
+            install(SentryPlugin)
+        }
 
         // Installs the Docker Registry proxy plugin if it is available
         if (config.features.contains(ServerFeature.DOCKER_REGISTRY) && config.dockerRegistry != null) {

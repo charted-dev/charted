@@ -15,6 +15,16 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
+package org.noelware.charted.server.endpoints.v1.api
+
+import org.koin.dsl.bind
+import org.koin.dsl.module
+import org.noelware.ktor.endpoints.AbstractEndpoint
+
+val apiV1Endpoints = module {
+    single { OrganizationsEndpoint() } bind AbstractEndpoint::class
+    single { RepositoriesEndpoint() } bind AbstractEndpoint::class
+    single { ApiKeysEndpoint() } bind AbstractEndpoint::class
+    single { UsersEndpoint() } bind AbstractEndpoint::class
+    single { AdminEndpoint() } bind AbstractEndpoint::class
 }

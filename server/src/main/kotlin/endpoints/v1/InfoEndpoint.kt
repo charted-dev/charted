@@ -19,6 +19,7 @@
 
 package org.noelware.charted.server.endpoints.v1
 
+import co.elastic.apm.api.Traced
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -55,6 +56,7 @@ data class InfoResponse(
 
 class InfoEndpoint: AbstractEndpoint("/info") {
     @Get
+    @Traced
     suspend fun main(call: ApplicationCall) {
         call.respond(
             HttpStatusCode.OK,

@@ -23,6 +23,8 @@ import org.noelware.charted.ValidationException
 import org.noelware.charted.configuration.kotlin.dsl.features.DockerRegistryConfig
 import org.noelware.charted.configuration.kotlin.dsl.metrics.MetricsConfig
 import org.noelware.charted.configuration.kotlin.dsl.search.SearchConfig
+import org.noelware.charted.configuration.kotlin.dsl.sessions.SessionsConfig
+import org.noelware.charted.configuration.kotlin.dsl.tracing.TracingConfig
 
 const val DO_NOT_USE_THIS_VALUE_IN_YOUR_JWT_SECRET_KEY_OR_I_WILL_LAUGH_AT_YOU = "__DO NOT USE THIS AS THE SECRET KEY__"
 
@@ -92,11 +94,13 @@ data class Config(
     val clickhouse: ClickHouseConfig? = null,
     val database: DatabaseConfig = DatabaseConfig(),
     val features: List<ServerFeature> = listOf(),
+    val sessions: SessionsConfig = SessionsConfig(),
     val storage: StorageConfig = StorageConfig(),
-    val server: KtorServerConfig = KtorServerConfig(),
     val metrics: MetricsConfig = MetricsConfig(),
+    val tracing: TracingConfig? = null,
+    val server: KtorServerConfig = KtorServerConfig(),
     val search: SearchConfig? = null,
-    val redis: RedisConfig? = null,
+    val redis: RedisConfig = RedisConfig(),
     val smtp: SMTPConfig? = null
 ) {
     init {
@@ -129,11 +133,13 @@ data class Config(
         private var _clickhouse: ClickHouseConfig? = null
         private var _features: MutableList<ServerFeature> = mutableListOf()
         private var _database: DatabaseConfig = DatabaseConfig()
+        private var _sessions: SessionsConfig = SessionsConfig()
         private var _storage: StorageConfig = StorageConfig()
         private var _metrics: MetricsConfig = MetricsConfig()
+        private var _tracing: TracingConfig? = null
         private var _server: KtorServerConfig = KtorServerConfig()
         private var _search: SearchConfig? = null
-        private var _redis: RedisConfig? = null
+        private var _redis: RedisConfig = RedisConfig()
         private var _smtp: SMTPConfig? = null
 
         fun dockerRegistry(builder: DockerRegistryConfig.Builder.() -> Unit): Builder {
@@ -163,8 +169,18 @@ data class Config(
             return this
         }
 
+        fun sessions(builder: SessionsConfig.Builder.() -> Unit = {}): Builder {
+            _sessions = SessionsConfig.Builder().apply(builder).build()
+            return this
+        }
+
         fun metrics(builder: MetricsConfig.Builder.() -> Unit = {}): Builder {
             _metrics = MetricsConfig.Builder().apply(builder).build()
+            return this
+        }
+
+        fun tracing(builder: TracingConfig.Builder.() -> Unit = {}): Builder {
+            _tracing = TracingConfig.Builder().apply(builder).build()
             return this
         }
 
@@ -200,9 +216,11 @@ data class Config(
             _clickhouse,
             _database,
             _features.toList(),
+            _sessions,
             _storage,
-            _server,
             _metrics,
+            _tracing,
+            _server,
             _search,
             _redis,
             _smtp

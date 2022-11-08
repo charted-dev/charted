@@ -16,3 +16,19 @@
  */
 
 package org.noelware.charted.configuration.kotlin.dsl.tracing
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class TracingConfig(val apm: ElasticAPMConfig? = null) {
+    class Builder: org.noelware.charted.common.Builder<TracingConfig> {
+        private var _apm: ElasticAPMConfig? = null
+
+        fun apm(builder: ElasticAPMConfig.Builder.() -> Unit = {}): Builder {
+            _apm = ElasticAPMConfig.Builder().apply(builder).build()
+            return this
+        }
+
+        override fun build(): TracingConfig = TracingConfig(_apm)
+    }
+}

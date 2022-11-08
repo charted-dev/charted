@@ -16,3 +16,7 @@
  */
 
 package org.noelware.charted.server.endpoints.v1.api
+
+import org.noelware.ktor.endpoints.AbstractEndpoint
+
+class AdminEndpoint: AbstractEndpoint("/admin")

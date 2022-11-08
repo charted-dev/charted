@@ -16,3 +16,21 @@
  */
 
 package org.noelware.charted.configuration.kotlin.dsl.sessions
+
+import kotlinx.serialization.Serializable
+import org.noelware.charted.serializers.SecretStringSerializer
+import kotlin.properties.Delegates
+
+@Serializable
+data class LDAPSessionConfig(
+    @Serializable(with = SecretStringSerializer::class)
+    val host: String,
+    val port: Int
+) {
+    class Builder: org.noelware.charted.common.Builder<LDAPSessionConfig> {
+        var port: Int by Delegates.notNull()
+        var host: String by Delegates.notNull()
+
+        override fun build(): LDAPSessionConfig = LDAPSessionConfig(host, port)
+    }
+}

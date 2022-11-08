@@ -17,19 +17,27 @@
 
 package org.noelware.charted.modules.sessions
 
+import org.noelware.charted.databases.postgres.entities.UserEntity
+
 /**
  * Represents a manager for managing sessions from Redis. This also takes care of authentication
  * when you log in since different session managers need to do extra work if needed.
  */
 interface SessionManager {
     /**
-     * Does the actual authentication process with the given [username or email][userOrEmail] and the
+     * Returns a [boolean][Boolean] if the [token] given has expired or not.
+     * @param token The token itself
+     */
+    fun isTokenExpired(token: String?): Boolean
+
+    /**
+     * Does the actual authentication process with the given [user] and the
      * [password] itself.
      *
-     * @param userOrEmail The username or email to authenticate
+     * @param user        The user that was found to authenticate with
      * @param password    The password to do the authentication
      */
-    suspend fun doAuthenticate(userOrEmail: String, password: String): Session
+    suspend fun doAuthenticate(user: UserEntity, password: String): Session
 
     /**
      * Fetch a [Session] from Redis with the given [token]. If the session was found
@@ -38,6 +46,20 @@ interface SessionManager {
      * @param token The access or refresh token to validate
      */
     suspend fun fetch(token: String): Session?
+
+    /**
+     * Lists all the sessions that a user by their ID has created.
+     * @param id The ID of the user
+     * @return list of sessions
+     */
+    suspend fun all(id: Long): List<Session>
+
+    /**
+     * Creates a new [Session] object by the user's ID.
+     * @param userID The user's ID
+     * @return created session
+     */
+    suspend fun create(userID: Long): Session
 
     /**
      * Refresh a [session] object and returns a new session
@@ -51,5 +73,5 @@ interface SessionManager {
      *
      * @param session The session to revoke
      */
-    suspend fun revoke(session: Session): Boolean
+    suspend fun revoke(session: Session)
 }

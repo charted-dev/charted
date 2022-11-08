@@ -31,6 +31,7 @@ data class ApiKeys(
     val expiresIn: LocalDateTime? = null,
     val scopes: Long = 0,
     val token: String? = null,
+    val owner: User,
     val name: String,
     val id: Long
 ) {
@@ -40,6 +41,7 @@ data class ApiKeys(
             entity.expiresIn,
             entity.scopes,
             if (showToken) entity.token else null,
+            User.fromEntity(entity.owner),
             entity.name,
             entity.id.value
         )

@@ -16,3 +16,26 @@
  */
 
 package org.noelware.charted.server.endpoints.v1.api
+
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import org.noelware.charted.ChartedInfo
+import org.noelware.charted.types.responses.ApiResponse
+import org.noelware.ktor.endpoints.AbstractEndpoint
+import org.noelware.ktor.endpoints.Get
+
+@Serializable
+data class MainUserResponse(
+    val message: String = "Welcome to the Users API!",
+
+    @SerialName("docs_url")
+    val docsUrl: String = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api/users"
+)
+
+class UsersEndpoint: AbstractEndpoint("/users") {
+    @Get("/")
+    suspend fun main(call: ApplicationCall) = call.respond(HttpStatusCode.OK, ApiResponse.ok(MainUserResponse()))
+}

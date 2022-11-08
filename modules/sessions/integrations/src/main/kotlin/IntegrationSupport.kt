@@ -15,4 +15,6 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.configuration.kotlin.dsl.sessions
+package org.noelware.charted.modules.sessions.integrations
+
+interface IntegrationSupport

@@ -19,9 +19,10 @@ package org.noelware.charted.server.endpoints.v1
 
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import org.noelware.charted.server.endpoints.v1.api.apiV1Endpoints
 import org.noelware.ktor.endpoints.AbstractEndpoint
 
-val endpointsModule = module {
+val endpointsModule = apiV1Endpoints + module {
     single { MetricsEndpoint(getOrNull()) } bind AbstractEndpoint::class
     single { HealthEndpoint() } bind AbstractEndpoint::class
     single { InfoEndpoint() } bind AbstractEndpoint::class

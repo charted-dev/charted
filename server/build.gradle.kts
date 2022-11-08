@@ -44,9 +44,6 @@ dependencies {
     implementation(project(":modules:sessions"))
     implementation(project(":modules:storage"))
     implementation(project(":modules:telemetry"))
-    implementation(project(":modules:tracing:otel"))
-    implementation(project(":modules:tracing:apm"))
-    implementation(project(":modules:tracing"))
     implementation(project(":modules:webhooks"))
 
     // kotlinx.coroutines debug
@@ -58,6 +55,9 @@ dependencies {
 
     // HikariCP (for database)
     implementation(libs.hikaricp)
+
+    // Spring Security Crypto
+    implementation(libs.spring.security.crypto)
 
     // Ktor (Server)
     implementation(libs.ktor.client.content.negotitation)
@@ -88,4 +88,7 @@ dependencies {
 
     // Janino (for logback)
     implementation(libs.janino)
+
+    // Elastic APM
+    implementation(libs.elastic.apm.agent.attach)
 }

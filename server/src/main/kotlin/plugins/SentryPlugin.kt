@@ -16,3 +16,37 @@
  */
 
 package org.noelware.charted.server.plugins
+
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.application.hooks.*
+import io.ktor.server.request.*
+import io.ktor.util.*
+import io.sentry.ITransaction
+import io.sentry.Sentry
+import io.sentry.SpanStatus
+
+private val SENTRY_TRANSACTION_KEY: AttributeKey<ITransaction> = AttributeKey("Sentry Transaction")
+
+val ApplicationCall.sentryTransaction: ITransaction?
+    get() = attributes.getOrNull(SENTRY_TRANSACTION_KEY)
+
+val SentryPlugin = createApplicationPlugin("Sentry") {
+    onCall { call ->
+        call.attributes.put(
+            SENTRY_TRANSACTION_KEY,
+            Sentry.startTransaction(
+                "HTTP Request",
+                "${call.request.httpMethod.value} ${call.request.path()} [${call.request.httpVersion}]"
+            )
+        )
+    }
+
+    on(CallFailed) { call, _ ->
+        call.sentryTransaction!!.finish(SpanStatus.UNKNOWN_ERROR)
+    }
+
+    on(ResponseSent) { call ->
+        call.sentryTransaction!!.finish(SpanStatus.fromHttpStatusCode(call.response.status()?.value ?: HttpStatusCode.OK.value))
+    }
+}

@@ -20,6 +20,9 @@ package org.noelware.charted.databases.postgres.models
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import org.noelware.charted.databases.postgres.entities.UserEntity
 
 @Serializable
@@ -51,5 +54,15 @@ data class User(
             entity.name,
             entity.id.value
         )
+    }
+
+    fun toJsonObject(): JsonObject = buildJsonObject {
+        put("gravatar_email", gravatarEmail)
+        put("description", description)
+        put("avatar_hash", avatarHash)
+        put("created_at", "$createdAt")
+        put("updated_at", "$updatedAt")
+        put("name", name)
+        put("id", id)
     }
 }

@@ -19,7 +19,11 @@ package org.noelware.charted.modules.sessions
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.noelware.charted.databases.postgres.models.User
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import org.noelware.charted.serializers.UUIDSerializer
+import java.util.UUID
 
 /**
  * Represents a session token object. This is how sessions are stored in the Redis table.
@@ -39,7 +43,18 @@ data class Session(
     @SerialName("access_token")
     val accessToken: String,
 
+    @Serializable(with = UUIDSerializer::class)
     @SerialName("session_id")
-    val sessionID: Long,
-    val user: User
-)
+    val sessionID: UUID,
+    val userID: Long
+) {
+    fun toJsonObject(showToken: Boolean = false): JsonObject = buildJsonObject {
+        if (showToken) {
+            put("refresh_token", refreshToken)
+            put("access_token", accessToken)
+        }
+
+        put("session_id", sessionID.toString())
+        put("user_id", userID)
+    }
+}

@@ -61,9 +61,6 @@ include(
     ":modules:sessions:integrations:noelware",
     ":modules:storage",
     ":modules:telemetry",
-    ":modules:tracing",
-    ":modules:tracing:apm",
-    ":modules:tracing:otel",
     ":modules:webhooks"
 )
 

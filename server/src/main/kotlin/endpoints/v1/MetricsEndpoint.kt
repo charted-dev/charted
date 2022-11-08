@@ -19,6 +19,7 @@
 
 package org.noelware.charted.server.endpoints.v1
 
+import co.elastic.apm.api.Traced
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -28,6 +29,7 @@ import org.noelware.ktor.endpoints.Get
 
 class MetricsEndpoint(private val prometheus: PrometheusMetrics? = null): AbstractEndpoint("/metrics") {
     @Get
+    @Traced
     suspend fun main(call: ApplicationCall) = if (prometheus == null) {
         call.respond(HttpStatusCode.NotFound)
     } else {
