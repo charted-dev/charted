@@ -432,8 +432,8 @@ __metadata:
     "@radix-ui/react-tooltip": 1.0.2
     "@stitches/react": 1.2.8
     "@tabler/icons": 1.111.0
-    "@tanstack/react-query": 4.14.5
-    "@tanstack/react-query-devtools": 4.14.5
+    "@tanstack/react-query": 4.14.6
+    "@tanstack/react-query-devtools": 4.14.6
     "@types/eslint": 8.4.10
     "@types/node": 18.11.9
     "@types/react": 18.0.25
@@ -1735,24 +1735,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-devtools@npm:4.14.5":
-  version: 4.14.5
-  resolution: "@tanstack/react-query-devtools@npm:4.14.5"
+"@tanstack/react-query-devtools@npm:4.14.6":
+  version: 4.14.6
+  resolution: "@tanstack/react-query-devtools@npm:4.14.6"
   dependencies:
     "@tanstack/match-sorter-utils": ^8.1.1
     superjson: ^1.10.0
     use-sync-external-store: ^1.2.0
   peerDependencies:
-    "@tanstack/react-query": 4.14.5
+    "@tanstack/react-query": 4.14.6
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: 7593951ff3704cd70f77afbf2535e71c328493c42e7c26c2cec6057beebd84dc740999a7ce7e1168dace2cfca28c1fa3306c01a9e15f23ee3d0a9fa0daf51e5f
+  checksum: d2aa599a930b69b024c1fb7bb0123cd2386abfe300d7cc5faef1f273fc8957389e7411663bd61daad7edd32b990900fb46a6d2482cd50dbc7b716256b1a9b8dd
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:4.14.5":
-  version: 4.14.5
-  resolution: "@tanstack/react-query@npm:4.14.5"
+"@tanstack/react-query@npm:4.14.6":
+  version: 4.14.6
+  resolution: "@tanstack/react-query@npm:4.14.6"
   dependencies:
     "@tanstack/query-core": 4.14.5
     use-sync-external-store: ^1.2.0
@@ -1765,7 +1765,7 @@ __metadata:
       optional: true
     react-native:
       optional: true
-  checksum: fe98c7900c989512c5818b7aa3c81d81ce2c1149a25e9279f8efcf462a00a156c78c398b5e01c50e5da23788709ed36f8dae4236a51fde459a427a5ece474b0f
+  checksum: 38e293616aa04ccfe2fec47315c5b98f0b157ee6548b4dbb6a8ca01c90de113e437f5effbc82884f2d860bde54eeb07335e9ed4e233543c7039f717d9855ab9e
   languageName: node
   linkType: hard
 
