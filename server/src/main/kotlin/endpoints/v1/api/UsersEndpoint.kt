@@ -345,7 +345,7 @@ class UsersEndpoint(
             else -> return call.respond(HttpStatusCode.BadRequest, ApiResponse.err("UNKNOWN_ENTITY", "Unable to determine if [idOrName] provided is by ID or name, provided [$idOrName]"))
         } ?: return call.respond(HttpStatusCode.NotFound, ApiResponse.err("UNKNOWN_USER", "User with ID or name [$idOrName] was not found"))
 
-        call.respond(HttpStatusCode.OK, user)
+        call.respond(HttpStatusCode.OK, ApiResponse.ok(user))
     }
 
     @Get("/{idOrName}/avatars/current")
@@ -414,7 +414,7 @@ class UsersEndpoint(
 
     @Get("/@me")
     suspend fun fetchSession(call: ApplicationCall) {
-        call.respond(HttpStatusCode.OK, call.currentUser!!)
+        call.respond(HttpStatusCode.OK, ApiResponse.ok(call.currentUser!!))
     }
 
     @Post("/@me/avatar")

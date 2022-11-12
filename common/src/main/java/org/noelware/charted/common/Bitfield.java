@@ -88,6 +88,13 @@ public class Bitfield {
     }
 
     /**
+     * Returns all the available flags that this {@link Bitfield} has access towards
+     */
+    public List<String> enabledFlags() {
+        return flags.keySet().stream().filter(this::has).toList();
+    }
+
+    /**
      * Adds all the bits from {@link #asList()} to the bitfield map.
      * @return This instance to chain methods.
      */

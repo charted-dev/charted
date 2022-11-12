@@ -15,20 +15,21 @@
  * limitations under the License.
  */
 
-package org.noelware.charted;
+package org.noelware.charted.modules.apikeys
 
-public class StringOverflowException extends ValidationException {
-    public StringOverflowException(String path, int maxSize, int length) {
-        super(
-                path,
-                "String overflowed from %d characters, exceeded %d characters".formatted(maxSize, length - maxSize));
-    }
+import org.noelware.charted.databases.postgres.models.ApiKeys
+import java.io.Closeable
+import kotlin.time.Duration
 
-    public StringOverflowException(String path, int maxSize) {
-        super(
-                path,
-                String.format(
-                        "String overflowed from %d characters, exceeded %d characters",
-                        maxSize, path.length() - maxSize));
-    }
+/**
+ * Represents the manager for handling API key expiration dates. Expiration dates should be only inserted
+ * if the expiration date is valid.
+ */
+interface ApiKeyManager: Closeable {
+    /**
+     * Accepts that the API key will be expiring in the specified [duration][expiresIn] and is sent in Redis.
+     * @param apiKey    The API key that is expiring
+     * @param expiresIn The duration of when the API key will expire
+     */
+    suspend fun send(apiKey: ApiKeys, expiresIn: Duration)
 }

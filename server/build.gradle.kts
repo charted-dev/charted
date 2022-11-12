@@ -24,6 +24,7 @@ dependencies {
     implementation(project(":databases:clickhouse"))
     implementation(project(":databases:postgres"))
     implementation(project(":modules:audit-logs"))
+    implementation(project(":modules:apikeys"))
     implementation(project(":modules:avatars"))
     implementation(project(":modules:config:kotlin-script"))
     implementation(project(":modules:config:yaml"))

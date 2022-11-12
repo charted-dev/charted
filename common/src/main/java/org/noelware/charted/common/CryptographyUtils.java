@@ -96,4 +96,15 @@ public class CryptographyUtils {
 
         return doHexHash(digest, text.getBytes());
     }
+
+    public static boolean safeTimeEquals(byte[] expected, byte[] actual) {
+        if (expected.length != actual.length) return false;
+
+        var result = 0;
+        for (var i = 0; i < expected.length; i++) {
+            result |= expected[i] ^ actual[i];
+        }
+
+        return result == 0;
+    }
 }

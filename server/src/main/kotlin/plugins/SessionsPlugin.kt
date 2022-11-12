@@ -32,6 +32,8 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.noelware.charted.ChartedScope
+import org.noelware.charted.common.CryptographyUtils
+import org.noelware.charted.common.lazy.Lazy
 import org.noelware.charted.databases.postgres.entities.ApiKeyEntity
 import org.noelware.charted.databases.postgres.entities.UserEntity
 import org.noelware.charted.databases.postgres.flags.ApiKeyScopes
@@ -43,18 +45,21 @@ import org.noelware.charted.modules.sessions.Session
 import org.noelware.charted.modules.sessions.SessionManager
 import org.noelware.charted.types.responses.ApiResponse
 
-private val SESSIONS_KEY: AttributeKey<Session> = AttributeKey("Session")
-private val API_KEY_KEY: AttributeKey<ApiKeys> = AttributeKey("ApiKey")
+val SESSIONS_KEY: AttributeKey<Session> = AttributeKey("Session")
+val API_KEY_KEY: AttributeKey<ApiKeys> = AttributeKey("ApiKey")
 
 /**
  * Returns the current user that this endpoint is running as.
  */
 val ApplicationCall.currentUser: User?
-    get() = attributes.getOrNull(SESSIONS_KEY).ifNotNull {
-        transaction {
-            UserEntity.findById(userID)?.let { User.fromEntity(it) }
-        }
-    } ?: attributes.getOrNull(API_KEY_KEY).ifNotNull { owner }
+    // Since it can get expensive on the session side, we do it lazily and fetch it whenever we need it.
+    get() = Lazy.create {
+        attributes.getOrNull(SESSIONS_KEY).ifNotNull {
+            transaction {
+                UserEntity.findById(userID)?.let { User.fromEntity(it) }
+            }
+        } ?: attributes.getOrNull(API_KEY_KEY).ifNotNull { owner }
+    }.get()
 
 /**
  * Returns the options for configuring the sessions middleware
@@ -185,7 +190,7 @@ val SessionsPlugin = createRouteScopedPlugin("Sessions", ::SessionOptions) {
 
             "ApiKey" -> {
                 val apiKey = asyncTransaction(ChartedScope) {
-                    ApiKeyEntity.find { ApiKeysTable.token eq token }.firstOrNull()
+                    ApiKeyEntity.find { ApiKeysTable.token eq CryptographyUtils.sha256Hex(token) }.firstOrNull()
                         ?.let { entity -> ApiKeys.fromEntity(entity, true) }
                 } ?: return@onCall call.respond(
                     HttpStatusCode.NotFound,
@@ -214,8 +219,8 @@ val SessionsPlugin = createRouteScopedPlugin("Sessions", ::SessionOptions) {
                 }
 
                 val bits = apiKey.bitfield
-                for (bit in bits.flags().keys) {
-                    if (!pluginConfig.scopes.has(bit)) {
+                for (bit in pluginConfig.scopes.enabledFlags()) {
+                    if (!bits.has(bit)) {
                         call.respond(
                             HttpStatusCode.Forbidden,
                             ApiResponse.err(

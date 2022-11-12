@@ -60,6 +60,8 @@ import org.noelware.charted.databases.postgres.metrics.PostgresStatsCollector
 import org.noelware.charted.databases.postgres.tables.*
 import org.noelware.charted.extensions.doFormatTime
 import org.noelware.charted.extensions.formatToSize
+import org.noelware.charted.modules.apikeys.ApiKeyManager
+import org.noelware.charted.modules.apikeys.DefaultApiKeyManager
 import org.noelware.charted.modules.avatars.avatarsModule
 import org.noelware.charted.modules.elasticsearch.DefaultElasticsearchModule
 import org.noelware.charted.modules.elasticsearch.ElasticsearchModule
@@ -119,12 +121,14 @@ object Bootstrap {
                 if (koin != null) {
                     val elasticsearch: ElasticsearchModule? by injectOrNull()
                     val clickhouse: ClickHouseConnection? by injectOrNull()
+                    val sessions: SessionManager by inject()
                     val hikari: HikariDataSource by inject()
                     val server: ChartedServer by inject()
                     val redis: RedisClient by inject()
 
                     elasticsearch?.closeQuietly()
                     clickhouse?.closeQuietly()
+                    sessions.closeQuietly()
                     hikari.closeQuietly()
                     redis.closeQuietly()
                     server.closeQuietly()
@@ -395,10 +399,12 @@ object Bootstrap {
             else -> throw IllegalStateException("Session type [${config.sessions.type}] is unsupported")
         }
 
+        val apiKeyManager: ApiKeyManager = DefaultApiKeyManager(redis)
         val koinModule = module {
             single<StorageHandler> { storage }
             single<ChartedServer> { DefaultChartedServer(config) }
             single<RedisClient> { redis }
+            single { apiKeyManager }
             single { httpClient }
             single { sessions }
             single { argon2 }

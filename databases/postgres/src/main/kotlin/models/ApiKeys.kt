@@ -36,11 +36,11 @@ data class ApiKeys(
     val id: Long
 ) {
     companion object {
-        fun fromEntity(entity: ApiKeyEntity, showToken: Boolean = false): ApiKeys = ApiKeys(
+        fun fromEntity(entity: ApiKeyEntity, showToken: Boolean = false, token: String? = null): ApiKeys = ApiKeys(
             entity.description,
             entity.expiresIn,
             entity.scopes,
-            if (showToken) entity.token else null,
+            if (showToken) token else null,
             User.fromEntity(entity.owner),
             entity.name,
             entity.id.value

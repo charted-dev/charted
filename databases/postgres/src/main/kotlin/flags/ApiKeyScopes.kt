@@ -19,7 +19,7 @@ package org.noelware.charted.databases.postgres.flags
 
 import org.noelware.charted.common.Bitfield
 
-private val SCOPES: Map<String, Long> = mapOf(
+val SCOPES: Map<String, Long> = mapOf(
     // users
     "user:view" to (1L shl 0),
     "user:update" to (1L shl 1),
@@ -60,7 +60,13 @@ private val SCOPES: Map<String, Long> = mapOf(
     "org:webhooks:list" to (1L shl 32),
     "org:webhooks:create" to (1L shl 33),
     "org:webhooks:update" to (1L shl 34),
-    "org:webhooks:delete" to (1L shl 35)
+    "org:webhooks:delete" to (1L shl 35),
+
+    // api key usage
+    "apikeys:view" to (1L shl 36),
+    "apikeys:create" to (1L shl 37),
+    "apikeys:delete" to (1L shl 38),
+    "apikeys:edit:perms" to (1L shl 39)
 )
 
 class ApiKeyScopes(bits: Long = 0): Bitfield(bits, SCOPES)

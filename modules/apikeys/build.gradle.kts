@@ -15,20 +15,11 @@
  * limitations under the License.
  */
 
-package org.noelware.charted;
+plugins {
+    `charted-module`
+}
 
-public class StringOverflowException extends ValidationException {
-    public StringOverflowException(String path, int maxSize, int length) {
-        super(
-                path,
-                "String overflowed from %d characters, exceeded %d characters".formatted(maxSize, length - maxSize));
-    }
-
-    public StringOverflowException(String path, int maxSize) {
-        super(
-                path,
-                String.format(
-                        "String overflowed from %d characters, exceeded %d characters",
-                        maxSize, path.length() - maxSize));
-    }
+dependencies {
+    implementation(project(":databases:postgres"))
+    implementation(project(":modules:redis"))
 }

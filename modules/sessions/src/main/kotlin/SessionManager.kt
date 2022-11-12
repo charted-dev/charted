@@ -18,12 +18,13 @@
 package org.noelware.charted.modules.sessions
 
 import org.noelware.charted.databases.postgres.entities.UserEntity
+import java.io.Closeable
 
 /**
  * Represents a manager for managing sessions from Redis. This also takes care of authentication
  * when you log in since different session managers need to do extra work if needed.
  */
-interface SessionManager {
+interface SessionManager: Closeable {
     /**
      * Returns a [boolean][Boolean] if the [token] given has expired or not.
      * @param token The token itself

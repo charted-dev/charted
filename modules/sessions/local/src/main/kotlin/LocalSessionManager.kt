@@ -145,7 +145,7 @@ class LocalSessionManager(
      * @return list of sessions
      */
     override suspend fun all(id: Long): List<Session> = redis.commands.hgetall(SESSIONS_KEY).await()
-        // TODO: this is isn't probably performant, so we might need to
+        // TODO: this isn't probably performant, so we might need to
         //       refactor this
         .filterValues {
             val serialized: Session = json.decodeFromString(it)
@@ -275,5 +275,23 @@ class LocalSessionManager(
             }.forEach {
                 runBlocking { redis.commands.hdel(SESSIONS_KEY, it.key).await() }
             }
+    }
+
+    /**
+     * Closes this stream and releases any system resources associated
+     * with it. If the stream is already closed then invoking this
+     * method has no effect.
+     *
+     * As noted in [AutoCloseable.close], cases where the
+     * close may fail require careful attention. It is strongly advised
+     * to relinquish the underlying resources and to internally
+     * *mark* the `Closeable` as closed, prior to throwing
+     * the `IOException`.
+     *
+     * @throws java.io.IOException if an I/O error occurs
+     */
+    override fun close() {
+        log.warn("Closing all sessions!")
+        for (job in expirationJobs.values) job.cancel()
     }
 }
