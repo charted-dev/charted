@@ -432,8 +432,8 @@ __metadata:
     "@radix-ui/react-tooltip": 1.0.2
     "@stitches/react": 1.2.8
     "@tabler/icons": 1.111.0
-    "@tanstack/react-query": 4.14.6
-    "@tanstack/react-query-devtools": 4.14.6
+    "@tanstack/react-query": 4.15.0
+    "@tanstack/react-query-devtools": 4.15.0
     "@types/eslint": 8.4.10
     "@types/node": 18.11.9
     "@types/react": 18.0.25
@@ -1728,33 +1728,33 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:4.14.5":
-  version: 4.14.5
-  resolution: "@tanstack/query-core@npm:4.14.5"
-  checksum: 25af0f4999668cd66a4a54c2d2d64dd7002f4852fb901d1d1d64908da4ea43d63e53e512b536987a789039713ffc6ae4ffa2d41cfab676b01704f4937be18a04
+"@tanstack/query-core@npm:4.15.0":
+  version: 4.15.0
+  resolution: "@tanstack/query-core@npm:4.15.0"
+  checksum: 9d009fbdcff43fe07b58ce03f3b4320e187235a65787f99e73bc28ac36fac438ca644e355e7e0c0ae13822522706fac43cd2c1e4099c71c2b875f7132b033f94
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-devtools@npm:4.14.6":
-  version: 4.14.6
-  resolution: "@tanstack/react-query-devtools@npm:4.14.6"
+"@tanstack/react-query-devtools@npm:4.15.0":
+  version: 4.15.0
+  resolution: "@tanstack/react-query-devtools@npm:4.15.0"
   dependencies:
     "@tanstack/match-sorter-utils": ^8.1.1
     superjson: ^1.10.0
     use-sync-external-store: ^1.2.0
   peerDependencies:
-    "@tanstack/react-query": 4.14.6
+    "@tanstack/react-query": 4.15.0
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: d2aa599a930b69b024c1fb7bb0123cd2386abfe300d7cc5faef1f273fc8957389e7411663bd61daad7edd32b990900fb46a6d2482cd50dbc7b716256b1a9b8dd
+  checksum: 6f86a8666fb486cb59147a743000eba8c177bdfe4feb6c529e52e9b4fd69c475dc513fb7fadd8eedcd30a262365210bcd340c4d9a635f4fe5dcdfac755d44557
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:4.14.6":
-  version: 4.14.6
-  resolution: "@tanstack/react-query@npm:4.14.6"
+"@tanstack/react-query@npm:4.15.0":
+  version: 4.15.0
+  resolution: "@tanstack/react-query@npm:4.15.0"
   dependencies:
-    "@tanstack/query-core": 4.14.5
+    "@tanstack/query-core": 4.15.0
     use-sync-external-store: ^1.2.0
   peerDependencies:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -1765,7 +1765,7 @@ __metadata:
       optional: true
     react-native:
       optional: true
-  checksum: 38e293616aa04ccfe2fec47315c5b98f0b157ee6548b4dbb6a8ca01c90de113e437f5effbc82884f2d860bde54eeb07335e9ed4e233543c7039f717d9855ab9e
+  checksum: eca5e1a00a434b2c6ff0630696f1cc90a69c85a9772d18385f32594b8d0037e6e91524720da0d30fa725bba212d6642a4ce31680644bc022f0e8528549618119
   languageName: node
   linkType: hard
 
