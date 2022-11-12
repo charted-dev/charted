@@ -42,6 +42,7 @@ dependencies {
     // Noel's Utilities
     api(libs.noel.commons.extensions.kotlin)
     api(libs.noel.commons.extensions.koin)
+    api(libs.noel.commons.exposed)
     api(libs.noel.commons.slf4j)
 
     // Apache Utilities

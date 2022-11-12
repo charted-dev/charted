@@ -16,3 +16,35 @@
  */
 
 package org.noelware.charted.server.endpoints.v1
+
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import org.noelware.charted.modules.storage.StorageHandler
+import org.noelware.charted.server.createKtorContentWithByteArray
+import org.noelware.ktor.endpoints.AbstractEndpoint
+import org.noelware.ktor.endpoints.Get
+import org.noelware.remi.filesystem.FilesystemStorageTrailer
+
+class CdnEndpoints(private val storage: StorageHandler): AbstractEndpoint("/cdn") {
+    @Get("/{params...}")
+    suspend fun main(call: ApplicationCall) {
+        val paths = (call.parameters.getAll("params") ?: listOf()).joinToString("/")
+        val searchPath = if (storage.trailer is FilesystemStorageTrailer) {
+            "./$paths"
+        } else {
+            paths
+        }
+
+        val stream = storage.trailer.fetch(searchPath)
+            ?: return call.respond(HttpStatusCode.NotFound)
+
+        if (stream.createdAt != null) call.response.header("X-File-Created-At", stream.createdAt.toString())
+        call.response.header("X-File-Last-Modified", stream.lastModifiedAt.toString())
+        call.response.header("Etag", stream.etag)
+
+        val data = stream.inputStream!!.use { it.readBytes() }
+        val contentType = ContentType.parse(stream.contentType)
+        call.respond(createKtorContentWithByteArray(data, contentType))
+    }
+}

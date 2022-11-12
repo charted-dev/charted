@@ -145,6 +145,8 @@ class LocalSessionManager(
      * @return list of sessions
      */
     override suspend fun all(id: Long): List<Session> = redis.commands.hgetall(SESSIONS_KEY).await()
+        // TODO: this is isn't probably performant, so we might need to
+        //       refactor this
         .filterValues {
             val serialized: Session = json.decodeFromString(it)
             serialized.userID == id
@@ -255,5 +257,23 @@ class LocalSessionManager(
 
             expirationJobs.remove(session.sessionID)
         }
+    }
+
+    /**
+     * Revokes all the sessions given by a [userID].
+     * @param userID The user ID to delete all sessions from.
+     */
+    override suspend fun revokeAll(userID: Long) {
+        log.warn("Deleting all sessions from user [$userID]")
+        return redis.commands.hgetall(SESSIONS_KEY)
+            .await()
+            // TODO: this is isn't probably performant, so we might need to
+            //       refactor this
+            .filterValues {
+                val serialized: Session = json.decodeFromString(it)
+                serialized.userID == userID
+            }.forEach {
+                runBlocking { redis.commands.hdel(SESSIONS_KEY, it.key).await() }
+            }
     }
 }

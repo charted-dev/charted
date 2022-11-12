@@ -74,4 +74,10 @@ interface SessionManager {
      * @param session The session to revoke
      */
     suspend fun revoke(session: Session)
+
+    /**
+     * Revokes all the sessions given by a [userID].
+     * @param userID The user ID to delete all sessions from.
+     */
+    suspend fun revokeAll(userID: Long)
 }

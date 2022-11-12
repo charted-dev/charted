@@ -36,8 +36,8 @@ dependencies {
     implementation("com.netflix.nebula:gradle-ospackage-plugin:10.0.0")
     implementation("de.undercouch:gradle-download-task:5.3.0")
     implementation("dev.floofy.commons:gradle:2.3.0")
-    implementation(kotlin("serialization", "1.7.20"))
-    implementation(kotlin("gradle-plugin", "1.7.20"))
+    implementation(kotlin("serialization", "1.7.21"))
+    implementation(kotlin("gradle-plugin", "1.7.21"))
     implementation("com.google.code.gson:gson:2.10")
     implementation("org.slf4j:slf4j-simple:1.7.36")
 }

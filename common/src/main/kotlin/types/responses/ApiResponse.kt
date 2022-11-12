@@ -54,7 +54,7 @@ sealed class ApiResponse<out T>(val success: Boolean) {
          * Sends out an empty response payload with only the success marker.
          */
         @JvmStatic
-        fun ok(): ApiResponse<Nothing> = Ok(null)
+        fun ok(): ApiResponse<Unit> = Ok(null)
 
         /**
          * Sends out a response that is represented as [T].

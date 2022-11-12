@@ -90,5 +90,7 @@ fun main(args: Array<String>) {
         for (element in e.stackTrace) {
             terminal.println("    * $element")
         }
+
+        exitProcess(1)
     }
 }

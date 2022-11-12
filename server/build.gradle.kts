@@ -91,4 +91,7 @@ dependencies {
 
     // Elastic APM
     implementation(libs.elastic.apm.agent.attach)
+
+    // Apache Commons Validator
+    implementation(libs.apache.commons.validator)
 }

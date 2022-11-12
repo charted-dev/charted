@@ -37,6 +37,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.EmptySerializersModule
 import okhttp3.internal.closeQuietly
 import org.apache.commons.lang3.time.StopWatch
+import org.apache.commons.validator.routines.EmailValidator
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.DatabaseConfig
 import org.jetbrains.exposed.sql.SchemaUtils
@@ -378,6 +379,7 @@ object Bootstrap {
         val metrics = PrometheusMetrics(ds)
         val redis = DefaultRedisClient(config.redis)
         val argon2 = Argon2PasswordEncoder()
+        val email = EmailValidator.getInstance(true, true)
         redis.connect()
 
         if (config.metrics.enabled) {
@@ -390,9 +392,7 @@ object Bootstrap {
 
         val sessions: SessionManager = when (config.sessions.type) {
             is SessionType.Local -> LocalSessionManager(argon2, redis, json, config)
-            else -> {
-                throw IllegalStateException("Session type [${config.sessions.type}] is unsupported")
-            }
+            else -> throw IllegalStateException("Session type [${config.sessions.type}] is unsupported")
         }
 
         val koinModule = module {
@@ -401,7 +401,9 @@ object Bootstrap {
             single<RedisClient> { redis }
             single { httpClient }
             single { sessions }
+            single { argon2 }
             single { config }
+            single { email }
             single { yaml }
             single { json }
             single { ds }
