@@ -23,17 +23,13 @@ package org.noelware.charted.modules.avatars
 interface AvatarModule {
     /**
      * Returns a Gravatar email from the [email] specified.
-     * @return The URL to the avatar
+     * @return The image bytes
      */
-    fun gravatar(email: String): String
+    suspend fun gravatar(email: String): ByteArray
 
     /**
      * Returns a Dicebear Identicons avatar from the [id] specified as the seed.
+     * @return The image bytes
      */
-    fun identicons(id: Long): String
-
-    /**
-     * Returns the URL for the local avatar path from the REST handler.
-     */
-    fun charted(id: Long): String
+    suspend fun identicons(id: Long): ByteArray
 }

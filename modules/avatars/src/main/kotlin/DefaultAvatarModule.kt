@@ -17,20 +17,17 @@
 
 package org.noelware.charted.modules.avatars
 
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
 import org.noelware.charted.common.CryptographyUtils
-import org.noelware.charted.configuration.kotlin.dsl.Config
 
-class DefaultAvatarModule(private val config: Config): AvatarModule {
-    override fun charted(id: Long): String {
-        val baseUrl = config.baseUrl
-            ?: "http${if (config.server.ssl != null) "s" else ""}://${config.server.host}:${if (config.server.ssl != null) config.server.ssl!!.sslPort else config.server.port}"
+class DefaultAvatarModule(private val httpClient: HttpClient): AvatarModule {
+    override suspend fun identicons(id: Long): ByteArray = httpClient.get("https://avatars.dicebear.com/api/identicon/$id.svg")
+        .body()
 
-        return "$baseUrl/users/$id/avatars/current.png"
-    }
-
-    override fun identicons(id: Long): String = "https://avatars.dicebear.com/api/identicon/$id.svg"
-    override fun gravatar(email: String): String {
+    override suspend fun gravatar(email: String): ByteArray {
         val hash = CryptographyUtils.md5Hex(email)
-        return "https://secure.gravatar.com/avatar/$hash.png"
+        return httpClient.get("https://secure.gravatar.com/avatar/$hash.png").body()
     }
 }

@@ -24,7 +24,9 @@ import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.koin.inject
 import dev.floofy.utils.slf4j.logging
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -47,10 +49,12 @@ import org.noelware.charted.databases.postgres.models.User
 import org.noelware.charted.databases.postgres.tables.OrganizationTable
 import org.noelware.charted.databases.postgres.tables.RepositoryTable
 import org.noelware.charted.databases.postgres.tables.UserTable
+import org.noelware.charted.modules.avatars.AvatarFetchUtil
 import org.noelware.charted.modules.avatars.AvatarModule
 import org.noelware.charted.modules.redis.RedisClient
 import org.noelware.charted.modules.sessions.SessionManager
 import org.noelware.charted.modules.storage.StorageHandler
+import org.noelware.charted.server.createKtorContentWithByteArray
 import org.noelware.charted.server.plugins.SessionsPlugin
 import org.noelware.charted.server.plugins.currentUser
 import org.noelware.charted.types.helm.ChartIndexYaml
@@ -160,6 +164,10 @@ class UsersEndpoint(
     private val log by logging<UsersEndpoint>()
 
     init {
+        install(HttpMethod.Post, "/users/@me/avatar", SessionsPlugin) {
+            this += "user:avatar:update"
+        }
+
         install(HttpMethod.Get, "/users/@me", SessionsPlugin) {
             this += "user:view"
         }
@@ -340,6 +348,54 @@ class UsersEndpoint(
         call.respond(HttpStatusCode.OK, user)
     }
 
+    @Get("/{idOrName}/avatars/current")
+    suspend fun getUserAvatar(call: ApplicationCall) {
+        val idOrName = call.parameters["idOrName"] ?: return call.respond(HttpStatusCode.NotFound, ApiResponse.err("MISSING_PARAMETER", "Missing [idOrName] path parameter"))
+        val user = when {
+            idOrName.toLongOrNull() != null -> asyncTransaction(ChartedScope) {
+                UserEntity.find { UserTable.id eq idOrName.toLong() }.firstOrNull()?.let { entity ->
+                    User.fromEntity(entity)
+                }
+            }
+
+            idOrName matches "^([A-z]|-|_|\\d{0,9}){0,32}".toRegex() -> asyncTransaction(ChartedScope) {
+                UserEntity.find { UserTable.username eq idOrName }.firstOrNull()?.let { entity ->
+                    User.fromEntity(entity)
+                }
+            }
+
+            else -> return call.respond(HttpStatusCode.BadRequest, ApiResponse.err("UNKNOWN_ENTITY", "Unable to determine if [idOrName] provided is by ID or name, provided [$idOrName]"))
+        } ?: return call.respond(HttpStatusCode.NotFound, ApiResponse.err("UNKNOWN_USER", "User with ID or name [$idOrName] was not found"))
+
+        val (contentType, bytes) = AvatarFetchUtil.retrieve(user)!!
+        call.respond(createKtorContentWithByteArray(bytes, contentType))
+    }
+
+    @Get("/{idOrName}/avatars/{hash}")
+    suspend fun getUserAvatarByHash(call: ApplicationCall) {
+        val idOrName = call.parameters["idOrName"] ?: return call.respond(HttpStatusCode.NotFound, ApiResponse.err("MISSING_PARAMETER", "Missing [idOrName] path parameter"))
+        val user = when {
+            idOrName.toLongOrNull() != null -> asyncTransaction(ChartedScope) {
+                UserEntity.find { UserTable.id eq idOrName.toLong() }.firstOrNull()?.let { entity ->
+                    User.fromEntity(entity)
+                }
+            }
+
+            idOrName matches "^([A-z]|-|_|\\d{0,9}){0,32}".toRegex() -> asyncTransaction(ChartedScope) {
+                UserEntity.find { UserTable.username eq idOrName }.firstOrNull()?.let { entity ->
+                    User.fromEntity(entity)
+                }
+            }
+
+            else -> return call.respond(HttpStatusCode.BadRequest, ApiResponse.err("UNKNOWN_ENTITY", "Unable to determine if [idOrName] provided is by ID or name, provided [$idOrName]"))
+        } ?: return call.respond(HttpStatusCode.NotFound, ApiResponse.err("UNKNOWN_USER", "User with ID or name [$idOrName] was not found"))
+
+        val avatar = AvatarFetchUtil.retrieve(user, call.parameters["hash"])
+            ?: return call.respond(HttpStatusCode.NotFound)
+
+        call.respond(createKtorContentWithByteArray(avatar.second, avatar.first))
+    }
+
     @Post("/login")
     suspend fun login(call: ApplicationCall) {
         val body: LoginBody by call.body()
@@ -359,5 +415,24 @@ class UsersEndpoint(
     @Get("/@me")
     suspend fun fetchSession(call: ApplicationCall) {
         call.respond(HttpStatusCode.OK, call.currentUser!!)
+    }
+
+    @Post("/@me/avatar")
+    suspend fun updateAvatar(call: ApplicationCall) {
+        val multipart = call.receiveMultipart()
+        val part = multipart.readPart() ?: return call.respond(
+            HttpStatusCode.BadRequest,
+            ApiResponse.err("EXCESSIVE_MULTIPART_AMOUNT", "There can be only one multipart in this request.")
+        )
+
+        if (part !is PartData.FileItem) {
+            return call.respond(
+                HttpStatusCode.NotAcceptable,
+                ApiResponse.err("NOT_FILE_PART", "The multipart object must be a File object.")
+            )
+        }
+
+        AvatarFetchUtil.update(call.currentUser!!.id, part)
+        call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
     }
 }

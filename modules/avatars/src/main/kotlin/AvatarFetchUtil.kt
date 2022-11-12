@@ -17,111 +17,110 @@
 
 package org.noelware.charted.modules.avatars
 
+import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.koin.inject
+import io.ktor.http.*
+import io.ktor.http.content.*
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.update
+import org.noelware.charted.ChartedScope
+import org.noelware.charted.RandomStringGenerator
+import org.noelware.charted.ValidationException
+import org.noelware.charted.databases.postgres.models.User
+import org.noelware.charted.databases.postgres.tables.UserTable
+import org.noelware.charted.modules.storage.StorageHandler
+import org.noelware.remi.core.figureContentType
+import org.noelware.remi.filesystem.FilesystemStorageTrailer
+import java.io.ByteArrayInputStream
+import java.io.File
+
+private val ACCEPTABLE_CONTENT_TYPES: List<String> = listOf("png", "jpeg", "gif").map { "image/$it" }
 
 /**
  * Auxiliary utility for handling avatar storage.
  */
 object AvatarFetchUtil {
+    private val storage: StorageHandler by inject()
     private val module: AvatarModule by inject()
 
-    fun retrieve(id: String): String? = null
-    fun update(id: String, data: ByteArray) = Unit
-}
-
-/*
     /**
- * Returns a byte-array of the image of the specified user and the content type. Defaults to
- * identicons if the user doesn't have an avatar OR they didn't specify
- * a Gravatar email.
- *
- * This method returns null if the user couldn't be found.
- */
-    suspend fun get(user: User, hash: String? = null): Pair<ContentType, ByteArray> {
-        // If we can't get the user's avatar, then we should specify
-        // if we should use Gravatar or Identicon
+     * Returns a byte-array of the image of the specified user and the content type. Defaults to
+     * identicons if the user doesn't have an avatar OR they didn't specify
+     * a Gravatar email.
+     *
+     * This method returns null if the user couldn't be found.
+     */
+    suspend fun retrieve(user: User, hash: String? = null): Pair<ContentType, ByteArray>? {
         if (user.avatarHash == null) {
             return if (user.gravatarEmail != null) {
-                ContentType.Image.PNG to gravatar.fetch(user.gravatarEmail!!)
+                ContentType.Image.PNG to module.gravatar(user.gravatarEmail!!)
             } else {
-                ContentType.Image.SVG to identicon.fetch(user.id)
+                ContentType.Image.SVG to module.identicons(user.id)
             }
         }
 
         if (hash != null) {
-            val stream = storage.trailer.open("./avatars/${user.id}/$hash") ?: return if (user.gravatarEmail != null) {
-                ContentType.Image.PNG to gravatar.fetch(user.gravatarEmail!!)
-            } else {
-                ContentType.Image.SVG to identicon.fetch(user.id)
-            }
+            val stream = storage.open("./users/${user.id}/avatars/$hash")
+                ?: return null
 
-            val bytes = stream.readBytes()
-
-            // We already read through the stream, so let's just close it
-            // and not catch the IO exceptions.
-            stream.closeQuietly()
+            val bytes = stream.use { it.readBytes() }
             return when (val contentType = storage.trailer.figureContentType(bytes)) {
                 ContentType.Image.PNG.toString(), ContentType.Image.GIF.toString(), ContentType.Image.JPEG.toString() -> ContentType.parse(contentType) to bytes
                 else -> {
-                    asyncTransaction(ChartedScope) {
-                        UserTable.update({ UserTable.id eq user.id.toLong() }) {
-                            it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-                            it[avatarHash] = null
+                    if (hash == user.avatarHash) {
+                        asyncTransaction(ChartedScope) {
+                            UserTable.update({ UserTable.id eq user.id }) {
+                                it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                                it[avatarHash] = null
+                            }
                         }
                     }
 
                     storage.trailer.delete("./avatars/${user.id}/$hash")
                     if (user.gravatarEmail != null) {
-                        ContentType.Image.PNG to gravatar.fetch(user.gravatarEmail!!)
+                        ContentType.Image.PNG to module.gravatar(user.gravatarEmail!!)
                     } else {
-                        ContentType.Image.SVG to identicon.fetch(user.id)
+                        ContentType.Image.SVG to module.identicons(user.id)
                     }
                 }
             }
         }
 
-        val stream = storage.trailer.open("./avatars/${user.id}/${user.avatarHash}") ?: return if (user.gravatarEmail != null) {
-            ContentType.Image.PNG to gravatar.fetch(user.gravatarEmail!!)
-        } else {
-            ContentType.Image.SVG to identicon.fetch(user.id)
-        }
+        val stream = storage.open("./users/${user.id}/avatars/${user.avatarHash}")
+            ?: return null
 
-        val bytes = stream.readBytes()
-
-        // We already read through the stream, so let's just close it
-        // and not catch the IO exceptions.
-        stream.closeQuietly()
+        val bytes = stream.use { it.readBytes() }
         return when (val contentType = storage.trailer.figureContentType(bytes)) {
             ContentType.Image.PNG.toString(), ContentType.Image.GIF.toString(), ContentType.Image.JPEG.toString() -> ContentType.parse(contentType) to bytes
-
-            // If for some reason that the data was not an image from the content type,
-            // let's just delete it *for now*.
             else -> {
                 asyncTransaction(ChartedScope) {
-                    UserTable.update({ UserTable.id eq user.id.toLong() }) {
+                    UserTable.update({ UserTable.id eq user.id }) {
                         it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                         it[avatarHash] = null
                     }
                 }
 
-                storage.trailer.delete("./avatars/${user.id}/${user.avatarHash}")
+                storage.trailer.delete("./users/${user.id}/avatars/${user.avatarHash}")
                 if (user.gravatarEmail != null) {
-                    ContentType.Image.PNG to gravatar.fetch(user.gravatarEmail!!)
+                    ContentType.Image.PNG to module.gravatar(user.gravatarEmail!!)
                 } else {
-                    ContentType.Image.SVG to identicon.fetch(user.id)
+                    ContentType.Image.SVG to module.identicons(user.id)
                 }
             }
         }
     }
 
-    suspend fun update(user: User, part: PartData.FileItem) {
+    suspend fun update(id: Long, part: PartData.FileItem) {
         val bytes = part.streamProvider().use { it.readBytes() }
         val contentType = storage.trailer.figureContentType(bytes)
-        if (!ACCEPTED_CONTENT_TYPES.contains(contentType)) {
-            throw IllegalArgumentException("File provided was not any of [${ACCEPTED_CONTENT_TYPES.joinToString(", ")}], received [$contentType]")
+        if (!ACCEPTABLE_CONTENT_TYPES.contains(contentType)) {
+            throw ValidationException("body", "File was not any of [${ACCEPTABLE_CONTENT_TYPES.joinToString(", ")}], received $contentType")
         }
 
-        val hash = RandomGenerator.generate(8)
+        val hash = RandomStringGenerator.generate(8)
         val ext = when {
             contentType.startsWith("image/jpg") || contentType.startsWith("image/jpeg") -> ".jpg"
             contentType.startsWith("image/png") -> ".png"
@@ -129,18 +128,19 @@ object AvatarFetchUtil {
             else -> throw AssertionError("ext != png/jpg/gif when passed through.")
         }
 
-        storage.trailer.upload("./avatars/${user.id}/$hash$ext", ByteArrayInputStream(bytes), contentType)
+        if (storage.trailer is FilesystemStorageTrailer) {
+            val file = File((storage.trailer as FilesystemStorageTrailer).normalizePath("./users/$id/avatars"))
+            if (!file.exists()) file.mkdirs()
+        }
+
+        storage.upload("./users/$id/avatars/$hash$ext", ByteArrayInputStream(bytes), contentType)
         part.dispose()
 
         asyncTransaction(ChartedScope) {
-            UserTable.update({ UserTable.id eq user.id.toLong() }) {
+            UserTable.update({ UserTable.id eq id }) {
                 it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 it[avatarHash] = "$hash$ext"
             }
         }
     }
-
-    companion object {
-        private val ACCEPTED_CONTENT_TYPES: List<String> = listOf("png", "jpeg", "jpg", "gif").map { "image/$it" }
-    }
- */
+}
