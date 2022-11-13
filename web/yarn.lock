@@ -407,7 +407,7 @@ __metadata:
     "@augu/eslint-config": 3.0.0
     "@augu/tsconfig": 1.1.1
     "@elastic/charts": 51.0.0
-    "@fontsource/cantarell": 4.5.9
+    "@fontsource/cantarell": 4.5.10
     "@fontsource/inter": 4.5.14
     "@fontsource/jetbrains-mono": 4.5.11
     "@noelware/utils": 2.2.1
@@ -607,10 +607,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fontsource/cantarell@npm:4.5.9":
-  version: 4.5.9
-  resolution: "@fontsource/cantarell@npm:4.5.9"
-  checksum: cc5ca94e092acb1b61c19852cf7779159ddc11965b67c411a7591ae5a1d49966f657cd7c0e6463bd6ff049dce6a9adab79628c0a8525bf9f1080fab2084a4793
+"@fontsource/cantarell@npm:4.5.10":
+  version: 4.5.10
+  resolution: "@fontsource/cantarell@npm:4.5.10"
+  checksum: ed33c4bffe6bdda1dd9175d8ba9fd9b7c9b12001cef44f72665b3bd32b8bfcf812fdeea4c2284565b93b54a5f6fa90d8f6c97488788f1109e793a8dd9e0b0d2e
   languageName: node
   linkType: hard
 
