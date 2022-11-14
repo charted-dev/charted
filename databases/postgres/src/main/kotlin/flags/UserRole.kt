@@ -15,15 +15,18 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.endpoints.v1.api
+package org.noelware.charted.databases.postgres.flags
 
-import org.noelware.charted.server.plugins.IsAdminGuard
-import org.noelware.charted.server.plugins.SessionsPlugin
-import org.noelware.ktor.endpoints.AbstractEndpoint
+import kotlinx.serialization.Serializable
 
-class AdminEndpoint: AbstractEndpoint("/admin") {
-    init {
-        install(SessionsPlugin)
-        install(IsAdminGuard)
-    }
+/**
+ * Represents the roles a user has on this instance.
+ */
+@Serializable
+enum class UserRole {
+    /** Determines if this user is a verified publisher or not */
+    VERIFIED_PUBLISHER,
+
+    /** Determines if the user is an administrator of this instance or not */
+    ADMIN;
 }

@@ -44,8 +44,7 @@ var (
 	log = slog.Make(sloghuman.Sink(os.Stdout))
 
 	tableName *string
-	host      *string
-	port      *int
+	hosts     *[]string
 	timeout   *string
 	username  *string
 	password  *string
@@ -54,11 +53,10 @@ var (
 
 func init() {
 	tableName = rootCmd.Flags().StringP("table", "t", "migrations", "The migrations table name")
-	host = rootCmd.Flags().String("host", "127.0.0.1", "host to connect to")
-	port = rootCmd.Flags().IntP("port", "p", 9000, "port (tcp interface) to connect to")
+	hosts = rootCmd.Flags().StringSlice("hosts", []string{"localhost:9000"}, "list of hosts to connect to")
 	timeout = rootCmd.Flags().String("timeout", "15s", "timeout from connecting to server")
 	username = rootCmd.Flags().StringP("username", "u", "", "username for authentication when connecting")
-	password = rootCmd.Flags().String("password", "", "password for authentication when connecting")
+	password = rootCmd.Flags().StringP("password", "p", "", "password for authentication when connecting")
 	database = rootCmd.Flags().StringP("database", "d", "charted", "database name")
 }
 
@@ -73,15 +71,21 @@ func connectionUrl() (*string, error) {
 	b := &strings.Builder{}
 	b.WriteString("clickhouse://")
 
-	if username != nil && *username != "" {
-		if password == nil || *password == "" {
-			return nil, errors.New("missing 'password' flag, which is required when using --username flag")
+	for i, host := range *hosts {
+		if username != nil && *username != "" {
+			if password == nil || *password == "" {
+				return nil, errors.New("missing 'password' flag, which is required when using --username flag")
+			}
+
+			b.WriteString(fmt.Sprintf("%s:%s@", string(*username), string(*password)))
 		}
 
-		b.WriteString(fmt.Sprintf("%s:%s@", string(*username), string(*password)))
-	}
+		b.WriteString(host)
 
-	b.WriteString(fmt.Sprintf("%s:%d", string(*host), int(*port)))
+		if (i + 1) != len(*hosts) {
+			b.WriteRune(',')
+		}
+	}
 
 	if database != nil {
 		b.WriteRune('/')
@@ -105,7 +109,7 @@ func execute(_ *cobra.Command, _ []string) error {
 
 	log.Info(context.TODO(), "preparing clickhouse connection with url", slog.F("url", url))
 	opts := &ch.Options{
-		Addr:        []string{fmt.Sprintf("%s:%d", *host, *port)},
+		Addr:        *hosts,
 		DialTimeout: t,
 		Settings: ch.Settings{
 			"allow_experimental_object_type": true,
@@ -131,7 +135,6 @@ func execute(_ *cobra.Command, _ []string) error {
 	opts.Auth = auth
 
 	// TODO(@auguwu): support SSL !
-
 	db := ch.OpenDB(opts)
 	if err := db.Ping(); err != nil {
 		return err

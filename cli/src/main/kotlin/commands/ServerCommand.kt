@@ -17,43 +17,38 @@
 
 package org.noelware.charted.cli.commands
 
+import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.mordant.rendering.TextAlign
 import com.github.ajalt.mordant.rendering.TextColors.*
 import com.github.ajalt.mordant.rendering.TextColors.Companion.rgb
-import com.github.ajalt.mordant.rendering.TextStyles.*
+import com.github.ajalt.mordant.rendering.TextStyles
 import com.github.ajalt.mordant.terminal.Terminal
-import joptsimple.OptionSet
-import joptsimple.OptionSpec
-import joptsimple.ValueConverter
 import kotlinx.coroutines.runBlocking
-import org.noelware.charted.cli.Command
 import org.noelware.charted.server.Bootstrap
 import java.io.File
-import java.nio.file.Files
 
-object ServerCommand: Command("server", "Bootstraps and starts the server") {
-    private val config: OptionSpec<File> = parser
-        .acceptsAll(listOf("config", "c"), "The configuration file path")
-        .withOptionalArg()
-        .ofType(File::class.java)
-        .withValuesConvertedBy(object: ValueConverter<File> {
-            override fun valueType(): Class<out File> = File::class.java
-            override fun valuePattern(): String? = null
-            override fun convert(value: String): File {
-                val file = File(value)
-                if (!file.exists()) throw IllegalStateException("Path [$file] doesn't exist!")
+class ServerCommand(private val terminal: Terminal): CliktCommand(
+    "Bootstrap and starts the server in the same process",
+    name = "server",
+    invokeWithoutSubcommand = true
+) {
+    private val config: File? by option(
+        "--config", "-c",
+        help = "The configuration path to use",
+        envvar = "CHARTED_CONFIG_PATH"
+    ).file(
+        mustExist = true,
+        canBeFile = true,
+        canBeDir = false,
+        mustBeWritable = true,
+        mustBeReadable = true,
+        canBeSymlink = true
+    )
 
-                return if (Files.isSymbolicLink(file.toPath())) {
-                    Files.readSymbolicLink(file.toPath()).toFile()
-                } else {
-                    file
-                }
-            }
-        })
-
-    override fun execute(terminal: Terminal, options: OptionSet) {
-        val bannerColour = bold + rgb("#d4abd8")
-
+    override fun run() {
+        val bannerColour = TextStyles.bold + rgb("#d4abd8")
         terminal.println(gray("+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+"), align = TextAlign.CENTER)
         terminal.println(gray("+       ${bannerColour("_")}                ${bannerColour("_")}           ${bannerColour("_")}                                      +"), align = TextAlign.CENTER)
         terminal.println(gray("+    ${bannerColour("___| |__   __ _ _ __| |_ ___  __| |      ___  ___ _ ____   _____ _ __")}  +"), align = TextAlign.CENTER)
@@ -63,13 +58,12 @@ object ServerCommand: Command("server", "Bootstraps and starts the server") {
         terminal.println(gray("+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+"), align = TextAlign.CENTER)
         terminal.println("")
 
-        val configPath = if (options.has(config)) {
-            options.valueOf(config)
+        val configPath = if (config != null) {
+            config!!
         } else {
             File("./config.yml")
         }
 
-        // It will block the main thread anyway.
         runBlocking {
             Bootstrap.start(configPath)
         }

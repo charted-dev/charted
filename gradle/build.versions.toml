@@ -31,12 +31,12 @@ testcontainers = "1.17.5"
 mockito-kotlin = "4.0.0"
 noel-commons = "2.3.0"
 ktor-routing = "0.4-beta"
-elastic-apm = "1.34.1"
-kubernetes = "16.0.2"
 bouncycastle = "1.72"
+elastic-apm = "1.34.1"
+kotlinx-cli = "0.3.5"
+kubernetes = "16.0.2"
 clickhouse = "0.3.2-test3"
 postgresql = "42.5.0"
-joptsimple = "5.0.4"
 java-mail = "1.5.0-b01"
 hikaricp = "5.0.1"
 mordant = "2.0.0-beta8"
@@ -50,6 +50,7 @@ junit5 = "5.9.1"
 janino = "3.1.8"
 sentry = "6.7.0"
 okhttp = "4.10.0"
+clikt = "3.5.0"
 slf4j = "2.0.3"
 koin = "3.2.2"
 kaml = "0.49.0"
@@ -177,7 +178,6 @@ meilisearch-rest-client = { module = "dev.floofy.meilisearch:rest-client", versi
 kubernetes-client = { module = "io.kubernetes:client-java", version.ref = "kubernetes" }
 tegral-openapi = { module = "guru.zoroark.tegral:tegral-openapi-dsl", version.ref = "tegral" }
 bouncycastle = { module = "org.bouncycastle:bcpkix-jdk15to18", version.ref = "bouncycastle" }
-joptsimple = { module = "net.sf.jopt-simple:jopt-simple", version.ref = "joptsimple" }
 javax-mail = { module = "javax.mail:mail", version.ref = "java-mail" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
@@ -185,6 +185,7 @@ lettuce = { module = "io.lettuce:lettuce-core", version.ref = "lettuce" }
 mordant = { module = "com.github.ajalt.mordant:mordant", version.ref = "mordant" }
 janino = { module = "org.codehaus.janino:janino", version.ref = "janino" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
 koin = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
 haru = { module = "dev.floofy.haru:Haru", version.ref = "haru" }

@@ -26,9 +26,11 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.joptsimple)
     implementation(libs.mordant)
+    implementation(libs.clikt)
+    implementation(libs.kaml)
 
+    implementation(project(":modules:config:dsl"))
     implementation(project(":server"))
 }
 

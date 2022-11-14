@@ -15,15 +15,8 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.endpoints.v1.api
+package org.noelware.charted.modules.helm.charts
 
-import org.noelware.charted.server.plugins.IsAdminGuard
-import org.noelware.charted.server.plugins.SessionsPlugin
-import org.noelware.ktor.endpoints.AbstractEndpoint
+import org.noelware.charted.modules.storage.StorageHandler
 
-class AdminEndpoint: AbstractEndpoint("/admin") {
-    init {
-        install(SessionsPlugin)
-        install(IsAdminGuard)
-    }
-}
+class DefaultHelmChartModule(private val storage: StorageHandler)

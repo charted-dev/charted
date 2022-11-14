@@ -19,60 +19,79 @@
 
 package org.noelware.charted.cli
 
+import com.github.ajalt.clikt.completion.CompletionCommand
+import com.github.ajalt.clikt.core.*
+import com.github.ajalt.clikt.parameters.options.versionOption
 import com.github.ajalt.mordant.rendering.TextColors.*
 import com.github.ajalt.mordant.rendering.TextStyles.*
 import com.github.ajalt.mordant.terminal.Terminal
-import dev.floofy.utils.kotlin.doFormatTime
-import joptsimple.OptionSet
-import joptsimple.OptionSpec
-import kotlinx.datetime.Instant
 import org.noelware.charted.ChartedInfo
+import org.noelware.charted.cli.commands.GenerateConfigCommand
 import org.noelware.charted.cli.commands.ServerCommand
+import org.noelware.charted.cli.commands.users.UsersCommand
 import kotlin.reflect.jvm.jvmName
 import kotlin.system.exitProcess
 
-private class ChartedCli: Command("charted", "Command line runner for managing charted-server") {
+private class ChartedCli(private val terminal: Terminal): CliktCommand(
+    help = "Command line runner for managing charted-server",
+    name = "charted",
+    printHelpOnEmptyArgs = true,
+    allowMultipleSubcommands = true
+) {
     init {
-        addSubcommand(ServerCommand)
-    }
-
-    private val command: OptionSpec<String> = parser.nonOptions("command")
-    override fun execute(terminal: Terminal, options: OptionSet) {
-        if (!options.has(command)) {
-            printHelp(terminal)
-            exitProcess(0)
+        versionOption("${ChartedInfo.version}+${ChartedInfo.commitHash}") {
+            """
+            |charted-server v$it (build date: ${ChartedInfo.buildDate})
+            |>> Website: https://charts.noelware.org
+            |>> GitHub:  https://github.com/charted-dev/charted
+            """.trimMargin("|")
         }
 
-        val subcommand = subcommands.find { it.name == options.valueOf(command) }
-            ?: run {
-                printHelp(terminal)
-                exitProcess(0)
+        context {
+            findOrSetObject {
+                terminal
             }
-
-        if (options.has(helpOption)) {
-            subcommand.printHelp(terminal)
-            exitProcess(0)
         }
 
-        return subcommand.execute(terminal, options)
+        subcommands(
+            GenerateConfigCommand(terminal),
+            ServerCommand(terminal),
+            UsersCommand(terminal),
+            CompletionCommand(name = "completions")
+        )
     }
+
+    // It will print on help anyway, so we don't need to do anything fancy in here :D
+    override fun run() {}
 }
 
 fun main(args: Array<String>) {
     val terminal = Terminal()
-    if (args.any { it.startsWith("--version") || it.startsWith("-v") }) {
-        val since = Instant.parse(ChartedInfo.buildDate).nanosecondsOfSecond
-
-        terminal.println("charted-server v${ChartedInfo.version}+${ChartedInfo.commitHash.trim()} built ${(System.nanoTime() - since).doFormatTime()} ago")
-        terminal.println(">> Website: https://charts.noelware.org")
-        terminal.println(">> GitHub:  https://github.com/charted-dev/charted")
-        exitProcess(0)
-    }
-
-    val main = ChartedCli()
     try {
-        val options = main.parser.parse(*args)
-        main.execute(terminal, options)
+        val cli = ChartedCli(terminal)
+        cli.main(args)
+    } catch (e: Exception) {
+        val urlColour = italic + gray
+        terminal.println(
+            """
+        |Unable to execute the main command line runner. If this is a reoccurring issue,
+        |please report it to the Noelware team:
+        |
+        |   ${urlColour("https://github.com/charted-dev/charted/issues/new")}
+        |
+        |${red(e::class.jvmName + ":")}${if (e.message != null) " " + e.message else ""}
+        """.trimMargin("|")
+        )
+
+        for (element in e.stackTrace) {
+            terminal.println("    * $element")
+        }
+
+        exitProcess(1)
+    }
+}
+
+/*
     } catch (e: Exception) {
         val urlColour = italic + gray
 
@@ -93,4 +112,4 @@ fun main(args: Array<String>) {
 
         exitProcess(1)
     }
-}
+ */

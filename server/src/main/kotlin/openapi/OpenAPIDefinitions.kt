@@ -181,6 +181,7 @@ fun RootDsl.usersApi() {
                         LocalDateTime.parse("2022-11-08T05:03:56.550Z"),
                         LocalDateTime.parse("2022-11-08T05:03:56.550Z"),
                         "noel",
+                        listOf(),
                         "Noel \uD83D\uDC3B\u200D❄ \uD83E\uDE84",
                         1
                     )

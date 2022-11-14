@@ -26,7 +26,6 @@ fun <T> Table.array(name: String, type: ColumnType): Column<Array<T>> = register
 
 class ArrayColumnType(private val type: ColumnType): ColumnType() {
     override fun sqlType(): String = "${type.sqlType()} ARRAY"
-
     override fun valueToDB(value: Any?): Any? =
         if (value is Array<*>) {
             val columnType = type.sqlType().split("(")[0]
