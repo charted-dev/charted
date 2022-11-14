@@ -28,7 +28,6 @@ import com.github.ajalt.mordant.terminal.Terminal
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.cli.commands.GenerateConfigCommand
 import org.noelware.charted.cli.commands.ServerCommand
-import org.noelware.charted.cli.commands.users.UsersCommand
 import kotlin.reflect.jvm.jvmName
 import kotlin.system.exitProcess
 
@@ -56,7 +55,6 @@ private class ChartedCli(private val terminal: Terminal): CliktCommand(
         subcommands(
             GenerateConfigCommand(terminal),
             ServerCommand(terminal),
-            UsersCommand(terminal),
             CompletionCommand(name = "completions")
         )
     }
@@ -90,26 +88,3 @@ fun main(args: Array<String>) {
         exitProcess(1)
     }
 }
-
-/*
-    } catch (e: Exception) {
-        val urlColour = italic + gray
-
-        terminal.println(
-            """
-        |Unable to execute the main command line runner. If this is a reoccurring issue,
-        |please report it to the Noelware team:
-        |
-        |   ${urlColour("https://github.com/charted-dev/charted/issues/new")}
-        |
-        |${red(e::class.jvmName + ":")}${if (e.message != null) " " + e.message else ""}
-        """.trimMargin("|")
-        )
-
-        for (element in e.stackTrace) {
-            terminal.println("    * $element")
-        }
-
-        exitProcess(1)
-    }
- */
