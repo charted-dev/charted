@@ -423,7 +423,7 @@ __metadata:
     "@radix-ui/react-popover": 1.0.2
     "@radix-ui/react-radio-group": 1.1.0
     "@radix-ui/react-scroll-area": 1.0.1
-    "@radix-ui/react-select": 1.1.1
+    "@radix-ui/react-select": 1.1.2
     "@radix-ui/react-separator": 1.0.1
     "@radix-ui/react-switch": 1.0.1
     "@radix-ui/react-tabs": 1.0.1
@@ -1364,9 +1364,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-select@npm:1.1.1":
-  version: 1.1.1
-  resolution: "@radix-ui/react-select@npm:1.1.1"
+"@radix-ui/react-select@npm:1.1.2":
+  version: 1.1.2
+  resolution: "@radix-ui/react-select@npm:1.1.2"
   dependencies:
     "@babel/runtime": ^7.13.10
     "@radix-ui/number": 1.0.0
@@ -1392,7 +1392,7 @@ __metadata:
   peerDependencies:
     react: ^16.8 || ^17.0 || ^18.0
     react-dom: ^16.8 || ^17.0 || ^18.0
-  checksum: 17a42eaeee7ec47a8a61104817ebb9e709c3325a37b4aebd6af845002bd374ac7269e4530d49b01ebbb356eae3c93a2dd6cec05f28d9557770177ea9e7bf82e4
+  checksum: fc94e08bea0c41f4ef2d2bb1bb9824a321c334fb7dd88f3ea2c8ec4c5f1ebf3bf5e6f75dd1d4227f795987d153707fdb160f0ca83386b868a47609ecf341213a
   languageName: node
   linkType: hard
 
