@@ -427,7 +427,7 @@ __metadata:
     "@radix-ui/react-separator": 1.0.1
     "@radix-ui/react-switch": 1.0.1
     "@radix-ui/react-tabs": 1.0.1
-    "@radix-ui/react-toast": 1.1.1
+    "@radix-ui/react-toast": 1.1.2
     "@radix-ui/react-toolbar": 1.0.1
     "@radix-ui/react-tooltip": 1.0.2
     "@stitches/react": 1.2.8
@@ -1472,9 +1472,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-toast@npm:1.1.1":
-  version: 1.1.1
-  resolution: "@radix-ui/react-toast@npm:1.1.1"
+"@radix-ui/react-toast@npm:1.1.2":
+  version: 1.1.2
+  resolution: "@radix-ui/react-toast@npm:1.1.2"
   dependencies:
     "@babel/runtime": ^7.13.10
     "@radix-ui/primitive": 1.0.0
@@ -1492,7 +1492,7 @@ __metadata:
   peerDependencies:
     react: ^16.8 || ^17.0 || ^18.0
     react-dom: ^16.8 || ^17.0 || ^18.0
-  checksum: fdf115c319ba2463bf46d3a4b9fe62af9f791bdeb5f7f8ccb89862d2cec80d4bcfd7b2d17be2fa1db4231cec95780382b4196353f8f3b33919a07a430bb70a34
+  checksum: d2f2a53d8ca5f7e4c7f20801cc993946f6f05d050f4f1b33b523ef4028cbd9e2daf5be3cc0647f86c5f41a966d2186767b81e52f1bc8a5790c1f38b537794917
   languageName: node
   linkType: hard
 
