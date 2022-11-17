@@ -65,6 +65,8 @@ import org.noelware.charted.modules.apikeys.DefaultApiKeyManager
 import org.noelware.charted.modules.avatars.avatarsModule
 import org.noelware.charted.modules.elasticsearch.DefaultElasticsearchModule
 import org.noelware.charted.modules.elasticsearch.ElasticsearchModule
+import org.noelware.charted.modules.helm.charts.DefaultHelmChartModule
+import org.noelware.charted.modules.helm.charts.HelmChartModule
 import org.noelware.charted.modules.metrics.PrometheusMetrics
 import org.noelware.charted.modules.redis.DefaultRedisClient
 import org.noelware.charted.modules.redis.RedisClient
@@ -380,18 +382,18 @@ object Bootstrap {
             }
         }
 
-        val metrics = PrometheusMetrics(ds)
+        val metrics = PrometheusMetrics(config.metrics.enabled, ds)
         val redis = DefaultRedisClient(config.redis)
         val argon2 = Argon2PasswordEncoder()
         val email = EmailValidator.getInstance(true, true)
         redis.connect()
 
-        if (config.metrics.enabled) {
-            metrics.addGenericCollector(RedisStatCollector(redis))
-            metrics.addMetricCollector(RedisMetricsCollector(redis, config.metrics))
+        metrics.addGenericCollector(RedisStatCollector(redis))
+        metrics.addMetricCollector(PostgresMetricsCollector(config))
 
+        if (config.metrics.enabled) {
+            metrics.addMetricCollector(RedisMetricsCollector(redis, config.metrics))
             metrics.addGenericCollector(PostgresStatsCollector)
-            metrics.addMetricCollector(PostgresMetricsCollector(config))
         }
 
         val sessions: SessionManager = when (config.sessions.type) {
@@ -401,12 +403,14 @@ object Bootstrap {
 
         val apiKeyManager: ApiKeyManager = DefaultApiKeyManager(redis)
         val koinModule = module {
+            single<HelmChartModule> { DefaultHelmChartModule(storage, yaml) }
             single<StorageHandler> { storage }
             single<ChartedServer> { DefaultChartedServer(config) }
             single<RedisClient> { redis }
             single { apiKeyManager }
             single { httpClient }
             single { sessions }
+            single { metrics }
             single { argon2 }
             single { config }
             single { email }

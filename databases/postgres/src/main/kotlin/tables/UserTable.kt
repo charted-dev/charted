@@ -18,14 +18,9 @@
 package org.noelware.charted.databases.postgres.tables
 
 import kotlinx.datetime.toKotlinLocalDateTime
-import net.perfectdreams.exposedpowerutils.sql.PGEnum
-import org.jetbrains.exposed.sql.StringColumnType
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.noelware.charted.databases.postgres.SnowflakeTable
-import org.noelware.charted.databases.postgres.columns.array
-import org.noelware.charted.databases.postgres.flags.UserRole
 import java.time.LocalDateTime
-import kotlin.reflect.full.isSubclassOf
 
 object UserTable: SnowflakeTable("users") {
     val gravatarEmail = text("gravatar_email").nullable().default(null)
@@ -35,21 +30,7 @@ object UserTable: SnowflakeTable("users") {
     val updatedAt = datetime("updated_at").default(LocalDateTime.now().toKotlinLocalDateTime())
     val username = varchar("username", 64).uniqueIndex()
     val password = text("password").nullable() // It is only null if other sources (unlike local) is being used
-    val roles = array<UserRole>(
-        "roles",
-        object: StringColumnType() {
-            override fun sqlType(): String = UserRole::class.simpleName!!.lowercase()
-            override fun valueFromDB(value: Any): Any = if (value::class.isSubclassOf(Enum::class)) {
-                value as UserRole
-            } else {
-                enumValueOf<UserRole>(value as String)
-            }
-
-            override fun notNullValueToDB(value: Any): Any = PGEnum(UserRole::class.simpleName!!.lowercase(), value as UserRole)
-            override fun nonNullValueToString(value: Any): String = super.nonNullValueToString(notNullValueToDB(value))
-        }
-    ).default(arrayOf())
-
+    val flags = long("flags").default(0)
     val email = text("email").uniqueIndex()
     val name = varchar("name", 64).nullable().default(null)
 }

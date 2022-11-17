@@ -21,8 +21,16 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
+import org.noelware.charted.common.Bitfield
 import org.noelware.charted.databases.postgres.entities.UserEntity
-import org.noelware.charted.databases.postgres.flags.UserRole
+
+class UserFlags(original: Long = 0): Bitfield(
+    original,
+    mapOf(
+        "ADMIN" to (1L shl 0),
+        "VERIFIED_PUBLISHER" to (1L shl 1)
+    )
+)
 
 @Serializable
 data class User(
@@ -39,7 +47,7 @@ data class User(
     @SerialName("updated_at")
     val updatedAt: LocalDateTime,
     val username: String,
-    val roles: List<UserRole> = listOf(),
+    val flags: Long = 0L,
     val name: String? = null,
     val id: Long
 ) {
@@ -51,7 +59,7 @@ data class User(
             entity.createdAt,
             entity.updatedAt,
             entity.username,
-            entity.roles.toList(),
+            entity.flags,
             entity.name,
             entity.id.value
         )
@@ -63,8 +71,11 @@ data class User(
         put("avatar_hash", avatarHash)
         put("created_at", "$createdAt")
         put("updated_at", "$updatedAt")
-        put("roles", JsonArray(roles.map { JsonPrimitive(it.name) }))
+        put("flags", flags)
         put("name", name)
         put("id", id)
     }
 }
+
+val User.bitfield: UserFlags
+    get() = UserFlags(flags)

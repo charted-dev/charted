@@ -65,7 +65,7 @@ export JAVA_OPTS=$(join ' ' "${RESOLVED_JAVA_OPTS[@]}")
 echo "[preinit] Resolved Java Options ==> $JAVA_OPTS"
 
 # Determine the Java command to use.
-if [ -n "$JAVA_HOME" ]; then
+if [ -n "${JAVA_HOME:-}" ]; then
   if [ -x "$JAVA_HOME/jre/sh/java" ]; then
     JAVA_EXEC=$JAVA_HOME/jre/sh/java
   else
