@@ -23,7 +23,7 @@ RUN go mod tidy && \
     go mod download && \
     go build -ldflags "-s -w" -o ./bin/migrations
 
-FROM alpine:3.16
+FROM alpine:3.17
 
 RUN apk update && apk add --no-cache bash
 WORKDIR /app/noelware/charted/tools/migrations
