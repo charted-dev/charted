@@ -7,7 +7,7 @@
   "license": "Apache-2.0",
   "repository": "https://github.com/charted-dev/charted",
   "bugs": "https://github.com/charted-dev/charted/issues",
-  "packageManager": "yarn@3.2.4",
+  "packageManager": "yarn@3.3.0",
   "scripts": {
     "lint:ci": "node --no-warnings --no-deprecation --experimental-specifier-resolution=node --loader ts-node/esm/transpile-only scripts/eslint-ci.ts",
     "build": "yarn lint && yarn fmt && rimraf dist && node --no-warnings --no-deprecation --experimental-specifier-resolution=node --loader ts-node/esm/transpile-only scripts/build.ts",
