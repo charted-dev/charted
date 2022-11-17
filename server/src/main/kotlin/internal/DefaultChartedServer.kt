@@ -187,7 +187,7 @@ class DefaultChartedServer(private val config: Config): ChartedServer {
 
             status(HttpStatusCode.NotImplemented) { call, _ ->
                 call.respond(
-                    HttpStatusCode.MethodNotAllowed,
+                    HttpStatusCode.NotImplemented,
                     ApiResponse.err(
                         "REST_HANDLER_UNAVAILABLE", "Route handler is not implemented at this moment!",
                         buildJsonObject {

@@ -32,7 +32,7 @@ class UserEntity(id: EntityID<Long>): LongEntity(id) {
     var updatedAt by UserTable.updatedAt
     var username by UserTable.username
     var password by UserTable.password
-    var roles by UserTable.roles
+    var flags by UserTable.flags
     var email by UserTable.email
     var name by UserTable.name
 }

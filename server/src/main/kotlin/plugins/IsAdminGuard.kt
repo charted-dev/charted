@@ -20,8 +20,8 @@ package org.noelware.charted.server.plugins
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
-import org.noelware.charted.databases.postgres.flags.UserRole
 import org.noelware.charted.databases.postgres.models.User
+import org.noelware.charted.databases.postgres.models.bitfield
 import org.noelware.charted.types.responses.ApiResponse
 
 val IsAdminGuard = createRouteScopedPlugin("IsAdminGuard") {
@@ -39,7 +39,7 @@ val IsAdminGuard = createRouteScopedPlugin("IsAdminGuard") {
                 }
             }
 
-        if (!user.roles.contains(UserRole.ADMIN)) {
+        if (!user.bitfield.has("ADMIN")) {
             return@onCall call.respond(
                 HttpStatusCode.Unauthorized,
                 ApiResponse.err(

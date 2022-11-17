@@ -20,5 +20,9 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":databases:postgres"))
     implementation(project(":modules:storage"))
+
+    implementation(libs.ktor.server.core)
+    implementation(libs.kaml)
 }

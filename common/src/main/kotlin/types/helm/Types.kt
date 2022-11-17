@@ -36,7 +36,7 @@ import org.noelware.charted.extensions.toUriOrNull
  *
  * @param version The version key to make up this enum.
  */
-@kotlinx.serialization.Serializable(with = ChartSpecVersion.Companion::class)
+@Serializable(with = ChartSpecVersion.Companion::class)
 enum class ChartSpecVersion(val version: String) {
     V2("v1"),
     V3("v2");
@@ -50,7 +50,7 @@ enum class ChartSpecVersion(val version: String) {
     }
 }
 
-@kotlinx.serialization.Serializable
+@Serializable
 enum class RepoType {
     @SerialName("application")
     APPLICATION,
@@ -152,7 +152,7 @@ data class ChartMaintainer(
  * Represents a `Chart.yaml` that can be serialized and deserialized. This is usually from
  * the `/repositories/<id>/Chart.yaml` endpoint or `/repositories/<id>/<release>/Chart.yaml`
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class ChartSpec(
     /**
      * The apiVersion field should be v2 for Helm charts that require at least Helm 3. Charts supporting previous

@@ -24,7 +24,7 @@ import io.prometheus.client.exporter.common.TextFormat
 import io.prometheus.client.hotspot.DefaultExports
 import java.io.Writer
 
-class PrometheusMetrics(dataSource: HikariDataSource) {
+class PrometheusMetrics(val enabled: Boolean = true, dataSource: HikariDataSource) {
     private val _collectors: MutableList<GenericStatCollector<*>> = mutableListOf()
     private val registry: CollectorRegistry = CollectorRegistry()
 
@@ -39,8 +39,10 @@ class PrometheusMetrics(dataSource: HikariDataSource) {
         .register(registry)
 
     init {
-        dataSource.metricsTrackerFactory = PrometheusMetricsTrackerFactory(registry)
-        DefaultExports.register(registry)
+        if (enabled) {
+            dataSource.metricsTrackerFactory = PrometheusMetricsTrackerFactory(registry)
+            DefaultExports.register(registry)
+        }
     }
 
     fun <T> addGenericCollector(collector: GenericStatCollector<T>) {
@@ -65,6 +67,9 @@ class PrometheusMetrics(dataSource: HikariDataSource) {
     }
 
     fun <W: Writer> writeIn(writer: W) {
+        // Don't do anything if Prometheus is not enabled.
+        if (!enabled) return
+
         TextFormat.write004(writer, registry.metricFamilySamples())
     }
 }

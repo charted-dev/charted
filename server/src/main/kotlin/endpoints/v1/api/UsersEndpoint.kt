@@ -19,7 +19,6 @@
 
 package org.noelware.charted.server.endpoints.v1.api
 
-import com.charleskorn.kaml.Yaml
 import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.koin.inject
 import dev.floofy.utils.slf4j.logging
@@ -33,38 +32,34 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import org.apache.commons.validator.routines.EmailValidator
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.SqlExpressionBuilder
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.update
 import org.noelware.charted.*
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.ServerFeature
+import org.noelware.charted.databases.postgres.entities.RepositoryEntity
 import org.noelware.charted.databases.postgres.entities.UserConnectionEntity
 import org.noelware.charted.databases.postgres.entities.UserEntity
+import org.noelware.charted.databases.postgres.models.Repository
 import org.noelware.charted.databases.postgres.models.User
 import org.noelware.charted.databases.postgres.tables.OrganizationTable
 import org.noelware.charted.databases.postgres.tables.RepositoryTable
 import org.noelware.charted.databases.postgres.tables.UserTable
 import org.noelware.charted.modules.avatars.AvatarFetchUtil
 import org.noelware.charted.modules.avatars.AvatarModule
+import org.noelware.charted.modules.helm.charts.HelmChartModule
 import org.noelware.charted.modules.redis.RedisClient
 import org.noelware.charted.modules.sessions.SessionManager
 import org.noelware.charted.modules.storage.StorageHandler
 import org.noelware.charted.server.createKtorContentWithByteArray
 import org.noelware.charted.server.plugins.SessionsPlugin
 import org.noelware.charted.server.plugins.currentUser
-import org.noelware.charted.types.helm.ChartIndexYaml
+import org.noelware.charted.types.helm.RepoType
 import org.noelware.charted.types.responses.ApiResponse
 import org.noelware.ktor.body
 import org.noelware.ktor.endpoints.*
-import org.noelware.remi.filesystem.FilesystemStorageTrailer
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
-import java.io.ByteArrayInputStream
-import java.io.File
 
 @Serializable
 data class NewUserBody(
@@ -152,6 +147,28 @@ data class MainUserResponse(
     val docsUrl: String = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api/users"
 )
 
+@Serializable
+data class CreateRepositoryBody(
+    val description: String? = null,
+    val private: Boolean = false,
+    val name: String,
+    val type: RepoType
+) {
+    init {
+        if (description != null && description.length > 240) {
+            throw StringOverflowException("body.description", 240)
+        }
+
+        if (name.length > 24) {
+            throw StringOverflowException("body.name", 32)
+        }
+
+        if (!(name matches "^([A-z]|-|_|\\d{0,9}){0,24}".toRegex())) {
+            throw ValidationException("body.name", "Repository name can only contain alphabet characters, digits, underscores, and dashes.")
+        }
+    }
+}
+
 class UsersEndpoint(
     private val config: Config,
     private val storage: StorageHandler,
@@ -159,7 +176,7 @@ class UsersEndpoint(
     private val redis: RedisClient,
     private val avatars: AvatarModule,
     private val argon2: Argon2PasswordEncoder,
-    private val yaml: Yaml
+    private val charts: HelmChartModule
 ): AbstractEndpoint("/users") {
     private val log by logging<UsersEndpoint>()
 
@@ -178,6 +195,10 @@ class UsersEndpoint(
 
         install(HttpMethod.Delete, "/users", SessionsPlugin) {
             assertSessionOnly = true
+        }
+
+        install(HttpMethod.Put, "/users/repositories", SessionsPlugin) {
+            this += "repo:create"
         }
     }
 
@@ -228,14 +249,7 @@ class UsersEndpoint(
 
         if (!config.features.contains(ServerFeature.DOCKER_REGISTRY)) {
             log.info("New registered user [@${user.username}], creating index.yaml entry!")
-
-            val indexYaml = yaml.encodeToString(ChartIndexYaml())
-            if (storage.trailer is FilesystemStorageTrailer) {
-                val folder = File((storage.trailer as FilesystemStorageTrailer).normalizePath("./users/${user.id}"))
-                folder.mkdirs()
-            }
-
-            storage.trailer.upload("./users/${user.id}/index.yaml", ByteArrayInputStream(indexYaml.toByteArray(Charsets.UTF_8)), "text/yaml; charset=utf-8")
+            charts.createIndexYaml("user", user.id)
         }
 
         return call.respond(HttpStatusCode.Created, ApiResponse.ok(user))
@@ -434,5 +448,36 @@ class UsersEndpoint(
 
         AvatarFetchUtil.update(call.currentUser!!.id, part)
         call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
+    }
+
+    @Put("/repositories")
+    suspend fun createRepository(call: ApplicationCall) {
+        val body: CreateRepositoryBody by call.body()
+        val exists = asyncTransaction(ChartedScope) {
+            RepositoryEntity.find { (RepositoryTable.owner eq call.currentUser!!.id) and (RepositoryTable.name eq body.name) }
+                .firstOrNull()
+        }
+
+        if (exists != null) {
+            return call.respond(
+                HttpStatusCode.NotAcceptable,
+                ApiResponse.err(
+                    "REPO_EXISTS",
+                    "Repository with name [${body.name}] already exists!"
+                )
+            )
+        }
+
+        val repository = asyncTransaction(ChartedScope) {
+            RepositoryEntity.new(Snowflake.generate()) {
+                this.description = body.description
+                this.owner = call.currentUser!!.id
+                this.flags = if (body.private) 1 else 0
+                this.name = body.name
+                this.type = body.type
+            }.let { entity -> Repository.fromEntity(entity) }
+        }
+
+        call.respond(HttpStatusCode.Created, ApiResponse.ok(repository))
     }
 }

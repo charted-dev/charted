@@ -33,6 +33,6 @@ object RepositoryTable: SnowflakeTable("repositories") {
     val iconHash = text("icon_hash").nullable().default(null)
     val owner = long("owner_id").uniqueIndex()
     val flags = long("flags").default(0L)
-    val name = varchar("name", 32)
+    val name = varchar("name", 32).uniqueIndex()
     val type = postgresEnumeration<RepoType>("type").default(RepoType.APPLICATION)
 }
