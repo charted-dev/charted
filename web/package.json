@@ -80,7 +80,7 @@
     "esbuild": "0.15.14",
     "eslint": "8.27.0",
     "eslint-config-prettier": "8.5.0",
-    "eslint-plugin-react": "7.31.10",
+    "eslint-plugin-react": "7.31.11",
     "nodemon": "2.0.20",
     "prettier": "2.7.1",
     "rimraf": "3.0.2",
