@@ -56,6 +56,6 @@ gradlePlugin {
     }
 }
 
-tasks.withType<KotlinCompile>().forEach {
-    it.kotlinOptions.jvmTarget = "17"
+tasks.withType<KotlinCompile>().configureEach {
+    kotlinOptions.jvmTarget = "17"
 }
