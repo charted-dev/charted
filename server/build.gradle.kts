@@ -45,7 +45,6 @@ dependencies {
     implementation(project(":modules:sessions"))
     implementation(project(":modules:storage"))
     implementation(project(":modules:telemetry"))
-    implementation(project(":modules:webhooks"))
 
     // kotlinx.coroutines debug
     implementation(libs.kotlinx.coroutines.debug)
@@ -95,4 +94,10 @@ dependencies {
 
     // Apache Commons Validator
     implementation(libs.apache.commons.validator)
+
+    // SemVer
+    implementation(libs.semver)
+
+    // Caffeine (in-memory cache)
+    implementation(libs.caffeine)
 }

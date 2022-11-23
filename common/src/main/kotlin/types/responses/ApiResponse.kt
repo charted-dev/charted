@@ -80,7 +80,7 @@ sealed class ApiResponse<out T>(val success: Boolean) {
 
         /**
          * Sends out a response that still represents a single error, but the [code] and [message]
-         * will construct a [APIError] object for you to send.
+         * will construct a [ApiError] object for you to send.
          *
          * @param code The error code that gives a human-readable message in the documentation.
          * @param message The message of what happened.
@@ -95,7 +95,7 @@ sealed class ApiResponse<out T>(val success: Boolean) {
 
         /**
          * Sends out a response from a generic [Throwable] object. It'll transform the
-         * exception into an [APIError] that the serializer can serialize.
+         * exception into an [ApiError] that the serializer can serialize.
          */
         fun <T: Throwable> err(throwable: T): ApiResponse<Unit> = err("INTERNAL_SERVER_ERROR", throwable.message ?: "(empty message)")
     }

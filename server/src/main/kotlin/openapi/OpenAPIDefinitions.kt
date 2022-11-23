@@ -49,6 +49,10 @@ fun RootDsl.charted() {
     servers()
     securitySchemes()
     mainEndpoints()
+    // usersApiEndpoint()
+    // repositoryApiEndpoints()
+    // organizationsApiEndpoints()
+    // apiKeysEndpoints()
 }
 
 fun RootDsl.servers() {

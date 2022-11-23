@@ -56,9 +56,9 @@ val Logging = createApplicationPlugin("ChartedKtorLogging") {
 
     onCall { call ->
         call.attributes.put(stopwatchKey, StopWatch.createStarted())
-//        if (config.metrics.enabled) {
-//            call.attributes.put(histogramKey, prometheus!!.requestLatency.labels(call.request.httpMethod.value, call.request.path(), call.request.httpVersion).startTimer())
-//        }
+        if (config.metrics.enabled) {
+            call.attributes.put(histogramKey, prometheus!!.requestLatency.labels(call.request.httpMethod.value, call.request.path(), call.request.httpVersion).startTimer())
+        }
     }
 
     on(ResponseSent) { call ->

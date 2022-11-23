@@ -20,6 +20,7 @@ package org.noelware.charted.databases.postgres.entities
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
+import org.noelware.charted.databases.postgres.tables.OrganizationMemberTable
 import org.noelware.charted.databases.postgres.tables.OrganizationTable
 
 class OrganizationEntity(id: EntityID<Long>): LongEntity(id) {
@@ -32,6 +33,7 @@ class OrganizationEntity(id: EntityID<Long>): LongEntity(id) {
     var createdAt by OrganizationTable.createdAt
     var updatedAt by OrganizationTable.updatedAt
     var iconHash by OrganizationTable.iconHash
+    val members by OrganizationMemberEntity referrersOn OrganizationMemberTable.organization
     var owner by UserEntity referencedOn OrganizationTable.owner
     var flags by OrganizationTable.flags
     var name by OrganizationTable.name

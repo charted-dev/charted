@@ -17,7 +17,7 @@
 run: build
 	@./cli/build/install/charted/bin/charted server
 
-build: clean spotless
+build: spotless
 	@./gradlew :cli:installDist
 	@chmod +x ./cli/build/install/charted/bin/charted
 

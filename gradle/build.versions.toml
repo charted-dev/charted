@@ -16,6 +16,7 @@
 [versions]
 apache-commons-validator = "1.7"
 exposed-powergamer-tools = "1.1.0"
+apache-commons-compress = "1.21"
 spring-security-crypto = "5.7.4"
 kotlinx-serialization = "1.4.1"
 apache-commons-lang3 = "3.12.0"
@@ -24,14 +25,16 @@ kotlinx-coroutines = "1.6.4"
 elasticsearch-rest = "8.4.3"
 apache-commons-io = "2.11.0"
 meilisearch-rest = "1.0"
+mustache-compiler = "0.9.10"
 kotlinx-datetime = "0.4.0"
 logstash-logback = "7.2"
 prometheus-java = "0.16.0"
 testcontainers = "1.17.5"
 mockito-kotlin = "4.0.0"
 noel-commons = "2.3.0"
-ktor-routing = "0.4-beta"
+ktor-routing = "0.4.1-beta"
 bouncycastle = "1.72"
+jakarta-mail = "2.0.1"
 elastic-apm = "1.34.1"
 kotlinx-cli = "0.3.5"
 kubernetes = "16.0.2"
@@ -39,6 +42,7 @@ clickhouse = "0.3.2-test3"
 postgresql = "42.5.0"
 java-mail = "1.5.0-b01"
 hikaricp = "5.0.1"
+caffeine = "3.1.1"
 mordant = "2.0.0-beta8"
 lettuce = "6.2.1.RELEASE"
 jackson = "2.14.0"
@@ -50,6 +54,7 @@ junit5 = "5.9.1"
 janino = "3.1.8"
 sentry = "6.7.0"
 okhttp = "4.10.0"
+semver = "1.3.3"
 clikt = "3.5.0"
 slf4j = "2.0.3"
 koin = "3.2.2"
@@ -90,6 +95,7 @@ noel-commons-slf4j = { module = "dev.floofy.commons:slf4j", version.ref = "noel-
 
 # apache utilities
 apache-commons-validator = { module = "commons-validator:commons-validator", version.ref = "apache-commons-validator" }
+apache-commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "apache-commons-compress"}
 apache-commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "apache-commons-lang3" }
 apache-commons-io = { module = "commons-io:commons-io", version.ref = "apache-commons-io" }
 
@@ -176,15 +182,19 @@ spring-security-crypto = { module = "org.springframework.security:spring-securit
 exposed-powergamer-tools = { module = "net.perfectdreams.exposedpowerutils:postgres-power-utils", version.ref = "exposed-powergamer-tools" }
 meilisearch-rest-client = { module = "dev.floofy.meilisearch:rest-client", version.ref = "meilisearch-rest" }
 kubernetes-client = { module = "io.kubernetes:client-java", version.ref = "kubernetes" }
+mustache-compiler = { module = "com.github.spullara.mustache.java:compiler", version.ref = "mustache-compiler" }
 tegral-openapi = { module = "guru.zoroark.tegral:tegral-openapi-dsl", version.ref = "tegral" }
+jakarta-mail = { module = "com.sun.mail:jakarta.mail", version.ref = "jakarta-mail" }
 bouncycastle = { module = "org.bouncycastle:bcpkix-jdk15to18", version.ref = "bouncycastle" }
 javax-mail = { module = "javax.mail:mail", version.ref = "java-mail" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
+caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffeine" }
 lettuce = { module = "io.lettuce:lettuce-core", version.ref = "lettuce" }
 mordant = { module = "com.github.ajalt.mordant:mordant", version.ref = "mordant" }
 janino = { module = "org.codehaus.janino:janino", version.ref = "janino" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+semver = { module = "io.github.z4kn4fein:semver", version.ref = "semver" }
 clikt = { module = "com.github.ajalt.clikt:clikt", version.ref = "clikt" }
 koin = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }

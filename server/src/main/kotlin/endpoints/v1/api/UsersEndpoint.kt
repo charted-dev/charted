@@ -46,6 +46,8 @@ import org.noelware.charted.databases.postgres.models.User
 import org.noelware.charted.databases.postgres.tables.OrganizationTable
 import org.noelware.charted.databases.postgres.tables.RepositoryTable
 import org.noelware.charted.databases.postgres.tables.UserTable
+import org.noelware.charted.extensions.regexp.toNameRegex
+import org.noelware.charted.extensions.regexp.toPasswordRegex
 import org.noelware.charted.modules.avatars.AvatarFetchUtil
 import org.noelware.charted.modules.avatars.AvatarModule
 import org.noelware.charted.modules.helm.charts.HelmChartModule
@@ -77,11 +79,11 @@ data class NewUserBody(
             throw StringOverflowException("body.username", 32)
         }
 
-        if (!(username matches "^([A-z]|-|_|\\d{0,9}){0,32}".toRegex())) {
+        if (!username.toNameRegex().matches()) {
             throw ValidationException("body.username", "Username can only contain letters, digits, dashes, or underscores.")
         }
 
-        if (!(password matches("^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#\$%&? \"])?.*\$".toRegex()))) {
+        if (!password.toPasswordRegex().matches()) {
             throw ValidationException("body.password", "Password can only contain letters, digits, and special characters.")
         }
     }
@@ -129,6 +131,20 @@ data class UpdateUserBody(
             throw StringOverflowException("body.description", 240)
         }
 
+        if (password != null && !password.toPasswordRegex().matches()) {
+            throw ValidationException("body.password", "New user password can only contain letters, digits, and special characters.")
+        }
+
+        if (username != null) {
+            if (username.length > 32) {
+                throw StringOverflowException("body.username", 32)
+            }
+
+            if (!username.toNameRegex().matches()) {
+                throw ValidationException("body.username", "Username can only contain letters, digits, dashes, or underscores.")
+            }
+        }
+
         if (email != null && !emailValidator.isValid(email)) {
             throw ValidationException("body.email", "The email address you used was not a valid one.")
         }
@@ -163,7 +179,7 @@ data class CreateRepositoryBody(
             throw StringOverflowException("body.name", 32)
         }
 
-        if (!(name matches "^([A-z]|-|_|\\d{0,9}){0,24}".toRegex())) {
+        if (!name.toNameRegex(true, 24).matches()) {
             throw ValidationException("body.name", "Repository name can only contain alphabet characters, digits, underscores, and dashes.")
         }
     }
@@ -202,9 +218,21 @@ class UsersEndpoint(
         }
     }
 
+    /**
+     * Returns the main route for `GET /users`. Nothing to special.
+     * @statusCode 200
+     */
     @Get
     suspend fun main(call: ApplicationCall) = call.respond(HttpStatusCode.OK, ApiResponse.ok(MainUserResponse()))
 
+    /**
+     * Creates a new user in the database, if the server allows any registrations (determined by the `config.registrations`
+     * configuration key).
+     *
+     * @statusCode 201 The user that was registered into the database.
+     * @statusCode 403 If the server has registrations disabled
+     * @statusCode 406 If any validation exceptions had been thrown
+     */
     @Put
     suspend fun create(call: ApplicationCall) {
         if (!config.registrations) {
@@ -249,12 +277,19 @@ class UsersEndpoint(
 
         if (!config.features.contains(ServerFeature.DOCKER_REGISTRY)) {
             log.info("New registered user [@${user.username}], creating index.yaml entry!")
-            charts.createIndexYaml("user", user.id)
+            charts.createIndexYaml(user.id)
         }
 
         return call.respond(HttpStatusCode.Created, ApiResponse.ok(user))
     }
 
+    /**
+     * Updates any user metadata in the database.
+     *
+     * @statusCode 202 If the database has patched the user's metadata.
+     * @statusCode 406 If any [ValidationException] had been thrown
+     * @statusCode 500 If any database errors had been thrown
+     */
     @Patch
     suspend fun patch(call: ApplicationCall) {
         val patched: UpdateUserBody by call.body()

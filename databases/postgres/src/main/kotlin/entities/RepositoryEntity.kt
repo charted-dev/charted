@@ -20,6 +20,7 @@ package org.noelware.charted.databases.postgres.entities
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
+import org.noelware.charted.databases.postgres.tables.RepositoryMemberTable
 import org.noelware.charted.databases.postgres.tables.RepositoryTable
 
 class RepositoryEntity(id: EntityID<Long>): LongEntity(id) {
@@ -30,6 +31,7 @@ class RepositoryEntity(id: EntityID<Long>): LongEntity(id) {
     var createdAt by RepositoryTable.createdAt
     var updatedAt by RepositoryTable.updatedAt
     var iconHash by RepositoryTable.iconHash
+    val members by RepositoryMemberEntity referrersOn RepositoryMemberTable.repository
     var owner by RepositoryTable.owner
     var flags by RepositoryTable.flags
     var name by RepositoryTable.name

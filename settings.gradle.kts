@@ -61,8 +61,7 @@ include(
     ":modules:sessions:integrations:github",
     ":modules:sessions:integrations:noelware",
     ":modules:storage",
-    ":modules:telemetry",
-    ":modules:webhooks"
+    ":modules:telemetry"
 )
 
 dependencyResolutionManagement {

@@ -15,6 +15,19 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
+package org.noelware.charted.modules.email;
+
+import jakarta.mail.MessagingException;
+
+/**
+ * Represents the service for sending out emails based off the templates given
+ * in the {@code assets/templates} directory in this project.
+ */
+public interface EmailService {
+    /**
+     * Sends a test email to the {@code address} specified and any {@code content} to send.
+     * @param address The email address to send to
+     * @param content The content to send.
+     */
+    void sendTestEmail(String address, String content) throws MessagingException;
 }

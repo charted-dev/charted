@@ -22,15 +22,22 @@ import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.decodeFromStream
 import dev.floofy.utils.slf4j.logging
 import io.ktor.http.content.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
-import org.noelware.charted.databases.postgres.models.Organization
-import org.noelware.charted.databases.postgres.models.User
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.noelware.charted.modules.storage.StorageHandler
 import org.noelware.charted.types.helm.ChartIndexYaml
+import org.noelware.remi.core.figureContentType
 import org.noelware.remi.filesystem.FilesystemStorageTrailer
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.File
-import java.nio.charset.Charset
+import java.io.InputStream
+
+private val ACCEPTABLE_TAR_CONTENT_TYPES: List<String> = listOf("gzip", "tar+gzip", "tar").map { "application/$it" }
+private val ALLOWED_FILES_REGEX = "\\/?(Chart.lock|Chart.ya?ml|index.ya?ml|\\.helmignore|\\/?templates\\/.*\\.(txt|tpl|ya?ml)|\\/?charts\\/.*\\.(tgz|tar\\.gz))".toRegex()
+private val EXEMPTED_FILES = listOf("values.schema.json")
 
 class DefaultHelmChartModule(
     private val storage: StorageHandler,
@@ -40,61 +47,35 @@ class DefaultHelmChartModule(
 
     /**
      * Returns the `index.yaml` contents serialized as [ChartIndexYaml] with the given user.
-     * @param user user that owns the `index.yaml` file
+     * @param owner repository owner
      * @return [ChartIndexYaml] object if it exists, `null` if not.
      */
     @Traced
-    override suspend fun getIndexYaml(user: User): ChartIndexYaml? = storage.open("./users/${user.id}/index.yaml")?.use {
+    override suspend fun getIndexYaml(owner: Long): ChartIndexYaml? = storage.open("./metadata/$owner/index.yaml")?.use {
         yaml.decodeFromStream(it)
     }
 
     /**
-     * Returns the `index.yaml` contents serialized as [ChartIndexYaml] with the given organization.
-     * @param organization organization that owns the `index.yaml` file
-     * @return [ChartIndexYaml] object if it exists, `null` if not.
+     * Creates an `index.yaml` for the repository
+     * @param owner repository owner
      */
     @Traced
-    override suspend fun getIndexYaml(organization: Organization): ChartIndexYaml? = storage.open("./organizations/${organization.id}/index.yaml")?.use {
-        yaml.decodeFromStream(it)
-    }
-
-    /**
-     * Creates an `index.yaml` for a user or organization
-     * @param type "user" or "organization"
-     * @param id   the id that this index.yaml belongs to
-     */
-    @Traced
-    override suspend fun createIndexYaml(type: String, id: Long) {
-        check(listOf("user", "organization").contains(type)) { "expecting `user` or `organization`" }
-
-        log.info("writing index.yaml for $type $id!")
+    override suspend fun createIndexYaml(owner: Long) {
         if (storage.trailer is FilesystemStorageTrailer) {
-            val folder = File((storage.trailer as FilesystemStorageTrailer).normalizePath("./${type}s/$id"))
-            folder.mkdirs()
+            val folder = File((storage.trailer as FilesystemStorageTrailer).normalizePath("./metadata/$owner"))
+            if (!folder.exists()) folder.mkdirs()
         }
 
         val index = ChartIndexYaml()
-        val serialized = yaml.encodeToString(index)
-        storage.upload(
-            "./${type}s/$id/index.yaml",
-            ByteArrayInputStream(serialized.toByteArray(Charset.defaultCharset())),
-            "text/yaml; charset=utf-8"
-        ).also {
-            log.info("wrote index.yaml file for $type $id")
-        }
+        val serialized = yaml.encodeToString(index).toByteArray()
+        storage.upload("./metadata/$owner/index.yaml", ByteArrayInputStream(serialized), "application/yaml")
     }
 
     /**
-     * Deletes the `index.yaml` file of the [user] specified
+     * Deletes the `index.yaml` file.
      */
-    override suspend fun destroyIndexYaml(user: User) {
-        storage.delete("./users/${user.id}/index.yaml")
-    }
-
-    /**
-     * Deletes the `index.yaml` file of the [organization] specified
-     */
-    override suspend fun destroyIndexYaml(organization: Organization) {
+    override suspend fun destroyIndexYaml(owner: Long) {
+        storage.delete("./metadata/$owner/index.yaml")
     }
 
     /**
@@ -104,10 +85,9 @@ class DefaultHelmChartModule(
      * @param owner   owner ID
      * @param repo    repository ID
      * @param version release version to fetch from
+     * @return [InputStream] of the tarball itself, returns `null` if it was not found
      */
-    override suspend fun getReleaseTarball(owner: Long, repo: Long, version: String): ByteArrayInputStream {
-        TODO("Not yet implemented")
-    }
+    override suspend fun getReleaseTarball(owner: Long, repo: Long, version: String): InputStream? = storage.open("./tarballs/$owner/$repo/$version.tar.gz")
 
     /**
      * Upload a release tarball that can be downloaded from the following locations:
@@ -122,7 +102,67 @@ class DefaultHelmChartModule(
      * @param version   release version
      * @param multipart multipart/form-data packet to store
      */
-    override suspend fun uploadReleaseTarball(owner: Long, repo: Long, version: String, multipart: PartData) {
-        TODO("Not yet implemented")
+    override suspend fun uploadReleaseTarball(owner: Long, repo: Long, version: String, multipart: PartData.FileItem) {
+        log.info("Uploading release tarball $version.tar.gz to repository [$owner/$repo]")
+
+        // First, we need to get the data itself. This will determine if the tarball
+        // sent to us was actually a tarball or not.
+        val inputStream = multipart.streamProvider()
+        val baos = ByteArrayOutputStream()
+        withContext(Dispatchers.IO) {
+            inputStream.transferTo(baos)
+        }
+
+        val data = baos.toByteArray()
+        val contentType = storage.trailer.figureContentType(data)
+        if (!ACCEPTABLE_TAR_CONTENT_TYPES.contains(contentType)) {
+            throw IllegalArgumentException("File provided was not any of [${ACCEPTABLE_TAR_CONTENT_TYPES.joinToString(", ")}], received $contentType")
+        }
+
+        // Now, we need to actually see if it's in the Helm Chart structure. It should be something
+        // like:
+        //
+        // $ <CHART>/Chart.yaml
+        // $ <CHART>/index.yaml
+        // $ <CHART>/templates/*.{txt,tpl,yaml,yml}
+        // $ <CHART>/charts/*.tgz
+        // $ <CHART>/.helmignore
+        //
+        // We won't validate all the dependencies (since it will take a while, and we do
+        // not want to add a lot of overhead).
+        val tarInputStream = TarArchiveInputStream(ByteArrayInputStream(data))
+        tarInputStream.use {
+            while (true) {
+                // Get the archive entry, if it is null, then we'll assume
+                // it's the end of the entry list.
+                val nextEntry = it.nextEntry ?: break
+
+                // Check if it doesn't follow the regular expression
+                if (!(nextEntry.name matches ALLOWED_FILES_REGEX)) {
+                    // If it contains any exempted files (that are allowed),
+                    // then allow it
+                    if (EXEMPTED_FILES.contains(nextEntry.name)) continue
+
+                    // Otherwise, just heck off
+                    throw IllegalStateException("Entry ${nextEntry.name} (~${nextEntry.size} bytes) is not allowed")
+                }
+            }
+        }
+
+        if (storage.trailer is FilesystemStorageTrailer) {
+            val tarballPath = (storage.trailer as FilesystemStorageTrailer).normalizePath("./tarballs/$owner/$repo")
+            val tarballFile = File(tarballPath)
+
+            if (!tarballFile.exists()) {
+                tarballFile.mkdirs()
+            }
+        }
+
+        // Now, we should be allowed to upload it
+        storage.upload(
+            "./tarballs/$owner/$repo/$version.tar.gz",
+            ByteArrayInputStream(data),
+            "application/tar+gzip"
+        )
     }
 }

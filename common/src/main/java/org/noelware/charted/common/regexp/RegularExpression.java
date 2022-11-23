@@ -15,11 +15,18 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-java-module`
-}
+package org.noelware.charted.common.regexp;
 
-dependencies {
-    implementation(libs.mustache.compiler)
-    implementation(libs.jakarta.mail)
+import java.util.regex.Pattern;
+
+/**
+ * Represents a generic regular expression.
+ */
+public record RegularExpression(Pattern pattern, String raw) {
+    /**
+     * Returns if the raw value in this {@link RegularExpression} matches the {@link #pattern()} or not.
+     */
+    public boolean matches() {
+        return pattern.matcher(raw).matches();
+    }
 }

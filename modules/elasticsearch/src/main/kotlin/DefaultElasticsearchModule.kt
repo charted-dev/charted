@@ -18,6 +18,7 @@
 package org.noelware.charted.modules.elasticsearch
 
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient
+import co.elastic.clients.elasticsearch.indices.ExistsRequest
 import co.elastic.clients.json.jackson.JacksonJsonpMapper
 import co.elastic.clients.transport.rest_client.RestClientTransport
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -208,12 +209,43 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
             // Start in a background coroutine so other components can load since
             // indexing in Elasticsearch can take a while ;-;
             ChartedScope.launch {
-                // createOrUpdateIndexes()
+                createOrUpdateIndexes()
                 // indexData()
             }
         } catch (e: Exception) {
             ifSentryEnabled { Sentry.captureException(e) }
             log.error("Unable to index all documents into Elasticsearch, data might be loss!", e)
+        }
+    }
+
+    private suspend fun createOrUpdateIndexes() {
+        log.info("Attempting to check if indexes [${indexes.joinToString(", ")}] exist or not in Elasticsearch!")
+
+        for (index in indexes) {
+            val req = ExistsRequest.Builder().apply {
+                index(index)
+            }.build()
+
+            val res = client.indices().exists(req).await()
+            if (res.value()) {
+                log.info("~> Index {$index} exists in Elasticsearch!")
+            } else {
+                log.warn("~> Index {$index} doesn't exist in Elasticsearch! Creating index...")
+
+                val stream = this::class.java.getResourceAsStream("/mappings/$index.json")
+                if (stream == null) {
+                    log.warn("Index {$index} doesn't contain any mappings in resources, skipping")
+                    continue
+                }
+
+                val mapper = client._transport().jsonpMapper()
+                client.indices().create {
+                    it.index(index)
+                    it.withJson(mapper.jsonProvider().createParser(stream), mapper)
+
+                    it
+                }.await()
+            }
         }
     }
 

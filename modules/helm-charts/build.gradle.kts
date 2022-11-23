@@ -23,6 +23,10 @@ dependencies {
     implementation(project(":databases:postgres"))
     implementation(project(":modules:storage"))
 
+    implementation(libs.apache.commons.compress)
     implementation(libs.ktor.server.core)
     implementation(libs.kaml)
+
+    testImplementation(libs.testcontainers.k3s)
+    testImplementation(libs.kubernetes.client)
 }

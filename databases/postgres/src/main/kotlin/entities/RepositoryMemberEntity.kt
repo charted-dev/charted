@@ -27,6 +27,7 @@ class RepositoryMemberEntity(id: EntityID<Long>): LongEntity(id) {
 
     var publicVisibility by RepositoryMemberTable.publicVisibility
     var displayName by RepositoryMemberTable.displayName
+    var permissions by RepositoryMemberTable.permissions
     var repository by RepositoryEntity referencedOn RepositoryMemberTable.repository
     var updatedAt by RepositoryMemberTable.updatedAt
     var joinedAt by RepositoryMemberTable.joinedAt

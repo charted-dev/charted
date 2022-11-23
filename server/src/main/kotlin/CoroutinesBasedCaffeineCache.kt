@@ -15,11 +15,22 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-java-module`
-}
+package org.noelware.charted.server
 
-dependencies {
-    implementation(libs.mustache.compiler)
-    implementation(libs.jakarta.mail)
+import com.github.benmanes.caffeine.cache.AsyncCache
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.future.asCompletableFuture
+import kotlinx.coroutines.future.await
+
+/**
+ * Represents a wrapper of [AsyncCache] to support kotlinx.coroutines patterns.
+ */
+class CoroutinesBasedCaffeineCache<K, V>(
+    private val coroutineScope: CoroutineScope,
+    private val asyncCache: AsyncCache<K, V>
+): AsyncCache<K, V> by asyncCache {
+    suspend fun getOrPut(key: K, compute: suspend (K) -> V): V = asyncCache.get(key) { k, _ ->
+        coroutineScope.async { compute(k) }.asCompletableFuture()
+    }.await()
 }

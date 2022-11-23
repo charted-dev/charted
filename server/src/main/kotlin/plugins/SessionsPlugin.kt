@@ -62,12 +62,51 @@ val ApplicationCall.currentUser: User?
     }.get()
 
 /**
+ * Represents a pre-condition result.
+ */
+sealed class PreconditionResult {
+    /**
+     * Represents the precondition checks have succeeded.
+     */
+    internal object Success: PreconditionResult()
+
+    /**
+     * Represents a precondition that has failed.
+     * @param message The message to send if the call wasn't handled.
+     */
+    internal class Failed(val message: String = ""): PreconditionResult()
+}
+
+/**
  * Returns the options for configuring the sessions middleware
  * @param scopes The scopes required for the session, defaults to no scopes being available.
  */
 data class SessionOptions(val scopes: ApiKeyScopes = ApiKeyScopes()) {
     /** If the session middleware can allow Api Key usage or not. */
     var assertSessionOnly: Boolean = false
+
+    /**
+     * Allows non authorization requests to be passed by. This means that [currentUser] will be null
+     * if no authorization header was passed and all checks are bypassed.
+     */
+    var allowNonAuthorizedRequests: Boolean = false
+    private val _conditions: MutableList<suspend (ApplicationCall) -> PreconditionResult> = mutableListOf()
+
+    /**
+     * Returns a list of conditions that endpoints can use to do basic checks on a user that was
+     * logged in.
+     */
+    internal val conditions: List<suspend (ApplicationCall) -> PreconditionResult>
+        get() = _conditions
+
+    /**
+     * Adds a condition to this [SessionOptions] if the endpoint requires some basic checks
+     * @param block The function to call.
+     */
+    fun condition(block: suspend (ApplicationCall) -> PreconditionResult): SessionOptions {
+        _conditions.add(block)
+        return this
+    }
 
     /**
      * Assigns a required api key scope to the middleware with the specified bitfield.
@@ -109,6 +148,10 @@ val SessionsPlugin = createRouteScopedPlugin("Sessions", ::SessionOptions) {
 
     onCall { call ->
         log.debug("Checking if the [Authorization] header exists!")
+        if (pluginConfig.allowNonAuthorizedRequests) {
+            return@onCall
+        }
+
         val auth = call.request.header(HttpHeaders.Authorization)
             ?: return@onCall run {
                 log.warn("Missing [Authorization] header on endpoint [${call.request.httpMethod.value} ${call.request.path()}]")
@@ -158,6 +201,24 @@ val SessionsPlugin = createRouteScopedPlugin("Sessions", ::SessionOptions) {
                         )
 
                     call.attributes.put(SESSIONS_KEY, session)
+
+                    // Perform the conditions here since the session token
+                    // was found.
+                    for (condition in pluginConfig.conditions) {
+                        val result = condition(call)
+                        if (result is PreconditionResult.Failed) {
+                            // If the call was already handled, let's not do anything.
+                            if (call.isHandled) return@onCall
+
+                            call.respond(
+                                HttpStatusCode.PreconditionFailed,
+                                ApiResponse.err(
+                                    "PRECONDITION_FAILED",
+                                    result.message.ifEmpty { "Message was not provided, this might be a bug!" }
+                                )
+                            )
+                        }
+                    }
                 } catch (e: JWTDecodeException) {
                     call.respond(
                         HttpStatusCode.BadRequest,
@@ -238,6 +299,24 @@ val SessionsPlugin = createRouteScopedPlugin("Sessions", ::SessionOptions) {
                 }
 
                 call.attributes.put(API_KEY_KEY, apiKey)
+
+                // Perform the conditions here since the session token
+                // was found.
+                for (condition in pluginConfig.conditions) {
+                    val result = condition(call)
+                    if (result is PreconditionResult.Failed) {
+                        // If the call was already handled, let's not do anything.
+                        if (call.isHandled) return@onCall
+
+                        call.respond(
+                            HttpStatusCode.PreconditionFailed,
+                            ApiResponse.err(
+                                "PRECONDITION_FAILED",
+                                result.message.ifEmpty { "Message was not provided, this might be a bug!" }
+                            )
+                        )
+                    }
+                }
             }
 
             else -> call.respond(

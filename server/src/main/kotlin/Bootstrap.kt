@@ -65,6 +65,8 @@ import org.noelware.charted.modules.apikeys.DefaultApiKeyManager
 import org.noelware.charted.modules.avatars.avatarsModule
 import org.noelware.charted.modules.elasticsearch.DefaultElasticsearchModule
 import org.noelware.charted.modules.elasticsearch.ElasticsearchModule
+import org.noelware.charted.modules.email.DefaultEmailService
+import org.noelware.charted.modules.email.EmailService
 import org.noelware.charted.modules.helm.charts.DefaultHelmChartModule
 import org.noelware.charted.modules.helm.charts.HelmChartModule
 import org.noelware.charted.modules.metrics.PrometheusMetrics
@@ -288,7 +290,7 @@ object Bootstrap {
                 "transaction_max_spans" to "${tracing.transactionMaxSpans}",
                 "capture_body" to if (tracing.captureBody) "ON" else "OFF",
                 // "global_labels" to tracing.globalLabels.map { "${it.key}=${it.value}" }.joinToString(",")
-                "application_packages" to "org.noelware.charted,org.noelware.charted.server",
+                "application_packages" to "org.noelware.charted",
                 "server_url" to tracing.serverUrl
             )
 
@@ -437,6 +439,15 @@ object Bootstrap {
             modules.add(
                 module {
                     single<ClickHouseConnection> { clickhouse }
+                }
+            )
+        }
+
+        if (config.smtp != null) {
+            val emailService = DefaultEmailService(config.smtp)
+            modules.add(
+                module {
+                    single<EmailService> { emailService }
                 }
             )
         }

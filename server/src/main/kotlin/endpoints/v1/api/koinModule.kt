@@ -23,8 +23,8 @@ import org.noelware.ktor.endpoints.AbstractEndpoint
 
 val apiV1Endpoints = module {
     single { UsersEndpoint(get(), get(), get(), get(), get(), get(), get()) } bind AbstractEndpoint::class
+    single { RepositoriesEndpoint(get(), getOrNull()) } bind AbstractEndpoint::class
     single { OrganizationsEndpoint() } bind AbstractEndpoint::class
-    single { RepositoriesEndpoint() } bind AbstractEndpoint::class
     single { ApiKeysEndpoint(get()) } bind AbstractEndpoint::class
     single { AdminEndpoint() } bind AbstractEndpoint::class
 }

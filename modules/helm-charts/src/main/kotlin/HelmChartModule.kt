@@ -18,42 +18,27 @@
 package org.noelware.charted.modules.helm.charts
 
 import io.ktor.http.content.*
-import org.noelware.charted.databases.postgres.models.Organization
-import org.noelware.charted.databases.postgres.models.User
 import org.noelware.charted.types.helm.ChartIndexYaml
-import java.io.ByteArrayInputStream
+import java.io.InputStream
 
 interface HelmChartModule {
     /**
      * Returns the `index.yaml` contents serialized as [ChartIndexYaml] with the given user.
-     * @param user user that owns the `index.yaml` file
+     * @param owner repository owner
      * @return [ChartIndexYaml] object if it exists, `null` if not.
      */
-    suspend fun getIndexYaml(user: User): ChartIndexYaml?
+    suspend fun getIndexYaml(owner: Long): ChartIndexYaml?
 
     /**
-     * Returns the `index.yaml` contents serialized as [ChartIndexYaml] with the given organization.
-     * @param organization organization that owns the `index.yaml` file
-     * @return [ChartIndexYaml] object if it exists, `null` if not.
+     * Creates an `index.yaml` for the repository
+     * @param owner repository owner
      */
-    suspend fun getIndexYaml(organization: Organization): ChartIndexYaml?
+    suspend fun createIndexYaml(owner: Long)
 
     /**
-     * Creates an `index.yaml` for a user or organization
-     * @param type "user" or "organization"
-     * @param id   the id that this index.yaml belongs to
+     * Deletes the `index.yaml` file.
      */
-    suspend fun createIndexYaml(type: String, id: Long)
-
-    /**
-     * Deletes the `index.yaml` file of the [user] specified
-     */
-    suspend fun destroyIndexYaml(user: User)
-
-    /**
-     * Deletes the `index.yaml` file of the [organization] specified
-     */
-    suspend fun destroyIndexYaml(organization: Organization)
+    suspend fun destroyIndexYaml(owner: Long)
 
     /**
      * Returns a release tarball from the specified [owner] and [repository][repo] IDs and the
@@ -62,8 +47,9 @@ interface HelmChartModule {
      * @param owner   owner ID
      * @param repo    repository ID
      * @param version release version to fetch from
+     * @return [InputStream] of the tarball itself, returns `null` if it was not found
      */
-    suspend fun getReleaseTarball(owner: Long, repo: Long, version: String): ByteArrayInputStream
+    suspend fun getReleaseTarball(owner: Long, repo: Long, version: String): InputStream?
 
     /**
      * Upload a release tarball that can be downloaded from the following locations:
@@ -82,6 +68,6 @@ interface HelmChartModule {
         owner: Long,
         repo: Long,
         version: String,
-        multipart: PartData
+        multipart: PartData.FileItem
     )
 }
