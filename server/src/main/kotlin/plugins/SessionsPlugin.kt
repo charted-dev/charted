@@ -148,25 +148,26 @@ val SessionsPlugin = createRouteScopedPlugin("Sessions", ::SessionOptions) {
 
     onCall { call ->
         log.debug("Checking if the [Authorization] header exists!")
-        if (pluginConfig.allowNonAuthorizedRequests) {
-            return@onCall
-        }
 
         val auth = call.request.header(HttpHeaders.Authorization)
-            ?: return@onCall run {
-                log.warn("Missing [Authorization] header on endpoint [${call.request.httpMethod.value} ${call.request.path()}]")
-                return@run call.respond(
-                    HttpStatusCode.Forbidden,
-                    ApiResponse.err(
-                        "MISSING_AUTH_HEADER",
-                        "Rest handler requires you to use a proper Authorization header.",
-                        buildJsonObject {
-                            put("method", call.request.httpMethod.value)
-                            put("uri", call.request.path())
-                        }
-                    )
-                )
+        if (auth == null) {
+            if (pluginConfig.allowNonAuthorizedRequests) {
+                return@onCall
             }
+
+            log.warn("Missing [Authorization] header on endpoint [${call.request.httpMethod.value} ${call.request.path()}]")
+            return@onCall call.respond(
+                HttpStatusCode.Forbidden,
+                ApiResponse.err(
+                    "MISSING_AUTH_HEADER",
+                    "Rest handler requires you to use a proper Authorization header.",
+                    buildJsonObject {
+                        put("method", call.request.httpMethod.value)
+                        put("uri", call.request.path())
+                    }
+                )
+            )
+        }
 
         val data = auth.split(" ", limit = 2)
         if (data.size != 2) {

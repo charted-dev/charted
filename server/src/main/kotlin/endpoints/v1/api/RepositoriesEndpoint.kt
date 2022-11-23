@@ -379,7 +379,6 @@ class RepositoriesEndpoint(
     @Put("/{id}/members")
     suspend fun inviteMember(call: ApplicationCall) {
         if (emails == null) {
-
         }
 
         call.respond(HttpStatusCode.NotImplemented)
