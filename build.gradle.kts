@@ -39,4 +39,9 @@ tasks {
     test {
         useJUnitPlatform()
     }
+
+    create<Copy>("precommitHook") {
+        from(file("${project.rootDir}/scripts/pre-commit"))
+        into(file("${project.rootDir}/.git/hooks"))
+    }
 }
