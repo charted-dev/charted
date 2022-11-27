@@ -1,0 +1,17 @@
+{
+  "extends": "@augu/tsconfig",
+  "compilerOptions": {
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "target": "ESNext",
+    "skipLibCheck": true,
+    "allowJs": true,
+    "module": "CommonJS",
+    "jsx": "preserve",
+    "typeRoots": ["./node_modules/@types"],
+    "noEmit": true,
+    "baseUrl": "."
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules"]
+}

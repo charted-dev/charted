@@ -13,6 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+[CmdletBinding()]
+Param(
+    [Parameter(ValueFromRemainingArguments = $true)]$Arguments
+)
+
 function Fatal {
     Param([String]$Message)
 
@@ -47,13 +52,13 @@ function FindJavaFromRegistry {
 
 $DistributionType = [Environment]::GetEnvironmentVariable("CHARTED_DISTRIBUTION") ?? "local";
 $ResolvedJavaOpts = $(
-    "-Dfile.encoding=UTF-8",
     "-Djava.awt.headless=true",
     "-XX:+HeapDumpOnOutOfMemoryError",
     "-XX:+ExitOnOutOfMemoryError",
     "-XX:ErrorFile=logs/hs_err_pid%p.log",
     "-XX:SurvivorRatio=8",
-    "-XX:UseSerialGC"
+    "-XX:UseSerialGC",
+    "-Dfile.encoding=UTF-8"
 )
 
 $JavaOpts = $ResolvedJavaOpts -join " "
@@ -90,5 +95,5 @@ if ($env:JAVA_HOME) {
 
 $Classpath = $(Get-ChildItem -Recurse "$PSScriptRoot/../lib" -Include *.jar -ErrorAction SilentlyContinue -Force | ForEach-Object FullName) -join ":"
 
-& "$JavaExec" $JavaOpts -Dorg.noelware.charted.distribution.type="$DistributionType" -cp "$Classpath" org.noelware.charted.cli.CliMainKt
+& "$JavaExec" "$JavaOpts" -cp "$Classpath" "-Dorg.noelware.charted.distribution.type=$DistributionType" org.noelware.charted.cli.CliMainKt $Arguments
 exit $LASTEXITCODE

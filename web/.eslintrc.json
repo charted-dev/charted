@@ -1,0 +1,13 @@
+{
+  "extends": ["prettier", "plugin:react/recommended", "@augu/eslint-config/ts.js"],
+  "plugins": ["react"],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "react/prop-types": "off"
+  }
+}

@@ -77,7 +77,7 @@ func connectionUrl() (*string, error) {
 				return nil, errors.New("missing 'password' flag, which is required when using --username flag")
 			}
 
-			b.WriteString(fmt.Sprintf("%s:%s@", string(*username), string(*password)))
+			b.WriteString(fmt.Sprintf("%s:%s@", *username, *password))
 		}
 
 		b.WriteString(host)

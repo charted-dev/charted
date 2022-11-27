@@ -15,22 +15,8 @@
  * limitations under the License.
  */
 
-import com.github.gradle.node.npm.task.NpmTask
-import dev.floofy.utils.gradle.*
+import '@actions/core';
 
-plugins {
-    id("com.github.node-gradle.node")
-}
+const main = () => console.log('hecc');
 
-node {
-    download by (System.getenv("INSTALL_NODE_JS") ?: "yes").matches("^(yes|true|si|si*|1)$".toRegex())
-    version by File(projectDir, ".node-version").readText()
-}
-
-val build by tasks.registering(NpmTask::class) {
-    args.set(listOf("run", "build"))
-}
-
-val dev by tasks.registering(NpmTask::class) {
-    args.set(listOf("run", "dev"))
-}
+main();

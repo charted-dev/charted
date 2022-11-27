@@ -19,7 +19,6 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.noelware.charted.gradle.*
 import dev.floofy.utils.gradle.*
-import gradle.kotlin.dsl.accessors._9229aba57b46c4ac76b10a8165ef1aad.implementation
 
 plugins {
     id("com.diffplug.spotless")

@@ -34,6 +34,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.18.5")
     implementation("com.diffplug.spotless:spotless-plugin-gradle:6.11.0")
     implementation("com.netflix.nebula:gradle-ospackage-plugin:10.0.0")
+    implementation("com.github.node-gradle:gradle-node-plugin:3.5.0")
     implementation("de.undercouch:gradle-download-task:5.3.0")
     implementation("dev.floofy.commons:gradle:2.3.0")
     implementation(kotlin("serialization", "1.7.21"))
