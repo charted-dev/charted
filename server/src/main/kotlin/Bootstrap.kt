@@ -65,6 +65,8 @@ import org.noelware.charted.modules.apikeys.DefaultApiKeyManager
 import org.noelware.charted.modules.avatars.avatarsModule
 import org.noelware.charted.modules.elasticsearch.DefaultElasticsearchModule
 import org.noelware.charted.modules.elasticsearch.ElasticsearchModule
+import org.noelware.charted.modules.elasticsearch.metrics.ElasticsearchMetricCollector
+import org.noelware.charted.modules.elasticsearch.metrics.ElasticsearchStats
 import org.noelware.charted.modules.email.DefaultEmailService
 import org.noelware.charted.modules.email.EmailService
 import org.noelware.charted.modules.helm.charts.DefaultHelmChartModule
@@ -386,7 +388,7 @@ object Bootstrap {
 
         val metrics = PrometheusMetrics(config.metrics.enabled, ds)
         val redis = DefaultRedisClient(config.redis)
-        val argon2 = Argon2PasswordEncoder()
+        val argon2 = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8()
         val email = EmailValidator.getInstance(true, true)
         redis.connect()
 
@@ -405,7 +407,7 @@ object Bootstrap {
 
         val apiKeyManager: ApiKeyManager = DefaultApiKeyManager(redis)
         val koinModule = module {
-            single<HelmChartModule> { DefaultHelmChartModule(storage, yaml) }
+            single<HelmChartModule> { DefaultHelmChartModule(storage, config, yaml) }
             single<StorageHandler> { storage }
             single<ChartedServer> { DefaultChartedServer(config) }
             single<RedisClient> { redis }
@@ -425,6 +427,12 @@ object Bootstrap {
         if (config.search != null && config.search!!.elasticsearch != null) {
             val elasticsearch = DefaultElasticsearchModule(config, json)
             elasticsearch.connect()
+            if (config.metrics.enabled) {
+                val collector = ElasticsearchStats.Collector(elasticsearch)
+                metrics.addGenericCollector(collector)
+                metrics.addMetricCollector(ElasticsearchMetricCollector(collector))
+            }
+
             modules.add(
                 module {
                     single<ElasticsearchModule> { elasticsearch }
@@ -456,12 +464,7 @@ object Bootstrap {
             modules(*modules.toTypedArray())
         }
 
-        try {
-            val server: ChartedServer by inject()
-            server.start()
-        } catch (e: Exception) {
-            log.error("Unable to bootstrap charted-server:", e)
-            throw e
-        }
+        val server: ChartedServer by inject()
+        server.start()
     }
 }

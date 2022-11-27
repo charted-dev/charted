@@ -15,19 +15,18 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-java-module`
-    `charted-module`
-}
+package org.noelware.charted.extensions.reflection
 
-dependencies {
-    implementation(project(":databases:postgres"))
-    implementation(project(":modules:storage"))
+import org.noelware.charted.common.ReflectionUtils
 
-    implementation(libs.apache.commons.compress)
-    implementation(libs.ktor.server.core)
-    implementation(libs.kaml)
-
-    testImplementation(libs.testcontainers.k3s)
-    testImplementation(libs.kubernetes.client)
-}
+/**
+ * A Kotlin extension for the [ReflectionUtils.getAndUseField] method, which uses a reified type for the given
+ * inferred type.
+ *
+ * @param fieldName The field's name to fetch
+ */
+inline fun <reified U, T> T.getAndUseField(fieldName: String): U? = ReflectionUtils.getAndUseField(
+    this,
+    U::class.java,
+    fieldName
+)

@@ -18,6 +18,7 @@
 package org.noelware.charted.modules.elasticsearch
 
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient
+import org.noelware.charted.modules.elasticsearch.metrics.ElasticsearchStats
 import java.io.Closeable
 
 /**
@@ -57,4 +58,10 @@ interface ElasticsearchModule: Closeable {
 
     /** Connects to Elasticsearch! */
     suspend fun connect()
+
+    /**
+     * Returns the [statistics object][ElasticsearchStats] for the Elasticsearch cluster that is
+     * used for this interface.
+     */
+    suspend fun stats(): ElasticsearchStats
 }

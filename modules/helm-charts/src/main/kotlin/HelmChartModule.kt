@@ -18,6 +18,7 @@
 package org.noelware.charted.modules.helm.charts
 
 import io.ktor.http.content.*
+import org.noelware.charted.databases.postgres.models.Repository
 import org.noelware.charted.types.helm.ChartIndexYaml
 import java.io.InputStream
 
@@ -60,13 +61,13 @@ interface HelmChartModule {
      *    - (repositories api):                       $SERVER_URL/repositories/{id}/releases/{version}/{version}.tar.gz
      *
      * @param owner     owner ID
-     * @param repo      repository ID
+     * @param repo      repository object
      * @param version   release version
      * @param multipart multipart/form-data packet to store
      */
     suspend fun uploadReleaseTarball(
         owner: Long,
-        repo: Long,
+        repo: Repository,
         version: String,
         multipart: PartData.FileItem
     )

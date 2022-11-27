@@ -17,6 +17,7 @@
 
 package org.noelware.charted.configuration.kotlin.dsl
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.noelware.remi.filesystem.FilesystemStorageConfig
 import org.noelware.remi.minio.MinIOStorageConfig
@@ -25,6 +26,9 @@ import org.noelware.remi.s3.S3StorageConfig
 @Serializable
 data class StorageConfig(
     val filesystem: FilesystemStorageConfig? = null,
+
+    @SerialName("host_alias")
+    val hostAlias: String? = null,
     val minio: MinIOStorageConfig? = null,
     val s3: S3StorageConfig? = null
 ) {
@@ -32,6 +36,8 @@ data class StorageConfig(
         private var _filesystem: FilesystemStorageConfig? = null
         private var _minio: MinIOStorageConfig? = null
         private var _s3: S3StorageConfig? = null
+
+        var hostAlias: String? = null
 
         infix fun filesystem(directory: String): Builder {
             if (_s3 != null || _minio != null) {
@@ -60,6 +66,6 @@ data class StorageConfig(
             return this
         }
 
-        override fun build(): StorageConfig = StorageConfig(_filesystem, _minio, _s3)
+        override fun build(): StorageConfig = StorageConfig(_filesystem, hostAlias, _minio, _s3)
     }
 }

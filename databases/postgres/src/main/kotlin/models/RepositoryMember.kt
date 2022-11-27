@@ -20,11 +20,13 @@ package org.noelware.charted.databases.postgres.models
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.SerialName
 import org.noelware.charted.databases.postgres.entities.RepositoryMemberEntity
+import org.noelware.charted.databases.postgres.flags.MemberPermissions
 
 @kotlinx.serialization.Serializable
 data class RepositoryMember(
     @SerialName("display_name")
     val displayName: String? = null,
+    val permissions: Long = 0,
 
     @SerialName("updated_at")
     val updatedAt: LocalDateTime,
@@ -32,15 +34,18 @@ data class RepositoryMember(
     @SerialName("joined_at")
     val joinedAt: LocalDateTime,
     val user: User,
-    val id: String
+    val id: Long
 ) {
     companion object {
         fun fromEntity(entity: RepositoryMemberEntity): RepositoryMember = RepositoryMember(
             entity.displayName,
+            entity.permissions,
             entity.updatedAt,
             entity.joinedAt,
             User.fromEntity(entity.account),
-            entity.id.value.toString()
+            entity.id.value
         )
     }
 }
+
+val RepositoryMember.bitfield: MemberPermissions get() = MemberPermissions(permissions)

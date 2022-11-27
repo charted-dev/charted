@@ -23,20 +23,26 @@ import co.elastic.clients.json.jackson.JacksonJsonpMapper
 import co.elastic.clients.transport.rest_client.RestClientTransport
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.slf4j.logging
 import io.sentry.Sentry
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import okhttp3.internal.closeQuietly
+import okhttp3.internal.toImmutableList
 import org.apache.commons.lang3.time.StopWatch
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
 import org.apache.http.auth.UsernamePasswordCredentials
+import org.apache.http.entity.ByteArrayEntity
+import org.apache.http.entity.ContentType
 import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.message.BasicHeader
-import org.elasticsearch.client.Node
-import org.elasticsearch.client.RestClient
+import org.elasticsearch.client.*
 import org.elasticsearch.client.sniff.SniffOnFailureListener
 import org.elasticsearch.client.sniff.Sniffer
 import org.noelware.charted.ChartedScope
@@ -45,8 +51,13 @@ import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.ServerFeature
 import org.noelware.charted.configuration.kotlin.dsl.search.elasticsearch.AuthStrategyType
 import org.noelware.charted.configuration.kotlin.dsl.search.elasticsearch.AuthenticationStrategy
+import org.noelware.charted.databases.postgres.entities.UserEntity
+import org.noelware.charted.databases.postgres.models.User
 import org.noelware.charted.extensions.doFormatTime
 import org.noelware.charted.extensions.ifSentryEnabled
+import org.noelware.charted.extensions.reflection.getAndUseField
+import org.noelware.charted.modules.elasticsearch.metrics.ElasticsearchStats
+import java.io.ByteArrayOutputStream
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.net.ssl.SSLContext
 
@@ -210,12 +221,71 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
             // indexing in Elasticsearch can take a while ;-;
             ChartedScope.launch {
                 createOrUpdateIndexes()
-                // indexData()
+                indexData()
             }
         } catch (e: Exception) {
             ifSentryEnabled { Sentry.captureException(e) }
             log.error("Unable to index all documents into Elasticsearch, data might be loss!", e)
         }
+    }
+
+    /**
+     * Returns the [statistics object][ElasticsearchStats] for the Elasticsearch cluster that is
+     * used for this interface.
+     */
+    override suspend fun stats(): ElasticsearchStats {
+        val indexes = mutableMapOf<String, ElasticsearchStats.IndexStats>()
+        val nodes = mutableMapOf<String, ElasticsearchStats.NodeStats>()
+
+        // First, we need to make a request to the Index Stats API
+        // (https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-stats.html)
+        val indices = client.indices().stats {
+            it.index(this@DefaultElasticsearchModule.indexes)
+            it
+        }.await()
+
+        for ((name, stats) in indices.indices()) {
+            val uuid = stats.uuid()
+            val size = stats.total()?.store()?.sizeInBytes()?.toLong() ?: 0L
+            val health = stats.health()?.jsonValue() ?: "(unknown)"
+            val documents = stats.total()?.docs()?.count() ?: 0L
+            val deletedDocuments = stats.total()?.docs()?.deleted() ?: 0L
+            val queries = stats.total()?.search()?.queryTotal() ?: 0L
+            val queryTime = stats.total()?.search()?.queryTimeInMillis() ?: -1L
+
+            indexes[name] = ElasticsearchStats.IndexStats(
+                queryTime,
+                deletedDocuments,
+                documents,
+                queries,
+                health,
+                size,
+                uuid!!
+            )
+        }
+
+        // Now, we need to collect node stats (because why not!)
+        // (https://www.elastic.co/guide/en/elasticsearch/reference/8.5/cluster-nodes-stats.html)
+        val nodesStats = client.nodes().stats().await()
+        for ((node, stats) in nodesStats.nodes()) {
+            val shards = stats.indices()?.shards()?.totalCount() ?: 0L
+            val documents = stats.indices()?.docs()?.count() ?: 0L
+            val deletedDocuments = stats.indices()?.docs()?.deleted() ?: 0L
+            val totalIndexes = stats.indices()?.indexing()?.indexTotal() ?: 0L
+            val avgIndexTime = stats.indices()?.indexing()?.indexTimeInMillis() ?: -1L
+            val cpuPercentage = stats.os()?.cpu()?.percent()?.toDouble() ?: -1.0
+
+            nodes[node] = ElasticsearchStats.NodeStats(
+                avgIndexTime,
+                deletedDocuments,
+                cpuPercentage,
+                totalIndexes,
+                documents,
+                shards
+            )
+        }
+
+        return ElasticsearchStats(indexes, nodes)
     }
 
     private suspend fun createOrUpdateIndexes() {
@@ -245,6 +315,59 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
 
                     it
                 }.await()
+            }
+        }
+    }
+
+    private suspend fun indexData() {
+        log.info("Performing indexing on indexes [${indexes.joinToString(", ")}]")
+
+        // We need access to the low level REST client, and the only way (so far) is to
+        // use reflection to get the value. Yeah, very icky, I know. :(
+        val restClient: RestClient = (client._transport() as RestClientTransport).getAndUseField("restClient")!!
+        val sw = StopWatch.createStarted()
+
+        for (index in indexes) {
+            when (index) {
+                "charted-users" -> {
+                    if (sw.isSuspended) sw.resume()
+                    val users = asyncTransaction(ChartedScope) {
+                        UserEntity.all().map { entity -> User.fromEntity(entity) }.toImmutableList()
+                    }
+
+                    log.info("Indexing [$users] users in index {$index}...")
+
+                    val baos = ByteArrayOutputStream()
+                    for (entity in users) {
+                        withContext(Dispatchers.IO) {
+                            baos.write("{\"index\":{\"_id\":${entity.id}}}".toByteArray())
+                            baos.write('\n'.code)
+                            baos.write(json.encodeToString(entity.toJsonObject()).toByteArray())
+                            baos.write('\n'.code)
+                        }
+                    }
+
+                    val request = Request("POST", "/$index/_bulk")
+                    request.entity = ByteArrayEntity(baos.toByteArray(), ContentType.APPLICATION_JSON)
+
+                    restClient.performRequestAsync(
+                        request,
+                        object: ResponseListener {
+                            override fun onFailure(exception: java.lang.Exception) {
+                                log.error("Unable to perform request [$request]:", exception)
+                            }
+
+                            override fun onSuccess(response: Response) {
+                                sw.suspend()
+                                log.info("Performed request [$request] with [${response.statusLine}], took ${sw.doFormatTime()} to complete.")
+                            }
+                        }
+                    )
+                }
+
+                "charted-repositories" -> {}
+
+                else -> log.warn("Index {$index} doesn't support indexing at this time.")
             }
         }
     }

@@ -28,7 +28,6 @@ import com.github.ajalt.mordant.terminal.Terminal
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.cli.commands.GenerateConfigCommand
 import org.noelware.charted.cli.commands.ServerCommand
-import kotlin.reflect.jvm.jvmName
 import kotlin.system.exitProcess
 
 private class ChartedCli(private val terminal: Terminal): CliktCommand(
@@ -77,14 +76,10 @@ fun main(args: Array<String>) {
         |
         |   ${urlColour("https://github.com/charted-dev/charted/issues/new")}
         |
-        |${red(e::class.jvmName + ":")}${if (e.message != null) " " + e.message else ""}
         """.trimMargin("|")
         )
 
-        for (element in e.stackTrace) {
-            terminal.println("    * $element")
-        }
-
+        e.printStackTrace()
         exitProcess(1)
     }
 }

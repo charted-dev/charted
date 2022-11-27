@@ -397,7 +397,7 @@ class UsersEndpoint(
         call.respond(HttpStatusCode.OK, ApiResponse.ok(user))
     }
 
-    @Get("/{idOrName}/avatars/current")
+    @Get("/{idOrName}/avatars/current.png")
     suspend fun getUserAvatar(call: ApplicationCall) {
         val idOrName = call.parameters["idOrName"] ?: return call.respond(HttpStatusCode.NotFound, ApiResponse.err("MISSING_PARAMETER", "Missing [idOrName] path parameter"))
         val user = when {

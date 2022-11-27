@@ -97,7 +97,4 @@ dependencies {
 
     // SemVer
     implementation(libs.semver)
-
-    // Caffeine (in-memory cache)
-    implementation(libs.caffeine)
 }

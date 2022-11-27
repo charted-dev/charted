@@ -15,19 +15,26 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-java-module`
-    `charted-module`
-}
+package org.noelware.charted.configuration.kotlin.dsl
 
-dependencies {
-    implementation(project(":databases:postgres"))
-    implementation(project(":modules:storage"))
+import kotlinx.serialization.Serializable
 
-    implementation(libs.apache.commons.compress)
-    implementation(libs.ktor.server.core)
-    implementation(libs.kaml)
+/**
+ * Represents the configuration to proxy the storage handler's contents to a mounted endpoint
+ * with the [prefix].
+ *
+ * @param enabled If the storage handler proxy is enabled
+ * @param prefix  prefix to mount all the storage handler's contents towards
+ */
+@Serializable
+data class CdnProxyConfig(
+    val enabled: Boolean = false,
+    val prefix: String = "/cdn"
+) {
+    class Builder: org.noelware.charted.common.Builder<CdnProxyConfig> {
+        var enabled: Boolean = false
+        var prefix: String = "/cdn"
 
-    testImplementation(libs.testcontainers.k3s)
-    testImplementation(libs.kubernetes.client)
+        override fun build(): CdnProxyConfig = CdnProxyConfig(enabled, prefix)
+    }
 }

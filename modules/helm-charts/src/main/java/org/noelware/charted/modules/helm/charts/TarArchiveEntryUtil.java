@@ -15,19 +15,21 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-java-module`
-    `charted-module`
-}
+package org.noelware.charted.modules.helm.charts;
 
-dependencies {
-    implementation(project(":databases:postgres"))
-    implementation(project(":modules:storage"))
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 
-    implementation(libs.apache.commons.compress)
-    implementation(libs.ktor.server.core)
-    implementation(libs.kaml)
+public class TarArchiveEntryUtil {
+    private TarArchiveEntryUtil() {}
 
-    testImplementation(libs.testcontainers.k3s)
-    testImplementation(libs.kubernetes.client)
+    public static InputStream readTarEntry(TarArchiveInputStream tais, TarArchiveEntry entry) throws IOException {
+        byte[] content = new byte[(int) entry.getSize()];
+        tais.read(content, 0, content.length);
+
+        return new ByteArrayInputStream(content);
+    }
 }

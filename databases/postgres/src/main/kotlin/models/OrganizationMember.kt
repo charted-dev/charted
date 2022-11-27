@@ -20,11 +20,13 @@ package org.noelware.charted.databases.postgres.models
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.SerialName
 import org.noelware.charted.databases.postgres.entities.OrganizationMemberEntity
+import org.noelware.charted.databases.postgres.flags.MemberPermissions
 
 @kotlinx.serialization.Serializable
 data class OrganizationMember(
     @SerialName("display_name")
     val displayName: String? = null,
+    val permissions: Long = 0,
 
     @SerialName("updated_at")
     val updatedAt: LocalDateTime,
@@ -37,6 +39,7 @@ data class OrganizationMember(
     companion object {
         fun fromEntity(entity: OrganizationMemberEntity): OrganizationMember = OrganizationMember(
             entity.displayName,
+            entity.permissions,
             entity.updatedAt,
             entity.joinedAt,
             User.fromEntity(entity.account),
@@ -44,3 +47,5 @@ data class OrganizationMember(
         )
     }
 }
+
+val OrganizationMember.bitfield: MemberPermissions get() = MemberPermissions(permissions)

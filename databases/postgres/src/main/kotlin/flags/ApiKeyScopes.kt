@@ -60,6 +60,8 @@ val SCOPES: Map<String, Long> = mapOf(
     "repo:member:invites:delete" to (1L shl 41),
     "repo:member:invites:access" to (1L shl 42),
     "repo:member:view" to (1L shl 43),
+    "repo:webhooks:events:list" to (1L shl 44),
+    "repo:webhooks:events:delete" to (1L shl 45),
 
     // organizations
     "org:view" to (1L shl 24), // view private organizations also, not just public ones

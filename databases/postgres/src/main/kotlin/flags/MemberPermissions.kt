@@ -17,16 +17,21 @@
 
 package org.noelware.charted.databases.postgres.flags
 
-import kotlinx.serialization.Serializable
+import org.noelware.charted.common.Bitfield
 
-/**
- * Represents the roles a user has on this instance.
- */
-@Serializable
-enum class UserRole {
-    /** Determines if this user is a verified publisher or not */
-    VERIFIED_PUBLISHER,
+private val PERMISSIONS: Map<String, Long> = mapOf(
+    // This member has permission to invite new members into the repository
+    "member:invite" to (1L shl 0),
 
-    /** Determines if the user is an administrator of this instance or not */
-    ADMIN;
-}
+    // This member has permission to update any member's permissions
+    "member:update" to (1L shl 1),
+
+    // This member has permission to kick any members off the repository
+    "member:kick" to (1L shl 2),
+
+    // This member has permission to update the repository (or any repositories if this
+    // represents an organization member)
+    "repo:update" to (1L shl 3)
+)
+
+class MemberPermissions(bits: Long = 0): Bitfield(bits, PERMISSIONS)

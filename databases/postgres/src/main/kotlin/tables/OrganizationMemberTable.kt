@@ -25,6 +25,7 @@ import java.time.LocalDateTime
 object OrganizationMemberTable: SnowflakeTable("organization_members") {
     val publicVisibility = bool("public_visibility").default(false)
     val organization = reference("organization_id", OrganizationTable)
+    val permissions = long("permissions")
     val displayName = varchar("display_name", 32).nullable().default(null)
     val updatedAt = datetime("updated_at").default(LocalDateTime.now().toKotlinLocalDateTime())
     val joinedAt = datetime("joined_at").default(LocalDateTime.now().toKotlinLocalDateTime())

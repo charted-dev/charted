@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("unused")
+
 package org.noelware.charted.configuration.kotlin.dsl
 
 import kotlinx.serialization.SerialName
@@ -101,7 +103,8 @@ data class Config(
     val server: KtorServerConfig = KtorServerConfig(),
     val search: SearchConfig? = null,
     val redis: RedisConfig = RedisConfig(),
-    val smtp: SMTPConfig? = null
+    val smtp: SMTPConfig? = null,
+    val cdn: CdnProxyConfig? = null
 ) {
     init {
         if (jwtSecretKey == DO_NOT_USE_THIS_VALUE_IN_YOUR_JWT_SECRET_KEY_OR_I_WILL_LAUGH_AT_YOU) {
@@ -141,6 +144,7 @@ data class Config(
         private var _search: SearchConfig? = null
         private var _redis: RedisConfig = RedisConfig()
         private var _smtp: SMTPConfig? = null
+        private var _cdn: CdnProxyConfig? = null
 
         fun dockerRegistry(builder: DockerRegistryConfig.Builder.() -> Unit): Builder {
             _dockerRegistry = DockerRegistryConfig.Builder().apply(builder).build()
@@ -201,6 +205,11 @@ data class Config(
 
         fun smtp(from: String, builder: SMTPConfig.Builder.() -> Unit = {}): Builder {
             _smtp = SMTPConfig.Builder(from).apply(builder).build()
+            return this
+        }
+
+        fun cdn(builder: CdnProxyConfig.Builder.() -> Unit = {}): Builder {
+            _cdn = CdnProxyConfig.Builder().apply(builder).build()
             return this
         }
 

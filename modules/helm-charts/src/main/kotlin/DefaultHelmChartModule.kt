@@ -20,27 +20,36 @@ package org.noelware.charted.modules.helm.charts
 import co.elastic.apm.api.Traced
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.decodeFromStream
+import com.charleskorn.kaml.encodeToStream
 import dev.floofy.utils.slf4j.logging
 import io.ktor.http.content.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
 import kotlinx.serialization.encodeToString
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
+import org.noelware.charted.configuration.kotlin.dsl.Config
+import org.noelware.charted.databases.postgres.models.Repository
 import org.noelware.charted.modules.storage.StorageHandler
+import org.noelware.charted.types.helm.ChartIndexSpec
 import org.noelware.charted.types.helm.ChartIndexYaml
+import org.noelware.charted.types.helm.ChartSpec
 import org.noelware.remi.core.figureContentType
 import org.noelware.remi.filesystem.FilesystemStorageTrailer
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.InputStream
+import java.util.zip.GZIPInputStream
 
 private val ACCEPTABLE_TAR_CONTENT_TYPES: List<String> = listOf("gzip", "tar+gzip", "tar").map { "application/$it" }
-private val ALLOWED_FILES_REGEX = "\\/?(Chart.lock|Chart.ya?ml|index.ya?ml|\\.helmignore|\\/?templates\\/.*\\.(txt|tpl|ya?ml)|\\/?charts\\/.*\\.(tgz|tar\\.gz))".toRegex()
+private val ALLOWED_FILES_REGEX = "\\/?(Chart.lock|Chart.ya?ml|values.ya?ml|\\.helmignore|\\/?templates\\/.*\\.(txt|tpl|ya?ml)|\\/?charts\\/.*\\.(tgz|tar\\.gz))".toRegex()
 private val EXEMPTED_FILES = listOf("values.schema.json")
 
 class DefaultHelmChartModule(
     private val storage: StorageHandler,
+    private val config: Config,
     private val yaml: Yaml
 ): HelmChartModule {
     private val log by logging<DefaultHelmChartModule>()
@@ -87,7 +96,7 @@ class DefaultHelmChartModule(
      * @param version release version to fetch from
      * @return [InputStream] of the tarball itself, returns `null` if it was not found
      */
-    override suspend fun getReleaseTarball(owner: Long, repo: Long, version: String): InputStream? = storage.open("./tarballs/$owner/$repo/$version.tar.gz")
+    override suspend fun getReleaseTarball(owner: Long, repo: Long, version: String): InputStream? = storage.open("./repositories/$owner/$repo/tarballs/$version.tar.gz")
 
     /**
      * Upload a release tarball that can be downloaded from the following locations:
@@ -102,8 +111,8 @@ class DefaultHelmChartModule(
      * @param version   release version
      * @param multipart multipart/form-data packet to store
      */
-    override suspend fun uploadReleaseTarball(owner: Long, repo: Long, version: String, multipart: PartData.FileItem) {
-        log.info("Uploading release tarball $version.tar.gz to repository [$owner/$repo]")
+    override suspend fun uploadReleaseTarball(owner: Long, repo: Repository, version: String, multipart: PartData.FileItem) {
+        log.info("Uploading release tarball $version.tar.gz to repository [$owner/${repo.name}]")
 
         // First, we need to get the data itself. This will determine if the tarball
         // sent to us was actually a tarball or not.
@@ -130,27 +139,46 @@ class DefaultHelmChartModule(
         //
         // We won't validate all the dependencies (since it will take a while, and we do
         // not want to add a lot of overhead).
-        val tarInputStream = TarArchiveInputStream(ByteArrayInputStream(data))
-        tarInputStream.use {
-            while (true) {
-                // Get the archive entry, if it is null, then we'll assume
-                // it's the end of the entry list.
-                val nextEntry = it.nextEntry ?: break
+        val tarInputStream = TarArchiveInputStream(
+            withContext(Dispatchers.IO) {
+                GZIPInputStream(ByteArrayInputStream(data))
+            }
+        )
 
-                // Check if it doesn't follow the regular expression
-                if (!(nextEntry.name matches ALLOWED_FILES_REGEX)) {
-                    // If it contains any exempted files (that are allowed),
-                    // then allow it
-                    if (EXEMPTED_FILES.contains(nextEntry.name)) continue
+        var chartSpec: ChartSpec? = null
+        var nextEntry: TarArchiveEntry?
+        while (true) {
+            nextEntry = tarInputStream.nextTarEntry
+            if (nextEntry == null) break
 
-                    // Otherwise, just heck off
-                    throw IllegalStateException("Entry ${nextEntry.name} (~${nextEntry.size} bytes) is not allowed")
-                }
+            val firstDash = nextEntry.name.indexOfFirst { c -> c == '/' }
+            val entryName = if (firstDash != -1) {
+                nextEntry.name.substring(firstDash + 1)
+            } else {
+                nextEntry.name
+            }
+
+            // Check if it doesn't follow the regular expression
+            if (!(entryName matches ALLOWED_FILES_REGEX)) {
+                // If it contains any exempted files (that are allowed),
+                // then allow it
+                if (EXEMPTED_FILES.contains(entryName)) continue
+
+                // Otherwise, just heck off
+                throw IllegalStateException("Entry ${nextEntry.name} (~${nextEntry.size} bytes) is not allowed")
+            }
+
+            if (entryName == "Chart.yaml") {
+                chartSpec = TarArchiveEntryUtil.readTarEntry(tarInputStream, nextEntry).use { stream -> yaml.decodeFromStream(stream) }
             }
         }
 
+        if (chartSpec == null) {
+            throw IllegalStateException("Corrupt tar file: missing `Chart.yaml` file")
+        }
+
         if (storage.trailer is FilesystemStorageTrailer) {
-            val tarballPath = (storage.trailer as FilesystemStorageTrailer).normalizePath("./tarballs/$owner/$repo")
+            val tarballPath = (storage.trailer as FilesystemStorageTrailer).normalizePath("./repositories/$owner/${repo.id}/tarballs")
             val tarballFile = File(tarballPath)
 
             if (!tarballFile.exists()) {
@@ -160,9 +188,67 @@ class DefaultHelmChartModule(
 
         // Now, we should be allowed to upload it
         storage.upload(
-            "./tarballs/$owner/$repo/$version.tar.gz",
+            "./repositories/$owner/${repo.id}/tarballs/$version.tar.gz",
             ByteArrayInputStream(data),
             "application/tar+gzip"
+        )
+
+        // Update the owner's index.yaml file for this release
+        val indexYaml = getIndexYaml(owner)!!
+        val entries = indexYaml.entries.toMutableMap()
+        val host = config.storage.hostAlias ?: config.baseUrl ?: "http${if (config.server.ssl != null) "s" else ""}://${config.server.host}:${config.server.port}"
+        entries[repo.name] = if (!entries.containsKey(repo.name)) {
+            listOf(
+                ChartIndexSpec.fromSpec(
+                    listOf(
+                        "$host/repositories/${repo.id}/releases/$version.tar.gz",
+
+                        // We have this so if charted-server isn't available and the CDN proxy is
+                        // properly configured, Helm will try to request to the CDN. This is mainly
+                        // used in production.
+                        if (config.cdn != null && config.cdn!!.enabled) {
+                            "$host${config.cdn!!.prefix}/repositories/${repo.id}/releases/$version.tar.gz"
+                        } else {
+                            null
+                        }
+                    ).mapNotNullTo(mutableListOf()) { it },
+                    Clock.System.now(),
+                    false,
+                    null,
+                    chartSpec
+                )
+            )
+        } else {
+            entries[repo.name]!! + listOf(
+                ChartIndexSpec.fromSpec(
+                    listOf(
+                        "$host/repositories/${repo.id}/releases/$version.tar.gz",
+
+                        // We have this so if charted-server isn't available and the CDN proxy is
+                        // properly configured, Helm will try to request to the CDN. This is mainly
+                        // used in production.
+                        if (config.cdn != null && config.cdn!!.enabled) {
+                            "$host${config.cdn!!.prefix}/repositories/${repo.id}/releases/$version.tar.gz"
+                        } else {
+                            null
+                        }
+                    ).mapNotNullTo(mutableListOf()) { it },
+                    Clock.System.now(),
+                    false,
+                    null,
+                    chartSpec
+                )
+            )
+        }
+
+        // Upload updated index.yaml file
+        val stream = ByteArrayOutputStream()
+        yaml.encodeToStream(indexYaml.copy(entries = entries), stream)
+
+        storage.upload(
+            "./metadata/$owner/index.yaml",
+            ByteArrayInputStream(stream.toByteArray()),
+            "application/yaml"
         )
     }
 }

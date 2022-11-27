@@ -62,4 +62,7 @@ dependencies {
     api(libs.remi.support.s3)
     api(libs.remi.support.fs)
     api(libs.remi.core)
+
+    // Caffeine (in-memory cache)
+    api(libs.caffeine)
 }

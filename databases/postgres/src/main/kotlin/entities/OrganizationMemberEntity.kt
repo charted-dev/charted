@@ -27,6 +27,7 @@ class OrganizationMemberEntity(id: EntityID<Long>): LongEntity(id) {
 
     var publicVisibility by OrganizationMemberTable.publicVisibility
     var organization by OrganizationEntity referencedOn OrganizationMemberTable.organization
+    var permissions by OrganizationMemberTable.permissions
     var displayName by OrganizationMemberTable.displayName
     var updatedAt by OrganizationMemberTable.updatedAt
     var joinedAt by OrganizationMemberTable.joinedAt

@@ -29,7 +29,9 @@ import org.jetbrains.exposed.sql.update
 import org.noelware.charted.ChartedScope
 import org.noelware.charted.RandomStringGenerator
 import org.noelware.charted.ValidationException
+import org.noelware.charted.databases.postgres.models.Repository
 import org.noelware.charted.databases.postgres.models.User
+import org.noelware.charted.databases.postgres.tables.RepositoryTable
 import org.noelware.charted.databases.postgres.tables.UserTable
 import org.noelware.charted.modules.storage.StorageHandler
 import org.noelware.remi.core.figureContentType
@@ -45,6 +47,87 @@ private val ACCEPTABLE_CONTENT_TYPES: List<String> = listOf("png", "jpeg", "gif"
 object AvatarFetchUtil {
     private val storage: StorageHandler by inject()
     private val module: AvatarModule by inject()
+
+    suspend fun retrieveRepositoryIcon(repository: Repository, hash: String? = null): Pair<ContentType, ByteArray>? {
+        if (repository.iconHash == null) return null
+
+        if (hash != null) {
+            val stream = storage.open("./repositories/${repository.ownerID}/${repository.id}/icons/$hash") ?: return null
+            val bytes = stream.use { it.readBytes() }
+
+            return when (val contentType = storage.trailer.figureContentType(bytes)) {
+                ContentType.Image.PNG.toString(), ContentType.Image.GIF.toString(), ContentType.Image.JPEG.toString() ->
+                    ContentType.parse(contentType) to bytes
+
+                else -> {
+                    if (hash == repository.iconHash) {
+                        asyncTransaction(ChartedScope) {
+                            RepositoryTable.update({ RepositoryTable.id eq repository.id }) {
+                                it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                                it[iconHash] = null
+                            }
+                        }
+                    }
+
+                    storage.trailer.delete("./repositories/${repository.ownerID}/${repository.id}/icons/$hash")
+                    null
+                }
+            }
+        }
+
+        val stream = storage.open("./repositories/${repository.ownerID}/${repository.id}/icons/${repository.iconHash}")
+            ?: return null
+
+        val bytes = stream.use { it.readBytes() }
+        return when (val contentType = storage.trailer.figureContentType(bytes)) {
+            ContentType.Image.PNG.toString(), ContentType.Image.GIF.toString(), ContentType.Image.JPEG.toString() ->
+                ContentType.parse(contentType) to bytes
+
+            else -> {
+                asyncTransaction(ChartedScope) {
+                    RepositoryTable.update({ RepositoryTable.id eq repository.id }) {
+                        it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                        it[iconHash] = null
+                    }
+                }
+
+                storage.trailer.delete("./repositories/${repository.ownerID}/${repository.id}/icons/${repository.iconHash}")
+                null
+            }
+        }
+    }
+
+    suspend fun updateRepositoryIcon(repository: Repository, part: PartData.FileItem) {
+        val bytes = part.streamProvider().use { it.readBytes() }
+        val contentType = storage.trailer.figureContentType(bytes)
+        if (!ACCEPTABLE_CONTENT_TYPES.contains(contentType)) {
+            throw ValidationException("body", "File was not any of [${ACCEPTABLE_CONTENT_TYPES.joinToString(", ")}], received $contentType")
+        }
+
+        val hash = RandomStringGenerator.generate(8)
+        val ext = when {
+            contentType.startsWith("image/jpg") || contentType.startsWith("image/jpeg") -> ".jpg"
+            contentType.startsWith("image/png") -> ".png"
+            contentType.startsWith("image/gif") -> ".gif"
+            else -> throw AssertionError("ext != png/jpg/gif when passed through.")
+        }
+
+        if (storage.trailer is FilesystemStorageTrailer) {
+            val trailer = storage.trailer as FilesystemStorageTrailer
+            val file = File(trailer.normalizePath("./repositories/${repository.ownerID}/${repository.id}/avatars"))
+            if (!file.exists()) file.mkdirs()
+        }
+
+        storage.upload("./repositories/${repository.ownerID}/${repository.id}/avatars/$hash$ext", ByteArrayInputStream(bytes), contentType)
+        part.dispose()
+
+        asyncTransaction(ChartedScope) {
+            RepositoryTable.update({ RepositoryTable.id eq repository.id }) {
+                it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                it[iconHash] = "$hash$ext"
+            }
+        }
+    }
 
     /**
      * Returns a byte-array of the image of the specified user and the content type. Defaults to

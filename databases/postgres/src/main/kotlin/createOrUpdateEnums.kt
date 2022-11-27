@@ -19,10 +19,8 @@ package org.noelware.charted.databases.postgres
 
 import net.perfectdreams.exposedpowerutils.sql.*
 import org.jetbrains.exposed.sql.Transaction
-import org.noelware.charted.databases.postgres.flags.UserRole
 import org.noelware.charted.types.helm.RepoType
 
 fun Transaction.createOrUpdateEnums() {
     createOrUpdatePostgreSQLEnum(RepoType.values())
-    createOrUpdatePostgreSQLEnum(UserRole.values())
 }
