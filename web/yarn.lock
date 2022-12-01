@@ -406,7 +406,7 @@ __metadata:
     "@actions/core": 1.10.0
     "@augu/eslint-config": 3.0.0
     "@augu/tsconfig": 1.1.1
-    "@elastic/charts": 51.1.0
+    "@elastic/charts": 51.1.1
     "@fontsource/cantarell": 4.5.10
     "@fontsource/inter": 4.5.14
     "@fontsource/jetbrains-mono": 4.5.11
@@ -500,9 +500,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@elastic/charts@npm:51.1.0":
-  version: 51.1.0
-  resolution: "@elastic/charts@npm:51.1.0"
+"@elastic/charts@npm:51.1.1":
+  version: 51.1.1
+  resolution: "@elastic/charts@npm:51.1.1"
   dependencies:
     "@popperjs/core": ^2.4.0
     bezier-easing: ^2.1.0
@@ -523,13 +523,13 @@ __metadata:
     resize-observer-polyfill: ^1.5.1
     ts-debounce: ^4.0.0
     utility-types: ^3.10.0
-    uuid: ^8.3.2
+    uuid: ^9
   peerDependencies:
     moment: ^2.29.1
     moment-timezone: ^0.5.32
     react: ^16.12 || ^17.0 || ^18.0
     react-dom: ^16.12 || ^17.0 || ^18.0
-  checksum: d204db4ac7b5f05ce305cbc4657591b9ddc374a887ea23f44656bbc000501591a79bbb843afeb64e2d8ddecc5b835c82990ced701a4ebc53f68e3bf2ad671069
+  checksum: 981dd1db30718758e35eaf48a2ccca70c73dc6e51c012dc5e910482997894addd43d6cdc84a1ebf831e9ec7a9c44026e24b6e1111a2b10393665b0ab8a9f3172
   languageName: node
   linkType: hard
 
@@ -6454,6 +6454,15 @@ __metadata:
   bin:
     uuid: dist/bin/uuid
   checksum: 5575a8a75c13120e2f10e6ddc801b2c7ed7d8f3c8ac22c7ed0c7b2ba6383ec0abda88c905085d630e251719e0777045ae3236f04c812184b7c765f63a70e58df
+  languageName: node
+  linkType: hard
+
+"uuid@npm:^9":
+  version: 9.0.0
+  resolution: "uuid@npm:9.0.0"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: 8dd2c83c43ddc7e1c71e36b60aea40030a6505139af6bee0f382ebcd1a56f6cd3028f7f06ffb07f8cf6ced320b76aea275284b224b002b289f89fe89c389b028
   languageName: node
   linkType: hard
 
