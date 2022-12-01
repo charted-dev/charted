@@ -15,7 +15,7 @@ require (
 )
 
 require (
-	github.com/gocql/gocql v1.2.1
+	github.com/gocql/gocql v1.3.0
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/sirupsen/logrus v1.9.0
