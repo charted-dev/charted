@@ -450,7 +450,7 @@ __metadata:
     leeks.js: 0.2.4
     markdown-it: 13.0.1
     markdown-it-emoji: 2.0.2
-    markdown-it-shiki: 0.6.1
+    markdown-it-shiki: 0.7.2
     moment: 2.29.4
     moment-timezone: 0.5.39
     next-themes: 0.2.1
@@ -4674,14 +4674,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"markdown-it-shiki@npm:0.6.1":
-  version: 0.6.1
-  resolution: "markdown-it-shiki@npm:0.6.1"
+"markdown-it-shiki@npm:0.7.2":
+  version: 0.7.2
+  resolution: "markdown-it-shiki@npm:0.7.2"
   dependencies:
-    debug: ^4.3.4
     shiki: ^0.11.1
     synckit: ^0.8.4
-  checksum: e4a24578c2b806e8df661a5a6abbb08f222be730b587a9bca6e7cbf71f00a34bbe22b27c9aa485570296543f06aef2aa202cabdf14c2bdaa13afab9d6bbb7f74
+  checksum: f2bbecd78d517cc97dbc4bcd9441aa5191f2bbd2e8d6c056328260f4165b14215b32ed41fe11e8ea417100dd05556d38e07ba4aeca5dacfb5e303cc8fe56a71f
   languageName: node
   linkType: hard
 
