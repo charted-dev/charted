@@ -235,4 +235,8 @@ data class Config(
             _smtp
         )
     }
+
+    companion object {
+        operator fun invoke(block: Config.Builder.() -> Unit = {}): Config = Config.Builder().apply(block).build()
+    }
 }

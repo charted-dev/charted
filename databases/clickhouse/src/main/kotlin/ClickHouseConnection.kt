@@ -19,6 +19,8 @@ package org.noelware.charted.databases.clickhouse
 
 import java.io.Closeable
 import java.sql.Connection
+import java.sql.SQLException
+import kotlin.jvm.Throws
 
 /**
  * Represents an abstraction layer over the ClickHouse server itself. You can execute
@@ -41,7 +43,14 @@ interface ClickHouseConnection: Closeable {
      */
     val calls: Long
 
-    fun <T> connection(block: Connection.() -> T): T
+    /**
+     * Creates and uses a new [Connection] to do some queries to the
+     * ClickHouse server.
+     *
+     * @param block connection function to use.
+     */
+    @Throws(SQLException::class)
+    fun <T> use(block: Connection.() -> T): T
 
     /**
      * Connects to the server.

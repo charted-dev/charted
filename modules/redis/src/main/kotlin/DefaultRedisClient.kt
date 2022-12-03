@@ -140,16 +140,14 @@ class DefaultRedisClient(config: RedisConfig): RedisClient {
 
         val connection = client.connect()
         log.info("Checking connection...")
-        runBlocking {
-            connection.async().ping().await()
-            log.info("Connection has succeeded!")
-        }
+
+        connection.async().ping().await()
+
+        sw.stop()
+        log.info("Connected to Redis in [${sw.doFormatTime()}]")
 
         _connection.value = connection
         _commands.value = connection.async()
-
-        sw.stop()
-        log.info("Connected to Redis [${sw.doFormatTime()}]")
     }
 
     /**

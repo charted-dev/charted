@@ -32,12 +32,12 @@ public enum OperatingSystem {
 
     /** Returns the current operating system. */
     public static @NotNull OperatingSystem current() {
-        var os = System.getProperty("os.name", "");
+        final String os = System.getProperty("os.name", "");
         if (os.startsWith("Windows")) return WINDOWS;
         if (os.startsWith("Mac")) return MACOS;
         if (os.startsWith("Linux")) return LINUX;
 
-        throw new RuntimeException(String.format("Unknown operating system: [%s]", os));
+        throw new IllegalStateException("Unknown architecture [%s]".formatted(os));
     }
 
     public boolean isWindows() {

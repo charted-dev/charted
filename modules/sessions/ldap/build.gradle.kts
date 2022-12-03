@@ -20,5 +20,10 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":databases:postgres"))
+    implementation(project(":modules:sessions"))
+    implementation(project(":modules:redis"))
+    implementation(libs.jwt)
 
+    testImplementation("org.apache.directory.server:apacheds-test-framework:2.0.0.AM26")
 }

@@ -20,7 +20,6 @@ package org.noelware.charted.common;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -59,8 +58,6 @@ public class ReflectionUtils {
     public static <C, T> T getAndUseField(C instance, Class<T> inferClass, String fieldName) {
         final Class<?> klazz = instance.getClass();
         final String cacheKey = "%s#%s".formatted(klazz.getSimpleName(), fieldName);
-        System.out.println(Arrays.toString(klazz.getDeclaredFields()));
-
         final Object cachedResult = _fieldCache.get(cacheKey, (key) -> {
             LOG.info("Finding field [{}] in class [{}], with infer class [{}]", fieldName, klazz, inferClass);
             try {

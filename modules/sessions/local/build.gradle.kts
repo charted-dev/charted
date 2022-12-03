@@ -24,5 +24,4 @@ dependencies {
     implementation(project(":modules:sessions"))
     implementation(libs.spring.security.crypto)
     implementation(project(":modules:redis"))
-    implementation(libs.jwt)
 }

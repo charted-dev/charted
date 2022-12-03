@@ -401,7 +401,7 @@ object Bootstrap {
         }
 
         val sessions: SessionManager = when (config.sessions.type) {
-            is SessionType.Local -> LocalSessionManager(argon2, redis, json, config)
+            SessionType.Local -> LocalSessionManager(argon2, redis, json, config)
             else -> throw IllegalStateException("Session type [${config.sessions.type}] is unsupported")
         }
 

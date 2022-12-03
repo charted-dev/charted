@@ -21,4 +21,6 @@ plugins {
 
 dependencies {
     implementation(project(":databases:postgres"))
+    implementation(project(":modules:redis"))
+    implementation(libs.jwt)
 }

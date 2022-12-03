@@ -40,7 +40,7 @@ data class TelemetryPacket(
     val product: String = PRODUCT,
     val version: String = ChartedInfo.version,
     val vendor: String = VENDOR,
-    val arch: String = Architecture.current()?.key() ?: throw RuntimeException("Unable to retrieve current architecture"),
+    val arch: String = Architecture.current().key(),
     val os: String = OperatingSystem.current().key(),
 
     @Contextual

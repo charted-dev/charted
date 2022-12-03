@@ -49,6 +49,11 @@ distributions {
             into("bin") {
                 from("$projectDir/distribution/bin/charted.ps1")
                 from("$projectDir/distribution/bin/charted")
+                from("${rootProject.projectDir}/databases/clickhouse/migrations/bin/ch-migrations${if (org.noelware.charted.gradle.OperatingSystem.current().isWindows)
+                    ".exe"
+                else
+                    ""
+                }")
             }
 
             into("config") {
@@ -88,6 +93,7 @@ tasks {
     }
 
     startScripts {
+        dependsOn(rootProject.tasks.getByName("buildMigrationsBinary"))
         enabled = false
     }
 }

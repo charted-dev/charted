@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"runtime"
 	"strings"
 	"time"
 
@@ -33,12 +34,13 @@ import (
 )
 
 var (
+	version = "devel"
 	rootCmd = &cobra.Command{
-		Use:           "clickhouse-migrations",
-		Short:         "Manages and runs the migrations for charted-server's ClickHouse database.",
-		RunE:          execute,
-		SilenceErrors: true,
-		SilenceUsage:  true,
+		Use:          "clickhouse-migrations",
+		Short:        "Manages and runs the migrations for charted-server's ClickHouse database.",
+		RunE:         execute,
+		SilenceUsage: true,
+		Version:      fmt.Sprintf("ch-migrations %s (%s/%s)", version, runtime.GOOS, runtime.GOARCH),
 	}
 
 	log = slog.Make(sloghuman.Sink(os.Stdout))

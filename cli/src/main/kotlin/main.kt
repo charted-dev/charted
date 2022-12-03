@@ -26,6 +26,7 @@ import com.github.ajalt.mordant.rendering.TextColors.*
 import com.github.ajalt.mordant.rendering.TextStyles.*
 import com.github.ajalt.mordant.terminal.Terminal
 import org.noelware.charted.ChartedInfo
+import org.noelware.charted.cli.commands.ClickHouseMigrationsCommand
 import org.noelware.charted.cli.commands.GenerateConfigCommand
 import org.noelware.charted.cli.commands.ServerCommand
 import kotlin.system.exitProcess
@@ -52,6 +53,7 @@ private class ChartedCli(private val terminal: Terminal): CliktCommand(
         }
 
         subcommands(
+            ClickHouseMigrationsCommand(terminal),
             GenerateConfigCommand(terminal),
             ServerCommand(terminal),
             CompletionCommand(name = "completions")
@@ -73,12 +75,11 @@ fun main(args: Array<String>) {
             """
         |Unable to execute the main command line runner. If this is a reoccurring issue,
         |please report it to the Noelware team:
-        |
         |   ${urlColour("https://github.com/charted-dev/charted/issues/new")}
-        |
         """.trimMargin("|")
         )
 
+        terminal.println()
         e.printStackTrace()
         exitProcess(1)
     }

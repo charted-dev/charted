@@ -17,44 +17,17 @@
 
 package org.noelware.charted.configuration.kotlin.dsl.sessions
 
-import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerializationException
-import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.buildClassSerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 
-@Serializable(with = SessionType.Companion.Serializer::class)
-sealed class SessionType(val name: String) {
-    // also used to trick the serialization compiler; this is never used
-    @Suppress("unused")
-    constructor(): this("why does this exist")
+/**
+ * Represents the session type to use when configuring the session manager
+ */
+@Serializable
+enum class SessionType {
+    @SerialName("ldap")
+    LDAP,
 
-    @Serializable
-    object Local: SessionType("local")
-
-    @Serializable
-    object LDAP: SessionType("ldap")
-
-    companion object {
-        val TYPES: List<SessionType> = listOf(Local, LDAP)
-
-        object Serializer: KSerializer<SessionType> {
-            override val descriptor: SerialDescriptor = buildClassSerialDescriptor("charted.sessions.SessionType") {
-                element("type", String.serializer().descriptor)
-                element("ldap", LDAP.serializer().descriptor, isOptional = true)
-            }
-
-            override fun deserialize(decoder: Decoder): SessionType {
-                val type = decoder.decodeString()
-                return TYPES.find { it.name == type } ?: throw SerializationException("Unknown session type [$type]")
-            }
-
-            override fun serialize(encoder: Encoder, value: SessionType) {
-                encoder.encodeString(value.name)
-            }
-        }
-    }
+    @SerialName("local")
+    Local
 }

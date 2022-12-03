@@ -38,6 +38,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.noelware.charted.*
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.ServerFeature
+import org.noelware.charted.configuration.kotlin.dsl.sessions.SessionType
 import org.noelware.charted.databases.postgres.entities.RepositoryEntity
 import org.noelware.charted.databases.postgres.entities.UserConnectionEntity
 import org.noelware.charted.databases.postgres.entities.UserEntity
@@ -237,6 +238,12 @@ class UsersEndpoint(
     suspend fun create(call: ApplicationCall) {
         if (!config.registrations) {
             return call.respond(HttpStatusCode.Forbidden, ApiResponse.err("REGISTRATIONS_DISABLED", "This instance has registrations disabled."))
+        }
+
+        // Check if the server's session manager is using the LDAP provider,
+        // if so, they will have to manually do it.
+        if (config.sessions.type != SessionType.Local) {
+            return call.respond(HttpStatusCode.NotImplemented)
         }
 
         val body: NewUserBody by call.body()

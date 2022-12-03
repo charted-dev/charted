@@ -17,7 +17,7 @@
 
 package org.noelware.charted.common;
 
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents the host architecture.
@@ -29,13 +29,13 @@ public enum Architecture {
     /**
      * Returns the current host architecture.
      */
-    @Nullable
+    @NotNull
     public static Architecture current() {
         final String arch = System.getProperty("os.arch");
         return switch (arch) {
             case "x86_64", "amd64" -> X64;
             case "aarch64", "arm64" -> AARCH64;
-            default -> null;
+            default -> throw new IllegalStateException("Unknown architecture [%s]".formatted(arch));
         };
     }
 

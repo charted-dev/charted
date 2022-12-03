@@ -298,7 +298,20 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
 
             val res = client.indices().exists(req).await()
             if (res.value()) {
-                log.info("~> Index {$index} exists in Elasticsearch!")
+                log.info("~> Index {$index} exists in Elasticsearch! Updating index mappings...")
+                val stream = this::class.java.getResourceAsStream("/mappings/$index.json")
+                if (stream == null) {
+                    log.warn("Index {$index} doesn't contain any mappings in resources, skipping")
+                    continue
+                }
+
+                val mapper = client._transport().jsonpMapper()
+                client.indices().putMapping {
+                    it.index(index)
+                    it.withJson(mapper.jsonProvider().createParser(stream), mapper)
+
+                    it
+                }.await()
             } else {
                 log.warn("~> Index {$index} doesn't exist in Elasticsearch! Creating index...")
 
@@ -336,7 +349,6 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
                     }
 
                     log.info("Indexing [$users] users in index {$index}...")
-
                     val baos = ByteArrayOutputStream()
                     for (entity in users) {
                         withContext(Dispatchers.IO) {
@@ -364,8 +376,6 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
                         }
                     )
                 }
-
-                "charted-repositories" -> {}
 
                 else -> log.warn("Index {$index} doesn't support indexing at this time.")
             }
