@@ -63,7 +63,7 @@ jobs:
     runs-on: ${{matrix.runner}}
     strategy:
       matrix:
-        java-version: [17, 18]
+        java-version: [17, 19]
         runner: [windows-latest, ubuntu-latest, macos-latest, self-hosted]
     steps:
       - name: Checkout repository
@@ -156,6 +156,11 @@ jobs:
   golang:
     name: Go CI
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        projects:
+          - { directory: ./databases/clickhouse/migrations, name: ch-migrations }
+          - { directory: ./libraries/helm-plugin, name: helm-plugin }
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -175,21 +180,21 @@ jobs:
             ~/.cache/go-build
           key: ${{ runner.os }}-1.19-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-1.19-go-
+            ${{ runner.os }}-${{matrix.projects.name}}-1.19-go-
 
-      - name: Install dependencies
-        working-directory: ./databases/clickhouse/migrations
+      - name: Install dependencies [${{matrix.projects.directory}}]
+        working-directory: ${{matrix.projects.directory}}
         run: |
           go mod download
           go mod vendor
           go get
 
-      - name: golangci-lint
+      - name: golangci-lint [${{matrix.projects.directory}}]
         uses: golangci/golangci-lint-action@v3
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           skip-cache: false
-          working-directory: ./databases/clickhouse/migrations
+          working-directory: ${{matrix.projects.directory}}
           args: --issues-exit-code=1
           only-new-issues: false
           skip-pkg-cache: true
