@@ -34,7 +34,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.18.5")
     implementation("com.diffplug.spotless:spotless-plugin-gradle:6.12.0")
     implementation("com.google.protobuf:protobuf-gradle-plugin:0.8.19")
-    implementation("dev.floofy.commons:gradle:2.3.0")
+    implementation("dev.floofy.commons:gradle:2.4.0")
     implementation(kotlin("serialization", "1.7.20"))
     implementation(kotlin("gradle-plugin", "1.7.20"))
 }
