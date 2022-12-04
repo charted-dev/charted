@@ -28,8 +28,28 @@
                     <layout class="org.noelware.charted.logback.json.ClassicLogbackJsonLayout">
                         <if condition="isDefined('charted.console.json.pretty')">
                             <then>
-                                <isPrettyPrint>${charted.console.json.pretty}</isPrettyPrint>
+                                <prettyPrint>${charted.console.json.pretty}</prettyPrint>
                             </then>
+                            <else>
+                                <prettyPrint>true</prettyPrint>
+                            </else>
+                        </if>
+                        <if condition="isDefined('charted.console.json.timezone')">
+                            <then>
+                                <timezone>${charted.console.json.timezone}</timezone>
+                            </then>
+                            <else>
+                                <timezone>true</timezone>
+                            </else>
+                        </if>
+
+                        <if condition="isDefined('charted.console.json.timestamp-format')">
+                            <then>
+                                <timestampFormat>${charted.console.json.timestamp-format}</timestampFormat>
+                            </then>
+                            <else>
+                                <timestampFormat>true</timestampFormat>
+                            </else>
                         </if>
                     </layout>
                 </encoder>

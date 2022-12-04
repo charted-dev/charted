@@ -49,6 +49,7 @@ import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import org.noelware.analytics.jvm.server.*
 import org.noelware.analytics.jvm.server.extensions.jvm.JvmMemoryPoolsExtension
+import org.noelware.analytics.jvm.server.extensions.jvm.JvmThreadsExtension
 import org.noelware.analytics.protobufs.v1.BuildFlavour
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.ChartedScope
@@ -457,7 +458,7 @@ object Bootstrap {
         if (config.analytics != null) {
             val server = AnalyticsServerBuilder(config.analytics!!.port).apply {
                 withServiceToken(config.analytics!!.serviceToken)
-                // withExtension(JvmThreadsExtension())
+                withExtension(JvmThreadsExtension())
                 withExtension(JvmMemoryPoolsExtension())
 
                 withServerBuilder { server ->

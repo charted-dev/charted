@@ -20,8 +20,8 @@ package org.noelware.charted.logback.json;
 import ch.qos.logback.classic.pattern.ThrowableHandlingConverter;
 import ch.qos.logback.classic.pattern.ThrowableProxyConverter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -32,25 +32,14 @@ public class ClassicLogbackJsonLayout extends LogbackJsonLayout<ILoggingEvent> {
     private final ThrowableHandlingConverter throwableProxyConverter = new ThrowableProxyConverter();
 
     /**
-     * Sets the default JSON formatter's pretty printing status.
-     * @param value boolean.
-     */
-    public void setIsPrettyPrinting(boolean value) {
-        super.setIsPrettyPrinting(value);
-    }
-
-    /**
      * Transforms the given event into a {@link Map}.
      * @param event The event object that was given from {@link LogbackJsonLayout#doLayout(Object)}.
      */
     @Override
     Map<String, Object> toJsonMap(ILoggingEvent event) {
         final Map<String, Object> data = new LinkedHashMap<>();
-        final var formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
-
-        // TODO: make this configurable, for now it'll be the system one or UTC if
-        //       none is specified.
-        formatter.setTimeZone(TimeZone.getTimeZone(ZoneId.systemDefault()));
+        final DateFormat formatter = new SimpleDateFormat(getTimestampFormat());
+        formatter.setTimeZone(TimeZone.getTimeZone(getTimezone()));
 
         data.put("@timestamp", formatter.format(new Date(event.getTimeStamp())));
         data.put("message", event.getFormattedMessage());
@@ -60,7 +49,7 @@ public class ClassicLogbackJsonLayout extends LogbackJsonLayout<ILoggingEvent> {
         data.put("log.name", event.getLoggerName());
 
         // === metadata ===
-        final var info = ChartedInfo.INSTANCE;
+        final ChartedInfo info = ChartedInfo.INSTANCE;
         data.put("metadata.product", "charted-server");
         data.put("metadata.vendor", "Noelware");
         data.put("metadata.version", info.getVersion());
@@ -71,7 +60,7 @@ public class ClassicLogbackJsonLayout extends LogbackJsonLayout<ILoggingEvent> {
             data.put("metadata.dedi.node", info.getDedicatedNode());
         }
 
-        final var mdc = event.getMDCPropertyMap();
+        final Map<String, String> mdc = event.getMDCPropertyMap();
         data.putAll(mdc);
 
         final var throwableProxy = event.getThrowableProxy();

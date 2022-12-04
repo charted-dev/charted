@@ -18,11 +18,30 @@
 package org.noelware.charted.logback.json;
 
 import ch.qos.logback.core.LayoutBase;
+import java.time.ZoneId;
 import java.util.Map;
 import org.noelware.charted.logback.json.internal.DefaultLogbackJsonFormatter;
 
 public abstract class LogbackJsonLayout<E> extends LayoutBase<E> {
     private LogbackJsonFormatter FORMATTER = new DefaultLogbackJsonFormatter();
+    private String timestampFormat = "yyyy-MM-dd'T'HH:mm:ssXXX";
+    private ZoneId timezone = ZoneId.systemDefault();
+
+    public String getTimestampFormat() {
+        return timestampFormat;
+    }
+
+    public void setTimestampFormat(String timestampFormat) {
+        this.timestampFormat = timestampFormat;
+    }
+
+    public ZoneId getTimezone() {
+        return timezone;
+    }
+
+    public void setTimezone(String timezone) {
+        this.timezone = ZoneId.of(timezone);
+    }
 
     /**
      * Returns the given {@link LogbackJsonFormatter} for formatting Java maps
@@ -40,11 +59,15 @@ public abstract class LogbackJsonLayout<E> extends LayoutBase<E> {
         FORMATTER = formatter;
     }
 
+    public void setPrettyPrint(String value) {
+        setPrettyPrint(Boolean.parseBoolean(value));
+    }
+
     /**
      * Sets the default JSON formatter's pretty printing status.
      * @param value boolean.
      */
-    public void setIsPrettyPrinting(boolean value) {
+    public void setPrettyPrint(boolean value) {
         ((DefaultLogbackJsonFormatter) FORMATTER).setUsePrettyPrint(value);
     }
 
