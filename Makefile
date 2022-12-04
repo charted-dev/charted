@@ -23,7 +23,7 @@ help: ## Prints the help usage on the charted-server toolchain.
 	@printf "\n:: Usage ::\n"
 	@printf "make <target> [VARIABLE=value]\n"
 	@printf "\n:: Targets ::\n"
-	@awk 'BEGIN {FS = ":.*##"; } /^[a-zA-Z_-]+:.*?##/ { printf "  make \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 25) } ' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*##"; } /^[a-zA-Z_-]+:.*?##/ { printf "  make \033[36m%-25s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 25) } ' $(MAKEFILE_LIST)
 
 .PHONY: run
 run: build ## Builds the project and runs the API server

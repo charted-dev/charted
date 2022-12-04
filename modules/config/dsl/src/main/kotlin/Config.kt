@@ -94,6 +94,7 @@ data class Config(
     @SerialName("docker_registry")
     val dockerRegistry: DockerRegistryConfig? = null,
     val clickhouse: ClickHouseConfig? = null,
+    val analytics: NoelwareAnalyticsConfig? = null,
     val database: DatabaseConfig = DatabaseConfig(),
     val features: List<ServerFeature> = listOf(),
     val sessions: SessionsConfig = SessionsConfig(),
@@ -134,6 +135,7 @@ data class Config(
 
         private var _dockerRegistry: DockerRegistryConfig? = null
         private var _clickhouse: ClickHouseConfig? = null
+        private var _analytics: NoelwareAnalyticsConfig? = null
         private var _features: MutableList<ServerFeature> = mutableListOf()
         private var _database: DatabaseConfig = DatabaseConfig()
         private var _sessions: SessionsConfig = SessionsConfig()
@@ -153,6 +155,11 @@ data class Config(
 
         fun clickhouse(builder: ClickHouseConfig.Builder.() -> Unit = {}): Builder {
             _clickhouse = ClickHouseConfig.Builder().apply(builder).build()
+            return this
+        }
+
+        fun analytics(builder: NoelwareAnalyticsConfig.Builder.() -> Unit = {}): Builder {
+            _analytics = NoelwareAnalyticsConfig.Builder().apply(builder).build()
             return this
         }
 
@@ -223,6 +230,7 @@ data class Config(
             debug,
             _dockerRegistry,
             _clickhouse,
+            _analytics,
             _database,
             _features.toList(),
             _sessions,
@@ -237,6 +245,6 @@ data class Config(
     }
 
     companion object {
-        operator fun invoke(block: Config.Builder.() -> Unit = {}): Config = Config.Builder().apply(block).build()
+        operator fun invoke(block: Builder.() -> Unit = {}): Config = Builder().apply(block).build()
     }
 }

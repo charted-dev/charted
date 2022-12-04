@@ -32,6 +32,7 @@ logstash-logback = "7.2"
 prometheus-java = "0.16.0"
 testcontainers = "1.17.6"
 mockito-kotlin = "4.0.0"
+analytics-jvm = "0.1.1-beta"
 noel-commons = "2.3.0"
 ktor-routing = "0.4.1-beta"
 bouncycastle = "1.72"
@@ -178,6 +179,13 @@ clickhouse-jdbc = { module = "com.clickhouse:clickhouse-jdbc", version.ref = "cl
 
 # opentelemetry
 opentelemetry-annotations = { module = "io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations", version.ref = "otel" }
+
+# grpc
+grpc-services = { module = "io.grpc:grpc-services", version.ref = "grpc" }
+
+# noelware analytics
+noelware-analytics-server-kotlin-support = { module = "org.noelware.analytics:analytics-kotlin-support-server", version.ref = "analytics-jvm" }
+noelware-analytics-server = { module = "org.noelware.analytics:analytics-server", version.ref = "analytics-jvm" }
 
 # external libraries
 spring-security-crypto = { module = "org.springframework.security:spring-security-crypto", version.ref = "spring-security-crypto" }

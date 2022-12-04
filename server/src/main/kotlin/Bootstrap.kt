@@ -26,6 +26,7 @@ import dev.floofy.utils.koin.inject
 import dev.floofy.utils.koin.injectOrNull
 import dev.floofy.utils.kotlin.ifNotNull
 import dev.floofy.utils.slf4j.logging
+import io.grpc.protobuf.services.ProtoReflectionService
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -46,8 +47,12 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
+import org.noelware.analytics.jvm.server.*
+import org.noelware.analytics.jvm.server.extensions.jvm.JvmMemoryPoolsExtension
+import org.noelware.analytics.protobufs.v1.BuildFlavour
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.ChartedScope
+import org.noelware.charted.common.SetOnce
 import org.noelware.charted.configuration.host.ConfigurationHost
 import org.noelware.charted.configuration.kotlin.dsl.sessions.SessionType
 import org.noelware.charted.configuration.kotlin.host.KotlinScriptHost
@@ -87,6 +92,7 @@ import java.io.File
 import java.io.IOError
 import java.lang.management.ManagementFactory
 import java.net.InetAddress
+import java.time.Instant
 import java.util.*
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
@@ -96,22 +102,8 @@ import kotlin.time.Duration.Companion.seconds
  * Represents the server bootstrap, which... bootstraps and loads the server.
  */
 object Bootstrap {
+    private val analyticsServerJob: SetOnce<Job> = SetOnce()
     private val log by logging<Bootstrap>()
-
-    private fun createUUID() {
-        val env = System.getenv("CHARTED_NO_ANALYTICS") ?: "true"
-        if (env.matches("^(yes|true|si|si*|1)$".toRegex())) {
-            val file = File("./instance.uuid")
-            if (!file.exists()) {
-                file.writeBytes(UUID.randomUUID().toString().toByteArray())
-
-                val root = File(".").toPath().toRealPath()
-                log.warn("Created instance UUID for Noelware Analytics in [$root/instance.uuid]")
-                log.warn("If you do not wish to create this file to identify this product, you can use the `CHARTED_NO_ANALYTICS` environment variable to skip this step.")
-                log.warn("If you do wish to use this instance UUID for Noelware Analytics, edit your instance to connect the instance UUID: https://analytics.noelware.org/instances")
-            }
-        }
-    }
 
     private fun halt(code: Int) {
         Runtime.getRuntime().halt(code)
@@ -125,6 +117,7 @@ object Bootstrap {
 
                 val koin = GlobalContext.getKoinApplicationOrNull()
                 if (koin != null) {
+                    val analyticsServer: AnalyticsServer? by injectOrNull()
                     val elasticsearch: ElasticsearchModule? by injectOrNull()
                     val clickhouse: ClickHouseConnection? by injectOrNull()
                     val sessions: SessionManager by inject()
@@ -132,6 +125,8 @@ object Bootstrap {
                     val server: ChartedServer by inject()
                     val redis: RedisClient by inject()
 
+                    analyticsServerJob.valueOrNull?.cancel()
+                    analyticsServer?.closeQuietly()
                     elasticsearch?.closeQuietly()
                     clickhouse?.closeQuietly()
                     sessions.closeQuietly()
@@ -216,7 +211,6 @@ object Bootstrap {
         Thread.currentThread().name = "Charted-BootstrapThread"
         installDefaultThreadExceptionHandler()
         installShutdownHook()
-        createUUID()
 
         val runtime = Runtime.getRuntime()
         val os = ManagementFactory.getOperatingSystemMXBean()
@@ -393,11 +387,11 @@ object Bootstrap {
         redis.connect()
 
         metrics.addGenericCollector(RedisStatCollector(redis))
-        metrics.addMetricCollector(PostgresMetricsCollector(config))
+        metrics.addGenericCollector(PostgresStatsCollector)
 
         if (config.metrics.enabled) {
             metrics.addMetricCollector(RedisMetricsCollector(redis, config.metrics))
-            metrics.addGenericCollector(PostgresStatsCollector)
+            metrics.addMetricCollector(PostgresMetricsCollector(config))
         }
 
         val sessions: SessionManager = when (config.sessions.type) {
@@ -458,6 +452,37 @@ object Bootstrap {
                     single<EmailService> { emailService }
                 }
             )
+        }
+
+        if (config.analytics != null) {
+            val server = AnalyticsServerBuilder(config.analytics!!.port).apply {
+                withServiceToken(config.analytics!!.serviceToken)
+                // withExtension(JvmThreadsExtension())
+                withExtension(JvmMemoryPoolsExtension())
+
+                withServerBuilder { server ->
+                    server.addService(ProtoReflectionService.newInstance())
+                }
+
+                withServerMetadata { metadata ->
+                    metadata.setDistributionType(BuildFlavour.ENTERPRISE)
+                    metadata.setBuildDate(Instant.parse(ChartedInfo.buildDate))
+                    metadata.setProductName("charted-server")
+                    metadata.setCommitHash(ChartedInfo.commitHash)
+                    metadata.setVersion(ChartedInfo.version)
+                    metadata.setVendor("Noelware")
+                }
+            }.build()
+
+            modules.add(
+                module {
+                    single<AnalyticsServer> { server }
+                }
+            )
+
+            analyticsServerJob.value = ChartedScope.launch {
+                server.start()
+            }
         }
 
         startKoin {

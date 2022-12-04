@@ -178,7 +178,7 @@ jobs:
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
-          key: ${{ runner.os }}-1.19-go-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-${{matrix.projects.name}}-1.19-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-${{matrix.projects.name}}-1.19-go-
 
