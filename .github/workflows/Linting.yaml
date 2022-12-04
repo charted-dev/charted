@@ -36,27 +36,6 @@ on:
       - '**.md'
       - 'LICENSE'
       - 'renovate.json'
-
-  pull_request:
-    branches:
-      - 'issue/gh-**'
-      - 'feat/**'
-      - nightly
-      - main
-
-    paths-ignore:
-      - '.github/**'
-      - '.husky/**'
-      - '.vscode/**'
-      - 'assets/**'
-      - 'locales/**'
-      - 'docker/**'
-      - '.dockerignore'
-      - '.eslintignore'
-      - '.gitignore'
-      - '**.md'
-      - 'LICENSE'
-      - 'renovate.json'
 jobs:
   spotless:
     name: Spotless [${{matrix.runner}}, Java ${{matrix.java-version}}]
@@ -154,7 +133,7 @@ jobs:
 #        env:
 #          TS_NODE_PROJECT: ./scripts/tsconfig.json
   golang:
-    name: Go CI
+    name: Go CI [${{matrix.projects.name}}]
     runs-on: ubuntu-latest
     strategy:
       matrix:
