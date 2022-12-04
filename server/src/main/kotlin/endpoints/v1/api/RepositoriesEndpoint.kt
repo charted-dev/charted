@@ -935,7 +935,7 @@ class RepositoriesEndpoint(
     // Repository Transfer Endpoints
     // +==============================+
 
-    @Post("/{id}/transfer")
+    @Post("/{id}/transfer/{newOwnerId}")
     suspend fun transferTo(call: ApplicationCall) {
         call.respond(HttpStatusCode.NotImplemented)
     }

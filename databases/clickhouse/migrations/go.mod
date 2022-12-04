@@ -2,13 +2,9 @@ module go.noelware.org/charted/migrations
 
 go 1.19
 
-require (
-	github.com/golang-migrate/migrate v3.5.4+incompatible
-	github.com/spf13/cobra v1.6.1
-)
+require github.com/spf13/cobra v1.6.1
 
 require (
-	cloud.google.com/go v0.99.0 // indirect
 	github.com/ClickHouse/ch-go v0.47.3 // indirect
 	github.com/alecthomas/chroma v0.9.1 // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
@@ -34,11 +30,9 @@ require (
 	go.opentelemetry.io/otel/trace v1.9.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
-	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
 	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
-	google.golang.org/genproto v0.0.0-20220314164441-57ef72a4c106 // indirect
 )
 
 require (
