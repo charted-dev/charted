@@ -71,4 +71,32 @@ interface HelmChartModule {
         version: String,
         multipart: PartData.FileItem
     )
+
+    /**
+     * Retrieves a template from the given [repository][repo] and returns an [InputStream] that is
+     * used to send the data to the end user.
+     * @param owner     owner ID
+     * @param repo      repository object
+     * @param version   release id
+     * @param template  template file to render
+     */
+    suspend fun getTemplate(owner: Long, repo: Long, version: String, template: String): InputStream?
+
+    /**
+     * Retrieves the `values.yaml` file from the given [repository][repo] and returns an [InputStream] that is
+     * used to send the data to the end user.
+     * @param owner     owner ID
+     * @param repo      repository object
+     * @param version   release id
+     */
+    suspend fun getValuesYaml(owner: Long, repo: Long, version: String): InputStream?
+
+    /**
+     * Retrieves the `Chart.yaml` file from the given [repository][repo] and returns an [InputStream] that is
+     * used to send the data to the end user.
+     * @param owner     owner ID
+     * @param repo      repository object
+     * @param version   release id
+     */
+    suspend fun getChartYaml(owner: Long, repo: Long, version: String): InputStream?
 }

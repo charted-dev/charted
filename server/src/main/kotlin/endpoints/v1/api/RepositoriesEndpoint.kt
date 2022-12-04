@@ -805,6 +805,88 @@ class RepositoriesEndpoint(
         call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
     }
 
+    /**
+     * Returns the given `Chart.yaml` of this repository's release.
+     * @statusCode 200 The release by the version if it was found
+     * @statusCode 400 If the ID was not a valid snowflake.
+     * @statusCode 403 If the repository is private and the user doesn't have permission to view the repository
+     * @statusCode 404 If the repository OR release was not found in the database.
+     */
+    @Get("/{id}/releases/{version}/Chart.yaml")
+    suspend fun getChartYamlFromRelease(call: ApplicationCall) {
+        if (config.features.contains(ServerFeature.DOCKER_REGISTRY)) {
+            return call.respond(HttpStatusCode.NotFound)
+        }
+
+        val version = call.parameters["version"]!!
+        try {
+            version.toVersion(true)
+        } catch (e: VersionFormatException) {
+            return call.respond(
+                HttpStatusCode.BadRequest,
+                ApiResponse.err(
+                    "INVALID_SEMVER",
+                    "Version [$version] was not a valid SemVer v2 version"
+                )
+            )
+        }
+
+        val repository = call.getRepository() ?: return
+        val stream = charts!!.getChartYaml(repository.owner, repository.id.value, version) ?: return call.respond(HttpStatusCode.NotFound)
+
+        call.respond(createKtorContentWithInputStream(stream, ContentType.parse("text/yaml; charset=utf-8")))
+    }
+
+    @Get("/{id}/releases/{version}/values.yaml")
+    suspend fun getValuesYamlFromRelease(call: ApplicationCall) {
+        if (config.features.contains(ServerFeature.DOCKER_REGISTRY)) {
+            return call.respond(HttpStatusCode.NotFound)
+        }
+
+        val version = call.parameters["version"]!!
+        try {
+            version.toVersion(true)
+        } catch (e: VersionFormatException) {
+            return call.respond(
+                HttpStatusCode.BadRequest,
+                ApiResponse.err(
+                    "INVALID_SEMVER",
+                    "Version [$version] was not a valid SemVer v2 version"
+                )
+            )
+        }
+
+        val repository = call.getRepository() ?: return
+        val stream = charts!!.getValuesYaml(repository.owner, repository.id.value, version) ?: return call.respond(HttpStatusCode.NotFound)
+
+        call.respond(createKtorContentWithInputStream(stream, ContentType.parse("text/yaml; charset=utf-8")))
+    }
+
+    @Get("/{id}/releases/{version}/templates/{template}")
+    suspend fun getTemplateFromRelease(call: ApplicationCall) {
+        if (config.features.contains(ServerFeature.DOCKER_REGISTRY)) {
+            return call.respond(HttpStatusCode.NotFound)
+        }
+
+        val version = call.parameters["version"]!!
+        try {
+            version.toVersion(true)
+        } catch (e: VersionFormatException) {
+            return call.respond(
+                HttpStatusCode.BadRequest,
+                ApiResponse.err(
+                    "INVALID_SEMVER",
+                    "Version [$version] was not a valid SemVer v2 version"
+                )
+            )
+        }
+
+        val repository = call.getRepository() ?: return
+        val stream = charts!!.getTemplate(repository.owner, repository.id.value, version, call.parameters["template"]!!) ?: return call.respond(HttpStatusCode.NotFound)
+
+        call.respond(createKtorContentWithInputStream(stream, ContentType.parse("text/plain; charset=utf-8")))
+    }
+
     // +==============================+
     // Repository Webhooks Endpoints
     // +==============================+

@@ -29,6 +29,7 @@ import kotlinx.datetime.Clock
 import kotlinx.serialization.encodeToString
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
+import org.apache.commons.compress.utils.IOUtils
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.databases.postgres.models.Repository
 import org.noelware.charted.modules.storage.StorageHandler
@@ -169,7 +170,7 @@ class DefaultHelmChartModule(
             }
 
             if (entryName == "Chart.yaml") {
-                chartSpec = TarArchiveEntryUtil.readTarEntry(tarInputStream, nextEntry).use { stream -> yaml.decodeFromStream(stream) }
+                chartSpec = ByteArrayInputStream(IOUtils.toByteArray(tarInputStream)).use { stream -> yaml.decodeFromStream(stream) }
             }
         }
 
@@ -250,5 +251,129 @@ class DefaultHelmChartModule(
             ByteArrayInputStream(stream.toByteArray()),
             "application/yaml"
         )
+    }
+
+    /**
+     * Retrieves a template from the given [repository][repo] and returns an [InputStream] that is
+     * used to send the data to the end user.
+     * @param owner     owner ID
+     * @param repo      repository object
+     * @param version   release id
+     * @param template  template file to render
+     */
+    override suspend fun getTemplate(owner: Long, repo: Long, version: String, template: String): InputStream? {
+        log.info("Finding template [$template] for repository $owner/$repo v$version")
+
+        val inputStream = storage.open("./repositories/$owner/$repo/tarballs/$version.tar.gz") ?: return null
+        val tarInputStream = TarArchiveInputStream(
+            withContext(Dispatchers.IO) {
+                GZIPInputStream(inputStream)
+            }
+        )
+
+        var data: InputStream? = null
+        tarInputStream.use { stream ->
+            var nextEntry: TarArchiveEntry?
+            while (true) {
+                nextEntry = stream.nextTarEntry
+                if (nextEntry == null) break
+
+                val firstDash = nextEntry.name.indexOfFirst { c -> c == '/' }
+                val entryName = if (firstDash != -1) {
+                    nextEntry.name.substring(firstDash + 1)
+                } else {
+                    nextEntry.name
+                }
+
+                if (entryName == "templates/$template") {
+                    data = ByteArrayInputStream(IOUtils.toByteArray(stream))
+                    break
+                }
+            }
+        }
+
+        return data
+    }
+
+    /**
+     * Retrieves the `Chart.yaml` file from the given [repository][repo] and returns an [ByteArray] that is
+     * used to send the data to the end user.
+     * @param owner     owner ID
+     * @param repo      repository object
+     * @param version   release id
+     */
+    override suspend fun getChartYaml(owner: Long, repo: Long, version: String): InputStream? {
+        log.info("Finding Chart.yaml for repository $owner/$repo v$version")
+
+        val inputStream = storage.open("./repositories/$owner/$repo/tarballs/$version.tar.gz") ?: return null
+        val tarInputStream = TarArchiveInputStream(
+            withContext(Dispatchers.IO) {
+                GZIPInputStream(inputStream)
+            }
+        )
+
+        var data: InputStream? = null
+        tarInputStream.use { stream ->
+            var nextEntry: TarArchiveEntry?
+            while (true) {
+                nextEntry = stream.nextTarEntry
+                if (nextEntry == null) break
+
+                val firstDash = nextEntry.name.indexOfFirst { c -> c == '/' }
+                val entryName = if (firstDash != -1) {
+                    nextEntry.name.substring(firstDash + 1)
+                } else {
+                    nextEntry.name
+                }
+
+                if (entryName == "Chart.yaml") {
+                    data = ByteArrayInputStream(IOUtils.toByteArray(stream))
+                    break
+                }
+            }
+        }
+
+        return data
+    }
+
+    /**
+     * Retrieves the `values.yaml` file from the given [repository][repo] and returns an [ByteArray] that is
+     * used to send the data to the end user.
+     * @param owner     owner ID
+     * @param repo      repository object
+     * @param version   release id
+     */
+    override suspend fun getValuesYaml(owner: Long, repo: Long, version: String): InputStream? {
+        log.info("Finding values.yaml for repository $owner/$repo v$version")
+
+        val inputStream = storage.open("./repositories/$owner/$repo/tarballs/$version.tar.gz") ?: return null
+        val tarInputStream = TarArchiveInputStream(
+            withContext(Dispatchers.IO) {
+                GZIPInputStream(inputStream)
+            }
+        )
+
+        var data: InputStream? = null
+        tarInputStream.use { stream ->
+            var nextEntry: TarArchiveEntry?
+            while (true) {
+                nextEntry = stream.nextTarEntry
+                if (nextEntry == null) break
+
+                val firstDash = nextEntry.name.indexOfFirst { c -> c == '/' }
+                val entryName = if (firstDash != -1) {
+                    nextEntry.name.substring(firstDash + 1)
+                } else {
+                    nextEntry.name
+                }
+
+                if (entryName == "values.yaml") {
+                    data = ByteArrayInputStream(IOUtils.toByteArray(stream))
+                    break
+                }
+            }
+        }
+
+        return data
     }
 }
