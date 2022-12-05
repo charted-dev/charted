@@ -20,8 +20,7 @@ package org.noelware.charted.configuration.kotlin.dsl
 import kotlinx.serialization.Serializable
 
 /**
- * Represents the configuration for connecting to PostgreSQL. If Postgres is not configured properly,
- * it will embed PocketBase for a tiny, and reliable database
+ * Represents the configuration for connecting to PostgreSQL.
  *
  * @param username Username for connecting to Postgres if authentication is enabled.
  * @param password Password for connecting to Postgres if authentication is enabled.

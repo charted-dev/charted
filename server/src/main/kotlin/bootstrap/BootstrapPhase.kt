@@ -15,16 +15,21 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-}
+package org.noelware.charted.server.bootstrap
 
-dependencies {
-    implementation(project(":modules:metrics"))
-    api(libs.lettuce)
+import java.io.File
 
-    testImplementation(libs.testcontainers.k3s)
-    testImplementation(libs.ktor.client.okhttp)
-    testImplementation(libs.kubernetes.client)
-    testImplementation(libs.ktor.client.core)
+/**
+ * Represents a phase when bootstrapping charted-server. This was only made to put pieces
+ * together (i.e, add hooks then collect what modules to add, etc).
+ */
+abstract class BootstrapPhase {
+    abstract suspend fun bootstrap(configPath: File)
+    companion object {
+        val PHASES: List<BootstrapPhase> = listOf(
+            OnStartPhase,
+            ConfigureModulesPhase,
+            StartServerPhase
+        )
+    }
 }

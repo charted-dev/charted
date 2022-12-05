@@ -19,11 +19,20 @@
 
 // @ts-check
 
+const { existsSync } = require('fs');
 const { promisify } = require('util');
+const { dirname, join } = require('path');
 const { spawn } = require('child_process');
 
 const scriptPath = process.argv.slice(2);
 if (scriptPath.length === 0) throw new Error('Missing script path to execute');
+
+let tsNodeProject;
+if (existsSync(join(dirname(scriptPath[0]), 'tsconfig.json'))) {
+  tsNodeProject = join(dirname(scriptPath[0]), 'tsconfig.json');
+} else {
+  tsNodeProject = './scripts/tsconfig.json';
+}
 
 const spawnAsync = promisify(spawn);
 spawnAsync(
@@ -39,7 +48,7 @@ spawnAsync(
     windowsHide: true,
     stdio: 'inherit',
     env: {
-      TS_NODE_PROJECT: './scripts/tsconfig.json'
+      TS_NODE_PROJECT: tsNodeProject
     }
   }
 );

@@ -48,4 +48,8 @@ data class RedisConfig(
 
         override fun build(): RedisConfig = RedisConfig(sentinels, masterName, password, index, host, port, ssl)
     }
+
+    companion object {
+        operator fun invoke(builder: Builder.() -> Unit = {}): RedisConfig = RedisConfig.Builder().apply(builder).build()
+    }
 }

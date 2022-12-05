@@ -15,16 +15,15 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-}
+package org.noelware.charted.server.bootstrap
 
-dependencies {
-    implementation(project(":modules:metrics"))
-    api(libs.lettuce)
+import dev.floofy.utils.koin.inject
+import org.noelware.charted.server.ChartedServer
+import java.io.File
 
-    testImplementation(libs.testcontainers.k3s)
-    testImplementation(libs.ktor.client.okhttp)
-    testImplementation(libs.kubernetes.client)
-    testImplementation(libs.ktor.client.core)
+object StartServerPhase: BootstrapPhase() {
+    override suspend fun bootstrap(configPath: File) {
+        val server: ChartedServer by inject()
+        server.start()
+    }
 }

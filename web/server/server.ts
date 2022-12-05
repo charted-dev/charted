@@ -15,8 +15,10 @@
  * limitations under the License.
  */
 
-import '@actions/core';
+import type { Configuration } from './config';
+import { type Logger } from 'winston';
+import fastify from 'fastify';
 
-const main = () => console.log('hecc');
-
-main();
+export class Server {
+  private server: ReturnType<typeof fastify>;
+}

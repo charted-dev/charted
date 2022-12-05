@@ -19,9 +19,11 @@ package org.noelware.charted.modules.redis
 
 import co.elastic.apm.api.Traced
 import dev.floofy.utils.slf4j.logging
+import io.lettuce.core.ClientOptions
 import io.lettuce.core.RedisURI
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
+import io.lettuce.core.protocol.ProtocolVersion
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.lang3.time.StopWatch
@@ -51,12 +53,17 @@ class DefaultRedisClient(config: RedisConfig): RedisClient {
                 .withDatabase(config.index)
 
             for (host in config.sentinels) {
+                if (host.startsWith("redis://")) {
+                    builder.withSentinel(RedisURI.create(host))
+                    continue
+                }
+
                 val h = host.split(":", limit = 2)
                 if (h.size != 2) {
                     throw IllegalArgumentException("Sentinel host format must be 'host:port', received $host")
                 }
 
-                builder.withSentinel(h.first(), h.last().toInt())
+                builder.withSentinel(h.first(), h.last().toInt(), config.password)
             }
 
             if (config.password != null) {
@@ -81,6 +88,9 @@ class DefaultRedisClient(config: RedisConfig): RedisClient {
 
         log.debug("Configured Redis URI ~> [$redisURI]")
         client = LettuceRedisClient.create(redisURI)
+        client.options = ClientOptions.builder().apply {
+            protocolVersion(ProtocolVersion.RESP2)
+        }.build()
     }
 
     /**

@@ -79,6 +79,7 @@ class DefaultStorageHandler(private val config: StorageConfig): StorageHandler {
      * @param path The path to locate
      * @return [InputStream] if file exists, otherwise null.
      */
+    @Traced
     override suspend fun open(path: String): InputStream? = trailer.open(path)
 
     /**
@@ -90,6 +91,7 @@ class DefaultStorageHandler(private val config: StorageConfig): StorageHandler {
      * @param contentType content type for metadata
      * @return boolean for successful or failure indication
      */
+    @Traced
     override suspend fun upload(path: String, `is`: InputStream, contentType: String): Boolean {
         val size = withContext(Dispatchers.IO) {
             `is`.available()
@@ -106,6 +108,7 @@ class DefaultStorageHandler(private val config: StorageConfig): StorageHandler {
      * @param path The path to locate
      * @return boolean to indicate if it exists
      */
+    @Traced
     override suspend fun exists(path: String): Boolean = trailer.exists(path)
 
     /**
@@ -115,12 +118,14 @@ class DefaultStorageHandler(private val config: StorageConfig): StorageHandler {
      * @param path The path to locate
      * @return boolean to indicate if the file was deleted or not
      */
+    @Traced
     override suspend fun delete(path: String): Boolean = trailer.delete(path)
 
     /**
      * Recursively collects all the files available in the trailer. Calls the [StorageTrailer#listAll][org.noelware.remi.core.StorageTrailer.listAll]
      * method internally.
      */
+    @Traced
     override suspend fun list(): List<Object> = trailer.listAll(true)
 
     /**
@@ -131,5 +136,6 @@ class DefaultStorageHandler(private val config: StorageConfig): StorageHandler {
      * @param path The path to locate
      * @return the [Object] metadata if the file was found, otherwise null.
      */
+    @Traced
     override suspend fun get(path: String): Object? = trailer.fetch(path)
 }

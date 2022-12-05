@@ -156,7 +156,7 @@ class RepositoriesEndpoint(
         // +==============================+
         // Repository Transfer Endpoints
         // +==============================+
-        install(HttpMethod.Post, "/repositories/{id}/transfer", SessionsPlugin) {
+        install(HttpMethod.Post, "/repositories/{id}/transfer/{newOwnerId}", SessionsPlugin) {
             this += "repo:transfer"
 
             condition(this@RepositoriesEndpoint::checkRepositoryPermissionOnCurrentUser)

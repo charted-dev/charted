@@ -1,0 +1,37 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres:15-alpine3.16
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=charted
+      - POSTGRES_USER=charted
+      - POSTGRES_DB=charted
+  redis:
+    image: redis:7-alpine3.16
+    ports:
+      - "6379:6379"
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.5.2
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms1024m -Xmx4096m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
+  clickhouse:
+    image: clickhouse/clickhouse-server:22.11-alpine
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    environment:
+      - CLICKHOUSE_PASSWORD=charted
+      - CLICKHOUSE_USERNAME=charted
+    cap_add:
+      - SYS_NICE
+      - NET_ADMIN
+      - IPC_LOCK
+    ulimits:
+      memlock:
+        soft: 262144
+        hard: 262144

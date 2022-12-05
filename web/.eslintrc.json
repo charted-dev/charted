@@ -1,5 +1,5 @@
 {
-  "extends": ["prettier", "plugin:react/recommended", "@augu/eslint-config/ts.js"],
+  "extends": ["prettier", "@augu/eslint-config/ts.js", "plugin:react/recommended"],
   "plugins": ["react"],
   "settings": {
     "react": {
