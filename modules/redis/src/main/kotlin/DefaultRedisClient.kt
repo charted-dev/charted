@@ -88,9 +88,6 @@ class DefaultRedisClient(config: RedisConfig): RedisClient {
 
         log.debug("Configured Redis URI ~> [$redisURI]")
         client = LettuceRedisClient.create(redisURI)
-        client.options = ClientOptions.builder().apply {
-            protocolVersion(ProtocolVersion.RESP2)
-        }.build()
     }
 
     /**

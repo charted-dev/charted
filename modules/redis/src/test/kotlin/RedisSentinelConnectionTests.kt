@@ -102,7 +102,6 @@ class RedisSentinelConnectionTests {
         val cacheDir = createTempDirectory("helm-cache")
 
         // Install the Bitnami Redis chart on the redis-system namespace
-        println(k3sContainer.kubeConfigYaml.replace("\"https://localhost:${k3sContainer.getMappedPort(6443)}\"", "\"https://${k3sContainer.containerId.slice(0..11)}:${k3sContainer.getMappedPort(6443)}\""))
         val helmRepoAdd = GenericContainer(DockerImageName.parse("alpine/helm:3.10.2"))
             .withNetwork(network)
             .withCommand("repo add bitnami https://charts.bitnami.com/bitnami")
