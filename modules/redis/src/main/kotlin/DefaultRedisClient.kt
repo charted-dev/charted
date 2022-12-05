@@ -19,11 +19,9 @@ package org.noelware.charted.modules.redis
 
 import co.elastic.apm.api.Traced
 import dev.floofy.utils.slf4j.logging
-import io.lettuce.core.ClientOptions
 import io.lettuce.core.RedisURI
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
-import io.lettuce.core.protocol.ProtocolVersion
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.lang3.time.StopWatch
