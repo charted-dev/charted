@@ -24,6 +24,9 @@ import com.zaxxer.hikari.HikariDataSource
 import dev.floofy.utils.slf4j.logging
 import io.sentry.Sentry
 import io.sentry.SpanStatus
+import kotlinx.atomicfu.AtomicBoolean
+import kotlinx.atomicfu.AtomicLong
+import kotlinx.atomicfu.atomic
 import okhttp3.internal.closeQuietly
 import org.apache.commons.lang3.time.StopWatch
 import org.noelware.charted.common.SetOnce
@@ -31,25 +34,21 @@ import org.noelware.charted.configuration.kotlin.dsl.ClickHouseConfig
 import org.noelware.charted.extensions.doFormatTime
 import org.noelware.charted.extensions.ifSentryEnabled
 import java.sql.Connection
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicLong
 import kotlin.time.Duration.Companion.seconds
 
 class DefaultClickHouseConnection(private val config: ClickHouseConfig): ClickHouseConnection {
     private val _serverVersion: SetOnce<String> = SetOnce()
     private val _dataSource: SetOnce<HikariDataSource> = SetOnce()
-    private val _closed: AtomicBoolean = AtomicBoolean()
-    private val _calls: AtomicLong = AtomicLong(0)
+    private val _closed: AtomicBoolean = atomic(false)
+    private val _calls: AtomicLong = atomic(0L)
     private val log by logging<DefaultClickHouseConnection>()
 
-    override val closed: Boolean
-        get() = _closed.get()
+    override val closed: Boolean by _closed
 
     override val serverVersion: String
         get() = _serverVersion.value
 
-    override val calls: Long
-        get() = _calls.get()
+    override val calls: Long by _calls
 
     /**
      * Creates and uses a new [Connection] to do some queries to the

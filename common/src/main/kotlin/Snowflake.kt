@@ -17,6 +17,7 @@
 
 package org.noelware.charted
 
+import kotlinx.atomicfu.atomic
 import kotlinx.datetime.Clock
 import java.util.concurrent.atomic.AtomicLong
 
@@ -48,14 +49,16 @@ class Snowflake {
     )
 
     companion object {
-        private val increment = AtomicLong(0L)
-        val EPOCH = 1651276800000
+        private val _increment = atomic(0L)
+
+        var increment: Long by _increment
+        const val EPOCH = 1651276800000
 
         fun generate(): Long {
             val timestamp = Clock.System.now().toEpochMilliseconds()
-            val inc = increment.getAndIncrement()
+            val inc = _increment.getAndIncrement()
             if (inc >= 4095) {
-                increment.set(0)
+                increment = 0L
             }
 
             return ((timestamp - EPOCH) shl 22) or ((0 and 0b11111) shl 17) or ((1 and 0b11111) shl 12) or inc
