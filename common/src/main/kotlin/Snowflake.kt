@@ -19,7 +19,6 @@ package org.noelware.charted
 
 import kotlinx.atomicfu.atomic
 import kotlinx.datetime.Clock
-import java.util.concurrent.atomic.AtomicLong
 
 /**
  * A class for generating and destructuring Twitter snowflakes.
