@@ -33,7 +33,7 @@ data class ClickHouseConfig(
     val database: String = "charted",
     val username: String? = null,
     val password: String? = null,
-    val host: String = "localhost",
+    val host: String = "127.0.0.1",
     val port: Int = 8123
 ) {
     class Builder: org.noelware.charted.common.Builder<ClickHouseConfig> {
@@ -49,8 +49,8 @@ data class ClickHouseConfig(
         /** The connection host to connect to ClickHouse (default: "127.0.0.1") */
         var host: String = "127.0.0.1"
 
-        /** Connection port to connect to ClickHouse (default: 9000) */
-        var port: Int = 9000
+        /** Connection port to connect to ClickHouse (default: 8123) */
+        var port: Int = 8123
 
         override fun build(): ClickHouseConfig = ClickHouseConfig(
             database,

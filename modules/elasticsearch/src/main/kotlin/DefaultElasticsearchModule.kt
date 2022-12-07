@@ -24,6 +24,7 @@ import co.elastic.clients.transport.rest_client.RestClientTransport
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import dev.floofy.utils.exposed.asyncTransaction
+import dev.floofy.utils.kotlin.ifNotNull
 import dev.floofy.utils.slf4j.logging
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
@@ -38,12 +39,14 @@ import org.apache.commons.lang3.time.StopWatch
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
 import org.apache.http.auth.UsernamePasswordCredentials
+import org.apache.http.conn.ssl.NoopHostnameVerifier
 import org.apache.http.entity.ByteArrayEntity
 import org.apache.http.entity.ContentType
 import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.message.BasicHeader
 import org.apache.http.ssl.SSLContexts
 import org.elasticsearch.client.*
+import org.elasticsearch.client.sniff.ElasticsearchNodesSniffer
 import org.elasticsearch.client.sniff.SniffOnFailureListener
 import org.elasticsearch.client.sniff.Sniffer
 import org.noelware.charted.ChartedScope
@@ -144,11 +147,14 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
 
         val config = config.search!!.elasticsearch!!
         val nodes = config.nodes.map {
+            if (it.startsWith("http")) {
+                return@map HttpHost.create(it)
+            }
             val mapping = it.split(":", limit = 2)
             if (mapping.size != 2) {
                 throw IllegalStateException("Node mapping should be in the 'host:port' format")
             }
-            HttpHost(mapping.first(), mapping.last().toInt(), "https")
+            HttpHost(mapping.first(), mapping.last().toInt(), config.caPath?.let { "https" })
         }
 
         val builder = if (config.auth.type == AuthStrategyType.Cloud) {
@@ -169,7 +175,7 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
                 }
 
                 val nodeName = if (node.name == null) "(unknown)" else node.name
-                log.warn("Elasticsearch node [$nodeName@${node.host} v${node.version}] $attrs has failed executing an action!")
+                log.warn("${node.host.schemeName} Elasticsearch node [$nodeName@${node.host} v${node.version}] $attrs has failed executing an action!")
                 listener.onFailure(node)
             }
         })
@@ -195,13 +201,18 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
                 val trustStore = KeyStore.getInstance("pkcs12")
                 trustStore.load(null, null)
                 trustStore.setCertificateEntry("ca", trustedCa)
+                hc.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
                 hc.setSSLContext(SSLContexts.custom().loadTrustMaterial(trustStore, null).build())
             }
             hc
         }
 
         val lowLevelClient = builder.build()
-        val sniffer = Sniffer.builder(lowLevelClient).setSniffAfterFailureDelayMillis(30000).build()
+        val sniffer = Sniffer.builder(lowLevelClient)
+            .setNodesSniffer(ElasticsearchNodesSniffer(lowLevelClient, ElasticsearchNodesSniffer.DEFAULT_SNIFF_REQUEST_TIMEOUT, config.caPath?.ifNotNull {
+                ElasticsearchNodesSniffer.Scheme.HTTPS
+            } ?: ElasticsearchNodesSniffer.Scheme.HTTP))
+            .setSniffAfterFailureDelayMillis(30000).build()
         listener.setSniffer(sniffer)
 
         sw.stop()
@@ -355,6 +366,9 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
                     if (sw.isSuspended) sw.resume()
                     val users = asyncTransaction(ChartedScope) {
                         UserEntity.all().map { entity -> User.fromEntity(entity) }.toImmutableList()
+                    }
+                    if (users.isEmpty()) {
+                        continue
                     }
 
                     log.info("Indexing [$users] users in index {$index}...")
