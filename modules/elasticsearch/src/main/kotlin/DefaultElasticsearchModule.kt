@@ -47,6 +47,7 @@ import org.apache.http.entity.ContentType
 import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder
 import org.apache.http.message.BasicHeader
+import org.apache.http.ssl.SSLContexts
 import org.elasticsearch.client.*
 import org.elasticsearch.client.RestClientBuilder.HttpClientConfigCallback
 import org.elasticsearch.client.sniff.SniffOnFailureListener
@@ -65,6 +66,10 @@ import org.noelware.charted.extensions.reflection.getAndUseField
 import org.noelware.charted.modules.elasticsearch.metrics.ElasticsearchStats
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.InputStream
+import java.security.KeyStore
+import java.security.cert.Certificate
+import java.security.cert.CertificateFactory
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.net.ssl.SSLContext
 
@@ -191,7 +196,15 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
 
                 else -> {}
             }
-            file.ifNotNull { hc.setSSLContext(TransportUtils.sslContextFromHttpCaCrt(this)) }
+            file?.let {
+                val factory = CertificateFactory.getInstance("X.509")
+                val trustedCa: Certificate = factory.generateCertificate(file.inputStream())
+                val trustStore = KeyStore.getInstance("pkcs12")
+                trustStore.load(null, null)
+                trustStore.setCertificateEntry("ca", trustedCa)
+                hc.setSSLContext(SSLContexts.custom().loadTrustMaterial(trustStore,  null).build())
+            }
+            hc
         }
 
         val lowLevelClient = builder.build()
