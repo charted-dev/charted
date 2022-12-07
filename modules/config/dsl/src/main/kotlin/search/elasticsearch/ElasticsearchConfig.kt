@@ -22,7 +22,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ElasticsearchConfig(
     val auth: AuthenticationStrategy = AuthenticationStrategy.None,
-    val nodes: List<String> = listOf("127.0.0.1:9200")
+    val nodes: List<String> = listOf("127.0.0.1:9200"),
+    val caPath: String? = null
 ) {
     class Builder: org.noelware.charted.common.Builder<ElasticsearchConfig> {
         private val nodes = mutableListOf<String>()
