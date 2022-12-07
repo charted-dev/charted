@@ -19,14 +19,11 @@ package org.noelware.charted.modules.elasticsearch
 
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient
 import co.elastic.clients.elasticsearch.indices.ExistsRequest
-import co.elastic.clients.elasticsearch.ssl.ElasticsearchSslAsyncClient
 import co.elastic.clients.json.jackson.JacksonJsonpMapper
-import co.elastic.clients.transport.TransportUtils
 import co.elastic.clients.transport.rest_client.RestClientTransport
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import dev.floofy.utils.exposed.asyncTransaction
-import dev.floofy.utils.kotlin.ifNotNull
 import dev.floofy.utils.slf4j.logging
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
@@ -41,15 +38,12 @@ import org.apache.commons.lang3.time.StopWatch
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
 import org.apache.http.auth.UsernamePasswordCredentials
-import org.apache.http.client.config.RequestConfig
 import org.apache.http.entity.ByteArrayEntity
 import org.apache.http.entity.ContentType
 import org.apache.http.impl.client.BasicCredentialsProvider
-import org.apache.http.impl.nio.client.HttpAsyncClientBuilder
 import org.apache.http.message.BasicHeader
 import org.apache.http.ssl.SSLContexts
 import org.elasticsearch.client.*
-import org.elasticsearch.client.RestClientBuilder.HttpClientConfigCallback
 import org.elasticsearch.client.sniff.SniffOnFailureListener
 import org.elasticsearch.client.sniff.Sniffer
 import org.noelware.charted.ChartedScope
@@ -66,7 +60,6 @@ import org.noelware.charted.extensions.reflection.getAndUseField
 import org.noelware.charted.modules.elasticsearch.metrics.ElasticsearchStats
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.InputStream
 import java.security.KeyStore
 import java.security.cert.Certificate
 import java.security.cert.CertificateFactory
@@ -202,7 +195,7 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
                 val trustStore = KeyStore.getInstance("pkcs12")
                 trustStore.load(null, null)
                 trustStore.setCertificateEntry("ca", trustedCa)
-                hc.setSSLContext(SSLContexts.custom().loadTrustMaterial(trustStore,  null).build())
+                hc.setSSLContext(SSLContexts.custom().loadTrustMaterial(trustStore, null).build())
             }
             hc
         }
@@ -219,7 +212,7 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
 
         val objectMapper = ObjectMapper().registerKotlinModule()
         val transport = RestClientTransport(lowLevelClient, JacksonJsonpMapper(objectMapper))
-        _client.value = ElasticsearchAsyncClient(transport);
+        _client.value = ElasticsearchAsyncClient(transport)
 
         log.info("Initialized the async client for Elasticsearch!")
 
