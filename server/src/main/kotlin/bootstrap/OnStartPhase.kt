@@ -33,6 +33,7 @@ import org.noelware.charted.extensions.formatToSize
 import org.noelware.charted.modules.elasticsearch.ElasticsearchModule
 import org.noelware.charted.modules.redis.RedisClient
 import org.noelware.charted.modules.sessions.SessionManager
+import org.noelware.charted.server.Bootstrap
 import org.noelware.charted.server.ChartedServer
 import org.noelware.charted.server.hasStarted
 import java.io.File
@@ -66,6 +67,11 @@ object OnStartPhase: BootstrapPhase() {
                     val hikari: HikariDataSource by inject()
                     val server: ChartedServer by inject()
                     val redis: RedisClient by inject()
+
+                    val analyticsServerJob = Bootstrap.analyticsServerJob
+                    if (analyticsServerJob.wasSet()) {
+                        analyticsServerJob.value.cancel()
+                    }
 
                     analyticsServer?.closeQuietly()
                     elasticsearch?.closeQuietly()
@@ -121,10 +127,10 @@ object OnStartPhase: BootstrapPhase() {
         val runtime = Runtime.getRuntime()
         val os = ManagementFactory.getOperatingSystemMXBean()
 
-        log.info("==> charted-server v${ChartedInfo.version} (${ChartedInfo.commitHash})...")
+        log.info("==> Initializing charted-server v${ChartedInfo.version} (${ChartedInfo.commitHash})")
         log.info("==> Memory: total=${runtime.totalMemory().formatToSize()} free=${runtime.freeMemory().formatToSize()}")
         log.info("==> Kotlin: ${KotlinVersion.CURRENT}")
-        log.info("==> JVM:    ${System.getProperty("java.version")} [${System.getProperty("java.version")}]")
+        log.info("==> JVM:    version=${System.getProperty("java.version")} vendor=${System.getProperty("java.vendor")}")
         log.info("==> OS:     ${os.name.lowercase()}/${os.arch} with ${os.availableProcessors} processors")
 
         if (ChartedInfo.dedicatedNode != null) {
@@ -133,6 +139,6 @@ object OnStartPhase: BootstrapPhase() {
 
         log.info("===> JVM Arguments: [${ManagementFactory.getRuntimeMXBean().inputArguments.joinToString(" ")}]")
         for (pool in ManagementFactory.getMemoryPoolMXBeans())
-            log.info("===> ${pool.name} <${pool.type}> -> ${pool.peakUsage}")
+            log.info("===> Memory Pool [${pool.name} <${pool.type}>] ~> ${pool.peakUsage}")
     }
 }

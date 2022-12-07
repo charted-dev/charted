@@ -43,12 +43,14 @@ class DefaultClickHouseConnection(private val config: ClickHouseConfig): ClickHo
     private val _calls: AtomicLong = atomic(0L)
     private val log by logging<DefaultClickHouseConnection>()
 
-    override val closed: Boolean by _closed
+    override val closed: Boolean
+        get() = _closed.value
 
     override val serverVersion: String
         get() = _serverVersion.value
 
-    override val calls: Long by _calls
+    override val calls: Long
+        get() = _calls.value
 
     /**
      * Creates and uses a new [Connection] to do some queries to the

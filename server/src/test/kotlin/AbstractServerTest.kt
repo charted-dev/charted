@@ -19,7 +19,6 @@ package org.noelware.charted.server.tests
 
 import io.ktor.server.application.*
 import io.ktor.server.testing.*
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.DisabledOnOs
 import org.noelware.charted.RandomStringGenerator
 import org.noelware.charted.configuration.kotlin.dsl.Config
@@ -30,19 +29,16 @@ import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.io.File
-import kotlin.test.assertTrue
 
 @Testcontainers(disabledWithoutDocker = true)
 @DisabledOnOs(architectures = ["aarch64", "arm64"], disabledReason = "docker/compose Docker image doesn't support ARM")
 open class AbstractServerTest {
-    @Test
-    fun `check if we can startup the server`() = withChartedServer {
-        assertTrue(true)
-    }
-
-    fun withChartedServer(module: Application.() -> Unit = {}, testFunction: suspend TestApplicationBuilder.() -> Unit) = withChartedServer(
+    fun withChartedServer(module: Application.() -> Unit = {}, testFunction: suspend ApplicationTestBuilder.() -> Unit) = withChartedServer(
         Config {
             jwtSecretKey = RandomStringGenerator.generate(32)
+            metrics {
+                enabled = false
+            }
 
             if (includeElasticsearch) {
                 search {

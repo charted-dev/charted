@@ -13,16 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM --platform=$BUILDPLATFORM golang:1.19.3-alpine3.16 AS migrations
-
-RUN apk update && apk add --no-cache ca-certificates git
-WORKDIR /build/migrations
-
-COPY databases/clickhouse/migrations .
-RUN go mod tidy && \
-    go mod download && \
-    go build -ldflags "-s -w" -o ./bin/migrations
-
 FROM --platform=$BUILDPLATFORM eclipse-temurin:17-jdk-alpine AS jdk-runtime
 
 RUN apk update && \
@@ -36,8 +26,11 @@ RUN apk update && \
 
 FROM --platform=$BUILDPLATFORM eclipse-temurin:17-jdk-alpine AS gradle-build
 
-RUN apk update && apk add --no-cache git ca-certificates gcompat libc6-compat
+RUN apk update && apk add --no-cache git ca-certificates gcompat libc6-compat curl
 WORKDIR /build/server
+
+COPY --from=golang:1.19.4-alpine /usr/local/go/ /usr/local/go/
+ENV PATH="/usr/local/go/bin:$PATH"
 
 COPY . .
 RUN chmod +x ./gradlew && ./gradlew :cli:installDist --no-daemon --stacktrace
@@ -52,7 +45,6 @@ COPY --from=gradle-build /build/server/cli/build/install/charted/config /app/noe
 COPY --from=gradle-build /build/server/cli/build/install/charted/lib    /app/noelware/charted/server/lib
 COPY --from=gradle-build /build/server/cli/build/install/charted/bin    /app/noelware/charted/server/bin
 COPY                     distribution/docker/scripts/linux              /app/noelware/charted/server/scripts
-COPY --from=migrations   /build/migrations/bin/migrations               /app/noelware/charted/server/bin/ch-migrations
 COPY --from=jdk-runtime  /runtime                                       /opt/openjdk/java
 
 # Remove the PowerShell script (since it's useless on *UNIX)

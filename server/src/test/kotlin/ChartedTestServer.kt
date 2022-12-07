@@ -35,6 +35,8 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import org.koin.core.context.GlobalContext.startKoin
+import org.koin.dsl.module
 import org.noelware.charted.MultiValidationException
 import org.noelware.charted.ValidationException
 import org.noelware.charted.common.SetOnce
@@ -44,7 +46,6 @@ import org.noelware.charted.server.hasStarted
 import org.noelware.charted.server.plugins.Logging
 import org.noelware.charted.types.responses.ApiError
 import org.noelware.charted.types.responses.ApiResponse
-import org.noelware.ktor.NoelKtorRouting
 
 /**
  * Creates a new [ChartedTestServer] with the given [config] and [testFunction] block.
@@ -52,7 +53,7 @@ import org.noelware.ktor.NoelKtorRouting
  * @param module The module to apply (if any)
  * @param testFunction Function to perform testing on
  */
-internal fun withChartedServer(config: Config, module: Application.() -> Unit = {}, testFunction: suspend TestApplicationBuilder.() -> Unit) {
+internal fun withChartedServer(config: Config, module: Application.() -> Unit = {}, testFunction: suspend ApplicationTestBuilder.() -> Unit) {
     val server = ChartedTestServer(config)
     server.testFunction = {
         application {
@@ -66,13 +67,13 @@ internal fun withChartedServer(config: Config, module: Application.() -> Unit = 
 }
 
 internal class ChartedTestServer(private val config: Config): ChartedServer {
-    private val _test: SetOnce<suspend TestApplicationBuilder.() -> Unit> = SetOnce()
+    private val _test: SetOnce<suspend ApplicationTestBuilder.() -> Unit> = SetOnce()
     private val log by logging<ChartedServer>()
 
     /**
      * Returns the function used to test the server.
      */
-    var testFunction: suspend TestApplicationBuilder.() -> Unit
+    var testFunction: suspend ApplicationTestBuilder.() -> Unit
         get() = _test.value
         set(value) {
             _test.value = value
@@ -223,22 +224,30 @@ internal class ChartedTestServer(private val config: Config): ChartedServer {
         }
 
         routing {}
-
-        install(NoelKtorRouting) {
-            endpoints()
-        }
     }
 
     /**
      * Starts the server, this will be a no-op if [started] was already
      * set to `true`.
      */
-    override fun start() = testApplication {
-        application {
-            module()
+    override fun start() {
+        // Start Koin with only the configuration (I think?)
+        startKoin {
+            modules(
+                module {
+                    single { config }
+                }
+            )
         }
 
-        testFunction()
+        // Run the test server
+        testApplication {
+            application {
+                module()
+            }
+
+            testFunction()
+        }
     }
 
     override fun close() {

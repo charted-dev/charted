@@ -32,7 +32,7 @@ import java.io.File
  * Represents the server bootstrap, which... bootstraps and loads the server.
  */
 object Bootstrap {
-    private val analyticsServerJob: SetOnce<Job> = SetOnce()
+    internal val analyticsServerJob: SetOnce<Job> = SetOnce()
     private val log by logging<Bootstrap>()
 
     suspend fun start(configPath: File) {

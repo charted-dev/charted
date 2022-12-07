@@ -92,6 +92,12 @@ which will invoke Go itself.
                 "--database=$database"
             )
 
+            if (hosts.isNotEmpty()) {
+                args.add("--hosts=${hosts.joinToString(",")}")
+            } else {
+                args.add("--hosts=localhost:9000")
+            }
+
             username.ifNotNull { args.add("--username=$this") }
             password.ifNotNull { args.add("--password=$this") }
 
@@ -99,6 +105,8 @@ which will invoke Go itself.
             terminal.logger.info("$ ${args.joinToString(" ")}")
 
             val proc = ProcessBuilder(migrationsBin.toPath().toRealPath().toString())
+            proc.redirectOutput(ProcessBuilder.Redirect.INHERIT)
+
             val process = proc.start()
             process.waitFor()
 
@@ -107,7 +115,6 @@ which will invoke Go itself.
             exitProcess(process.exitValue())
         }
 
-        println(migrationsBin.parentFile)
         migrationsBin.parentFile.mkdirs()
 
         val url = "https://artifacts.noelware.cloud/charted/server/${ChartedInfo.version}/ch-migrations-${os.key()}-${arch.key()}${if (os.isWindows) ".exe" else ""}"

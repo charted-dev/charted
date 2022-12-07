@@ -56,7 +56,7 @@ val Logging = createApplicationPlugin("ChartedKtorLogging") {
 
     onCall { call ->
         call.attributes.put(stopwatchKey, StopWatch.createStarted())
-        if (config.metrics.enabled) {
+        if (config.metrics.enabled && prometheus != null) {
             call.attributes.put(histogramKey, prometheus!!.requestLatency.labels(call.request.httpMethod.value, call.request.path(), call.request.httpVersion).startTimer())
         }
     }
@@ -70,10 +70,13 @@ val Logging = createApplicationPlugin("ChartedKtorLogging") {
         val stopwatch = call.attributes[stopwatchKey]
         val userAgent = call.request.userAgent()
 
-        stopwatch.stop()
-        histogram?.observeDuration()
-        log.info(
-            "${method.value} $version $endpoint :: ${status.value} ${status.description} [$userAgent] [${stopwatch.doFormatTime()}]"
-        )
+        // only applicable with tests (idk why?)
+        if (stopwatch.isStarted) {
+            stopwatch.stop()
+            histogram?.observeDuration()
+            log.info(
+                "${method.value} $version $endpoint :: ${status.value} ${status.description} [$userAgent] [${stopwatch.doFormatTime()}]"
+            )
+        }
     }
 }

@@ -26,8 +26,8 @@ echo "🐻‍❄️🪄 [precommit-hook] Running Spotless..."
 ./gradlew spotlessCheck
 
 if [[ "$?" != "0" ]]; then
-  echo "🐻‍❄️🪄 [precommit-hook] Spotless was not ran (and there is linting errors), now auto-linting..."
-  make spotless
+  echo "🐻‍❄️🪄 [precommit-hook] Spotless was not ran (and there is linting errors), please run \`make spotless\`"
+  exit 1
 else
   echo "🐻‍❄️🪄 [precommit-hook] Everything is ok! :3"
 fi

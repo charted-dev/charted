@@ -48,16 +48,14 @@ class Snowflake {
     )
 
     companion object {
-        private val _increment = atomic(0L)
-
-        var increment: Long by _increment
+        private val increment = atomic(0L)
         const val EPOCH = 1651276800000
 
         fun generate(): Long {
             val timestamp = Clock.System.now().toEpochMilliseconds()
-            val inc = _increment.getAndIncrement()
+            val inc = increment.getAndIncrement()
             if (inc >= 4095) {
-                increment = 0L
+                increment.value = 0L
             }
 
             return ((timestamp - EPOCH) shl 22) or ((0 and 0b11111) shl 17) or ((1 and 0b11111) shl 12) or inc
