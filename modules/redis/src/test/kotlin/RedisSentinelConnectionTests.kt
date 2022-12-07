@@ -26,6 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.*
+import org.junit.jupiter.api.condition.DisabledOnOs
 import org.junit.jupiter.api.condition.EnabledOnOs
 import org.junit.jupiter.api.condition.OS
 import org.noelware.charted.configuration.kotlin.dsl.RedisConfig
@@ -50,6 +51,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
 @Testcontainers(disabledWithoutDocker = true)
+@DisabledOnOs(architectures = ["aarch64", "arm64"], disabledReason = "docker/compose Docker image doesn't support ARM and rancher/k3s requires the image to be privileged")
 class RedisSentinelConnectionTests {
     @Test
     @Disabled // at the moment, this doesn't work :<

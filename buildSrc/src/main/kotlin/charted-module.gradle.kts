@@ -1,3 +1,5 @@
+import kotlinx.atomicfu.plugin.gradle.AtomicFUGradlePlugin
+
 /*
  * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022 Noelware <team@noelware.org>
@@ -24,11 +26,19 @@ import dev.floofy.utils.gradle.*
 plugins {
     kotlin("plugin.serialization")
     id("com.diffplug.spotless")
+    id("kotlinx-atomicfu")
     kotlin("jvm")
+}
+
+// https://github.com/Kotlin/kotlinx-atomicfu/issues/210
+atomicfu {
+    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+    dependenciesVersion = libs.findVersion("kotlinx-atomicfu").get().requiredVersion
 }
 
 group = "org.noelware.charted"
 version = "$VERSION"
+description = ""
 
 repositories {
     maven("https://repo.perfectdreams.net/")
