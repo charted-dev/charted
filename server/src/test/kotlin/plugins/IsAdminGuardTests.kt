@@ -22,12 +22,16 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.DisabledOnOs
 import org.noelware.charted.server.endpoints.v1.api.AdminEndpoint
 import org.noelware.charted.server.tests.AbstractServerTest
 import org.noelware.ktor.NoelKtorRouting
+import org.testcontainers.junit.jupiter.Testcontainers
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@Testcontainers(disabledWithoutDocker = true)
+@DisabledOnOs(architectures = ["aarch64", "arm64"], disabledReason = "docker/compose Docker image doesn't support ARM")
 class IsAdminGuardTests: AbstractServerTest() {
     @Test
     fun `bail out with no authentication and non-acceptable auth`() = withChartedServer({
