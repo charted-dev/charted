@@ -64,7 +64,6 @@ import org.noelware.charted.modules.elasticsearch.metrics.ElasticsearchStats
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.security.KeyStore
-import java.security.cert.Certificate
 import java.security.cert.CertificateFactory
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.net.ssl.SSLContext
@@ -150,11 +149,13 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
             if (it.startsWith("http")) {
                 return@map HttpHost.create(it)
             }
+
             val mapping = it.split(":", limit = 2)
             if (mapping.size != 2) {
                 throw IllegalStateException("Node mapping should be in the 'host:port' format")
             }
-            HttpHost(mapping.first(), mapping.last().toInt(), config.caPath?.let { "https" })
+
+            HttpHost(mapping.first(), mapping.last().toInt(), config.ssl?.ifNotNull { "https" })
         }
 
         val builder = if (config.auth.type == AuthStrategyType.Cloud) {
@@ -175,12 +176,12 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
                 }
 
                 val nodeName = if (node.name == null) "(unknown)" else node.name
-                log.warn("${node.host.schemeName} Elasticsearch node [$nodeName@${node.host} v${node.version}] $attrs has failed executing an action!")
+                log.warn("Elasticsearch node [$nodeName@${node.host ?: "(unknown)"} ${node.version?.let { "v$this" }} $attrs has failed executing an action!")
                 listener.onFailure(node)
             }
         })
+
         builder.setHttpClientConfigCallback { hc ->
-            val file = config.caPath?.let { File(it) }
             when (config.auth) {
                 is AuthenticationStrategy.Basic -> {
                     val provider = BasicCredentialsProvider()
@@ -195,31 +196,77 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
 
                 else -> {}
             }
-            file?.let {
-                val factory = CertificateFactory.getInstance("X.509")
-                val trustedCa: Certificate = factory.generateCertificate(file.inputStream())
-                val trustStore = KeyStore.getInstance("pkcs12")
-                trustStore.load(null, null)
-                trustStore.setCertificateEntry("ca", trustedCa)
-                hc.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
-                hc.setSSLContext(SSLContexts.custom().loadTrustMaterial(trustStore, null).build())
+
+            if (config.ssl != null) {
+                log.info("Configuring using SSL for the Elasticsearch transport...")
+
+                val file = File(config.ssl!!.caPath)
+                if (!file.exists()) {
+                    throw IllegalStateException("File [$file] was not found")
+                }
+
+                if (!file.isFile) {
+                    throw IllegalStateException("Path [$file] was not a file")
+                }
+
+                if (file.extension == "p12") {
+                    log.info("File extension was [p12], assuming it is a keystore!")
+
+                    val keystore = KeyStore.getInstance("pkcs12")
+                    keystore.load(file.inputStream(), config.ssl?.keystorePassword?.toCharArray())
+
+                    sslContext = SSLContexts.custom()
+                        .loadKeyMaterial(keystore, config.ssl!!.keystorePassword?.toCharArray())
+                        .build()
+
+                    if (!config.ssl!!.validateHostnames) {
+                        hc.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                    }
+
+                    hc.setSSLContext(_sslContext)
+                } else {
+                    log.info("Assuming current path is a certificate!")
+
+                    val factory = CertificateFactory.getInstance("X.509")
+                    val trustedCa = factory.generateCertificate(file.inputStream())
+                    val trustStore = KeyStore.getInstance("pkcs12")
+
+                    trustStore.load(null, config.ssl!!.keystorePassword?.toCharArray())
+                    trustStore.setCertificateEntry("ca", trustedCa)
+
+                    sslContext = SSLContexts.custom()
+                        .loadKeyMaterial(trustStore, config.ssl!!.keystorePassword?.toCharArray())
+                        .build()
+
+                    if (!config.ssl!!.validateHostnames) {
+                        hc.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                    }
+
+                    hc.setSSLContext(_sslContext)
+                }
             }
+
             hc
         }
 
         val lowLevelClient = builder.build()
         val sniffer = Sniffer.builder(lowLevelClient)
-            .setNodesSniffer(ElasticsearchNodesSniffer(lowLevelClient, ElasticsearchNodesSniffer.DEFAULT_SNIFF_REQUEST_TIMEOUT, config.caPath?.ifNotNull {
-                ElasticsearchNodesSniffer.Scheme.HTTPS
-            } ?: ElasticsearchNodesSniffer.Scheme.HTTP))
+            .setNodesSniffer(
+                ElasticsearchNodesSniffer(
+                    lowLevelClient, ElasticsearchNodesSniffer.DEFAULT_SNIFF_REQUEST_TIMEOUT,
+                    config.ssl?.ifNotNull {
+                        ElasticsearchNodesSniffer.Scheme.HTTPS
+                    } ?: ElasticsearchNodesSniffer.Scheme.HTTP
+                )
+            )
             .setSniffAfterFailureDelayMillis(30000).build()
+
         listener.setSniffer(sniffer)
 
-        sw.stop()
+        sw.suspend()
         log.info("Built low-level REST client in ${sw.doFormatTime()}, checking connection...")
 
-        sw.reset()
-        sw.start()
+        sw.resume()
 
         val objectMapper = ObjectMapper().registerKotlinModule()
         val transport = RestClientTransport(lowLevelClient, JacksonJsonpMapper(objectMapper))

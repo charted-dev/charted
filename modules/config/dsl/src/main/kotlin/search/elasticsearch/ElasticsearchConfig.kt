@@ -21,16 +21,27 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ElasticsearchConfig(
-    val auth: AuthenticationStrategy = AuthenticationStrategy.None,
     val nodes: List<String> = listOf("127.0.0.1:9200"),
-    val caPath: String? = null
+    val auth: AuthenticationStrategy = AuthenticationStrategy.None,
+    val ssl: ElasticsearchSSLConfig? = null
 ) {
     class Builder: org.noelware.charted.common.Builder<ElasticsearchConfig> {
         private val nodes = mutableListOf<String>()
         private var _auth: AuthenticationStrategy = AuthenticationStrategy.None
+        private var ssl: ElasticsearchSSLConfig? = null
+
+        fun ssl(builder: ElasticsearchSSLConfig.Builder.() -> Unit = {}): Builder {
+            ssl = ElasticsearchSSLConfig.Builder().apply(builder).build()
+            return this
+        }
 
         fun auth(strategy: AuthenticationStrategy): Builder {
             _auth = strategy
+            return this
+        }
+
+        fun node(addr: String): Builder {
+            nodes.add(addr)
             return this
         }
 
@@ -39,6 +50,6 @@ data class ElasticsearchConfig(
             return this
         }
 
-        override fun build(): ElasticsearchConfig = ElasticsearchConfig(_auth, nodes)
+        override fun build(): ElasticsearchConfig = ElasticsearchConfig(nodes, _auth, ssl)
     }
 }

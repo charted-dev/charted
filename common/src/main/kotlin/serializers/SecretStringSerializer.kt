@@ -23,7 +23,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-private val ENVIRON_VAR_REGEX: Regex = "[$]\\{([\\w\\.]+)(:-\\w+)?}".toRegex()
+private val ENVIRON_VAR_REGEX: Regex = """[$]\{([\w.]+)(:-\w+)?}""".toRegex()
 
 object SecretStringSerializer: KSerializer<String> {
     override val descriptor: SerialDescriptor = String.serializer().descriptor

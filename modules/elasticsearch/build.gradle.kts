@@ -27,4 +27,6 @@ dependencies {
     implementation(project(":modules:metrics"))
     implementation(libs.jackson.kotlin.module)
     implementation(libs.jackson.databind)
+
+    testImplementation(libs.testcontainers.elasticsearch)
 }
