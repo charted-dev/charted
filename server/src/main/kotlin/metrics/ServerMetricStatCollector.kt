@@ -15,15 +15,21 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-}
+package org.noelware.charted.server.metrics
 
-dependencies {
-    implementation(project(":modules:analytics:extensions"))
-    implementation(project(":modules:metrics"))
-    implementation(libs.clickhouse.jdbc)
-    implementation(libs.hikaricp)
+import org.noelware.charted.modules.metrics.GenericStatCollector
+import org.noelware.charted.server.requests
+import java.lang.management.ManagementFactory
 
-    testImplementation(libs.testcontainers.clickhouse)
+object ServerMetricStatCollector: GenericStatCollector<ServerMetrics> {
+    /** Returns the name of this statistics collector */
+    override val name: String = "server"
+
+    /**
+     * Collects all the statistics and returns the result.
+     */
+    override fun collect(): ServerMetrics = ServerMetrics(
+        requests,
+        ManagementFactory.getRuntimeMXBean().uptime
+    )
 }

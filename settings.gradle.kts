@@ -38,6 +38,8 @@ include(
     ":databases:clickhouse",
     ":databases:clickhouse:migrations",
     ":databases:postgres",
+    ":modules:analytics:extensions",
+    ":modules:analytics",
     ":modules:apikeys",
     ":modules:audit-logs",
     ":modules:avatars",

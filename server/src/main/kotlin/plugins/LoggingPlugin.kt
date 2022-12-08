@@ -33,6 +33,7 @@ import org.noelware.charted.extensions.doFormatTime
 import org.noelware.charted.modules.metrics.PrometheusMetrics
 import org.noelware.charted.server.bootTime
 import org.noelware.charted.server.hasStarted
+import org.noelware.charted.server.requestHandledAtomic
 
 val Logging = createApplicationPlugin("ChartedKtorLogging") {
     val stopwatchKey = AttributeKey<StopWatch>("StopWatch")
@@ -56,7 +57,10 @@ val Logging = createApplicationPlugin("ChartedKtorLogging") {
 
     onCall { call ->
         call.attributes.put(stopwatchKey, StopWatch.createStarted())
+        requestHandledAtomic.getAndIncrement()
+
         if (config.metrics.enabled && prometheus != null) {
+            prometheus!!.requests.inc()
             call.attributes.put(histogramKey, prometheus!!.requestLatency.labels(call.request.httpMethod.value, call.request.path(), call.request.httpVersion).startTimer())
         }
     }

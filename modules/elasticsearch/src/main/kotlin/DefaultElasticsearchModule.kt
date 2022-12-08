@@ -342,7 +342,7 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
             val avgIndexTime = stats.indices()?.indexing()?.indexTimeInMillis() ?: -1L
             val cpuPercentage = stats.os()?.cpu()?.percent()?.toDouble() ?: -1.0
 
-            nodes[node] = ElasticsearchStats.NodeStats(
+            nodes[stats.name() ?: node] = ElasticsearchStats.NodeStats(
                 avgIndexTime,
                 deletedDocuments,
                 cpuPercentage,

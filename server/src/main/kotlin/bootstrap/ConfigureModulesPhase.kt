@@ -24,7 +24,6 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import dev.floofy.utils.kotlin.ifNotNull
 import dev.floofy.utils.slf4j.logging
-import io.grpc.protobuf.services.ProtoReflectionService
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -45,10 +44,6 @@ import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
-import org.noelware.analytics.jvm.server.AnalyticsServerBuilder
-import org.noelware.analytics.jvm.server.extensions.jvm.JvmMemoryPoolsExtension
-import org.noelware.analytics.jvm.server.extensions.jvm.JvmThreadsExtension
-import org.noelware.analytics.protobufs.v1.BuildFlavour
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.configuration.host.ConfigurationHost
 import org.noelware.charted.configuration.kotlin.dsl.Config
@@ -62,6 +57,7 @@ import org.noelware.charted.databases.postgres.metrics.PostgresMetricsCollector
 import org.noelware.charted.databases.postgres.metrics.PostgresStatsCollector
 import org.noelware.charted.databases.postgres.tables.*
 import org.noelware.charted.extensions.doFormatTime
+import org.noelware.charted.modules.analytics.AnalyticsDaemon
 import org.noelware.charted.modules.apikeys.ApiKeyManager
 import org.noelware.charted.modules.apikeys.DefaultApiKeyManager
 import org.noelware.charted.modules.avatars.avatarsModule
@@ -85,10 +81,12 @@ import org.noelware.charted.modules.storage.StorageHandler
 import org.noelware.charted.server.ChartedServer
 import org.noelware.charted.server.endpoints.v1.endpointsModule
 import org.noelware.charted.server.internal.DefaultChartedServer
+import org.noelware.charted.server.internal.analytics.ChartedAnalyticsExtension
+import org.noelware.charted.server.metrics.ServerMetricStatCollector
+import org.noelware.charted.server.metrics.ServerMetricsCollector
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
 import java.io.File
 import java.net.InetAddress
-import java.time.Instant
 import kotlin.time.Duration.Companion.seconds
 
 object ConfigureModulesPhase: BootstrapPhase() {
@@ -212,8 +210,10 @@ object ConfigureModulesPhase: BootstrapPhase() {
         val metrics = PrometheusMetrics(config.metrics.enabled, ds)
         metrics.addGenericCollector(RedisStatCollector(redis))
         metrics.addGenericCollector(PostgresStatsCollector)
+        metrics.addGenericCollector(ServerMetricStatCollector)
 
         if (config.metrics.enabled) {
+            metrics.addMetricCollector(ServerMetricsCollector())
             metrics.addMetricCollector(RedisMetricsCollector(redis, config.metrics))
             metrics.addMetricCollector(PostgresMetricsCollector(config))
         }
@@ -288,28 +288,10 @@ object ConfigureModulesPhase: BootstrapPhase() {
         }
 
         if (config.analytics != null) {
-            val server = AnalyticsServerBuilder(config.analytics!!.port).apply {
-                withServiceToken(config.analytics!!.serviceToken)
-                withExtension(JvmThreadsExtension())
-                withExtension(JvmMemoryPoolsExtension())
-
-                withServerBuilder { server ->
-                    server.addService(ProtoReflectionService.newInstance())
-                }
-
-                withServerMetadata { metadata ->
-                    metadata.setDistributionType(BuildFlavour.ENTERPRISE)
-                    metadata.setBuildDate(Instant.parse(ChartedInfo.buildDate))
-                    metadata.setProductName("charted-server")
-                    metadata.setCommitHash(ChartedInfo.commitHash)
-                    metadata.setVersion(ChartedInfo.version)
-                    metadata.setVendor("Noelware")
-                }
-            }.build()
-
+            val daemon = AnalyticsDaemon(config.analytics, ChartedAnalyticsExtension(metrics))
             modules.add(
                 module {
-                    single { server }
+                    single { daemon }
                 }
             )
         }

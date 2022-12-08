@@ -17,9 +17,13 @@
 
 package org.noelware.charted.modules.elasticsearch.metrics
 
+import com.google.protobuf.Value
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.noelware.charted.modules.analytics.kotlin.dsl.Struct
+import org.noelware.charted.modules.analytics.kotlin.dsl.put
+import org.noelware.charted.modules.analytics.kotlin.dsl.toGrpcValue
 import org.noelware.charted.modules.elasticsearch.ElasticsearchModule
 import org.noelware.charted.modules.metrics.GenericStatCollector
 
@@ -35,7 +39,12 @@ import org.noelware.charted.modules.metrics.GenericStatCollector
 data class ElasticsearchStats(
     val indexes: Map<String, IndexStats> = mapOf(),
     val nodes: Map<String, NodeStats> = mapOf()
-) {
+): org.noelware.analytics.jvm.server.serialization.Serializable {
+    override fun toGrpcValue(): Value = Struct {
+        put(this, ElasticsearchStats::indexes)
+        put(this, ElasticsearchStats::nodes)
+    }.toGrpcValue()
+
     /**
      * Statistics object for a specific index
      *
@@ -59,7 +68,17 @@ data class ElasticsearchStats(
         val health: String,
         val size: Long,
         val uuid: String
-    )
+    ): org.noelware.analytics.jvm.server.serialization.Serializable {
+        override fun toGrpcValue(): Value = Struct {
+            put(this, IndexStats::averageQueryTimeInMs)
+            put(this, IndexStats::deletedDocuments)
+            put(this, IndexStats::documents)
+            put(this, IndexStats::queries)
+            put(this, IndexStats::health)
+            put(this, IndexStats::size)
+            put(this, IndexStats::uuid)
+        }.toGrpcValue()
+    }
 
     /**
      * Statistics object of all the Elasticsearch nodes that are used to perform indexing
@@ -86,7 +105,15 @@ data class ElasticsearchStats(
         val totalIndexesSize: Long,
         val documents: Long,
         val shards: Long
-    )
+    ): org.noelware.analytics.jvm.server.serialization.Serializable {
+        override fun toGrpcValue(): Value = Struct {
+            put(this, NodeStats::averageIndexTimeInMs)
+            put(this, NodeStats::totalIndexesSize)
+            put(this, NodeStats::deletedDocuments)
+            put(this, NodeStats::documents)
+            put(this, NodeStats::shards)
+        }.toGrpcValue()
+    }
 
     /**
      * [GenericStatCollector] for getting the [elasticsearch stats][ElasticsearchModule.stats].

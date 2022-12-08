@@ -19,20 +19,18 @@ package org.noelware.charted.server
 
 import dev.floofy.utils.koin.injectOrNull
 import dev.floofy.utils.slf4j.logging
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import org.noelware.analytics.jvm.server.AnalyticsServer
-import org.noelware.charted.ChartedScope
 import org.noelware.charted.common.SetOnce
+import org.noelware.charted.modules.analytics.AnalyticsDaemon
 import org.noelware.charted.server.bootstrap.BootstrapPhase
 import org.noelware.charted.server.bootstrap.ConfigureModulesPhase
+import org.noelware.charted.server.internal.analytics.AnalyticsDaemonThread
 import java.io.File
 
 /**
  * Represents the server bootstrap, which... bootstraps and loads the server.
  */
 object Bootstrap {
-    internal val analyticsServerJob: SetOnce<Job> = SetOnce()
+    internal val analyticsDaemonThread: SetOnce<Thread> = SetOnce()
     private val log by logging<Bootstrap>()
 
     suspend fun start(configPath: File) {
@@ -43,11 +41,10 @@ object Bootstrap {
             phase.bootstrap(configPath)
 
             if (phase == ConfigureModulesPhase) {
-                val analyticsServer: AnalyticsServer? by injectOrNull()
-                if (analyticsServer != null) {
-                    analyticsServerJob.value = ChartedScope.launch {
-                        analyticsServer!!.start()
-                    }
+                val daemon: AnalyticsDaemon? by injectOrNull()
+                if (daemon != null) {
+                    analyticsDaemonThread.value = AnalyticsDaemonThread(daemon!!)
+                    analyticsDaemonThread.value.start()
                 }
             }
         }

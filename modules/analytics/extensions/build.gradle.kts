@@ -20,10 +20,5 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":modules:analytics:extensions"))
-    implementation(project(":modules:metrics"))
-    implementation(libs.clickhouse.jdbc)
-    implementation(libs.hikaricp)
-
-    testImplementation(libs.testcontainers.clickhouse)
+    api(libs.noelware.analytics.server)
 }

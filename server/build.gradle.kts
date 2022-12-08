@@ -102,7 +102,6 @@ dependencies {
     implementation(libs.semver)
 
     // Noelware Analytics
-    implementation(libs.noelware.analytics.server.kotlin.support)
-    implementation(libs.noelware.analytics.server)
-    implementation(libs.grpc.services)
+    implementation(project(":modules:analytics:extensions"))
+    implementation(project(":modules:analytics"))
 }

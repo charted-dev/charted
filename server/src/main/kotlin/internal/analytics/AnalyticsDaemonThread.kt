@@ -15,15 +15,16 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-}
+package org.noelware.charted.server.internal.analytics
 
-dependencies {
-    implementation(project(":modules:analytics:extensions"))
-    implementation(project(":modules:metrics"))
-    implementation(libs.clickhouse.jdbc)
-    implementation(libs.hikaricp)
+import dev.floofy.utils.slf4j.logging
+import org.noelware.charted.modules.analytics.AnalyticsDaemon
 
-    testImplementation(libs.testcontainers.clickhouse)
+class AnalyticsDaemonThread(private val daemon: AnalyticsDaemon): Thread("Charted-AnalyticsProtocolDaemon") {
+    private val log by logging<AnalyticsDaemonThread>()
+
+    override fun run() {
+        log.info("Starting protocol server thread...")
+        daemon.start()
+    }
 }

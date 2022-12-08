@@ -20,6 +20,7 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":modules:analytics:extensions"))
     implementation(libs.elasticsearch.rest.client.sniffer)
     implementation(libs.elasticsearch.rest.client)
     implementation(libs.elasticsearch.java.client)

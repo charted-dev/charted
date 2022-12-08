@@ -24,6 +24,7 @@ import io.ktor.utils.io.*
 import io.ktor.utils.io.pool.ByteBufferPool
 import io.sentry.Sentry
 import io.sentry.kotlin.SentryContext
+import kotlinx.atomicfu.atomic
 import org.noelware.charted.ChartedScope
 import java.io.ByteArrayInputStream
 import java.io.InputStream
@@ -34,6 +35,12 @@ val hasStarted: AtomicBoolean = AtomicBoolean(false)
 
 /** The boot time (in nanoseconds) */
 val bootTime: Long = System.nanoTime()
+
+internal val requestHandledAtomic = atomic(0L)
+
+/** Amount of requests the server has handled */
+val requests: Long
+    get() = requestHandledAtomic.value
 
 fun <T: InputStream> createKtorContentWithInputStream(
     `is`: T,

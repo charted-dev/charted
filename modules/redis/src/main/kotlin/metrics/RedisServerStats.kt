@@ -17,7 +17,11 @@
 
 package org.noelware.charted.modules.redis.metrics
 
+import com.google.protobuf.Value
 import kotlinx.serialization.Serializable
+import org.noelware.charted.modules.analytics.kotlin.dsl.Struct
+import org.noelware.charted.modules.analytics.kotlin.dsl.put
+import org.noelware.charted.modules.analytics.kotlin.dsl.toGrpcValue
 
 /**
  * Represents the collected statistics the metrics collector use.
@@ -42,4 +46,16 @@ data class RedisServerStats(
     val version: String,
     val mode: String,
     val ping: Long
-)
+): org.noelware.analytics.jvm.server.serialization.Serializable {
+    override fun toGrpcValue(): Value = Struct {
+        put(this, RedisServerStats::totalConnectionsReceived)
+        put(this, RedisServerStats::totalCommandsProcessed)
+        put(this, RedisServerStats::totalNetworkOutput)
+        put(this, RedisServerStats::totalNetworkInput)
+        put(this, RedisServerStats::allocator)
+        put(this, RedisServerStats::version)
+        put(this, RedisServerStats::uptime)
+        put(this, RedisServerStats::mode)
+        put(this, RedisServerStats::ping)
+    }.toGrpcValue()
+}

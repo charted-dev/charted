@@ -31,6 +31,8 @@ dependencies {
     implementation(libs.kaml)
 
     implementation(project(":modules:config:dsl"))
+    implementation(project(":modules:analytics"))
+    implementation(project(":modules:metrics"))
     implementation(project(":server"))
 }
 

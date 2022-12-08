@@ -15,25 +15,26 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.databases.postgres.metrics
+package org.noelware.charted.server.metrics
 
 import com.google.protobuf.Value
 import kotlinx.serialization.Serializable
-import org.noelware.charted.modules.analytics.kotlin.dsl.*
+import org.noelware.charted.modules.analytics.kotlin.dsl.Struct
+import org.noelware.charted.modules.analytics.kotlin.dsl.put
+import org.noelware.charted.modules.analytics.kotlin.dsl.toGrpcValue
 
+/**
+ * Represents the metrics of the API server.
+ * @param requests How many API requests the server has handled
+ * @param uptime   Uptime (as `int64`) of the server process
+ */
 @Serializable
-data class PostgresServerStats(
-    val organizations: Long,
-    val repositories: Long,
-    val version: String,
-    val uptime: Long,
-    val users: Long
+data class ServerMetrics(
+    val requests: Long,
+    val uptime: Long
 ): org.noelware.analytics.jvm.server.serialization.Serializable {
     override fun toGrpcValue(): Value = Struct {
-        put(this, PostgresServerStats::organizations)
-        put(this, PostgresServerStats::repositories)
-        put(this, PostgresServerStats::version)
-        put(this, PostgresServerStats::uptime)
-        put(this, PostgresServerStats::users)
+        put(this, ServerMetrics::requests)
+        put(this, ServerMetrics::uptime)
     }.toGrpcValue()
 }

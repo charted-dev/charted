@@ -25,11 +25,11 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import okhttp3.internal.closeQuietly
 import org.koin.core.context.GlobalContext
-import org.noelware.analytics.jvm.server.AnalyticsServer
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.ChartedScope
 import org.noelware.charted.databases.clickhouse.ClickHouseConnection
 import org.noelware.charted.extensions.formatToSize
+import org.noelware.charted.modules.analytics.AnalyticsDaemon
 import org.noelware.charted.modules.elasticsearch.ElasticsearchModule
 import org.noelware.charted.modules.redis.RedisClient
 import org.noelware.charted.modules.sessions.SessionManager
@@ -60,7 +60,7 @@ object OnStartPhase: BootstrapPhase() {
 
                 val koin = GlobalContext.getKoinApplicationOrNull()
                 if (koin != null) {
-                    val analyticsServer: AnalyticsServer? by injectOrNull()
+                    val analyticsDaemon: AnalyticsDaemon? by injectOrNull()
                     val elasticsearch: ElasticsearchModule? by injectOrNull()
                     val clickhouse: ClickHouseConnection? by injectOrNull()
                     val sessions: SessionManager by inject()
@@ -68,12 +68,11 @@ object OnStartPhase: BootstrapPhase() {
                     val server: ChartedServer by inject()
                     val redis: RedisClient by inject()
 
-                    val analyticsServerJob = Bootstrap.analyticsServerJob
-                    if (analyticsServerJob.wasSet()) {
-                        analyticsServerJob.value.cancel()
+                    if (Bootstrap.analyticsDaemonThread.wasSet()) {
+                        Bootstrap.analyticsDaemonThread.value.interrupt()
                     }
 
-                    analyticsServer?.closeQuietly()
+                    analyticsDaemon?.closeQuietly()
                     elasticsearch?.closeQuietly()
                     clickhouse?.closeQuietly()
                     sessions.closeQuietly()

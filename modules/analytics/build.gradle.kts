@@ -16,14 +16,19 @@
  */
 
 plugins {
-    `charted-module`
+    `charted-java-module`
+    `charted-module` // only so "api()" can work idk why
 }
 
 dependencies {
-    implementation(project(":modules:analytics:extensions"))
+    // Metrics module (so it can consume more data)
+    implementation(project(":modules:elasticsearch"))
+    implementation(project(":databases:postgres"))
     implementation(project(":modules:metrics"))
-    implementation(libs.clickhouse.jdbc)
-    implementation(libs.hikaricp)
+    implementation(project(":modules:redis"))
 
-    testImplementation(libs.testcontainers.clickhouse)
+    // Noelware Analytics
+    api(libs.noelware.analytics.server.kotlin.support)
+    api(libs.noelware.analytics.server)
+    implementation(libs.grpc.services)
 }
