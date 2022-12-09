@@ -37,7 +37,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains:annotations:23.0.0")
+    implementation("org.jetbrains:annotations:23.1.0")
 
     if (name != "common") {
         implementation(project(":common"))
