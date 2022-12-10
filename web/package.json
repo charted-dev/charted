@@ -10,7 +10,7 @@
   "packageManager": "yarn@3.3.0",
   "type": "module",
   "scripts": {
-    "lint:ci": "./scripts/tsrunner scripts/ci/eslint.ts",
+    "lint:ci": "tsx --tsconfig ./scripts/tsconfig.json scripts/ci/eslint.ts",
     "build": "yarn lint && yarn fmt && rimraf dist && tsx --tsconfig ./scripts/tsconfig.json scripts/build-server.ts && tsx --tsconfig ./scripts/tsconfig.json scripts/patch-metadata.ts && next build",
     "lint": "eslint src --ext .ts,.tsx --fix && eslint server --ext .ts --fix",
     "fmt": "prettier --config ./.prettierrc.json --write **/*.{ts,tsx,md,yaml,yml,json}",
