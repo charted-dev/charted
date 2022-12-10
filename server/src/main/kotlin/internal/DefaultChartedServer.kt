@@ -167,14 +167,17 @@ class DefaultChartedServer(private val config: Config): ChartedServer {
 
             status(HttpStatusCode.TooManyRequests) { call, _ ->
                 val retryAfter = call.response.headers["Retry-After"]
-                call.respond(HttpStatusCode.TooManyRequests, ApiResponse.err(
-                    "TOO_MANY_REQUESTS", "IP ${call.request.origin.remoteAddress} has hit the global rate-limiter!",
-                    buildJsonObject {
-                        put("retry_after", retryAfter)
-                        put("method", call.request.httpMethod.value)
-                        put("url", call.request.path())
-                    }
-                ))
+                call.respond(
+                    HttpStatusCode.TooManyRequests,
+                    ApiResponse.err(
+                        "TOO_MANY_REQUESTS", "IP ${call.request.origin.remoteAddress} has hit the global rate-limiter!",
+                        buildJsonObject {
+                            put("retry_after", retryAfter)
+                            put("method", call.request.httpMethod.value)
+                            put("url", call.request.path())
+                        }
+                    )
+                )
             }
 
             status(HttpStatusCode.MethodNotAllowed) { call, _ ->
