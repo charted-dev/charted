@@ -6,11 +6,14 @@
     "target": "ESNext",
     "skipLibCheck": true,
     "allowJs": true,
-    "module": "CommonJS",
+    "module": "ESNext",
     "jsx": "preserve",
     "typeRoots": ["./node_modules/@types"],
     "noEmit": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./*"]
+    }
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules"]

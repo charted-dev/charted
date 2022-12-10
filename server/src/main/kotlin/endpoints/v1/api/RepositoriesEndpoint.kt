@@ -571,6 +571,7 @@ class RepositoriesEndpoint(
             }
 
             call.respond(HttpStatusCode.Created, ApiResponse.ok(RepositoryMember.fromEntity(repoMember)))
+            return
         }
 
         call.respond(HttpStatusCode.NotImplemented)
@@ -860,6 +861,28 @@ class RepositoriesEndpoint(
         val stream = charts!!.getValuesYaml(repository.owner, repository.id.value, version) ?: return call.respond(HttpStatusCode.NotFound)
 
         call.respond(createKtorContentWithInputStream(stream, ContentType.parse("text/yaml; charset=utf-8")))
+    }
+
+    @Get("/{id}/releases/{version}/templates")
+    suspend fun getAllTemplates(call: ApplicationCall) {
+        if (config.features.contains(ServerFeature.DOCKER_REGISTRY)) {
+            return call.respond(HttpStatusCode.NotFound)
+        }
+
+        val version = call.parameters["version"]!!
+        try {
+            version.toVersion(true)
+        } catch (e: VersionFormatException) {
+            return call.respond(
+                HttpStatusCode.BadRequest,
+                ApiResponse.err(
+                    "INVALID_SEMVER",
+                    "Version [$version] was not a valid SemVer v2 version"
+                )
+            )
+        }
+
+        val repository = call.getRepository() ?: return
     }
 
     @Get("/{id}/releases/{version}/templates/{template}")

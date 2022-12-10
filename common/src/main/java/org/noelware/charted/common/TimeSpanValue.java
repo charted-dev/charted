@@ -52,6 +52,7 @@ public class TimeSpanValue {
             case "years", "year", "yrs", "yr", "y" -> (long) (valueAsFloat * YEARS);
             case "weeks", "week", "w" -> (long) (valueAsFloat * WEEKS);
             case "days", "day", "d" -> (long) (valueAsFloat * DAYS);
+            case "hours", "hour", "h", "hr", "hrs" -> (long) (valueAsFloat * HOURS);
             case "minutes", "minute", "mins", "min", "m" -> (long) (valueAsFloat * MINUTES);
             case "seconds", "second", "secs", "sec", "s" -> (long) (valueAsFloat * SECONDS);
             case "milliseconds", "millisecond", "msecs", "msec", "ms" -> (long) valueAsFloat;

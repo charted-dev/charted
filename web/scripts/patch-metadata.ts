@@ -15,8 +15,21 @@
  * limitations under the License.
  */
 
+import { readFile, writeFile } from 'fs/promises';
+import { execSync } from 'child_process';
+
 const main = async () => {
   console.log('Patching metadata.json file...');
+
+  const template = await readFile('./metadata.json', 'utf-8').then((f) => JSON.parse(f));
+  await writeFile(
+    './dist/.metadata.json',
+    JSON.stringify({
+      build_date: new Date().toISOString(),
+      commit_hash: execSync('git rev-parse --short=8 HEAD', { encoding: 'utf-8' }).trim(),
+      version: template.version
+    })
+  );
 };
 
 main().catch((e) => {

@@ -28,7 +28,7 @@ public class TimeSpanValueTests {
         assertEquals(31557600000L, TimeSpanValue.fromString("1 year"));
         assertEquals(604800000L, TimeSpanValue.fromString("1 week"));
         assertEquals(172800000L, TimeSpanValue.fromString("2 days"));
-        assertEquals(720000L, TimeSpanValue.fromString("12 minutes"));
+        assertEquals(18000000L, TimeSpanValue.fromString("5hr"));
         assertEquals(22000L, TimeSpanValue.fromString("22 seconds"));
         assertEquals(25L, TimeSpanValue.fromString("25 milliseconds"));
     }
@@ -38,6 +38,7 @@ public class TimeSpanValueTests {
         assertEquals("1 year", TimeSpanValue.fromLong(31557600000L, true));
         assertEquals("1w", TimeSpanValue.fromLong(604800000L, false));
         assertEquals("2 days", TimeSpanValue.fromLong(172800000L, true));
+        assertEquals("5 hours", TimeSpanValue.fromLong(18000000L, true));
         assertEquals("12min", TimeSpanValue.fromLong(720000L, false));
         assertEquals("22 seconds", TimeSpanValue.fromLong(22000L, true));
         assertEquals("22ms", TimeSpanValue.fromLong(22L, false));

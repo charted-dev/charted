@@ -15,4 +15,24 @@
  * limitations under the License.
  */
 
-import {} from 'react-dom/client';
+import type { FastifyReply, FastifyRequest } from 'fastify';
+import type Server from '~/server';
+
+export function health(this: Server, _: FastifyRequest, reply: FastifyReply) {
+  return reply.status(200).send({
+    success: true,
+    data: {
+      health: {
+        value: this.health,
+        description:
+          this.health === 'green'
+            ? 'API server and web UI are responding'
+            : this.health === 'yellow'
+            ? 'API server is not communicating with web UI, hold tight!'
+            : this.health === 'red'
+            ? 'API server and web UI are not responding.'
+            : '????'
+      }
+    }
+  });
+}

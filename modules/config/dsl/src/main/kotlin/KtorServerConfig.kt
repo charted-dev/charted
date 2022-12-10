@@ -20,6 +20,7 @@ package org.noelware.charted.configuration.kotlin.dsl
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.noelware.charted.common.ByteSizeValue
+import org.noelware.charted.configuration.kotlin.dsl.features.ServerRateLimitConfig
 import org.noelware.charted.serializers.ByteSizeValueSerializer
 
 @Serializable
@@ -102,7 +103,12 @@ data class KtorServerConfig(
     /**
      * The port to listen on. Defaults to `3651`.
      */
-    val port: Int = 3651
+    val port: Int = 3651,
+
+    /**
+     * Represents the configuration for configurating server-side rate-limiting.
+     */
+    val rateLimit: ServerRateLimitConfig? = null
 ) {
     class Builder: org.noelware.charted.common.Builder<KtorServerConfig> {
         /**
@@ -152,6 +158,11 @@ data class KtorServerConfig(
         private val extraHeaders: MutableMap<String, String> = mutableMapOf()
 
         /**
+         * Represents the configuration for configurating server-side rate-limiting.
+         */
+        private var rateLimit: ServerRateLimitConfig? = null
+
+        /**
          * Configures SSL on the server.
          */
         private var ssl: KtorSSLConfig? = null
@@ -187,6 +198,11 @@ data class KtorServerConfig(
             return this
         }
 
+        fun rateLimit(builder: ServerRateLimitConfig.Builder.() -> Unit = {}): Builder {
+            rateLimit = ServerRateLimitConfig.Builder().apply(builder).build()
+            return this
+        }
+
         override fun build(): KtorServerConfig = KtorServerConfig(
             securityHeaders,
             requestQueueLimit,
@@ -199,7 +215,8 @@ data class KtorServerConfig(
             maxDataPayload,
             ssl,
             host,
-            port
+            port,
+            rateLimit
         )
     }
 }

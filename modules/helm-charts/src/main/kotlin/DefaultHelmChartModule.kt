@@ -295,6 +295,10 @@ class DefaultHelmChartModule(
         return data
     }
 
+    override suspend fun getAllTemplates(owner: Long, repo: Long, version: String) {
+        TODO("Not yet implemented")
+    }
+
     /**
      * Retrieves the `Chart.yaml` file from the given [repository][repo] and returns an [ByteArray] that is
      * used to send the data to the end user.

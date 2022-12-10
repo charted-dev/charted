@@ -67,6 +67,7 @@ dependencies {
     implementation(libs.ktor.server.default.headers)
     implementation(libs.ktor.server.double.receive)
     implementation(libs.ktor.server.status.pages)
+    implementation(libs.ktor.server.ratelimiting)
     implementation(libs.ktor.server.websockets)
     implementation(libs.ktor.serialization)
     implementation(libs.ktor.client.okhttp)

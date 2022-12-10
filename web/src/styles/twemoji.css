@@ -15,28 +15,9 @@
  * limitations under the License.
  */
 
-import { hasOwnProperty } from '@noelware/utils';
-import { defineConfig } from 'vite';
-import { resolve } from 'path';
-import react from '@vitejs/plugin-react';
-
-const MODE = hasOwnProperty(process.env, 'NODE_ENV') ? process.env.NODE_ENV! : 'development';
-export default defineConfig({
-  envPrefix: 'CHARTED_',
-  plugins: [react()],
-  mode: MODE,
-  resolve: {
-    alias: [
-      {
-        find: '~',
-        replacement: resolve(process.cwd(), 'src')
-      }
-    ]
-  },
-  build: {
-    sourcemap: true
-  },
-  server: {
-    port: 2134
-  }
-});
+img.emoji {
+  display: inline-block;
+  width: auto;
+  height: 1em;
+  vertical-align: -0.125em;
+}

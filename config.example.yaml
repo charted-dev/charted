@@ -1,0 +1,145 @@
+# This represents the default configuration for configurating charted-server to your liking. This configuration file
+# can be loaded in a few different ways:
+#
+#    - via the `CHARTED_CONFIG_FILE` environment variable when invoking the `charted server` subcommand
+#    - via the `--config`/`-c` CLI flags when invoking the `charted server` subcommand
+#    - in the `./config/charted.yaml` file where `./` is the root directory where charted-server lives in
+#    - in `./config.yml` where `./` is the root directory where charted-server lives in
+#
+# If the clauses fail, it will create a default configuration file in `./config.yml` and use that for future
+# configuration. You can also run the `charted generate-config` command to do the same mentioned.
+#
+# As you read this, there will be comments everywhere, and you might not understand it, which is completely ok!
+# The comments will also include parameters similarly in the YAML 1.2 syntax like:
+#
+# > This will configure the Sentry DSN for Sentry usage.
+# > Type: URL?
+# > Default: nil
+#
+# `Type` refers to what is acceptable in this file that the server can load. If the type contains a question mark at the end,
+# it will assume `null` as the default. `Default` represents the default value if the given value is `null` or not provided
+# in this configuration file.
+#
+# You can see the Kotlin Scripting documentation for more usage on the configuration for charted-server for a type-safe configuration,
+# if you're into that: https://charts.noelware.org/docs/server/latest/self-hosting/configuration/kotlin-script
+#
+# If you also wish to see what the Kotlin types are for this file, you can read them in the `modules/config/dsl` folder in
+# the root directory of this file.
+
+# > Secure string to use when encoding JWTs for sessions. This configuration value can be a "secure string," which means
+# > you can use the `${ENV_VAR_NAME:-}` syntax to load up the value from the system environment variables.
+# >
+# > Type: Secure String
+# > Default: `JWT_SECRET_KEY` environment variable if it exists or an error will log to the console.
+jwt_secret_key: "${JWT_SECRET_KEY:-}"
+
+# > Whether if the server is invite-only. If this value is set to true, you will have to manually
+# > invite users to your instance with:
+# >   - the `charted accounts invite` subcommand,
+# >   - the administration portal if the web UI is running
+# >
+# > `invite_only` and `registrations` are mutually exclusive, you can't set `invite_only` and `registrations` to `true`.
+# >
+# > Type: Boolean (true/false)
+# > Default: false
+invite_only: false
+
+# > Whether if registrations are enabled on the server. If this value is set to `false`, you will have
+# > to create users with:
+# >    - the `charted accounts create` subcommand,
+# >    - the administration portal if the web UI is running
+# >
+# > Type: Boolean (true/false)
+# > Default: true
+registrations: true
+
+# > Whether if Noelware Telemetry Services is enabled on this instance or not. This completely optional
+# > and opt-in if you wish to send out anonymous telemetry packets to Noelware for helping out with the development
+# > of charted-server and other products and services. Noelware's telemetry server is completely open sourced,
+# > which you can view at https://github.com/Noelware/telemetry.
+# >
+# > Type: Boolean (true/false)
+# > Default: true
+telemetry: true
+
+# > Whether if Sentry is enabled on the server. This will make use of Sentry (https://sentry.io) to send out
+# > errors and tracing from the server to Sentry.
+# >
+# > Type: Secure String?
+# > Default: null
+sentry_dsn: null
+
+# > The absolute base URL to determine where this instance lives. This value can change but entries of where this value is used
+# > will have to be manually edited.
+# >
+# > Type: String?
+# > Default: "http://<host>:<port>" or "https://<host>:<port>" if SSL is enabled.
+base_url: null
+
+# > Whether if debug mode is enabled or not. This is mainly used in development of charted-server since it allows you
+# > to use the kotlinx.coroutines Debug Tool in IntelliJ to manually check out the coroutines being used while charted-server
+# > is running. This doesn't really do much.
+# >
+# > Type: Boolean (true/false)
+# > Default: true
+debug: false
+
+# > The `docker_registry` configuration object is to configure using a local Docker Registry to host
+# > your Helm Charts. Since Helm 3, it has the ability to pull Helm Charts out of an OCI-complaint container
+# > registry. This server automatically hooks in authentication, so you can use your instance account
+# > to pull and push charts to the local registry.
+# >
+# > This feature is opt-in, so you will need to use the "features" configuration key to enable it.
+docker_registry:
+  # > Represents a mapping of "Key: Value" pairs to use as custom headers to the requests of
+  # > the local OCI-complaint container registry. `Authorization`, `Content-Type`, and `Content-Length` are
+  # > ignored if you ever wish to provide them here.
+  # >
+  # > Type: key => value pairs
+  # > Default: {}
+  headers: {}
+  #  X-Custom-Value: another value to use
+
+  # > Represents the host address to connect to the local OCI-compliant container registry to connect to.
+  # >
+  # > Type: IPv(4|6) Address
+  # > Default: 127.0.0.1
+  host: 127.0.0.1
+
+  # > Represents the host port to connect to the local OCI-compliant container registry, if there is ever need
+  # > one to specify. If this value is not used, the `docker_registry.host` configuration will assume the value
+  # > is a valid absolute URL.
+  # >
+  # > Type: Number [in range - 1024..65535]
+  # > Default: 5000
+  port: 5000
+
+# > The `clickhouse` configuration object is to configure using ClickHouse (https://clickhouse.com) as an external
+# > database to host the Audit Logs and Webhook Events that can be configured. This is mainly used for the Audit Logs
+# > and Webhooks features that are opt-in.
+# >
+# > The ClickHouse migrations are used in a separate project. You can run the `charted ch-migrations` command to perform
+# > the migrations for you.
+clickhouse:
+  # > The database name that the server should connect to.
+  # >
+  # > Type: String
+  # > Default: charted
+  database: charted
+
+# > The `analytics` configuration object is used to configure Noelware Analytics (https://analytics.noelware.org).
+analytics:
+
+# > The `database` configuration object is used to configure the PostgreSQL connection that charted requires.
+database:
+
+# > The `features` configuration array is used to opt-in into features that are disabled by default.
+features: []
+  # > The `audit-logs` feature is used to configure the Audit Logs API.
+  # - audit-logs
+
+  # > The `webhooks` feature is used to configure the Webhooks API.
+  # - webhooks
+
+  # > The `docker-registry` feature is used to configure the Docker Registry feature.
+  # - docker-registry

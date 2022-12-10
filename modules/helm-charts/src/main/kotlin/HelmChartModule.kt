@@ -82,6 +82,8 @@ interface HelmChartModule {
      */
     suspend fun getTemplate(owner: Long, repo: Long, version: String, template: String): InputStream?
 
+    suspend fun getAllTemplates(owner: Long, repo: Long, version: String)
+
     /**
      * Retrieves the `values.yaml` file from the given [repository][repo] and returns an [InputStream] that is
      * used to send the data to the end user.

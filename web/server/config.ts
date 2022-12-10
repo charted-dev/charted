@@ -37,10 +37,9 @@ export const DEFAULT_NODE_NAME = (() => {
 export type Configuration = z.infer<typeof configSchema>;
 
 const logstashSchema = z.object({
-  node_name: z.string().default(DEFAULT_NODE_NAME),
-  metadata: z.map(z.string(), z.string()).default(new Map()),
-  timeout_connect_retry_ms: z.number().default(100),
-  max_connections: z.number().default(4),
+  host: z.string(),
+  port: z.number(),
+  type: z.enum(['tcp', 'udp', 'http']).default('tcp'),
   ssl: z
     .object({
       key: z.string(),
@@ -53,32 +52,45 @@ const logstashSchema = z.object({
 });
 
 const loggingSchema = z.object({
-  level: z.enum(['info', 'error', 'warn', 'debug', 'silly']).default('info'),
-  logstash: logstashSchema.optional()
+  level: z.enum(['info', 'error', 'warn', 'debug', 'trace']).default('info'),
+  logstash: logstashSchema.optional(),
+  json: z
+    .boolean()
+    .default(process.env.NODE_ENV === 'production')
+    .nullish()
 });
 
-const genericProxySchema = z.object({
-  prefix: z.string(),
+const genericProxySchema = z.object({ path: z.string(), serverPath: z.string() });
+const apiServerSchema = z.object({
+  healthcheck: z
+    .object({
+      interval: z.union([z.number(), z.string()]).default('30s'),
+      retry_attemps: z.number().default(1)
+    })
+    .nullish(),
   host: z.string().default('0.0.0.0'),
-  port: z.number().default(3651),
-  url: z.string().optional()
+  port: z.number().min(1024).max(65536).default(3651),
+  ssl: z
+    .union([z.boolean(), z.object({})])
+    .optional()
+    .nullish()
 });
 
 const configSchema = z
   .object({
+    sentry_dsn: z.string().url().nullish(),
     logging: loggingSchema.default({ level: 'info' }),
-    proxies: z
-      .object({
-        server: genericProxySchema.optional(),
-        cdn: genericProxySchema.optional()
-      })
-      .optional(),
+    charted: apiServerSchema.required(),
+    proxy: z.array(genericProxySchema).optional(),
     server: z
       .object({
-        host: z.string().default('0.0.0.0'),
-        port: z.number().default(2134)
+        host: z.string(),
+        port: z.number()
       })
-      .optional()
+      .default({
+        host: '0.0.0.0',
+        port: 2134
+      })
   })
   .strict();
 
@@ -99,6 +111,10 @@ export const create = async (path: string) => {
     server: {
       host: '0.0.0.0',
       port: 2134
+    },
+    charted: {
+      host: '0.0.0.0',
+      port: 3651
     }
   };
 

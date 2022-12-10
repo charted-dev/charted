@@ -65,7 +65,7 @@ koin = "3.2.2"
 kaml = "0.49.0"
 haru = "1.3.0"
 remi = "0.4.1-beta"
-ktor = "2.1.3"
+ktor = "2.2.1"
 totp = "1.7.1"
 otel = "1.19.2-alpha"
 jwt = "4.2.1"
@@ -121,6 +121,7 @@ ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negoti
 ktor-server-auto-head-response = { module = "io.ktor:ktor-server-auto-head-response", version.ref = "ktor" }
 ktor-server-default-headers = { module = "io.ktor:ktor-server-default-headers", version.ref = "ktor" }
 ktor-server-double-receive = { module = "io.ktor:ktor-server-double-receive", version.ref = "ktor" }
+ktor-server-ratelimiting = { module = "io.ktor:ktor-server-rate-limit", version.ref = "ktor" }
 ktor-server-status-pages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
 ktor-server-websockets = { module = "io.ktor:ktor-server-websockets", version.ref = "ktor" }
 ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
