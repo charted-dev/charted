@@ -44,9 +44,9 @@ import java.io.File
 import java.io.InputStream
 import java.util.zip.GZIPInputStream
 
-private val ACCEPTABLE_TAR_CONTENT_TYPES: List<String> = listOf("gzip", "tar+gzip", "tar").map { "application/$it" }
-private val ALLOWED_FILES_REGEX = "\\/?(Chart.lock|Chart.ya?ml|values.ya?ml|\\.helmignore|\\/?templates\\/.*\\.(txt|tpl|ya?ml)|\\/?charts\\/.*\\.(tgz|tar\\.gz))".toRegex()
-private val EXEMPTED_FILES = listOf("values.schema.json")
+private val acceptableContentTypes: List<String> = listOf("gzip", "tar+gzip", "tar").map { "application/$it" }
+private val allowedFilesRegex = """(Chart.lock|Chart.ya?ml|values.ya?ml|[.]helmignore|templates/\w+.*[.](txt|tpl|ya?ml)|charts/\w+.*.(tgz|tar.gz))""".toRegex()
+private val exemptedFiles = listOf("values.schema.json")
 
 class DefaultHelmChartModule(
     private val storage: StorageHandler,
@@ -125,8 +125,8 @@ class DefaultHelmChartModule(
 
         val data = baos.toByteArray()
         val contentType = storage.trailer.figureContentType(data)
-        if (!ACCEPTABLE_TAR_CONTENT_TYPES.contains(contentType)) {
-            throw IllegalArgumentException("File provided was not any of [${ACCEPTABLE_TAR_CONTENT_TYPES.joinToString(", ")}], received $contentType")
+        if (!acceptableContentTypes.contains(contentType)) {
+            throw IllegalArgumentException("File provided was not any of [${acceptableContentTypes.joinToString(", ")}], received $contentType")
         }
 
         // Now, we need to actually see if it's in the Helm Chart structure. It should be something
@@ -160,10 +160,10 @@ class DefaultHelmChartModule(
             }
 
             // Check if it doesn't follow the regular expression
-            if (!(entryName matches ALLOWED_FILES_REGEX)) {
+            if (!(entryName matches allowedFilesRegex)) {
                 // If it contains any exempted files (that are allowed),
                 // then allow it
-                if (EXEMPTED_FILES.contains(entryName)) continue
+                if (exemptedFiles.contains(entryName)) continue
 
                 // Otherwise, just heck off
                 throw IllegalStateException("Entry ${nextEntry.name} (~${nextEntry.size} bytes) is not allowed")

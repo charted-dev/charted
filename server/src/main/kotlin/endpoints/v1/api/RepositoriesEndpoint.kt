@@ -19,7 +19,6 @@
 
 package org.noelware.charted.server.endpoints.v1.api
 
-import com.github.benmanes.caffeine.cache.Caffeine
 import dev.floofy.utils.exposed.asyncTransaction
 import io.github.z4kn4fein.semver.VersionFormatException
 import io.github.z4kn4fein.semver.toVersion
@@ -29,7 +28,6 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.util.*
-import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.plus
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -51,14 +49,12 @@ import org.noelware.charted.databases.postgres.models.RepositoryMember
 import org.noelware.charted.databases.postgres.models.bitfield
 import org.noelware.charted.databases.postgres.tables.RepositoryMemberTable
 import org.noelware.charted.databases.postgres.tables.RepositoryTable
-import org.noelware.charted.databases.postgres.tables.RepositoryTable.deprecated
 import org.noelware.charted.databases.postgres.tables.UserTable
 import org.noelware.charted.extensions.regexp.toNameRegex
 import org.noelware.charted.modules.avatars.AvatarFetchUtil
 import org.noelware.charted.modules.email.EmailService
 import org.noelware.charted.modules.helm.charts.HelmChartModule
 import org.noelware.charted.modules.storage.StorageHandler
-import org.noelware.charted.server.CoroutinesBasedCaffeineCache
 import org.noelware.charted.server.createKtorContentWithByteArray
 import org.noelware.charted.server.createKtorContentWithInputStream
 import org.noelware.charted.server.plugins.PreconditionResult
@@ -68,8 +64,6 @@ import org.noelware.charted.types.helm.RepoType
 import org.noelware.charted.types.responses.ApiResponse
 import org.noelware.ktor.body
 import org.noelware.ktor.endpoints.*
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.toJavaDuration
 
 @Serializable
 data class MainRepositoryResponse(
@@ -115,13 +109,13 @@ class RepositoriesEndpoint(
     private val clickhouse: ClickHouseConnection? = null
 ): AbstractEndpoint("/repositories") {
     // Not used at the moment since I don't really know how to design this, yet.
-    private val repositoriesCache: CoroutinesBasedCaffeineCache<Long, Repository> = CoroutinesBasedCaffeineCache(
-        ChartedScope + CoroutineName("Server-RepositoryCache"),
-        Caffeine
-            .newBuilder()
-            .expireAfterAccess(1.hours.toJavaDuration())
-            .buildAsync()
-    )
+//    private val repositoriesCache: CoroutinesBasedCaffeineCache<Long, Repository> = CoroutinesBasedCaffeineCache(
+//        ChartedScope + CoroutineName("Server-RepositoryCache"),
+//        Caffeine
+//            .newBuilder()
+//            .expireAfterAccess(1.hours.toJavaDuration())
+//            .buildAsync()
+//    )
 
     init {
         // +==============================+
