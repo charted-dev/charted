@@ -14,78 +14,124 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.noelware.charted.modules.analytics
 
-package org.noelware.charted.modules.analytics;
-
-import io.grpc.protobuf.services.ProtoReflectionService;
-import java.io.Closeable;
-import java.io.IOException;
-import java.time.Instant;
-import org.noelware.analytics.jvm.server.AnalyticsServer;
-import org.noelware.analytics.jvm.server.AnalyticsServerBuilder;
-import org.noelware.analytics.jvm.server.extensions.Extension;
-import org.noelware.analytics.protobufs.v1.BuildFlavour;
-import org.noelware.charted.ChartedInfo;
-import org.noelware.charted.common.SetOnce;
-import org.noelware.charted.configuration.kotlin.dsl.NoelwareAnalyticsConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.databind.ObjectMapper
+import io.grpc.ServerBuilder
+import io.grpc.protobuf.services.ProtoReflectionService
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import okio.Utf8
+import org.bouncycastle.util.io.pem.PemReader
+import org.noelware.analytics.jvm.server.AnalyticsServer
+import org.noelware.analytics.jvm.server.AnalyticsServerBuilder
+import org.noelware.analytics.jvm.server.ServerMetadata
+import org.noelware.analytics.jvm.server.extensions.Extension
+import org.noelware.analytics.protobufs.v1.BuildFlavour
+import org.noelware.charted.ChartedInfo
+import org.noelware.charted.DistributionType
+import org.noelware.charted.common.SetOnce
+import org.noelware.charted.configuration.kotlin.dsl.NoelwareAnalyticsConfig
+import org.noelware.charted.types.responses.ApiResponse
+import org.slf4j.LoggerFactory
+import software.amazon.awssdk.http.HttpStatusCode
+import java.io.Closeable
+import java.io.IOException
+import java.io.StringReader
+import java.security.KeyFactory
+import java.security.PublicKey
+import java.security.interfaces.RSAPublicKey
+import java.security.spec.RSAPublicKeySpec
+import java.security.spec.X509EncodedKeySpec
+import java.time.Instant
+import java.util.*
+import javax.crypto.Cipher
 
 /**
  * Represents a daemon process that runs the analytics server in the background outside the
- * main API server. If you wish to just run the Analytics Server for only <code>charted-server</code>,
- * you can run the <code>charted analytics start</code> subcommand.
+ * main API server. If you wish to just run the Analytics Server for only `charted-server`,
+ * you can run the `charted analytics start` subcommand.
  */
-public class AnalyticsDaemon implements Closeable {
-    private final SetOnce<AnalyticsServer> server = new SetOnce<>();
-    private final Logger LOG = LoggerFactory.getLogger(AnalyticsDaemon.class);
-    private final NoelwareAnalyticsConfig config;
-    private final Extension<?> extension;
-
-    /**
-     * Constructs a new {@link AnalyticsDaemon}.
-     * @param config The configuration object for configuring the daemon
-     */
-    public AnalyticsDaemon(NoelwareAnalyticsConfig config, Extension<?> extension) {
-        this.extension = extension;
-        this.config = config;
-    }
-
-    public void start() throws IOException {
+class AnalyticsDaemon
+/**
+ * Constructs a new [AnalyticsDaemon].
+ * @param config The configuration object for configuring the daemon
+ */(private val config: NoelwareAnalyticsConfig, private val extension: Extension<*>) : Closeable {
+    private val server = SetOnce<AnalyticsServer>()
+    private val logger = LoggerFactory.getLogger(AnalyticsDaemon::class.java)
+    private var cipher: Cipher? = null
+    private val httpClient = OkHttpClient.Builder()
+        .addInterceptor { chain -> chain.proceed(chain.request().newBuilder().header("Authorization", config.endpointAuth!!).build()) }
+        .build()
+    @Throws(IOException::class)
+    fun start() {
         if (server.wasSet()) {
-            LOG.warn("Analytics daemon is already running! Not doing anything...");
-            return;
+            logger.warn("Analytics daemon is already running! Not doing anything...")
+            return
         }
-
-        LOG.info("Starting the protocol server with host [0.0.0.0:{}]", config.getPort());
-        final AnalyticsServer server_ = new AnalyticsServerBuilder(config.getPort())
-                .withServiceToken(config.getServiceToken())
-                .withExtension(extension)
-                .withServerMetadata(metadata -> {
-                    final ChartedInfo info = ChartedInfo.INSTANCE;
-                    final BuildFlavour flavour =
-                            switch (info.getDistribution()) {
-                                case UNKNOWN, AUR -> BuildFlavour.UNRECOGNIZED;
-                                case DOCKER -> BuildFlavour.DOCKER;
-                                case RPM -> BuildFlavour.RPM;
-                                case DEB -> BuildFlavour.DEB;
-                                case GIT -> BuildFlavour.GIT;
-                            };
-
-                    metadata.setDistributionType(flavour);
-                    metadata.setProductName("charted-server");
-                    metadata.setCommitHash(info.getCommitHash());
-                    metadata.setBuildDate(Instant.parse(info.getBuildDate()));
-                    metadata.setVersion(info.getVersion());
-                    metadata.setVendor("Noelware");
-                })
-                .withServerBuilder(builder -> {
-                    builder.addService(ProtoReflectionService.newInstance());
-                })
-                .build();
-
-        server.setValue(server_);
-        server_.start();
+        logger.info("Starting the protocol server with host [0.0.0.0:{}]", config.port)
+        val serverBuilder = AnalyticsServerBuilder(config.port)
+            .withServiceToken(config.serviceToken)
+            .withExtension(extension)
+            .withServerMetadata { metadata: ServerMetadata ->
+                val info = ChartedInfo
+                val flavour = when (info.distribution) {
+                    DistributionType.UNKNOWN, DistributionType.AUR -> BuildFlavour.UNRECOGNIZED
+                    DistributionType.DOCKER -> BuildFlavour.DOCKER
+                    DistributionType.RPM -> BuildFlavour.RPM
+                    DistributionType.DEB -> BuildFlavour.DEB
+                    DistributionType.GIT -> BuildFlavour.GIT
+                }
+                metadata.setDistributionType(flavour)
+                metadata.setProductName("charted-server")
+                metadata.setCommitHash(info.commitHash)
+                metadata.setBuildDate(Instant.parse(info.buildDate))
+                metadata.setVersion(info.version)
+                metadata.setVendor("Noelware")
+            }
+            .withServerBuilder { builder: ServerBuilder<*> -> builder.addService(ProtoReflectionService.newInstance()) }
+            .build()
+        server.value = serverBuilder
+        serverBuilder.start()
+        // TODO: Allow setting of bind IP, default 0.0.0.0
+        val initReq = Requests.InitRequest(String.format("0.0.0.0:%s", config.port))
+        val request: Request = Request.Builder()
+            .post(Json.encodeToString(initReq).toRequestBody("application/json".toMediaType()))
+            .url(String.format("%s/instances/%s/init", config.endpoint, serverBuilder.instanceUUID()))
+            .build()
+        httpClient.newCall(request).execute().use { resp ->
+            val initApiResponse = Json.decodeFromString<ApiResponse<Requests.InitResponse>>(resp.body!!.string())
+            if (initApiResponse.success) {
+                val apiToken = Base64.getDecoder().decode(config.serviceToken).decodeToString().split(":")[1];
+                val okRes = initApiResponse as ApiResponse.Ok<Requests.InitResponse>
+                val pemReader = PemReader(StringReader(okRes.data!!.pubKey))
+                val keySpec = X509EncodedKeySpec(pemReader.readPemObject().content)
+                val pubKey = KeyFactory.getInstance("RSA").generatePublic(keySpec)
+                val cipher = Cipher.getInstance("RSA")
+                cipher.init(Cipher.ENCRYPT_MODE, pubKey)
+                val encoded = Base64.getEncoder().encodeToString(cipher.doFinal(apiToken.toByteArray()))
+                val finalReq: Request = Request.Builder()
+                    .post(Json.encodeToString(Requests.FinalizeRequest(encoded)).toRequestBody("application/json".toMediaType()))
+                    .url(String.format("%s/instances/%s/finalize", config.endpoint, serverBuilder.instanceUUID()))
+                    .build();
+                httpClient.newCall(finalReq).execute().use { res ->
+                    try {
+                        val decoded = Json.decodeFromString<ApiResponse<Unit>>(res.body!!.string())
+                        if (!decoded.success) {
+                            val errors = decoded as ApiResponse.Err
+                            logger.info("Finalize request failed with status: {}, errors: {}", res.code, errors.errors)
+                        }
+                    } catch (_: Exception) {
+                        logger.info("Response code when finalizing: {} {}", res.code, res.message)
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -93,18 +139,18 @@ public class AnalyticsDaemon implements Closeable {
      * with it. If the stream is already closed then invoking this
      * method has no effect.
      *
-     * <p> As noted in {@link AutoCloseable#close()}, cases where the
+     *
+     *  As noted in [AutoCloseable.close], cases where the
      * close may fail require careful attention. It is strongly advised
      * to relinquish the underlying resources and to internally
-     * <em>mark</em> the {@code Closeable} as closed, prior to throwing
-     * the {@code IOException}.
+     * *mark* the `Closeable` as closed, prior to throwing
+     * the `IOException`.
      *
      * @throws IOException if an I/O error occurs
      */
-    @Override
-    public void close() throws IOException {
-        if (!server.wasSet()) return;
-
-        server.getValue().close();
+    @Throws(IOException::class)
+    override fun close() {
+        if (!server.wasSet()) return
+        server.value.close()
     }
 }

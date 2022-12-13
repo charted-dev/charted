@@ -288,7 +288,7 @@ object ConfigureModulesPhase: BootstrapPhase() {
         }
 
         if (config.analytics != null) {
-            val daemon = AnalyticsDaemon(config.analytics, ChartedAnalyticsExtension(metrics))
+            val daemon = AnalyticsDaemon(config.analytics!!, ChartedAnalyticsExtension(metrics))
             modules.add(
                 module {
                     single { daemon }

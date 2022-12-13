@@ -28,12 +28,14 @@ import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.DECODE_DONE
 import kotlinx.serialization.json.JsonEncoder
+import org.bouncycastle.util.Integers
 
 /**
  * Represents a generic API response object.
  */
 @Serializable(with = KResponseSerializer::class)
 sealed class ApiResponse<out T>(val success: Boolean) {
+
     /**
      * Represents a successful response, with any data attached if any.
      * @param data The data to use to send out the response. The [T] generic

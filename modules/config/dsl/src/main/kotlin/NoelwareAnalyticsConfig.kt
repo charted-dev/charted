@@ -20,24 +20,30 @@ package org.noelware.charted.configuration.kotlin.dsl
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.noelware.charted.ValidationException
+import org.noelware.charted.extensions.toUriOrNull
 import kotlin.properties.Delegates
 
 @Serializable
 data class NoelwareAnalyticsConfig(
     @SerialName("service_token")
     val serviceToken: String,
-    val port: Int = 10234
+    val port: Int = 10234,
+    val endpoint: String = "https://analytics.noelware.org",
+    @SerialName("endpoint_auth")
+    val endpointAuth: String?
 ) {
     init {
+        if (endpoint.toUriOrNull() == null) throw ValidationException("config.analytics.endpoint", String.format("Analytics endpoint must be a valid URI, instead got %s", endpoint));
         if (port !in 1024..65535) {
             throw ValidationException("config.analytics.port", "Analytics server port must be in range of [1024..65535]")
         }
     }
 
     class Builder: org.noelware.charted.common.Builder<NoelwareAnalyticsConfig> {
-        var serviceToken: String by Delegates.notNull()
-        var port: Int = 10234
+        private var serviceToken: String by Delegates.notNull()
+        private var port: Int = 10234
+        private var endpoint: String = "https://analytics.noelware.org"
 
-        override fun build(): NoelwareAnalyticsConfig = NoelwareAnalyticsConfig(serviceToken, port)
+        override fun build(): NoelwareAnalyticsConfig = NoelwareAnalyticsConfig(serviceToken, port, endpoint, null)
     }
 }
