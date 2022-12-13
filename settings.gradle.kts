@@ -52,7 +52,6 @@ include(
     ":modules:garbage-collector",
     ":modules:helm-charts",
     ":modules:invitations",
-    ":modules:jvmoptions",
     ":modules:logging",
     ":modules:meilisearch",
     ":modules:metrics",
@@ -63,7 +62,8 @@ include(
     ":modules:sessions:integrations:github",
     ":modules:sessions:integrations:noelware",
     ":modules:storage",
-    ":modules:telemetry"
+    ":modules:telemetry",
+    ":modules:webhooks"
 )
 
 dependencyResolutionManagement {

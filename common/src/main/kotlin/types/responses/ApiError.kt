@@ -21,9 +21,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.encoding.encodeStructure
+import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.JsonEncoder
 
 /**
@@ -52,8 +50,23 @@ data class ApiError(
             element("detail", CONTEXTUAL_ANY.descriptor, isOptional = true)
         }
 
-        override fun deserialize(decoder: Decoder): ApiError {
-            throw SerializationException("Decoding is not available for the ApiError serializer")
+        override fun deserialize(decoder: Decoder): ApiError = decoder.decodeStructure(descriptor) {
+            var code: String? = null
+            var message: String? = null
+            // var detail: Any? = null
+
+            loop@ while (true) {
+                when (val index = decodeElementIndex(descriptor)) {
+                    CompositeDecoder.DECODE_DONE -> break
+                    0 -> code = decodeStringElement(descriptor, index)
+                    1 -> message = decodeStringElement(descriptor, index)
+                    2 -> throw IllegalStateException("Decoding `detail` is not supported at this time")
+                    else -> throw SerializationException("Unexpected index [$index]")
+                }
+            }
+
+            check(code != null && message != null) { "Missing `code` and/or `message` in deserialized result" }
+            ApiError(code, message, null)
         }
 
         @OptIn(InternalSerializationApi::class)

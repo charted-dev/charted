@@ -19,6 +19,7 @@ package org.noelware.charted.serializers.tests
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.encoding.Decoder
@@ -59,5 +60,20 @@ class ApiResponseSerializationTests {
         )
 
         assertEquals("""{"success":false,"errors":[{"code":"puby gang","message":"you are in puby gang, not polar gang :(","detail":{"woof":true}}]}""", Json.encodeToString(ApiResponse.serializer(UnitSerializer), res3))
+    }
+
+    @Test
+    fun `test if it can deserialize ApiResponse elements`() {
+        assertDoesNotThrow {
+            val result = Json.decodeFromString<ApiResponse<String>>("""{"success":true,"data":"a string"}""")
+            assertTrue(result.success)
+            assertEquals("a string", (result as ApiResponse.Ok<String>).data)
+        }
+
+        assertDoesNotThrow {
+            val result = Json.decodeFromString<ApiResponse<Unit>>("""{"success":false,"errors":[{"code":"heck","message":"heck"}]}""")
+            assertFalse(result.success)
+            assertEquals(1, (result as ApiResponse.Err).errors.size)
+        }
     }
 }

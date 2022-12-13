@@ -28,7 +28,6 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.util.*
-import kotlinx.coroutines.plus
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -329,7 +328,7 @@ class RepositoriesEndpoint(
             )
         )
 
-        val REPO_QUERY: Op<Boolean> = if (repoID.toNameRegex(false, 24).matches()) {
+        val repoQuery: Op<Boolean> = if (repoID.toNameRegex(false, 24).matches()) {
             RepositoryTable.name eq repoID
         } else {
             RepositoryTable.id eq repoID.toLong()
@@ -337,7 +336,7 @@ class RepositoriesEndpoint(
 
         val repo = asyncTransaction(ChartedScope) {
             RepositoryEntity.find {
-                REPO_QUERY and (RepositoryTable.owner eq owner)
+                repoQuery and (RepositoryTable.owner eq owner)
             }.firstOrNull()?.let { entity -> Repository.fromEntity(entity) }
         } ?: return call.respond(
             HttpStatusCode.NotFound,
@@ -676,7 +675,7 @@ class RepositoriesEndpoint(
     }
 
     /**
-     * Returns a single repository release by its version.
+     * Returns a single repository release's tarball by its version.
      *
      * @statusCode 200 The release by the version if it was found
      * @statusCode 400 If the ID was not a valid snowflake.
@@ -705,6 +704,17 @@ class RepositoriesEndpoint(
         val repository = call.getRepository() ?: return
         val stream = charts!!.getReleaseTarball(repository.owner, repository.id.value, version) ?: return call.respond(HttpStatusCode.NotFound)
         call.respond(createKtorContentWithInputStream(stream, ContentType.parse("application/tar+gzip")))
+    }
+
+    /**
+     * Returns a repository release object if it was created.
+     * @statusCode 200 The release by the version if it was found
+     * @statusCode 400 If the ID was not a valid snowflake.
+     * @statusCode 403 If the repository is private and the user doesn't have permission to view the repository or the release.
+     * @statusCode 404 If the repository OR release was not found in the database.
+     */
+    @Get("/{id}/releases/{version}")
+    suspend fun getRepositoryRelease(call: ApplicationCall) {
     }
 
     /**
@@ -751,6 +761,16 @@ class RepositoriesEndpoint(
         call.respond(HttpStatusCode.NotImplemented)
     }
 
+    /**
+     * Upload a release's tarball so that consumers can use it when `helm install` is used. This is called
+     * when you run the `helm charts push` command on the charts you want uploaded to charted-server.
+     *
+     * @statusCode 201 If the tarball was created successfully
+     * @statusCode 400 If the ID was not a valid snowflake.
+     * @statusCode 403 If the repository is private and the user doesn't have permission to view the repository
+     *                 or delete releases.
+     * @statusCode 500 If any database errors had occurred while creating the repository release
+     */
     @Post("/{id}/releases/{version}.tar.gz")
     suspend fun uploadReleaseTarball(call: ApplicationCall) {
         if (config.features.contains(ServerFeature.DOCKER_REGISTRY)) {
@@ -832,6 +852,13 @@ class RepositoriesEndpoint(
         call.respond(createKtorContentWithInputStream(stream, ContentType.parse("text/yaml; charset=utf-8")))
     }
 
+    /**
+     * Returns the given `values.yaml` of this repository's release.
+     * @statusCode 200 The release by the version if it was found
+     * @statusCode 400 If the ID was not a valid snowflake.
+     * @statusCode 403 If the repository is private and the user doesn't have permission to view the repository
+     * @statusCode 404 If the repository OR release was not found in the database.
+     */
     @Get("/{id}/releases/{version}/values.yaml")
     suspend fun getValuesYamlFromRelease(call: ApplicationCall) {
         if (config.features.contains(ServerFeature.DOCKER_REGISTRY)) {
@@ -857,6 +884,13 @@ class RepositoriesEndpoint(
         call.respond(createKtorContentWithInputStream(stream, ContentType.parse("text/yaml; charset=utf-8")))
     }
 
+    /**
+     * Returns all the release's templates.
+     * @statusCode 200 All the release templates as a list of endpoints that are valid.
+     * @statusCode 400 If the ID was not a valid snowflake.
+     * @statusCode 403 If the repository is private and the user doesn't have permission to view the repository
+     * @statusCode 404 If the repository OR release was not found in the database.
+     */
     @Get("/{id}/releases/{version}/templates")
     suspend fun getAllTemplates(call: ApplicationCall) {
         if (config.features.contains(ServerFeature.DOCKER_REGISTRY)) {
@@ -877,8 +911,18 @@ class RepositoriesEndpoint(
         }
 
         val repository = call.getRepository() ?: return
+        val templates = charts!!.getAllTemplates(repository.owner, repository.id.value, version)
+
+        call.respond(HttpStatusCode.OK, ApiResponse.ok(templates))
     }
 
+    /**
+     * Returns all the release's specific template.
+     * @statusCode 200 All the release templates as a list of endpoints that are valid.
+     * @statusCode 400 If the ID was not a valid snowflake.
+     * @statusCode 403 If the repository is private and the user doesn't have permission to view the repository
+     * @statusCode 404 If the repository OR release was not found in the database.
+     */
     @Get("/{id}/releases/{version}/templates/{template}")
     suspend fun getTemplateFromRelease(call: ApplicationCall) {
         if (config.features.contains(ServerFeature.DOCKER_REGISTRY)) {

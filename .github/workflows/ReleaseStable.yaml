@@ -88,10 +88,12 @@ jobs:
           files: ./cli/build/distributions/charted-server.${{ matrix.tasks.ext }}
 
       - name: Upload artifacts to Noelware's Artifact Registry
-        uses: Noelware/s3-action@master
+        uses: Noelware/s3-action@2.0.0
         with:
-          directories: ./cli/build/distributions
-          access-key: ${{secrets.S3_ACCESS_KEY}}
+          files: ./cli/build/distributions/charted-server.tar.gz
+          path-format: $(prefix)/${{steps.tag.output.version}}/charted-server.tar.gz
+          access-key-id: ${{secrets.S3_ACCESS_KEY}}
           secret-key: ${{secrets.S3_SECRET_KEY}}
           endpoint: ${{secrets.S3_ENDPOINT}}
-          bucket: noelware.cloud
+          prefix: /noelware/artifacts
+          bucket: august

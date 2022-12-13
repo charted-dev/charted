@@ -82,7 +82,15 @@ interface HelmChartModule {
      */
     suspend fun getTemplate(owner: Long, repo: Long, version: String, template: String): InputStream?
 
-    suspend fun getAllTemplates(owner: Long, repo: Long, version: String)
+    /**
+     * Returns all the templates from a given repository's release tarball. The list contains
+     * endpoint URLs that are used to access the template's data itself.
+     *
+     * @param owner     owner ID
+     * @param repo      repository object
+     * @param version   release id
+     */
+    suspend fun getAllTemplates(owner: Long, repo: Long, version: String): List<String>
 
     /**
      * Retrieves the `values.yaml` file from the given [repository][repo] and returns an [InputStream] that is

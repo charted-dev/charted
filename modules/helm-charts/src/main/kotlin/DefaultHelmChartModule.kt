@@ -295,8 +295,44 @@ class DefaultHelmChartModule(
         return data
     }
 
-    override suspend fun getAllTemplates(owner: Long, repo: Long, version: String) {
-        TODO("Not yet implemented")
+    /**
+     * Returns all the templates from a given repository's release tarball. The list contains
+     * endpoint URLs that are used to access the template's data itself.
+     *
+     * @param owner     owner ID
+     * @param repo      repository object
+     * @param version   release id
+     */
+    override suspend fun getAllTemplates(owner: Long, repo: Long, version: String): List<String> {
+        val templates = mutableListOf<String>()
+
+        log.info("Finding all templates in repository [$owner/$repo v$version]")
+        val inputStream = storage.open("./repositories/$owner/$repo/tarballs/$version.tar.gz") ?: return emptyList()
+        val tarInputStream = TarArchiveInputStream(
+            withContext(Dispatchers.IO) {
+                GZIPInputStream(inputStream)
+            }
+        )
+
+        val host = config.storage.hostAlias ?: config.baseUrl ?: "http${if (config.server.ssl != null) "s" else ""}://${config.server.host}:${config.server.port}"
+        return tarInputStream.use { stream ->
+            var nextEntry: TarArchiveEntry?
+            while (true) {
+                nextEntry = stream.nextTarEntry
+                if (nextEntry == null) break
+
+                val firstDash = nextEntry.name.indexOfFirst { c -> c == '/' }
+                val entryName = if (firstDash != -1) {
+                    nextEntry.name.substring(firstDash + 1)
+                } else {
+                    nextEntry.name
+                }
+
+                templates.add("$host/repositories/$repo/templates/$entryName")
+            }
+
+            templates
+        }
     }
 
     /**

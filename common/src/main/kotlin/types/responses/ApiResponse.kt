@@ -17,15 +17,16 @@
 
 package org.noelware.charted.types.responses
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.encoding.encodeStructure
+import kotlinx.serialization.encoding.*
+import kotlinx.serialization.encoding.CompositeDecoder.Companion.DECODE_DONE
 import kotlinx.serialization.json.JsonEncoder
 
 /**
@@ -101,16 +102,59 @@ sealed class ApiResponse<out T>(val success: Boolean) {
     }
 }
 
-private class KResponseSerializer<T>(private val kSerializer: KSerializer<T>): KSerializer<ApiResponse<T>> {
-    private val API_ERROR_SERIALIZER = ListSerializer(ApiError.serializer())
+class KResponseSerializer<T>(private val kSerializer: KSerializer<T>): KSerializer<ApiResponse<T>> {
+    private val apiErrorSerializer = ListSerializer(ApiError.serializer())
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("charted.ApiResponse") {
         element("success", Boolean.serializer().descriptor)
         element("data", kSerializer.descriptor, isOptional = true)
-        element("errors", API_ERROR_SERIALIZER.descriptor, isOptional = true)
+        element("errors", apiErrorSerializer.descriptor, isOptional = true)
     }
 
-    override fun deserialize(decoder: Decoder): ApiResponse<T> {
-        throw IllegalAccessException("Deserialization is not supported in KResponseSerializer.")
+    @OptIn(ExperimentalSerializationApi::class)
+    @Suppress("UNCHECKED_CAST")
+    override fun deserialize(decoder: Decoder): ApiResponse<T> = decoder.decodeStructure(descriptor) {
+        var res: ApiResponse<T>? = null
+        loop@ while (true) {
+            when (val index = decodeElementIndex(descriptor)) {
+                DECODE_DONE -> break
+                0 -> {
+                    val success = decodeBooleanElement(descriptor, index)
+                    res = if (success) {
+                        ApiResponse.Ok(null)
+                    } else {
+                        ApiResponse.err(listOf()) as ApiResponse<T>
+                    }
+                }
+
+                // index 1 represents "data", so we need to assert that success is true.
+                1 -> {
+                    check(res != null) { "Reached to index 1 without reaching to index 0" }
+
+                    // Modify the state
+                    if (res is ApiResponse.Ok) {
+                        val data = decodeNullableSerializableElement(descriptor, index, kSerializer as KSerializer<T?>)
+                        if (data != null) {
+                            res = ApiResponse.ok(data)
+                        }
+                    }
+                }
+
+                // index 2 is the errors, so we need to assert if res is ApiResponse.Err
+                2 -> {
+                    check(res != null) { "Reached to index 2 without reaching to index 0" }
+
+                    // Modify the state
+                    if (res is ApiResponse.Err) {
+                        res = ApiResponse.err(decodeSerializableElement(descriptor, index, apiErrorSerializer)) as ApiResponse<T>
+                    }
+                }
+
+                else -> throw SerializationException("Unexpected index [$index]")
+            }
+        }
+
+        check(res != null) { "Couldn't deserialize result due to `res` being null!" }
+        res
     }
 
     override fun serialize(encoder: Encoder, value: ApiResponse<T>) {
@@ -126,7 +170,7 @@ private class KResponseSerializer<T>(private val kSerializer: KSerializer<T>): K
                 }
 
                 is ApiResponse.Err -> {
-                    encodeSerializableElement(descriptor, 2, API_ERROR_SERIALIZER, value.errors)
+                    encodeSerializableElement(descriptor, 2, apiErrorSerializer, value.errors)
                 }
             }
         }
