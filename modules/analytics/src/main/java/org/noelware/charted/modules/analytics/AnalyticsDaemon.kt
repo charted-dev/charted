@@ -16,7 +16,6 @@
  */
 package org.noelware.charted.modules.analytics
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.grpc.ServerBuilder
 import io.grpc.protobuf.services.ProtoReflectionService
 import kotlinx.serialization.decodeFromString
@@ -26,7 +25,6 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import okio.Utf8
 import org.bouncycastle.util.io.pem.PemReader
 import org.noelware.analytics.jvm.server.AnalyticsServer
 import org.noelware.analytics.jvm.server.AnalyticsServerBuilder
@@ -39,14 +37,10 @@ import org.noelware.charted.common.SetOnce
 import org.noelware.charted.configuration.kotlin.dsl.NoelwareAnalyticsConfig
 import org.noelware.charted.types.responses.ApiResponse
 import org.slf4j.LoggerFactory
-import software.amazon.awssdk.http.HttpStatusCode
 import java.io.Closeable
 import java.io.IOException
 import java.io.StringReader
 import java.security.KeyFactory
-import java.security.PublicKey
-import java.security.interfaces.RSAPublicKey
-import java.security.spec.RSAPublicKeySpec
 import java.security.spec.X509EncodedKeySpec
 import java.time.Instant
 import java.util.*
@@ -64,7 +58,6 @@ class AnalyticsDaemon
  */(private val config: NoelwareAnalyticsConfig, private val extension: Extension<*>) : Closeable {
     private val server = SetOnce<AnalyticsServer>()
     private val logger = LoggerFactory.getLogger(AnalyticsDaemon::class.java)
-    private var cipher: Cipher? = null
     private val httpClient = OkHttpClient.Builder()
         .addInterceptor { chain -> chain.proceed(chain.request().newBuilder().header("Authorization", config.endpointAuth!!).build()) }
         .build()
@@ -75,19 +68,18 @@ class AnalyticsDaemon
             return
         }
         logger.info("Starting the protocol server with host [0.0.0.0:{}]", config.port)
-        val serverBuilder = AnalyticsServerBuilder(config.port)
+        val serverBuilder = AnalyticsServerBuilder(config.grpcBindIp ?: "127.0.0.1", config.port)
             .withServiceToken(config.serviceToken)
             .withExtension(extension)
             .withServerMetadata { metadata: ServerMetadata ->
                 val info = ChartedInfo
-                val flavour = when (info.distribution) {
+                metadata.setDistributionType(when (info.distribution) {
                     DistributionType.UNKNOWN, DistributionType.AUR -> BuildFlavour.UNRECOGNIZED
                     DistributionType.DOCKER -> BuildFlavour.DOCKER
                     DistributionType.RPM -> BuildFlavour.RPM
                     DistributionType.DEB -> BuildFlavour.DEB
                     DistributionType.GIT -> BuildFlavour.GIT
-                }
-                metadata.setDistributionType(flavour)
+                })
                 metadata.setProductName("charted-server")
                 metadata.setCommitHash(info.commitHash)
                 metadata.setBuildDate(Instant.parse(info.buildDate))

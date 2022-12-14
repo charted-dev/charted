@@ -29,6 +29,8 @@ data class NoelwareAnalyticsConfig(
     val serviceToken: String,
     val port: Int = 10234,
     val endpoint: String = "https://analytics.noelware.org",
+    @SerialName("grpc_bind_ip")
+    val grpcBindIp: String?,
     @SerialName("endpoint_auth")
     val endpointAuth: String?
 ) {
@@ -44,6 +46,6 @@ data class NoelwareAnalyticsConfig(
         private var port: Int = 10234
         private var endpoint: String = "https://analytics.noelware.org"
 
-        override fun build(): NoelwareAnalyticsConfig = NoelwareAnalyticsConfig(serviceToken, port, endpoint, null)
+        override fun build(): NoelwareAnalyticsConfig = NoelwareAnalyticsConfig(serviceToken, port, endpoint, null, null)
     }
 }
