@@ -82,56 +82,6 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: test --no-daemon --scan
-  nodejs:
-    name: Node.js CI [${{matrix.node-version}}]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [16.x, 19.x]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Setup Node.js v${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        working-directory: ./web
-        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
-
-      - name: Cache Yarn
-        uses: actions/cache@v3
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/web/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Cache node_modules
-        id: cache-node-modules
-        uses: actions/cache@v3
-        with:
-          path: "./web/node_modules"
-          key: ${{ runner.os }}-${{ matrix.node-version }}-nodemodules-${{ hashFiles('**/web/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.node-version }}-nodemodules-
-
-      - name: Install dependencies
-        if: ${{ steps.yarn-cache.outputs.cache-hit != 'true' || steps.cache-node-modules.outputs.cache-hit != 'true' }}
-        working-directory: ./web
-        run: yarn install --immutable
-
-      - name: Lint project
-        working-directory: ./web
-        run: yarn lint:ci
-        env:
-          TS_NODE_PROJECT: ./scripts/tsconfig.json
   golang:
     name: Go CI [${{matrix.projects.name}}]
     runs-on: ubuntu-latest
