@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.netflix.nebula:gradle-ospackage-plugin:9.1.1")
+    implementation("com.netflix.nebula:gradle-ospackage-plugin:10.0.0")
     implementation("de.undercouch:gradle-download-task:5.3.0")
     implementation("io.github.z4kn4fein:semver:1.4.1")
     implementation("com.google.code.gson:gson:2.10")
