@@ -1,6 +1,6 @@
 /*
  * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright 2022 Noelware <team@noelware.org>
+ * Copyright 2022-2023 Noelware <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.noelware.charted.modules.analytics
 
 import io.grpc.ServerBuilder
@@ -48,38 +49,38 @@ import javax.crypto.Cipher
 
 /**
  * Represents a daemon process that runs the analytics server in the background outside the
- * main API server. If you wish to just run the Analytics Server for only `charted-server`,
- * you can run the `charted analytics start` subcommand.
- */
-class AnalyticsDaemon
-/**
- * Constructs a new [AnalyticsDaemon].
+ * main API server.
+ *
  * @param config The configuration object for configuring the daemon
- */(private val config: NoelwareAnalyticsConfig, private val extension: Extension<*>) : Closeable {
+ */
+class AnalyticsDaemon(private val config: NoelwareAnalyticsConfig, private val extension: Extension<*>) : Closeable {
     private val server = SetOnce<AnalyticsServer>()
     private val logger = LoggerFactory.getLogger(AnalyticsDaemon::class.java)
     private val httpClient = OkHttpClient.Builder()
         .addInterceptor { chain -> chain.proceed(chain.request().newBuilder().header("Authorization", config.endpointAuth!!).build()) }
         .build()
-    @Throws(IOException::class)
+
     fun start() {
         if (server.wasSet()) {
             logger.warn("Analytics daemon is already running! Not doing anything...")
             return
         }
+
         logger.info("Starting the protocol server with host [0.0.0.0:{}]", config.port)
         val serverBuilder = AnalyticsServerBuilder(config.grpcBindIp ?: "127.0.0.1", config.port)
             .withServiceToken(config.serviceToken)
             .withExtension(extension)
             .withServerMetadata { metadata: ServerMetadata ->
                 val info = ChartedInfo
-                metadata.setDistributionType(when (info.distribution) {
-                    DistributionType.UNKNOWN, DistributionType.AUR -> BuildFlavour.UNRECOGNIZED
-                    DistributionType.DOCKER -> BuildFlavour.DOCKER
-                    DistributionType.RPM -> BuildFlavour.RPM
-                    DistributionType.DEB -> BuildFlavour.DEB
-                    DistributionType.GIT -> BuildFlavour.GIT
-                })
+                metadata.setDistributionType(
+                    when (info.distribution) {
+                        DistributionType.UNKNOWN, DistributionType.AUR -> BuildFlavour.UNRECOGNIZED
+                        DistributionType.DOCKER -> BuildFlavour.DOCKER
+                        DistributionType.RPM -> BuildFlavour.RPM
+                        DistributionType.DEB -> BuildFlavour.DEB
+                        DistributionType.GIT -> BuildFlavour.GIT
+                    }
+                )
                 metadata.setProductName("charted-server")
                 metadata.setCommitHash(info.commitHash)
                 metadata.setBuildDate(Instant.parse(info.buildDate))
@@ -88,29 +89,34 @@ class AnalyticsDaemon
             }
             .withServerBuilder { builder: ServerBuilder<*> -> builder.addService(ProtoReflectionService.newInstance()) }
             .build()
+
         server.value = serverBuilder
         serverBuilder.start()
+
         // TODO: Allow setting of bind IP, default 0.0.0.0
         val initReq = Requests.InitRequest(String.format("0.0.0.0:%s", config.port))
         val request: Request = Request.Builder()
             .post(Json.encodeToString(initReq).toRequestBody("application/json".toMediaType()))
             .url(String.format("%s/instances/%s/init", config.endpoint, serverBuilder.instanceUUID()))
             .build()
+
         httpClient.newCall(request).execute().use { resp ->
             val initApiResponse = Json.decodeFromString<ApiResponse<Requests.InitResponse>>(resp.body!!.string())
             if (initApiResponse.success) {
-                val apiToken = Base64.getDecoder().decode(config.serviceToken).decodeToString().split(":")[1];
+                val apiToken = Base64.getDecoder().decode(config.serviceToken).decodeToString().split(":")[1]
                 val okRes = initApiResponse as ApiResponse.Ok<Requests.InitResponse>
                 val pemReader = PemReader(StringReader(okRes.data!!.pubKey))
                 val keySpec = X509EncodedKeySpec(pemReader.readPemObject().content)
                 val pubKey = KeyFactory.getInstance("RSA").generatePublic(keySpec)
                 val cipher = Cipher.getInstance("RSA")
                 cipher.init(Cipher.ENCRYPT_MODE, pubKey)
+
                 val encoded = Base64.getEncoder().encodeToString(cipher.doFinal(apiToken.toByteArray()))
                 val finalReq: Request = Request.Builder()
                     .post(Json.encodeToString(Requests.FinalizeRequest(encoded)).toRequestBody("application/json".toMediaType()))
                     .url(String.format("%s/instances/%s/finalize", config.endpoint, serverBuilder.instanceUUID()))
-                    .build();
+                    .build()
+
                 httpClient.newCall(finalReq).execute().use { res ->
                     try {
                         val decoded = Json.decodeFromString<ApiResponse<Unit>>(res.body!!.string())
@@ -131,8 +137,7 @@ class AnalyticsDaemon
      * with it. If the stream is already closed then invoking this
      * method has no effect.
      *
-     *
-     *  As noted in [AutoCloseable.close], cases where the
+     * As noted in [AutoCloseable.close], cases where the
      * close may fail require careful attention. It is strongly advised
      * to relinquish the underlying resources and to internally
      * *mark* the `Closeable` as closed, prior to throwing
@@ -140,7 +145,6 @@ class AnalyticsDaemon
      *
      * @throws IOException if an I/O error occurs
      */
-    @Throws(IOException::class)
     override fun close() {
         if (!server.wasSet()) return
         server.value.close()

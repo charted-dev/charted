@@ -1,5 +1,0 @@
-{
-  "commit_hash": "${commitHash}",
-  "build_date": "${buildDate}",
-  "version": "0.3-nightly"
-}

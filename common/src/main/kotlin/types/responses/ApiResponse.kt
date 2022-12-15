@@ -1,6 +1,6 @@
 /*
  * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright 2022 Noelware <team@noelware.org>
+ * Copyright 2022-2023 Noelware <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encoding.*
 import kotlinx.serialization.encoding.CompositeDecoder.Companion.DECODE_DONE
 import kotlinx.serialization.json.JsonEncoder
-import org.bouncycastle.util.Integers
 
 /**
  * Represents a generic API response object.
