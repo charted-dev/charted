@@ -362,11 +362,11 @@ class UsersEndpoint(
 
         // Delete all the repositories and organizations owned by this user
         asyncTransaction(ChartedScope) {
-            RepositoryTable.deleteWhere { RepositoryTable.owner eq id }
+            RepositoryTable.deleteWhere { owner eq id }
         }
 
         asyncTransaction(ChartedScope) {
-            OrganizationTable.deleteWhere { OrganizationTable.owner eq id }
+            OrganizationTable.deleteWhere { owner eq id }
         }
 
         // Delete the user and their sessions

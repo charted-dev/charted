@@ -26,6 +26,7 @@ import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.lang3.time.StopWatch
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import org.noelware.charted.ChartedScope
 import org.noelware.charted.databases.postgres.models.ApiKeys
