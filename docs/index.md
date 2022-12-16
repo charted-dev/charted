@@ -4,38 +4,38 @@ description: You know, for Helm Charts?
 
 ---
 
-# 📦 charted-server
-Welcome to the main documentation hub of all the topics relating to the heart and soul of Noelware's Charts platform: **charted-server**
+# Noelware's Charts Platform
+Hello viewer! This is the preliminary documentation for **charted-server** that ranges from the REST API, to self-hosting it,
+and how to contribute to the source code! 
 
-**charted-server** (case-sensitive) is the heart and soul of Noelware's Charts platform. It's an in-cloud solution to host your
-Helm Charts with relative ease with similarities like **Docker Hub** or **GitHub**
+**charted-server** is the backend API service for Noelware's Charts Platform. It is served to host Helm Charts and distribute it
+all over the world with a web UI to show what this Helm Chart is and how it operates. Think of Noelware's Charts Platform as **Docker Hub**,
+but for Helm Charts.
 
 ## Comparisons
-### chartmuseum
-To be honest, we didn't know chart-museum existed until a few months in development of Noelware's Charts platform. And, it's
-a pretty good server for hosting public and private Helm Charts, right?
+### chartmusuem
+When the development of the platform was being first developed, we had no idea the Helm developers created this! And we think it's a pretty
+good server to host a bare-bones, feature-less version of **charted-server**. As **chartmusuem** is like Docker's [official registry](https://docs.docker.com/registry),
+**charted-server** is meant to be like **Docker Hub**.
 
-chartmuseum was built to be in similar with Docker's [official registry](https://docs.docker.com/registry) but misses out on:
+Some pros we have found that **chartmusemum** has a lot more storage handlers like Alibaba Cloud Storage, we only support the local filesystem and Amazon S3
+(the official instance uses [Minio](https://min.io)!). If you wish to add more storage handlers, you can contribute to [Noelware's Remi library](https://github.com/Noelware/remi).
 
-- An in-cloud solution to host your charts if you do not want to set up your own registry.
-- No authorization system, it's all "public" so anyone can read, but you will create a user account like Docker Registry.
-- If you really care that **charted-server** is primarily built in Kotlin/JVM, then you might like **chartmusuem** more.
+Another pro is that, **chartmusumem** supports [Helm Provenance](https://helm.sh/docs/topics/provenance) whilst **charted-server** does not support it, but plans to!
 
-The only pro we found is that it supports way more providers to host your charts like Google Cloud Storage, Microsoft Azure
-Blob Storage, Alibaba Cloud OSS Storage, and more. **charted-server** only supports Amazon S3 and the local filesystem, since
-we use Noelware's [remi](https://remi.noelware.org) library to handle storage, so if you wish to contribute and add a storage provider
-to the main repository, then do so!
-
-**charted-server** also doesn't support Helm's `--verify` flag when verifying the Helm Chart tarball.
+Some cons when using **chartmusuem** is:
+- No "official server" to host your Helm Charts, you will need to install it on your own bare metal or in the cloud.
+- No authorization system that does RBAC for the sake of simplicity
+- It is very lightweight than **charted-server** since ChartMusuem is primarily made in **Go** while charted-server is built with Kotlin.
 
 ### Artifact Hub
-**charted-server** and Artifact Hub are way different when how it is operated. Artifact Hub hasn't been a real solution to host
-your charts on the cloud, you still have to host them somehow! It also doesn't support most features **charted-server** brings
-to the table, so, if you want a real registry, then you can use **charted-server** or **chartmuseum**.
+As of late, **Artifact Hub** has been the defacto standard of hosting Helm Charts, but it is very different on how **charted-server** and Artifact Hub
+are operated. While **charted-server** tends to be more configuration, less simple for the price of customizing to your liking, Artifact Hub is just a *hub*
+to display information, you still need to use your own server to distribute Helm Charts. **charted-server** handles the storage and display information for you!
 
 ## Ready to try?
-You can head to the [new repository](https://charts.noelware.org/new) page to get started! If you want to know more about the
-features in depth, you can look in the [Features](https://charts.noelware.org/docs/server/features) section.
+You can get started by creating a new [repository](https://charts.noelware.org/new) to get started! If you wish to look at what features
+**charted-server** comes with, you can look in the Features section.
 
-If you want to try and self-host **charted-server**, you can look at the [Self Hosting](https://charts.noelware.org/docs/server/self-hosting)
-page.
+Wish to self-host **charted-server**? You can look in the [Self Hosting](https://charts.noelware.org/docs/server/self-hosting) section
+and get started~!

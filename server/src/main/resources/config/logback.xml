@@ -19,20 +19,44 @@
 <configuration debug="false" packagingData="true">
     <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
 
-    <conversionRule conversionWord="logLevel" converterClass="org.noelware.charted.core.logback.LogLevelColorComposite" />
-    <conversionRule conversionWord="threadName" converterClass="org.noelware.charted.core.logback.ThreadNameComposite" />
+    <conversionRule conversionWord="logLevel" converterClass="org.noelware.charted.logback.composite.LogLevelColorComposite" />
+    <conversionRule conversionWord="threadName" converterClass="org.noelware.charted.logback.composite.ThreadNameComposite" />
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <if condition='isDefined("charted.console.json")'>
             <then>
                 <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-                    <layout class="org.noelware.charted.core.logback.json.ClassicJsonLayout">
-                        <jsonFormatter class="org.noelware.charted.core.logback.json.jackson.JsonJacksonFormatter" />
+                    <layout class="org.noelware.charted.logback.json.ClassicLogbackJsonLayout">
+                        <if condition="isDefined('charted.console.json.pretty')">
+                            <then>
+                                <prettyPrint>${charted.console.json.pretty}</prettyPrint>
+                            </then>
+                            <else>
+                                <prettyPrint>true</prettyPrint>
+                            </else>
+                        </if>
+                        <if condition="isDefined('charted.console.json.timezone')">
+                            <then>
+                                <timezone>${charted.console.json.timezone}</timezone>
+                            </then>
+                            <else>
+                                <timezone>true</timezone>
+                            </else>
+                        </if>
+
+                        <if condition="isDefined('charted.console.json.timestamp-format')">
+                            <then>
+                                <timestampFormat>${charted.console.json.timestamp-format}</timestampFormat>
+                            </then>
+                            <else>
+                                <timestampFormat>true</timestampFormat>
+                            </else>
+                        </if>
                     </layout>
                 </encoder>
             </then>
             <else>
                 <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-                    <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS, +10}] %boldCyan([%threadName]) %logLevel([%level]) [%logger{36}:%line] :: %msg%n</pattern>
+                    <pattern>[%d{yyyy-MM-dd @ HH:mm:ss.SSS, +10}] %boldCyan([%-38threadName]) %logLevel([%level]) [%logger{36}:%line] :: %msg%n</pattern>
                     <charset>utf-8</charset>
                 </encoder>
             </else>
@@ -86,11 +110,10 @@
 
                     <root level="info">
                         <appender-ref ref="Console" />
-
                         <if condition='property("charted.appenders").contains("logstash")'>
-                             <then>
-                                 <appender-ref ref="Logstash" />
-                             </then>
+                            <then>
+                                <appender-ref ref="Logstash" />
+                            </then>
                         </if>
                     </root>
                 </then>

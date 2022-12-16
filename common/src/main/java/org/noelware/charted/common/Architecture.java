@@ -1,6 +1,6 @@
 /*
  * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright 2022 Noelware <team@noelware.org>
+ * Copyright 2022-2023 Noelware <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,52 +17,51 @@
 
 package org.noelware.charted.common;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
- * Represents the current system's architecture.
+ * Represents the host architecture.
  */
 public enum Architecture {
-    X64("x64"),
-    AARCH64("aarch64");
-
-    private final String key;
+    X64,
+    AARCH64;
 
     /**
-     * Represents the current system's architecture.
-     * @param key The key that represents this {@link Architecture}.
+     * Returns the current host architecture.
      */
-    Architecture(String key) {
-        this.key = key;
-    }
-
-    /**
-     * Returns the current architecture.
-     */
+    @NotNull
     public static Architecture current() {
-        final var arch = System.getProperty("os.arch", "");
+        final String arch = System.getProperty("os.arch");
         return switch (arch) {
             case "x86_64", "amd64" -> X64;
             case "aarch64", "arm64" -> AARCH64;
-            default -> throw new RuntimeException("Architecture [%s] is not supported.".formatted(arch));
+            default -> throw new IllegalStateException("Unknown architecture [%s]".formatted(arch));
         };
     }
 
     /**
-     * Returns the key that represents this {@link Architecture}.
+     * Returns true if the host architecture is x86_64.
      */
-    public String getKey() {
-        return key;
-    }
-
-    public boolean isArm() {
-        return this == AARCH64;
-    }
-
     public boolean isX64() {
         return this == X64;
     }
 
+    /**
+     * Returns true if the host architecture is aarch64.
+     */
+    public boolean isAarch64() {
+        return this == AARCH64;
+    }
+
+    public String key() {
+        return switch (this) {
+            case AARCH64 -> "aarch64";
+            case X64 -> "amd64";
+        };
+    }
+
     @Override
     public String toString() {
-        return "Architecture(%s)".formatted(this.key);
+        return "Architecture(%s)".formatted(isAarch64() ? "arm64" : "amd64");
     }
 }

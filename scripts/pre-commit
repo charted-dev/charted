@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
-# Copyright 2022 Noelware <team@noelware.org>
+# Copyright 2022-2023 Noelware <team@noelware.org>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,23 +15,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-echo "[::charted-server] Checking Spotless..."
+SKIP_SPOTLESS=${SKIP_SPOTLESS:-}
 
-if [[ ! -z "${SPOTLESS_SKIP:-}" ]]; then
-  echo "[::charted-server] Skipping checks!"
-  exit 0
+if [[ "x$SKIP_SPOTLESS" != "x" ]]; then
+    echo "🐻‍❄️🪄 [precommit-hook] Skipping precommit hook since \`SKIP_SPOTLESS\` was defined."
+    exit 0
 fi
 
+echo "🐻‍❄️🪄 [precommit-hook] Running Spotless..."
 ./gradlew spotlessCheck
-if [[ "$?" != "0" ]]; then
-  echo "[::charted-server] Run \`make spotless\` and commit again."
-  exit $?
-fi
 
-./gradlew :build-tools:spotlessCheck
 if [[ "$?" != "0" ]]; then
-  echo "[::charted-server] Run \`make spotless\` and commit again."
-  exit $?
+  echo "🐻‍❄️🪄 [precommit-hook] Spotless was not ran (and there is linting errors), please run \`make spotless\`"
+  exit 1
+else
+  echo "🐻‍❄️🪄 [precommit-hook] Everything is ok! :3"
 fi
-
-echo "[::charted-server] 👍 Everything seems ok!"

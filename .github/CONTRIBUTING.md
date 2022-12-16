@@ -40,7 +40,7 @@ Since **charted-server** holds the repository for both the [web UI](https://gith
 - Redis 6 or higher
 - 2 to 8GB of system RAM
 
-We support building the **web UI** platform in **Visual Studio Code** and the server in **IntelliJ IDEA**. Any other platforms that is not Linux, macOS, or Windows are not supported to be used as a development platform, and we only support building **charted-server** in x86_64 or ARM64 architectures! The migrations project (located in [tools/migrations](https://github.com/charted-dev/charted/tree/main/tools/migrations)) can be compiled with **Go**.
+We support building the **web UI** platform in **Visual Studio Code** and the server in **IntelliJ IDEA**. Any other platforms that is not Linux, macOS, or Windows are not supported to be used as a development platform, and we only support building **charted-server** in x86_64 or ARM64 architectures! The ClickHouse migrations project (located in [databases/clickhouse/migrations](https://github.com/charted-dev/charted/tree/main/databases/clickhouse/migrations)) can be compiled with **Go**.
 
 ### Server
 The **server** and the rest of the subprojects (excluding `:web`) can be imported in **IntelliJ IDEA**. It's also important to run the `gitHooks` Gradle task to apply pre-commit hooks if contributing more than once, our GitHub bot will notify you if any errors occur in PRs if linting or running unit/integration tests had failed.
@@ -71,17 +71,17 @@ $ git clone https://github.com/$USERNAME/charted && cd charted
 $ git remote add upstream https://github.com/charted-dev/charted
 ```
 
-Now that you cloned the repository, I should go over the **Makefile** present in the root directory of **charted-server**. The **Makefile** contains recipies that makes compiling **charted-server** easier, I (Noel) use **Make** to develop **charted-server**:
+Now that you cloned the repository, I should go over the **Makefile** present in the root directory of **charted-server**. The **Makefile** contains recipes that makes compiling **charted-server** easier, I (Noel) use **Make** to develop **charted-server**:
 
 Using the **Makefile** on Windows is not recommended, you can opt using the Gradle wrapper script instead, since the **Makefile** was only used in a **Unix** environment.
 
-| Command           | Gradle Task                     | Description                                                                                                 |
-| :---------------- | :------------------------------ | ----------------------------------------------------------------------------------------------------------- |
-| **make spotless** | `./gradlew spotlessApply`                          | This will run **Spotless**. **charted-server** uses Spotless as our formatter with **ktlint** by Pinterest. |
-| **make build**    | `./gradlew :server:installDist`                    | This will run the **:server:installDist** Gradle task. It will create a distribution in `server/build/install/charted-server` that you can run using **make run**. |
-| **make clean**    | `./gradlew clean`                                  | This will remove any `build/` directories in all subprojects, including the root project. Generally recommended to run. |
-| **make test**     | `./gradlew test`                                   | Runs all unit and integration tests with **JUnit 5**. Since integration tests make use of Docker, you are generally recommended to use Docker anyway. But, it will disable the integration tests if **Docker** 20.10 or higher is not installed. |
-| **make**          | `./gradlew clean spotlessApply :server:installDist` | The default target. This will run the `build`, `spotless`, and `clean` tasks and run the server, which can be accessible with `localhost:3651`, if PostgreSQL and Redis are properly configured. |
+| Command           | Configured Gradle Task                           | Description                                                                                                                                                                                                                                      |
+|:------------------|:-------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **make spotless** | `./gradlew spotlessApply`                        | This will run **Spotless**. **charted-server** uses Spotless as our formatter with **ktlint** by Pinterest.                                                                                                                                      |
+| **make build**    | `./gradlew :cli:installDist`                     | This will run the **:server:installDist** Gradle task. It will create a distribution in `server/build/install/charted-server` that you can run using **make run**.                                                                               |
+| **make clean**    | `./gradlew clean`                                | This will remove any `build/` directories in all subprojects, including the root project. Generally recommended to run.                                                                                                                          |
+| **make test**     | `./gradlew test`                                 | Runs all unit and integration tests with **JUnit 5**. Since integration tests make use of Docker, you are generally recommended to use Docker anyway. But, it will disable the integration tests if **Docker** 20.10 or higher is not installed. |
+| **make**          | `./gradlew clean spotlessApply :cli:installDist` | The default target. This will run the `build`, `spotless`, and `clean` tasks and run the server, which can be accessible with `localhost:3651`, if PostgreSQL and Redis are properly configured.                                                 |
 
 ### Web UI
 The **Web UI** can be located in the [web/](https://github.com/charted-dev/charted/tree/main/web) directory. It's generally best recommended to use **Visual Studio Code**, but using **WebStorm** is also completely ok.
@@ -116,7 +116,7 @@ tracing:
 proxy: boolean or configuration object
 #  prefix: string? (default /api/*)
 
-# The connection towards charted-server configuration. This will automatically setup a liveness probe on the server if `charted.liveness.enabled`
+# The connection towards charted-server configuration. This will automatically set up a liveness probe on the server if `charted.liveness.enabled`
 # is set to true.
 charted:
   host: ip/url

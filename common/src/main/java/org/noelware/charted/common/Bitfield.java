@@ -1,6 +1,6 @@
 /*
  * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright 2022 Noelware <team@noelware.org>
+ * Copyright 2022-2023 Noelware <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,9 @@ import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents an array of bits contained into a single class.
- *
- * <p>charted-server makes use of this utility class to provide a simple and intuitive
- * permission-based system that is easy to replicate.
- *
- * <p>This is in Java since Kotlin doesn't support bit operators like <code>&=</code>, <code>&~
- * </code> and such.
+ * Represents a field for holding bits for RBAC permissions. The server uses a bitfield to control
+ * over what RBAC permissions a user has or not. This is also used for organization flags (for experimental reasons),
+ * API key scopes, and repository flags (i.e, if it is private or not)
  *
  * @author Noel
  * @since 31.05.2022
@@ -39,80 +35,73 @@ public class Bitfield {
     private final Map<String, Long> flags;
     private long bits;
 
-    /** Creates a new {@link Bitfield} object with default values. */
+    /**
+     * Initializes an empty bitfield map with 0 bits and no flags
+     * attached for the bitfield map itself.
+     */
     public Bitfield() {
         this(0, new HashMap<>());
     }
 
     /**
-     * Creates a new bitfield with a specific amount and the default "flags"
+     * Initializes x amount of bits for the bitfield map with no flags
+     * attached for metadata.
      *
-     * @param bits The bits to represent this {@link Bitfield} object.
+     * @param bits The bits to use
      */
     public Bitfield(long bits) {
         this(bits, new HashMap<>());
     }
 
     /**
-     * Creates a new Bitfield object with the flags available and defaults to <code>0</code> as the
-     * bit value.
+     * Initializes the given bits for the bitfield map with flags for metadata
+     * purposes and easy readability.
      *
-     * @param flags The flags.
-     */
-    public Bitfield(Map<String, Long> flags) {
-        this(0, flags);
-    }
-
-    /**
-     * Creates a new {@link Bitfield} object with a specified amount of bits and the flags to
-     * determine the bits to add via the {@link #add(String)} method.
-     *
-     * @param bits The amount of bits that this {@link Bitfield} stores.
-     * @param flags The flags.
+     * @param bits The bit to use
+     * @param flags Metadata flags.
      */
     public Bitfield(long bits, Map<String, Long> flags) {
         this.flags = Collections.unmodifiableMap(flags);
         this.bits = bits;
     }
 
-    /** Returns the remaining bits from this object. */
-    public long getBits() {
-        return bits;
+    /**
+     * Returns the initialized bits that this {@link Bitfield} is holding.
+     */
+    public long bits() {
+        return this.bits;
     }
 
-    /** Returns all the flags used in this bitfield for the {@link #add(String)} method. */
+    /**
+     * Returns the metadata flags that this {@link Bitfield} is using.
+     */
     @NotNull
-    public Map<String, Long> getFlags() {
-        return flags;
+    public Map<String, Long> flags() {
+        return this.flags;
     }
 
-    /** Returns a list of all the values in the flags map. */
-    @NotNull
-    public List<Long> toList() {
+    /**
+     * Returns a {@link List<Long>} of all the flags' bits available.
+     */
+    public List<Long> asList() {
         return flags.values().stream().toList();
     }
 
     /**
-     * Adds a bit via the flag key. This will return a new cloned {@link Bitfield} instance.
-     *
-     * @param key The flag key to use to determine the bit, returns this {@link Bitfield} instance
-     *     if the flag wasn't found.
-     * @return The cloned {@link Bitfield} object.
+     * Returns all the available flags that this {@link Bitfield} has access towards
      */
-    @NotNull
-    public Bitfield add(@NotNull String key) {
-        var bit = flags.get(key);
-        if (bit == null) return this;
-
-        return add(bit);
+    public List<String> enabledFlags() {
+        return flags.keySet().stream().filter(this::has).toList();
     }
 
-    /** Adds all the bits from the flags map, and returns a new cloned {@link Bitfield} object. */
-    @NotNull
-    public Bitfield addAll() {
-        var total = 0L;
-        for (long bit : toList()) {
-            total |= Math.abs(bit);
+    /**
+     * Adds all the bits from {@link #asList()} to the bitfield map.
+     * @return This instance to chain methods.
+     */
+    public @NotNull Bitfield addAll() {
+        long total = 0;
+        for (long bit : asList()) {
+            total |= bit;
         }
 
         this.bits |= total;
@@ -120,16 +109,38 @@ public class Bitfield {
     }
 
     /**
-     * Adds an array of bits to a new, cloned {@link Bitfield} object.
+     * Adds a bit to the bitfield map by the metadata flag that was
+     * registered in this {@link Bitfield}.
      *
-     * @param bits The bits to use.
-     * @return A cloned {@link Bitfield} object.
+     * @param flag The flag name to use
      */
-    @NotNull
-    public Bitfield add(long... bits) {
-        var total = 0L;
+    public @NotNull Bitfield add(@NotNull String flag) {
+        final var bit = flags.get(flag);
+        return bit == null ? this : add(bit);
+    }
+
+    /**
+     * Adds multiple flags from the metadata flag map to the registered
+     * bitmap.
+     *
+     * @param flags The flag names to use
+     */
+    public @NotNull Bitfield add(String... flags) {
+        for (String flag : flags) {
+            add(flag);
+        }
+
+        return this;
+    }
+
+    /**
+     * Adds a list of bits to the bitmap.
+     * @param bits The bits to register.
+     */
+    public @NotNull Bitfield add(long... bits) {
+        long total = 0;
         for (long bit : bits) {
-            total |= Math.abs(bit); // make sure it's positive
+            total |= bit;
         }
 
         this.bits |= total;
@@ -137,29 +148,55 @@ public class Bitfield {
     }
 
     /**
-     * Checks if the specified bit is in the bits.
-     *
-     * @param bit The bit to check.
+     * Checks if the bit is in the bitmap.
+     * @param bit The bit to check
      */
     public boolean has(long bit) {
-        return (bits & bit) != 0;
+        return (this.bits & bit) != 0;
     }
 
     /**
-     * Checks if the flag specified is in the bitfield
-     *
-     * @param flag The flag.
+     * Checks if the metadata flag specified in this bitfield is in the bitmap.
+     * @param flag The flag name to check.
      */
-    public boolean has(@NotNull String flag) {
-        var flagBit = flags.get(flag);
-        return flagBit != null && has(flagBit);
+    public boolean has(String flag) {
+        final var bit = flags.get(flag);
+        return bit != null && has(bit);
     }
 
-    @NotNull
-    public Bitfield remove(long... bits) {
-        var total = 0L;
+    /**
+     * Removes a bit to the bitfield map by the metadata flag that was
+     * registered in this {@link Bitfield}.
+     *
+     * @param flag The flag name to use
+     */
+    public @NotNull Bitfield remove(@NotNull String flag) {
+        final var bit = flags.get(flag);
+        return bit == null ? this : remove(bit);
+    }
+
+    /**
+     * Adds multiple flags from the metadata flag map to the registered
+     * bitmap.
+     *
+     * @param flags The flag names to use
+     */
+    public @NotNull Bitfield remove(String... flags) {
+        for (String flag : flags) {
+            remove(flag);
+        }
+
+        return this;
+    }
+
+    /**
+     * Removes a select list of bits from the bitmap.
+     * @param bits The bits to remove.
+     */
+    public @NotNull Bitfield remove(long... bits) {
+        long total = 0;
         for (long bit : bits) {
-            total |= Math.abs(bit); // make it positive
+            total |= bit;
         }
 
         this.bits &= ~total;

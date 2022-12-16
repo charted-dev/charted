@@ -1,5 +1,5 @@
 # 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
-# Copyright 2022 Noelware <team@noelware.org>
+# Copyright 2022-2023 Noelware <team@noelware.org>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,41 +13,59 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Temurin doesn't support Alpine images for arm64/v8, so Ubuntu will have to do...
-# for now~
-FROM eclipse-temurin:18.0.1_10-jdk-jammy AS builder
+FROM --platform=$BUILDPLATFORM eclipse-temurin:17-jdk-jammy AS jdk-runtime
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV PROTOC_VERSION="21.4"
-RUN apt update && apt upgrade -y && \
-    apt install -y curl git ca-certificates unzip && \
-    curl -L -o /tmp/protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-aarch_64.zip && \
-    mkdir -p /opt/protoc && \
-    unzip -d /opt/protoc /tmp/protoc.zip
+RUN apt update && \
+    jlink --add-modules ALL-MODULE-PATH \
+            --strip-debug \
+            --no-man-pages \
+            --no-header-files \
+            --compress=2 \
+            --output /runtime
 
-WORKDIR /build/charted
-ENV CHARTED_PROTOC_PATH=/opt/protoc/bin/protoc
+FROM --platform=$BUILDPLATFORM eclipse-temurin:17-jdk-jammy AS gradle-build
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt update && apt install -y git ca-certificates curl
+WORKDIR /build/server
+
+COPY --from=golang:1.19.4-alpine /usr/local/go/ /usr/local/go/
+ENV PATH="/usr/local/go/bin:$PATH"
 
 COPY . .
-RUN chmod +x ./gradlew
-RUN ./gradlew :server:installDist --stacktrace
+RUN chmod +x ./gradlew && ./gradlew :cli:installDist --no-daemon --stacktrace
 
-FROM eclipse-temurin:18.0.1_10-jdk-jammy
+FROM --platform=$BUILDPLATFORM ubuntu:jammy
 
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt update && apt upgrade -y && apt install -y tini bash
-
+RUN apt update && apt upgrade -y && apt install -y bash tini
 WORKDIR /app/noelware/charted/server
 
-COPY distribution/docker/scripts/linux /app/noelware/charted/server/scripts
-COPY --from=builder /build/charted/server/build/install/charted-server/charted-server /app/noelware/charted/server/charted-server
-COPY --from=builder /build/charted/server/build/install/charted-server/lib /app/noelware/charted/server/lib
+ENV JAVA_HOME=/opt/openjdk/java
+COPY --from=gradle-build /build/server/cli/build/install/charted/config /app/noelware/charted/server/config
+COPY --from=gradle-build /build/server/cli/build/install/charted/lib    /app/noelware/charted/server/lib
+COPY --from=gradle-build /build/server/cli/build/install/charted/bin    /app/noelware/charted/server/bin
+COPY                     distribution/docker/scripts/linux              /app/noelware/charted/server/scripts
+COPY --from=jdk-runtime  /runtime                                       /opt/openjdk/java
 
-RUN chmod +x /app/noelware/charted/server/scripts/docker-entrypoint.sh && \
-    chmod +x /app/noelware/charted/server/charted-server
+# Remove the PowerShell script (since it's useless on *UNIX)
+RUN rm /app/noelware/charted/server/bin/charted.ps1
 
 ENV CHARTED_DISTRIBUTION_TYPE=docker
-USER 1001
+EXPOSE 3651
+VOLUME /var/lib/noelware/charted/data
 
+RUN mkdir -p /var/lib/noelware/charted/data
+RUN groupadd -g 1001 noelware && \
+  useradd -rm -s /bin/bash -g noelware -u 1001 noelware && \
+  chown 1001:1001 /app/noelware/charted/server && \
+  chown 1001:1001 /var/lib/noelware/charted/data && \
+  chmod +x /app/noelware/charted/server/bin/charted /app/noelware/charted/server/scripts/docker-entrypoint.sh
+
+# Create a symbolic link so you can just run `charted` without specifying
+# the full path.
+RUN ln -s /app/noelware/charted/server/bin/charted /usr/bin/charted
+
+USER noelware
 ENTRYPOINT ["/app/noelware/charted/server/scripts/docker-entrypoint.sh"]
-CMD ["/app/noelware/charted/server/charted-server"]
+CMD ["/app/noelware/charted/server/bin/charted", "server"]

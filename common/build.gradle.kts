@@ -1,6 +1,6 @@
 /*
  * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright 2022 Noelware <team@noelware.org>
+ * Copyright 2022-2023 Noelware <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@
 plugins {
     `charted-java-module`
     `charted-module`
-    `charted-test`
 }
 
 dependencies {
@@ -36,16 +35,6 @@ dependencies {
     // Logging (slf4j)
     api(libs.slf4j.api)
 
-    // Database drivers + Exposed + HikariCP
-    api(libs.exposed.jdbc)
-    api(libs.exposed.core)
-    api(libs.exposed.dao)
-    api(libs.postgresql)
-    api(libs.hikaricp)
-
-    // Redis
-    api(libs.lettuce)
-
     // Noel's Utilities
     api(libs.noel.commons.extensions.kotlin)
     api(libs.noel.commons.extensions.koin)
@@ -55,39 +44,21 @@ dependencies {
     // Apache Utilities
     api(libs.apache.commons.lang3)
 
-    // Remi (storage management)
+    // Sentry
+    api(libs.sentry)
+
+    // OpenTelemetry annotations (for tracing)
+    api(libs.opentelemetry.annotations)
+
+    // Elastic APM SDK (for annotations API)
+    api(libs.elastic.apm.agent.api)
+
+    // Remi
     api(libs.remi.support.minio)
     api(libs.remi.support.s3)
     api(libs.remi.support.fs)
     api(libs.remi.core)
 
-    // Sentry
-    api(libs.sentry.kotlin.extensions)
-    api(libs.sentry)
-
-    // Koin
-    api(libs.koin)
-
-    // Haru (scheduling)
-    api(libs.haru)
-
-    // Ktor Server + Client
-    api(libs.ktor.server.core)
-    api(libs.ktor.client.core)
-    api(libs.okhttp)
-
-    // Exposed Power Utils
-    api(libs.exposed.powergamer.tools)
-
-    // Apache Commons Validator
-    api(libs.apache.commons.validator)
-
-    // Spring Security Crypto
-    api(libs.spring.security.crypto)
-
-    // SemVer validation
-    api(libs.semver)
-
-    // Bouncycastle
-    api(libs.bouncycastle)
+    // Caffeine (in-memory cache)
+    api(libs.caffeine)
 }

@@ -1,6 +1,6 @@
 /*
  * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright 2022 Noelware <team@noelware.org>
+ * Copyright 2022-2023 Noelware <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,6 @@
 package org.noelware.charted.common;
 
 @FunctionalInterface
-public interface QuadConsumer<A, B, C, D, R> {
-    R accept(A first, B second, C third, D fourth);
+public interface QuadConsumer<A, B, C, D, E> {
+    E accept(A a, B b, C c, D d);
 }

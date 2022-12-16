@@ -1,6 +1,6 @@
 /*
  * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright 2022 Noelware <team@noelware.org>
+ * Copyright 2022-2023 Noelware <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,68 +29,42 @@ plugins {
     id("com.gradle.enterprise") version "3.12"
 }
 
-includeBuild("build-tools")
 include(
-    ":benchmarking",
+    ":benchmarks",
+    ":cli",
     ":common",
-    ":core",
-    ":config",
-    ":config:kotlin-script",
-    ":config:yaml",
-    ":database",
-    ":distribution:aur",
-    ":distribution:chart",
-    ":distribution:deb",
-    ":distribution:docker",
-    ":distribution:homebrew",
-    ":distribution:rpm",
-    ":distribution:scoop",
-    ":features:audit-logs",
-    ":features:chart-engine",
-    ":features:docker-registry",
-    ":features:webhooks",
-    ":lib:analytics:protobufs",
-    ":lib:analytics",
-    ":lib:apikeys",
-    ":lib:avatars",
-    ":lib:cassandra",
-    ":lib:elasticsearch",
-    ":lib:email",
-    ":lib:gc",
-    ":lib:invitations",
-    ":lib:meilisearch",
-    ":lib:metrics",
-    ":lib:stats",
-    ":lib:telemetry",
-    ":lib:tracing",
-    ":lib:tracing:apm",
-    ":lib:tracing:opentelemetry",
-    ":lib:tracing:apm:instrumented",
     ":server",
-    ":sessions",
-    ":sessions:apple",
-    ":sessions:github",
-    ":sessions:google",
-    ":sessions:local",
-    ":sessions:noelware",
-    ":testing",
-    ":testing:helm",
-    ":testing:kubernetes",
-    ":testing:server",
-    ":tools:cli",
-    ":tools:migrations",
-    ":web",
-    ":web:distribution",
-    ":web:distribution:docker",
-    ":web:distribution:helm",
-    ":workers",
-    ":workers:gc",
-    ":workers:indexers",
-    ":workers:indexers:elasticsearch",
-    ":workers:indexers:meilisearch",
-    ":workers:messaging",
-    ":workers:messaging:kafka",
-    ":workers:messaging:redis"
+    ":distribution:deb",
+    ":distribution:rpm",
+    ":databases:clickhouse",
+    ":databases:clickhouse:migrations",
+    ":databases:postgres",
+    ":modules:analytics:extensions",
+    ":modules:analytics",
+    ":modules:apikeys",
+    ":modules:audit-logs",
+    ":modules:avatars",
+    ":modules:config:dsl",
+    ":modules:config:kotlin-script",
+    ":modules:config:yaml",
+    ":modules:docker-registry",
+    ":modules:elasticsearch",
+    ":modules:emails",
+    ":modules:garbage-collector",
+    ":modules:helm-charts",
+    ":modules:invitations",
+    ":modules:logging",
+    ":modules:meilisearch",
+    ":modules:metrics",
+    ":modules:redis",
+    ":modules:sessions",
+    ":modules:sessions:ldap",
+    ":modules:sessions:local",
+    ":modules:sessions:integrations:github",
+    ":modules:sessions:integrations:noelware",
+    ":modules:storage",
+    ":modules:telemetry",
+    ":modules:webhooks"
 )
 
 dependencyResolutionManagement {
@@ -102,7 +76,7 @@ dependencyResolutionManagement {
 }
 
 gradle.settingsEvaluated {
-    logger.lifecycle("[preinit] Checking if we can overwrite cache to main directory?")
+    logger.info("Checking if we can overwrite cache...")
     val overrideBuildCacheProp: String? = System.getProperty("org.noelware.charted.overwriteCache")
     val buildCacheDir = when (val prop = System.getProperty("org.noelware.charted.cachedir")) {
         null -> "${System.getProperty("user.dir")}/.caches/gradle"
@@ -113,8 +87,14 @@ gradle.settingsEvaluated {
         }
     }
 
-    if (overrideBuildCacheProp != null && overrideBuildCacheProp.matches("^yes|true|1|si$".toRegex())) {
-        logger.lifecycle("[preinit:cache] Setting up build cache directory in [$buildCacheDir]")
+    if (overrideBuildCacheProp == null) {
+        logger.info("""
+        |If you wish to override the build cache for this Gradle process, you can use the
+        |-Dorg.noelware.charted.gradle.overwriteCache=<bool> Java property in `~/.gradle/gradle.properties`
+        |to overwrite it in $buildCacheDir!
+        """.trimMargin("|"))
+    } else {
+        logger.info("Setting up build cache in directory [$buildCacheDir]")
         val file = File(buildCacheDir)
         if (!file.exists()) file.mkdirs()
 
@@ -124,8 +104,6 @@ gradle.settingsEvaluated {
                 removeUnusedEntriesAfterDays = 7
             }
         }
-    } else {
-        logger.lifecycle("[preinit] Use `-Dorg.noelware.charted.overwriteCache=true|yes|1|si` to overwrite cache to [$buildCacheDir]")
     }
 
     val disableJavaSanityCheck = when {

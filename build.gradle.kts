@@ -1,6 +1,6 @@
 /*
  * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright 2022 Noelware <team@noelware.org>
+ * Copyright 2022-2023 Noelware <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,8 +31,24 @@ repositories {
 }
 
 tasks {
+    create<Exec>("buildMigrationsBinary") {
+        workingDir = file("${rootProject.projectDir}/databases/clickhouse/migrations")
+        commandLine("go")
+        args(
+            "build",
+            "-ldflags",
+            "-s -w -X main.version=$VERSION",
+            "-o",
+            "${rootProject.projectDir}/databases/clickhouse/migrations/bin/ch-migrations${if (org.noelware.charted.gradle.OperatingSystem.current().isWindows)
+                ".exe"
+            else
+                ""
+            }"
+        )
+    }
+
     wrapper {
-        version = "7.5.1"
+        version = "7.6"
         distributionType = Wrapper.DistributionType.ALL
     }
 
@@ -40,7 +56,7 @@ tasks {
         useJUnitPlatform()
     }
 
-    create<Copy>("gitHooks") {
+    create<Copy>("precommitHook") {
         from(file("${project.rootDir}/scripts/pre-commit"))
         into(file("${project.rootDir}/.git/hooks"))
     }

@@ -1,2 +1,0 @@
-# Needed so the server can connect to Elasticsearch.
-network.host: 0.0.0.0

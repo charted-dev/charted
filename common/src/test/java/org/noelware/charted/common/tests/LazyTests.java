@@ -1,6 +1,6 @@
 /*
  * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright 2022 Noelware <team@noelware.org>
+ * Copyright 2022-2023 Noelware <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +21,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 import org.noelware.charted.common.lazy.Lazy;
-import org.noelware.charted.common.lazy.LazyImpl;
 
 public class LazyTests {
     @Test
-    public void test_lazyValue() {
-        final Lazy<String> lazy = new LazyImpl<>(() -> "we do the freaky here.");
-        assertEquals("we do the freaky here.", lazy.get());
-        assertEquals("we do the freaky here.", lazy.get());
-        assertNotEquals("we do not do the freaky here.", lazy.get());
+    public void testLazilyEvaluatedValue() {
+        final Lazy<String> l = Lazy.create(() -> "wuuf wuuf");
+        assertEquals("wuuf wuuf", l.get());
+        assertNotEquals("wuff wuff", l.get());
     }
 }

@@ -1,14 +1,13 @@
-# charted-server Helm Chart
-The official **charted-server** Helm chart that is available at [https://charts.noelware.org/charted/server](https://charts.noelware.org/charted/server)!
+# 🐻‍❄️🛞 charted-server :: Helm Chart
+This is the official Helm Chart for bootstrapping a **charted-server** instance on your Kubernetes cluster easy and fast as possible~!
 
-## Installation
-- Kubernetes >=1.22
-- Helm 3
-
+## TL;DR
 ```shell
-$ helm repo pull charted https://charts.noelware.org/~/charted
-$ helm install charted/server
+$ helm repo add charted https://charts.noelware.org/-/charted
+$ helm install charted-server charted/server
 ```
 
-## Values
-coming soon!
+## Prerequisites
+- Kubernetes 1.23+
+- Helm 3.2+
+- ReadWriteMany provisioners

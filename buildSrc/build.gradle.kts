@@ -1,6 +1,6 @@
 /*
  * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright 2022 Noelware <team@noelware.org>
+ * Copyright 2022-2023 Noelware <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,12 @@
  */
 
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.gradle.api.JavaVersion
 
 plugins {
+    `java-gradle-plugin`
     `kotlin-dsl`
-    groovy
+    java
 }
 
 repositories {
@@ -30,15 +32,25 @@ repositories {
 }
 
 dependencies {
-    implementation("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:1.7.22-1.0.8")
     implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.18.5")
     implementation("com.diffplug.spotless:spotless-plugin-gradle:6.12.0")
-    implementation("com.google.protobuf:protobuf-gradle-plugin:0.8.19")
+    implementation("com.netflix.nebula:gradle-ospackage-plugin:10.0.0")
+    implementation("com.github.node-gradle:gradle-node-plugin:3.5.0")
+    implementation("de.undercouch:gradle-download-task:5.3.0")
     implementation("dev.floofy.commons:gradle:2.4.0")
     implementation(kotlin("serialization", "1.7.22"))
     implementation(kotlin("gradle-plugin", "1.7.22"))
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "17"
+gradlePlugin {
+    plugins {
+        create("nebula") {
+            id = "org.noelware.charted.dist.nebula"
+            implementationClass = "org.noelware.charted.gradle.plugins.nebula.ChartedNebulaPlugin"
+        }
+    }
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString()
 }

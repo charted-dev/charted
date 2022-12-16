@@ -1,6 +1,6 @@
 /*
  * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright 2022 Noelware <team@noelware.org>
+ * Copyright 2022-2023 Noelware <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,30 +15,50 @@
  * limitations under the License.
  */
 
-import org.noelware.charted.gradle.*
-import dev.floofy.utils.gradle.by
-import java.text.SimpleDateFormat
-import java.util.Date
-
 plugins {
     `charted-module`
-    `charted-test`
-    application
 }
 
 dependencies {
-    // Logstash
-    implementation(libs.logback.logstash)
-    implementation(libs.logback.classic)
-    implementation(libs.sentry.logback)
-    implementation(libs.logback.core)
+    // Projects required to run the server :quantD:
+    implementation(project(":databases:clickhouse"))
+    implementation(project(":databases:postgres"))
+    implementation(project(":modules:audit-logs"))
+    implementation(project(":modules:apikeys"))
+    implementation(project(":modules:avatars"))
+    implementation(project(":modules:config:kotlin-script"))
+    implementation(project(":modules:config:yaml"))
+    implementation(project(":modules:config"))
+    implementation(project(":modules:docker-registry"))
+    implementation(project(":modules:elasticsearch"))
+    implementation(project(":modules:emails"))
+    implementation(project(":modules:helm-charts"))
+    implementation(project(":modules:invitations"))
+    implementation(project(":modules:logging"))
+    implementation(project(":modules:meilisearch"))
+    implementation(project(":modules:metrics"))
+    implementation(project(":modules:redis"))
+    implementation(project(":modules:sessions:integrations:github"))
+    implementation(project(":modules:sessions:integrations"))
+    implementation(project(":modules:sessions:ldap"))
+    implementation(project(":modules:sessions:local"))
+    implementation(project(":modules:sessions"))
+    implementation(project(":modules:storage"))
+    implementation(project(":modules:telemetry"))
+    implementation(project(":modules:webhooks"))
 
-    // kotlinx.coroutines Debug
+    // kotlinx.coroutines debug
     implementation(libs.kotlinx.coroutines.debug)
 
     // Ktor Routing
     implementation(libs.noelware.ktor.routing.loaders.koin)
     implementation(libs.noelware.ktor.routing.core)
+
+    // HikariCP (for database)
+    implementation(libs.hikaricp)
+
+    // Spring Security Crypto
+    implementation(libs.spring.security.crypto)
 
     // Ktor (Server)
     implementation(libs.ktor.client.content.negotitation)
@@ -48,36 +68,15 @@ dependencies {
     implementation(libs.ktor.server.default.headers)
     implementation(libs.ktor.server.double.receive)
     implementation(libs.ktor.server.status.pages)
+    implementation(libs.ktor.server.ratelimiting)
     implementation(libs.ktor.server.websockets)
     implementation(libs.ktor.serialization)
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.cors)
 
-    // Projects
-    implementation(project(":features:docker-registry"))
-    implementation(project(":config:kotlin-script"))
-    implementation(project(":features:audit-logs"))
-    implementation(project(":features:webhooks"))
-    implementation(project(":lib:elasticsearch"))
-    implementation(project(":lib:invitations"))
-    implementation(project(":lib:meilisearch"))
-    implementation(project(":sessions:github"))
-    implementation(project(":lib:tracing:apm"))
-    implementation(project(":sessions:local"))
-    implementation(project(":lib:cassandra"))
-    implementation(project(":lib:analytics"))
-    implementation(project(":lib:telemetry"))
-    implementation(project(":config:yaml"))
-    implementation(project(":lib:metrics"))
-    implementation(project(":lib:apikeys"))
-    implementation(project(":lib:avatars"))
-    implementation(project(":lib:email"))
-    implementation(project(":lib:stats"))
-    implementation(project(":sessions"))
-    implementation(project(":database"))
-    implementation(project(":config"))
-    implementation(project(":core"))
+    // Ktor Testing
+    testImplementation("io.ktor:ktor-server-test-host:2.1.3")
 
     // JWT
     implementation(libs.jwt)
@@ -86,63 +85,25 @@ dependencies {
     implementation(libs.slf4j.over.log4j)
     implementation(libs.slf4j.over.jcl)
 
-    // Conditional logic for logback
+    // Sentry~!
+    implementation(libs.sentry.kotlin.extensions)
+
+    // Tegral OpenAPI
+    implementation(libs.tegral.openapi)
+
+    // Janino (for logback)
     implementation(libs.janino)
 
-    // OpenAPI
-    implementation("guru.zoroark.tegral:tegral-openapi-dsl:0.0.3")
-}
+    // Elastic APM
+    implementation(libs.elastic.apm.agent.attach)
 
-application {
-    mainClass by "org.noelware.charted.server.Bootstrap"
-}
+    // Apache Commons Validator
+    implementation(libs.apache.commons.validator)
 
-distributions {
-    main {
-        distributionBaseName by "charted-server"
-        contents {
-            into("bin") {
-                from("$projectDir/bin/charted-server.ps1")
-                from("$projectDir/bin/charted-server")
-            }
+    // SemVer
+    implementation(libs.semver)
 
-            into("config") {
-                from("$projectDir/bin/config/logback.properties")
-                from("$projectDir/bin/config/charted.yml")
-            }
-
-            from(
-                "$projectDir/bin/README.txt",
-                "$projectDir/bin/LICENSE"
-            )
-        }
-    }
-}
-
-tasks {
-    processResources {
-        filesMatching("build-info.json") {
-            val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
-            expand(
-                mapOf(
-                    "version" to "$VERSION",
-                    "commit_sha" to COMMIT_HASH,
-                    "build_date" to formatter.format(Date())
-                )
-            )
-        }
-    }
-
-    distZip {
-        archiveFileName by "charted-server.zip"
-    }
-
-    distTar {
-        archiveFileName by "charted-server.tar.gz"
-        compression = Compression.GZIP // use gzip for the compression :>
-    }
-
-    startScripts {
-        enabled = false
-    }
+    // Noelware Analytics
+    implementation(project(":modules:analytics:extensions"))
+    implementation(project(":modules:analytics"))
 }
