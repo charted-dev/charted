@@ -80,12 +80,12 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: charted-server.${{matrix.tasks.ext}}
-          path: ${{matrix.tasks.buildDir}}/distributions/charted-server.${{matrix.tasks.ext}}
+          path: ./cli/build/distributions/charted-server.${{matrix.tasks.ext}}
 
       - name: Upload artifact to release
         uses: softprops/action-gh-release@v1
         with:
-          files: ${{matrix.tasks.buildDir}}/distributions/charted-server.${{matrix.tasks.ext}}
+          files: ./cli/build/distributions/charted-server.${{matrix.tasks.ext}}
 
       - name: Upload artifacts to Noelware's Artifact Registry
         uses: Noelware/s3-action@2.0.0

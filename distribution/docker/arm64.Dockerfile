@@ -30,9 +30,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update && apt install -y git ca-certificates curl
 WORKDIR /build/server
 
-COPY --from=golang:1.19.4-alpine /usr/local/go/ /usr/local/go/
-ENV PATH="/usr/local/go/bin:$PATH"
-
 COPY . .
 RUN chmod +x ./gradlew && ./gradlew :cli:installDist --no-daemon --stacktrace
 

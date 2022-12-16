@@ -29,9 +29,6 @@ FROM --platform=$BUILDPLATFORM eclipse-temurin:17-jdk-alpine AS gradle-build
 RUN apk update && apk add --no-cache git ca-certificates gcompat libc6-compat curl
 WORKDIR /build/server
 
-COPY --from=golang:1.19.4-alpine /usr/local/go/ /usr/local/go/
-ENV PATH="/usr/local/go/bin:$PATH"
-
 COPY . .
 RUN chmod +x ./gradlew && ./gradlew :cli:installDist --no-daemon --stacktrace
 

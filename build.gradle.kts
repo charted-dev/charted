@@ -31,22 +31,6 @@ repositories {
 }
 
 tasks {
-    create<Exec>("buildMigrationsBinary") {
-        workingDir = file("${rootProject.projectDir}/databases/clickhouse/migrations")
-        commandLine("go")
-        args(
-            "build",
-            "-ldflags",
-            "-s -w -X main.version=$VERSION",
-            "-o",
-            "${rootProject.projectDir}/databases/clickhouse/migrations/bin/ch-migrations${if (org.noelware.charted.gradle.OperatingSystem.current().isWindows)
-                ".exe"
-            else
-                ""
-            }"
-        )
-    }
-
     wrapper {
         version = "7.6"
         distributionType = Wrapper.DistributionType.ALL
