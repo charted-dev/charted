@@ -77,7 +77,7 @@ jobs:
           arguments: ${{matrix.tasks.project}}:${{matrix.tasks.task}} --no-daemon --scan
 
       - name: Upload ${{matrix.tasks.prettyName}} artifact to workflow
-        uses: actions/upload-workflow@v3
+        uses: actions/upload-artifact@v3
         with:
           name: charted-server.${{matrix.tasks.ext}}
           path: ${{matrix.tasks.buildDir}}/distributions/charted-server.${{matrix.tasks.ext}}
