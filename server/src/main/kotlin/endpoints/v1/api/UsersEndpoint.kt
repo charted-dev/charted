@@ -339,7 +339,7 @@ class UsersEndpoint(
                     it[username] = patched.username!!
                 }
 
-                if (patched.password != null) {
+                if (patched.password != null && config.sessions.type == SessionType.Local) {
                     it[password] = argon2.encode(patched.password!!)
                 }
 

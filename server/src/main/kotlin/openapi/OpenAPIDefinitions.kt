@@ -25,6 +25,7 @@ import org.noelware.charted.databases.postgres.models.User
 import org.noelware.charted.server.endpoints.v1.InfoResponse
 import org.noelware.charted.server.endpoints.v1.MainResponse
 import org.noelware.charted.server.endpoints.v1.api.MainUserResponse
+import org.noelware.charted.server.openapi.apis.usersApi
 import org.noelware.charted.types.responses.ApiError
 import org.noelware.charted.types.responses.ApiResponse
 
@@ -49,10 +50,7 @@ fun RootDsl.charted() {
     servers()
     securitySchemes()
     mainEndpoints()
-    // usersApiEndpoint()
-    // repositoryApiEndpoints()
-    // organizationsApiEndpoints()
-    // apiKeysEndpoints()
+    usersApi()
 }
 
 fun RootDsl.servers() {
@@ -145,59 +143,6 @@ fun RootDsl.mainEndpoints() {
                         vendor = "Noelware"
                     )
                 )
-            }
-        }
-    }
-}
-
-fun RootDsl.usersApi() {
-    "/users" {
-        get {
-            summary = "Generic entrypoint to the Users API"
-            externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api/users#GET-/"
-
-            "name" pathParameter {
-                description = "The user's username or snowflake ID"
-                required = false
-                schema<String>()
-            }
-
-            200 response {
-                "application/json" content {
-                    schema<ApiResponse.Ok<MainUserResponse>>()
-                    example = ApiResponse.ok(MainUserResponse())
-                }
-            }
-        }
-
-        put {
-            summary = "Creates a new user in the database if registrations are enabled. If registrations are not enabled, an administrator has to create your user or give you an invite link"
-            externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api/users#PUT-/"
-
-            201 response {
-                description = "201 - Created"
-                "application/json" content {
-                    schema<ApiResponse.Ok<User>>()
-                    example = User(
-                        "cutie@floofy.dev",
-                        "18 year old \uD83D\uDC3B\u200D❄ \uD83E\uDE84 in the wild - Lead Developer of charted-server",
-                        null,
-                        LocalDateTime.parse("2022-11-08T05:03:56.550Z"),
-                        LocalDateTime.parse("2022-11-08T05:03:56.550Z"),
-                        "noel",
-                        0,
-                        "Noel \uD83D\uDC3B\u200D❄ \uD83E\uDE84",
-                        1
-                    )
-                }
-            }
-
-            406 response {
-                description = "406 - Not Acceptable"
-                "application/json" content {
-                    schema<ApiResponse.Err>()
-                    example = ApiResponse.err(ApiError("INVALID_USERNAME", "Username 'noel' didn't comply with username regular expression"))
-                }
             }
         }
     }
