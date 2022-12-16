@@ -95,6 +95,7 @@ jobs:
           access-key-id: ${{secrets.S3_ACCESS_KEY}}
           secret-key: ${{secrets.S3_SECRET_KEY}}
           endpoint: ${{secrets.S3_ENDPOINT}}
+          region: us-east-1
           prefix: /noelware/artifacts
           bucket: august
   migrations:
@@ -132,21 +133,22 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ch-migrations-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
-          path: ./databases/clickhouse/migrations/bin/ch-migrations-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
+          path: ./databases/clickhouse/migrations/bin/ch-migrations-${{matrix.dist.goos}}-${{matrix.dist.goarch}}${{matrix.dist.ext}}
 
       - name: Upload artifact to release
         uses: softprops/action-gh-release@v1
         with:
-          files: ./databases/clickhouse/migrations/bin/ch-migrations-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
+          files: ./databases/clickhouse/migrations/bin/ch-migrations-${{matrix.dist.goos}}-${{matrix.dist.goarch}}${{matrix.dist.ext}}
 
       - name: Upload artifacts to Noelware's Artifact Registry
         uses: Noelware/s3-action@2.0.0
         with:
-          files: ./databases/clickhouse/migrations/bin/ch-migrations-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
+          files: ./databases/clickhouse/migrations/bin/ch-migrations-${{matrix.dist.goos}}-${{matrix.dist.goarch}}${{matrix.dist.ext}}
           path-format: $(prefix)/charted/server/${{steps.tag.output.version}}/ch-migrations-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
           access-key-id: ${{secrets.S3_ACCESS_KEY}}
           secret-key: ${{secrets.S3_SECRET_KEY}}
           endpoint: ${{secrets.S3_ENDPOINT}}
+          region: us-east-1
           prefix: /noelware/artifacts
           bucket: august
 # Helm plugin is not released until v0.4-nightly :3
