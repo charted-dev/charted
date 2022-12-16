@@ -16,6 +16,27 @@
 name: Linting and Unit Testing
 on:
   workflow_dispatch: {}
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - 'issue/gh-**'
+      - 'feat/**'
+      - nightly
+      - main
+
+    paths-ignore:
+      - '.github/**'
+      - '.husky/**'
+      - '.vscode/**'
+      - 'assets/**'
+      - 'locales/**'
+      - 'docker/**'
+      - '.dockerignore'
+      - '.eslintignore'
+      - '.gitignore'
+      - '**.md'
+      - 'LICENSE'
+      - 'renovate.json'
   push:
     branches:
       - 'issue/gh-**'

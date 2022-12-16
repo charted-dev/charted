@@ -56,7 +56,7 @@ public class ClickHouseConnectionTests {
         final ClickHouseConnection conn = connection.get();
         final ArrayList<String> databases = new ArrayList<>();
 
-        conn.use((connection) -> {
+        conn.create((connection) -> {
             try {
                 final Statement stmt = connection.createStatement();
                 final ResultSet rs = stmt.executeQuery("SELECT * FROM system.databases;");
