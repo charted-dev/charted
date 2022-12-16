@@ -45,6 +45,7 @@ dependencies {
     implementation(project(":modules:sessions"))
     implementation(project(":modules:storage"))
     implementation(project(":modules:telemetry"))
+    implementation(project(":modules:webhooks"))
 
     // kotlinx.coroutines debug
     implementation(libs.kotlinx.coroutines.debug)

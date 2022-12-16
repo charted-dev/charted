@@ -28,8 +28,8 @@ dependencies {
     implementation(project(":modules:metrics"))
     implementation(libs.exposed.jdbc)
     implementation(libs.postgresql)
-    implementation(libs.hikaricp)
 
-    api(libs.exposed.dao)
     api(libs.exposed.core)
+    api(libs.exposed.dao)
+    api(libs.hikaricp)
 }

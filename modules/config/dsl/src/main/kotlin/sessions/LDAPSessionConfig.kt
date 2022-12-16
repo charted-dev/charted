@@ -31,16 +31,20 @@ data class LDAPSessionConfig(
     val domainComponents: List<String> = listOf(),
 
     @Serializable(with = SecretStringSerializer::class)
-    val credentials: String,
+    val credentials: String? = null,
 
     @Serializable(with = SecretStringSerializer::class)
     val host: String,
     val port: Int
 ) {
+    companion object {
+        operator fun invoke(builder: Builder.() -> Unit = {}): LDAPSessionConfig = Builder().apply(builder).build()
+    }
+
     class Builder: org.noelware.charted.common.Builder<LDAPSessionConfig> {
         val domainComponents: MutableList<String> = mutableListOf()
         var organizationUnit: String by Delegates.notNull()
-        var credentials: String by Delegates.notNull()
+        var credentials: String? = null
         var port: Int by Delegates.notNull()
         var host: String by Delegates.notNull()
 

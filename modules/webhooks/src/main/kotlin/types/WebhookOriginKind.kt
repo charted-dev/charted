@@ -31,3 +31,9 @@ enum class WebhookOriginKind {
     @SerialName("repo")
     REPOSITORY;
 }
+
+val WebhookOriginKind.toDbType: String
+    get() = when (this) {
+        WebhookOriginKind.ORGANIZATION -> "org"
+        WebhookOriginKind.REPOSITORY -> "repo"
+    }

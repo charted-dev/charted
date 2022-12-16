@@ -63,6 +63,8 @@ import org.noelware.charted.types.helm.RepoType
 import org.noelware.charted.types.responses.ApiResponse
 import org.noelware.ktor.body
 import org.noelware.ktor.endpoints.*
+import org.noelware.charted.modules.webhooks.WebhookEventManager
+import org.noelware.charted.modules.webhooks.types.WebhookOriginKind
 
 @Serializable
 data class MainRepositoryResponse(
@@ -105,6 +107,7 @@ class RepositoriesEndpoint(
     private val config: Config,
     private val charts: HelmChartModule? = null,
     private val emails: EmailService? = null,
+    private val webhooks: WebhookEventManager? = null,
     private val clickhouse: ClickHouseConnection? = null
 ): AbstractEndpoint("/repositories") {
     // Not used at the moment since I don't really know how to design this, yet.

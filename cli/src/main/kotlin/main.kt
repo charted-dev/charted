@@ -53,10 +53,10 @@ private class ChartedCli(private val terminal: Terminal): CliktCommand(
         }
 
         subcommands(
+            CompletionCommand(name = "completions"),
             ClickHouseMigrationsCommand(terminal),
             GenerateConfigCommand(terminal),
-            ServerCommand(terminal),
-            CompletionCommand(name = "completions")
+            ServerCommand(terminal)
         )
     }
 

@@ -50,7 +50,7 @@ interface ClickHouseConnection: Closeable {
      * @param block connection function to use.
      */
     @Throws(SQLException::class)
-    fun <T> use(block: Connection.() -> T): T
+    fun <T> create(block: Connection.() -> T): T
 
     /**
      * Connects to the server.

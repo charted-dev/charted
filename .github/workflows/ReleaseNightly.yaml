@@ -22,13 +22,15 @@ permissions:
   packages: write
 jobs:
   archives:
-    name: Build and publish archive [${{matrix.tasks.ext}}]
+    name: Build and publish archive [${{matrix.tasks.prettyName}}]
     runs-on: ubuntu-latest
     strategy:
       matrix:
         tasks:
-          - { ext: "tar.gz", task: "distTar", prettyName: "tar" }
-          - { ext: "zip",    task: "distZip", prettyName: "zip" }
+          - { ext: "deb",    task: "buildDebRepo", project: ":distribution:deb", prettyName: "Deb", buildDir: "./distribution/deb/build" }
+          - { ext: "rpm",    task: "buildRpmRepo", project: ":distribution:rpm", prettyName: "Rpm", buildDir: "./distribution/rpm/build" }
+          - { ext: "tar.gz", task: "distTar",      project: ":cli",              prettyName: "Tar", buildDir: "./cli/build" }
+          - { ext: "zip",    task: "distZip",      project: ":cli",              prettyName: "Zip", buildDir: "./cli/build" }
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -74,26 +76,91 @@ jobs:
       - name: Build ${{matrix.tasks.prettyName}} artifact
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: :cli:${{matrix.tasks.task}} --no-daemon --scan
+          arguments: ${{matrix.tasks.project}}:${{matrix.tasks.task}} --no-daemon --scan
 
       - name: Upload ${{matrix.tasks.prettyName}} artifact to workflow
         uses: actions/upload-workflow@v3
         with:
           name: charted-server.${{matrix.tasks.ext}}
-          path: ./cli/build/distributions/charted-server.${{matrix.tasks.ext}}
+          path: ${{matrix.tasks.buildDir}}/distributions/charted-server.${{matrix.tasks.ext}}
 
       - name: Upload artifact to release
         uses: softprops/action-gh-release@v1
         with:
-          files: ./cli/build/distributions/charted-server.${{ matrix.tasks.ext }}
+          files: ${{matrix.tasks.buildDir}}/distributions/charted-server.${{matrix.tasks.ext}}
 
       - name: Upload artifacts to Noelware's Artifact Registry
         uses: Noelware/s3-action@2.0.0
         with:
-          files: ./cli/build/distributions/charted-server.tar.gz
-          path-format: $(prefix)/${{steps.tag.output.version}}/charted-server.tar.gz
+          files: ./cli/build/distributions/charted-server.${{matrix.tasks.ext}}
+          path-format: $(prefix)/${{steps.tag.output.version}}/charted-server.${{matrix.tasks.ext}}
           access-key-id: ${{secrets.S3_ACCESS_KEY}}
           secret-key: ${{secrets.S3_SECRET_KEY}}
           endpoint: ${{secrets.S3_ENDPOINT}}
           prefix: /noelware/artifacts
           bucket: august
+  docker-image:
+    name: Build Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Get current release tag
+        uses: auguwu/git-tag-action@master
+        id: tag
+
+      - name: Setup Docker buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Login into GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: charted-dev
+          password: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Build and push! (x86_64)
+        uses: docker/build-push-action@v3
+        with:
+          platforms: linux/amd64
+          context: .
+          file: ./distribution/docker/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-amd64,
+            ghcr.io/charted-dev/charted:latest-amd64
+
+      - name: Build and push! (arm64)
+        uses: docker/build-push-action@v3
+        with:
+          platforms: linux/arm64/v8
+          context: .
+          file: ./distribution/docker/arm64.Dockerfile
+          push: true
+          tags: |
+            ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-arm64,
+            ghcr.io/charted-dev/charted:latest-arm64
+
+      - name: Create manifest image [:latest]
+        uses: Noelware/docker-manifest-action@master
+        with:
+          base-image: ghcr.io/charted-dev/charted:latest
+          push: true
+          extra-images: |
+            ghcr.io/charted-dev/charted:latest-amd64,
+            ghcr.io/charted-dev/charted:latest-arm64
+
+      - name: Create manifest image [:${{steps.tag.outputs.version}}]
+        uses: Noelware/docker-manifest-action@master
+        with:
+          base-image: ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}
+          push: true
+          extra-images: |
+            ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-amd64,
+            ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-arm64

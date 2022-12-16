@@ -38,6 +38,6 @@ class WebhookEvent<T>(
     @SerialName("fired_at")
     val firedAt: LocalDateTime,
     val origin: Long,
-    val data: T,
+    val data: T? = null,
     val id: Long
 )

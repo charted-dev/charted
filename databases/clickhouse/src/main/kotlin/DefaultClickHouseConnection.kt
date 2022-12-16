@@ -58,8 +58,8 @@ class DefaultClickHouseConnection(private val config: ClickHouseConfig): ClickHo
      *
      * @param block connection function to use.
      */
-    @Traced("DefaultClickHouseConnection#useConnection", type = "database")
-    override fun <T> use(block: Connection.() -> T): T {
+    @Traced("DefaultClickHouseConnection#create", type = "database")
+    override fun <T> create(block: Connection.() -> T): T {
         if (!_dataSource.wasSet()) throw IllegalAccessException("Can't grab connection due to no connection being set!")
 
         val connection = _dataSource.value.connection
@@ -110,7 +110,7 @@ class DefaultClickHouseConnection(private val config: ClickHouseConfig): ClickHo
 
         log.info("Created the connection pool! Checking if we can query...")
         try {
-            use {
+            create {
                 val stmt = createStatement()
                 stmt.execute("SELECT 1")
                 stmt.close()
@@ -123,7 +123,7 @@ class DefaultClickHouseConnection(private val config: ClickHouseConfig): ClickHo
             throw e
         }
 
-        val version = use {
+        val version = create {
             val stmt = createStatement()
             stmt.execute("SELECT version() AS version")
 
