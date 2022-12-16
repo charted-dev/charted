@@ -74,7 +74,7 @@ jobs:
       - name: Build ${{matrix.tasks.prettyName}} artifact
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: ${{matrix.tasks.project}}:${{matrix.tasks.task}} --no-daemon --scan
+          arguments: :cli:${{matrix.tasks.task}} --no-daemon --scan
 
       - name: Upload ${{matrix.tasks.prettyName}} artifact to workflow
         uses: actions/upload-artifact@v3
@@ -88,7 +88,7 @@ jobs:
           files: ./cli/build/distributions/charted-server.${{matrix.tasks.ext}}
 
       - name: Upload artifacts to Noelware's Artifact Registry
-        uses: Noelware/s3-action@2.0.0
+        uses: Noelware/s3-action@2
         with:
           files: ./cli/build/distributions/charted-server.${{matrix.tasks.ext}}
           path-format: $(prefix)/charted/server/${{steps.tag.output.version}}/charted-server.${{matrix.tasks.ext}}
@@ -132,7 +132,7 @@ jobs:
       - name: Upload artifact to workflow
         uses: actions/upload-artifact@v3
         with:
-          name: ch-migrations-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
+          name: ch-migrations-${{matrix.dist.goos}}-${{matrix.dist.goarch}}${{matrix.dist.ext}}
           path: ./databases/clickhouse/migrations/bin/ch-migrations-${{matrix.dist.goos}}-${{matrix.dist.goarch}}${{matrix.dist.ext}}
 
       - name: Upload artifact to release
@@ -141,7 +141,7 @@ jobs:
           files: ./databases/clickhouse/migrations/bin/ch-migrations-${{matrix.dist.goos}}-${{matrix.dist.goarch}}${{matrix.dist.ext}}
 
       - name: Upload artifacts to Noelware's Artifact Registry
-        uses: Noelware/s3-action@2.0.0
+        uses: Noelware/s3-action@2
         with:
           files: ./databases/clickhouse/migrations/bin/ch-migrations-${{matrix.dist.goos}}-${{matrix.dist.goarch}}${{matrix.dist.ext}}
           path-format: $(prefix)/charted/server/${{steps.tag.output.version}}/ch-migrations-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
