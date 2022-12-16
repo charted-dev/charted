@@ -27,10 +27,8 @@ jobs:
     strategy:
       matrix:
         tasks:
-          - { ext: "deb",    task: "buildDebRepo", project: ":distribution:deb", prettyName: "Deb", buildDir: "./distribution/deb/build" }
-          - { ext: "rpm",    task: "buildRpmRepo", project: ":distribution:rpm", prettyName: "Rpm", buildDir: "./distribution/rpm/build" }
-          - { ext: "tar.gz", task: "distTar",      project: ":cli",              prettyName: "Tar", buildDir: "./cli/build" }
-          - { ext: "zip",    task: "distZip",      project: ":cli",              prettyName: "Zip", buildDir: "./cli/build" }
+          - { ext: "tar.gz", task: "distTar", prettyName: "Tarball" }
+          - { ext: "zip",    task: "distZip", prettyName: "Zip"     }
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -93,12 +91,115 @@ jobs:
         uses: Noelware/s3-action@2.0.0
         with:
           files: ./cli/build/distributions/charted-server.${{matrix.tasks.ext}}
-          path-format: $(prefix)/${{steps.tag.output.version}}/charted-server.${{matrix.tasks.ext}}
+          path-format: $(prefix)/charted/server/${{steps.tag.output.version}}/charted-server.${{matrix.tasks.ext}}
           access-key-id: ${{secrets.S3_ACCESS_KEY}}
           secret-key: ${{secrets.S3_SECRET_KEY}}
           endpoint: ${{secrets.S3_ENDPOINT}}
           prefix: /noelware/artifacts
           bucket: august
+  migrations:
+    name: Build migration distributions
+    run-on: ubuntu-latest
+    matrix:
+      dist:
+        - { goos: windows, goarch: amd64, ext: ".exe" }
+        - { goos: windows, goarch: i386, ext: ".exe" }
+        - { goos: darwin, goarch: amd64, ext: "" }
+        - { goos: darwin, goarch: arm64, ext: "" }
+        - { goos: linux, goarch: amd64, ext: "" }
+        - { goos: linux, goarch: arm64, ext: "" }
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Get current release tag
+        uses: auguwu/git-tag-action@master
+        id: tag
+
+      - name: Setup Go v1.19
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19.x
+
+      - name: Build migrations binary
+        working-directory: ./databases/clickhouse/migrations
+        run: go mod -mod=readonly -ldflags "-s -w -X main.version=${{steps.tag.outputs.version}}" -o ./bin/ch-migrations-${{matrix.dist.goos}}-${{matrix.dist.goarch}}${{matrix.dist.ext}}
+
+      - name: Upload artifact to workflow
+        uses: actions/upload-artifact@v3
+        with:
+          name: ch-migrations-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
+          path: ./databases/clickhouse/migrations/bin/ch-migrations-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
+
+      - name: Upload artifact to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./databases/clickhouse/migrations/bin/ch-migrations-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
+
+      - name: Upload artifacts to Noelware's Artifact Registry
+        uses: Noelware/s3-action@2.0.0
+        with:
+          files: ./databases/clickhouse/migrations/bin/ch-migrations-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
+          path-format: $(prefix)/charted/server/${{steps.tag.output.version}}/ch-migrations-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
+          access-key-id: ${{secrets.S3_ACCESS_KEY}}
+          secret-key: ${{secrets.S3_SECRET_KEY}}
+          endpoint: ${{secrets.S3_ENDPOINT}}
+          prefix: /noelware/artifacts
+          bucket: august
+# Helm plugin is not released until v0.4-nightly :3
+#  helm-plugin:
+#    name: Build Helm Plugin distribution
+#    run-on: ubuntu-latest
+#    matrix:
+#      dist:
+#        - { goos: windows, goarch: amd64, ext: ".exe" }
+#        - { goos: windows, goarch: i386, ext: ".exe" }
+#        - { goos: darwin, goarch: amd64, ext: "" }
+#        - { goos: darwin, goarch: arm64, ext: "" }
+#        - { goos: linux, goarch: amd64, ext: "" }
+#        - { goos: linux, goarch: arm64, ext: "" }
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v3
+#        with:
+#          submodules: recursive
+#
+#      - name: Get current release tag
+#        uses: auguwu/git-tag-action@master
+#        id: tag
+#
+#      - name: Setup Go v1.19
+#        uses: actions/setup-go@v3
+#        with:
+#          go-version: 1.19.x
+#
+#      - name: Build binary
+#        working-directory: ./tools/helm-plugin
+#        run: go build -mod=readonly -ldflags "-s -w -X main.version=${{steps.tag.outputs.version}}" -o ./bin/helm-plugin-${{matrix.dist.goos}}-${{matrix.dist.goarch}}${{matrix.dist.ext}}
+#
+#      - name: Upload artifact to workflow
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: ch-migrations-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
+#          path: ./tools/helm-plugin/bin/ch-migrations-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
+#
+#      - name: Upload artifact to release
+#        uses: softprops/action-gh-release@v1
+#        with:
+#          files: ./tools/helm-plugin/bin/helm-plugin-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
+#
+#      - name: Upload artifacts to Noelware's Artifact Registry
+#        uses: Noelware/s3-action@2.0.0
+#        with:
+#          files: ./tools/helm-plugin/bin/ch-migrations-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
+#          path-format: $(prefix)/charted/server/${{steps.tag.output.version}}/ch-migrations-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
+#          access-key-id: ${{secrets.S3_ACCESS_KEY}}
+#          secret-key: ${{secrets.S3_SECRET_KEY}}
+#          endpoint: ${{secrets.S3_ENDPOINT}}
+#          prefix: /noelware/artifacts
+#          bucket: august
   docker-image:
     name: Build Docker image
     runs-on: ubuntu-latest
@@ -111,6 +212,10 @@ jobs:
       - name: Get current release tag
         uses: auguwu/git-tag-action@master
         id: tag
+
+      - name: Get commit hash
+        id: commit-hash
+        run: echo "commit=$(git rev-parse --short "$GITHUB_SHA")"
 
       - name: Setup Docker buildx
         uses: docker/setup-buildx-action@v2
@@ -132,6 +237,14 @@ jobs:
           context: .
           file: ./distribution/docker/Dockerfile
           push: true
+          labels: |
+            org.opencontainers.image.title=charted-server,
+            org.opencontainers.image.description="📦 You know, for Helm Charts?",
+            org.opencontainers.image.version=${{steps.tag.outputs.version}},
+            org.opencontainers.image.revision=${{steps.commit-hash.outputs.commit}},
+            org.opencontainers.image.licenses=MIT,
+            org.opencontainers.image.documentation="https://charts.noelware.org/docs/server/${{steps.tag.outputs.version}}",
+            org.opencontainers.image.source="https://github.com/charted-dev/charted"
           tags: |
             ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-amd64,
             ghcr.io/charted-dev/charted:latest-amd64
@@ -143,6 +256,14 @@ jobs:
           context: .
           file: ./distribution/docker/arm64.Dockerfile
           push: true
+          labels: |
+            org.opencontainers.image.title=charted-server,
+            org.opencontainers.image.description="📦 You know, for Helm Charts?",
+            org.opencontainers.image.version=${{steps.tag.outputs.version}},
+            org.opencontainers.image.revision=${{steps.commit-hash.outputs.commit}},
+            org.opencontainers.image.licenses=MIT,
+            org.opencontainers.image.documentation="https://charts.noelware.org/docs/server/${{steps.tag.outputs.version}}",
+            org.opencontainers.image.source="https://github.com/charted-dev/charted"
           tags: |
             ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-arm64,
             ghcr.io/charted-dev/charted:latest-arm64
