@@ -99,7 +99,7 @@ jobs:
           bucket: august
   migrations:
     name: Build migration distributions
-    run-on: ubuntu-latest
+    runs-on: ubuntu-latest
     matrix:
       dist:
         - { goos: windows, goarch: amd64, ext: ".exe" }

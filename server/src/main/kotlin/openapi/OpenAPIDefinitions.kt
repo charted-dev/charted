@@ -19,14 +19,10 @@ package org.noelware.charted.server.openapi
 
 import guru.zoroark.tegral.openapi.dsl.*
 import io.ktor.http.*
-import kotlinx.datetime.LocalDateTime
 import org.noelware.charted.ChartedInfo
-import org.noelware.charted.databases.postgres.models.User
 import org.noelware.charted.server.endpoints.v1.InfoResponse
 import org.noelware.charted.server.endpoints.v1.MainResponse
-import org.noelware.charted.server.endpoints.v1.api.MainUserResponse
 import org.noelware.charted.server.openapi.apis.usersApi
-import org.noelware.charted.types.responses.ApiError
 import org.noelware.charted.types.responses.ApiResponse
 
 /**

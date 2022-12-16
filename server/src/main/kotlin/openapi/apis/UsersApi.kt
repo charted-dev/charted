@@ -1,3 +1,20 @@
+/*
+ * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * Copyright 2022-2023 Noelware <team@noelware.org>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.noelware.charted.server.openapi.apis
 
 import guru.zoroark.tegral.openapi.dsl.RootDsl
@@ -7,8 +24,8 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.databases.postgres.models.User
-import org.noelware.charted.types.responses.ApiResponse
 import org.noelware.charted.server.endpoints.v1.api.MainUserResponse
+import org.noelware.charted.types.responses.ApiResponse
 import kotlin.reflect.full.createType
 
 fun RootDsl.usersApi() {
@@ -32,17 +49,19 @@ fun RootDsl.usersApi() {
             201 response {
                 "application/json" content {
                     schema<ApiResponse.Ok<User>>()
-                    example = ApiResponse.ok(User(
-                        "cutie@floofy.dev",
-                        "18 year old \uD83D\uDC3B\u200D❄ \uD83E\uDE84 in the wild - Lead Developer of charted-server",
-                        null,
-                        LocalDateTime.parse("2022-11-08T05:03:56.550Z"),
-                        LocalDateTime.parse("2022-11-08T05:03:56.550Z"),
-                        "noel",
-                        0,
-                        "Noel \uD83D\uDC3B\u200D❄ \uD83E\uDE84",
-                        1
-                    ))
+                    example = ApiResponse.ok(
+                        User(
+                            "cutie@floofy.dev",
+                            "18 year old \uD83D\uDC3B\u200D❄ \uD83E\uDE84 in the wild - Lead Developer of charted-server",
+                            null,
+                            LocalDateTime.parse("2022-11-08T05:03:56.550Z"),
+                            LocalDateTime.parse("2022-11-08T05:03:56.550Z"),
+                            "noel",
+                            0,
+                            "Noel \uD83D\uDC3B\u200D❄ \uD83E\uDE84",
+                            1
+                        )
+                    )
                 }
             }
 
@@ -87,17 +106,19 @@ fun RootDsl.usersApi() {
             202 response {
                 "application/json" content {
                     schema<ApiResponse.Ok<User>>()
-                    example = ApiResponse.ok(User(
-                        "noel@noelware.org",
-                        "a blepper in the wild :quantD:",
-                        null,
-                        LocalDateTime.parse("2022-11-08T05:03:56.550Z"),
-                        LocalDateTime.parse("2022-12-16T07:07:32.473Z"),
-                        "noel",
-                        0,
-                        "Noel",
-                        1
-                    ))
+                    example = ApiResponse.ok(
+                        User(
+                            "noel@noelware.org",
+                            "a blepper in the wild :quantD:",
+                            null,
+                            LocalDateTime.parse("2022-11-08T05:03:56.550Z"),
+                            LocalDateTime.parse("2022-12-16T07:07:32.473Z"),
+                            "noel",
+                            0,
+                            "Noel",
+                            1
+                        )
+                    )
                 }
             }
 
@@ -134,17 +155,19 @@ fun RootDsl.usersApi() {
                 description = "The user response if the user was found"
                 "application/json" content {
                     schema<ApiResponse.Ok<User>>()
-                    example = ApiResponse.ok(User(
-                        "cutie@floofy.dev",
-                        "18 year old \uD83D\uDC3B\u200D❄ \uD83E\uDE84 in the wild - Lead Developer of charted-server",
-                        null,
-                        LocalDateTime.parse("2022-11-08T05:03:56.550Z"),
-                        LocalDateTime.parse("2022-11-08T05:03:56.550Z"),
-                        "noel",
-                        0,
-                        "Noel \uD83D\uDC3B\u200D❄ \uD83E\uDE84",
-                        1
-                    ))
+                    example = ApiResponse.ok(
+                        User(
+                            "cutie@floofy.dev",
+                            "18 year old \uD83D\uDC3B\u200D❄ \uD83E\uDE84 in the wild - Lead Developer of charted-server",
+                            null,
+                            LocalDateTime.parse("2022-11-08T05:03:56.550Z"),
+                            LocalDateTime.parse("2022-11-08T05:03:56.550Z"),
+                            "noel",
+                            0,
+                            "Noel \uD83D\uDC3B\u200D❄ \uD83E\uDE84",
+                            1
+                        )
+                    )
                 }
             }
 
