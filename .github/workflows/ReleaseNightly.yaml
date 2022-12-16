@@ -88,7 +88,7 @@ jobs:
           files: ./cli/build/distributions/charted-server.${{matrix.tasks.ext}}
 
       - name: Upload artifacts to Noelware's Artifact Registry
-        uses: Noelware/s3-action@2
+        uses: Noelware/s3-action@2.0.1
         with:
           files: ./cli/build/distributions/charted-server.${{matrix.tasks.ext}}
           path-format: $(prefix)/charted/server/${{steps.tag.output.version}}/charted-server.${{matrix.tasks.ext}}
@@ -141,7 +141,7 @@ jobs:
           files: ./databases/clickhouse/migrations/bin/ch-migrations-${{matrix.dist.goos}}-${{matrix.dist.goarch}}${{matrix.dist.ext}}
 
       - name: Upload artifacts to Noelware's Artifact Registry
-        uses: Noelware/s3-action@2
+        uses: Noelware/s3-action@2.0.1
         with:
           files: ./databases/clickhouse/migrations/bin/ch-migrations-${{matrix.dist.goos}}-${{matrix.dist.goarch}}${{matrix.dist.ext}}
           path-format: $(prefix)/charted/server/${{steps.tag.output.version}}/ch-migrations-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
