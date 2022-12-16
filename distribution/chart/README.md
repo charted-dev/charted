@@ -3,7 +3,7 @@ This is the official Helm Chart for bootstrapping a **charted-server** instance 
 
 ## TL;DR
 ```shell
-$ helm repo add charted https://charts.noelware.org/-/charted
+$ helm repo add charted https://charts.noelware.org/~/charted
 $ helm install charted-server charted/server
 ```
 
