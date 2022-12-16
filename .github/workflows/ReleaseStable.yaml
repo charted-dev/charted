@@ -16,7 +16,7 @@
 name: Stable Release Pipeline
 on:
   release:
-    types: [published]
+    types: [released]
 permissions:
   contents: write
   packages: write

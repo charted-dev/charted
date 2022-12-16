@@ -126,7 +126,7 @@ jobs:
 
       - name: Build migrations binary
         working-directory: ./databases/clickhouse/migrations
-        run: go mod -mod=readonly -ldflags "-s -w -X main.version=${{steps.tag.outputs.version}}" -o ./bin/ch-migrations-${{matrix.dist.goos}}-${{matrix.dist.goarch}}${{matrix.dist.ext}}
+        run: go build -mod=readonly -ldflags "-s -w -X main.version=${{steps.tag.outputs.version}}" -o ./bin/ch-migrations-${{matrix.dist.goos}}-${{matrix.dist.goarch}}${{matrix.dist.ext}}
 
       - name: Upload artifact to workflow
         uses: actions/upload-artifact@v3
