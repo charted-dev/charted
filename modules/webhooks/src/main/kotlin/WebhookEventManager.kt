@@ -60,5 +60,3 @@ interface WebhookEventManager {
  * @param origin ([WebhookOriginKind] -> repo/org id)
  */
 suspend inline fun <reified T: Any> WebhookEventManager.get(origin: Pair<WebhookOriginKind, Long>): WebhookEvent<T>? = get(T::class, origin)
-
-

@@ -40,7 +40,6 @@ dependencies {
     implementation("dev.floofy.commons:gradle:2.4.0")
     implementation(kotlin("serialization", "1.7.22"))
     implementation(kotlin("gradle-plugin", "1.7.22"))
-    implementation("com.google.code.gson:gson:2.10")
 }
 
 gradlePlugin {

@@ -54,6 +54,7 @@ import org.noelware.charted.modules.avatars.AvatarFetchUtil
 import org.noelware.charted.modules.email.EmailService
 import org.noelware.charted.modules.helm.charts.HelmChartModule
 import org.noelware.charted.modules.storage.StorageHandler
+import org.noelware.charted.modules.webhooks.WebhookEventManager
 import org.noelware.charted.server.createKtorContentWithByteArray
 import org.noelware.charted.server.createKtorContentWithInputStream
 import org.noelware.charted.server.plugins.PreconditionResult
@@ -63,8 +64,6 @@ import org.noelware.charted.types.helm.RepoType
 import org.noelware.charted.types.responses.ApiResponse
 import org.noelware.ktor.body
 import org.noelware.ktor.endpoints.*
-import org.noelware.charted.modules.webhooks.WebhookEventManager
-import org.noelware.charted.modules.webhooks.types.WebhookOriginKind
 
 @Serializable
 data class MainRepositoryResponse(
