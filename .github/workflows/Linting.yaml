@@ -89,7 +89,7 @@ jobs:
       matrix:
         projects:
           - { directory: ./databases/clickhouse/migrations, name: ch-migrations }
-          - { directory: ./libraries/helm-plugin, name: helm-plugin }
+          - { directory: ./tools/helm-plugin,               name: helm-plugin   }
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -111,14 +111,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{matrix.projects.name}}-1.19-go-
 
-      - name: Install dependencies [${{matrix.projects.directory}}]
+      - name: Install dependencies [${{matrix.projects.name}}]
         working-directory: ${{matrix.projects.directory}}
         run: |
           go mod download
           go mod vendor
           go get
 
-      - name: golangci-lint [${{matrix.projects.directory}}]
+      - name: golangci-lint [${{matrix.projects.name}}]
         uses: golangci/golangci-lint-action@v3
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
