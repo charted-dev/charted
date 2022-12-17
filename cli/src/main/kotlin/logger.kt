@@ -24,47 +24,47 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.system.exitProcess
 
-private val DATE_FORMATTER = SimpleDateFormat("MM/dd/yyyy '~' hh:mm:ss a", Locale.getDefault())
+private val simpleDateFormat = SimpleDateFormat("MM/dd/yyyy '~' hh:mm:ss a", Locale.getDefault())
 
 // rgb(241, 204, 209)
-private val PINK = rgb("#F1CCD1")
+private val pink = rgb("#F1CCD1")
 
 // rgb(165, 204, 165)
-private val INFO_COLOR = rgb("#A5CCA5")
+private val infoColour = rgb("#A5CCA5")
 
 // rgb(81, 81, 140)
-private val DEBUG_COLOR = rgb("#51518C")
+private val debugColour = rgb("#51518C")
 
 // rgb(166, 76, 76)
-private val ERROR_COLOR = rgb("#A64C4C")
+private val errorColour = rgb("#A64C4C")
 
 // rgb(233, 233, 130)
-private val WARN_COLOR = rgb("#E9E982")
+private val warnColour = rgb("#E9E982")
 
-private fun getCurrentDate(): String = DATE_FORMATTER.format(Date())
+private fun getCurrentDate(): String = simpleDateFormat.format(Date())
 
 object Logger {
     fun info(vararg messages: String) {
-        println("${(INFO_COLOR + bold)("info")}    | ${(PINK + bold)(getCurrentDate())} ~ ${messages.joinToString(System.lineSeparator())}")
+        println("${(infoColour + bold)("info")}  | ${(pink + bold)(getCurrentDate())} ~ ${messages.joinToString(System.lineSeparator())}")
     }
 
     fun warn(vararg messages: String) {
-        println("${(WARN_COLOR + bold)("warn")}    | ${(PINK + bold)(getCurrentDate())} ~ ${messages.joinToString(System.lineSeparator())}")
+        println("${(warnColour + bold)("warn")}  | ${(pink + bold)(getCurrentDate())} ~ ${messages.joinToString(System.lineSeparator())}")
     }
 
     fun error(vararg messages: String) {
-        println("${(ERROR_COLOR + bold)("error")}   | ${(PINK + bold)(getCurrentDate())} ~ ${messages.joinToString(System.lineSeparator())}")
+        println("${(errorColour + bold)("error")} | ${(pink + bold)(getCurrentDate())} ~ ${messages.joinToString(System.lineSeparator())}")
     }
 
     fun fatal(vararg messages: String) {
-        println("${(ERROR_COLOR + bold)("fatal")}   | ${(PINK + bold)(getCurrentDate())} ~ ${messages.joinToString(System.lineSeparator())}")
+        println("${(errorColour + bold)("fatal")} | ${(pink + bold)(getCurrentDate())} ~ ${messages.joinToString(System.lineSeparator())}")
         exitProcess(1)
     }
 
     fun debug(vararg messages: String) {
         val debugEnv = System.getenv("CHARTED_DEBUG")
         if ((debugEnv ?: "") matches "^(yes|true|1|si|si*)$".toRegex()) {
-            println("${(DEBUG_COLOR + bold)("debug")}   | ${(PINK + bold)(getCurrentDate())} ~ ${messages.joinToString(System.lineSeparator())}")
+            println("${(debugColour + bold)("debug")}   | ${(pink + bold)(getCurrentDate())} ~ ${messages.joinToString(System.lineSeparator())}")
         }
     }
 }

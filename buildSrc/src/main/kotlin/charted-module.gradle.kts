@@ -81,10 +81,7 @@ spotless {
             .setUseExperimental(true)
             .editorConfigOverride(mapOf(
                 "indent_size" to "4",
-
-                // Using `ktlint_disabled_rules` doesn't work for some reason! We need to check why
-                // though, which is tricky. :(
-                "disabled_rules" to "colon-spacing,annotation-spacing,filename,no-wildcard-imports,argument-list-wrapping",
+                "ktlint_disabled_rules" to "colon-spacing,annotation-spacing,filename,no-wildcard-imports,argument-list-wrapping",
                 "ij_kotlin_allow_trailing_comma" to "false",
                 "ktlint_code_style" to "official",
                 "no-unused-imports" to "true",

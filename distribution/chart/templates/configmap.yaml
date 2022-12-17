@@ -12,3 +12,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+# prettier-ignore
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "charted.fullname" . }}-{{ .Values.config.mapName }}
+  labels:
+    {{- include "charted.labels" . | nindent 4 }}
+data:
+  charted.yaml: |
+    # refer to the configuration for more details: https://charts.noelware.org/docs/server/latest/self-hosting/configuration
+    jwtSecretKey: ${JWT_SECRET_KEY}
+    metrics:
+      enabled: true

@@ -72,7 +72,7 @@ tasks {
             expand(
                 mapOf(
                     "version" to "$VERSION",
-                    "commit_sha" to VERSION.getGitCommit()!!.trim(),
+                    "commit_sha" to VERSION.gitCommitHash!!.trim(),
                     "build_date" to formatter.format(Date())
                 )
             )

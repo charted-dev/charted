@@ -12,3 +12,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+# prettier-ignore
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "charted.fullname" . }}-{{ .Values.config.logback.mapName}}
+  labels:
+    {{- include "charted.labels" . | nindent 4 }}
+data:
+  logback.properties: |
+    # refer to the configuration for more details: https://charts.noelware.org/docs/server/latest/self-hosting/configuration#logback-properties
+    charted.log.level=INFO

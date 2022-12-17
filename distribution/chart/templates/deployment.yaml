@@ -12,3 +12,37 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+# prettier-ignore
+
+apiVersion: apps/v1
+{{- if eq .Values.storage.driver "filesystem" }}
+kind: StatefulSet
+{{- else }}
+kind: Deployment
+{{- end }}
+metadata:
+  name: {{ include "charted.fullname" . }}
+  labels:
+    {{- include "charted.labels" . | nindent 4 }}
+spec:
+  {{- if eq .Values.storage.driver "filesystem" }}
+  serviceName: {{ include "charted.fullname" . }}-headless
+  {{- end }}
+  replicas: {{ .Values.global.replicas }}
+  selector:
+    matchLabels:
+      {{- include "charted.labels" . | nindent 8 }}
+  template:
+    metadata:
+      labels:
+        {{- include "charted.labels" . | nindent 12 }}
+    spec:
+      initContainers:
+      {{- if .Values.global.clickhouse.enabled }}
+      - name: clickhouse-migrations
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command:
+          - bin/ch-migrations
+      {{- end }}

@@ -1,0 +1,1402 @@
+NAME: charted
+LAST DEPLOYED: Fri Dec 16 14:05:22 2022
+NAMESPACE: default
+STATUS: pending-install
+REVISION: 1
+HOOKS:
+---
+# Source: charted-server/charts/elasticsearch/templates/test/test-elasticsearch-health.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "charted-thede-test"
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  securityContext:
+    fsGroup: 1000
+    runAsUser: 1000
+  containers:
+  - name: "charted-mrpuq-test"
+    env:
+      - name: ELASTIC_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: elasticsearch-master-credentials
+            key: password
+    image: "docker.elastic.co/elasticsearch/elasticsearch:8.5.1"
+    imagePullPolicy: "IfNotPresent"
+    command:
+      - "sh"
+      - "-c"
+      - |
+        #!/usr/bin/env bash -e
+        curl -XGET --fail --cacert /usr/share/elasticsearch/config/certs/tls.crt -u "elastic:${ELASTIC_PASSWORD}" https://'elasticsearch-master:9200/_cluster/health?wait_for_status=green&timeout=1s'
+    volumeMounts:
+      - name: elasticsearch-certs
+        mountPath: /usr/share/elasticsearch/config/certs
+        readOnly: true
+  restartPolicy: Never
+  volumes:
+    - name: elasticsearch-certs
+      secret:
+        secretName: elasticsearch-master-certs
+MANIFEST:
+---
+# Source: charted-server/charts/elasticsearch/templates/poddisruptionbudget.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: "elasticsearch-master-pdb"
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: "elasticsearch-master"
+---
+# Source: charted-server/charts/redis/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+automountServiceAccountToken: true
+metadata:
+  name: charted-redis
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: redis
+    helm.sh/chart: redis-17.3.17
+    app.kubernetes.io/instance: charted
+    app.kubernetes.io/managed-by: Helm
+---
+# Source: charted-server/charts/elasticsearch/templates/secret-cert.yaml
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/tls
+metadata:
+  name: elasticsearch-master-certs
+  labels:
+    app: elasticsearch-master
+    chart: "elasticsearch"
+    heritage: Helm
+    release: charted
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURoekNDQW0rZ0F3SUJBZ0lRVUQ2ZHdET1VjUG85MmplYldoWGllakFOQmdrcWhraUc5dzBCQVFzRkFEQWIKTVJrd0Z3WURWUVFERXhCbGJHRnpkR2xqYzJWaGNtTm9MV05oTUI0WERUSXlNVEl4TmpJeE1EVXlNbG9YRFRJegpNVEl4TmpJeE1EVXlNbG93SHpFZE1Cc0dBMVVFQXhNVVpXeGhjM1JwWTNObFlYSmphQzF0WVhOMFpYSXdnZ0VpCk1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRRGluL3lBeDhsVVFyZVhWcXdwSWFMZHg4eHgKcld0MUwxMWdCOERLV1Q1SCtkcXNUdktFTkRocTM2M2E3QnV6UENMS29XN3hWdnRTN0pPajNUOW5OOS9JZUx3YwpBUkFKU1VuczFkVmFKOEtJYzJwaDRkd1V3QjIrY3hIMkVETUtiYXp2Y0ltWlVHeUEzMC9UZ2VncTZKb1BhYitwCnB4ZHRML2dIZ3VhZUJJSDA5cDJNVG5PZThsZXFOQVJNRUk1ZVRIRW82M0N1NDRhL0NzZjBMS2w3N3VyLzNTdXoKK3pxOTRoZUxDdithNzdYbGNESDJRdThjMkNjeDU3a3MzVFpXT0VPTHFFa0NlQ082NUhlRG9Pb0FCT0FtSGlKbQo3cXNBMTE4OFkrVmhqQnNCcHpzYnk1Z2xKdkdhSzM5bXJlRHdvV3U3amV2TFpiT1gvOFYza3hWNUVUem5BZ01CCkFBR2pnY0l3Z2I4d0RnWURWUjBQQVFIL0JBUURBZ1dnTUIwR0ExVWRKUVFXTUJRR0NDc0dBUVVGQndNQkJnZ3IKQmdFRkJRY0RBakFNQmdOVkhSTUJBZjhFQWpBQU1COEdBMVVkSXdRWU1CYUFGTDJLbGdpdWxXM2VSb1NPTGlFRQpWRTJHV0F5Sk1GOEdBMVVkRVFSWU1GYUNGR1ZzWVhOMGFXTnpaV0Z5WTJndGJXRnpkR1Z5Z2h4bGJHRnpkR2xqCmMyVmhjbU5vTFcxaGMzUmxjaTVrWldaaGRXeDBnaUJsYkdGemRHbGpjMlZoY21Ob0xXMWhjM1JsY2k1a1pXWmgKZFd4MExuTjJZekFOQmdrcWhraUc5dzBCQVFzRkFBT0NBUUVBRjFvMTlLS2NEekZwUGZScjltWklvazVqcXNycwptczlONG91cHNpa1ZnSjJhdUtuaU1xTTdaSHd5djhTbWtkMTNPVU8zaTAzTlBjNWFjcnd5cG9KNzhKU3p4bWl0CnJzSTdvYmRFRys1Qmh2OCtiM1g0UEpjRjViOFl4UnBWSEFsSFF5eUtvbGdCVEJFUys2cXNhZ05qVXcwaVdXSlEKb1gxZEtSeGVsclZEdm1oRnJHQ01TOUtaR0hSODZ5bE1vdE9QVnU1bFQ1QXNaZUlkVlZaTlVzN1g2MmtwQ3o1Tgpwb1RBakpiMGtiRzdxc0Q2V2daZi9pSkFmMnAwQUdVdXlib1B3QlBReWtGU0toOERzWlo5UjE4MmtqSTBWZUY0Ck9sTmNTSi93V2htbjFteHBrVkZEM0h6OE5EWDYzYjBZVXBzbHdTYjlPaktXZ1FXbExqUjBvSW5SZ1E9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBNHAvOGdNZkpWRUszbDFhc0tTR2kzY2ZNY2ExcmRTOWRZQWZBeWxrK1IvbmFyRTd5CmhEUTRhdCt0MnV3YnN6d2l5cUZ1OFZiN1V1eVRvOTAvWnpmZnlIaThIQUVRQ1VsSjdOWFZXaWZDaUhOcVllSGMKRk1BZHZuTVI5aEF6Q20yczczQ0ptVkJzZ045UDA0SG9LdWlhRDJtL3FhY1hiUy80QjRMbW5nU0I5UGFkakU1egpudkpYcWpRRVRCQ09Ya3h4S090d3J1T0d2d3JIOUN5cGUrN3EvOTBycy9zNnZlSVhpd3IvbXUrMTVYQXg5a0x2CkhOZ25NZWU1TE4wMlZqaERpNmhKQW5nanV1UjNnNkRxQUFUZ0poNGladTZyQU5kZlBHUGxZWXdiQWFjN0c4dVkKSlNieG1pdC9acTNnOEtGcnU0M3J5Mld6bC8vRmQ1TVZlUkU4NXdJREFRQUJBb0lCQVFDTlpKWU0zeG1NdWNlRAo0NjZzUnZFdmdDM2RLdjdsY1RUSDZtNXRrVHFiZTVia2RLazR0TUFTWmhZNWhhQk90cEZhYlZnanVVbzYxYUhUCjFnRnQ2OTF5WFdtMzZ5M1BMV3V6R1VMdzZlZWtiS1lPQmZYaStHNVdXY0wyQyt0Y2NVczVaTFJrOUZtT0drWGEKeDYxTHdDNEd1Y3E4RmFVM0dYdWRiQjFvcjVWSmVMd0orNWkxdGpTZUxXWWtuQ0ZmbnVMZHV4QXNpd3hsSHc2SAp1dHIxdkIxNGh5ODVubHJlS1BRWGVITlladXZFbG5tcEpiOExpckxSTENFQmZJck5iWFdYTVJ0ajlFcFlmc3krCnVMV0NTSzg4TlpSaWVjZk4vZk4rZ2x6UG93clRNWGM1YWtoWWl0ekQvd3RQeTN5dVI2VlhjUzdGd3poQ2VBNTAKb2FZQnpSS2hBb0dCQVBFcHR0L1J6bk5VbHNlcmpMWlREWHVyUVg4bTh0OHVMWlA5QXJSTlE4U1ZLUkhxalVIZAo1YkdVRFlFNHRXUDR5eE9ud3hmTHV6Ri9VN0NXL1RiNTdWWTg2STN0RXhhMk5PeUcyRnJ5NGpOdFZHcS9FWjNVCjE4N25nZHdwdjRqS05zL3lYYlVmenF3VFF3RlEyeXBPS29Ed1FWQ3BZY01Ja0R3UHlpcG9uWDl4QW9HQkFQQ1IKVE9NbVFma24xMHhIY2toSERFZlN6OWRNN2h6djREM2ZHZHp2dytxdGtMamg4WVdzQ203OWhGS0NNYTNSYUtTcwpWQWJFRzVsUnlzVmozMVVBdnE4THJhYnQ5QTh5eThXSGh2LzlxZVpNRzJMeUwxNE5EV3dhZUZnMGMxSGZUejc1Ck5oUTlFS29POGZhWVcxd2NSSEhOZCs0RHJuM09uS3BhR3E1VExnWFhBb0dCQUlkY2c2SHpVRzdaanR3NkJQd2QKZDlidlZBNzduSno2Zldpd1BjRllFTzZaVG5rWTd2cUdnek4rUjJvOW0wcW16YzJWZjJLdTNyNDBtcFBtMisvcwpybk9XTW0zZklMVEJ4c2p3RXlaUlovZTNxUWRWZ1p6V1o5OWhnRGxFVVphRThla2NQODYzTUxqVEF1d05KMGNDCm9zYkdrOUtqa0JUNWpJTzUxUjZpbzZ4eEFvR0FkcXlYSzI5U0dHR0pHajRjcUg4MEZiSnZpWnlQMG9LYk1xcCsKamJsU0F0RkFsWlFRbTRxMVV1K0plVkowdzNTTWxML1dhOGdPZldJV0Q2NG5IRDNUMDNLRlpkWDVFZzVTNjh6aAowaU1HejI4NEMyWEI3RG13SjJZZmZCUFQxODI3d0NzY2ZIdHJYeGtrVUN2MDFjbTBFaGYwVTl4SkZoTDR3aWpWCkJLNVFBOTBDZ1lBSjRFbXFtM0hQb1lnV1JkUDZnZVR6MzhCWjFsU3kvaEZaMlVsQy9PV205b1RNektxM3BBK1MKY2FGdlhzRkRpZUdYeVcvYndzOE5IMklWa01HWEkra04xWGNhYlBHa2drYXhYdUNVZ0d1cVhGZVBYVmVmd3NURgoxUTNEOS8yZEVaYkM4VStwakpLMU5DNFVnY0hhVG1CVEVQeU1UMnIxWVBOYjhHSnd5SWFjMVE9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=
+  ca.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURJakNDQWdxZ0F3SUJBZ0lSQU82ZmFVb1hLbnJYQnIvemZjNUlZbFF3RFFZSktvWklodmNOQVFFTEJRQXcKR3pFWk1CY0dBMVVFQXhNUVpXeGhjM1JwWTNObFlYSmphQzFqWVRBZUZ3MHlNakV5TVRZeU1UQTFNakphRncweQpNekV5TVRZeU1UQTFNakphTUJzeEdUQVhCZ05WQkFNVEVHVnNZWE4wYVdOelpXRnlZMmd0WTJFd2dnRWlNQTBHCkNTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFEU25PNXFucWt6ZHh1bm43bml5azM4TmZjUDdFVTkKK2ZLYUNGdndGQTFmdk1zZWk2K0FjOXV0bzgySmcwOGxyQTlXclJROWtGc3ZCTmVva0p0dDZkQWNGYUs4ZnlxKwpQeGxuemR2ZUliMks2Q1d1eERTcXpkM3pWQTJKVzB0RnByeGxsOUdXMDdGZUNPRnk3a2lHNHp2WE5KclpOajgvCjFQNnRsaG1kR0pvZTYxZnF4Y3p2aDVkWEhpaUk2ekZxbHpzVDNzaXRJV29nTjVNNndtKzFnVWZESzVMMy8zSDIKOGhQQ1dZVzg5QWdudHhOWVNDNnJJeEtyUFNoN2FYNTVOMnVhamVJbjB3THliaHl4Y3puckFiMEdaV0lnUXJCbAppWllHNmlDQkwzcDdtcEdGaUhPek1KWVJKS3JtZFVrbGhXWEswVkErRTBtQmc5TTc3ZVIyN05yN0FnTUJBQUdqCllUQmZNQTRHQTFVZER3RUIvd1FFQXdJQ3BEQWRCZ05WSFNVRUZqQVVCZ2dyQmdFRkJRY0RBUVlJS3dZQkJRVUgKQXdJd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBZEJnTlZIUTRFRmdRVXZZcVdDSzZWYmQ1R2hJNHVJUVJVVFlaWQpESWt3RFFZSktvWklodmNOQVFFTEJRQURnZ0VCQUlFRTV4WUFjNHJ6eW1RVGZLbWxRWm84VGZ3S05zY05FUHhoCmtSelpDQWJuKzNYSUNWb0hzVy9iT3hIaUxFREN2VDkxcCtPVC9WeW5FSldkeUp6V3Q4amtMZ056N0RDb1NtaGUKTmd4TFNscTE3R1k1YW9Ea2c1MFVnVzB6Z3hyWjBiQUhMUGNqdWE5RVhjUHNLWVpuM2xWaU10S3Z1RzE4RzZyWApGTW5lQmdEeFhYa1NEUzZLR0xSUTlsdEt0WjFEVnY5M0lpNy9SNnU0aWlwQlVyQUtIdVArdk51a25Ob2xMbm5UCitrVWJ2alVmeWp4ZUJGNVFvaHFjQ3NmbUdOK3FPSVZCT0RPR25ucFk2MXpPMmZyTkxUUkpmaks4VjhoMVVCOTYKNUwwZ2o1TjVIVmdhbTk1cCtSbG5OWm9qYUlGd1VYd09xV1JZSWR0elhrTElIeS9pZ2RZPQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+---
+# Source: charted-server/charts/elasticsearch/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: elasticsearch-master-credentials
+  labels:
+    heritage: "Helm"
+    release: "charted"
+    chart: "elasticsearch"
+    app: "elasticsearch-master"
+type: Opaque
+data:
+  username: ZWxhc3RpYw==
+  password: "SXNFYzJWd2lseFJmTG1naw=="
+---
+# Source: charted-server/charts/postgresql/templates/secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: charted-postgresql
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: postgresql
+    helm.sh/chart: postgresql-12.1.5
+    app.kubernetes.io/instance: charted
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+data:
+  postgres-password: "aG9WS0Z6UzFzRA=="
+  # We don't auto-generate LDAP password when it's not provided as we do for other passwords
+---
+# Source: charted-server/charts/redis/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: charted-redis
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: redis
+    helm.sh/chart: redis-17.3.17
+    app.kubernetes.io/instance: charted
+    app.kubernetes.io/managed-by: Helm
+type: Opaque
+data:
+  redis-password: "N0tHTWJkNEZxMg=="
+---
+# Source: charted-server/charts/redis/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: charted-redis-configuration
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: redis
+    helm.sh/chart: redis-17.3.17
+    app.kubernetes.io/instance: charted
+    app.kubernetes.io/managed-by: Helm
+data:
+  redis.conf: |-
+    # User-supplied common configuration:
+    # Enable AOF https://redis.io/topics/persistence#append-only-file
+    appendonly yes
+    # Disable RDB persistence, AOF persistence already enabled.
+    save ""
+    # End of common configuration
+  master.conf: |-
+    dir /data
+    # User-supplied master configuration:
+    rename-command FLUSHDB ""
+    rename-command FLUSHALL ""
+    # End of master configuration
+  replica.conf: |-
+    dir /data
+    # User-supplied replica configuration:
+    rename-command FLUSHDB ""
+    rename-command FLUSHALL ""
+    # End of replica configuration
+---
+# Source: charted-server/charts/redis/templates/health-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: charted-redis-health
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: redis
+    helm.sh/chart: redis-17.3.17
+    app.kubernetes.io/instance: charted
+    app.kubernetes.io/managed-by: Helm
+data:
+  ping_readiness_local.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_PASSWORD_FILE ]] && export REDIS_PASSWORD="$(< "${REDIS_PASSWORD_FILE}")"
+    [[ -n "$REDIS_PASSWORD" ]] && export REDISCLI_AUTH="$REDIS_PASSWORD"
+    response=$(
+      timeout -s 3 $1 \
+      redis-cli \
+        -h localhost \
+        -p $REDIS_PORT \
+        ping
+    )
+    if [ "$?" -eq "124" ]; then
+      echo "Timed out"
+      exit 1
+    fi
+    if [ "$response" != "PONG" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_liveness_local.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_PASSWORD_FILE ]] && export REDIS_PASSWORD="$(< "${REDIS_PASSWORD_FILE}")"
+    [[ -n "$REDIS_PASSWORD" ]] && export REDISCLI_AUTH="$REDIS_PASSWORD"
+    response=$(
+      timeout -s 3 $1 \
+      redis-cli \
+        -h localhost \
+        -p $REDIS_PORT \
+        ping
+    )
+    if [ "$?" -eq "124" ]; then
+      echo "Timed out"
+      exit 1
+    fi
+    responseFirstWord=$(echo $response | head -n1 | awk '{print $1;}')
+    if [ "$response" != "PONG" ] && [ "$responseFirstWord" != "LOADING" ] && [ "$responseFirstWord" != "MASTERDOWN" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_readiness_master.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_MASTER_PASSWORD_FILE ]] && export REDIS_MASTER_PASSWORD="$(< "${REDIS_MASTER_PASSWORD_FILE}")"
+    [[ -n "$REDIS_MASTER_PASSWORD" ]] && export REDISCLI_AUTH="$REDIS_MASTER_PASSWORD"
+    response=$(
+      timeout -s 3 $1 \
+      redis-cli \
+        -h $REDIS_MASTER_HOST \
+        -p $REDIS_MASTER_PORT_NUMBER \
+        ping
+    )
+    if [ "$?" -eq "124" ]; then
+      echo "Timed out"
+      exit 1
+    fi
+    if [ "$response" != "PONG" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_liveness_master.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_MASTER_PASSWORD_FILE ]] && export REDIS_MASTER_PASSWORD="$(< "${REDIS_MASTER_PASSWORD_FILE}")"
+    [[ -n "$REDIS_MASTER_PASSWORD" ]] && export REDISCLI_AUTH="$REDIS_MASTER_PASSWORD"
+    response=$(
+      timeout -s 3 $1 \
+      redis-cli \
+        -h $REDIS_MASTER_HOST \
+        -p $REDIS_MASTER_PORT_NUMBER \
+        ping
+    )
+    if [ "$?" -eq "124" ]; then
+      echo "Timed out"
+      exit 1
+    fi
+    responseFirstWord=$(echo $response | head -n1 | awk '{print $1;}')
+    if [ "$response" != "PONG" ] && [ "$responseFirstWord" != "LOADING" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_readiness_local_and_master.sh: |-
+    script_dir="$(dirname "$0")"
+    exit_status=0
+    "$script_dir/ping_readiness_local.sh" $1 || exit_status=$?
+    "$script_dir/ping_readiness_master.sh" $1 || exit_status=$?
+    exit $exit_status
+  ping_liveness_local_and_master.sh: |-
+    script_dir="$(dirname "$0")"
+    exit_status=0
+    "$script_dir/ping_liveness_local.sh" $1 || exit_status=$?
+    "$script_dir/ping_liveness_master.sh" $1 || exit_status=$?
+    exit $exit_status
+---
+# Source: charted-server/charts/redis/templates/scripts-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: charted-redis-scripts
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: redis
+    helm.sh/chart: redis-17.3.17
+    app.kubernetes.io/instance: charted
+    app.kubernetes.io/managed-by: Helm
+data:
+  start-master.sh: |
+    #!/bin/bash
+
+    [[ -f $REDIS_PASSWORD_FILE ]] && export REDIS_PASSWORD="$(< "${REDIS_PASSWORD_FILE}")"
+    if [[ -f /opt/bitnami/redis/mounted-etc/master.conf ]];then
+        cp /opt/bitnami/redis/mounted-etc/master.conf /opt/bitnami/redis/etc/master.conf
+    fi
+    if [[ -f /opt/bitnami/redis/mounted-etc/redis.conf ]];then
+        cp /opt/bitnami/redis/mounted-etc/redis.conf /opt/bitnami/redis/etc/redis.conf
+    fi
+    ARGS=("--port" "${REDIS_PORT}")
+    ARGS+=("--requirepass" "${REDIS_PASSWORD}")
+    ARGS+=("--masterauth" "${REDIS_PASSWORD}")
+    ARGS+=("--include" "/opt/bitnami/redis/etc/redis.conf")
+    ARGS+=("--include" "/opt/bitnami/redis/etc/master.conf")
+    exec redis-server "${ARGS[@]}"
+  start-replica.sh: |
+    #!/bin/bash
+
+    get_port() {
+        hostname="$1"
+        type="$2"
+
+        port_var=$(echo "${hostname^^}_SERVICE_PORT_$type" | sed "s/-/_/g")
+        port=${!port_var}
+
+        if [ -z "$port" ]; then
+            case $type in
+                "SENTINEL")
+                    echo 26379
+                    ;;
+                "REDIS")
+                    echo 6379
+                    ;;
+            esac
+        else
+            echo $port
+        fi
+    }
+
+    get_full_hostname() {
+        hostname="$1"
+        echo "${hostname}.${HEADLESS_SERVICE}"
+    }
+
+    REDISPORT=$(get_port "$HOSTNAME" "REDIS")
+
+    [[ -f $REDIS_PASSWORD_FILE ]] && export REDIS_PASSWORD="$(< "${REDIS_PASSWORD_FILE}")"
+    [[ -f $REDIS_MASTER_PASSWORD_FILE ]] && export REDIS_MASTER_PASSWORD="$(< "${REDIS_MASTER_PASSWORD_FILE}")"
+    if [[ -f /opt/bitnami/redis/mounted-etc/replica.conf ]];then
+        cp /opt/bitnami/redis/mounted-etc/replica.conf /opt/bitnami/redis/etc/replica.conf
+    fi
+    if [[ -f /opt/bitnami/redis/mounted-etc/redis.conf ]];then
+        cp /opt/bitnami/redis/mounted-etc/redis.conf /opt/bitnami/redis/etc/redis.conf
+    fi
+
+    echo "" >> /opt/bitnami/redis/etc/replica.conf
+    echo "replica-announce-port $REDISPORT" >> /opt/bitnami/redis/etc/replica.conf
+    echo "replica-announce-ip $(get_full_hostname "$HOSTNAME")" >> /opt/bitnami/redis/etc/replica.conf
+    ARGS=("--port" "${REDIS_PORT}")
+    ARGS+=("--replicaof" "${REDIS_MASTER_HOST}" "${REDIS_MASTER_PORT_NUMBER}")
+    ARGS+=("--requirepass" "${REDIS_PASSWORD}")
+    ARGS+=("--masterauth" "${REDIS_MASTER_PASSWORD}")
+    ARGS+=("--include" "/opt/bitnami/redis/etc/redis.conf")
+    ARGS+=("--include" "/opt/bitnami/redis/etc/replica.conf")
+    exec redis-server "${ARGS[@]}"
+---
+# Source: charted-server/templates/configmap-logback.yaml
+# 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+# Copyright 2022-2023 Noelware <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# prettier-ignore
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: charted-charted-server-logback-config
+  labels:
+    helm.sh/chart: charted-server-0.3.0-nightly
+    app.kubernetes.io/name: charted-server
+    app.kubernetes.io/instance: charted
+    app.kubernetes.io/version: "0.3.0-nightly"
+    app.kubernetes.io/managed-by: Helm
+data:
+  logback.properties: |
+    # refer to the configuration for more details: https://charts.noelware.org/docs/server/latest/self-hosting/configuration#logback-properties
+    charted.log.level=INFO
+---
+# Source: charted-server/templates/configmap.yaml
+# 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+# Copyright 2022-2023 Noelware <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# prettier-ignore
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: charted-charted-server-config
+  labels:
+    helm.sh/chart: charted-server-0.3.0-nightly
+    app.kubernetes.io/name: charted-server
+    app.kubernetes.io/instance: charted
+    app.kubernetes.io/version: "0.3.0-nightly"
+    app.kubernetes.io/managed-by: Helm
+data:
+  charted.yaml: |
+    # refer to the configuration for more details: https://charts.noelware.org/docs/server/latest/self-hosting/configuration
+    jwtSecretKey: ${JWT_SECRET_KEY}
+    metrics:
+      enabled: true
+---
+# Source: charted-server/charts/elasticsearch/templates/service.yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: elasticsearch-master
+  labels:
+    heritage: "Helm"
+    release: "charted"
+    chart: "elasticsearch"
+    app: "elasticsearch-master"
+  annotations:
+    {}
+spec:
+  type: ClusterIP
+  selector:
+    release: "charted"
+    chart: "elasticsearch"
+    app: "elasticsearch-master"
+  publishNotReadyAddresses: false
+  ports:
+  - name: http
+    protocol: TCP
+    port: 9200
+  - name: transport
+    protocol: TCP
+    port: 9300
+---
+# Source: charted-server/charts/elasticsearch/templates/service.yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: elasticsearch-master-headless
+  labels:
+    heritage: "Helm"
+    release: "charted"
+    chart: "elasticsearch"
+    app: "elasticsearch-master"
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+spec:
+  clusterIP: None # This is needed for statefulset hostnames like elasticsearch-0 to resolve
+  # Create endpoints also if the related pod isn't ready
+  publishNotReadyAddresses: true
+  selector:
+    app: "elasticsearch-master"
+  ports:
+  - name: http
+    port: 9200
+  - name: transport
+    port: 9300
+---
+# Source: charted-server/charts/postgresql/templates/primary/svc-headless.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: charted-postgresql-hl
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: postgresql
+    helm.sh/chart: postgresql-12.1.5
+    app.kubernetes.io/instance: charted
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: primary
+    # Use this annotation in addition to the actual publishNotReadyAddresses
+    # field below because the annotation will stop being respected soon but the
+    # field is broken in some versions of Kubernetes:
+    # https://github.com/kubernetes/kubernetes/issues/58662
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+spec:
+  type: ClusterIP
+  clusterIP: None
+  # We want all pods in the StatefulSet to have their addresses published for
+  # the sake of the other Postgresql pods even before they're ready, since they
+  # have to be able to talk to each other in order to become ready.
+  publishNotReadyAddresses: true
+  ports:
+    - name: tcp-postgresql
+      port: 5432
+      targetPort: tcp-postgresql
+  selector:
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/instance: charted
+    app.kubernetes.io/component: primary
+---
+# Source: charted-server/charts/postgresql/templates/primary/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: charted-postgresql
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: postgresql
+    helm.sh/chart: postgresql-12.1.5
+    app.kubernetes.io/instance: charted
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: primary
+  annotations:
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+    - name: tcp-postgresql
+      port: 5432
+      targetPort: tcp-postgresql
+      nodePort: null
+  selector:
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/instance: charted
+    app.kubernetes.io/component: primary
+---
+# Source: charted-server/charts/redis/templates/headless-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: charted-redis-headless
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: redis
+    helm.sh/chart: redis-17.3.17
+    app.kubernetes.io/instance: charted
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: tcp-redis
+      port: 6379
+      targetPort: redis
+  selector:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: charted
+---
+# Source: charted-server/charts/redis/templates/master/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: charted-redis-master
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: redis
+    helm.sh/chart: redis-17.3.17
+    app.kubernetes.io/instance: charted
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: master
+spec:
+  type: ClusterIP
+  internalTrafficPolicy: Cluster
+  sessionAffinity: None
+  ports:
+    - name: tcp-redis
+      port: 6379
+      targetPort: redis
+      nodePort: null
+  selector:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: charted
+    app.kubernetes.io/component: master
+---
+# Source: charted-server/charts/redis/templates/replicas/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: charted-redis-replicas
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: redis
+    helm.sh/chart: redis-17.3.17
+    app.kubernetes.io/instance: charted
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: replica
+spec:
+  type: ClusterIP
+  internalTrafficPolicy: Cluster
+  sessionAffinity: None
+  ports:
+    - name: tcp-redis
+      port: 6379
+      targetPort: redis
+      nodePort: null
+  selector:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: charted
+    app.kubernetes.io/component: replica
+---
+# Source: charted-server/templates/service.yaml
+# 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+# Copyright 2022-2023 Noelware <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# prettier-ignore
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: charted-charted-server
+  labels:
+    helm.sh/chart: charted-server-0.3.0-nightly
+    app.kubernetes.io/name: charted-server
+    app.kubernetes.io/instance: charted
+    app.kubernetes.io/version: "0.3.0-nightly"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3651
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: charted-server
+    app.kubernetes.io/instance: charted
+---
+# Source: charted-server/charts/elasticsearch/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch-master
+  labels:
+    heritage: "Helm"
+    release: "charted"
+    chart: "elasticsearch"
+    app: "elasticsearch-master"
+  annotations:
+    esMajorVersion: "8"
+spec:
+  serviceName: elasticsearch-master-headless
+  selector:
+    matchLabels:
+      app: "elasticsearch-master"
+  replicas: 3
+  podManagementPolicy: Parallel
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+  - metadata:
+      name: elasticsearch-master
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 30Gi
+  template:
+    metadata:
+      name: "elasticsearch-master"
+      labels:
+        release: "charted"
+        chart: "elasticsearch"
+        app: "elasticsearch-master"
+      annotations:
+        
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+      automountServiceAccountToken: true
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - "elasticsearch-master"
+            topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 120
+      volumes:
+        - name: elasticsearch-certs
+          secret:
+           secretName: elasticsearch-master-certs
+      enableServiceLinks: true
+      initContainers:
+      - name: configure-sysctl
+        securityContext:
+          runAsUser: 0
+          privileged: true
+        image: "docker.elastic.co/elasticsearch/elasticsearch:8.5.1"
+        imagePullPolicy: "IfNotPresent"
+        command: ["sysctl", "-w", "vm.max_map_count=262144"]
+        resources:
+          {}
+
+      containers:
+      - name: "elasticsearch"
+        securityContext:
+          capabilities:
+            drop:
+            - ALL
+          runAsNonRoot: true
+          runAsUser: 1000
+        image: "docker.elastic.co/elasticsearch/elasticsearch:8.5.1"
+        imagePullPolicy: "IfNotPresent"
+        readinessProbe:
+          exec:
+            command:
+              - bash
+              - -c
+              - |
+                set -e
+
+                # Exit if ELASTIC_PASSWORD in unset
+                if [ -z "${ELASTIC_PASSWORD}" ]; then
+                  echo "ELASTIC_PASSWORD variable is missing, exiting"
+                  exit 1
+                fi
+
+                # If the node is starting up wait for the cluster to be ready (request params: "wait_for_status=green&timeout=1s" )
+                # Once it has started only check that the node itself is responding
+                START_FILE=/tmp/.es_start_file
+
+                # Disable nss cache to avoid filling dentry cache when calling curl
+                # This is required with Elasticsearch Docker using nss < 3.52
+                export NSS_SDB_USE_CACHE=no
+
+                http () {
+                  local path="${1}"
+                  local args="${2}"
+                  set -- -XGET -s
+
+                  if [ "$args" != "" ]; then
+                    set -- "$@" $args
+                  fi
+
+                  set -- "$@" -u "elastic:${ELASTIC_PASSWORD}"
+
+                  curl --output /dev/null -k "$@" "https://127.0.0.1:9200${path}"
+                }
+
+                if [ -f "${START_FILE}" ]; then
+                  echo 'Elasticsearch is already running, lets check the node is healthy'
+                  HTTP_CODE=$(http "/" "-w %{http_code}")
+                  RC=$?
+                  if [[ ${RC} -ne 0 ]]; then
+                    echo "curl --output /dev/null -k -XGET -s -w '%{http_code}' \${BASIC_AUTH} https://127.0.0.1:9200/ failed with RC ${RC}"
+                    exit ${RC}
+                  fi
+                  # ready if HTTP code 200, 503 is tolerable if ES version is 6.x
+                  if [[ ${HTTP_CODE} == "200" ]]; then
+                    exit 0
+                  elif [[ ${HTTP_CODE} == "503" && "8" == "6" ]]; then
+                    exit 0
+                  else
+                    echo "curl --output /dev/null -k -XGET -s -w '%{http_code}' \${BASIC_AUTH} https://127.0.0.1:9200/ failed with HTTP code ${HTTP_CODE}"
+                    exit 1
+                  fi
+
+                else
+                  echo 'Waiting for elasticsearch cluster to become ready (request params: "wait_for_status=green&timeout=1s" )'
+                  if http "/_cluster/health?wait_for_status=green&timeout=1s" "--fail" ; then
+                    touch ${START_FILE}
+                    exit 0
+                  else
+                    echo 'Cluster is not yet ready (request params: "wait_for_status=green&timeout=1s" )'
+                    exit 1
+                  fi
+                fi
+          failureThreshold: 3
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 3
+          timeoutSeconds: 5
+        ports:
+        - name: http
+          containerPort: 9200
+        - name: transport
+          containerPort: 9300
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 2Gi
+          requests:
+            cpu: 1000m
+            memory: 2Gi
+        env:
+          - name: node.name
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: cluster.initial_master_nodes
+            value: "elasticsearch-master-0,elasticsearch-master-1,elasticsearch-master-2,"
+          - name: node.roles
+            value: "master,data,data_content,data_hot,data_warm,data_cold,ingest,ml,remote_cluster_client,transform,"
+          - name: discovery.seed_hosts
+            value: "elasticsearch-master-headless"
+          - name: cluster.name
+            value: "elasticsearch"
+          - name: network.host
+            value: "0.0.0.0"
+          - name: ELASTIC_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: elasticsearch-master-credentials
+                key: password
+          - name: xpack.security.enabled
+            value: "true"
+          - name: xpack.security.transport.ssl.enabled
+            value: "true"
+          - name: xpack.security.http.ssl.enabled
+            value: "true"
+          - name: xpack.security.transport.ssl.verification_mode
+            value: "certificate"
+          - name: xpack.security.transport.ssl.key
+            value: "/usr/share/elasticsearch/config/certs/tls.key"
+          - name: xpack.security.transport.ssl.certificate
+            value: "/usr/share/elasticsearch/config/certs/tls.crt"
+          - name: xpack.security.transport.ssl.certificate_authorities
+            value: "/usr/share/elasticsearch/config/certs/ca.crt"
+          - name: xpack.security.http.ssl.key
+            value: "/usr/share/elasticsearch/config/certs/tls.key"
+          - name: xpack.security.http.ssl.certificate
+            value: "/usr/share/elasticsearch/config/certs/tls.crt"
+          - name: xpack.security.http.ssl.certificate_authorities
+            value: "/usr/share/elasticsearch/config/certs/ca.crt"
+        volumeMounts:
+          - name: "elasticsearch-master"
+            mountPath: /usr/share/elasticsearch/data
+          - name: elasticsearch-certs
+            mountPath: /usr/share/elasticsearch/config/certs
+            readOnly: true
+---
+# Source: charted-server/charts/postgresql/templates/primary/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: charted-postgresql
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: postgresql
+    helm.sh/chart: postgresql-12.1.5
+    app.kubernetes.io/instance: charted
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: primary
+  annotations:
+spec:
+  replicas: 1
+  serviceName: charted-postgresql-hl
+  updateStrategy:
+    rollingUpdate: {}
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: postgresql
+      app.kubernetes.io/instance: charted
+      app.kubernetes.io/component: primary
+  template:
+    metadata:
+      name: charted-postgresql
+      labels:
+        app.kubernetes.io/name: postgresql
+        helm.sh/chart: postgresql-12.1.5
+        app.kubernetes.io/instance: charted
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/component: primary
+      annotations:
+    spec:
+      serviceAccountName: default
+      
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: postgresql
+                    app.kubernetes.io/instance: charted
+                    app.kubernetes.io/component: primary
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      securityContext:
+        fsGroup: 1001
+      hostNetwork: false
+      hostIPC: false
+      initContainers:
+      containers:
+        - name: postgresql
+          image: docker.io/bitnami/postgresql:15.1.0-debian-11-r12
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            runAsUser: 1001
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: POSTGRESQL_PORT_NUMBER
+              value: "5432"
+            - name: POSTGRESQL_VOLUME_DIR
+              value: "/bitnami/postgresql"
+            - name: PGDATA
+              value: "/bitnami/postgresql/data"
+            # Authentication
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: charted-postgresql
+                  key: postgres-password
+            # Replication
+            # Initdb
+            # Standby
+            # LDAP
+            - name: POSTGRESQL_ENABLE_LDAP
+              value: "no"
+            # TLS
+            - name: POSTGRESQL_ENABLE_TLS
+              value: "no"
+            # Audit
+            - name: POSTGRESQL_LOG_HOSTNAME
+              value: "false"
+            - name: POSTGRESQL_LOG_CONNECTIONS
+              value: "false"
+            - name: POSTGRESQL_LOG_DISCONNECTIONS
+              value: "false"
+            - name: POSTGRESQL_PGAUDIT_LOG_CATALOG
+              value: "off"
+            # Others
+            - name: POSTGRESQL_CLIENT_MIN_MESSAGES
+              value: "error"
+            - name: POSTGRESQL_SHARED_PRELOAD_LIBRARIES
+              value: "pgaudit"
+          ports:
+            - name: tcp-postgresql
+              containerPort: 5432
+          livenessProbe:
+            failureThreshold: 6
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - exec pg_isready -U "postgres" -h 127.0.0.1 -p 5432
+          readinessProbe:
+            failureThreshold: 6
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - -e
+                
+                - |
+                  exec pg_isready -U "postgres" -h 127.0.0.1 -p 5432
+                  [ -f /opt/bitnami/postgresql/tmp/.initialized ] || [ -f /bitnami/postgresql/.initialized ]
+          resources:
+            limits: {}
+            requests:
+              cpu: 250m
+              memory: 256Mi
+          volumeMounts:
+            - name: dshm
+              mountPath: /dev/shm
+            - name: data
+              mountPath: /bitnami/postgresql
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
+---
+# Source: charted-server/charts/redis/templates/master/application.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: charted-redis-master
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: redis
+    helm.sh/chart: redis-17.3.17
+    app.kubernetes.io/instance: charted
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: redis
+      app.kubernetes.io/instance: charted
+      app.kubernetes.io/component: master
+  serviceName: charted-redis-headless
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-17.3.17
+        app.kubernetes.io/instance: charted
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/component: master
+      annotations:
+        checksum/configmap: dae5e4f221bf0de97e5aced1bdb9f1e416bb7ffb5dcced975c894aa01e19e6dd
+        checksum/health: f112e66ad8522226ee30ccffad3d92b508d1dfaf461b7305bcfdf44ee04664a2
+        checksum/scripts: bdaefb68dc552fe9c9c3cc3924ac9e7008c1c0a7caef5473c4dc54227835f625
+        checksum/secret: d749f30bfcc6dd4d8755d7cee7817999b1e9fbeea854a54d56c2c1a55456d09f
+    spec:
+      
+      securityContext:
+        fsGroup: 1001
+      serviceAccountName: charted-redis
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: redis
+                    app.kubernetes.io/instance: charted
+                    app.kubernetes.io/component: master
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: redis
+          image: docker.io/bitnami/redis:7.0.7-debian-11-r0
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            runAsUser: 1001
+          command:
+            - /bin/bash
+          args:
+            - -c
+            - /opt/bitnami/scripts/start-scripts/start-master.sh
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: REDIS_REPLICATION_MODE
+              value: master
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "no"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: charted-redis
+                  key: redis-password
+            - name: REDIS_TLS_ENABLED
+              value: "no"
+            - name: REDIS_PORT
+              value: "6379"
+          ports:
+            - name: redis
+              containerPort: 6379
+          livenessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            # One second longer than command timeout should prevent generation of zombie processes.
+            timeoutSeconds: 6
+            successThreshold: 1
+            failureThreshold: 5
+            exec:
+              command:
+                - sh
+                - -c
+                - /health/ping_liveness_local.sh 5
+          readinessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 5
+            exec:
+              command:
+                - sh
+                - -c
+                - /health/ping_readiness_local.sh 1
+          resources:
+            limits: {}
+            requests: {}
+          volumeMounts:
+            - name: start-scripts
+              mountPath: /opt/bitnami/scripts/start-scripts
+            - name: health
+              mountPath: /health
+            - name: redis-data
+              mountPath: /data
+            - name: config
+              mountPath: /opt/bitnami/redis/mounted-etc
+            - name: redis-tmp-conf
+              mountPath: /opt/bitnami/redis/etc/
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: start-scripts
+          configMap:
+            name: charted-redis-scripts
+            defaultMode: 0755
+        - name: health
+          configMap:
+            name: charted-redis-health
+            defaultMode: 0755
+        - name: config
+          configMap:
+            name: charted-redis-configuration
+        - name: redis-tmp-conf
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: redis-data
+        labels:
+          app.kubernetes.io/name: redis
+          app.kubernetes.io/instance: charted
+          app.kubernetes.io/component: master
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
+---
+# Source: charted-server/charts/redis/templates/replicas/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: charted-redis-replicas
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: redis
+    helm.sh/chart: redis-17.3.17
+    app.kubernetes.io/instance: charted
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: replica
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: redis
+      app.kubernetes.io/instance: charted
+      app.kubernetes.io/component: replica
+  serviceName: charted-redis-headless
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: redis
+        helm.sh/chart: redis-17.3.17
+        app.kubernetes.io/instance: charted
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/component: replica
+      annotations:
+        checksum/configmap: dae5e4f221bf0de97e5aced1bdb9f1e416bb7ffb5dcced975c894aa01e19e6dd
+        checksum/health: f112e66ad8522226ee30ccffad3d92b508d1dfaf461b7305bcfdf44ee04664a2
+        checksum/scripts: bdaefb68dc552fe9c9c3cc3924ac9e7008c1c0a7caef5473c4dc54227835f625
+        checksum/secret: c0ba056a3c545203c8c14ae27fd6e2c509bfffabbf47be429555ca1a1c7931e7
+    spec:
+      
+      securityContext:
+        fsGroup: 1001
+      serviceAccountName: charted-redis
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: redis
+                    app.kubernetes.io/instance: charted
+                    app.kubernetes.io/component: replica
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: redis
+          image: docker.io/bitnami/redis:7.0.7-debian-11-r0
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            runAsUser: 1001
+          command:
+            - /bin/bash
+          args:
+            - -c
+            - /opt/bitnami/scripts/start-scripts/start-replica.sh
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: REDIS_REPLICATION_MODE
+              value: replica
+            - name: REDIS_MASTER_HOST
+              value: charted-redis-master-0.charted-redis-headless.default.svc.cluster.local
+            - name: REDIS_MASTER_PORT_NUMBER
+              value: "6379"
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "no"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: charted-redis
+                  key: redis-password
+            - name: REDIS_MASTER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: charted-redis
+                  key: redis-password
+            - name: REDIS_TLS_ENABLED
+              value: "no"
+            - name: REDIS_PORT
+              value: "6379"
+          ports:
+            - name: redis
+              containerPort: 6379
+          startupProbe:
+            failureThreshold: 22
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            tcpSocket:
+              port: redis
+          livenessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 6
+            successThreshold: 1
+            failureThreshold: 5
+            exec:
+              command:
+                - sh
+                - -c
+                - /health/ping_liveness_local_and_master.sh 5
+          readinessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 5
+            exec:
+              command:
+                - sh
+                - -c
+                - /health/ping_readiness_local_and_master.sh 1
+          resources:
+            limits: {}
+            requests: {}
+          volumeMounts:
+            - name: start-scripts
+              mountPath: /opt/bitnami/scripts/start-scripts
+            - name: health
+              mountPath: /health
+            - name: redis-data
+              mountPath: /data
+            - name: config
+              mountPath: /opt/bitnami/redis/mounted-etc
+            - name: redis-tmp-conf
+              mountPath: /opt/bitnami/redis/etc
+      volumes:
+        - name: start-scripts
+          configMap:
+            name: charted-redis-scripts
+            defaultMode: 0755
+        - name: health
+          configMap:
+            name: charted-redis-health
+            defaultMode: 0755
+        - name: config
+          configMap:
+            name: charted-redis-configuration
+        - name: redis-tmp-conf
+          emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: redis-data
+        labels:
+          app.kubernetes.io/name: redis
+          app.kubernetes.io/instance: charted
+          app.kubernetes.io/component: replica
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
+---
+# Source: charted-server/templates/deployment.yaml
+# 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+# Copyright 2022-2023 Noelware <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# prettier-ignore
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: charted-charted-server
+  labels:
+    helm.sh/chart: charted-server-0.3.0-nightly
+    app.kubernetes.io/name: charted-server
+    app.kubernetes.io/instance: charted
+    app.kubernetes.io/version: "0.3.0-nightly"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  serviceName: charted-charted-server-headless
+  replicas: 1
+  selector:
+    matchLabels:
+        helm.sh/chart: charted-server-0.3.0-nightly
+        app.kubernetes.io/name: charted-server
+        app.kubernetes.io/instance: charted
+        app.kubernetes.io/version: "0.3.0-nightly"
+        app.kubernetes.io/managed-by: Helm
+  template:
+    metadata:
+      labels:
+            helm.sh/chart: charted-server-0.3.0-nightly
+            app.kubernetes.io/name: charted-server
+            app.kubernetes.io/instance: charted
+            app.kubernetes.io/version: "0.3.0-nightly"
+            app.kubernetes.io/managed-by: Helm
+    spec:
+      initContainers: []
+      containers: []
+---
+# Source: charted-server/templates/ingress.yaml
+# 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+# Copyright 2022-2023 Noelware <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# prettier-ignore
+
+NOTES:
+Thanks for installing the Helm Chart for charted-server, your Helm Chart registry that is available at:
+  export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=charted-server,app.kubernetes.io/instance=charted" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace default $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl --namespace default port-forward $POD_NAME 8080:$CONTAINER_PORT

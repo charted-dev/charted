@@ -20,7 +20,10 @@ package org.noelware.charted.cli.commands
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.mordant.terminal.Terminal
+import dev.floofy.utils.kotlin.every
 import dev.floofy.utils.kotlin.ifNotNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.apache.commons.lang3.time.StopWatch
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.cli.logger
@@ -39,7 +42,7 @@ This command will run all the necessary ClickHouse migrations that need to be pe
 cluster.
 
 If the migrations binary is not available in the path, it will attempt to install it from Noelware's
-Artifact Repository:
+Artifacts Repository:
     https://artifacts.noelware.cloud/charted/server/${ChartedInfo.version}/ch-migrations-${os.key()}-${arch.key()}${if (OperatingSystem.current().isWindows) ".exe" else ""}
 
 It will not install the new binary if `bin/ch-migrations` exists or if this is performed in development mode,
@@ -48,6 +51,7 @@ which will invoke Go itself.
 
     name = "ch-migrations"
 ) {
+    private val okhttp: OkHttpClient = OkHttpClient()
     private val tableName: String by option(
         "--table", "-t",
         help = "The table where migrations should live in [default: migrations]"
@@ -87,12 +91,11 @@ which will invoke Go itself.
             val args = mutableListOf(
                 migrationsBin.toPath().toRealPath().toString(),
                 "--table=$tableName",
-                "--hosts=${hosts.joinToString(",")}",
                 "--timeout=$timeout",
                 "--database=$database"
             )
 
-            if (hosts.isNotEmpty()) {
+            if (hosts.every { it.isNotBlank() }) {
                 args.add("--hosts=${hosts.joinToString(",")}")
             } else {
                 args.add("--hosts=localhost:9000")
@@ -111,7 +114,7 @@ which will invoke Go itself.
             process.waitFor()
 
             sw.stop()
-            terminal.logger.info("Took [${sw.doFormatTime()}] to complete all ClickHouse migrations!")
+            terminal.logger.info("Took [${sw.doFormatTime()}] to run binary!")
             exitProcess(process.exitValue())
         }
 
@@ -121,5 +124,20 @@ which will invoke Go itself.
         terminal.logger.info("Installing ch-migrations binary from URL [$url]")
 
         val sw = StopWatch.createStarted()
+        val req = Request.Builder().apply {
+            url(url)
+            header("User-Agent", "Noelware/charted-server (+https://github.com/charted-dev/charted; ${ChartedInfo.version}+${ChartedInfo.commitHash})")
+            method("GET", null)
+        }.build()
+
+        okhttp.newCall(req).execute().use { res ->
+            val body: ByteArray = res.body!!.bytes()
+            migrationsBin.writeBytes(body)
+        }
+
+        // set the binary executable
+        migrationsBin.setExecutable(true)
+        terminal.logger.info("Took ${sw.doFormatTime()} to download in [$migrationsBin] from URL [$url]")
+        return run() // run again since it will exist.
     }
 }

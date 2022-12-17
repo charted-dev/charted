@@ -220,7 +220,7 @@ jobs:
 
       - name: Get commit hash
         id: commit-hash
-        run: echo "commit=$(git rev-parse --short "$GITHUB_SHA")"
+        run: echo "::set-output name=commit::$(git rev-parse --short=8 $GITHUB_SHA)"
 
       - name: Setup Docker buildx
         uses: docker/setup-buildx-action@v2
@@ -252,7 +252,7 @@ jobs:
             org.opencontainers.image.source="https://github.com/charted-dev/charted"
           tags: |
             ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-amd64,
-            ghcr.io/charted-dev/charted:latest-amd64
+            ghcr.io/charted-dev/charted:nightly-amd64
 
       - name: Build and push! (arm64)
         uses: docker/build-push-action@v3
@@ -271,16 +271,16 @@ jobs:
             org.opencontainers.image.source="https://github.com/charted-dev/charted"
           tags: |
             ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-arm64,
-            ghcr.io/charted-dev/charted:latest-arm64
+            ghcr.io/charted-dev/charted:nightly-arm64
 
       - name: Create manifest image [:latest]
         uses: Noelware/docker-manifest-action@master
         with:
-          base-image: ghcr.io/charted-dev/charted:latest
+          base-image: ghcr.io/charted-dev/charted:nightly
           push: true
           extra-images: |
-            ghcr.io/charted-dev/charted:latest-amd64,
-            ghcr.io/charted-dev/charted:latest-arm64
+            ghcr.io/charted-dev/charted:nightly-amd64,
+            ghcr.io/charted-dev/charted:nightly-arm64
 
       - name: Create manifest image [:${{steps.tag.outputs.version}}]
         uses: Noelware/docker-manifest-action@master
