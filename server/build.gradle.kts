@@ -76,7 +76,7 @@ dependencies {
     implementation(libs.ktor.server.cors)
 
     // Ktor Testing
-    testImplementation("io.ktor:ktor-server-test-host:2.1.3")
+    testImplementation("io.ktor:ktor-server-test-host:2.2.1")
 
     // JWT
     implementation(libs.jwt)
