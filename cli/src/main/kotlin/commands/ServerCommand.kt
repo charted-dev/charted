@@ -45,7 +45,7 @@ class ServerCommand(private val terminal: Terminal): CliktCommand(
         mustExist = true,
         canBeFile = true,
         canBeDir = false,
-        mustBeWritable = true,
+        mustBeWritable = false,
         mustBeReadable = true,
         canBeSymlink = true
     )
@@ -58,7 +58,7 @@ class ServerCommand(private val terminal: Terminal): CliktCommand(
         mustExist = false,
         canBeFile = true,
         canBeDir = false,
-        mustBeWritable = true,
+        mustBeWritable = false,
         mustBeReadable = true,
         canBeSymlink = true
     )

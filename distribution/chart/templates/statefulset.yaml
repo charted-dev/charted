@@ -63,7 +63,7 @@ spec:
       {{- end }}
       containers:
         - name: {{ include "charted.fullname" . }}
-          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          image: {{ printf "%s:%s" .Values.image.repository (default .Chart.AppVersion .Values.image.tag) }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           securityContext: {{ default (include "charted.defaultContainerSecurityContext" .) .Values.global.containerSecurityContext | nindent 12 }}
           resources:
