@@ -88,7 +88,7 @@ jobs:
           files: ./cli/build/distributions/charted-server.${{ matrix.tasks.ext }}
 
       - name: Upload artifacts to Noelware's Artifact Registry
-        uses: Noelware/s3-action@2.0.0
+        uses: Noelware/s3-action@2.0.1
         with:
           files: ./cli/build/distributions/charted-server.tar.gz
           path-format: $(prefix)/${{steps.tag.output.version}}/charted-server.tar.gz
