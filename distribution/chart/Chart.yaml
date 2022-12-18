@@ -14,12 +14,15 @@
 # limitations under the License.
 
 apiVersion: v2
-appVersion: 0.3.0-nightly
+appVersion: 0.3.1-nightly
 kubeVersion: '>=1.23'
-version: 0.3.0-nightly
+version: 0.3.1-nightly
 name: charted
 home: https://charts.noelware.org
 icon: https://cdn.noelware.cloud/branding/charted.png
+sources:
+  - https://charts.noelware.org
+  - https://github.com/charted-dev/charted
 maintainers:
   - name: Noel
     email: cutie@floofy.dev
@@ -31,12 +34,27 @@ dependencies:
   - name: postgresql
     repository: https://charts.bitnami.com/bitnami
     version: ~12.1.5
-    condition: values.global.postgres.enabled
+    condition: global.postgres.enabled
   - name: redis
     repository: https://charts.bitnami.com/bitnami
     version: ~17.3.17
-    condition: values.global.redis.enabled
+    condition: global.redis.enabled
+  - name: clickhouse
+    repository: https://charts.bitnami.com/bitnami
+    version: ~2.1.1
+    condition: global.clickhouse.enabled
   - name: elasticsearch
     repository: https://helm.elastic.co
     version: ~8.5.1
-    condition: values.elasticsearch.enabled
+    condition: elasticsearch.enabled
+  - name: metricbeat
+    repository: https://helm.elastic.co
+    version: ~8.5.1
+    condition: elasticsearch.metrics.enabled
+  - name: prometheus
+    repository: https://prometheus-community.github.io/helm-charts
+    version: ~19.0.2
+    condition: global.prometheus.enabled
+  - name: common
+    version: ~2.2.2
+    repository: https://charts.bitnami.com/bitnami

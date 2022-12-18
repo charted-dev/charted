@@ -17,22 +17,41 @@
 ## Contains all the global parameters for this Helm Chart. This will be applied on the templates
 ## might use these parameters.
 ##
-## @param global.fullNameOverride    String to fully override the Helm installation name for all objects
-## @param global.nameOverride        String to override the Helm installation name for all objects
-## @param global.replicas            How many replicas for the StatefulSet or Deployment. As of right now, charted-server does not implement High Avability.
-## @param global.jvmOptions          The JVM options to use when running the server
-## @param global.debug               If the debug flag should be enabled on the server
-## @param global.nodeSelector        Constrainted node labels for the charted-server pod
-## @param global.tolerations         Tolerations for charted-server pod
-## @param global.affinity            Affinity for the charted-server pod
-## @param global.extraEnvVars        List of environment variables to add
-## @param global.initContainers      List of init containers to run
-## @param global.meilisearch.enabled Whether if Meilisearch should be installed alongside charted-server. This will not actually
-## deploy Meilisearch until it is stable in newer versions.
-## @param global.clickhouse.enabled  Whether if ClickHouse should be installed alongside charted-server. This will install Bitnami's ClickHouse distribution from their Helm Charts.
-## @param global.prometheus.enabled  Whether if Prometheus should be installed alongside charted-server. This will install Bitnami's Prometheus distribution from their Helm Charts. This will not affect metrics from the server configuration side, it will just not be ingested.
-## @param global.postgres.enabled    Whether if PostgreSQL should be installed alongside charted-server. This will install Bitnami's PostgreSQL distribution from their Helm Charts. This can be set to `false` if you already have PostgreSQL running.
-## @param global.redis.enabled       Whether if Redis should be installed alongside charted-server. This will install Bitnami's Redis distribution from their Helm Charts. This can be set to `false` if you already have PostgreSQL running.
+## @param global.fullNameOverride String to fully override the Helm installation name for all objects
+## @param global.nameOverride String to override the Helm installation name for all objects
+## @param global.replicas How many replicas for the StatefulSet or Deployment. As of right now, charted-server does not implement High Avability.
+## @param global.jvmOptions The JVM options to use when running the server
+## @param global.debug If the debug flag should be enabled on the server
+## @param global.nodeSelector Constrainted node labels for the charted-server pod
+## @param global.tolerations Tolerations for charted-server pod
+## @param global.affinity Affinity for the charted-server pod
+## @param global.annotations Global deployment annotations
+## @param global.extraEnvVars List of environment variables to add
+## @param global.initContainers List of init containers to run
+## @param global.podSecurityContext Security context for the server pods
+## @param global.containerSecurityContext Security context for the StatefulSet/Deployment
+## @param global.features List of server features to enable
+## @param global.meilisearch.enabled Whether if Meilisearch should be installed alongside charted-server. This will not actually deploy Meilisearch until it is stable in newer versions.
+## @param global.clickhouse.enabled Whether if ClickHouse should be installed alongside charted-server. This will install Bitnami's ClickHouse distribution from their Helm Charts.
+## @param global.clickhouse.auth.username ClickHouse Admin username
+## @param global.clickhouse.auth.password ClickHouse Admin password
+## @param global.clickhouse.auth.existingSecret Name of a secret containing the Admin password
+## @param global.clickhouse.auth.existingSecretKey Name of the key inside the existing secret
+## @param global.prometheus.enabled Whether if Prometheus should be installed alongside charted-server. This will install Bitnami's Prometheus distribution from their Helm Charts. This will not affect metrics from the server configuration side, it will just not be ingested.
+## @param global.postgres.enabled Whether if PostgreSQL should be installed alongside charted-server. This will install Bitnami's PostgreSQL distribution from their Helm Charts. This can be set to `false` if you already have PostgreSQL running.
+## @param global.postgres.auth.username Name for a custom user to create
+## @param global.postgres.auth.password Password for the custom user to create
+## @param global.postgres.auth.database Name for a custom database to create
+## @param global.postgres.auth.existingSecret Name of existing secret to use for PostgreSQL credentials
+## @param global.postgres.architecture PostgreSQL architecture (`standalone` or `replication`)
+## @param global.postgres.primary.service.ports.postgresql PostgreSQL service port
+## @param global.redis.enabled Whether if Redis should be installed alongside charted-server. This will install Bitnami's Redis distribution from their Helm Charts. This can be set to `false` if you already have PostgreSQL running.
+## @param global.redis.existingSecret Name of a secret containing redis credentials
+## @param global.redis.architecture Set Redis architecture
+## @param global.redis.master.service.ports.redis Redis port
+## @param global.redis.auth.enabled Enable Redis auth
+## @param global.redis.auth.password Redis password
+## @param global.redis.auth.existingSecret Name of a secret containing the Redis password
 global:
   fullNameOverride: ''
   nameOverride: ''
@@ -42,18 +61,47 @@ global:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  annotations: {}
   extraEnvVars: []
   initContainers: []
+  podSecurityContext: {}
+  containerSecurityContext: {}
+  features: []
   meilisearch:
     enabled: false
   clickhouse:
     enabled: false
+    auth:
+      username: default
+      password: ''
+      existingSecret: ''
+      existingSecretKey: ''
   prometheus:
     enabled: false
   postgres:
-    enabled: false
+    enabled: true
+    auth:
+      username: ''
+      password: ''
+      database: charted
+      existingSecret: ''
+    architecture: standalone
+    primary:
+      service:
+        ports:
+          postgresql: 5432
   redis:
-    enabled: false
+    enabled: true
+    architecture: standalone
+    existingSecret: ''
+    master:
+      service:
+        ports:
+          redis: 6379
+    auth:
+      enabled: true
+      password: ''
+      existingSecret: ''
 
 ## @section Server Configuration
 ## This is the configuration for configuring charted-server and its logging system. Refer to the documentation:
@@ -70,7 +118,32 @@ global:
 config:
   mapName: config
   path: /app/noelware/charted/server/config/charted.yaml
-  config: ''
+  defaultConfig: |-
+    # refer to the configuration for more details: https://charts.noelware.org/docs/server/latest/self-hosting/configuration
+    jwtSecretKey: ${JWT_SECRET_KEY}
+    database:
+      host: {{ include "charted.postgres.host" . | quote }}
+      port: {{ include "charted.postgres.port" . }}
+      database: {{ default "charted" (include "charted.postgres.database" .) | quote }}
+    redis:
+      host: {{ include "charted.redis.host" . | quote }}
+      port: {{ include "charted.redis.port" . }}
+      database: {{ include "charted.redis.db" . }}
+    storage:
+    {{- if eq "filesystem" .Values.storage.driver }}
+      filesystem:
+        directory: {{ .Values.storage.filesystem.directory }}
+    {{- end }}
+
+    {{- if eq "s3" .Values.storage.driver }}
+      s3:
+        defaultObjectAcl: bucket-owner-full-control
+        defaultBucketAcl: bucket-owner-full-control
+        secretKeyId: ${AWS_SECRET_ACCESS_KEY}
+        accessKeyId: ${AWS_ACCESS_KEY_ID}
+        region: us-east-1
+        bucket: charted
+    {{- end }}
   jwtSecretKey:
     generate: true
     existingSecret: ''
@@ -104,17 +177,10 @@ serviceAccount:
 ## This can also configure Metricbeat to consume the Prometheus metrics endpoints if `elasticsearch.metrics.enabled` is `true`.
 ## @param elasticsearch.enabled                  If the Helm installation should install a single node Elasticsearch cluster.
 ## @param elasticsearch.metrics.enabled          If the server should install Metricbeat as a sidecar container.
-## @param elasticsearch.metrics.image.repository The abstract repository image without the tag
-## @param elasticsearch.metrics.image.pullPolicy Pull policy for the image. If the `image.tag` is latest, then use `Always`.
-## @param elasticsearch.metrics.image.tag        Repository tag to use
 elasticsearch:
   enabled: false
   metrics:
     enabled: false
-    image:
-      repository: docker.elastic.co/beats/metricbeat
-      tag: 8.5.3
-      pullPolicy: IfNotPresent
 
 ## @section Service Parameters
 ## This will configure the Service template for having any connections between the server.
@@ -147,33 +213,36 @@ ingress:
   path: /
 
 ## @section Storage Parameters
-## @param storage.driver                              The driver to use when configuring storage. (allowed: filesystem, s3)
-## @param storage.filesystem.directory                The container directory path to mount it to
-## @param storage.filesystem.persistence.enabled      If persistence is enabled or not
-## @param storage.filesystem.persistence.claimName    The name to the PVC name
-## @param storage.filesystem.persistence.storageClass Storage class of backing PVC
-## @param storage.filesystem.persistence.annotations  List of annotations to append to this PVC
-## @param storage.filesystem.persistence.accessModes  Persistent Volume Access Modes
-## @param storage.filesystem.persistence.size         Max size of this PVC
-## @param storage.filesystem.persistence.selector     Selector to match an existing Persistent Volume for the data PVC
-## @param storage.s3.enableSignerV4Requests           If we should enable signer v4 requests when requesting to Amazon S3.
-## @param storage.s3.enforcePathAccessStyle           If the S3 client should be configured to use the new path style for S3 connections. This is recommended to be `true` for Minio installations
-## @param storage.s3.defaultObjectAcl                 Access Control Level for creating objects into S3.
-## @param storage.s3.defaultBucketAcl                 Access Control Level for creating the bucket in S3 if it doesn't exist
-## @param storage.s3.endpoint                         AWS endpoint to hit when connecting to S3
-## @param storage.s3.region                           Region to connect to when connecting to S3
-## @param storage.s3.bucket                           Bucket name
-## @param storage.s3.secrets.create                   If the Helm chart should create a secret for holding AWS credentials or not
-## @param storage.s3.secrets.name                     Secret name to use
-## @param storage.s3.secrets.keys.secretAccessKey     Key value for the secret access key
-## @param storage.s3.secrets.keys.accessKeyId         Key value for the access key ID
+## @param storage.driver                                   The driver to use when configuring storage. (allowed: filesystem, s3)
+## @param storage.filesystem.directory                     The container directory path to mount it to
+## @param storage.filesystem.persistence.enabled           If persistence is enabled or not
+## @param storage.filesystem.persistence.claimName         The name to the PVC name
+## @param storage.filesystem.persistence.storageClass      Storage class of backing PVC
+## @param storage.filesystem.persistence.annotations       List of annotations to append to this PVC
+## @param storage.filesystem.persistence.accessModes       Persistent Volume Access Modes
+## @param storage.filesystem.persistence.size              Max size of this PVC
+## @param storage.filesystem.persistence.selector          Selector to match an existing Persistent Volume for the data PVC
+## @param storage.s3.enableSignerV4Requests                If we should enable signer v4 requests when requesting to Amazon S3.
+## @param storage.s3.enforcePathAccessStyle                If the S3 client should be configured to use the new path style for S3 connections. This is recommended to be `true` for Minio installations
+## @param storage.s3.defaultObjectAcl                      Access Control Level for creating objects into S3.
+## @param storage.s3.defaultBucketAcl                      Access Control Level for creating the bucket in S3 if it doesn't exist
+## @param storage.s3.endpoint                              AWS endpoint to hit when connecting to S3
+## @param storage.s3.region                                Region to connect to when connecting to S3
+## @param storage.s3.bucket                                Bucket name
+## @param storage.s3.secrets.create                        If the Helm chart should create a secret for holding AWS credentials or not
+## @param storage.s3.secrets.name                          Secret name to use
+## @param storage.s3.secrets.existingSecret                Existing secret resource name
+## @param storage.s3.secrets.existingAccessKeyIdSecret     Existing secret resource name for the access key ID
+## @param storage.s3.secrets.existingSecretAccessKeySecret Existing secret resource name for the secret access key
+## @param storage.s3.secrets.keys.secretAccessKey          Key value for the secret access key
+## @param storage.s3.secrets.keys.accessKeyId              Key value for the access key ID
 storage:
   driver: filesystem
   filesystem:
     directory: /var/lib/noelware/charted/data
     persistence:
       enabled: true
-      claimName: storage
+      claimName: data
       storageClass: ''
       annotations: {}
       accessModes: [ReadWriteMany]
@@ -190,6 +259,58 @@ storage:
     secrets:
       create: true
       name: aws-creds
+      existingSecret: ''
       keys:
         secretAccessKey: aws-secret-access-key
         accessKeyId: aws-access-key-id
+
+## @section External Services
+## This configures the external services that charted might require. This is just in case you don't want a
+## seperate installation of each service you want to enable.
+##
+## @param external.redis.host External Redis host
+## @param external.redis.port External Redis port
+## @param external.redis.password Redis password, if auth is needed
+## @param external.redis.database Redis database
+## @param external.redis.existingPasswordSecret Secret resource for the Redis password
+## @param external.redis.existingPasswordSecretKey Secret resource name for the Redis password
+## @param external.redis.sentinels.endpoints List of sentinel endpoints to use if Redis connection is in Sentinel mode
+## @param external.redis.sentinels.masterName Sentinel master name if Redis connection is in Sentinel mode
+## @param external.redis.sentinels.existingMasterNameSecret Secret resource for the sentinel master name if Redis connection is in Sentinel mode
+## @param external.redis.sentinels.existingMasterNameSecretKey Secret resource key name for the sentinel master name if Redis connection is in Sentinel mode
+## @param external.postgres.host
+## @param external.postgres.port
+## @param external.postgres.username
+## @param external.postgres.password
+## @param external.postgres.database
+## @param external.postgres.schema
+## @param external.postgres.existingAuthSecret
+## @param external.postgres.existingUsernameSecret
+## @param external.postgres.existingPasswordSecret
+## @param external.postgres.existingUsernameSecretKey
+## @param external.postgres.existingPasswordSecretKey
+external:
+  redis:
+    host: ''
+    port: 6379
+    password: ''
+    existingPasswordSecret: ''
+    existingPasswordSecretKey: ''
+    database: 7
+    sentinels:
+      endpoints: []
+      masterName: ''
+      existingMasterNameSecret: ''
+      existingMasterNameSecretKey: ''
+  postgres:
+    host: ''
+    port: 5432
+    username: ''
+    existingUsernameSecretKey: ''
+    existingUsernameSecret: ''
+    existingAuthSecret: ''
+    password: ''
+    existingPasswordSecretKey: ''
+    existingPasswordSecret: ''
+    database: charted
+    schema: ''

@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# prettier-ignore
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "charted.fullname" . -}}
 {{- $svcPort := .Values.service.port -}}
@@ -32,6 +31,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
+  namespace: {{ .Release.Namespace | quote }}
   labels:
     {{- include "charted.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
