@@ -22,8 +22,8 @@ import org.apache.commons.lang3.time.StopWatch
 import org.noelware.charted.common.ByteSizeValue
 import java.util.concurrent.TimeUnit
 
-fun Long.formatToSize(long: Boolean = false): String = ByteSizeValue.fromLong(this, long)
-fun StopWatch.doFormatTime(): String {
+public fun Long.formatToSize(long: Boolean = false): String = ByteSizeValue.fromLong(this, long)
+public fun StopWatch.doFormatTime(): String {
     val time = nanoTime
     if (time == 0L) return "<uninit>"
 

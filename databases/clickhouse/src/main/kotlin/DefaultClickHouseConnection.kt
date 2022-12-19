@@ -21,6 +21,7 @@ import co.elastic.apm.api.Traced
 import com.clickhouse.jdbc.JdbcConfig
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import dev.floofy.utils.java.SetOnce
 import dev.floofy.utils.slf4j.logging
 import io.sentry.Sentry
 import io.sentry.SpanStatus
@@ -29,7 +30,6 @@ import kotlinx.atomicfu.AtomicLong
 import kotlinx.atomicfu.atomic
 import okhttp3.internal.closeQuietly
 import org.apache.commons.lang3.time.StopWatch
-import org.noelware.charted.common.SetOnce
 import org.noelware.charted.configuration.kotlin.dsl.ClickHouseConfig
 import org.noelware.charted.extensions.doFormatTime
 import org.noelware.charted.extensions.ifSentryEnabled
@@ -143,7 +143,7 @@ class DefaultClickHouseConnection(private val config: ClickHouseConfig): ClickHo
     }
 
     override fun close() {
-        if (_closed.compareAndSet(false, true)) {
+        if (_closed.compareAndSet(expect = false, update = true)) {
             log.warn("Closing ClickHouse connection...")
             _dataSource.value.closeQuietly()
         }

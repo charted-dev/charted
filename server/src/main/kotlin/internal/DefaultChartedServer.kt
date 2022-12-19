@@ -18,6 +18,7 @@
 package org.noelware.charted.server.internal
 
 import com.charleskorn.kaml.YamlException
+import dev.floofy.utils.java.SetOnce
 import dev.floofy.utils.koin.retrieve
 import dev.floofy.utils.slf4j.logging
 import guru.zoroark.tegral.openapi.dsl.OpenApiVersion
@@ -47,9 +48,8 @@ import kotlinx.serialization.json.put
 import org.koin.core.context.GlobalContext
 import org.noelware.charted.MultiValidationException
 import org.noelware.charted.ValidationException
-import org.noelware.charted.common.SetOnce
 import org.noelware.charted.configuration.kotlin.dsl.Config
-import org.noelware.charted.configuration.kotlin.dsl.ServerFeature
+import org.noelware.charted.configuration.kotlin.dsl.features.ServerFeature
 import org.noelware.charted.extensions.ifSentryEnabled
 import org.noelware.charted.modules.docker.registry.RegistryKtorPlugin
 import org.noelware.charted.server.ChartedServer

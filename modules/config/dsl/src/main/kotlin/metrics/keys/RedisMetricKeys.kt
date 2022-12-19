@@ -31,7 +31,7 @@ import kotlinx.serialization.encoding.Encoder
  * key.
  */
 @Serializable(with = RedisMetricKeysSerializer::class)
-enum class RedisMetricKeys(val key: String) {
+public enum class RedisMetricKeys(public val key: String) {
     TotalConnectionsReceived("charted_redis_total_connections_received"),
     TotalCommandsProcessed("charted_redis_total_commands_processed"),
     TotalNetworkOutput("charted_redis_total_net_output"),
@@ -43,7 +43,7 @@ enum class RedisMetricKeys(val key: String) {
     Wildcard("*");
 }
 
-object RedisMetricKeysSerializer: KSerializer<RedisMetricKeys> {
+private object RedisMetricKeysSerializer: KSerializer<RedisMetricKeys> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("charted.metrics.RedisKeys", PrimitiveKind.STRING)
     override fun deserialize(decoder: Decoder): RedisMetricKeys {
         val key = decoder.decodeString()

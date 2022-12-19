@@ -37,11 +37,11 @@ import org.noelware.charted.extensions.toUriOrNull
  * @param version The version key to make up this enum.
  */
 @Serializable(with = ChartSpecVersion.Companion::class)
-enum class ChartSpecVersion(val version: String) {
+public enum class ChartSpecVersion(private val version: String) {
     V2("v1"),
     V3("v2");
 
-    companion object: KSerializer<ChartSpecVersion> {
+    internal companion object: KSerializer<ChartSpecVersion> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("charted.ChartSpecVersion", PrimitiveKind.STRING)
         override fun deserialize(decoder: Decoder): ChartSpecVersion = values().single { it.version == decoder.decodeString() }
         override fun serialize(encoder: Encoder, value: ChartSpecVersion) {
@@ -51,7 +51,7 @@ enum class ChartSpecVersion(val version: String) {
 }
 
 @Serializable
-enum class RepoType {
+public enum class RepoType {
     @SerialName("application")
     APPLICATION,
 
@@ -62,14 +62,14 @@ enum class RepoType {
     OPERATOR
 }
 
-val RepoType.key: String
+public val RepoType.key: String
     get() = when (this) {
         RepoType.APPLICATION -> "application"
         RepoType.LIBRARY -> "library"
         RepoType.OPERATOR -> "operator"
     }
 
-fun String.toRepoType(): RepoType = when (this) {
+public fun String.toRepoType(): RepoType = when (this) {
     "application" -> RepoType.APPLICATION
     "library" -> RepoType.LIBRARY
     "operator" -> RepoType.OPERATOR
@@ -81,7 +81,7 @@ fun String.toRepoType(): RepoType = when (this) {
  * The charts required by the current chart are defined as a list in the dependencies field.
  */
 @Serializable
-data class ChartDependency(
+public data class ChartDependency(
     /**
      * The name of the chart
      */
@@ -131,7 +131,7 @@ data class ChartDependency(
 }
 
 @Serializable
-data class ChartMaintainer(
+public data class ChartMaintainer(
     /** The maintainer's name */
     val name: String,
 
@@ -153,7 +153,7 @@ data class ChartMaintainer(
  * the `/repositories/<id>/Chart.yaml` endpoint or `/repositories/<id>/<release>/Chart.yaml`
  */
 @Serializable
-data class ChartSpec(
+public data class ChartSpec(
     /**
      * The apiVersion field should be v2 for Helm charts that require at least Helm 3. Charts supporting previous
      * Helm versions have an apiVersion set to v1 and are still installable by Helm 3.

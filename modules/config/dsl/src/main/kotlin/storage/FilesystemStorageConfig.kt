@@ -15,10 +15,21 @@
  * limitations under the License.
  */
 
-plugins {
-    id("me.champeau.jmh") version "0.6.8"
-}
+package org.noelware.charted.configuration.kotlin.dsl.storage
 
-repositories {
-    mavenCentral()
+import kotlinx.serialization.Serializable
+import org.noelware.remi.support.filesystem.FilesystemStorageConfig as RemiFsStorageConfig
+
+/**
+ * Represents the configuration to use the filesystem driver to load any artifact from.
+ * @param directory Relative or absolute directory to load from
+ */
+@Serializable
+public data class FilesystemStorageConfig(
+    val directory: String
+) {
+    /**
+     * Returns this [FilesystemStorageConfig] into a [RemiFsStorageConfig] object.
+     */
+    public fun toRemiConfig(): RemiFsStorageConfig = RemiFsStorageConfig(directory)
 }

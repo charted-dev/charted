@@ -23,7 +23,7 @@ import org.noelware.charted.serializers.SecretStringSerializer
 import kotlin.properties.Delegates
 
 @Serializable
-data class LDAPSessionConfig(
+public data class LDAPSessionConfig(
     @SerialName("organization_unit")
     val organizationUnit: String,
 
@@ -37,16 +37,17 @@ data class LDAPSessionConfig(
     val host: String,
     val port: Int
 ) {
-    companion object {
-        operator fun invoke(builder: Builder.() -> Unit = {}): LDAPSessionConfig = Builder().apply(builder).build()
+    public companion object {
+        public operator fun invoke(builder: Builder.() -> Unit = {}): LDAPSessionConfig = Builder().apply(builder).build()
     }
 
-    class Builder: org.noelware.charted.common.Builder<LDAPSessionConfig> {
-        val domainComponents: MutableList<String> = mutableListOf()
-        var organizationUnit: String by Delegates.notNull()
-        var credentials: String? = null
-        var port: Int by Delegates.notNull()
-        var host: String by Delegates.notNull()
+    @Suppress("MemberVisibilityCanBePrivate")
+    public class Builder: org.noelware.charted.common.Builder<LDAPSessionConfig> {
+        public val domainComponents: MutableList<String> = mutableListOf()
+        public var organizationUnit: String by Delegates.notNull()
+        public var credentials: String? = null
+        public var port: Int by Delegates.notNull()
+        public var host: String by Delegates.notNull()
 
         override fun build(): LDAPSessionConfig = LDAPSessionConfig(organizationUnit, domainComponents, credentials, host, port)
     }

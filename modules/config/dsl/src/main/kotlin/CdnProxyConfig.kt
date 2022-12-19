@@ -27,13 +27,14 @@ import kotlinx.serialization.Serializable
  * @param prefix  prefix to mount all the storage handler's contents towards
  */
 @Serializable
-data class CdnProxyConfig(
+public data class CdnProxyConfig(
     val enabled: Boolean = false,
     val prefix: String = "/cdn"
 ) {
-    class Builder: org.noelware.charted.common.Builder<CdnProxyConfig> {
-        var enabled: Boolean = false
-        var prefix: String = "/cdn"
+    @Suppress("MemberVisibilityCanBePrivate")
+    public class Builder: org.noelware.charted.common.Builder<CdnProxyConfig> {
+        public var enabled: Boolean = false
+        public var prefix: String = "/cdn"
 
         override fun build(): CdnProxyConfig = CdnProxyConfig(enabled, prefix)
     }

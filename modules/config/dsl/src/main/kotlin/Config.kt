@@ -23,12 +23,14 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.noelware.charted.ValidationException
 import org.noelware.charted.configuration.kotlin.dsl.features.DockerRegistryConfig
+import org.noelware.charted.configuration.kotlin.dsl.features.ServerFeature
 import org.noelware.charted.configuration.kotlin.dsl.metrics.MetricsConfig
 import org.noelware.charted.configuration.kotlin.dsl.search.SearchConfig
 import org.noelware.charted.configuration.kotlin.dsl.sessions.SessionsConfig
+import org.noelware.charted.configuration.kotlin.dsl.storage.StorageConfig
 import org.noelware.charted.configuration.kotlin.dsl.tracing.TracingConfig
 
-const val DO_NOT_USE_THIS_VALUE_IN_YOUR_JWT_SECRET_KEY_OR_I_WILL_LAUGH_AT_YOU = "__DO NOT USE THIS AS THE SECRET KEY__"
+public const val DO_NOT_USE_THIS_VALUE_IN_YOUR_JWT_SECRET_KEY_OR_I_WILL_LAUGH_AT_YOU: String = "__DO NOT USE THIS AS THE SECRET KEY__"
 
 /**
  * Represents the configuration object that is used to configure the server to your heart's content~!
@@ -74,7 +76,7 @@ const val DO_NOT_USE_THIS_VALUE_IN_YOUR_JWT_SECRET_KEY_OR_I_WILL_LAUGH_AT_YOU = 
  * @param server        Server configuration to update default settings that the server will choose or adds additional/security headers, and more~!
  */
 @Serializable
-data class Config(
+public data class Config(
     val registrations: Boolean = true,
 
     @SerialName("jwt_secret_key")
@@ -124,14 +126,15 @@ data class Config(
     /**
      * Represents a builder class for building a [Config] object.
      */
-    open class Builder: org.noelware.charted.common.Builder<Config> {
-        var registrations: Boolean = true
-        var jwtSecretKey: String = DO_NOT_USE_THIS_VALUE_IN_YOUR_JWT_SECRET_KEY_OR_I_WILL_LAUGH_AT_YOU
-        var inviteOnly: Boolean = false
-        var telemetry: Boolean = false
-        var sentryDsn: String? = null
-        var baseUrl: String? = null
-        var debug: Boolean = false
+    @Suppress("MemberVisibilityCanBePrivate")
+    public open class Builder: org.noelware.charted.common.Builder<Config> {
+        public var registrations: Boolean = true
+        public var jwtSecretKey: String = DO_NOT_USE_THIS_VALUE_IN_YOUR_JWT_SECRET_KEY_OR_I_WILL_LAUGH_AT_YOU
+        public var inviteOnly: Boolean = false
+        public var telemetry: Boolean = false
+        public var sentryDsn: String? = null
+        public var baseUrl: String? = null
+        public var debug: Boolean = false
 
         private var _dockerRegistry: DockerRegistryConfig? = null
         private var _clickhouse: ClickHouseConfig? = null
@@ -148,74 +151,78 @@ data class Config(
         private var _smtp: SMTPConfig? = null
         private var _cdn: CdnProxyConfig? = null
 
-        fun dockerRegistry(builder: DockerRegistryConfig.Builder.() -> Unit): Builder {
+        public fun dockerRegistry(builder: DockerRegistryConfig.Builder.() -> Unit): Builder {
+            if (!_features.contains(ServerFeature.DOCKER_REGISTRY)) {
+                _features.add(ServerFeature.DOCKER_REGISTRY)
+            }
+
             _dockerRegistry = DockerRegistryConfig.Builder().apply(builder).build()
             return this
         }
 
-        fun clickhouse(builder: ClickHouseConfig.Builder.() -> Unit = {}): Builder {
+        public fun clickhouse(builder: ClickHouseConfig.Builder.() -> Unit = {}): Builder {
             _clickhouse = ClickHouseConfig.Builder().apply(builder).build()
             return this
         }
 
-        fun analytics(builder: NoelwareAnalyticsConfig.Builder.() -> Unit = {}): Builder {
+        public fun analytics(builder: NoelwareAnalyticsConfig.Builder.() -> Unit = {}): Builder {
             _analytics = NoelwareAnalyticsConfig.Builder().apply(builder).build()
             return this
         }
 
-        fun feature(feature: ServerFeature): Builder {
+        public fun feature(feature: ServerFeature): Builder {
             if (_features.contains(feature)) return this
 
             _features.add(feature)
             return this
         }
 
-        fun database(builder: DatabaseConfig.Builder.() -> Unit = {}): Builder {
+        public fun database(builder: DatabaseConfig.Builder.() -> Unit = {}): Builder {
             _database = DatabaseConfig.Builder().apply(builder).build()
             return this
         }
 
-        fun storage(builder: StorageConfig.Builder.() -> Unit = {}): Builder {
+        public fun storage(builder: StorageConfig.Builder.() -> Unit = {}): Builder {
             _storage = StorageConfig.Builder().apply(builder).build()
             return this
         }
 
-        fun sessions(builder: SessionsConfig.Builder.() -> Unit = {}): Builder {
+        public fun sessions(builder: SessionsConfig.Builder.() -> Unit = {}): Builder {
             _sessions = SessionsConfig.Builder().apply(builder).build()
             return this
         }
 
-        fun metrics(builder: MetricsConfig.Builder.() -> Unit = {}): Builder {
+        public fun metrics(builder: MetricsConfig.Builder.() -> Unit = {}): Builder {
             _metrics = MetricsConfig.Builder().apply(builder).build()
             return this
         }
 
-        fun tracing(builder: TracingConfig.Builder.() -> Unit = {}): Builder {
+        public fun tracing(builder: TracingConfig.Builder.() -> Unit = {}): Builder {
             _tracing = TracingConfig.Builder().apply(builder).build()
             return this
         }
 
-        fun server(builder: KtorServerConfig.Builder.() -> Unit = {}): Builder {
+        public fun server(builder: KtorServerConfig.Builder.() -> Unit = {}): Builder {
             _server = KtorServerConfig.Builder().apply(builder).build()
             return this
         }
 
-        fun search(builder: SearchConfig.Builder.() -> Unit = {}): Builder {
+        public fun search(builder: SearchConfig.Builder.() -> Unit = {}): Builder {
             _search = SearchConfig.Builder().apply(builder).build()
             return this
         }
 
-        fun redis(builder: RedisConfig.Builder.() -> Unit = {}): Builder {
+        public fun redis(builder: RedisConfig.Builder.() -> Unit = {}): Builder {
             _redis = RedisConfig.Builder().apply(builder).build()
             return this
         }
 
-        fun smtp(from: String, builder: SMTPConfig.Builder.() -> Unit = {}): Builder {
+        public fun smtp(from: String, builder: SMTPConfig.Builder.() -> Unit = {}): Builder {
             _smtp = SMTPConfig.Builder(from).apply(builder).build()
             return this
         }
 
-        fun cdn(builder: CdnProxyConfig.Builder.() -> Unit = {}): Builder {
+        public fun cdn(builder: CdnProxyConfig.Builder.() -> Unit = {}): Builder {
             _cdn = CdnProxyConfig.Builder().apply(builder).build()
             return this
         }
@@ -244,7 +251,7 @@ data class Config(
         )
     }
 
-    companion object {
-        operator fun invoke(block: Builder.() -> Unit = {}): Config = Builder().apply(block).build()
+    public companion object {
+        public operator fun invoke(block: Builder.() -> Unit = {}): Config = Builder().apply(block).build()
     }
 }

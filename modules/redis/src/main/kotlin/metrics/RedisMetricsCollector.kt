@@ -28,8 +28,8 @@ import org.noelware.charted.modules.redis.RedisClient
 
 class RedisMetricsCollector(private val redis: RedisClient, private val config: MetricsConfig): MetricStatCollector {
     override fun collect(): MutableList<Collector.MetricFamilySamples> = collect {
-        config.metricsets.redis.firstOrNull() == RedisMetricKeys.Wildcard ||
-            config.metricsets.redis.contains(RedisMetricKeys.values().find { f -> f.key == it })
+        config.metricSets.redis.firstOrNull() == RedisMetricKeys.Wildcard ||
+            config.metricSets.redis.contains(RedisMetricKeys.values().find { f -> f.key == it })
     }
 
     override fun collect(predicate: Predicate<String>?): MutableList<Collector.MetricFamilySamples> {

@@ -27,7 +27,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 @Serializable(with = PostgresMetricKeysSerializer::class)
-enum class PostgresMetricKeys(val key: String) {
+public enum class PostgresMetricKeys(public val key: String) {
     TotalOrganizationsAvailable("charted_postgres_total_organizations"),
     TotalRepositoriesAvailable("charted_postgres_total_repositories"),
     TotalUsersAvailable("charted_postgres_total_users"),
@@ -36,7 +36,7 @@ enum class PostgresMetricKeys(val key: String) {
     Version("charted_postgres_version");
 }
 
-object PostgresMetricKeysSerializer: KSerializer<PostgresMetricKeys> {
+private object PostgresMetricKeysSerializer: KSerializer<PostgresMetricKeys> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("charted.metrics.PostgresKeys", PrimitiveKind.STRING)
     override fun deserialize(decoder: Decoder): PostgresMetricKeys {
         val key = decoder.decodeString()

@@ -17,37 +17,37 @@
 
 package org.noelware.charted.modules.storage
 
-import org.noelware.remi.core.Object
-import org.noelware.remi.core.StorageTrailer
+import org.noelware.remi.core.Blob
+import org.noelware.remi.core.StorageService
 import java.io.InputStream
 
 /**
- * Represents a proxy over the [StorageTrailer][org.noelware.remi.core.StorageTrailer] interface for
+ * Represents a proxy over the [StorageTrailer][org.noelware.remi.core.StorageService] interface for
  * tracing and extensibility.
  */
 interface StorageHandler {
     /**
-     * Returns the underlying [storage trailer][StorageTrailer] itself. It is not recommended to
+     * Returns the underlying [storage service][StorageService] itself. It is not recommended to
      * use this directly.
      */
-    val trailer: StorageTrailer<*>
+    val service: StorageService<*>
 
     /**
-     * Initializes the storage handler, and calls [StorageTrailer#init][org.noelware.remi.core.StorageTrailer.init] afterwards.
+     * Initializes the storage handler, and calls [StorageTrailer#init][org.noelware.remi.core.StorageService.init] afterwards.
      */
-    suspend fun init()
+    fun init()
 
     /**
-     * Opens a file and returns the [InputStream], if the file exists. Calls the [StorageTrailer#open][org.noelware.remi.core.StorageTrailer.open]
+     * Opens a file and returns the [InputStream], if the file exists. Calls the [StorageService#open][org.noelware.remi.core.StorageService.open]
      * method internally.
      *
      * @param path The path to locate
      * @return [InputStream] if file exists, otherwise null.
      */
-    suspend fun open(path: String): InputStream?
+    fun open(path: String): InputStream?
 
     /**
-     * Uploads a file to the storage trailer (i.e, Amazon S3). Calls the [StorageTrailer#upload][org.noelware.remi.core.StorageTrailer.upload]
+     * Uploads a file to the storage trailer (i.e, Amazon S3). Calls the [StorageService#upload][org.noelware.remi.core.StorageService.upload]
      * method internally.
      *
      * @param path The path to upload the stream to
@@ -55,39 +55,39 @@ interface StorageHandler {
      * @param contentType content type for metadata
      * @return boolean for successful or failure indication
      */
-    suspend fun upload(path: String, `is`: InputStream, contentType: String): Boolean
+    fun upload(path: String, `is`: InputStream, contentType: String)
 
     /**
-     * Checks if the file exists on the trailer itself. Calls the [StorageTrailer#exists][org.noelware.remi.core.StorageTrailer.exists]
+     * Checks if the file exists on the trailer itself. Calls the [StorageService#exists][org.noelware.remi.core.StorageService.exists]
      * method internally.
      *
      * @param path The path to locate
      * @return boolean to indicate if it exists
      */
-    suspend fun exists(path: String): Boolean
+    fun exists(path: String): Boolean
 
     /**
-     * Deletes a file on the trailer. Calls the [StorageTrailer#delete][org.noelware.remi.core.StorageTrailer.delete] method
+     * Deletes a file on the trailer. Calls the [StorageService#delete][org.noelware.remi.core.StorageService.delete] method
      * internally.
      *
      * @param path The path to locate
      * @return boolean to indicate if the file was deleted or not
      */
-    suspend fun delete(path: String): Boolean
+    fun delete(path: String): Boolean
 
     /**
-     * Recursively collects all the files available in the trailer. Calls the [StorageTrailer#listAll][org.noelware.remi.core.StorageTrailer.listAll]
+     * Recursively collects all the files available in the trailer. Calls the [StorageService#listAll][org.noelware.remi.core.StorageService.listAll]
      * method internally.
      */
-    suspend fun list(): List<Object>
+    fun list(): List<Blob>
 
     /**
      * Unlike [open], which returns a [InputStream], [get] returns all the metadata (and including input stream)
-     * from the path specified. Calls the [StorageTrailer#fetch][org.noelware.remi.core.StorageTrailer.fetch] method
+     * from the path specified. Calls the [StorageTrailer#fetch][org.noelware.remi.core.StorageService.blob] method
      * internally.
      *
      * @param path The path to locate
      * @return the [Object] metadata if the file was found, otherwise null.
      */
-    suspend fun get(path: String): Object?
+    fun blob(path: String): Blob?
 }

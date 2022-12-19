@@ -25,6 +25,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.encoding.encodeStructure
 import org.noelware.charted.ChartedInfo
+import org.noelware.charted.DistributionType
 import org.noelware.charted.common.Architecture
 import org.noelware.charted.common.OperatingSystem
 
@@ -36,7 +37,7 @@ const val VENDOR = "Noelware, LLC."
 
 @Serializable(with = TelemetryPacketSerializer::class)
 data class TelemetryPacket(
-    val distribution: String = ChartedInfo.distribution.key,
+    val distribution: DistributionType = ChartedInfo.distribution,
     val product: String = PRODUCT,
     val version: String = ChartedInfo.version,
     val vendor: String = VENDOR,
@@ -56,7 +57,7 @@ data class TelemetryPacket(
 private object TelemetryPacketSerializer: KSerializer<TelemetryPacket> {
     private val contextualAnySerializer = ContextualSerializer(Any::class, null, emptyArray())
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("charted.telemetry.Packet") {
-        element("distribution", String.serializer().descriptor)
+        element("distribution", DistributionType.serializer().descriptor)
         element("product", String.serializer().descriptor)
         element("version", String.serializer().descriptor)
         element("vendor", String.serializer().descriptor)
@@ -75,7 +76,7 @@ private object TelemetryPacketSerializer: KSerializer<TelemetryPacket> {
         val actualSerializer = encoder.serializersModule.getContextual(value.data::class)
             ?: value.data::class.serializer()
 
-        encodeStringElement(descriptor, 0, value.distribution)
+        encodeSerializableElement(descriptor, 0, DistributionType.serializer(), value.distribution)
         encodeStringElement(descriptor, 1, value.product)
         encodeStringElement(descriptor, 2, value.version)
         encodeStringElement(descriptor, 3, value.vendor)

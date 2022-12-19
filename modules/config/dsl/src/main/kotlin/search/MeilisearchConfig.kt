@@ -16,3 +16,27 @@
  */
 
 package org.noelware.charted.configuration.kotlin.dsl.search
+
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import org.noelware.charted.serializers.SecretStringSerializer
+
+@Serializable
+public data class MeilisearchConfig(
+    @Serializable(with = SecretStringSerializer::class)
+    @SerialName("master_key")
+    val masterKey: String? = null,
+    val endpoint: String = "http://localhost:7700"
+) {
+    public companion object {
+        public operator fun invoke(builder: Builder.() -> Unit = {}): MeilisearchConfig = Builder().apply(builder).build()
+    }
+
+    @Suppress("MemberVisibilityCanBePrivate")
+    public class Builder: org.noelware.charted.common.Builder<MeilisearchConfig> {
+        public var masterKey: String? = null
+        public var endpoint: String = "http://localhost:7700"
+
+        override fun build(): MeilisearchConfig = MeilisearchConfig(masterKey, endpoint)
+    }
+}

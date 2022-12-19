@@ -20,6 +20,10 @@ plugins {
     `charted-module`
 }
 
+kotlin {
+    explicitApi()
+}
+
 dependencies {
     // kotlinx.serialization
     api(libs.kotlinx.serialization.core)
@@ -38,6 +42,7 @@ dependencies {
     // Noel's Utilities
     api(libs.noel.commons.extensions.kotlin)
     api(libs.noel.commons.extensions.koin)
+    api(libs.noel.commons.java.utils)
     api(libs.noel.commons.exposed)
     api(libs.noel.commons.slf4j)
 
@@ -54,11 +59,21 @@ dependencies {
     api(libs.elastic.apm.agent.api)
 
     // Remi
-    api(libs.remi.support.minio)
-    api(libs.remi.support.s3)
-    api(libs.remi.support.fs)
+    api(libs.remi.storage.azure)
+    api(libs.remi.storage.gcs)
+    api(libs.remi.storage.s3)
+    api(libs.remi.storage.fs)
     api(libs.remi.core)
 
     // Caffeine (in-memory cache)
     api(libs.caffeine)
+
+    // OkHttp (for closeQuietly() function)
+    api(libs.okhttp)
+
+    // Bouncycastle
+    api(libs.bouncycastle)
+
+    // System Lambda
+    testImplementation("com.github.stefanbirkner:system-lambda:1.2.1")
 }

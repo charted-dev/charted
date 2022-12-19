@@ -24,7 +24,7 @@ import org.noelware.charted.configuration.kotlin.dsl.features.ServerRateLimitCon
 import org.noelware.charted.serializers.ByteSizeValueSerializer
 
 @Serializable
-data class KtorServerConfig(
+public data class KtorServerConfig(
     /**
      * If we should add additional security headers to the response.
      */
@@ -110,38 +110,39 @@ data class KtorServerConfig(
      */
     val rateLimit: ServerRateLimitConfig? = null
 ) {
-    class Builder: org.noelware.charted.common.Builder<KtorServerConfig> {
+    @Suppress("MemberVisibilityCanBePrivate")
+    public class Builder: org.noelware.charted.common.Builder<KtorServerConfig> {
         /**
          * If we should add additional security headers to the response.
          */
-        var securityHeaders: Boolean = true
+        public var securityHeaders: Boolean = true
 
         /**
          * Size of the queue to store all the application call instances
          * that cannot be immediately processed.
          */
-        var requestQueueLimit: Int = 16
+        public var requestQueueLimit: Int = 16
 
         /**
          * Number of concurrently running requests from the same HTTP pipeline
          */
-        var runningLimit: Int = 10
+        public var runningLimit: Int = 10
 
         /**
          * Do not create separate call event groups and reuse worker
          * groups for processing calls.
          */
-        var shareWorkGroup: Boolean = false
+        public var shareWorkGroup: Boolean = false
 
         /**
          * Timeout in seconds for sending responses to the client.
          */
-        var responseWriteTimeoutSeconds: Int = 10
+        public var responseWriteTimeoutSeconds: Int = 10
 
         /**
          * Timeout in seconds to read incoming requests from the client, "0" = infinite.
          */
-        var requestReadTimeout: Int = 0
+        public var requestReadTimeout: Int = 0
 
         /**
          * If this is set to `true`, this will enable TCP keep alive for
@@ -150,7 +151,7 @@ data class KtorServerConfig(
          * The timeout period is configured by the system, so configure
          * the end host accordingly.
          */
-        var tcpKeepAlive: Boolean = false
+        public var tcpKeepAlive: Boolean = false
 
         /**
          * Append extra headers when sending out a response.
@@ -158,7 +159,7 @@ data class KtorServerConfig(
         private val extraHeaders: MutableMap<String, String> = mutableMapOf()
 
         /**
-         * Represents the configuration for configurating server-side rate-limiting.
+         * Represents the configuration for configuring server-side rate-limiting.
          */
         private var rateLimit: ServerRateLimitConfig? = null
 
@@ -172,33 +173,46 @@ data class KtorServerConfig(
          * is 50MB before the server will throw a INTERNAL_SERVER_ERROR code. This is tailoured to
          * your liking, 50MB is just a nice default.
          */
-        var maxDataPayload: Long = ByteSizeValue.fromString("50mb")
+        public var maxDataPayload: Long = ByteSizeValue.fromString("50mb")
 
         /**
          * The connector host to use. Defaults to `0.0.0.0` for all connections
          * to pass through. Use `127.0.0.1` to only allow the connection via your
          * network.
          */
-        var host: String = "0.0.0.0"
+        public var host: String = "0.0.0.0"
 
         /**
          * The port to listen on. Defaults to `3651`.
          */
-        var port: Int = 3651
+        public var port: Int = 3651
 
-        fun addHeader(key: String, value: String): Builder {
+        /**
+         * Appends a custom header to the server when a request is made
+         * @param key The header key
+         * @param value The header value
+         */
+        public fun addHeader(key: String, value: String): Builder {
             if (extraHeaders.containsKey(key)) return this
 
             extraHeaders[key] = value
             return this
         }
 
-        fun ssl(builder: KtorSSLConfig.Builder.() -> Unit = {}): Builder {
+        /**
+         * Configures SSL connections
+         * @param builder Builder DSL to configure SSL
+         */
+        public fun ssl(builder: KtorSSLConfig.Builder.() -> Unit = {}): Builder {
             ssl = KtorSSLConfig.Builder().apply(builder).build()
             return this
         }
 
-        fun rateLimit(builder: ServerRateLimitConfig.Builder.() -> Unit = {}): Builder {
+        /**
+         * Configures server-side rate-limiting on API calls, not CDN endpoints
+         * @param builder Builder DSL to configure server side rate-limiting
+         */
+        public fun rateLimit(builder: ServerRateLimitConfig.Builder.() -> Unit = {}): Builder {
             rateLimit = ServerRateLimitConfig.Builder().apply(builder).build()
             return this
         }

@@ -30,7 +30,7 @@ import kotlinx.serialization.Serializable
  * @param port     Connection port to connect to Postgres (default: 5432)
  */
 @Serializable
-data class DatabaseConfig(
+public data class DatabaseConfig(
     val password: String? = null,
     val username: String? = null,
     val database: String = "charted",
@@ -38,24 +38,25 @@ data class DatabaseConfig(
     val host: String = "127.0.0.1",
     val port: Int = 5432
 ) {
-    class Builder: org.noelware.charted.common.Builder<DatabaseConfig> {
+    @Suppress("MemberVisibilityCanBePrivate")
+    public class Builder: org.noelware.charted.common.Builder<DatabaseConfig> {
         /** Username for connecting to Postgres if authentication is enabled. */
-        var username: String? = null
+        public var username: String? = null
 
         /** Password for connecting to Postgres if authentication is enabled. */
-        var password: String? = null
+        public var password: String? = null
 
         /** The database name when storing data (default: "charted") */
-        var database: String = "charted"
+        public var database: String = "charted"
 
         /** If your database is not in the `public` schema, this is where you would set it. */
-        var schema: String? = null
+        public var schema: String? = null
 
         /** The connection host to connect to Postgres (default: "127.0.0.1") */
-        var host: String = "127.0.0.1"
+        public var host: String = "127.0.0.1"
 
         /** Connection port to connect to Postgres (default: 5432) */
-        var port: Int = 5432
+        public var port: Int = 5432
 
         override fun build(): DatabaseConfig = DatabaseConfig(
             username,

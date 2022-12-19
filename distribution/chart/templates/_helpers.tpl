@@ -141,6 +141,22 @@ capabilities:
   {{- end -}}
 {{- end -}}
 
+{{- define "charted.postgres.username" -}}
+  {{- if .Values.global.postgres.enabled -}}
+    {{- print .Values.global.postgres.auth.username -}}
+  {{- else -}}
+    {{- print .Values.external.postgres.username -}}
+  {{- end -}}
+{{- end -}}
+
+{{- define "charted.postgres.password" -}}
+  {{- if .Values.global.postgres.enabled -}}
+    {{- print .Values.global.postgres.auth.password -}}
+  {{- else -}}
+    {{- print .Values.external.postgres.password -}}
+  {{- end -}}
+{{- end -}}
+
 {{- define "charted.redis.fullname" -}}
 {{- include "common.names.dependency.fullname" (dict "chartName" "redis" "chartValues" .Values.global.redis "context" $) -}}
 {{- end -}}

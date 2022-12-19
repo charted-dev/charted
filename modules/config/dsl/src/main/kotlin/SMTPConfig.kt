@@ -24,7 +24,7 @@ import kotlinx.serialization.Serializable
  * out per event.
  */
 @Serializable
-data class SMTPConfig(
+public data class SMTPConfig(
     val username: String? = null,
     val password: String? = null,
     val from: String,
@@ -33,13 +33,14 @@ data class SMTPConfig(
     val tls: Boolean = true,
     val ssl: Boolean = false
 ) {
-    class Builder(private val from: String): org.noelware.charted.common.Builder<SMTPConfig> {
-        var username: String? = null
-        var password: String? = null
-        var host: String = ""
-        var port: Int = 465
-        var tls: Boolean = true
-        var ssl: Boolean = false
+    @Suppress("MemberVisibilityCanBePrivate")
+    public class Builder(private val from: String): org.noelware.charted.common.Builder<SMTPConfig> {
+        public var username: String? = null
+        public var password: String? = null
+        public var host: String = ""
+        public var port: Int = 465
+        public var tls: Boolean = true
+        public var ssl: Boolean = false
 
         override fun build(): SMTPConfig = SMTPConfig(username, password, from, host, port, tls, ssl)
     }

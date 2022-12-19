@@ -20,7 +20,7 @@ package org.noelware.charted.configuration.kotlin.dsl
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class RedisConfig(
+public data class RedisConfig(
     val sentinels: List<String> = listOf(),
     val master: String? = null,
     val password: String? = null,
@@ -29,17 +29,18 @@ data class RedisConfig(
     val port: Int = 6379,
     val ssl: Boolean = false
 ) {
-    class Builder: org.noelware.charted.common.Builder<RedisConfig> {
+    @Suppress("MemberVisibilityCanBePrivate")
+    public class Builder: org.noelware.charted.common.Builder<RedisConfig> {
         private var sentinels = mutableListOf<String>()
-        var masterName: String? = null
-        var password: String? = null
-        var index: Int = 5
-        var host: String = "localhost"
-        var port: Int = 6379
-        var ssl: Boolean = false
+        public var masterName: String? = null
+        public var password: String? = null
+        public var index: Int = 5
+        public var host: String = "localhost"
+        public var port: Int = 6379
+        public var ssl: Boolean = false
 
-        fun addSentinel(host: String, port: Int): Builder = addSentinel("$host:$port")
-        fun addSentinel(sentinel: String): Builder {
+        public fun addSentinel(host: String, port: Int): Builder = addSentinel("$host:$port")
+        public fun addSentinel(sentinel: String): Builder {
             if (sentinels.contains(sentinel)) return this
 
             sentinels.add(sentinel)
@@ -49,7 +50,7 @@ data class RedisConfig(
         override fun build(): RedisConfig = RedisConfig(sentinels, masterName, password, index, host, port, ssl)
     }
 
-    companion object {
-        operator fun invoke(builder: Builder.() -> Unit = {}): RedisConfig = RedisConfig.Builder().apply(builder).build()
+    public companion object {
+        public operator fun invoke(builder: Builder.() -> Unit = {}): RedisConfig = RedisConfig.Builder().apply(builder).build()
     }
 }

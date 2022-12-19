@@ -34,8 +34,7 @@ import org.noelware.charted.databases.postgres.models.User
 import org.noelware.charted.databases.postgres.tables.RepositoryTable
 import org.noelware.charted.databases.postgres.tables.UserTable
 import org.noelware.charted.modules.storage.StorageHandler
-import org.noelware.remi.core.figureContentType
-import org.noelware.remi.filesystem.FilesystemStorageTrailer
+import org.noelware.remi.support.filesystem.FilesystemStorageService
 import java.io.ByteArrayInputStream
 import java.io.File
 
@@ -55,7 +54,7 @@ object AvatarFetchUtil {
             val stream = storage.open("./repositories/${repository.ownerID}/${repository.id}/icons/$hash") ?: return null
             val bytes = stream.use { it.readBytes() }
 
-            return when (val contentType = storage.trailer.figureContentType(bytes)) {
+            return when (val contentType = storage.service.getContentTypeOf(bytes)) {
                 ContentType.Image.PNG.toString(), ContentType.Image.GIF.toString(), ContentType.Image.JPEG.toString() ->
                     ContentType.parse(contentType) to bytes
 
@@ -69,7 +68,7 @@ object AvatarFetchUtil {
                         }
                     }
 
-                    storage.trailer.delete("./repositories/${repository.ownerID}/${repository.id}/icons/$hash")
+                    storage.delete("./repositories/${repository.ownerID}/${repository.id}/icons/$hash")
                     null
                 }
             }
@@ -79,7 +78,7 @@ object AvatarFetchUtil {
             ?: return null
 
         val bytes = stream.use { it.readBytes() }
-        return when (val contentType = storage.trailer.figureContentType(bytes)) {
+        return when (val contentType = storage.service.getContentTypeOf(bytes)) {
             ContentType.Image.PNG.toString(), ContentType.Image.GIF.toString(), ContentType.Image.JPEG.toString() ->
                 ContentType.parse(contentType) to bytes
 
@@ -91,7 +90,7 @@ object AvatarFetchUtil {
                     }
                 }
 
-                storage.trailer.delete("./repositories/${repository.ownerID}/${repository.id}/icons/${repository.iconHash}")
+                storage.delete("./repositories/${repository.ownerID}/${repository.id}/icons/${repository.iconHash}")
                 null
             }
         }
@@ -99,7 +98,7 @@ object AvatarFetchUtil {
 
     suspend fun updateRepositoryIcon(repository: Repository, part: PartData.FileItem) {
         val bytes = part.streamProvider().use { it.readBytes() }
-        val contentType = storage.trailer.figureContentType(bytes)
+        val contentType = storage.service.getContentTypeOf(bytes) ?: "application/octet-stream"
         if (!ACCEPTABLE_CONTENT_TYPES.contains(contentType)) {
             throw ValidationException("body", "File was not any of [${ACCEPTABLE_CONTENT_TYPES.joinToString(", ")}], received $contentType")
         }
@@ -112,9 +111,9 @@ object AvatarFetchUtil {
             else -> throw AssertionError("ext != png/jpg/gif when passed through.")
         }
 
-        if (storage.trailer is FilesystemStorageTrailer) {
-            val trailer = storage.trailer as FilesystemStorageTrailer
-            val file = File(trailer.normalizePath("./repositories/${repository.ownerID}/${repository.id}/avatars"))
+        if (storage.service is FilesystemStorageService) {
+            val service = storage.service as FilesystemStorageService
+            val file = File(service.normalizePath("./repositories/${repository.ownerID}/${repository.id}/avatars"))
             if (!file.exists()) file.mkdirs()
         }
 
@@ -150,7 +149,7 @@ object AvatarFetchUtil {
                 ?: return null
 
             val bytes = stream.use { it.readBytes() }
-            return when (val contentType = storage.trailer.figureContentType(bytes)) {
+            return when (val contentType = storage.service.getContentTypeOf(bytes)) {
                 ContentType.Image.PNG.toString(), ContentType.Image.GIF.toString(), ContentType.Image.JPEG.toString() -> ContentType.parse(contentType) to bytes
                 else -> {
                     if (hash == user.avatarHash) {
@@ -162,7 +161,7 @@ object AvatarFetchUtil {
                         }
                     }
 
-                    storage.trailer.delete("./avatars/${user.id}/$hash")
+                    storage.delete("./avatars/${user.id}/$hash")
                     if (user.gravatarEmail != null) {
                         ContentType.Image.PNG to module.gravatar(user.gravatarEmail!!)
                     } else {
@@ -176,7 +175,7 @@ object AvatarFetchUtil {
             ?: return null
 
         val bytes = stream.use { it.readBytes() }
-        return when (val contentType = storage.trailer.figureContentType(bytes)) {
+        return when (val contentType = storage.service.getContentTypeOf(bytes)) {
             ContentType.Image.PNG.toString(), ContentType.Image.GIF.toString(), ContentType.Image.JPEG.toString() -> ContentType.parse(contentType) to bytes
             else -> {
                 asyncTransaction(ChartedScope) {
@@ -186,7 +185,7 @@ object AvatarFetchUtil {
                     }
                 }
 
-                storage.trailer.delete("./users/${user.id}/avatars/${user.avatarHash}")
+                storage.delete("./users/${user.id}/avatars/${user.avatarHash}")
                 if (user.gravatarEmail != null) {
                     ContentType.Image.PNG to module.gravatar(user.gravatarEmail!!)
                 } else {
@@ -198,7 +197,7 @@ object AvatarFetchUtil {
 
     suspend fun update(id: Long, part: PartData.FileItem) {
         val bytes = part.streamProvider().use { it.readBytes() }
-        val contentType = storage.trailer.figureContentType(bytes)
+        val contentType = storage.service.getContentTypeOf(bytes) ?: "application/octet-stream"
         if (!ACCEPTABLE_CONTENT_TYPES.contains(contentType)) {
             throw ValidationException("body", "File was not any of [${ACCEPTABLE_CONTENT_TYPES.joinToString(", ")}], received $contentType")
         }
@@ -211,8 +210,8 @@ object AvatarFetchUtil {
             else -> throw AssertionError("ext != png/jpg/gif when passed through.")
         }
 
-        if (storage.trailer is FilesystemStorageTrailer) {
-            val file = File((storage.trailer as FilesystemStorageTrailer).normalizePath("./users/$id/avatars"))
+        if (storage.service is FilesystemStorageService) {
+            val file = File((storage.service as FilesystemStorageService).normalizePath("./users/$id/avatars"))
             if (!file.exists()) file.mkdirs()
         }
 

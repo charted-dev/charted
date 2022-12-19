@@ -17,52 +17,68 @@
 
 package org.noelware.charted
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
 /**
  * Represents the distribution type that the server was distributed from.
  * @param key The key to retrieve the enumeration member.
  */
-@kotlinx.serialization.Serializable
-enum class DistributionType(val key: String) {
+@Serializable
+public enum class DistributionType(private val key: String) {
+    /**
+     * Distribution type is running on a Kubernetes cluster
+     */
+    @SerialName("kubernetes")
+    KUBERNETES("kubernetes"),
+
     /**
      * The distribution type is unknown or was an invalid distribution type. Be cautious!
      */
+    @SerialName("unknown")
     UNKNOWN("unknown"),
 
     /**
      * The distribution type that represents the server is running in a Docker container.
      */
+    @SerialName("docker")
     DOCKER("docker"),
 
     /**
      * The distribution type that represents the server was pulled from the Arch User Repository, that is maintained
      * by Noelware.
      */
+    @Deprecated("At the moment, charted-server is not shipped to the AUR")
+    @SerialName("aur")
     AUR("aur"),
 
     /**
      * The distribution type that represents the server was pulled from the Yum package manager
      * in a Fedora-based Linux distribution, maintained by Noelware.
      */
+    @SerialName("rpm")
     RPM("rpm"),
 
     /**
      * The distribution type that represents the server was pulled from the APT package manager
      * in a Debian-based Linux distribution, maintained by Noelware.
      */
+    @SerialName("deb")
     DEB("deb"),
 
     /**
      * The distribution type that represents the server is running from the GitHub repository via
      * `./gradlew :server:installDist` or `make run`.
      */
+    @SerialName("git")
     GIT("git");
 
-    companion object {
+    public companion object {
         /**
          * Finds the distribution type via the Java system properties. The server binary will
          * implement this automatically, but it can be tampered, so be cautious!
          */
-        fun fromSystemProperty(): DistributionType {
+        public fun fromSystemProperty(): DistributionType {
             val property = System.getProperty("org.noelware.charted.distribution.type") ?: return UNKNOWN
             return values().find { it.key == property } ?: UNKNOWN
         }

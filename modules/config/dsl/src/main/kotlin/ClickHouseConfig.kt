@@ -29,28 +29,29 @@ import kotlinx.serialization.Serializable
  * @param port                The port to connect to, default is 8123.
  */
 @Serializable
-data class ClickHouseConfig(
+public data class ClickHouseConfig(
     val database: String = "charted",
     val username: String? = null,
     val password: String? = null,
     val host: String = "127.0.0.1",
     val port: Int = 8123
 ) {
-    class Builder: org.noelware.charted.common.Builder<ClickHouseConfig> {
+    @Suppress("MemberVisibilityCanBePrivate")
+    public class Builder: org.noelware.charted.common.Builder<ClickHouseConfig> {
         /** Username for connecting to ClickHouse if authentication is enabled. */
-        var username: String? = null
+        public var username: String? = null
 
         /** Password for connecting to ClickHouse if authentication is enabled. */
-        var password: String? = null
+        public var password: String? = null
 
         /** The database name when storing data (default: "charted") */
-        var database: String = "charted"
+        public var database: String = "charted"
 
         /** The connection host to connect to ClickHouse (default: "127.0.0.1") */
-        var host: String = "127.0.0.1"
+        public var host: String = "127.0.0.1"
 
         /** Connection port to connect to ClickHouse (default: 8123) */
-        var port: Int = 8123
+        public var port: Int = 8123
 
         override fun build(): ClickHouseConfig = ClickHouseConfig(
             database,

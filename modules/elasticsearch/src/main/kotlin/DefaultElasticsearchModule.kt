@@ -24,6 +24,7 @@ import co.elastic.clients.transport.rest_client.RestClientTransport
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import dev.floofy.utils.exposed.asyncTransaction
+import dev.floofy.utils.java.SetOnce
 import dev.floofy.utils.kotlin.ifNotNull
 import dev.floofy.utils.slf4j.logging
 import io.sentry.Sentry
@@ -50,9 +51,8 @@ import org.elasticsearch.client.sniff.ElasticsearchNodesSniffer
 import org.elasticsearch.client.sniff.SniffOnFailureListener
 import org.elasticsearch.client.sniff.Sniffer
 import org.noelware.charted.ChartedScope
-import org.noelware.charted.common.SetOnce
 import org.noelware.charted.configuration.kotlin.dsl.Config
-import org.noelware.charted.configuration.kotlin.dsl.ServerFeature
+import org.noelware.charted.configuration.kotlin.dsl.features.ServerFeature
 import org.noelware.charted.configuration.kotlin.dsl.search.elasticsearch.AuthStrategyType
 import org.noelware.charted.configuration.kotlin.dsl.search.elasticsearch.AuthenticationStrategy
 import org.noelware.charted.databases.postgres.entities.UserEntity

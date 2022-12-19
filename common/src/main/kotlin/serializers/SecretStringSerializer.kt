@@ -23,14 +23,14 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-private val ENVIRON_VAR_REGEX: Regex = """[$]\{([\w.]+)(:-\w+)?}""".toRegex()
+private val environmentVariableRegex: Regex = """[$]\{([\w.]+)(:-\w+)?}""".toRegex()
 
-object SecretStringSerializer: KSerializer<String> {
+public object SecretStringSerializer: KSerializer<String> {
     override val descriptor: SerialDescriptor = String.serializer().descriptor
     override fun deserialize(decoder: Decoder): String {
         val decoded = decoder.decodeString()
-        if (decoded.matches(ENVIRON_VAR_REGEX)) {
-            return ENVIRON_VAR_REGEX.replace(decoded, transform = {
+        if (decoded.matches(environmentVariableRegex)) {
+            return environmentVariableRegex.replace(decoded, transform = {
                 // Removes the `:-` from the matched result.
                 System.getenv(it.groups[1]!!.value) ?: (it.groups[2]?.value?.substring(2) ?: "")
             })
@@ -39,5 +39,5 @@ object SecretStringSerializer: KSerializer<String> {
         return decoded
     }
 
-    override fun serialize(encoder: Encoder, value: String) = String.serializer().serialize(encoder, value)
+    override fun serialize(encoder: Encoder, value: String): Unit = String.serializer().serialize(encoder, value)
 }

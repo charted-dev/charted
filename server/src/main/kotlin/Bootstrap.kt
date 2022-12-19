@@ -17,9 +17,9 @@
 
 package org.noelware.charted.server
 
+import dev.floofy.utils.java.SetOnce
 import dev.floofy.utils.koin.injectOrNull
 import dev.floofy.utils.slf4j.logging
-import org.noelware.charted.common.SetOnce
 import org.noelware.charted.modules.analytics.AnalyticsDaemon
 import org.noelware.charted.server.bootstrap.BootstrapPhase
 import org.noelware.charted.server.bootstrap.ConfigureModulesPhase

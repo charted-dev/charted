@@ -24,7 +24,7 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 
-object ChartedScope: CoroutineScope {
+public object ChartedScope: CoroutineScope {
     override val coroutineContext: CoroutineContext =
         SupervisorJob() + Executors.newCachedThreadPool(createThreadFactory("Charted-CoroutineExecutor")).asCoroutineDispatcher()
 }

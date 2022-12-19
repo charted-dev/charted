@@ -37,7 +37,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.noelware.charted.*
 import org.noelware.charted.configuration.kotlin.dsl.Config
-import org.noelware.charted.configuration.kotlin.dsl.ServerFeature
+import org.noelware.charted.configuration.kotlin.dsl.features.ServerFeature
 import org.noelware.charted.configuration.kotlin.dsl.sessions.SessionType
 import org.noelware.charted.databases.postgres.entities.RepositoryEntity
 import org.noelware.charted.databases.postgres.entities.UserConnectionEntity
@@ -376,7 +376,7 @@ class UsersEndpoint(
 
         sessions.revokeAll(id)
         if (!config.features.contains(ServerFeature.DOCKER_REGISTRY)) {
-            storage.trailer.delete("./users/$id/index.yaml")
+            storage.delete("./users/$id/index.yaml")
         }
 
         call.respond(HttpStatusCode.Accepted, ApiResponse.ok())

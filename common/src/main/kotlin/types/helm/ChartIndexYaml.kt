@@ -22,7 +22,7 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ChartIndexYaml(
+public data class ChartIndexYaml(
     val apiVersion: String = "v1",
     val entries: Map<String, List<ChartIndexSpec>> = mutableMapOf(),
     val generated: Instant = Clock.System.now()

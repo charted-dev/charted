@@ -36,7 +36,7 @@ import org.noelware.charted.serializers.TimeSpanValueSerializer
  * @param inMemory                 `config.server.ratelimit.in_memory` determines if the rate-limit cache should be in Redis (if `in_memory` is false) or in-memory (if `in_memory` is true)
  */
 @Serializable
-data class ServerRateLimitConfig(
+public data class ServerRateLimitConfig(
     @SerialName("authenticated_max_requests")
     val authenticatedMaxRequests: Int = 300,
 
@@ -50,18 +50,19 @@ data class ServerRateLimitConfig(
     @SerialName("in_memory")
     val inMemory: Boolean = false
 ) {
-    class Builder: org.noelware.charted.common.Builder<ServerRateLimitConfig> {
+    @Suppress("MemberVisibilityCanBePrivate")
+    public class Builder: org.noelware.charted.common.Builder<ServerRateLimitConfig> {
         /** Determines the max requests for authenticated users */
-        var authenticatedMaxRequests: Int = 300
+        public var authenticatedMaxRequests: Int = 300
 
         /** Determines the max requests for unauthenticated users */
-        var maxRequests: Int = 100
+        public var maxRequests: Int = 100
 
         /** [TimeSpanValue] of the calculated time to hit per request quota. */
-        var timeWindow: Long = TimeSpanValue.fromString("1hr")
+        public var timeWindow: Long = TimeSpanValue.fromString("1hr")
 
         /** Determines if the rate-limit cache should be in Redis (if `in_memory` is false) or in-memory (if `in_memory` is true) */
-        var inMemory: Boolean = false
+        public var inMemory: Boolean = false
 
         override fun build(): ServerRateLimitConfig = ServerRateLimitConfig(authenticatedMaxRequests, maxRequests, timeWindow, inMemory)
     }

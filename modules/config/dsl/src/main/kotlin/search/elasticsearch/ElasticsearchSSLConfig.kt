@@ -25,26 +25,24 @@ import kotlin.properties.Delegates
 /**
  * Represents the configuration for configuring Elasticsearch with SSL security.
  * @param validateHostnames If the Elasticsearch REST client should validate the hostname of the certificates
- * @param keystorePassword  The keystore password from the [clientPath], if specified
- * @param clientPath        Keystore path
- * @param certKind          certificate kind
  */
 @Serializable
-data class ElasticsearchSSLConfig(
+public data class ElasticsearchSSLConfig(
     @SerialName("validate_hostnames")
     val validateHostnames: Boolean = false,
 
-    @SerialName("keystore_password")
     @Serializable(with = SecretStringSerializer::class)
+    @SerialName("keystore_password")
     val keystorePassword: String? = null,
 
     @SerialName("ca_path")
     val caPath: String
 ) {
-    class Builder: org.noelware.charted.common.Builder<ElasticsearchSSLConfig> {
-        var validateHostnames: Boolean = false
-        var keystorePassword: String? = null
-        var caPath: String by Delegates.notNull()
+    @Suppress("MemberVisibilityCanBePrivate")
+    public class Builder: org.noelware.charted.common.Builder<ElasticsearchSSLConfig> {
+        public var validateHostnames: Boolean = false
+        public var keystorePassword: String? = null
+        public var caPath: String by Delegates.notNull()
 
         override fun build(): ElasticsearchSSLConfig = ElasticsearchSSLConfig(validateHostnames, keystorePassword, caPath)
     }

@@ -21,7 +21,7 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ChartIndexSpec(
+public data class ChartIndexSpec(
     val apiVersion: ChartSpecVersion,
     val name: String,
     val version: String,
@@ -42,9 +42,9 @@ data class ChartIndexSpec(
     val removed: Boolean = false,
     val digest: String? = null
 ) {
-    companion object {
+    public companion object {
         @JvmStatic
-        fun fromSpec(
+        public fun fromSpec(
             urls: List<String>,
             created: Instant? = null,
             removed: Boolean = false,

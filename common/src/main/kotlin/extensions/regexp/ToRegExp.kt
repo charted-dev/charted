@@ -23,13 +23,13 @@ import org.noelware.charted.common.regexp.RegularExpression
 /**
  * Transforms a string into a [RegularExpression] object, calls the [RegularExpressions.getPasswordRegex] method.
  */
-fun String.toPasswordRegex(): RegularExpression = RegularExpressions.getPasswordRegex(this)
+public fun String.toPasswordRegex(): RegularExpression = RegularExpressions.getPasswordRegex(this)
 
 /**
  * Transforms a string into a [RegularExpression] object, which calls the [RegularExpressions.getNameRegex] method.
  * @param includeNumbers If the regular expression should include numbers or not. [default=true]
  */
-fun String.toNameRegex(
+public fun String.toNameRegex(
     includeNumbers: Boolean = true,
     length: Int = 32
 ): RegularExpression = RegularExpressions.getNameRegex(this, includeNumbers, length)

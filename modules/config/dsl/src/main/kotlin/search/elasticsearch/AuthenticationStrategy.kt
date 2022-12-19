@@ -45,7 +45,7 @@ import org.noelware.charted.serializers.SecretStringSerializer
  * to set up an ideal environment for **charted-server** and Elasticsearch.
  */
 @Serializable
-enum class AuthStrategyType {
+public enum class AuthStrategyType {
     /** No authentication is required on the server level. */
     @SerialName("none")
     None,
@@ -78,38 +78,38 @@ enum class AuthStrategyType {
 }
 
 @Serializable(with = AuthenticationStrategy.Companion::class)
-sealed class AuthenticationStrategy(val type: AuthStrategyType) {
+public sealed class AuthenticationStrategy(public val type: AuthStrategyType) {
     // tricks the serialization compiler (for now), but we are using our own serializer for this
     @Suppress("unused")
-    constructor(): this(AuthStrategyType.Unknown)
+    private constructor(): this(AuthStrategyType.Unknown)
 
     @Serializable
-    object None: AuthenticationStrategy(AuthStrategyType.None)
+    public object None: AuthenticationStrategy(AuthStrategyType.None)
 
     @Serializable
-    class Cloud(
+    public class Cloud(
         @Serializable(with = SecretStringSerializer::class)
         @SerialName("cloud_id")
-        val id: String
+        public val id: String
     ): AuthenticationStrategy(AuthStrategyType.Cloud)
 
     @Serializable
-    class Basic(
+    public class Basic(
         @Serializable(with = SecretStringSerializer::class)
-        val username: String,
+        public val username: String,
 
         @Serializable(with = SecretStringSerializer::class)
-        val password: String
+        public val password: String
     ): AuthenticationStrategy(AuthStrategyType.Basic)
 
     @Serializable
-    class ApiKey(
+    public class ApiKey(
         @Serializable(with = SecretStringSerializer::class)
         @SerialName("api_key")
-        val key: String
+        public val key: String
     ): AuthenticationStrategy(AuthStrategyType.ApiKey)
 
-    companion object: KSerializer<AuthenticationStrategy> {
+    public companion object: KSerializer<AuthenticationStrategy> {
         override val descriptor: SerialDescriptor = buildClassSerialDescriptor("charted.elasticsearch.AuthStrategy") {
             element("type", AuthStrategyType.serializer().descriptor)
             element("cloud_id", SecretStringSerializer.descriptor, isOptional = true)
@@ -166,32 +166,7 @@ sealed class AuthenticationStrategy(val type: AuthStrategyType) {
             authStrategy!!
         }
 
-        /*
-        decoder.decodeStructure(descriptor) {
-            when (decodeSerializableElement(descriptor, 0, AuthStrategyType.serializer())) {
-                AuthStrategyType.Unknown -> throw SerializationException("Reached unknown authentication strategy type")
-                AuthStrategyType.None -> None
-                AuthStrategyType.Cloud -> {
-                    val id = decodeSerializableElement(descriptor, 1, SecretStringSerializer)
-                    Cloud(id)
-                }
-
-                AuthStrategyType.Basic -> {
-                    val username = decodeSerializableElement(descriptor, 2, SecretStringSerializer)
-                    val password = decodeSerializableElement(descriptor, 3, SecretStringSerializer)
-
-                    Basic(username, password)
-                }
-
-                AuthStrategyType.ApiKey -> {
-                    val key = decodeSerializableElement(descriptor, 4, SecretStringSerializer)
-                    ApiKey(key)
-                }
-            }
-        }
-         */
-
-        override fun serialize(encoder: Encoder, value: AuthenticationStrategy) = encoder.encodeStructure(descriptor) {
+        override fun serialize(encoder: Encoder, value: AuthenticationStrategy): Unit = encoder.encodeStructure(descriptor) {
             encodeSerializableElement(descriptor, 0, AuthStrategyType.serializer(), value.type)
             when (value) {
                 is None -> {}

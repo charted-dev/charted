@@ -37,7 +37,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.noelware.charted.*
 import org.noelware.charted.configuration.kotlin.dsl.Config
-import org.noelware.charted.configuration.kotlin.dsl.ServerFeature
+import org.noelware.charted.configuration.kotlin.dsl.features.ServerFeature
 import org.noelware.charted.databases.clickhouse.ClickHouseConnection
 import org.noelware.charted.databases.postgres.entities.RepositoryEntity
 import org.noelware.charted.databases.postgres.entities.RepositoryMemberEntity
@@ -717,6 +717,7 @@ class RepositoriesEndpoint(
      */
     @Get("/{id}/releases/{version}")
     suspend fun getRepositoryRelease(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
     }
 
     /**

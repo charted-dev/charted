@@ -33,15 +33,14 @@ import kotlinx.serialization.json.JsonEncoder
  * Represents a generic API response object.
  */
 @Serializable(with = KResponseSerializer::class)
-sealed class ApiResponse<out T>(val success: Boolean) {
-
+public sealed class ApiResponse<out T>(public val success: Boolean) {
     /**
      * Represents a successful response, with any data attached if any.
      * @param data The data to use to send out the response. The [T] generic
      *             must be marked with [Serializable][kotlinx.serialization.Serializable] or
      *             the server will not know how to serialize it to JSON.
      */
-    data class Ok<out T>(val data: T? = null): ApiResponse<T>(true)
+    public data class Ok<out T>(val data: T? = null): ApiResponse<T>(true)
 
     /**
      * Represents an unsuccessful response, with any errors that might've occurred during
@@ -49,20 +48,20 @@ sealed class ApiResponse<out T>(val success: Boolean) {
      *
      * @param errors A list of API errors that might've occurred when invoking the request.
      */
-    data class Err(val errors: List<ApiError>): ApiResponse<Unit>(false)
-
-    companion object {
+    public data class Err(val errors: List<ApiError>): ApiResponse<Unit>(false)
+    public companion object {
         /**
          * Sends out an empty response payload with only the success marker.
          */
         @JvmStatic
-        fun ok(): ApiResponse<Unit> = Ok(null)
+        public fun ok(): ApiResponse<Unit> = Ok(null)
 
         /**
          * Sends out a response that is represented as [T].
          * @param data The data payload to send.
          */
-        fun <T> ok(data: T): ApiResponse<T> = Ok(data)
+        @JvmStatic
+        public fun <T> ok(data: T): ApiResponse<T> = Ok(data)
 
         /**
          * Sends out a response that represents multiple errors that might've happened during
@@ -70,15 +69,17 @@ sealed class ApiResponse<out T>(val success: Boolean) {
          *
          * @param errors A list of errors to prepend to the payload itself.
          */
-        fun err(errors: List<ApiError>): ApiResponse<Unit> = Err(errors)
+        @JvmStatic
+        public fun err(errors: List<ApiError>): ApiResponse<Unit> = Err(errors)
 
         /**
          * Sends out a response that represents a single error that might've happened during
          * a REST request invocation.
          *
-         * @param error the [APIError] object to use.
+         * @param error the [ApiError] object to use.
          */
-        fun err(error: ApiError): ApiResponse<Unit> = err(listOf(error))
+        @JvmStatic
+        public fun err(error: ApiError): ApiResponse<Unit> = err(listOf(error))
 
         /**
          * Sends out a response that still represents a single error, but the [code] and [message]
@@ -87,9 +88,19 @@ sealed class ApiResponse<out T>(val success: Boolean) {
          * @param code The error code that gives a human-readable message in the documentation.
          * @param message The message of what happened.
          */
-        fun err(code: String, message: String): ApiResponse<Unit> = err(ApiError(code, message))
+        @JvmStatic
+        public fun err(code: String, message: String): ApiResponse<Unit> = err(ApiError(code, message))
 
-        fun err(
+        /**
+         * Sends out a response that represents a single error, but a detailed blob is added
+         * in the payload.
+         *
+         * @param code The error code that gives a human-readable message in the documentation.
+         * @param message The message of what happened.
+         * @param detail Detailed blob of what happened
+         */
+        @JvmStatic
+        public fun err(
             code: String,
             message: String,
             detail: Any
@@ -99,11 +110,12 @@ sealed class ApiResponse<out T>(val success: Boolean) {
          * Sends out a response from a generic [Throwable] object. It'll transform the
          * exception into an [ApiError] that the serializer can serialize.
          */
-        fun <T: Throwable> err(throwable: T): ApiResponse<Unit> = err("INTERNAL_SERVER_ERROR", throwable.message ?: "(empty message)")
+        @JvmStatic
+        public fun <T: Throwable> err(throwable: T): ApiResponse<Unit> = err("INTERNAL_SERVER_ERROR", throwable.message ?: "(empty message)")
     }
 }
 
-class KResponseSerializer<T>(private val kSerializer: KSerializer<T>): KSerializer<ApiResponse<T>> {
+private class KResponseSerializer<T>(private val kSerializer: KSerializer<T>): KSerializer<ApiResponse<T>> {
     private val apiErrorSerializer = ListSerializer(ApiError.serializer())
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("charted.ApiResponse") {
         element("success", Boolean.serializer().descriptor)

@@ -18,3 +18,7 @@
 plugins {
     `charted-module`
 }
+
+kotlin {
+    explicitApi()
+}

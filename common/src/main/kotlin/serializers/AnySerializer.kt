@@ -23,7 +23,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 @OptIn(ExperimentalSerializationApi::class)
-object AnySerializer: KSerializer<Any> {
+public object AnySerializer: KSerializer<Any> {
     private val anyContextualSerializer = ContextualSerializer(Any::class, null, emptyArray())
     override val descriptor: SerialDescriptor = anyContextualSerializer.descriptor
 

@@ -21,7 +21,7 @@ package org.noelware.charted.extensions
  * Extension method similar to [associate], but the transformation function returns `null`
  * to not include it in the destination map.
  */
-inline fun <T, K, V> Iterable<T>.associateOrNull(transform: (T) -> Pair<K, V>?): Map<K, V> {
+public inline fun <T, K, V> Iterable<T>.associateOrNull(transform: (T) -> Pair<K, V>?): Map<K, V> {
     val destination = LinkedHashMap<K, V>()
     for (element in this) {
         val el = transform(element)

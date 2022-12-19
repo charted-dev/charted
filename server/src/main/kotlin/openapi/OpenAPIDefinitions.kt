@@ -18,7 +18,6 @@
 package org.noelware.charted.server.openapi
 
 import guru.zoroark.tegral.openapi.dsl.*
-import io.ktor.http.*
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.server.endpoints.v1.InfoResponse
 import org.noelware.charted.server.endpoints.v1.MainResponse
@@ -131,7 +130,7 @@ fun RootDsl.mainEndpoints() {
                 schema<ApiResponse.Ok<InfoResponse>>()
                 example = ApiResponse.Ok(
                     InfoResponse(
-                        distribution = ChartedInfo.distribution.key,
+                        distribution = ChartedInfo.distribution,
                         commitHash = ChartedInfo.commitHash,
                         buildDate = ChartedInfo.buildDate,
                         product = "charted-server",

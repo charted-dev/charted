@@ -24,34 +24,39 @@ import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.jsonPrimitive
 
 @OptIn(ExperimentalSerializationApi::class)
-object ChartedInfo {
+public object ChartedInfo {
     /**
      * Returns the current distribution type that the server is running from.
      */
-    val distribution = DistributionType.fromSystemProperty()
+    @JvmStatic
+    public val distribution: DistributionType = DistributionType.fromSystemProperty()
 
     /**
      * Returns the current version that the server is running from.
      */
-    val version: String
+    @JvmStatic
+    public val version: String
 
     /**
      * Represents the current Git commit hash of **charted-server** that was distributed from the
      * [upstream repository](https://github.com/charted-dev/charted).
      */
-    val commitHash: String
+    @JvmStatic
+    public val commitHash: String
 
     /**
      * Represents the build date as an ISO-8601 represented format that was built from the source
      * in the [upstream repository](https://github.com/charted-dev/charted).
      */
-    val buildDate: String
+    @JvmStatic
+    public val buildDate: String
 
     /**
      * Represents the dedicated node that the server is running off. This is usually
      * only implemented in the official [distribution](https://charts.noelware.org/api/info).
      */
-    val dedicatedNode by lazy {
+    @JvmStatic
+    public val dedicatedNode: String? by lazy {
         val dediNode1 = System.getProperty("winterfox.dediNode", "")
         if (dediNode1.isNotEmpty()) {
             return@lazy dediNode1
@@ -60,6 +65,11 @@ object ChartedInfo {
         val dediNode2 = System.getenv("WINTERFOX_DEDI_NODE") ?: ""
         if (dediNode2.isNotEmpty()) {
             return@lazy dediNode2
+        }
+
+        val nodeName = System.getenv("NODE_NAME") ?: ""
+        if (nodeName.isNotEmpty()) {
+            return@lazy nodeName
         }
 
         null

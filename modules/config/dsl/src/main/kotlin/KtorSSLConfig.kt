@@ -24,17 +24,18 @@ import kotlinx.serialization.Serializable
  * Configures SSL certificates on the server, which you can access on what port specified.
  */
 @Serializable
-data class KtorSSLConfig(
+public data class KtorSSLConfig(
     val keystore: String = "./ssl.keystore.jks",
     val password: String? = null,
 
     @SerialName("port")
     val sslPort: Int = 8443
 ) {
-    class Builder: org.noelware.charted.common.Builder<KtorSSLConfig> {
-        var keystore: String = "./ssl.keystore.jks"
-        var password: String? = null
-        var port: Int = 8443
+    @Suppress("MemberVisibilityCanBePrivate")
+    public class Builder: org.noelware.charted.common.Builder<KtorSSLConfig> {
+        public var keystore: String = "./ssl.keystore.jks"
+        public var password: String? = null
+        public var port: Int = 8443
 
         override fun build(): KtorSSLConfig = KtorSSLConfig(keystore, password, port)
     }

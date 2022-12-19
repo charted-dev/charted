@@ -33,12 +33,12 @@ import kotlinx.datetime.Clock
  *           number of ms since epoch           worker  pid    increment
  * ```
  */
-class Snowflake {
+public class Snowflake {
     /**
      * Represents a deconstructed [Snowflake]
      */
     @kotlinx.serialization.Serializable
-    data class Deconstructed(
+    public data class Deconstructed(
         val id: Long,
         val epoch: Long = EPOCH,
         val workerID: Long,
@@ -47,11 +47,11 @@ class Snowflake {
         val increment: Long
     )
 
-    companion object {
+    public companion object {
         private val increment = atomic(0L)
-        const val EPOCH = 1651276800000
+        public const val EPOCH: Long = 1651276800000
 
-        fun generate(): Long {
+        public fun generate(): Long {
             val timestamp = Clock.System.now().toEpochMilliseconds()
             val inc = increment.getAndIncrement()
             if (inc >= 4095) {
@@ -61,7 +61,7 @@ class Snowflake {
             return ((timestamp - EPOCH) shl 22) or ((0 and 0b11111) shl 17) or ((1 and 0b11111) shl 12) or inc
         }
 
-        fun decrypt(id: Long): Deconstructed = Deconstructed(
+        public fun decrypt(id: Long): Deconstructed = Deconstructed(
             id,
             EPOCH,
             (id shr 17) and 0b11111,

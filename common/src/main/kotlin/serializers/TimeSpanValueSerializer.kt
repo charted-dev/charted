@@ -30,7 +30,7 @@ import org.noelware.charted.common.TimeSpanValue
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = TimeSpanValue::class)
-object TimeSpanValueSerializer: KSerializer<Long> {
+public object TimeSpanValueSerializer: KSerializer<Long> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("charted.ByteSizeValue", PrimitiveKind.LONG)
     override fun deserialize(decoder: Decoder): Long = try {
         val str = decoder.decodeString()

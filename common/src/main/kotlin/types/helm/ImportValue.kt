@@ -29,7 +29,7 @@ import kotlinx.serialization.encoding.Encoder
  * Each item can be a string or pair of child/parent sublist items.
  */
 @kotlinx.serialization.Serializable
-data class ImportValue(
+public data class ImportValue(
     /** The source key of the values to be imported */
     val child: String,
 
@@ -38,18 +38,18 @@ data class ImportValue(
 )
 
 @kotlinx.serialization.Serializable(with = StringOrImportValue.Companion::class)
-class StringOrImportValue(private val value: Any) {
+public class StringOrImportValue(private val value: Any) {
     init {
         require(value is String || value is ImportValue) { "Can't resolve a `import-value` from anything other than a String or ImportValue" }
     }
 
-    val stringOrNull: String?
+    public val stringOrNull: String?
         get() = value as? String
 
-    val importValueOrNull: ImportValue?
+    public val importValueOrNull: ImportValue?
         get() = value as? ImportValue
 
-    companion object: KSerializer<StringOrImportValue> {
+    internal companion object: KSerializer<StringOrImportValue> {
         override val descriptor: SerialDescriptor = buildClassSerialDescriptor("charted.StringOrImportValue")
         override fun deserialize(decoder: Decoder): StringOrImportValue = try {
             val string = decoder.decodeString()

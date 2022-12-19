@@ -18,16 +18,31 @@
 package org.noelware.charted.configuration.kotlin.dsl.search
 
 import kotlinx.serialization.Serializable
+import org.noelware.charted.ValidationException
 import org.noelware.charted.configuration.kotlin.dsl.search.elasticsearch.ElasticsearchConfig
 
 @Serializable
-data class SearchConfig(
-    val elasticsearch: ElasticsearchConfig? = null
+public data class SearchConfig(
+    val elasticsearch: ElasticsearchConfig? = null,
+    val meilisearch: MeilisearchConfig? = null
 ) {
-    class Builder: org.noelware.charted.common.Builder<SearchConfig> {
+    init {
+        if (elasticsearch != null && meilisearch != null) {
+            throw ValidationException("config.search", "`elasticsearch` and `meilisearch` are mutually exclusive")
+        }
+    }
+
+    public class Builder: org.noelware.charted.common.Builder<SearchConfig> {
         private var _elasticsearch: ElasticsearchConfig? = null
-        fun elasticsearch(builder: ElasticsearchConfig.Builder.() -> Unit = {}): Builder {
+        private var _meilisearch: MeilisearchConfig? = null
+
+        public fun elasticsearch(builder: ElasticsearchConfig.Builder.() -> Unit = {}): Builder {
             _elasticsearch = ElasticsearchConfig.Builder().apply(builder).build()
+            return this
+        }
+
+        public fun meilisearch(builder: MeilisearchConfig.Builder.() -> Unit = {}): Builder {
+            _meilisearch = MeilisearchConfig.Builder().apply(builder).build()
             return this
         }
 

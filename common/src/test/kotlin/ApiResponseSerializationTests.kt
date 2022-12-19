@@ -21,6 +21,7 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
@@ -29,13 +30,12 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import org.noelware.charted.serializers.NothingSerializer
 import org.noelware.charted.types.responses.ApiResponse
 
 private object UnitSerializer: KSerializer<Unit> {
-    override val descriptor: SerialDescriptor = NothingSerializer.descriptor
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("charted.Unit")
     override fun deserialize(decoder: Decoder) {
-        NothingSerializer.deserialize(decoder)
+        throw SerializationException("Can't deserialize this object.")
     }
 
     override fun serialize(encoder: Encoder, value: Unit) {

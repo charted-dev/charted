@@ -20,15 +20,16 @@ package org.noelware.charted.configuration.kotlin.dsl.sessions
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class SessionsConfig(
+public data class SessionsConfig(
     val ldap: LDAPSessionConfig? = null,
     val type: SessionType = SessionType.Local
 ) {
-    class Builder: org.noelware.charted.common.Builder<SessionsConfig> {
+    @Suppress("MemberVisibilityCanBePrivate")
+    public class Builder: org.noelware.charted.common.Builder<SessionsConfig> {
         private var _ldap: LDAPSessionConfig? = null
-        var type: SessionType = SessionType.Local
+        public var type: SessionType = SessionType.Local
 
-        fun ldap(builder: LDAPSessionConfig.Builder.() -> Unit = {}): Builder {
+        public fun ldap(builder: LDAPSessionConfig.Builder.() -> Unit = {}): Builder {
             _ldap = LDAPSessionConfig.Builder().apply(builder).build()
             return this
         }

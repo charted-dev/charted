@@ -23,7 +23,7 @@ import io.sentry.Sentry
  * Runs the corresponding [block] if Sentry was enabled by the server.
  * @param block The function code to run if [Sentry.isEnabled] is `true`.
  */
-fun <U> ifSentryEnabled(block: () -> U): U? = if (Sentry.isEnabled()) {
+public fun <U> ifSentryEnabled(block: () -> U): U? = if (Sentry.isEnabled()) {
     block()
 } else {
     null

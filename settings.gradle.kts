@@ -30,7 +30,6 @@ plugins {
 }
 
 include(
-    ":benchmarks",
     ":cli",
     ":common",
     ":server",

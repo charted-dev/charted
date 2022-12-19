@@ -19,19 +19,21 @@ package org.noelware.charted.configuration.kotlin.dsl.tracing
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import org.noelware.charted.ChartedInfo
+import org.noelware.charted.serializers.SecretStringSerializer
 import java.net.InetAddress
 
 /**
  * [read more here](https://www.elastic.co/guide/en/apm/agent/java/current/config-core.html#config-enable-instrumentations)
  */
 @kotlinx.serialization.Serializable
-enum class Instrumentation(val key: String) {
+public enum class Instrumentation(public val key: String) {
     ANNOTATIONS("annotations"),
     ANNOTATIONS_CAPTURE_SPAN("annotations-capture-span"),
     ANNOTATIONS_CAPTURE_TRANSACTION("annotations-capture-transaction"),
@@ -49,7 +51,7 @@ enum class Instrumentation(val key: String) {
     PROCESS("process"),
     SLF4J_ERROR("slf4j-error");
 
-    companion object: KSerializer<Instrumentation> {
+    public companion object: KSerializer<Instrumentation> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("charted.apm.Instrumentation", PrimitiveKind.STRING)
         override fun deserialize(decoder: Decoder): Instrumentation {
             val key = decoder.decodeString()
@@ -66,7 +68,7 @@ enum class Instrumentation(val key: String) {
  * Represents the configuration for using Elastic APM for the tracing mechanism.
  */
 @kotlinx.serialization.Serializable
-data class ElasticAPMConfig(
+public data class ElasticAPMConfig(
     /**
      * A boolean specifying if the agent should be recording or not. When recording, the agent instruments incoming HTTP requests,
      * tracks errors and collects and sends metrics. When not recording, the agent works as a noop, not collecting data and not
@@ -170,16 +172,19 @@ data class ElasticAPMConfig(
     /**
      * API Key authentication method to use when fanning out events to APM server.
      */
+    @Serializable(with = SecretStringSerializer::class)
     @SerialName("api_key")
     val apiKey: String? = null,
 
     /**
      * If a secret token was configured from the APM server configuration.
      */
+    @Serializable(with = SecretStringSerializer::class)
     @SerialName("secret_token")
     val secretToken: String? = null
 ) {
-    class Builder: org.noelware.charted.common.Builder<ElasticAPMConfig> {
+    @Suppress("MemberVisibilityCanBePrivate")
+    public class Builder: org.noelware.charted.common.Builder<ElasticAPMConfig> {
         private var enabledInstrumentations = mutableListOf<Instrumentation>()
 
         /**
@@ -191,7 +196,7 @@ data class ElasticAPMConfig(
          *
          * [read more here](https://www.elastic.co/guide/en/apm/agent/java/current/config-core.html#config-recording)
          */
-        var recording: Boolean = true
+        public var recording: Boolean = true
 
         /**
          * A boolean specifying if the agent should instrument the application to collect traces for the app. When set to false,
@@ -200,7 +205,7 @@ data class ElasticAPMConfig(
          * to APM Server.
          */
         @SerialName("enable_instrumentation")
-        var enableInstrumentation: Boolean = true
+        public var enableInstrumentation: Boolean = true
 
         /**
          * If set, this name is used to distinguish between different nodes of a service, therefore it should be unique for
@@ -212,7 +217,7 @@ data class ElasticAPMConfig(
          * [read more here](https://www.elastic.co/guide/en/apm/agent/java/current/config-core.html#config-service-node-name)
          */
         @SerialName("service_node_name")
-        var serviceNodeName: String = if (ChartedInfo.dedicatedNode != null) {
+        public var serviceNodeName: String = if (ChartedInfo.dedicatedNode != null) {
             ChartedInfo.dedicatedNode!!
         } else {
             try {
@@ -232,7 +237,7 @@ data class ElasticAPMConfig(
          * [read more here](https://www.elastic.co/guide/en/apm/agent/java/current/config-core.html#config-transaction-sample-rate)
          */
         @SerialName("transaction_sample_rate")
-        var transactionSampleRate: Double = 0.5
+        public var transactionSampleRate: Double = 0.5
 
         /**
          * Limits the amount of spans that are recorded per transaction.
@@ -244,7 +249,7 @@ data class ElasticAPMConfig(
          * [read more here](https://www.elastic.co/guide/en/apm/agent/java/current/config-core.html#config-transaction-max-spans)
          */
         @SerialName("transaction_max_spans")
-        var transactionMaxSpans: Int = 500
+        public var transactionMaxSpans: Int = 500
 
         /**
          * For transactions that are HTTP requests, the Java agent can optionally capture the request body (e.g. POST variables). For transactions that are initiated by receiving a message from a message broker, the agent can capture the textual message body.
@@ -254,7 +259,7 @@ data class ElasticAPMConfig(
          *
          * [read more here](https://www.elastic.co/guide/en/apm/agent/java/current/config-core.html#config-capture-body)
          */
-        var captureBody: Boolean = false
+        public var captureBody: Boolean = false
 
         /**
          * If set to true, the agent will capture HTTP request and response headers (including cookies), as well as messages'
@@ -262,7 +267,7 @@ data class ElasticAPMConfig(
          *
          * [read more here](https://www.elastic.co/guide/en/apm/agent/java/current/config-core.html#config-capture-headers)
          */
-        var captureHeaders: Boolean = false
+        public var captureHeaders: Boolean = false
 
         /**
          * **This requires APM Server 7.2 or higher!**
@@ -272,12 +277,12 @@ data class ElasticAPMConfig(
          *
          * [read more here](https://www.elastic.co/guide/en/apm/agent/java/current/config-core.html#config-global-labels)
          */
-        val globalLabels: MutableMap<String, String> = mutableMapOf()
-        var serverUrl: String = "http://localhost:8200"
-        var apiKey: String? = null
-        var secretToken: String? = null
+        public val globalLabels: MutableMap<String, String> = mutableMapOf()
+        public var serverUrl: String = "http://localhost:8200"
+        public var apiKey: String? = null
+        public var secretToken: String? = null
 
-        fun enable(vararg instrumentations: Instrumentation): Builder {
+        public fun enable(vararg instrumentations: Instrumentation): Builder {
             for (instrumentation in instrumentations) {
                 if (enabledInstrumentations.contains(instrumentation)) {
                     continue
@@ -292,7 +297,7 @@ data class ElasticAPMConfig(
         /**
          * Enables a single auto-instrumentation.
          */
-        fun enable(instrumentation: Instrumentation): Builder {
+        public fun enable(instrumentation: Instrumentation): Builder {
             if (enabledInstrumentations.contains(instrumentation)) return this
 
             enabledInstrumentations.add(instrumentation)

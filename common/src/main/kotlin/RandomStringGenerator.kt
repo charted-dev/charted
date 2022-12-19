@@ -19,11 +19,11 @@ package org.noelware.charted
 
 import java.security.SecureRandom
 
-object RandomStringGenerator {
+public object RandomStringGenerator {
     private val random by lazy { SecureRandom() }
     private val chars = "abcdefghijklmnopqrstuvwyxzABCDEFGHIJKLMNOPQRSTUVWYX1234567890-_$"
 
-    fun generate(length: Int = 16): String {
+    public fun generate(length: Int = 16): String {
         val buffer = StringBuffer(length)
         for (index in 0..length) {
             buffer.append(chars[random.nextInt(chars.length)])

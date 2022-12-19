@@ -27,8 +27,8 @@ import org.noelware.charted.modules.metrics.MetricStatCollector
 
 class PostgresMetricsCollector(private val config: Config): MetricStatCollector {
     override fun collect(): MutableList<Collector.MetricFamilySamples> = collect {
-        config.metrics.metricsets.postgres.firstOrNull() == PostgresMetricKeys.Wildcard ||
-            config.metrics.metricsets.postgres.contains(PostgresMetricKeys.values().find { f -> f.key == it })
+        config.metrics.metricSets.postgres.firstOrNull() == PostgresMetricKeys.Wildcard ||
+            config.metrics.metricSets.postgres.contains(PostgresMetricKeys.values().find { f -> f.key == it })
     }
 
     override fun collect(predicate: Predicate<String>?): MutableList<Collector.MetricFamilySamples> {

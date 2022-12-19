@@ -39,7 +39,6 @@ import org.koin.core.context.GlobalContext.startKoin
 import org.koin.dsl.module
 import org.noelware.charted.MultiValidationException
 import org.noelware.charted.ValidationException
-import org.noelware.charted.common.SetOnce
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.server.ChartedServer
 import org.noelware.charted.server.hasStarted

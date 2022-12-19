@@ -17,24 +17,27 @@
 
 package org.noelware.charted.configuration.kotlin.dsl.metrics
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class MetricsConfig(
-    val metricsets: MetricSets = MetricSets(),
+public data class MetricsConfig(
+    @SerialName("metricsets")
+    val metricSets: MetricSets = MetricSets(),
     val enabled: Boolean = true,
     val path: String = "/metrics"
 ) {
-    class Builder: org.noelware.charted.common.Builder<MetricsConfig> {
-        private var _metricsets: MetricSets = MetricSets()
-        var enabled: Boolean = true
-        var path: String = "/metrics"
+    @Suppress("MemberVisibilityCanBePrivate")
+    public class Builder: org.noelware.charted.common.Builder<MetricsConfig> {
+        private var _metricSets: MetricSets = MetricSets()
+        public var enabled: Boolean = true
+        public var path: String = "/metrics"
 
-        fun metricsets(builder: MetricSets.Builder.() -> Unit = {}): Builder {
-            _metricsets = MetricSets.Builder().apply(builder).build()
+        public fun metricSets(builder: MetricSets.Builder.() -> Unit = {}): Builder {
+            _metricSets = MetricSets.Builder().apply(builder).build()
             return this
         }
 
-        override fun build(): MetricsConfig = MetricsConfig()
+        override fun build(): MetricsConfig = MetricsConfig(_metricSets, enabled, path)
     }
 }

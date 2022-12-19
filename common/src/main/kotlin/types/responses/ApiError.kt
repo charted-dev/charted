@@ -34,7 +34,7 @@ import kotlinx.serialization.json.JsonEncoder
  * @param detail Extra detail to give more context on what happened.
  */
 @Serializable(with = ApiError.Companion::class)
-data class ApiError(
+public data class ApiError(
     val code: String,
     val message: String,
 
@@ -42,7 +42,7 @@ data class ApiError(
     val detail: Any? = null
 ) {
     @OptIn(ExperimentalSerializationApi::class)
-    companion object: KSerializer<ApiError> {
+    internal companion object: KSerializer<ApiError> {
         private val CONTEXTUAL_ANY = ContextualSerializer(Any::class, null, emptyArray())
         override val descriptor: SerialDescriptor = buildClassSerialDescriptor("charted.ApiError") {
             element("code", String.serializer().descriptor)

@@ -24,28 +24,31 @@ import org.noelware.charted.extensions.toUriOrNull
 import kotlin.properties.Delegates
 
 @Serializable
-data class NoelwareAnalyticsConfig(
-    @SerialName("service_token")
-    val serviceToken: String,
-    val port: Int = 10234,
-    val endpoint: String = "https://analytics.noelware.org",
+public data class NoelwareAnalyticsConfig(
     @SerialName("grpc_bind_ip")
     val grpcBindIp: String?,
+
     @SerialName("endpoint_auth")
-    val endpointAuth: String?
+    val endpointAuth: String?,
+
+    @SerialName("service_token")
+    val serviceToken: String,
+    val endpoint: String = "https://analytics.noelware.org",
+    val port: Int = 10234
 ) {
     init {
-        if (endpoint.toUriOrNull() == null) throw ValidationException("config.analytics.endpoint", String.format("Analytics endpoint must be a valid URI, instead got %s", endpoint))
+        if (endpoint.toUriOrNull() == null) throw ValidationException("config.analytics.endpoint", "Analytics endpoint must be a valid URI, instead got $endpoint")
         if (port !in 1024..65535) {
             throw ValidationException("config.analytics.port", "Analytics server port must be in range of [1024..65535]")
         }
     }
 
-    class Builder: org.noelware.charted.common.Builder<NoelwareAnalyticsConfig> {
-        private var serviceToken: String by Delegates.notNull()
-        private var port: Int = 10234
-        private var endpoint: String = "https://analytics.noelware.org"
+    @Suppress("MemberVisibilityCanBePrivate")
+    public class Builder: org.noelware.charted.common.Builder<NoelwareAnalyticsConfig> {
+        public var serviceToken: String by Delegates.notNull()
+        public var endpoint: String = "https://analytics.noelware.org"
+        public var port: Int = 10234
 
-        override fun build(): NoelwareAnalyticsConfig = NoelwareAnalyticsConfig(serviceToken, port, endpoint, null, null)
+        override fun build(): NoelwareAnalyticsConfig = NoelwareAnalyticsConfig(null, null, serviceToken, endpoint, port)
     }
 }

@@ -30,7 +30,7 @@ import org.noelware.charted.common.ByteSizeValue
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = ByteSizeValue::class)
-object ByteSizeValueSerializer: KSerializer<Long> {
+public object ByteSizeValueSerializer: KSerializer<Long> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("charted.ByteSizeValue", PrimitiveKind.LONG)
     override fun deserialize(decoder: Decoder): Long = try {
         val str = decoder.decodeString()

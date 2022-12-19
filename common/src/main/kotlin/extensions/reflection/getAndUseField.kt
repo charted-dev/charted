@@ -25,7 +25,7 @@ import org.noelware.charted.common.ReflectionUtils
  *
  * @param fieldName The field's name to fetch
  */
-inline fun <reified U, T> T.getAndUseField(fieldName: String): U? = ReflectionUtils.getAndUseField(
+public inline fun <reified U, T> T.getAndUseField(fieldName: String): U? = ReflectionUtils.getAndUseField(
     this,
     U::class.java,
     fieldName

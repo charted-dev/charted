@@ -81,7 +81,7 @@ global:
   postgres:
     enabled: true
     auth:
-      username: ''
+      username: charted
       password: ''
       database: charted
       existingSecret: ''
@@ -120,15 +120,17 @@ config:
   path: /app/noelware/charted/server/config/charted.yaml
   defaultConfig: |-
     # refer to the configuration for more details: https://charts.noelware.org/docs/server/latest/self-hosting/configuration
-    jwtSecretKey: ${JWT_SECRET_KEY}
+    jwt_secret_key: ${JWT_SECRET_KEY}
     database:
       host: {{ include "charted.postgres.host" . | quote }}
       port: {{ include "charted.postgres.port" . }}
       database: {{ default "charted" (include "charted.postgres.database" .) | quote }}
+      username: {{ include "charted.postgres.username" . | quote . }}
+      password: {{ include "charted.postgres.password" . | quote . }}
     redis:
       host: {{ include "charted.redis.host" . | quote }}
       port: {{ include "charted.redis.port" . }}
-      database: {{ include "charted.redis.db" . }}
+      index: {{ include "charted.redis.db" . }}
     storage:
     {{- if eq "filesystem" .Values.storage.driver }}
       filesystem:
@@ -137,10 +139,10 @@ config:
 
     {{- if eq "s3" .Values.storage.driver }}
       s3:
-        defaultObjectAcl: bucket-owner-full-control
-        defaultBucketAcl: bucket-owner-full-control
-        secretKeyId: ${AWS_SECRET_ACCESS_KEY}
-        accessKeyId: ${AWS_ACCESS_KEY_ID}
+        default_object_acl: bucket-owner-full-control
+        default_bucket_acl: bucket-owner-full-control
+        secret_key: ${AWS_SECRET_ACCESS_KEY}
+        access_key: ${AWS_ACCESS_KEY_ID}
         region: us-east-1
         bucket: charted
     {{- end }}

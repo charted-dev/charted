@@ -26,6 +26,7 @@ import io.ktor.server.response.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.noelware.charted.ChartedInfo
+import org.noelware.charted.DistributionType
 import org.noelware.charted.types.responses.ApiResponse
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.noelware.ktor.endpoints.Get
@@ -42,7 +43,7 @@ import org.noelware.ktor.endpoints.Get
  */
 @Serializable
 data class InfoResponse(
-    val distribution: String,
+    val distribution: DistributionType,
 
     @SerialName("commit_sha")
     val commitHash: String,
@@ -62,7 +63,7 @@ class InfoEndpoint: AbstractEndpoint("/info") {
             HttpStatusCode.OK,
             ApiResponse.ok(
                 InfoResponse(
-                    ChartedInfo.distribution.key,
+                    ChartedInfo.distribution,
                     ChartedInfo.commitHash,
                     ChartedInfo.buildDate,
                     "charted-server",

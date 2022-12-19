@@ -20,35 +20,33 @@ package org.noelware.charted.configuration.kotlin.dsl.search.elasticsearch
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ElasticsearchConfig(
+public data class ElasticsearchConfig(
     val nodes: List<String> = listOf("127.0.0.1:9200"),
     val auth: AuthenticationStrategy = AuthenticationStrategy.None,
     val ssl: ElasticsearchSSLConfig? = null
 ) {
-    class Builder: org.noelware.charted.common.Builder<ElasticsearchConfig> {
+    @Suppress("MemberVisibilityCanBePrivate")
+    public class Builder: org.noelware.charted.common.Builder<ElasticsearchConfig> {
         private val nodes = mutableListOf<String>()
         private var _auth: AuthenticationStrategy = AuthenticationStrategy.None
         private var ssl: ElasticsearchSSLConfig? = null
 
-        fun ssl(builder: ElasticsearchSSLConfig.Builder.() -> Unit = {}): Builder {
+        public fun ssl(builder: ElasticsearchSSLConfig.Builder.() -> Unit = {}): Builder {
             ssl = ElasticsearchSSLConfig.Builder().apply(builder).build()
             return this
         }
 
-        fun auth(strategy: AuthenticationStrategy): Builder {
+        public fun auth(strategy: AuthenticationStrategy): Builder {
             _auth = strategy
             return this
         }
 
-        fun node(addr: String): Builder {
+        public fun node(addr: String): Builder {
             nodes.add(addr)
             return this
         }
 
-        fun node(host: String, port: Int): Builder {
-            nodes.add("$host:$port")
-            return this
-        }
+        public fun node(host: String, port: Int): Builder = node("http${if (ssl != null) "s" else ""}://$host:$port")
 
         override fun build(): ElasticsearchConfig = ElasticsearchConfig(nodes, _auth, ssl)
     }

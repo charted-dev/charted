@@ -32,5 +32,6 @@ class ServerMetricsCollector: MetricStatCollector {
     }
 
     private fun collect0(mfs: MutableList<Collector.MetricFamilySamples>, predicate: Predicate<String>) {
+        val stats = ServerMetricStatCollector.collect()
     }
 }

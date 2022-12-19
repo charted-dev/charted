@@ -22,12 +22,12 @@ import java.net.URI
 /**
  * Creates a [URI] object from this string.
  */
-fun String.toUri(): URI = URI.create(this)
+public fun String.toUri(): URI = URI.create(this)
 
 /**
  * Same as [toUri] but returns `null` if any errors occur.
  */
-fun String.toUriOrNull(): URI? = try {
+public fun String.toUriOrNull(): URI? = try {
     toUri()
 } catch (_: Exception) {
     null

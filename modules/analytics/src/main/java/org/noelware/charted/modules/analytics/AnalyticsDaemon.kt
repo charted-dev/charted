@@ -17,7 +17,7 @@
 
 package org.noelware.charted.modules.analytics
 
-import io.grpc.ServerBuilder
+import dev.floofy.utils.java.SetOnce
 import io.grpc.protobuf.services.ProtoReflectionService
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -29,12 +29,10 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.bouncycastle.util.io.pem.PemReader
 import org.noelware.analytics.jvm.server.AnalyticsServer
 import org.noelware.analytics.jvm.server.AnalyticsServerBuilder
-import org.noelware.analytics.jvm.server.ServerMetadata
 import org.noelware.analytics.jvm.server.extensions.Extension
 import org.noelware.analytics.protobufs.v1.BuildFlavour
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.DistributionType
-import org.noelware.charted.common.SetOnce
 import org.noelware.charted.configuration.kotlin.dsl.NoelwareAnalyticsConfig
 import org.noelware.charted.types.responses.ApiResponse
 import org.slf4j.LoggerFactory
@@ -70,11 +68,12 @@ class AnalyticsDaemon(private val config: NoelwareAnalyticsConfig, private val e
         val serverBuilder = AnalyticsServerBuilder(config.grpcBindIp ?: "127.0.0.1", config.port)
             .withServiceToken(config.serviceToken)
             .withExtension(extension)
-            .withServerMetadata { metadata: ServerMetadata ->
+            .withServerMetadata { metadata ->
                 val info = ChartedInfo
                 metadata.setDistributionType(
                     when (info.distribution) {
                         DistributionType.UNKNOWN, DistributionType.AUR -> BuildFlavour.UNRECOGNIZED
+                        DistributionType.KUBERNETES -> BuildFlavour.KUBERNETES
                         DistributionType.DOCKER -> BuildFlavour.DOCKER
                         DistributionType.RPM -> BuildFlavour.RPM
                         DistributionType.DEB -> BuildFlavour.DEB
@@ -87,7 +86,7 @@ class AnalyticsDaemon(private val config: NoelwareAnalyticsConfig, private val e
                 metadata.setVersion(info.version)
                 metadata.setVendor("Noelware")
             }
-            .withServerBuilder { builder: ServerBuilder<*> -> builder.addService(ProtoReflectionService.newInstance()) }
+            .withServerBuilder { builder -> builder.addService(ProtoReflectionService.newInstance()) }
             .build()
 
         server.value = serverBuilder

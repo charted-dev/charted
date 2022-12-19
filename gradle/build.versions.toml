@@ -46,7 +46,7 @@ postgresql = "42.5.1"
 java-mail = "1.5.0-b01"
 hikaricp = "5.0.1"
 caffeine = "3.1.2"
-mordant = "2.0.0-beta9"
+mordant = "2.0.0-beta10"
 lettuce = "6.2.2.RELEASE"
 jackson = "2.14.1"
 mockito = "4.10.0"
@@ -64,7 +64,7 @@ grpc = "1.51.1"
 koin = "3.3.0"
 kaml = "0.49.0"
 haru = "1.3.0"
-remi = "0.4.1-beta"
+remi = "0.5.4-beta"
 ktor = "2.2.1"
 totp = "1.7.1"
 otel = "1.21.0"
@@ -94,6 +94,7 @@ exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exp
 # noel utilities
 noel-commons-extensions-kotlin = { module = "dev.floofy.commons:extensions-kotlin", version.ref = "noel-commons" }
 noel-commons-extensions-koin = { module = "dev.floofy.commons:extensions-koin", version.ref = "noel-commons" }
+noel-commons-java-utils = { module = "dev.floofy.commons:java-utils", version.ref = "noel-commons" }
 noel-commons-exposed = { module = "dev.floofy.commons:exposed", version.ref = "noel-commons" }
 noel-commons-slf4j = { module = "dev.floofy.commons:slf4j", version.ref = "noel-commons" }
 
@@ -104,9 +105,10 @@ apache-commons-lang3 = { module = "org.apache.commons:commons-lang3", version.re
 apache-commons-io = { module = "commons-io:commons-io", version.ref = "apache-commons-io" }
 
 # remi libraries
-remi-support-minio = { module = "org.noelware.remi:remi-support-minio", version.ref = "remi" }
-remi-support-s3 = { module = "org.noelware.remi:remi-support-s3", version.ref = "remi" }
-remi-support-fs = { module = "org.noelware.remi:remi-support-fs", version.ref = "remi" }
+remi-storage-azure = { module = "org.noelware.remi:remi-storage-azure", version.ref = "remi" }
+remi-storage-gcs = { module = "org.noelware.remi:remi-storage-gcs", version.ref = "remi" }
+remi-storage-s3 = { module = "org.noelware.remi:remi-storage-s3", version.ref = "remi" }
+remi-storage-fs = { module = "org.noelware.remi:remi-storage-fs", version.ref = "remi" }
 remi-core = { module = "org.noelware.remi:remi-core", version.ref = "remi" }
 
 # sentry libraries

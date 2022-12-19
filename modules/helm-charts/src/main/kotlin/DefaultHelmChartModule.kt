@@ -36,8 +36,7 @@ import org.noelware.charted.modules.storage.StorageHandler
 import org.noelware.charted.types.helm.ChartIndexSpec
 import org.noelware.charted.types.helm.ChartIndexYaml
 import org.noelware.charted.types.helm.ChartSpec
-import org.noelware.remi.core.figureContentType
-import org.noelware.remi.filesystem.FilesystemStorageTrailer
+import org.noelware.remi.support.filesystem.FilesystemStorageService
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -71,8 +70,8 @@ class DefaultHelmChartModule(
      */
     @Traced
     override suspend fun createIndexYaml(owner: Long) {
-        if (storage.trailer is FilesystemStorageTrailer) {
-            val folder = File((storage.trailer as FilesystemStorageTrailer).normalizePath("./metadata/$owner"))
+        if (storage.service is FilesystemStorageService) {
+            val folder = File((storage.service as FilesystemStorageService).normalizePath("./metadata/$owner"))
             if (!folder.exists()) folder.mkdirs()
         }
 
@@ -124,7 +123,7 @@ class DefaultHelmChartModule(
         }
 
         val data = baos.toByteArray()
-        val contentType = storage.trailer.figureContentType(data)
+        val contentType = storage.service.getContentTypeOf(data)
         if (!acceptableContentTypes.contains(contentType)) {
             throw IllegalArgumentException("File provided was not any of [${acceptableContentTypes.joinToString(", ")}], received $contentType")
         }
@@ -178,8 +177,8 @@ class DefaultHelmChartModule(
             throw IllegalStateException("Corrupt tar file: missing `Chart.yaml` file")
         }
 
-        if (storage.trailer is FilesystemStorageTrailer) {
-            val tarballPath = (storage.trailer as FilesystemStorageTrailer).normalizePath("./repositories/$owner/${repo.id}/tarballs")
+        if (storage.service is FilesystemStorageService) {
+            val tarballPath = (storage.service as FilesystemStorageService).normalizePath("./repositories/$owner/${repo.id}/tarballs")
             val tarballFile = File(tarballPath)
 
             if (!tarballFile.exists()) {
