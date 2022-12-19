@@ -95,19 +95,6 @@ fun RootDsl.usersApi() {
             202 response {
                 "application/json" content {
                     schema<ApiResponse.Ok<User>>()
-                    example = ApiResponse.ok(
-                        User(
-                            "noel@noelware.org",
-                            "a blepper in the wild :quantD:",
-                            null,
-                            Instant.parse("2022-11-08T05:03:56.550Z").toLocalDateTime(TimeZone.currentSystemDefault()),
-                            Instant.parse("2022-12-16T07:07:32.473Z").toLocalDateTime(TimeZone.currentSystemDefault()),
-                            "noel",
-                            0,
-                            "Noel",
-                            1
-                        )
-                    )
                 }
             }
 
@@ -144,19 +131,6 @@ fun RootDsl.usersApi() {
                 description = "The user response if the user was found"
                 "application/json" content {
                     schema<ApiResponse.Ok<User>>()
-                    example = ApiResponse.ok(
-                        User(
-                            "cutie@floofy.dev",
-                            "18 year old \uD83D\uDC3B\u200D❄ \uD83E\uDE84 in the wild - Lead Developer of charted-server",
-                            null,
-                            Instant.parse("2022-11-08T05:03:56.550Z").toLocalDateTime(TimeZone.currentSystemDefault()),
-                            Instant.parse("2022-11-08T05:03:56.550Z").toLocalDateTime(TimeZone.currentSystemDefault()),
-                            "noel",
-                            0,
-                            "Noel \uD83D\uDC3B\u200D❄ \uD83E\uDE84",
-                            1
-                        )
-                    )
                 }
             }
 
