@@ -18,6 +18,7 @@
 package org.noelware.charted.server.tests
 
 import com.charleskorn.kaml.YamlException
+import dev.floofy.utils.java.SetOnce
 import dev.floofy.utils.slf4j.logging
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
