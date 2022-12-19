@@ -7,5 +7,13 @@
   "workspaceFolder": "/workspaces/charted",
   "service": "workspace",
   "runServices": ["postgres", "redis"],
-  "forwardPorts": [6379, 5432]
+  "forwardPorts": [6379, 5432],
+
+  // JetBrains Gateway requires an SSH connection to be available, so,
+  // this is here for that. :)
+  "features": {
+    "ghcr.io/devcontainers/features/sshd:1": {
+      "version": "latest"
+    }
+  }
 }
