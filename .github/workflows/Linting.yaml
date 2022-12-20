@@ -25,7 +25,6 @@ on:
       - main
 
     paths-ignore:
-      - '.github/**'
       - '.husky/**'
       - '.vscode/**'
       - 'assets/**'
@@ -134,10 +133,7 @@ jobs:
 
       - name: Install dependencies [${{matrix.projects.name}}]
         working-directory: ${{matrix.projects.directory}}
-        run: |
-          go mod download
-          go mod vendor
-          go get
+        run: go mod download
 
       - name: golangci-lint [${{matrix.projects.name}}]
         uses: golangci/golangci-lint-action@v3
