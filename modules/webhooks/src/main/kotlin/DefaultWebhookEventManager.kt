@@ -18,6 +18,7 @@
 package org.noelware.charted.modules.webhooks
 
 import dev.floofy.utils.slf4j.logging
+import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
@@ -25,14 +26,18 @@ import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
-import org.noelware.charted.Snowflake
 import org.noelware.charted.databases.clickhouse.ClickHouseConnection
 import org.noelware.charted.modules.webhooks.events.WebhookEvent
 import org.noelware.charted.modules.webhooks.types.WebhookOriginKind
 import org.noelware.charted.modules.webhooks.types.toDbType
+import org.noelware.charted.snowflake.Snowflake
 import kotlin.reflect.KClass
 
-class DefaultWebhookEventManager(private val clickhouse: ClickHouseConnection, private val json: Json): WebhookEventManager {
+class DefaultWebhookEventManager(
+    private val clickhouse: ClickHouseConnection,
+    private val snowflake: Snowflake,
+    private val json: Json
+): WebhookEventManager {
     private val log by logging<DefaultWebhookEventManager>()
 
     override suspend fun getAll(origin: Pair<WebhookOriginKind, Long>): List<WebhookEvent<JsonObject>> {
@@ -66,14 +71,14 @@ class DefaultWebhookEventManager(private val clickhouse: ClickHouseConnection, p
     }
 
     @OptIn(InternalSerializationApi::class)
-    @Suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST", "UNNECESSARY_NOT_NULL_ASSERTION")
     override suspend fun <T> create(origin: Pair<WebhookOriginKind, Long>, data: T?): WebhookEvent<T> = clickhouse.create {
         log.info("Creating webhook event [${origin.first} ${origin.second}]")
 
-        val id = Snowflake.generate()
+        val id = runBlocking { snowflake.generate() }
         val firedAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
         val stmt = prepareStatement("INSERT INTO charted.webhook_events(*) VALUES(?, ?, ?, ?, ?, ?, ?);")
-        stmt.setLong(0, id)
+        stmt.setLong(0, id.value)
         stmt.setObject(1, firedAt.toJavaLocalDateTime())
         if (data != null) {
             stmt.setString(2, json.encodeToString(data!!::class.serializer() as KSerializer<T>, data))
@@ -88,7 +93,7 @@ class DefaultWebhookEventManager(private val clickhouse: ClickHouseConnection, p
             firedAt,
             origin.second,
             data,
-            id
+            id.value
         )
     }
 }

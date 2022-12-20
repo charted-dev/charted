@@ -26,6 +26,7 @@ kotlinx-coroutines = "1.6.4"
 elasticsearch-rest = "8.5.3"
 apache-commons-io = "2.11.0"
 mustache-compiler = "0.9.10"
+charted-snowflake = "0.1-beta"
 meilisearch-rest = "1.0"
 kotlinx-atomicfu = "0.18.5"
 kotlinx-datetime = "0.4.0"
@@ -196,6 +197,7 @@ spring-security-crypto = { module = "org.springframework.security:spring-securit
 exposed-powergamer-tools = { module = "net.perfectdreams.exposedpowerutils:postgres-power-utils", version.ref = "exposed-powergamer-tools" }
 meilisearch-rest-client = { module = "dev.floofy.meilisearch:rest-client", version.ref = "meilisearch-rest" }
 kubernetes-client = { module = "io.kubernetes:client-java", version.ref = "kubernetes" }
+charted-snowflake = { module = "org.noelware.charted.snowflake:snowflake", version.ref = "charted-snowflake" }
 mustache-compiler = { module = "com.github.spullara.mustache.java:compiler", version.ref = "mustache-compiler" }
 tegral-openapi = { module = "guru.zoroark.tegral:tegral-openapi-dsl", version.ref = "tegral" }
 jakarta-mail = { module = "com.sun.mail:jakarta.mail", version.ref = "jakarta-mail" }

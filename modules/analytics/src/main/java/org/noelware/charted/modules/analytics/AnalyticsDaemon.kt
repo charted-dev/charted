@@ -80,6 +80,7 @@ class AnalyticsDaemon(private val config: NoelwareAnalyticsConfig, private val e
                         DistributionType.GIT -> BuildFlavour.GIT
                     }
                 )
+
                 metadata.setProductName("charted-server")
                 metadata.setCommitHash(info.commitHash)
                 metadata.setBuildDate(Instant.parse(info.buildDate))

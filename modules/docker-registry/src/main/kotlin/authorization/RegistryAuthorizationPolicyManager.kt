@@ -15,16 +15,17 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.endpoints.v1.api
+package org.noelware.charted.modules.docker.registry.authorization
 
-import org.koin.dsl.bind
-import org.koin.dsl.module
-import org.noelware.ktor.endpoints.AbstractEndpoint
+import org.noelware.charted.databases.postgres.entities.UserEntity
+import java.io.Closeable
 
-val apiV1Endpoints = module {
-    single { UsersEndpoint(get(), get(), get(), get(), get(), get(), get(), getOrNull()) } bind AbstractEndpoint::class
-    single { RepositoriesEndpoint(get(), get(), get(), getOrNull()) } bind AbstractEndpoint::class
-    single { OrganizationsEndpoint() } bind AbstractEndpoint::class
-    single { ApiKeysEndpoint(get(), get()) } bind AbstractEndpoint::class
-    single { AdminEndpoint() } bind AbstractEndpoint::class
+/**
+ * Represents the policy manager for all [RegistryAuthorizationToken(s)][RegistryAuthorizationToken]
+ */
+interface RegistryAuthorizationPolicyManager: Closeable {
+    fun isTokenExpired(token: String?): Boolean
+    fun isTokenValid(token: String?): Boolean
+    suspend fun doAuthorize(header: String?): RegistryAuthorizationToken?
+    suspend fun create(user: UserEntity): RegistryAuthorizationToken
 }

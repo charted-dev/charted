@@ -22,7 +22,6 @@ package org.noelware.charted.configuration.kotlin.dsl
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.noelware.charted.ValidationException
-import org.noelware.charted.configuration.kotlin.dsl.features.DockerRegistryConfig
 import org.noelware.charted.configuration.kotlin.dsl.features.ServerFeature
 import org.noelware.charted.configuration.kotlin.dsl.metrics.MetricsConfig
 import org.noelware.charted.configuration.kotlin.dsl.search.SearchConfig
@@ -30,7 +29,18 @@ import org.noelware.charted.configuration.kotlin.dsl.sessions.SessionsConfig
 import org.noelware.charted.configuration.kotlin.dsl.storage.StorageConfig
 import org.noelware.charted.configuration.kotlin.dsl.tracing.TracingConfig
 
-public const val DO_NOT_USE_THIS_VALUE_IN_YOUR_JWT_SECRET_KEY_OR_I_WILL_LAUGH_AT_YOU: String = "__DO NOT USE THIS AS THE SECRET KEY__"
+private const val DO_NOT_USE_THIS_VALUE_IN_YOUR_JWT_SECRET_KEY_OR_I_WILL_LAUGH_AT_YOU: String = "__DO NOT USE THIS AS THE SECRET KEY__"
+
+public fun Config.toApiBaseUrl(path: String = "/"): String = when {
+    baseUrl != null -> baseUrl + path
+    else -> "http${if (server.ssl != null) "s" else ""}://${server.host}:${server.port}$path"
+}
+
+public fun Config.toCdnBaseUrl(path: String = "/"): String = when {
+    cdn != null && cdn.enabled -> toApiBaseUrl("/${cdn.prefix}$path")
+    storage.hostAlias != null -> storage.hostAlias + path
+    else -> toApiBaseUrl(path)
+}
 
 /**
  * Represents the configuration object that is used to configure the server to your heart's content~!
@@ -93,8 +103,6 @@ public data class Config(
     val baseUrl: String? = null,
     val debug: Boolean = false,
 
-    @SerialName("docker_registry")
-    val dockerRegistry: DockerRegistryConfig? = null,
     val clickhouse: ClickHouseConfig? = null,
     val analytics: NoelwareAnalyticsConfig? = null,
     val database: DatabaseConfig = DatabaseConfig(),
@@ -117,10 +125,6 @@ public data class Config(
         if (registrations && inviteOnly) {
             throw ValidationException("body.registrations|invite_only", "registrations and invite_only are mutually exclusive")
         }
-
-        if (features.contains(ServerFeature.DOCKER_REGISTRY) && dockerRegistry == null) {
-            throw ValidationException("body.docker_registry", "The docker_registry feature must have a docker registry configuration object connecting to a valid OCI registry")
-        }
     }
 
     /**
@@ -136,7 +140,6 @@ public data class Config(
         public var baseUrl: String? = null
         public var debug: Boolean = false
 
-        private var _dockerRegistry: DockerRegistryConfig? = null
         private var _clickhouse: ClickHouseConfig? = null
         private var _analytics: NoelwareAnalyticsConfig? = null
         private var _features: MutableList<ServerFeature> = mutableListOf()
@@ -150,15 +153,6 @@ public data class Config(
         private var _redis: RedisConfig = RedisConfig()
         private var _smtp: SMTPConfig? = null
         private var _cdn: CdnProxyConfig? = null
-
-        public fun dockerRegistry(builder: DockerRegistryConfig.Builder.() -> Unit): Builder {
-            if (!_features.contains(ServerFeature.DOCKER_REGISTRY)) {
-                _features.add(ServerFeature.DOCKER_REGISTRY)
-            }
-
-            _dockerRegistry = DockerRegistryConfig.Builder().apply(builder).build()
-            return this
-        }
 
         public fun clickhouse(builder: ClickHouseConfig.Builder.() -> Unit = {}): Builder {
             _clickhouse = ClickHouseConfig.Builder().apply(builder).build()
@@ -235,7 +229,6 @@ public data class Config(
             sentryDsn,
             baseUrl,
             debug,
-            _dockerRegistry,
             _clickhouse,
             _analytics,
             _database,

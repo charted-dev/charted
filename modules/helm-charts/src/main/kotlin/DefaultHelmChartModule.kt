@@ -31,6 +31,8 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.utils.IOUtils
 import org.noelware.charted.configuration.kotlin.dsl.Config
+import org.noelware.charted.configuration.kotlin.dsl.toApiBaseUrl
+import org.noelware.charted.configuration.kotlin.dsl.toCdnBaseUrl
 import org.noelware.charted.databases.postgres.models.Repository
 import org.noelware.charted.modules.storage.StorageHandler
 import org.noelware.charted.types.helm.ChartIndexSpec
@@ -196,7 +198,8 @@ class DefaultHelmChartModule(
         // Update the owner's index.yaml file for this release
         val indexYaml = getIndexYaml(owner)!!
         val entries = indexYaml.entries.toMutableMap()
-        val host = config.storage.hostAlias ?: config.baseUrl ?: "http${if (config.server.ssl != null) "s" else ""}://${config.server.host}:${config.server.port}"
+        val host = config.toApiBaseUrl()
+        val cdnBaseUrl = config.toCdnBaseUrl("/repositories/${repo.id}/releases/$version.tar.gz")
         entries[repo.name] = if (!entries.containsKey(repo.name)) {
             listOf(
                 ChartIndexSpec.fromSpec(
@@ -207,7 +210,7 @@ class DefaultHelmChartModule(
                         // properly configured, Helm will try to request to the CDN. This is mainly
                         // used in production.
                         if (config.cdn != null && config.cdn!!.enabled) {
-                            "$host${config.cdn!!.prefix}/repositories/${repo.id}/releases/$version.tar.gz"
+                            cdnBaseUrl
                         } else {
                             null
                         }
@@ -228,7 +231,7 @@ class DefaultHelmChartModule(
                         // properly configured, Helm will try to request to the CDN. This is mainly
                         // used in production.
                         if (config.cdn != null && config.cdn!!.enabled) {
-                            "$host${config.cdn!!.prefix}/repositories/${repo.id}/releases/$version.tar.gz"
+                            cdnBaseUrl
                         } else {
                             null
                         }

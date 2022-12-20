@@ -26,10 +26,10 @@ import kotlin.properties.Delegates
 @Serializable
 public data class NoelwareAnalyticsConfig(
     @SerialName("grpc_bind_ip")
-    val grpcBindIp: String?,
+    val grpcBindIp: String? = null,
 
     @SerialName("endpoint_auth")
-    val endpointAuth: String?,
+    val endpointAuth: String? = null,
 
     @SerialName("service_token")
     val serviceToken: String,

@@ -49,9 +49,7 @@ import org.koin.core.context.GlobalContext
 import org.noelware.charted.MultiValidationException
 import org.noelware.charted.ValidationException
 import org.noelware.charted.configuration.kotlin.dsl.Config
-import org.noelware.charted.configuration.kotlin.dsl.features.ServerFeature
 import org.noelware.charted.extensions.ifSentryEnabled
-import org.noelware.charted.modules.docker.registry.RegistryKtorPlugin
 import org.noelware.charted.server.ChartedServer
 import org.noelware.charted.server.hasStarted
 import org.noelware.charted.server.openapi.charted
@@ -106,11 +104,6 @@ class DefaultChartedServer(private val config: Config): ChartedServer {
         // though we also need to add APM and OpenTelemetry here.
         ifSentryEnabled {
             install(SentryPlugin)
-        }
-
-        // Installs the Docker Registry proxy plugin if it is available
-        if (config.features.contains(ServerFeature.DOCKER_REGISTRY) && config.dockerRegistry != null) {
-            install(RegistryKtorPlugin)
         }
 
         // So we can use kotlinx.serialization for the `application/json` content type

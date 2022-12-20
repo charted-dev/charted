@@ -43,7 +43,7 @@ public enum class RedisMetricKeys(public val key: String) {
     Wildcard("*");
 }
 
-private object RedisMetricKeysSerializer: KSerializer<RedisMetricKeys> {
+internal object RedisMetricKeysSerializer: KSerializer<RedisMetricKeys> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("charted.metrics.RedisKeys", PrimitiveKind.STRING)
     override fun deserialize(decoder: Decoder): RedisMetricKeys {
         val key = decoder.decodeString()

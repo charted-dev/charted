@@ -33,6 +33,7 @@ import kotlinx.datetime.Clock
  *           number of ms since epoch           worker  pid    increment
  * ```
  */
+@Deprecated("This will be replaced with org.noelware.charted.snowflake.Snowflake in v0.3.3-nightly")
 public class Snowflake {
     /**
      * Represents a deconstructed [Snowflake]

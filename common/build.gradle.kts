@@ -74,6 +74,6 @@ dependencies {
     // Bouncycastle
     api(libs.bouncycastle)
 
-    // System Lambda
-    testImplementation("com.github.stefanbirkner:system-lambda:1.2.1")
+    // Snowflake
+    api(libs.charted.snowflake)
 }

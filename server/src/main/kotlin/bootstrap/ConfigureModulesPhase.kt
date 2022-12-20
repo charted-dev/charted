@@ -43,10 +43,12 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.context.startKoin
+import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.configuration.host.ConfigurationHost
 import org.noelware.charted.configuration.kotlin.dsl.Config
+import org.noelware.charted.configuration.kotlin.dsl.features.ServerFeature
 import org.noelware.charted.configuration.kotlin.dsl.sessions.SessionType
 import org.noelware.charted.configuration.kotlin.host.KotlinScriptHost
 import org.noelware.charted.configuration.yaml.YamlConfigurationHost
@@ -61,6 +63,8 @@ import org.noelware.charted.modules.analytics.AnalyticsDaemon
 import org.noelware.charted.modules.apikeys.ApiKeyManager
 import org.noelware.charted.modules.apikeys.DefaultApiKeyManager
 import org.noelware.charted.modules.avatars.avatarsModule
+import org.noelware.charted.modules.docker.registry.authorization.DefaultRegistryAuthorizationPolicyManager
+import org.noelware.charted.modules.docker.registry.authorization.RegistryAuthorizationPolicyManager
 import org.noelware.charted.modules.elasticsearch.DefaultElasticsearchModule
 import org.noelware.charted.modules.elasticsearch.ElasticsearchModule
 import org.noelware.charted.modules.elasticsearch.metrics.ElasticsearchMetricCollector
@@ -79,11 +83,14 @@ import org.noelware.charted.modules.sessions.local.LocalSessionManager
 import org.noelware.charted.modules.storage.DefaultStorageHandler
 import org.noelware.charted.modules.storage.StorageHandler
 import org.noelware.charted.server.ChartedServer
+import org.noelware.charted.server.endpoints.AuthTokenEndpoint
 import org.noelware.charted.server.endpoints.v1.endpointsModule
 import org.noelware.charted.server.internal.DefaultChartedServer
 import org.noelware.charted.server.internal.analytics.ChartedAnalyticsExtension
 import org.noelware.charted.server.metrics.ServerMetricStatCollector
 import org.noelware.charted.server.metrics.ServerMetricsCollector
+import org.noelware.charted.snowflake.Snowflake
+import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
 import java.io.File
 import java.net.InetAddress
@@ -200,6 +207,8 @@ object ConfigureModulesPhase: BootstrapPhase() {
             isLenient = true
         }
 
+        // epoch is Dec 1st, 2022
+        val snowflake = Snowflake(0, 1669791600000)
         val argon2 = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8()
         val apiKeyManager = DefaultApiKeyManager(redis)
         val sessions: SessionManager = when (config.sessions.type) {
@@ -225,6 +234,7 @@ object ConfigureModulesPhase: BootstrapPhase() {
             single<ChartedServer> { DefaultChartedServer(config) }
             single<ApiKeyManager> { apiKeyManager }
             single<RedisClient> { redis }
+            single { snowflake }
             single { sessions }
             single { argon2 }
             single { config }
@@ -292,6 +302,16 @@ object ConfigureModulesPhase: BootstrapPhase() {
             modules.add(
                 module {
                     single { daemon }
+                }
+            )
+        }
+
+        if (config.features.contains(ServerFeature.DOCKER_REGISTRY)) {
+            val registryAuthorizationPolicyManager = DefaultRegistryAuthorizationPolicyManager(sessions, redis, json, config)
+            modules.add(
+                module {
+                    single<RegistryAuthorizationPolicyManager> { registryAuthorizationPolicyManager }
+                    single { AuthTokenEndpoint(get()) } bind AbstractEndpoint::class
                 }
             )
         }

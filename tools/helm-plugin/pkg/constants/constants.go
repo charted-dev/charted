@@ -13,10 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package constants
 
-import "fmt"
+import "time"
 
-func main() {
-	fmt.Println("Hello, world!")
-}
+var (
+	// Version is the current version of the Helm plugin. This is usually the same version
+	// as the server.
+	Version = "devel"
+
+	// CommitSHA is the commit hash from the official GitHub repository (https://github.com/charted-dev/charted)
+	CommitSHA = "abcdefgh"
+
+	// BuildDate is the build date that this Helm plugin was built on.
+	BuildDate = time.Now().Format(time.RFC3339)
+)

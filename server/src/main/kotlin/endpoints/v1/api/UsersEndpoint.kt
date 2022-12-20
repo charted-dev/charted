@@ -193,7 +193,8 @@ class UsersEndpoint(
     private val redis: RedisClient,
     private val avatars: AvatarModule,
     private val argon2: Argon2PasswordEncoder,
-    private val charts: HelmChartModule
+    private val snowflake: org.noelware.charted.snowflake.Snowflake,
+    private val charts: HelmChartModule? = null
 ): AbstractEndpoint("/users") {
     private val log by logging<UsersEndpoint>()
 
@@ -265,8 +266,9 @@ class UsersEndpoint(
             throw ValidationException("body.email", "Email [${body.email}] already exists")
         }
 
+        val id = snowflake.generate()
         val user = asyncTransaction(ChartedScope) {
-            UserEntity.new(Snowflake.generate()) {
+            UserEntity.new(id.value) {
                 createdAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 updatedAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 username = body.username
@@ -284,7 +286,7 @@ class UsersEndpoint(
 
         if (!config.features.contains(ServerFeature.DOCKER_REGISTRY)) {
             log.info("New registered user [@${user.username}], creating index.yaml entry!")
-            charts.createIndexYaml(user.id)
+            charts!!.createIndexYaml(user.id)
         }
 
         return call.respond(HttpStatusCode.Created, ApiResponse.ok(user))
@@ -510,8 +512,9 @@ class UsersEndpoint(
             )
         }
 
+        val id = snowflake.generate()
         val repository = asyncTransaction(ChartedScope) {
-            RepositoryEntity.new(Snowflake.generate()) {
+            RepositoryEntity.new(id.value) {
                 this.description = body.description
                 this.owner = call.currentUser!!.id
                 this.flags = if (body.private) 1 else 0

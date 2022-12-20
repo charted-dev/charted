@@ -47,6 +47,7 @@ import org.noelware.charted.serializers.ByteSizeValueSerializer
 import org.noelware.charted.server.plugins.API_KEY_KEY
 import org.noelware.charted.server.plugins.SessionsPlugin
 import org.noelware.charted.server.plugins.currentUser
+import org.noelware.charted.snowflake.Snowflake
 import org.noelware.charted.types.responses.ApiError
 import org.noelware.charted.types.responses.ApiResponse
 import org.noelware.ktor.body
@@ -117,7 +118,10 @@ data class ApiKeysResponse(
     val docsUrl: String = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api/apikeys"
 )
 
-class ApiKeysEndpoint(private val apikeys: ApiKeyManager): AbstractEndpoint("/apikeys") {
+class ApiKeysEndpoint(
+    private val apikeys: ApiKeyManager,
+    private val snowflake: Snowflake
+): AbstractEndpoint("/apikeys") {
     init {
         install(HttpMethod.Delete, "/apikeys/{id}", SessionsPlugin) {
             this += "apikeys:delete"
@@ -218,8 +222,9 @@ class ApiKeysEndpoint(private val apikeys: ApiKeyManager): AbstractEndpoint("/ap
             UserEntity.find { UserTable.id eq call.currentUser!!.id }.first()
         }
 
+        val id = snowflake.generate()
         val apiKey = asyncTransaction(ChartedScope) {
-            ApiKeyEntity.new(Snowflake.generate()) {
+            ApiKeyEntity.new(id.value) {
                 this.expiresIn = if (expiresIn != null) {
                     Clock.System.now().plus(expiresIn)
                         .toLocalDateTime(TimeZone.currentSystemDefault())

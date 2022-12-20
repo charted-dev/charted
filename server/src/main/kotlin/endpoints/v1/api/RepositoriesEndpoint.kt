@@ -104,6 +104,7 @@ private val ApplicationCall.repositoryMember: RepositoryMember?
 class RepositoriesEndpoint(
     private val storage: StorageHandler,
     private val config: Config,
+    private val snowflake: org.noelware.charted.snowflake.Snowflake,
     private val charts: HelmChartModule? = null,
     private val emails: EmailService? = null,
     private val webhooks: WebhookEventManager? = null,
@@ -552,8 +553,9 @@ class RepositoriesEndpoint(
                 )
             )
 
+            val repoMemberId = snowflake.generate()
             val repoMember = asyncTransaction(ChartedScope) {
-                RepositoryMemberEntity.new(Snowflake.generate()) {
+                RepositoryMemberEntity.new(repoMemberId.value) {
                     this.repository = repository
                     this.account = memberUserObject
 

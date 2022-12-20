@@ -21,6 +21,7 @@ plugins {
 
 dependencies {
     implementation(project(":databases:postgres"))
+    implementation(project(":modules:sessions"))
     implementation(project(":modules:redis"))
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.client.core)

@@ -30,7 +30,7 @@ class RegistryAuthorizationScopes(bits: Long = 0L): Bitfield(
 )
 
 /**
- * Represents an authentication mechanism to provide authorization towards pushing
+ * Represents an authentication token to provide authorization towards pushing
  * and pulling repositories.
  *
  * @param userID The user's ID that this authorization token belongs to
@@ -39,19 +39,19 @@ class RegistryAuthorizationScopes(bits: Long = 0L): Bitfield(
  * @param token  The JWT token that was generated when `docker login` was used.
  */
 @Serializable
-data class RegistryAuthorization(
+data class RegistryAuthorizationToken(
     val userID: Long,
     val scopes: Long = 0,
     val token: String
 )
 
-private val RegistryAuthorization.scopeBits: RegistryAuthorizationScopes
+private val RegistryAuthorizationToken.scopeBits: RegistryAuthorizationScopes
     get() = RegistryAuthorizationScopes(scopes)
 
 /** Checks if this token has permission to push to OCI charts it has access towards or not. */
-val RegistryAuthorization.hasPush: Boolean
+val RegistryAuthorizationToken.hasPush: Boolean
     get() = scopeBits.has(1L shl 0)
 
 /** Checks if this token has permission to pull OCI charts of private repositories or not */
-val RegistryAuthorization.hasPull: Boolean
+val RegistryAuthorizationToken.hasPull: Boolean
     get() = scopeBits.has(1L shl 1)
