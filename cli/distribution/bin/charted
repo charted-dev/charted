@@ -76,8 +76,6 @@ if [ -n "${JAVA_HOME:-}" ]; then
     fatal "The home path for Java was set to an invalid directory: $JAVA_HOME
 Please set the location of the JAVA_HOME environment variable to match the location
 of the Java installation."
-
-    exit 1
   fi
 else
   JAVA_EXEC=java
@@ -85,7 +83,6 @@ else
 found in the current PATH.
 Please set the location of the JAVA_HOME environment variable to match the location
 of the Java installation."
-  exit 1
 fi
 
 # $APP_HOME = bin/, so we need to go back so we can load up the classpath

@@ -65,8 +65,9 @@ spotless {
 }
 
 java {
-    sourceCompatibility = JAVA_VERSION
-    targetCompatibility = JAVA_VERSION
+    toolchain {
+        languageVersion by JavaLanguageVersion.of(JAVA_VERSION.majorVersion)
+    }
 }
 
 // This will transform the project path:

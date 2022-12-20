@@ -19,7 +19,6 @@ package org.noelware.charted.server.openapi.apis
 
 import guru.zoroark.tegral.openapi.dsl.RootDsl
 import guru.zoroark.tegral.openapi.dsl.schema
-import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.noelware.charted.ChartedInfo
@@ -49,19 +48,6 @@ fun RootDsl.usersApi() {
             201 response {
                 "application/json" content {
                     schema<ApiResponse.Ok<User>>()
-                    example = ApiResponse.ok(
-                        User(
-                            "cutie@floofy.dev",
-                            "18 year old \uD83D\uDC3B\u200D❄ \uD83E\uDE84 in the wild - Lead Developer of charted-server",
-                            null,
-                            LocalDateTime.parse("2022-11-08T05:03:56.550Z"),
-                            LocalDateTime.parse("2022-11-08T05:03:56.550Z"),
-                            "noel",
-                            0,
-                            "Noel \uD83D\uDC3B\u200D❄ \uD83E\uDE84",
-                            1
-                        )
-                    )
                 }
             }
 
@@ -106,19 +92,6 @@ fun RootDsl.usersApi() {
             202 response {
                 "application/json" content {
                     schema<ApiResponse.Ok<User>>()
-                    example = ApiResponse.ok(
-                        User(
-                            "noel@noelware.org",
-                            "a blepper in the wild :quantD:",
-                            null,
-                            LocalDateTime.parse("2022-11-08T05:03:56.550Z"),
-                            LocalDateTime.parse("2022-12-16T07:07:32.473Z"),
-                            "noel",
-                            0,
-                            "Noel",
-                            1
-                        )
-                    )
                 }
             }
 
@@ -155,19 +128,6 @@ fun RootDsl.usersApi() {
                 description = "The user response if the user was found"
                 "application/json" content {
                     schema<ApiResponse.Ok<User>>()
-                    example = ApiResponse.ok(
-                        User(
-                            "cutie@floofy.dev",
-                            "18 year old \uD83D\uDC3B\u200D❄ \uD83E\uDE84 in the wild - Lead Developer of charted-server",
-                            null,
-                            LocalDateTime.parse("2022-11-08T05:03:56.550Z"),
-                            LocalDateTime.parse("2022-11-08T05:03:56.550Z"),
-                            "noel",
-                            0,
-                            "Noel \uD83D\uDC3B\u200D❄ \uD83E\uDE84",
-                            1
-                        )
-                    )
                 }
             }
 
