@@ -136,7 +136,7 @@ class ApiKeysEndpoint(
 //        }
 
         install(HttpMethod.Put, "/apikeys", SessionsPlugin) {
-            assertSessionOnly = true
+            this += "apikeys:view"
         }
 
         install(HttpMethod.Get, "/apikeys/{name}", SessionsPlugin) {
