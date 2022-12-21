@@ -1,4 +1,4 @@
-# 📦 Noelware's Charts Platform (charted-server)
+ 📦 Noelware's Charts Platform (charted-server)
 [![Kotlin v1.7.22](https://img.shields.io/badge/kotlin-1.7.22-blue.svg?logo=kotlin)](https://kotlinlang.org)
 [![GitHub License](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Linting and Unit Testing](https://github.com/charted-dev/charted/actions/workflows/Linting.yaml/badge.svg?branch=main)](https://github.com/charted-dev/charted/actions/workflows/Linting.yaml)
