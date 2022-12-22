@@ -18,7 +18,7 @@ package testingutils
 import (
 	"context"
 
-	"github.com/testcontainers/testcontainers-go"
+	testcontainers "github.com/testcontainers/testcontainers-go"
 )
 
 type TestcontainerOption func(req *testcontainers.ContainerRequest)
