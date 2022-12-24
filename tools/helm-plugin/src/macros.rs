@@ -13,17 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[macro_use]
-extern crate log;
-
-use clap::Parser;
-use helm_plugin::{CLI, logging};
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let cli = CLI::parse();
-    logging::setup(cli.verbose, cli.log_level)?;
-
-    info!("Hello, world!");
-    Ok(())
+#[macro_export]
+macro_rules! compile_regex {
+    ($r:expr) => {
+        ::regex::Regex::new($r).unwrap()
+    };
 }
