@@ -1,13 +1,13 @@
 dependencies:
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
-  version: 12.1.5
+  version: 12.1.6
 - name: redis
   repository: https://charts.bitnami.com/bitnami
-  version: 17.3.17
+  version: 17.4.0
 - name: clickhouse
   repository: https://charts.bitnami.com/bitnami
-  version: 2.1.1
+  version: 2.2.1
 - name: elasticsearch
   repository: https://helm.elastic.co
   version: 8.5.1
@@ -16,9 +16,9 @@ dependencies:
   version: 8.5.1
 - name: prometheus
   repository: https://prometheus-community.github.io/helm-charts
-  version: 19.0.2
+  version: 19.1.0
 - name: common
   repository: https://charts.bitnami.com/bitnami
   version: 2.2.2
-digest: sha256:1370f43d9ada57997e2bd608896d43bc8ae3de9d22992e9956e521c8238962b1
-generated: "2022-12-17T23:50:45.939392155-07:00"
+digest: sha256:a3490307382233ca47820b751c86a52cf6c206bc1c249a9db7af721c4699b4bb
+generated: "2022-12-24T11:07:11.413873941-07:00"

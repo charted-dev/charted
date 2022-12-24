@@ -122,16 +122,16 @@ jobs:
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
 
-      - name: Check for compile errors
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-
-      - name: Clippy
-        uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{secrets.GITHUB_TOKEN}}
-          args: --all-features
+#      - name: Check for compile errors
+#        uses: actions-rs/cargo@v1
+#        with:
+#          command: build
+#
+#      - name: Clippy
+#        uses: actions-rs/clippy-check@v1
+#        with:
+#          token: ${{secrets.GITHUB_TOKEN}}
+#          args: --all-features
   goci:
     name: ClickHouse Migrations CI
     runs-on: ubuntu-latest
