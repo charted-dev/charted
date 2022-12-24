@@ -63,7 +63,8 @@ include(
     ":modules:sessions:integrations:noelware",
     ":modules:storage",
     ":modules:telemetry",
-    ":modules:webhooks"
+    ":modules:webhooks",
+    ":tools:kt-to-rust"
 )
 
 dependencyResolutionManagement {

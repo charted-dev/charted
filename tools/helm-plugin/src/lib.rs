@@ -19,6 +19,8 @@ extern crate log;
 use clap::Parser;
 use log::LevelFilter;
 
+pub mod api;
+pub mod commands;
 pub mod macros;
 pub mod logging;
 
