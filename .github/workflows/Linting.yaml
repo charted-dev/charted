@@ -109,7 +109,6 @@ jobs:
       matrix:
         projects:
           - { directory: ./databases/clickhouse/migrations, name: ch-migrations }
-          - { directory: ./tools/helm-plugin,               name: helm-plugin   }
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3

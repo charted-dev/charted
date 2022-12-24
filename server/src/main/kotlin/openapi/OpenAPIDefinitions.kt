@@ -19,6 +19,7 @@ package org.noelware.charted.server.openapi
 
 import guru.zoroark.tegral.openapi.dsl.*
 import org.noelware.charted.ChartedInfo
+import org.noelware.charted.server.endpoints.v1.FeaturesResponse
 import org.noelware.charted.server.endpoints.v1.InfoResponse
 import org.noelware.charted.server.endpoints.v1.MainResponse
 import org.noelware.charted.server.openapi.apis.usersApi
@@ -86,6 +87,28 @@ fun RootDsl.mainEndpoints() {
                         message = "Hello, world! \uD83D\uDC4B",
                         tagline = "You know, for Helm charts?",
                         docs = "https://charts.noelware.org/docs"
+                    )
+                )
+            }
+        }
+    }
+
+    "/features" get {
+        externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api#GET-/features"
+        summary = "All the enabled features that are enabled on this instance"
+
+        200 response {
+            "application/json" content {
+                schema<FeaturesResponse>()
+                example = ApiResponse.ok(
+                    FeaturesResponse(
+                        dockerRegistry = true,
+                        registrations = false,
+                        isInviteOnly = true,
+                        integrations = mapOf(),
+                        auditLogs = true,
+                        webhooks = false,
+                        search = true
                     )
                 )
             }

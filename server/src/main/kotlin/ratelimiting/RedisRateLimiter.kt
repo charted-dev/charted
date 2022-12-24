@@ -18,8 +18,19 @@
 package org.noelware.charted.server.ratelimiting
 
 import io.ktor.server.plugins.ratelimit.*
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.noelware.charted.modules.redis.RedisClient
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
+
+@Serializable
+data class RateLimit(
+    val limit: Int
+)
+
+private const val AUTHENTICATED_MAX_REQUESTS: Int = 1500
+private const val DEFAULT_MAX_REQUESTS: Int = 45
 
 /**
  * Represents a [RateLimiter] that uses Redis as the backend for it. You can define it in your `config.yml` file
@@ -33,8 +44,16 @@ import org.noelware.charted.modules.redis.RedisClient
  *     in_memory: false # Setting this to `false` will use Redis
  * ```
  */
-class RedisRateLimiter(private val redis: RedisClient, private val json: Json): RateLimiter {
+// This has been modified from Noelware's Accounting RateLimiter, which was written by
+// Ice (https://winterfox.tech)
+class RedisRateLimiter(
+    private val redis: RedisClient,
+    private val json: Json,
+    private val rateLimitKey: String,
+    private val timeWindow: Duration = 1.hours
+): RateLimiter {
     override suspend fun tryConsume(tokens: Int): RateLimiter.State {
-        TODO("Not yet implemented")
+        // Check if the given IP has a state already
+        return RateLimiter.State.Available(0, 0, 0)
     }
 }

@@ -72,6 +72,7 @@ class DefaultHelmChartModule(
      */
     @Traced
     override suspend fun createIndexYaml(owner: Long) {
+        log.info("Creating index.yaml for user [$owner]")
         if (storage.service is FilesystemStorageService) {
             val folder = File((storage.service as FilesystemStorageService).normalizePath("./metadata/$owner"))
             if (!folder.exists()) folder.mkdirs()

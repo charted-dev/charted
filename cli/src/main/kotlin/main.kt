@@ -29,6 +29,7 @@ import org.noelware.charted.ChartedInfo
 import org.noelware.charted.cli.commands.ClickHouseMigrationsCommand
 import org.noelware.charted.cli.commands.GenerateConfigCommand
 import org.noelware.charted.cli.commands.ServerCommand
+import org.noelware.charted.cli.commands.accounts.BaseAccountsCommand
 import kotlin.system.exitProcess
 
 private class ChartedCli(private val terminal: Terminal): CliktCommand(
@@ -56,6 +57,7 @@ private class ChartedCli(private val terminal: Terminal): CliktCommand(
             CompletionCommand(name = "completions"),
             ClickHouseMigrationsCommand(terminal),
             GenerateConfigCommand(terminal),
+            BaseAccountsCommand(terminal),
             ServerCommand(terminal)
         )
     }
@@ -65,21 +67,13 @@ private class ChartedCli(private val terminal: Terminal): CliktCommand(
 }
 
 fun main(args: Array<String>) {
+    Thread.currentThread().name = "Charted-CliThread"
+
     val terminal = Terminal()
     try {
         val cli = ChartedCli(terminal)
         cli.main(args)
     } catch (e: Exception) {
-        val urlColour = italic + gray
-        terminal.println(
-            """
-        |Unable to execute the main command line runner. If this is a reoccurring issue,
-        |please report it to the Noelware team:
-        |   ${urlColour("https://github.com/charted-dev/charted/issues/new")}
-        """.trimMargin("|")
-        )
-
-        terminal.println()
         e.printStackTrace()
         exitProcess(1)
     }

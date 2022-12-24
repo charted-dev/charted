@@ -15,17 +15,26 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.endpoints.v1
+package org.noelware.charted.cli.commands.accounts
 
-import org.koin.dsl.bind
-import org.koin.dsl.module
-import org.noelware.charted.server.endpoints.v1.api.apiV1Endpoints
-import org.noelware.ktor.endpoints.AbstractEndpoint
+import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.subcommands
+import com.github.ajalt.mordant.terminal.Terminal
 
-val endpointsModule = apiV1Endpoints + module {
-    single { MetricsEndpoint(getOrNull()) } bind AbstractEndpoint::class
-    single { CdnEndpoints(get()) } bind AbstractEndpoint::class
-    single { MainEndpoint(get()) } bind AbstractEndpoint::class
-    single { HealthEndpoint() } bind AbstractEndpoint::class
-    single { InfoEndpoint() } bind AbstractEndpoint::class
+class BaseAccountsCommand(terminal: Terminal): CliktCommand(
+    "CLI management for handling local users on the server. This doesn't apply to any other sessions that can be configured (i.e: LDAP)",
+    name = "accounts",
+    printHelpOnEmptyArgs = true,
+    invokeWithoutSubcommand = true
+) {
+    init {
+        subcommands(
+            CreateAccountCommand(terminal),
+            ListAccountsCommand(terminal)
+        )
+    }
+
+    override fun run() {
+        /* do nothing */
+    }
 }

@@ -25,13 +25,20 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.spring.security.crypto)
     implementation(libs.mordant)
     implementation(libs.clikt)
     implementation(libs.kaml)
 
+    implementation(project(":modules:config:kotlin-script"))
+    implementation(project(":modules:helm-charts"))
+    implementation(project(":modules:config:yaml"))
+    implementation(project(":databases:postgres"))
     implementation(project(":modules:config:dsl"))
     implementation(project(":modules:analytics"))
+    implementation(project(":modules:storage"))
     implementation(project(":modules:metrics"))
+    implementation(project(":modules:config"))
     implementation(project(":server"))
 }
 

@@ -23,7 +23,10 @@ import co.elastic.apm.api.Traced
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.noelware.charted.configuration.kotlin.dsl.Config
+import org.noelware.charted.configuration.kotlin.dsl.features.ServerFeature
 import org.noelware.charted.types.responses.ApiResponse
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.noelware.ktor.endpoints.Get
@@ -41,7 +44,25 @@ data class MainResponse(
     val docs: String
 )
 
-class MainEndpoint: AbstractEndpoint("/") {
+@Serializable
+data class FeaturesResponse(
+    @SerialName("docker_registry")
+    val dockerRegistry: Boolean,
+    val registrations: Boolean,
+
+    @SerialName("audit_logs")
+    val auditLogs: Boolean,
+
+    @SerialName("webhooks")
+    val webhooks: Boolean,
+
+    @SerialName("is_invite_only")
+    val isInviteOnly: Boolean,
+    val integrations: Map<String, Boolean>,
+    val search: Boolean
+)
+
+class MainEndpoint(private val config: Config): AbstractEndpoint("/") {
     @Get
     @Traced
     suspend fun main(call: ApplicationCall) {
@@ -52,6 +73,25 @@ class MainEndpoint: AbstractEndpoint("/") {
                     message = "Hello, world! \uD83D\uDC4B",
                     tagline = "You know, for Helm charts?",
                     docs = "https://charts.noelware.org/docs"
+                )
+            )
+        )
+    }
+
+    @Get("/features")
+    @Traced
+    suspend fun features(call: ApplicationCall) {
+        call.respond(
+            HttpStatusCode.OK,
+            ApiResponse.ok(
+                FeaturesResponse(
+                    config.features.contains(ServerFeature.DOCKER_REGISTRY),
+                    config.registrations,
+                    config.features.contains(ServerFeature.AUDIT_LOGS),
+                    config.features.contains(ServerFeature.WEBHOOKS),
+                    config.inviteOnly,
+                    mapOf(),
+                    config.search != null && (config.search!!.elasticsearch != null || config.search!!.meilisearch != null)
                 )
             )
         )

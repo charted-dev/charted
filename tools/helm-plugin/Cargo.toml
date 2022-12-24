@@ -13,29 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-env:
-  - GO11MODULE=on
-before:
-  hooks:
-  - go mod download
-builds:
-  - main: ./cmd/helm-plugin
-    binary: ./bin/charted-helm
-    env:
-      - CGO_ENABLED=0
-    goos:
-      - darwin
-      - linux
-      - windows
-    goarch:
-      - amd64
-      - arm
-      - arm64
-    goarm:
-      - "6"
-      - "7"
-archives:
-- id: tar
-  format: tar.gz
-  files:
-    - plugin.yaml
+[package]
+name = "helm-plugin"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
