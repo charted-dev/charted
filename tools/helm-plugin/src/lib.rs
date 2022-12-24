@@ -14,10 +14,7 @@
 // limitations under the License.
 
 use clap::Parser;
-use helm_plugin::CLI;
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let _cli = CLI::parse();
-    Ok(())
-}
+#[derive(Debug, Clone, Parser)]
+#[clap(about = "📦 Helm plugin made in Rust to help push Helm charts into charted-server easily!~")]
+pub struct CLI {}

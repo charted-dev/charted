@@ -32,7 +32,6 @@ repositories {
 
 tasks {
     wrapper {
-        version = "7.6"
         distributionType = Wrapper.DistributionType.ALL
     }
 

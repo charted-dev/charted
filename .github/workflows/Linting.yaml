@@ -102,13 +102,39 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: test --no-daemon --scan
-  golang:
-    name: Go CI [${{matrix.projects.name}}]
+  rustci:
+    name: Helm Plugin CI
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        projects:
-          - { directory: ./databases/clickhouse/migrations, name: ch-migrations }
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+          components: rustfmt, clippy
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check for compile errors
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+
+      - name: Clippy
+        uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{secrets.GITHUB_TOKEN}}
+          args: --all-features
+  goci:
+    name: ClickHouse Migrations CI
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -126,12 +152,12 @@ jobs:
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
-          key: ${{ runner.os }}-${{matrix.projects.name}}-1.19-go-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-ch-migrations-1.19-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-${{matrix.projects.name}}-1.19-go-
+            ${{ runner.os }}-ch-migrations-1.19-go-
 
-      - name: Install dependencies [${{matrix.projects.name}}]
-        working-directory: ${{matrix.projects.directory}}
+      - name: Install dependencies
+        working-directory: ./databases/clickhouse/migrations
         run: go mod download
 
       - name: golangci-lint [${{matrix.projects.name}}]
@@ -139,7 +165,7 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           skip-cache: false
-          working-directory: ${{matrix.projects.directory}}
+          working-directory: ./databases/clickhouse/migrations
           args: --issues-exit-code=1
           only-new-issues: false
           skip-pkg-cache: true

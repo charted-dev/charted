@@ -26,6 +26,7 @@ plugins {
 
 dependencies {
     implementation(libs.spring.security.crypto)
+    implementation(libs.semver)
     implementation(libs.mordant)
     implementation(libs.clikt)
     implementation(libs.kaml)

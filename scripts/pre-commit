@@ -18,16 +18,24 @@
 SKIP_SPOTLESS=${SKIP_SPOTLESS:-}
 
 if [[ "x$SKIP_SPOTLESS" != "x" ]]; then
-    echo "🐻‍❄️🪄 [precommit-hook] Skipping precommit hook since \`SKIP_SPOTLESS\` was defined."
+    echo "🐻‍❄️🪄 Skipping precommit hook since \`SKIP_SPOTLESS\` was defined."
     exit 0
 fi
 
-echo "🐻‍❄️🪄 [precommit-hook] Running Spotless..."
+echo "Running Spotless..."
 ./gradlew spotlessCheck
 
 if [[ "$?" != "0" ]]; then
-  echo "🐻‍❄️🪄 [precommit-hook] Spotless was not ran (and there is linting errors), please run \`make spotless\`"
+  echo "Spotless was not ran successfully! Please run \`make spotless\` to fix the changes above."
   exit 1
-else
-  echo "🐻‍❄️🪄 [precommit-hook] Everything is ok! :3"
 fi
+
+echo "Running \`cargo clippy\`..."
+make clippy
+
+if [[ "x$?" != "x0" ]]; then
+  echo "Clippy was not ran successfully (possible errors!). Please run \`make clippy-fix\` to fix the changes above."
+  exit 1
+fi
+
+echo "Spotless and Clippy are ok! :3"

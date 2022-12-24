@@ -38,6 +38,15 @@ build: spotless ## Runs the `spotless` target and builds the API server, CLI, an
 spotless: ## Runs the Spotless formatter on the project
 	@./gradlew spotlessApply
 
+.PHONY: clippy
+clippy: ## Runs the `cargo clippy` command
+	@(cd ./tools/helm-plugin && cargo clippy)
+
+.PHONY: clippy-fix
+clippy-fix: ## Runs `cargo clippy` with the --fix and --allow-dirty flags.
+	@(cd ./tools/helm-plugin && cargo clippy --fix --allow-dirty)
+
+## ( cd "$workdir" && somecommand )
 .PHONY: clean
 clean: ## Executes the `clean` Gradle task
 	@./gradlew clean
