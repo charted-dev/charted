@@ -19,13 +19,10 @@ package org.noelware.charted.server.tests.plugins
 
 import io.ktor.client.call.*
 import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.server.application.*
+import io.ktor.client.statement.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.DisabledOnOs
-import org.noelware.charted.server.endpoints.v1.api.AdminEndpoint
 import org.noelware.charted.server.tests.AbstractServerTest
-import org.noelware.ktor.NoelKtorRouting
 import org.testcontainers.junit.jupiter.Testcontainers
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -34,11 +31,7 @@ import kotlin.test.assertTrue
 @DisabledOnOs(architectures = ["aarch64", "arm64"], disabledReason = "docker/compose Docker image doesn't support ARM")
 class IsAdminGuardTests: AbstractServerTest() {
     @Test
-    fun `bail out with no authentication and non-acceptable auth`() = withChartedServer({
-        install(NoelKtorRouting) {
-            endpoints(AdminEndpoint())
-        }
-    }) {
+    fun `bail out with no authentication and non-acceptable auth`() = withChartedServer {
         // The session middleware runs first, and we don't have an [Authorization] header,
         // so the server bails out with a 403 Forbidden
         val res = client.get("/admin")
@@ -52,7 +45,7 @@ class IsAdminGuardTests: AbstractServerTest() {
 
         assertTrue(res2.status.value == 400)
 
-        val body: String = res2.body()
+        val body = res2.bodyAsText()
         assertEquals(body, """{"success":false,"errors":[{"code":"UNKNOWN_AUTH_STRATEGY","message":"The prefix specified [Owo] was not 'Bearer' or 'ApiKey'","detail":{"method":"GET","uri":"/admin"}}]}""")
     }
 }

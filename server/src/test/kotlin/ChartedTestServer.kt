@@ -56,6 +56,8 @@ import org.noelware.charted.configuration.kotlin.dsl.storage.FilesystemStorageCo
 import org.noelware.charted.configuration.kotlin.dsl.storage.StorageConfig
 import org.noelware.charted.databases.postgres.createOrUpdateEnums
 import org.noelware.charted.databases.postgres.tables.*
+import org.noelware.charted.modules.apikeys.ApiKeyManager
+import org.noelware.charted.modules.apikeys.DefaultApiKeyManager
 import org.noelware.charted.modules.avatars.avatarsModule
 import org.noelware.charted.modules.helm.charts.DefaultHelmChartModule
 import org.noelware.charted.modules.helm.charts.HelmChartModule
@@ -323,6 +325,8 @@ internal class ChartedTestServer(private val config: Config): ChartedServer {
         val storage = DefaultStorageHandler(StorageConfig(filesystem = FilesystemStorageConfig("./.data")))
         storage.init()
 
+        val apiKeyManager = DefaultApiKeyManager(redis)
+
         // Start Koin with only the configuration (I think?)
         startKoin {
             modules(
@@ -334,6 +338,7 @@ internal class ChartedTestServer(private val config: Config): ChartedServer {
                     single { httpClient }
                     single { config }
                     single { argon2 }
+                    single<ApiKeyManager> { apiKeyManager }
                     single<SessionManager> { sessions }
                     single<RedisClient> { redis }
                     single<HelmChartModule> { DefaultHelmChartModule(storage, config, Yaml.default) }
