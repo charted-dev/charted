@@ -53,7 +53,7 @@ dependencies:
     condition: elasticsearch.metrics.enabled
   - name: prometheus
     repository: https://prometheus-community.github.io/helm-charts
-    version: ~19.1.0
+    version: ~19.2.0
     condition: global.prometheus.enabled
   - name: common
     version: ~2.2.2
