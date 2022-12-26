@@ -16,9 +16,9 @@ dependencies:
   version: 8.5.1
 - name: prometheus
   repository: https://prometheus-community.github.io/helm-charts
-  version: 19.1.0
+  version: 19.2.0
 - name: common
   repository: https://charts.bitnami.com/bitnami
   version: 2.2.2
-digest: sha256:a3490307382233ca47820b751c86a52cf6c206bc1c249a9db7af721c4699b4bb
-generated: "2022-12-24T11:07:11.413873941-07:00"
+digest: sha256:1f9f707c9cb768f6be6c457b649299152ca8150eaa612e82bf80dc4080a369e0
+generated: "2022-12-26T05:53:38.399015697Z"
