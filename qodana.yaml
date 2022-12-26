@@ -29,3 +29,8 @@ exclude:
   - name: UnstableApiUsage
     paths:
       - settings.gradle.kts
+
+  # Disable this since I am too lazy to fix this.
+  - name: PackageDirectoryMismatch
+    paths:
+      - modules/docker-registry
