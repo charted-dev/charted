@@ -70,6 +70,16 @@ class PostgresMetricsCollector(private val config: Config): MetricStatCollector 
             )
         }
 
+        if (predicate.test(PostgresMetricKeys.DatabaseSize.key)) {
+            mfs.add(
+                GaugeMetricFamily(
+                    PostgresMetricKeys.DatabaseSize.key,
+                    "The database size (in bytes), or -1 if it couldn't be calculated",
+                    stats.dbSize.toDouble()
+                )
+            )
+        }
+
         if (predicate.test(PostgresMetricKeys.ServerUptime.key)) {
             mfs.add(
                 GaugeMetricFamily(

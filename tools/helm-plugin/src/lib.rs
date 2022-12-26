@@ -13,30 +13,47 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![feature(async_closure)]
+
 #[macro_use]
 extern crate log;
 
+#[macro_use]
+extern crate async_trait;
+
 use clap::Parser;
+use commands::Subcommands;
 use log::LevelFilter;
 
 pub mod api;
 pub mod commands;
-pub mod macros;
 pub mod logging;
+pub mod macros;
+pub mod settings;
 
 #[derive(Debug, Clone, Parser)]
 #[clap(
     about = "📦 Helm plugin made in Rust to help push Helm charts into charted-server easily!~",
-    author = "Noel <cutie@floofy.dev>, Noelware Team <team@noelware.org>",
-    version = env!("HELM_PLUGIN_VERSION").trim()
+    author = "Noel <cutie@floofy.dev>, Noelware Team <team@noelware.org>"
 )]
 pub struct CLI {
-    #[arg(short = 'l', long = "log-level", help = "The level for logging, regardless if `verbose` is true")]
+    #[command(subcommand)]
+    pub command: Subcommands,
+
+    #[arg(
+        short = 'l',
+        long = "log-level",
+        help = "The level for logging, regardless if `verbose` is true"
+    )]
     pub log_level: Option<LevelFilter>,
 
-    #[arg(short = 's', long = "server-url", help = "The instance URL to push charts towards")]
+    #[arg(
+        short = 's',
+        long = "server-url",
+        help = "The instance URL to push charts towards"
+    )]
     pub server_url: Option<String>,
 
     #[arg(short = 'v', long, help = "Enables verbose logging")]
-    pub verbose: bool
+    pub verbose: bool,
 }

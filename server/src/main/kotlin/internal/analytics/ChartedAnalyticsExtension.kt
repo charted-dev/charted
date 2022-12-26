@@ -25,7 +25,6 @@ import org.noelware.charted.modules.analytics.kotlin.dsl.*
 import org.noelware.charted.modules.elasticsearch.metrics.ElasticsearchStats
 import org.noelware.charted.modules.metrics.PrometheusMetrics
 import org.noelware.charted.modules.redis.metrics.RedisServerStats
-import org.noelware.charted.server.metrics.ServerMetrics
 
 class ChartedAnalyticsExtension(private val metrics: PrometheusMetrics): Extension<ChartedAnalyticsExtension.Data> {
     /**
@@ -43,7 +42,6 @@ class ChartedAnalyticsExtension(private val metrics: PrometheusMetrics): Extensi
         return Data(
             if (stats.containsKey("elasticsearch")) stats["elasticsearch"] as ElasticsearchStats else null,
             stats["postgres"] as PostgresServerStats,
-            stats["server"] as ServerMetrics,
             stats["redis"] as RedisServerStats
         )
     }
@@ -51,13 +49,11 @@ class ChartedAnalyticsExtension(private val metrics: PrometheusMetrics): Extensi
     data class Data(
         val elasticsearch: ElasticsearchStats?,
         val postgres: PostgresServerStats,
-        val server: ServerMetrics,
         val redis: RedisServerStats
     ): Serializable {
         override fun toGrpcValue(): Value = Struct {
             put(this, Data::elasticsearch)
             put(this, Data::postgres)
-            put(this, Data::server)
             put(this, Data::redis)
         }.toGrpcValue()
     }

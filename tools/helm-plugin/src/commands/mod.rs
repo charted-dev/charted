@@ -12,3 +12,33 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+pub mod version;
+
+use clap::Subcommand;
+
+use crate::commands::version::*;
+use crate::settings::Settings;
+
+pub trait Execute {
+    fn execute(self, settings: &Settings) -> Result<(), Box<dyn std::error::Error>>;
+}
+
+#[async_trait]
+pub trait AsyncExecute {
+    async fn execute(self, settings: &Settings) -> Result<(), Box<dyn std::error::Error>>;
+}
+
+#[derive(Debug, Clone, Subcommand)]
+pub enum Subcommands {
+    Version(Version),
+}
+
+pub async fn execute(
+    subcommand: &Subcommands,
+    settings: &Settings,
+) -> Result<(), Box<dyn std::error::Error>> {
+    match subcommand {
+        Subcommands::Version(version) => version.execute(settings),
+    }
+}

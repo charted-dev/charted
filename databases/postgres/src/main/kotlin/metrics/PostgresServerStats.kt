@@ -26,6 +26,7 @@ data class PostgresServerStats(
     val organizations: Long,
     val repositories: Long,
     val version: String,
+    val dbSize: Long,
     val uptime: Long,
     val users: Long
 ): org.noelware.analytics.jvm.server.serialization.Serializable {
@@ -33,6 +34,7 @@ data class PostgresServerStats(
         put(this, PostgresServerStats::organizations)
         put(this, PostgresServerStats::repositories)
         put(this, PostgresServerStats::version)
+        put(this, PostgresServerStats::dbSize)
         put(this, PostgresServerStats::uptime)
         put(this, PostgresServerStats::users)
     }.toGrpcValue()

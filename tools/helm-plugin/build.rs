@@ -14,19 +14,19 @@
 // limitations under the License.
 
 use chrono::{DateTime, Utc};
-use std::{error::Error, ffi::OsStr, process::Command, time::SystemTime, str};
+use once_cell::sync::Lazy;
+use regex::Regex;
 use std::env::var;
 use std::fs::canonicalize;
 use std::path::{Path, PathBuf};
 use std::process::Stdio;
-use once_cell::sync::Lazy;
-use regex::Regex;
+use std::{error::Error, ffi::OsStr, process::Command, str, time::SystemTime};
 use which::which;
 
 macro_rules! to_io_error {
     ($m:expr) => {
         std::io::Error::new(std::io::ErrorKind::Other, $m)
-    }
+    };
 }
 
 fn execute<T: AsRef<OsStr>>(command: T, args: &[&str]) -> Result<String, Box<dyn Error + 'static>> {
@@ -40,7 +40,10 @@ fn find_java_home() -> Result<Option<PathBuf>, Box<dyn Error>> {
         // Check if `home` is a directory
         let path = Path::new(&home);
         if !path.is_dir() {
-            return Err(Box::new(to_io_error!(format!("JAVA_HOME {} was not a directory", path.display()))));
+            return Err(Box::new(to_io_error!(format!(
+                "JAVA_HOME {} was not a directory",
+                path.display()
+            ))));
         }
 
         return Ok(Some(path.to_path_buf()));
@@ -66,12 +69,13 @@ fn find_java_home() -> Result<Option<PathBuf>, Box<dyn Error>> {
                         // assume the parent is the main directory
                         return Ok(None);
                     }
-                },
+                }
 
-                Err(e) => return Err(Box::new(e))
+                Err(e) => return Err(Box::new(e)),
             }
 
-            // TODO: figure out if /usr/bin/java isn't a symlink or is this a good fallback?
+            // Just don't do anything right now. Gradle will probably detect it
+            // once we run the script.
             return Ok(None);
         }
     }
@@ -80,21 +84,23 @@ fn find_java_home() -> Result<Option<PathBuf>, Box<dyn Error>> {
     Ok(None)
 }
 
-fn execute_from_dir<T: AsRef<OsStr>, P: AsRef<Path>>(command: T, args: &[&str], working_directory: P) -> Result<String, Box<dyn Error>> {
-    let java_exec = find_java_home()?;
-    if java_exec.is_none() {
-        return Err(Box::new(to_io_error!("Unable to detect JAVA_HOME")));
-    }
-
+fn execute_from_dir<T: AsRef<OsStr>, P: AsRef<Path>>(
+    command: T,
+    args: &[&str],
+    working_directory: P,
+) -> Result<String, Box<dyn Error>> {
     let canonical_path = canonicalize(working_directory.as_ref())?;
-    let res = Command::new(command.as_ref())
+    let mut binding = Command::new(command.as_ref());
+    binding
         .args(args)
         .current_dir(canonical_path.clone())
-        .env("JAVA_HOME", java_exec.unwrap())
-        .stdout(Stdio::piped())
-        .spawn()?
-        .wait_with_output()?;
+        .stdout(Stdio::piped());
 
+    if let Ok(Some(home)) = find_java_home() {
+        binding.env("JAVA_HOME", home);
+    }
+
+    let res = binding.spawn()?.wait_with_output()?;
     if !res.status.success() {
         let cmd_name = command.as_ref();
         let args_as_str = args.join(" ");
@@ -105,7 +111,7 @@ fn execute_from_dir<T: AsRef<OsStr>, P: AsRef<Path>>(command: T, args: &[&str], 
 
     let bytes = match str::from_utf8(&res.stdout) {
         Ok(v) => v,
-        Err(e) => return Err(Box::new(e))
+        Err(e) => return Err(Box::new(e)),
     };
 
     Ok(bytes.to_string())
@@ -122,14 +128,16 @@ fn gradlew_wrapper() -> &'static str {
 }
 
 // regex borrowed from https://github.com/z4kn4fein/kotlin-semver/blob/main/src/commonMain/kotlin/io/github/z4kn4fein/semver/Patterns.kt#L52-L53
-static VERSION_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r#"version: (v?(0|[1-9]\d*)(?:\.(0|[1-9]\d*))?(?:\.(0|[1-9]\d*))?(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:.[0-9a-zA-Z-]+)*))?)"#).unwrap());
+static VERSION_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r#"version: (v?(0|[1-9]\d*)(?:\.(0|[1-9]\d*))?(?:\.(0|[1-9]\d*))?(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:.[0-9a-zA-Z-]+)*))?)"#).unwrap()
+});
 
 fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rerun-if-changed=build.rs");
     let result = execute_from_dir(
         gradlew_wrapper(),
         &["properties", "--no-daemon", "--console=plain", "-q"],
-        "../.."
+        "../..",
     )?;
 
     let version: Vec<&str> = result
@@ -140,13 +148,20 @@ fn main() -> Result<(), Box<dyn Error>> {
         .collect::<Vec<_>>();
 
     if version.first().is_none() {
-        return Err(Box::new(to_io_error!("Unable to determine version from Gradle properties")));
+        return Err(Box::new(to_io_error!(
+            "Unable to determine version from Gradle properties"
+        )));
     }
 
     let v = version.first().unwrap();
-    println!("cargo:rustc-env=HELM_PLUGIN_VERSION={}", v.split(':').collect::<Vec<_>>().last().unwrap());
+    println!(
+        "cargo:rustc-env=HELM_PLUGIN_VERSION={}",
+        v.split(':').collect::<Vec<_>>().last().unwrap().trim()
+    );
 
-    let commit_hash = execute("git", &["rev-parse", "--short=8", "HEAD"]).unwrap_or_else(|_| "noeluwu8".into());
+    let commit_hash =
+        execute("git", &["rev-parse", "--short=8", "HEAD"]).unwrap_or_else(|_| "noeluwu8".into());
+
     let build_date = {
         let now = SystemTime::now();
         let utc: DateTime<Utc> = now.into();

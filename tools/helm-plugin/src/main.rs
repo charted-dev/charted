@@ -13,17 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[macro_use]
-extern crate log;
-
 use clap::Parser;
-use helm_plugin::{CLI, logging};
+use helm_plugin::{commands::execute, logging, settings::Settings, CLI};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = CLI::parse();
     logging::setup(cli.verbose, cli.log_level)?;
 
-    info!("Hello, world!");
+    let settings = Settings::new(cli.server_url);
+
+    execute(&cli.command, &settings).await?;
     Ok(())
 }

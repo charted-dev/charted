@@ -81,9 +81,16 @@ open class AbstractServerTest {
     )
 
     companion object {
+        @Suppress("MemberVisibilityCanBePrivate")
         internal var includeElasticsearch: Boolean = false
+
+        @Suppress("MemberVisibilityCanBePrivate")
         internal var includeMeilisearch: Boolean = false
+
+        @Suppress("MemberVisibilityCanBePrivate")
         internal var includeClickHouse: Boolean = false
+
+        @Suppress("MemberVisibilityCanBePrivate")
         internal var logging: Boolean = true
 
         @JvmStatic

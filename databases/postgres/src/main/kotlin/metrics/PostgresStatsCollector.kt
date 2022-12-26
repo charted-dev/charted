@@ -17,7 +17,11 @@
 
 package org.noelware.charted.databases.postgres.metrics
 
+import org.jetbrains.exposed.sql.TextColumnType
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.noelware.charted.databases.postgres.entities.OrganizationEntity
+import org.noelware.charted.databases.postgres.entities.RepositoryEntity
+import org.noelware.charted.databases.postgres.entities.UserEntity
 import org.noelware.charted.modules.metrics.GenericStatCollector
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -25,6 +29,10 @@ import kotlin.time.toDuration
 object PostgresStatsCollector: GenericStatCollector<PostgresServerStats> {
     override val name: String = "postgres"
     override fun collect(): PostgresServerStats = transaction {
+        val users = UserEntity.count()
+        val organizations = OrganizationEntity.count()
+        val repositories = RepositoryEntity.count()
+
         val uptime = exec("SELECT extract(epoch FROM current_timestamp - pg_postmaster_start_time()) AS uptime;") { rs ->
             if (!rs.next()) return@exec -1L
             rs.getLong("uptime").toDuration(DurationUnit.MILLISECONDS).inWholeMilliseconds
@@ -39,12 +47,20 @@ object PostgresStatsCollector: GenericStatCollector<PostgresServerStats> {
                 .first { it matches "\\d{0,9}.\\d{0,9}?\\d{0,9}".toRegex() }
         }
 
+        // Get database size (in bytes)
+        val dbSize = exec("SELECT pg_database_size(?);", listOf(TextColumnType() to "charted")) { rs ->
+            if (!rs.next()) return@exec -1
+
+            rs.getLong("pg_database_size")
+        }
+
         PostgresServerStats(
-            0,
-            0,
+            organizations,
+            repositories,
             version!!,
             uptime!!,
-            0
+            dbSize!!,
+            users
         )
     }
 }

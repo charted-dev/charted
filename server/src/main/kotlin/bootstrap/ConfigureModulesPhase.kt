@@ -87,8 +87,6 @@ import org.noelware.charted.server.endpoints.AuthTokenEndpoint
 import org.noelware.charted.server.endpoints.v1.endpointsModule
 import org.noelware.charted.server.internal.DefaultChartedServer
 import org.noelware.charted.server.internal.analytics.ChartedAnalyticsExtension
-import org.noelware.charted.server.metrics.ServerMetricStatCollector
-import org.noelware.charted.server.metrics.ServerMetricsCollector
 import org.noelware.charted.snowflake.Snowflake
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
@@ -219,10 +217,8 @@ object ConfigureModulesPhase: BootstrapPhase() {
         val metrics = PrometheusMetrics(config.metrics.enabled, ds)
         metrics.addGenericCollector(RedisStatCollector(redis))
         metrics.addGenericCollector(PostgresStatsCollector)
-        metrics.addGenericCollector(ServerMetricStatCollector)
 
         if (config.metrics.enabled) {
-            metrics.addMetricCollector(ServerMetricsCollector())
             metrics.addMetricCollector(RedisMetricsCollector(redis, config.metrics))
             metrics.addMetricCollector(PostgresMetricsCollector(config))
         }

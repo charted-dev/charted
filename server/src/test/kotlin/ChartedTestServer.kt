@@ -17,9 +17,14 @@
 
 package org.noelware.charted.server.tests
 
+import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlException
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import dev.floofy.utils.java.SetOnce
 import dev.floofy.utils.slf4j.logging
+import io.ktor.client.*
+import io.ktor.client.engine.okhttp.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -32,20 +37,45 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.testing.*
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.DatabaseConfig
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.context.GlobalContext.startKoin
 import org.koin.dsl.module
 import org.noelware.charted.MultiValidationException
 import org.noelware.charted.ValidationException
 import org.noelware.charted.configuration.kotlin.dsl.Config
+import org.noelware.charted.configuration.kotlin.dsl.storage.FilesystemStorageConfig
+import org.noelware.charted.configuration.kotlin.dsl.storage.StorageConfig
+import org.noelware.charted.databases.postgres.createOrUpdateEnums
+import org.noelware.charted.databases.postgres.tables.*
+import org.noelware.charted.modules.avatars.avatarsModule
+import org.noelware.charted.modules.helm.charts.DefaultHelmChartModule
+import org.noelware.charted.modules.helm.charts.HelmChartModule
+import org.noelware.charted.modules.redis.DefaultRedisClient
+import org.noelware.charted.modules.redis.RedisClient
+import org.noelware.charted.modules.sessions.SessionManager
+import org.noelware.charted.modules.sessions.local.LocalSessionManager
+import org.noelware.charted.modules.storage.DefaultStorageHandler
+import org.noelware.charted.modules.storage.StorageHandler
 import org.noelware.charted.server.ChartedServer
+import org.noelware.charted.server.endpoints.v1.endpointsModule
 import org.noelware.charted.server.hasStarted
 import org.noelware.charted.server.plugins.Logging
+import org.noelware.charted.snowflake.Snowflake
 import org.noelware.charted.types.responses.ApiError
 import org.noelware.charted.types.responses.ApiResponse
+import org.noelware.ktor.NoelKtorRouting
+import org.noelware.ktor.loader.koin.KoinEndpointLoader
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Creates a new [ChartedTestServer] with the given [config] and [testFunction] block.
@@ -224,6 +254,10 @@ internal class ChartedTestServer(private val config: Config): ChartedServer {
         }
 
         routing {}
+
+        install(NoelKtorRouting) {
+            endpointLoader(KoinEndpointLoader)
+        }
     }
 
     /**
@@ -231,11 +265,78 @@ internal class ChartedTestServer(private val config: Config): ChartedServer {
      * set to `true`.
      */
     override fun start() {
+        val ds = HikariDataSource(
+            HikariConfig().apply {
+                leakDetectionThreshold = 30.seconds.inWholeMilliseconds
+                driverClassName = "org.postgresql.Driver"
+                isAutoCommit = false
+                poolName = "Postgres-HikariPool"
+                username = config.database.username
+                password = config.database.password
+                jdbcUrl = "jdbc:postgresql://${config.database.host}:${config.database.port}/${config.database.database}"
+                schema = config.database.schema
+
+                addDataSourceProperty("reWriteBatchedInserts", "true")
+            }
+        )
+
+        Database.connect(
+            ds,
+            databaseConfig = DatabaseConfig {
+                defaultRepetitionAttempts = 5
+                sqlLogger = Slf4jSqlDebugLogger
+            }
+        )
+
+        transaction {
+            createOrUpdateEnums()
+            SchemaUtils.createMissingTablesAndColumns(
+                ApiKeysTable,
+                OrganizationTable,
+                OrganizationMemberTable,
+                RepositoryTable,
+                RepositoryMemberTable,
+                RepositoryReleasesTable,
+                UserTable,
+                UserConnectionsTable
+            )
+        }
+
+        val redis = DefaultRedisClient(config.redis)
+        runBlocking { redis.connect() }
+
+        val argon2 = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8()
+        val sessions = LocalSessionManager(argon2, redis, Json, config)
+        val httpClient = HttpClient(OkHttp) {
+            engine {
+                config {
+                    followSslRedirects(true)
+                    followRedirects(true)
+                }
+            }
+
+            install(io.ktor.client.plugins.contentnegotiation.ContentNegotiation) {
+                json()
+            }
+        }
+
+        val storage = DefaultStorageHandler(StorageConfig(filesystem = FilesystemStorageConfig("./.data")))
+        storage.init()
+
         // Start Koin with only the configuration (I think?)
         startKoin {
             modules(
+                avatarsModule,
+                *endpointsModule.toTypedArray(),
                 module {
+                    single<StorageHandler> { storage }
+                    single { Snowflake(0, 1669791600000) }
+                    single { httpClient }
                     single { config }
+                    single { argon2 }
+                    single<SessionManager> { sessions }
+                    single<RedisClient> { redis }
+                    single<HelmChartModule> { DefaultHelmChartModule(storage, config, Yaml.default) }
                 }
             )
         }

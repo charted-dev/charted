@@ -13,12 +13,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::api::client::Client;
+pub const DEFAULT_SERVER_URL: &str = "https://charts.noelware.org";
 
-pub struct ApiKeys<'a>(Client<'a>);
+/// Represents all the global settings that are available to all commands. Though, this is only
+/// contains relevant settings that most commands will use.
+#[derive(Debug, Clone)]
+pub struct Settings {
+    server_url: String,
+}
 
-impl<'a> ApiKeys<'a> {
-    pub(crate) fn new(client: Client<'a>) -> ApiKeys<'a> {
-        ApiKeys(client)
+impl Settings {
+    pub fn new(server_url: Option<String>) -> Settings {
+        Settings {
+            server_url: server_url.unwrap_or(DEFAULT_SERVER_URL.to_string()),
+        }
+    }
+
+    pub fn server(&self) -> &String {
+        &self.server_url
     }
 }

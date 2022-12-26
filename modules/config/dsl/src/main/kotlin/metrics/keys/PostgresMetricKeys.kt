@@ -31,6 +31,7 @@ public enum class PostgresMetricKeys(public val key: String) {
     TotalOrganizationsAvailable("charted_postgres_total_organizations"),
     TotalRepositoriesAvailable("charted_postgres_total_repositories"),
     TotalUsersAvailable("charted_postgres_total_users"),
+    DatabaseSize("charted_postgres_database_size"),
     ServerUptime("charted_postgres_server_uptime"),
     Wildcard("*"),
     Version("charted_postgres_version");
