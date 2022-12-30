@@ -59,6 +59,13 @@ RESOLVED_JAVA_OPTS=(
   "-XX:+UseSerialGC"
   "-Dfile.encoding=UTF-8"
   "-Djava.awt.headless=true"
+
+  # netty-specific settings to optimize buffers
+  # https://stackoverflow.com/questions/57885828/netty-cannot-access-class-jdk-internal-misc-unsafe#57892679
+  # https://github.com/netty/netty/issues/7817
+  "-Dio.netty.tryReflectionSetAccessible=true"
+  "--add-opens java.base/jdk.internal.misc=ALL-UNNAMED"
+  "--add-opens java.base/java.nio=ALL-UNNAMED"
 )
 
 export JAVA_OPTS=$(join ' ' "${RESOLVED_JAVA_OPTS[@]}")

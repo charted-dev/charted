@@ -80,7 +80,7 @@ class LocalSessionManagerTests {
         // We need a Redis container for the session manager
         @JvmStatic
         @Container
-        private val redisContainer: GenericContainer<*> = GenericContainer(DockerImageName.parse("redis:7.0.5-alpine")).apply {
+        private val redisContainer: GenericContainer<*> = GenericContainer(DockerImageName.parse("redis:7.0.7-alpine")).apply {
             withExposedPorts(6379)
             withLogConsumer(Slf4jLogConsumer(LoggerFactory.getLogger("com.redis.docker")))
         }

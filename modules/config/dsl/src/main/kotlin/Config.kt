@@ -99,6 +99,9 @@ public data class Config(
     @SerialName("sentry_dsn")
     val sentryDsn: String? = null,
 
+    @SerialName("swagger_ui")
+    val swaggerUi: Boolean = true,
+
     @SerialName("base_url")
     val baseUrl: String? = null,
     val debug: Boolean = false,
@@ -135,6 +138,7 @@ public data class Config(
         public var registrations: Boolean = true
         public var jwtSecretKey: String = DO_NOT_USE_THIS_VALUE_IN_YOUR_JWT_SECRET_KEY_OR_I_WILL_LAUGH_AT_YOU
         public var inviteOnly: Boolean = false
+        public var swaggerUi: Boolean = true
         public var telemetry: Boolean = false
         public var sentryDsn: String? = null
         public var baseUrl: String? = null
@@ -227,6 +231,7 @@ public data class Config(
             inviteOnly,
             telemetry,
             sentryDsn,
+            swaggerUi,
             baseUrl,
             debug,
             _clickhouse,

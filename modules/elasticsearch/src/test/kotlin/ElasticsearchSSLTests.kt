@@ -63,7 +63,7 @@ class ElasticsearchSSLTests {
     companion object {
         @JvmStatic
         @Container
-        internal val elasticsearchContainer: ElasticsearchContainer = ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:8.5.2")).apply {
+        internal val elasticsearchContainer: ElasticsearchContainer = ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:8.5.3")).apply {
             withCertPath("/usr/share/elasticsearch/config/certs")
             withCopyFileToContainer(MountableFile.forClasspathResource("/elasticsearch.ssl.yml"), "/usr/share/elasticsearch/config/elasticsearch.yml")
             withFileSystemBind(Path("src/test/resources/certs").toRealPath().toString(), "/usr/share/elasticsearch/config/certs")

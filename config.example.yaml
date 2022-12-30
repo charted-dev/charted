@@ -62,6 +62,12 @@ registrations: true
 # > Default: true
 telemetry: true
 
+# > Whether if charted-server should host a Swagger UI endpoint or not.
+# >
+# > Type: Boolean (true/false)
+# > Default: true
+swagger_ui: true
+
 # > Whether if Sentry is enabled on the server. This will make use of Sentry (https://sentry.io) to send out
 # > errors and tracing from the server to Sentry.
 # >

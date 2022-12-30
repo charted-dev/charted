@@ -20,13 +20,21 @@
 package org.noelware.charted.server.endpoints.v1
 
 import co.elastic.apm.api.Traced
+import guru.zoroark.tegral.openapi.dsl.OpenApiVersion
+import guru.zoroark.tegral.openapi.dsl.openApi
+import guru.zoroark.tegral.openapi.dsl.toJson
+import guru.zoroark.tegral.openapi.dsl.toYaml
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.features.ServerFeature
+import org.noelware.charted.server.createKtorContentWithInputStream
+import org.noelware.charted.server.openapi.charted
 import org.noelware.charted.types.responses.ApiResponse
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.noelware.ktor.endpoints.Get
@@ -95,5 +103,48 @@ class MainEndpoint(private val config: Config): AbstractEndpoint("/") {
                 )
             )
         )
+    }
+
+    @Get("/openapi")
+    suspend fun openapi(call: ApplicationCall) {
+        val openapi = openApi { charted() }
+        val format = call.request.queryParameters["format"]
+        val version = OpenApiVersion.values().find { it.version == (call.request.queryParameters["version"] ?: "3.0") } ?: OpenApiVersion.V3_0
+
+        val document = when (format) {
+            null, "json" -> {
+                openapi.toJson(version)
+            }
+
+            "yaml" -> {
+                openapi.toYaml(version)
+            }
+
+            else -> {
+                openapi.toJson(version)
+            }
+        }
+
+        call.respondText(
+            document,
+            if (format == "yaml") {
+                ContentType.parse("text/yaml; charset=utf-8")
+            } else {
+                ContentType.Application.Json
+            }
+        )
+    }
+
+    @Get("/swagger")
+    suspend fun swagger(call: ApplicationCall) {
+        if (!config.swaggerUi) return call.respond(HttpStatusCode.NotFound)
+        val resource = this::class.java.getResource("/swagger/swagger-ui.html")
+            ?: return call.respond(HttpStatusCode.NotFound)
+
+        val stream = withContext(Dispatchers.IO) {
+            resource.openStream()
+        }
+
+        call.respond(createKtorContentWithInputStream(stream, ContentType.Text.Html))
     }
 }

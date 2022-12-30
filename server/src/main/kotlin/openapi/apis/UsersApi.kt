@@ -119,10 +119,14 @@ fun RootDsl.usersApi() {
         }
     }
 
-    "/{idOrName}" {
+    "/users/{idOrName}" {
         get {
             externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api/users#GET-/:idOrName"
             description = "Retrieve a user from the database"
+
+            "idOrName" pathParameter {
+                description = "The snowflake or user's username to get the information from"
+            }
 
             200 response {
                 description = "The user response if the user was found"
@@ -149,10 +153,14 @@ fun RootDsl.usersApi() {
         }
     }
 
-    "/{idOrName}/avatars/current.png" {
+    "/users/{idOrName}/avatars/current.png" {
         get {
             externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api/users#GET-/:idOrName/avatars/current.png"
-            description = "Returns the user's avatar, if there is one set."
+            description = "Returns the user's current avatar, if there is one set."
+
+            "idOrName" pathParameter {
+                description = "The snowflake or user's username to get the avatar from"
+            }
 
             200 response {
                 description = "The actual avatar as an image file"

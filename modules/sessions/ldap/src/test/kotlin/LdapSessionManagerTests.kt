@@ -93,7 +93,7 @@ class LdapSessionManagerTests {
 
         @Container
         @JvmStatic
-        private val redisContainer: GenericContainer<*> = GenericContainer(DockerImageName.parse("bitnami/redis:7.0.5")).apply {
+        private val redisContainer: GenericContainer<*> = GenericContainer(DockerImageName.parse("bitnami/redis:7.0.7")).apply {
             withExposedPorts(6379)
             withEnv(
                 mapOf(

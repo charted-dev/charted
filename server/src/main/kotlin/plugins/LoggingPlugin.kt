@@ -74,13 +74,10 @@ val Logging = createApplicationPlugin("ChartedKtorLogging") {
         val stopwatch = call.attributes[stopwatchKey]
         val userAgent = call.request.userAgent()
 
-        // only applicable with tests (idk why?)
-        if (stopwatch.isStarted) {
-            stopwatch.stop()
-            histogram?.observeDuration()
-            log.info(
-                "${method.value} $version $endpoint :: ${status.value} ${status.description} [$userAgent] [${stopwatch.doFormatTime()}]"
-            )
-        }
+        stopwatch.stop()
+        histogram?.observeDuration()
+        log.info(
+            "${method.value} $version $endpoint :: ${status.value} ${status.description} [$userAgent] [${stopwatch.doFormatTime()}]"
+        )
     }
 }

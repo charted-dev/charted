@@ -21,10 +21,6 @@ import com.charleskorn.kaml.YamlException
 import dev.floofy.utils.java.SetOnce
 import dev.floofy.utils.koin.retrieve
 import dev.floofy.utils.slf4j.logging
-import guru.zoroark.tegral.openapi.dsl.OpenApiVersion
-import guru.zoroark.tegral.openapi.dsl.openApi
-import guru.zoroark.tegral.openapi.dsl.toJson
-import guru.zoroark.tegral.openapi.dsl.toYaml
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -111,18 +107,23 @@ class DefaultChartedServer(private val config: Config): ChartedServer {
             json(GlobalContext.retrieve())
         }
 
-        // TODO(@auguwu): make this optional with `server.cors` configuration key
-//        install(CORS) {
-//            anyHost()
-//            allowHeader(HttpHeaders.ContentType)
-//            allowHeader(HttpHeaders.Authorization)
-//            allowHeader(HttpHeaders.Accept)
-//
-//            allowCredentials = true
-//            maxAgeInSeconds = 3600
-//            methods += setOf(HttpMethod.Get, HttpMethod.Patch, HttpMethod.Delete, HttpMethod.Put, HttpMethod.Post)
-//            headers += "X-Forwarded-Proto"
-//        }
+        install(CORS) {
+            anyHost()
+
+            exposeHeader("")
+
+            allowHeader("X-Forwarded-Proto")
+            allowHeader(HttpHeaders.Authorization)
+            allowHeader(HttpHeaders.ContentType)
+            allowHeader(HttpHeaders.Accept)
+
+            for (method in setOf(HttpMethod.Get, HttpMethod.Patch, HttpMethod.Delete, HttpMethod.Put, HttpMethod.Post)) {
+                allowMethod(method)
+            }
+
+            allowCredentials = true
+            maxAgeInSeconds = 3600
+        }
 
         // Adds caching and security headers (if enabled)
         install(DefaultHeaders) {
@@ -277,20 +278,7 @@ class DefaultChartedServer(private val config: Config): ChartedServer {
             }
         }
 
-        routing {
-            val openapi = openApi { charted() }
-            get("/openapi") {
-                val format = call.request.queryParameters["format"]
-                val result = if (format == null || format == "json") {
-                    openapi.toJson(OpenApiVersion.V3_1)
-                } else {
-                    openapi.toYaml(OpenApiVersion.V3_1)
-                }
-
-                call.respondText(result, if (format == null || format == "json") { ContentType.parse("application/json; charset=utf-8") } else { ContentType.parse("text/yaml; charset=utf-8") })
-            }
-        }
-
+        routing {}
         install(NoelKtorRouting) {
             endpointLoader(KoinEndpointLoader)
         }

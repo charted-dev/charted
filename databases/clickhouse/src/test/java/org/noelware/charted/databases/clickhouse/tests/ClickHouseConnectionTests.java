@@ -25,7 +25,7 @@ import java.util.List;
 @Testcontainers(disabledWithoutDocker = true)
 public class ClickHouseConnectionTests {
     @Container
-    private static final ClickHouseContainer container = new ClickHouseContainer(DockerImageName.parse("clickhouse/clickhouse-server").withTag("22.6.9.11-alpine")).withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger("com.clickhouse.docker")));
+    private static final ClickHouseContainer container = new ClickHouseContainer(DockerImageName.parse("clickhouse/clickhouse-server").withTag("22.12.1.1752-alpine")).withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger("com.clickhouse.docker")));
     private final Lazy<ClickHouseConnection> connection = Lazy.create(() -> {
         final ClickHouseConfig config = new ClickHouseConfig(
                 "",
