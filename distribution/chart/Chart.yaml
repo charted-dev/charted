@@ -23,6 +23,7 @@ icon: https://cdn.noelware.cloud/branding/charted.png
 sources:
   - https://charts.noelware.org
   - https://github.com/charted-dev/charted
+  - https://github.com/charted-dev/charted/tree/main/distribution/chart
 maintainers:
   - name: Noel
     email: cutie@floofy.dev
@@ -34,27 +35,28 @@ dependencies:
   - name: postgresql
     repository: https://charts.bitnami.com/bitnami
     version: ~12.1.5
-    condition: global.postgres.enabled
+    condition: postgresql.enabled
   - name: redis
     repository: https://charts.bitnami.com/bitnami
     version: ~17.4.0
-    condition: global.redis.enabled
-  - name: clickhouse
-    repository: https://charts.bitnami.com/bitnami
-    version: ~2.2.0
-    condition: global.clickhouse.enabled
-  - name: elasticsearch
-    repository: https://helm.elastic.co
-    version: ~8.5.1
-    condition: elasticsearch.enabled
-  - name: metricbeat
-    repository: https://helm.elastic.co
-    version: ~8.5.1
-    condition: elasticsearch.metrics.enabled
-  - name: prometheus
-    repository: https://prometheus-community.github.io/helm-charts
-    version: ~19.2.0
-    condition: global.prometheus.enabled
-  - name: common
-    version: ~2.2.2
-    repository: https://charts.bitnami.com/bitnami
+    condition: redis.enabled
+
+  # - name: clickhouse
+  #   repository: https://charts.bitnami.com/bitnami
+  #   version: ~2.2.0
+  #   condition: global.clickhouse.enabled
+  # - name: elasticsearch
+  #   repository: https://helm.elastic.co
+  #   version: ~8.5.1
+  #   condition: elasticsearch.enabled
+  # - name: metricbeat
+  #   repository: https://helm.elastic.co
+  #   version: ~8.5.1
+  #   condition: elasticsearch.metrics.enabled
+  # - name: prometheus
+  #   repository: https://prometheus-community.github.io/helm-charts
+  #   version: ~19.2.0
+  #   condition: global.prometheus.enabled
+  # - name: common
+  #   version: ~2.2.2
+  #   repository: https://charts.bitnami.com/bitnami

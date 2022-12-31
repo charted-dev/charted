@@ -1,6 +1,6 @@
 # 🐻‍❄️🛞 charted-server :: Helm Chart
 
-This is the official Helm Chart for bootstrapping a **charted-server** instance on your Kubernetes cluster easy and fast as possible~! The Helm chart detects what deployment type to use (i.e, filesystem => StatefulSet, other => Deployment) automatically.
+This is the official Helm Chart for bootstrapping a **charted-server** instance on your Kubernetes cluster easy and fast as possible~! This is an easier choice if you prefer using **Helm** over writing your own manifests.
 
 ## TL;DR
 
@@ -19,79 +19,21 @@ $ helm install charted-server charted/server
 
 ### Global Parameters
 
-| Name                                               | Description                                                                                                                                                                                                                                    | Value                |
-| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
-| `global.fullNameOverride`                          | String to fully override the Helm installation name for all objects                                                                                                                                                                            | `""`                 |
-| `global.nameOverride`                              | String to override the Helm installation name for all objects                                                                                                                                                                                  | `""`                 |
-| `global.replicas`                                  | How many replicas for the StatefulSet or Deployment. As of right now, charted-server does not implement High Avability.                                                                                                                        | `1`                  |
-| `global.jvmOptions`                                | The JVM options to use when running the server                                                                                                                                                                                                 | `-Xmx4096 -Xms1024m` |
-| `global.debug`                                     | If the debug flag should be enabled on the server                                                                                                                                                                                              | `false`              |
-| `global.nodeSelector`                              | Constrainted node labels for the charted-server pod                                                                                                                                                                                            | `{}`                 |
-| `global.tolerations`                               | Tolerations for charted-server pod                                                                                                                                                                                                             | `[]`                 |
-| `global.affinity`                                  | Affinity for the charted-server pod                                                                                                                                                                                                            | `{}`                 |
-| `global.annotations`                               | Global deployment annotations                                                                                                                                                                                                                  | `{}`                 |
-| `global.extraEnvVars`                              | List of environment variables to add                                                                                                                                                                                                           | `[]`                 |
-| `global.initContainers`                            | List of init containers to run                                                                                                                                                                                                                 | `[]`                 |
-| `global.podSecurityContext`                        | Security context for the server pods                                                                                                                                                                                                           | `{}`                 |
-| `global.containerSecurityContext`                  | Security context for the StatefulSet/Deployment                                                                                                                                                                                                | `{}`                 |
-| `global.features`                                  | List of server features to enable                                                                                                                                                                                                              | `[]`                 |
-| `global.meilisearch.enabled`                       | Whether if Meilisearch should be installed alongside charted-server. This will not actually deploy Meilisearch until it is stable in newer versions.                                                                                           | `false`              |
-| `global.clickhouse.enabled`                        | Whether if ClickHouse should be installed alongside charted-server. This will install Bitnami's ClickHouse distribution from their Helm Charts.                                                                                                | `false`              |
-| `global.clickhouse.auth.username`                  | ClickHouse Admin username                                                                                                                                                                                                                      | `default`            |
-| `global.clickhouse.auth.password`                  | ClickHouse Admin password                                                                                                                                                                                                                      | `""`                 |
-| `global.clickhouse.auth.existingSecret`            | Name of a secret containing the Admin password                                                                                                                                                                                                 | `""`                 |
-| `global.clickhouse.auth.existingSecretKey`         | Name of the key inside the existing secret                                                                                                                                                                                                     | `""`                 |
-| `global.prometheus.enabled`                        | Whether if Prometheus should be installed alongside charted-server. This will install Bitnami's Prometheus distribution from their Helm Charts. This will not affect metrics from the server configuration side, it will just not be ingested. | `false`              |
-| `global.postgres.enabled`                          | Whether if PostgreSQL should be installed alongside charted-server. This will install Bitnami's PostgreSQL distribution from their Helm Charts. This can be set to `false` if you already have PostgreSQL running.                             | `true`               |
-| `global.postgres.auth.username`                    | Name for a custom user to create                                                                                                                                                                                                               | `charted`            |
-| `global.postgres.auth.password`                    | Password for the custom user to create                                                                                                                                                                                                         | `""`                 |
-| `global.postgres.auth.database`                    | Name for a custom database to create                                                                                                                                                                                                           | `charted`            |
-| `global.postgres.auth.existingSecret`              | Name of existing secret to use for PostgreSQL credentials                                                                                                                                                                                      | `""`                 |
-| `global.postgres.architecture`                     | PostgreSQL architecture (`standalone` or `replication`)                                                                                                                                                                                        | `standalone`         |
-| `global.postgres.primary.service.ports.postgresql` | PostgreSQL service port                                                                                                                                                                                                                        | `5432`               |
-| `global.redis.enabled`                             | Whether if Redis should be installed alongside charted-server. This will install Bitnami's Redis distribution from their Helm Charts. This can be set to `false` if you already have PostgreSQL running.                                       | `true`               |
-| `global.redis.existingSecret`                      | Name of a secret containing redis credentials                                                                                                                                                                                                  | `""`                 |
-| `global.redis.architecture`                        | Set Redis architecture                                                                                                                                                                                                                         | `standalone`         |
-| `global.redis.master.service.ports.redis`          | Redis port                                                                                                                                                                                                                                     | `6379`               |
-| `global.redis.auth.enabled`                        | Enable Redis auth                                                                                                                                                                                                                              | `true`               |
-| `global.redis.auth.password`                       | Redis password                                                                                                                                                                                                                                 | `""`                 |
-| `global.redis.auth.existingSecret`                 | Name of a secret containing the Redis password                                                                                                                                                                                                 | `""`                 |
-
-### Server Configuration
-
-| Name                                 | Description                                                                          | Value                                                    |
-| ------------------------------------ | ------------------------------------------------------------------------------------ | -------------------------------------------------------- |
-| `config.mapName`                     | The ConfigMap name for the server configuration                                      | `config`                                                 |
-| `config.path`                        | Absolute path to load the server configuration file from                             | `/app/noelware/charted/server/config/charted.yaml`       |
-| `config.config`                      | The actual configuration for the server                                              | `""`                                                     |
-| `config.jwtSecretKey.generate`       | Generates a JWT secret key if this is true as a secret.                              | `true`                                                   |
-| `config.jwtSecretKey.existingSecret` | The existing secret name for the JWT secret key. It must have only one key: `secret` | `""`                                                     |
-| `config.logback.mapName`             | The ConfigMap name for the Logback properties file                                   | `logback-config`                                         |
-| `config.logback.path`                | Absolute path to load the logback.properties file from                               | `/app/noelware/charted/server/config/logback.properties` |
-| `config.logback.config`              | The actual configuration for Logback                                                 | `""`                                                     |
-
-### Docker Image Parameters
-
-| Name               | Description                                                                 | Value                         |
-| ------------------ | --------------------------------------------------------------------------- | ----------------------------- |
-| `image.repository` | Full repository URL to the charted-server Docker image                      | `ghcr.io/charted-dev/charted` |
-| `image.pullPolicy` | Pull policy for the image. If the `image.tag` is latest, then use `Always`. | `IfNotPresent`                |
-| `image.tag`        | The tag of the Docker image to run                                          | `0.3.0-nightly`               |
-
-### Service Account Parameters
-
-| Name                         | Description                                                                                                            | Value  |
-| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------ |
-| `serviceAccount.create`      | Specifies whether a service account should be created                                                                  | `true` |
-| `serviceAccount.annotations` | Annotations to add to the service account                                                                              | `{}`   |
-| `serviceAccount.name`        | The name of the service account to use. If not set and create is true, a name is generated using the fullname template | `""`   |
-
-### Elasticsearch
-
-| Name                            | Description                                                                  | Value   |
-| ------------------------------- | ---------------------------------------------------------------------------- | ------- |
-| `elasticsearch.enabled`         | If the Helm installation should install a single node Elasticsearch cluster. | `false` |
-| `elasticsearch.metrics.enabled` | If the server should install Metricbeat as a sidecar container.              | `false` |
+| Name                              | Description                                                                                                             | Value                |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------- |
+| `global.fullNameOverride`         | String to fully override the Helm installation name for all objects                                                     | `""`                 |
+| `global.nameOverride`             | String to override the Helm installation name for all objects                                                           | `""`                 |
+| `global.replicas`                 | How many replicas for the StatefulSet or Deployment. As of right now, charted-server does not implement High Avability. | `1`                  |
+| `global.jvmOptions`               | The JVM options to use when running the server                                                                          | `-Xmx4096 -Xms1024m` |
+| `global.debug`                    | If the debug flag should be enabled on the server                                                                       | `false`              |
+| `global.nodeSelector`             | Constrainted node labels for the charted-server pod                                                                     | `{}`                 |
+| `global.tolerations`              | Tolerations for charted-server pod                                                                                      | `[]`                 |
+| `global.affinity`                 | Affinity for the charted-server pod                                                                                     | `{}`                 |
+| `global.annotations`              | Global deployment annotations                                                                                           | `{}`                 |
+| `global.extraEnvVars`             | List of environment variables to add                                                                                    | `[]`                 |
+| `global.initContainers`           | List of init containers to run                                                                                          | `[]`                 |
+| `global.podSecurityContext`       | Security context for the server pods                                                                                    | `{}`                 |
+| `global.containerSecurityContext` | Security context for the Deployment                                                                                     | `{}`                 |
 
 ### Service Parameters
 
@@ -114,7 +56,86 @@ $ helm install charted-server charted/server
 | `ingress.className`   | IngressClass that will be used to implement the Ingress record | `""`                     |
 | `ingress.path`        | Default path for the ingress record                            | `/`                      |
 
-### Storage Parameters
+### PostgreSQL Parameters
+
+| Name                                          | Description                                                                                                                                                                                                        | Value        |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------ |
+| `postgresql.enabled`                          | Whether if PostgreSQL should be installed alongside charted-server. This will install Bitnami's PostgreSQL distribution from their Helm Charts. This can be set to `false` if you already have PostgreSQL running. | `true`       |
+| `postgresql.auth.username`                    | Name for a custom user to create                                                                                                                                                                                   | `charted`    |
+| `postgresql.auth.password`                    | Password for the custom user to create                                                                                                                                                                             | `""`         |
+| `postgresql.auth.database`                    | Name for a custom database to create                                                                                                                                                                               | `charted`    |
+| `postgresql.auth.existingSecret`              | Name of existing secret to use for PostgreSQL credentials                                                                                                                                                          | `""`         |
+| `postgresql.architecture`                     | PostgreSQL architecture (`standalone` or `replication`)                                                                                                                                                            | `standalone` |
+| `postgresql.primary.service.ports.postgresql` | PostgreSQL service port                                                                                                                                                                                            | `5432`       |
+
+### Redis Parameters
+
+| Name                               | Description                                                                                                                                                                                              | Value        |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| `redis.enabled`                    | Whether if Redis should be installed alongside charted-server. This will install Bitnami's Redis distribution from their Helm Charts. This can be set to `false` if you already have PostgreSQL running. | `true`       |
+| `redis.existingSecret`             | Name of a secret containing redis credentials                                                                                                                                                            | `""`         |
+| `redis.architecture`               | Set Redis architecture                                                                                                                                                                                   | `standalone` |
+| `redis.master.service.ports.redis` | Redis port                                                                                                                                                                                               | `6379`       |
+| `redis.auth.enabled`               | Enable Redis auth                                                                                                                                                                                        | `true`       |
+| `redis.auth.password`              | Redis password                                                                                                                                                                                           | `""`         |
+| `redis.auth.existingSecret`        | Name of a secret containing the Redis password                                                                                                                                                           | `""`         |
+
+### Server Configuration
+
+| Name             | Description                                              | Value                                                                                                                     |
+| ---------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `config.mapName` | The ConfigMap name for the server configuration          | `config`                                                                                                                  |
+| `config.path`    | Absolute path to load the server configuration file from | `/app/noelware/charted/server/config/charted.yaml`                                                                        |
+| `config.config`  | The actual configuration for the server                  | `# refer to the configuration for more details: https://charts.noelware.org/docs/server/latest/self-hosting/configuration |
+
+jwt_secret_key: ${JWT_SECRET_KEY}
+database:
+host: {{ include "charted.postgres.host" . | quote }}
+port: {{ include "charted.postgres.port" . }}
+database: {{ default "charted" (include "charted.postgres.database" .) | quote }}
+password: {{ include "charted.postgres.password" . | quote . }}
+redis:
+host: {{ include "charted.redis.host" . | quote }}
+port: {{ include "charted.redis.port" . }}
+index: {{ include "charted.redis.db" . }}
+storage:
+{{- if eq "filesystem" .Values.storage.driver }}
+filesystem:
+directory: {{ .Values.storage.filesystem.directory }}
+{{- end }}
+{{- if eq "s3" .Values.storage.driver }}
+s3:
+default_object_acl: bucket-owner-full-control
+default_bucket_acl: bucket-owner-full-control
+secret_key: ${AWS_SECRET_ACCESS_KEY}
+access_key: ${AWS_ACCESS_KEY_ID}
+region: us-east-1
+bucket: charted
+{{- end }}`|
+|`config.jwtSecretKey.generate`      | Generates a JWT secret key if this is true as a secret.                              |`true`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+|`config.jwtSecretKey.existingSecret`| The existing secret name for the JWT secret key. It must have only one key:`secret`|`""`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+|`config.logback.mapName`            | The ConfigMap name for the Logback properties file                                   |`logback-config`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+|`config.logback.path`               | Absolute path to load the logback.properties file from                               |`/app/noelware/charted/server/config/logback.properties`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+|`config.logback.config`             | The actual configuration for Logback                                                 |`# refer to the configuration for more details: https://charts.noelware.org/docs/server/latest/self-hosting/configuration#logback-properties
+charted.log.level=INFO` |
+
+### Docker Image Parameters
+
+| Name               | Description                                                                 | Value                         |
+| ------------------ | --------------------------------------------------------------------------- | ----------------------------- |
+| `image.repository` | Full repository URL to the charted-server Docker image                      | `ghcr.io/charted-dev/charted` |
+| `image.pullPolicy` | Pull policy for the image. If the `image.tag` is latest, then use `Always`. | `IfNotPresent`                |
+| `image.tag`        | The tag of the Docker image to run                                          | `""`                          |
+
+### Service Account Parameters
+
+| Name                         | Description                                                                                                            | Value  |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------ |
+| `serviceAccount.create`      | Specifies whether a service account should be created                                                                  | `true` |
+| `serviceAccount.annotations` | Annotations to add to the service account                                                                              | `{}`   |
+| `serviceAccount.name`        | The name of the service account to use. If not set and create is true, a name is generated using the fullname template | `""`   |
+
+### Storage Driver Parameters
 
 | Name                                          | Description                                                                                                                                  | Value                            |
 | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
@@ -136,6 +157,7 @@ $ helm install charted-server charted/server
 | `storage.s3.bucket`                           | Bucket name                                                                                                                                  | `charted`                        |
 | `storage.s3.secrets.create`                   | If the Helm chart should create a secret for holding AWS credentials or not                                                                  | `true`                           |
 | `storage.s3.secrets.name`                     | Secret name to use                                                                                                                           | `aws-creds`                      |
+| `storage.s3.secrets.existingSecret`           | Existing secret resource name                                                                                                                | `""`                             |
 | `storage.s3.secrets.keys.secretAccessKey`     | Key value for the secret access key                                                                                                          | `aws-secret-access-key`          |
 | `storage.s3.secrets.keys.accessKeyId`         | Key value for the access key ID                                                                                                              | `aws-access-key-id`              |
 

@@ -82,7 +82,7 @@ interface StorageHandler {
     fun list(): List<Blob>
 
     /**
-     * Unlike [open], which returns a [InputStream], [get] returns all the metadata (and including input stream)
+     * Unlike [open], which returns a [InputStream], [blob] returns all the metadata (and including input stream)
      * from the path specified. Calls the [StorageTrailer#fetch][org.noelware.remi.core.StorageService.blob] method
      * internally.
      *

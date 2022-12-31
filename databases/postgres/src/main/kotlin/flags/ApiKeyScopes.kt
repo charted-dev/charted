@@ -20,76 +20,79 @@ package org.noelware.charted.databases.postgres.flags
 import dev.floofy.utils.slf4j.logging
 import org.noelware.charted.common.Bitfield
 
-private val DEPRECATED_SCOPES = mapOf(
-    "repo:invites" to (1L shl 13),
-    "repo:access" to (1L shl 11)
-)
+// As of v0.4-nightly, the API scopes were changed, so this is empty (for now).
+private val deprecatedApiScopes = mapOf<String, Long>()
 
 val SCOPES: Map<String, Long> = mapOf(
-    // users
-    "user:view" to (1L shl 0),
+    // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+    //           User Scopes
+    // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+    "user:access" to (1L shl 0),
     "user:update" to (1L shl 1),
     "user:delete" to (1L shl 2),
-    "user:notifications" to (1L shl 3),
-    "user:connections" to (1L shl 4),
+    "user:connections" to (1L shl 3),
+    "user:notifications" to (1L shl 4),
     "user:avatar:update" to (1L shl 5),
-    "user:sessions:view" to (1L shl 6),
+    "user:sessions:list" to (1L shl 6),
 
-    // repositories
-    "repo:view" to (1L shl 7),
+    // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+    //        Repository Scopes
+    // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+    "repo:access" to (1L shl 7),
     "repo:create" to (1L shl 8),
     "repo:delete" to (1L shl 9),
     "repo:update" to (1L shl 10),
-    "repo:access" to (1L shl 11),
-    "repo:write" to (1L shl 12),
+    "repo:write" to (1L shl 11),
+    "repo:releases:create" to (1L shl 12),
+    "repo:releases:update" to (1L shl 13),
+    "repo:releases:delete" to (1L shl 14),
+    "repo:members:list" to (1L shl 15),
+    "repo:members:update" to (1L shl 16),
+    "repo:members:kick" to (1L shl 17),
+    "repo:members:invites:access" to (1L shl 18),
+    "repo:members:invites:create" to (1L shl 19),
+    "repo:members:invites:delete" to (1L shl 20),
+    "repo:webhooks:list" to (1L shl 21),
+    "repo:webhooks:create" to (1L shl 22),
+    "repo:webhooks:update" to (1L shl 23),
+    "repo:webhooks:delete" to (1L shl 24),
+    "repo:webhooks:events:access" to (1L shl 25),
+    "repo:webhooks:events:delete" to (1L shl 26),
 
-    // `repo:invites` is deprecated and will be removed in a future release
-    // (maybe v0.4-nightly?)
-    "repo:invites" to (1L shl 13),
-    "repo:release:create" to (1L shl 14),
-    "repo:release:update" to (1L shl 15),
-    "repo:release:delete" to (1L shl 16),
-    "repo:member:invites" to (1L shl 17),
-    "repo:member:kick" to (1L shl 18),
-    "repo:member:update" to (1L shl 19),
-    "repo:webhooks:list" to (1L shl 20),
-    "repo:webhooks:create" to (1L shl 21),
-    "repo:webhooks:update" to (1L shl 22),
-    "repo:webhooks:delete" to (1L shl 23),
-    "repo:member:invites:create" to (1L shl 40),
-    "repo:member:invites:delete" to (1L shl 41),
-    "repo:member:invites:access" to (1L shl 42),
-    "repo:member:view" to (1L shl 43),
-    "repo:webhooks:events:list" to (1L shl 44),
-    "repo:webhooks:events:delete" to (1L shl 45),
+    // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+    //        API Key Scopes
+    // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+    "apikeys:view" to (1L shl 27),
+    "apikeys:create" to (1L shl 28),
+    "apikeys:delete" to (1L shl 29),
+    "apikeys:update" to (1L shl 30),
+    "apikeys:edit:perms" to (1L shl 31),
 
-    // organizations
-    "org:view" to (1L shl 24), // view private organizations also, not just public ones
-    "org:create" to (1L shl 25),
-    "org:update" to (1L shl 26),
-    "org:delete" to (1L shl 27),
-    "org:invites" to (1L shl 28),
-    "org:member:invites" to (1L shl 29),
-    "org:member:kick" to (1L shl 30),
-    "org:member:update" to (1L shl 31),
-    "org:webhooks:list" to (1L shl 32),
-    "org:webhooks:create" to (1L shl 33),
-    "org:webhooks:update" to (1L shl 34),
-    "org:webhooks:delete" to (1L shl 35),
-
-    // api key usage
-    "apikeys:view" to (1L shl 36),
-    "apikeys:create" to (1L shl 37),
-    "apikeys:delete" to (1L shl 38),
-    "apikeys:edit:perms" to (1L shl 39)
+    // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+    //      Organization Scopes
+    // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+    "org:access" to (1L shl 32),
+    "org:create" to (1L shl 33),
+    "org:update" to (1L shl 34),
+    "org:delete" to (1L shl 35),
+    "org:members:invites" to (1L shl 36),
+    "org:members:list" to (1L shl 37),
+    "org:members:kick" to (1L shl 38),
+    "org:members:update" to (1L shl 39),
+    "org:webhooks:list" to (1L shl 40),
+    "org:webhooks:create" to (1L shl 41),
+    "org:webhooks:update" to (1L shl 42),
+    "org:webhooks:delete" to (1L shl 43),
+    "org:webhooks:events:list" to (1L shl 44),
+    "org:webhooks:events:delete" to (1L shl 45)
 )
 
 class ApiKeyScopes(bits: Long = 0): Bitfield(bits, SCOPES) {
     private val log by logging<ApiKeyScopes>()
 
     override fun add(flag: String): Bitfield {
-        if (DEPRECATED_SCOPES.containsKey(flag)) {
-            log.warn("API key scope [$flag (${DEPRECATED_SCOPES[flag]})] is deprecated and will be removed in a future release")
+        if (deprecatedApiScopes.containsKey(flag)) {
+            log.warn("API key scope [$flag (${deprecatedApiScopes[flag]})] is deprecated and will be removed in a future release")
         }
 
         return super.add(flag)
@@ -97,7 +100,7 @@ class ApiKeyScopes(bits: Long = 0): Bitfield(bits, SCOPES) {
 
     override fun add(vararg bits: Long): Bitfield {
         for (bit in bits) {
-            if (DEPRECATED_SCOPES.containsValue(bit)) {
+            if (deprecatedApiScopes.containsValue(bit)) {
                 log.warn("API key scope [$bit] is deprecated and will be removed in a future release")
             }
         }

@@ -1,18 +1,18 @@
 {{/*
-📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
-Copyright 2022-2023 Noelware <team@noelware.org>
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+* 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+* Copyright 2022-2023 Noelware <team@noelware.org>
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
 */}}
 
 {{/*
@@ -110,12 +110,12 @@ capabilities:
 {{- end -}}
 
 {{- define "charted.postgres.fullname" -}}
-{{- include "common.names.dependency.fullname" (dict "chartName" "postgresql" "chartValues" .Values.global.postgres "context" $) -}}
+{{- include "common.names.dependency.fullname" (dict "chartName" "postgresql" "chartValues" .Values.postgresql "context" $) -}}
 {{- end -}}
 
 {{- define "charted.postgres.host" -}}
-  {{- if .Values.global.postgres.enabled }}
-    {{- if eq .Values.global.postgres.architecture "replication" -}}
+  {{- if .Values.postgresql.enabled }}
+    {{- if eq .Values.postgresql.architecture "replication" -}}
       {{- printf "%s-%s" (include "charted.postgres.fullname" .) "primary" | trunc 64 | trimSuffix "-" -}}
     {{- else -}}
       {{- print (include "charted.postgres.fullname" .) -}}
@@ -126,15 +126,15 @@ capabilities:
 {{- end }}
 
 {{- define "charted.postgres.port" -}}
-  {{- if .Values.global.postgres.enabled -}}
-    {{- print .Values.global.postgres.primary.service.ports.postgresql -}}
+  {{- if .Values.postgresql.enabled -}}
+    {{- print .Values.postgresql.primary.service.ports.postgresql -}}
   {{- else -}}
     {{- print .Values.external.postgres.port -}}
   {{- end -}}
 {{- end -}}
 
 {{- define "charted.postgres.database" -}}
-  {{- if .Values.global.postgres.enabled -}}
+  {{- if .Values.postgresql.enabled -}}
     {{- print "charted" -}}
   {{- else -}}
     {{- print .Values.external.postgres.database -}}
@@ -142,27 +142,27 @@ capabilities:
 {{- end -}}
 
 {{- define "charted.postgres.username" -}}
-  {{- if .Values.global.postgres.enabled -}}
-    {{- print .Values.global.postgres.auth.username -}}
+  {{- if .Values.postgresql.enabled -}}
+    {{- print .Values.postgresql.auth.username -}}
   {{- else -}}
     {{- print .Values.external.postgres.username -}}
   {{- end -}}
 {{- end -}}
 
 {{- define "charted.postgres.password" -}}
-  {{- if .Values.global.postgres.enabled -}}
-    {{- print .Values.global.postgres.auth.password -}}
+  {{- if .Values.postgresql.enabled -}}
+    {{- print .Values.postgresql.auth.password -}}
   {{- else -}}
     {{- print .Values.external.postgres.password -}}
   {{- end -}}
 {{- end -}}
 
 {{- define "charted.redis.fullname" -}}
-{{- include "common.names.dependency.fullname" (dict "chartName" "redis" "chartValues" .Values.global.redis "context" $) -}}
+{{- include "common.names.dependency.fullname" (dict "chartName" "redis" "chartValues" .Values.redis "context" $) -}}
 {{- end -}}
 
 {{- define "charted.redis.host" -}}
-  {{- if .Values.global.redis.enabled }}
+  {{- if .Values.redis.enabled }}
     {{- printf "%s-master" (include "charted.redis.fullname" .) | trunc 63 | trimSuffix "-" -}}
   {{- else }}
     {{- print .Values.external.redis.host -}}
@@ -170,27 +170,17 @@ capabilities:
 {{- end }}
 
 {{- define "charted.redis.port" -}}
-  {{- if .Values.global.redis.enabled -}}
-    {{- print .Values.global.redis.master.service.ports.redis -}}
+  {{- if .Values.redis.enabled -}}
+    {{- print .Values.redis.master.service.ports.redis -}}
   {{- else -}}
     {{- print .Values.external.redis.port -}}
   {{- end -}}
 {{- end -}}
 
 {{- define "charted.redis.db" -}}
-  {{- if .Values.global.redis.enabled -}}
+  {{- if .Values.redis.enabled -}}
     {{- print 8 -}}
   {{- else -}}
     {{- print .Values.external.redis.database -}}
-  {{- end -}}
-{{- end -}}
-
-{{- define "charted.clickhouse.fullname" -}}
-{{- include "common.names.dependency.fullname" (dict "chartName" "clickhouse" "chartValues" .Values.global.clickhouse "context" $) -}}
-{{- end -}}
-
-{{- define "charted.clickhouse.hosts" -}}
-  {{- if .Values.global.clickhouse.enabled -}}
-    {{ printf "%s,%s,%s" (printf "%s-%s" (include "charted.clickhouse.fullname") 0) (printf "%s-%s" (include "charted.clickhouse.fullname") 1) (printf "%s-%s" (include "charted.clickhouse.fullname") 2) }}
   {{- end -}}
 {{- end -}}

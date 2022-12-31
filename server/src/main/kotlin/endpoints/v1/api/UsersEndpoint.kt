@@ -494,7 +494,7 @@ class UsersEndpoint(
         call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
     }
 
-    @Put("/repositories")
+    @Put("/@me/repositories")
     suspend fun createRepository(call: ApplicationCall) {
         val body: CreateRepositoryBody by call.body()
         val exists = asyncTransaction(ChartedScope) {
@@ -524,5 +524,11 @@ class UsersEndpoint(
         }
 
         call.respond(HttpStatusCode.Created, ApiResponse.ok(repository))
+    }
+
+    @Put("/repositories")
+    suspend fun oldCreateRepo(call: ApplicationCall) {
+        call.response.header("X-Deprecation-Notice", "PUT /users/repositories has been deprecated since v0.4-nightly, please use PUT /users/@me/repositories instead")
+        return createRepository(call)
     }
 }

@@ -5,20 +5,5 @@ dependencies:
 - name: redis
   repository: https://charts.bitnami.com/bitnami
   version: 17.4.0
-- name: clickhouse
-  repository: https://charts.bitnami.com/bitnami
-  version: 2.2.1
-- name: elasticsearch
-  repository: https://helm.elastic.co
-  version: 8.5.1
-- name: metricbeat
-  repository: https://helm.elastic.co
-  version: 8.5.1
-- name: prometheus
-  repository: https://prometheus-community.github.io/helm-charts
-  version: 19.2.0
-- name: common
-  repository: https://charts.bitnami.com/bitnami
-  version: 2.2.2
-digest: sha256:1f9f707c9cb768f6be6c457b649299152ca8150eaa612e82bf80dc4080a369e0
-generated: "2022-12-26T05:53:38.399015697Z"
+digest: sha256:bfd5c37452a401a02e33d4a27ce34361cfdfa5cd11525e79c14f1f88ebfa4b22
+generated: "2022-12-29T21:26:19.347194287-07:00"

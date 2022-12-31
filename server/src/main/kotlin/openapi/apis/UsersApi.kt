@@ -22,7 +22,9 @@ import guru.zoroark.tegral.openapi.dsl.schema
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.noelware.charted.ChartedInfo
+import org.noelware.charted.databases.postgres.models.Repository
 import org.noelware.charted.databases.postgres.models.User
+import org.noelware.charted.modules.sessions.Session
 import org.noelware.charted.server.endpoints.v1.api.MainUserResponse
 import org.noelware.charted.types.responses.ApiResponse
 import kotlin.reflect.full.createType
@@ -179,6 +181,101 @@ fun RootDsl.usersApi() {
                 "image/gif" content {
                     schema(ByteArray::class.createType())
                 }
+            }
+        }
+    }
+
+    "/users/{idOrName}/avatars/{hash}" get {
+        externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api/users#GET-/:idOrName/avatars/current.png"
+        description = "Returns the user's avatar by their avatar hash, if there is one set."
+
+        "idOrName" pathParameter {
+            description = "The snowflake or user's username to get the avatar from"
+        }
+
+        "hash" pathParameter {
+            description = "The avatar hash to find"
+        }
+
+        404 response {
+            description = "If the avatar by the given hash was not found"
+            "application/json" content {
+                schema<ApiResponse.Err>()
+            }
+        }
+
+        200 response {
+            description = "The actual avatar as an image file"
+            "image/png" content {
+                schema(ByteArray::class.createType())
+            }
+
+            "image/jpg" content {
+                schema(ByteArray::class.createType())
+            }
+
+            "image/jpeg" content {
+                schema(ByteArray::class.createType())
+            }
+
+            "image/gif" content {
+                schema(ByteArray::class.createType())
+            }
+        }
+    }
+
+    "/users/login" post {
+        externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api/users#POST-/login"
+        description = "Login into charted-server and retrieve a session token."
+
+        201 response {
+            "application/json" content {
+                schema<ApiResponse.Ok<Session>>()
+            }
+        }
+    }
+
+    "/users/@me" get {
+        externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api/users#GET-/@me"
+        description = "Returns the current authenticated user, usually to check if the session is the right one"
+
+        200 response {
+            "application/json" content {
+                schema<ApiResponse.Ok<User>>()
+            }
+        }
+    }
+
+    "/users/@me/avatar" post {
+        externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api/users#POST-/@me/avatar"
+        description = "Uploads a new user avatar for the authenticated user"
+
+        202 response {
+            "application/json" content {
+                schema<ApiResponse.Ok<User>>()
+            }
+        }
+    }
+
+    "/users/repositories" put {
+        externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api/users#PUT-/repositories"
+        description = "Creates a new repository with the authenticated user as the owner of the repo"
+        deprecated = true
+
+        202 response {
+            "application/json" content {
+                schema<ApiResponse.Ok<Repository>>()
+            }
+        }
+    }
+
+    "/users/@me/repositories" put {
+        externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api/users#PUT-/@me/repositories"
+        description = "Creates a new repository with the authenticated user as the owner of the repo"
+
+        202 response {
+            "application/json" content {
+                schema<ApiResponse.Ok<Repository>>()
             }
         }
     }

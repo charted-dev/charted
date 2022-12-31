@@ -45,7 +45,7 @@ class CdnEndpoints(private val storage: StorageHandler): AbstractEndpoint("/cdn"
         if (stream.etag() != null) call.response.header("Etag", stream.etag()!!)
 
         val data = stream.inputStream()!!.use { it.readBytes() }
-        val contentType = ContentType.parse(stream.contentType() ?: "application/octet-stream")
+        val contentType = ContentType.parse(stream.contentType() ?: storage.service.getContentTypeOf(data) ?: "application/octet-stream")
         call.respond(createKtorContentWithByteArray(data, contentType))
     }
 }

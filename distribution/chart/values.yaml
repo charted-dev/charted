@@ -29,29 +29,7 @@
 ## @param global.extraEnvVars List of environment variables to add
 ## @param global.initContainers List of init containers to run
 ## @param global.podSecurityContext Security context for the server pods
-## @param global.containerSecurityContext Security context for the StatefulSet/Deployment
-## @param global.features List of server features to enable
-## @param global.meilisearch.enabled Whether if Meilisearch should be installed alongside charted-server. This will not actually deploy Meilisearch until it is stable in newer versions.
-## @param global.clickhouse.enabled Whether if ClickHouse should be installed alongside charted-server. This will install Bitnami's ClickHouse distribution from their Helm Charts.
-## @param global.clickhouse.auth.username ClickHouse Admin username
-## @param global.clickhouse.auth.password ClickHouse Admin password
-## @param global.clickhouse.auth.existingSecret Name of a secret containing the Admin password
-## @param global.clickhouse.auth.existingSecretKey Name of the key inside the existing secret
-## @param global.prometheus.enabled Whether if Prometheus should be installed alongside charted-server. This will install Bitnami's Prometheus distribution from their Helm Charts. This will not affect metrics from the server configuration side, it will just not be ingested.
-## @param global.postgres.enabled Whether if PostgreSQL should be installed alongside charted-server. This will install Bitnami's PostgreSQL distribution from their Helm Charts. This can be set to `false` if you already have PostgreSQL running.
-## @param global.postgres.auth.username Name for a custom user to create
-## @param global.postgres.auth.password Password for the custom user to create
-## @param global.postgres.auth.database Name for a custom database to create
-## @param global.postgres.auth.existingSecret Name of existing secret to use for PostgreSQL credentials
-## @param global.postgres.architecture PostgreSQL architecture (`standalone` or `replication`)
-## @param global.postgres.primary.service.ports.postgresql PostgreSQL service port
-## @param global.redis.enabled Whether if Redis should be installed alongside charted-server. This will install Bitnami's Redis distribution from their Helm Charts. This can be set to `false` if you already have PostgreSQL running.
-## @param global.redis.existingSecret Name of a secret containing redis credentials
-## @param global.redis.architecture Set Redis architecture
-## @param global.redis.master.service.ports.redis Redis port
-## @param global.redis.auth.enabled Enable Redis auth
-## @param global.redis.auth.password Redis password
-## @param global.redis.auth.existingSecret Name of a secret containing the Redis password
+## @param global.containerSecurityContext Security context for the Deployment
 global:
   fullNameOverride: ''
   nameOverride: ''
@@ -66,123 +44,6 @@ global:
   initContainers: []
   podSecurityContext: {}
   containerSecurityContext: {}
-  features: []
-  meilisearch:
-    enabled: false
-  clickhouse:
-    enabled: false
-    auth:
-      username: default
-      password: ''
-      existingSecret: ''
-      existingSecretKey: ''
-  prometheus:
-    enabled: false
-  postgres:
-    enabled: true
-    auth:
-      username: charted
-      password: ''
-      database: charted
-      existingSecret: ''
-    architecture: standalone
-    primary:
-      service:
-        ports:
-          postgresql: 5432
-  redis:
-    enabled: true
-    architecture: standalone
-    existingSecret: ''
-    master:
-      service:
-        ports:
-          redis: 6379
-    auth:
-      enabled: true
-      password: ''
-      existingSecret: ''
-
-## @section Server Configuration
-## This is the configuration for configuring charted-server and its logging system. Refer to the documentation:
-## https://charts.noelware.org/docs/server/latest/self-hosting/configuration
-##
-## @param config.mapName                     The ConfigMap name for the server configuration
-## @param config.path                        Absolute path to load the server configuration file from
-## @param config.config                      The actual configuration for the server
-## @param config.jwtSecretKey.generate       Generates a JWT secret key if this is true as a secret.
-## @param config.jwtSecretKey.existingSecret The existing secret name for the JWT secret key. It must have only one key: `secret`
-## @param config.logback.mapName             The ConfigMap name for the Logback properties file
-## @param config.logback.path                Absolute path to load the logback.properties file from
-## @param config.logback.config              The actual configuration for Logback
-config:
-  mapName: config
-  path: /app/noelware/charted/server/config/charted.yaml
-  defaultConfig: |-
-    # refer to the configuration for more details: https://charts.noelware.org/docs/server/latest/self-hosting/configuration
-    jwt_secret_key: ${JWT_SECRET_KEY}
-    database:
-      host: {{ include "charted.postgres.host" . | quote }}
-      port: {{ include "charted.postgres.port" . }}
-      database: {{ default "charted" (include "charted.postgres.database" .) | quote }}
-      username: {{ include "charted.postgres.username" . | quote . }}
-      password: {{ include "charted.postgres.password" . | quote . }}
-    redis:
-      host: {{ include "charted.redis.host" . | quote }}
-      port: {{ include "charted.redis.port" . }}
-      index: {{ include "charted.redis.db" . }}
-    storage:
-    {{- if eq "filesystem" .Values.storage.driver }}
-      filesystem:
-        directory: {{ .Values.storage.filesystem.directory }}
-    {{- end }}
-
-    {{- if eq "s3" .Values.storage.driver }}
-      s3:
-        default_object_acl: bucket-owner-full-control
-        default_bucket_acl: bucket-owner-full-control
-        secret_key: ${AWS_SECRET_ACCESS_KEY}
-        access_key: ${AWS_ACCESS_KEY_ID}
-        region: us-east-1
-        bucket: charted
-    {{- end }}
-  jwtSecretKey:
-    generate: true
-    existingSecret: ''
-  logback:
-    mapName: logback-config
-    path: /app/noelware/charted/server/config/logback.properties
-    config: ''
-
-## @section Docker Image Parameters
-## @param image.repository Full repository URL to the charted-server Docker image
-## @param image.pullPolicy Pull policy for the image. If the `image.tag` is latest, then use `Always`.
-## @param image.tag        The tag of the Docker image to run
-image:
-  repository: ghcr.io/charted-dev/charted
-  tag: ''
-  pullPolicy: IfNotPresent
-
-## @section Service Account Parameters
-## @param serviceAccount.create      Specifies whether a service account should be created
-## @param serviceAccount.annotations Annotations to add to the service account
-## @param serviceAccount.name        The name of the service account to use. If not set and create is true, a name is generated using the fullname template
-serviceAccount:
-  create: true
-  annotations: {}
-  name: ''
-
-## @section Elasticsearch
-## If `elasticsearch.enabled` is set to `true`, then this will enable a local Elasticsearch cluster. Set this to `false`
-## if you have an Elasticsearch cluster running.
-##
-## This can also configure Metricbeat to consume the Prometheus metrics endpoints if `elasticsearch.metrics.enabled` is `true`.
-## @param elasticsearch.enabled                  If the Helm installation should install a single node Elasticsearch cluster.
-## @param elasticsearch.metrics.enabled          If the server should install Metricbeat as a sidecar container.
-elasticsearch:
-  enabled: false
-  metrics:
-    enabled: false
 
 ## @section Service Parameters
 ## This will configure the Service template for having any connections between the server.
@@ -214,7 +75,118 @@ ingress:
   className: ''
   path: /
 
-## @section Storage Parameters
+## @section PostgreSQL Parameters
+## @param postgresql.enabled Whether if PostgreSQL should be installed alongside charted-server. This will install Bitnami's PostgreSQL distribution from their Helm Charts. This can be set to `false` if you already have PostgreSQL running.
+## @param postgresql.auth.username Name for a custom user to create
+## @param postgresql.auth.password Password for the custom user to create
+## @param postgresql.auth.database Name for a custom database to create
+## @param postgresql.auth.existingSecret Name of existing secret to use for PostgreSQL credentials
+## @param postgresql.architecture PostgreSQL architecture (`standalone` or `replication`)
+## @param postgresql.primary.service.ports.postgresql PostgreSQL service port
+postgresql:
+  enabled: true
+  auth:
+    username: charted
+    password: ''
+    database: charted
+    existingSecret: ''
+  architecture: standalone
+  primary:
+    service:
+      ports:
+        postgresql: 5432
+
+## @section Redis Parameters
+## @param redis.enabled Whether if Redis should be installed alongside charted-server. This will install Bitnami's Redis distribution from their Helm Charts. This can be set to `false` if you already have PostgreSQL running.
+## @param redis.existingSecret Name of a secret containing redis credentials
+## @param redis.architecture Set Redis architecture
+## @param redis.master.service.ports.redis Redis port
+## @param redis.auth.enabled Enable Redis auth
+## @param redis.auth.password Redis password
+## @param redis.auth.existingSecret Name of a secret containing the Redis password
+redis:
+  enabled: true
+  architecture: standalone
+  existingSecret: ''
+  master:
+    service:
+      ports:
+        redis: 6379
+  auth:
+    enabled: true
+    password: ''
+    existingSecret: ''
+
+## @section Server Configuration
+## This is the configuration for configuring charted-server and its logging system. Refer to the documentation:
+## https://charts.noelware.org/docs/server/latest/self-hosting/configuration
+##
+## @param config.mapName                     The ConfigMap name for the server configuration
+## @param config.path                        Absolute path to load the server configuration file from
+## @param config.config                      The actual configuration for the server
+## @param config.jwtSecretKey.generate       Generates a JWT secret key if this is true as a secret.
+## @param config.jwtSecretKey.existingSecret The existing secret name for the JWT secret key. It must have only one key: `secret`
+## @param config.logback.mapName             The ConfigMap name for the Logback properties file
+## @param config.logback.path                Absolute path to load the logback.properties file from
+## @param config.logback.config              The actual configuration for Logback
+config:
+  mapName: config
+  path: /app/noelware/charted/server/config/charted.yaml
+  config: |-
+    # refer to the configuration for more details: https://charts.noelware.org/docs/server/latest/self-hosting/configuration
+    jwt_secret_key: ${JWT_SECRET_KEY}
+    database:
+      host: {{ include "charted.postgres.host" . | quote }}
+      port: {{ include "charted.postgres.port" . }}
+      database: {{ default "charted" (include "charted.postgres.database" .) | quote }}
+      password: {{ include "charted.postgres.password" . | quote . }}
+    redis:
+      host: {{ include "charted.redis.host" . | quote }}
+      port: {{ include "charted.redis.port" . }}
+      index: {{ include "charted.redis.db" . }}
+    storage:
+    {{- if eq "filesystem" .Values.storage.driver }}
+      filesystem:
+        directory: {{ .Values.storage.filesystem.directory }}
+    {{- end }}
+    {{- if eq "s3" .Values.storage.driver }}
+      s3:
+        default_object_acl: bucket-owner-full-control
+        default_bucket_acl: bucket-owner-full-control
+        secret_key: ${AWS_SECRET_ACCESS_KEY}
+        access_key: ${AWS_ACCESS_KEY_ID}
+        region: us-east-1
+        bucket: charted
+    {{- end }}
+  jwtSecretKey:
+    generate: true
+    existingSecret: ''
+  logback:
+    mapName: logback-config
+    path: /app/noelware/charted/server/config/logback.properties
+    config: |-
+      # refer to the configuration for more details: https://charts.noelware.org/docs/server/latest/self-hosting/configuration#logback-properties
+      charted.log.level=INFO
+
+## @section Docker Image Parameters
+## @param image.repository Full repository URL to the charted-server Docker image
+## @param image.pullPolicy Pull policy for the image. If the `image.tag` is latest, then use `Always`.
+## @param image.tag        The tag of the Docker image to run
+image:
+  repository: ghcr.io/charted-dev/charted
+  tag: ''
+  pullPolicy: IfNotPresent
+
+## @section Service Account Parameters
+## @param serviceAccount.create      Specifies whether a service account should be created
+## @param serviceAccount.annotations Annotations to add to the service account
+## @param serviceAccount.name        The name of the service account to use. If not set and create is true, a name is generated using the fullname template
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ''
+
+## @section Storage Driver Parameters
 ## @param storage.driver                                   The driver to use when configuring storage. (allowed: filesystem, s3)
 ## @param storage.filesystem.directory                     The container directory path to mount it to
 ## @param storage.filesystem.persistence.enabled           If persistence is enabled or not
@@ -234,8 +206,6 @@ ingress:
 ## @param storage.s3.secrets.create                        If the Helm chart should create a secret for holding AWS credentials or not
 ## @param storage.s3.secrets.name                          Secret name to use
 ## @param storage.s3.secrets.existingSecret                Existing secret resource name
-## @param storage.s3.secrets.existingAccessKeyIdSecret     Existing secret resource name for the access key ID
-## @param storage.s3.secrets.existingSecretAccessKeySecret Existing secret resource name for the secret access key
 ## @param storage.s3.secrets.keys.secretAccessKey          Key value for the secret access key
 ## @param storage.s3.secrets.keys.accessKeyId              Key value for the access key ID
 storage:

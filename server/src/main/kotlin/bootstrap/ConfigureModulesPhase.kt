@@ -87,6 +87,7 @@ import org.noelware.charted.server.endpoints.AuthTokenEndpoint
 import org.noelware.charted.server.endpoints.v1.endpointsModule
 import org.noelware.charted.server.internal.DefaultChartedServer
 import org.noelware.charted.server.internal.analytics.ChartedAnalyticsExtension
+import org.noelware.charted.server.logging.KoinLogger
 import org.noelware.charted.snowflake.Snowflake
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
@@ -321,6 +322,7 @@ object ConfigureModulesPhase: BootstrapPhase() {
         )
 
         startKoin {
+            logger(KoinLogger)
             modules(*modules.toTypedArray())
         }
     }

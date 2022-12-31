@@ -13,17 +13,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# prettier-ignore
+{{- if and (eq "filesystem" .Values.storage.driver) (.Values.storage.filesystem.persistence.enabled) }}
 apiVersion: v1
-kind: ConfigMap
+kind: PersistentVolumeClaim
 metadata:
-  name: {{ printf "%s-%s" (include "charted.fullname" .) .Values.config.mapName }}
+  name: {{ printf "%s-%s" (include "charted.fullname" .) .Values.storage.filesystem.persistence.claimName }}
   namespace: {{ .Release.Namespace | quote }}
   labels: {{ include "charted.labels" . | nindent 4 }}
   annotations: {{ include "charted.defaultAnnotations" . | nindent 4 }}
     {{- range $key, $val := .Values.global.annotations }}
     {{ $key }}: {{ $val | quote }}
     {{- end }}
-data:
-  charted.yaml: |-
-  {{- include "common.tplvalues.render" (dict "value" .Values.config.defaultConfig "context" $) | nindent 4 }}
+spec:
+  {{- if .Values.storage.filesystem.persistence.storageClass }}
+  storageClassName: {{ .Values.storage.filesystem.persistence.storageClass | quote }}
+  {{- end }}
+  accessModes:
+  {{- with .Values.storage.filesystem.persistence.accessModes }}
+    {{ toYaml . | nindent 6 }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.storage.filesystem.persistence.size }}
+{{- end }}

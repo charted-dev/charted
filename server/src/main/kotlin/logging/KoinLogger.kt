@@ -15,16 +15,21 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.endpoints.v1.api
+package org.noelware.charted.server.logging
 
-import org.koin.dsl.bind
-import org.koin.dsl.module
-import org.noelware.ktor.endpoints.AbstractEndpoint
+import dev.floofy.utils.slf4j.logging
+import org.koin.core.Koin
+import org.koin.core.logger.Level
+import org.koin.core.logger.Logger
+import org.koin.core.logger.MESSAGE
 
-val apiV1Endpoints = module {
-    single { UsersEndpoint(get(), get(), get(), get(), get(), get(), get(), getOrNull()) } bind AbstractEndpoint::class
-    single { OrganizationsEndpoint(get(), get(), get(), get(), getOrNull()) } bind AbstractEndpoint::class
-    single { RepositoriesEndpoint(get(), get(), get(), getOrNull()) } bind AbstractEndpoint::class
-    single { ApiKeysEndpoint(get(), get()) } bind AbstractEndpoint::class
-    single { AdminEndpoint() } bind AbstractEndpoint::class
+object KoinLogger: Logger() {
+    private val log by logging<Koin>()
+    override fun display(level: Level, msg: MESSAGE) = when (level) {
+        Level.WARNING -> log.warn(msg)
+        Level.ERROR -> log.error(msg)
+        Level.DEBUG -> log.debug(msg)
+        Level.INFO -> log.info(msg)
+        Level.NONE -> {}
+    }
 }

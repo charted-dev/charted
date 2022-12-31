@@ -207,25 +207,25 @@ class RepositoriesEndpoint(
         // Repository Releases Endpoints
         // +==============================+
         install(HttpMethod.Post, "/repositories/{id}/releases/{version}.tar.gz", SessionsPlugin) {
-            this += "repo:release:create"
+            this += "repo:releases:create"
 
             condition(this@RepositoriesEndpoint::checkRepositoryPermissionOnCurrentUser)
         }
 
         install(HttpMethod.Delete, "/repositories/{id}/releases/{releaseId}", SessionsPlugin) {
-            this += "repo:release:delete"
+            this += "repo:releases:delete"
 
             condition(this@RepositoriesEndpoint::checkRepositoryPermissionOnCurrentUser)
         }
 
         install(HttpMethod.Patch, "/repositories/{id}/releases/{releaseId}", SessionsPlugin) {
-            this += "repo:release:update"
+            this += "repo:releases:update"
 
             condition(this@RepositoriesEndpoint::checkRepositoryPermissionOnCurrentUser)
         }
 
         install(HttpMethod.Put, "/repositories/{id}/releases", SessionsPlugin) {
-            this += "repo:release:create"
+            this += "repo:releases:create"
 
             condition(this@RepositoriesEndpoint::checkRepositoryPermissionOnCurrentUser)
         }
@@ -252,26 +252,26 @@ class RepositoriesEndpoint(
         }
 
         install(HttpMethod.Delete, "/repositories/{id}/members/{memberId}", SessionsPlugin) {
-            this += "repo:member:delete"
+            this += "repo:members:delete"
 
             condition(this@RepositoriesEndpoint::checkRepositoryPermissionOnCurrentUser)
         }
 
         install(HttpMethod.Patch, "/repositories/{id}/members/{memberId}", SessionsPlugin) {
-            this += "repo:member:update"
+            this += "repo:members:update"
 
             condition(this@RepositoriesEndpoint::checkRepositoryPermissionOnCurrentUser)
         }
 
         install(HttpMethod.Put, "/repositories/{id}/members", SessionsPlugin) {
-            this += "repo:member:create"
+            this += "repo:members:create"
 
             condition(this@RepositoriesEndpoint::checkRepositoryPermissionOnCurrentUser)
         }
 
         install(HttpMethod.Get, "/repositories/{id}/members", SessionsPlugin) {
             allowNonAuthorizedRequests = true
-            this += "repo:member:view"
+            this += "repo:members:view"
 
             condition(this@RepositoriesEndpoint::checkRepositoryPermissionOnCurrentUser)
         }
