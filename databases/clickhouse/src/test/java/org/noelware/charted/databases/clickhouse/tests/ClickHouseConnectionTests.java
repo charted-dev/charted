@@ -46,7 +46,7 @@ public class ClickHouseConnectionTests {
 
         // Connect to ClickHouse
         assertDoesNotThrow(conn::connect);
-        assertEquals("22.6.9.11", conn.getServerVersion());
+        assertEquals("22.12.1.1752", conn.getServerVersion());
         assertFalse(conn.getClosed());
         assertEquals(2, conn.getCalls());
     }
