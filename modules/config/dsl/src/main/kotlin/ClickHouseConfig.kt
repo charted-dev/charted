@@ -61,4 +61,9 @@ public data class ClickHouseConfig(
             port
         )
     }
+
+    public companion object {
+        @JvmStatic
+        public operator fun invoke(builder: Builder.() -> Unit = {}): ClickHouseConfig = ClickHouseConfig.Builder().apply(builder).build()
+    }
 }

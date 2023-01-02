@@ -15,23 +15,7 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.modules.metrics
-
-import io.prometheus.client.Collector
-import io.prometheus.client.Predicate
-
-/**
- * Represents a statistics collector that formats the data into what Prometheus can consume. This uses the
- * [GenericStatCollector] object to collect what metrics it needs.
- */
-interface MetricStatCollector {
-    /**
-     * Read the documentation on [Collector.collect] for more information.
-     */
-    fun collect(): MutableList<Collector.MetricFamilySamples>
-
-    /**
-     * Read the documentation on [Collector.collect] for more information.
-     */
-    fun collect(predicate: Predicate<String>?): MutableList<Collector.MetricFamilySamples>
+plugins {
+    `charted-java-module`
+    `charted-module`
 }

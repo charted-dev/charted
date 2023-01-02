@@ -64,6 +64,8 @@ include(
     ":modules:storage",
     ":modules:telemetry",
     ":modules:webhooks",
+    ":test:containers",
+    ":test:framework",
     ":tools:kt-to-rust"
 )
 

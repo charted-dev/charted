@@ -61,6 +61,8 @@ import org.noelware.charted.modules.apikeys.DefaultApiKeyManager
 import org.noelware.charted.modules.avatars.avatarsModule
 import org.noelware.charted.modules.helm.charts.DefaultHelmChartModule
 import org.noelware.charted.modules.helm.charts.HelmChartModule
+import org.noelware.charted.modules.metrics.MetricsSupport
+import org.noelware.charted.modules.metrics.disabled.DisabledMetricsSupport
 import org.noelware.charted.modules.redis.DefaultRedisClient
 import org.noelware.charted.modules.redis.RedisClient
 import org.noelware.charted.modules.sessions.SessionManager
@@ -342,6 +344,7 @@ internal class ChartedTestServer(private val config: Config): ChartedServer {
                     single<SessionManager> { sessions }
                     single<RedisClient> { redis }
                     single<HelmChartModule> { DefaultHelmChartModule(storage, config, Yaml.default) }
+                    single<MetricsSupport> { DisabledMetricsSupport() }
                 }
             )
         }

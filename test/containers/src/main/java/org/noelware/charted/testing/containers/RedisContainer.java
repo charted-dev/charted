@@ -15,6 +15,6 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.modules.audit.logs.tests
+package org.noelware.charted.testing.containers;
 
-class AuditLogTest
+public class RedisContainer {}

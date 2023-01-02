@@ -55,7 +55,7 @@ public data class KtorServerConfig(
      * Timeout in seconds for sending responses to the client.
      */
     @SerialName("response_write_timeout")
-    val responseWriteTimeoutSeconds: Int = 10,
+    val responseWriteTimeoutSeconds: Int = 60, // expand this to 60 so /metrics can properly work (since elasticsearch takes a while)
 
     /**
      * Timeout in seconds to read incoming requests from the client, "0" = infinite.
@@ -81,7 +81,7 @@ public data class KtorServerConfig(
 
     /**
      * Returns how many bytes that any request can send back to the server. The default
-     * is 50MB before the server will throw a INTERNAL_SERVER_ERROR code. This is tailoured to
+     * is 50MB before the server will throw a INTERNAL_SERVER_ERROR code. This is tailored to
      * your liking, 50MB is just a nice default.
      */
     @SerialName("max_data_payload")

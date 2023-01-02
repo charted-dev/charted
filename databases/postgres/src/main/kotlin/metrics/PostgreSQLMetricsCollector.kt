@@ -17,29 +17,68 @@
 
 package org.noelware.charted.databases.postgres.metrics
 
-import io.prometheus.client.Collector
 import io.prometheus.client.GaugeMetricFamily
 import io.prometheus.client.Predicate
 import io.prometheus.client.SampleNameFilter
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.exposed.sql.TextColumnType
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.metrics.keys.PostgresMetricKeys
-import org.noelware.charted.modules.metrics.MetricStatCollector
+import org.noelware.charted.databases.postgres.entities.OrganizationEntity
+import org.noelware.charted.databases.postgres.entities.RepositoryEntity
+import org.noelware.charted.databases.postgres.entities.UserEntity
+import org.noelware.charted.modules.metrics.Collector
+import kotlin.time.Duration.Companion.milliseconds
 
-class PostgresMetricsCollector(private val config: Config): MetricStatCollector {
-    override fun collect(): MutableList<Collector.MetricFamilySamples> = collect {
+class PostgreSQLMetricsCollector(private val config: Config): Collector<PostgresServerStats>, io.prometheus.client.Collector() {
+    override val name: String = "postgresql"
+    override suspend fun supply(): PostgresServerStats = transaction {
+        val organizations = OrganizationEntity.count()
+        val repositories = RepositoryEntity.count()
+        val users = UserEntity.count()
+
+        val uptime = exec("SELECT extract(epoch FROM current_timestamp - pg_postmaster_start_time()) AS uptime;") { rs ->
+            if (rs.next()) rs.getLong("uptime").milliseconds.inWholeMilliseconds else -1
+        }
+
+        val postgresVersion = exec("SELECT version();") { rs ->
+            if (!rs.next()) return@exec "Unknown"
+
+            val version = rs.getString("version").trim()
+            version
+                .split(" ")
+                .first { it matches "\\d{0,9}.\\d{0,9}?\\d{0,9}".toRegex() }
+        }
+
+        val databaseSize = exec("SELECT pg_database_size(?);", listOf(TextColumnType() to config.database.database)) { rs ->
+            if (rs.next()) rs.getLong("pg_database_size") else -1
+        }
+
+        PostgresServerStats(
+            organizations,
+            repositories,
+            postgresVersion!!,
+            uptime!!,
+            databaseSize!!,
+            users
+        )
+    }
+
+    override fun collect(): MutableList<MetricFamilySamples> = collect {
         config.metrics.metricSets.postgres.firstOrNull() == PostgresMetricKeys.Wildcard ||
             config.metrics.metricSets.postgres.contains(PostgresMetricKeys.values().find { f -> f.key == it })
     }
 
-    override fun collect(predicate: Predicate<String>?): MutableList<Collector.MetricFamilySamples> {
-        val mfs = mutableListOf<Collector.MetricFamilySamples>()
+    override fun collect(predicate: Predicate<String>?): MutableList<MetricFamilySamples> {
+        val mfs = mutableListOf<MetricFamilySamples>()
         collect0(predicate ?: SampleNameFilter.ALLOW_ALL, mfs)
 
         return mfs
     }
 
-    private fun collect0(predicate: Predicate<String>, mfs: MutableList<Collector.MetricFamilySamples>) {
-        val stats = PostgresStatsCollector.collect()
+    private fun collect0(predicate: Predicate<String>, mfs: MutableList<MetricFamilySamples>) {
+        val stats = runBlocking { supply() }
         if (predicate.test(PostgresMetricKeys.TotalOrganizationsAvailable.key)) {
             mfs.add(
                 GaugeMetricFamily(

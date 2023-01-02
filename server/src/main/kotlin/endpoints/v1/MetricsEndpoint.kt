@@ -23,18 +23,18 @@ import co.elastic.apm.api.Traced
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
-import org.noelware.charted.modules.metrics.PrometheusMetrics
+import org.noelware.charted.modules.metrics.MetricsSupport
+import org.noelware.charted.modules.metrics.disabled.DisabledMetricsSupport
+import org.noelware.charted.modules.metrics.prometheus.PrometheusMetricsSupport
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.noelware.ktor.endpoints.Get
 
-class MetricsEndpoint(private val prometheus: PrometheusMetrics? = null): AbstractEndpoint("/metrics") {
+class MetricsEndpoint(private val metrics: MetricsSupport): AbstractEndpoint("/metrics") {
     @Get
     @Traced
-    suspend fun main(call: ApplicationCall) = if (prometheus == null) {
+    suspend fun main(call: ApplicationCall): Unit = if (metrics is DisabledMetricsSupport) {
         call.respond(HttpStatusCode.NotFound)
     } else {
-        call.respondTextWriter(ContentType.parse("text/plain; version=0.0.4; charset=utf-8"), HttpStatusCode.OK) {
-            prometheus.writeIn(this)
-        }
+        call.respondTextWriter { (metrics as PrometheusMetricsSupport).writeIn(this) }
     }
 }

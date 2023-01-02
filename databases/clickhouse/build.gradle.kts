@@ -16,6 +16,7 @@
  */
 
 plugins {
+    `charted-java-module`
     `charted-module`
 }
 
@@ -26,4 +27,5 @@ dependencies {
     implementation(libs.hikaricp)
 
     testImplementation(libs.testcontainers.clickhouse)
+    testImplementation(project(":test:containers"))
 }

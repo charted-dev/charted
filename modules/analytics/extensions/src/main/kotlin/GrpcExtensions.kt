@@ -22,6 +22,7 @@ package org.noelware.charted.modules.analytics.kotlin.dsl
 import com.google.protobuf.NullValue
 import com.google.protobuf.Struct
 import com.google.protobuf.Value
+import kotlinx.datetime.Instant
 import org.noelware.analytics.jvm.server.serialization.Serializable
 import org.noelware.analytics.jvm.server.util.GrpcValueUtil
 import kotlin.reflect.KProperty1
@@ -76,6 +77,7 @@ private fun Any?.toGrpcValue(): Value = when (this) {
     is List<*> -> toGrpcValue()
     is Struct -> toGrpcValue()
     is Serializable -> toGrpcValue()
+    is Instant -> toString().toGrpcValue()
     is Map<*, *> -> Struct {
         for ((key, value) in this@toGrpcValue) {
             if (key !is String) throw IllegalStateException("Map keys should always be strings, received $key")

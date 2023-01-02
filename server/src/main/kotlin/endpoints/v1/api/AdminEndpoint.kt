@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("unused")
+
 package org.noelware.charted.server.endpoints.v1.api
 
 import io.ktor.http.*
@@ -43,5 +45,10 @@ class AdminEndpoint: AbstractEndpoint("/admin") {
     }
 
     @Get
-    suspend fun main(call: ApplicationCall) = call.respond(HttpStatusCode.OK, MainAdminResponse())
+    suspend fun main(call: ApplicationCall): Unit = call.respond(HttpStatusCode.OK, MainAdminResponse())
+
+    @Get("/stats")
+    suspend fun stats(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
 }

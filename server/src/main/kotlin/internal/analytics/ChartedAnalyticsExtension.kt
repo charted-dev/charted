@@ -18,15 +18,19 @@
 package org.noelware.charted.server.internal.analytics
 
 import com.google.protobuf.Value
+import kotlinx.coroutines.runBlocking
 import org.noelware.analytics.jvm.server.extensions.Extension
 import org.noelware.analytics.jvm.server.serialization.Serializable
 import org.noelware.charted.databases.postgres.metrics.PostgresServerStats
 import org.noelware.charted.modules.analytics.kotlin.dsl.*
 import org.noelware.charted.modules.elasticsearch.metrics.ElasticsearchStats
-import org.noelware.charted.modules.metrics.PrometheusMetrics
+import org.noelware.charted.modules.metrics.MetricsSupport
+import org.noelware.charted.modules.metrics.collectors.JvmProcessInfoMetrics
+import org.noelware.charted.modules.metrics.collectors.JvmThreadsMetrics
+import org.noelware.charted.modules.metrics.collectors.OperatingSystemMetrics
 import org.noelware.charted.modules.redis.metrics.RedisServerStats
 
-class ChartedAnalyticsExtension(private val metrics: PrometheusMetrics): Extension<ChartedAnalyticsExtension.Data> {
+class ChartedAnalyticsExtension(private val metrics: MetricsSupport): Extension<ChartedAnalyticsExtension.Data> {
     /**
      * Returns the name of this [Extension] to be used in the final result when
      * sending out this extension's data.
@@ -38,18 +42,24 @@ class ChartedAnalyticsExtension(private val metrics: PrometheusMetrics): Extensi
      * or any other third-party you allow.
      */
     override fun supply(): Data {
-        val stats = metrics.collect()
+        val stats = runBlocking { metrics.collect() }
         return Data(
             if (stats.containsKey("elasticsearch")) stats["elasticsearch"] as ElasticsearchStats else null,
             stats["postgres"] as PostgresServerStats,
-            stats["redis"] as RedisServerStats
+            stats["process"] as JvmProcessInfoMetrics,
+            stats["threads"] as JvmThreadsMetrics,
+            stats["redis"] as RedisServerStats,
+            stats["os"] as OperatingSystemMetrics
         )
     }
 
     data class Data(
         val elasticsearch: ElasticsearchStats?,
         val postgres: PostgresServerStats,
-        val redis: RedisServerStats
+        val process: JvmProcessInfoMetrics,
+        val threads: JvmThreadsMetrics,
+        val redis: RedisServerStats,
+        val os: OperatingSystemMetrics
     ): Serializable {
         override fun toGrpcValue(): Value = Struct {
             put(this, Data::elasticsearch)

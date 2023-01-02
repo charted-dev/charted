@@ -23,6 +23,10 @@ import org.noelware.charted.modules.analytics.AnalyticsDaemon
 class AnalyticsDaemonThread(private val daemon: AnalyticsDaemon): Thread("Charted-AnalyticsProtocolDaemon") {
     private val log by logging<AnalyticsDaemonThread>()
 
+    init {
+        isDaemon = true
+    }
+
     override fun run() {
         log.info("Starting protocol server thread...")
         daemon.start()

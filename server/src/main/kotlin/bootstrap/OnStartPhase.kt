@@ -17,24 +17,9 @@
 
 package org.noelware.charted.server.bootstrap
 
-import com.zaxxer.hikari.HikariDataSource
-import dev.floofy.utils.koin.inject
-import dev.floofy.utils.koin.injectOrNull
 import dev.floofy.utils.slf4j.*
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.runBlocking
-import okhttp3.internal.closeQuietly
-import org.koin.core.context.GlobalContext
 import org.noelware.charted.ChartedInfo
-import org.noelware.charted.ChartedScope
-import org.noelware.charted.databases.clickhouse.ClickHouseConnection
 import org.noelware.charted.extensions.formatToSize
-import org.noelware.charted.modules.analytics.AnalyticsDaemon
-import org.noelware.charted.modules.elasticsearch.ElasticsearchModule
-import org.noelware.charted.modules.redis.RedisClient
-import org.noelware.charted.modules.sessions.SessionManager
-import org.noelware.charted.server.Bootstrap
-import org.noelware.charted.server.ChartedServer
 import org.noelware.charted.server.hasStarted
 import java.io.File
 import java.io.IOError
@@ -52,47 +37,6 @@ object OnStartPhase: BootstrapPhase() {
         { i: Any -> i is IOError } to 124,
         { i: Any -> i is LinkageError } to 123
     )
-
-    private fun installShutdownHook() {
-        Runtime.getRuntime().addShutdownHook(
-            thread(name = "Server-ShutdownThread", start = false) {
-                log.warn("API server is shutting down...")
-
-                val koin = GlobalContext.getKoinApplicationOrNull()
-                if (koin != null) {
-                    val analyticsDaemon: AnalyticsDaemon? by injectOrNull()
-                    val elasticsearch: ElasticsearchModule? by injectOrNull()
-                    val clickhouse: ClickHouseConnection? by injectOrNull()
-                    val sessions: SessionManager by inject()
-                    val hikari: HikariDataSource by inject()
-                    val server: ChartedServer by inject()
-                    val redis: RedisClient by inject()
-
-                    if (Bootstrap.analyticsDaemonThread.wasSet()) {
-                        Bootstrap.analyticsDaemonThread.value.interrupt()
-                    }
-
-                    analyticsDaemon?.closeQuietly()
-                    elasticsearch?.closeQuietly()
-                    clickhouse?.closeQuietly()
-                    sessions.closeQuietly()
-                    hikari.closeQuietly()
-                    redis.closeQuietly()
-                    server.closeQuietly()
-
-                    runBlocking {
-                        ChartedScope.cancel()
-                    }
-
-                    koin.close()
-                } else {
-                    log.warn("Koin was not initialized, skipping...")
-                }
-
-                log.warn("charted-server has completely shutdown, goodbye! ｡･ﾟﾟ･(థ Д థ。)･ﾟﾟ･｡")
-            }
-        )
-    }
 
     // credit: https://github.com/elastic/logstash/blob/main/logstash-core/src/main/java/org/logstash/Logstash.java#L98-L133
     private fun installDefaultThreadExceptionHandler() {
@@ -121,11 +65,11 @@ object OnStartPhase: BootstrapPhase() {
 
     override suspend fun bootstrap(configPath: File) {
         installDefaultThreadExceptionHandler()
-        installShutdownHook()
 
         val runtime = Runtime.getRuntime()
-        val os = ManagementFactory.getOperatingSystemMXBean()
+        runtime.addShutdownHook(ShutdownPhaseThread)
 
+        val os = ManagementFactory.getOperatingSystemMXBean()
         log.info("==> Initializing charted-server v${ChartedInfo.version} (${ChartedInfo.commitHash})")
         log.info("==> Memory: total=${runtime.totalMemory().formatToSize()} free=${runtime.freeMemory().formatToSize()}")
         log.info("==> Kotlin: ${KotlinVersion.CURRENT}")

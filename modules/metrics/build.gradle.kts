@@ -20,6 +20,7 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":modules:analytics:extensions"))
     implementation(libs.prometheus.simpleclient.hotspot)
     implementation(libs.hikaricp)
 

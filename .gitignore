@@ -230,7 +230,7 @@ nbdist/
 
 ### Node ###
 # Logs
-logs
+log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -822,6 +822,14 @@ FodyWeavers.xsd
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
 
+### Helm ###
+# Chart dependencies
+**/charts/*.tgz
+
+# Ignore the created tarball.
+distribution/helm/**/*.tar.gz
+
+### charted-server ###
 config.yml
 instance.uuid
 server/src/main/resources/config/logback.properties
@@ -830,10 +838,3 @@ server/src/main/resources/config/logback.properties
 !.idea/misc.xml
 !**/distribution/bin/
 !modules/helm-charts/src/test/resources/*.tar.gz
-
-### Helm ###
-# Chart dependencies
-**/charts/*.tgz
-
-# Ignore the created tarball.
-distribution/helm/**/*.tar.gz

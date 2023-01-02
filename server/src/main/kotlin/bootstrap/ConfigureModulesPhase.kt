@@ -55,8 +55,7 @@ import org.noelware.charted.configuration.yaml.YamlConfigurationHost
 import org.noelware.charted.databases.clickhouse.ClickHouseConnection
 import org.noelware.charted.databases.clickhouse.DefaultClickHouseConnection
 import org.noelware.charted.databases.postgres.createOrUpdateEnums
-import org.noelware.charted.databases.postgres.metrics.PostgresMetricsCollector
-import org.noelware.charted.databases.postgres.metrics.PostgresStatsCollector
+import org.noelware.charted.databases.postgres.metrics.PostgreSQLMetricsCollector
 import org.noelware.charted.databases.postgres.tables.*
 import org.noelware.charted.extensions.doFormatTime
 import org.noelware.charted.modules.analytics.AnalyticsDaemon
@@ -67,17 +66,19 @@ import org.noelware.charted.modules.docker.registry.authorization.DefaultRegistr
 import org.noelware.charted.modules.docker.registry.authorization.RegistryAuthorizationPolicyManager
 import org.noelware.charted.modules.elasticsearch.DefaultElasticsearchModule
 import org.noelware.charted.modules.elasticsearch.ElasticsearchModule
-import org.noelware.charted.modules.elasticsearch.metrics.ElasticsearchMetricCollector
 import org.noelware.charted.modules.elasticsearch.metrics.ElasticsearchStats
 import org.noelware.charted.modules.email.DefaultEmailService
 import org.noelware.charted.modules.email.EmailService
 import org.noelware.charted.modules.helm.charts.DefaultHelmChartModule
 import org.noelware.charted.modules.helm.charts.HelmChartModule
-import org.noelware.charted.modules.metrics.PrometheusMetrics
+import org.noelware.charted.modules.metrics.collectors.JvmProcessInfoMetrics
+import org.noelware.charted.modules.metrics.collectors.JvmThreadsMetrics
+import org.noelware.charted.modules.metrics.collectors.OperatingSystemMetrics
+import org.noelware.charted.modules.metrics.disabled.DisabledMetricsSupport
+import org.noelware.charted.modules.metrics.prometheus.PrometheusMetricsSupport
 import org.noelware.charted.modules.redis.DefaultRedisClient
 import org.noelware.charted.modules.redis.RedisClient
 import org.noelware.charted.modules.redis.metrics.RedisMetricsCollector
-import org.noelware.charted.modules.redis.metrics.RedisStatCollector
 import org.noelware.charted.modules.sessions.SessionManager
 import org.noelware.charted.modules.sessions.local.LocalSessionManager
 import org.noelware.charted.modules.storage.DefaultStorageHandler
@@ -215,14 +216,17 @@ object ConfigureModulesPhase: BootstrapPhase() {
             else -> throw IllegalStateException("Session type [${config.sessions.type}] is unsupported")
         }
 
-        val metrics = PrometheusMetrics(config.metrics.enabled, ds)
-        metrics.addGenericCollector(RedisStatCollector(redis))
-        metrics.addGenericCollector(PostgresStatsCollector)
-
-        if (config.metrics.enabled) {
-            metrics.addMetricCollector(RedisMetricsCollector(redis, config.metrics))
-            metrics.addMetricCollector(PostgresMetricsCollector(config))
+        val metrics = if (config.metrics.enabled) {
+            PrometheusMetricsSupport(ds)
+        } else {
+            DisabledMetricsSupport()
         }
+
+        metrics.add(RedisMetricsCollector(redis, config.metrics))
+        metrics.add(PostgreSQLMetricsCollector(config))
+        metrics.add(JvmThreadsMetrics.Collector())
+        metrics.add(JvmProcessInfoMetrics.Collector())
+        metrics.add(OperatingSystemMetrics.Collector())
 
         val koinModule = module {
             single<HelmChartModule> { DefaultHelmChartModule(storage, config, yaml) }
@@ -261,9 +265,8 @@ object ConfigureModulesPhase: BootstrapPhase() {
                 val elasticsearch = DefaultElasticsearchModule(config, json)
                 elasticsearch.connect()
                 if (config.metrics.enabled) {
-                    val collector = ElasticsearchStats.Collector(elasticsearch)
-                    metrics.addGenericCollector(collector)
-                    metrics.addMetricCollector(ElasticsearchMetricCollector(collector))
+                    val collector = ElasticsearchStats.Collector(elasticsearch, config)
+                    metrics.add(collector)
                 }
 
                 modules.add(

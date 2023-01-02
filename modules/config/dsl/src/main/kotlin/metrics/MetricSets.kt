@@ -18,17 +18,25 @@
 package org.noelware.charted.configuration.kotlin.dsl.metrics
 
 import kotlinx.serialization.Serializable
+import org.noelware.charted.configuration.kotlin.dsl.metrics.keys.ElasticsearchMetricKeys
 import org.noelware.charted.configuration.kotlin.dsl.metrics.keys.PostgresMetricKeys
 import org.noelware.charted.configuration.kotlin.dsl.metrics.keys.RedisMetricKeys
 
 @Serializable
 public data class MetricSets(
+    val elasticsearch: List<ElasticsearchMetricKeys> = listOf(),
     val postgres: List<PostgresMetricKeys> = listOf(),
     val redis: List<RedisMetricKeys> = listOf()
 ) {
     public class Builder: org.noelware.charted.common.Builder<MetricSets> {
+        private val _elasticsearch: MutableList<ElasticsearchMetricKeys> = mutableListOf()
         private val _postgres: MutableList<PostgresMetricKeys> = mutableListOf()
         private val _redis: MutableList<RedisMetricKeys> = mutableListOf()
+
+        public fun elasticsearch(vararg keys: ElasticsearchMetricKeys): Builder {
+            _elasticsearch.addAll(keys)
+            return this
+        }
 
         public fun postgres(key: PostgresMetricKeys): Builder {
             _postgres.add(key)
@@ -40,6 +48,6 @@ public data class MetricSets(
             return this
         }
 
-        override fun build(): MetricSets = MetricSets(_postgres, _redis)
+        override fun build(): MetricSets = MetricSets(_elasticsearch, _postgres, _redis)
     }
 }

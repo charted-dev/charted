@@ -15,18 +15,15 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.modules.metrics
+package org.noelware.charted.modules.metrics.disabled
 
-/**
- * Represents a generic statistics collector. This interface is only for collecting generic
- * statistics that the [MetricStatCollector] and other sources can consume
- */
-interface GenericStatCollector<T> {
-    /** Returns the name of this statistics collector */
-    val name: String
+import org.noelware.charted.modules.metrics.Collector
+import org.noelware.charted.modules.metrics.MetricsSupport
+import kotlin.reflect.KClass
 
-    /**
-     * Collects all the statistics and returns the result.
-     */
-    fun collect(): T
+class DisabledMetricsSupport: MetricsSupport {
+    override val collectors: List<Collector<*>> = listOf()
+    override suspend fun collect(): Map<String, Any> = mapOf()
+    override suspend fun <U: Any> collectFrom(collector: KClass<Collector<U>>): U? = null
+    override fun add(collector: Collector<*>) {}
 }

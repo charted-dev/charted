@@ -18,11 +18,22 @@
 package org.noelware.charted.server.bootstrap
 
 import dev.floofy.utils.koin.inject
+import dev.floofy.utils.koin.injectOrNull
+import dev.floofy.utils.kotlin.ifNotNull
+import org.noelware.charted.modules.analytics.AnalyticsDaemon
 import org.noelware.charted.server.ChartedServer
+import org.noelware.charted.server.internal.analytics.AnalyticsDaemonThread
 import java.io.File
 
 object StartServerPhase: BootstrapPhase() {
+    internal val analyticsDaemonThread: AnalyticsDaemonThread? by lazy {
+        val instance: AnalyticsDaemon? by injectOrNull()
+        instance.ifNotNull { AnalyticsDaemonThread(this) }
+    }
+
     override suspend fun bootstrap(configPath: File) {
+        analyticsDaemonThread?.start()
+
         val server: ChartedServer by inject()
         server.start()
     }

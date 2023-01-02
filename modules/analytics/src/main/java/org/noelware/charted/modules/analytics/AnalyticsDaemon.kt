@@ -97,7 +97,7 @@ class AnalyticsDaemon(private val config: NoelwareAnalyticsConfig, private val e
         val initReq = Requests.InitRequest(String.format("0.0.0.0:%s", config.port))
         val request: Request = Request.Builder()
             .post(Json.encodeToString(initReq).toRequestBody("application/json".toMediaType()))
-            .url(String.format("%s/instances/%s/init", config.endpoint, serverBuilder.instanceUUID()))
+            .url("${config.endpoint}/instances/${serverBuilder.instanceUUID()}/init")
             .build()
 
         httpClient.newCall(request).execute().use { resp ->
@@ -114,7 +114,7 @@ class AnalyticsDaemon(private val config: NoelwareAnalyticsConfig, private val e
                 val encoded = Base64.getEncoder().encodeToString(cipher.doFinal(apiToken.toByteArray()))
                 val finalReq: Request = Request.Builder()
                     .post(Json.encodeToString(Requests.FinalizeRequest(encoded)).toRequestBody("application/json".toMediaType()))
-                    .url(String.format("%s/instances/%s/finalize", config.endpoint, serverBuilder.instanceUUID()))
+                    .url("${config.endpoint}/instances/${serverBuilder.instanceUUID()}/finalize")
                     .build()
 
                 httpClient.newCall(finalReq).execute().use { res ->

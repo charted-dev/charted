@@ -17,20 +17,14 @@
 
 package org.noelware.charted.server
 
-import dev.floofy.utils.java.SetOnce
-import dev.floofy.utils.koin.injectOrNull
 import dev.floofy.utils.slf4j.logging
-import org.noelware.charted.modules.analytics.AnalyticsDaemon
 import org.noelware.charted.server.bootstrap.BootstrapPhase
-import org.noelware.charted.server.bootstrap.ConfigureModulesPhase
-import org.noelware.charted.server.internal.analytics.AnalyticsDaemonThread
 import java.io.File
 
 /**
  * Represents the server bootstrap, which... bootstraps and loads the server.
  */
 object Bootstrap {
-    internal val analyticsDaemonThread: SetOnce<Thread> = SetOnce()
     private val log by logging<Bootstrap>()
 
     suspend fun start(configPath: File) {
@@ -39,14 +33,6 @@ object Bootstrap {
         for (phase in BootstrapPhase.PHASES) {
             log.debug("Initializing bootstrap phase [${phase::class}]")
             phase.bootstrap(configPath)
-
-            if (phase == ConfigureModulesPhase) {
-                val daemon: AnalyticsDaemon? by injectOrNull()
-                if (daemon != null) {
-                    analyticsDaemonThread.value = AnalyticsDaemonThread(daemon!!)
-                    analyticsDaemonThread.value.start()
-                }
-            }
         }
     }
 }

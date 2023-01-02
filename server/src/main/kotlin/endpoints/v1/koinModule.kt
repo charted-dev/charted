@@ -23,7 +23,7 @@ import org.noelware.charted.server.endpoints.v1.api.apiV1Endpoints
 import org.noelware.ktor.endpoints.AbstractEndpoint
 
 val endpointsModule = apiV1Endpoints + module {
-    single { MetricsEndpoint(getOrNull()) } bind AbstractEndpoint::class
+    single { MetricsEndpoint(get()) } bind AbstractEndpoint::class
     single { CdnEndpoints(get()) } bind AbstractEndpoint::class
     single { MainEndpoint(get()) } bind AbstractEndpoint::class
     single { HealthEndpoint() } bind AbstractEndpoint::class

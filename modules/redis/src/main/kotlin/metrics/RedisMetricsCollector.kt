@@ -17,23 +17,25 @@
 
 package org.noelware.charted.modules.redis.metrics
 
-import io.prometheus.client.Collector
 import io.prometheus.client.GaugeMetricFamily
 import io.prometheus.client.Predicate
 import io.prometheus.client.SampleNameFilter
 import org.noelware.charted.configuration.kotlin.dsl.metrics.MetricsConfig
 import org.noelware.charted.configuration.kotlin.dsl.metrics.keys.RedisMetricKeys
-import org.noelware.charted.modules.metrics.MetricStatCollector
+import org.noelware.charted.modules.metrics.Collector
 import org.noelware.charted.modules.redis.RedisClient
 
-class RedisMetricsCollector(private val redis: RedisClient, private val config: MetricsConfig): MetricStatCollector {
-    override fun collect(): MutableList<Collector.MetricFamilySamples> = collect {
+class RedisMetricsCollector(private val redis: RedisClient, private val config: MetricsConfig): Collector<RedisServerStats>, io.prometheus.client.Collector() {
+    override val name: String = "redis"
+    override suspend fun supply(): RedisServerStats = redis.stats()
+
+    override fun collect(): MutableList<MetricFamilySamples> = collect {
         config.metricSets.redis.firstOrNull() == RedisMetricKeys.Wildcard ||
             config.metricSets.redis.contains(RedisMetricKeys.values().find { f -> f.key == it })
     }
 
-    override fun collect(predicate: Predicate<String>?): MutableList<Collector.MetricFamilySamples> {
-        val mfs = mutableListOf<Collector.MetricFamilySamples>()
+    override fun collect(predicate: Predicate<String>?): MutableList<MetricFamilySamples> {
+        val mfs = mutableListOf<MetricFamilySamples>()
         collect0(predicate ?: SampleNameFilter.ALLOW_ALL, mfs)
 
         return mfs
@@ -41,7 +43,7 @@ class RedisMetricsCollector(private val redis: RedisClient, private val config: 
 
     private fun collect0(
         predicate: Predicate<String>,
-        mfs: MutableList<Collector.MetricFamilySamples>
+        mfs: MutableList<MetricFamilySamples>
     ) {
         val stats = redis.stats()
         if (predicate.test(RedisMetricKeys.TotalNetworkInput.key)) {

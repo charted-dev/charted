@@ -15,12 +15,6 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.modules.redis.metrics
+package org.noelware.charted.testing.containers;
 
-import org.noelware.charted.modules.metrics.GenericStatCollector
-import org.noelware.charted.modules.redis.RedisClient
-
-class RedisStatCollector(private val redis: RedisClient): GenericStatCollector<RedisServerStats> {
-    override val name: String = "redis"
-    override fun collect(): RedisServerStats = redis.stats()
-}
+public class PostgreSQLContainer {}
