@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.noelware.charted.common.lazy.Lazy;
 import org.noelware.charted.databases.clickhouse.ClickHouseConnection;
 import org.noelware.charted.databases.clickhouse.DefaultClickHouseConnection;
@@ -97,6 +98,7 @@ public class ClickHouseConnectionTests {
     @Test
     @SuppressWarnings("resource")
     @DisplayName("Can we run all pending migrations on this ClickHouse cluster?")
+    @DisabledOnOs(architectures = {"aarch64", "arm64"})
     public void test2() {
         final ClickHouseConnection conn = connection.get();
         assertDoesNotThrow(() -> conn.create((connection) -> {

@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("PrivatePropertyName")
+
 package org.noelware.charted.cli.commands
 
 import com.github.ajalt.clikt.core.CliktCommand
@@ -33,8 +35,8 @@ import org.noelware.charted.extensions.doFormatTime
 import java.io.File
 import kotlin.system.exitProcess
 
-private val os = OperatingSystem.current()
-private val arch = Architecture.current()
+private val OPERATING_SYSTEM = OperatingSystem.current()
+private val ARCH = Architecture.current()
 
 class ClickHouseMigrationsCommand(private val terminal: Terminal): CliktCommand(
     """
@@ -43,7 +45,7 @@ cluster.
 
 If the migrations binary is not available in the path, it will attempt to install it from Noelware's
 Artifacts Repository:
-    https://artifacts.noelware.cloud/charted/server/${ChartedInfo.version}/ch-migrations-${os.key()}-${arch.key()}${if (OperatingSystem.current().isWindows) ".exe" else ""}
+    https://artifacts.noelware.cloud/charted/server/${ChartedInfo.version}/ch-migrations-${OPERATING_SYSTEM.key()}-${ARCH.key()}${if (OPERATING_SYSTEM.isWindows) ".exe" else ""}
 
 It will not install the new binary if `bin/ch-migrations` exists or if this is performed in development mode,
 which will invoke Go itself.
@@ -120,7 +122,7 @@ which will invoke Go itself.
 
         migrationsBin.parentFile.mkdirs()
 
-        val url = "https://artifacts.noelware.cloud/charted/server/${ChartedInfo.version}/ch-migrations-${os.key()}-${arch.key()}${if (os.isWindows) ".exe" else ""}"
+        val url = "https://artifacts.noelware.cloud/charted/server/${ChartedInfo.version}/ch-migrations-${OPERATING_SYSTEM.key()}-${ARCH.key()}${if (OPERATING_SYSTEM.isWindows) ".exe" else ""}"
         terminal.logger.info("Installing ch-migrations binary from URL [$url]")
 
         val sw = StopWatch.createStarted()

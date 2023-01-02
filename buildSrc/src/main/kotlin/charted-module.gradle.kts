@@ -82,14 +82,21 @@ spotless {
             .setUseExperimental(true)
             .editorConfigOverride(mapOf(
                 "indent_size" to "4",
-                "ktlint_disabled_rules" to "colon-spacing,annotation-spacing,filename,no-wildcard-imports,argument-list-wrapping",
                 "ij_kotlin_allow_trailing_comma" to "false",
+                "ktlint_disabled_rules" to "colon-spacing,annotation-spacing,filename,no-wildcard-imports,argument-list-wrapping,experimental:property-naming",
                 "ktlint_code_style" to "official",
                 "no-unused-imports" to "true",
                 "no-unit-return" to "true",
                 "no-consecutive-blank-lines" to "true",
                 "experimental:fun-keyword-spacing" to "true",
-                "experimental:unnecessary-parentheses-before-trailing-lambda" to "true"
+                "experimental:unnecessary-parentheses-before-trailing-lambda" to "true",
+
+                // == disabled rules ==
+//                "colon-spacing" to "disabled",
+//                "annotation-spacing" to "disabled",
+//                "filename" to "disabled",
+//                "no-wildcard-imports" to "disabled",
+//                "argument-list-wrapping" to "disabled"
             ))
     }
 }

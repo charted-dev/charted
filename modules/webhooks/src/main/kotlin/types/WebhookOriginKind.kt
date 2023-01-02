@@ -29,7 +29,7 @@ enum class WebhookOriginKind {
     ORGANIZATION,
 
     @SerialName("repo")
-    REPOSITORY;
+    REPOSITORY
 }
 
 val WebhookOriginKind.toDbType: String
