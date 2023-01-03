@@ -55,7 +55,7 @@ public enum Architecture {
 
     public String key() {
         return switch (this) {
-            case AARCH64 -> "aarch64";
+            case AARCH64 -> "arm64";
             case X64 -> "amd64";
         };
     }

@@ -106,11 +106,11 @@ jobs:
       matrix:
         dist:
           - { goos: windows, goarch: amd64, ext: ".exe" }
-          - { goos: windows, goarch: i386, ext: ".exe" }
-          - { goos: darwin, goarch: amd64, ext: "" }
-          - { goos: darwin, goarch: arm64, ext: "" }
-          - { goos: linux, goarch: amd64, ext: "" }
-          - { goos: linux, goarch: arm64, ext: "" }
+          - { goos: windows, goarch: i386, ext: ".exe"  }
+          - { goos: darwin,  goarch: amd64, ext: ""     }
+          - { goos: darwin,  goarch: arm64, ext: ""     }
+          - { goos: linux,   goarch: amd64, ext: ""     }
+          - { goos: linux,   goarch: arm64, ext: ""     }
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -153,58 +153,154 @@ jobs:
           region: us-east-1
           prefix: /noelware/artifacts
           bucket: august
-# Helm plugin is not released until v0.4-nightly :3
-#  helm-plugin:
-#    name: Build Helm Plugin distribution
-#    run-on: ubuntu-latest
-#    matrix:
-#      dist:
-#        - { goos: windows, goarch: amd64, ext: ".exe" }
-#        - { goos: windows, goarch: i386, ext: ".exe" }
-#        - { goos: darwin, goarch: amd64, ext: "" }
-#        - { goos: darwin, goarch: arm64, ext: "" }
-#        - { goos: linux, goarch: amd64, ext: "" }
-#        - { goos: linux, goarch: arm64, ext: "" }
-#    steps:
-#      - name: Checkout repository
-#        uses: actions/checkout@v3
-#        with:
-#          submodules: recursive
-#
-#      - name: Get current release tag
-#        uses: auguwu/git-tag-action@master
-#        id: tag
-#
-#      - name: Setup Go v1.19
-#        uses: actions/setup-go@v3
-#        with:
-#          go-version: 1.19.x
-#
-#      - name: Build binary
-#        working-directory: ./tools/helm-plugin
-#        run: go build -mod=readonly -ldflags "-s -w -X main.version=${{steps.tag.outputs.version}}" -o ./bin/helm-plugin-${{matrix.dist.goos}}-${{matrix.dist.goarch}}${{matrix.dist.ext}}
-#
-#      - name: Upload artifact to workflow
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: ch-migrations-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
-#          path: ./tools/helm-plugin/bin/ch-migrations-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
-#
-#      - name: Upload artifact to release
-#        uses: softprops/action-gh-release@v1
-#        with:
-#          files: ./tools/helm-plugin/bin/helm-plugin-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
-#
-#      - name: Upload artifacts to Noelware's Artifact Registry
-#        uses: Noelware/s3-action@2.0.0
-#        with:
-#          files: ./tools/helm-plugin/bin/ch-migrations-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
-#          path-format: $(prefix)/charted/server/${{steps.tag.output.version}}/ch-migrations-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
-#          access-key-id: ${{secrets.S3_ACCESS_KEY}}
-#          secret-key: ${{secrets.S3_SECRET_KEY}}
-#          endpoint: ${{secrets.S3_ENDPOINT}}
-#          prefix: /noelware/artifacts
-#          bucket: august
+  helm-plugin:
+    name: Build Helm Plugin distribution (${{matrix.dist.prettyName}})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dist:
+          - { target: "x86_64-unknown-linux-gnu",  os: "linux",   arch: "amd64", prettyName: "Linux (x64)",   ext: ""     }
+          - { target: "aarch64-unknown-linux-gnu", os: "linux",   arch: "arm64", prettyName: "Linux (arm64)", ext: ""     }
+          - { target: "x86_64-apple-darwin",       os: "darwin",  arch: "amd64", prettyName: "macOS (x64)",   ext: ""     }
+          - { target: "aarch64-apple-darwin",      os: "darwin",  arch: "arm64", prettyName: "macOS (arm64)", ext: ""     }
+          - { target: "x86_64-pc-windows-gnu",     os: "windows", arch: "amd64", prettyName: "Windows (x64)", ext: ".exe" }
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+          target: ${{matrix.dist.target}}
+
+      # We need a Java installation so that the build script for the Helm Plugin can work.
+      - name: Setup Java 19
+        uses: actions/setup-java@v3
+        with:
+          java-version: 19
+          distribution: temurin
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build release binary
+        working-directory: ./tools/helm-plugin
+        run: cargo build --release --target=${{matrix.dist.target}}
+
+      - name: Upload artifact to workflow
+        uses: actions/upload-artifact@v3
+        with:
+          name: helm-plugin-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
+          path: ./tools/helm-plugin/target/${{matrix.dist.target}}/release/helm-plugin${{matrix.dist.ext}}
+
+      - name: Create appropriate path name for release artifact
+        run: cp ./tools/helm-plugin/target/${{matrix.dist.target}}/release/helm-plugin${{matrix.dist.ext}} ./tools/helm-plugin/target/${{matrix.dist.target}}/release/helm-plugin-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
+
+      - name: Upload artifact to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./tools/helm-plugin/target/${{matrix.dist.target}}/release/helm-plugin-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
+
+      - name: Upload artifacts to Noelware's Artifact Registry
+        uses: Noelware/s3-action@2.1.0
+        with:
+          files: ./tools/helm-plugin/target/${{matrix.dist.target}}/release/helm-plugin${{matrix.dist.ext}}
+          path-format: $(prefix)/charted/helm-plugin/${{steps.tag.output.version}}/helm-plugin-${{matrix.dist.os}}-${{matrix.dist.arch}}${{matrix.dist.ext}}
+          access-key-id: ${{secrets.S3_ACCESS_KEY}}
+          secret-key: ${{secrets.S3_SECRET_KEY}}
+          endpoint: ${{secrets.S3_ENDPOINT}}
+          prefix: /noelware/artifacts
+          bucket: august
+  helm-plugin-archive:
+    name: Helm Plugin archive
+    runs-on: ubuntu-latest
+    needs: [helm-plugin]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Get current release tag
+        uses: auguwu/git-tag-action@master
+        id: tag
+
+      - name: Create Tar archive
+        working-directory: ./tools/helm-plugin
+        run: tar -cvf helm-plugin.tar.gz plugin.yaml scripts/
+
+      - name: Upload Tar archive to Noelware's Artifact Registry
+        uses: Noelware/s3-action@2.1.0
+        with:
+          files: ./tools/helm-plugin/helm-plugin.tar.gz
+          path-format: $(prefix)/charted/helm-plugin/${{steps.tag.output.version}}/helm-plugin.tar.gz
+          access-key-id: ${{secrets.S3_ACCESS_KEY}}
+          secret-key: ${{secrets.S3_SECRET_KEY}}
+          endpoint: ${{secrets.S3_ENDPOINT}}
+          prefix: /noelware/artifacts
+          bucket: august
+  helm-plugin-docker:
+    name: Build Helm Plugin Docker image
+    runs-on: ubuntu-latest
+    needs: [helm-plugin-archive]
+    strategy:
+      matrix:
+        helm-version: [3.10.2, 3.10, 3.9.4, 3.9]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Get current release tag
+        uses: auguwu/git-tag-action@master
+        id: tag
+
+      - name: Get commit hash
+        id: commit-hash
+        run: echo "::set-output name=commit::$(git rev-parse --short=8 $GITHUB_SHA)"
+
+      - name: Setup Docker buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Login into GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: charted-dev
+          password: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Build and push Helm Plugin images
+        uses: docker/build-push-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
+          context: .
+          file: ./distribution/docker/helm-plugin/Dockerfile
+          push: true
+          labels: |
+            org.opencontainers.image.title=charted-helm-plugin
+            org.opencontainers.image.description=📦 You know, for Helm Charts?
+            org.opencontainers.image.version=${{steps.tag.outputs.version}}
+            org.opencontainers.image.revision=${{steps.commit-hash.outputs.commit}}
+            org.opencontainers.image.licenses=MIT
+            org.opencontainers.image.documentation=https://charts.noelware.org/docs/helm-plugin/${{steps.tag.outputs.version}}
+            org.opencontainers.image.source=https://github.com/charted-dev/charted/tree/main/tools/helm-plugin
+          tags: |
+            ghcr.io/charted-dev/helm-plugin:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly-${{strategy.matrix.helm-version}},
+            ghcr.io/charted-dev/helm-plugin:${{steps.tag.outputs.version}}-${{strategy.matrix.helm-version}},
+            ghcr.io/charted-dev/helm-plugin:${{steps.tag.outputs.major}}-nightly-${{strategy.matrix.helm-version}},
+            ghcr.io/charted-dev/helm-plugin:nightly-${{strategy.matrix.helm-version}}
+          build-args: |
+            HELM_VERSION=${{strategy.matrix.helm-version}}
+            CHARTED_VERSION=${{steps.tag.outputs.version}}
   docker-image:
     name: Build Docker image
     runs-on: ubuntu-latest
@@ -235,58 +331,97 @@ jobs:
           username: charted-dev
           password: ${{secrets.GITHUB_TOKEN}}
 
-      - name: Build and push! (x86_64)
+      - name: Build and push Ubuntu images (x86_64)
         uses: docker/build-push-action@v3
         with:
           platforms: linux/amd64
           context: .
-          file: ./distribution/docker/Dockerfile
+          file: ./distribution/docker/ubuntu.Dockerfile
           push: true
-          labels: |
-            org.opencontainers.image.title=charted-server,
-            org.opencontainers.image.description="📦 You know, for Helm Charts?",
-            org.opencontainers.image.version=${{steps.tag.outputs.version}},
-            org.opencontainers.image.revision=${{steps.commit-hash.outputs.commit}},
-            org.opencontainers.image.licenses=MIT,
-            org.opencontainers.image.documentation="https://charts.noelware.org/docs/server/${{steps.tag.outputs.version}}",
-            org.opencontainers.image.source="https://github.com/charted-dev/charted"
           tags: |
+            ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly-amd64,
             ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-amd64,
+            ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-nightly-amd64,
             ghcr.io/charted-dev/charted:nightly-amd64
+          labels: |
+            org.opencontainers.image.title=charted-server
+            org.opencontainers.image.description=📦 You know, for Helm Charts?
+            org.opencontainers.image.version=${{steps.tag.outputs.version}}
+            org.opencontainers.image.revision=${{steps.commit-hash.outputs.commit}}
+            org.opencontainers.image.licenses=MIT
+            org.opencontainers.image.documentation=https://charts.noelware.org/docs/server/${{steps.tag.outputs.version}}
+            org.opencontainers.image.source=https://github.com/charted-dev/charted
 
-      - name: Build and push! (arm64)
+      - name: Build and push Ubuntu images (aarch64)
         uses: docker/build-push-action@v3
         with:
-          platforms: linux/arm64/v8
+          platforms: linux/arm64
           context: .
-          file: ./distribution/docker/arm64.Dockerfile
+          file: ./distribution/docker/ubuntu/Dockerfile
           push: true
-          labels: |
-            org.opencontainers.image.title=charted-server,
-            org.opencontainers.image.description="📦 You know, for Helm Charts?",
-            org.opencontainers.image.version=${{steps.tag.outputs.version}},
-            org.opencontainers.image.revision=${{steps.commit-hash.outputs.commit}},
-            org.opencontainers.image.licenses=MIT,
-            org.opencontainers.image.documentation="https://charts.noelware.org/docs/server/${{steps.tag.outputs.version}}",
-            org.opencontainers.image.source="https://github.com/charted-dev/charted"
           tags: |
+            ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly-arm64,
             ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-arm64,
+            ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-nightly-arm64,
             ghcr.io/charted-dev/charted:nightly-arm64
+          labels: |
+            org.opencontainers.image.title=charted-server
+            org.opencontainers.image.description=📦 You know, for Helm Charts?
+            org.opencontainers.image.version=${{steps.tag.outputs.version}}
+            org.opencontainers.image.revision=${{steps.commit-hash.outputs.commit}}
+            org.opencontainers.image.licenses=MIT
+            org.opencontainers.image.documentation=https://charts.noelware.org/docs/server/${{steps.tag.outputs.version}}
+            org.opencontainers.image.source=https://github.com/charted-dev/charted
 
-      - name: Create manifest image [:latest]
+      - name: Build and push Alpine images
+        uses: docker/build-push-action@v3
+        with:
+          platforms: linux/amd64
+          context: .
+          file: ./distribution/docker/alpine/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly-alpine,
+            ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-alpine,
+            ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-nightly-alpine,
+            ghcr.io/charted-dev/charted:nightly-alpine
+          labels: |
+            org.opencontainers.image.title=charted-server
+            org.opencontainers.image.description=📦 You know, for Helm Charts?
+            org.opencontainers.image.version=${{steps.tag.outputs.version}}
+            org.opencontainers.image.revision=${{steps.commit-hash.outputs.commit}}
+            org.opencontainers.image.licenses=MIT
+            org.opencontainers.image.documentation=https://charts.noelware.org/docs/server/${{steps.tag.outputs.version}}
+            org.opencontainers.image.source=https://github.com/charted-dev/charted
+
+      - name: Combined manifest image (:nightly, Ubuntu)
         uses: Noelware/docker-manifest-action@master
         with:
           base-image: ghcr.io/charted-dev/charted:nightly
-          push: true
           extra-images: |
             ghcr.io/charted-dev/charted:nightly-amd64,
             ghcr.io/charted-dev/charted:nightly-arm64
 
-      - name: Create manifest image [:${{steps.tag.outputs.version}}]
+      - name: Combined manifest image (:${{steps.tag.outputs.version}}, Ubuntu)
         uses: Noelware/docker-manifest-action@master
         with:
           base-image: ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}
-          push: true
           extra-images: |
             ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-amd64,
             ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-arm64
+
+      - name: Combined manifest image (:${{steps.tag.outputs.major}}, Ubuntu)
+        uses: Noelware/docker-manifest-action@master
+        with:
+          base-image: ghcr.io/charted-dev/charted:nightly
+          extra-images: |
+            ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-nightly-amd64,
+            ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-nightly-arm64
+
+      - name: Combined manifest image (:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}, Ubuntu)
+        uses: Noelware/docker-manifest-action@master
+        with:
+          base-image: ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly
+          extra-images: |
+            ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly-amd64,
+            ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly-arm64

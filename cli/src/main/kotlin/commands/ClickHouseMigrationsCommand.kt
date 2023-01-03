@@ -133,6 +133,11 @@ which will invoke Go itself.
         }.build()
 
         okhttp.newCall(req).execute().use { res ->
+            if (!res.isSuccessful) {
+                terminal.logger.warn("Received status code [${res.code}] when requesting to [$url]")
+                return@run
+            }
+
             val body: ByteArray = res.body!!.bytes()
             migrationsBin.writeBytes(body)
         }

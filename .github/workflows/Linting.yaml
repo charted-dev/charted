@@ -129,11 +129,12 @@ jobs:
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
 
-#      - name: Check for compile errors
-#        uses: actions-rs/cargo@v1
-#        with:
-#          command: build
-#
+      - name: Check for compile errors
+        run: cargo build
+        env:
+          CARGO_INCREMENTAL: 1
+
+# Clippy is disabled for now until further notice
 #      - name: Clippy
 #        uses: actions-rs/clippy-check@v1
 #        with:
