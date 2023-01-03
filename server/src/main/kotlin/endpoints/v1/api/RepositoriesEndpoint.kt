@@ -371,13 +371,15 @@ class RepositoriesEndpoint(
                 )
             )
 
-        val patched: UpdateRepositoryBody by call.body()
+        val patched: UpdateRepositoryBody = call.receive()
         val whereClause: SqlExpressionBuilder.() -> Op<Boolean> = { RepositoryTable.id eq id }
 
         // Do some post checks before patching
         if (patched.name != null) {
             val anyOtherRepo = asyncTransaction(ChartedScope) {
-                RepositoryEntity.find { (RepositoryTable.name eq patched.name!!) and (RepositoryTable.owner eq call.currentUser!!.id) }.firstOrNull()
+                RepositoryEntity.find {
+                    (RepositoryTable.name eq patched.name) and (RepositoryTable.owner eq call.currentUser!!.id)
+                }.firstOrNull()
             }
 
             if (anyOtherRepo != null) {
@@ -394,19 +396,19 @@ class RepositoriesEndpoint(
                 }
 
                 if (patched.deprecated != null) {
-                    it[deprecated] = patched.deprecated!!
+                    it[deprecated] = patched.deprecated
                 }
 
                 if (patched.private != null) {
-                    it[flags] = if (patched.private!!) 1 else 0
+                    it[flags] = if (patched.private) 1 else 0
                 }
 
                 if (patched.name != null) {
-                    it[name] = patched.name!!
+                    it[name] = patched.name
                 }
 
                 if (patched.type != null) {
-                    it[type] = patched.type!!
+                    it[type] = patched.type
                 }
             }
         }
@@ -519,7 +521,7 @@ class RepositoriesEndpoint(
      */
     @Put("/{id}/members")
     suspend fun inviteMember(call: ApplicationCall) {
-        val body: InviteRepositoryOrOrganizationMemberBody by call.body()
+        val body: InviteRepositoryOrOrganizationMemberBody = call.receive()
 
         // If the email service is not in the Koin module, automatically
         // make them as a member no matter what I guess?

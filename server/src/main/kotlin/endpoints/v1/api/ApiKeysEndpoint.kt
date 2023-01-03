@@ -21,6 +21,7 @@ import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.kotlin.every
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
@@ -180,9 +181,9 @@ class ApiKeysEndpoint(
 
     @Put
     suspend fun create(call: ApplicationCall) {
-        val body: CreateApiKeyBody by call.body()
+        val body: CreateApiKeyBody = call.receive()
         val expiresIn = if (body.expiresIn != null) {
-            body.expiresIn!!.milliseconds
+            body.expiresIn.milliseconds
         } else {
             null
         }

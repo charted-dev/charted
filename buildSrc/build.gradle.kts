@@ -15,9 +15,6 @@
  * limitations under the License.
  */
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.gradle.api.JavaVersion
-
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
@@ -32,12 +29,24 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.18.5")
+    implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.19.0")
     implementation("com.diffplug.spotless:spotless-plugin-gradle:6.12.0")
     implementation("com.netflix.nebula:gradle-ospackage-plugin:10.0.0")
-    implementation("dev.floofy.commons:gradle:2.4.2")
-    implementation(kotlin("serialization", "1.7.22"))
-    implementation(kotlin("gradle-plugin", "1.7.22"))
+
+    // Fixes issues with plugin invariants with Kotlin >=1.8
+    // https://github.com/gradle/gradle/issues/22510
+    implementation("dev.floofy.commons:gradle:2.4.2") {
+        exclude("org.jetbrains.kotlin", "kotlin-gradle-plugin-api")
+    }
+
+    implementation("org.jetbrains.kotlin:kotlin-serialization:1.8.0") {
+        exclude("org.jetbrains.kotlin", "kotlin-gradle-plugin-api")
+    }
+
+    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0") {
+        exclude("org.jetbrains.kotlin", "kotlin-gradle-plugin-api")
+    }
+
     implementation(gradleApi())
 }
 
@@ -50,6 +59,11 @@ gradlePlugin {
     }
 }
 
-tasks.withType<KotlinCompile>().configureEach {
-    kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString()
+configurations.configureEach {
+    if (isCanBeResolved) {
+        attributes {
+            @Suppress("UnstableApiUsage")
+            attribute(GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE, project.objects.named(GradleVersion.current().version))
+        }
+    }
 }

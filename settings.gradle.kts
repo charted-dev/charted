@@ -70,6 +70,7 @@ include(
 )
 
 dependencyResolutionManagement {
+    @Suppress("UnstableApiUsage")
     versionCatalogs {
         create("libs") {
             from(files("./gradle/build.versions.toml"))
@@ -78,7 +79,7 @@ dependencyResolutionManagement {
 }
 
 gradle.settingsEvaluated {
-    logger.info("Checking if we can overwrite cache...")
+    logger.info("[build-cache] Checking if we can overwrite cache...")
     val overrideBuildCacheProp: String? = System.getProperty("org.noelware.charted.overwriteCache")
     val buildCacheDir = when (val prop = System.getProperty("org.noelware.charted.cachedir")) {
         null -> "${System.getProperty("user.dir")}/.caches/gradle"
@@ -91,12 +92,12 @@ gradle.settingsEvaluated {
 
     if (overrideBuildCacheProp == null) {
         logger.info("""
-        |If you wish to override the build cache for this Gradle process, you can use the
+        |[build-cache] If you wish to override the build cache for this Gradle process, you can use the
         |-Dorg.noelware.charted.gradle.overwriteCache=<bool> Java property in `~/.gradle/gradle.properties`
         |to overwrite it in $buildCacheDir!
         """.trimMargin("|"))
     } else {
-        logger.info("Setting up build cache in directory [$buildCacheDir]")
+        logger.info("[build-cache] Setting up build cache in directory [$buildCacheDir]")
         val file = File(buildCacheDir)
         if (!file.exists()) file.mkdirs()
 
