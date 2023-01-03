@@ -56,7 +56,7 @@
             </then>
             <else>
                 <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-                    <pattern>[%d{yyyy-MM-dd @ HH:mm:ss.SSS, +10}] %boldCyan([%-38threadName]) %logLevel([%-5level]) [%-42logger{36}] :: %msg%n</pattern>
+                    <pattern>[%d{yyyy-MM-dd @ HH:mm:ss.SSS, +10}] %boldCyan([%-38threadName]) %logLevel([%-5level]) [%-48logger{36}] :: %msg%n</pattern>
                     <charset>utf-8</charset>
                 </encoder>
             </else>

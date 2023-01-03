@@ -43,47 +43,43 @@ public fun Config.toCdnBaseUrl(path: String = "/"): String = when {
 }
 
 /**
- * Represents the configuration object that is used to configure the server to your heart's content~!
- * This can be represented as a Kotlin Script or a YAML file, up to your choice!
+ * Represents the root configuration object that is loaded via the [ConfigurationHost][org.noelware.charted.configuration.host.ConfigurationHost]
+ * that takes care of the initialization of deserializing the configuration to this given object. **charted-server** supports YAML and the experimental
+ * Kotlin Script configuration hosts that you can use with:
  *
  * ```kotlin
- * import org.noelware.charted.configuration.kotlin.dsl.*
  * import org.noelware.charted.configuration.kotlin.host.KotlinScriptHost
- * import org.noelware.charted.configuration.yaml.host.ConfigYamlHost
+ * import org.noelware.charted.configuration.yaml.YamlConfigurationHost
+ * import org.noelware.charted.configuration.kotlin.dsl.*
  *
  * fun main() {
- *    val config = KotlinScriptHost.load("./path/to/config.charted.kts")
- *    // => org.noelware.charted.configuration.kotlin.dsl.Config?
+ *   // Using the experimental Kotlin Script loaded
+ *   val config = KotlinScriptHost.load("./path/to/config.charted.kts")
+ *   // => org.noelware.charted.configuration.kotlin.dsl.Config?
  *
- *    val config2 = ConfigYamlHost.load("./path/to/config.yaml")
- *    // => org.noelware.charted.configuration.kotlin.dsl.Config?
+ *   val config2 = YamlConfigurationHost().load("./path/to/charted.yaml")
+ *   // => org.noelware.charted.configuration.kotlin.dsl.Config?
  * }
  * ```
  *
- * @param registrations If registrations are enabled on the server. If not, administrators of this
- *                      instance will have to create a user via the `PUT /admin/users/create` endpoint
- *                      or through the built-in admin UI portal the web UI bundles in.
- * @param jwtSecretKey  The secret key for encoding JWTs for all sessions. Please do not use
- *                      the `DO_NOT_USE_THIS_VALUE_IN_YOUR_JWT_SECRET_KEY_OR_I_WILL_LAUGH_AT_YOU` variable,
- *                      or you will be laughed at.
- * @param inviteOnly    If the server is only invited by an invitation system that the admins of the instance
- *                      can invite you, and you can create your user and begin using charted-server~!
- * @param telemetry     If [Noelware Telemetry](https://telemetry.noelware.org) should be enabled on this instance.
- *                      This is completely optional and opt-in if you wish to send out service metadata and error reports
- *                      to the Noelware Team, you can read in the documentation what we collect, and you can visit the
- *                      [open sourced project](https://github.com/Noelware/telemetry) if you're still thinking about not
- *                      using our products. :(
- * @param sentryDsn     If Sentry should be enabled on the server or not. This will send out error reports to the Sentry server
- *                      you decide to use.
- * @param baseUrl       The base URL for formatting purposes in the chart's download URL. It will default to `http(s)://<server.host>:<server.port>`
- *                      by default.
- * @param debug         If debug mode is enabled on the server. You will be granted access to the `/debug` REST handler for seeing
- *                      what the server is doing and whatnot.
- * @param clickhouse    **charted-server** uses ClickHouse to store analytical features (i.e, audit logs and webhook events) to be as fast for reading
- *                      and processing many documents at once.
- * @param database      **charted-server** uses PostgreSQL to store metadata about each user, repository, and organization (or other features if needed), so this
- *                      is highly recommended to be configured.
- * @param server        Server configuration to update default settings that the server will choose or adds additional/security headers, and more~!
+ * @param registrations If the server should openly accept registrations or not. If not, the administrators
+ *                      of this instance will have to create users with the administration portal if the
+ *                      web UI is enabled or with the `PUT /admin/users` endpoint to create one.
+ * @param jwtSecretKey  The secret key used for encoding JSON Web Tokens for all sessions. Please set this variable to something,
+ *                      or you will get a thrown exception that the server will laugh at you, it has feelings you know!
+ * @param inviteOnly    If the server can also generate invitations on the fly to let users register behalf of that invitation. This
+ *                      implies that the `config.smtp` configuration key is also configured and that [registrations] is set to `false`.
+ * @param telemetry     If [Noelware Telemetry](https://telemetry.noelware.org) should be enabled on this instance. This is completely
+ *                      optional and opt-in if you wish! The Noelware team collects only anonymous packets and nothing that reveals your IP address,
+ *                      user information, container metadata, etc. You can view the source of the Telemetry server that Noelware created to combat
+ *                      and address those issues: https://github.com/Noelware/telemetry-server.
+ * @param sentryDsn     Whether Sentry should be enabled on the server or not. This will send out error reports and tracing-related data to
+ *                      the Sentry server that the DSN is based off.
+ * @param swaggerUi     If the server should embed using [Swagger]() as a source of the API documentation since charted-server supports the OpenAPI specification for documentation
+ *                      of all the endpoints available.
+ * @param baseUrl       The base URL of the server for detecting how URLs should be structured. By default, it will be `http(s)://{host}:{port}`
+ * @param debug         If debug utilities should be enabled or not. This will allow you to access the `/debug` REST handler, which exposes a lot of metrics.
+ *
  */
 @Serializable
 public data class Config(

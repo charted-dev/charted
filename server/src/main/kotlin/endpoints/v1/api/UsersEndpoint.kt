@@ -21,7 +21,6 @@ package org.noelware.charted.server.endpoints.v1.api
 
 import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.koin.inject
-import dev.floofy.utils.slf4j.logging
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
@@ -44,6 +43,7 @@ import org.noelware.charted.databases.postgres.entities.UserConnectionEntity
 import org.noelware.charted.databases.postgres.entities.UserEntity
 import org.noelware.charted.databases.postgres.models.Repository
 import org.noelware.charted.databases.postgres.models.User
+import org.noelware.charted.databases.postgres.models.UserConnections
 import org.noelware.charted.databases.postgres.tables.OrganizationTable
 import org.noelware.charted.databases.postgres.tables.RepositoryTable
 import org.noelware.charted.databases.postgres.tables.UserTable
@@ -196,11 +196,13 @@ class UsersEndpoint(
     private val snowflake: org.noelware.charted.snowflake.Snowflake,
     private val charts: HelmChartModule? = null
 ): AbstractEndpoint("/users") {
-    private val log by logging<UsersEndpoint>()
-
     init {
         install(HttpMethod.Post, "/users/@me/avatar", SessionsPlugin) {
             this += "user:avatar:update"
+        }
+
+        install(HttpMethod.Get, "/users/@me/connections", SessionsPlugin) {
+            this += "user:connections"
         }
 
         install(HttpMethod.Get, "/users/@me", SessionsPlugin) {
@@ -215,30 +217,37 @@ class UsersEndpoint(
             assertSessionOnly = true
         }
 
-        install(HttpMethod.Put, "/users/repositories", SessionsPlugin) {
+        install(HttpMethod.Put, "/users/@me/repositories", SessionsPlugin) {
             this += "repo:create"
         }
     }
 
     /**
-     * Returns the main route for `GET /users`. Nothing to special.
+     * Generic entrypoint route for `GET /users`. Nothing too special!
      * @statusCode 200
      */
     @Get
-    suspend fun main(call: ApplicationCall) = call.respond(HttpStatusCode.OK, ApiResponse.ok(MainUserResponse()))
+    suspend fun main(call: ApplicationCall): Unit = call.respond(HttpStatusCode.OK, ApiResponse.ok(MainUserResponse()))
 
     /**
-     * Creates a new user in the database, if the server allows any registrations (determined by the `config.registrations`
-     * configuration key).
+     * Registers a new user in charted-server that can create repositories and organizations, if the server
+     * does allow registrations (determined via `config.registrations`).
      *
-     * @statusCode 201 The user that was registered into the database.
+     * @statusCode 201 The newly registered user
      * @statusCode 403 If the server has registrations disabled
-     * @statusCode 406 If any validation exceptions had been thrown
+     * @statusCode 406 If any validation exceptions had been thrown (i.e, username/email was taken)
+     * @statusCode 500 If any database errors occur
+     * @statusCode 503 If the registered sessions manager disallows user creation
      */
     @Put
     suspend fun create(call: ApplicationCall) {
         if (!config.registrations) {
-            return call.respond(HttpStatusCode.Forbidden, ApiResponse.err("REGISTRATIONS_DISABLED", "This instance has registrations disabled."))
+            return call.respond(
+                HttpStatusCode.Forbidden,
+                ApiResponse.err(
+                    "REGISTRATIONS_DISABLED", "This instance has registrations disabled."
+                )
+            )
         }
 
         // Check if the server's session manager is using the LDAP provider,
@@ -247,7 +256,7 @@ class UsersEndpoint(
             return call.respond(HttpStatusCode.NotImplemented)
         }
 
-        val body: NewUserBody by call.body()
+        val body: NewUserBody = call.receive()
 
         // Check if the username already exists in the database since it is unique
         val userByUserName = asyncTransaction(ChartedScope) {
@@ -284,16 +293,14 @@ class UsersEndpoint(
             }
         }
 
-        if (!config.features.contains(ServerFeature.DOCKER_REGISTRY)) {
-            log.info("New registered user [@${user.username}], creating index.yaml entry!")
-            charts!!.createIndexYaml(user.id)
-        }
-
+        charts?.createIndexYaml(user.id)
         return call.respond(HttpStatusCode.Created, ApiResponse.ok(user))
     }
 
     /**
-     * Updates any user metadata in the database.
+     * Update any user metadata in the database. This is useful for changing the user's username
+     * if needed or whatnot. This requires the user to be logged in or have the `users:update`
+     * API key scope.
      *
      * @statusCode 202 If the database has patched the user's metadata.
      * @statusCode 406 If any [ValidationException] had been thrown
@@ -301,13 +308,13 @@ class UsersEndpoint(
      */
     @Patch
     suspend fun patch(call: ApplicationCall) {
-        val patched: UpdateUserBody by call.body()
+        val patched: UpdateUserBody = call.receive()
         val whereClause: SqlExpressionBuilder.() -> Op<Boolean> = { UserTable.id eq call.currentUser!!.id }
 
         // Do some post checkup before actually patching data
         if (patched.username != null) {
             val userWithUsername = asyncTransaction(ChartedScope) {
-                UserEntity.find { UserTable.username eq patched.username!! }.firstOrNull()
+                UserEntity.find { UserTable.username eq patched.username }.firstOrNull()
             }
 
             if (userWithUsername != null) {
@@ -317,7 +324,7 @@ class UsersEndpoint(
 
         if (patched.email != null) {
             val userWithEmail = asyncTransaction(ChartedScope) {
-                UserEntity.find { UserTable.email eq patched.email!! }.firstOrNull()
+                UserEntity.find { UserTable.email eq patched.email }.firstOrNull()
             }
 
             if (userWithEmail != null) {
@@ -338,15 +345,15 @@ class UsersEndpoint(
                 }
 
                 if (patched.username != null) {
-                    it[username] = patched.username!!
+                    it[username] = patched.username
                 }
 
                 if (patched.password != null && config.sessions.type == SessionType.Local) {
-                    it[password] = argon2.encode(patched.password!!)
+                    it[password] = argon2.encode(patched.password)
                 }
 
                 if (patched.email != null) {
-                    it[email] = patched.email!!
+                    it[email] = patched.email
                 }
 
                 if (patched.name != null) {
@@ -358,107 +365,73 @@ class UsersEndpoint(
         return call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
     }
 
+    /**
+     * Deletes the logged-in user. This can only work with session tokens to not
+     * accidentally delete your user account with an API key, just a security
+     * measure~!
+     *
+     * @statusCode 202 If the user has successfully been deleted from Postgres and Elasticsearch.
+     *                 Optionally, if the email service is enabled, it will send out an email of
+     *                 all the collected data that was wiped.
+     *
+     * @statusCode 500 If any database errors had been thrown
+     */
     @Delete
-    suspend fun del(call: ApplicationCall) {
+    suspend fun delete(call: ApplicationCall) {
         val id = call.currentUser!!.id
 
-        // Delete all the repositories and organizations owned by this user
+        // First, let's collect all the repositories that are owned
+        // by this user, so we can delete it from the storage driver.
+//        val repositories = asyncTransaction(ChartedScope) {
+//            RepositoryEntity.find { RepositoryTable.owner eq id }.toList()
+//        }
+
+        // Delete the user, which will delete all of their organizations
+        // except their repositories since repositories can be tied to both
+        // organization and a user. So, we can do that after.
         asyncTransaction(ChartedScope) {
-            RepositoryTable.deleteWhere { owner eq id }
+            UserTable.deleteWhere { UserTable.id eq id }
         }
 
         asyncTransaction(ChartedScope) {
             OrganizationTable.deleteWhere { owner eq id }
         }
 
-        // Delete the user and their sessions
+        // Delete all the repositories owned by this user
         asyncTransaction(ChartedScope) {
-            UserTable.deleteWhere { UserTable.id eq id }
+            RepositoryTable.deleteWhere { owner eq id }
+        }
+
+        // As this can take a while and network failures are prone (if not using
+        // the filesystem storage driver), deleting all the repository metadata
+        // will be pushed to a separate background job
+        //
+        // ...but for now, we do this the hard way and run this in the
+        // same coroutine as this method is being executed from.
+        //
+        // but in the future and when charted-server supports High Availability,
+        // I plan to have this called in a separate worker pool.
+        if (!config.features.contains(ServerFeature.DOCKER_REGISTRY)) {
+            /* TODO: this */
         }
 
         sessions.revokeAll(id)
-        if (!config.features.contains(ServerFeature.DOCKER_REGISTRY)) {
-            storage.delete("./users/$id/index.yaml")
-        }
+        charts?.destroyIndexYaml(id)
 
         call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
     }
 
-    @Get("/{idOrName}")
-    suspend fun fetch(call: ApplicationCall) {
-        val idOrName = call.parameters["idOrName"] ?: return call.respond(HttpStatusCode.NotFound, ApiResponse.err("MISSING_PARAMETER", "Missing [idOrName] path parameter"))
-        val user = when {
-            idOrName.toLongOrNull() != null -> asyncTransaction(ChartedScope) {
-                UserEntity.find { UserTable.id eq idOrName.toLong() }.firstOrNull()?.let { entity ->
-                    User.fromEntity(entity)
-                }
-            }
-
-            idOrName matches "^([A-z]|-|_|\\d{0,9}){0,32}".toRegex() -> asyncTransaction(ChartedScope) {
-                UserEntity.find { UserTable.username eq idOrName }.firstOrNull()?.let { entity ->
-                    User.fromEntity(entity)
-                }
-            }
-
-            else -> return call.respond(HttpStatusCode.BadRequest, ApiResponse.err("UNKNOWN_ENTITY", "Unable to determine if [idOrName] provided is by ID or name, provided [$idOrName]"))
-        } ?: return call.respond(HttpStatusCode.NotFound, ApiResponse.err("UNKNOWN_USER", "User with ID or name [$idOrName] was not found"))
-
-        call.respond(HttpStatusCode.OK, ApiResponse.ok(user))
-    }
-
-    @Get("/{idOrName}/avatars/current.png")
-    suspend fun getUserAvatar(call: ApplicationCall) {
-        val idOrName = call.parameters["idOrName"] ?: return call.respond(HttpStatusCode.NotFound, ApiResponse.err("MISSING_PARAMETER", "Missing [idOrName] path parameter"))
-        val user = when {
-            idOrName.toLongOrNull() != null -> asyncTransaction(ChartedScope) {
-                UserEntity.find { UserTable.id eq idOrName.toLong() }.firstOrNull()?.let { entity ->
-                    User.fromEntity(entity)
-                }
-            }
-
-            idOrName matches "^([A-z]|-|_|\\d{0,9}){0,32}".toRegex() -> asyncTransaction(ChartedScope) {
-                UserEntity.find { UserTable.username eq idOrName }.firstOrNull()?.let { entity ->
-                    User.fromEntity(entity)
-                }
-            }
-
-            else -> return call.respond(HttpStatusCode.BadRequest, ApiResponse.err("UNKNOWN_ENTITY", "Unable to determine if [idOrName] provided is by ID or name, provided [$idOrName]"))
-        } ?: return call.respond(HttpStatusCode.NotFound, ApiResponse.err("UNKNOWN_USER", "User with ID or name [$idOrName] was not found"))
-
-        val (contentType, bytes) = AvatarFetchUtil.retrieve(user)!!
-        call.respond(createKtorContentWithByteArray(bytes, contentType))
-    }
-
-    @Get("/{idOrName}/avatars/{hash}")
-    suspend fun getUserAvatarByHash(call: ApplicationCall) {
-        val idOrName = call.parameters["idOrName"] ?: return call.respond(HttpStatusCode.NotFound, ApiResponse.err("MISSING_PARAMETER", "Missing [idOrName] path parameter"))
-        val user = when {
-            idOrName.toLongOrNull() != null -> asyncTransaction(ChartedScope) {
-                UserEntity.find { UserTable.id eq idOrName.toLong() }.firstOrNull()?.let { entity ->
-                    User.fromEntity(entity)
-                }
-            }
-
-            idOrName matches "^([A-z]|-|_|\\d{0,9}){0,32}".toRegex() -> asyncTransaction(ChartedScope) {
-                UserEntity.find { UserTable.username eq idOrName }.firstOrNull()?.let { entity ->
-                    User.fromEntity(entity)
-                }
-            }
-
-            else -> return call.respond(HttpStatusCode.BadRequest, ApiResponse.err("UNKNOWN_ENTITY", "Unable to determine if [idOrName] provided is by ID or name, provided [$idOrName]"))
-        } ?: return call.respond(HttpStatusCode.NotFound, ApiResponse.err("UNKNOWN_USER", "User with ID or name [$idOrName] was not found"))
-
-        val avatar = AvatarFetchUtil.retrieve(user, call.parameters["hash"])
-            ?: return call.respond(HttpStatusCode.NotFound)
-
-        call.respond(createKtorContentWithByteArray(avatar.second, avatar.first))
-    }
-
+    /**
+     * Login as a user and return a session object that contains the access and refresh
+     * token
+     *
+     * @statusCode 201 The [Session][org.noelware.charted.modules.sessions.Session] object that is created and persisted
+     */
     @Post("/login")
     suspend fun login(call: ApplicationCall) {
-        val body: LoginBody by call.body()
+        val body: LoginBody = call.receive()
         val op: Op<Boolean> = if (body.username != null) {
-            UserTable.username eq body.username!!
+            UserTable.username eq body.username
         } else {
             UserTable.email eq body.email!!
         }
@@ -470,33 +443,99 @@ class UsersEndpoint(
         return call.respond(HttpStatusCode.OK, ApiResponse.ok(session.toJsonObject(true)))
     }
 
+    /**
+     * Gets the current logged-in user.
+     * @statusCode 200 The current user's details
+     */
     @Get("/@me")
-    suspend fun fetchSession(call: ApplicationCall) {
-        call.respond(HttpStatusCode.OK, ApiResponse.ok(call.currentUser!!))
+    suspend fun getCurrentUser(call: ApplicationCall) {
+        val user = call.currentUser!!
+        call.respond(HttpStatusCode.OK, ApiResponse.ok(user))
     }
 
+    /**
+     * Returns the current logged-in user's avatar.
+     * @param 200 The user avatar or any defaults if the user hasn't ever set an avatar.
+     */
+    @Get("/@me/avatars/current.png")
+    suspend fun getCurrentUserAvatar(call: ApplicationCall) {
+        val (contentType, bytes) = AvatarFetchUtil.retrieve(call.currentUser!!)!!
+        call.respond(createKtorContentWithByteArray(bytes, contentType))
+    }
+
+    /**
+     * Returns the current logged-in user's avatar with the specified hash (i.e, `123456.png`)
+     * @param 200 The user avatar or any defaults if the user hasn't ever set an avatar.
+     * @param 404 If the avatar with the given hash wasn't found
+     */
+    @Get("/@me/avatars/{hash}")
+    suspend fun getCurrentUserAvatarFromHash(call: ApplicationCall) {
+        val (contentType, bytes) = AvatarFetchUtil.retrieve(call.currentUser!!, call.parameters["hash"])
+            ?: return call.respond(HttpStatusCode.NotFound)
+
+        call.respond(createKtorContentWithByteArray(bytes, contentType))
+    }
+
+    /**
+     * Updates the current logged-in user's avatar. If more parts were used in the request, it will be discarded
+     * and the first part that it can poll is the one that is used.
+     *
+     * @statusCode 202 If the avatar was successfully updated
+     * @statusCode 400 If the request was not a `multipart/form-data` request or there were no parts available.
+     * @statusCode 406 If the part was not containing a file, it was a form or something else that we don't accept.
+     */
     @Post("/@me/avatar")
     suspend fun updateAvatar(call: ApplicationCall) {
         val multipart = call.receiveMultipart()
-        val part = multipart.readPart() ?: return call.respond(
-            HttpStatusCode.BadRequest,
-            ApiResponse.err("EXCESSIVE_MULTIPART_AMOUNT", "There can be only one multipart in this request.")
-        )
-
-        if (part !is PartData.FileItem) {
+        val parts = multipart.readAllParts()
+        if (parts.isEmpty()) {
             return call.respond(
-                HttpStatusCode.NotAcceptable,
-                ApiResponse.err("NOT_FILE_PART", "The multipart object must be a File object.")
+                HttpStatusCode.BadRequest,
+                ApiResponse.err(
+                    "MISSING_FILE_PART",
+                    "The request is missing a file part to be used."
+                )
             )
         }
 
-        AvatarFetchUtil.update(call.currentUser!!.id, part)
+        // probably inefficient, but what else?
+        var correctPart: PartData.FileItem? = null
+        val partsAsQueue = parts.toMutableList()
+        while (true) {
+            val current = partsAsQueue.removeFirstOrNull() ?: break
+            if (current is PartData.FileItem) {
+                correctPart = current
+                break
+            }
+        }
+
+        if (correctPart == null) {
+            return call.respond(
+                HttpStatusCode.BadRequest,
+                ApiResponse.err(
+                    "UNKNOWN_FILE_PART",
+                    "Couldn't find any multi-parts that was a File"
+                )
+            )
+        }
+
+        AvatarFetchUtil.update(call.currentUser!!.id, correctPart)
         call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
+    }
+
+    @Get("/@me/connections")
+    suspend fun getUserConnections(call: ApplicationCall) {
+        val user = call.currentUser!!
+        val connections = asyncTransaction(ChartedScope) {
+            UserConnectionEntity.findById(user.id)!!
+        }
+
+        call.respond(HttpStatusCode.OK, ApiResponse.ok(UserConnections.fromEntity(connections)))
     }
 
     @Put("/@me/repositories")
     suspend fun createRepository(call: ApplicationCall) {
-        val body: CreateRepositoryBody by call.body()
+        val body: CreateRepositoryBody = call.receive()
         val exists = asyncTransaction(ChartedScope) {
             RepositoryEntity.find { (RepositoryTable.owner eq call.currentUser!!.id) and (RepositoryTable.name eq body.name) }
                 .firstOrNull()
@@ -526,9 +565,63 @@ class UsersEndpoint(
         call.respond(HttpStatusCode.Created, ApiResponse.ok(repository))
     }
 
-    @Put("/repositories")
-    suspend fun oldCreateRepo(call: ApplicationCall) {
-        call.response.header("X-Deprecation-Notice", "PUT /users/repositories has been deprecated since v0.4-nightly, please use PUT /users/@me/repositories instead")
-        return createRepository(call)
+    @Get("/{idOrName}")
+    suspend fun fetch(call: ApplicationCall) {
+        val user = call.getDynamicUser() ?: return
+        call.respond(HttpStatusCode.OK, ApiResponse.ok(user))
+    }
+
+    @Get("/{idOrName}/avatars/current.png")
+    suspend fun getUserAvatar(call: ApplicationCall) {
+        val user = call.getDynamicUser() ?: return
+        val (contentType, bytes) = AvatarFetchUtil.retrieve(User.fromEntity(user), null)!!
+
+        call.respond(createKtorContentWithByteArray(bytes, contentType))
+    }
+
+    @Get("/{idOrName}/avatars/{hash}")
+    suspend fun getUserAvatarHash(call: ApplicationCall) {
+        val user = call.getDynamicUser() ?: return
+        val (contentType, bytes) = AvatarFetchUtil.retrieve(User.fromEntity(user), call.parameters["hash"])
+            ?: return call.respond(HttpStatusCode.NotFound)
+
+        call.respond(createKtorContentWithByteArray(bytes, contentType))
+    }
+
+    private suspend fun ApplicationCall.getDynamicUser(): UserEntity? {
+        val idOrName = parameters["idOrName"]
+            ?: return run {
+                respond(
+                    HttpStatusCode.NotFound,
+                    ApiResponse.err(
+                        "MISSING_PARAMETER",
+                        "Missing the `idOrName` parameter"
+                    )
+                )
+
+                null
+            }
+
+        return when {
+            idOrName.toLongOrNull() != null -> asyncTransaction(ChartedScope) {
+                UserEntity.find { UserTable.id eq idOrName.toLong() }.firstOrNull()
+            }
+
+            idOrName.toNameRegex(false).matches() -> asyncTransaction(ChartedScope) {
+                UserEntity.find { UserTable.name eq idOrName }.firstOrNull()
+            }
+
+            else -> {
+                respond(
+                    HttpStatusCode.BadRequest,
+                    ApiResponse.err(
+                        "UNKNOWN_ENTITY",
+                        "Unable to determine if [idOrName] provided is by ID or name, provided [$idOrName]"
+                    )
+                )
+
+                null
+            }
+        }
     }
 }

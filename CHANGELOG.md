@@ -30,7 +30,8 @@
 - Allow embedding Swagger UI as an endpoint on the server (configurable via `config.swagger_ui`) ([@auguwu](https://github.com/auguwu))
 - Organizations feature is now implemented ([@auguwu](https://github.com/auguwu))
 - The api key scopes' bit values have been changed ([@auguwu](https://github.com/auguwu))
-- OpenAPI definitions are now up to date ([@auguwu](https://github.com/auguwu))
+- OpenAPI definitions are now up-to-date ([@auguwu](https://github.com/auguwu))
+- CDN endpoints now support caching headers ([@auguwu](https://github.com/auguwu))
 
 ## API Key Scope Updates
 ### Users
