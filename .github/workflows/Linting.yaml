@@ -130,6 +130,7 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Check for compile errors
+        working-directory: ./tools/helm-plugin
         run: cargo build
         env:
           CARGO_INCREMENTAL: 1
