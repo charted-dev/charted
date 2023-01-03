@@ -66,6 +66,7 @@ dependencies {
     implementation(libs.ktor.server.content.negotiation)
     implementation(libs.ktor.server.auto.head.response)
     implementation(libs.ktor.server.default.headers)
+    implementation(libs.ktor.server.caching.headers)
     implementation(libs.ktor.server.double.receive)
     implementation(libs.ktor.server.status.pages)
     implementation(libs.ktor.server.ratelimiting)

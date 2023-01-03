@@ -47,6 +47,7 @@ import org.noelware.charted.ValidationException
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.extensions.ifSentryEnabled
 import org.noelware.charted.server.ChartedServer
+import org.noelware.charted.server.endpoints.v1.CdnEndpoints
 import org.noelware.charted.server.hasStarted
 import org.noelware.charted.server.openapi.charted
 import org.noelware.charted.server.plugins.Logging
@@ -281,6 +282,12 @@ class DefaultChartedServer(private val config: Config): ChartedServer {
         routing {}
         install(NoelKtorRouting) {
             endpointLoader(KoinEndpointLoader)
+            if (config.cdn?.enabled == true) {
+                val prefix = config.cdn!!.prefix
+                assert(prefix.startsWith('/')) { "CDN endpoint must start with a trailing slash" }
+
+                endpoints(CdnEndpoints(GlobalContext.retrieve(), prefix))
+            }
         }
     }
 

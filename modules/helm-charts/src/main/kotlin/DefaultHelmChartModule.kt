@@ -45,7 +45,7 @@ import java.io.File
 import java.io.InputStream
 import java.util.zip.GZIPInputStream
 
-private val acceptableContentTypes: List<String> = listOf("gzip", "tar+gzip", "tar").map { "application/$it" }
+val acceptableContentTypes: List<String> = listOf("gzip", "tar+gzip", "tar").map { "application/$it" }
 private val allowedFilesRegex = """(Chart.lock|Chart.ya?ml|values.ya?ml|[.]helmignore|templates/\w+.*[.](txt|tpl|ya?ml)|charts/\w+.*.(tgz|tar.gz))""".toRegex()
 private val exemptedFiles = listOf("values.schema.json")
 
