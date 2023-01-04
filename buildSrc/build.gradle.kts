@@ -31,7 +31,7 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.19.0")
     implementation("com.diffplug.spotless:spotless-plugin-gradle:6.12.0")
-    implementation("com.netflix.nebula:gradle-ospackage-plugin:10.0.0")
+    implementation("com.netflix.nebula:gradle-ospackage-plugin:11.0.0")
 
     // Fixes issues with plugin invariants with Kotlin >=1.8
     // https://github.com/gradle/gradle/issues/22510
