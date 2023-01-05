@@ -21,7 +21,7 @@ import org.noelware.charted.common.Bitfield
 
 private val FLAGS = mapOf(
     "PRIVATE" to (1L shl 0), // Repository is private and the members of the repository can access it.
-    "EXPERIMENTS" to (1L shl 1) // repository enabled experiments
+    "EXPERIMENTS" to (1L shl 1), // repository enabled experiments
 )
 
 class RepositoryFlags(originalBits: Long = 0): Bitfield(originalBits, FLAGS)

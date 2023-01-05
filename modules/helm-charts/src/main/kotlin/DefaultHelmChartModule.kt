@@ -145,7 +145,7 @@ class DefaultHelmChartModule(
         val tarInputStream = TarArchiveInputStream(
             withContext(Dispatchers.IO) {
                 GZIPInputStream(ByteArrayInputStream(data))
-            }
+            },
         )
 
         var chartSpec: ChartSpec? = null
@@ -193,7 +193,7 @@ class DefaultHelmChartModule(
         storage.upload(
             "./repositories/$owner/${repo.id}/tarballs/$version.tar.gz",
             ByteArrayInputStream(data),
-            "application/tar+gzip"
+            "application/tar+gzip",
         )
 
         // Update the owner's index.yaml file for this release
@@ -214,13 +214,13 @@ class DefaultHelmChartModule(
                             cdnBaseUrl
                         } else {
                             null
-                        }
+                        },
                     ).mapNotNullTo(mutableListOf()) { it },
                     Clock.System.now(),
                     false,
                     null,
-                    chartSpec
-                )
+                    chartSpec,
+                ),
             )
         } else {
             entries[repo.name]!! + listOf(
@@ -235,13 +235,13 @@ class DefaultHelmChartModule(
                             cdnBaseUrl
                         } else {
                             null
-                        }
+                        },
                     ).mapNotNullTo(mutableListOf()) { it },
                     Clock.System.now(),
                     false,
                     null,
-                    chartSpec
-                )
+                    chartSpec,
+                ),
             )
         }
 
@@ -252,7 +252,7 @@ class DefaultHelmChartModule(
         storage.upload(
             "./metadata/$owner/index.yaml",
             ByteArrayInputStream(stream.toByteArray()),
-            "application/yaml"
+            "application/yaml",
         )
     }
 
@@ -271,7 +271,7 @@ class DefaultHelmChartModule(
         val tarInputStream = TarArchiveInputStream(
             withContext(Dispatchers.IO) {
                 GZIPInputStream(inputStream)
-            }
+            },
         )
 
         var data: InputStream? = null
@@ -314,7 +314,7 @@ class DefaultHelmChartModule(
         val tarInputStream = TarArchiveInputStream(
             withContext(Dispatchers.IO) {
                 GZIPInputStream(inputStream)
-            }
+            },
         )
 
         val host = config.storage.hostAlias ?: config.baseUrl ?: "http${if (config.server.ssl != null) "s" else ""}://${config.server.host}:${config.server.port}"
@@ -352,7 +352,7 @@ class DefaultHelmChartModule(
         val tarInputStream = TarArchiveInputStream(
             withContext(Dispatchers.IO) {
                 GZIPInputStream(inputStream)
-            }
+            },
         )
 
         var data: InputStream? = null
@@ -393,7 +393,7 @@ class DefaultHelmChartModule(
         val tarInputStream = TarArchiveInputStream(
             withContext(Dispatchers.IO) {
                 GZIPInputStream(inputStream)
-            }
+            },
         )
 
         var data: InputStream? = null

@@ -43,7 +43,7 @@ data class ApiKeys(
             if (showToken) token else null,
             User.fromEntity(entity.owner),
             entity.name,
-            entity.id.value
+            entity.id.value,
         )
     }
 }

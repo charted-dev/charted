@@ -44,7 +44,7 @@ public object AzureAuthTypeSerializer: KSerializer<AzureAuthType> {
             when (value) {
                 AzureAuthType.CONNECTION_STRING -> "connection-string"
                 AzureAuthType.SAS_TOKEN -> "sas-token"
-            }
+            },
         )
     }
 }

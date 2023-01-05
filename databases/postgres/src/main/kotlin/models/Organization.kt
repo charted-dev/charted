@@ -59,7 +59,7 @@ data class Organization(
             entity.iconHash,
             entity.flags,
             entity.name,
-            entity.id.value
+            entity.id.value,
         )
     }
 }

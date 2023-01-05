@@ -25,8 +25,8 @@ class RegistryAuthorizationScopes(bits: Long = 0L): Bitfield(
     bits,
     mapOf(
         "push" to (1L shl 0),
-        "pull" to (1L shl 1)
-    )
+        "pull" to (1L shl 1),
+    ),
 )
 
 /**

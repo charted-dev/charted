@@ -141,7 +141,7 @@ internal class ChartedTestServer(private val config: Config): ChartedServer {
                 Json {
                     ignoreUnknownKeys = true
                     isLenient = true
-                }
+                },
             )
         }
 
@@ -157,8 +157,8 @@ internal class ChartedTestServer(private val config: Config): ChartedServer {
                             buildJsonObject {
                                 put("method", call.request.httpMethod.value)
                                 put("url", call.request.path())
-                            }
-                        )
+                            },
+                        ),
                     )
                 }
             }
@@ -171,8 +171,8 @@ internal class ChartedTestServer(private val config: Config): ChartedServer {
                         buildJsonObject {
                             put("method", call.request.httpMethod.value)
                             put("url", call.request.path())
-                        }
-                    )
+                        },
+                    ),
                 )
             }
 
@@ -180,7 +180,7 @@ internal class ChartedTestServer(private val config: Config): ChartedServer {
                 val header = call.request.header("Content-Type")
                 call.respond(
                     HttpStatusCode.UnsupportedMediaType,
-                    ApiResponse.err("UNSUPPORTED_CONTENT_TYPE", "Invalid content type [$header], was expecting \"application/json\"")
+                    ApiResponse.err("UNSUPPORTED_CONTENT_TYPE", "Invalid content type [$header], was expecting \"application/json\""),
                 )
             }
 
@@ -192,8 +192,8 @@ internal class ChartedTestServer(private val config: Config): ChartedServer {
                         buildJsonObject {
                             put("method", call.request.httpMethod.value)
                             put("url", call.request.path())
-                        }
-                    )
+                        },
+                    ),
                 )
             }
 
@@ -201,7 +201,7 @@ internal class ChartedTestServer(private val config: Config): ChartedServer {
                 self.log.error("Received multiple validation exceptions on REST handler [${call.request.httpMethod.value} ${call.request.path()}]")
                 call.respond(
                     HttpStatusCode.NotAcceptable,
-                    cause.exceptions().map { ApiError("VALIDATION_EXCEPTION", it.validationMessage) }
+                    cause.exceptions().map { ApiError("VALIDATION_EXCEPTION", it.validationMessage) },
                 )
             }
 
@@ -209,7 +209,7 @@ internal class ChartedTestServer(private val config: Config): ChartedServer {
                 self.log.error("Received an validation exception on REST handler [${call.request.httpMethod.value} ${call.request.path()}] ~> ${cause.path} [${cause.validationMessage}]")
                 call.respond(
                     HttpStatusCode.NotAcceptable,
-                    ApiResponse.err("VALIDATION_EXCEPTION", cause.validationMessage)
+                    ApiResponse.err("VALIDATION_EXCEPTION", cause.validationMessage),
                 )
             }
 
@@ -217,7 +217,7 @@ internal class ChartedTestServer(private val config: Config): ChartedServer {
                 self.log.error("Received serialization exception in handler [${call.request.httpMethod.value} ${call.request.path()}]", cause)
                 call.respond(
                     HttpStatusCode.PreconditionFailed,
-                    ApiResponse.err("SERIALIZATION_FAILED", cause.message!!)
+                    ApiResponse.err("SERIALIZATION_FAILED", cause.message!!),
                 )
             }
 
@@ -225,7 +225,7 @@ internal class ChartedTestServer(private val config: Config): ChartedServer {
                 self.log.error("Unknown YAML exception had occurred while handling request [${call.request.httpMethod.value} ${call.request.path()}]:", cause)
                 call.respond(
                     HttpStatusCode.NotAcceptable,
-                    ApiResponse.err(cause)
+                    ApiResponse.err(cause),
                 )
             }
 
@@ -244,15 +244,15 @@ internal class ChartedTestServer(private val config: Config): ChartedServer {
                                         if (self.config.debug) {
                                             put("stacktrace", cause.cause!!.stackTraceToString())
                                         }
-                                    }
+                                    },
                                 )
                             }
 
                             if (self.config.debug) {
                                 put("stacktrace", cause.stackTraceToString())
                             }
-                        }
-                    )
+                        },
+                    ),
                 )
             }
         }
@@ -281,7 +281,7 @@ internal class ChartedTestServer(private val config: Config): ChartedServer {
                 schema = config.database.schema
 
                 addDataSourceProperty("reWriteBatchedInserts", "true")
-            }
+            },
         )
 
         Database.connect(
@@ -289,7 +289,7 @@ internal class ChartedTestServer(private val config: Config): ChartedServer {
             databaseConfig = DatabaseConfig {
                 defaultRepetitionAttempts = 5
                 sqlLogger = Slf4jSqlDebugLogger
-            }
+            },
         )
 
         transaction {
@@ -302,7 +302,7 @@ internal class ChartedTestServer(private val config: Config): ChartedServer {
                 RepositoryMemberTable,
                 RepositoryReleasesTable,
                 UserTable,
-                UserConnectionsTable
+                UserConnectionsTable,
             )
         }
 
@@ -345,7 +345,7 @@ internal class ChartedTestServer(private val config: Config): ChartedServer {
                     single<RedisClient> { redis }
                     single<HelmChartModule> { DefaultHelmChartModule(storage, config, Yaml.default) }
                     single<MetricsSupport> { DisabledMetricsSupport() }
-                }
+                },
             )
         }
 

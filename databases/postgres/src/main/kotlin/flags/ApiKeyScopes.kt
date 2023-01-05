@@ -84,7 +84,7 @@ val SCOPES: Map<String, Long> = mapOf(
     "org:webhooks:update" to (1L shl 42),
     "org:webhooks:delete" to (1L shl 43),
     "org:webhooks:events:list" to (1L shl 44),
-    "org:webhooks:events:delete" to (1L shl 45)
+    "org:webhooks:events:delete" to (1L shl 45),
 )
 
 class ApiKeyScopes(bits: Long = 0): Bitfield(bits, SCOPES) {

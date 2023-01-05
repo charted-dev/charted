@@ -61,7 +61,7 @@ class PostgreSQLMetricsCollector(private val config: Config): Collector<Postgres
             postgresVersion!!,
             uptime!!,
             databaseSize!!,
-            users
+            users,
         )
     }
 
@@ -84,8 +84,8 @@ class PostgreSQLMetricsCollector(private val config: Config): Collector<Postgres
                 GaugeMetricFamily(
                     PostgresMetricKeys.TotalOrganizationsAvailable.key,
                     "Returns how many registered organizations are available",
-                    stats.organizations.toDouble()
-                )
+                    stats.organizations.toDouble(),
+                ),
             )
         }
 
@@ -94,8 +94,8 @@ class PostgreSQLMetricsCollector(private val config: Config): Collector<Postgres
                 GaugeMetricFamily(
                     PostgresMetricKeys.TotalRepositoriesAvailable.key,
                     "Returns how many registered repositories are available",
-                    stats.repositories.toDouble()
-                )
+                    stats.repositories.toDouble(),
+                ),
             )
         }
 
@@ -104,8 +104,8 @@ class PostgreSQLMetricsCollector(private val config: Config): Collector<Postgres
                 GaugeMetricFamily(
                     PostgresMetricKeys.TotalUsersAvailable.key,
                     "Returns how many registered users are available",
-                    stats.users.toDouble()
-                )
+                    stats.users.toDouble(),
+                ),
             )
         }
 
@@ -114,8 +114,8 @@ class PostgreSQLMetricsCollector(private val config: Config): Collector<Postgres
                 GaugeMetricFamily(
                     PostgresMetricKeys.DatabaseSize.key,
                     "The database size (in bytes), or -1 if it couldn't be calculated",
-                    stats.dbSize.toDouble()
-                )
+                    stats.dbSize.toDouble(),
+                ),
             )
         }
 
@@ -124,8 +124,8 @@ class PostgreSQLMetricsCollector(private val config: Config): Collector<Postgres
                 GaugeMetricFamily(
                     PostgresMetricKeys.ServerUptime.key,
                     "Returns the uptime (in milliseconds) of the Postgres server.",
-                    stats.uptime.toDouble()
-                )
+                    stats.uptime.toDouble(),
+                ),
             )
         }
 
@@ -134,8 +134,8 @@ class PostgreSQLMetricsCollector(private val config: Config): Collector<Postgres
                 GaugeMetricFamily(
                     PostgresMetricKeys.Version.key,
                     "Returns the current PostgresSQL server version",
-                    listOf("version")
-                ).apply { addMetric(listOf(stats.version), 1.0) }
+                    listOf("version"),
+                ).apply { addMetric(listOf(stats.version), 1.0) },
             )
         }
     }

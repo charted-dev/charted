@@ -36,7 +36,7 @@ private class ChartedCli(private val terminal: Terminal): CliktCommand(
     help = "Command line runner for managing charted-server",
     name = "charted",
     printHelpOnEmptyArgs = true,
-    allowMultipleSubcommands = true
+    allowMultipleSubcommands = true,
 ) {
     init {
         versionOption("${ChartedInfo.version}+${ChartedInfo.commitHash}") {
@@ -58,7 +58,7 @@ private class ChartedCli(private val terminal: Terminal): CliktCommand(
             ClickHouseMigrationsCommand(terminal),
             GenerateConfigCommand(terminal),
             BaseAccountsCommand(terminal),
-            ServerCommand(terminal)
+            ServerCommand(terminal),
         )
     }
 

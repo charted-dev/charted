@@ -56,7 +56,7 @@ class ApiResponseSerializationTests {
             "puby gang", "you are in puby gang, not polar gang :(",
             buildJsonObject {
                 put("woof", true)
-            }
+            },
         )
 
         assertEquals("""{"success":false,"errors":[{"code":"puby gang","message":"you are in puby gang, not polar gang :(","detail":{"woof":true}}]}""", Json.encodeToString(ApiResponse.serializer(UnitSerializer), res3))

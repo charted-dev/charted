@@ -176,8 +176,8 @@ abstract class SessionManager(
             .withHeader(
                 mapOf(
                     "session" to sessionID.toString(),
-                    "user" to "$userID"
-                )
+                    "user" to "$userID",
+                ),
             ).sign(algorithm)
 
         // This will create the refresh token which will refresh the access token
@@ -191,8 +191,8 @@ abstract class SessionManager(
             .withHeader(
                 mapOf(
                     "session" to sessionID.toString(),
-                    "user" to "$userID"
-                )
+                    "user" to "$userID",
+                ),
             ).sign(algorithm)
 
         val session = Session(refreshToken, accessToken, sessionID, userID)

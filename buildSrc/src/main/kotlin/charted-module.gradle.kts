@@ -78,9 +78,9 @@ spotless {
 
         // We can't use the .editorconfig file, so we'll have to specify it here
         // issue: https://github.com/diffplug/spotless/issues/142
-        ktlint()
-            .setUseExperimental(true)
-            .editorConfigOverride(mapOf(
+        ktlint().apply {
+            setUseExperimental(true)
+            editorConfigOverride(mapOf(
                 "indent_size" to "4",
                 "ij_kotlin_allow_trailing_comma" to "false",
                 "ktlint_disabled_rules" to "colon-spacing,annotation-spacing,filename,no-wildcard-imports,argument-list-wrapping,experimental:property-naming",
@@ -96,8 +96,10 @@ spotless {
 //                "annotation-spacing" to "disabled",
 //                "filename" to "disabled",
 //                "no-wildcard-imports" to "disabled",
-//                "argument-list-wrapping" to "disabled"
+//                "argument-list-wrapping" to "disabled",
+//                "experimental:property-naming" to "disabled"
             ))
+        }
     }
 }
 

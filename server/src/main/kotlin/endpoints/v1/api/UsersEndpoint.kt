@@ -245,8 +245,8 @@ class UsersEndpoint(
             return call.respond(
                 HttpStatusCode.Forbidden,
                 ApiResponse.err(
-                    "REGISTRATIONS_DISABLED", "This instance has registrations disabled."
-                )
+                    "REGISTRATIONS_DISABLED", "This instance has registrations disabled.",
+                ),
             )
         }
 
@@ -493,8 +493,8 @@ class UsersEndpoint(
                 HttpStatusCode.BadRequest,
                 ApiResponse.err(
                     "MISSING_FILE_PART",
-                    "The request is missing a file part to be used."
-                )
+                    "The request is missing a file part to be used.",
+                ),
             )
         }
 
@@ -514,8 +514,8 @@ class UsersEndpoint(
                 HttpStatusCode.BadRequest,
                 ApiResponse.err(
                     "UNKNOWN_FILE_PART",
-                    "Couldn't find any multi-parts that was a File"
-                )
+                    "Couldn't find any multi-parts that was a File",
+                ),
             )
         }
 
@@ -546,8 +546,8 @@ class UsersEndpoint(
                 HttpStatusCode.NotAcceptable,
                 ApiResponse.err(
                     "REPO_EXISTS",
-                    "Repository with name [${body.name}] already exists!"
-                )
+                    "Repository with name [${body.name}] already exists!",
+                ),
             )
         }
 
@@ -595,8 +595,8 @@ class UsersEndpoint(
                     HttpStatusCode.NotFound,
                     ApiResponse.err(
                         "MISSING_PARAMETER",
-                        "Missing the `idOrName` parameter"
-                    )
+                        "Missing the `idOrName` parameter",
+                    ),
                 )
 
                 null
@@ -616,8 +616,8 @@ class UsersEndpoint(
                     HttpStatusCode.BadRequest,
                     ApiResponse.err(
                         "UNKNOWN_ENTITY",
-                        "Unable to determine if [idOrName] provided is by ID or name, provided [$idOrName]"
-                    )
+                        "Unable to determine if [idOrName] provided is by ID or name, provided [$idOrName]",
+                    ),
                 )
 
                 null

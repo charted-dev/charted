@@ -46,14 +46,14 @@ abstract class AccountsAwareCommand(private val terminal: Terminal, name: String
     private val configOption: File? by option(
         "--config", "-c",
         help = "The configuration path to use",
-        envvar = "CHARTED_CONFIG_PATH"
+        envvar = "CHARTED_CONFIG_PATH",
     ).file(
         mustExist = true,
         canBeFile = true,
         canBeDir = false,
         mustBeWritable = false,
         mustBeReadable = true,
-        canBeSymlink = true
+        canBeSymlink = true,
     )
 
     fun setup(runner: (config: Config) -> Unit = {}) {
@@ -72,9 +72,9 @@ abstract class AccountsAwareCommand(private val terminal: Terminal, name: String
                         EmptySerializersModule(),
                         YamlConfiguration(
                             encodeDefaults = true,
-                            strictMode = true
-                        )
-                    )
+                            strictMode = true,
+                        ),
+                    ),
                 )
             } else if (configPath.extension.contains("kts")) {
                 KotlinScriptHost
@@ -103,7 +103,7 @@ abstract class AccountsAwareCommand(private val terminal: Terminal, name: String
                 schema = config.database.schema
 
                 addDataSourceProperty("reWriteBatchedInserts", "true")
-            }
+            },
         )
 
         Database.connect(
@@ -115,7 +115,7 @@ abstract class AccountsAwareCommand(private val terminal: Terminal, name: String
                 } else {
                     null
                 }
-            }
+            },
         )
 
         terminal.logger.debug("Running all pending migrations!")
@@ -129,7 +129,7 @@ abstract class AccountsAwareCommand(private val terminal: Terminal, name: String
                 RepositoryMemberTable,
                 RepositoryReleasesTable,
                 UserTable,
-                UserConnectionsTable
+                UserConnectionsTable,
             )
         }
 

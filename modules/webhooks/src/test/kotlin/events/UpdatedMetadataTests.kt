@@ -29,11 +29,11 @@ class UpdatedMetadataTests {
     fun `can we serialize UpdatedMetadata objects`() {
         val updated = UpdatedMetadata(
             UpdatedMetadata.New(
-                mapOf("myvalue" to "anewvalue")
+                mapOf("myvalue" to "anewvalue"),
             ),
             UpdatedMetadata.Old(
-                mapOf("myvalue" to "aoldvalue")
-            )
+                mapOf("myvalue" to "aoldvalue"),
+            ),
         )
 
         val result = Json.encodeToString(updated)

@@ -154,8 +154,8 @@ class DefaultChartedServer(private val config: Config): ChartedServer {
                             buildJsonObject {
                                 put("method", call.request.httpMethod.value)
                                 put("url", call.request.path())
-                            }
-                        )
+                            },
+                        ),
                     )
                 }
             }
@@ -170,8 +170,8 @@ class DefaultChartedServer(private val config: Config): ChartedServer {
                             put("retry_after", retryAfter)
                             put("method", call.request.httpMethod.value)
                             put("url", call.request.path())
-                        }
-                    )
+                        },
+                    ),
                 )
             }
 
@@ -183,8 +183,8 @@ class DefaultChartedServer(private val config: Config): ChartedServer {
                         buildJsonObject {
                             put("method", call.request.httpMethod.value)
                             put("url", call.request.path())
-                        }
-                    )
+                        },
+                    ),
                 )
             }
 
@@ -192,7 +192,7 @@ class DefaultChartedServer(private val config: Config): ChartedServer {
                 val header = call.request.header("Content-Type")
                 call.respond(
                     HttpStatusCode.UnsupportedMediaType,
-                    ApiResponse.err("UNSUPPORTED_CONTENT_TYPE", "Invalid content type [$header], was expecting \"application/json\"")
+                    ApiResponse.err("UNSUPPORTED_CONTENT_TYPE", "Invalid content type [$header], was expecting \"application/json\""),
                 )
             }
 
@@ -204,8 +204,8 @@ class DefaultChartedServer(private val config: Config): ChartedServer {
                         buildJsonObject {
                             put("method", call.request.httpMethod.value)
                             put("url", call.request.path())
-                        }
-                    )
+                        },
+                    ),
                 )
             }
 
@@ -215,7 +215,7 @@ class DefaultChartedServer(private val config: Config): ChartedServer {
                 self.log.error("Received multiple validation exceptions on REST handler [${call.request.httpMethod.value} ${call.request.path()}]")
                 call.respond(
                     HttpStatusCode.NotAcceptable,
-                    cause.exceptions().map { ApiError("VALIDATION_EXCEPTION", it.validationMessage) }
+                    cause.exceptions().map { ApiError("VALIDATION_EXCEPTION", it.validationMessage) },
                 )
             }
 
@@ -225,7 +225,7 @@ class DefaultChartedServer(private val config: Config): ChartedServer {
                 self.log.error("Received an validation exception on REST handler [${call.request.httpMethod.value} ${call.request.path()}] ~> ${cause.path} [${cause.validationMessage}]")
                 call.respond(
                     HttpStatusCode.NotAcceptable,
-                    ApiResponse.err("VALIDATION_EXCEPTION", cause.validationMessage)
+                    ApiResponse.err("VALIDATION_EXCEPTION", cause.validationMessage),
                 )
             }
 
@@ -235,7 +235,7 @@ class DefaultChartedServer(private val config: Config): ChartedServer {
                 self.log.error("Received serialization exception in handler [${call.request.httpMethod.value} ${call.request.path()}]", cause)
                 call.respond(
                     HttpStatusCode.PreconditionFailed,
-                    ApiResponse.err("SERIALIZATION_FAILED", cause.message!!)
+                    ApiResponse.err("SERIALIZATION_FAILED", cause.message!!),
                 )
             }
 
@@ -245,7 +245,7 @@ class DefaultChartedServer(private val config: Config): ChartedServer {
                 self.log.error("Unknown YAML exception had occurred while handling request [${call.request.httpMethod.value} ${call.request.path()}]:", cause)
                 call.respond(
                     HttpStatusCode.NotAcceptable,
-                    ApiResponse.err(cause)
+                    ApiResponse.err(cause),
                 )
             }
 
@@ -266,15 +266,15 @@ class DefaultChartedServer(private val config: Config): ChartedServer {
                                         if (self.config.debug) {
                                             put("stacktrace", cause.cause!!.stackTraceToString())
                                         }
-                                    }
+                                    },
                                 )
                             }
 
                             if (self.config.debug) {
                                 put("stacktrace", cause.stackTraceToString())
                             }
-                        }
-                    )
+                        },
+                    ),
                 )
             }
         }

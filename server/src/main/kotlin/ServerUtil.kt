@@ -55,7 +55,7 @@ fun <T: InputStream> createKtorContentWithInputStream(
         override val status: HttpStatusCode = status
         override fun readFrom(): ByteReadChannel = `is`.toByteReadChannel(
             ByteBufferPool(4092, 8192),
-            if (Sentry.isEnabled()) SentryContext() + ChartedScope.coroutineContext else ChartedScope.coroutineContext
+            if (Sentry.isEnabled()) SentryContext() + ChartedScope.coroutineContext else ChartedScope.coroutineContext,
         )
     }
 }
@@ -72,6 +72,6 @@ fun createKtorContentWithByteArray(
 
     override fun readFrom(): ByteReadChannel = ByteArrayInputStream(bytes).toByteReadChannel(
         ByteBufferPool(4092, 8192),
-        if (Sentry.isEnabled()) SentryContext() + ChartedScope.coroutineContext else ChartedScope.coroutineContext
+        if (Sentry.isEnabled()) SentryContext() + ChartedScope.coroutineContext else ChartedScope.coroutineContext,
     )
 }

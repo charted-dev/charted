@@ -49,7 +49,7 @@ jobs:
 #      fail-fast: false
 #      matrix:
 #        java-version: [17, 19]
-#        languages: [java]
+#        languages: [java, kotlin]
 #    steps:
 #      - name: Checkout repository
 #        uses: actions/checkout@v3

@@ -70,7 +70,7 @@ public data class AmazonS3StorageConfig(
                 config.endpoint(),
                 config.prefix(),
                 config.region(),
-                config.bucket()
+                config.bucket(),
             )
         }
     }

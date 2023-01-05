@@ -105,8 +105,8 @@ object ConfigureModulesPhase: BootstrapPhase() {
             EmptySerializersModule(),
             YamlConfiguration(
                 encodeDefaults = true,
-                strictMode = true
-            )
+                strictMode = true,
+            ),
         )
 
         val configHost: ConfigurationHost = if (listOf("yaml", "yml").contains(configPath.extension)) {
@@ -149,7 +149,7 @@ object ConfigureModulesPhase: BootstrapPhase() {
                 schema = config.database.schema
 
                 addDataSourceProperty("reWriteBatchedInserts", "true")
-            }
+            },
         )
 
         Database.connect(
@@ -161,7 +161,7 @@ object ConfigureModulesPhase: BootstrapPhase() {
                 } else {
                     null
                 }
-            }
+            },
         )
 
         sw.suspend()
@@ -178,7 +178,7 @@ object ConfigureModulesPhase: BootstrapPhase() {
                 RepositoryMemberTable,
                 RepositoryReleasesTable,
                 UserTable,
-                UserConnectionsTable
+                UserConnectionsTable,
             )
         }
 
@@ -272,7 +272,7 @@ object ConfigureModulesPhase: BootstrapPhase() {
                 modules.add(
                     module {
                         single<ElasticsearchModule> { elasticsearch }
-                    }
+                    },
                 )
             }
         }
@@ -284,7 +284,7 @@ object ConfigureModulesPhase: BootstrapPhase() {
             modules.add(
                 module {
                     single<ClickHouseConnection> { clickhouse }
-                }
+                },
             )
         }
 
@@ -293,7 +293,7 @@ object ConfigureModulesPhase: BootstrapPhase() {
             modules.add(
                 module {
                     single<EmailService> { emailService }
-                }
+                },
             )
         }
 
@@ -302,7 +302,7 @@ object ConfigureModulesPhase: BootstrapPhase() {
             modules.add(
                 module {
                     single { daemon }
-                }
+                },
             )
         }
 
@@ -312,7 +312,7 @@ object ConfigureModulesPhase: BootstrapPhase() {
                 module {
                     single<RegistryAuthorizationPolicyManager> { registryAuthorizationPolicyManager }
                     single { AuthTokenEndpoint(get()) } bind AbstractEndpoint::class
-                }
+                },
             )
         }
 
@@ -321,7 +321,7 @@ object ConfigureModulesPhase: BootstrapPhase() {
                 single {
                     metrics
                 }
-            }
+            },
         )
 
         startKoin {
@@ -364,7 +364,7 @@ object ConfigureModulesPhase: BootstrapPhase() {
             "capture_body" to if (tracing.captureBody) "ON" else "OFF",
             // "global_labels" to tracing.globalLabels.map { "${it.key}=${it.value}" }.joinToString(",")
             "application_packages" to "org.noelware.charted",
-            "server_url" to tracing.serverUrl
+            "server_url" to tracing.serverUrl,
         )
 
         if (tracing.apiKey != null) apmConfig["api_key"] = tracing.apiKey!!

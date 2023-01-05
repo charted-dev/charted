@@ -106,9 +106,9 @@ class CreateAccountCommand(private val terminal: Terminal): AccountsAwareCommand
                     EmptySerializersModule(),
                     YamlConfiguration(
                         encodeDefaults = true,
-                        strictMode = true
-                    )
-                )
+                        strictMode = true,
+                    ),
+                ),
             )
 
             terminal.logger.info("New registered user [@$username], creating index.yaml entry!")

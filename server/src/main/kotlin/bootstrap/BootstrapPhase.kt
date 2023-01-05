@@ -29,7 +29,7 @@ abstract class BootstrapPhase {
         val PHASES: List<BootstrapPhase> = listOf(
             OnStartPhase,
             ConfigureModulesPhase,
-            StartServerPhase
+            StartServerPhase,
         )
     }
 }

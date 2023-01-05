@@ -69,7 +69,7 @@ public data class ChartIndexSpec(
             urls,
             created,
             removed,
-            digest
+            digest,
         )
     }
 }

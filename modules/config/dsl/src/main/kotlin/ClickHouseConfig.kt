@@ -58,7 +58,7 @@ public data class ClickHouseConfig(
             username,
             password,
             host,
-            port
+            port,
         )
     }
 

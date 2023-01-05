@@ -37,8 +37,8 @@ val SentryPlugin = createApplicationPlugin("Sentry") {
             SENTRY_TRANSACTION_KEY,
             Sentry.startTransaction(
                 "HTTP Request",
-                "${call.request.httpMethod.value} ${call.request.path()} [${call.request.httpVersion}]"
-            )
+                "${call.request.httpMethod.value} ${call.request.path()} [${call.request.httpVersion}]",
+            ),
         )
     }
 

@@ -51,37 +51,37 @@ It will not install the new binary if `bin/ch-migrations` exists or if this is p
 which will invoke Go itself.
     """.trimIndent(),
 
-    name = "ch-migrations"
+    name = "ch-migrations",
 ) {
     private val okhttp: OkHttpClient = OkHttpClient()
     private val tableName: String by option(
         "--table", "-t",
-        help = "The table where migrations should live in [default: migrations]"
+        help = "The table where migrations should live in [default: migrations]",
     ).default("migrations")
 
     private val hosts: List<String> by option(
         "--hosts",
-        help = "list of ClickHouse nodes to connect to"
+        help = "list of ClickHouse nodes to connect to",
     ).multiple()
 
     private val timeout: String by option(
         "--timeout",
-        help = "timeout from connecting to the ClickHouse nodes"
+        help = "timeout from connecting to the ClickHouse nodes",
     ).default("15s")
 
     private val username: String? by option(
         "--username", "-u",
-        help = "username for authentication when connecting"
+        help = "username for authentication when connecting",
     )
 
     private val password: String? by option(
         "--password", "-p",
-        help = "password for authentication when connecting"
+        help = "password for authentication when connecting",
     )
 
     private val database: String by option(
         "--database", "-d",
-        help = "database name"
+        help = "database name",
     ).default("charted")
 
     override fun run() {
@@ -94,7 +94,7 @@ which will invoke Go itself.
                 migrationsBin.toPath().toRealPath().toString(),
                 "--table=$tableName",
                 "--timeout=$timeout",
-                "--database=$database"
+                "--database=$database",
             )
 
             if (hosts.every { it.isNotBlank() }) {

@@ -105,7 +105,7 @@ class DefaultClickHouseConnection(private val config: ClickHouseConfig): ClickHo
                 password = config.password
 
                 addDataSourceProperty(JdbcConfig.PROP_WRAPPER_OBJ, "true")
-            }
+            },
         )
 
         log.info("Created the connection pool! Checking if we can query...")

@@ -41,7 +41,7 @@ data class RepositoryRelease(
             entity.createdAt,
             entity.updatedAt,
             entity.tag,
-            entity.id.value
+            entity.id.value,
         )
     }
 }

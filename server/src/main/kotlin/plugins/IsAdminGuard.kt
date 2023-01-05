@@ -33,8 +33,8 @@ val IsAdminGuard = createRouteScopedPlugin("IsAdminGuard") {
                         HttpStatusCode.BadRequest,
                         ApiResponse.err(
                             "INVALID_SESSION",
-                            "You must login with a session token before requesting admin endpoints!"
-                        )
+                            "You must login with a session token before requesting admin endpoints!",
+                        ),
                     )
                 }
             }
@@ -44,8 +44,8 @@ val IsAdminGuard = createRouteScopedPlugin("IsAdminGuard") {
                 HttpStatusCode.Unauthorized,
                 ApiResponse.err(
                     "NOT_AN_ADMIN",
-                    "You must have administrator privileges to access this route"
-                )
+                    "You must have administrator privileges to access this route",
+                ),
             )
         }
     }

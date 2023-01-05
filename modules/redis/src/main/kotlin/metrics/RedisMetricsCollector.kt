@@ -51,8 +51,8 @@ class RedisMetricsCollector(private val redis: RedisClient, private val config: 
                 GaugeMetricFamily(
                     RedisMetricKeys.TotalNetworkInput.key,
                     "Returns the total network input in bytes.",
-                    stats.totalNetworkInput.toDouble()
-                )
+                    stats.totalNetworkInput.toDouble(),
+                ),
             )
         }
 
@@ -61,8 +61,8 @@ class RedisMetricsCollector(private val redis: RedisClient, private val config: 
                 GaugeMetricFamily(
                     RedisMetricKeys.TotalNetworkOutput.key,
                     "Returns the total network output in bytes.",
-                    stats.totalNetworkOutput.toDouble()
-                )
+                    stats.totalNetworkOutput.toDouble(),
+                ),
             )
         }
 
@@ -71,8 +71,8 @@ class RedisMetricsCollector(private val redis: RedisClient, private val config: 
                 GaugeMetricFamily(
                     RedisMetricKeys.TotalCommandsProcessed.key,
                     "Returns how many Redis commands were processed.",
-                    stats.totalCommandsProcessed.toDouble()
-                )
+                    stats.totalCommandsProcessed.toDouble(),
+                ),
             )
         }
 
@@ -81,8 +81,8 @@ class RedisMetricsCollector(private val redis: RedisClient, private val config: 
                 GaugeMetricFamily(
                     RedisMetricKeys.TotalConnectionsReceived.key,
                     "Returns how many connections were received by the Redis server.",
-                    stats.totalConnectionsReceived.toDouble()
-                )
+                    stats.totalConnectionsReceived.toDouble(),
+                ),
             )
         }
 
@@ -91,8 +91,8 @@ class RedisMetricsCollector(private val redis: RedisClient, private val config: 
                 GaugeMetricFamily(
                     RedisMetricKeys.Allocator.key,
                     "Returns the current memory allocator Redis is using.",
-                    listOf("allocator")
-                ).apply { addMetric(listOf(stats.allocator), 1.0) }
+                    listOf("allocator"),
+                ).apply { addMetric(listOf(stats.allocator), 1.0) },
             )
         }
 
@@ -101,8 +101,8 @@ class RedisMetricsCollector(private val redis: RedisClient, private val config: 
                 GaugeMetricFamily(
                     RedisMetricKeys.Version.key,
                     "Returns the current Redis server version.",
-                    listOf("version")
-                ).apply { addMetric(listOf(stats.version), 1.0) }
+                    listOf("version"),
+                ).apply { addMetric(listOf(stats.version), 1.0) },
             )
         }
 
@@ -111,8 +111,8 @@ class RedisMetricsCollector(private val redis: RedisClient, private val config: 
                 GaugeMetricFamily(
                     RedisMetricKeys.Mode.key,
                     "Returns the current mode the Redis server is using. [standalone, clustered]",
-                    listOf("mode")
-                ).apply { addMetric(listOf(stats.mode), 1.0) }
+                    listOf("mode"),
+                ).apply { addMetric(listOf(stats.mode), 1.0) },
             )
         }
 
@@ -121,8 +121,8 @@ class RedisMetricsCollector(private val redis: RedisClient, private val config: 
                 GaugeMetricFamily(
                     RedisMetricKeys.Ping.key,
                     "Returns the latency (in nanoseconds) from us to Redis",
-                    stats.ping.toDouble()
-                )
+                    stats.ping.toDouble(),
+                ),
             )
         }
     }

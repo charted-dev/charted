@@ -43,7 +43,7 @@ val ElasticApmTracingPlugin = createApplicationPlugin("ElasticApmTracingPlugin")
             ElasticApm.startTransaction()
                 .setName("${call.request.httpMethod.value} ${call.request.path()} [${call.request.httpVersion}]")
                 .setFrameworkName("Ktor ${ktorVersion ?: "(unknown)"}")
-                .setServiceInfo("Noelware/charted-server", "${ChartedInfo.version}+${ChartedInfo.commitHash}")
+                .setServiceInfo("Noelware/charted-server", "${ChartedInfo.version}+${ChartedInfo.commitHash}"),
         )
 
         call.apmTransaction!!.activate()

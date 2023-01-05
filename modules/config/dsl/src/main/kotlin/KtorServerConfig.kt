@@ -230,7 +230,7 @@ public data class KtorServerConfig(
             ssl,
             host,
             port,
-            rateLimit
+            rateLimit,
         )
     }
 }

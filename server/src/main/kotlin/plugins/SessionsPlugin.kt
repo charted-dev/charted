@@ -164,8 +164,8 @@ val SessionsPlugin = createRouteScopedPlugin("Sessions", ::SessionOptions) {
                     buildJsonObject {
                         put("method", call.request.httpMethod.value)
                         put("uri", call.request.path())
-                    }
-                )
+                    },
+                ),
             )
         }
 
@@ -179,8 +179,8 @@ val SessionsPlugin = createRouteScopedPlugin("Sessions", ::SessionOptions) {
                     buildJsonObject {
                         put("method", call.request.httpMethod.value)
                         put("uri", call.request.path())
-                    }
-                )
+                    },
+                ),
             )
         }
 
@@ -197,8 +197,8 @@ val SessionsPlugin = createRouteScopedPlugin("Sessions", ::SessionOptions) {
                                 buildJsonObject {
                                     put("method", call.request.httpMethod.value)
                                     put("uri", call.request.path())
-                                }
-                            )
+                                },
+                            ),
                         )
 
                     call.attributes.put(SESSIONS_KEY, session)
@@ -215,8 +215,8 @@ val SessionsPlugin = createRouteScopedPlugin("Sessions", ::SessionOptions) {
                                 HttpStatusCode.PreconditionFailed,
                                 ApiResponse.err(
                                     "PRECONDITION_FAILED",
-                                    result.message.ifEmpty { "Message was not provided, this might be a bug!" }
-                                )
+                                    result.message.ifEmpty { "Message was not provided, this might be a bug!" },
+                                ),
                             )
                         }
                     }
@@ -229,8 +229,8 @@ val SessionsPlugin = createRouteScopedPlugin("Sessions", ::SessionOptions) {
                             buildJsonObject {
                                 put("method", call.request.httpMethod.value)
                                 put("uri", call.request.path())
-                            }
-                        )
+                            },
+                        ),
                     )
                 } catch (_: TokenExpiredException) {
                     call.respond(
@@ -241,8 +241,8 @@ val SessionsPlugin = createRouteScopedPlugin("Sessions", ::SessionOptions) {
                             buildJsonObject {
                                 put("method", call.request.httpMethod.value)
                                 put("uri", call.request.path())
-                            }
-                        )
+                            },
+                        ),
                     )
                 } catch (e: Throwable) {
                     log.error("Unable to retrieve session from Authorization header:", e)
@@ -262,8 +262,8 @@ val SessionsPlugin = createRouteScopedPlugin("Sessions", ::SessionOptions) {
                         buildJsonObject {
                             put("method", call.request.httpMethod.value)
                             put("uri", call.request.path())
-                        }
-                    )
+                        },
+                    ),
                 )
 
                 if (pluginConfig.assertSessionOnly) {
@@ -275,8 +275,8 @@ val SessionsPlugin = createRouteScopedPlugin("Sessions", ::SessionOptions) {
                             buildJsonObject {
                                 put("method", call.request.httpMethod.value)
                                 put("uri", call.request.path())
-                            }
-                        )
+                            },
+                        ),
                     )
                 }
 
@@ -291,8 +291,8 @@ val SessionsPlugin = createRouteScopedPlugin("Sessions", ::SessionOptions) {
                                 buildJsonObject {
                                     put("method", call.request.httpMethod.value)
                                     put("uri", call.request.path())
-                                }
-                            )
+                                },
+                            ),
                         )
 
                         return@onCall
@@ -313,8 +313,8 @@ val SessionsPlugin = createRouteScopedPlugin("Sessions", ::SessionOptions) {
                             HttpStatusCode.PreconditionFailed,
                             ApiResponse.err(
                                 "PRECONDITION_FAILED",
-                                result.message.ifEmpty { "Message was not provided, this might be a bug!" }
-                            )
+                                result.message.ifEmpty { "Message was not provided, this might be a bug!" },
+                            ),
                         )
                     }
                 }
@@ -328,8 +328,8 @@ val SessionsPlugin = createRouteScopedPlugin("Sessions", ::SessionOptions) {
                     buildJsonObject {
                         put("method", call.request.httpMethod.value)
                         put("uri", call.request.path())
-                    }
-                )
+                    },
+                ),
             )
         }
     }

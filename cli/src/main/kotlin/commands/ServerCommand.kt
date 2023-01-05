@@ -35,32 +35,32 @@ import java.io.File
 class ServerCommand(private val terminal: Terminal): CliktCommand(
     "Bootstrap and starts the server in the same process",
     name = "server",
-    invokeWithoutSubcommand = true
+    invokeWithoutSubcommand = true,
 ) {
     private val logbackPath: File? by option(
         "--logback-config", "-lc",
         help = "Configuration file for customizing charted-server's logging system",
-        envvar = "CHARTED_LOGBACK_CONFIG_PATH"
+        envvar = "CHARTED_LOGBACK_CONFIG_PATH",
     ).file(
         mustExist = true,
         canBeFile = true,
         canBeDir = false,
         mustBeWritable = false,
         mustBeReadable = true,
-        canBeSymlink = true
+        canBeSymlink = true,
     )
 
     private val config: File? by option(
         "--config", "-c",
         help = "The configuration path to use",
-        envvar = "CHARTED_CONFIG_PATH"
+        envvar = "CHARTED_CONFIG_PATH",
     ).file(
         mustExist = false,
         canBeFile = true,
         canBeDir = false,
         mustBeWritable = false,
         mustBeReadable = true,
-        canBeSymlink = true
+        canBeSymlink = true,
     )
 
     override fun run() {
@@ -92,7 +92,7 @@ class ServerCommand(private val terminal: Terminal): CliktCommand(
                 |# Read more on what to configure: https://charts.noelware.org/docs/server/${ChartedInfo.version}/self-hosting/configuration
                 |
                 |jwt_secret_key: $\{JWT_SECRET_KEY:-${RandomStringGenerator.generate(64)}}
-                """.trimMargin("|")
+                """.trimMargin("|"),
             )
         }
 

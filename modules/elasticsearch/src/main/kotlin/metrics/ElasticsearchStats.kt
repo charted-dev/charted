@@ -159,8 +159,8 @@ data class ElasticsearchStats(
                         GaugeMetricFamily(
                             format(ElasticsearchMetricKeys.IndexDeletedDocuments.key, name),
                             "How many documents that were deleted in index [$name]",
-                            index.deletedDocuments.toDouble()
-                        )
+                            index.deletedDocuments.toDouble(),
+                        ),
                     )
                 }
 
@@ -169,8 +169,8 @@ data class ElasticsearchStats(
                         GaugeMetricFamily(
                             format(ElasticsearchMetricKeys.IndexDeletedDocuments.key, name),
                             "How many total documents in index [$name]",
-                            index.documents.toDouble()
-                        )
+                            index.documents.toDouble(),
+                        ),
                     )
                 }
 
@@ -179,8 +179,8 @@ data class ElasticsearchStats(
                         GaugeMetricFamily(
                             format(ElasticsearchMetricKeys.IndexAvgQueryTime.key, name),
                             "Average query time in index [$name]",
-                            index.averageQueryTimeInMs.toDouble()
-                        )
+                            index.averageQueryTimeInMs.toDouble(),
+                        ),
                     )
                 }
 
@@ -189,8 +189,8 @@ data class ElasticsearchStats(
                         GaugeMetricFamily(
                             format(ElasticsearchMetricKeys.IndexHealth.key, name),
                             "Current health for index [$name]",
-                            listOf("health")
-                        ).apply { addMetric(listOf(index.health), 1.0) }
+                            listOf("health"),
+                        ).apply { addMetric(listOf(index.health), 1.0) },
                     )
                 }
 
@@ -199,8 +199,8 @@ data class ElasticsearchStats(
                         GaugeMetricFamily(
                             format(ElasticsearchMetricKeys.IndexSize.key, name),
                             "Index [$name]'s current size (in bytes)",
-                            index.size.toDouble()
-                        )
+                            index.size.toDouble(),
+                        ),
                     )
                 }
 
@@ -209,8 +209,8 @@ data class ElasticsearchStats(
                         GaugeMetricFamily(
                             format(ElasticsearchMetricKeys.IndexUUID.key, name),
                             "Index [$name] UUID",
-                            listOf("uuid")
-                        ).apply { addMetric(listOf(index.uuid), 1.0) }
+                            listOf("uuid"),
+                        ).apply { addMetric(listOf(index.uuid), 1.0) },
                     )
                 }
             }
@@ -221,8 +221,8 @@ data class ElasticsearchStats(
                         GaugeMetricFamily(
                             format(ElasticsearchMetricKeys.NodeDeletedDocuments.key, name),
                             "How many total documents that were deleted in node [$name]",
-                            node.deletedDocuments.toDouble()
-                        )
+                            node.deletedDocuments.toDouble(),
+                        ),
                     )
                 }
 
@@ -231,8 +231,8 @@ data class ElasticsearchStats(
                         GaugeMetricFamily(
                             format(ElasticsearchMetricKeys.NodeDeletedDocuments.key, name),
                             "Average time when indexing documents in node [$name]",
-                            node.averageIndexTimeInMs.toDouble()
-                        )
+                            node.averageIndexTimeInMs.toDouble(),
+                        ),
                     )
                 }
 
@@ -241,8 +241,8 @@ data class ElasticsearchStats(
                         GaugeMetricFamily(
                             format(ElasticsearchMetricKeys.NodeDeletedDocuments.key, name),
                             "CPU percentage that node [$name] is taking up",
-                            node.cpuPercentage
-                        )
+                            node.cpuPercentage,
+                        ),
                     )
                 }
 
@@ -251,8 +251,8 @@ data class ElasticsearchStats(
                         GaugeMetricFamily(
                             format(ElasticsearchMetricKeys.NodeIndexSize.key, name),
                             "Size (in bytes) of all indexes in this node [$name]",
-                            node.totalIndexesSize.toDouble()
-                        )
+                            node.totalIndexesSize.toDouble(),
+                        ),
                     )
                 }
 
@@ -261,8 +261,8 @@ data class ElasticsearchStats(
                         GaugeMetricFamily(
                             format(ElasticsearchMetricKeys.NodeShards.key, name),
                             "Total amount of shards in node [$name]",
-                            node.shards.toDouble()
-                        )
+                            node.shards.toDouble(),
+                        ),
                     )
                 }
             }

@@ -68,7 +68,7 @@ public class Snowflake {
             (id shr 17) and 0b11111,
             (id shr 22) + EPOCH,
             (id shr 12) and 0b11111,
-            id and 0b111111111111
+            id and 0b111111111111,
         )
     }
 }

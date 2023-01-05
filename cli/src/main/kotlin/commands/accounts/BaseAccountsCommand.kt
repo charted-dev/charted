@@ -25,12 +25,12 @@ class BaseAccountsCommand(terminal: Terminal): CliktCommand(
     "CLI management for handling local users on the server. This doesn't apply to any other sessions that can be configured (i.e: LDAP)",
     name = "accounts",
     printHelpOnEmptyArgs = true,
-    invokeWithoutSubcommand = true
+    invokeWithoutSubcommand = true,
 ) {
     init {
         subcommands(
             CreateAccountCommand(terminal),
-            ListAccountsCommand(terminal)
+            ListAccountsCommand(terminal),
         )
     }
 

@@ -93,7 +93,7 @@ class DefaultWebhookEventManager(
             firedAt,
             origin.second,
             data,
-            id.value
+            id.value,
         )
     }
 }

@@ -77,7 +77,7 @@ open class AbstractServerTest {
                 filesystem("./.charted/data")
             }
         },
-        module, testFunction
+        module, testFunction,
     )
 
     companion object {
@@ -98,7 +98,7 @@ open class AbstractServerTest {
         internal val dockerComposeContainer: DockerComposeContainer<*> = DockerComposeContainer(File("src/test/resources/docker-compose.yml")).apply {
             val modules = mutableListOf(
                 "postgres_1" to 5432,
-                "redis_1" to 6379
+                "redis_1" to 6379,
             )
 
             if (includeElasticsearch) {

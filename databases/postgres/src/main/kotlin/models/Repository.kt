@@ -55,7 +55,7 @@ data class Repository(
             entity.flags,
             entity.name,
             entity.type,
-            entity.id.value
+            entity.id.value,
         )
     }
 }

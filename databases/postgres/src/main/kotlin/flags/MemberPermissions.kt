@@ -31,7 +31,7 @@ private val PERMISSIONS: Map<String, Long> = mapOf(
 
     // This member has permission to update the repository (or any repositories if this
     // represents an organization member)
-    "repo:update" to (1L shl 3)
+    "repo:update" to (1L shl 3),
 )
 
 class MemberPermissions(bits: Long = 0): Bitfield(bits, PERMISSIONS)

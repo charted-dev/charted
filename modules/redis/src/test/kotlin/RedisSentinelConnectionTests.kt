@@ -82,7 +82,7 @@ class RedisSentinelConnectionTests {
             null,
             null,
             30,
-            false
+            false,
         )
 
         assertEquals(1, nodes.items.size)
@@ -91,10 +91,10 @@ class RedisSentinelConnectionTests {
                 metadata(
                     V1ObjectMeta().apply {
                         name("redis-system")
-                    }
+                    },
                 )
             },
-            null, null, null, null
+            null, null, null, null,
         )
 
         assertEquals("redis-system", ns.metadata!!.name)
@@ -113,13 +113,13 @@ class RedisSentinelConnectionTests {
                 withContext(Dispatchers.IO) {
                     helmDir.toRealPath()
                 }.toString(),
-                "/root/.config/helm"
+                "/root/.config/helm",
             )
             .withFileSystemBind(
                 withContext(Dispatchers.IO) {
                     cacheDir.toRealPath()
                 }.toString(),
-                "/root/.cache/helm"
+                "/root/.cache/helm",
             )
 
         helmRepoAdd.start()
@@ -134,13 +134,13 @@ class RedisSentinelConnectionTests {
                 withContext(Dispatchers.IO) {
                     helmDir.toRealPath()
                 }.toString(),
-                "/root/.config/helm"
+                "/root/.config/helm",
             )
             .withFileSystemBind(
                 withContext(Dispatchers.IO) {
                     cacheDir.toRealPath()
                 }.toString(),
-                "/root/.cache/helm"
+                "/root/.cache/helm",
             )
 
         helmInstall.start()

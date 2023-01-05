@@ -85,7 +85,7 @@ class DefaultRegistryAuthorizationPolicyManager(
                     ChartedScope.launch {
                         delay(ttl.toDuration(DurationUnit.MILLISECONDS))
                         redis.commands.hdel(redisHashKey, k).await()
-                    }
+                    },
                 )
             }
         }
@@ -155,8 +155,8 @@ class DefaultRegistryAuthorizationPolicyManager(
             .withExpiresAt(Instant.now().plusMillis(expires.inWholeMilliseconds))
             .withHeader(
                 mapOf(
-                    "user" to user.id.value
-                )
+                    "user" to user.id.value,
+                ),
             )
             .sign(algorithm)
 
@@ -164,8 +164,8 @@ class DefaultRegistryAuthorizationPolicyManager(
         redis.commands.hmset(
             redisHashKey,
             mapOf(
-                "users:${user.username}" to json.encodeToString(authorizationToken)
-            )
+                "users:${user.username}" to json.encodeToString(authorizationToken),
+            ),
         )
 
         redis.commands.set("$redisHashKey:users:${user.username}", "<nothing to see here!>", SetArgs().ex(expires.toJavaDuration())).await()
@@ -173,7 +173,7 @@ class DefaultRegistryAuthorizationPolicyManager(
             ChartedScope.launch {
                 delay(expires)
                 redis.commands.hdel(redisHashKey, "users:${user.username}").await()
-            }
+            },
         )
 
         return token

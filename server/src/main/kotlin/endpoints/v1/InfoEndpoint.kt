@@ -68,9 +68,9 @@ class InfoEndpoint: AbstractEndpoint("/info") {
                     ChartedInfo.buildDate,
                     "charted-server",
                     ChartedInfo.version,
-                    "Noelware"
-                )
-            )
+                    "Noelware",
+                ),
+            ),
         )
     }
 }

@@ -69,7 +69,7 @@ data class OperatingSystemMetrics(
             os.version,
             linuxDistro,
             os.arch,
-            os.name
+            os.name,
         )
 
         override fun collect(): MutableList<MetricFamilySamples> = collect(null)

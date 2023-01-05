@@ -42,8 +42,8 @@ class LocalSessionManagerTests {
         val redisClient = DefaultRedisClient(
             RedisConfig(
                 host = redisContainer.host,
-                port = redisContainer.firstMappedPort
-            )
+                port = redisContainer.firstMappedPort,
+            ),
         )
 
         val result = runBlocking {
@@ -60,8 +60,8 @@ class LocalSessionManagerTests {
                             host = redisContainer.host
                             port = redisContainer.firstMappedPort
                         }
-                    }
-                )
+                    },
+                ),
             )
         }
 

@@ -74,6 +74,6 @@ class DefaultStorageHandler(private val config: StorageConfig): StorageHandler {
             .withContentType(contentType)
             .withInputStream(`is`)
             .withPath(path)
-            .build()
+            .build(),
     )
 }

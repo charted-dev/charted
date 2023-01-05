@@ -78,7 +78,7 @@ class AnalyticsDaemon(private val config: NoelwareAnalyticsConfig, private val e
                         DistributionType.RPM -> BuildFlavour.RPM
                         DistributionType.DEB -> BuildFlavour.DEB
                         DistributionType.GIT -> BuildFlavour.GIT
-                    }
+                    },
                 )
 
                 metadata.setProductName("charted-server")

@@ -44,7 +44,7 @@ data class JvmProcessInfoMetrics(
         override val name: String = "process"
         override suspend fun supply(): JvmProcessInfoMetrics = JvmProcessInfoMetrics(
             current.info().startInstant().map { it.toKotlinInstant() }.orElseThrow(),
-            current.pid()
+            current.pid(),
         )
 
         override fun collect(): MutableList<MetricFamilySamples> = collect(null)

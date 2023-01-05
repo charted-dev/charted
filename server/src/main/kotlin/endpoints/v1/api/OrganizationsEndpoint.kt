@@ -232,8 +232,8 @@ class OrganizationsEndpoint(
                     HttpStatusCode.BadRequest,
                     ApiResponse.err(
                         "UNKNOWN_ENTITY",
-                        "Unable to determine if [owner] path param provided is by ID or name, provided [$owner]"
-                    )
+                        "Unable to determine if [owner] path param provided is by ID or name, provided [$owner]",
+                    ),
                 )
 
                 null
@@ -244,8 +244,8 @@ class OrganizationsEndpoint(
                     HttpStatusCode.NotFound,
                     ApiResponse.err(
                         "UNKNOWN_USER",
-                        "User with username [$owner] was not found."
-                    )
+                        "User with username [$owner] was not found.",
+                    ),
                 )
             }
         }
@@ -258,8 +258,8 @@ class OrganizationsEndpoint(
             return call.respond(
                 HttpStatusCode.BadRequest,
                 ApiResponse.err(
-                    "UNKNOWN_ENTITY", "Unable to determine if [organization name] path param provided is a snowflake or name, provided [$name]"
-                )
+                    "UNKNOWN_ENTITY", "Unable to determine if [organization name] path param provided is a snowflake or name, provided [$name]",
+                ),
             )
         }
 
@@ -270,8 +270,8 @@ class OrganizationsEndpoint(
         } ?: return call.respond(
             HttpStatusCode.NotFound,
             ApiResponse.err(
-                "UNKNOWN_ORGANIZATION", "Unable to find organization by owner/name [$owner/$name]"
-            )
+                "UNKNOWN_ORGANIZATION", "Unable to find organization by owner/name [$owner/$name]",
+            ),
         )
 
         call.respond(HttpStatusCode.OK, ApiResponse.ok(organization))
@@ -398,8 +398,8 @@ class OrganizationsEndpoint(
         respond(
             HttpStatusCode.NotFound,
             ApiResponse.err(
-                "UNKNOWN_ORGANIZATION", "Unable to find organization by $by"
-            )
+                "UNKNOWN_ORGANIZATION", "Unable to find organization by $by",
+            ),
         )
 
         null
@@ -412,8 +412,8 @@ class OrganizationsEndpoint(
                     HttpStatusCode.BadRequest,
                     ApiResponse.err(
                         "INVALID_ORGANIZATION_ID",
-                        "Provided organization ID was not a valid snowflake"
-                    )
+                        "Provided organization ID was not a valid snowflake",
+                    ),
                 )
 
                 null
@@ -427,8 +427,8 @@ class OrganizationsEndpoint(
             respond(
                 HttpStatusCode.NotFound,
                 ApiResponse.err(
-                    "MISSING_PARAMETER", "Missing [idOrName] path parameter"
-                )
+                    "MISSING_PARAMETER", "Missing [idOrName] path parameter",
+                ),
             )
 
             null
@@ -442,8 +442,8 @@ class OrganizationsEndpoint(
                     HttpStatusCode.BadRequest,
                     ApiResponse.err(
                         "UNKNOWN_ENTITY",
-                        "Unable to determine if [idOrName] provided is by ID or name, provided [$idOrName]"
-                    )
+                        "Unable to determine if [idOrName] provided is by ID or name, provided [$idOrName]",
+                    ),
                 )
 
                 null

@@ -78,7 +78,7 @@ fun RootDsl.usersApi() {
                         buildJsonObject {
                             put("method", "PUT")
                             put("url", "/users")
-                        }
+                        },
                     )
                 }
             }

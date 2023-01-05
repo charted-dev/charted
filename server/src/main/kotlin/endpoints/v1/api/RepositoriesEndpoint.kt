@@ -327,8 +327,8 @@ class RepositoriesEndpoint(
             HttpStatusCode.NotFound,
             ApiResponse.err(
                 "UNKNOWN_REPO_OWNER",
-                "Repository owner with ID or name [$ownerID] doesn't exist"
-            )
+                "Repository owner with ID or name [$ownerID] doesn't exist",
+            ),
         )
 
         val repoQuery: Op<Boolean> = if (repoID.toNameRegex(false, 24).matches()) {
@@ -343,7 +343,7 @@ class RepositoriesEndpoint(
             }.firstOrNull()?.let { entity -> Repository.fromEntity(entity) }
         } ?: return call.respond(
             HttpStatusCode.NotFound,
-            ApiResponse.err("UNKNOWN_REPOSITORY", "Unable to find repository by ID or name [$repoID]")
+            ApiResponse.err("UNKNOWN_REPOSITORY", "Unable to find repository by ID or name [$repoID]"),
         )
 
         call.respond(HttpStatusCode.OK, ApiResponse.ok(repo))
@@ -367,8 +367,8 @@ class RepositoriesEndpoint(
                 HttpStatusCode.BadRequest,
                 ApiResponse.err(
                     "INVALID_REPOSITORY_ID",
-                    "You will need to specify a Snowflake."
-                )
+                    "You will need to specify a Snowflake.",
+                ),
             )
 
         val patched: UpdateRepositoryBody = call.receive()
@@ -456,13 +456,13 @@ class RepositoriesEndpoint(
         val multipart = call.receiveMultipart()
         val part = multipart.readPart() ?: return call.respond(
             HttpStatusCode.BadRequest,
-            ApiResponse.err("EXCESSIVE_MULTIPART_AMOUNT", "There can be only one multipart in this request.")
+            ApiResponse.err("EXCESSIVE_MULTIPART_AMOUNT", "There can be only one multipart in this request."),
         )
 
         if (part !is PartData.FileItem) {
             return call.respond(
                 HttpStatusCode.NotAcceptable,
-                ApiResponse.err("NOT_FILE_PART", "The multipart object must be a File object.")
+                ApiResponse.err("NOT_FILE_PART", "The multipart object must be a File object."),
             )
         }
 
@@ -491,8 +491,8 @@ class RepositoriesEndpoint(
                 HttpStatusCode.BadRequest,
                 ApiResponse.err(
                     "INVALID_REPOSITORY_ID",
-                    "You will need to specify a Snowflake."
-                )
+                    "You will need to specify a Snowflake.",
+                ),
             )
 
         val repoMembers = asyncTransaction(ChartedScope) {
@@ -501,7 +501,7 @@ class RepositoriesEndpoint(
             }
         } ?: return call.respond(
             HttpStatusCode.NotFound,
-            ApiResponse.err("UNKNOWN_REPOSITORY", "Unable to find repository by ID [$id]")
+            ApiResponse.err("UNKNOWN_REPOSITORY", "Unable to find repository by ID [$id]"),
         )
 
         call.respond(HttpStatusCode.OK, ApiResponse.ok(repoMembers))
@@ -538,8 +538,8 @@ class RepositoriesEndpoint(
                     HttpStatusCode.Unauthorized,
                     ApiResponse.err(
                         "INVALID_PERMISSIONS",
-                        "You do not have permission to invite member [${body.memberId}]"
-                    )
+                        "You do not have permission to invite member [${body.memberId}]",
+                    ),
                 )
             }
 
@@ -551,8 +551,8 @@ class RepositoriesEndpoint(
                 HttpStatusCode.NotFound,
                 ApiResponse.err(
                     "UNKNOWN_USER",
-                    "User with ID [${body.memberId}] doesn't exist"
-                )
+                    "User with ID [${body.memberId}] doesn't exist",
+                ),
             )
 
             val repoMemberId = snowflake.generate()
@@ -632,8 +632,8 @@ class RepositoriesEndpoint(
             HttpStatusCode.BadRequest,
             ApiResponse.err(
                 "INVALID_REPOSITORY_MEMBER_ID",
-                "Provided repository member ID was not a valid snowflake"
-            )
+                "Provided repository member ID was not a valid snowflake",
+            ),
         )
 
         val repository = call.getRepository() ?: return
@@ -645,8 +645,8 @@ class RepositoriesEndpoint(
             HttpStatusCode.NotFound,
             ApiResponse.err(
                 "REPO_MEMBER_NOT_FOUND",
-                "Repository member with ID [$memberId] was not found"
-            )
+                "Repository member with ID [$memberId] was not found",
+            ),
         )
 
         call.respond(HttpStatusCode.OK, ApiResponse.ok(member))
@@ -702,8 +702,8 @@ class RepositoriesEndpoint(
                 HttpStatusCode.BadRequest,
                 ApiResponse.err(
                     "INVALID_SEMVER",
-                    "Version [$version] was not a valid SemVer v2 version"
-                )
+                    "Version [$version] was not a valid SemVer v2 version",
+                ),
             )
         }
 
@@ -791,8 +791,8 @@ class RepositoriesEndpoint(
                     HttpStatusCode.Forbidden,
                     ApiResponse.err(
                         "MISSING_PERMISSIONS",
-                        "You are missing the permission [repo:update] to execute this request"
-                    )
+                        "You are missing the permission [repo:update] to execute this request",
+                    ),
                 )
             }
         }
@@ -800,13 +800,13 @@ class RepositoriesEndpoint(
         val multipart = call.receiveMultipart()
         val part = multipart.readPart() ?: return call.respond(
             HttpStatusCode.BadRequest,
-            ApiResponse.err("EXCESSIVE_MULTIPART_AMOUNT", "There can be only one multipart in this request.")
+            ApiResponse.err("EXCESSIVE_MULTIPART_AMOUNT", "There can be only one multipart in this request."),
         )
 
         if (part !is PartData.FileItem) {
             return call.respond(
                 HttpStatusCode.NotAcceptable,
-                ApiResponse.err("NOT_FILE_PART", "The multipart object must be a File object.")
+                ApiResponse.err("NOT_FILE_PART", "The multipart object must be a File object."),
             )
         }
 
@@ -818,8 +818,8 @@ class RepositoriesEndpoint(
                 HttpStatusCode.BadRequest,
                 ApiResponse.err(
                     "INVALID_SEMVER",
-                    "Version [$version] was not a valid SemVer v2 version"
-                )
+                    "Version [$version] was not a valid SemVer v2 version",
+                ),
             )
         }
 
@@ -848,8 +848,8 @@ class RepositoriesEndpoint(
                 HttpStatusCode.BadRequest,
                 ApiResponse.err(
                     "INVALID_SEMVER",
-                    "Version [$version] was not a valid SemVer v2 version"
-                )
+                    "Version [$version] was not a valid SemVer v2 version",
+                ),
             )
         }
 
@@ -880,8 +880,8 @@ class RepositoriesEndpoint(
                 HttpStatusCode.BadRequest,
                 ApiResponse.err(
                     "INVALID_SEMVER",
-                    "Version [$version] was not a valid SemVer v2 version"
-                )
+                    "Version [$version] was not a valid SemVer v2 version",
+                ),
             )
         }
 
@@ -912,8 +912,8 @@ class RepositoriesEndpoint(
                 HttpStatusCode.BadRequest,
                 ApiResponse.err(
                     "INVALID_SEMVER",
-                    "Version [$version] was not a valid SemVer v2 version"
-                )
+                    "Version [$version] was not a valid SemVer v2 version",
+                ),
             )
         }
 
@@ -944,8 +944,8 @@ class RepositoriesEndpoint(
                 HttpStatusCode.BadRequest,
                 ApiResponse.err(
                     "INVALID_SEMVER",
-                    "Version [$version] was not a valid SemVer v2 version"
-                )
+                    "Version [$version] was not a valid SemVer v2 version",
+                ),
             )
         }
 
@@ -1027,8 +1027,8 @@ class RepositoriesEndpoint(
                     HttpStatusCode.Forbidden,
                     ApiResponse.err(
                         "INVALID_REPOSITORY_ACCESS",
-                        "You don't have access to view this repository"
-                    )
+                        "You don't have access to view this repository",
+                    ),
                 )
 
                 return PreconditionResult.Failed()
@@ -1047,8 +1047,8 @@ class RepositoriesEndpoint(
                     HttpStatusCode.BadRequest,
                     ApiResponse.err(
                         "INVALID_REPOSITORY_ID",
-                        "Provided repository ID was not a valid snowflake"
-                    )
+                        "Provided repository ID was not a valid snowflake",
+                    ),
                 )
 
                 null
@@ -1061,8 +1061,8 @@ class RepositoriesEndpoint(
                 HttpStatusCode.NotFound,
                 ApiResponse.err(
                     "UNKNOWN_REPOSITORY",
-                    "Repository with ID [$id] was not found."
-                )
+                    "Repository with ID [$id] was not found.",
+                ),
             )
 
             null

@@ -49,7 +49,7 @@ class ChartedAnalyticsExtension(private val metrics: MetricsSupport): Extension<
             stats["process"] as JvmProcessInfoMetrics,
             stats["threads"] as JvmThreadsMetrics,
             stats["redis"] as RedisServerStats,
-            stats["os"] as OperatingSystemMetrics
+            stats["os"] as OperatingSystemMetrics,
         )
     }
 

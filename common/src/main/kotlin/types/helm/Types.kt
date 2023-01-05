@@ -37,6 +37,7 @@ import org.noelware.charted.extensions.toUriOrNull
  * @param version The version key to make up this enum.
  */
 @Serializable(with = ChartSpecVersion.Companion::class)
+@Suppress("ktlint:no-semi")
 public enum class ChartSpecVersion(private val version: String) {
     V2("v1"),
     V3("v2");
@@ -51,6 +52,7 @@ public enum class ChartSpecVersion(private val version: String) {
 }
 
 @Serializable
+@Suppress("ktlint:no-semi")
 public enum class RepoType {
     @SerialName("application")
     APPLICATION,

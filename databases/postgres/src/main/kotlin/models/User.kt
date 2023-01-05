@@ -28,8 +28,8 @@ class UserFlags(original: Long = 0): Bitfield(
     original,
     mapOf(
         "ADMIN" to (1L shl 0),
-        "VERIFIED_PUBLISHER" to (1L shl 1)
-    )
+        "VERIFIED_PUBLISHER" to (1L shl 1),
+    ),
 )
 
 @Serializable
@@ -61,7 +61,7 @@ data class User(
             entity.username,
             entity.flags,
             entity.name,
-            entity.id.value
+            entity.id.value,
         )
     }
 

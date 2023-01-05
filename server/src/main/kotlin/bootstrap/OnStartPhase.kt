@@ -35,7 +35,7 @@ object OnStartPhase: BootstrapPhase() {
         { i: Any -> i is StackOverflowError } to 126,
         { i: Any -> i is UnknownError } to 125,
         { i: Any -> i is IOError } to 124,
-        { i: Any -> i is LinkageError } to 123
+        { i: Any -> i is LinkageError } to 123,
     )
 
     // credit: https://github.com/elastic/logstash/blob/main/logstash-core/src/main/java/org/logstash/Logstash.java#L98-L133

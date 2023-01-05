@@ -256,8 +256,8 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
                     lowLevelClient, ElasticsearchNodesSniffer.DEFAULT_SNIFF_REQUEST_TIMEOUT,
                     config.ssl?.ifNotNull {
                         ElasticsearchNodesSniffer.Scheme.HTTPS
-                    } ?: ElasticsearchNodesSniffer.Scheme.HTTP
-                )
+                    } ?: ElasticsearchNodesSniffer.Scheme.HTTP,
+                ),
             )
             .setSniffAfterFailureDelayMillis(30000).build()
 
@@ -327,7 +327,7 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
                 queries,
                 health,
                 size,
-                uuid!!
+                uuid!!,
             )
         }
 
@@ -348,7 +348,7 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
                 cpuPercentage,
                 totalIndexes,
                 documents,
-                shards
+                shards,
             )
         }
 
@@ -443,7 +443,7 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
                                 sw.suspend()
                                 log.info("Performed request [$request] with [${response.statusLine}], took ${sw.doFormatTime()} to complete.")
                             }
-                        }
+                        },
                     )
                 }
 

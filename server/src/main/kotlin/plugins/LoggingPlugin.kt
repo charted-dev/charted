@@ -63,7 +63,7 @@ val Logging = createApplicationPlugin("ChartedKtorLogging") {
             m.serverRequests.inc()
             call.attributes.put(
                 histogramKey,
-                m.serverRequestLatency.labels(call.request.httpMethod.value, call.request.path(), call.request.httpVersion).startTimer()
+                m.serverRequestLatency.labels(call.request.httpMethod.value, call.request.path(), call.request.httpVersion).startTimer(),
             )
         }
     }
@@ -80,7 +80,7 @@ val Logging = createApplicationPlugin("ChartedKtorLogging") {
         stopwatch.stop()
         histogram?.observeDuration()
         log.info(
-            "${method.value} $version $endpoint :: ${status.value} ${status.description} [$userAgent] [${stopwatch.doFormatTime()}]"
+            "${method.value} $version $endpoint :: ${status.value} ${status.description} [$userAgent] [${stopwatch.doFormatTime()}]",
         )
     }
 }

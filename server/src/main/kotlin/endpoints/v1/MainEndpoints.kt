@@ -80,9 +80,9 @@ class MainEndpoint(private val config: Config): AbstractEndpoint("/") {
                 MainResponse(
                     message = "Hello, world! \uD83D\uDC4B",
                     tagline = "You know, for Helm charts?",
-                    docs = "https://charts.noelware.org/docs"
-                )
-            )
+                    docs = "https://charts.noelware.org/docs",
+                ),
+            ),
         )
     }
 
@@ -99,9 +99,9 @@ class MainEndpoint(private val config: Config): AbstractEndpoint("/") {
                     config.features.contains(ServerFeature.WEBHOOKS),
                     config.inviteOnly,
                     mapOf(),
-                    config.search != null && (config.search!!.elasticsearch != null || config.search!!.meilisearch != null)
-                )
-            )
+                    config.search != null && (config.search!!.elasticsearch != null || config.search!!.meilisearch != null),
+                ),
+            ),
         )
     }
 
@@ -131,7 +131,7 @@ class MainEndpoint(private val config: Config): AbstractEndpoint("/") {
                 ContentType.parse("text/yaml; charset=utf-8")
             } else {
                 ContentType.Application.Json
-            }
+            },
         )
     }
 

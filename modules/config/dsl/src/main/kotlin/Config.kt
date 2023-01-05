@@ -241,7 +241,7 @@ public data class Config(
             _server,
             _search,
             _redis,
-            _smtp
+            _smtp,
         )
     }
 

@@ -50,6 +50,7 @@ import kotlinx.serialization.encoding.Encoder
  * - `charted_es_node_%s_cpu_percentage`    :: CPU percentage that this node is taking up
  */
 @Serializable(with = ElasticsearchMetricKeysSerializer::class)
+@Suppress("ktlint:no-semi")
 public enum class ElasticsearchMetricKeys(public val key: String) {
     // === Index-related Keys ===
     IndexDeletedDocuments("charted_es_index_%s_deleted_documents"),

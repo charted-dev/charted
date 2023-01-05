@@ -130,7 +130,7 @@ class DefaultRedisClient(config: RedisConfig): RedisClient {
             stats["uptime_in_seconds"]?.toLong()?.toDuration(DurationUnit.SECONDS)?.inWholeMilliseconds ?: -1,
             stats["redis_version"] ?: "unknown",
             stats["redis_mode"] ?: "unknown",
-            ping
+            ping,
         )
     }
 

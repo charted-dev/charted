@@ -21,7 +21,7 @@ import org.noelware.charted.common.Bitfield
 
 private val FLAGS = mapOf(
     "PRIVATE" to (1L shl 0), // Organization is private and only the members who are in the organization has access to its repositories.
-    "EXPERIMENTS" to (1L shl 1) // This organization has access to experimental features and can be enabled from the dashboard (/organizations/:name/settings#experimental)
+    "EXPERIMENTS" to (1L shl 1), // This organization has access to experimental features and can be enabled from the dashboard (/organizations/:name/settings#experimental)
 )
 
 class OrganizationFlags(originalBits: Long = 0): Bitfield(originalBits, FLAGS)

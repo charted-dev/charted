@@ -86,8 +86,8 @@ fun RootDsl.mainEndpoints() {
                     MainResponse(
                         message = "Hello, world! \uD83D\uDC4B",
                         tagline = "You know, for Helm charts?",
-                        docs = "https://charts.noelware.org/docs"
-                    )
+                        docs = "https://charts.noelware.org/docs",
+                    ),
                 )
             }
         }
@@ -108,8 +108,8 @@ fun RootDsl.mainEndpoints() {
                         integrations = mapOf(),
                         auditLogs = true,
                         webhooks = false,
-                        search = true
-                    )
+                        search = true,
+                    ),
                 )
             }
         }
@@ -158,8 +158,8 @@ fun RootDsl.mainEndpoints() {
                         buildDate = ChartedInfo.buildDate,
                         product = "charted-server",
                         version = ChartedInfo.version,
-                        vendor = "Noelware"
-                    )
+                        vendor = "Noelware",
+                    ),
                 )
             }
         }

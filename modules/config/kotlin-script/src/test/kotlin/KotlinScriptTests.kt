@@ -78,7 +78,7 @@ class KotlinScriptTests {
             |    password = "iceiscutieuwu"
             |  }
             |}
-            """.trimMargin("|")
+            """.trimMargin("|"),
             )
         }
 

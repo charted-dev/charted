@@ -25,7 +25,7 @@ import org.noelware.charted.databases.postgres.entities.UserEntity
 class ListAccountsCommand(private val terminal: Terminal): AccountsAwareCommand(
     terminal,
     "list",
-    "Lists all the managed accounts by the database."
+    "Lists all the managed accounts by the database.",
 ) {
     override fun run(): Unit = setup {
         // Get all accounts available

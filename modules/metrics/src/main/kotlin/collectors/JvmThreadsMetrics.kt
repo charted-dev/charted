@@ -115,7 +115,7 @@ data class JvmThreadsMetrics(
                             element.methodName,
                             element.fileName,
                             element.lineNumber,
-                            element.isNativeMethod
+                            element.isNativeMethod,
                         )
                     },
 
@@ -125,7 +125,7 @@ data class JvmThreadsMetrics(
                     it.isDaemon,
                     it.threadState.name,
                     it.threadName,
-                    it.threadId
+                    it.threadId,
                 )
             }
 
@@ -133,7 +133,7 @@ data class JvmThreadsMetrics(
                 threads.threadCount,
                 threads.peakThreadCount,
                 threads.daemonThreadCount,
-                infos
+                infos,
             )
         }
 

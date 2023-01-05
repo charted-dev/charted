@@ -21,6 +21,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
+@Suppress("ktlint:no-semi")
 enum class WebhookActionKind {
     @SerialName("repo.modify")
     REPO_MODIFY,

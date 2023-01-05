@@ -51,7 +51,7 @@ data class UserConnections(
             entity.appleAccountID,
             entity.createdAt,
             entity.updatedAt,
-            entity.id.value
+            entity.id.value,
         )
     }
 }

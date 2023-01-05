@@ -64,7 +64,7 @@ public data class DatabaseConfig(
             database,
             schema,
             host,
-            port
+            port,
         )
     }
 }

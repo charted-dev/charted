@@ -43,7 +43,7 @@ data class OrganizationMember(
             entity.updatedAt,
             entity.joinedAt,
             User.fromEntity(entity.account),
-            entity.id.value
+            entity.id.value,
         )
     }
 }

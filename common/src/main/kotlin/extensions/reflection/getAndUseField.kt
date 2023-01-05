@@ -28,5 +28,5 @@ import org.noelware.charted.common.ReflectionUtils
 public inline fun <reified U, T> T.getAndUseField(fieldName: String): U? = ReflectionUtils.getAndUseField(
     this,
     U::class.java,
-    fieldName
+    fieldName,
 )

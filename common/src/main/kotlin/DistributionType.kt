@@ -25,6 +25,7 @@ import kotlinx.serialization.Serializable
  * @param key The key to retrieve the enumeration member.
  */
 @Serializable
+@Suppress("ktlint:no-semi")
 public enum class DistributionType(private val key: String) {
     /**
      * Distribution type is running on a Kubernetes cluster

@@ -210,10 +210,10 @@ class ApiKeysEndpoint(
                                 "UNKNOWN_BITFIELD_FLAG", "Bitfield flag [$key] doesn't exist in as a API key scope",
                                 buildJsonObject {
                                     put("provided", JsonArray(keys.toList().map { JsonPrimitive(it) }))
-                                }
+                                },
                             )
-                        }
-                    )
+                        },
+                    ),
                 )
             }
         }
@@ -256,7 +256,7 @@ class ApiKeysEndpoint(
         val token = call.attributes.getOrNull(API_KEY_KEY)
             ?: return call.respond(
                 HttpStatusCode.Forbidden,
-                ApiResponse.err("MUST_USE_API_KEY", "You need to supply a API key, not a session token to delete it.")
+                ApiResponse.err("MUST_USE_API_KEY", "You need to supply a API key, not a session token to delete it."),
             )
 
         asyncTransaction(ChartedScope) {
@@ -265,7 +265,7 @@ class ApiKeysEndpoint(
 
         call.respond(
             HttpStatusCode.Accepted,
-            ApiResponse.ok()
+            ApiResponse.ok(),
         )
     }
 }

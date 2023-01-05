@@ -43,7 +43,7 @@ class LdapSessionManagerTests {
             RedisConfig {
                 host = redisContainer.host
                 port = redisContainer.getMappedPort(6379)
-            }
+            },
         )
     }
 
@@ -61,7 +61,7 @@ class LdapSessionManagerTests {
                         port = ldapContainer.getMappedPort(1389)
                     }
                 }
-            }
+            },
         )
     }
 
@@ -71,7 +71,7 @@ class LdapSessionManagerTests {
             UserEntity(EntityID(0L, UserTable)).apply {
                 username = "boel"
             },
-            "1234"
+            "1234",
         )
     }
 
@@ -86,8 +86,8 @@ class LdapSessionManagerTests {
                     "LDAP_ADMIN_PASSWORD" to "admin",
                     "LDAP_USERS" to "noel,test2",
                     "LDAP_PASSWORDS" to "noeliscutieuwu,owodauwu",
-                    "LDAP_ROOT" to "dc=noelware,dc=dev"
-                )
+                    "LDAP_ROOT" to "dc=noelware,dc=dev",
+                ),
             )
         } // LDAP_ROOT
 
@@ -97,8 +97,8 @@ class LdapSessionManagerTests {
             withExposedPorts(6379)
             withEnv(
                 mapOf(
-                    "REDIS_PASSWORD" to "bestpasswordever"
-                )
+                    "REDIS_PASSWORD" to "bestpasswordever",
+                ),
             )
         }
     }

@@ -34,7 +34,7 @@ import java.nio.charset.Charset
 class GenerateConfigCommand(private val terminal: Terminal): CliktCommand(
     "Generates a configuration file in the specified [DEST]",
     name = "generate",
-    invokeWithoutSubcommand = true
+    invokeWithoutSubcommand = true,
 ) {
     private val dest: File by argument("dest")
         .file(
@@ -43,7 +43,7 @@ class GenerateConfigCommand(private val terminal: Terminal): CliktCommand(
             canBeDir = false,
             mustBeWritable = false,
             mustBeReadable = false,
-            canBeSymlink = false
+            canBeSymlink = false,
         )
 
     override fun run() {
@@ -55,7 +55,7 @@ class GenerateConfigCommand(private val terminal: Terminal): CliktCommand(
 
         val yaml = Yaml(
             EmptySerializersModule(),
-            YamlConfiguration(encodeDefaults = true)
+            YamlConfiguration(encodeDefaults = true),
         )
 
         if (!dest.createNewFile()) {
