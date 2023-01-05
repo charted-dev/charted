@@ -20,7 +20,6 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.noelware.charted.gradle.*
 import dev.floofy.utils.gradle.*
-import gradle.kotlin.dsl.accessors._fc464f49b3e1cb9e5054ed823dd0353e.java
 
 plugins {
     kotlin("plugin.serialization")
