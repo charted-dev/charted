@@ -39,7 +39,7 @@ on:
     - cron: '21 2 * * 4'
 jobs:
   codeql:
-    name: Analyze
+    name: Analyze (Java ${{matrix.java-version}}, ${{matrix.languages}})
     runs-on: ubuntu-latest
     permissions:
       security-events: write
@@ -49,7 +49,7 @@ jobs:
       fail-fast: false
       matrix:
         java-version: [17, 19]
-        languages: [java, kotlin]
+        languages: [java]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
