@@ -38,38 +38,38 @@ on:
   schedule:
     - cron: '21 2 * * 4'
 jobs:
-  codeql:
-    name: Analyze (Java ${{matrix.java-version}}, ${{matrix.languages}})
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-      contents: read
-      actions: read
-    strategy:
-      fail-fast: false
-      matrix:
-        java-version: [17, 19]
-        languages: [java]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Setup Java ${{ matrix.java-version }}
-        uses: actions/setup-java@v3
-        with:
-          java-version: ${{ matrix.java-version }}
-          distribution: temurin
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
-        with:
-          languages: ${{ matrix.languages }}
-
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v2
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+#  codeql:
+#    name: Analyze (Java ${{matrix.java-version}}, ${{matrix.languages}})
+#    runs-on: ubuntu-latest
+#    permissions:
+#      security-events: write
+#      contents: read
+#      actions: read
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        java-version: [17, 19]
+#        languages: [java]
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v3
+#
+#      - name: Setup Java ${{ matrix.java-version }}
+#        uses: actions/setup-java@v3
+#        with:
+#          java-version: ${{ matrix.java-version }}
+#          distribution: temurin
+#
+#      - name: Initialize CodeQL
+#        uses: github/codeql-action/init@v2
+#        with:
+#          languages: ${{ matrix.languages }}
+#
+#      - name: Autobuild
+#        uses: github/codeql-action/autobuild@v2
+#
+#      - name: Perform CodeQL Analysis
+#        uses: github/codeql-action/analyze@v2
   qodana-jvm:
     name: Qodana JVM
     runs-on: ubuntu-latest
