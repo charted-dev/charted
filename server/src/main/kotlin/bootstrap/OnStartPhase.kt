@@ -55,7 +55,7 @@ object OnStartPhase : BootstrapPhase() {
             } else {
                 log.error("Uncaught exception occurred in thread [${thread.name} (#${thread.id}):", ex)
 
-                val hadStarted = hasStarted.get()
+                val hadStarted = hasStarted.value
                 if (!hadStarted && (thread.name matches "Server-(Shutdown|Bootstrap)Thread".toRegex())) {
                     exitProcess(128)
                 }

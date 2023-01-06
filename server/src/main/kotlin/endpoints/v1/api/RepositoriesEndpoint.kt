@@ -61,6 +61,7 @@ import org.noelware.charted.server.plugins.PreconditionResult
 import org.noelware.charted.server.plugins.SessionsPlugin
 import org.noelware.charted.server.plugins.currentUser
 import org.noelware.charted.types.helm.RepoType
+import org.noelware.charted.types.responses.ApiError
 import org.noelware.charted.types.responses.ApiResponse
 import org.noelware.ktor.body
 import org.noelware.ktor.endpoints.*
@@ -1013,7 +1014,7 @@ class RepositoriesEndpoint(
     // +==============================+
 
     private suspend fun checkRepositoryPermissionOnCurrentUser(call: ApplicationCall): PreconditionResult {
-        val repository = call.getRepository() ?: return PreconditionResult.Failed()
+        val repository = call.getRepository() ?: return PreconditionResult.Failed(ApiError.EMPTY, HttpStatusCode.NotFound)
         if (call.currentUser != null && repository.owner == call.currentUser!!.id) return PreconditionResult.Success
 
         // Check if the repository is private and the user is a member
@@ -1031,7 +1032,7 @@ class RepositoriesEndpoint(
                     ),
                 )
 
-                return PreconditionResult.Failed()
+                return PreconditionResult.Failed(ApiError.EMPTY, HttpStatusCode.Forbidden)
             }
 
             call.attributes.put(repositoryMemberAttribute, RepositoryMember.fromEntity(member))

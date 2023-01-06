@@ -24,10 +24,12 @@ import kotlinx.serialization.json.JsonPrimitive
  * Converts a [List]<[String]> into a [JsonArray]
  * @return [JsonArray] of the resulting [List]<[String]>
  */
+@JvmName("toJsonStringArray")
 public fun List<String>.toJsonArray(): JsonArray = map { JsonPrimitive(it) }.toJsonArray()
 
 /**
  * Converts a [List]<[JsonPrimitive]> into a [JsonArray]
  * @return [JsonArray] of the resulting [List]<[JsonPrimitive]>
  */
+@JvmName("toJsonPrimitiveArray")
 public fun List<JsonPrimitive>.toJsonArray(): JsonArray = JsonArray(this)

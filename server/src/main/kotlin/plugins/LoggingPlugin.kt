@@ -45,12 +45,12 @@ val Logging = createApplicationPlugin("ChartedKtorLogging") {
         val time = (System.nanoTime() - bootTime).doFormatTime()
 
         log.info("API server has started [$time]")
-        hasStarted.set(true)
+        hasStarted.value = true
     }
 
     environment?.monitor?.subscribe(ApplicationStopped) {
         log.warn("API server has been stopped!")
-        hasStarted.set(false)
+        hasStarted.value = false
     }
 
     onCall { call ->
