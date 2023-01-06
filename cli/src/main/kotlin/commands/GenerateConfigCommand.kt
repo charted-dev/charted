@@ -31,7 +31,7 @@ import org.noelware.charted.configuration.kotlin.dsl.Config
 import java.io.File
 import java.nio.charset.Charset
 
-class GenerateConfigCommand(private val terminal: Terminal): CliktCommand(
+class GenerateConfigCommand(private val terminal: Terminal) : CliktCommand(
     "Generates a configuration file in the specified [DEST]",
     name = "generate",
     invokeWithoutSubcommand = true,

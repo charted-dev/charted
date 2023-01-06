@@ -17,4 +17,13 @@
 
 package org.noelware.charted.modules.sessions.integrations
 
-interface IntegrationSupport
+import io.ktor.server.application.*
+import org.noelware.charted.modules.sessions.Session
+
+/**
+ * Represents an interface that implements support for multiple integrations. For now, this integration
+ * interface is only for session management.
+ */
+interface IntegrationSupport {
+    suspend fun doAuthorize(call: ApplicationCall): Session?
+}

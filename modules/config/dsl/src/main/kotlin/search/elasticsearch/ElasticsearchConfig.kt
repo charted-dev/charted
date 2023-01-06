@@ -26,7 +26,7 @@ public data class ElasticsearchConfig(
     val ssl: ElasticsearchSSLConfig? = null
 ) {
     @Suppress("MemberVisibilityCanBePrivate")
-    public class Builder: org.noelware.charted.common.Builder<ElasticsearchConfig> {
+    public class Builder : org.noelware.charted.common.Builder<ElasticsearchConfig> {
         private val nodes = mutableListOf<String>()
         private var _auth: AuthenticationStrategy = AuthenticationStrategy.None
         private var ssl: ElasticsearchSSLConfig? = null

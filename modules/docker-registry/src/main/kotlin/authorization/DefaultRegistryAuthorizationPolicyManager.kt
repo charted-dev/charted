@@ -54,7 +54,7 @@ class DefaultRegistryAuthorizationPolicyManager(
     private val redis: RedisClient,
     private val json: Json,
     config: Config
-): RegistryAuthorizationPolicyManager {
+) : RegistryAuthorizationPolicyManager {
     private val algorithm: Algorithm = Algorithm.HMAC512(config.jwtSecretKey)
     private val expirationJobs = mutableListOf<Job>()
     private val redisHashKey = "charted:docker_registry:tokens"

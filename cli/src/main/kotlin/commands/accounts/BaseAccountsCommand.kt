@@ -21,7 +21,7 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.mordant.terminal.Terminal
 
-class BaseAccountsCommand(terminal: Terminal): CliktCommand(
+class BaseAccountsCommand(terminal: Terminal) : CliktCommand(
     "CLI management for handling local users on the server. This doesn't apply to any other sessions that can be configured (i.e: LDAP)",
     name = "accounts",
     printHelpOnEmptyArgs = true,

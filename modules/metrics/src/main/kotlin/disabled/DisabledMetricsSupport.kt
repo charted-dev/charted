@@ -21,9 +21,9 @@ import org.noelware.charted.modules.metrics.Collector
 import org.noelware.charted.modules.metrics.MetricsSupport
 import kotlin.reflect.KClass
 
-class DisabledMetricsSupport: MetricsSupport {
+class DisabledMetricsSupport : MetricsSupport {
     override val collectors: List<Collector<*>> = listOf()
     override suspend fun collect(): Map<String, Any> = mapOf()
-    override suspend fun <U: Any> collectFrom(collector: KClass<Collector<U>>): U? = null
+    override suspend fun <U : Any> collectFrom(collector: KClass<Collector<U>>): U? = null
     override fun add(collector: Collector<*>) {}
 }

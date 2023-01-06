@@ -38,7 +38,7 @@ import kotlin.system.exitProcess
 private val OPERATING_SYSTEM = OperatingSystem.current()
 private val ARCH = Architecture.current()
 
-class ClickHouseMigrationsCommand(private val terminal: Terminal): CliktCommand(
+class ClickHouseMigrationsCommand(private val terminal: Terminal) : CliktCommand(
     """
 This command will run all the necessary ClickHouse migrations that need to be performed on the ClickHouse
 cluster.

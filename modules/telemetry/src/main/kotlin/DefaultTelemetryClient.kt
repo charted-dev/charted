@@ -22,7 +22,7 @@ import io.ktor.client.*
 import io.ktor.client.request.*
 import org.noelware.charted.configuration.kotlin.dsl.Config
 
-class DefaultTelemetryClient(config: Config, private val httpClient: HttpClient): TelemetryClient {
+class DefaultTelemetryClient(config: Config, private val httpClient: HttpClient) : TelemetryClient {
     private val log by logging<DefaultTelemetryClient>()
     override val enabled: Boolean = config.telemetry
 

@@ -44,6 +44,7 @@ data class Organization(
 
     @SerialName("icon_hash")
     val iconHash: String? = null,
+    val owner: User,
     val flags: Long,
     val name: String,
     val id: Long
@@ -57,6 +58,7 @@ data class Organization(
             entity.createdAt,
             entity.updatedAt,
             entity.iconHash,
+            User.fromEntity(entity.owner),
             entity.flags,
             entity.name,
             entity.id.value,

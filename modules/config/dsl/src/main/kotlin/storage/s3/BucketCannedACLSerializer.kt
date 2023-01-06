@@ -25,7 +25,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import software.amazon.awssdk.services.s3.model.BucketCannedACL
 
-public object BucketCannedACLSerializer: KSerializer<BucketCannedACL> {
+public object BucketCannedACLSerializer : KSerializer<BucketCannedACL> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("s3.BucketCannedACL", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: BucketCannedACL) {

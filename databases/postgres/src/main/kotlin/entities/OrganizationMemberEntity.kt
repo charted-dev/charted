@@ -22,8 +22,8 @@ import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.noelware.charted.databases.postgres.tables.OrganizationMemberTable
 
-class OrganizationMemberEntity(id: EntityID<Long>): LongEntity(id) {
-    companion object: LongEntityClass<OrganizationMemberEntity>(OrganizationMemberTable)
+class OrganizationMemberEntity(id: EntityID<Long>) : LongEntity(id) {
+    companion object : LongEntityClass<OrganizationMemberEntity>(OrganizationMemberTable)
 
     var publicVisibility by OrganizationMemberTable.publicVisibility
     var organization by OrganizationEntity referencedOn OrganizationMemberTable.organization

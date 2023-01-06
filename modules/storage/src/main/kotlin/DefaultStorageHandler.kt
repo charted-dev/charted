@@ -32,7 +32,7 @@ import org.noelware.remi.support.gcs.GoogleCloudStorageService
 import org.noelware.remi.support.s3.AmazonS3StorageService
 import java.io.InputStream
 
-class DefaultStorageHandler(private val config: StorageConfig): StorageHandler {
+class DefaultStorageHandler(private val config: StorageConfig) : StorageHandler {
     private val _service: SetOnce<StorageService<*>> = SetOnce()
     private val log by logging<DefaultStorageHandler>()
 

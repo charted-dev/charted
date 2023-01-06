@@ -55,7 +55,7 @@ data class InfoResponse(
     val vendor: String
 )
 
-class InfoEndpoint: AbstractEndpoint("/info") {
+class InfoEndpoint : AbstractEndpoint("/info") {
     @Get
     @Traced
     suspend fun main(call: ApplicationCall) {

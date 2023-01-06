@@ -26,7 +26,7 @@ import kotlin.jvm.Throws
  * Represents an abstraction layer over the ClickHouse server itself. You can execute
  * arbitrary queries with this interface.
  */
-interface ClickHouseConnection: Closeable {
+interface ClickHouseConnection : Closeable {
     /**
      * Returns the version of the server that it is running on. **charted-server** requires
      * the server version to be higher than v22.6

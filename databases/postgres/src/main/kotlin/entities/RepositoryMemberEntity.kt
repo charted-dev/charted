@@ -22,8 +22,8 @@ import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.noelware.charted.databases.postgres.tables.RepositoryMemberTable
 
-class RepositoryMemberEntity(id: EntityID<Long>): LongEntity(id) {
-    companion object: LongEntityClass<RepositoryMemberEntity>(RepositoryMemberTable)
+class RepositoryMemberEntity(id: EntityID<Long>) : LongEntity(id) {
+    companion object : LongEntityClass<RepositoryMemberEntity>(RepositoryMemberTable)
 
     var publicVisibility by RepositoryMemberTable.publicVisibility
     var displayName by RepositoryMemberTable.displayName

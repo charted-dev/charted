@@ -25,7 +25,7 @@ import org.noelware.charted.server.ChartedServer
 import org.noelware.charted.server.internal.analytics.AnalyticsDaemonThread
 import java.io.File
 
-object StartServerPhase: BootstrapPhase() {
+object StartServerPhase : BootstrapPhase() {
     internal val analyticsDaemonThread: AnalyticsDaemonThread? by lazy {
         val instance: AnalyticsDaemon? by injectOrNull()
         instance.ifNotNull { AnalyticsDaemonThread(this) }

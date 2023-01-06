@@ -28,7 +28,7 @@ public data class MetricSets(
     val postgres: List<PostgresMetricKeys> = listOf(),
     val redis: List<RedisMetricKeys> = listOf()
 ) {
-    public class Builder: org.noelware.charted.common.Builder<MetricSets> {
+    public class Builder : org.noelware.charted.common.Builder<MetricSets> {
         private val _elasticsearch: MutableList<ElasticsearchMetricKeys> = mutableListOf()
         private val _postgres: MutableList<PostgresMetricKeys> = mutableListOf()
         private val _redis: MutableList<RedisMetricKeys> = mutableListOf()

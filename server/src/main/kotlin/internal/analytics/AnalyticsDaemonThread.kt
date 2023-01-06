@@ -20,7 +20,7 @@ package org.noelware.charted.server.internal.analytics
 import dev.floofy.utils.slf4j.logging
 import org.noelware.charted.modules.analytics.AnalyticsDaemon
 
-class AnalyticsDaemonThread(private val daemon: AnalyticsDaemon): Thread("Charted-AnalyticsProtocolDaemon") {
+class AnalyticsDaemonThread(private val daemon: AnalyticsDaemon) : Thread("Charted-AnalyticsProtocolDaemon") {
     private val log by logging<AnalyticsDaemonThread>()
 
     init {

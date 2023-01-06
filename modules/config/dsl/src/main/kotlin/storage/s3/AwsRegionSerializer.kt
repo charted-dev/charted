@@ -28,7 +28,7 @@ import software.amazon.awssdk.regions.Region
 /**
  * kotlinx.serialization serializer for [Region].
  */
-public object AwsRegionSerializer: KSerializer<Region> {
+public object AwsRegionSerializer : KSerializer<Region> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("aws.Region", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: Region) {

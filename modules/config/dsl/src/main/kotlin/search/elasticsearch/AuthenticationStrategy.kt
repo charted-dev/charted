@@ -82,17 +82,17 @@ public enum class AuthStrategyType {
 public sealed class AuthenticationStrategy(public val type: AuthStrategyType) {
     // tricks the serialization compiler (for now), but we are using our own serializer for this
     @Suppress("unused")
-    private constructor(): this(AuthStrategyType.Unknown)
+    private constructor() : this(AuthStrategyType.Unknown)
 
     @Serializable
-    public object None: AuthenticationStrategy(AuthStrategyType.None)
+    public object None : AuthenticationStrategy(AuthStrategyType.None)
 
     @Serializable
     public class Cloud(
         @Serializable(with = SecretStringSerializer::class)
         @SerialName("cloud_id")
         public val id: String
-    ): AuthenticationStrategy(AuthStrategyType.Cloud)
+    ) : AuthenticationStrategy(AuthStrategyType.Cloud)
 
     @Serializable
     public class Basic(
@@ -101,16 +101,16 @@ public sealed class AuthenticationStrategy(public val type: AuthStrategyType) {
 
         @Serializable(with = SecretStringSerializer::class)
         public val password: String
-    ): AuthenticationStrategy(AuthStrategyType.Basic)
+    ) : AuthenticationStrategy(AuthStrategyType.Basic)
 
     @Serializable
     public class ApiKey(
         @Serializable(with = SecretStringSerializer::class)
         @SerialName("api_key")
         public val key: String
-    ): AuthenticationStrategy(AuthStrategyType.ApiKey)
+    ) : AuthenticationStrategy(AuthStrategyType.ApiKey)
 
-    public companion object: KSerializer<AuthenticationStrategy> {
+    public companion object : KSerializer<AuthenticationStrategy> {
         override val descriptor: SerialDescriptor = buildClassSerialDescriptor("charted.elasticsearch.AuthStrategy") {
             element("type", AuthStrategyType.serializer().descriptor)
             element("cloud_id", SecretStringSerializer.descriptor, isOptional = true)

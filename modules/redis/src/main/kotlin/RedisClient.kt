@@ -24,7 +24,7 @@ import java.io.Closeable
 /**
  * Represents a wrapper over Lettuce's low-level client.
  */
-interface RedisClient: Closeable {
+interface RedisClient : Closeable {
     /**
      * Returns all the commands you can execute on the Redis server.
      */

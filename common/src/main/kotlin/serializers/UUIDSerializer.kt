@@ -32,7 +32,7 @@ import java.util.UUID
  */
 @OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = UUID::class)
-public object UUIDSerializer: KSerializer<UUID> {
+public object UUIDSerializer : KSerializer<UUID> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("java.UUID", PrimitiveKind.STRING)
     override fun deserialize(decoder: Decoder): UUID = UUID.fromString(decoder.decodeString())
     override fun serialize(encoder: Encoder, value: UUID) {

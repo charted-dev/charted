@@ -37,7 +37,7 @@ public data class ClickHouseConfig(
     val port: Int = 8123
 ) {
     @Suppress("MemberVisibilityCanBePrivate")
-    public class Builder: org.noelware.charted.common.Builder<ClickHouseConfig> {
+    public class Builder : org.noelware.charted.common.Builder<ClickHouseConfig> {
         /** Username for connecting to ClickHouse if authentication is enabled. */
         public var username: String? = null
 

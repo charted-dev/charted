@@ -23,7 +23,7 @@ import java.io.Closeable
 /**
  * Represents the policy manager for all [RegistryAuthorizationToken(s)][RegistryAuthorizationToken]
  */
-interface RegistryAuthorizationPolicyManager: Closeable {
+interface RegistryAuthorizationPolicyManager : Closeable {
     fun isTokenExpired(token: String?): Boolean
     fun isTokenValid(token: String?): Boolean
     suspend fun doAuthorize(header: String?): RegistryAuthorizationToken?

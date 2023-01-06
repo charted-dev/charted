@@ -40,8 +40,8 @@ data class OperatingSystemMetrics(
     val distro: String?,
     val arch: String,
     val name: String
-): org.noelware.analytics.jvm.server.serialization.Serializable {
-    class Collector: org.noelware.charted.modules.metrics.Collector<OperatingSystemMetrics>, io.prometheus.client.Collector() {
+) : org.noelware.analytics.jvm.server.serialization.Serializable {
+    class Collector : org.noelware.charted.modules.metrics.Collector<OperatingSystemMetrics>, io.prometheus.client.Collector() {
         override val name: String = "os"
 
         private val os = ManagementFactory.getOperatingSystemMXBean()

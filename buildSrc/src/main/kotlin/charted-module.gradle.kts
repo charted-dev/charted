@@ -67,6 +67,8 @@ dependencies {
 }
 
 spotless {
+    ratchetFrom("origin/main")
+    encoding("UTF-8")
     kotlin {
         licenseHeaderFile("${rootProject.projectDir}/assets/HEADING")
         trimTrailingWhitespace()
@@ -91,12 +93,12 @@ spotless {
                 "experimental:unnecessary-parentheses-before-trailing-lambda" to "true",
 
                 // == disabled rules ==
-//                "colon-spacing" to "disabled",
-//                "annotation-spacing" to "disabled",
-//                "filename" to "disabled",
-//                "no-wildcard-imports" to "disabled",
-//                "argument-list-wrapping" to "disabled",
-//                "experimental:property-naming" to "disabled"
+//                "ktlint_standard_colon-spacing" to "disabled",
+//                "ktlint_standard_annotation-spacing" to "disabled",
+//                "ktlint_standard_filename" to "disabled",
+//                "ktlint_standard_no-wildcard-imports" to "disabled",
+//                "ktlint_standard_argument-list-wrapping" to "disabled",
+//                "ktlint_experimental_property-naming" to "disabled"
             ))
         }
     }

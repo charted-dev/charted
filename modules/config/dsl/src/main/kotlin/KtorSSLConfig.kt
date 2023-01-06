@@ -32,7 +32,7 @@ public data class KtorSSLConfig(
     val sslPort: Int = 8443
 ) {
     @Suppress("MemberVisibilityCanBePrivate")
-    public class Builder: org.noelware.charted.common.Builder<KtorSSLConfig> {
+    public class Builder : org.noelware.charted.common.Builder<KtorSSLConfig> {
         public var keystore: String = "./ssl.keystore.jks"
         public var password: String? = null
         public var port: Int = 8443

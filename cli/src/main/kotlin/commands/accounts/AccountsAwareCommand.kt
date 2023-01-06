@@ -42,7 +42,7 @@ import java.io.File
 import kotlin.system.exitProcess
 import kotlin.time.Duration.Companion.seconds
 
-abstract class AccountsAwareCommand(private val terminal: Terminal, name: String, help: String = ""): CliktCommand(help, name = name) {
+abstract class AccountsAwareCommand(private val terminal: Terminal, name: String, help: String = "") : CliktCommand(help, name = name) {
     private val configOption: File? by option(
         "--config", "-c",
         help = "The configuration path to use",

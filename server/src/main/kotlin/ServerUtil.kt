@@ -24,14 +24,14 @@ import io.ktor.utils.io.*
 import io.ktor.utils.io.pool.ByteBufferPool
 import io.sentry.Sentry
 import io.sentry.kotlin.SentryContext
+import kotlinx.atomicfu.AtomicBoolean
 import kotlinx.atomicfu.atomic
 import org.noelware.charted.ChartedScope
 import java.io.ByteArrayInputStream
 import java.io.InputStream
-import java.util.concurrent.atomic.AtomicBoolean
 
 /** Returns a [AtomicBoolean] of if the server has started. */
-val hasStarted: AtomicBoolean = AtomicBoolean(false)
+val hasStarted: AtomicBoolean = atomic(false)
 
 /** The boot time (in nanoseconds) */
 val bootTime: Long = System.nanoTime()
@@ -42,14 +42,14 @@ internal val requestHandledAtomic = atomic(0L)
 val requests: Long
     get() = requestHandledAtomic.value
 
-fun <T: InputStream> createKtorContentWithInputStream(
+fun <T : InputStream> createKtorContentWithInputStream(
     `is`: T,
     contentType: ContentType,
     contentLength: Long = `is`.available().toLong(),
     status: HttpStatusCode = HttpStatusCode.OK
 ): OutgoingContent.ReadChannelContent {
     check(contentLength != 0L) { "Content-Length can't be 0" }
-    return object: OutgoingContent.ReadChannelContent() {
+    return object : OutgoingContent.ReadChannelContent() {
         override val contentType: ContentType = contentType
         override val contentLength: Long = contentLength
         override val status: HttpStatusCode = status
@@ -65,11 +65,10 @@ fun createKtorContentWithByteArray(
     contentType: ContentType,
     contentLength: Long = bytes.size.toLong(),
     status: HttpStatusCode = HttpStatusCode.OK
-): OutgoingContent.ReadChannelContent = object: OutgoingContent.ReadChannelContent() {
+): OutgoingContent.ReadChannelContent = object : OutgoingContent.ReadChannelContent() {
     override val contentType: ContentType = contentType
     override val contentLength: Long = contentLength
     override val status: HttpStatusCode = status
-
     override fun readFrom(): ByteReadChannel = ByteArrayInputStream(bytes).toByteReadChannel(
         ByteBufferPool(4092, 8192),
         if (Sentry.isEnabled()) SentryContext() + ChartedScope.coroutineContext else ChartedScope.coroutineContext,

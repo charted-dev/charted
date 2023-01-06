@@ -53,7 +53,7 @@ class DefaultHelmChartModule(
     private val storage: StorageHandler,
     private val config: Config,
     private val yaml: Yaml
-): HelmChartModule {
+) : HelmChartModule {
     private val log by logging<DefaultHelmChartModule>()
 
     /**

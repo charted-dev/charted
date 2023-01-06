@@ -57,7 +57,7 @@ abstract class SessionManager(
     private val json: Json,
     key: String,
     config: Config
-): Closeable {
+) : Closeable {
     private val expirationJobs: MutableMap<UUID, Job> = mutableMapOf()
     private val algorithm: Algorithm = Algorithm.HMAC512(config.jwtSecretKey)
     private val log by logging<SessionManager>()

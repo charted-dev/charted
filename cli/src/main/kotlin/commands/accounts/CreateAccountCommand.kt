@@ -40,7 +40,7 @@ import org.noelware.charted.modules.storage.DefaultStorageHandler
 import org.noelware.charted.snowflake.Snowflake
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
 
-class CreateAccountCommand(private val terminal: Terminal): AccountsAwareCommand(terminal, "create", "Creates an account in the database") {
+class CreateAccountCommand(private val terminal: Terminal) : AccountsAwareCommand(terminal, "create", "Creates an account in the database") {
     private val username: String by argument("username", "The user's username")
     private val email: String by argument("email", "The user's email")
     private val passwordArgument: String? by argument("password", "The user's password to use, you can use the `-x`/`--stdin` flags to do the same").optional()

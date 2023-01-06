@@ -29,7 +29,7 @@ import kotlin.reflect.typeOf
  * Represents the generator
  */
 object Generator {
-    inline fun <reified T: Any> generate(cls: KClass<T>): String {
+    inline fun <reified T : Any> generate(cls: KClass<T>): String {
         println("Generating Rust stub for class $cls!")
 
         if (cls.java.isEnum) {

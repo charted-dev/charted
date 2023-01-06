@@ -109,7 +109,7 @@ class RepositoriesEndpoint(
     private val emails: EmailService? = null,
     private val webhooks: WebhookEventManager? = null,
     private val clickhouse: ClickHouseConnection? = null
-): AbstractEndpoint("/repositories") {
+) : AbstractEndpoint("/repositories") {
     // Not used at the moment since I don't really know how to design this, yet.
 //    private val repositoriesCache: CoroutinesBasedCaffeineCache<Long, Repository> = CoroutinesBasedCaffeineCache(
 //        ChartedScope + CoroutineName("Server-RepositoryCache"),

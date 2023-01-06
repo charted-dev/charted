@@ -23,7 +23,7 @@ import org.koin.core.logger.Level
 import org.koin.core.logger.Logger
 import org.koin.core.logger.MESSAGE
 
-object KoinLogger: Logger() {
+object KoinLogger : Logger() {
     private val log by logging<Koin>()
     override fun display(level: Level, msg: MESSAGE) = when (level) {
         Level.WARNING -> log.warn(msg)

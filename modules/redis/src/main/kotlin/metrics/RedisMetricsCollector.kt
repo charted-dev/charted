@@ -25,7 +25,7 @@ import org.noelware.charted.configuration.kotlin.dsl.metrics.keys.RedisMetricKey
 import org.noelware.charted.modules.metrics.Collector
 import org.noelware.charted.modules.redis.RedisClient
 
-class RedisMetricsCollector(private val redis: RedisClient, private val config: MetricsConfig): Collector<RedisServerStats>, io.prometheus.client.Collector() {
+class RedisMetricsCollector(private val redis: RedisClient, private val config: MetricsConfig) : Collector<RedisServerStats>, io.prometheus.client.Collector() {
     override val name: String = "redis"
     override suspend fun supply(): RedisServerStats = redis.stats()
 

@@ -25,7 +25,7 @@ import org.noelware.charted.configuration.kotlin.dsl.Config
 import java.io.File
 import java.nio.file.Files
 
-class YamlConfigurationHost(private val yaml: Yaml = Yaml.default): ConfigurationHost {
+class YamlConfigurationHost(private val yaml: Yaml = Yaml.default) : ConfigurationHost {
     private val log by logging<YamlConfigurationHost>()
     override fun load(path: String): Config? {
         var realPath = File(path)

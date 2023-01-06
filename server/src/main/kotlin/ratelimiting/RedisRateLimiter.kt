@@ -51,7 +51,7 @@ class RedisRateLimiter(
     private val json: Json,
     private val rateLimitKey: String,
     private val timeWindow: Duration = 1.hours
-): RateLimiter {
+) : RateLimiter {
     override suspend fun tryConsume(tokens: Int): RateLimiter.State {
         // Check if the given IP has a state already
         return RateLimiter.State.Available(0, 0, 0)

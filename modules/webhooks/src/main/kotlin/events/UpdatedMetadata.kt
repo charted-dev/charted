@@ -37,7 +37,7 @@ import org.noelware.charted.serializers.AnySerializer
 class UpdatedMetadata(val new: New, val old: Old) {
     // to trick the serialization compiler
     @Suppress("UNUSED")
-    constructor(): this(New(mapOf()), Old(mapOf()))
+    constructor() : this(New(mapOf()), Old(mapOf()))
 
     /**
      * Collection of new data that was updated on the server.
@@ -61,7 +61,7 @@ class UpdatedMetadata(val new: New, val old: Old) {
      */
     @Serializable(with = New.Companion::class)
     class New(val data: Map<String, @Serializable(with = AnySerializer::class) Any>) {
-        companion object: KSerializer<New> {
+        companion object : KSerializer<New> {
             private val realSerializer = MapSerializer(String.serializer(), AnySerializer)
 
             override val descriptor: SerialDescriptor = realSerializer.descriptor
@@ -94,7 +94,7 @@ class UpdatedMetadata(val new: New, val old: Old) {
      */
     @Serializable(with = Old.Companion::class)
     class Old(val data: Map<String, @Serializable(with = AnySerializer::class) Any>) {
-        companion object: KSerializer<Old> {
+        companion object : KSerializer<Old> {
             private val realSerializer = MapSerializer(String.serializer(), AnySerializer)
 
             override val descriptor: SerialDescriptor = realSerializer.descriptor
@@ -108,7 +108,7 @@ class UpdatedMetadata(val new: New, val old: Old) {
     /**
      * Serializer for [UpdatedMetadata].
      */
-    class Serializer: KSerializer<UpdatedMetadata> {
+    class Serializer : KSerializer<UpdatedMetadata> {
         override val descriptor: SerialDescriptor = buildClassSerialDescriptor("charted.webhooks.UpdatedMetadata") {
             element<New>("new")
             element<Old>("old")

@@ -42,7 +42,7 @@ import kotlin.time.toJavaDuration
 
 private const val API_KEY_EXPIRATION_KEY = "charted:apikeys:expiration"
 
-class DefaultApiKeyManager(private val redis: RedisClient): ApiKeyManager {
+class DefaultApiKeyManager(private val redis: RedisClient) : ApiKeyManager {
     private val expirationJobs: MutableMap<Long, Job> = mutableMapOf()
     private val log by logging<DefaultApiKeyManager>()
 

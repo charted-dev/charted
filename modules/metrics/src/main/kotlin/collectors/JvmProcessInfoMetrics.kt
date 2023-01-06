@@ -31,13 +31,13 @@ import org.noelware.charted.modules.analytics.kotlin.dsl.toGrpcValue
 data class JvmProcessInfoMetrics(
     val startTime: Instant,
     val pid: Long
-): org.noelware.analytics.jvm.server.serialization.Serializable {
+) : org.noelware.analytics.jvm.server.serialization.Serializable {
     override fun toGrpcValue(): Value = Struct {
         put(this, JvmProcessInfoMetrics::startTime)
         put(this, JvmProcessInfoMetrics::pid)
     }.toGrpcValue()
 
-    class Collector: org.noelware.charted.modules.metrics.Collector<JvmProcessInfoMetrics>, io.prometheus.client.Collector() {
+    class Collector : org.noelware.charted.modules.metrics.Collector<JvmProcessInfoMetrics>, io.prometheus.client.Collector() {
         private val current: ProcessHandle
             get() = ProcessHandle.current()
 

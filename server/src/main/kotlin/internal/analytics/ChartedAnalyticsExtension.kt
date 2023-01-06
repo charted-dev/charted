@@ -30,7 +30,7 @@ import org.noelware.charted.modules.metrics.collectors.JvmThreadsMetrics
 import org.noelware.charted.modules.metrics.collectors.OperatingSystemMetrics
 import org.noelware.charted.modules.redis.metrics.RedisServerStats
 
-class ChartedAnalyticsExtension(private val metrics: MetricsSupport): Extension<ChartedAnalyticsExtension.Data> {
+class ChartedAnalyticsExtension(private val metrics: MetricsSupport) : Extension<ChartedAnalyticsExtension.Data> {
     /**
      * Returns the name of this [Extension] to be used in the final result when
      * sending out this extension's data.
@@ -60,7 +60,7 @@ class ChartedAnalyticsExtension(private val metrics: MetricsSupport): Extension<
         val threads: JvmThreadsMetrics,
         val redis: RedisServerStats,
         val os: OperatingSystemMetrics
-    ): Serializable {
+    ) : Serializable {
         override fun toGrpcValue(): Value = Struct {
             put(this, Data::elasticsearch)
             put(this, Data::postgres)

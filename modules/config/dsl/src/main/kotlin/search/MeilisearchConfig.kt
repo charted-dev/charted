@@ -33,7 +33,7 @@ public data class MeilisearchConfig(
     }
 
     @Suppress("MemberVisibilityCanBePrivate")
-    public class Builder: org.noelware.charted.common.Builder<MeilisearchConfig> {
+    public class Builder : org.noelware.charted.common.Builder<MeilisearchConfig> {
         public var masterKey: String? = null
         public var endpoint: String = "http://localhost:7700"
 

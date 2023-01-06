@@ -25,7 +25,7 @@ public data class SessionsConfig(
     val type: SessionType = SessionType.Local
 ) {
     @Suppress("MemberVisibilityCanBePrivate")
-    public class Builder: org.noelware.charted.common.Builder<SessionsConfig> {
+    public class Builder : org.noelware.charted.common.Builder<SessionsConfig> {
         private var _ldap: LDAPSessionConfig? = null
         public var type: SessionType = SessionType.Local
 

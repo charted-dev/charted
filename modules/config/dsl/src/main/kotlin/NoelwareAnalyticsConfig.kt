@@ -44,7 +44,7 @@ public data class NoelwareAnalyticsConfig(
     }
 
     @Suppress("MemberVisibilityCanBePrivate")
-    public class Builder: org.noelware.charted.common.Builder<NoelwareAnalyticsConfig> {
+    public class Builder : org.noelware.charted.common.Builder<NoelwareAnalyticsConfig> {
         public var serviceToken: String by Delegates.notNull()
         public var endpoint: String = "https://analytics.noelware.org"
         public var port: Int = 10234

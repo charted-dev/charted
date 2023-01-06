@@ -38,7 +38,7 @@ public enum class PostgresMetricKeys(public val key: String) {
     Version("charted_postgres_version");
 }
 
-internal object PostgresMetricKeysSerializer: KSerializer<PostgresMetricKeys> {
+internal object PostgresMetricKeysSerializer : KSerializer<PostgresMetricKeys> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("charted.metrics.PostgresKeys", PrimitiveKind.STRING)
     override fun deserialize(decoder: Decoder): PostgresMetricKeys {
         val key = decoder.decodeString()

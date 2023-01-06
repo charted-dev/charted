@@ -20,7 +20,7 @@ package org.noelware.charted.databases.postgres.tables
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.noelware.charted.databases.postgres.SnowflakeTable
 
-object ApiKeysTable: SnowflakeTable("api_keys") {
+object ApiKeysTable : SnowflakeTable("api_keys") {
     val description = varchar("description", 140).nullable().default(null)
     val expiresIn = datetime("expires_in").nullable().default(null)
     val scopes = long("scopes").default(0L)

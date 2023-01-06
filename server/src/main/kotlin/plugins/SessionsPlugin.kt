@@ -21,7 +21,6 @@ import com.auth0.jwt.exceptions.JWTDecodeException
 import com.auth0.jwt.exceptions.TokenExpiredException
 import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.koin.inject
-import dev.floofy.utils.kotlin.ifNotNull
 import dev.floofy.utils.slf4j.logging
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -37,28 +36,40 @@ import org.noelware.charted.common.lazy.Lazy
 import org.noelware.charted.databases.postgres.entities.ApiKeyEntity
 import org.noelware.charted.databases.postgres.entities.UserEntity
 import org.noelware.charted.databases.postgres.flags.ApiKeyScopes
-import org.noelware.charted.databases.postgres.models.ApiKeys
 import org.noelware.charted.databases.postgres.models.User
-import org.noelware.charted.databases.postgres.models.bitfield
 import org.noelware.charted.databases.postgres.tables.ApiKeysTable
 import org.noelware.charted.modules.sessions.Session
 import org.noelware.charted.modules.sessions.SessionManager
+import org.noelware.charted.types.responses.ApiError
 import org.noelware.charted.types.responses.ApiResponse
 
 val SESSIONS_KEY: AttributeKey<Session> = AttributeKey("Session")
-val API_KEY_KEY: AttributeKey<ApiKeys> = AttributeKey("ApiKey")
+val API_KEY_KEY: AttributeKey<ApiKeyEntity> = AttributeKey("ApiKey")
 
 /**
- * Returns the current user that this endpoint is running as.
+ * Same as [currentUserEntity] but returns a safe-serializable [User] entity.
  */
 val ApplicationCall.currentUser: User?
     // Since it can get expensive on the session side, we do it lazily and fetch it whenever we need it.
+    get() = currentUserEntity?.let { entity -> User.fromEntity(entity) }
+
+/**
+ * Returns the current [UserEntity] by the [SESSIONS_KEY] or [API_KEY_KEY] which
+ * is determined by the [SessionsPlugin].
+ */
+val ApplicationCall.currentUserEntity: UserEntity?
     get() = Lazy.create {
-        attributes.getOrNull(SESSIONS_KEY).ifNotNull {
-            transaction {
-                UserEntity.findById(userID)?.let { User.fromEntity(it) }
-            }
-        } ?: attributes.getOrNull(API_KEY_KEY).ifNotNull { owner }
+        if (attributes.contains(SESSIONS_KEY)) {
+            val attr: Session = attributes[SESSIONS_KEY]
+            return@create transaction { UserEntity.findById(attr.userID) }
+        }
+
+        if (attributes.contains(API_KEY_KEY)) {
+            val attr: ApiKeyEntity = attributes[API_KEY_KEY]
+            return@create attr.owner
+        }
+
+        null
     }.get()
 
 /**
@@ -68,13 +79,21 @@ sealed class PreconditionResult {
     /**
      * Represents the precondition checks have succeeded.
      */
-    internal object Success: PreconditionResult()
+    object Success : PreconditionResult()
 
     /**
      * Represents a precondition that has failed.
-     * @param message The message to send if the call wasn't handled.
      */
-    internal class Failed(val message: String = ""): PreconditionResult()
+    class Failed(val error: ApiError, val statusCode: HttpStatusCode = HttpStatusCode.PreconditionFailed) : PreconditionResult() {
+        constructor(code: String, message: String, detail: Any? = null) : this(ApiError(code, message, detail))
+
+        constructor(
+            statusCode: HttpStatusCode,
+            code: String,
+            message: String,
+            detail: Any? = null
+        ) : this(ApiError(code, message, detail), statusCode)
+    }
 }
 
 /**
@@ -212,11 +231,8 @@ val SessionsPlugin = createRouteScopedPlugin("Sessions", ::SessionOptions) {
                             if (call.isHandled) return@onCall
 
                             call.respond(
-                                HttpStatusCode.PreconditionFailed,
-                                ApiResponse.err(
-                                    "PRECONDITION_FAILED",
-                                    result.message.ifEmpty { "Message was not provided, this might be a bug!" },
-                                ),
+                                result.statusCode,
+                                ApiResponse.err(result.error),
                             )
                         }
                     }
@@ -253,7 +269,6 @@ val SessionsPlugin = createRouteScopedPlugin("Sessions", ::SessionOptions) {
             "ApiKey" -> {
                 val apiKey = asyncTransaction(ChartedScope) {
                     ApiKeyEntity.find { ApiKeysTable.token eq CryptographyUtils.sha256Hex(token) }.firstOrNull()
-                        ?.let { entity -> ApiKeys.fromEntity(entity, true) }
                 } ?: return@onCall call.respond(
                     HttpStatusCode.NotFound,
                     ApiResponse.err(
@@ -280,7 +295,7 @@ val SessionsPlugin = createRouteScopedPlugin("Sessions", ::SessionOptions) {
                     )
                 }
 
-                val bits = apiKey.bitfield
+                val bits = ApiKeyScopes(apiKey.scopes)
                 for (bit in pluginConfig.scopes.enabledFlags()) {
                     if (!bits.has(bit)) {
                         call.respond(
@@ -310,11 +325,8 @@ val SessionsPlugin = createRouteScopedPlugin("Sessions", ::SessionOptions) {
                         if (call.isHandled) return@onCall
 
                         call.respond(
-                            HttpStatusCode.PreconditionFailed,
-                            ApiResponse.err(
-                                "PRECONDITION_FAILED",
-                                result.message.ifEmpty { "Message was not provided, this might be a bug!" },
-                            ),
+                            result.statusCode,
+                            ApiResponse.err(result.error),
                         )
                     }
                 }

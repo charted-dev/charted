@@ -22,7 +22,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.noelware.charted.databases.postgres.SnowflakeTable
 import java.time.LocalDateTime
 
-object UserConnectionsTable: SnowflakeTable("user_connections") {
+object UserConnectionsTable : SnowflakeTable("user_connections") {
     val noelwareAccountID = long("noelware_account_id").nullable().default(null)
     val googleAccountID = text("google_account_id").nullable().default(null)
     val githubAccountID = text("github_account_id").nullable().default(null)

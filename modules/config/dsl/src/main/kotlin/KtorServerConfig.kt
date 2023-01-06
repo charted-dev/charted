@@ -111,7 +111,7 @@ public data class KtorServerConfig(
     val rateLimit: ServerRateLimitConfig? = null
 ) {
     @Suppress("MemberVisibilityCanBePrivate")
-    public class Builder: org.noelware.charted.common.Builder<KtorServerConfig> {
+    public class Builder : org.noelware.charted.common.Builder<KtorServerConfig> {
         /**
          * If we should add additional security headers to the response.
          */

@@ -29,7 +29,7 @@ import kotlin.test.assertTrue
 
 @Testcontainers(disabledWithoutDocker = true)
 @DisabledOnOs(architectures = ["aarch64", "arm64"], disabledReason = "docker/compose Docker image doesn't support ARM")
-class IsAdminGuardTests: AbstractServerTest() {
+class IsAdminGuardTests : AbstractServerTest() {
     @Test
     fun `bail out with no authentication and non-acceptable auth`() = withChartedServer {
         // The session middleware runs first, and we don't have an [Authorization] header,

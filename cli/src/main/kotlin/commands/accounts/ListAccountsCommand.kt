@@ -22,7 +22,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.noelware.charted.cli.logger
 import org.noelware.charted.databases.postgres.entities.UserEntity
 
-class ListAccountsCommand(private val terminal: Terminal): AccountsAwareCommand(
+class ListAccountsCommand(private val terminal: Terminal) : AccountsAwareCommand(
     terminal,
     "list",
     "Lists all the managed accounts by the database.",

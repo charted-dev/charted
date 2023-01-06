@@ -21,7 +21,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 public data class TracingConfig(val apm: ElasticAPMConfig? = null) {
-    public class Builder: org.noelware.charted.common.Builder<TracingConfig> {
+    public class Builder : org.noelware.charted.common.Builder<TracingConfig> {
         private var _apm: ElasticAPMConfig? = null
 
         public fun apm(builder: ElasticAPMConfig.Builder.() -> Unit = {}): Builder {

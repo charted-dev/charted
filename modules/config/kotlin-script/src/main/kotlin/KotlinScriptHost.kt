@@ -31,7 +31,7 @@ import kotlin.script.experimental.jvm.jvm
 import kotlin.script.experimental.jvmhost.BasicJvmScriptingHost
 import kotlin.script.experimental.jvmhost.createJvmCompilationConfigurationFromTemplate
 
-object KotlinScriptHost: ConfigurationHost {
+object KotlinScriptHost : ConfigurationHost {
     private val log by logging<KotlinScriptHost>()
 
     override fun load(path: String): Config? = load0(File(path))

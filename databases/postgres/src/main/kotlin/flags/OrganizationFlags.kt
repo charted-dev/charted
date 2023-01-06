@@ -24,4 +24,4 @@ private val FLAGS = mapOf(
     "EXPERIMENTS" to (1L shl 1), // This organization has access to experimental features and can be enabled from the dashboard (/organizations/:name/settings#experimental)
 )
 
-class OrganizationFlags(originalBits: Long = 0): Bitfield(originalBits, FLAGS)
+class OrganizationFlags(originalBits: Long = 0) : Bitfield(originalBits, FLAGS)

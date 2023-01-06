@@ -21,7 +21,7 @@ import kotlinx.serialization.Serializable
 import org.noelware.charted.common.Bitfield
 
 /** Represents a [Bitfield] of the available authorization scopes a user can access */
-class RegistryAuthorizationScopes(bits: Long = 0L): Bitfield(
+class RegistryAuthorizationScopes(bits: Long = 0L) : Bitfield(
     bits,
     mapOf(
         "push" to (1L shl 0),

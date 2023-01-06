@@ -20,6 +20,7 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":test:framework"))
     implementation(libs.testcontainers.junit)
     implementation(libs.testcontainers.core)
     implementation(libs.junit.jupiter.api)

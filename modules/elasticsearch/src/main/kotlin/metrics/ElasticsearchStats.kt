@@ -44,7 +44,7 @@ import java.lang.String.format
 data class ElasticsearchStats(
     val indexes: Map<String, IndexStats> = mapOf(),
     val nodes: Map<String, NodeStats> = mapOf()
-): org.noelware.analytics.jvm.server.serialization.Serializable {
+) : org.noelware.analytics.jvm.server.serialization.Serializable {
     override fun toGrpcValue(): Value = Struct {
         put(this, ElasticsearchStats::indexes)
         put(this, ElasticsearchStats::nodes)
@@ -73,7 +73,7 @@ data class ElasticsearchStats(
         val health: String,
         val size: Long,
         val uuid: String
-    ): org.noelware.analytics.jvm.server.serialization.Serializable {
+    ) : org.noelware.analytics.jvm.server.serialization.Serializable {
         override fun toGrpcValue(): Value = Struct {
             put(this, IndexStats::averageQueryTimeInMs)
             put(this, IndexStats::deletedDocuments)
@@ -110,7 +110,7 @@ data class ElasticsearchStats(
         val totalIndexesSize: Long,
         val documents: Long,
         val shards: Long
-    ): org.noelware.analytics.jvm.server.serialization.Serializable {
+    ) : org.noelware.analytics.jvm.server.serialization.Serializable {
         override fun toGrpcValue(): Value = Struct {
             put(this, NodeStats::averageIndexTimeInMs)
             put(this, NodeStats::totalIndexesSize)
@@ -123,7 +123,7 @@ data class ElasticsearchStats(
     class Collector(
         private val elasticsearch: ElasticsearchModule,
         private val config: Config
-    ): org.noelware.charted.modules.metrics.Collector<ElasticsearchStats>, io.prometheus.client.Collector() {
+    ) : org.noelware.charted.modules.metrics.Collector<ElasticsearchStats>, io.prometheus.client.Collector() {
         override val name: String = "elasticsearch"
         override suspend fun supply(): ElasticsearchStats = elasticsearch.stats()
 

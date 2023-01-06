@@ -72,7 +72,7 @@ public enum class ElasticsearchMetricKeys(public val key: String) {
     Wildcard("*");
 }
 
-internal object ElasticsearchMetricKeysSerializer: KSerializer<ElasticsearchMetricKeys> {
+internal object ElasticsearchMetricKeysSerializer : KSerializer<ElasticsearchMetricKeys> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("charted.metrics.ElasticsearchMetricsKeys", PrimitiveKind.STRING)
     override fun deserialize(decoder: Decoder): ElasticsearchMetricKeys {
         val key = decoder.decodeString()

@@ -39,7 +39,7 @@ public data class ElasticsearchSSLConfig(
     val caPath: String
 ) {
     @Suppress("MemberVisibilityCanBePrivate")
-    public class Builder: org.noelware.charted.common.Builder<ElasticsearchSSLConfig> {
+    public class Builder : org.noelware.charted.common.Builder<ElasticsearchSSLConfig> {
         public var validateHostnames: Boolean = false
         public var keystorePassword: String? = null
         public var caPath: String by Delegates.notNull()

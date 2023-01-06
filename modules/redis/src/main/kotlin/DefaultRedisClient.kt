@@ -35,7 +35,7 @@ import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 import io.lettuce.core.RedisClient as LettuceRedisClient
 
-class DefaultRedisClient(config: RedisConfig): RedisClient {
+class DefaultRedisClient(config: RedisConfig) : RedisClient {
     private val _connection: SetOnce<StatefulRedisConnection<String, String>> = SetOnce()
     private val _commands: SetOnce<RedisAsyncCommands<String, String>> = SetOnce()
     private val client: LettuceRedisClient

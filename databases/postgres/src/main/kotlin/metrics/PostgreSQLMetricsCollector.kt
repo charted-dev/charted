@@ -31,7 +31,7 @@ import org.noelware.charted.databases.postgres.entities.UserEntity
 import org.noelware.charted.modules.metrics.Collector
 import kotlin.time.Duration.Companion.milliseconds
 
-class PostgreSQLMetricsCollector(private val config: Config): Collector<PostgresServerStats>, io.prometheus.client.Collector() {
+class PostgreSQLMetricsCollector(private val config: Config) : Collector<PostgresServerStats>, io.prometheus.client.Collector() {
     override val name: String = "postgresql"
     override suspend fun supply(): PostgresServerStats = transaction {
         val organizations = OrganizationEntity.count()

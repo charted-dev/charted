@@ -24,7 +24,7 @@ import java.io.Closeable
 /**
  * Represents the actual server definition.
  */
-interface ChartedServer: Closeable {
+interface ChartedServer : Closeable {
     /**
      * Checks if the server has started or not.
      */

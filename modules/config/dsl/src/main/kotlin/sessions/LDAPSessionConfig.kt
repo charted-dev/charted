@@ -42,7 +42,7 @@ public data class LDAPSessionConfig(
     }
 
     @Suppress("MemberVisibilityCanBePrivate")
-    public class Builder: org.noelware.charted.common.Builder<LDAPSessionConfig> {
+    public class Builder : org.noelware.charted.common.Builder<LDAPSessionConfig> {
         public val domainComponents: MutableList<String> = mutableListOf()
         public var organizationUnit: String by Delegates.notNull()
         public var credentials: String? = null

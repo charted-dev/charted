@@ -36,7 +36,7 @@ import org.noelware.charted.extensions.ifSentryEnabled
 import java.sql.Connection
 import kotlin.time.Duration.Companion.seconds
 
-class DefaultClickHouseConnection(private val config: ClickHouseConfig): ClickHouseConnection {
+class DefaultClickHouseConnection(private val config: ClickHouseConfig) : ClickHouseConnection {
     private val _serverVersion: SetOnce<String> = SetOnce()
     private val _dataSource: SetOnce<HikariDataSource> = SetOnce()
     private val _closed: AtomicBoolean = atomic(false)

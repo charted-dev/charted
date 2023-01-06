@@ -18,3 +18,8 @@
 plugins {
     `charted-module`
 }
+
+dependencies {
+    api(project(":modules:sessions"))
+    api(libs.ktor.server.core)
+}

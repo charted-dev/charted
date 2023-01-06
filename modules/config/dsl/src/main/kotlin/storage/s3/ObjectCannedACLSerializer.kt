@@ -29,7 +29,7 @@ import software.amazon.awssdk.services.s3.model.ObjectCannedACL
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = ObjectCannedACL::class)
-public object ObjectCannedACLSerializer: KSerializer<ObjectCannedACL> {
+public object ObjectCannedACLSerializer : KSerializer<ObjectCannedACL> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("aws.s3.ObjectCannedACL", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: ObjectCannedACL) {

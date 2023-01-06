@@ -23,8 +23,8 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.noelware.charted.databases.postgres.tables.OrganizationMemberTable
 import org.noelware.charted.databases.postgres.tables.OrganizationTable
 
-class OrganizationEntity(id: EntityID<Long>): LongEntity(id) {
-    companion object: LongEntityClass<OrganizationEntity>(OrganizationTable)
+class OrganizationEntity(id: EntityID<Long>) : LongEntity(id) {
+    companion object : LongEntityClass<OrganizationEntity>(OrganizationTable)
 
     var verifiedPublisher by OrganizationTable.verifiedPublisher
     var twitterHandle by OrganizationTable.twitterHandle

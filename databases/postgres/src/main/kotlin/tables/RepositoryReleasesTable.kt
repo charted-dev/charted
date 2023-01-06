@@ -23,7 +23,7 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.noelware.charted.databases.postgres.SnowflakeTable
 
-object RepositoryReleasesTable: SnowflakeTable("repository_releases") {
+object RepositoryReleasesTable : SnowflakeTable("repository_releases") {
     val repository = reference("repository_id", RepositoryTable)
     val updateText = text("update_text").nullable().default(null)
     val createdAt = datetime("created_at").default(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()))

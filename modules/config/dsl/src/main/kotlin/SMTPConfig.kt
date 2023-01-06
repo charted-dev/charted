@@ -34,7 +34,7 @@ public data class SMTPConfig(
     val ssl: Boolean = false
 ) {
     @Suppress("MemberVisibilityCanBePrivate")
-    public class Builder(private val from: String): org.noelware.charted.common.Builder<SMTPConfig> {
+    public class Builder(private val from: String) : org.noelware.charted.common.Builder<SMTPConfig> {
         public var username: String? = null
         public var password: String? = null
         public var host: String = ""

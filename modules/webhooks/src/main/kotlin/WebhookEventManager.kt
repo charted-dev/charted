@@ -40,7 +40,7 @@ interface WebhookEventManager {
      * @param inner [KClass] to serialize the packet from
      * @param origin ([WebhookOriginKind] -> repo/org id)
      */
-    suspend fun <T: Any> get(inner: KClass<T>, origin: Pair<WebhookOriginKind, Long>): WebhookEvent<T>?
+    suspend fun <T : Any> get(inner: KClass<T>, origin: Pair<WebhookOriginKind, Long>): WebhookEvent<T>?
 
     /**
      * Creates a new [WebhookEvent] packet.
@@ -59,4 +59,4 @@ interface WebhookEventManager {
  *
  * @param origin ([WebhookOriginKind] -> repo/org id)
  */
-suspend inline fun <reified T: Any> WebhookEventManager.get(origin: Pair<WebhookOriginKind, Long>): WebhookEvent<T>? = get(T::class, origin)
+suspend inline fun <reified T : Any> WebhookEventManager.get(origin: Pair<WebhookOriginKind, Long>): WebhookEvent<T>? = get(T::class, origin)

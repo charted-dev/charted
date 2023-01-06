@@ -33,7 +33,7 @@ public data class StorageConfig(
     val hostAlias: String? = null
 ) {
     @Suppress("MemberVisibilityCanBePrivate")
-    public class Builder: org.noelware.charted.common.Builder<StorageConfig> {
+    public class Builder : org.noelware.charted.common.Builder<StorageConfig> {
         private var _filesystem: FilesystemStorageConfig? = null
         private var _azure: AzureBlobStorageConfig? = null
         private var _gcs: GoogleCloudStorageConfig? = null

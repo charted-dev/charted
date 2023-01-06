@@ -22,8 +22,8 @@ import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.noelware.charted.databases.postgres.tables.UserTable
 
-class UserEntity(id: EntityID<Long>): LongEntity(id) {
-    companion object: LongEntityClass<UserEntity>(UserTable)
+class UserEntity(id: EntityID<Long>) : LongEntity(id) {
+    companion object : LongEntityClass<UserEntity>(UserTable)
 
     var gravatarEmail by UserTable.gravatarEmail
     var description by UserTable.description

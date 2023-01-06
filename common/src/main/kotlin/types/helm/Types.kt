@@ -42,7 +42,7 @@ public enum class ChartSpecVersion(private val version: String) {
     V2("v1"),
     V3("v2");
 
-    internal companion object: KSerializer<ChartSpecVersion> {
+    internal companion object : KSerializer<ChartSpecVersion> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("charted.ChartSpecVersion", PrimitiveKind.STRING)
         override fun deserialize(decoder: Decoder): ChartSpecVersion = values().single { it.version == decoder.decodeString() }
         override fun serialize(encoder: Encoder, value: ChartSpecVersion) {

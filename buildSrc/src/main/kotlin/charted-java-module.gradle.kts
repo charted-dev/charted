@@ -55,6 +55,8 @@ dependencies {
 }
 
 spotless {
+    ratchetFrom("origin/main")
+    encoding("UTF-8")
     java {
         licenseHeaderFile("${rootProject.projectDir}/assets/HEADING")
         trimTrailingWhitespace()

@@ -23,8 +23,8 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.noelware.charted.databases.postgres.tables.RepositoryMemberTable
 import org.noelware.charted.databases.postgres.tables.RepositoryTable
 
-class RepositoryEntity(id: EntityID<Long>): LongEntity(id) {
-    companion object: LongEntityClass<RepositoryEntity>(RepositoryTable)
+class RepositoryEntity(id: EntityID<Long>) : LongEntity(id) {
+    companion object : LongEntityClass<RepositoryEntity>(RepositoryTable)
 
     var description by RepositoryTable.description
     var deprecated by RepositoryTable.deprecated

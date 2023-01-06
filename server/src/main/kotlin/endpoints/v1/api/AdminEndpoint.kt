@@ -38,7 +38,7 @@ data class MainAdminResponse(
     val docsUrl: String = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api/admin"
 )
 
-class AdminEndpoint: AbstractEndpoint("/admin") {
+class AdminEndpoint : AbstractEndpoint("/admin") {
     init {
         install(SessionsPlugin)
         install(IsAdminGuard)

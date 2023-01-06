@@ -25,7 +25,7 @@ import kotlin.time.Duration
  * Represents the manager for handling API key expiration dates. Expiration dates should be only inserted
  * if the expiration date is valid.
  */
-interface ApiKeyManager: Closeable {
+interface ApiKeyManager : Closeable {
     /**
      * Accepts that the API key will be expiring in the specified [duration][expiresIn] and is sent in Redis.
      * @param apiKey    The API key that is expiring

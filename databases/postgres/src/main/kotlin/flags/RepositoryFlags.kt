@@ -24,4 +24,4 @@ private val FLAGS = mapOf(
     "EXPERIMENTS" to (1L shl 1), // repository enabled experiments
 )
 
-class RepositoryFlags(originalBits: Long = 0): Bitfield(originalBits, FLAGS)
+class RepositoryFlags(originalBits: Long = 0) : Bitfield(originalBits, FLAGS)

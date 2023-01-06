@@ -24,7 +24,7 @@ import org.postgresql.jdbc.PgArray
 
 fun <T> Table.array(name: String, type: ColumnType): Column<Array<T>> = registerColumn(name, ArrayColumnType(type))
 
-class ArrayColumnType(private val type: ColumnType): ColumnType() {
+class ArrayColumnType(private val type: ColumnType) : ColumnType() {
     override fun sqlType(): String = "${type.sqlType()} ARRAY"
     override fun valueToDB(value: Any?): Any? =
         if (value is Array<*>) {
@@ -63,10 +63,10 @@ class ArrayColumnType(private val type: ColumnType): ColumnType() {
     }
 }
 
-private class ContainsOp(expr1: Expression<*>, expr2: Expression<*>): ComparisonOp(expr1, expr2, "@>")
+private class ContainsOp(expr1: Expression<*>, expr2: Expression<*>) : ComparisonOp(expr1, expr2, "@>")
 infix fun <T, S> ExpressionWithColumnType<T>.contains(array: Array<in S>): Op<Boolean> = ContainsOp(this, QueryParameter(array, columnType))
 
-class AnyOp(val expr1: Expression<*>, val expr2: Expression<*>): Op<Boolean>() {
+class AnyOp(val expr1: Expression<*>, val expr2: Expression<*>) : Op<Boolean>() {
     override fun toQueryBuilder(queryBuilder: QueryBuilder) {
         if (expr2 is OrOp) {
             queryBuilder.append("(").append(expr2).append(")")

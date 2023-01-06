@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.noelware.charted.types.responses.ApiResponse
 
-private object UnitSerializer: KSerializer<Unit> {
+private object UnitSerializer : KSerializer<Unit> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("charted.Unit")
     override fun deserialize(decoder: Decoder) {
         throw SerializationException("Can't deserialize this object.")

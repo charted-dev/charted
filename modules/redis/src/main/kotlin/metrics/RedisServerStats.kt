@@ -46,7 +46,7 @@ data class RedisServerStats(
     val version: String,
     val mode: String,
     val ping: Long
-): org.noelware.analytics.jvm.server.serialization.Serializable {
+) : org.noelware.analytics.jvm.server.serialization.Serializable {
     override fun toGrpcValue(): Value = Struct {
         put(this, RedisServerStats::totalConnectionsReceived)
         put(this, RedisServerStats::totalCommandsProcessed)

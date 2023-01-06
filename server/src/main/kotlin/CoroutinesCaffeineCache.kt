@@ -27,16 +27,16 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.future.asCompletableFuture
 import kotlinx.coroutines.future.await
 
-interface CoroutinesCaffeineCache<K: Any, V> {
+interface CoroutinesCaffeineCache<K : Any, V> {
     val cache: Cache<K, V>
 
     suspend fun get(key: K, predicate: (key: K) -> V?): V?
 }
 
-internal class DefaultCoroutinesCaffeineCache<K: Any, V>(
+internal class DefaultCoroutinesCaffeineCache<K : Any, V>(
     private val coroutineScope: CoroutineScope,
     private val asyncCache: AsyncCache<K, V>
-): CoroutinesCaffeineCache<K, V> {
+) : CoroutinesCaffeineCache<K, V> {
     override val cache: Cache<K, V>
         get() = asyncCache.synchronous()
 
@@ -46,6 +46,6 @@ internal class DefaultCoroutinesCaffeineCache<K: Any, V>(
 }
 
 @OptIn(DelicateCoroutinesApi::class)
-fun <K: Any, V, K1: K, V1: V> Caffeine<K, V>.buildCoroutinesBased(
+fun <K : Any, V, K1 : K, V1 : V> Caffeine<K, V>.buildCoroutinesBased(
     coroutineScope: CoroutineScope = GlobalScope
 ): CoroutinesCaffeineCache<K1, V1> = DefaultCoroutinesCaffeineCache(coroutineScope, buildAsync())

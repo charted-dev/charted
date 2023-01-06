@@ -33,7 +33,7 @@ import org.noelware.charted.modules.redis.RedisClient
 import org.noelware.charted.modules.sessions.SessionManager
 import org.noelware.charted.server.ChartedServer
 
-object ShutdownPhaseThread: Thread("Server-ShutdownThread") {
+object ShutdownPhaseThread : Thread("Server-ShutdownThread") {
     private val log by logging<ShutdownPhaseThread>()
 
     override fun run() {

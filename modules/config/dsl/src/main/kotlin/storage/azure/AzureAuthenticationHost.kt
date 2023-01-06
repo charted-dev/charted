@@ -43,23 +43,23 @@ public fun AzureAuthenticationHost.toAzureConnectionAuth(): AzureConnectionAuth 
 @Serializable(with = AzureAuthenticationHost.Serializer::class)
 public sealed class AzureAuthenticationHost(public val authType: AzureAuthType) {
     @Suppress("unused") // magically force the compiler to use `SAS_TOKEN` as the default, but this is never used for (de)serializing
-    private constructor(): this(AzureAuthType.SAS_TOKEN)
+    private constructor() : this(AzureAuthType.SAS_TOKEN)
 
     @Serializable
     public class ConnectionStringAuthenticationHost(
         @Serializable(with = SecretStringSerializer::class)
         @SerialName("connection_string")
         public val connectionString: String
-    ): AzureAuthenticationHost(AzureAuthType.CONNECTION_STRING)
+    ) : AzureAuthenticationHost(AzureAuthType.CONNECTION_STRING)
 
     @Serializable
     public class SasTokenAuthenticationHost(
         @Serializable(with = SecretStringSerializer::class)
         @SerialName("connection_string")
         public val sasToken: String
-    ): AzureAuthenticationHost(AzureAuthType.SAS_TOKEN)
+    ) : AzureAuthenticationHost(AzureAuthType.SAS_TOKEN)
 
-    internal object Serializer: KSerializer<AzureAuthenticationHost> {
+    internal object Serializer : KSerializer<AzureAuthenticationHost> {
         override val descriptor: SerialDescriptor = buildClassSerialDescriptor("charted.AzureAuthenticationHost") {
             element("type", AzureAuthTypeSerializer.descriptor)
             element<String>("connection_string", isOptional = true)

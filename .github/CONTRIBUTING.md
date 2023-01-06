@@ -1,9 +1,11 @@
 # 📦 Contributing to charted-server
+
 **charted-server** is a free and open source Helm Chart registry made in [Kotlin](https://kotlinlang.org) developed by
 [JetBrains](https://www.jetbrains.com). We full heartily accept contributions from the community — you! We accept
 any contribution from major features that might be cool to implement to small, grammatical bugs.
 
 ## Bug reports
+
 If you think you found any bugs when running **charted-server**, please test it on the latest installation of [charted-server](https://github.com/charted-dev/charted/releases)
 because it might be fixed! If it wasn't fixed (and it was present in future releases), you can surf through the [issue board](https://github.com/charted-dev/charted/issues)
 and search for the issue.
@@ -25,116 +27,100 @@ $ curl -XGET http://localhost:3651/repositories/1/members
 ```
 
 ## Security Vulnerabilities
+
 If you found any security vulnerabilities when using **charted-server**, please refer to our [Security Policy](https://github.com/charted-dev/charted/blob/master/SECURITY.md).
 
 <!-- If you found any security vulnerabilities when using **charted-server**, please refer to our [Security Policy](https://noelware.org/security/policy). -->
 
 ## Code Contributions
-We always accept code contributions since your contributions make **charted-server** more powerful than our team can, since it's based off of community feedback and how we should make our end product better.
 
-Since **charted-server** holds the repository for both the [web UI](https://github.com/charted-dev/charted/tree/main/web) and the server, here's the general prerequisites:
+We always accept code contributions since your contributions make **charted-server** more powerful than our team can,
+since it's based off of community feedback and how we should make our product better.
 
-- PostgreSQL 12 or higher
-- Node.js 18 or higher
-- Java 17 or higher
-- Redis 6 or higher
-- 2 to 8GB of system RAM
+This repository only holds the backend server code for the **charted** project, the web interface's repository is located in
+[charted-dev/web](https://github.com/charted-dev/web).
 
-We support building the **web UI** platform in **Visual Studio Code** and the server in **IntelliJ IDEA**. Any other platforms that is not Linux, macOS, or Windows are not supported to be used as a development platform, and we only support building **charted-server** in x86_64 or ARM64 architectures! The ClickHouse migrations project (located in [databases/clickhouse/migrations](https://github.com/charted-dev/charted/tree/main/databases/clickhouse/migrations)) can be compiled with **Go**.
+**charted-server** has GitHub Codespaces support that allows you to use [GitHub's Codespaces](https://github.com/codespaces) to develop in
+a remote environment, and **charted-server** has support for Coder located in the [coder-templates](https://github.com/charted-dev/coder-templates).
+Both Coder and GitHub Codespaces have all the necessary tools that you would need to run and develop **charted-server**.
 
-### Server
-The **server** and the rest of the subprojects (excluding `:web`) can be imported in **IntelliJ IDEA**. It's also important to run the `gitHooks` Gradle task to apply pre-commit hooks if contributing more than once, our GitHub bot will notify you if any errors occur in PRs if linting or running unit/integration tests had failed.
+### Coder
 
-To apply the pre-commit hook, you can just run:
+You can develop **charted-server** on your own managed hardware with [Coder](https://coder.com), which what **Noel** uses to
+develop his own projects outside his home.
 
-```shell
-# Unix (Linux, macOS)
-$ ./gradlew gitHooks
+**Noel** has own template that he would recommend to develop **charted-server** on since the default image that is
+used can be run on **ARM64** or **x86_64** environments.
 
-# Windows
-$ gradlew.bat gitHooks
-```
+First, you will need to clone the [coder-images](https://github.com/auguwu/coder-images) repository in your
+current directory with `git clone https://github.com/auguwu/coder-images`, now you can
+change the directory to **coder-images**:
 
-Now that you got that set-up, you can start cloning the Git repository and getting it setup with **IntelliJ IDEA**:
+![](https://noel-is.gay/images/5245ea46.png)
 
-```shell
-$ git clone https://github.com/charted-dev/charted
-```
+Now, we need to switch to the **template** directory and create the template into the Coder instance you want in. Well first, we need
+to log in to import the template, or we will get an error, but if you're already logged in, you should be set. Run the command
+`coder login <url>` and you should be prompted to log in.
 
-It's also best recommended to fork the repository and setting up a upstream remote, you can start forking it by [clicking me!](https://github.com/charted-dev/charted/fork)
+Now, we can import the Coder template with the `coder template create` command as shown below:
 
-```shell
-# omit $USERNAME with your user that cloned this repository!
-$ git clone https://github.com/$USERNAME/charted && cd charted
+### GitHub Codespaces
 
-# only run this if you plan to contribute many times
-$ git remote add upstream https://github.com/charted-dev/charted
-```
+> **Note** - The screenshots might say "Codespaces usage is paid for by auguwu" in the screenshots, please do
+> note that **Noel** is not paying for your usage of Codespaces, it's tied to your own account, and in the screenshots,
+> **Noel** is logged in as his user on GitHub.
 
-Now that you cloned the repository, I should go over the **Makefile** present in the root directory of **charted-server**. The **Makefile** contains recipes that makes compiling **charted-server** easier, I (Noel) use **Make** to develop **charted-server**:
+To develop on GitHub Codespaces, you will need access to it which can view the [documentation on how to enable it](). Once it is enabled or
+you already had it enabled, you can click the "<> Code" button that is in the repository home page:
 
-Using the **Makefile** on Windows is not recommended, you can opt using the Gradle wrapper script instead, since the **Makefile** was only used in a **Unix** environment.
+![repo homepage](https://noel-is.gay/images/9b44aca1.png)
 
-| Command           | Configured Gradle Task                           | Description                                                                                                                                                                                                                                      |
-|:------------------|:-------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **make spotless** | `./gradlew spotlessApply`                        | This will run **Spotless**. **charted-server** uses Spotless as our formatter with **ktlint** by Pinterest.                                                                                                                                      |
-| **make build**    | `./gradlew :cli:installDist`                     | This will run the **:server:installDist** Gradle task. It will create a distribution in `server/build/install/charted-server` that you can run using **make run**.                                                                               |
-| **make clean**    | `./gradlew clean`                                | This will remove any `build/` directories in all subprojects, including the root project. Generally recommended to run.                                                                                                                          |
-| **make test**     | `./gradlew test`                                 | Runs all unit and integration tests with **JUnit 5**. Since integration tests make use of Docker, you are generally recommended to use Docker anyway. But, it will disable the integration tests if **Docker** 20.10 or higher is not installed. |
-| **make**          | `./gradlew clean spotlessApply :cli:installDist` | The default target. This will run the `build`, `spotless`, and `clean` tasks and run the server, which can be accessible with `localhost:3651`, if PostgreSQL and Redis are properly configured.                                                 |
+Next, you will need to click the three dots on the above screenshot and click "+ New with options"
 
-### Web UI
-The **Web UI** can be located in the [web/](https://github.com/charted-dev/charted/tree/main/web) directory. It's generally best recommended to use **Visual Studio Code**, but using **WebStorm** is also completely ok.
+![+ new with options](https://noel-is.gay/images/989813a0.png)
 
-If you're just building the web UI, you will need to have everything installed, including **Node.js**. We include tasks in the `:web` subproject that will manage the Node.js installation in `$ROOT/build/nodejs/{version}`, if `./gradlew :web:extractNodeInstallation` was used.
+Once you have clicked the button, you will be greeted to this page, but you will need
+to edit the options that are suited for the development of **charted-server**, which
+is shown below:
 
-It will also look for a Node.js binary to use if you want to use your local Node.js installation methods. The folder also includes a `.node-version` file to use asdf-vm, nvm, and other tools.
+![devcontainer config](https://noel-is.gay/images/5e83afe6.png)
 
-To open the project, you can run `code ./web` (or `code-insiders ./web` if using Insiders) if in the directory that you cloned **charted-server**! The web UI uses React and Vite as the stack.
+Now that you clicked the **Create codespace** button, you should be in Visual Studio Code, but we do not
+recommend developing **charted-server** on Visual Studio Code, but if you do wish, we do include a list of
+extensions that might be helpful to do so.
 
-You can run `yarn` (or `./gradlew :web:installDeps`) to install the dependencies in the infamous `node_modules` directory in the **web** project. You can start up the Vite development server by using `yarn dev` (or `./gradlew :web:dev`), you should have **charted-server** running in a seperate terminal.
+You should be in this section (the README might change depending on what day you're reading this)
+in Visual Studio Code:
 
-You can configure the web UI with a **config.yml** file in the `web` directory, it can look like this:
+![](https://noel-is.gay/images/a39b8694.png)
+
+Now, you can connect with JetBrains Gateway with the **GitHub Codespaces** plugin in the JetBrains Marketplace. When you do
+open it up, and you don't have the plugin installed, it will be under the "Install More Providers" section:
+
+![install more providers section](https://noel-is.gay/images/6b18beda.png)
+
+After that, you can click on using the Codespaces plugin and do the usual stuff that you would need to do
+if you haven't installed it with JetBrains Gateway yet. Now, you can click on the Codespace with **IntelliJ IDEA**
+as the remote IDE to run on and click the **Connect** button to connect to the codespace.
+
+![](https://noel-is.gay/images/8d5a155e.png)
+
+Once finished, you might get a warning like this:
+
+![](https://noel-is.gay/images/0f4e8887.png)
+
+It is recommended to update the heap size since **charted-server** does take a chunk when developing
+on Codespaces, that's why we chose the 16GB one!
+
+Now you're ready to develop **charted-server** in GitHub codespaces! You have access to `psql` and `redis-cli` since
+the development container includes those utilities while Postgres and Redis are accessible.
+
+It is recommended to add a `config.yml` file in the root directory and put the contents below in that file:
 
 ```yaml
-# The Sentry DSN to use for reporting errors. This is automatically linked with the React Error Boundary component.
-# This is optional and should be only used in production environments.
-sentry_dsn: string
-
-# If tracing should be enabled or not. Tracing happens early on when starting up the development or production server,
-# you can configure Elastic APM, we do want to support OpenTelemetry later.
-tracing:
-  # Configures using Elastic APM to collect tracing metadata.
-  apm:
-    # The server URL to connect to APM Server. If you're using Elastic Agent, please expose :8200 on your
-    # machine on any agent that has the APM integration enabled.
-    server_url: url
-    
-# This contains the proxy configuration. The web UI can proxy the API server by using `true` to link it
-# to `/api/*` towards the charted-server instance the web UI is using. You can also use an configuration
-# object to configure the base prefix.
-proxy: boolean or configuration object
-#  prefix: string? (default /api/*)
-
-# The connection towards charted-server configuration. This will automatically set up a liveness probe on the server if `charted.liveness.enabled`
-# is set to true.
-charted:
-  host: ip/url
-  port: number between 1024~65535
-  ssl: boolean or object
-  #  ca: file?
-  #  key: file?
-  liveness:
-    enabled: boolean (default true)
-    interval: time value, number (default `15s`)
-
-# The actual server configuration. By default, the web UI will start at `localhost:2134`, but you can configure that yourself.
-server:
-  host: ip/url
-  port: number between 1024 ~ 65535, cannot be the same as `charted.port`
-  headers: map[string, string]
+jwt_secret_key: <THIS IS WHERE YOU GENERATE A RANDOM KEY>
+database:
+  host: postgres
+redis:
+  host: redis
 ```
-
-- any type ending with `?` is considered optional.
-- `map[string, string]` refers to a YAML map, i.e: `headers: { key: "string" }`.
-- `time value` refers to a time value (i.e, `15s`, `13 minutes`)

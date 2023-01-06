@@ -70,7 +70,7 @@ data class FeaturesResponse(
     val search: Boolean
 )
 
-class MainEndpoint(private val config: Config): AbstractEndpoint("/") {
+class MainEndpoint(private val config: Config) : AbstractEndpoint("/") {
     @Get
     @Traced
     suspend fun main(call: ApplicationCall) {

@@ -77,6 +77,13 @@ jobs:
           distribution: temurin
           architecture: ${{matrix.runner == 'self-hosted' && 'aarch64' || 'amd64'}}
 
+      # Node.js is required for Spotless to install Prettier
+      - name: Setup Node.js v19x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 19.x
+          architecture: ${{matrix.runner == 'self-hosted' && 'arm64' || 'x64'}}
+
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
 
@@ -135,12 +142,12 @@ jobs:
         env:
           CARGO_INCREMENTAL: 1
 
-# Clippy is disabled for now until further notice
-#      - name: Clippy
-#        uses: actions-rs/clippy-check@v1
-#        with:
-#          token: ${{secrets.GITHUB_TOKEN}}
-#          args: --all-features
+  # Clippy is disabled for now until further notice
+  #      - name: Clippy
+  #        uses: actions-rs/clippy-check@v1
+  #        with:
+  #          token: ${{secrets.GITHUB_TOKEN}}
+  #          args: --all-features
   goci:
     name: ClickHouse Migrations CI
     runs-on: ubuntu-latest

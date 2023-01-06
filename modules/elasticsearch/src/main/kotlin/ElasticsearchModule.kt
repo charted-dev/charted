@@ -24,7 +24,7 @@ import java.io.Closeable
 /**
  * Represents a module for interacting with Elasticsearch for search capabilities.
  */
-interface ElasticsearchModule: Closeable {
+interface ElasticsearchModule : Closeable {
     /** Returns all the indexes that Elasticsearch is responsible for */
     val indexes: List<String>
 

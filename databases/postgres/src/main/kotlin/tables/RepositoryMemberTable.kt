@@ -22,7 +22,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.noelware.charted.databases.postgres.SnowflakeTable
 import java.time.LocalDateTime
 
-object RepositoryMemberTable: SnowflakeTable("repository_members") {
+object RepositoryMemberTable : SnowflakeTable("repository_members") {
     val publicVisibility = bool("public_visibility").default(false)
     val displayName = varchar("display_name", 32).nullable().default(null)
     val permissions = long("permissions")

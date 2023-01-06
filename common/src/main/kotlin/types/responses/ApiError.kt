@@ -42,7 +42,9 @@ public data class ApiError(
     val detail: Any? = null
 ) {
     @OptIn(ExperimentalSerializationApi::class)
-    internal companion object: KSerializer<ApiError> {
+    public companion object : KSerializer<ApiError> {
+        public val EMPTY: ApiError = ApiError("", "")
+
         private val CONTEXTUAL_ANY = ContextualSerializer(Any::class, null, emptyArray())
         override val descriptor: SerialDescriptor = buildClassSerialDescriptor("charted.ApiError") {
             element("code", String.serializer().descriptor)

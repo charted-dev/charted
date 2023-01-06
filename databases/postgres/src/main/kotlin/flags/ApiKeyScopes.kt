@@ -87,7 +87,7 @@ val SCOPES: Map<String, Long> = mapOf(
     "org:webhooks:events:delete" to (1L shl 45),
 )
 
-class ApiKeyScopes(bits: Long = 0): Bitfield(bits, SCOPES) {
+class ApiKeyScopes(bits: Long = 0) : Bitfield(bits, SCOPES) {
     private val log by logging<ApiKeyScopes>()
 
     override fun add(flag: String): Bitfield {

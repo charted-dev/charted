@@ -29,7 +29,7 @@ import javax.naming.Context
 import javax.naming.NamingException
 import javax.naming.directory.InitialDirContext
 
-class LDAPSessionManager(redis: RedisClient, json: Json, private val config: Config): SessionManager(redis, json, "ldap", config) {
+class LDAPSessionManager(redis: RedisClient, json: Json, private val config: Config) : SessionManager(redis, json, "ldap", config) {
     private val log by logging<LDAPSessionManager>()
 
     /**

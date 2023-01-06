@@ -49,12 +49,12 @@ data class TelemetryPacket(
 ) {
     companion object {
         @JvmStatic
-        fun <T: Any> create(value: T): TelemetryPacket = TelemetryPacket(data = value)
+        fun <T : Any> create(value: T): TelemetryPacket = TelemetryPacket(data = value)
     }
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-private object TelemetryPacketSerializer: KSerializer<TelemetryPacket> {
+private object TelemetryPacketSerializer : KSerializer<TelemetryPacket> {
     private val contextualAnySerializer = ContextualSerializer(Any::class, null, emptyArray())
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("charted.telemetry.Packet") {
         element("distribution", DistributionType.serializer().descriptor)

@@ -130,7 +130,7 @@ public data class Config(
      * Represents a builder class for building a [Config] object.
      */
     @Suppress("MemberVisibilityCanBePrivate")
-    public open class Builder: org.noelware.charted.common.Builder<Config> {
+    public open class Builder : org.noelware.charted.common.Builder<Config> {
         public var registrations: Boolean = true
         public var jwtSecretKey: String = DO_NOT_USE_THIS_VALUE_IN_YOUR_JWT_SECRET_KEY_OR_I_WILL_LAUGH_AT_YOU
         public var inviteOnly: Boolean = false

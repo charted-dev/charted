@@ -39,7 +39,7 @@ public data class DatabaseConfig(
     val port: Int = 5432
 ) {
     @Suppress("MemberVisibilityCanBePrivate")
-    public class Builder: org.noelware.charted.common.Builder<DatabaseConfig> {
+    public class Builder : org.noelware.charted.common.Builder<DatabaseConfig> {
         /** Username for connecting to Postgres if authentication is enabled. */
         public var username: String? = null
 

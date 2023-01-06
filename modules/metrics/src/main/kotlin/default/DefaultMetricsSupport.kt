@@ -23,7 +23,7 @@ import org.noelware.charted.modules.metrics.MetricsSupport
 import org.noelware.charted.modules.metrics.collectors.JvmThreadsMetrics
 import kotlin.reflect.KClass
 
-class DefaultMetricsSupport: MetricsSupport {
+class DefaultMetricsSupport : MetricsSupport {
     private val _collectors: MutableList<Collector<*>> = mutableListOf()
 
     init {
@@ -45,7 +45,7 @@ class DefaultMetricsSupport: MetricsSupport {
     }
 
     @Suppress("UNCHECKED_CAST")
-    override suspend fun <U: Any> collectFrom(collector: KClass<Collector<U>>): U? {
+    override suspend fun <U : Any> collectFrom(collector: KClass<Collector<U>>): U? {
         val collectorInstance = _collectors.find { it.javaClass.isAssignableFrom(collector::class.java) }?.ifNotNull {
             this as? Collector<U>
         } ?: return null

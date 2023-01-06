@@ -96,7 +96,7 @@ import java.io.File
 import java.net.InetAddress
 import kotlin.time.Duration.Companion.seconds
 
-object ConfigureModulesPhase: BootstrapPhase() {
+object ConfigureModulesPhase : BootstrapPhase() {
     private val log by logging<ConfigureModulesPhase>()
 
     @OptIn(ExperimentalCoroutinesApi::class)

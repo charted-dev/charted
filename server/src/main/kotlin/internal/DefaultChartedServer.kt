@@ -60,7 +60,7 @@ import org.noelware.ktor.plugin.NoelKtorRouting
 import org.slf4j.LoggerFactory
 import java.io.IOException
 
-class DefaultChartedServer(private val config: Config): ChartedServer {
+class DefaultChartedServer(private val config: Config) : ChartedServer {
     private val _server: SetOnce<NettyApplicationEngine> = SetOnce()
     private val log by logging<DefaultChartedServer>()
 
@@ -68,7 +68,7 @@ class DefaultChartedServer(private val config: Config): ChartedServer {
      * Checks if the server has started or not.
      */
     override val started: Boolean
-        get() = hasStarted.get()
+        get() = hasStarted.value
 
     /**
      * The application engine that Ktor is using for the server.

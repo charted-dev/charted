@@ -32,7 +32,7 @@ import org.noelware.charted.cli.commands.ServerCommand
 import org.noelware.charted.cli.commands.accounts.BaseAccountsCommand
 import kotlin.system.exitProcess
 
-private class ChartedCli(private val terminal: Terminal): CliktCommand(
+private class ChartedCli(private val terminal: Terminal) : CliktCommand(
     help = "Command line runner for managing charted-server",
     name = "charted",
     printHelpOnEmptyArgs = true,

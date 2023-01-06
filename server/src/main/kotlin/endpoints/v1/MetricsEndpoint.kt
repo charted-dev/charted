@@ -29,7 +29,7 @@ import org.noelware.charted.modules.metrics.prometheus.PrometheusMetricsSupport
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.noelware.ktor.endpoints.Get
 
-class MetricsEndpoint(private val metrics: MetricsSupport): AbstractEndpoint("/metrics") {
+class MetricsEndpoint(private val metrics: MetricsSupport) : AbstractEndpoint("/metrics") {
     @Get
     @Traced
     suspend fun main(call: ApplicationCall): Unit = if (metrics is DisabledMetricsSupport) {

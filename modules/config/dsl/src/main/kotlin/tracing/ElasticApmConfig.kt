@@ -52,7 +52,7 @@ public enum class Instrumentation(public val key: String) {
     PROCESS("process"),
     SLF4J_ERROR("slf4j-error");
 
-    public companion object: KSerializer<Instrumentation> {
+    public companion object : KSerializer<Instrumentation> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("charted.apm.Instrumentation", PrimitiveKind.STRING)
         override fun deserialize(decoder: Decoder): Instrumentation {
             val key = decoder.decodeString()
@@ -185,7 +185,7 @@ public data class ElasticAPMConfig(
     val secretToken: String? = null
 ) {
     @Suppress("MemberVisibilityCanBePrivate")
-    public class Builder: org.noelware.charted.common.Builder<ElasticAPMConfig> {
+    public class Builder : org.noelware.charted.common.Builder<ElasticAPMConfig> {
         private var enabledInstrumentations = mutableListOf<Instrumentation>()
 
         /**

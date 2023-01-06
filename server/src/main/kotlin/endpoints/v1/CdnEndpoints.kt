@@ -32,7 +32,7 @@ import org.noelware.ktor.endpoints.Get
 import org.noelware.remi.support.filesystem.FilesystemStorageService
 import kotlin.time.Duration.Companion.hours
 
-class CdnEndpoints(private val storage: StorageHandler, path: String): AbstractEndpoint(path) {
+class CdnEndpoints(private val storage: StorageHandler, path: String) : AbstractEndpoint(path) {
     init {
         install(CachingHeaders) {
             options { _, content ->

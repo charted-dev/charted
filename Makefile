@@ -43,10 +43,9 @@ clippy: ## Runs the `cargo clippy` command
 	@(cd ./tools/helm-plugin && cargo clippy)
 
 .PHONY: clippy-fix
-clippy-fix: ## Runs `cargo clippy` with the --fix and --allow-dirty and --allow-staged flags.
+clippy-fix: ## Runs `cargo clippy` with the --fix, --allow-dirty, and --allow-staged flags.
 	@(cd ./tools/helm-plugin && cargo clippy --fix --allow-dirty --allow-staged)
 
-## ( cd "$workdir" && somecommand )
 .PHONY: clean
 clean: ## Executes the `clean` Gradle task
 	@./gradlew clean

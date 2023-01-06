@@ -100,7 +100,7 @@ internal fun withChartedServer(config: Config, module: Application.() -> Unit = 
     server.start()
 }
 
-internal class ChartedTestServer(private val config: Config): ChartedServer {
+internal class ChartedTestServer(private val config: Config) : ChartedServer {
     private val _test: SetOnce<suspend ApplicationTestBuilder.() -> Unit> = SetOnce()
     private val log by logging<ChartedServer>()
 

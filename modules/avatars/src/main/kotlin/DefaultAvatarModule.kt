@@ -22,7 +22,7 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import org.noelware.charted.common.CryptographyUtils
 
-class DefaultAvatarModule(private val httpClient: HttpClient): AvatarModule {
+class DefaultAvatarModule(private val httpClient: HttpClient) : AvatarModule {
     override suspend fun identicons(id: Long): ByteArray = httpClient.get("https://avatars.dicebear.com/api/identicon/$id.svg")
         .body()
 

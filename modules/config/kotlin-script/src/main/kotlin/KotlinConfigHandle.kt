@@ -25,4 +25,4 @@ import kotlin.script.experimental.annotations.KotlinScript
  * to configure **charted-server**.
  */
 @KotlinScript(fileExtension = "charted.kts")
-abstract class KotlinConfigHandle: Config.Builder()
+abstract class KotlinConfigHandle : Config.Builder()

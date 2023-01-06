@@ -22,8 +22,8 @@ import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.noelware.charted.databases.postgres.tables.UserConnectionsTable
 
-class UserConnectionEntity(id: EntityID<Long>): LongEntity(id) {
-    companion object: LongEntityClass<UserConnectionEntity>(UserConnectionsTable)
+class UserConnectionEntity(id: EntityID<Long>) : LongEntity(id) {
+    companion object : LongEntityClass<UserConnectionEntity>(UserConnectionsTable)
 
     var noelwareAccountID by UserConnectionsTable.noelwareAccountID
     var googleAccountID by UserConnectionsTable.googleAccountID

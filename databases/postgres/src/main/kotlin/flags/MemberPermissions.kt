@@ -19,8 +19,9 @@ package org.noelware.charted.databases.postgres.flags
 
 import org.noelware.charted.common.Bitfield
 
-private val PERMISSIONS: Map<String, Long> = mapOf(
-    // This member has permission to invite new members into the repository
+private val genericMemberPermissions: Map<String, Long> = mapOf(
+    // This member has permission to invite new members into the repository or organization, and
+    // they can view all the other invites that are pending
     "member:invite" to (1L shl 0),
 
     // This member has permission to update any member's permissions
@@ -32,6 +33,17 @@ private val PERMISSIONS: Map<String, Long> = mapOf(
     // This member has permission to update the repository (or any repositories if this
     // represents an organization member)
     "repo:update" to (1L shl 3),
+
+    // Whether if this member has permission to update the repository or organization metadata.
+    "metadata:update" to (1L shl 4),
+
+    // Whether if this member has permission to create a repository in this organization. As a repository
+    // member, this does nothing.
+    "repo:create" to (1L shl 5),
+
+    "webhooks:create" to (1L shl 6),
+    "webhooks:update" to (1L shl 7),
+    "webhooks:delete" to (1L shl 8),
 )
 
-class MemberPermissions(bits: Long = 0): Bitfield(bits, PERMISSIONS)
+class MemberPermissions(bits: Long = 0) : Bitfield(bits, genericMemberPermissions)

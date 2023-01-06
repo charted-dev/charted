@@ -25,7 +25,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.noelware.charted.databases.postgres.SnowflakeTable
 import org.noelware.charted.types.helm.RepoType
 
-object RepositoryTable: SnowflakeTable("repositories") {
+object RepositoryTable : SnowflakeTable("repositories") {
     val description = varchar("description", 64).nullable().default(null)
     val deprecated = bool("deprecated").default(false)
     val createdAt = datetime("created_at").default(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()))

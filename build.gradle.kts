@@ -18,6 +18,7 @@
 import org.noelware.charted.gradle.*
 
 plugins {
+    id("com.diffplug.spotless")
     application
 }
 
@@ -28,6 +29,19 @@ description = "\uD83D\uDCE6 You know, for Helm Charts?"
 repositories {
     mavenCentral()
     mavenLocal()
+}
+
+spotless {
+    ratchetFrom("origin/main")
+    encoding("UTF-8")
+    format("prettier") {
+        // Run Prettier on *.md and *.yml/yaml
+        target("**/*.md", "**/*.yml", "**/*.yaml", "**/*.json")
+        prettier("2.8.1").configFile(file("$projectDir/.prettierrc.json"))
+        trimTrailingWhitespace()
+        indentWithSpaces()
+        endWithNewline()
+    }
 }
 
 tasks {

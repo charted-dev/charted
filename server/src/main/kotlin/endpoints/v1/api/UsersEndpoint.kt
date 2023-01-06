@@ -195,7 +195,7 @@ class UsersEndpoint(
     private val argon2: Argon2PasswordEncoder,
     private val snowflake: org.noelware.charted.snowflake.Snowflake,
     private val charts: HelmChartModule? = null
-): AbstractEndpoint("/users") {
+) : AbstractEndpoint("/users") {
     init {
         install(HttpMethod.Post, "/users/@me/avatar", SessionsPlugin) {
             this += "user:avatar:update"

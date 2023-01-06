@@ -21,7 +21,7 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.Column
 
-open class SnowflakeTable(name: String): IdTable<Long>(name) {
+open class SnowflakeTable(name: String) : IdTable<Long>(name) {
     override val id: Column<EntityID<Long>> = long("id").entityId()
     override val primaryKey: PrimaryKey by lazy {
         super.primaryKey ?: PrimaryKey(id, name = "pk_${name.lowercase()}")

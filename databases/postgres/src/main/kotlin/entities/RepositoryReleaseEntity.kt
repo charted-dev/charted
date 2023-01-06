@@ -22,8 +22,8 @@ import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.noelware.charted.databases.postgres.tables.RepositoryReleasesTable
 
-class RepositoryReleaseEntity(id: EntityID<Long>): LongEntity(id) {
-    companion object: LongEntityClass<RepositoryReleaseEntity>(RepositoryReleasesTable)
+class RepositoryReleaseEntity(id: EntityID<Long>) : LongEntity(id) {
+    companion object : LongEntityClass<RepositoryReleaseEntity>(RepositoryReleasesTable)
 
     var repository by RepositoryEntity referencedOn RepositoryReleasesTable.repository
     var updateText by RepositoryReleasesTable.updateText

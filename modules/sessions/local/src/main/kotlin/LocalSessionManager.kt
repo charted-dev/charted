@@ -31,7 +31,7 @@ class LocalSessionManager(
     redis: RedisClient,
     json: Json,
     config: Config
-): SessionManager(redis, json, "local", config) {
+) : SessionManager(redis, json, "local", config) {
     /**
      * Does the actual authentication process with the given [user] and the
      * [password] itself.

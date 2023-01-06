@@ -18,3 +18,9 @@
 plugins {
     `charted-module`
 }
+
+dependencies {
+    implementation(project(":modules:sessions:integrations"))
+    implementation(libs.noelware.ktor.routing.core)
+    implementation(libs.ktor.client.core)
+}

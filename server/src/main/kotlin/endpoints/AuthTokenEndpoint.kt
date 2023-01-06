@@ -36,7 +36,7 @@ data class AuthTokenResponse(
  * This endpoint implements the [Docker Registry Token Authorization Specification](https://docs.docker.com/registry/spec/auth/token). This is only
  * enabled if the `docker_registry` feature is enabled.
  */
-class AuthTokenEndpoint(private val authorizationPolicyManager: RegistryAuthorizationPolicyManager): AbstractEndpoint("/v2/token") {
+class AuthTokenEndpoint(private val authorizationPolicyManager: RegistryAuthorizationPolicyManager) : AbstractEndpoint("/v2/token") {
     @Get
     suspend fun main(call: ApplicationCall) {
         try {

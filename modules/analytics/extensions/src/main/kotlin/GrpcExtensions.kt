@@ -62,7 +62,7 @@ fun Struct(builder: Struct.Builder.() -> Unit = {}): Struct = Struct.newBuilder(
  *
  * @return The [Struct.Builder] to chain methods
  */
-fun <T: Any, U: Any> T.put(builder: Struct.Builder, property: KProperty1<T, U?>): Struct.Builder {
+fun <T : Any, U : Any> T.put(builder: Struct.Builder, property: KProperty1<T, U?>): Struct.Builder {
     val result = property.get(this)
     builder.putFields(property.name, result.toGrpcValue())
 

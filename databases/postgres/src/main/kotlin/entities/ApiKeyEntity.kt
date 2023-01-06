@@ -22,8 +22,8 @@ import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.noelware.charted.databases.postgres.tables.ApiKeysTable
 
-class ApiKeyEntity(id: EntityID<Long>): LongEntity(id) {
-    companion object: LongEntityClass<ApiKeyEntity>(ApiKeysTable)
+class ApiKeyEntity(id: EntityID<Long>) : LongEntity(id) {
+    companion object : LongEntityClass<ApiKeyEntity>(ApiKeysTable)
 
     var description by ApiKeysTable.description
     var expiresIn by ApiKeysTable.expiresIn

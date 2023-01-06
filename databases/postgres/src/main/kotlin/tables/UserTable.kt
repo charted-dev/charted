@@ -22,7 +22,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.noelware.charted.databases.postgres.SnowflakeTable
 import java.time.LocalDateTime
 
-object UserTable: SnowflakeTable("users") {
+object UserTable : SnowflakeTable("users") {
     val gravatarEmail = text("gravatar_email").nullable().default(null)
     val description = varchar("description", 240).nullable().default(null)
     val avatarHash = text("avatar_hash").nullable().default(null)

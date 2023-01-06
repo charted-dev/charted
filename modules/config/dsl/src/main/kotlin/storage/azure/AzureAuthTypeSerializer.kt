@@ -30,7 +30,7 @@ import org.noelware.remi.support.azure.authentication.AzureAuthType
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = AzureAuthType::class)
-public object AzureAuthTypeSerializer: KSerializer<AzureAuthType> {
+public object AzureAuthTypeSerializer : KSerializer<AzureAuthType> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("charted.AzureAuthType", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): AzureAuthType = when (val value = decoder.decodeString()) {

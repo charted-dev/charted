@@ -32,7 +32,7 @@ public data class CdnProxyConfig(
     val prefix: String = "/cdn"
 ) {
     @Suppress("MemberVisibilityCanBePrivate")
-    public class Builder: org.noelware.charted.common.Builder<CdnProxyConfig> {
+    public class Builder : org.noelware.charted.common.Builder<CdnProxyConfig> {
         public var enabled: Boolean = false
         public var prefix: String = "/cdn"
 

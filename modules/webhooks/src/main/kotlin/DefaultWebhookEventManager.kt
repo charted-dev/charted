@@ -37,7 +37,7 @@ class DefaultWebhookEventManager(
     private val clickhouse: ClickHouseConnection,
     private val snowflake: Snowflake,
     private val json: Json
-): WebhookEventManager {
+) : WebhookEventManager {
     private val log by logging<DefaultWebhookEventManager>()
 
     override suspend fun getAll(origin: Pair<WebhookOriginKind, Long>): List<WebhookEvent<JsonObject>> {
@@ -66,7 +66,7 @@ class DefaultWebhookEventManager(
         }
     }
 
-    override suspend fun <T: Any> get(inner: KClass<T>, origin: Pair<WebhookOriginKind, Long>): WebhookEvent<T>? {
+    override suspend fun <T : Any> get(inner: KClass<T>, origin: Pair<WebhookOriginKind, Long>): WebhookEvent<T>? {
         TODO("Not yet implemented")
     }
 

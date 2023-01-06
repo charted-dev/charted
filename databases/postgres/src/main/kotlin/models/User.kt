@@ -24,7 +24,7 @@ import kotlinx.serialization.json.*
 import org.noelware.charted.common.Bitfield
 import org.noelware.charted.databases.postgres.entities.UserEntity
 
-class UserFlags(original: Long = 0): Bitfield(
+class UserFlags(original: Long = 0) : Bitfield(
     original,
     mapOf(
         "ADMIN" to (1L shl 0),

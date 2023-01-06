@@ -30,7 +30,7 @@ public data class RedisConfig(
     val ssl: Boolean = false
 ) {
     @Suppress("MemberVisibilityCanBePrivate")
-    public class Builder: org.noelware.charted.common.Builder<RedisConfig> {
+    public class Builder : org.noelware.charted.common.Builder<RedisConfig> {
         private var sentinels = mutableListOf<String>()
         public var masterName: String? = null
         public var password: String? = null

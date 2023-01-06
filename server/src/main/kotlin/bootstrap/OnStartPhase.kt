@@ -27,7 +27,7 @@ import java.lang.management.ManagementFactory
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
-object OnStartPhase: BootstrapPhase() {
+object OnStartPhase : BootstrapPhase() {
     private val log by logging<OnStartPhase>()
     private val codes: Map<(Any) -> Boolean, Int> = mapOf(
         { i: Any -> i is InternalError } to 128,

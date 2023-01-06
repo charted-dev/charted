@@ -32,7 +32,7 @@ public data class SearchConfig(
         }
     }
 
-    public class Builder: org.noelware.charted.common.Builder<SearchConfig> {
+    public class Builder : org.noelware.charted.common.Builder<SearchConfig> {
         private var _elasticsearch: ElasticsearchConfig? = null
         private var _meilisearch: MeilisearchConfig? = null
 

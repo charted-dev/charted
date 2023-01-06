@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("unused")
+
 package org.noelware.charted.server.endpoints.v1.api
 
 import dev.floofy.utils.exposed.asyncTransaction
@@ -37,17 +39,17 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.noelware.charted.*
 import org.noelware.charted.common.CryptographyUtils
 import org.noelware.charted.databases.postgres.entities.ApiKeyEntity
-import org.noelware.charted.databases.postgres.entities.UserEntity
 import org.noelware.charted.databases.postgres.flags.ApiKeyScopes
 import org.noelware.charted.databases.postgres.flags.SCOPES
 import org.noelware.charted.databases.postgres.models.ApiKeys
 import org.noelware.charted.databases.postgres.tables.ApiKeysTable
-import org.noelware.charted.databases.postgres.tables.UserTable
+import org.noelware.charted.extensions.regexp.toNameRegex
 import org.noelware.charted.modules.apikeys.ApiKeyManager
 import org.noelware.charted.serializers.ByteSizeValueSerializer
 import org.noelware.charted.server.plugins.API_KEY_KEY
 import org.noelware.charted.server.plugins.SessionsPlugin
 import org.noelware.charted.server.plugins.currentUser
+import org.noelware.charted.server.plugins.currentUserEntity
 import org.noelware.charted.snowflake.Snowflake
 import org.noelware.charted.types.responses.ApiError
 import org.noelware.charted.types.responses.ApiResponse
@@ -122,7 +124,7 @@ data class ApiKeysResponse(
 class ApiKeysEndpoint(
     private val apikeys: ApiKeyManager,
     private val snowflake: Snowflake
-): AbstractEndpoint("/apikeys") {
+) : AbstractEndpoint("/apikeys") {
     init {
         install(HttpMethod.Delete, "/apikeys/{id}", SessionsPlugin) {
             this += "apikeys:delete"
@@ -166,7 +168,7 @@ class ApiKeysEndpoint(
     @Get("/{name}")
     suspend fun byName(call: ApplicationCall) {
         val name = call.parameters["name"]!!
-        if (!(name matches "^([A-z]|-|_|\\d{0,9}){0,32}".toRegex())) {
+        if (!name.toNameRegex(true).matches()) {
             throw ValidationException("param.name", "API key name can only contain letters, digits, dashes, or underscores.")
         }
 
@@ -219,10 +221,6 @@ class ApiKeysEndpoint(
         }
 
         val token = RandomStringGenerator.generate(32)
-        val apiKeyOwner = asyncTransaction(ChartedScope) {
-            UserEntity.find { UserTable.id eq call.currentUser!!.id }.first()
-        }
-
         val id = snowflake.generate()
         val apiKey = asyncTransaction(ChartedScope) {
             ApiKeyEntity.new(id.value) {
@@ -236,10 +234,9 @@ class ApiKeysEndpoint(
                 // We store it as a hash so people can't indirectly get the token
                 // from the database.
                 this.token = CryptographyUtils.sha256Hex(token)
-
                 description = body.description
                 scopes = bitfield.bits()
-                owner = apiKeyOwner
+                owner = call.currentUserEntity!!
                 name = body.name
             }.let { entity -> ApiKeys.fromEntity(entity, true, token) }
         }

@@ -45,5 +45,5 @@ interface MetricsSupport {
      * @param collector Collector to use to collect the data.
      * @return Data represented as
      */
-    suspend fun <U: Any> collectFrom(collector: KClass<Collector<U>>): U?
+    suspend fun <U : Any> collectFrom(collector: KClass<Collector<U>>): U?
 }

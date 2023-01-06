@@ -32,7 +32,7 @@ import org.noelware.charted.cli.logger
 import org.noelware.charted.server.Bootstrap
 import java.io.File
 
-class ServerCommand(private val terminal: Terminal): CliktCommand(
+class ServerCommand(private val terminal: Terminal) : CliktCommand(
     "Bootstrap and starts the server in the same process",
     name = "server",
     invokeWithoutSubcommand = true,

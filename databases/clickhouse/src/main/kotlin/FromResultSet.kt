@@ -23,6 +23,6 @@ import java.sql.ResultSet
  * Represents an interface to implement the [fromResultSet] function to implement this type
  * as a transformer from a [ResultSet] object.
  */
-interface FromResultSet<T: Any> {
+interface FromResultSet<T : Any> {
     fun fromResultSet(rs: ResultSet): T
 }

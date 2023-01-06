@@ -25,7 +25,7 @@ import io.ktor.server.response.*
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.noelware.ktor.endpoints.Get
 
-class HealthEndpoint: AbstractEndpoint("/heartbeat") {
+class HealthEndpoint : AbstractEndpoint("/heartbeat") {
     @Get
     @Traced
     suspend fun main(call: ApplicationCall) = call.respond("OK")

@@ -28,7 +28,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @Disabled("Until we find an another way to fix this.")
-class NormalEndpointTests: AbstractServerTest() {
+class NormalEndpointTests : AbstractServerTest() {
     @DisplayName("Test [GET /] endpoint")
     @Test
     fun test0(): Unit = withChartedServer {

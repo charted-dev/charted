@@ -51,7 +51,7 @@ public data class ServerRateLimitConfig(
     val inMemory: Boolean = false
 ) {
     @Suppress("MemberVisibilityCanBePrivate")
-    public class Builder: org.noelware.charted.common.Builder<ServerRateLimitConfig> {
+    public class Builder : org.noelware.charted.common.Builder<ServerRateLimitConfig> {
         /** Determines the max requests for authenticated users */
         public var authenticatedMaxRequests: Int = 300
 

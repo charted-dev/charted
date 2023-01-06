@@ -23,7 +23,7 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.noelware.charted.databases.postgres.SnowflakeTable
 
-object OrganizationTable: SnowflakeTable("organizations") {
+object OrganizationTable : SnowflakeTable("organizations") {
     val verifiedPublisher = bool("verified_publisher").default(false)
     val twitterHandle = text("twitter_handle").nullable().default(null)
     val gravatarEmail = text("gravatar_email").nullable().default(null)
@@ -34,5 +34,5 @@ object OrganizationTable: SnowflakeTable("organizations") {
     val private = bool("private").default(false)
     val owner = reference("owner_id", UserTable)
     val flags = long("flags").default(0L)
-    val name = varchar("name", 32)
+    val name = varchar("name", 32).uniqueIndex()
 }

@@ -19,4 +19,4 @@ package org.noelware.charted.modules.audit.logs
 
 import org.noelware.ktor.endpoints.AbstractEndpoint
 
-class AuditLogEndpoint(private val auditLogs: AuditLogFeature): AbstractEndpoint("/audit-logs")
+class AuditLogEndpoint(private val auditLogs: AuditLogFeature) : AbstractEndpoint("/audit-logs")

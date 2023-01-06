@@ -19,4 +19,4 @@ package org.noelware.charted.modules.audit.logs
 
 import org.noelware.charted.databases.clickhouse.ClickHouseConnection
 
-class DefaultAuditLogFeature(private val clickhouse: ClickHouseConnection): AuditLogFeature
+class DefaultAuditLogFeature(private val clickhouse: ClickHouseConnection) : AuditLogFeature

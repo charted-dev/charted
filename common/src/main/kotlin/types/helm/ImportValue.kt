@@ -49,7 +49,7 @@ public class StringOrImportValue(private val value: Any) {
     public val importValueOrNull: ImportValue?
         get() = value as? ImportValue
 
-    internal companion object: KSerializer<StringOrImportValue> {
+    internal companion object : KSerializer<StringOrImportValue> {
         override val descriptor: SerialDescriptor = buildClassSerialDescriptor("charted.StringOrImportValue")
         override fun deserialize(decoder: Decoder): StringOrImportValue = try {
             val string = decoder.decodeString()

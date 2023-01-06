@@ -28,7 +28,7 @@ public data class MetricsConfig(
     val path: String = "/metrics"
 ) {
     @Suppress("MemberVisibilityCanBePrivate")
-    public class Builder: org.noelware.charted.common.Builder<MetricsConfig> {
+    public class Builder : org.noelware.charted.common.Builder<MetricsConfig> {
         private var _metricSets: MetricSets = MetricSets()
         public var enabled: Boolean = true
         public var path: String = "/metrics"

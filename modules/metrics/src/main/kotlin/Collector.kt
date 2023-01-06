@@ -20,7 +20,7 @@ package org.noelware.charted.modules.metrics
 /**
  * Represents a collector that collects anything represented as [T].
  */
-interface Collector<T: Any> {
+interface Collector<T : Any> {
     /**
      * The collector's name
      */

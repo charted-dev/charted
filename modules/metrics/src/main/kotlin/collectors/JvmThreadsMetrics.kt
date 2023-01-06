@@ -35,7 +35,7 @@ data class JvmThreadsMetrics(
     val peak: Int,
     val background: Int,
     val threads: List<ThreadInfo>
-): org.noelware.analytics.jvm.server.serialization.Serializable {
+) : org.noelware.analytics.jvm.server.serialization.Serializable {
     @Serializable
     data class ThreadInfo(
         val stacktrace: List<StackTrace> = listOf(),
@@ -48,7 +48,7 @@ data class JvmThreadsMetrics(
         val state: String,
         val name: String,
         val id: Long
-    ): org.noelware.analytics.jvm.server.serialization.Serializable {
+    ) : org.noelware.analytics.jvm.server.serialization.Serializable {
         override fun toGrpcValue(): Value = Struct {
             put(this, ThreadInfo::stacktrace)
             put(this, ThreadInfo::userTimeMs)
@@ -82,7 +82,7 @@ data class JvmThreadsMetrics(
 
         @SerialName("is_native_method")
         val isNativeMethod: Boolean
-    ): org.noelware.analytics.jvm.server.serialization.Serializable {
+    ) : org.noelware.analytics.jvm.server.serialization.Serializable {
         override fun toGrpcValue(): Value = Struct {
             put(this, StackTrace::classLoaderName)
             put(this, StackTrace::moduleVersion)
@@ -95,7 +95,7 @@ data class JvmThreadsMetrics(
         }.toGrpcValue()
     }
 
-    class Collector: org.noelware.charted.modules.metrics.Collector<JvmThreadsMetrics>, io.prometheus.client.Collector() {
+    class Collector : org.noelware.charted.modules.metrics.Collector<JvmThreadsMetrics>, io.prometheus.client.Collector() {
         private val threads = ManagementFactory.getThreadMXBean()
 
         override val name: String = "threads"

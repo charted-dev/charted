@@ -68,7 +68,7 @@ import java.security.cert.CertificateFactory
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.net.ssl.SSLContext
 
-class DefaultElasticsearchModule(private val config: Config, private val json: Json): ElasticsearchModule {
+class DefaultElasticsearchModule(private val config: Config, private val json: Json) : ElasticsearchModule {
     private val _serverVersion: SetOnce<String> = SetOnce()
     private val _clusterInfo: SetOnce<Pair<String, String>> = SetOnce()
     private val _closed: AtomicBoolean = AtomicBoolean(false)
@@ -167,7 +167,7 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
         }
 
         val listener = SniffOnFailureListener()
-        builder.setFailureListener(object: RestClient.FailureListener() {
+        builder.setFailureListener(object : RestClient.FailureListener() {
             override fun onFailure(node: Node) {
                 val attrs = if (node.attributes != null) {
                     "[${node.attributes.map { "${it.key}=>${it.value}" }.joinToString(" ")}]"
@@ -434,7 +434,7 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
 
                     restClient.performRequestAsync(
                         request,
-                        object: ResponseListener {
+                        object : ResponseListener {
                             override fun onFailure(exception: java.lang.Exception) {
                                 log.error("Unable to perform request [$request]:", exception)
                             }

@@ -1,23 +1,27 @@
- # 📦 Noelware's Charts Platform (charted-server)
-[![Kotlin v1.7.22](https://img.shields.io/badge/kotlin-1.7.22-blue.svg?logo=kotlin)](https://kotlinlang.org)
+# 📦 Noelware's Charts Platform (charted-server)
+
+[![Kotlin v1.8.0](https://img.shields.io/badge/kotlin-1.8.0-blue.svg?logo=kotlin)](https://kotlinlang.org)
 [![GitHub License](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Linting and Unit Testing](https://github.com/charted-dev/charted/actions/workflows/Linting.yaml/badge.svg?branch=main)](https://github.com/charted-dev/charted/actions/workflows/Linting.yaml)
 ![](https://img.shields.io/github/languages/code-size/charted-dev/charted)
+[![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
 
-> *Free, open source, and reliable Helm Chart registry made in Kotlin!*
+> _Free, open source, and reliable Helm Chart registry made in Kotlin!_
 >
-> [<kbd>v0.3.3-nightly</kbd>](https://github.com/charted-dev/charted/releases/0.3.3-nightly) | [:scroll: **Documentation**](#)
+> [<kbd>v0.3.2-nightly</kbd>](https://github.com/charted-dev/charted/releases/0.3.2-nightly) | [:scroll: **Documentation**](#)
 
 **charted-server** is the meat and potatoes of Noelware's Charts Platform. It is meant to be a free Helm Chart registry to distribute your Helm Charts
 too much people as possible! As this is free open sourced software, you can create your own forks and features as you wish!
 
 > **Warning**
-> 
+>
 > Before we continue, I want you (the viewer) to know that this is PURE Alpha software! Be cautious using this
 > in production while we (Noelware) work with the community to make our charts platform better~!
 
 ## Installation
+
 ### Docker
+
 **charted-server**'s Docker images are available on [Noelware's Container Registry](https://cr.noelware.cloud) and on [GitHub's Container Registry](https://github.com/orgs/charted-dev/packages). The recommended
 Docker engine version is **20.10** or higher.
 
@@ -38,5 +42,6 @@ $ docker run -d -p 3651:3651 --name charted-server \
 ```
 
 ## License
+
 **Noelware's Charts Platform** (charted-server) is released under the **Apache 2.0** License with love by Noelware~! If you wish to know more,
-you can read the [LICENSE](./LICENSE) file for more information. 
+you can read the [LICENSE](./LICENSE) file for more information.
