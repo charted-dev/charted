@@ -41,7 +41,7 @@ public class ClickHouseContainer extends GenericContainer<ClickHouseContainer> {
         addExposedPorts(8123, 9000);
         withLogConsumer(new Slf4jLogConsumer(LOG));
         withCopyFileToContainer(
-                MountableFile.forClasspathResource("/clickhouse/server.xml"),
+                MountableFile.forClasspathResource("/clickhouse/servers.xml"),
                 "/etc/clickhouse-server/config.d/noel.xml");
 
         waitStrategy = new HttpWaitStrategy()

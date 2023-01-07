@@ -21,7 +21,7 @@
     <default_database>default</default_database>
     <timezone>America/Phoenix</timezone>
     <logger>
-        <level>info</level>
+        <level>information</level>
         <console>true</console>
     </logger>
     <query_log>
