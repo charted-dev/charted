@@ -41,6 +41,9 @@ dependencies {
     implementation(project(":modules:metrics"))
     implementation(project(":modules:config"))
     implementation(project(":server"))
+
+    // Tegral OpenAPI
+    implementation(libs.tegral.openapi)
 }
 
 application {
@@ -66,8 +69,8 @@ distributions {
             }
 
             from(
-                "$projectDir/bin/README.txt",
-                "$projectDir/bin/LICENSE"
+                "$projectDir/distribution/README.txt",
+                "$projectDir/distribution/LICENSE"
             )
         }
     }

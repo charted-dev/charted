@@ -26,10 +26,12 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
 import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.utility.MountableFile;
 
 public class ClickHouseContainer extends GenericContainer<ClickHouseContainer> {
     private static final String CLICKHOUSE_IMAGE_VERSION = "22.12.1.1752-alpine";
 
+    @SuppressWarnings("resource")
     public ClickHouseContainer() {
         super(DockerImageName.parse("clickhouse/clickhouse-server").withTag(CLICKHOUSE_IMAGE_VERSION));
 
@@ -38,6 +40,10 @@ public class ClickHouseContainer extends GenericContainer<ClickHouseContainer> {
 
         addExposedPorts(8123, 9000);
         withLogConsumer(new Slf4jLogConsumer(LOG));
+        withCopyFileToContainer(
+                MountableFile.forClasspathResource("/clickhouse/server.xml"),
+                "/etc/clickhouse-server/config.d/noel.xml");
+
         waitStrategy = new HttpWaitStrategy()
                 .forPort(8123)
                 .forStatusCode(200)

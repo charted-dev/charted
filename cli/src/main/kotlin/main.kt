@@ -28,6 +28,7 @@ import com.github.ajalt.mordant.terminal.Terminal
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.cli.commands.ClickHouseMigrationsCommand
 import org.noelware.charted.cli.commands.GenerateConfigCommand
+import org.noelware.charted.cli.commands.OpenAPICommand
 import org.noelware.charted.cli.commands.ServerCommand
 import org.noelware.charted.cli.commands.accounts.BaseAccountsCommand
 import kotlin.system.exitProcess
@@ -58,6 +59,7 @@ private class ChartedCli(private val terminal: Terminal) : CliktCommand(
             ClickHouseMigrationsCommand(terminal),
             GenerateConfigCommand(terminal),
             BaseAccountsCommand(terminal),
+            OpenAPICommand(terminal),
             ServerCommand(terminal),
         )
     }

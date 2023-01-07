@@ -67,4 +67,9 @@ public data class DatabaseConfig(
             port,
         )
     }
+
+    public companion object {
+        @JvmStatic
+        public operator fun invoke(builder: Builder.() -> Unit = {}): DatabaseConfig = Builder().apply(builder).build()
+    }
 }

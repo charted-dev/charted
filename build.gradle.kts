@@ -36,11 +36,15 @@ spotless {
     encoding("UTF-8")
     format("prettier") {
         // Run Prettier on *.md and *.yml/yaml
-        target("**/*.md", "**/*.yml", "**/*.yaml", "**/*.json")
-        prettier("2.8.1").configFile(file("$projectDir/.prettierrc.json"))
+        target("**/*.md", "**/*.yml", "**/*.yaml", "**/*.json", "**/*.xml")
         trimTrailingWhitespace()
         indentWithSpaces()
         endWithNewline()
+
+        prettier(mapOf(
+            "prettier" to "2.8.1",
+            "@prettier/plugin-xml" to "2.2.0"
+        )).configFile(file("$projectDir/.prettierrc.json"))
     }
 }
 

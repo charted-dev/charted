@@ -50,4 +50,9 @@ public data class ElasticsearchConfig(
 
         override fun build(): ElasticsearchConfig = ElasticsearchConfig(nodes, _auth, ssl)
     }
+
+    public companion object {
+        @JvmStatic
+        public operator fun invoke(builder: Builder.() -> Unit = {}): ElasticsearchConfig = Builder().apply(builder).build()
+    }
 }

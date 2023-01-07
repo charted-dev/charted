@@ -20,6 +20,12 @@ plugins {
 }
 
 dependencies {
+    // Testing containers
+    testImplementation(project(":test:containers"))
+
+    // Ktor Testing
+    testImplementation(libs.ktor.server.test.host)
+
     // Projects required to run the server :quantD:
     implementation(project(":databases:clickhouse"))
     implementation(project(":databases:postgres"))
@@ -75,9 +81,6 @@ dependencies {
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.cors)
-
-    // Ktor Testing
-    testImplementation(libs.ktor.server.test.host)
 
     // JWT
     implementation(libs.jwt)

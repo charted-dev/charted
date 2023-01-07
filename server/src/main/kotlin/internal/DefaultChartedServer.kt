@@ -68,7 +68,7 @@ class DefaultChartedServer(private val config: Config) : ChartedServer {
      * Checks if the server has started or not.
      */
     override val started: Boolean
-        get() = hasStarted.value
+        get() = hasStarted.get()
 
     /**
      * The application engine that Ktor is using for the server.

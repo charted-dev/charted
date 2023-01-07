@@ -23,6 +23,7 @@ public object RandomStringGenerator {
     private val random by lazy { SecureRandom() }
     private val chars = "abcdefghijklmnopqrstuvwyxzABCDEFGHIJKLMNOPQRSTUVWYX1234567890-_$"
 
+    @JvmStatic
     public fun generate(length: Int = 16): String {
         val buffer = StringBuffer(length)
         for (index in 0..length) {

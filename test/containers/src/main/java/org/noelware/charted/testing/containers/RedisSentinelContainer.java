@@ -17,4 +17,50 @@
 
 package org.noelware.charted.testing.containers;
 
-public class RedisSentinelContainer {}
+import java.util.Map;
+import java.util.Objects;
+import kotlin.Unit;
+import org.noelware.charted.RandomStringGenerator;
+import org.noelware.charted.common.lazy.Lazy;
+import org.noelware.charted.configuration.kotlin.dsl.RedisConfig;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.Network;
+import org.testcontainers.utility.DockerImageName;
+
+public class RedisSentinelContainer extends GenericContainer<RedisSentinelContainer> {
+    private static final Lazy<String> PASSWORD = Lazy.create(() -> RandomStringGenerator.generate(8));
+
+    private final RedisContainer masterContainer;
+    private final boolean authEnabled;
+    private final Network network = Network.newNetwork();
+
+    @SuppressWarnings("resource")
+    public RedisSentinelContainer(boolean authEnabled) {
+        super(DockerImageName.parse("bitnami/redis-sentinel").withTag(RedisContainer.VERSION));
+
+        this.masterContainer = new RedisContainer(true, authEnabled, network);
+        this.authEnabled = authEnabled;
+
+        withEnv("REDIS_MASTER_HOST", masterContainer.getHost());
+        if (authEnabled) {
+            withEnv(Map.of(
+                    "REDIS_SENTINEL_PASSWORD", PASSWORD.get(),
+                    "REDIS_MASTER_PASSWORD", Objects.requireNonNull(masterContainer.getPassword())));
+        }
+
+        withExposedPorts(26379);
+    }
+
+    public RedisConfig getConfiguration() {
+        return RedisConfig.invoke((builder) -> {
+            builder.addSentinel(getHost(), getMappedPort(26379));
+            builder.setMasterName("mymaster");
+
+            if (authEnabled) {
+                builder.setPassword(masterContainer.getPassword());
+            }
+
+            return Unit.INSTANCE;
+        });
+    }
+}

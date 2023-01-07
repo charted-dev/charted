@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!--
 ~ 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
 ~ Copyright 2022 Noelware <team@noelware.org>
@@ -15,12 +15,17 @@
 ~ See the License for the specific language governing permissions and
 ~ limitations under the License.
 -->
-
 <configuration debug="false" packagingData="true">
     <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
 
-    <conversionRule conversionWord="logLevel" converterClass="org.noelware.charted.logback.composite.LogLevelColorComposite" />
-    <conversionRule conversionWord="threadName" converterClass="org.noelware.charted.logback.composite.ThreadNameComposite" />
+    <conversionRule
+    conversionWord="logLevel"
+    converterClass="org.noelware.charted.logback.composite.LogLevelColorComposite"
+  />
+    <conversionRule
+    conversionWord="threadName"
+    converterClass="org.noelware.charted.logback.composite.ThreadNameComposite"
+  />
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <if condition='isDefined("charted.console.json")'>
             <then>
@@ -56,13 +61,16 @@
             </then>
             <else>
                 <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-                    <pattern>[%d{yyyy-MM-dd @ HH:mm:ss.SSS, +10}] %boldCyan([%-38threadName]) %logLevel([%-5level]) [%-48logger{36}] :: %msg%n</pattern>
+                    <pattern
+          >[%d{yyyy-MM-dd @ HH:mm:ss.SSS, +10}] %boldCyan([%-38threadName]) %logLevel([%-5level]) [%-48logger{36}] :: %msg%n</pattern>
                     <charset>utf-8</charset>
                 </encoder>
             </else>
         </if>
     </appender>
 
+    <logger name="io.swagger.v3.core.converter.ModelConverterContextImpl" level="OFF" />
+    <logger name="io.swagger.v3.core.jackson.ModelResolver" level="OFF" />
     <if condition='isDefined("charted.appenders")'>
         <then>
             <if condition='property("charted.appenders").contains("sentry")'>

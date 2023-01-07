@@ -20,15 +20,22 @@ package org.noelware.charted.testing.containers;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.time.Duration;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import kotlin.Unit;
 import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.operator.OperatorCreationException;
+import org.noelware.charted.configuration.kotlin.dsl.search.elasticsearch.AuthenticationStrategy;
+import org.noelware.charted.configuration.kotlin.dsl.search.elasticsearch.ElasticsearchConfig;
 import org.noelware.charted.testing.framework.TemporarySSLCertificateGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
+import org.testcontainers.containers.wait.strategy.HttpWaitStrategy;
 import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.utility.MountableFile;
 
 public class ElasticsearchContainer extends GenericContainer<ElasticsearchContainer> {
     private static final String ELASTICSEARCH_IMAGE_VERSION = "8.5.3";
@@ -52,6 +59,8 @@ public class ElasticsearchContainer extends GenericContainer<ElasticsearchContai
 
         if (enableSsl) {
             LOG.info("Enabling SSL connections...");
+            LOG.warn(
+                    "SSL connections are not ready to be used in a test environment yet! Please refrain from using SSL connections.");
 
             final X509Certificate certificate;
             try {
@@ -61,5 +70,35 @@ public class ElasticsearchContainer extends GenericContainer<ElasticsearchContai
                 throw new RuntimeException(e);
             }
         }
+
+        withCopyFileToContainer(
+                MountableFile.forClasspathResource("/elasticsearch/elasticsearch.yml"),
+                "/usr/share/elasticsearch/config/elasticsearch.yml");
+        setWaitStrategy(new HttpWaitStrategy()
+                .forPort(9200)
+                .forPath("/")
+                .forStatusCode(200)
+                .allowInsecure()
+                .withReadTimeout(Duration.of(45, TimeUnit.SECONDS.toChronoUnit())));
+    }
+
+    /**
+     * @return {@link Network} that is used to connect to this container in other containers
+     */
+    public Network getUsedNetwork() {
+        return NETWORK;
+    }
+
+    /**
+     * @return {@link ElasticsearchConfig} to connect to the container via the <code>:modules:elasticsearch</code>
+     * module.
+     */
+    public ElasticsearchConfig getConfiguration() {
+        return ElasticsearchConfig.invoke((builder) -> {
+            builder.node(getHost(), getMappedPort(9200));
+            builder.auth(AuthenticationStrategy.None.INSTANCE);
+
+            return Unit.INSTANCE;
+        });
     }
 }

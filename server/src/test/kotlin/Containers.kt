@@ -15,15 +15,17 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-java-module`
-}
+package org.noelware.charted.server.testing
 
-dependencies {
-    implementation(libs.testcontainers.postgresql)
-    implementation(libs.testcontainers.clickhouse)
-    implementation(project(":test:framework"))
-    implementation(libs.testcontainers.junit)
-    implementation(libs.testcontainers.core)
-    implementation(libs.junit.jupiter.api)
-}
+import org.noelware.charted.testing.containers.PostgreSQLContainer
+import org.noelware.charted.testing.containers.RedisContainer
+
+/**
+ * Singleton of the [RedisContainer] that is readily available in all tests
+ */
+val redisContainer: RedisContainer = RedisContainer(false, true, null)
+
+/**
+ * Singleton of the [PostgreSQLContainer] that is available for all tests.
+ */
+val postgresContainer: PostgreSQLContainer = PostgreSQLContainer()
