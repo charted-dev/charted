@@ -30,19 +30,26 @@ private val genericMemberPermissions: Map<String, Long> = mapOf(
     // This member has permission to kick any members off the repository
     "member:kick" to (1L shl 2),
 
-    // This member has permission to update the repository (or any repositories if this
-    // represents an organization member)
-    "repo:update" to (1L shl 3),
-
     // Whether if this member has permission to update the repository or organization metadata.
-    "metadata:update" to (1L shl 4),
+    "metadata:update" to (1L shl 3),
 
     // Whether if this member has permission to create a repository in this organization. As a repository
     // member, this does nothing.
-    "repo:create" to (1L shl 5),
+    "repo:create" to (1L shl 4),
 
+    // Whether if this member has permission to delete the repository or not.
+    "repo:delete" to (1L shl 5),
+
+    // Whether if this member has permission to create additional webhooks in the given
+    // repository or organization.
     "webhooks:create" to (1L shl 6),
+
+    // Whether if this member has permission to update webhooks in the given
+    // repository or organization.
     "webhooks:update" to (1L shl 7),
+
+    // Whether if this member has permission to delete webhooks in the given
+    // repository or organization.
     "webhooks:delete" to (1L shl 8),
 )
 

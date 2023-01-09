@@ -29,6 +29,10 @@ pub mod logging;
 pub mod macros;
 pub mod settings;
 
+pub const BUILD_DATE: &str = env!("HELM_PLUGIN_BUILD_DATE");
+pub const COMMIT_HASH: &str = env!("HELM_PLUGIN_COMMIT_HASH");
+pub const VERSION: &str = env!("HELM_PLUGIN_VERSION");
+
 #[derive(Debug, Clone, Parser)]
 #[clap(
     about = "📦 Helm plugin made in Rust to help push Helm charts into charted-server easily!~",

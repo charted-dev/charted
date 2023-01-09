@@ -67,7 +67,6 @@ dependencies {
 }
 
 spotless {
-    ratchetFrom("origin/main")
     encoding("UTF-8")
     kotlin {
         licenseHeaderFile("${rootProject.projectDir}/assets/HEADING")

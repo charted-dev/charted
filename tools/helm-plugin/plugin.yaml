@@ -16,7 +16,7 @@
 name: charted
 description: Official Helm plugin for charted-server
 usage: See https://charts.noelware.org/docs/helm-plugin/latest for usage
-version: 0.3.3-nightly
+version: 0.4-nightly
 command: $HELM_PLUGIN_DIR/bin/charted-helm
 useTunnel: false
 hooks:

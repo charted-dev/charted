@@ -13,29 +13,45 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::{commands::AsyncExecute, BUILD_DATE, COMMIT_HASH, VERSION};
 use chrono::DateTime;
 use clap::Parser;
-
-use super::Execute;
+use serde_json::Value;
 
 #[derive(Debug, Clone, Copy, Parser)]
 #[command(about = "Returns the current version of the CLI and the charted-server instance")]
 pub struct Version;
 
-impl Execute for Version {
-    fn execute(
+#[async_trait]
+impl AsyncExecute for Version {
+    async fn execute(
         self,
-        _settings: &crate::settings::Settings,
+        settings: &crate::settings::Settings,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        let build_date = env!("HELM_PLUGIN_BUILD_DATE");
-        let version = env!("HELM_PLUGIN_VERSION").trim();
-        let commit = env!("HELM_PLUGIN_COMMIT_HASH");
-
-        let datetime = DateTime::parse_from_rfc3339(build_date)
+        let datetime = DateTime::parse_from_rfc3339(BUILD_DATE)
             .unwrap()
             .format("%a, %h %d, %Y at %H:%M:%S %Z");
 
-        info!("charted/helm-plugin v{version}+{commit} (built on {datetime})");
+        let res = settings
+            .http_client()
+            .get(format!("{}/info", settings.server()))
+            .send()
+            .await?;
+
+        info!("charted/helm-plugin v{VERSION}+{COMMIT_HASH} (built at {datetime})");
+        if res.status().is_success() {
+            let blob: Value = serde_json::from_slice(res.bytes().await?.as_ref())?;
+            let data = blob["data"].as_object().unwrap();
+
+            info!(
+                "==> charted-server [{}] v{}+{} ({})",
+                settings.server(),
+                data["version"].as_str().unwrap(),
+                data["commit_sha"].as_str().unwrap(),
+                data["distribution"].as_str().unwrap()
+            );
+        }
+
         Ok(())
     }
 }

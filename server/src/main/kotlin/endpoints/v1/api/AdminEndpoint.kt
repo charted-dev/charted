@@ -29,6 +29,7 @@ import org.noelware.charted.server.plugins.IsAdminGuard
 import org.noelware.charted.server.plugins.SessionsPlugin
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.noelware.ktor.endpoints.Get
+import org.noelware.ktor.endpoints.Post
 
 @Serializable
 data class MainAdminResponse(
@@ -49,6 +50,11 @@ class AdminEndpoint : AbstractEndpoint("/admin") {
 
     @Get("/stats")
     suspend fun stats(call: ApplicationCall) {
+        call.respond(HttpStatusCode.NotImplemented)
+    }
+
+    @Post("/users/create")
+    suspend fun forceCreateUser(call: ApplicationCall) {
         call.respond(HttpStatusCode.NotImplemented)
     }
 }

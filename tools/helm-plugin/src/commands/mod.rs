@@ -39,6 +39,6 @@ pub async fn execute(
     settings: &Settings,
 ) -> Result<(), Box<dyn std::error::Error>> {
     match subcommand {
-        Subcommands::Version(version) => version.execute(settings),
+        Subcommands::Version(version) => version.execute(settings).await,
     }
 }

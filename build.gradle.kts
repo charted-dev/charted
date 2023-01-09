@@ -32,14 +32,17 @@ repositories {
 }
 
 spotless {
-    ratchetFrom("origin/main")
     encoding("UTF-8")
     format("prettier") {
-        // Run Prettier on *.md and *.yml/yaml
-        target("**/*.md", "**/*.yml", "**/*.yaml", "**/*.json", "**/*.xml")
         trimTrailingWhitespace()
         indentWithSpaces()
         endWithNewline()
+
+        target(
+            "**/*.md",
+            "**/*.json",
+            "**/*.xml",
+        )
 
         prettier(mapOf(
             "prettier" to "2.8.1",

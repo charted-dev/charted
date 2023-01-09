@@ -15,13 +15,4 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.databases.postgres.flags
-
-import org.noelware.charted.common.Bitfield
-
-private val repoFlagsMap = mapOf(
-    "PRIVATE" to (1L shl 0), // Repository is private and the members of the repository can access it.
-    "EXPERIMENTS" to (1L shl 1), // repository has enabled experiments
-)
-
-class RepositoryFlags(originalBits: Long = 0) : Bitfield(originalBits, repoFlagsMap)
+package org.noelware.charted.server.endpoints.v1.api.repositories

@@ -84,6 +84,10 @@ Default annotations
 {{- define "charted.defaultAnnotations" -}}
 k8s.noelware.cloud/component: api-server
 k8s.noelware.cloud/product: charted-server
+
+{{- range $key, $val := .Values.global.annotations }}
+    {{ $key }}: {{ $val | quote }}
+{{- end }}
 {{- end -}}
 
 {{/*

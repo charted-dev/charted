@@ -21,7 +21,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = CLI::parse();
     logging::setup(cli.verbose, cli.log_level)?;
 
-    let settings = Settings::new(cli.server_url);
+    let settings = Settings::new(cli.verbose, cli.server_url);
 
     execute(&cli.command, &settings).await?;
     Ok(())

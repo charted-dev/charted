@@ -21,9 +21,6 @@ metadata:
   namespace: {{ .Release.Namespace | quote }}
   labels: {{ include "charted.labels" . | nindent 4 }}
   annotations: {{ include "charted.defaultAnnotations" . | nindent 4 }}
-    {{- range $key, $val := .Values.global.annotations }}
-    {{ $key }}: {{ $val | quote }}
-    {{- end }}
 data:
   logback.properties: |-
-  {{- include "common.tplvalues.render" (dict "value" .Values.config.logback.config "context" $) | nindent 4 }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.config.logback.config "context" $) | nindent 4 }}

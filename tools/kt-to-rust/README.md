@@ -1,7 +1,9 @@
 # Kotlin data class to Rust struct
+
 This tool generates Rust structs based off the given Kotlin class.
 
 ## Usage
+
 ```shell
 ./gradlew :tools:kt-to-rust:run
 ```
