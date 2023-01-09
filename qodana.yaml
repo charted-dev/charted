@@ -14,7 +14,7 @@
 # limitations under the License.
 
 version: "1.0"
-linter: jetbrains/qodana-jvm-community:2022.2
+linter: ghcr.io/charted-dev/qodana-jvm-node:2022.3
 exclude:
   # Most confusing one out of them all. Just read up on what Qodana generated
   # here: https://github.com/charted-dev/charted/security/code-scanning/36
