@@ -39,9 +39,7 @@ spotless {
         endWithNewline()
 
         target(
-            "**/*.md",
-            "**/*.json",
-            "**/*.xml",
+            "**/*.md"
         )
 
         prettier(mapOf(
