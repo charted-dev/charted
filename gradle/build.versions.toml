@@ -69,7 +69,7 @@ remi = "0.5.4-beta"
 ktor = "2.2.2"
 totp = "1.7.1"
 otel = "1.21.0"
-jwt = "4.2.1"
+jwt = "4.2.2"
 
 [libraries]
 # kotlinx libraries
