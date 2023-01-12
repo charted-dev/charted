@@ -37,7 +37,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains:annotations:23.1.0")
+    implementation("org.jetbrains:annotations:24.0.0")
 
     // test deps
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
