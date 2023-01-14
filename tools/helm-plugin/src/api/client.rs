@@ -13,54 +13,115 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::api::apikeys::ApiKeys;
-use reqwest::{Body, Client as RClient, Method};
+use std::{collections::HashMap, fmt::Debug, str::FromStr};
+
+use crate::{error::Error, COMMIT_HASH, VERSION};
+use reqwest::{
+    header::{HeaderMap, HeaderName, HeaderValue},
+    Body, Client as RClient, Method,
+};
 use serde::de::DeserializeOwned;
+
+use super::apikeys::ApiKeys;
 
 /// Represents an API client that connects to a `charted-server` instance to do API-related things. >:3
 #[derive(Debug, Clone)]
-#[allow(dead_code)]
-pub struct Client<'a> {
-    base_url: &'a str,
+pub struct Client {
+    base_url: String,
     inner: RClient,
 }
 
-impl<'a> Client<'a> {
-    pub fn new(server_url: &'a str) -> Client<'a> {
+impl Client {
+    pub fn new(server_url: &str, verbose: bool) -> Client {
         Client {
-            base_url: server_url,
-            inner: RClient::new(),
+            base_url: server_url.to_string(),
+            inner: RClient::builder()
+                .connection_verbose(verbose)
+                .http1_only() // charted-server doesn't support HTTP/2
+                .user_agent(format!(
+                    "Noelware/charted-helm v{}+{COMMIT_HASH}",
+                    VERSION.trim()
+                ))
+                .build()
+                .unwrap(),
         }
     }
 
-    /// Returns a [`ApiKeys`] struct
-    pub fn api_keys(self) -> ApiKeys<'a> {
+    pub fn api_keys(self) -> ApiKeys {
         ApiKeys::new(self)
     }
 
-    #[allow(dead_code)]
-    pub(crate) async fn request<U: DeserializeOwned, T: From<Body>, E: AsRef<str>>(
+    pub async fn request<U: DeserializeOwned + Debug, T: Into<Body>, E: AsRef<str>>(
         &self,
         method: Method,
         endpoint: E,
         body: Option<T>,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+        headers: Option<HashMap<String, String>>,
+    ) -> Result<U, Error> {
         trace!(
-            "<- {} {} (has body: {})",
-            method,
-            endpoint.as_ref(),
-            body.is_some()
+            "<- {} {}",
+            method.clone(),
+            format!("{}{}", self.base_url, endpoint.as_ref())
         );
 
-        Ok(())
+        let request = self.inner.request(
+            method.clone(),
+            format!("{}{}", self.base_url, endpoint.as_ref()),
+        );
 
-        // let mut req = self.inner.request(method, endpoint.as_ref());
-        // let _ = req.header("Content-Type", "application/json; charset=utf-8");
-        //
-        // if let Some(b) = body {
-        //     let _ = req.body(b.into());
-        // }
-        //
-        // req.send().await.map(async |f| f.json::<U>().await?)
+        if let Some(h) = headers {
+            let mut map = HeaderMap::new();
+            for (key, value) in h {
+                map.insert(
+                    HeaderName::from_str(key.clone().as_str())
+                        .map_err(|e| Error::Unknown(Box::new(e)))?,
+                    HeaderValue::from_str(value.clone().as_str())
+                        .map_err(|e| Error::Unknown(Box::new(e)))?,
+                );
+            }
+
+            let _ = request.try_clone().and_then(|f| Some(f.headers(map)));
+        }
+
+        if let Some(b) = body {
+            let _ = request.try_clone().and_then(|f| Some(f.body::<T>(b)));
+        }
+
+        let req = request.build().map_err(|e| Error::Unknown(Box::new(e)))?;
+        match self.inner.execute(req).await {
+            Ok(res) if res.status().is_success() => {
+                let status = res.status();
+                let slice: &[u8] = &res.bytes().await.map_err(|e| Error::Unknown(Box::new(e)))?;
+                let output: U =
+                    serde_json::from_slice(slice).map_err(|e| Error::Unknown(Box::new(e)))?;
+
+                trace!(
+                    "<- {} {} -> {status}",
+                    method.clone(),
+                    format!("{}{}", self.base_url, endpoint.as_ref())
+                );
+
+                trace!("response body: {:?}", &output);
+                Ok(output)
+            }
+
+            Ok(res) => {
+                error!(
+                    "<- {} {} -> {}",
+                    method,
+                    format!("{}{}", self.base_url, endpoint.as_ref()),
+                    res.status()
+                );
+
+                let status = res.status();
+                let slice: &[u8] = &res.bytes().await.map_err(|e| Error::Unknown(Box::new(e)))?;
+                let s =
+                    String::from_utf8(slice.to_vec()).map_err(|e| Error::Unknown(Box::new(e)))?;
+
+                return Err(Error::HttpRequest { status, body: s });
+            }
+
+            Err(e) => Err(Error::Unknown(Box::new(e))),
+        }
     }
 }

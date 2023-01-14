@@ -20,17 +20,16 @@
 package org.noelware.charted.server.endpoints.v1
 
 import co.elastic.apm.api.Traced
-import guru.zoroark.tegral.openapi.dsl.OpenApiVersion
-import guru.zoroark.tegral.openapi.dsl.openApi
-import guru.zoroark.tegral.openapi.dsl.toJson
-import guru.zoroark.tegral.openapi.dsl.toYaml
+import guru.zoroark.tegral.openapi.dsl.*
 import io.ktor.http.*
+import io.ktor.http.ContentType
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.noelware.charted.ChartedInfo
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.features.ServerFeature
 import org.noelware.charted.server.createKtorContentWithInputStream
@@ -146,5 +145,49 @@ class MainEndpoint(private val config: Config) : AbstractEndpoint("/") {
         }
 
         call.respond(createKtorContentWithInputStream(stream, ContentType.Text.Html))
+    }
+
+    companion object {
+        fun RootDsl.toOpenAPI() {
+            "/" get {
+                summary = "Generic main entrypoint"
+                externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api#GET-/"
+
+                200 response {
+                    "application/json" content {
+                        schema<ApiResponse.Ok<MainResponse>>()
+                        example = ApiResponse.ok(
+                            MainResponse(
+                                message = "Hello, world! \uD83D\uDC4B",
+                                tagline = "You know, for Helm charts?",
+                                docs = "https://charts.noelware.org/docs",
+                            ),
+                        )
+                    }
+                }
+            }
+
+            "/features" get {
+                externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api#GET-/features"
+                summary = "All the enabled features that are enabled on this instance"
+
+                200 response {
+                    "application/json" content {
+                        schema<FeaturesResponse>()
+                        example = ApiResponse.ok(
+                            FeaturesResponse(
+                                dockerRegistry = true,
+                                registrations = false,
+                                isInviteOnly = true,
+                                integrations = mapOf(),
+                                auditLogs = true,
+                                webhooks = false,
+                                search = true,
+                            ),
+                        )
+                    }
+                }
+            }
+        }
     }
 }

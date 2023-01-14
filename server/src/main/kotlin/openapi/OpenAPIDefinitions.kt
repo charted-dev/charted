@@ -19,11 +19,16 @@ package org.noelware.charted.server.openapi
 
 import guru.zoroark.tegral.openapi.dsl.*
 import org.noelware.charted.ChartedInfo
-import org.noelware.charted.server.endpoints.v1.FeaturesResponse
-import org.noelware.charted.server.endpoints.v1.InfoResponse
-import org.noelware.charted.server.endpoints.v1.MainResponse
-import org.noelware.charted.server.openapi.apis.usersApi
-import org.noelware.charted.types.responses.ApiResponse
+import org.noelware.charted.server.endpoints.v1.*
+import org.noelware.charted.server.endpoints.v1.api.AdminEndpoint
+import org.noelware.charted.server.endpoints.v1.api.ApiKeysEndpoint
+import org.noelware.charted.server.endpoints.v1.api.organizations.OrganizationAvatarEndpoints
+import org.noelware.charted.server.endpoints.v1.api.organizations.OrganizationEndpoints
+import org.noelware.charted.server.endpoints.v1.api.organizations.OrganizationMembersEndpoints
+import org.noelware.charted.server.endpoints.v1.api.organizations.OrganizationWebhooksEndpoints
+import org.noelware.charted.server.endpoints.v1.api.repositories.*
+import org.noelware.charted.server.endpoints.v1.api.users.UserAvatarsEndpoint
+import org.noelware.charted.server.endpoints.v1.api.users.Endpoints as UserEndpoints
 
 /**
  * Represents the definition for charted-server's OpenAPI specification.
@@ -45,8 +50,92 @@ fun RootDsl.charted() {
 
     servers()
     securitySchemes()
-    mainEndpoints()
-    usersApi()
+
+    // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+    //            Misc. Endpoints
+    // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+    with(MainEndpoint) {
+        toOpenAPI()
+    }
+
+    with(HealthEndpoint) {
+        toOpenAPI()
+    }
+
+    with(InfoEndpoint) {
+        toOpenAPI()
+    }
+
+    with(MetricsEndpoint) {
+        toOpenAPI()
+    }
+
+    // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+    //          Users API Endpoints
+    // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+    with(UserEndpoints) {
+        toOpenAPI()
+    }
+
+    with(UserAvatarsEndpoint) {
+        toOpenAPI()
+    }
+
+    // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+    //       Repositories API Endpoints
+    // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+    with(RepositoriesEndpoints) {
+        toOpenAPI()
+    }
+
+    with(RepositoryMembersEndpoints) {
+        toOpenAPI()
+    }
+
+    with(RepositoryIconEndpoints) {
+        toOpenAPI()
+    }
+
+    with(RepositoryReleasesEndpoints) {
+        toOpenAPI()
+    }
+
+    with(RepositoryWebhooksEndpoints) {
+        toOpenAPI()
+    }
+
+    // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+    //      Organizations API Endpoints
+    // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+    with(OrganizationEndpoints) {
+        toOpenAPI()
+    }
+
+    with(OrganizationMembersEndpoints) {
+        toOpenAPI()
+    }
+
+    with(OrganizationAvatarEndpoints) {
+        toOpenAPI()
+    }
+
+    with(OrganizationWebhooksEndpoints) {
+        toOpenAPI()
+    }
+
+    // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+    //          API Keys Endpoints
+    // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+    with(ApiKeysEndpoint) {
+        toOpenAPI()
+    }
+
+    // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+    //      Administration Endpoints
+    // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+    with(AdminEndpoint) {
+        toOpenAPI()
+    }
 }
 
 fun RootDsl.servers() {
@@ -71,97 +160,5 @@ fun RootDsl.securitySchemes() {
         description = "Security scheme to use a generated API Key to do operations with the API"
         scheme = "ApiKey"
         name = "API Key"
-    }
-}
-
-fun RootDsl.mainEndpoints() {
-    "/" get {
-        summary = "Generic main entrypoint"
-        externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api#GET-/"
-
-        200 response {
-            "application/json" content {
-                schema<ApiResponse.Ok<MainResponse>>()
-                example = ApiResponse.ok(
-                    MainResponse(
-                        message = "Hello, world! \uD83D\uDC4B",
-                        tagline = "You know, for Helm charts?",
-                        docs = "https://charts.noelware.org/docs",
-                    ),
-                )
-            }
-        }
-    }
-
-    "/features" get {
-        externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api#GET-/features"
-        summary = "All the enabled features that are enabled on this instance"
-
-        200 response {
-            "application/json" content {
-                schema<FeaturesResponse>()
-                example = ApiResponse.ok(
-                    FeaturesResponse(
-                        dockerRegistry = true,
-                        registrations = false,
-                        isInviteOnly = true,
-                        integrations = mapOf(),
-                        auditLogs = true,
-                        webhooks = false,
-                        search = true,
-                    ),
-                )
-            }
-        }
-    }
-
-    "/metrics" get {
-        summary = "Returns the Prometheus metrics, if enabled on the server"
-        externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api#GET-/metrics"
-
-        200 response {
-            "text/plain; version=0.0.4; charset=utf-8" content {
-                schema<String>()
-            }
-        }
-
-        404 response {
-            "application/json" content {
-                schema<ApiResponse.Err>()
-            }
-        }
-    }
-
-    "/heartbeat" get {
-        summary = "Endpoint to signify that the server is healthy"
-        externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api#GET-/heartbeat"
-
-        200 response {
-            "text/plain" content {
-                schema<String>()
-                example = "OK"
-            }
-        }
-    }
-
-    "/info" get {
-        summary = "Returns any non-revealing information about the server"
-        externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api#GET-/info"
-
-        200 response {
-            "application/json" content {
-                schema<ApiResponse.Ok<InfoResponse>>()
-                example = ApiResponse.Ok(
-                    InfoResponse(
-                        distribution = ChartedInfo.distribution,
-                        commitHash = ChartedInfo.commitHash,
-                        buildDate = ChartedInfo.buildDate,
-                        product = "charted-server",
-                        version = ChartedInfo.version,
-                        vendor = "Noelware",
-                    ),
-                )
-            }
-        }
     }
 }

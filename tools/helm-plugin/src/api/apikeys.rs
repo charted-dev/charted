@@ -13,12 +13,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::api::client::Client;
+use reqwest::{Body, Method};
 
-pub struct ApiKeys<'a>(Client<'a>);
+use crate::error::Error;
 
-impl<'a> ApiKeys<'a> {
-    pub(crate) fn new(client: Client<'a>) -> ApiKeys<'a> {
+use super::client::Client;
+
+#[derive(Debug, Clone)]
+pub struct ApiKeys(Client);
+
+impl ApiKeys {
+    pub(crate) fn new(client: Client) -> ApiKeys {
         ApiKeys(client)
+    }
+
+    pub async fn get(
+        &self,
+        name: Option<String>,
+    ) -> Result<Option<crate::api::generated_stub::ApiKeys>, Error> {
+        let route = match name {
+            Some(o) => format!("/apikeys/{o}"),
+            None => "/apikeys".to_string(),
+        };
+
+        self.0
+            .request::<Option<crate::api::generated_stub::ApiKeys>, Body, &str>(
+                Method::GET,
+                &route,
+                None,
+                None,
+            )
+            .await
     }
 }

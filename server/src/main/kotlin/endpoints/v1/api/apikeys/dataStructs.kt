@@ -15,4 +15,4 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.openapi.apis
+package org.noelware.charted.server.endpoints.v1.api.apikeys

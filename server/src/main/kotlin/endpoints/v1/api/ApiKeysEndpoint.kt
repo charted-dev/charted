@@ -21,6 +21,7 @@ package org.noelware.charted.server.endpoints.v1.api
 
 import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.kotlin.every
+import guru.zoroark.tegral.openapi.dsl.RootDsl
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -264,5 +265,10 @@ class ApiKeysEndpoint(
             HttpStatusCode.Accepted,
             ApiResponse.ok(),
         )
+    }
+
+    companion object {
+        fun RootDsl.toOpenAPI() {
+        }
     }
 }

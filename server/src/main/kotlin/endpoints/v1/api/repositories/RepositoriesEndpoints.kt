@@ -17,6 +17,7 @@
 
 package org.noelware.charted.server.endpoints.v1.api.repositories
 
+import guru.zoroark.tegral.openapi.dsl.RootDsl
 import io.ktor.http.*
 import org.noelware.charted.server.plugins.PreconditionResult
 import org.noelware.charted.server.plugins.SessionsPlugin
@@ -59,6 +60,17 @@ class RepositoriesEndpoints: AbstractEndpoint("/repositories") {
                 val repository = call.getRepositoryEntityByIdOrName() ?: return@condition PreconditionResult.Failed(ApiError.EMPTY, HttpStatusCode.BadRequest)
                 call.canAccessRepository(repository)
             }
+        }
+    }
+
+    companion object {
+        /**
+         * Transforms the [RepositoriesEndpoints] with the necessary data that is applicable
+         * for the OpenAPI specification. This is used in the [charted][org.noelware.charted.server.openapi.charted] DSL
+         * function.
+         */
+        fun RootDsl.toOpenAPI() {
+            /* do nothing */
         }
     }
 }

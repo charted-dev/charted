@@ -15,4 +15,13 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.openapi.apis
+package org.noelware.charted.server.endpoints.v1.api.users
+
+import org.koin.dsl.bind
+import org.koin.dsl.module
+import org.noelware.ktor.endpoints.AbstractEndpoint
+
+val usersApiEndpointsModule = module {
+    single { UserAvatarsEndpoint() } bind AbstractEndpoint::class
+    single { Endpoints() } bind AbstractEndpoint::class
+}

@@ -13,32 +13,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+pub mod login;
+pub mod logout;
+pub mod me;
+pub mod push;
 pub mod version;
 
 use clap::Subcommand;
 
 use crate::commands::version::*;
+use crate::error::Error;
 use crate::settings::Settings;
 
+use self::me::Me;
+
 pub trait Execute {
-    fn execute(self, settings: &Settings) -> Result<(), Box<dyn std::error::Error>>;
+    fn execute(self, settings: &Settings) -> Result<(), Error>;
 }
 
 #[async_trait]
 pub trait AsyncExecute {
-    async fn execute(self, settings: &Settings) -> Result<(), Box<dyn std::error::Error>>;
+    async fn execute(self, settings: &Settings) -> Result<(), Error>;
 }
 
 #[derive(Debug, Clone, Subcommand)]
 pub enum Subcommands {
     Version(Version),
+    Me(Me),
 }
 
-pub async fn execute(
-    subcommand: &Subcommands,
-    settings: &Settings,
-) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn execute(subcommand: &Subcommands, settings: &Settings) -> Result<(), Error> {
     match subcommand {
         Subcommands::Version(version) => version.execute(settings).await,
+        Subcommands::Me(me) => me.execute(settings).await,
     }
 }

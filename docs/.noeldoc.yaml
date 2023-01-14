@@ -18,7 +18,7 @@ description: 📦 Free, open source, and reliable Helm Chart registry made in Ko
 homepage: https://charts.noelware.org/docs/server
 renderer: org.noelware.noeldoc:renderers-markdown
 registry:
-  url: https://npr.noelware.org
+  url: https://artifacts.noelware.cloud/noeldoc
 plugins:
   openapi:
     coordinates: org.noelware.noeldoc:openapi-extensions

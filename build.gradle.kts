@@ -38,10 +38,7 @@ spotless {
         indentWithSpaces()
         endWithNewline()
 
-        target(
-            "**/*.md"
-        )
-
+        target("**/*.md")
         prettier(mapOf(
             "prettier" to "2.8.1",
             "@prettier/plugin-xml" to "2.2.0"

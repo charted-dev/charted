@@ -13,9 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{commands::AsyncExecute, BUILD_DATE, COMMIT_HASH, VERSION};
+use crate::{commands::AsyncExecute, error::Error, BUILD_DATE, COMMIT_HASH, VERSION};
 use chrono::DateTime;
 use clap::Parser;
+use reqwest::{Body, Method};
 use serde_json::Value;
 
 #[derive(Debug, Clone, Copy, Parser)]
@@ -24,32 +25,39 @@ pub struct Version;
 
 #[async_trait]
 impl AsyncExecute for Version {
-    async fn execute(
-        self,
-        settings: &crate::settings::Settings,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    async fn execute(self, settings: &crate::settings::Settings) -> Result<(), Error> {
         let datetime = DateTime::parse_from_rfc3339(BUILD_DATE)
             .unwrap()
             .format("%a, %h %d, %Y at %H:%M:%S %Z");
 
-        let res = settings
-            .http_client()
-            .get(format!("{}/info", settings.server()))
-            .send()
-            .await?;
+        let res: Result<Value, Error> = settings
+            .client()
+            .request::<Value, Body, &str>(Method::GET, "/info", None, None)
+            .await;
 
         info!("charted/helm-plugin v{VERSION}+{COMMIT_HASH} (built at {datetime})");
-        if res.status().is_success() {
-            let blob: Value = serde_json::from_slice(res.bytes().await?.as_ref())?;
-            let data = blob["data"].as_object().unwrap();
+        match res {
+            Ok(data) => {
+                let data = data["data"].as_object().unwrap();
+                info!(
+                    "charted-server [{}] v{}+{} ({})",
+                    settings.server(),
+                    data["version"].as_str().unwrap(),
+                    data["commit_sha"].as_str().unwrap(),
+                    data["distribution"].as_str().unwrap()
+                );
+            }
 
-            info!(
-                "==> charted-server [{}] v{}+{} ({})",
-                settings.server(),
-                data["version"].as_str().unwrap(),
-                data["commit_sha"].as_str().unwrap(),
-                data["distribution"].as_str().unwrap()
-            );
+            Err(e) => match e {
+                Error::HttpRequest { status, body } if status.as_u16() != 404 => {
+                    error!(
+                        "Unable to request to instance URL [{}]:\n{body}",
+                        settings.server()
+                    );
+                }
+
+                _ => {}
+            },
         }
 
         Ok(())

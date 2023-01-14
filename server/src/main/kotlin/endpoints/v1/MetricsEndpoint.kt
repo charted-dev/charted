@@ -19,22 +19,45 @@
 
 package org.noelware.charted.server.endpoints.v1
 
-import co.elastic.apm.api.Traced
+import guru.zoroark.tegral.openapi.dsl.RootDsl
+import guru.zoroark.tegral.openapi.dsl.schema
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
+import org.noelware.charted.ChartedInfo
 import org.noelware.charted.modules.metrics.MetricsSupport
 import org.noelware.charted.modules.metrics.disabled.DisabledMetricsSupport
 import org.noelware.charted.modules.metrics.prometheus.PrometheusMetricsSupport
+import org.noelware.charted.types.responses.ApiResponse
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.noelware.ktor.endpoints.Get
 
 class MetricsEndpoint(private val metrics: MetricsSupport) : AbstractEndpoint("/metrics") {
     @Get
-    @Traced
     suspend fun main(call: ApplicationCall): Unit = if (metrics is DisabledMetricsSupport) {
         call.respond(HttpStatusCode.NotFound)
     } else {
         call.respondTextWriter { (metrics as PrometheusMetricsSupport).writeIn(this) }
+    }
+
+    companion object {
+        fun RootDsl.toOpenAPI() {
+            "/metrics" get {
+                summary = "Returns the Prometheus metrics, if enabled on the server"
+                externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api#GET-/metrics"
+
+                200 response {
+                    "text/plain; version=0.0.4; charset=utf-8" content {
+                        schema<String>()
+                    }
+                }
+
+                404 response {
+                    "application/json" content {
+                        schema<ApiResponse.Err>()
+                    }
+                }
+            }
+        }
     }
 }

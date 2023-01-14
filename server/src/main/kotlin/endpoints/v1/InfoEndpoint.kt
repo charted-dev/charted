@@ -20,6 +20,8 @@
 package org.noelware.charted.server.endpoints.v1
 
 import co.elastic.apm.api.Traced
+import guru.zoroark.tegral.openapi.dsl.RootDsl
+import guru.zoroark.tegral.openapi.dsl.schema
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -72,5 +74,30 @@ class InfoEndpoint : AbstractEndpoint("/info") {
                 ),
             ),
         )
+    }
+
+    companion object {
+        fun RootDsl.toOpenAPI() {
+            "/info" get {
+                summary = "Returns additional information about the server"
+                externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api#GET-/info"
+
+                200 response {
+                    "application/json" content {
+                        schema<ApiResponse.Ok<InfoResponse>>()
+                        example = ApiResponse.Ok(
+                            InfoResponse(
+                                distribution = ChartedInfo.distribution,
+                                commitHash = ChartedInfo.commitHash,
+                                buildDate = ChartedInfo.buildDate,
+                                product = "charted-server",
+                                version = ChartedInfo.version,
+                                vendor = "Noelware",
+                            ),
+                        )
+                    }
+                }
+            }
+        }
     }
 }

@@ -19,14 +19,30 @@
 
 package org.noelware.charted.server.endpoints.v1
 
-import co.elastic.apm.api.Traced
+import guru.zoroark.tegral.openapi.dsl.RootDsl
+import guru.zoroark.tegral.openapi.dsl.schema
 import io.ktor.server.application.*
 import io.ktor.server.response.*
+import org.noelware.charted.ChartedInfo
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.noelware.ktor.endpoints.Get
 
 class HealthEndpoint : AbstractEndpoint("/heartbeat") {
     @Get
-    @Traced
-    suspend fun main(call: ApplicationCall) = call.respond("OK")
+    suspend fun main(call: ApplicationCall): Unit = call.respond("OK")
+    companion object {
+        fun RootDsl.toOpenAPI() {
+            "/heartbeat" get {
+                summary = "Endpoint to signify that the server is healthy"
+                externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api#GET-/heartbeat"
+
+                200 response {
+                    "text/plain" content {
+                        schema<String>()
+                        example = "OK"
+                    }
+                }
+            }
+        }
+    }
 }

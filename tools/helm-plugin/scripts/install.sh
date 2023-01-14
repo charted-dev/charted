@@ -21,7 +21,7 @@ if [ -n "${NO_INSTALL_HOOK}" ]; then
 fi
 
 STACK_VERSION_TUPLE=$(cat plugin.yaml | grep version | tr -d '"')
-STACK_VERSION=${STACK_VERSION_TUPLE//version:/ }
+STACK_VERSION=${STACK_VERSION_TUPLE//version:/   }
 echo "[charted-helm] Now installing with stack version v$STACK_VERSION!"
 
 # The backup download URL will grab the releases from GitHub releases if artifacts.noelware.cloud
@@ -33,12 +33,6 @@ OS_ARCH=""
 case $(uname -m) in
     x86_64)
         OS_ARCH="amd64"
-        ;;
-    armv6*)
-        OS_ARCH="armv6"
-        ;;
-    armv7*)
-        OS_ARCH="armv7"
         ;;
     aarch64|arm64)
         OS_ARCH="arm64"

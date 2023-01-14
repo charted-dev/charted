@@ -92,6 +92,7 @@ public class TemporarySSLCertificateGenerator {
 
         final SubjectPublicKeyInfo publicKeyInfo =
                 SubjectPublicKeyInfo.getInstance(keyPair.getPublic().getEncoded());
+
         final DigestCalculator digCalc =
                 new BcDigestCalculatorProvider().get(new AlgorithmIdentifier(OIWObjectIdentifiers.idSHA1));
 
@@ -99,12 +100,13 @@ public class TemporarySSLCertificateGenerator {
                 Extension.subjectKeyIdentifier,
                 false,
                 new X509ExtensionUtils(digCalc).createSubjectKeyIdentifier(publicKeyInfo));
+
         builder.addExtension(
                 Extension.authorityKeyIdentifier,
                 false,
                 new X509ExtensionUtils(digCalc).createAuthorityKeyIdentifier(publicKeyInfo));
-        builder.addExtension(Extension.basicConstraints, true, new BasicConstraints(true));
 
+        builder.addExtension(Extension.basicConstraints, true, new BasicConstraints(true));
         return new JcaX509CertificateConverter()
                 .setProvider(new BouncyCastleProvider())
                 .getCertificate(builder.build(signer));

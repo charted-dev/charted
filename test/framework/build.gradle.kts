@@ -19,3 +19,8 @@ plugins {
     `charted-java-module`
     `charted-module`
 }
+
+dependencies {
+    implementation(libs.junit.jupiter.engine)
+    implementation(libs.junit.jupiter.api)
+}

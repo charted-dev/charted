@@ -16,3 +16,13 @@
  */
 
 package org.noelware.charted.server.endpoints.v1.api.organizations
+
+import guru.zoroark.tegral.openapi.dsl.RootDsl
+import org.noelware.ktor.endpoints.AbstractEndpoint
+
+class OrganizationWebhooksEndpoints: AbstractEndpoint("/organizations/{idOrName}/webhooks") {
+    companion object {
+        fun RootDsl.toOpenAPI() {
+        }
+    }
+}

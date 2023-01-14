@@ -19,6 +19,7 @@
 
 package org.noelware.charted.server.endpoints.v1.api
 
+import guru.zoroark.tegral.openapi.dsl.RootDsl
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -56,5 +57,10 @@ class AdminEndpoint : AbstractEndpoint("/admin") {
     @Post("/users/create")
     suspend fun forceCreateUser(call: ApplicationCall) {
         call.respond(HttpStatusCode.NotImplemented)
+    }
+
+    companion object {
+        fun RootDsl.toOpenAPI() {
+        }
     }
 }

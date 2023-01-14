@@ -17,6 +17,18 @@
 
 package org.noelware.charted.server.endpoints.v1.api.repositories
 
+import guru.zoroark.tegral.openapi.dsl.RootDsl
 import org.noelware.ktor.endpoints.AbstractEndpoint
 
-class RepositoryMembersEndpoints: AbstractEndpoint("/repositories/{idOrName}/members")
+class RepositoryMembersEndpoints: AbstractEndpoint("/repositories/{idOrName}/members") {
+    companion object {
+        /**
+         * Transforms the [RepositoryMembersEndpoints] with the necessary data that is applicable
+         * for the OpenAPI specification. This is used in the [charted][org.noelware.charted.server.openapi.charted] DSL
+         * function.
+         */
+        fun RootDsl.toOpenAPI() {
+            /* do nothing */
+        }
+    }
+}

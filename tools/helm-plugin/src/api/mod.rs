@@ -18,4 +18,5 @@ pub mod client;
 pub mod generated_stub;
 pub mod organizations;
 pub mod repositories;
+pub mod response;
 pub mod users;

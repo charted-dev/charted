@@ -17,7 +17,10 @@
 
 package org.noelware.charted.server.endpoints.v1.api.repositories
 
+import org.koin.dsl.bind
 import org.koin.dsl.module
+import org.noelware.ktor.endpoints.AbstractEndpoint
 
 val repositoriesApiEndpointsModule = module {
+    single { RepositoryIconEndpoints() } bind AbstractEndpoint::class
 }

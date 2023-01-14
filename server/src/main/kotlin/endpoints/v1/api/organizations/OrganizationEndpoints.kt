@@ -17,6 +17,12 @@
 
 package org.noelware.charted.server.endpoints.v1.api.organizations
 
+import guru.zoroark.tegral.openapi.dsl.RootDsl
 import org.noelware.ktor.endpoints.AbstractEndpoint
 
-class OrganizationEndpoints: AbstractEndpoint("/organizations")
+class OrganizationEndpoints: AbstractEndpoint("/organizations") {
+    companion object {
+        fun RootDsl.toOpenAPI() {
+        }
+    }
+}

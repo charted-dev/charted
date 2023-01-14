@@ -36,7 +36,7 @@ testcontainers = "1.17.6"
 mockito-kotlin = "4.1.0"
 analytics-jvm = "0.1.4-beta"
 noel-commons = "2.4.2"
-ktor-routing = "0.5.1-beta"
+ktor-routing = "0.5.2-beta"
 bouncycastle = "1.72"
 jakarta-mail = "2.0.1"
 elastic-apm = "1.35.0"
@@ -178,6 +178,7 @@ jackson-kotlin-module = { module = "com.fasterxml.jackson.module:jackson-module-
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
 
 # junit
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit5" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit5" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5" }
 

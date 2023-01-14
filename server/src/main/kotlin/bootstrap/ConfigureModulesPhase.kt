@@ -43,7 +43,6 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.context.startKoin
-import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.configuration.host.ConfigurationHost
@@ -84,13 +83,11 @@ import org.noelware.charted.modules.sessions.local.LocalSessionManager
 import org.noelware.charted.modules.storage.DefaultStorageHandler
 import org.noelware.charted.modules.storage.StorageHandler
 import org.noelware.charted.server.ChartedServer
-import org.noelware.charted.server.endpoints.AuthTokenEndpoint
 import org.noelware.charted.server.endpoints.v1.endpointsModule
 import org.noelware.charted.server.internal.DefaultChartedServer
 import org.noelware.charted.server.internal.analytics.ChartedAnalyticsExtension
 import org.noelware.charted.server.logging.KoinLogger
 import org.noelware.charted.snowflake.Snowflake
-import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
 import java.io.File
 import java.net.InetAddress
@@ -311,7 +308,6 @@ object ConfigureModulesPhase : BootstrapPhase() {
             modules.add(
                 module {
                     single<RegistryAuthorizationPolicyManager> { registryAuthorizationPolicyManager }
-                    single { AuthTokenEndpoint(get()) } bind AbstractEndpoint::class
                 },
             )
         }
