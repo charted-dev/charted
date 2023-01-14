@@ -74,6 +74,7 @@ public class ElasticsearchContainer extends GenericContainer<ElasticsearchContai
         withCopyFileToContainer(
                 MountableFile.forClasspathResource("/elasticsearch/elasticsearch.yml"),
                 "/usr/share/elasticsearch/config/elasticsearch.yml");
+
         setWaitStrategy(new HttpWaitStrategy()
                 .forPort(9200)
                 .forPath("/")

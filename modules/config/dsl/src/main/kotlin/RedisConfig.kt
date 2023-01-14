@@ -51,6 +51,8 @@ public data class RedisConfig(
     }
 
     public companion object {
+        public operator fun invoke(config: RedisConfig): RedisConfig = config
+
         @JvmStatic
         public operator fun invoke(builder: Builder.() -> Unit = {}): RedisConfig = Builder().apply(builder).build()
     }

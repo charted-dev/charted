@@ -17,24 +17,96 @@
 
 package org.noelware.charted.server.testing
 
+import dev.floofy.utils.slf4j.logging
+import org.noelware.charted.RandomStringGenerator
+import org.noelware.charted.configuration.kotlin.dsl.Config
+import org.noelware.charted.configuration.kotlin.dsl.features.ServerFeature
+import org.noelware.charted.configuration.kotlin.dsl.search.elasticsearch.AuthenticationStrategy
+import org.noelware.charted.extensions.reflection.setField
+import org.noelware.charted.testing.containers.ClickHouseContainer
+import org.noelware.charted.testing.containers.ElasticsearchContainer
+import org.noelware.charted.testing.containers.MeilisearchContainer
+import org.noelware.charted.testing.containers.PostgreSQLContainer
 import org.noelware.charted.testing.containers.RedisContainer
-import org.testcontainers.containers.GenericContainer
 
+/**
+ * Represents an abstract test that delegates over [TestChartedServer] and runs the server
+ * with the containers that it might require. Since Testcontainers will clean up the containers
+ * after the test is done.
+ *
+ * @param elasticsearch If the [ElasticsearchContainer] should be initialized while this test is running
+ * @param meilisearch   If the [MeilisearchContainer] should be initialized while this test is running
+ * @param clickhouse    If the [ClickHouseContainer] should be initialized while this test is running
+ * @param features      List of enabled server features to use and initialize
+ */
 open class AbstractChartedServerTest(
-    private val elasticsearch: Boolean = false,
-    private val meilisearch: Boolean = false,
-    private val clickhouse: Boolean = false
-) {
-    companion object {
-        /**
-         * If the Elasticsearch container should be initialized or not
-         */
-        var enableElasticsearch: Boolean = false
-        var enableMeilisearch: Boolean = false
-        var enableClickHouse: Boolean = false
+    elasticsearch: Boolean = false,
+    meilisearch: Boolean = false,
+    clickhouse: Boolean = false,
 
-        internal val containers: MutableList<GenericContainer<*>> = mutableListOf(
-            RedisContainer(false, true, null),
-        )
+    private val features: List<ServerFeature> = listOf()
+) {
+    private val _elasticsearchContainer: ElasticsearchContainer? = if (elasticsearch) ElasticsearchContainer() else null
+    private val _meilisearchContainer: MeilisearchContainer? = if (meilisearch) MeilisearchContainer() else null
+    private val _clickhouseContainer: ClickHouseContainer? = if (clickhouse) ClickHouseContainer() else null
+    private val _postgresContainer: PostgreSQLContainer = PostgreSQLContainer()
+    private val _redisContainer: RedisContainer = RedisContainer()
+    private val log by logging<AbstractChartedServerTest>()
+
+    /**
+     * Represents the configuration that is used for the test server.
+     */
+    private val config: Config by lazy {
+        Config {
+            jwtSecretKey = RandomStringGenerator.generate(16)
+
+            for (feature in features) {
+                this.feature(feature)
+            }
+
+            storage {
+                filesystem("./.data")
+            }
+
+            if (_elasticsearchContainer != null) {
+                search {
+                    elasticsearch {
+                        node(_elasticsearchContainer.host, _elasticsearchContainer.getMappedPort(9200))
+                        auth(AuthenticationStrategy.None)
+                    }
+                }
+            }
+
+            if (_meilisearchContainer != null) {
+                search {
+                    meilisearch {
+                        endpoint = "http://${_meilisearchContainer.host}:${_meilisearchContainer.getMappedPort(7700)}"
+                        masterKey = _meilisearchContainer.masterKey
+                    }
+                }
+            }
+
+            if (_clickhouseContainer != null) {
+                setField("_clickhouse", _clickhouseContainer.configuration)
+            }
+
+            setField("_database", _postgresContainer.configuration)
+            setField("_redis", _redisContainer.configuration)
+        }
+    }
+
+    init {
+        log.info("Starting all containers...")
+
+        _redisContainer.start()
+        _postgresContainer.start()
+        _elasticsearchContainer?.start()
+        _clickhouseContainer?.start()
+        _meilisearchContainer?.start()
+    }
+
+    fun withChartedServer(func: ServerTestFunction = {}) {
+        val server = TestChartedServer(config, func)
+        server.start()
     }
 }

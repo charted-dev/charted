@@ -29,6 +29,7 @@ public data class MeilisearchConfig(
     val endpoint: String = "http://localhost:7700"
 ) {
     public companion object {
+        @JvmStatic
         public operator fun invoke(builder: Builder.() -> Unit = {}): MeilisearchConfig = Builder().apply(builder).build()
     }
 

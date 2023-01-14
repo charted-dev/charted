@@ -17,4 +17,50 @@
 
 package org.noelware.charted.testing.containers;
 
-public class MeilisearchContainer {}
+import static java.lang.String.format;
+
+import java.time.Duration;
+import java.util.Map;
+import kotlin.Unit;
+import org.noelware.charted.RandomStringGenerator;
+import org.noelware.charted.common.lazy.Lazy;
+import org.noelware.charted.configuration.kotlin.dsl.search.MeilisearchConfig;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.utility.DockerImageName;
+
+public class MeilisearchContainer extends GenericContainer<MeilisearchContainer> {
+    private static final String MEILISEARCH_VERSION = "0.30.5";
+    private final Lazy<String> MASTER_KEY = Lazy.create(() -> RandomStringGenerator.generate(16));
+
+    @SuppressWarnings("resource")
+    public MeilisearchContainer() {
+        super(DockerImageName.parse("getmeili/meilisearch").withTag(MEILISEARCH_VERSION));
+
+        setWaitStrategy(Wait.forListeningPort().withStartupTimeout(Duration.ofMinutes(1)));
+        withExposedPorts(7700);
+        withEnv(Map.of(
+                // Disable Meilisearch Analytics
+                "MEILI_NO_ANALYTICS", "1",
+
+                // Set the environment for Meilisearch to production
+                "MEILI_ENV", "production",
+
+                // Setting a master key is required if `MEILI_ENV` is in production
+                // https://docs.meilisearch.com/learn/configuration/instance_options.html#environment
+                "MEILI_MASTER_KEY", MASTER_KEY.get()));
+    }
+
+    public String getMasterKey() {
+        return MASTER_KEY.get();
+    }
+
+    public MeilisearchConfig getConfiguration() {
+        return MeilisearchConfig.invoke((builder) -> {
+            builder.setEndpoint(format("http://%s:%d", getHost(), getMappedPort(7700)));
+            builder.setMasterKey(MASTER_KEY.get());
+
+            return Unit.INSTANCE;
+        });
+    }
+}

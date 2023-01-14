@@ -128,7 +128,7 @@ gradleEnterprise {
     buildScan {
         if (buildScanServer.isNotEmpty()) {
             server = buildScanServer
-            isCaptureTaskInputFiles = true
+
             publishAlways()
         } else {
             termsOfServiceUrl = "https://gradle.com/terms-of-service"

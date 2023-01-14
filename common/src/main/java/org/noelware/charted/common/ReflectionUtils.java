@@ -45,6 +45,35 @@ public class ReflectionUtils {
     private ReflectionUtils() {}
 
     /**
+     * Reflectively set a value from the instance variable to whatever <code>value</code> is.
+     * @param instance The instance variable to set the field on
+     * @param fieldName Field name
+     * @param value Field value
+     * @return {@link Boolean boolean} to indicate the success if the value was set or not.
+     */
+    public static <C, T> boolean setField(C instance, String fieldName, T value) {
+        final Class<?> klazz = instance.getClass();
+        LOG.info("Finding field [{}] in class [{}]!", fieldName, klazz);
+
+        Field field;
+        try {
+            field = klazz.getDeclaredField(fieldName);
+            field.setAccessible(true);
+        } catch (NoSuchFieldException ignored) {
+            LOG.warn("Field [{}] was not found in class [{}], not doing anything", fieldName, klazz);
+            return false;
+        }
+
+        try {
+            field.set(instance, value);
+            return true;
+        } catch (IllegalAccessException e) {
+            LOG.warn("Unable to set field [{}] in class [{}]: {}", fieldName, klazz, e);
+            return false;
+        }
+    }
+
+    /**
      * Fetch and use the field from the given {@link Class<C> class}.
      *
      * @param instance   The instance to get the field from

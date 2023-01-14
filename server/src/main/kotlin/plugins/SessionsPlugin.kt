@@ -172,7 +172,6 @@ class SessionsPlugin private constructor(private val config: Configuration) {
     }
 
     private fun install(pipeline: ApplicationCallPipeline) {
-        log.info("Sessions plugin has been initialized~! Now installing in Ktor application!")
         pipeline.intercept(ApplicationCallPipeline.Plugins) {
             doAuthorize(call)
         }

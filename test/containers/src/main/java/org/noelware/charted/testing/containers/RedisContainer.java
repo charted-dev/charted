@@ -17,6 +17,7 @@
 
 package org.noelware.charted.testing.containers;
 
+import java.time.Duration;
 import kotlin.Unit;
 import org.jetbrains.annotations.Nullable;
 import org.noelware.charted.RandomStringGenerator;
@@ -24,7 +25,7 @@ import org.noelware.charted.common.lazy.Lazy;
 import org.noelware.charted.configuration.kotlin.dsl.RedisConfig;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
-import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
 /**
@@ -81,7 +82,7 @@ public class RedisContainer extends GenericContainer<RedisContainer> {
         }
 
         withExposedPorts(6379);
-        setWaitStrategy(new LogMessageWaitStrategy().withTimes(1).withRegEx("* Ready to accept connections"));
+        setWaitStrategy(Wait.forListeningPort().withStartupTimeout(Duration.ofMinutes(1)));
     }
 
     @Nullable
