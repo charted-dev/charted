@@ -24,9 +24,9 @@ license-file = "../LICENSE"
 
 [dependencies]
 ansi_term = "0.12.1"
-anyhow = "1.0.66"
+anyhow = "1.0.68"
 async-trait = "0.1.61"
-clap = { version = "4.1.0", features = ["derive"] }
+clap = { version = "4.1.1", features = ["derive"] }
 clap_complete = "4.1.0"
 chrono = { version = "0.4.23", features = ["serde"] }
 dirs = "4.0.0"
