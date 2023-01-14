@@ -45,7 +45,7 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      # Node.js is required for Spotless to install Prettier
+      # Node.js is required for Spotless to run Prettier
       - name: Setup Node.js v19x
         uses: actions/setup-node@v3
         with:

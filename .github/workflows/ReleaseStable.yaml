@@ -212,7 +212,7 @@ jobs:
       - name: Build and push! (arm64)
         uses: docker/build-push-action@v3
         with:
-          platforms: linux/arm64/v8
+          platforms: linux/arm64
           context: .
           file: ./distribution/docker/arm64.Dockerfile
           push: true
