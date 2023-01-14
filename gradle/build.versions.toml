@@ -68,7 +68,7 @@ haru = "1.3.0"
 remi = "0.5.4-beta"
 ktor = "2.2.2"
 totp = "1.7.1"
-otel = "1.22.0"
+otel = "1.22.1"
 jwt = "4.2.2"
 
 [libraries]
