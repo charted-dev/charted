@@ -17,7 +17,6 @@
 
 package org.noelware.charted.modules.docker.registry.authorization
 
-import co.elastic.apm.api.Traced
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import dev.floofy.utils.exposed.asyncTransaction
@@ -110,7 +109,6 @@ class DefaultRegistryAuthorizationPolicyManager(
         true
     }
 
-    @Traced
     override suspend fun doAuthorize(header: String?): RegistryAuthorizationToken? {
         if (header == null) return null
 
@@ -147,7 +145,6 @@ class DefaultRegistryAuthorizationPolicyManager(
         }
     }
 
-    @Traced
     override suspend fun create(user: UserEntity): RegistryAuthorizationToken {
         val expires = 2.days
         val authorizationToken = JWT.create()

@@ -17,12 +17,10 @@
 
 package org.noelware.charted.server.bootstrap
 
-import co.elastic.apm.attach.ElasticApmAttacher
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import dev.floofy.utils.kotlin.ifNotNull
 import dev.floofy.utils.slf4j.logging
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
@@ -46,7 +44,6 @@ import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.configuration.host.ConfigurationHost
-import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.features.ServerFeature
 import org.noelware.charted.configuration.kotlin.dsl.sessions.SessionType
 import org.noelware.charted.configuration.kotlin.host.KotlinScriptHost
@@ -86,11 +83,11 @@ import org.noelware.charted.server.ChartedServer
 import org.noelware.charted.server.endpoints.v1.endpointsModule
 import org.noelware.charted.server.internal.DefaultChartedServer
 import org.noelware.charted.server.internal.analytics.ChartedAnalyticsExtension
+import org.noelware.charted.server.internal.sideLoadOtelJavaAgent
 import org.noelware.charted.server.logging.KoinLogger
 import org.noelware.charted.snowflake.Snowflake
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
 import java.io.File
-import java.net.InetAddress
 import kotlin.time.Duration.Companion.seconds
 
 object ConfigureModulesPhase : BootstrapPhase() {
@@ -130,8 +127,8 @@ object ConfigureModulesPhase : BootstrapPhase() {
         DebugProbes.enableCreationStackTraces = config.debug
         DebugProbes.install()
 
-        if (config.tracing != null && config.tracing!!.apm != null) {
-            configureElasticAPMTracing(config)
+        if (config.tracing != null) {
+            sideLoadOtelJavaAgent()
         }
 
         val ds = HikariDataSource(
@@ -324,54 +321,5 @@ object ConfigureModulesPhase : BootstrapPhase() {
             logger(KoinLogger)
             modules(*modules.toTypedArray())
         }
-    }
-
-    private suspend fun configureElasticAPMTracing(config: Config) {
-        val sw = StopWatch.createStarted()
-        log.info("Configuring Elastic APM for tracing...")
-
-        val nodeNameEnv = System.getenv("NODE_NAME")
-        val podNameEnv = System.getenv("POD_NAME")
-        val nodeName = when {
-            config.tracing!!.apm!!.serviceNodeName != null -> config.tracing!!.apm!!.serviceNodeName
-            ChartedInfo.dedicatedNode != null -> ChartedInfo.dedicatedNode
-            nodeNameEnv != null && podNameEnv != null -> "$podNameEnv@$nodeNameEnv"
-            else -> {
-                log.warn("Getting node name from hostname!")
-                try {
-                    withContext(Dispatchers.IO) {
-                        InetAddress.getLocalHost()
-                    }?.hostAddress.ifNotNull { "${System.getProperty("user.name")}@$this" } ?: ""
-                } catch (e: Exception) {
-                    log.warn("Unable to get local address, defaulting to empty name...", e)
-                    ""
-                }
-            }
-        }
-
-        val tracing = config.tracing!!.apm!!
-        val apmConfig = mutableMapOf(
-            "recording" to "${tracing.recording}",
-            "instrument" to "${tracing.enableInstrumentation}",
-            "service_name" to "charted_server",
-            "service_version" to "${ChartedInfo.version}+${ChartedInfo.commitHash}",
-            "transaction_sample_rate" to "${tracing.transactionSampleRate}",
-            "transaction_max_spans" to "${tracing.transactionMaxSpans}",
-            "capture_body" to if (tracing.captureBody) "ON" else "OFF",
-            // "global_labels" to tracing.globalLabels.map { "${it.key}=${it.value}" }.joinToString(",")
-            "application_packages" to "org.noelware.charted",
-            "server_url" to tracing.serverUrl,
-        )
-
-        if (tracing.apiKey != null) apmConfig["api_key"] = tracing.apiKey!!
-        if (tracing.secretToken != null) apmConfig["secret_token"] = tracing.secretToken!!
-        if (!nodeName.isNullOrBlank()) {
-            apmConfig["service_node_name"] = nodeName
-        }
-
-        ElasticApmAttacher.attach(apmConfig)
-        sw.suspend()
-
-        log.info("Configured Elastic APM tracing in [${sw.doFormatTime()}]")
     }
 }

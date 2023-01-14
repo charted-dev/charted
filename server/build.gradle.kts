@@ -19,6 +19,8 @@ plugins {
     `charted-module`
 }
 
+val currentJvm: org.gradle.internal.jvm.Jvm = org.gradle.internal.jvm.Jvm.current()
+
 dependencies {
     // Testing containers
     testImplementation(project(":test:containers"))
@@ -98,9 +100,6 @@ dependencies {
     // Janino (for logback)
     implementation(libs.janino)
 
-    // Elastic APM
-    implementation(libs.elastic.apm.agent.attach)
-
     // Apache Commons Validator
     implementation(libs.apache.commons.validator)
 
@@ -110,4 +109,13 @@ dependencies {
     // Noelware Analytics
     implementation(project(":modules:analytics:extensions"))
     implementation(project(":modules:analytics"))
+
+    // So we can run the OpenTelemetry agent when we are running the server. We shouldn't
+    // allow it to be run from anywhere else except from invoking the `charted server` command.
+    implementation(libs.opentelemetry.exporter.otlp)
+    implementation(libs.opentelemetry.annotations)
+    implementation(libs.opentelemetry.javaagent)
+    implementation(files(currentJvm.toolsJar))
+    implementation(libs.opentelemetry.sdk)
+    implementation(libs.opentelemetry.api)
 }

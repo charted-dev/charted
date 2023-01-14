@@ -17,7 +17,6 @@
 
 package org.noelware.charted.modules.helm.charts
 
-import co.elastic.apm.api.Traced
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.decodeFromStream
 import com.charleskorn.kaml.encodeToStream
@@ -61,7 +60,6 @@ class DefaultHelmChartModule(
      * @param owner repository owner
      * @return [ChartIndexYaml] object if it exists, `null` if not.
      */
-    @Traced
     override suspend fun getIndexYaml(owner: Long): ChartIndexYaml? = storage.open("./metadata/$owner/index.yaml")?.use {
         yaml.decodeFromStream(it)
     }
@@ -70,7 +68,6 @@ class DefaultHelmChartModule(
      * Creates an `index.yaml` for the repository
      * @param owner repository owner
      */
-    @Traced
     override suspend fun createIndexYaml(owner: Long) {
         log.info("Creating index.yaml for user [$owner]")
         if (storage.service is FilesystemStorageService) {

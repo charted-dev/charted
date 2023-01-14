@@ -17,7 +17,6 @@
 
 package org.noelware.charted.modules.redis
 
-import co.elastic.apm.api.Traced
 import dev.floofy.utils.java.SetOnce
 import dev.floofy.utils.slf4j.logging
 import io.lettuce.core.RedisURI
@@ -97,7 +96,6 @@ class DefaultRedisClient(config: RedisConfig) : RedisClient {
     /**
      * Returns the [RedisServerStats] object from the Redis server itself.
      */
-    @Traced
     override fun stats(): RedisServerStats {
         val ping = runBlocking {
             val sw = StopWatch.createStarted()

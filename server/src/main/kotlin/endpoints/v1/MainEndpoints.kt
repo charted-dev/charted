@@ -19,7 +19,6 @@
 
 package org.noelware.charted.server.endpoints.v1
 
-import co.elastic.apm.api.Traced
 import guru.zoroark.tegral.openapi.dsl.*
 import io.ktor.http.*
 import io.ktor.http.ContentType
@@ -71,7 +70,6 @@ data class FeaturesResponse(
 
 class MainEndpoint(private val config: Config) : AbstractEndpoint("/") {
     @Get
-    @Traced
     suspend fun main(call: ApplicationCall) {
         call.respond(
             HttpStatusCode.OK,
@@ -86,7 +84,6 @@ class MainEndpoint(private val config: Config) : AbstractEndpoint("/") {
     }
 
     @Get("/features")
-    @Traced
     suspend fun features(call: ApplicationCall) {
         call.respond(
             HttpStatusCode.OK,

@@ -17,7 +17,6 @@
 
 package org.noelware.charted.databases.clickhouse
 
-import co.elastic.apm.api.Traced
 import com.clickhouse.jdbc.JdbcConfig
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
@@ -58,7 +57,6 @@ class DefaultClickHouseConnection(private val config: ClickHouseConfig) : ClickH
      *
      * @param block connection function to use.
      */
-    @Traced("DefaultClickHouseConnection#create", type = "database")
     override fun <T> create(block: Connection.() -> T): T {
         if (!_dataSource.wasSet()) throw IllegalAccessException("Can't grab connection due to no connection being set!")
 

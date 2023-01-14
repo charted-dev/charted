@@ -17,7 +17,6 @@
 
 package org.noelware.charted.modules.storage
 
-import co.elastic.apm.api.Traced
 import dev.floofy.utils.java.SetOnce
 import dev.floofy.utils.slf4j.logging
 import io.sentry.Sentry
@@ -39,7 +38,6 @@ class DefaultStorageHandler(private val config: StorageConfig) : StorageHandler 
     override val service: StorageService<*>
         get() = _service.value
 
-    @Traced
     override fun init() {
         if (_service.wasSet()) {
             log.warn("#init was already called!")

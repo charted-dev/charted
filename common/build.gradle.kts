@@ -55,9 +55,6 @@ dependencies {
     // OpenTelemetry annotations (for tracing)
     api(libs.opentelemetry.annotations)
 
-    // Elastic APM SDK (for annotations API)
-    api(libs.elastic.apm.agent.api)
-
     // Remi
     api(libs.remi.storage.azure)
     api(libs.remi.storage.gcs)

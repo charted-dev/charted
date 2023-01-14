@@ -39,7 +39,6 @@ noel-commons = "2.4.2"
 ktor-routing = "0.5.2-beta"
 bouncycastle = "1.72"
 jakarta-mail = "2.0.1"
-elastic-apm = "1.35.0"
 kotlinx-cli = "0.3.5"
 kubernetes = "17.0.0"
 clickhouse = "0.3.2"
@@ -163,11 +162,6 @@ elasticsearch-rest-client-sniffer = { module = "org.elasticsearch.client:elastic
 elasticsearch-rest-client = { module = "org.elasticsearch.client:elasticsearch-rest-client", version.ref = "elasticsearch-rest" }
 elasticsearch-java-client = { module = "co.elastic.clients:elasticsearch-java", version.ref = "elasticsearch-rest" }
 
-# elastic apm
-elastic-apm-agent-plugin-sdk = { module = "co.elastic.apm:apm-agent-plugin-sdk", version.ref = "elastic-apm" }
-elastic-apm-agent-attach = { module = "co.elastic.apm:apm-agent-attach", version.ref = "elastic-apm" }
-elastic-apm-agent-api = { module = "co.elastic.apm:apm-agent-api", version.ref = "elastic-apm" }
-
 # prometheus
 prometheus-simpleclient-hotspot = { module = "io.prometheus:simpleclient_hotspot", version.ref = "prometheus-java" }
 prometheus-simpleclient-common = { module = "io.prometheus:simpleclient_common", version.ref = "prometheus-java" }
@@ -186,7 +180,11 @@ junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.re
 clickhouse-jdbc = { module = "com.clickhouse:clickhouse-jdbc", version.ref = "clickhouse" }
 
 # opentelemetry
+opentelemetry-exporter-otlp = { module = "io.opentelemetry.instrumentation:opentelemetry-exporter-otlp", version.ref = "otel" }
 opentelemetry-annotations = { module = "io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations", version.ref = "otel" }
+opentelemetry-javaagent = { module = "io.opentelemetry.javaagent:opentelemetry-javaagent", version.ref = "otel" }
+opentelemetry-api = { module = "io.opentelemetry.instrumentation:opentelemetry-api", version.ref = "otel" }
+opentelemetry-sdk = { module = "io.opentelemetry.instrumentation:opentelemetry-sdk", version.ref = "otel" }
 
 # grpc
 grpc-services = { module = "io.grpc:grpc-services", version.ref = "grpc" }

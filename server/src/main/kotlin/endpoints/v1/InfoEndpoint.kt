@@ -19,7 +19,6 @@
 
 package org.noelware.charted.server.endpoints.v1
 
-import co.elastic.apm.api.Traced
 import guru.zoroark.tegral.openapi.dsl.RootDsl
 import guru.zoroark.tegral.openapi.dsl.schema
 import io.ktor.http.*
@@ -59,7 +58,6 @@ data class InfoResponse(
 
 class InfoEndpoint : AbstractEndpoint("/info") {
     @Get
-    @Traced
     suspend fun main(call: ApplicationCall) {
         call.respond(
             HttpStatusCode.OK,
