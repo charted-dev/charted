@@ -27,7 +27,7 @@ import org.noelware.charted.types.responses.ApiResponse
 import org.noelware.ktor.endpoints.AbstractEndpoint
 import org.noelware.ktor.endpoints.Get
 
-class Endpoints: AbstractEndpoint("/users") {
+class UserEndpoints: AbstractEndpoint("/users") {
     /**
      * Generic entrypoint route for `GET /users`. Nothing too special!
      * @statusCode 200
@@ -37,11 +37,13 @@ class Endpoints: AbstractEndpoint("/users") {
 
     companion object {
         /**
-         * Transforms the [users endpoints][Endpoints] with the necessary data that is applicable
+         * Transforms the [users endpoints][UserEndpoints] with the necessary data that is applicable
          * for the OpenAPI specification. This is used in the [charted][org.noelware.charted.server.openapi.charted] DSL
          * function.
          */
         fun RootDsl.toOpenAPI() {
+            "/users" get {
+            }
         }
     }
 }

@@ -23,5 +23,5 @@ import org.noelware.ktor.endpoints.AbstractEndpoint
 
 val usersApiEndpointsModule = module {
     single { UserAvatarsEndpoint() } bind AbstractEndpoint::class
-    single { Endpoints() } bind AbstractEndpoint::class
+    single { UserEndpoints() } bind AbstractEndpoint::class
 }

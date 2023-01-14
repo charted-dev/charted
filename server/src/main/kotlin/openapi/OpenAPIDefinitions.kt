@@ -28,7 +28,7 @@ import org.noelware.charted.server.endpoints.v1.api.organizations.OrganizationMe
 import org.noelware.charted.server.endpoints.v1.api.organizations.OrganizationWebhooksEndpoints
 import org.noelware.charted.server.endpoints.v1.api.repositories.*
 import org.noelware.charted.server.endpoints.v1.api.users.UserAvatarsEndpoint
-import org.noelware.charted.server.endpoints.v1.api.users.Endpoints as UserEndpoints
+import org.noelware.charted.server.endpoints.v1.api.users.UserEndpoints
 
 /**
  * Represents the definition for charted-server's OpenAPI specification.
