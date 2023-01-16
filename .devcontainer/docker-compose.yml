@@ -25,7 +25,7 @@ services:
       context: .
       dockerfile: Dockerfile
   redis:
-    image: bitnami/redis:7.0.7
+    image: bitnami/redis:7.0.8
     restart: unless-stopped
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
