@@ -17,4 +17,9 @@
 
 plugins {
     `charted-module`
+    `charted-test`
+}
+
+dependencies {
+    implementation(libs.ktor.client.core)
 }

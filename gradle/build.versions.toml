@@ -67,7 +67,7 @@ haru = "1.3.0"
 remi = "0.5.4-beta"
 ktor = "2.2.2"
 totp = "1.7.1"
-otel = "1.22.1"
+otel = "1.22.0"
 jwt = "4.2.2"
 
 [libraries]
@@ -82,6 +82,7 @@ kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.
 # slf4j libraries
 slf4j-over-log4j = { module = "org.slf4j:log4j-over-slf4j", version.ref = "slf4j" }
 slf4j-over-jcl = { module = "org.slf4j:jcl-over-slf4j", version.ref = "slf4j" }
+slf4j-from-jul = { module = "org.slf4j:jul-to-slf4j", version.ref = "slf4j" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 
@@ -180,11 +181,11 @@ junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.re
 clickhouse-jdbc = { module = "com.clickhouse:clickhouse-jdbc", version.ref = "clickhouse" }
 
 # opentelemetry
-opentelemetry-exporter-otlp = { module = "io.opentelemetry.instrumentation:opentelemetry-exporter-otlp", version.ref = "otel" }
+opentelemetry-exporter-otlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp", version.ref = "otel" }
 opentelemetry-annotations = { module = "io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations", version.ref = "otel" }
 opentelemetry-javaagent = { module = "io.opentelemetry.javaagent:opentelemetry-javaagent", version.ref = "otel" }
-opentelemetry-api = { module = "io.opentelemetry.instrumentation:opentelemetry-api", version.ref = "otel" }
-opentelemetry-sdk = { module = "io.opentelemetry.instrumentation:opentelemetry-sdk", version.ref = "otel" }
+opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api", version.ref = "otel" }
+opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "otel" }
 
 # grpc
 grpc-services = { module = "io.grpc:grpc-services", version.ref = "grpc" }

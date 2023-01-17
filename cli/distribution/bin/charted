@@ -66,6 +66,10 @@ RESOLVED_JAVA_OPTS=(
   "-Dio.netty.tryReflectionSetAccessible=true"
   "--add-opens java.base/jdk.internal.misc=ALL-UNNAMED"
   "--add-opens java.base/java.nio=ALL-UNNAMED"
+
+  # Useful for loading OpenTelemetry Java Agent. This won't do anything
+  # either way if `config.tracing` was not set
+  "-Djdk.attach.allowAttachSelf=true"
 )
 
 export JAVA_OPTS=$(join ' ' "${RESOLVED_JAVA_OPTS[@]}")

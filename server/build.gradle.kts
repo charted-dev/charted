@@ -90,6 +90,7 @@ dependencies {
     // Just for Log4j/JCL -> slf4j
     implementation(libs.slf4j.over.log4j)
     implementation(libs.slf4j.over.jcl)
+    implementation(libs.slf4j.from.jul)
 
     // Sentry~!
     implementation(libs.sentry.kotlin.extensions)

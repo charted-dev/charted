@@ -33,6 +33,7 @@ dependencies {
     testImplementation("org.testcontainers:testcontainers:1.17.6")
     testImplementation("org.testcontainers:junit-jupiter:1.17.6")
     testImplementation("org.slf4j:slf4j-simple:2.0.6")
+    testImplementation(project(":test:containers"))
     testImplementation(kotlin("test"))
 }
 

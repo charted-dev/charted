@@ -31,21 +31,6 @@ repositories {
     mavenLocal()
 }
 
-spotless {
-    encoding("UTF-8")
-    format("prettier") {
-        trimTrailingWhitespace()
-        indentWithSpaces()
-        endWithNewline()
-
-        target("**/*.md")
-        prettier(mapOf(
-            "prettier" to "2.8.1",
-            "@prettier/plugin-xml" to "2.2.0"
-        )).configFile(file("$projectDir/.prettierrc.json"))
-    }
-}
-
 tasks {
     wrapper {
         distributionType = Wrapper.DistributionType.ALL

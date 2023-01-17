@@ -64,8 +64,9 @@ class AnalyticsDaemon(private val config: NoelwareAnalyticsConfig, private val e
             return
         }
 
-        logger.info("Starting the protocol server with host [0.0.0.0:{}]", config.port)
-        val serverBuilder = AnalyticsServerBuilder(config.grpcBindIp ?: "127.0.0.1", config.port)
+        val bindIP = config.grpcBindIp ?: "127.0.0.1"
+        logger.info("Starting the protocol server with host [$bindIP:${config.port}]")
+        val serverBuilder = AnalyticsServerBuilder(bindIP, config.port)
             .withServiceToken(config.serviceToken)
             .withExtension(extension)
             .withServerMetadata { metadata ->
@@ -94,7 +95,7 @@ class AnalyticsDaemon(private val config: NoelwareAnalyticsConfig, private val e
         serverBuilder.start()
 
         // TODO: Allow setting of bind IP, default 0.0.0.0
-        val initReq = Requests.InitRequest(String.format("0.0.0.0:%s", config.port))
+        val initReq = Requests.InitRequest("0.0.0.0:${config.port}")
         val request: Request = Request.Builder()
             .post(Json.encodeToString(initReq).toRequestBody("application/json".toMediaType()))
             .url("${config.endpoint}/instances/${serverBuilder.instanceUUID()}/init")

@@ -70,6 +70,10 @@ fun RootDsl.charted() {
         toOpenAPI()
     }
 
+    with(IndexMappingsEndpoint) {
+        toOpenAPI()
+    }
+
     // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
     //          Users API Endpoints
     // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+

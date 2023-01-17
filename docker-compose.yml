@@ -15,46 +15,69 @@
 
 version: "3.8"
 services:
-  server:
-    container_name: charted_server
-    image: cr.noelware.cloud/charted/server:latest
-    restart: always
+  charted:
+    container_name: charted-server
+    image: ghcr.io/charted-dev/charted:nightly
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - charted
     ports:
       - "3651:3651"
     environment:
-      - CHARTED_CREATE_CONFIG_ON_START="true"
       - CHARTED_CONFIG_PATH=/app/noelware/charted/server/config/charted.yaml
     volumes:
+      - ./config.example.yaml:/app/noelware/charted/server/config/charted.yaml:ro
       - charted_data:/var/lib/noelware/charted/data
     healthcheck:
-      test: ["CMD-SHELL", "curl -s http://localhost:3651/health | grep \"OK\""]
-      interval: 15s
-  web:
-    container_name: charted_web
-    image: cr.noelware.cloud/charted/web:latest
-    restart: always
-    depends_on:
-      charted_server:
-        condition: service_healthy
-    ports:
-      - "2134:2134"
-    environment:
-      - CHARTED_SERVER_ENDPOINT=http://charted_server:3651
-    healthcheck:
-      test: ["CMD-SHELL", "curl -s http://localhost:2134"]
-      interval: 15s
+      test: ["CMD", "curl", "-fs", "http://localhost:3651/heartbeat"]
+      interval: 30s
+      retries: 10
+      start_period: 10s
+      timeout: 60s
   postgres:
     container_name: postgres
-    image: bitnami/postgresql:14.5
-    restart: always
+    image: bitnami/postgresql:15.1.0
+    networks:
+      - charted
     ports:
       - "5432:5432"
     environment:
+      - POSTGRESQL_USERNAME=charted
+      - POSTGRESQL_PASSWORD=charted
       - POSTGRESQL_DATABASE=charted
-      - ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - postgres_data:/bitnami/postgresql
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d charted" ]
-      interval: 15s
+      test: ["CMD", "pg_isready", "-U", "charted"]
+      interval: 30s
+      retries: 10
+      start_period: 10s
+      timeout: 60s
+  redis:
+    container_name: redis
+    image: bitnami/redis:7.0.8
+    networks:
+      - charted
+    ports:
+      - "6379:6379"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - redis_data:/bitnami/redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "PING"]
+      interval: 30s
+      retries: 10
+      start_period: 10s
+      timeout: 60s
+networks:
+  charted:
+    driver: bridge
+volumes:
+  postgres_data:
+  charted_data:
+  redis_data:
