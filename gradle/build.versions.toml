@@ -68,6 +68,7 @@ remi = "0.5.4-beta"
 ktor = "2.2.2"
 totp = "1.7.1"
 otel = "1.22.0"
+okio = "3.2.0"
 jwt = "4.2.2"
 
 [libraries]
@@ -218,4 +219,5 @@ koin = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
 haru = { module = "dev.floofy.haru:Haru", version.ref = "haru" }
 totp = { module = "dev.samstevens.totp:totp", version.ref = "totp" }
+okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 jwt = { module = "com.auth0:java-jwt", version.ref = "jwt" }

@@ -50,12 +50,16 @@ import org.elasticsearch.client.*
 import org.elasticsearch.client.sniff.ElasticsearchNodesSniffer
 import org.elasticsearch.client.sniff.SniffOnFailureListener
 import org.elasticsearch.client.sniff.Sniffer
+import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.noelware.charted.ChartedScope
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.features.ServerFeature
 import org.noelware.charted.configuration.kotlin.dsl.search.elasticsearch.AuthStrategyType
 import org.noelware.charted.configuration.kotlin.dsl.search.elasticsearch.AuthenticationStrategy
+import org.noelware.charted.databases.postgres.entities.RepositoryEntity
 import org.noelware.charted.databases.postgres.entities.UserEntity
+import org.noelware.charted.databases.postgres.models.Organization
+import org.noelware.charted.databases.postgres.models.Repository
 import org.noelware.charted.databases.postgres.models.User
 import org.noelware.charted.extensions.doFormatTime
 import org.noelware.charted.extensions.ifSentryEnabled
@@ -65,6 +69,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.security.KeyStore
 import java.security.cert.CertificateFactory
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.net.ssl.SSLContext
 
@@ -80,6 +85,7 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
      * Represents the SSL context to use to create the REST client. This is primarily used in tests
      * and shouldn't be touched at all.
      */
+    @Suppress("MemberVisibilityCanBePrivate")
     var sslContext: SSLContext? = _sslContext
 
     /** Returns all the indexes that Elasticsearch is responsible for */
@@ -91,7 +97,7 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
             }
 
             if (config.features.contains(ServerFeature.WEBHOOKS)) {
-                indexes.add("charted-webhooks")
+                indexes.add("charted-webhook-events")
             }
 
             if (config.features.contains(ServerFeature.DOCKER_REGISTRY)) {
@@ -254,9 +260,7 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
             .setNodesSniffer(
                 ElasticsearchNodesSniffer(
                     lowLevelClient, ElasticsearchNodesSniffer.DEFAULT_SNIFF_REQUEST_TIMEOUT,
-                    config.ssl?.ifNotNull {
-                        ElasticsearchNodesSniffer.Scheme.HTTPS
-                    } ?: ElasticsearchNodesSniffer.Scheme.HTTP,
+                    if (config.ssl != null) ElasticsearchNodesSniffer.Scheme.HTTPS else ElasticsearchNodesSniffer.Scheme.HTTP,
                 ),
             )
             .setSniffAfterFailureDelayMillis(30000).build()
@@ -355,6 +359,78 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
         return ElasticsearchStats(indexes, nodes)
     }
 
+    override suspend fun indexUser(user: User) {
+        log.info("Now indexing user @${user.username} [${user.id}] into Elasticsearch!")
+
+        val resp = client.index {
+            it.document(json.encodeToString(user.toJsonObject()))
+            it.index("charted-users")
+
+            it
+        }.await()
+
+        log.info("Successfully indexed user @${user.username} [${user.id}] (version ${resp.version()})")
+    }
+
+    override suspend fun indexRepository(repository: Repository) {
+        log.info("Now indexing repository ${repository.name} [${repository.id}] into Elasticsearch!")
+
+        val resp = client.index {
+            it.document(json.encodeToString(repository))
+            it.index("charted-repositories")
+
+            it
+        }.await()
+
+        log.info("Successfully indexed repository ${repository.name} [${repository.id}] (version ${resp.version()})")
+    }
+
+    override suspend fun indexOrganization(org: Organization) {
+        log.info("Now indexing organization ${org.name} [${org.id}] into Elasticsearch!")
+
+        val resp = client.index {
+            it.document(json.encodeToString(org.toJsonObject()))
+            it.index("charted-organizations")
+
+            it
+        }.await()
+
+        log.info("Successfully indexed repository ${org.name} [${org.id}] (version ${resp.version()})")
+    }
+
+    override suspend fun unindexUser(user: User) {
+        log.warn("Un-indexing user @${user.username} [${user.id}]")
+
+        client.delete {
+            it.index("charted-users")
+            it.id(user.id.toString())
+
+            it
+        }.await()
+    }
+
+    override suspend fun unindexRepository(repository: Repository) {
+        log.warn("Un-indexing repository ${repository.name} [${repository.id}]")
+
+        client.delete {
+            it.index("charted-repositories")
+            it.id(repository.id.toString())
+
+            it
+        }.await()
+    }
+
+    override suspend fun unindexOrganization(org: Organization) {
+        log.warn("Un-indexing repository ${org.name} [${org.id}]")
+
+        client.delete {
+            it.index("charted-organizations")
+            it.id(org.id.toString())
+
+            it
+        }.await()
+    }
+
     private suspend fun createOrUpdateIndexes() {
         log.info("Attempting to check if indexes [${indexes.joinToString(", ")}] exist or not in Elasticsearch!")
 
@@ -400,6 +476,13 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
     }
 
     private suspend fun indexData() {
+        // Check if the database is initialized or not. Useful for tests, not
+        // for production.
+        if (!TransactionManager.isInitialized()) {
+            log.warn("Missing [TransactionManager], assuming we are in test mode.")
+            return
+        }
+
         log.info("Performing indexing on indexes [${indexes.joinToString(", ")}]")
 
         // We need access to the low level REST client, and the only way (so far) is to
@@ -414,11 +497,12 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
                     val users = asyncTransaction(ChartedScope) {
                         UserEntity.all().map { entity -> User.fromEntity(entity) }.toImmutableList()
                     }
+
                     if (users.isEmpty()) {
                         continue
                     }
 
-                    log.info("Indexing [$users] users in index {$index}...")
+                    log.info("Indexing [${users.size}] users in index {$index}...")
                     val baos = ByteArrayOutputStream()
                     for (entity in users) {
                         withContext(Dispatchers.IO) {
@@ -429,27 +513,60 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
                         }
                     }
 
-                    val request = Request("POST", "/$index/_bulk")
-                    request.entity = ByteArrayEntity(baos.toByteArray(), ContentType.APPLICATION_JSON)
+                    runBulkRequest(sw, restClient, index, baos)
+                }
 
-                    restClient.performRequestAsync(
-                        request,
-                        object : ResponseListener {
-                            override fun onFailure(exception: java.lang.Exception) {
-                                log.error("Unable to perform request [$request]:", exception)
-                            }
+                "charted-repositories" -> {
+                    if (sw.isSuspended) sw.resume()
 
-                            override fun onSuccess(response: Response) {
-                                sw.suspend()
-                                log.info("Performed request [$request] with [${response.statusLine}], took ${sw.doFormatTime()} to complete.")
-                            }
-                        },
-                    )
+                    val repositories = asyncTransaction(ChartedScope) {
+                        RepositoryEntity.all().map { entity -> Repository.fromEntity(entity) }.toImmutableList()
+                    }
+
+                    if (repositories.isEmpty()) {
+                        continue
+                    }
+
+                    log.info("Indexing ${repositories.size} repositories in index {$index}!")
+                    val baos = ByteArrayOutputStream()
+                    for (repo in repositories) {
+                        withContext(Dispatchers.IO) {
+                            baos.write("""{"index":{"_id":${repo.id}}}""".toByteArray())
+                            baos.write('\n'.code)
+                            baos.write(json.encodeToString(repo).toByteArray())
+                            baos.write('\n'.code)
+                        }
+                    }
+
+                    runBulkRequest(sw, restClient, index, baos)
                 }
 
                 else -> log.warn("Index {$index} doesn't support indexing at this time.")
             }
         }
+    }
+
+    private suspend fun runBulkRequest(sw: StopWatch, restClient: RestClient, index: String, baos: ByteArrayOutputStream) {
+        val request = Request("POST", "/$index/_bulk")
+        request.entity = ByteArrayEntity(baos.toByteArray(), ContentType.APPLICATION_JSON)
+
+        val fut = CompletableFuture<Unit>()
+        restClient.performRequestAsync(
+            request,
+            object: ResponseListener {
+                override fun onFailure(exception: java.lang.Exception?) {
+                    fut.completeExceptionally(exception)
+                }
+
+                override fun onSuccess(response: Response) {
+                    sw.suspend()
+                    log.info("Performed request [$request] with status line [${response.statusLine}][${sw.doFormatTime()}]")
+                    fut.complete(Unit)
+                }
+            },
+        )
+
+        fut.await()
     }
 
     /**

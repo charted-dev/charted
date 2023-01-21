@@ -26,7 +26,6 @@ import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-import javax.security.auth.x500.X500Principal;
 import org.bouncycastle.asn1.oiw.OIWObjectIdentifiers;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
@@ -44,18 +43,13 @@ import org.bouncycastle.operator.DigestCalculator;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.bc.BcDigestCalculatorProvider;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
-import org.noelware.charted.common.ReflectionUtils;
 
 /**
  * Represents a utility class to generate a temporary SSL certificate for SSL-based connections. This is used
  * in the Elasticsearch test container and in all server tests to test SSL connections.
  */
 public class TemporarySSLCertificateGenerator {
-    private static final X500Principal LOCALHOST =
-            new X500Principal("cn=localhost, OU=charted-server, O=Noelware, C=US");
-
-    private static final X500Principal LOCALHOST_CA =
-            new X500Principal("cn=localhostCA, OU=charted-server, O=Noelware, C=US");
+    private static final X500Name LOCALHOST = new X500Name("cn=localhost, OU=charted-server, O=Noelware, C=US");
 
     private TemporarySSLCertificateGenerator() {
         /* don't allow direct construction */
@@ -82,13 +76,11 @@ public class TemporarySSLCertificateGenerator {
         final Date notBefore = Date.from(NOW);
         final Date notAfter = Date.from(END);
         final ContentSigner signer = new JcaContentSignerBuilder("SHA256withRSA").build(keyPair.getPrivate());
-        final X500Name x500Name = ReflectionUtils.getAndUseField(LOCALHOST, X500Name.class, "thisX500Name");
-        assert x500Name != null : "Unable to get localhost X500Name from reflection";
 
         final X509v3CertificateBuilder builder = new JcaX509v3CertificateBuilder(
-                x500Name, BigInteger.valueOf(NOW.toEpochMilli()),
+                LOCALHOST, BigInteger.valueOf(NOW.toEpochMilli()),
                 notBefore, notAfter,
-                x500Name, keyPair.getPublic());
+                LOCALHOST, keyPair.getPublic());
 
         final SubjectPublicKeyInfo publicKeyInfo =
                 SubjectPublicKeyInfo.getInstance(keyPair.getPublic().getEncoded());

@@ -55,6 +55,27 @@ class DefaultHelmChartModule(
 ) : HelmChartModule {
     private val log by logging<DefaultHelmChartModule>()
 
+    init {
+        if (storage.service is FilesystemStorageService) {
+            log.info("Creating missing directories if any...")
+            for (dir in listOf("metadata", "repositories")) {
+                val directoryName = (storage.service as FilesystemStorageService).normalizePath("./$dir")
+                val dirFile = File(directoryName)
+                if (dirFile.exists()) continue
+
+                if (dirFile.isFile) {
+                    log.warn("File [$dirFile] was a file, deleting and marking it as a directory")
+                    dirFile.delete()
+                    dirFile.mkdirs()
+
+                    continue
+                }
+
+                dirFile.mkdir()
+            }
+        }
+    }
+
     /**
      * Returns the `index.yaml` contents serialized as [ChartIndexYaml] with the given user.
      * @param owner repository owner

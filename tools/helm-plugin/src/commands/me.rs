@@ -82,12 +82,12 @@ async fn get_user(settings: &Settings, api_key: String) -> Result<Option<User>, 
             // `success` is always present, so it's fine to unwrap
             let success = f["success"].as_bool().unwrap();
             if success {
-                let data = &f.clone()["data"];
+                let data = &f["data"];
                 Some(serde_json::from_value(data.to_owned()).unwrap())
             } else {
                 error!(
                     "API server returned `success` = false, did we fuck up?\n{:?}",
-                    &f.clone()["errors"]
+                    &f["errors"]
                 );
                 None
             }

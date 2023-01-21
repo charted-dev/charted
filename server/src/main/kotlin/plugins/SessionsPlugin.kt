@@ -50,6 +50,12 @@ val API_KEY_KEY: AttributeKey<ApiKeyEntity> = AttributeKey("ApiKey")
 val BASIC_USER_KEY: AttributeKey<UserEntity> = AttributeKey("BasicUser")
 
 /**
+ * Returns the current session that is available
+ */
+val ApplicationCall.session: Session?
+    get() = attributes.getOrNull(SESSIONS_KEY)
+
+/**
  * Same as [currentUserEntity] but returns a safe-serializable [User] entity.
  */
 val ApplicationCall.currentUser: User?
@@ -209,7 +215,7 @@ class SessionsPlugin private constructor(private val config: Configuration) {
         if (data.size != 2) {
             log.warn("Authorization header didn't follow '[Bearer|ApiKey|Basic] [Token]', throwing early!")
             return call.respond(
-                HttpStatusCode.BadRequest,
+                HttpStatusCode.NotAcceptable,
                 ApiResponse.err(
                     "INVALID_AUTHORIZATION_HEADER",
                     "Request authorization header given didn't follow '[Bearer|ApiKey|Basic] [Token]'",
@@ -252,7 +258,7 @@ class SessionsPlugin private constructor(private val config: Configuration) {
         try {
             val session = sessionsManager.fetch(token)
                 ?: return call.respond(
-                    HttpStatusCode.BadRequest,
+                    HttpStatusCode.NotFound,
                     ApiResponse.err(
                         "UNKNOWN_SESSION",
                         "Session with token doesn't exist!",
@@ -299,7 +305,7 @@ class SessionsPlugin private constructor(private val config: Configuration) {
         val data = unhashed.split(':', limit = 2)
         if (data.size != 2) {
             return call.respond(
-                HttpStatusCode.BadRequest,
+                HttpStatusCode.NotAcceptable,
                 ApiResponse.err(
                     "INVALID_BASIC_AUTH_CREDENTIALS",
                     "Basic authentication needs to be 'username:password'",

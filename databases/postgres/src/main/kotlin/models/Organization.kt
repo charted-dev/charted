@@ -19,6 +19,9 @@ package org.noelware.charted.databases.postgres.models
 
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import org.noelware.charted.databases.postgres.entities.OrganizationEntity
 import org.noelware.charted.databases.postgres.flags.OrganizationFlags
 
@@ -63,6 +66,20 @@ data class Organization(
             entity.name,
             entity.id.value,
         )
+    }
+
+    fun toJsonObject(): JsonObject = buildJsonObject {
+        put("verified_publisher", verifiedPublisher)
+        put("twitter_handle", twitterHandle)
+        put("gravatar_email", gravatarEmail)
+        put("display_name", displayName)
+        put("created_at", createdAt.toString())
+        put("updated_at", updatedAt.toString())
+        put("icon_hash", iconHash)
+        put("owner", owner.id)
+        put("flags", flags)
+        put("name", name)
+        put("id", id)
     }
 }
 

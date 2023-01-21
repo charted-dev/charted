@@ -5,7 +5,6 @@ import dev.floofy.utils.slf4j.logging
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import kotlinx.atomicfu.atomic
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive

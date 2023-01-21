@@ -27,7 +27,6 @@ import org.noelware.charted.server.endpoints.v1.api.organizations.OrganizationEn
 import org.noelware.charted.server.endpoints.v1.api.organizations.OrganizationMembersEndpoints
 import org.noelware.charted.server.endpoints.v1.api.organizations.OrganizationWebhooksEndpoints
 import org.noelware.charted.server.endpoints.v1.api.repositories.*
-import org.noelware.charted.server.endpoints.v1.api.users.UserAvatarsEndpoint
 import org.noelware.charted.server.endpoints.v1.api.users.UserEndpoints
 
 /**
@@ -78,10 +77,6 @@ fun RootDsl.charted() {
     //          Users API Endpoints
     // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
     with(UserEndpoints) {
-        toOpenAPI()
-    }
-
-    with(UserAvatarsEndpoint) {
         toOpenAPI()
     }
 

@@ -8,7 +8,6 @@ import org.noelware.charted.modules.search.meilisearch.MeilisearchModule
 import org.noelware.charted.testing.containers.MeilisearchContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
-import kotlin.test.assertEquals
 
 @Testcontainers(disabledWithoutDocker = true)
 class MeilisearchTests {

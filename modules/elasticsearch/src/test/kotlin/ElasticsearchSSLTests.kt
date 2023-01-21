@@ -17,57 +17,63 @@
 
 package org.noelware.charted.modules.elasticsearch.tests
 
+import dev.floofy.utils.java.SetOnce
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.noelware.charted.RandomStringGenerator
 import org.noelware.charted.configuration.kotlin.dsl.Config
+import org.noelware.charted.extensions.reflection.setField
 import org.noelware.charted.modules.elasticsearch.DefaultElasticsearchModule
-import org.slf4j.LoggerFactory
-import org.testcontainers.containers.output.Slf4jLogConsumer
-import org.testcontainers.elasticsearch.ElasticsearchContainer
+import org.noelware.charted.modules.elasticsearch.ElasticsearchModule
+import org.noelware.charted.testing.containers.ElasticsearchContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
-import org.testcontainers.utility.DockerImageName
-import org.testcontainers.utility.MountableFile
-import kotlin.io.path.Path
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.time.Duration.Companion.seconds
 
 @Testcontainers(disabledWithoutDocker = true)
-@Disabled("SSL works with the right certificates, not in CI")
 class ElasticsearchSSLTests {
-    @Test
-    fun `can the module be initialized`(): Unit = runBlocking {
-        val config = Config {
-            jwtSecretKey = RandomStringGenerator.generate(16)
-            search {
-                elasticsearch {
-                    node("https://${elasticsearchContainer.host}:${elasticsearchContainer.getMappedPort(9200)}")
-                    ssl {
-                        caPath = Path("src/test/resources/certs/ca.crt").toRealPath().toString()
-                        validateHostnames = false
-                    }
-                }
-            }
+    private val elasticsearchModule: SetOnce<ElasticsearchModule> = SetOnce()
+    private suspend fun withElasticsearch(block: suspend ElasticsearchModule.() -> Unit = {}) {
+        if (elasticsearchModule.wasSet()) {
+            elasticsearchModule.value.block()
+            return
         }
 
-        val elasticsearch = DefaultElasticsearchModule(config, Json)
-        elasticsearch.connect()
+        val module = DefaultElasticsearchModule(
+            Config {
+                jwtSecretKey = RandomStringGenerator.generate(16)
+                search {
+                    setField("_elasticsearch", elasticsearchContainer.configuration)
+                }
+            },
+            Json,
+        )
 
-        assertFalse(elasticsearch.closed)
-        assertEquals(elasticsearch.serverVersion, "8.5.2")
+        // wait 5 seconds if we need to initialize all indexes
+        withContext(Dispatchers.IO) {
+            module.connect()
+            delay(5.seconds)
+        }
+
+        module.block()
+    }
+
+    @Test
+    fun `can we connect to Elasticsearch`(): Unit = runBlocking {
+        withElasticsearch {
+            assertEquals("8.6.0", serverVersion)
+            assertFalse(closed)
+        }
     }
 
     companion object {
-        @JvmStatic
         @Container
-        internal val elasticsearchContainer: ElasticsearchContainer = ElasticsearchContainer(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:8.5.3")).apply {
-            withCertPath("/usr/share/elasticsearch/config/certs")
-            withCopyFileToContainer(MountableFile.forClasspathResource("/elasticsearch.ssl.yml"), "/usr/share/elasticsearch/config/elasticsearch.yml")
-            withFileSystemBind(Path("src/test/resources/certs").toRealPath().toString(), "/usr/share/elasticsearch/config/certs")
-            withLogConsumer(Slf4jLogConsumer(LoggerFactory.getLogger("co.elastic.elasticsearch.docker")))
-        }
+        private val elasticsearchContainer: ElasticsearchContainer = ElasticsearchContainer()
     }
 }

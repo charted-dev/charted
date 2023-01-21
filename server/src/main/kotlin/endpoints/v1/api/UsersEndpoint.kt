@@ -235,15 +235,14 @@ class UsersEndpoint(
      *
      * @statusCode 201 The newly registered user
      * @statusCode 403 If the server has registrations disabled
-     * @statusCode 406 If any validation exceptions had been thrown (i.e, username/email was taken)
+     * @statusCode 406 If any validation exceptions had been thrown (i.e, username/email was taken), or if registrations are
      * @statusCode 500 If any database errors occur
-     * @statusCode 503 If the registered sessions manager disallows user creation
      */
     @Put
     suspend fun create(call: ApplicationCall) {
         if (!config.registrations) {
             return call.respond(
-                HttpStatusCode.Forbidden,
+                HttpStatusCode.NotAcceptable,
                 ApiResponse.err(
                     "REGISTRATIONS_DISABLED", "This instance has registrations disabled.",
                 ),

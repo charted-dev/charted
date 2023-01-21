@@ -80,11 +80,11 @@ impl Client {
                 );
             }
 
-            let _ = request.try_clone().and_then(|f| Some(f.headers(map)));
+            let _ = request.try_clone().map(|f| f.headers(map));
         }
 
         if let Some(b) = body {
-            let _ = request.try_clone().and_then(|f| Some(f.body::<T>(b)));
+            let _ = request.try_clone().map(|f| f.body::<T>(b));
         }
 
         let req = request.build().map_err(|e| Error::Unknown(Box::new(e)))?;
@@ -118,7 +118,7 @@ impl Client {
                 let s =
                     String::from_utf8(slice.to_vec()).map_err(|e| Error::Unknown(Box::new(e)))?;
 
-                return Err(Error::HttpRequest { status, body: s });
+                Err(Error::HttpRequest { status, body: s })
             }
 
             Err(e) => Err(Error::Unknown(Box::new(e))),

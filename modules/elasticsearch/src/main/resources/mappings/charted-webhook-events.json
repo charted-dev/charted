@@ -1,0 +1,28 @@
+{
+  "settings": {
+    "number_of_shards": 2,
+    "number_of_replicas": 1
+  },
+  "mappings": {
+    "properties": {
+      "successful": {
+        "type": "boolean"
+      },
+      "origin_type": {
+        "type": "keyword"
+      },
+      "origin": {
+        "type": "long"
+      },
+      "action": {
+        "type": "keyword"
+      },
+      "data": {
+        "type": "object"
+      },
+      "id": {
+        "type": "long"
+      }
+    }
+  }
+}

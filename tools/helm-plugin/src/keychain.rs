@@ -37,10 +37,10 @@ impl Keychain {
             .ok_or(Error::UnableToDetermineURLHost)?
             .to_string();
 
-        debug!("built keychain for target '{}:api:key'", host.clone());
+        debug!("built keychain for target '{}:api:key'", host);
         Ok(Keychain {
             inner: Arc::new(Entry::new_with_target(
-                &format!("{}:api:key", host).to_string(),
+                &format!("{host}:api:key"),
                 "charted-server",
                 &username,
             )),

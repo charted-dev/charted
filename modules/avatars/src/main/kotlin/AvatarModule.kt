@@ -17,19 +17,22 @@
 
 package org.noelware.charted.modules.avatars
 
+import io.ktor.http.*
+import io.ktor.http.content.*
+import org.noelware.charted.databases.postgres.models.Organization
+import org.noelware.charted.databases.postgres.models.Repository
+import org.noelware.charted.databases.postgres.models.User
+
 /**
  * Represents the module for handling avatars from different sources.
  */
 interface AvatarModule {
-    /**
-     * Returns a Gravatar email from the [email] specified.
-     * @return The image bytes
-     */
     suspend fun gravatar(email: String): ByteArray
-
-    /**
-     * Returns a Dicebear Identicons avatar from the [id] specified as the seed.
-     * @return The image bytes
-     */
     suspend fun identicons(id: Long): ByteArray
+    suspend fun retrieveRepoIcon(repository: Repository, hash: String? = null): Pair<ContentType, ByteArray>?
+    suspend fun updateRepoIcon(repository: Repository, part: PartData.FileItem)
+    suspend fun retrieveOrgAvatar(org: Organization, hash: String? = null): Pair<ContentType, ByteArray>?
+    suspend fun updateOrgAvatar(org: Organization, part: PartData.FileItem)
+    suspend fun retrieveUserAvatar(user: User, hash: String? = null): Pair<ContentType, ByteArray>?
+    suspend fun updateUserAvatar(user: User, part: PartData.FileItem)
 }

@@ -18,6 +18,9 @@
 package org.noelware.charted.modules.elasticsearch
 
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient
+import org.noelware.charted.databases.postgres.models.Organization
+import org.noelware.charted.databases.postgres.models.Repository
+import org.noelware.charted.databases.postgres.models.User
 import org.noelware.charted.modules.elasticsearch.metrics.ElasticsearchStats
 import java.io.Closeable
 
@@ -64,4 +67,40 @@ interface ElasticsearchModule : Closeable {
      * used for this interface.
      */
     suspend fun stats(): ElasticsearchStats
+
+    /**
+     * Indexes a single [User] into Elasticsearch
+     * @param user the [User] to index
+     */
+    suspend fun indexUser(user: User)
+
+    /**
+     * Indexes a single [Repository] into Elasticsearch
+     * @param repository the [Repository] to index
+     */
+    suspend fun indexRepository(repository: Repository)
+
+    /**
+     * Indexes a single [Organization] into Elasticsearch
+     * @param org the [Organization] to index
+     */
+    suspend fun indexOrganization(org: Organization)
+
+    /**
+     * Un-indexes a single [User] from Elasticsearch
+     * @param user the [User] to unindex
+     */
+    suspend fun unindexUser(user: User)
+
+    /**
+     * Un-indexes a single [Repository] from Elasticsearch
+     * @param repository the [Repository] to unindex
+     */
+    suspend fun unindexRepository(repository: Repository)
+
+    /**
+     * Un-indexes a single [Organization] from Elasticsearch
+     * @param org the [Organization] to unindex
+     */
+    suspend fun unindexOrganization(org: Organization)
 }

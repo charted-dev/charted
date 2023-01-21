@@ -72,4 +72,7 @@ dependencies {
 
     // Snowflake
     api(libs.charted.snowflake)
+
+    // Okio
+    api(libs.okio)
 }

@@ -22,6 +22,5 @@ import org.koin.dsl.module
 import org.noelware.ktor.endpoints.AbstractEndpoint
 
 val usersApiEndpointsModule = module {
-    single { UserAvatarsEndpoint() } bind AbstractEndpoint::class
-    single { UserEndpoints() } bind AbstractEndpoint::class
+    single { UserEndpoints(get(), get(), get(), get(), get(), get(), getOrNull(), getOrNull()) } bind AbstractEndpoint::class
 }

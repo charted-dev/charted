@@ -20,5 +20,5 @@ package org.noelware.charted.modules.avatars
 import org.koin.dsl.module
 
 val avatarsModule = module {
-    single<AvatarModule> { DefaultAvatarModule(get()) }
+    single<AvatarModule> { DefaultAvatarModule(get(), get()) }
 }

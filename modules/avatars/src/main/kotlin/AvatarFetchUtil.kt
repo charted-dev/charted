@@ -43,10 +43,12 @@ private val ACCEPTABLE_CONTENT_TYPES: List<String> = listOf("png", "jpeg", "gif"
 /**
  * Auxiliary utility for handling avatar storage.
  */
+@Deprecated("AvatarFetchUtil's methods have been switched to DefaultAvatarModule", level = DeprecationLevel.WARNING)
 object AvatarFetchUtil {
     private val storage: StorageHandler by inject()
     private val module: AvatarModule by inject()
 
+    @Deprecated("Use AvatarModule#retrieveRepoIcon instead", level = DeprecationLevel.WARNING)
     suspend fun retrieveRepositoryIcon(repository: Repository, hash: String? = null): Pair<ContentType, ByteArray>? {
         if (repository.iconHash == null) return null
 
@@ -96,6 +98,7 @@ object AvatarFetchUtil {
         }
     }
 
+    @Deprecated("Use AvatarModule#updateRepoIcon instead", level = DeprecationLevel.WARNING)
     suspend fun updateRepositoryIcon(repository: Repository, part: PartData.FileItem) {
         val bytes = part.streamProvider().use { it.readBytes() }
         val contentType = storage.service.getContentTypeOf(bytes) ?: "application/octet-stream"
@@ -135,6 +138,7 @@ object AvatarFetchUtil {
      *
      * This method returns null if the user couldn't be found.
      */
+    @Deprecated("Use AvatarModule#retrieveUserAvatar instead", level = DeprecationLevel.WARNING)
     suspend fun retrieve(user: User, hash: String? = null): Pair<ContentType, ByteArray>? {
         if (user.avatarHash == null) {
             return if (user.gravatarEmail != null) {
@@ -195,6 +199,7 @@ object AvatarFetchUtil {
         }
     }
 
+    @Deprecated("Use AvatarModule#updateUserAvatar instead", level = DeprecationLevel.WARNING)
     suspend fun update(id: Long, part: PartData.FileItem) {
         val bytes = part.streamProvider().use { it.readBytes() }
         val contentType = storage.service.getContentTypeOf(bytes) ?: "application/octet-stream"

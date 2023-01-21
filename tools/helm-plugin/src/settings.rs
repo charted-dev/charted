@@ -85,7 +85,7 @@ impl Settings {
         let data_dir = dirs::data_dir().unwrap();
         let charted_data_dir = {
             let mut p = PathBuf::new();
-            p.push(data_dir.clone());
+            p.push(data_dir);
             p.push(format!("{}charted", std::path::MAIN_SEPARATOR_STR));
 
             p
@@ -101,7 +101,7 @@ impl Settings {
             Ok(file) => Ok(file),
             Err(e) => {
                 if e.kind() == ErrorKind::NotFound {
-                    create_dir(charted_data_dir).map_err(|e| Error::IoError(e))?;
+                    create_dir(charted_data_dir).map_err(Error::IoError)?;
 
                     let path = Path::new(&servers_path);
                     if !path.exists() {
@@ -116,7 +116,7 @@ impl Settings {
                         )))
                     }
                 } else {
-                    return Err(Error::IoError(e));
+                    Err(Error::IoError(e))
                 }
             }
         }
