@@ -17,9 +17,10 @@
 
 plugins {
     `charted-module`
-    `charted-test`
 }
 
 dependencies {
+    implementation(project(":modules:metrics"))
+    implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.core)
 }

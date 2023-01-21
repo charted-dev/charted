@@ -18,6 +18,7 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.noelware.charted.gradle.*
 import dev.floofy.utils.gradle.*
 
@@ -47,15 +48,20 @@ repositories {
 }
 
 dependencies {
+    // Kotlin libraries
     implementation(kotlin("reflect"))
     implementation(kotlin("stdlib"))
 
-    // test dependencies :quantD:
+    // Java Annotations (only for Java usage)
+    implementation("org.jetbrains:annotations:24.0.0")
+
+    // Test Dependencies
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
     testImplementation("org.testcontainers:testcontainers:1.17.6")
     testImplementation("org.testcontainers:junit-jupiter:1.17.6")
     testImplementation("org.slf4j:slf4j-simple:2.0.6")
+    testImplementation(project(":test:containers"))
     testImplementation(kotlin("test"))
 
     if (name != "common") {
@@ -67,7 +73,6 @@ dependencies {
 }
 
 spotless {
-    encoding("UTF-8")
     kotlin {
         licenseHeaderFile("${rootProject.projectDir}/assets/HEADING")
         trimTrailingWhitespace()
@@ -79,6 +84,14 @@ spotless {
             setUseExperimental(true)
             setEditorConfigPath(file("${rootProject.projectDir}/.editorconfig"))
         }
+    }
+
+    java {
+        licenseHeaderFile("${rootProject.projectDir}/assets/HEADING")
+        trimTrailingWhitespace()
+        removeUnusedImports()
+        palantirJavaFormat()
+        endWithNewline()
     }
 }
 
@@ -113,9 +126,9 @@ tasks {
     }
 
     withType<KotlinCompile> {
-        kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
-        kotlinOptions.javaParameters = true
-        kotlinOptions.jvmTarget = JAVA_VERSION.majorVersion
+        compilerOptions.freeCompilerArgs.set(listOf("-opt-in=kotlin.RequiresOptIn"))
+        compilerOptions.javaParameters by true
+        compilerOptions.jvmTarget by JvmTarget.fromTarget(JAVA_VERSION.majorVersion)
     }
 
     withType<Test>().configureEach {

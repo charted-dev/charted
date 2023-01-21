@@ -16,8 +16,7 @@
  */
 
 plugins {
-    `charted-java-module`
-    `charted-module` // only so "api()" can work idk why
+    `charted-module`
 }
 
 dependencies {

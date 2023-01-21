@@ -25,23 +25,26 @@ import kotlin.Unit;
 import org.noelware.charted.RandomStringGenerator;
 import org.noelware.charted.common.lazy.Lazy;
 import org.noelware.charted.configuration.kotlin.dsl.search.MeilisearchConfig;
+import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
 public class MeilisearchContainer extends GenericContainer<MeilisearchContainer> {
-    private static final String MEILISEARCH_VERSION = "0.30.5";
+    private static final String MEILISEARCH_VERSION = "v0.30.5";
     private final Lazy<String> MASTER_KEY = Lazy.create(() -> RandomStringGenerator.generate(16));
 
     @SuppressWarnings("resource")
     public MeilisearchContainer() {
         super(DockerImageName.parse("getmeili/meilisearch").withTag(MEILISEARCH_VERSION));
 
+        withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger("com.meilisearch.docker")));
         setWaitStrategy(Wait.forListeningPort().withStartupTimeout(Duration.ofMinutes(1)));
         withExposedPorts(7700);
         withEnv(Map.of(
                 // Disable Meilisearch Analytics
-                "MEILI_NO_ANALYTICS", "1",
+                "MEILI_NO_ANALYTICS", "true",
 
                 // Set the environment for Meilisearch to production
                 "MEILI_ENV", "production",

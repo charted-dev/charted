@@ -45,7 +45,6 @@ val buildDebRepo by tasks.registering(Deb::class) {
     val distBaseUrl = File(project(":cli").projectDir, "distribution")
     val distribution = project(":cli").extensions.getByName<DistributionContainer>("distributions").named("main").get()
     into("/etc/noelware/charted/server") {
-        include("${project(":databases:clickhouse:migrations").projectDir}/bin/ch-migrations")
         with(distribution.contents.include("**/*.jar"))
         from(distBaseUrl) {
             include("config/logback.properties")
