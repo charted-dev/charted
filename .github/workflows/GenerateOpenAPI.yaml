@@ -59,14 +59,18 @@ jobs:
         uses: gradle/wrapper-validation-action@v1
 
       # Build CLI project
-      - name: Run unit and integration tests
+      - name: Build CLI module
         uses: gradle/gradle-build-action@v2
         with:
           arguments: :cli:installDist --no-daemon
 
       - name: Generate OpenAPI document
         id: document
-        run: echo "document=$(./cli/build/install/charted/bin/charted openapi --format=json --version=3.0)" >> $GITHUB_OUTPUT
+        run: |
+          chmod +x ./cli/build/install/charted/bin/charted
+          DOCUMENT=$(./cli/build/install/charted/bin/charted openapi --format=json --version=3.0)
+
+          echo "doc=$DOCUMENT" >> $GITHUB_OUTPUT
 
       - name: Write document to assets/openapi.json
-        run: echo ${{steps.document.outputs.document}}
+        run: echo ${{steps.document.outputs.doc}}
