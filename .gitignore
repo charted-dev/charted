@@ -835,6 +835,5 @@ instance.uuid
 server/src/main/resources/config/logback.properties
 .data/
 .caches/
-!.idea/misc.xml
 !**/distribution/bin/
 !modules/helm-charts/src/test/resources/*.tar.gz
