@@ -80,7 +80,7 @@ class UserEndpoints(
             assertSessionOnly = true
         }
 
-        install(HttpMethod.Post, "/users/@me/avatar", SessionsPlugin) {
+        install(HttpMethod.Post, "/users/@me/avatars", SessionsPlugin) {
             this += "user:avatar:update"
         }
 

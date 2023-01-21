@@ -35,7 +35,7 @@ import org.testcontainers.utility.DockerImageName;
 public class RedisContainer extends GenericContainer<RedisContainer> {
     private static final String OFFICIAL_REDIS = "redis";
     private static final String BITNAMI_REDIS = "bitnami/redis";
-    public static final String VERSION = "7.0.7";
+    public static final String VERSION = "7.0.8";
     private static final Lazy<String> PASSWORD = Lazy.create(() -> RandomStringGenerator.generate(8));
 
     private final boolean isUsingBitnami;
