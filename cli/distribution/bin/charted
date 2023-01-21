@@ -31,6 +31,13 @@ function join {
   echo "$*"
 }
 
+function debug! {
+  local message="$1"
+  if ! [[ "${CHARTED_DEBUG}" =~ ^(no|false|0)$ ]]; then
+    echo $message
+  fi
+}
+
 # Resolve links: $0 may be a link
 app_path=$0
 
@@ -51,6 +58,7 @@ APP_HOME=$( cd "${APP_HOME:-./}" && pwd -P ) || exit
 APP_NAME="charted"
 APP_BASE_NAME=${0##*/}
 CHARTED_DISTRIBUTION=${CHARTED_DISTRIBUTION:-git}
+CHARTED_DEBUG=${CHARTED_DEBUG:-no}
 RESOLVED_JAVA_OPTS=(
   "-XX:+HeapDumpOnOutOfMemoryError"
   "-XX:+ExitOnOutOfMemoryError"
@@ -73,13 +81,15 @@ RESOLVED_JAVA_OPTS=(
 )
 
 export JAVA_OPTS=$(join ' ' "${RESOLVED_JAVA_OPTS[@]}")
-echo "[preinit] Resolved Java Options ==> $JAVA_OPTS"
+debug! "[debug:preinit] Resolved Java Options ==> $JAVA_OPTS"
 
 # Determine the Java command to use.
 if [ -n "${JAVA_HOME:-}" ]; then
   if [ -x "$JAVA_HOME/jre/sh/java" ]; then
     JAVA_EXEC=$JAVA_HOME/jre/sh/java
+    debug! "[debug:java] Found JAVA_EXEC in $JAVA_HOME/jre/sh/java"
   else
+    debug! "[debug:java] Found JAVA_EXEC in $JAVA_HOME/bin/java"
     JAVA_EXEC=$JAVA_HOME/bin/java
   fi
 
@@ -90,7 +100,7 @@ of the Java installation."
   fi
 else
   JAVA_EXEC=java
-  which java >/dev/null 2>&1 || fatal "The JAVA_HOME environment variable was not set and no 'java' command can be
+  which java >/dev/null 2>&1 && debug! "[debug:java] Found JAVA_EXEC from PATH" || fatal "The JAVA_HOME environment variable was not set and no 'java' command can be
 found in the current PATH.
 Please set the location of the JAVA_HOME environment variable to match the location
 of the Java installation."

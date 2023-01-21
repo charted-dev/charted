@@ -33,6 +33,7 @@ dependencies {
     implementation(libs.clikt)
     implementation(libs.kaml)
 
+    // Required subprojects that the :cli requires
     implementation(project(":modules:config:kotlin-script"))
     implementation(project(":modules:helm-charts"))
     implementation(project(":modules:config:yaml"))

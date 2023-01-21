@@ -53,7 +53,10 @@ which will invoke Go itself.
 
     name = "ch-migrations",
 ) {
-    private val okhttp: OkHttpClient = OkHttpClient()
+    private val okhttp: OkHttpClient by lazy {
+        OkHttpClient()
+    }
+
     private val tableName: String by option(
         "--table", "-t",
         help = "The table where migrations should live in [default: migrations]",
