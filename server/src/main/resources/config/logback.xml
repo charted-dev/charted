@@ -86,46 +86,52 @@
     <if condition='isDefined("charted.appenders")'>
         <then>
             <if condition='property("charted.appenders").contains("sentry")'>
-                <appender name="Sentry" class="io.sentry.logback.SentryAppender">
-                    <options>
-                        <dsn>${charted.sentry.dsn}</dsn>
-                    </options>
-                </appender>
+                <then>
+                    <appender name="Sentry" class="io.sentry.logback.SentryAppender">
+                        <options>
+                            <dsn>${charted.sentry.dsn}</dsn>
+                        </options>
+                    </appender>
+                </then>
             </if>
 
             <if condition='property("charted.appenders").contains("logstash")'>
-                <appender name="Logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-                    <destination>${charted.logstash.endpoint}</destination>
-                    <keepAliveDuration>5 minutes</keepAliveDuration>
-                    <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
-                        <providers>
-                            <timestamp />
-                            <message />
-                            <loggerName />
-                            <threadName />
-                            <logLevel />
-                            <callerData />
-                            <stackTrace />
-                            <contextName />
-                            <mdc />
-                            <tags />
-                            <logstashMarkers />
-                            <throwableClassName />
-                            <throwableMessage />
-                            <throwableRootCauseClassName />
-                            <throwableRootCauseMessage />
-                        </providers>
-                        <customFields>{"product":"charted-server","vendor":"Noelware"}</customFields>
-                    </encoder>
-                </appender>
+                <then>
+                    <appender name="Logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+                        <destination>${charted.logstash.endpoint}</destination>
+                        <keepAliveDuration>5 minutes</keepAliveDuration>
+                        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+                            <providers>
+                                <timestamp />
+                                <message />
+                                <loggerName />
+                                <threadName />
+                                <logLevel />
+                                <callerData />
+                                <stackTrace />
+                                <contextName />
+                                <mdc />
+                                <tags />
+                                <logstashMarkers />
+                                <throwableClassName />
+                                <throwableMessage />
+                                <throwableRootCauseClassName />
+                                <throwableRootCauseMessage />
+                            </providers>
+                            <customFields>{"product":"charted-server","vendor":"Noelware"}</customFields>
+                        </encoder>
+                    </appender>
+                </then>
             </if>
 
             <if condition='isNull("charted.log.level")'>
                 <then>
                     <if condition='property("charted.appenders").contains("sentry")'>
-                        <root level="error">
-                            <appender-ref ref="Sentry" />
-                        </root>
+                        <then>
+                            <root level="error">
+                                <appender-ref ref="Sentry" />
+                            </root>
+                        </then>
                     </if>
 
                     <root level="info">
@@ -139,9 +145,11 @@
                 </then>
                 <else>
                     <if condition='property("charted.appenders").contains("sentry")'>
-                        <root level="error">
-                            <appender-ref ref="Sentry" />
-                        </root>
+                        <then>
+                            <root level="error">
+                                <appender-ref ref="Sentry" />
+                            </root>
+                        </then>
                     </if>
 
                     <root level="${charted.log.level}">

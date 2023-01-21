@@ -27,9 +27,9 @@ import io.sentry.SpanStatus
 import kotlinx.atomicfu.AtomicBoolean
 import kotlinx.atomicfu.AtomicLong
 import kotlinx.atomicfu.atomic
-import okhttp3.internal.closeQuietly
 import org.apache.commons.lang3.time.StopWatch
 import org.noelware.charted.configuration.kotlin.dsl.ClickHouseConfig
+import org.noelware.charted.extensions.closeable.closeQuietly
 import org.noelware.charted.extensions.doFormatTime
 import org.noelware.charted.extensions.ifSentryEnabled
 import java.sql.Connection

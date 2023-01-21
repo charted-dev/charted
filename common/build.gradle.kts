@@ -64,9 +64,6 @@ dependencies {
     // Caffeine (in-memory cache)
     api(libs.caffeine)
 
-    // OkHttp (for closeQuietly() function)
-    api(libs.okhttp)
-
     // Bouncycastle
     api(libs.bouncycastle)
 

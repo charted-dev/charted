@@ -30,4 +30,5 @@ dependencies {
     api(libs.noelware.analytics.server.kotlin.support)
     api(libs.noelware.analytics.server)
     implementation(libs.grpc.services)
+    implementation(libs.okhttp)
 }

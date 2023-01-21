@@ -34,8 +34,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import okhttp3.internal.closeQuietly
-import okhttp3.internal.toImmutableList
 import org.apache.commons.lang3.time.StopWatch
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
@@ -61,6 +59,7 @@ import org.noelware.charted.databases.postgres.entities.UserEntity
 import org.noelware.charted.databases.postgres.models.Organization
 import org.noelware.charted.databases.postgres.models.Repository
 import org.noelware.charted.databases.postgres.models.User
+import org.noelware.charted.extensions.closeable.closeQuietly
 import org.noelware.charted.extensions.doFormatTime
 import org.noelware.charted.extensions.ifSentryEnabled
 import org.noelware.charted.extensions.reflection.getAndUseField
@@ -495,7 +494,7 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
                 "charted-users" -> {
                     if (sw.isSuspended) sw.resume()
                     val users = asyncTransaction(ChartedScope) {
-                        UserEntity.all().map { entity -> User.fromEntity(entity) }.toImmutableList()
+                        UserEntity.all().map { entity -> User.fromEntity(entity) }.toList()
                     }
 
                     if (users.isEmpty()) {
@@ -520,7 +519,7 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
                     if (sw.isSuspended) sw.resume()
 
                     val repositories = asyncTransaction(ChartedScope) {
-                        RepositoryEntity.all().map { entity -> Repository.fromEntity(entity) }.toImmutableList()
+                        RepositoryEntity.all().map { entity -> Repository.fromEntity(entity) }.toList()
                     }
 
                     if (repositories.isEmpty()) {

@@ -53,7 +53,7 @@ which will invoke Go itself.
 
     name = "ch-migrations",
 ) {
-    private val okhttp: OkHttpClient = OkHttpClient.Builder().build()
+    private val okhttp: OkHttpClient = OkHttpClient()
     private val tableName: String by option(
         "--table", "-t",
         help = "The table where migrations should live in [default: migrations]",
@@ -97,7 +97,7 @@ which will invoke Go itself.
                 "--database=$database",
             )
 
-            if (hosts.every { it.isNotBlank() }) {
+            if (hosts.isNotEmpty() && hosts.every { it.isNotBlank() }) {
                 args.add("--hosts=${hosts.joinToString(",")}")
             } else {
                 args.add("--hosts=localhost:9000")

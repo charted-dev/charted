@@ -119,4 +119,7 @@ dependencies {
     implementation(files(currentJvm.toolsJar))
     implementation(libs.opentelemetry.sdk)
     implementation(libs.opentelemetry.api)
+
+    // OkHttp
+    implementation(libs.okhttp)
 }

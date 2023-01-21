@@ -32,21 +32,10 @@ dependencies {
     implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.19.0")
     implementation("com.diffplug.spotless:spotless-plugin-gradle:6.13.0")
     implementation("com.netflix.nebula:gradle-ospackage-plugin:11.0.0")
+    implementation("dev.floofy.commons:gradle:2.4.2")
+    implementation(kotlin("serialization", "1.8.0"))
+    implementation(kotlin("gradle-plugin", "1.8.0"))
     implementation(gradleApi())
-
-    // Fixes issues with plugin invariants with Kotlin >=1.8
-    // https://github.com/gradle/gradle/issues/22510
-    implementation("dev.floofy.commons:gradle:2.4.2") {
-        exclude("org.jetbrains.kotlin", "kotlin-gradle-plugin-api")
-    }
-
-    implementation("org.jetbrains.kotlin:kotlin-serialization:1.8.0") {
-        exclude("org.jetbrains.kotlin", "kotlin-gradle-plugin-api")
-    }
-
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0") {
-        exclude("org.jetbrains.kotlin", "kotlin-gradle-plugin-api")
-    }
 }
 
 gradlePlugin {
