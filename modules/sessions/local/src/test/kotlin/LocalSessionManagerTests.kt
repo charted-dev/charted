@@ -20,32 +20,23 @@ package org.noelware.charted.modules.sessions.local.tests
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
-import okhttp3.internal.closeQuietly
 import org.junit.jupiter.api.Test
 import org.noelware.charted.configuration.kotlin.dsl.Config
-import org.noelware.charted.configuration.kotlin.dsl.RedisConfig
+import org.noelware.charted.extensions.closeable.closeQuietly
+import org.noelware.charted.extensions.reflection.setField
 import org.noelware.charted.modules.redis.DefaultRedisClient
 import org.noelware.charted.modules.redis.RedisClient
 import org.noelware.charted.modules.sessions.local.LocalSessionManager
-import org.slf4j.LoggerFactory
+import org.noelware.charted.testing.containers.RedisContainer
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
-import org.testcontainers.containers.GenericContainer
-import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
-import org.testcontainers.utility.DockerImageName
 import kotlin.test.assertEquals
 
 @Testcontainers(disabledWithoutDocker = true)
 class LocalSessionManagerTests {
     private fun <T> withRedisConnection(block: suspend (redis: RedisClient, sessionsManager: LocalSessionManager) -> T): T = try {
-        val redisClient = DefaultRedisClient(
-            RedisConfig(
-                host = redisContainer.host,
-                port = redisContainer.firstMappedPort,
-            ),
-        )
-
+        val redisClient = DefaultRedisClient(redisContainer.configuration)
         val result = runBlocking {
             redisClient.connect()
             block(
@@ -56,10 +47,7 @@ class LocalSessionManagerTests {
                     Json,
                     Config {
                         jwtSecretKey = "blablabla"
-                        redis {
-                            host = redisContainer.host
-                            port = redisContainer.firstMappedPort
-                        }
+                        setField("_redis", redisContainer.configuration)
                     },
                 ),
             )
@@ -80,9 +68,6 @@ class LocalSessionManagerTests {
         // We need a Redis container for the session manager
         @JvmStatic
         @Container
-        private val redisContainer: GenericContainer<*> = GenericContainer(DockerImageName.parse("redis:7.0.8-alpine")).apply {
-            withExposedPorts(6379)
-            withLogConsumer(Slf4jLogConsumer(LoggerFactory.getLogger("com.redis.docker")))
-        }
+        private val redisContainer: RedisContainer = RedisContainer()
     }
 }
