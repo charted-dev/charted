@@ -24,15 +24,17 @@ import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.mordant.terminal.Terminal
 import dev.floofy.utils.kotlin.every
 import dev.floofy.utils.kotlin.ifNotNull
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import org.apache.commons.lang3.time.StopWatch
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.cli.logger
 import org.noelware.charted.common.Architecture
 import org.noelware.charted.common.OperatingSystem
 import org.noelware.charted.extensions.doFormatTime
+import org.noelware.charted.extensions.toUri
 import java.io.File
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse.BodyHandlers
 import kotlin.system.exitProcess
 
 private val OPERATING_SYSTEM = OperatingSystem.current()
@@ -53,10 +55,7 @@ which will invoke Go itself.
 
     name = "ch-migrations",
 ) {
-    private val okhttp: OkHttpClient by lazy {
-        OkHttpClient()
-    }
-
+    private val httpClient = HttpClient.newHttpClient()
     private val tableName: String by option(
         "--table", "-t",
         help = "The table where migrations should live in [default: migrations]",
@@ -129,25 +128,22 @@ which will invoke Go itself.
         terminal.logger.info("Installing ch-migrations binary from URL [$url]")
 
         val sw = StopWatch.createStarted()
-        val req = Request.Builder().apply {
-            url(url)
-            header("User-Agent", "Noelware/charted-server (+https://github.com/charted-dev/charted; ${ChartedInfo.version}+${ChartedInfo.commitHash})")
-            method("GET", null)
-        }.build()
+        val req = HttpRequest.newBuilder(url.toUri())
+            .header("User-Agent", "Noelware/charted-server (+https://github.com/charted-dev/charted; ${ChartedInfo.version}+${ChartedInfo.commitHash})")
+            .GET()
+            .build()
 
-        okhttp.newCall(req).execute().use { res ->
-            if (!res.isSuccessful) {
-                terminal.logger.warn("Received status code [${res.code}] when requesting to [$url]")
-                return@run
-            }
-
-            val body: ByteArray = res.body!!.bytes()
-            migrationsBin.writeBytes(body)
+        val res = httpClient.send(req, BodyHandlers.ofByteArray())
+        if (res.statusCode() !in 200..300) {
+            terminal.logger.warn("Received status code [${res.statusCode()}] when requesting to [$url], try again later?")
+            return
         }
 
-        // set the binary executable
+        val data = res.body()
+        migrationsBin.writeBytes(data)
         migrationsBin.setExecutable(true)
-        terminal.logger.info("Took ${sw.doFormatTime()} to download in [$migrationsBin] from URL [$url]")
-        return run() // run again since it will exist.
+
+        terminal.logger.info("Took ${sw.doFormatTime()} to download in [$migrationsBin] from URI [$url]")
+        return run() // it will exist, so it is safe, though this might be a race condition.
     }
 }

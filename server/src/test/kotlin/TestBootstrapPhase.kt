@@ -6,7 +6,7 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import dev.floofy.utils.slf4j.logging
 import io.ktor.client.*
-import io.ktor.client.engine.okhttp.*
+import io.ktor.client.engine.java.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -144,14 +144,7 @@ object TestBootstrapPhase {
             single { ds }
 
             single {
-                HttpClient(OkHttp) {
-                    engine {
-                        config {
-                            followSslRedirects(true)
-                            followRedirects(true)
-                        }
-                    }
-
+                HttpClient(Java) {
                     install(ContentNegotiation) {
                         this.json(json)
                     }

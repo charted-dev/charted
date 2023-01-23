@@ -26,8 +26,4 @@ dependencies {
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.client.core)
     implementation(libs.jwt)
-
-    testImplementation(libs.ktor.client.content.negotitation)
-    testImplementation(libs.ktor.server.test.host)
-    testImplementation(libs.ktor.client.okhttp)
 }

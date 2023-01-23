@@ -25,7 +25,6 @@ dependencies {
     api(libs.lettuce)
 
     testImplementation(libs.testcontainers.k3s)
-    testImplementation(libs.ktor.client.okhttp)
     testImplementation(libs.kubernetes.client)
     testImplementation(libs.ktor.client.core)
 }

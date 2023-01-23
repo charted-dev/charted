@@ -22,11 +22,9 @@ plugins {
 val currentJvm: org.gradle.internal.jvm.Jvm = org.gradle.internal.jvm.Jvm.current()
 
 dependencies {
-    // Testing containers
-    testImplementation(project(":test:containers"))
-
-    // Ktor Testing
+    // test dependencies
     testImplementation(libs.ktor.server.test.host)
+    testImplementation(libs.ktor.client.java)
 
     // Projects required to run the server :quantD:
     implementation(project(":databases:clickhouse"))
@@ -80,9 +78,9 @@ dependencies {
     implementation(libs.ktor.server.ratelimiting)
     implementation(libs.ktor.server.websockets)
     implementation(libs.ktor.serialization)
-    implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.cors)
+    implementation(libs.ktor.client.java)
 
     // JWT
     implementation(libs.jwt)
@@ -119,7 +117,4 @@ dependencies {
     implementation(files(currentJvm.toolsJar))
     implementation(libs.opentelemetry.sdk)
     implementation(libs.opentelemetry.api)
-
-    // OkHttp
-    implementation(libs.okhttp)
 }

@@ -18,14 +18,12 @@
 package org.noelware.charted.modules.analytics
 
 import dev.floofy.utils.java.SetOnce
+import dev.floofy.utils.slf4j.logging
 import io.grpc.protobuf.services.ProtoReflectionService
-import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
+import kotlinx.serialization.json.decodeFromStream
 import org.bouncycastle.util.io.pem.PemReader
 import org.noelware.analytics.jvm.server.AnalyticsServer
 import org.noelware.analytics.jvm.server.AnalyticsServerBuilder
@@ -34,11 +32,15 @@ import org.noelware.analytics.protobufs.v1.BuildFlavour
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.DistributionType
 import org.noelware.charted.configuration.kotlin.dsl.NoelwareAnalyticsConfig
+import org.noelware.charted.extensions.toUri
 import org.noelware.charted.types.responses.ApiResponse
-import org.slf4j.LoggerFactory
 import java.io.Closeable
 import java.io.IOException
 import java.io.StringReader
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpRequest.BodyPublishers
+import java.net.http.HttpResponse.BodyHandlers
 import java.security.KeyFactory
 import java.security.spec.X509EncodedKeySpec
 import java.time.Instant
@@ -51,21 +53,24 @@ import javax.crypto.Cipher
  *
  * @param config The configuration object for configuring the daemon
  */
-class AnalyticsDaemon(private val config: NoelwareAnalyticsConfig, private val extension: Extension<*>) : Closeable {
+class AnalyticsDaemon(
+    private val json: Json,
+    private val config: NoelwareAnalyticsConfig,
+    private val extension: Extension<*>
+) : Closeable {
+    private val httpClient: HttpClient = HttpClient.newHttpClient()
     private val server = SetOnce<AnalyticsServer>()
-    private val logger = LoggerFactory.getLogger(AnalyticsDaemon::class.java)
-    private val httpClient = OkHttpClient.Builder()
-        .addInterceptor { chain -> chain.proceed(chain.request().newBuilder().header("Authorization", config.endpointAuth!!).build()) }
-        .build()
+    private val log by logging<AnalyticsDaemon>()
 
+    @OptIn(ExperimentalSerializationApi::class)
     fun start() {
         if (server.wasSet()) {
-            logger.warn("Analytics daemon is already running! Not doing anything...")
+            log.warn("Analytics daemon is already running! Not doing anything...")
             return
         }
 
         val bindIP = config.grpcBindIp ?: "127.0.0.1"
-        logger.info("Starting the protocol server with host [$bindIP:${config.port}]")
+        log.info("Starting the protocol server with host [$bindIP:${config.port}]")
         val serverBuilder = AnalyticsServerBuilder(bindIP, config.port)
             .withServiceToken(config.serviceToken)
             .withExtension(extension)
@@ -96,37 +101,39 @@ class AnalyticsDaemon(private val config: NoelwareAnalyticsConfig, private val e
 
         // TODO: Allow setting of bind IP, default 0.0.0.0
         val initReq = Requests.InitRequest("0.0.0.0:${config.port}")
-        val request: Request = Request.Builder()
-            .post(Json.encodeToString(initReq).toRequestBody("application/json".toMediaType()))
-            .url("${config.endpoint}/instances/${serverBuilder.instanceUUID()}/init")
+        val request = HttpRequest
+            .newBuilder("${config.endpoint}/instances/${serverBuilder.instanceUUID()}/init".toUri())
+            .POST(BodyPublishers.ofString(json.encodeToString(initReq)))
+            .header("Content-Type", "application/json")
             .build()
 
-        httpClient.newCall(request).execute().use { resp ->
-            val initApiResponse = Json.decodeFromString<ApiResponse<Requests.InitResponse>>(resp.body!!.string())
-            if (initApiResponse.success) {
+        val resp = httpClient.send(request, BodyHandlers.ofInputStream())
+        return resp.body().use { stream ->
+            val r: ApiResponse<Requests.InitResponse> = json.decodeFromStream(stream)
+            if (r.success) {
                 val apiToken = Base64.getDecoder().decode(config.serviceToken).decodeToString().split(":")[1]
-                val okRes = initApiResponse as ApiResponse.Ok<Requests.InitResponse>
-                val pemReader = PemReader(StringReader(okRes.data!!.pubKey))
+                val pemReader = PemReader(StringReader((r as ApiResponse.Ok<Requests.InitResponse>).data!!.pubKey))
                 val keySpec = X509EncodedKeySpec(pemReader.readPemObject().content)
                 val pubKey = KeyFactory.getInstance("RSA").generatePublic(keySpec)
                 val cipher = Cipher.getInstance("RSA")
                 cipher.init(Cipher.ENCRYPT_MODE, pubKey)
 
                 val encoded = Base64.getEncoder().encodeToString(cipher.doFinal(apiToken.toByteArray()))
-                val finalReq: Request = Request.Builder()
-                    .post(Json.encodeToString(Requests.FinalizeRequest(encoded)).toRequestBody("application/json".toMediaType()))
-                    .url("${config.endpoint}/instances/${serverBuilder.instanceUUID()}/finalize")
+                val final = HttpRequest.newBuilder("${config.endpoint}/instances/${serverBuilder.instanceUUID()}/finalize".toUri())
+                    .header("Content-Type", "application/json")
+                    .POST(BodyPublishers.ofString(json.encodeToString(Requests.FinalizeRequest(encoded))))
                     .build()
 
-                httpClient.newCall(finalReq).execute().use { res ->
-                    try {
-                        val decoded = Json.decodeFromString<ApiResponse<Unit>>(res.body!!.string())
-                        if (!decoded.success) {
-                            val errors = decoded as ApiResponse.Err
-                            logger.info("Finalize request failed with status: {}, errors: {}", res.code, errors.errors)
+                val res = httpClient.send(final, BodyHandlers.ofInputStream())
+                res.body().use { `is` ->
+                    val decoded: ApiResponse<Unit> = json.decodeFromStream(`is`)
+                    if (!decoded.success) {
+                        val errors = decoded as ApiResponse.Err
+                        val printableErrors = errors.errors.map { err ->
+                            "\t* ${err.code}: ${err.message}"
                         }
-                    } catch (_: Exception) {
-                        logger.info("Response code when finalizing: {} {}", res.code, res.message)
+
+                        log.error("Unable to finalize request with status [${res.statusCode()}] with errors:\n${printableErrors.joinToString("\n")}")
                     }
                 }
             }

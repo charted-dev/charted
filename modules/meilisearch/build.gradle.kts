@@ -21,6 +21,6 @@ plugins {
 
 dependencies {
     implementation(project(":modules:metrics"))
-    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.java)
     implementation(libs.ktor.client.core)
 }

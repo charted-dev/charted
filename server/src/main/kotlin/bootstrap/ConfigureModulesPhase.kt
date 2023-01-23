@@ -23,7 +23,7 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import dev.floofy.utils.slf4j.logging
 import io.ktor.client.*
-import io.ktor.client.engine.okhttp.*
+import io.ktor.client.engine.java.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 import io.sentry.Sentry
@@ -238,14 +238,7 @@ object ConfigureModulesPhase : BootstrapPhase() {
             single { ds }
 
             single {
-                HttpClient(OkHttp) {
-                    engine {
-                        config {
-                            followSslRedirects(true)
-                            followRedirects(true)
-                        }
-                    }
-
+                HttpClient(Java) {
                     install(ContentNegotiation) {
                         this.json(json)
                     }
@@ -292,7 +285,7 @@ object ConfigureModulesPhase : BootstrapPhase() {
         }
 
         if (config.analytics != null) {
-            val daemon = AnalyticsDaemon(config.analytics!!, ChartedAnalyticsExtension(metrics))
+            val daemon = AnalyticsDaemon(json, config.analytics!!, ChartedAnalyticsExtension(metrics))
             modules.add(
                 module {
                     single { daemon }

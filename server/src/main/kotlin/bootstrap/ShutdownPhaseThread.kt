@@ -23,10 +23,10 @@ import dev.floofy.utils.koin.injectOrNull
 import dev.floofy.utils.slf4j.logging
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
-import okhttp3.internal.closeQuietly
 import org.koin.core.context.GlobalContext
 import org.noelware.charted.ChartedScope
 import org.noelware.charted.databases.clickhouse.ClickHouseConnection
+import org.noelware.charted.extensions.closeable.closeQuietly
 import org.noelware.charted.modules.analytics.AnalyticsDaemon
 import org.noelware.charted.modules.elasticsearch.ElasticsearchModule
 import org.noelware.charted.modules.redis.RedisClient

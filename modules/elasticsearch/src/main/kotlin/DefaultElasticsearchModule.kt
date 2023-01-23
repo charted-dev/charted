@@ -62,7 +62,6 @@ import org.noelware.charted.databases.postgres.models.User
 import org.noelware.charted.extensions.closeable.closeQuietly
 import org.noelware.charted.extensions.doFormatTime
 import org.noelware.charted.extensions.ifSentryEnabled
-import org.noelware.charted.extensions.reflection.getAndUseField
 import org.noelware.charted.modules.elasticsearch.metrics.ElasticsearchStats
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -483,10 +482,7 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
         }
 
         log.info("Performing indexing on indexes [${indexes.joinToString(", ")}]")
-
-        // We need access to the low level REST client, and the only way (so far) is to
-        // use reflection to get the value. Yeah, very icky, I know. :(
-        val restClient: RestClient = (client._transport() as RestClientTransport).getAndUseField("restClient")!!
+        val restClient: RestClient = (client._transport() as RestClientTransport).restClient()
         val sw = StopWatch.createStarted()
 
         for (index in indexes) {
