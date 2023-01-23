@@ -45,6 +45,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: recursive
+          fetch-depth: 0
 
       - name: Setup Node.js 19
         uses: actions/setup-node@v3
@@ -69,15 +70,23 @@ jobs:
       - name: Run Prettier on ./assets/openapi.json
         run: npx prettier --write ./assets/openapi.json --config .prettierrc.json --print-width 80
 
-      - name: Push new changes
-        uses: EndBug/add-and-commit@v9
-        with:
-          add: .
-          committer_name: Noel
-          committer_email: cutie@floofy.dev
-          author_name: Noel[bot]
-          author_email: noelbot@users.noreply.github.com
-          default_author: user_info
-          message: "[skip ci] Update OpenAPI document"
-          push: true
-          github_token: ${{secrets.NOEL_TOKEN}}
+      - name: Check if git status is dirty
+        id: git_status
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+              echo '::set-output name=STATUS_DIRTY::true'
+          else
+            echo '::set-output name=STATUS_DIRTY::false'
+          fi
+
+      - name: Commit changes (if dirty)
+        if: contains(steps.git_status.outputs.STATUS_DIRTY, 'true')
+        run: |
+          git config --global user.name "Noel[bot]"
+          git config --global user.email "noelbot@users.noreply.github.com"
+          git config --global committer.name "Noel"
+          git config --global committer.email "cutie@floofy.dev"
+
+          git add .
+          git commit -m "[skip ci] Update OpenAPI document"
+          git push -u origin master
