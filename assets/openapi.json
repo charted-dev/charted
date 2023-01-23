@@ -1047,12 +1047,12 @@
       "LocalDateTime": {
         "type": "object",
         "properties": {
-          "time": { "$ref": "#/components/schemas/LocalTime" },
           "year": { "type": "integer", "format": "int32" },
           "dayOfMonth": { "type": "integer", "format": "int32" },
           "hour": { "type": "integer", "format": "int32" },
           "minute": { "type": "integer", "format": "int32" },
           "second": { "type": "integer", "format": "int32" },
+          "time": { "$ref": "#/components/schemas/LocalTime" },
           "month": {
             "type": "string",
             "enum": [
