@@ -63,12 +63,6 @@ jobs:
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
 
-      # Build CLI project
-      - name: Build CLI module
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: :cli:installDist --no-daemon
-
       - name: Generate OpenAPI document
         run: chmod +x ./scripts/generate-openapi.sh && ./scripts/generate-openapi.sh
 
