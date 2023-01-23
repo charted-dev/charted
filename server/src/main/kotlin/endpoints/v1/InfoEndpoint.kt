@@ -86,8 +86,8 @@ class InfoEndpoint : AbstractEndpoint("/info") {
                         example = ApiResponse.Ok(
                             InfoResponse(
                                 distribution = ChartedInfo.distribution,
-                                commitHash = ChartedInfo.commitHash,
-                                buildDate = ChartedInfo.buildDate,
+                                commitHash = "4838827d",
+                                buildDate = "2023-01-23T03:35:13Z",
                                 product = "charted-server",
                                 version = ChartedInfo.version,
                                 vendor = "Noelware",
