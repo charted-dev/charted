@@ -71,8 +71,6 @@ jobs:
 
       - name: Push new changes
         uses: EndBug/add-and-commit@v9
-        env:
-          GITHUB_TOKEN: ${{secrets.NOEL_TOKEN}}
         with:
           add: .
           committer_name: Noel
@@ -82,3 +80,4 @@ jobs:
           default_author: user_info
           message: "[skip ci] Update OpenAPI document"
           push: true
+          github_token: ${{secrets.NOEL_TOKEN}}
