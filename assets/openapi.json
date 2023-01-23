@@ -104,8 +104,8 @@
                   "success": true,
                   "data": {
                     "distribution": "GIT",
-                    "commitHash": "6033068e",
-                    "buildDate": "2023-01-23T01:49:52Z",
+                    "commitHash": "4838827d",
+                    "buildDate": "2023-01-23T03:35:13Z",
                     "product": "charted-server",
                     "version": "0.4.0-nightly",
                     "vendor": "Noelware"
