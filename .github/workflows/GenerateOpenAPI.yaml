@@ -67,7 +67,7 @@ jobs:
         run: chmod +x ./scripts/generate-openapi.sh && ./scripts/generate-openapi.sh
 
       - name: Run Prettier on ./assets/openapi.json
-        run: npx prettier --write ./assets/openapi.json --config .prettierrc.json
+        run: npx prettier --write ./assets/openapi.json --config .prettierrc.json --print-width 80
 
       - name: Push new changes
         uses: EndBug/add-and-commit@v9
@@ -75,10 +75,10 @@ jobs:
           GITHUB_TOKEN: ${{secrets.NOEL_TOKEN}}
         with:
           add: .
-          author_name: Noel
-          author_email: cutie@floofy.dev
-          committer_name: Noel[bot]
-          committer_email: noelbot@users.noreply.github.com
-          default: user_info
+          committer_name: Noel
+          committer_email: cutie@floofy.dev
+          author_name: Noel[bot]
+          author_email: noelbot@users.noreply.github.com
+          default_author: user_info
           message: "[skip ci] Update OpenAPI document"
           push: true
