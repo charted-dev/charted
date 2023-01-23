@@ -12,22 +12,17 @@ import io.ktor.client.engine.java.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.debug.DebugProbes
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.EmptySerializersModule
 import org.apache.commons.validator.routines.EmailValidator
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.DatabaseConfig
 import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.KoinApplication
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.GlobalContext.startKoin
 import org.koin.dsl.module
-import org.noelware.charted.ChartedScope
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.features.ServerFeature
 import org.noelware.charted.databases.clickhouse.ClickHouseConnection
@@ -35,7 +30,6 @@ import org.noelware.charted.databases.clickhouse.DefaultClickHouseConnection
 import org.noelware.charted.databases.postgres.createOrUpdateEnums
 import org.noelware.charted.databases.postgres.tables.*
 import org.noelware.charted.extensions.closeable.closeQuietly
-import org.noelware.charted.modules.analytics.AnalyticsDaemon
 import org.noelware.charted.modules.apikeys.ApiKeyManager
 import org.noelware.charted.modules.apikeys.DefaultApiKeyManager
 import org.noelware.charted.modules.avatars.avatarsModule
@@ -55,8 +49,6 @@ import org.noelware.charted.modules.sessions.SessionManager
 import org.noelware.charted.modules.sessions.local.LocalSessionManager
 import org.noelware.charted.modules.storage.DefaultStorageHandler
 import org.noelware.charted.modules.storage.StorageHandler
-import org.noelware.charted.server.ChartedServer
-import org.noelware.charted.server.bootstrap.StartServerPhase
 import org.noelware.charted.server.endpoints.v1.endpointsModule
 import org.noelware.charted.server.logging.KoinLogger
 import org.noelware.charted.snowflake.Snowflake
@@ -182,9 +174,11 @@ object TestBootstrapPhase {
                 val meilisearch = DefaultMeilisearchModule(config.search!!.meilisearch!!, httpClient, json)
                 meilisearch.init()
 
-                modules.add(module {
-                    single<MeilisearchModule> { meilisearch }
-                })
+                modules.add(
+                    module {
+                        single<MeilisearchModule> { meilisearch }
+                    },
+                )
             }
         }
 

@@ -22,7 +22,6 @@ import java.util.Map;
 import kotlin.Unit;
 import org.noelware.charted.configuration.kotlin.dsl.DatabaseConfig;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 

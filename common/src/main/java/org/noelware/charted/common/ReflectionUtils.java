@@ -88,7 +88,11 @@ public class ReflectionUtils {
         final Class<?> klazz = instance.getClass();
         final String cacheKey = "%s#%s".formatted(klazz.getSimpleName(), fieldName);
         final Object cachedResult = _fieldCache.get(cacheKey, (key) -> {
-            LOG.info("Finding field [{}] in class [{}], with infer class [{}]", fieldName, klazz.getSimpleName(), inferClass);
+            LOG.info(
+                    "Finding field [{}] in class [{}], with infer class [{}]",
+                    fieldName,
+                    klazz.getSimpleName(),
+                    inferClass);
             try {
                 final Field field = klazz.getDeclaredField(fieldName);
                 field.setAccessible(true);

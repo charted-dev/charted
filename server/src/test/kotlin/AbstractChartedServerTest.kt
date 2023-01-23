@@ -17,21 +17,16 @@
 
 package org.noelware.charted.server.testing
 
-import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.koin.inject
 import dev.floofy.utils.koin.injectOrNull
 import dev.floofy.utils.slf4j.logging
-import kotlinx.atomicfu.atomic
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.junit.jupiter.api.AfterAll
-import org.noelware.charted.ChartedScope
 import org.noelware.charted.RandomStringGenerator
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.features.ServerFeature
-import org.noelware.charted.configuration.kotlin.dsl.search.elasticsearch.AuthenticationStrategy
 import org.noelware.charted.databases.postgres.entities.UserConnectionEntity
 import org.noelware.charted.databases.postgres.entities.UserEntity
 import org.noelware.charted.databases.postgres.models.User
@@ -44,7 +39,6 @@ import org.noelware.charted.testing.containers.MeilisearchContainer
 import org.noelware.charted.testing.containers.PostgreSQLContainer
 import org.noelware.charted.testing.containers.RedisContainer
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
-import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Represents an abstract test that delegates over [TestChartedServer] and runs the server

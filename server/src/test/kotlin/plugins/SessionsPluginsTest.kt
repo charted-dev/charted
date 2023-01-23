@@ -22,7 +22,6 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.util.*
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -40,9 +39,12 @@ class SessionsPluginsTest: AbstractChartedServerTest() {
     fun test0(): Unit = withChartedServer {
         val res = client.get("/users/@me")
         assertEquals(res.status, HttpStatusCode.Forbidden)
-        assertEquals("""
+        assertEquals(
+            """
             {"success":false,"errors":[{"code":"MISSING_AUTHORIZATION_HEADER","message":"Rest handler requires an Authorization header to be present","detail":{"method":"GET","uri":"/users/@me"}}]}
-        """.trimIndent(), res.bodyAsText())
+            """.trimIndent(),
+            res.bodyAsText(),
+        )
     }
 
     @DisplayName("bail if invalid auth header")
@@ -53,9 +55,12 @@ class SessionsPluginsTest: AbstractChartedServerTest() {
         }
 
         assertEquals(res.status, HttpStatusCode.NotAcceptable)
-        assertEquals("""
+        assertEquals(
+            """
             {"success":false,"errors":[{"code":"INVALID_AUTHORIZATION_HEADER","message":"Request authorization header given didn't follow '[Bearer|ApiKey|Basic] [Token]'","detail":{"method":"GET","uri":"/users/@me"}}]}
-        """.trimIndent(), res.bodyAsText())
+            """.trimIndent(),
+            res.bodyAsText(),
+        )
     }
 
     @DisplayName("bail if the auth header value is invalid")
@@ -66,9 +71,12 @@ class SessionsPluginsTest: AbstractChartedServerTest() {
         }
 
         assertEquals(res.status, HttpStatusCode.NotAcceptable)
-        assertEquals("""
+        assertEquals(
+            """
             {"success":false,"errors":[{"code":"INVALID_AUTHORIZATION_HEADER_PREFIX","message":"The given authorization prefix [Wuff] was not 'Bearer', 'ApiKey', or 'Basic'"}]}
-        """.trimIndent(), res.bodyAsText())
+            """.trimIndent(),
+            res.bodyAsText(),
+        )
     }
 
     @DisplayName("[basic credentials] bail if invalid user credentials")
@@ -80,9 +88,12 @@ class SessionsPluginsTest: AbstractChartedServerTest() {
         }
 
         assertEquals(res1.status, HttpStatusCode.NotAcceptable)
-        assertEquals("""
+        assertEquals(
+            """
             {"success":false,"errors":[{"code":"INVALID_BASIC_AUTH_CREDENTIALS","message":"Basic authentication needs to be 'username:password'","detail":{"method":"GET","uri":"/users/@me"}}]}
-        """.trimIndent(), res1.bodyAsText())
+            """.trimIndent(),
+            res1.bodyAsText(),
+        )
 
         // 2. Check if the user is not in the database
         val res2 = client.get("/users/@me") {
@@ -90,9 +101,12 @@ class SessionsPluginsTest: AbstractChartedServerTest() {
         }
 
         assertEquals(res2.status, HttpStatusCode.NotFound)
-        assertEquals("""
+        assertEquals(
+            """
             {"success":false,"errors":[{"code":"UNKNOWN_USER","message":"User with username [someuser] doesn't exist","detail":{"method":"GET","uri":"/users/@me"}}]}
-        """.trimIndent(), res2.bodyAsText())
+            """.trimIndent(),
+            res2.bodyAsText(),
+        )
     }
 
     @DisplayName("generate fake user, bail if invalid password, accept if valid password")
@@ -110,9 +124,12 @@ class SessionsPluginsTest: AbstractChartedServerTest() {
 
         println(res1.bodyAsText())
         assertEquals(res1.status, HttpStatusCode.Unauthorized)
-        assertEquals("""
+        assertEquals(
+            """
             {"success":false,"errors":[{"code":"INVALID_PASSWORD","message":"Invalid password!","detail":{"method":"GET","uri":"/users/@me"}}]}
-        """.trimIndent(), res1.bodyAsText())
+            """.trimIndent(),
+            res1.bodyAsText(),
+        )
 
         val res2 = client.get("/users/@me") {
             header("Authorization", "Basic ${"${user.username}:noeliscutieuwu".encodeBase64()}")
