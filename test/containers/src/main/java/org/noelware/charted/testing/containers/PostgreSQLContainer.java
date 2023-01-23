@@ -17,10 +17,13 @@
 
 package org.noelware.charted.testing.containers;
 
+import java.time.Duration;
 import java.util.Map;
 import kotlin.Unit;
 import org.noelware.charted.configuration.kotlin.dsl.DatabaseConfig;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
 public class PostgreSQLContainer extends GenericContainer<PostgreSQLContainer> {
@@ -35,6 +38,8 @@ public class PostgreSQLContainer extends GenericContainer<PostgreSQLContainer> {
                 "POSTGRES_USER", "charted",
                 "POSTGRES_PASSWORD", "charted",
                 "POSTGRES_DB", "charted"));
+
+        setWaitStrategy(Wait.forListeningPort().withStartupTimeout(Duration.ofMinutes(1)));
     }
 
     public DatabaseConfig getConfiguration() {

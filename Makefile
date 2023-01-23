@@ -51,7 +51,7 @@ clean: ## Executes the `clean` Gradle task
 	@./gradlew clean
 
 .PHONY: test
-test: clean ## Runs all the project tests
+test: clean spotless ## Runs all the project tests
 	@./gradlew test
 
 # Not recommended but whatever

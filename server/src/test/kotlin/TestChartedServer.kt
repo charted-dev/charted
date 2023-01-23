@@ -108,13 +108,14 @@ class TestChartedServer(
     }
 
     override fun start() {
-        // First, we need to bootstrap the later contents, so we will need to bark and woof.
         runBlocking { TestBootstrapPhase.bootstrap(config) }
 
         log.info("Starting test server!")
         testApplication {
             application { module() }
+
             testFunction()
+            TestBootstrapPhase.cleanup()
         }
     }
 

@@ -17,17 +17,34 @@
 
 package org.noelware.charted.server.testing
 
+import dev.floofy.utils.exposed.asyncTransaction
+import dev.floofy.utils.koin.inject
+import dev.floofy.utils.koin.injectOrNull
 import dev.floofy.utils.slf4j.logging
+import kotlinx.atomicfu.atomic
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.junit.jupiter.api.AfterAll
+import org.noelware.charted.ChartedScope
 import org.noelware.charted.RandomStringGenerator
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.features.ServerFeature
 import org.noelware.charted.configuration.kotlin.dsl.search.elasticsearch.AuthenticationStrategy
+import org.noelware.charted.databases.postgres.entities.UserConnectionEntity
+import org.noelware.charted.databases.postgres.entities.UserEntity
+import org.noelware.charted.databases.postgres.models.User
 import org.noelware.charted.extensions.reflection.setField
+import org.noelware.charted.modules.helm.charts.HelmChartModule
+import org.noelware.charted.snowflake.Snowflake
 import org.noelware.charted.testing.containers.ClickHouseContainer
 import org.noelware.charted.testing.containers.ElasticsearchContainer
 import org.noelware.charted.testing.containers.MeilisearchContainer
 import org.noelware.charted.testing.containers.PostgreSQLContainer
 import org.noelware.charted.testing.containers.RedisContainer
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Represents an abstract test that delegates over [TestChartedServer] and runs the server
@@ -70,19 +87,13 @@ open class AbstractChartedServerTest(
 
             if (_elasticsearchContainer != null) {
                 search {
-                    elasticsearch {
-                        node(_elasticsearchContainer.host, _elasticsearchContainer.getMappedPort(9200))
-                        auth(AuthenticationStrategy.None)
-                    }
+                    setField("_elasticsearch", _elasticsearchContainer.configuration)
                 }
             }
 
             if (_meilisearchContainer != null) {
                 search {
-                    meilisearch {
-                        endpoint = "http://${_meilisearchContainer.host}:${_meilisearchContainer.getMappedPort(7700)}"
-                        masterKey = _meilisearchContainer.masterKey
-                    }
+                    setField("_meilisearch", _meilisearchContainer.configuration)
                 }
             }
 
@@ -108,5 +119,39 @@ open class AbstractChartedServerTest(
     fun withChartedServer(func: ServerTestFunction = {}) {
         val server = TestChartedServer(config, func)
         server.start()
+    }
+
+    /**
+     * Generates a fake user
+     */
+    suspend fun generateFakeUser(
+        username: String = "noel",
+        password: String = RandomStringGenerator.generate(8),
+        email: String = "cutie@floofy.dev"
+    ): User {
+        val snowflake: Snowflake by inject()
+        val helmCharts: HelmChartModule? by injectOrNull()
+        val argon2: Argon2PasswordEncoder by inject()
+
+        val id = snowflake.generate()
+        val user = transaction {
+            UserEntity.new(id.value) {
+                this.username = username
+                this.password = argon2.encode(password)
+                this.email = email
+                createdAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                updatedAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+            }
+        }
+
+        transaction {
+            UserConnectionEntity.new(user.id.value) {
+                createdAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                updatedAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+            }
+        }
+
+        helmCharts?.createIndexYaml(user.id.value)
+        return User.fromEntity(user)
     }
 }

@@ -17,11 +17,18 @@
 
 package org.noelware.charted.server.testing.plugins
 
+import dev.floofy.utils.exposed.asyncTransaction
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.util.*
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import org.noelware.charted.ChartedScope
+import org.noelware.charted.databases.postgres.entities.UserEntity
+import org.noelware.charted.databases.postgres.tables.UserTable
 import org.noelware.charted.server.testing.AbstractChartedServerTest
 import org.testcontainers.junit.jupiter.Testcontainers
 import kotlin.test.assertEquals
@@ -33,6 +40,85 @@ class SessionsPluginsTest: AbstractChartedServerTest() {
     fun test0(): Unit = withChartedServer {
         val res = client.get("/users/@me")
         assertEquals(res.status, HttpStatusCode.Forbidden)
-        assertEquals("""{"success":false,"errors":[{"code":"MISSING_AUTHORIZATION_HEADER","message":"Rest handler requires an Authorization header to be present","detail":{"method":"GET","uri":"/users/@me"}}]}""", res.bodyAsText())
+        assertEquals("""
+            {"success":false,"errors":[{"code":"MISSING_AUTHORIZATION_HEADER","message":"Rest handler requires an Authorization header to be present","detail":{"method":"GET","uri":"/users/@me"}}]}
+        """.trimIndent(), res.bodyAsText())
+    }
+
+    @DisplayName("bail if invalid auth header")
+    @Test
+    fun test1(): Unit = withChartedServer {
+        val res = client.get("/users/@me") {
+            header("Authorization", "aaaaaa")
+        }
+
+        assertEquals(res.status, HttpStatusCode.NotAcceptable)
+        assertEquals("""
+            {"success":false,"errors":[{"code":"INVALID_AUTHORIZATION_HEADER","message":"Request authorization header given didn't follow '[Bearer|ApiKey|Basic] [Token]'","detail":{"method":"GET","uri":"/users/@me"}}]}
+        """.trimIndent(), res.bodyAsText())
+    }
+
+    @DisplayName("bail if the auth header value is invalid")
+    @Test
+    fun test2(): Unit = withChartedServer {
+        val res = client.get("/users/@me") {
+            header("Authorization", "Wuff wuff!")
+        }
+
+        assertEquals(res.status, HttpStatusCode.NotAcceptable)
+        assertEquals("""
+            {"success":false,"errors":[{"code":"INVALID_AUTHORIZATION_HEADER_PREFIX","message":"The given authorization prefix [Wuff] was not 'Bearer', 'ApiKey', or 'Basic'"}]}
+        """.trimIndent(), res.bodyAsText())
+    }
+
+    @DisplayName("[basic credentials] bail if invalid user credentials")
+    @Test
+    fun test3(): Unit = withChartedServer {
+        // 1. Check if it is invalid value
+        val res1 = client.get("/users/@me") {
+            header("Authorization", "Basic ${"woofwoofuwu".encodeBase64()}")
+        }
+
+        assertEquals(res1.status, HttpStatusCode.NotAcceptable)
+        assertEquals("""
+            {"success":false,"errors":[{"code":"INVALID_BASIC_AUTH_CREDENTIALS","message":"Basic authentication needs to be 'username:password'","detail":{"method":"GET","uri":"/users/@me"}}]}
+        """.trimIndent(), res1.bodyAsText())
+
+        // 2. Check if the user is not in the database
+        val res2 = client.get("/users/@me") {
+            header("Authorization", "Basic ${"someuser:aninvalidpassword".encodeBase64()}")
+        }
+
+        assertEquals(res2.status, HttpStatusCode.NotFound)
+        assertEquals("""
+            {"success":false,"errors":[{"code":"UNKNOWN_USER","message":"User with username [someuser] doesn't exist","detail":{"method":"GET","uri":"/users/@me"}}]}
+        """.trimIndent(), res2.bodyAsText())
+    }
+
+    @DisplayName("generate fake user, bail if invalid password, accept if valid password")
+    @Disabled
+    @Test
+    fun test4(): Unit = withChartedServer {
+        val user = generateFakeUser(password = "noeliscutieuwu")
+        asyncTransaction(ChartedScope) {
+            UserEntity.find { UserTable.username eq user.username }.firstOrNull()
+        }
+
+        val res1 = client.get("/users/@me") {
+            header("Authorization", "Basic ${"noel:aninvalidpassword".encodeBase64()}")
+        }
+
+        println(res1.bodyAsText())
+        assertEquals(res1.status, HttpStatusCode.Unauthorized)
+        assertEquals("""
+            {"success":false,"errors":[{"code":"INVALID_PASSWORD","message":"Invalid password!","detail":{"method":"GET","uri":"/users/@me"}}]}
+        """.trimIndent(), res1.bodyAsText())
+
+        val res2 = client.get("/users/@me") {
+            header("Authorization", "Basic ${"${user.username}:noeliscutieuwu".encodeBase64()}")
+        }
+
+        assertEquals(res2.status, HttpStatusCode.OK)
+        println(res2.bodyAsText())
     }
 }

@@ -53,14 +53,14 @@ public class ReflectionUtils {
      */
     public static <C, T> boolean setField(C instance, String fieldName, T value) {
         final Class<?> klazz = instance.getClass();
-        LOG.info("Finding field [{}] in class [{}]!", fieldName, klazz);
+        LOG.info("Finding field [{}] in class [{}]!", fieldName, klazz.getSimpleName());
 
         Field field;
         try {
             field = klazz.getDeclaredField(fieldName);
             field.setAccessible(true);
         } catch (NoSuchFieldException ignored) {
-            LOG.warn("Field [{}] was not found in class [{}], not doing anything", fieldName, klazz);
+            LOG.warn("Field [{}] was not found in class [{}], not doing anything", fieldName, klazz.getSimpleName());
             return false;
         }
 
@@ -68,7 +68,7 @@ public class ReflectionUtils {
             field.set(instance, value);
             return true;
         } catch (IllegalAccessException e) {
-            LOG.warn("Unable to set field [{}] in class [{}]: {}", fieldName, klazz, e);
+            LOG.warn("Unable to set field [{}] in class [{}]: {}", fieldName, klazz.getSimpleName(), e);
             return false;
         }
     }
@@ -88,7 +88,7 @@ public class ReflectionUtils {
         final Class<?> klazz = instance.getClass();
         final String cacheKey = "%s#%s".formatted(klazz.getSimpleName(), fieldName);
         final Object cachedResult = _fieldCache.get(cacheKey, (key) -> {
-            LOG.info("Finding field [{}] in class [{}], with infer class [{}]", fieldName, klazz, inferClass);
+            LOG.info("Finding field [{}] in class [{}], with infer class [{}]", fieldName, klazz.getSimpleName(), inferClass);
             try {
                 final Field field = klazz.getDeclaredField(fieldName);
                 field.setAccessible(true);
@@ -102,10 +102,10 @@ public class ReflectionUtils {
         });
 
         if (cachedResult == null) {
-            LOG.debug("Unable to find field [{}] in class [{}]", fieldName, klazz);
+            LOG.debug("Unable to find field [{}] in class [{}]", fieldName, klazz.getSimpleName());
             return null;
         } else {
-            LOG.debug("Found field [{}] in class [{}]!", fieldName, klazz);
+            LOG.debug("Found field [{}] in class [{}]!", fieldName, klazz.getSimpleName());
             return inferClass.cast(cachedResult);
         }
     }

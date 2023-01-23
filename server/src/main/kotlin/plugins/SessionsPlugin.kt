@@ -245,10 +245,10 @@ class SessionsPlugin private constructor(private val config: Configuration) {
             }
 
             else -> call.respond(
-                HttpStatusCode.BadRequest,
+                HttpStatusCode.NotAcceptable,
                 ApiResponse.err(
                     "INVALID_AUTHORIZATION_HEADER_PREFIX",
-                    "The given authorization prefix [$prefix] was not 'Bearer' or 'ApiKey'",
+                    "The given authorization prefix [$prefix] was not 'Bearer', 'ApiKey', or 'Basic'",
                 ),
             )
         }
@@ -321,16 +321,16 @@ class SessionsPlugin private constructor(private val config: Configuration) {
         val user = asyncTransaction(ChartedScope) {
             UserEntity.find { UserTable.name eq username }.firstOrNull()
         } ?: return call.respond(
-            HttpStatusCode.NotFound,
-            ApiResponse.err(
-                "UNKNOWN_USER",
-                "User with username [$username] doesn't exist",
-                buildJsonObject {
-                    put("method", call.request.httpMethod.value)
-                    put("uri", call.request.path())
-                },
-            ),
-        )
+                HttpStatusCode.NotFound,
+                ApiResponse.err(
+                    "UNKNOWN_USER",
+                    "User with username [$username] doesn't exist",
+                    buildJsonObject {
+                        put("method", call.request.httpMethod.value)
+                        put("uri", call.request.path())
+                    },
+                ),
+            )
 
         if (!sessionsManager.isPasswordValid(user, password)) {
             return call.respond(
