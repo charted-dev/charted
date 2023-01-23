@@ -447,12 +447,12 @@ class UserEndpoints(
 
                 406 response {
                     description = """If the payload couldn't be accepted due to:
-                    * If the username or email given was already taken,
-                    * If the header wasn't formed as base64 encoded 'username:password' (in Basic authentication),
-                    * Unknown JWT exception had occurred (in Session authentication),
-                    * The request header didn't follow the '[Type] [Token]' scheme
-                        * `Type` is "Basic", "ApiKey", or "Bearer"
-                        * `Token` is the actual token or base64-encoded of 'username:password' if `Type` is Basic
+                    • If the username or email given was already taken,
+                    • If the header wasn't formed as base64 encoded 'username:password' (in Basic authentication),
+                    • Unknown JWT exception had occurred (in Session authentication),
+                    • The request header didn't follow the '[Type] [Token]' scheme
+                        • `Type` is "Basic", "ApiKey", or "Bearer"
+                        • `Token` is the actual token or base64-encoded of 'username:password' if `Type` is Basic
                     """.trimIndent()
 
                     "application/json" content {
@@ -485,12 +485,12 @@ class UserEndpoints(
 
                 406 response {
                     description = """If the payload couldn't be accepted due to:
-                    * If the username or email given was already taken,
-                    * If the header wasn't formed as base64 encoded 'username:password' (in Basic authentication),
-                    * Unknown JWT exception had occurred (in Session authentication),
-                    * The request header didn't follow the '[Type] [Token]' scheme
-                        * `Type` is "Basic", "ApiKey", or "Bearer"
-                        * `Token` is the actual token or base64-encoded of 'username:password' if `Type` is Basic
+                    • If the username or email given was already taken,
+                    • If the header wasn't formed as base64 encoded 'username:password' (in Basic authentication),
+                    • Unknown JWT exception had occurred (in Session authentication),
+                    • The request header didn't follow the '[Type] [Token]' scheme
+                        • `Type` is "Basic", "ApiKey", or "Bearer"
+                        • `Token` is the actual token or base64-encoded of 'username:password' if `Type` is Basic
                     """.trimIndent()
 
                     "application/json" content {
@@ -567,10 +567,10 @@ class UserEndpoints(
 
                 400 response {
                     description = """If this request fails due to:
-                    * The `Content-Type` header was not "multipart/form-data",
-                    * If there were no form data parts available to consume,
-                    * If the session token or API key couldn't be validated,
-                    * If the Authorization header was malformed.
+                    • The `Content-Type` header was not "multipart/form-data",
+                    • If there were no form data parts available to consume,
+                    • If the session token or API key couldn't be validated,
+                    • If the Authorization header was malformed.
                     """.trimIndent()
                     "application/json" content {
                         schema<ApiResponse.Err>()
@@ -579,12 +579,12 @@ class UserEndpoints(
 
                 406 response {
                     description = """Whether if the request payload was not accepted due to:
-                    * If the form data part was not a FileItem,
-                    * If the Authorization header wasn't formed as base64 encoded 'username:password' (in Basic authentication),
-                    * Unknown JWT exception had occurred (in Session authentication),
-                    * The request header didn't follow the '[Type] [Token]' scheme
-                        * `Type` is "Basic", "ApiKey", or "Bearer"
-                        * `Token` is the actual token or base64-encoded of 'username:password' if `Type` is Basic
+                    • If the form data part was not a FileItem,
+                    • If the Authorization header wasn't formed as base64 encoded 'username:password' (in Basic authentication),
+                    • Unknown JWT exception had occurred (in Session authentication),
+                    • The request header didn't follow the '[Type] [Token]' scheme
+                        • `Type` is "Basic", "ApiKey", or "Bearer"
+                        • `Token` is the actual token or base64-encoded of 'username:password' if `Type` is Basic
                     """.trimIndent()
 
                     "application/json" content {

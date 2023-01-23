@@ -46,6 +46,11 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Setup Node.js 19
+        uses: actions/setup-node@v3
+        with:
+          node-version: 19.x
+
       - name: Setup Java 19
         uses: actions/setup-java@v3
         with:
@@ -65,12 +70,21 @@ jobs:
           arguments: :cli:installDist --no-daemon
 
       - name: Generate OpenAPI document
-        id: document
-        run: |
-          chmod +x ./cli/build/install/charted/bin/charted
-          DOCUMENT=$(./cli/build/install/charted/bin/charted openapi --format=json --openapi-version=3.0)
+        run: chmod +x ./scripts/generate-openapi.sh && ./scripts/generate-openapi.sh
 
-          echo "doc=$DOCUMENT" >> $GITHUB_OUTPUT
+      - name: Run Prettier on ./assets/openapi.json
+        run: npx prettier --write ./assets/openapi.json --config .prettierrc.json
 
-      - name: Write document to assets/openapi.json
-        run: echo ${{steps.document.outputs.doc}}
+      - name: Push new changes
+        uses: EndBug/add-and-commit@v9
+        env:
+          GITHUB_TOKEN: ${{secrets.NOEL_TOKEN}}
+        with:
+          add: .
+          author_name: Noel
+          author_email: cutie@floofy.dev
+          committer_name: Noel[bot]
+          committer_email: noelbot@users.noreply.github.com
+          default: user_info
+          message: "[skip ci] Update OpenAPI document"
+          push: true

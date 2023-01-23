@@ -86,13 +86,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Node.js is required for Spotless to install Prettier
-      - name: Setup Node.js v19x
-        uses: actions/setup-node@v3
-        with:
-          node-version: 19.x
-          architecture: ${{matrix.runner == 'self-hosted' && 'arm64' || 'x64'}}
-
       - name: Qodana Scan
         uses: JetBrains/qodana-action@v2022.3.0
         with:

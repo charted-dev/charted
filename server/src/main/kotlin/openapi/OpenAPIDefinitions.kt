@@ -40,7 +40,7 @@ fun RootDsl.charted() {
     externalDocsUrl = "https://charts.noelware.org/docs"
 
     contactEmail = "team@noelware.org"
-    contactName = "Noelware, LLC."
+    contactName = "Noelware"
     contactUrl = "https://noelware.org"
 
     licenseIdentifier = "Apache-2.0"
@@ -138,7 +138,8 @@ fun RootDsl.charted() {
 }
 
 fun RootDsl.servers() {
-    "https://charts.noelware.org" server {}
+    "https://charts.noelware.org/api" server {}
+    "http://localhost:3651" server {}
 }
 
 fun RootDsl.securitySchemes() {
