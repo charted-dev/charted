@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM --platform=$BUILDPLATFORM eclipse-temurin:17.0.5_8-jdk-alpine AS jdk-runtime
+FROM --platform=$BUILDPLATFORM eclipse-temurin:17.0.6_10-jdk-alpine AS jdk-runtime
 
 RUN apk update && \
     apk add --no-cache binutils && \
@@ -24,7 +24,7 @@ RUN apk update && \
             --compress=2 \
             --output /runtime
 
-FROM --platform=$BUILDPLATFORM eclipse-temurin:17.0.5_8-jdk-alpine AS gradle-build
+FROM --platform=$BUILDPLATFORM eclipse-temurin:17.0.6_10-jdk-alpine AS gradle-build
 
 RUN apk update && apk add --no-cache git ca-certificates gcompat libc6-compat curl
 WORKDIR /build/server
