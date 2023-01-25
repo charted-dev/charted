@@ -82,42 +82,14 @@ $ helm install charted-server charted/server
 
 ### Server Configuration
 
-| Name             | Description                                              | Value                                                                                                                     |
-| ---------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `config.mapName` | The ConfigMap name for the server configuration          | `config`                                                                                                                  |
-| `config.path`    | Absolute path to load the server configuration file from | `/app/noelware/charted/server/config/charted.yaml`                                                                        |
-| `config.config`  | The actual configuration for the server                  | `# refer to the configuration for more details: https://charts.noelware.org/docs/server/latest/self-hosting/configuration |
-
-jwt_secret_key: ${JWT_SECRET_KEY}
-database:
-host: {{ include "charted.postgres.host" . | quote }}
-port: {{ include "charted.postgres.port" . }}
-database: {{ default "charted" (include "charted.postgres.database" .) | quote }}
-password: {{ include "charted.postgres.password" . | quote . }}
-redis:
-host: {{ include "charted.redis.host" . | quote }}
-port: {{ include "charted.redis.port" . }}
-index: {{ include "charted.redis.db" . }}
-storage:
-{{- if eq "filesystem" .Values.storage.driver }}
-filesystem:
-directory: {{ .Values.storage.filesystem.directory }}
-{{- end }}
-{{- if eq "s3" .Values.storage.driver }}
-s3:
-default_object_acl: bucket-owner-full-control
-default_bucket_acl: bucket-owner-full-control
-secret_key: ${AWS_SECRET_ACCESS_KEY}
-access_key: ${AWS_ACCESS_KEY_ID}
-region: us-east-1
-bucket: charted
-{{- end }}`|
-|`config.jwtSecretKey.generate`      | Generates a JWT secret key if this is true as a secret.                              |`true`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-|`config.jwtSecretKey.existingSecret`| The existing secret name for the JWT secret key. It must have only one key:`secret`|`""`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-|`config.logback.mapName`            | The ConfigMap name for the Logback properties file                                   |`logback-config`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-|`config.logback.path`               | Absolute path to load the logback.properties file from                               |`/app/noelware/charted/server/config/logback.properties`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-|`config.logback.config`             | The actual configuration for Logback                                                 |`# refer to the configuration for more details: https://charts.noelware.org/docs/server/latest/self-hosting/configuration#logback-properties
-charted.log.level=INFO` |
+| Name                                 | Description                                                                          | Value                                                    |
+| ------------------------------------ | ------------------------------------------------------------------------------------ | -------------------------------------------------------- |
+| `config.mapName`                     | The ConfigMap name for the server configuration                                      | `config`                                                 |
+| `config.path`                        | Absolute path to load the server configuration file from                             | `/app/noelware/charted/server/config/charted.yaml`       |
+| `config.jwtSecretKey.generate`       | Generates a JWT secret key if this is true as a secret.                              | `true`                                                   |
+| `config.jwtSecretKey.existingSecret` | The existing secret name for the JWT secret key. It must have only one key: `secret` | `""`                                                     |
+| `config.logback.mapName`             | The ConfigMap name for the Logback properties file                                   | `logback-config`                                         |
+| `config.logback.path`                | Absolute path to load the logback.properties file from                               | `/app/noelware/charted/server/config/logback.properties` |
 
 ### Docker Image Parameters
 

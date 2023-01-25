@@ -37,7 +37,7 @@ data class OperatingSystemMetrics(
     val systemLoadAverage: Double,
     val processors: Int,
     val version: String,
-    val distro: String?,
+    val distro: String? = null,
     val arch: String,
     val name: String
 ) : org.noelware.analytics.jvm.server.serialization.Serializable {

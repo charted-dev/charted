@@ -30,6 +30,7 @@ import org.noelware.charted.configuration.kotlin.dsl.features.ServerFeature
 import org.noelware.charted.databases.postgres.entities.UserConnectionEntity
 import org.noelware.charted.databases.postgres.entities.UserEntity
 import org.noelware.charted.databases.postgres.models.User
+import org.noelware.charted.databases.postgres.models.UserFlags
 import org.noelware.charted.extensions.reflection.setField
 import org.noelware.charted.modules.helm.charts.HelmChartModule
 import org.noelware.charted.snowflake.Snowflake
@@ -121,11 +122,17 @@ open class AbstractChartedServerTest(
     suspend fun generateFakeUser(
         username: String = "noel",
         password: String = RandomStringGenerator.generate(8),
+        admin: Boolean = false,
         email: String = "cutie@floofy.dev"
     ): User {
         val snowflake: Snowflake by inject()
         val helmCharts: HelmChartModule? by injectOrNull()
         val argon2: Argon2PasswordEncoder by inject()
+
+        val flags = UserFlags()
+        if (admin) {
+            flags.add("ADMIN")
+        }
 
         val id = snowflake.generate()
         val user = transaction {
@@ -133,6 +140,7 @@ open class AbstractChartedServerTest(
                 this.username = username
                 this.password = argon2.encode(password)
                 this.email = email
+                this.flags = flags.bits()
                 createdAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 updatedAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
             }

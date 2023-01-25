@@ -22,5 +22,5 @@ import org.koin.dsl.module
 import org.noelware.ktor.endpoints.AbstractEndpoint
 
 val adminEndpointsModule = module {
-    single { AdminEndpoints() } bind AbstractEndpoint::class
+    single { AdminEndpoints(get()) } bind AbstractEndpoint::class
 }

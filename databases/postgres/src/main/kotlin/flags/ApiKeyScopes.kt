@@ -86,6 +86,11 @@ val SCOPES: Map<String, Long> = mapOf(
     "org:webhooks:delete" to (1L shl 44),
     "org:webhooks:events:list" to (1L shl 45),
     "org:webhooks:events:delete" to (1L shl 46),
+
+    // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+    //    Administration Scopes
+    // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
+    "admin:stats" to (1L shl 47),
 )
 
 class ApiKeyScopes(bits: Long = 0) : Bitfield(bits, SCOPES) {

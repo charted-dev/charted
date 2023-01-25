@@ -319,7 +319,7 @@ class SessionsPlugin private constructor(private val config: Configuration) {
 
         val (username, password) = data
         val user = asyncTransaction(ChartedScope) {
-            UserEntity.find { UserTable.name eq username }.firstOrNull()
+            UserEntity.find { UserTable.username eq username }.firstOrNull()
         } ?: return call.respond(
             HttpStatusCode.NotFound,
             ApiResponse.err(

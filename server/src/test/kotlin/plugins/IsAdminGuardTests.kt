@@ -17,8 +17,43 @@
 
 package org.noelware.charted.server.testing.plugins
 
+import dev.floofy.utils.koin.retrieve
+import io.ktor.client.call.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.util.*
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
+import org.koin.core.context.GlobalContext
 import org.noelware.charted.server.testing.AbstractChartedServerTest
 import org.testcontainers.junit.jupiter.Testcontainers
+import kotlin.test.assertEquals
 
 @Testcontainers(disabledWithoutDocker = true)
-class IsAdminGuardTests: AbstractChartedServerTest()
+class IsAdminGuardTests: AbstractChartedServerTest() {
+    @DisplayName("bail if we are not admin")
+    @Test
+    fun test0(): Unit = withChartedServer {
+        generateFakeUser(password = "noeliscutieuwu")
+        val client = createClient {
+            install(ContentNegotiation) {
+                json(GlobalContext.retrieve())
+            }
+        }
+
+        val res1 = client.get("/admin") {
+            header("Authorization", "Basic ${"noel:noeliscutieuwu".encodeBase64()}")
+        }
+
+        assertEquals(res1.status, HttpStatusCode.Unauthorized)
+        assertEquals(
+            """
+            {"success":false,"errors":[{"code":"NOT_AN_ADMIN","message":"You must have administrator privileges to access this route"}]}
+            """.trimIndent(),
+            res1.bodyAsText(),
+        )
+    }
+}

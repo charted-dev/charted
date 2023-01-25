@@ -83,6 +83,7 @@ import org.noelware.charted.server.ChartedServer
 import org.noelware.charted.server.endpoints.v1.endpointsModule
 import org.noelware.charted.server.internal.DefaultChartedServer
 import org.noelware.charted.server.internal.analytics.ChartedAnalyticsExtension
+import org.noelware.charted.server.internal.metrics.ServerInfoMetricsCollector
 import org.noelware.charted.server.internal.sideLoadOtelJavaAgent
 import org.noelware.charted.server.logging.KoinLogger
 import org.noelware.charted.snowflake.Snowflake
@@ -221,6 +222,7 @@ object ConfigureModulesPhase : BootstrapPhase() {
         metrics.add(JvmThreadsMetrics.Collector())
         metrics.add(JvmProcessInfoMetrics.Collector())
         metrics.add(OperatingSystemMetrics.Collector())
+        metrics.add(ServerInfoMetricsCollector)
 
         val koinModule = module {
             single<HelmChartModule> { DefaultHelmChartModule(storage, config, yaml) }

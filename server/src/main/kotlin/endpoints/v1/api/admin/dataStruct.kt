@@ -20,6 +20,13 @@ package org.noelware.charted.server.endpoints.v1.api.admin
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.noelware.charted.ChartedInfo
+import org.noelware.charted.databases.postgres.metrics.PostgresServerStats
+import org.noelware.charted.modules.elasticsearch.metrics.ElasticsearchStats
+import org.noelware.charted.modules.metrics.collectors.JvmProcessInfoMetrics
+import org.noelware.charted.modules.metrics.collectors.JvmThreadsMetrics
+import org.noelware.charted.modules.metrics.collectors.OperatingSystemMetrics
+import org.noelware.charted.modules.metrics.collectors.ServerInfoMetrics
+import org.noelware.charted.modules.redis.metrics.RedisServerStats
 
 @Serializable
 data class MainAdminResponse(
@@ -27,4 +34,15 @@ data class MainAdminResponse(
 
     @SerialName("docs_url")
     val docsUrl: String = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api/admin"
+)
+
+@Serializable
+data class AdminStatsResponse(
+    val elasticsearch: ElasticsearchStats? = null,
+    val postgres: PostgresServerStats? = null,
+    val threads: JvmThreadsMetrics? = null,
+    val process: JvmProcessInfoMetrics? = null,
+    val server: ServerInfoMetrics,
+    val redis: RedisServerStats? = null,
+    val os: OperatingSystemMetrics? = null
 )

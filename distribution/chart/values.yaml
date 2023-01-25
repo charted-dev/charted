@@ -117,56 +117,58 @@ redis:
     password: ''
     existingSecret: ''
 
+## @skip defaultConfig
+defaultConfig: |-
+  # refer to the configuration for more details: https://charts.noelware.org/docs/server/latest/self-hosting/configuration
+  jwt_secret_key: ${JWT_SECRET_KEY}
+  database:
+    host: {{ include "charted.postgres.host" . | quote }}
+    port: {{ include "charted.postgres.port" . }}
+    database: {{ default "charted" (include "charted.postgres.database" .) | quote }}
+    password: {{ include "charted.postgres.password" . | quote . }}
+  redis:
+    host: {{ include "charted.redis.host" . | quote }}
+    port: {{ include "charted.redis.port" . }}
+    index: {{ include "charted.redis.db" . }}
+  storage:
+  {{- if eq "filesystem" .Values.storage.driver }}
+    filesystem:
+      directory: {{ .Values.storage.filesystem.directory }}
+  {{- end }}
+  {{- if eq "s3" .Values.storage.driver }}
+    s3:
+      default_object_acl: bucket-owner-full-control
+      default_bucket_acl: bucket-owner-full-control
+      secret_key: ${AWS_SECRET_ACCESS_KEY}
+      access_key: ${AWS_ACCESS_KEY_ID}
+      region: us-east-1
+      bucket: charted
+  {{- end }}
+
+## @skip defaultLogbackConfig
+defaultLogbackConfig: |-
+  charted.log.level=INFO
+  charted.console.json=yes
+
 ## @section Server Configuration
 ## This is the configuration for configuring charted-server and its logging system. Refer to the documentation:
 ## https://charts.noelware.org/docs/server/latest/self-hosting/configuration
 ##
 ## @param config.mapName                     The ConfigMap name for the server configuration
 ## @param config.path                        Absolute path to load the server configuration file from
-## @param config.config                      The actual configuration for the server
 ## @param config.jwtSecretKey.generate       Generates a JWT secret key if this is true as a secret.
 ## @param config.jwtSecretKey.existingSecret The existing secret name for the JWT secret key. It must have only one key: `secret`
 ## @param config.logback.mapName             The ConfigMap name for the Logback properties file
 ## @param config.logback.path                Absolute path to load the logback.properties file from
-## @param config.logback.config              The actual configuration for Logback
 config:
   mapName: config
   path: /app/noelware/charted/server/config/charted.yaml
-  config: |-
-    # refer to the configuration for more details: https://charts.noelware.org/docs/server/latest/self-hosting/configuration
-    jwt_secret_key: ${JWT_SECRET_KEY}
-    database:
-      host: {{ include "charted.postgres.host" . | quote }}
-      port: {{ include "charted.postgres.port" . }}
-      database: {{ default "charted" (include "charted.postgres.database" .) | quote }}
-      password: {{ include "charted.postgres.password" . | quote . }}
-    redis:
-      host: {{ include "charted.redis.host" . | quote }}
-      port: {{ include "charted.redis.port" . }}
-      index: {{ include "charted.redis.db" . }}
-    storage:
-    {{- if eq "filesystem" .Values.storage.driver }}
-      filesystem:
-        directory: {{ .Values.storage.filesystem.directory }}
-    {{- end }}
-    {{- if eq "s3" .Values.storage.driver }}
-      s3:
-        default_object_acl: bucket-owner-full-control
-        default_bucket_acl: bucket-owner-full-control
-        secret_key: ${AWS_SECRET_ACCESS_KEY}
-        access_key: ${AWS_ACCESS_KEY_ID}
-        region: us-east-1
-        bucket: charted
-    {{- end }}
   jwtSecretKey:
     generate: true
     existingSecret: ''
   logback:
     mapName: logback-config
     path: /app/noelware/charted/server/config/logback.properties
-    config: |-
-      # refer to the configuration for more details: https://charts.noelware.org/docs/server/latest/self-hosting/configuration#logback-properties
-      charted.log.level=INFO
 
 ## @section Docker Image Parameters
 ## @param image.repository Full repository URL to the charted-server Docker image

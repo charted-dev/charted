@@ -28,11 +28,10 @@ import org.bouncycastle.util.io.pem.PemReader
 import org.noelware.analytics.jvm.server.AnalyticsServer
 import org.noelware.analytics.jvm.server.AnalyticsServerBuilder
 import org.noelware.analytics.jvm.server.extensions.Extension
-import org.noelware.analytics.protobufs.v1.BuildFlavour
 import org.noelware.charted.ChartedInfo
-import org.noelware.charted.DistributionType
 import org.noelware.charted.configuration.kotlin.dsl.NoelwareAnalyticsConfig
 import org.noelware.charted.extensions.toUri
+import org.noelware.charted.modules.analytics.kotlin.dsl.toBuildFlavour
 import org.noelware.charted.types.responses.ApiResponse
 import java.io.Closeable
 import java.io.IOException
@@ -74,26 +73,17 @@ class AnalyticsDaemon(
         val serverBuilder = AnalyticsServerBuilder(bindIP, config.port)
             .withServiceToken(config.serviceToken)
             .withExtension(extension)
+            .withServerBuilder { builder -> builder.addService(ProtoReflectionService.newInstance()) }
             .withServerMetadata { metadata ->
                 val info = ChartedInfo
-                metadata.setDistributionType(
-                    when (info.distribution) {
-                        DistributionType.UNKNOWN, DistributionType.AUR -> BuildFlavour.UNRECOGNIZED
-                        DistributionType.KUBERNETES -> BuildFlavour.KUBERNETES
-                        DistributionType.DOCKER -> BuildFlavour.DOCKER
-                        DistributionType.RPM -> BuildFlavour.RPM
-                        DistributionType.DEB -> BuildFlavour.DEB
-                        DistributionType.GIT -> BuildFlavour.GIT
-                    },
-                )
 
+                metadata.setDistributionType(info.distribution.toBuildFlavour())
                 metadata.setProductName("charted-server")
                 metadata.setCommitHash(info.commitHash)
                 metadata.setBuildDate(Instant.parse(info.buildDate))
                 metadata.setVersion(info.version)
-                metadata.setVendor("Noelware")
+                metadata.setVendor("Noelware, LLC.")
             }
-            .withServerBuilder { builder -> builder.addService(ProtoReflectionService.newInstance()) }
             .build()
 
         server.value = serverBuilder

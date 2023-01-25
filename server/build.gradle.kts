@@ -15,15 +15,20 @@
  * limitations under the License.
  */
 
+import org.gradle.internal.jvm.Jvm
+
 plugins {
     `charted-module`
 }
 
-val currentJvm: org.gradle.internal.jvm.Jvm = org.gradle.internal.jvm.Jvm.current()
+val currentJvm: Jvm = Jvm.current()
 
 dependencies {
     // test dependencies
+    testImplementation(libs.ktor.client.content.negotitation)
+    testImplementation(libs.ktor.serialization.kotlinx.json)
     testImplementation(libs.ktor.server.test.host)
+    testImplementation(libs.ktor.serialization)
     testImplementation(libs.ktor.client.java)
 
     // Projects required to run the server :quantD:

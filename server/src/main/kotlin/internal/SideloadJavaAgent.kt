@@ -4,7 +4,7 @@ import com.sun.tools.attach.VirtualMachine
 import dev.floofy.utils.slf4j.logging
 import java.lang.management.ManagementFactory
 
-val log by logging("org.noelware.charted.server.internal.SideLoadOpenTelJavaAgent")
+private val log by logging("org.noelware.charted.server.internal.SideLoadOpenTelJavaAgent")
 
 fun sideLoadOtelJavaAgent() {
     log.info("Sideloading OpenTelemetry Java agent into this VM...")

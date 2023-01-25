@@ -21,6 +21,7 @@ plugins {
 
 dependencies {
     // Metrics module (so it can consume more data)
+    implementation(project(":modules:analytics:extensions"))
     implementation(project(":modules:elasticsearch"))
     implementation(project(":databases:postgres"))
     implementation(project(":modules:metrics"))

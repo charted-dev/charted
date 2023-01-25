@@ -19,6 +19,7 @@ package org.noelware.charted.modules.avatars
 
 import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.kotlin.ifNotNull
+import dev.floofy.utils.slf4j.logging
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -50,6 +51,8 @@ class DefaultAvatarModule(
     private val storage: StorageHandler,
     private val httpClient: HttpClient
 ) : AvatarModule {
+    private val log by logging<DefaultAvatarModule>()
+
     init {
         if (storage.service is FilesystemStorageService) {
             val service = storage.service as FilesystemStorageService
@@ -75,7 +78,7 @@ class DefaultAvatarModule(
 
     override suspend fun retrieveRepoIcon(repository: Repository, hash: String?): Pair<ContentType, ByteArray>? {
         if (repository.iconHash == null) return ContentType.Image.SVG to identicons(repository.id)
-        return search("./repositories/${repository.ownerID}/${repository.id}/icons${hash.ifNotNull { "/$this" } }") {
+        return search("./repositories/${repository.ownerID}/${repository.id}/icons${if (hash != null) "/$hash" else "/${repository.iconHash}"}") {
             if (hash != null && hash == repository.iconHash) {
                 transaction {
                     RepositoryTable.update({ RepositoryTable.id eq repository.id }) {
@@ -108,7 +111,7 @@ class DefaultAvatarModule(
             }
         }
 
-        return search("./avatars/${org.id}${hash.ifNotNull { "/$this" }}") {
+        return search("./avatars/${org.id}${if (hash != null) "/$hash" else "/${org.iconHash}"}") {
             if (hash != null && hash == org.iconHash) {
                 transaction {
                     OrganizationTable.update({ OrganizationTable.id eq org.id }) {
@@ -133,7 +136,9 @@ class DefaultAvatarModule(
     }
 
     override suspend fun retrieveUserAvatar(user: User, hash: String?): Pair<ContentType, ByteArray>? {
+        log.info("Finding user avatar [${hash ?: "current.png"}]")
         if (user.avatarHash == null) {
+            log.info("User hasn't uploaded an avatar! Defaulting to Gravatar or Identicons!")
             return if (user.gravatarEmail != null) {
                 ContentType.Image.PNG to gravatar(user.gravatarEmail!!)
             } else {
@@ -141,7 +146,7 @@ class DefaultAvatarModule(
             }
         }
 
-        return search("./avatars/${user.id}${hash.ifNotNull { "/$this" }}") {
+        return search("./avatars/${user.id}${if (hash != null) "/$hash" else "/${user.avatarHash}"}") {
             if (hash != null && hash == user.avatarHash) {
                 transaction {
                     UserTable.update({ UserTable.id eq user.id }) {

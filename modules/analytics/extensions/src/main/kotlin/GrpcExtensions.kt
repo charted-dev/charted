@@ -25,6 +25,9 @@ import com.google.protobuf.Value
 import kotlinx.datetime.Instant
 import org.noelware.analytics.jvm.server.serialization.Serializable
 import org.noelware.analytics.jvm.server.util.GrpcValueUtil
+import org.noelware.analytics.protobufs.v1.BuildFlavour
+import org.noelware.charted.ChartedInfo
+import org.noelware.charted.DistributionType
 import kotlin.reflect.KProperty1
 
 interface ToGrpcValue {
@@ -78,6 +81,7 @@ private fun Any?.toGrpcValue(): Value = when (this) {
     is Struct -> toGrpcValue()
     is Serializable -> toGrpcValue()
     is Instant -> toString().toGrpcValue()
+    is DistributionType -> ChartedInfo.distribution.toBuildFlavour().toGrpcValue()
     is Map<*, *> -> Struct {
         for ((key, value) in this@toGrpcValue) {
             if (key !is String) throw IllegalStateException("Map keys should always be strings, received $key")
@@ -86,6 +90,15 @@ private fun Any?.toGrpcValue(): Value = when (this) {
     }.toGrpcValue()
 
     else -> throw IllegalStateException("Value $this doesn't implement `Serializable`")
+}
+
+fun DistributionType.toBuildFlavour(): BuildFlavour = when (this) {
+    DistributionType.UNKNOWN, DistributionType.AUR -> BuildFlavour.UNRECOGNIZED
+    DistributionType.KUBERNETES -> BuildFlavour.KUBERNETES
+    DistributionType.DOCKER -> BuildFlavour.DOCKER
+    DistributionType.RPM -> BuildFlavour.RPM
+    DistributionType.DEB -> BuildFlavour.DEB
+    DistributionType.GIT -> BuildFlavour.GIT
 }
 
 /**

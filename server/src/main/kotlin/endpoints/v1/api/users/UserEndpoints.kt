@@ -53,9 +53,6 @@ import org.noelware.charted.modules.helm.charts.HelmChartModule
 import org.noelware.charted.modules.redis.RedisClient
 import org.noelware.charted.modules.sessions.SessionManager
 import org.noelware.charted.server.createKtorContentWithByteArray
-import org.noelware.charted.server.endpoints.v1.api.CreateRepositoryBody
-import org.noelware.charted.server.endpoints.v1.api.NewUserBody
-import org.noelware.charted.server.endpoints.v1.api.UpdateUserBody
 import org.noelware.charted.server.openapi.extensions.addSessionResponses
 import org.noelware.charted.server.plugins.SessionsPlugin
 import org.noelware.charted.server.plugins.currentUser
@@ -76,7 +73,7 @@ class UserEndpoints(
     private val elasticsearch: ElasticsearchModule? = null
 ): AbstractEndpoint("/users") {
     init {
-        install(HttpMethod.Delete, "/users/@me/sessions/{sessionId}", SessionsPlugin) {
+        install(HttpMethod.Delete, "/users/@me/logout", SessionsPlugin) {
             assertSessionOnly = true
         }
 
@@ -379,7 +376,7 @@ class UserEndpoints(
         call.respond(HttpStatusCode.Created, ApiResponse.ok(repository))
     }
 
-    @Delete("/@me/sessions/{sessionId}")
+    @Delete("/@me/logout")
     suspend fun deleteSession(call: ApplicationCall) {
         sessions.revoke(call.session!!)
         call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
@@ -391,19 +388,19 @@ class UserEndpoints(
         call.respond(HttpStatusCode.OK, ApiResponse.ok(user))
     }
 
-    @Get("/{idOrName}/avatars/current.png")
-    suspend fun getUserCurrentAvatar(call: ApplicationCall) {
-        val user = call.getUserByIdOrName() ?: return
-        val (contentType, bytes) = avatars.retrieveUserAvatar(user, null)!!
-
-        call.respond(createKtorContentWithByteArray(bytes, contentType))
-    }
-
     @Get("/{idOrName}/avatars/{hash}")
     suspend fun getUserAvatarByHash(call: ApplicationCall) {
         val user = call.getUserByIdOrName() ?: return
         val (contentType, bytes) = avatars.retrieveUserAvatar(user, call.parameters["hash"])
             ?: return call.respond(HttpStatusCode.NotFound)
+
+        call.respond(createKtorContentWithByteArray(bytes, contentType))
+    }
+
+    @Get("/{idOrName}/avatars/current.png")
+    suspend fun getUserCurrentAvatar(call: ApplicationCall) {
+        val user = call.getUserByIdOrName() ?: return
+        val (contentType, bytes) = avatars.retrieveUserAvatar(user, null)!!
 
         call.respond(createKtorContentWithByteArray(bytes, contentType))
     }
@@ -593,7 +590,7 @@ class UserEndpoints(
                 }
             }
 
-            "/users/@me/sessions/{sessionId}" delete {
+            "/users/@me/logout" delete {
                 description = "Deletes the current session from Redis permanently"
                 externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api/users#GET-/users/@me/sessions/{sessionId}"
 
@@ -601,6 +598,17 @@ class UserEndpoints(
                     description = "The session UUID that should be deleted"
                     schema<String>()
                 }
+
+                security("sessionToken")
+
+                202 response {
+                    description = "If the avatar was successfully updated"
+                    "application/json" content {
+                        schema<ApiResponse.Ok<Unit>>()
+                    }
+                }
+
+                addSessionResponses()
             }
 
             "/users/{idOrName}" get {

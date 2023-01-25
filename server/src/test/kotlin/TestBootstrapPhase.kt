@@ -19,6 +19,7 @@ import org.apache.commons.validator.routines.EmailValidator
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.DatabaseConfig
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.GlobalContext.startKoin
@@ -86,6 +87,7 @@ object TestBootstrapPhase {
             ds,
             databaseConfig = DatabaseConfig {
                 defaultRepetitionAttempts = 5
+                sqlLogger = Slf4jSqlDebugLogger
             },
         )
 

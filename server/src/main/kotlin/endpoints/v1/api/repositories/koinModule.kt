@@ -22,5 +22,6 @@ import org.koin.dsl.module
 import org.noelware.ktor.endpoints.AbstractEndpoint
 
 val repositoriesApiEndpointsModule = module {
-    single { RepositoryIconEndpoints() } bind AbstractEndpoint::class
+    single { RepositoryIconEndpoints(get()) } bind AbstractEndpoint::class
+    single { RepositoriesEndpoints() } bind AbstractEndpoint::class
 }

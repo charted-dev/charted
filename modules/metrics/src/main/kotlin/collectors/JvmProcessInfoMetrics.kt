@@ -22,6 +22,7 @@ import io.prometheus.client.Predicate
 import io.prometheus.client.SampleNameFilter
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toKotlinInstant
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.noelware.charted.modules.analytics.kotlin.dsl.Struct
 import org.noelware.charted.modules.analytics.kotlin.dsl.put
@@ -29,6 +30,7 @@ import org.noelware.charted.modules.analytics.kotlin.dsl.toGrpcValue
 
 @Serializable
 data class JvmProcessInfoMetrics(
+    @SerialName("start_time")
     val startTime: Instant,
     val pid: Long
 ) : org.noelware.analytics.jvm.server.serialization.Serializable {

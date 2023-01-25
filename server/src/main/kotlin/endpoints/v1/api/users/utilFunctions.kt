@@ -30,10 +30,30 @@ internal suspend fun ApplicationCall.getUserByIdOrName(): User? {
     return when {
         idOrName.toLongOrNull() != null -> asyncTransaction(ChartedScope) {
             UserEntity.find { UserTable.id eq idOrName.toLong() }.firstOrNull()?.let { entity -> User.fromEntity(entity) }
+        } ?: run {
+            respond(
+                HttpStatusCode.NotFound,
+                ApiResponse.err(
+                    "UNKNOWN_USER",
+                    "User with ID [$idOrName] was not found.",
+                ),
+            )
+
+            null
         }
 
         idOrName.toNameRegex(false).matches() -> asyncTransaction(ChartedScope) {
-            UserEntity.find { UserTable.name eq idOrName }.firstOrNull()?.let { entity -> User.fromEntity(entity) }
+            UserEntity.find { UserTable.username eq idOrName }.firstOrNull()?.let { entity -> User.fromEntity(entity) }
+        } ?: run {
+            respond(
+                HttpStatusCode.NotFound,
+                ApiResponse.err(
+                    "UNKNOWN_USER",
+                    "User with username [$idOrName] was not found.",
+                ),
+            )
+
+            null
         }
 
         else -> {

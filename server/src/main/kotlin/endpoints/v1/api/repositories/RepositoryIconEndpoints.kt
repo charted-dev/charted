@@ -28,6 +28,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.modules.avatars.AvatarFetchUtil
+import org.noelware.charted.modules.avatars.AvatarModule
 import org.noelware.charted.server.createKtorContentWithByteArray
 import org.noelware.charted.server.plugins.PreconditionResult
 import org.noelware.charted.server.plugins.SessionsPlugin
@@ -41,7 +42,7 @@ import kotlin.reflect.full.createType
 /**
  * Represents the main API entrypoint for the Repository Icons API.
  */
-class RepositoryIconEndpoints: AbstractEndpoint("/repositories/{idOrName}/icons") {
+class RepositoryIconEndpoints(private val avatars: AvatarModule): AbstractEndpoint("/repositories/{idOrName}/icons") {
     init {
         install(HttpMethod.Post, SessionsPlugin) {
             this += "repo:icons:update"
@@ -60,7 +61,7 @@ class RepositoryIconEndpoints: AbstractEndpoint("/repositories/{idOrName}/icons"
     @Get("/current.png")
     suspend fun current(call: ApplicationCall) {
         val repository = call.getRepositoryByIdOrName() ?: return
-        val (contentType, bytes) = AvatarFetchUtil.retrieveRepositoryIcon(repository, null)
+        val (contentType, bytes) = avatars.retrieveRepoIcon(repository, null)
             ?: return call.respond(HttpStatusCode.NotFound)
 
         call.respond(createKtorContentWithByteArray(bytes, contentType))
@@ -74,7 +75,7 @@ class RepositoryIconEndpoints: AbstractEndpoint("/repositories/{idOrName}/icons"
     @Get("/{hash}")
     suspend fun hash(call: ApplicationCall) {
         val repository = call.getRepositoryByIdOrName() ?: return
-        val (contentType, bytes) = AvatarFetchUtil.retrieveRepositoryIcon(repository, call.parameters["hash"])
+        val (contentType, bytes) = avatars.retrieveRepoIcon(repository, call.parameters["hash"])
             ?: return call.respond(HttpStatusCode.NotFound)
 
         call.respond(createKtorContentWithByteArray(bytes, contentType))

@@ -17,20 +17,25 @@
 
 package org.noelware.charted.server.testing.plugins
 
-import dev.floofy.utils.exposed.asyncTransaction
+import dev.floofy.utils.koin.retrieve
+import io.ktor.client.call.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.util.*
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.noelware.charted.ChartedScope
-import org.noelware.charted.databases.postgres.entities.UserEntity
-import org.noelware.charted.databases.postgres.tables.UserTable
+import org.junit.jupiter.api.assertDoesNotThrow
+import org.koin.core.context.GlobalContext
+import org.noelware.charted.databases.postgres.models.User
 import org.noelware.charted.server.testing.AbstractChartedServerTest
+import org.noelware.charted.types.responses.ApiResponse
 import org.testcontainers.junit.jupiter.Testcontainers
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 @Testcontainers(disabledWithoutDocker = true)
 class SessionsPluginsTest: AbstractChartedServerTest() {
@@ -110,19 +115,20 @@ class SessionsPluginsTest: AbstractChartedServerTest() {
     }
 
     @DisplayName("generate fake user, bail if invalid password, accept if valid password")
-    @Disabled
+    @Suppress("UNCHECKED_CAST")
     @Test
     fun test4(): Unit = withChartedServer {
-        val user = generateFakeUser(password = "noeliscutieuwu")
-        asyncTransaction(ChartedScope) {
-            UserEntity.find { UserTable.username eq user.username }.firstOrNull()
+        val client = createClient {
+            install(ContentNegotiation) {
+                json(GlobalContext.retrieve())
+            }
         }
 
+        val user = generateFakeUser(password = "noeliscutieuwu")
         val res1 = client.get("/users/@me") {
             header("Authorization", "Basic ${"noel:aninvalidpassword".encodeBase64()}")
         }
 
-        println(res1.bodyAsText())
         assertEquals(res1.status, HttpStatusCode.Unauthorized)
         assertEquals(
             """
@@ -136,6 +142,15 @@ class SessionsPluginsTest: AbstractChartedServerTest() {
         }
 
         assertEquals(res2.status, HttpStatusCode.OK)
-        println(res2.bodyAsText())
+
+        // If it couldn't be deserialized, then this will throw
+        assertDoesNotThrow {
+            val userPayload: ApiResponse<User> = res2.body()
+            assertTrue(userPayload is ApiResponse.Ok)
+
+            val userReturned = userPayload.data
+            assertNotNull(userReturned)
+            assertEquals(user.username, userReturned.username)
+        }
     }
 }

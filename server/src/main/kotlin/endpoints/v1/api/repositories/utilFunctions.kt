@@ -56,10 +56,30 @@ internal suspend fun ApplicationCall.getRepositoryEntityByIdOrName(): Repository
     return when {
         idOrName.toLongOrNull() != null -> asyncTransaction(ChartedScope) {
             RepositoryEntity.find { RepositoryTable.id eq idOrName.toLong() }.firstOrNull()
+        } ?: run {
+            respond(
+                HttpStatusCode.NotFound,
+                ApiResponse.err(
+                    "UNKNOWN_REPOSITORY",
+                    "Repository with ID [$idOrName] was not found.",
+                ),
+            )
+
+            null
         }
 
         idOrName.toNameRegex(false).matches() -> asyncTransaction(ChartedScope) {
             RepositoryEntity.find { RepositoryTable.name eq idOrName }.firstOrNull()
+        } ?: run {
+            respond(
+                HttpStatusCode.NotFound,
+                ApiResponse.err(
+                    "UNKNOWN_REPOSITORY",
+                    "User with username [$idOrName] was not found.",
+                ),
+            )
+
+            null
         }
 
         else -> {
