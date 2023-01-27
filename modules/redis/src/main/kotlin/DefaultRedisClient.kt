@@ -22,8 +22,8 @@ import dev.floofy.utils.slf4j.logging
 import io.lettuce.core.RedisURI
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
+import kotlinx.coroutines.*
 import kotlinx.coroutines.future.await
-import kotlinx.coroutines.runBlocking
 import org.apache.commons.lang3.time.StopWatch
 import org.noelware.charted.configuration.kotlin.dsl.RedisConfig
 import org.noelware.charted.extensions.associateOrNull
@@ -170,6 +170,16 @@ class DefaultRedisClient(config: RedisConfig) : RedisClient {
         if (!_connection.wasSet()) return
 
         log.warn("Shutting down Redis connection...")
-        _connection.value.close()
+        runBlocking {
+            _connection.value.closeAsync().await()
+            try {
+                val wasCleaned = _connection.value.resources.shutdown().await(15, TimeUnit.SECONDS)
+                if (!wasCleaned) {
+                    log.warn("Unable to cleanup Redis resources in ~15 seconds")
+                }
+            } catch (e: InterruptedException) {
+                log.debug("Received interrupted exception, discarding result...", e)
+            }
+        }
     }
 }

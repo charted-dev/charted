@@ -22,7 +22,7 @@ import java.util.Map;
 import kotlin.Unit;
 import org.noelware.charted.configuration.kotlin.dsl.DatabaseConfig;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.utility.DockerImageName;
 
 public class PostgreSQLContainer extends GenericContainer<PostgreSQLContainer> {
@@ -33,12 +33,16 @@ public class PostgreSQLContainer extends GenericContainer<PostgreSQLContainer> {
         super(DockerImageName.parse("postgres").withTag(ALPINE_VERSION));
 
         withExposedPorts(5432);
+        withCommand("postgres", "-c", "fsync=off");
         withEnv(Map.of(
                 "POSTGRES_USER", "charted",
                 "POSTGRES_PASSWORD", "charted",
                 "POSTGRES_DB", "charted"));
 
-        setWaitStrategy(Wait.forListeningPort().withStartupTimeout(Duration.ofMinutes(1)));
+        setWaitStrategy(new LogMessageWaitStrategy()
+                .withRegEx(".*database system is ready to accept connections.*\\s")
+                .withTimes(2)
+                .withStartupTimeout(Duration.ofSeconds(60)));
     }
 
     public DatabaseConfig getConfiguration() {
