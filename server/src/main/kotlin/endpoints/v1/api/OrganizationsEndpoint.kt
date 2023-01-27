@@ -236,7 +236,7 @@ class OrganizationsEndpoint(
         }
 
         install(HttpMethod.Delete, "/organizations/{idOrName}/members/{memberId}", SessionsPlugin) {
-            this += "org:members:delete"
+            this += "org:members:kick"
 
             condition { call ->
                 val org = call.getOrganizationByIdOrName() ?: return@condition PreconditionResult.Failed(ApiError.EMPTY)

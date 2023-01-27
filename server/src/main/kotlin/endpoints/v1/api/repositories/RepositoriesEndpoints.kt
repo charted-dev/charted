@@ -65,7 +65,7 @@ class RepositoriesEndpoints: AbstractEndpoint("/repositories") {
 
         install(HttpMethod.Get, "/repositories/{idOrName}", SessionsPlugin) {
             allowNonAuthorizedRequests = true
-            this += "repo:view"
+            this += "repo:access"
 
             condition { call ->
                 val repository = call.getRepositoryEntityByIdOrName() ?: return@condition PreconditionResult.Failed(ApiError.EMPTY, HttpStatusCode.BadRequest)

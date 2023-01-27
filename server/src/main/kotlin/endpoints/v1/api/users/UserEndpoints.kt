@@ -85,7 +85,7 @@ class UserEndpoints(
         }
 
         install(HttpMethod.Get, "/users/@me", SessionsPlugin) {
-            this += "user:view"
+            this += "user:access"
         }
 
         install(HttpMethod.Patch, "/users", SessionsPlugin) {

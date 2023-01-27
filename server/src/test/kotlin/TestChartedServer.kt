@@ -113,10 +113,10 @@ class TestChartedServer(
         log.info("Starting test server!")
         testApplication {
             application { module() }
-
             testFunction()
-            TestBootstrapPhase.cleanup()
         }
+
+        TestBootstrapPhase.cleanup()
     }
 
     override fun close() {

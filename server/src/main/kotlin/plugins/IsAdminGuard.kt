@@ -20,26 +20,12 @@ package org.noelware.charted.server.plugins
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
-import org.noelware.charted.databases.postgres.models.User
 import org.noelware.charted.databases.postgres.models.bitfield
 import org.noelware.charted.types.responses.ApiResponse
 
 val IsAdminGuard = createRouteScopedPlugin("IsAdminGuard") {
     onCall { call ->
-        val user: User = call.currentUser
-            ?: return@onCall run {
-                if (!call.isHandled) {
-                    return@onCall call.respond(
-                        HttpStatusCode.BadRequest,
-                        ApiResponse.err(
-                            "INVALID_SESSION",
-                            "You must login with a session token before requesting admin endpoints!",
-                        ),
-                    )
-                }
-            }
-
-        if (!user.bitfield.has("ADMIN")) {
+        if (call.currentUser == null || call.currentUser?.bitfield?.has("ADMIN") == false) {
             return@onCall call.respond(
                 HttpStatusCode.Unauthorized,
                 ApiResponse.err(

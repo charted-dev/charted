@@ -115,7 +115,6 @@ class SessionsPluginsTest: AbstractChartedServerTest() {
     }
 
     @DisplayName("generate fake user, bail if invalid password, accept if valid password")
-    @Suppress("UNCHECKED_CAST")
     @Test
     fun test4(): Unit = withChartedServer {
         val client = createClient {
