@@ -19,7 +19,6 @@ package org.noelware.charted.modules.docker.registry.authorization
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.kotlin.ifNotNull
 import dev.floofy.utils.slf4j.logging
 import io.lettuce.core.SetArgs
@@ -36,6 +35,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import org.apache.commons.lang3.time.StopWatch
 import org.noelware.charted.ChartedScope
 import org.noelware.charted.configuration.kotlin.dsl.Config
+import org.noelware.charted.databases.postgres.asyncTransaction
 import org.noelware.charted.databases.postgres.entities.UserEntity
 import org.noelware.charted.databases.postgres.tables.UserTable
 import org.noelware.charted.extensions.doFormatTime
@@ -133,8 +133,7 @@ class DefaultRegistryAuthorizationPolicyManager(
         }
 
         if (token != null) return token
-
-        val user = asyncTransaction(ChartedScope) {
+        val user = asyncTransaction {
             UserEntity.find { UserTable.username eq username }.firstOrNull()
         } ?: throw IllegalStateException("User with username [$username] was not found")
 

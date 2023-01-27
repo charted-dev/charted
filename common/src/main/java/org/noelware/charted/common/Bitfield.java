@@ -17,10 +17,7 @@
 
 package org.noelware.charted.common;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -201,5 +198,25 @@ public class Bitfield {
 
         this.bits &= ~total;
         return this;
+    }
+
+    /**
+     * Checks if the given <code>flag</code> is available or not
+     * @param flag The flag to check
+     * @return bool if the <code>flag</code> given is available
+     */
+    public boolean available(String flag) {
+        return flags.containsKey(flag);
+    }
+
+    /**
+     * Same as {@link #available(String)}, but with a bit literal
+     * @param flag The bit literal to check
+     * @return bool if the <code>flag</code> given is available
+     */
+    public boolean available(long flag) {
+        final Optional<Long> available =
+                flags.values().stream().filter(f -> f == flag).findFirst();
+        return available.isPresent();
     }
 }

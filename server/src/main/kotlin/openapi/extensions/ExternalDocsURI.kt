@@ -15,9 +15,11 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.endpoints.v1.api.apikeys
+package org.noelware.charted.server.openapi.extensions
 
-import org.koin.dsl.module
+import guru.zoroark.tegral.openapi.dsl.OperationDsl
+import org.noelware.charted.ChartedInfo
 
-val apiKeysEndpointsModule = module {
+fun OperationDsl.externalDocsUrl(resource: String = "", path: String = "/") {
+    externalDocsUrl = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api/$resource#$path"
 }

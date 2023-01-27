@@ -19,7 +19,6 @@ package org.noelware.charted.server.plugins
 
 import com.auth0.jwt.exceptions.JWTDecodeException
 import com.auth0.jwt.exceptions.TokenExpiredException
-import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.koin.inject
 import dev.floofy.utils.slf4j.logging
 import io.ktor.http.*
@@ -30,9 +29,9 @@ import io.ktor.util.*
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.noelware.charted.ChartedScope
 import org.noelware.charted.common.CryptographyUtils
 import org.noelware.charted.common.lazy.Lazy
+import org.noelware.charted.databases.postgres.asyncTransaction
 import org.noelware.charted.databases.postgres.entities.ApiKeyEntity
 import org.noelware.charted.databases.postgres.entities.UserEntity
 import org.noelware.charted.databases.postgres.flags.ApiKeyScopes
@@ -156,6 +155,7 @@ class SessionsPlugin private constructor(private val config: Configuration) {
          * @param key bit to assign
          */
         infix operator fun plusAssign(key: Long) {
+            if (!scopes.available(key)) throw IllegalStateException("API key scope [$key] doesn't exist")
             scopes.add(key)
         }
 
@@ -173,6 +173,7 @@ class SessionsPlugin private constructor(private val config: Configuration) {
          * @param key bit flag to assign
          */
         infix operator fun plusAssign(key: String) {
+            if (!scopes.available(key)) throw IllegalStateException("API key scope [$key] doesn't exist")
             scopes.add(key)
         }
     }
@@ -318,7 +319,7 @@ class SessionsPlugin private constructor(private val config: Configuration) {
         }
 
         val (username, password) = data
-        val user = asyncTransaction(ChartedScope) {
+        val user = asyncTransaction {
             UserEntity.find { UserTable.username eq username }.firstOrNull()
         } ?: return call.respond(
             HttpStatusCode.NotFound,
@@ -352,7 +353,7 @@ class SessionsPlugin private constructor(private val config: Configuration) {
 
     private suspend fun doApiKeyBasedAuth(call: ApplicationCall, token: String) {
         val hashed = CryptographyUtils.sha256Hex(token)
-        val apiKey = asyncTransaction(ChartedScope) {
+        val apiKey = asyncTransaction {
             ApiKeyEntity.find { ApiKeysTable.token eq hashed }.firstOrNull()
         } ?: return call.respond(
             HttpStatusCode.NotFound,

@@ -19,7 +19,6 @@
 
 package org.noelware.charted.server.endpoints.v1.api.repositories
 
-import dev.floofy.utils.exposed.asyncTransaction
 import guru.zoroark.tegral.openapi.dsl.RootDsl
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -30,8 +29,8 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.noelware.charted.ChartedScope
 import org.noelware.charted.ValidationException
+import org.noelware.charted.databases.postgres.asyncTransaction
 import org.noelware.charted.databases.postgres.entities.RepositoryEntity
 import org.noelware.charted.databases.postgres.flags.RepositoryFlags
 import org.noelware.charted.databases.postgres.tables.RepositoryTable
@@ -92,7 +91,7 @@ class RepositoriesEndpoints: AbstractEndpoint("/repositories") {
 
         // Do some post checks before patching
         if (patched.name != null) {
-            val anyOtherRepo = asyncTransaction(ChartedScope) {
+            val anyOtherRepo = asyncTransaction {
                 RepositoryEntity.find {
                     (RepositoryTable.name eq patched.name) and (RepositoryTable.owner eq call.currentUser!!.id)
                 }.firstOrNull()
@@ -108,7 +107,7 @@ class RepositoriesEndpoints: AbstractEndpoint("/repositories") {
             repoFlags.add("PRIVATE")
         }
 
-        asyncTransaction(ChartedScope) {
+        asyncTransaction {
             RepositoryTable.update(whereClause) {
                 it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
@@ -140,7 +139,7 @@ class RepositoriesEndpoints: AbstractEndpoint("/repositories") {
     @Delete("/{idOrName}")
     suspend fun deleteRepository(call: ApplicationCall) {
         val repository = call.getRepositoryByIdOrName() ?: return
-        asyncTransaction(ChartedScope) {
+        asyncTransaction {
             RepositoryTable.deleteWhere { RepositoryTable.id eq repository.id }
         }
 

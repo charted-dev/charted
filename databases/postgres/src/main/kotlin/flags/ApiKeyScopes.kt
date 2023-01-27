@@ -67,30 +67,29 @@ val SCOPES: Map<String, Long> = mapOf(
     "apikeys:create" to (1L shl 29),
     "apikeys:delete" to (1L shl 30),
     "apikeys:update" to (1L shl 31),
-    "apikeys:edit:perms" to (1L shl 32),
 
     // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
     //      Organization Scopes
     // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
-    "org:access" to (1L shl 33),
-    "org:create" to (1L shl 34),
-    "org:update" to (1L shl 35),
-    "org:delete" to (1L shl 36),
-    "org:members:invites" to (1L shl 37),
-    "org:members:list" to (1L shl 38),
-    "org:members:kick" to (1L shl 39),
-    "org:members:update" to (1L shl 40),
-    "org:webhooks:list" to (1L shl 41),
-    "org:webhooks:create" to (1L shl 42),
-    "org:webhooks:update" to (1L shl 43),
-    "org:webhooks:delete" to (1L shl 44),
-    "org:webhooks:events:list" to (1L shl 45),
-    "org:webhooks:events:delete" to (1L shl 46),
+    "org:access" to (1L shl 32),
+    "org:create" to (1L shl 33),
+    "org:update" to (1L shl 34),
+    "org:delete" to (1L shl 35),
+    "org:members:invites" to (1L shl 36),
+    "org:members:list" to (1L shl 37),
+    "org:members:kick" to (1L shl 38),
+    "org:members:update" to (1L shl 39),
+    "org:webhooks:list" to (1L shl 40),
+    "org:webhooks:create" to (1L shl 41),
+    "org:webhooks:update" to (1L shl 42),
+    "org:webhooks:delete" to (1L shl 43),
+    "org:webhooks:events:list" to (1L shl 44),
+    "org:webhooks:events:delete" to (1L shl 45),
 
     // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
     //    Administration Scopes
     // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
-    "admin:stats" to (1L shl 47),
+    "admin:stats" to (1L shl 46),
 )
 
 class ApiKeyScopes(bits: Long = 0) : Bitfield(bits, SCOPES) {

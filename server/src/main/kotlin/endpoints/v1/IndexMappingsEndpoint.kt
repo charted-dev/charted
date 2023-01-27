@@ -21,15 +21,14 @@ package org.noelware.charted.server.endpoints.v1
 
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.encodeToStream
-import dev.floofy.utils.exposed.asyncTransaction
 import guru.zoroark.tegral.openapi.dsl.RootDsl
 import guru.zoroark.tegral.openapi.dsl.schema
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import org.noelware.charted.ChartedInfo
-import org.noelware.charted.ChartedScope
 import org.noelware.charted.configuration.kotlin.dsl.Config
+import org.noelware.charted.databases.postgres.asyncTransaction
 import org.noelware.charted.databases.postgres.entities.OrganizationEntity
 import org.noelware.charted.databases.postgres.entities.UserEntity
 import org.noelware.charted.databases.postgres.tables.OrganizationTable
@@ -65,7 +64,7 @@ class IndexMappingsEndpoint(
             }
 
             idOrName.toNameRegex(false).matches() -> {
-                val user = asyncTransaction(ChartedScope) {
+                val user = asyncTransaction {
                     UserEntity.find { UserTable.name eq idOrName }.firstOrNull()
                 }
 
@@ -79,7 +78,7 @@ class IndexMappingsEndpoint(
                     return call.respond(createKtorContentWithByteArray(baos.toByteArray(), ContentType.parse("text/yaml; charset=utf-8")))
                 }
 
-                val org = asyncTransaction(ChartedScope) {
+                val org = asyncTransaction {
                     OrganizationEntity.find { OrganizationTable.name eq idOrName }.firstOrNull()
                 }
 

@@ -17,7 +17,6 @@
 
 package org.noelware.charted.modules.avatars
 
-import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.kotlin.ifNotNull
 import dev.floofy.utils.slf4j.logging
 import io.ktor.client.*
@@ -30,10 +29,10 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
-import org.noelware.charted.ChartedScope
 import org.noelware.charted.RandomStringGenerator
 import org.noelware.charted.ValidationException
 import org.noelware.charted.common.CryptographyUtils
+import org.noelware.charted.databases.postgres.asyncTransaction
 import org.noelware.charted.databases.postgres.models.Organization
 import org.noelware.charted.databases.postgres.models.Repository
 import org.noelware.charted.databases.postgres.models.User
@@ -94,7 +93,7 @@ class DefaultAvatarModule(
 
     override suspend fun updateRepoIcon(repository: Repository, part: PartData.FileItem) {
         val (hash, ext) = update("./repositories/${repository.ownerID}/${repository.id}/icons", part)
-        asyncTransaction(ChartedScope) {
+        asyncTransaction {
             RepositoryTable.update({ RepositoryTable.id eq repository.id }) {
                 it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 it[iconHash] = "$hash$ext"
@@ -127,7 +126,7 @@ class DefaultAvatarModule(
 
     override suspend fun updateOrgAvatar(org: Organization, part: PartData.FileItem) {
         val (hash, ext) = update("./avatars/${org.id}", part)
-        asyncTransaction(ChartedScope) {
+        asyncTransaction {
             OrganizationTable.update({ OrganizationTable.id eq org.id }) {
                 it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 it[iconHash] = "$hash$ext"
@@ -162,7 +161,7 @@ class DefaultAvatarModule(
 
     override suspend fun updateUserAvatar(user: User, part: PartData.FileItem) {
         val (hash, ext) = update("./avatars/${user.id}", part)
-        asyncTransaction(ChartedScope) {
+        asyncTransaction {
             UserTable.update({ UserTable.id eq user.id }) {
                 it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 it[avatarHash] = "$hash$ext"

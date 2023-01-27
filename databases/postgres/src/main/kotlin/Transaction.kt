@@ -15,9 +15,17 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.endpoints.v1.api.apikeys
+package org.noelware.charted.databases.postgres
 
-import org.koin.dsl.module
+import io.sentry.Sentry
+import io.sentry.kotlin.SentryContext
+import org.jetbrains.exposed.sql.Transaction
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.noelware.charted.ChartedScope
 
-val apiKeysEndpointsModule = module {
-}
+suspend fun <T> asyncTransaction(statement: suspend Transaction.() -> T): T = newSuspendedTransaction(
+    if (Sentry.isEnabled()) SentryContext() + ChartedScope.coroutineContext else ChartedScope.coroutineContext,
+    null,
+    null,
+    statement,
+)

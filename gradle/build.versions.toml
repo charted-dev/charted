@@ -97,7 +97,6 @@ exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exp
 noel-commons-extensions-kotlin = { module = "dev.floofy.commons:extensions-kotlin", version.ref = "noel-commons" }
 noel-commons-extensions-koin = { module = "dev.floofy.commons:extensions-koin", version.ref = "noel-commons" }
 noel-commons-java-utils = { module = "dev.floofy.commons:java-utils", version.ref = "noel-commons" }
-noel-commons-exposed = { module = "dev.floofy.commons:exposed", version.ref = "noel-commons" }
 noel-commons-slf4j = { module = "dev.floofy.commons:slf4j", version.ref = "noel-commons" }
 
 # apache utilities

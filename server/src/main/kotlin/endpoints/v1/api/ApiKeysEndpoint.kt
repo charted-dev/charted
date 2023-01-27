@@ -19,7 +19,6 @@
 
 package org.noelware.charted.server.endpoints.v1.api
 
-import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.kotlin.every
 import guru.zoroark.tegral.openapi.dsl.RootDsl
 import io.ktor.http.*
@@ -39,6 +38,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import org.noelware.charted.*
 import org.noelware.charted.common.CryptographyUtils
+import org.noelware.charted.databases.postgres.asyncTransaction
 import org.noelware.charted.databases.postgres.entities.ApiKeyEntity
 import org.noelware.charted.databases.postgres.flags.ApiKeyScopes
 import org.noelware.charted.databases.postgres.flags.SCOPES
@@ -46,7 +46,7 @@ import org.noelware.charted.databases.postgres.models.ApiKeys
 import org.noelware.charted.databases.postgres.tables.ApiKeysTable
 import org.noelware.charted.extensions.regexp.toNameRegex
 import org.noelware.charted.modules.apikeys.ApiKeyManager
-import org.noelware.charted.serializers.ByteSizeValueSerializer
+import org.noelware.charted.serializers.TimeSpanValueSerializer
 import org.noelware.charted.server.plugins.API_KEY_KEY
 import org.noelware.charted.server.plugins.SessionsPlugin
 import org.noelware.charted.server.plugins.currentUser
@@ -75,7 +75,7 @@ import kotlin.time.Duration.Companion.seconds
 data class CreateApiKeyBody(
     val description: String? = null,
 
-    @Serializable(with = ByteSizeValueSerializer::class)
+    @Serializable(with = TimeSpanValueSerializer::class)
     @SerialName("expires_in")
     val expiresIn: Long? = null,
     val scopes: List<String> = listOf(),
@@ -157,7 +157,7 @@ class ApiKeysEndpoint(
 
     @Get("/all")
     suspend fun all(call: ApplicationCall) {
-        val keys = asyncTransaction(ChartedScope) {
+        val keys = asyncTransaction {
             ApiKeyEntity.find { ApiKeysTable.owner eq call.currentUser!!.id }.toList().map { entity ->
                 ApiKeys.fromEntity(entity)
             }
@@ -173,7 +173,7 @@ class ApiKeysEndpoint(
             throw ValidationException("param.name", "API key name can only contain letters, digits, dashes, or underscores.")
         }
 
-        val key = asyncTransaction(ChartedScope) {
+        val key = asyncTransaction {
             ApiKeyEntity.find { ApiKeysTable.owner eq call.currentUser!!.id }.firstOrNull()?.let { entity ->
                 ApiKeys.fromEntity(entity)
             }
@@ -223,7 +223,7 @@ class ApiKeysEndpoint(
 
         val token = RandomStringGenerator.generate(32)
         val id = snowflake.generate()
-        val apiKey = asyncTransaction(ChartedScope) {
+        val apiKey = asyncTransaction {
             ApiKeyEntity.new(id.value) {
                 this.expiresIn = if (expiresIn != null) {
                     Clock.System.now().plus(expiresIn)
@@ -257,7 +257,7 @@ class ApiKeysEndpoint(
                 ApiResponse.err("MUST_USE_API_KEY", "You need to supply a API key, not a session token to delete it."),
             )
 
-        asyncTransaction(ChartedScope) {
+        asyncTransaction {
             ApiKeysTable.deleteWhere { ApiKeysTable.id eq token.id }
         }
 

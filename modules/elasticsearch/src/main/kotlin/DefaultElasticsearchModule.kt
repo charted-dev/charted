@@ -23,7 +23,6 @@ import co.elastic.clients.json.jackson.JacksonJsonpMapper
 import co.elastic.clients.transport.rest_client.RestClientTransport
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.java.SetOnce
 import dev.floofy.utils.kotlin.ifNotNull
 import dev.floofy.utils.slf4j.logging
@@ -54,6 +53,7 @@ import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.features.ServerFeature
 import org.noelware.charted.configuration.kotlin.dsl.search.elasticsearch.AuthStrategyType
 import org.noelware.charted.configuration.kotlin.dsl.search.elasticsearch.AuthenticationStrategy
+import org.noelware.charted.databases.postgres.asyncTransaction
 import org.noelware.charted.databases.postgres.entities.RepositoryEntity
 import org.noelware.charted.databases.postgres.entities.UserEntity
 import org.noelware.charted.databases.postgres.models.Organization
@@ -489,7 +489,7 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
             when (index) {
                 "charted-users" -> {
                     if (sw.isSuspended) sw.resume()
-                    val users = asyncTransaction(ChartedScope) {
+                    val users = asyncTransaction {
                         UserEntity.all().map { entity -> User.fromEntity(entity) }.toList()
                     }
 
@@ -513,8 +513,7 @@ class DefaultElasticsearchModule(private val config: Config, private val json: J
 
                 "charted-repositories" -> {
                     if (sw.isSuspended) sw.resume()
-
-                    val repositories = asyncTransaction(ChartedScope) {
+                    val repositories = asyncTransaction {
                         RepositoryEntity.all().map { entity -> Repository.fromEntity(entity) }.toList()
                     }
 

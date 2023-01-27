@@ -2,11 +2,10 @@
 
 package org.noelware.charted.server.endpoints.v1.api.users
 
-import dev.floofy.utils.exposed.asyncTransaction
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
-import org.noelware.charted.ChartedScope
+import org.noelware.charted.databases.postgres.asyncTransaction
 import org.noelware.charted.databases.postgres.entities.UserEntity
 import org.noelware.charted.databases.postgres.models.User
 import org.noelware.charted.databases.postgres.tables.UserTable
@@ -28,7 +27,7 @@ internal suspend fun ApplicationCall.getUserByIdOrName(): User? {
         }
 
     return when {
-        idOrName.toLongOrNull() != null -> asyncTransaction(ChartedScope) {
+        idOrName.toLongOrNull() != null -> asyncTransaction {
             UserEntity.find { UserTable.id eq idOrName.toLong() }.firstOrNull()?.let { entity -> User.fromEntity(entity) }
         } ?: run {
             respond(
@@ -42,7 +41,7 @@ internal suspend fun ApplicationCall.getUserByIdOrName(): User? {
             null
         }
 
-        idOrName.toNameRegex(false).matches() -> asyncTransaction(ChartedScope) {
+        idOrName.toNameRegex(false).matches() -> asyncTransaction {
             UserEntity.find { UserTable.username eq idOrName }.firstOrNull()?.let { entity -> User.fromEntity(entity) }
         } ?: run {
             respond(

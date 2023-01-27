@@ -19,7 +19,6 @@
 
 package org.noelware.charted.server.endpoints.v1.api
 
-import dev.floofy.utils.exposed.asyncTransaction
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -30,9 +29,9 @@ import kotlinx.serialization.json.buildJsonObject
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.noelware.charted.ChartedInfo
-import org.noelware.charted.ChartedScope
 import org.noelware.charted.ValidationException
 import org.noelware.charted.configuration.kotlin.dsl.Config
+import org.noelware.charted.databases.postgres.asyncTransaction
 import org.noelware.charted.databases.postgres.entities.OrganizationEntity
 import org.noelware.charted.databases.postgres.flags.MemberPermissions
 import org.noelware.charted.databases.postgres.flags.OrganizationFlags
@@ -380,7 +379,7 @@ class OrganizationsEndpoint(
         val payload: CreateOrganizationBody = call.receive()
 
         // Check if the organization name is already taken
-        val orgName = asyncTransaction(ChartedScope) {
+        val orgName = asyncTransaction {
             OrganizationEntity.find { OrganizationTable.name eq payload.name }.firstOrNull()
         }
 
@@ -394,7 +393,7 @@ class OrganizationsEndpoint(
         }
 
         val id = snowflake.generate()
-        val org = asyncTransaction(ChartedScope) {
+        val org = asyncTransaction {
             OrganizationEntity.new(id.value) {
                 this.displayName = payload.displayName
                 this.owner = call.currentUserEntity!!
@@ -516,7 +515,7 @@ class OrganizationsEndpoint(
         call.respond(HttpStatusCode.NotImplemented)
     }
 
-    private suspend fun ApplicationCall.getOrganization(by: String, query: Op<Boolean>): OrganizationEntity? = asyncTransaction(ChartedScope) {
+    private suspend fun ApplicationCall.getOrganization(by: String, query: Op<Boolean>): OrganizationEntity? = asyncTransaction {
         OrganizationEntity.find(query).firstOrNull()
     } ?: run {
         respond(

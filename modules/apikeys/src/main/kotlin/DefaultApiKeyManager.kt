@@ -17,7 +17,6 @@
 
 package org.noelware.charted.modules.apikeys
 
-import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.slf4j.logging
 import io.lettuce.core.SetArgs
 import kotlinx.coroutines.Job
@@ -29,6 +28,7 @@ import org.apache.commons.lang3.time.StopWatch
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import org.noelware.charted.ChartedScope
+import org.noelware.charted.databases.postgres.asyncTransaction
 import org.noelware.charted.databases.postgres.models.ApiKeys
 import org.noelware.charted.databases.postgres.tables.ApiKeysTable
 import org.noelware.charted.extensions.doFormatTime
@@ -64,7 +64,7 @@ class DefaultApiKeyManager(private val redis: RedisClient) : ApiKeyManager {
                 log.warn("API key $key has expired [${sw.doFormatTime()}]")
                 runBlocking {
                     redis.commands.del(key).await()
-                    asyncTransaction(ChartedScope) {
+                    asyncTransaction {
                         ApiKeysTable.deleteWhere { ApiKeysTable.id eq key.toLong() }
                     }
                 }
@@ -73,7 +73,7 @@ class DefaultApiKeyManager(private val redis: RedisClient) : ApiKeyManager {
                 expirationJobs[key.toLong()] = ChartedScope.launch {
                     delay((ttl.toDuration(DurationUnit.SECONDS)).inWholeMilliseconds)
                     redis.commands.del(key).await()
-                    asyncTransaction(ChartedScope) {
+                    asyncTransaction {
                         ApiKeysTable.deleteWhere { ApiKeysTable.id eq key.toLong() }
                     }
                 }
@@ -91,7 +91,7 @@ class DefaultApiKeyManager(private val redis: RedisClient) : ApiKeyManager {
         expirationJobs[apiKey.id] = ChartedScope.launch {
             delay(expiresIn.inWholeMilliseconds)
             redis.commands.del("$API_KEY_EXPIRATION_KEY:${apiKey.id}").await()
-            asyncTransaction(ChartedScope) {
+            asyncTransaction {
                 ApiKeysTable.deleteWhere { ApiKeysTable.id eq apiKey.id }
             }
         }

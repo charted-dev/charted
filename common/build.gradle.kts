@@ -42,13 +42,13 @@ dependencies {
     api(libs.noel.commons.extensions.kotlin)
     api(libs.noel.commons.extensions.koin)
     api(libs.noel.commons.java.utils)
-    api(libs.noel.commons.exposed)
     api(libs.noel.commons.slf4j)
 
     // Apache Utilities
     api(libs.apache.commons.lang3)
 
     // Sentry
+    api(libs.sentry.kotlin.extensions)
     api(libs.sentry)
 
     // OpenTelemetry annotations (for tracing)

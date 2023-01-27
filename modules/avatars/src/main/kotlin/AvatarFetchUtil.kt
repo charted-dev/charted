@@ -17,7 +17,6 @@
 
 package org.noelware.charted.modules.avatars
 
-import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.koin.inject
 import io.ktor.http.*
 import io.ktor.http.content.*
@@ -26,9 +25,9 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.update
-import org.noelware.charted.ChartedScope
 import org.noelware.charted.RandomStringGenerator
 import org.noelware.charted.ValidationException
+import org.noelware.charted.databases.postgres.asyncTransaction
 import org.noelware.charted.databases.postgres.models.Repository
 import org.noelware.charted.databases.postgres.models.User
 import org.noelware.charted.databases.postgres.tables.RepositoryTable
@@ -62,7 +61,7 @@ object AvatarFetchUtil {
 
                 else -> {
                     if (hash == repository.iconHash) {
-                        asyncTransaction(ChartedScope) {
+                        asyncTransaction {
                             RepositoryTable.update({ RepositoryTable.id eq repository.id }) {
                                 it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                                 it[iconHash] = null
@@ -85,7 +84,7 @@ object AvatarFetchUtil {
                 ContentType.parse(contentType) to bytes
 
             else -> {
-                asyncTransaction(ChartedScope) {
+                asyncTransaction {
                     RepositoryTable.update({ RepositoryTable.id eq repository.id }) {
                         it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                         it[iconHash] = null
@@ -123,7 +122,7 @@ object AvatarFetchUtil {
         storage.upload("./repositories/${repository.ownerID}/${repository.id}/avatars/$hash$ext", ByteArrayInputStream(bytes), contentType)
         part.dispose()
 
-        asyncTransaction(ChartedScope) {
+        asyncTransaction {
             RepositoryTable.update({ RepositoryTable.id eq repository.id }) {
                 it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 it[iconHash] = "$hash$ext"
@@ -157,7 +156,7 @@ object AvatarFetchUtil {
                 ContentType.Image.PNG.toString(), ContentType.Image.GIF.toString(), ContentType.Image.JPEG.toString() -> ContentType.parse(contentType) to bytes
                 else -> {
                     if (hash == user.avatarHash) {
-                        asyncTransaction(ChartedScope) {
+                        asyncTransaction {
                             UserTable.update({ UserTable.id eq user.id }) {
                                 it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                                 it[avatarHash] = null
@@ -182,7 +181,7 @@ object AvatarFetchUtil {
         return when (val contentType = storage.service.getContentTypeOf(bytes)) {
             ContentType.Image.PNG.toString(), ContentType.Image.GIF.toString(), ContentType.Image.JPEG.toString() -> ContentType.parse(contentType) to bytes
             else -> {
-                asyncTransaction(ChartedScope) {
+                asyncTransaction {
                     UserTable.update({ UserTable.id eq user.id }) {
                         it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                         it[avatarHash] = null
@@ -223,7 +222,7 @@ object AvatarFetchUtil {
         storage.upload("./users/$id/avatars/$hash$ext", ByteArrayInputStream(bytes), contentType)
         part.dispose()
 
-        asyncTransaction(ChartedScope) {
+        asyncTransaction {
             UserTable.update({ UserTable.id eq id }) {
                 it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 it[avatarHash] = "$hash$ext"

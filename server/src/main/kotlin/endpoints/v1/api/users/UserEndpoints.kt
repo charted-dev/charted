@@ -19,7 +19,6 @@
 
 package org.noelware.charted.server.endpoints.v1.api.users
 
-import dev.floofy.utils.exposed.asyncTransaction
 import guru.zoroark.tegral.openapi.dsl.RootDsl
 import guru.zoroark.tegral.openapi.dsl.schema
 import io.ktor.http.*
@@ -33,10 +32,10 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.noelware.charted.ChartedInfo
-import org.noelware.charted.ChartedScope
 import org.noelware.charted.ValidationException
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.sessions.SessionType
+import org.noelware.charted.databases.postgres.asyncTransaction
 import org.noelware.charted.databases.postgres.entities.RepositoryEntity
 import org.noelware.charted.databases.postgres.entities.UserConnectionEntity
 import org.noelware.charted.databases.postgres.entities.UserEntity
@@ -125,7 +124,7 @@ class UserEndpoints(
         val body: NewUserBody = call.receive()
 
         // Check if the username already exists in the database since it is unique
-        val userByUserName = asyncTransaction(ChartedScope) {
+        val userByUserName = asyncTransaction {
             UserEntity.find { UserTable.username eq body.username }.firstOrNull()
         }
 
@@ -133,7 +132,7 @@ class UserEndpoints(
             throw ValidationException("body.username", "Username [${body.username}] already exists")
         }
 
-        val userByEmail = asyncTransaction(ChartedScope) {
+        val userByEmail = asyncTransaction {
             UserEntity.find { UserTable.email eq body.username }.firstOrNull()
         }
 
@@ -142,7 +141,7 @@ class UserEndpoints(
         }
 
         val id = snowflake.generate()
-        val user = asyncTransaction(ChartedScope) {
+        val user = asyncTransaction {
             UserEntity.new(id.value) {
                 createdAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 updatedAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
@@ -152,7 +151,7 @@ class UserEndpoints(
             }.let { entity -> User.fromEntity(entity) }
         }
 
-        asyncTransaction(ChartedScope) {
+        asyncTransaction {
             UserConnectionEntity.new(user.id) {
                 createdAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 updatedAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
@@ -170,7 +169,7 @@ class UserEndpoints(
 
         // Do some post checkup before actually patching data
         if (patched.username != null) {
-            val userWithUsername = asyncTransaction(ChartedScope) {
+            val userWithUsername = asyncTransaction {
                 UserEntity.find { UserTable.username eq patched.username }.firstOrNull()
             }
 
@@ -180,7 +179,7 @@ class UserEndpoints(
         }
 
         if (patched.email != null) {
-            val userWithEmail = asyncTransaction(ChartedScope) {
+            val userWithEmail = asyncTransaction {
                 UserEntity.find { UserTable.email eq patched.email }.firstOrNull()
             }
 
@@ -189,7 +188,7 @@ class UserEndpoints(
             }
         }
 
-        asyncTransaction(ChartedScope) {
+        asyncTransaction {
             UserTable.update(whereClause) {
                 it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
@@ -235,16 +234,16 @@ class UserEndpoints(
         // Delete the user, which will delete all of their organizations
         // except their repositories since repositories can be tied to both
         // organization and a user. So, we can do that after.
-        asyncTransaction(ChartedScope) {
+        asyncTransaction {
             UserTable.deleteWhere { UserTable.id eq id }
         }
 
-        asyncTransaction(ChartedScope) {
+        asyncTransaction {
             OrganizationTable.deleteWhere { owner eq id }
         }
 
         // Delete all the repositories owned by this user
-        asyncTransaction(ChartedScope) {
+        asyncTransaction {
             RepositoryTable.deleteWhere { owner eq id }
         }
 
@@ -273,7 +272,7 @@ class UserEndpoints(
             UserTable.email eq body.email!!
         }
 
-        val user = asyncTransaction(ChartedScope) { UserEntity.find(op).firstOrNull() }
+        val user = asyncTransaction { UserEntity.find(op).firstOrNull() }
             ?: return call.respond(
                 HttpStatusCode.NotFound,
                 ApiResponse.err(
@@ -293,7 +292,7 @@ class UserEndpoints(
 
     @Get("/@me/connections")
     suspend fun getCurrentUserConnections(call: ApplicationCall) {
-        val connections = asyncTransaction(ChartedScope) {
+        val connections = asyncTransaction {
             UserConnectionEntity.findById(call.currentUser!!.id)!!
         }
 
@@ -342,7 +341,7 @@ class UserEndpoints(
     @Put("/@me/repositories")
     suspend fun createUserRepository(call: ApplicationCall) {
         val body: CreateRepositoryBody = call.receive()
-        val exists = asyncTransaction(ChartedScope) {
+        val exists = asyncTransaction {
             RepositoryEntity.find { (RepositoryTable.owner eq call.currentUser!!.id) and (RepositoryTable.name eq body.name) }
                 .firstOrNull()
         }
@@ -363,7 +362,7 @@ class UserEndpoints(
             flags.add("PRIVATE")
         }
 
-        val repository = asyncTransaction(ChartedScope) {
+        val repository = asyncTransaction {
             RepositoryEntity.new(id.value) {
                 this.description = body.description
                 this.owner = call.currentUser!!.id

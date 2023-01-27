@@ -19,7 +19,6 @@
 
 package org.noelware.charted.server.endpoints.v1.api
 
-import dev.floofy.utils.exposed.asyncTransaction
 import io.github.z4kn4fein.semver.VersionFormatException
 import io.github.z4kn4fein.semver.toVersion
 import io.ktor.http.*
@@ -39,6 +38,7 @@ import org.noelware.charted.*
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.features.ServerFeature
 import org.noelware.charted.databases.clickhouse.ClickHouseConnection
+import org.noelware.charted.databases.postgres.asyncTransaction
 import org.noelware.charted.databases.postgres.entities.RepositoryEntity
 import org.noelware.charted.databases.postgres.entities.RepositoryMemberEntity
 import org.noelware.charted.databases.postgres.entities.UserEntity
@@ -316,7 +316,7 @@ class RepositoriesEndpoint(
     suspend fun getByOwnerAndRepoName(call: ApplicationCall) {
         val ownerID = call.parameters["owner"]!!
         val repoID = call.parameters["name"]!!
-        val owner = asyncTransaction(ChartedScope) {
+        val owner = asyncTransaction {
             UserEntity.find {
                 if (ownerID.toNameRegex(false).matches()) {
                     UserTable.username eq ownerID
@@ -338,7 +338,7 @@ class RepositoriesEndpoint(
             RepositoryTable.id eq repoID.toLong()
         }
 
-        val repo = asyncTransaction(ChartedScope) {
+        val repo = asyncTransaction {
             RepositoryEntity.find {
                 repoQuery and (RepositoryTable.owner eq owner)
             }.firstOrNull()?.let { entity -> Repository.fromEntity(entity) }
@@ -377,7 +377,7 @@ class RepositoriesEndpoint(
 
         // Do some post checks before patching
         if (patched.name != null) {
-            val anyOtherRepo = asyncTransaction(ChartedScope) {
+            val anyOtherRepo = asyncTransaction {
                 RepositoryEntity.find {
                     (RepositoryTable.name eq patched.name) and (RepositoryTable.owner eq call.currentUser!!.id)
                 }.firstOrNull()
@@ -388,7 +388,7 @@ class RepositoriesEndpoint(
             }
         }
 
-        asyncTransaction(ChartedScope) {
+        asyncTransaction {
             RepositoryTable.update(whereClause) {
                 it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
@@ -423,7 +423,7 @@ class RepositoriesEndpoint(
     @Delete("/{id}")
     suspend fun deleteRepo(call: ApplicationCall) {
         val repository = call.getRepository() ?: return
-        asyncTransaction(ChartedScope) {
+        asyncTransaction {
             RepositoryTable.deleteWhere { RepositoryTable.id eq repository.id }
         }
 
@@ -496,7 +496,7 @@ class RepositoriesEndpoint(
                 ),
             )
 
-        val repoMembers = asyncTransaction(ChartedScope) {
+        val repoMembers = asyncTransaction {
             RepositoryEntity.find { RepositoryTable.id eq id }.firstOrNull()?.let { entity ->
                 entity.members.map { e -> RepositoryMember.fromEntity(e) }
             }
@@ -546,7 +546,7 @@ class RepositoriesEndpoint(
 
             // Let's get the member's information before we claim that they actually exist
             // or not
-            val memberUserObject = asyncTransaction(ChartedScope) {
+            val memberUserObject = asyncTransaction {
                 UserEntity.find { UserTable.id eq body.memberId }.firstOrNull()
             } ?: return call.respond(
                 HttpStatusCode.NotFound,
@@ -557,7 +557,7 @@ class RepositoriesEndpoint(
             )
 
             val repoMemberId = snowflake.generate()
-            val repoMember = asyncTransaction(ChartedScope) {
+            val repoMember = asyncTransaction {
                 RepositoryMemberEntity.new(repoMemberId.value) {
                     this.repository = repository
                     this.account = memberUserObject
@@ -638,7 +638,7 @@ class RepositoriesEndpoint(
         )
 
         val repository = call.getRepository() ?: return
-        val member = asyncTransaction(ChartedScope) {
+        val member = asyncTransaction {
             RepositoryMemberEntity.find { (RepositoryMemberTable.repository eq repository.id) and (RepositoryMemberTable.id eq memberId) }.firstOrNull()?.let { entity ->
                 RepositoryMember.fromEntity(entity)
             }
@@ -1055,7 +1055,7 @@ class RepositoriesEndpoint(
                 null
             }
 
-        return asyncTransaction(ChartedScope) {
+        return asyncTransaction {
             RepositoryEntity.find { RepositoryTable.id eq id }.firstOrNull()
         } ?: return run {
             respond(

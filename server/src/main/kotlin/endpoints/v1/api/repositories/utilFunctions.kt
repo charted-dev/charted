@@ -17,13 +17,12 @@
 
 package org.noelware.charted.server.endpoints.v1.api.repositories
 
-import dev.floofy.utils.exposed.asyncTransaction
 import dev.floofy.utils.kotlin.ifNotNull
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import kotlinx.serialization.json.buildJsonObject
-import org.noelware.charted.ChartedScope
+import org.noelware.charted.databases.postgres.asyncTransaction
 import org.noelware.charted.databases.postgres.entities.RepositoryEntity
 import org.noelware.charted.databases.postgres.flags.MemberPermissions
 import org.noelware.charted.databases.postgres.flags.RepositoryFlags
@@ -54,7 +53,7 @@ internal suspend fun ApplicationCall.getRepositoryEntityByIdOrName(): Repository
         }
 
     return when {
-        idOrName.toLongOrNull() != null -> asyncTransaction(ChartedScope) {
+        idOrName.toLongOrNull() != null -> asyncTransaction {
             RepositoryEntity.find { RepositoryTable.id eq idOrName.toLong() }.firstOrNull()
         } ?: run {
             respond(
@@ -68,7 +67,7 @@ internal suspend fun ApplicationCall.getRepositoryEntityByIdOrName(): Repository
             null
         }
 
-        idOrName.toNameRegex(false).matches() -> asyncTransaction(ChartedScope) {
+        idOrName.toNameRegex(false).matches() -> asyncTransaction {
             RepositoryEntity.find { RepositoryTable.name eq idOrName }.firstOrNull()
         } ?: run {
             respond(

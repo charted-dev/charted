@@ -20,13 +20,13 @@ package org.noelware.charted.server.endpoints.v1.api
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.noelware.charted.server.endpoints.v1.api.admin.adminEndpointsModule
+import org.noelware.charted.server.endpoints.v1.api.apikeys.apiKeysEndpointsModule
 import org.noelware.charted.server.endpoints.v1.api.organizations.*
 import org.noelware.charted.server.endpoints.v1.api.repositories.repositoriesApiEndpointsModule
 import org.noelware.charted.server.endpoints.v1.api.users.usersApiEndpointsModule
 import org.noelware.ktor.endpoints.AbstractEndpoint
 
-// val apiV1Endpoints = organizationsApiEndpointsModule + module {
-val apiV1Endpoints = usersApiEndpointsModule + repositoriesApiEndpointsModule + adminEndpointsModule + module {
+val apiV1Endpoints = usersApiEndpointsModule + repositoriesApiEndpointsModule + adminEndpointsModule + apiKeysEndpointsModule + module {
     single { OrganizationsEndpoint(get(), get(), get(), get(), getOrNull()) } bind AbstractEndpoint::class
     single { ApiKeysEndpoint(get(), get()) } bind AbstractEndpoint::class
     single { AdminEndpoint() } bind AbstractEndpoint::class
