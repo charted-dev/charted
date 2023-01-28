@@ -109,9 +109,13 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: test --no-daemon --scan
-  rustci:
-    name: Helm Plugin CI
+  helm-plugin-ci:
+    name: Helm Plugin CI [${{matrix.runner}}, ${{matrix.toolchain}}]
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        runner: [self-hosted, windows-latest, ubuntu-latest, macos-latest]
+        toolchain: [nightly, stable]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -122,7 +126,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly
+          toolchain: ${{matrix.toolchain}}
           override: true
           components: rustfmt, clippy
 
@@ -176,7 +180,7 @@ jobs:
         working-directory: ./databases/clickhouse/migrations
         run: go mod download
 
-      - name: golangci-lint [${{matrix.projects.name}}]
+      - name: Lint with golangci
         uses: golangci/golangci-lint-action@v3
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
