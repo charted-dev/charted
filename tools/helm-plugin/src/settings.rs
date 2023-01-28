@@ -23,9 +23,19 @@ use std::io::Write as _;
 
 use serde_json::Value;
 
-use crate::{api::client::Client, error::Error, keychain::Keychain};
+use crate::{api::client::Client, create_or_open_file, error::Error, keychain::Keychain};
 
-pub const DEFAULT_SERVER_URL: &str = "https://charts.noelware.org";
+pub const DEFAULT_SERVER_URL: &str = "https://charts.noelware.org/api";
+
+#[cfg(not(target_os = "windows"))]
+fn path_seperator() -> &'static str {
+    "/"
+}
+
+#[cfg(target_os = "windows")]
+fn path_seperator() -> &'static str {
+    "\\"
+}
 
 /// Represents all the global settings that are available to all commands. Though, this is only
 /// contains relevant settings that most commands will use.
@@ -86,7 +96,7 @@ impl Settings {
         let charted_data_dir = {
             let mut p = PathBuf::new();
             p.push(data_dir);
-            p.push(format!("{}charted", std::path::MAIN_SEPARATOR_STR));
+            p.push(format!("{}charted", path_seperator()));
 
             p
         };
@@ -94,7 +104,7 @@ impl Settings {
         let servers_path = format!(
             "{}{}servers.yaml",
             charted_data_dir.display(),
-            std::path::MAIN_SEPARATOR_STR
+            path_seperator()
         );
 
         match File::open(servers_path.clone()) {
@@ -105,8 +115,8 @@ impl Settings {
 
                     let path = Path::new(&servers_path);
                     if !path.exists() {
-                        let mut file = File::create_new(servers_path.clone())?;
-                        writeln!(file, "{}", format!("{}: null", self.server_url))?;
+                        let mut file = create_or_open_file!(servers_path.clone())?;
+                        writeln!(file, "{}: null", self.server_url)?;
 
                         Ok(file)
                     } else {

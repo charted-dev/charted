@@ -13,9 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#![feature(main_separator_str)]
-#![feature(file_create_new)]
-
 #[macro_use]
 extern crate log;
 

@@ -111,10 +111,10 @@ jobs:
           arguments: test --no-daemon --scan
   helm-plugin-ci:
     name: Helm Plugin CI [${{matrix.runner}}, ${{matrix.toolchain}}]
-    runs-on: ubuntu-latest
+    runs-on: ${{matrix.runner}}
     strategy:
       matrix:
-        runner: [self-hosted, windows-latest, ubuntu-latest, macos-latest]
+        runner: [self-hosted, ubuntu-latest]
         toolchain: [nightly, stable]
     steps:
       - name: Checkout repository

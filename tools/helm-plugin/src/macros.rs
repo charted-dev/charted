@@ -19,3 +19,17 @@ macro_rules! compile_regex {
         ::regex::Regex::new($r).unwrap()
     };
 }
+
+#[macro_export]
+macro_rules! create_or_open_file {
+    ($r:expr) => {
+        create_or_open_file!($r, true)
+    };
+
+    ($r:expr, $write:literal) => {
+        ::std::fs::OpenOptions::new()
+            .write($write)
+            .create(true)
+            .open($r)
+    };
+}
