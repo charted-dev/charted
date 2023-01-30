@@ -286,7 +286,7 @@ jobs:
           password: ${{secrets.GITHUB_TOKEN}}
 
       - name: Build and push Helm Plugin images
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           platforms: linux/amd64,linux/arm64
           context: .
@@ -339,7 +339,7 @@ jobs:
           password: ${{secrets.GITHUB_TOKEN}}
 
       - name: Build and push Ubuntu images (x86_64)
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           platforms: linux/amd64
           context: .
@@ -360,7 +360,7 @@ jobs:
             org.opencontainers.image.source=https://github.com/charted-dev/charted
 
       - name: Build and push Ubuntu images (aarch64)
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           platforms: linux/arm64
           context: .
@@ -381,7 +381,7 @@ jobs:
             org.opencontainers.image.source=https://github.com/charted-dev/charted
 
       - name: Build and push Alpine images
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           platforms: linux/amd64
           context: .
