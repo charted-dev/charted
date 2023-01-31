@@ -5,7 +5,7 @@ go 1.19
 require github.com/spf13/cobra v1.6.1
 
 require (
-	github.com/ClickHouse/ch-go v0.51.0 // indirect
+	github.com/ClickHouse/ch-go v0.51.2 // indirect
 	github.com/alecthomas/chroma v0.9.1 // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/danwakefield/fnmatch v0.0.0-20160403171240-cbb64ac3d964 // indirect
@@ -17,7 +17,7 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/klauspost/compress v1.15.13 // indirect
+	github.com/klauspost/compress v1.15.14 // indirect
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/paulmach/orb v0.8.0 // indirect
@@ -38,7 +38,7 @@ require (
 
 require (
 	cdr.dev/slog v1.4.1
-	github.com/ClickHouse/clickhouse-go/v2 v2.5.1
+	github.com/ClickHouse/clickhouse-go/v2 v2.6.0
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
