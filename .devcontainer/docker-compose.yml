@@ -30,7 +30,7 @@ services:
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
   postgres:
-    image: bitnami/postgresql:15.1.0
+    image: bitnami/postgresql:15.2.0
     restart: unless-stopped
     environment:
       - POSTGRESQL_DATABASE=charted
