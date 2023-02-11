@@ -13,17 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: "3.8"
+version: '3.8'
 services:
   workspace:
     user: noel
     command: sleep infinity
     depends_on: [postgres, redis]
+    image: ghcr.io/charted-dev/devcontainer:latest
     volumes:
       - ..:/workspaces/charted:cached
-    build:
-      context: .
-      dockerfile: Dockerfile
   redis:
     image: bitnami/redis:7.0.8
     restart: unless-stopped
