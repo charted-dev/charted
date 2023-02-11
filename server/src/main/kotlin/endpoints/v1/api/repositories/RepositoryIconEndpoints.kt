@@ -1,6 +1,6 @@
 /*
  * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright 2022-2023 Noelware <team@noelware.org>
+ * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import org.noelware.charted.ChartedInfo
-import org.noelware.charted.modules.avatars.AvatarFetchUtil
 import org.noelware.charted.modules.avatars.AvatarModule
 import org.noelware.charted.server.createKtorContentWithByteArray
 import org.noelware.charted.server.plugins.PreconditionResult
@@ -42,12 +41,12 @@ import kotlin.reflect.full.createType
 /**
  * Represents the main API entrypoint for the Repository Icons API.
  */
-class RepositoryIconEndpoints(private val avatars: AvatarModule): AbstractEndpoint("/repositories/{idOrName}/icons") {
+class RepositoryIconEndpoints(private val avatars: AvatarModule): AbstractEndpoint("/repositories/{id}/icons") {
     init {
         install(HttpMethod.Post, SessionsPlugin) {
             this += "repo:icons:update"
             condition { call ->
-                val repository = call.getRepositoryEntityByIdOrName() ?: return@condition PreconditionResult.Failed(ApiError.EMPTY)
+                val repository = call.getRepositoryEntityById() ?: return@condition PreconditionResult.Failed(ApiError.EMPTY)
                 call.repoHasPermission(repository, "metadata:update")
             }
         }
@@ -60,7 +59,7 @@ class RepositoryIconEndpoints(private val avatars: AvatarModule): AbstractEndpoi
      */
     @Get("/current.png")
     suspend fun current(call: ApplicationCall) {
-        val repository = call.getRepositoryByIdOrName() ?: return
+        val repository = call.getRepositoryById() ?: return
         val (contentType, bytes) = avatars.retrieveRepoIcon(repository, null)
             ?: return call.respond(HttpStatusCode.NotFound)
 
@@ -74,7 +73,7 @@ class RepositoryIconEndpoints(private val avatars: AvatarModule): AbstractEndpoi
      */
     @Get("/{hash}")
     suspend fun hash(call: ApplicationCall) {
-        val repository = call.getRepositoryByIdOrName() ?: return
+        val repository = call.getRepositoryById() ?: return
         val (contentType, bytes) = avatars.retrieveRepoIcon(repository, call.parameters["hash"])
             ?: return call.respond(HttpStatusCode.NotFound)
 
@@ -92,10 +91,9 @@ class RepositoryIconEndpoints(private val avatars: AvatarModule): AbstractEndpoi
      */
     @Post
     suspend fun update(call: ApplicationCall) {
-        val repository = call.getRepositoryByIdOrName() ?: return
+        val repository = call.getRepositoryById() ?: return
         val multipart = call.receiveMultipart()
         val parts = multipart.readAllParts()
-
         if (parts.isEmpty()) {
             return call.respond(
                 HttpStatusCode.BadRequest,
@@ -137,7 +135,7 @@ class RepositoryIconEndpoints(private val avatars: AvatarModule): AbstractEndpoi
             )
         }
 
-        AvatarFetchUtil.updateRepositoryIcon(repository, correctPart)
+        avatars.updateRepoIcon(repository, correctPart)
         call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
     }
 

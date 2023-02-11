@@ -1,6 +1,8 @@
+import java.net.URI
+
 /*
  * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright 2022-2023 Noelware <team@noelware.org>
+ * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,6 +61,7 @@ include(
     ":modules:sessions",
     ":modules:sessions:ldap",
     ":modules:sessions:local",
+    ":modules:sessions:openid",
     ":modules:sessions:integrations:github",
     ":modules:sessions:integrations:noelware",
     ":modules:storage",
@@ -78,26 +81,60 @@ dependencyResolutionManagement {
     }
 }
 
+val isCI = System.getenv("CI") != null
 gradle.settingsEvaluated {
-    logger.info("[build-cache] Checking if we can overwrite cache...")
-    val overrideBuildCacheProp: String? = System.getProperty("org.noelware.charted.overwriteCache")
-    val buildCacheDir = when (val prop = System.getProperty("org.noelware.charted.cachedir")) {
-        null -> "${System.getProperty("user.dir")}/.caches/gradle"
-        else -> when {
-            prop.startsWith("~/") -> "${System.getProperty("user.home")}${prop.substring(1)}"
-            prop.startsWith("./") -> "${System.getProperty("user.dir")}${prop.substring(1)}"
-            else -> prop
+    val javaVersion = JavaVersion.current()
+    val disableJavaSanityCheck = when {
+        System.getProperty("org.noelware.gradle.ignoreJavaCheck", "false") matches "^(yes|true|1|si|si*)$".toRegex() -> true
+        (System.getenv("GRADLE_DISABLE_JAVA_SANITY_CHECK") ?: "false") matches "^(yes|true|1|si|si*)$".toRegex() -> true
+        else -> false
+    }
+
+    if (!disableJavaSanityCheck && javaVersion.majorVersion.toInt() < 17) {
+        throw GradleException("""
+        |charted-server requires Java 17 or higher to be developed on with Gradle. You're currently on
+        |Java ${javaVersion.majorVersion} [${Runtime.version()}], to disable the sanity checks, you will
+        |need to pass in:
+        |
+        |  - environment variable `GRADLE_DISABLE_JAVA_SANITY_CHECK` with `yes`, `true`, `1`, or `si`.
+        |                                    ~ or ~
+        |  - system property `org.noelware.gradle.ignoreJavaCheck` with `yes`, `true`, `1`, or `si`.
+        """.trimMargin("|"))
+    }
+
+    val buildCacheHttpUri: String? = System.getProperty("org.noelware.gradle.buildCache.url")
+    val buildCacheDir: String? = System.getProperty("org.noelware.gradle.buildCache.dir")
+    val shouldOverrideBuildCache = buildCacheHttpUri != null || buildCacheDir != null
+
+    if (buildCacheHttpUri != null && buildCacheDir != null) {
+        logger.warn("You have defined both system properties: [org.noelware.gradle.buildCache.url] and [org.noelware.gradle.buildCache.dir], please use one or another!")
+    }
+
+    logger.lifecycle(if (shouldOverrideBuildCache) "Using custom build cache strategy..." else "Cannot override build cache without `org.noelware.gradle.buildCache.dir` or `org.noelware.gradle.buildCache.url` system property.")
+    if (shouldOverrideBuildCache && buildCacheHttpUri != null) {
+        logger.info("Attempting to place build cache in URI [$buildCacheHttpUri]")
+
+        val uri = URI.create(buildCacheHttpUri)
+        buildCache {
+            remote<HttpBuildCache> {
+                isAllowInsecureProtocol = uri.scheme == "http"
+                isPush = isCI || System.getProperty("org.noelware.gradle.buildCache.shouldPush", "false") matches "^(yes|true|si|si*)$".toRegex()
+                url = uri
+
+                val username = System.getProperty("org.noelware.gradle.buildCache.username")
+                if (username != null) {
+                    val password = System.getProperty("org.noelware.gradle.buildCache.password") ?: throw GradleException("Missing `org.noelware.gradle.buildCache.password` system property")
+                    credentials {
+                        this.username = username
+                        this.password = password
+                    }
+                }
+            }
         }
     }
 
-    if (overrideBuildCacheProp == null) {
-        logger.info("""
-        |[build-cache] If you wish to override the build cache for this Gradle process, you can use the
-        |-Dorg.noelware.charted.gradle.overwriteCache=<bool> Java property in `~/.gradle/gradle.properties`
-        |to overwrite it in $buildCacheDir!
-        """.trimMargin("|"))
-    } else {
-        logger.info("[build-cache] Setting up build cache in directory [$buildCacheDir]")
+    if (shouldOverrideBuildCache && buildCacheDir != null) {
+        logger.info("Configuring build cache in directory [$buildCacheDir]")
         val file = File(buildCacheDir)
         if (!file.exists()) file.mkdirs()
 
@@ -108,22 +145,9 @@ gradle.settingsEvaluated {
             }
         }
     }
-
-    val disableJavaSanityCheck = when {
-        System.getProperty("org.noelware.charted.ignoreJavaCheck", "false").matches("^(yes|true|1|si|si*)$".toRegex()) -> true
-        (System.getenv("CHARTED_DISABLE_JAVA_SANITY_CHECK") ?: "false").matches("^(yes|true|1|si|si*)$".toRegex()) -> true
-        else -> false
-    }
-
-    if (disableJavaSanityCheck)
-        return@settingsEvaluated
-
-    val version = JavaVersion.current()
-    if (version.majorVersion.toInt() < 17)
-        throw GradleException("Developing charted-server requires JDK 17 or higher, it is currently set in [${System.getProperty("java.home")}, ${System.getProperty("java.version")}] - You can ignore this check by providing the `-Dorg.noelware.charted.ignoreJavaCheck=true` system property.")
 }
 
-val buildScanServer = System.getProperty("org.noelware.charted.gradle.build-scan-server", "") ?: ""
+val buildScanServer = System.getProperty("org.noelware.gradle.buildScan.server", "")!!
 gradleEnterprise {
     buildScan {
         if (buildScanServer.isNotEmpty()) {
@@ -135,7 +159,7 @@ gradleEnterprise {
             termsOfServiceAgree = "yes"
 
             // Always publish if we're on CI.
-            if (System.getenv("CI") != null) {
+            if (isCI) {
                 publishAlways()
             }
         }

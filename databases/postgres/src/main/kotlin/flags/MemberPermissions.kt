@@ -1,6 +1,6 @@
 /*
  * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright 2022-2023 Noelware <team@noelware.org>
+ * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,9 @@ private val genericMemberPermissions: Map<String, Long> = mapOf(
     // Whether if this member has permission to delete webhooks in the given
     // repository or organization.
     "webhooks:delete" to (1L shl 8),
+
+    // Whether if this member has permission to delete any repository/organization metadata (i.e. repo releases)
+    "metadata:delete" to (1L shl 9),
 )
 
 class MemberPermissions(bits: Long = 0) : Bitfield(bits, genericMemberPermissions)

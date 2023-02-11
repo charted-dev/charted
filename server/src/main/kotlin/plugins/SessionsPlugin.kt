@@ -1,6 +1,6 @@
 /*
  * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright 2022-2023 Noelware <team@noelware.org>
+ * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -409,7 +409,7 @@ class SessionsPlugin private constructor(private val config: Configuration) {
             if (result is PreconditionResult.Failed) {
                 log.trace("--> Precondition has failed [${result.statusCode} (${result.error.code}): ${result.error.message}]")
                 if (call.isHandled) {
-                    log.trace("--> Precondition already handled this application call, not doing anything.")
+                    log.trace("--> Precondition was already handled, not doing anything.")
                     return
                 }
 

@@ -1,6 +1,6 @@
 /*
  * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright 2022-2023 Noelware <team@noelware.org>
+ * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 package org.noelware.charted.server.endpoints.v1.api.repositories
 
 import guru.zoroark.tegral.openapi.dsl.RootDsl
+import guru.zoroark.tegral.openapi.dsl.schema
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -34,7 +35,7 @@ import org.noelware.charted.databases.postgres.asyncTransaction
 import org.noelware.charted.databases.postgres.entities.RepositoryEntity
 import org.noelware.charted.databases.postgres.flags.RepositoryFlags
 import org.noelware.charted.databases.postgres.tables.RepositoryTable
-import org.noelware.charted.server.endpoints.v1.api.UpdateRepositoryBody
+import org.noelware.charted.server.openapi.extensions.externalDocsUrl
 import org.noelware.charted.server.plugins.PreconditionResult
 import org.noelware.charted.server.plugins.SessionsPlugin
 import org.noelware.charted.server.plugins.currentUser
@@ -47,28 +48,28 @@ import org.noelware.ktor.endpoints.Patch
 
 class RepositoriesEndpoints: AbstractEndpoint("/repositories") {
     init {
-        install(HttpMethod.Delete, "/repositories/{idOrName}", SessionsPlugin) {
+        install(HttpMethod.Delete, "/repositories/{id}", SessionsPlugin) {
             this += "repo:delete"
             condition { call ->
-                val repository = call.getRepositoryEntityByIdOrName() ?: return@condition PreconditionResult.Failed(ApiError.EMPTY, HttpStatusCode.BadRequest)
+                val repository = call.getRepositoryEntityById() ?: return@condition PreconditionResult.Failed(ApiError.EMPTY, HttpStatusCode.BadRequest)
                 call.repoHasPermission(repository, "repo:delete")
             }
         }
 
-        install(HttpMethod.Patch, "/repositories/{idOrName}", SessionsPlugin) {
+        install(HttpMethod.Patch, "/repositories/{id}", SessionsPlugin) {
             this += "repo:update"
             condition { call ->
-                val repository = call.getRepositoryEntityByIdOrName() ?: return@condition PreconditionResult.Failed(ApiError.EMPTY, HttpStatusCode.BadRequest)
+                val repository = call.getRepositoryEntityById() ?: return@condition PreconditionResult.Failed(ApiError.EMPTY, HttpStatusCode.BadRequest)
                 call.repoHasPermission(repository, "metadata:update")
             }
         }
 
-        install(HttpMethod.Get, "/repositories/{idOrName}", SessionsPlugin) {
+        install(HttpMethod.Get, "/repositories/{id}", SessionsPlugin) {
             allowNonAuthorizedRequests = true
             this += "repo:access"
 
             condition { call ->
-                val repository = call.getRepositoryEntityByIdOrName() ?: return@condition PreconditionResult.Failed(ApiError.EMPTY, HttpStatusCode.BadRequest)
+                val repository = call.getRepositoryEntityById() ?: return@condition PreconditionResult.Failed(ApiError.EMPTY, HttpStatusCode.BadRequest)
                 call.canAccessRepository(repository)
             }
         }
@@ -77,15 +78,15 @@ class RepositoriesEndpoints: AbstractEndpoint("/repositories") {
     @Get
     suspend fun main(call: ApplicationCall): Unit = call.respond(HttpStatusCode.OK, MainRepositoryResponse())
 
-    @Get("/{idOrName}")
+    @Get("/{id}")
     suspend fun getRepository(call: ApplicationCall) {
-        val repo = call.getRepositoryByIdOrName() ?: return
+        val repo = call.getRepositoryById() ?: return
         call.respond(HttpStatusCode.OK, ApiResponse.ok(repo))
     }
 
     @Patch("/{idOrName}")
     suspend fun patchRepository(call: ApplicationCall) {
-        val repo = call.getRepositoryByIdOrName() ?: return
+        val repo = call.getRepositoryById() ?: return
         val patched: UpdateRepositoryBody = call.receive()
         val whereClause: SqlExpressionBuilder.() -> Op<Boolean> = { RepositoryTable.id eq repo.id }
 
@@ -138,7 +139,7 @@ class RepositoriesEndpoints: AbstractEndpoint("/repositories") {
 
     @Delete("/{idOrName}")
     suspend fun deleteRepository(call: ApplicationCall) {
-        val repository = call.getRepositoryByIdOrName() ?: return
+        val repository = call.getRepositoryById() ?: return
         asyncTransaction {
             RepositoryTable.deleteWhere { RepositoryTable.id eq repository.id }
         }
@@ -154,6 +155,25 @@ class RepositoriesEndpoints: AbstractEndpoint("/repositories") {
          */
         fun RootDsl.toOpenAPI() {
             "/repositories" get {
+                description = "Generic entrypoint route for the Repositories API"
+                externalDocsUrl("repositories", "GET-/")
+
+                200 response {
+                    "application/json" content {
+                        schema<ApiResponse.Ok<MainRepositoryResponse>>()
+                    }
+                }
+            }
+
+            "/repositories/{id}" {
+                get {
+                }
+
+                patch {
+                }
+
+                delete {
+                }
             }
         }
     }

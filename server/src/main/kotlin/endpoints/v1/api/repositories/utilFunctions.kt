@@ -1,6 +1,6 @@
 /*
  * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright 2022-2023 Noelware <team@noelware.org>
+ * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,7 @@ import org.noelware.charted.databases.postgres.entities.RepositoryEntity
 import org.noelware.charted.databases.postgres.flags.MemberPermissions
 import org.noelware.charted.databases.postgres.flags.RepositoryFlags
 import org.noelware.charted.databases.postgres.models.Repository
-import org.noelware.charted.databases.postgres.tables.RepositoryTable
 import org.noelware.charted.extensions.json.toJsonArray
-import org.noelware.charted.extensions.regexp.toNameRegex
 import org.noelware.charted.server.plugins.PreconditionResult
 import org.noelware.charted.server.plugins.currentUser
 import org.noelware.charted.types.responses.ApiResponse
@@ -38,66 +36,50 @@ import org.noelware.charted.types.responses.ApiResponse
 //             Fetching utilities
 // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
 
-internal suspend fun ApplicationCall.getRepositoryEntityByIdOrName(): RepositoryEntity? {
-    val idOrName = parameters["idOrName"]
+internal suspend fun ApplicationCall.getRepositoryEntityById(): RepositoryEntity? {
+    val idOrName = parameters["id"]
         ?: return run {
             respond(
                 HttpStatusCode.BadRequest,
                 ApiResponse.err(
                     "MISSING_REPO_ID_OR_NAME",
-                    "Request is missing the `idOrName` path parameter",
+                    "Request is missing the ID path parameter",
                 ),
             )
 
             null
         }
 
-    return when {
-        idOrName.toLongOrNull() != null -> asyncTransaction {
-            RepositoryEntity.find { RepositoryTable.id eq idOrName.toLong() }.firstOrNull()
-        } ?: run {
-            respond(
-                HttpStatusCode.NotFound,
-                ApiResponse.err(
-                    "UNKNOWN_REPOSITORY",
-                    "Repository with ID [$idOrName] was not found.",
-                ),
-            )
+    if (idOrName.toLongOrNull() == null) {
+        respond(
+            HttpStatusCode.NotAcceptable,
+            ApiResponse.err(
+                "INVALID_SNOWFLAKE",
+                "Parameter [id] was not a valid snowflake",
+            ),
+        )
 
-            null
-        }
+        return null
+    }
 
-        idOrName.toNameRegex(false).matches() -> asyncTransaction {
-            RepositoryEntity.find { RepositoryTable.name eq idOrName }.firstOrNull()
-        } ?: run {
-            respond(
-                HttpStatusCode.NotFound,
-                ApiResponse.err(
-                    "UNKNOWN_REPOSITORY",
-                    "User with username [$idOrName] was not found.",
-                ),
-            )
-
-            null
-        }
-
-        else -> {
-            respond(
-                HttpStatusCode.BadRequest,
-                ApiResponse.err(
-                    "INVALID_USAGE",
-                    "Provided `idOrName` path parameter by request was not a valid snowflake or repository name.",
-                ),
-            )
-
-            null
-        }
+    return asyncTransaction {
+        RepositoryEntity.findById(idOrName.toLong())
+    } ?: run {
+        respond(
+            HttpStatusCode.NotFound,
+            ApiResponse.err(
+                "UNKNOWN_REPOSITORY",
+                "Repository with ID [$idOrName] was not found.",
+            ),
+        )
+        null
     }
 }
 
-internal suspend fun ApplicationCall.getRepositoryByIdOrName(): Repository? = getRepositoryEntityByIdOrName()?.ifNotNull {
-    Repository.fromEntity(this)
-}
+internal suspend fun ApplicationCall.getRepositoryById(): Repository? =
+    getRepositoryEntityById()?.ifNotNull {
+        Repository.fromEntity(this)
+    }
 
 // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
 //  Repository Member Permission Preconditions

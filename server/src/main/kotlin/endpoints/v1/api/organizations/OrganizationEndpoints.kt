@@ -1,6 +1,6 @@
 /*
  * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright 2022-2023 Noelware <team@noelware.org>
+ * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,25 @@
  * limitations under the License.
  */
 
+@file:Suppress("unused")
+
 package org.noelware.charted.server.endpoints.v1.api.organizations
 
 import guru.zoroark.tegral.openapi.dsl.RootDsl
-import org.noelware.ktor.endpoints.AbstractEndpoint
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import org.noelware.charted.server.endpoints.v1.api.MainOrganizationsResponse
+import org.noelware.charted.types.responses.ApiResponse
+import org.noelware.ktor.endpoints.Get
 
-class OrganizationEndpoints: AbstractEndpoint("/organizations") {
+class OrganizationEndpoints: AbstractOrganizationEndpoints("/organizations") {
+    @Get
+    suspend fun main(call: ApplicationCall): Unit = call.respond(HttpStatusCode.OK, ApiResponse.ok(MainOrganizationsResponse()))
+
+    @Get("/{idOrName}")
+    suspend fun getByIdOrName(call: ApplicationCall) {}
+
     companion object {
         fun RootDsl.toOpenAPI() {
         }
