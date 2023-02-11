@@ -29,13 +29,3 @@ if [[ "$?" != "0" ]]; then
   echo "Spotless was not ran successfully! Please run \`make spotless\` to fix the changes above."
   exit 1
 fi
-
-echo "Running \`cargo clippy\`..."
-make clippy
-
-if [[ "x$?" != "x0" ]]; then
-  echo "Clippy was not ran successfully (possible errors!). Please run \`make clippy-fix\` to fix the changes above."
-  exit 1
-fi
-
-echo "Spotless and Clippy are ok! :3"

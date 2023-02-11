@@ -27,8 +27,8 @@ jobs:
     strategy:
       matrix:
         tasks:
-          - { ext: "tar.gz", task: "distTar", prettyName: "tar" }
-          - { ext: "zip",    task: "distZip", prettyName: "zip" }
+          - { ext: 'tar.gz', task: 'distTar', prettyName: 'tar' }
+          - { ext: 'zip', task: 'distZip', prettyName: 'zip' }
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -103,12 +103,12 @@ jobs:
     strategy:
       matrix:
         dist:
-          - { goos: windows, goarch: amd64, ext: ".exe" }
-          - { goos: windows, goarch: i386, ext: ".exe" }
-          - { goos: darwin, goarch: amd64, ext: "" }
-          - { goos: darwin, goarch: arm64, ext: "" }
-          - { goos: linux, goarch: amd64, ext: "" }
-          - { goos: linux, goarch: arm64, ext: "" }
+          - { goos: windows, goarch: amd64, ext: '.exe' }
+          - { goos: windows, goarch: i386, ext: '.exe' }
+          - { goos: darwin, goarch: amd64, ext: '' }
+          - { goos: darwin, goarch: arm64, ext: '' }
+          - { goos: linux, goarch: amd64, ext: '' }
+          - { goos: linux, goarch: arm64, ext: '' }
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3

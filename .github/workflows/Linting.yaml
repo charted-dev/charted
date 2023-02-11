@@ -109,49 +109,6 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: test --no-daemon --scan
-  helm-plugin-ci:
-    name: Helm Plugin CI [${{matrix.runner}}, ${{matrix.toolchain}}]
-    runs-on: ${{matrix.runner}}
-    strategy:
-      matrix:
-        runner: [self-hosted, ubuntu-latest]
-        toolchain: [nightly, stable]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Setup Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: ${{matrix.toolchain}}
-          override: true
-          components: rustfmt, clippy
-
-      # We need a Java installation so that the build script for the Helm Plugin can work.
-      - name: Setup Java 19
-        uses: actions/setup-java@v3
-        with:
-          java-version: 19
-          distribution: temurin
-
-      - name: Setup Rust cache
-        uses: Swatinem/rust-cache@v2
-
-      - name: Check for compile errors
-        working-directory: ./tools/helm-plugin
-        run: cargo build
-        env:
-          CARGO_INCREMENTAL: 1
-
-  # Clippy is disabled for now until further notice
-  #      - name: Clippy
-  #        uses: actions-rs/clippy-check@v1
-  #        with:
-  #          token: ${{secrets.GITHUB_TOKEN}}
-  #          args: --all-features
   goci:
     name: ClickHouse Migrations CI
     runs-on: ubuntu-latest
