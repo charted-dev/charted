@@ -69,7 +69,7 @@ ktor = "2.2.3"
 totp = "1.7.1"
 otel = "1.22.0"
 okio = "3.3.0"
-jwt = "4.2.2"
+jwt = "4.3.0"
 
 [libraries]
 # kotlinx libraries
