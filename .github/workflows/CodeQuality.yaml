@@ -39,7 +39,7 @@ jobs:
     permissions:
       security-events: write
       contents: read
-      actions: Read
+      actions: read
     strategy:
       fail-fast: false
       matrix:
