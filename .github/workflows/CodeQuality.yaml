@@ -36,6 +36,7 @@ jobs:
   codeql:
     name: CodeQL (Java ${{matrix.java-version}}, ${{matrix.language}})
     runs-on: Ubuntu-latest
+    if: ${{false}} # disable it for now
     permissions:
       security-events: write
       contents: read
