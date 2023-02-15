@@ -81,7 +81,7 @@ jobs:
           fetch-depth: 0
           
       - name: Perform scan
-        uses: JetBrains/qodana-action@v2022.3.3
+        uses: JetBrains/qodana-action@v2022.3.4
         with:
           args: --baseline,qodana.sarif.json,--save-report
 
