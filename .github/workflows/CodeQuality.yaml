@@ -13,85 +13,78 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Code Quality
+name: Code Quality (CodeQL, Qodana)
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 0 * * *'
   push:
     branches:
       - 'issue/gh-**'
       - 'feat/**'
-      - nightly
       - main
-
     paths-ignore:
       - '.github/**'
       - '.vscode/**'
       - 'assets/**'
-      - 'locales/**'
-      - 'docker/**'
-      - '.dockerignore'
-      - '.eslintignore'
-      - '.gitignore'
+      - 'distribution/**'
+      - .gitignore
       - '**.md'
-      - 'LICENSE'
-      - 'renovate.json'
-  schedule:
-    - cron: '21 2 * * 4'
+      - LICENSE
+      - renovate.json
 jobs:
-  #  codeql:
-  #    name: Analyze (Java ${{matrix.java-version}}, ${{matrix.languages}})
-  #    runs-on: ubuntu-latest
-  #    permissions:
-  #      security-events: write
-  #      contents: read
-  #      actions: read
-  #    strategy:
-  #      fail-fast: false
-  #      matrix:
-  #        java-version: [17, 19]
-  #        languages: [java, kotlin]
-  #    steps:
-  #      - name: Checkout repository
-  #        uses: actions/checkout@v3
-  #
-  #      - name: Setup Java ${{ matrix.java-version }}
-  #        uses: actions/setup-java@v3
-  #        with:
-  #          java-version: ${{ matrix.java-version }}
-  #          distribution: temurin
-  #
-  #  Node.js is required for Spotless to install Prettier
-  #  - name: Setup Node.js v19x
-  #    uses: actions/setup-node@v3
-  #    with:
-  #      node-version: 19.x
-  #      architecture: ${{matrix.runner == 'self-hosted' && 'arm64' || 'x64'}}
-  #
-  #      - name: Initialize CodeQL
-  #        uses: github/codeql-action/init@v2
-  #        with:
-  #          languages: ${{ matrix.languages }}
-  #
-  #      - name: Autobuild
-  #        uses: github/codeql-action/autobuild@v2
-  #
-  #      - name: Perform CodeQL Analysis
-  #        uses: github/codeql-action/analyze@v2
-  qodana-jvm:
-    name: Qodana JVM
+  codeql:
+    name: CodeQL (Java ${{matrix.java-version}}, ${{matrix.language}})
+    runs-on: Ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+      actions: Read
+    strategy:
+      fail-fast: false
+      matrix:
+        java-version: [17, 19]
+        language: [kotlin, java]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      - name: Setup Java ${{matrix.java-version}}
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{matrix.java-version}}
+          distribution: temurin
+          
+      - name: Setup Node.js 19.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 19.x
+          
+      - name: Init CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{matrix.language}}
+          
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+        
+      - name: Perform analysis
+        uses: github/codeql-action/analyze@v2
+  qodana:
+    name: Qodana
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-
-      - name: Qodana Scan
+          
+      - name: Perform scan
         uses: JetBrains/qodana-action@v2022.3.3
         with:
-          args: --baseline,qodana.sarif.json,--property,org.noelware.charted.ignoreJavaCheck=true,--save-report
+          args: --baseline,qodana.sarif.json,--save-report
 
-      - name: Upload SARIF Results to GitHub
+      - name: Upload Sarif Results to GitHub
         uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: ${{ runner.temp }}/qodana/results/qodana.sarif.json
+          sarif_file: ${{runner.temp}}/qodana/results/qodana.sarif.json
