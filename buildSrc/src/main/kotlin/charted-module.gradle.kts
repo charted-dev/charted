@@ -26,6 +26,7 @@ import dev.floofy.utils.gradle.*
 plugins {
     id("org.noelware.gradle.kotlin")
     id("org.noelware.gradle.java")
+    kotlin("plugin.serialization")
     id("kotlinx-atomicfu")
 }
 
