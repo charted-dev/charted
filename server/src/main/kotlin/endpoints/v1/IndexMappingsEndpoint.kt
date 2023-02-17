@@ -65,7 +65,7 @@ class IndexMappingsEndpoint(
 
             idOrName.toNameRegex(false).matches() -> {
                 val user = asyncTransaction {
-                    UserEntity.find { UserTable.name eq idOrName }.firstOrNull()
+                    UserEntity.find { UserTable.username eq idOrName }.firstOrNull()
                 }
 
                 if (user != null) {

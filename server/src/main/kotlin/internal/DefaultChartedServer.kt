@@ -31,6 +31,7 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.defaultheaders.*
 import io.ktor.server.plugins.doublereceive.*
+import io.ktor.server.plugins.ratelimit.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -46,10 +47,15 @@ import org.noelware.charted.server.internal.extensions.configure
 import org.noelware.charted.server.plugins.Logging
 import org.noelware.charted.server.plugins.RequestMdc
 import org.noelware.charted.server.plugins.SentryPlugin
+import org.noelware.charted.server.ratelimiting.InMemoryRateLimiter
+import org.noelware.charted.server.ratelimiting.RedisRateLimiter
 import org.noelware.ktor.loader.koin.KoinEndpointLoader
 import org.noelware.ktor.plugin.NoelKtorRouting
+import org.noelware.ktor.realIP
 import org.slf4j.LoggerFactory
 import java.io.IOException
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 class DefaultChartedServer(private val config: Config) : ChartedServer {
     private val _server: SetOnce<NettyApplicationEngine> = SetOnce()
@@ -133,6 +139,33 @@ class DefaultChartedServer(private val config: Config) : ChartedServer {
         // the most frequent.
         install(StatusPages) {
             configure(config)
+        }
+
+        if (config.server.rateLimit != null) {
+            val rateLimitConfig = config.server.rateLimit!!
+            install(RateLimit) {
+                register(RateLimitName("authenticated")) {
+                    requestKey { call -> call.realIP }
+                    rateLimiter { _, key ->
+                        when (config.server.rateLimit!!.backend) {
+                            "InMemoryRateLimiter" -> InMemoryRateLimiter("authenticated", key as String, rateLimitConfig.timeWindow.toDuration(DurationUnit.MILLISECONDS))
+                            "RedisRateLimiter" -> RedisRateLimiter(GlobalContext.retrieve(), GlobalContext.retrieve(), key as String, "authenticated", rateLimitConfig.timeWindow.toDuration(DurationUnit.MILLISECONDS))
+                            else -> throw IllegalStateException("Backend must be [InMemoryRateLimiter] or [RedisRateLimiter]")
+                        }
+                    }
+                }
+
+                global {
+                    requestKey { call -> call.realIP }
+                    rateLimiter { _, key ->
+                        when (config.server.rateLimit!!.backend) {
+                            "InMemoryRateLimiter" -> InMemoryRateLimiter("global", key as String, rateLimitConfig.timeWindow.toDuration(DurationUnit.MILLISECONDS))
+                            "RedisRateLimiter" -> RedisRateLimiter(GlobalContext.retrieve(), GlobalContext.retrieve(), key as String, "global", rateLimitConfig.timeWindow.toDuration(DurationUnit.MILLISECONDS))
+                            else -> throw IllegalStateException("Backend must be [InMemoryRateLimiter] or [RedisRateLimiter]")
+                        }
+                    }
+                }
+            }
         }
 
         routing {}

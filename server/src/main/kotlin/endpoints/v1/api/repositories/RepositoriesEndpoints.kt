@@ -19,132 +19,117 @@
 
 package org.noelware.charted.server.endpoints.v1.api.repositories
 
+import dev.floofy.utils.kotlin.ifNotNull
 import guru.zoroark.tegral.openapi.dsl.RootDsl
 import guru.zoroark.tegral.openapi.dsl.schema
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.noelware.charted.ValidationException
 import org.noelware.charted.databases.postgres.asyncTransaction
+import org.noelware.charted.databases.postgres.entities.OrganizationEntity
 import org.noelware.charted.databases.postgres.entities.RepositoryEntity
-import org.noelware.charted.databases.postgres.flags.RepositoryFlags
+import org.noelware.charted.databases.postgres.entities.UserEntity
+import org.noelware.charted.databases.postgres.models.Repository
+import org.noelware.charted.databases.postgres.tables.OrganizationTable
 import org.noelware.charted.databases.postgres.tables.RepositoryTable
+import org.noelware.charted.databases.postgres.tables.UserTable
+import org.noelware.charted.extensions.regexp.toNameRegex
 import org.noelware.charted.server.openapi.extensions.externalDocsUrl
-import org.noelware.charted.server.plugins.PreconditionResult
-import org.noelware.charted.server.plugins.SessionsPlugin
-import org.noelware.charted.server.plugins.currentUser
-import org.noelware.charted.types.responses.ApiError
+import org.noelware.charted.server.plugins.isFailure
 import org.noelware.charted.types.responses.ApiResponse
-import org.noelware.ktor.endpoints.AbstractEndpoint
-import org.noelware.ktor.endpoints.Delete
 import org.noelware.ktor.endpoints.Get
-import org.noelware.ktor.endpoints.Patch
 
-class RepositoriesEndpoints: AbstractEndpoint("/repositories") {
-    init {
-        install(HttpMethod.Delete, "/repositories/{id}", SessionsPlugin) {
-            this += "repo:delete"
-            condition { call ->
-                val repository = call.getRepositoryEntityById() ?: return@condition PreconditionResult.Failed(ApiError.EMPTY, HttpStatusCode.BadRequest)
-                call.repoHasPermission(repository, "repo:delete")
-            }
-        }
-
-        install(HttpMethod.Patch, "/repositories/{id}", SessionsPlugin) {
-            this += "repo:update"
-            condition { call ->
-                val repository = call.getRepositoryEntityById() ?: return@condition PreconditionResult.Failed(ApiError.EMPTY, HttpStatusCode.BadRequest)
-                call.repoHasPermission(repository, "metadata:update")
-            }
-        }
-
-        install(HttpMethod.Get, "/repositories/{id}", SessionsPlugin) {
-            allowNonAuthorizedRequests = true
-            this += "repo:access"
-
-            condition { call ->
-                val repository = call.getRepositoryEntityById() ?: return@condition PreconditionResult.Failed(ApiError.EMPTY, HttpStatusCode.BadRequest)
-                call.canAccessRepository(repository)
-            }
-        }
-    }
-
+class RepositoriesEndpoints: AbstractRepositoryEndpoint("/repositories") {
     @Get
-    suspend fun main(call: ApplicationCall): Unit = call.respond(HttpStatusCode.OK, MainRepositoryResponse())
+    suspend fun main(call: ApplicationCall): Unit = call.respond(HttpStatusCode.OK, ApiResponse.ok(MainRepositoryResponse()))
 
     @Get("/{id}")
     suspend fun getRepository(call: ApplicationCall) {
-        val repo = call.getRepositoryById() ?: return
+        val repo = getRepositoryById(call) ?: return
         call.respond(HttpStatusCode.OK, ApiResponse.ok(repo))
     }
 
-    @Patch("/{idOrName}")
-    suspend fun patchRepository(call: ApplicationCall) {
-        val repo = call.getRepositoryById() ?: return
-        val patched: UpdateRepositoryBody = call.receive()
-        val whereClause: SqlExpressionBuilder.() -> Op<Boolean> = { RepositoryTable.id eq repo.id }
+    @Get("/{owner}/{name}")
+    suspend fun getRepoByOwnerAndName(call: ApplicationCall) {
+        val owner = call.parameters["owner"]!!
+        val name = call.parameters["name"]!!
+        if (!owner.toNameRegex().matches()) {
+            return call.respond(
+                HttpStatusCode.NotAcceptable,
+                ApiResponse.err(
+                    "INVALID_USER_PARAMETER",
+                    "The `owner` parameter only accepts usernames, organization names, or snowflakes",
+                ),
+            )
+        }
 
-        // Do some post checks before patching
-        if (patched.name != null) {
-            val anyOtherRepo = asyncTransaction {
-                RepositoryEntity.find {
-                    (RepositoryTable.name eq patched.name) and (RepositoryTable.owner eq call.currentUser!!.id)
-                }.firstOrNull()
+        if (!name.toNameRegex(true, 24).matches()) {
+            return call.respond(
+                HttpStatusCode.NotAcceptable,
+                ApiResponse.err(
+                    "INVALID_USER_PARAMETER",
+                    "The `name` parameter only accepts repository names or snowflakes",
+                ),
+            )
+        }
+
+        // Check if a user owns this repository
+        var isUserRepo = false
+        val ownerID = asyncTransaction {
+            val user = UserEntity.find {
+                when {
+                    owner.toLongOrNull() != null -> UserTable.id eq owner.toLong()
+                    else -> UserTable.username eq owner
+                }
+            }.firstOrNull()
+
+            if (user != null) {
+                isUserRepo = true
+                return@asyncTransaction user.id.value
             }
 
-            if (anyOtherRepo != null) {
-                throw ValidationException("body.name", "Can't rename repository ${patched.name} since repository already exists on your account")
-            }
+            OrganizationEntity.find {
+                when {
+                    owner.toLongOrNull() != null -> OrganizationTable.id eq owner.toLong()
+                    else -> OrganizationTable.name eq owner
+                }
+            }.firstOrNull()?.ifNotNull { id.value }
+        } ?: return call.respond(
+            HttpStatusCode.NotFound,
+            ApiResponse.err(
+                "UNKNOWN_ENTITY",
+                "User or organization with ID or username [$owner] was not found",
+            ),
+        )
+
+        val repo = asyncTransaction {
+            RepositoryEntity.find {
+                (RepositoryTable.owner eq ownerID) and when {
+                    name.toLongOrNull() != null -> RepositoryTable.id eq name.toLong()
+                    else -> RepositoryTable.name eq name
+                }
+            }.firstOrNull()
+        } ?: return call.respond(
+            HttpStatusCode.NotFound,
+            ApiResponse.err(
+                "UNKNOWN_REPOSITORY",
+                "Repository with ID or name [$name] was not found from owner [$owner]",
+            ),
+        )
+
+        if (isUserRepo && canAccessRepository(call, repo).isFailure()) {
+            return call.respond(
+                HttpStatusCode.Forbidden,
+                ApiResponse.err(
+                    "UNABLE_TO_ACCESS_REPOSITORY",
+                    "You are unable to access this repository",
+                ),
+            )
         }
 
-        val repoFlags = RepositoryFlags()
-        if (patched.private == true) {
-            repoFlags.add("PRIVATE")
-        }
-
-        asyncTransaction {
-            RepositoryTable.update(whereClause) {
-                it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-
-                if (patched.description != null) {
-                    it[description] = patched.description
-                }
-
-                if (patched.deprecated != null) {
-                    it[deprecated] = patched.deprecated
-                }
-
-                if (patched.private != null) {
-                    it[flags] = repoFlags.bits()
-                }
-
-                if (patched.name != null) {
-                    it[name] = patched.name
-                }
-
-                if (patched.type != null) {
-                    it[type] = patched.type
-                }
-            }
-        }
-
-        call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
-    }
-
-    @Delete("/{idOrName}")
-    suspend fun deleteRepository(call: ApplicationCall) {
-        val repository = call.getRepositoryById() ?: return
-        asyncTransaction {
-            RepositoryTable.deleteWhere { RepositoryTable.id eq repository.id }
-        }
-
-        call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
+        call.respond(HttpStatusCode.OK, ApiResponse.ok(Repository.fromEntity(repo)))
     }
 
     companion object {
@@ -165,14 +150,37 @@ class RepositoriesEndpoints: AbstractEndpoint("/repositories") {
                 }
             }
 
-            "/repositories/{id}" {
-                get {
+            "/repositories/{id}" get {
+                description = "Returns a repository entity by the snowflake, or a 404 if not found."
+                externalDocsUrl("repositories", "GET-/{id}")
+
+                200 response {
+                    "application/json" content {
+                        schema<ApiResponse.Ok<Repository>>()
+                    }
                 }
 
-                patch {
+                404 response {
+                    "application/json" content {
+                        schema<ApiResponse.Err>()
+                    }
+                }
+            }
+
+            "/repositories/{owner}/{name}" get {
+                description = "Returns a repository entity by the owner's name or snowflake, and the repository name, or a 404 if not found."
+                externalDocsUrl("repositories", "GET-/{owner}/{name}")
+
+                200 response {
+                    "application/json" content {
+                        schema<ApiResponse.Ok<Repository>>()
+                    }
                 }
 
-                delete {
+                404 response {
+                    "application/json" content {
+                        schema<ApiResponse.Err>()
+                    }
                 }
             }
         }

@@ -25,6 +25,7 @@ plugins {
 
 repositories {
     maven("https://maven.floofy.dev/repo/releases")
+    maven("https://maven.noelware.org")
     gradlePluginPortal()
     mavenCentral()
     mavenLocal()
@@ -34,6 +35,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.19.0")
     implementation("com.diffplug.spotless:spotless-plugin-gradle:6.15.0")
     implementation("com.netflix.nebula:gradle-ospackage-plugin:11.0.0")
+    implementation("org.noelware.gradle:gradle-infra-plugin:1.1.1")
     implementation("dev.floofy.commons:gradle:2.5.0")
     implementation(kotlin("serialization", "1.8.10"))
     implementation(kotlin("gradle-plugin", "1.8.10"))
@@ -62,7 +64,6 @@ tasks.withType<KotlinCompile>().configureEach {
 configurations.configureEach {
     if (isCanBeResolved) {
         attributes {
-            @Suppress("UnstableApiUsage")
             attribute(GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE, project.objects.named(GradleVersion.current().version))
         }
     }

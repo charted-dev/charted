@@ -19,14 +19,14 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.noelware.infra.gradle.Licenses
 import org.noelware.charted.gradle.*
 import dev.floofy.utils.gradle.*
 
 plugins {
-    kotlin("plugin.serialization")
-    id("com.diffplug.spotless")
+    id("org.noelware.gradle.kotlin")
+    id("org.noelware.gradle.java")
     id("kotlinx-atomicfu")
-    kotlin("jvm")
 }
 
 // https://github.com/Kotlin/kotlinx-atomicfu/issues/210
@@ -37,7 +37,17 @@ atomicfu {
 
 group = "org.noelware.charted"
 version = "$VERSION"
-description = ""
+description = "\uD83D\uDCE6 You know, for Helm Charts? [Subproject $name]"
+
+noelware {
+    minimumJavaVersion by JAVA_VERSION
+    projectDescription by "Free, open source, and reliable Helm Chart registry made in Kotlin."
+    projectEmoji by "\uD83D\uDCE6"
+    projectName by "charted-server"
+    currentYear by "2022-2023"
+    unitTests by true
+    license by Licenses.APACHE
+}
 
 repositories {
     maven("https://repo.perfectdreams.net/")
@@ -72,34 +82,6 @@ dependencies {
     }
 }
 
-spotless {
-    kotlin {
-        licenseHeaderFile("${rootProject.projectDir}/assets/HEADING")
-        trimTrailingWhitespace()
-        endWithNewline()
-
-        // it's for testing purposes, spotless is just a bork in chat.
-        targetExclude("**/*.charted.kts")
-        ktlint().apply {
-            setUseExperimental(true)
-            setEditorConfigPath(file("${rootProject.projectDir}/.editorconfig"))
-        }
-    }
-
-    java {
-        licenseHeaderFile("${rootProject.projectDir}/assets/HEADING")
-        trimTrailingWhitespace()
-        removeUnusedImports()
-        palantirJavaFormat()
-        endWithNewline()
-    }
-}
-
-java {
-    sourceCompatibility = JAVA_VERSION
-    targetCompatibility = JAVA_VERSION
-}
-
 // This will transform the project path:
 //
 //    - :sessions -> sessions
@@ -122,25 +104,6 @@ tasks {
                     "Implementation-Title" to "charted-server"
                 )
             )
-        }
-    }
-
-    withType<KotlinCompile> {
-        compilerOptions.freeCompilerArgs.set(listOf("-opt-in=kotlin.RequiresOptIn"))
-        compilerOptions.javaParameters by true
-        compilerOptions.jvmTarget by JvmTarget.fromTarget(JAVA_VERSION.majorVersion)
-    }
-
-    withType<Test>().configureEach {
-        useJUnitPlatform()
-        outputs.upToDateWhen { false }
-        maxParallelForks = Runtime.getRuntime().availableProcessors()
-        failFast = true // kill gradle if a test fails
-
-        testLogging {
-            events.addAll(listOf(TestLogEvent.PASSED, TestLogEvent.FAILED, TestLogEvent.SKIPPED))
-            showStandardStreams = true
-            exceptionFormat = TestExceptionFormat.FULL
         }
     }
 }

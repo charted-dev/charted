@@ -108,6 +108,8 @@ sealed class PreconditionResult {
     }
 }
 
+fun PreconditionResult.isFailure(): Boolean = this is PreconditionResult.Failed
+
 class SessionsPlugin private constructor(private val config: Configuration) {
     private val sessionsManager: SessionManager by inject()
     private val log by logging<SessionsPlugin>()
