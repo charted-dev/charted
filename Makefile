@@ -58,3 +58,7 @@ test: clean spotless ## Runs all the project tests
 .PHONY: kill-gradle-daemons
 kill-gradle-daemons: ## Kills all the Gradle daemons
 	@pkill -f '.*GradleDaemon.*'
+
+.PHONY: migrations
+migrations: ## Builds and runs the migrations tool
+	@(cd ./databases/clickhouse/migrations && go build -mod=readonly -ldflags "-s -w -X main.version=master" -o ./bin/ch-migrations && ./bin/ch-migrations)

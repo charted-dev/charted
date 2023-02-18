@@ -78,7 +78,7 @@ jobs:
           architecture: ${{matrix.runner == 'self-hosted' && 'aarch64' || 'amd64'}}
 
       # Node.js is required for Spotless to install Prettier
-      - name: Setup Node.js v19x
+      - name: Setup Node.js v19.x
         uses: actions/setup-node@v3
         with:
           node-version: 19.x
@@ -98,17 +98,17 @@ jobs:
       - name: Compiles Kotlin source sets
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: compileKotlin --no-daemon --scan
+          arguments: compileKotlin -Porg.gradle.java.installations.auto-detect=false --no-daemon --scan
 
       - name: Compiles Java source sets
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: compileJava --no-daemon --scan
+          arguments: compileJava -Porg.gradle.java.installations.auto-detect=false --no-daemon --scan
 
       - name: Run unit and integration tests
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: test --no-daemon --scan
+          arguments: test -Porg.gradle.java.installations.auto-detect=false --no-daemon --scan
   goci:
     name: ClickHouse Migrations CI
     runs-on: ubuntu-latest

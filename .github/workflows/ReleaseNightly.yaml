@@ -61,27 +61,27 @@ jobs:
       - name: Lint code-base with Spotless
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: spotlessCheck --no-daemon --scan
+          arguments: spotlessCheck -Porg.gradle.java.installations.auto-detect=false --no-daemon --scan
 
       - name: Compiles Kotlin source sets
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: compileKotlin --no-daemon --scan
+          arguments: compileKotlin -Porg.gradle.java.installations.auto-detect=false --no-daemon --scan
 
       - name: Compiles Java source sets
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: compileJava --no-daemon --scan
+          arguments: compileJava -Porg.gradle.java.installations.auto-detect=false --no-daemon --scan
 
       - name: Run unit and integration tests
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: test --no-daemon --scan
+          arguments: test -Porg.gradle.java.installations.auto-detect=false --no-daemon --scan
 
       - name: Build ${{matrix.tasks.prettyName}} artifact
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: :cli:${{matrix.tasks.task}} --no-daemon --scan
+          arguments: :cli:${{matrix.tasks.task}} -Porg.gradle.java.installations.auto-detect=false --no-daemon --scan
 
       - name: Upload ${{matrix.tasks.prettyName}} artifact to workflow
         uses: actions/upload-artifact@v3
