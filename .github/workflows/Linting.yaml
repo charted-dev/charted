@@ -21,41 +21,31 @@ on:
     branches:
       - 'issue/gh-**'
       - 'feat/**'
-      - nightly
       - main
 
     paths-ignore:
-      - '.husky/**'
       - '.vscode/**'
       - 'assets/**'
-      - 'locales/**'
-      - 'docker/**'
-      - '.dockerignore'
-      - '.eslintignore'
-      - '.gitignore'
+      - .dockerignore
+      - .gitignore
       - '**.md'
-      - 'LICENSE'
-      - 'renovate.json'
+      - LICENSE
+      - renovate.json
   push:
     branches:
       - 'issue/gh-**'
       - 'feat/**'
-      - nightly
       - main
 
     paths-ignore:
       - '.github/**'
-      - '.husky/**'
       - '.vscode/**'
       - 'assets/**'
-      - 'locales/**'
-      - 'docker/**'
-      - '.dockerignore'
-      - '.eslintignore'
-      - '.gitignore'
+      - .dockerignore
+      - .gitignore
       - '**.md'
-      - 'LICENSE'
-      - 'renovate.json'
+      - LICENSE
+      - renovate.json
 jobs:
   spotless:
     name: Spotless [${{matrix.runner}}, Java ${{matrix.java-version}}]
@@ -98,17 +88,17 @@ jobs:
       - name: Compiles Kotlin source sets
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: compileKotlin -Porg.gradle.java.installations.auto-detect=false --no-daemon --scan
+          arguments: compileKotlin --no-daemon --scan
 
       - name: Compiles Java source sets
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: compileJava -Porg.gradle.java.installations.auto-detect=false --no-daemon --scan
+          arguments: compileJava --no-daemon --scan
 
       - name: Run unit and integration tests
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: test -Porg.gradle.java.installations.auto-detect=false --no-daemon --scan
+          arguments: test --no-daemon --scan
   goci:
     name: ClickHouse Migrations CI
     runs-on: ubuntu-latest
