@@ -22,6 +22,7 @@ spring-security-crypto = "6.0.1"
 kotlinx-serialization = "1.4.1"
 apache-commons-lang3 = "3.12.0"
 logback-contrib-json = "0.1.5"
+otel-instrumentation = "1.23.0"
 kotlinx-coroutines = "1.6.4"
 elasticsearch-rest = "8.6.2"
 apache-commons-io = "2.11.0"
@@ -182,8 +183,8 @@ clickhouse-jdbc = { module = "com.clickhouse:clickhouse-jdbc", version.ref = "cl
 
 # opentelemetry
 opentelemetry-exporter-otlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp", version.ref = "otel" }
-opentelemetry-annotations = { module = "io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations", version.ref = "otel" }
-opentelemetry-javaagent = { module = "io.opentelemetry.javaagent:opentelemetry-javaagent", version.ref = "otel" }
+opentelemetry-annotations = { module = "io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations", version.ref = "otel-instrumentation" }
+opentelemetry-javaagent = { module = "io.opentelemetry.javaagent:opentelemetry-javaagent", version.ref = "otel-instrumentation" }
 opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api", version.ref = "otel" }
 opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "otel" }
 
