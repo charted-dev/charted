@@ -17,8 +17,6 @@
 
 @file:Suppress("UnstableApiUsage")
 
-import org.gradle.toolchains.foojay.FoojayToolchainResolver
-
 rootProject.name = "charted-server"
 
 pluginManagement {
@@ -38,19 +36,8 @@ buildscript {
 }
 
 plugins {
-    id("org.gradle.toolchains.foojay-resolver") version "0.4.0"
     id("org.noelware.gradle.settings") version "1.2.0"
     id("com.gradle.enterprise") version "3.12.3"
-}
-
-toolchainManagement {
-    jvm {
-        javaRepositories {
-            repository("foojay") {
-                resolverClass.set(FoojayToolchainResolver::class.java)
-            }
-        }
-    }
 }
 
 include(
