@@ -17,7 +17,7 @@
 
 @file:Suppress("UnstableApiUsage")
 
-import org.noelware.infra.gradle.toolchains.NoelwareJvmToolchainResolver
+import org.gradle.toolchains.foojay.FoojayToolchainResolver
 
 rootProject.name = "charted-server"
 
@@ -33,21 +33,21 @@ pluginManagement {
 
 buildscript {
     dependencies {
-        classpath("org.noelware.gradle:gradle-infra-plugin:1.1.1")
+        classpath("org.noelware.gradle:gradle-infra-plugin:1.2.0")
     }
 }
 
 plugins {
-    //id("org.gradle.toolchains.foojay-resolver-convention") version "0.4.0"
-    id("org.noelware.gradle.settings") version "1.1.1"
+    id("org.gradle.toolchains.foojay-resolver") version "0.4.0"
+    id("org.noelware.gradle.settings") version "1.2.0"
     id("com.gradle.enterprise") version "3.12.3"
 }
 
 toolchainManagement {
     jvm {
         javaRepositories {
-            repository("noelware") {
-                resolverClass.set(NoelwareJvmToolchainResolver::class.java)
+            repository("foojay") {
+                resolverClass.set(FoojayToolchainResolver::class.java)
             }
         }
     }
