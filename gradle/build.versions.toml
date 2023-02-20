@@ -40,7 +40,6 @@ ktor-routing = "0.5.2-beta"
 bouncycastle = "1.72"
 kotlinx-cli = "0.3.5"
 kubernetes = "17.0.1"
-clickhouse = "0.4.1"
 postgresql = "42.5.4"
 java-mail = "1.5.0-b01"
 hikaricp = "5.0.1"
@@ -175,9 +174,6 @@ jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", ver
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit5" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit5" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit5" }
-
-# clickhouse
-clickhouse-jdbc = { module = "com.clickhouse:clickhouse-jdbc", version.ref = "clickhouse" }
 
 # opentelemetry
 opentelemetry-exporter-otlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp", version.ref = "otel" }

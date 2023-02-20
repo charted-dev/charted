@@ -20,9 +20,9 @@ plugins {
 }
 
 dependencies {
+    implementation("com.clickhouse:clickhouse-jdbc:0.4.1:all")
     implementation(project(":modules:analytics:extensions"))
     implementation(project(":modules:metrics"))
-    implementation(libs.clickhouse.jdbc)
     implementation(libs.hikaricp)
 
     testImplementation(libs.testcontainers.clickhouse)
