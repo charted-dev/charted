@@ -25,7 +25,6 @@ import kotlinx.serialization.Serializable
  * uses the [AUDIT_LOGS] and [WEBHOOKS] features.
  */
 @Serializable
-@Suppress("ktlint:no-semi")
 public enum class ServerFeature {
     /**
      * Enables the Audit Logs feature. Audit logs are a way to introspect what you
@@ -54,5 +53,5 @@ public enum class ServerFeature {
      * settings per repository, organization, or user.
      */
     @SerialName("webhooks")
-    WEBHOOKS;
+    WEBHOOKS
 }

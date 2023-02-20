@@ -27,7 +27,6 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 @Serializable(with = PostgresMetricKeysSerializer::class)
-@Suppress("ktlint:no-semi")
 public enum class PostgresMetricKeys(public val key: String) {
     TotalOrganizationsAvailable("charted_postgres_total_organizations"),
     TotalRepositoriesAvailable("charted_postgres_total_repositories"),
@@ -35,7 +34,7 @@ public enum class PostgresMetricKeys(public val key: String) {
     DatabaseSize("charted_postgres_database_size"),
     ServerUptime("charted_postgres_server_uptime"),
     Wildcard("*"),
-    Version("charted_postgres_version");
+    Version("charted_postgres_version")
 }
 
 internal object PostgresMetricKeysSerializer : KSerializer<PostgresMetricKeys> {

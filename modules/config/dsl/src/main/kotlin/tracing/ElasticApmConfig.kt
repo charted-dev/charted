@@ -33,7 +33,6 @@ import java.net.InetAddress
  * [read more here](https://www.elastic.co/guide/en/apm/agent/java/current/config-core.html#config-enable-instrumentations)
  */
 @kotlinx.serialization.Serializable
-@Suppress("ktlint:no-semi")
 public enum class Instrumentation(public val key: String) {
     ANNOTATIONS("annotations"),
     ANNOTATIONS_CAPTURE_SPAN("annotations-capture-span"),

@@ -31,7 +31,6 @@ import kotlinx.serialization.encoding.Encoder
  * key.
  */
 @Serializable(with = RedisMetricKeysSerializer::class)
-@Suppress("ktlint:no-semi")
 public enum class RedisMetricKeys(public val key: String) {
     TotalConnectionsReceived("charted_redis_total_connections_received"),
     TotalCommandsProcessed("charted_redis_total_commands_processed"),
@@ -41,7 +40,7 @@ public enum class RedisMetricKeys(public val key: String) {
     Version("charted_redis_version"),
     Mode("charted_redis_mode"),
     Ping("charted_redis_ping"),
-    Wildcard("*");
+    Wildcard("*")
 }
 
 internal object RedisMetricKeysSerializer : KSerializer<RedisMetricKeys> {

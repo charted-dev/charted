@@ -24,11 +24,13 @@ import kotlinx.serialization.Serializable
  * Represents the session type to use when configuring the session manager
  */
 @Serializable
-@Suppress("ktlint:no-semi")
 public enum class SessionType {
-    @SerialName("ldap")
-    LDAP,
+    @SerialName("passwordless")
+    Passwordless,
 
     @SerialName("local")
-    Local
+    Local,
+
+    @SerialName("ldap")
+    LDAP
 }

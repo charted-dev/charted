@@ -83,6 +83,8 @@ public fun Config.toCdnBaseUrl(path: String = "/"): String = when {
  */
 @Serializable
 public data class Config(
+    @SerialName("emails_grpc_endpoint")
+    val emailsEndpoint: String? = null,
     val registrations: Boolean = true,
 
     @SerialName("jwt_secret_key")
@@ -113,7 +115,6 @@ public data class Config(
     val server: KtorServerConfig = KtorServerConfig(),
     val search: SearchConfig? = null,
     val redis: RedisConfig = RedisConfig(),
-    val smtp: SMTPConfig? = null,
     val cdn: CdnProxyConfig? = null
 ) {
     init {
@@ -131,6 +132,7 @@ public data class Config(
      */
     @Suppress("MemberVisibilityCanBePrivate")
     public open class Builder : org.noelware.charted.common.Builder<Config> {
+        public var emailsEndpoint: String? = null
         public var registrations: Boolean = true
         public var jwtSecretKey: String = DO_NOT_USE_THIS_VALUE_IN_YOUR_JWT_SECRET_KEY_OR_I_WILL_LAUGH_AT_YOU
         public var inviteOnly: Boolean = false
@@ -211,17 +213,13 @@ public data class Config(
             return this
         }
 
-        public fun smtp(from: String, builder: SMTPConfig.Builder.() -> Unit = {}): Builder {
-            _smtp = SMTPConfig.Builder(from).apply(builder).build()
-            return this
-        }
-
         public fun cdn(builder: CdnProxyConfig.Builder.() -> Unit = {}): Builder {
             _cdn = CdnProxyConfig.Builder().apply(builder).build()
             return this
         }
 
         override fun build(): Config = Config(
+            emailsEndpoint,
             registrations,
             jwtSecretKey,
             inviteOnly,
@@ -241,7 +239,6 @@ public data class Config(
             _server,
             _search,
             _redis,
-            _smtp,
         )
     }
 

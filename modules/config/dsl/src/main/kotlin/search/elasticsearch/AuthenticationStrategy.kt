@@ -45,7 +45,6 @@ import org.noelware.charted.serializers.SecretStringSerializer
  * to set up an ideal environment for **charted-server** and Elasticsearch.
  */
 @Serializable
-@Suppress("ktlint:no-semi")
 public enum class AuthStrategyType {
     /** No authentication is required on the server level. */
     @SerialName("none")

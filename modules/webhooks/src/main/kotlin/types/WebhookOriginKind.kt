@@ -24,7 +24,6 @@ import kotlinx.serialization.Serializable
  * Represents the origin type of webhook event packet
  */
 @Serializable
-@Suppress("ktlint:no-semi")
 enum class WebhookOriginKind {
     @SerialName("org")
     ORGANIZATION,
