@@ -44,7 +44,6 @@ import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.configuration.host.ConfigurationHost
-import org.noelware.charted.configuration.kotlin.dsl.features.ServerFeature
 import org.noelware.charted.configuration.kotlin.dsl.sessions.SessionType
 import org.noelware.charted.configuration.kotlin.host.KotlinScriptHost
 import org.noelware.charted.configuration.yaml.YamlConfigurationHost
@@ -58,11 +57,11 @@ import org.noelware.charted.modules.analytics.AnalyticsDaemon
 import org.noelware.charted.modules.apikeys.ApiKeyManager
 import org.noelware.charted.modules.apikeys.DefaultApiKeyManager
 import org.noelware.charted.modules.avatars.avatarsModule
-import org.noelware.charted.modules.docker.registry.authorization.DefaultRegistryAuthorizationPolicyManager
-import org.noelware.charted.modules.docker.registry.authorization.RegistryAuthorizationPolicyManager
 import org.noelware.charted.modules.elasticsearch.DefaultElasticsearchModule
 import org.noelware.charted.modules.elasticsearch.ElasticsearchModule
 import org.noelware.charted.modules.elasticsearch.metrics.ElasticsearchStats
+import org.noelware.charted.modules.email.DefaultEmailService
+import org.noelware.charted.modules.email.EmailService
 import org.noelware.charted.modules.helm.charts.DefaultHelmChartModule
 import org.noelware.charted.modules.helm.charts.HelmChartModule
 import org.noelware.charted.modules.metrics.collectors.JvmProcessInfoMetrics
@@ -286,11 +285,19 @@ object ConfigureModulesPhase : BootstrapPhase() {
             )
         }
 
-        if (config.features.contains(ServerFeature.DOCKER_REGISTRY)) {
-            val registryAuthorizationPolicyManager = DefaultRegistryAuthorizationPolicyManager(sessions, redis, json, config)
+        if (config.emailsEndpoint != null) {
+            log.info("Creating emails gRPC service...")
+            val service = DefaultEmailService(config)
+
+            log.info("Pinging emails gRPC service...")
+            val ok = service.ping()
+            if (!ok) log.warn("Unable to ping emails gRPC with endpoint [${config.emailsEndpoint}], this might not work correctly!")
+
             modules.add(
                 module {
-                    single<RegistryAuthorizationPolicyManager> { registryAuthorizationPolicyManager }
+                    single<EmailService> {
+                        service
+                    }
                 },
             )
         }

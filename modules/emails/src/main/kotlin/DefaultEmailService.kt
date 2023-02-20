@@ -13,7 +13,9 @@ import java.util.concurrent.TimeUnit
 
 class DefaultEmailService(config: Config): EmailService {
     private val channel: ManagedChannel = ManagedChannelBuilder.forTarget(config.emailsEndpoint!!).apply {
-        executor(Executors.newFixedThreadPool(16, createThreadFactory("GrpcExecutor")))
+        // Use a single thread for this since we wouldn't really use this method much unless
+        // we need HA, then we might bump this up.
+        executor(Executors.newSingleThreadExecutor(createThreadFactory("EmailsGrpcExecutor")))
         userAgent("Noelware/charted-server (+https://github.com/charted-dev/charted; v${ChartedInfo.version}+${ChartedInfo.commitHash})")
         usePlaintext() // The service doesn't implement TLS, so we will have to use plaintext for now
     }.build()
@@ -23,7 +25,6 @@ class DefaultEmailService(config: Config): EmailService {
     private val log by logging<DefaultEmailService>()
 
     override suspend fun ping(): Boolean = grpcClient.ping(PingRequest.getDefaultInstance()).pong
-
     override suspend fun sendEmail(request: SendEmailRequest): SendEmailResponse = grpcClient.send(request)
     override fun close() {
         if (_closed.compareAndSet(expect = false, update = true)) {
