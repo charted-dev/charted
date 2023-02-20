@@ -58,7 +58,7 @@ jobs:
           use-gradlew: true
           token: ${{secrets.GITHUB_TOKEN}}
   go:
-    name: Gradle Dependency Submission
+    name: Go Dependency Submission
     runs-on: ubuntu-latest
     permissions:
       contents: write
