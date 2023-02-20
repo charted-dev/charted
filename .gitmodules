@@ -1,0 +1,3 @@
+[submodule "modules/emails/vendor/protos"]
+	path = modules/emails/vendor/protos
+	url = https://github.com/charted-dev/email-service

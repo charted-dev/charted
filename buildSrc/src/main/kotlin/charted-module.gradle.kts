@@ -107,4 +107,26 @@ tasks {
             )
         }
     }
+
+    withType<Test>().configureEach {
+        useJUnitPlatform()
+        outputs.upToDateWhen { false }
+        maxParallelForks = Runtime.getRuntime().availableProcessors()
+        failFast = true
+
+        testLogging {
+            events(
+                TestLogEvent.PASSED,
+                TestLogEvent.FAILED,
+                TestLogEvent.SKIPPED,
+                TestLogEvent.STANDARD_ERROR,
+                TestLogEvent.STANDARD_OUT,
+                TestLogEvent.STARTED
+            )
+
+            showCauses = true
+            showExceptions = true
+            exceptionFormat = TestExceptionFormat.FULL
+        }
+    }
 }

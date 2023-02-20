@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("UnstableApiUsage")
-
 rootProject.name = "charted-server"
 
 pluginManagement {
@@ -71,6 +69,7 @@ include(
     ":modules:sessions:ldap",
     ":modules:sessions:local",
     ":modules:sessions:openid",
+    ":modules:sessions:passwordless",
     ":modules:sessions:integrations:github",
     ":modules:sessions:integrations:noelware",
     ":modules:storage",

@@ -26,10 +26,7 @@ import com.github.ajalt.mordant.rendering.TextColors.*
 import com.github.ajalt.mordant.rendering.TextStyles.*
 import com.github.ajalt.mordant.terminal.Terminal
 import org.noelware.charted.ChartedInfo
-import org.noelware.charted.cli.commands.ClickHouseMigrationsCommand
-import org.noelware.charted.cli.commands.GenerateConfigCommand
-import org.noelware.charted.cli.commands.OpenAPICommand
-import org.noelware.charted.cli.commands.ServerCommand
+import org.noelware.charted.cli.commands.*
 import org.noelware.charted.cli.commands.accounts.BaseAccountsCommand
 import kotlin.system.exitProcess
 

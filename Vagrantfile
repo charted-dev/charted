@@ -22,26 +22,23 @@ PLUGINS.all? do |plugin|
         puts "The #{plugin} plugin is optional but you might want it if you wish to use libvirt instead of VirtualBox"
         puts "You can install the plugin via: $ vagrant plugin install #{plugin}"
         puts ""
-        puts "===> If you wish to use libvirt as the default, run `export VAGRANT_DEFAULT_PROVIDER=libvirt`"
+        puts "===> If you wish to use libvirt as the default, run `export VAGRANT_DEFAULT_PROVIDER=libvirt`, otherwise, pass the `--provider=libvirt` flag."
     )
 end
 
 Vagrant.configure("2") do |config|
     # Configure Debian
-    "debian/bullseye64".tap do |box|
-        config.vm.define "debian" do |config|
-            config.vm.box = box
+    "debian".tap do |box|
+        config.vm.define box do |config|
+            config.vm.box = "debian/bullseye64"
 
             # Install Docker on the host
             config.vm.provision "Install Docker via apt", type: 'shell', inline: <<-SHELL
-            export old_frontend=${DEBIAN_FRONTEND}
-            export DEBIAN_FRONTEND=noninteractive
-
             # Update packages
-            apt update -y
+            DEBIAN_FRONTEND=noninteractive apt update -y
 
             # Install required packages
-            apt install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
+            DEBIAN_FRONTEND=noninteractive apt install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
 
             # Add Docker's official GPG key
             mkdir -m 0755 -p /etc/apt/keyrings
@@ -53,23 +50,24 @@ Vagrant.configure("2") do |config|
                 $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
             # Now install Docker
-            apt update && apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+            DEBIAN_FRONTEND=noninteractive apt update && \
+                DEBIAN_FRONTEND=noninteractive apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
             SHELL
         end
     end
 
     # Configure Windows Server 2022
-#     "jborean93/WindowsServer2022".tap do |box|
-#         config.vm.define "windows" do |config|
-#             config.vm.box = box
-#
-#             # Install Docker for Windows Server
-#             config.vm.provision "Install Docker", type: 'shell', inline: <<-SHELL
-#                 Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/microsoft/Windows-Containers/Main/helpful_tools/Install-DockerCE/install-docker-ce.ps1" -o install-docker-ce.ps1
-#                 .\install-docker-ce.ps1
-#             SHELL
-#         end
-#     end
+    "windows".tap do |box|
+        config.vm.define box do |config|
+            config.vm.box = "jborean93/WindowsServer2022"
+
+            # Install Docker for Windows Server
+            config.vm.provision "Install Docker", type: 'shell', inline: <<-SHELL
+                Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/microsoft/Windows-Containers/Main/helpful_tools/Install-DockerCE/install-docker-ce.ps1" -o install-docker-ce.ps1
+                .\install-docker-ce.ps1
+            SHELL
+        end
+    end
 
     # Sync up this project
     config.vm.synced_folder ".", "/charted",
@@ -85,7 +83,11 @@ Vagrant.configure("2") do |config|
         vbox.customize ["modifyvm", :id, "--audio", "none"]
     end
 
-    config.vm.provider "libvirt" do |virt|
-
+    # libvirt-specific settings, if we have the plugin installed.
+    if Vagrant.has_plugin?("vagrant-libvirt")
+        config.vm.provider "libvirt" do |virt|
+            virt.memory = Integer(ENV["VAGRANT_MEMORY"] || 4096)
+            virt.cpus   = Integer(ENV["VAGRANT_CPU_CORES"] || 2)
+        end
     end
 end

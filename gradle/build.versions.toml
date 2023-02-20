@@ -26,7 +26,6 @@ otel-instrumentation = "1.23.0"
 kotlinx-coroutines = "1.6.4"
 elasticsearch-rest = "8.6.2"
 apache-commons-io = "2.11.0"
-mustache-compiler = "0.9.10"
 charted-snowflake = "0.1-beta"
 meilisearch-rest = "1.0"
 kotlinx-atomicfu = "0.19.0"
@@ -39,7 +38,6 @@ analytics-jvm = "0.1.4-beta"
 noel-commons = "2.5.0"
 ktor-routing = "0.5.2-beta"
 bouncycastle = "1.72"
-jakarta-mail = "2.0.1"
 kotlinx-cli = "0.3.5"
 kubernetes = "17.0.1"
 clickhouse = "0.4.1"
@@ -201,9 +199,7 @@ exposed-powergamer-tools = { module = "net.perfectdreams.exposedpowerutils:postg
 meilisearch-rest-client = { module = "dev.floofy.meilisearch:rest-client", version.ref = "meilisearch-rest" }
 kubernetes-client = { module = "io.kubernetes:client-java", version.ref = "kubernetes" }
 charted-snowflake = { module = "org.noelware.charted.snowflake:snowflake", version.ref = "charted-snowflake" }
-mustache-compiler = { module = "com.github.spullara.mustache.java:compiler", version.ref = "mustache-compiler" }
 tegral-openapi = { module = "guru.zoroark.tegral:tegral-openapi-dsl", version.ref = "tegral" }
-jakarta-mail = { module = "com.sun.mail:jakarta.mail", version.ref = "jakarta-mail" }
 bouncycastle = { module = "org.bouncycastle:bcpkix-jdk15to18", version.ref = "bouncycastle" }
 javax-mail = { module = "javax.mail:mail", version.ref = "java-mail" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }

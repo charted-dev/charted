@@ -63,8 +63,6 @@ import org.noelware.charted.modules.docker.registry.authorization.RegistryAuthor
 import org.noelware.charted.modules.elasticsearch.DefaultElasticsearchModule
 import org.noelware.charted.modules.elasticsearch.ElasticsearchModule
 import org.noelware.charted.modules.elasticsearch.metrics.ElasticsearchStats
-import org.noelware.charted.modules.email.DefaultEmailService
-import org.noelware.charted.modules.email.EmailService
 import org.noelware.charted.modules.helm.charts.DefaultHelmChartModule
 import org.noelware.charted.modules.helm.charts.HelmChartModule
 import org.noelware.charted.modules.metrics.collectors.JvmProcessInfoMetrics
@@ -76,6 +74,7 @@ import org.noelware.charted.modules.redis.DefaultRedisClient
 import org.noelware.charted.modules.redis.RedisClient
 import org.noelware.charted.modules.redis.metrics.RedisMetricsCollector
 import org.noelware.charted.modules.sessions.SessionManager
+import org.noelware.charted.modules.sessions.ldap.LDAPSessionManager
 import org.noelware.charted.modules.sessions.local.LocalSessionManager
 import org.noelware.charted.modules.storage.DefaultStorageHandler
 import org.noelware.charted.modules.storage.StorageHandler
@@ -208,6 +207,7 @@ object ConfigureModulesPhase : BootstrapPhase() {
         val apiKeyManager = DefaultApiKeyManager(redis)
         val sessions: SessionManager = when (config.sessions.type) {
             SessionType.Local -> LocalSessionManager(argon2, redis, json, config)
+            SessionType.LDAP -> LDAPSessionManager(redis, json, config)
             else -> throw IllegalStateException("Session type [${config.sessions.type}] is unsupported")
         }
 
@@ -273,15 +273,6 @@ object ConfigureModulesPhase : BootstrapPhase() {
             modules.add(
                 module {
                     single<ClickHouseConnection> { clickhouse }
-                },
-            )
-        }
-
-        if (config.smtp != null) {
-            val emailService = DefaultEmailService(config.smtp)
-            modules.add(
-                module {
-                    single<EmailService> { emailService }
                 },
             )
         }
