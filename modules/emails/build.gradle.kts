@@ -60,12 +60,26 @@ sourceSets {
 
 spotless {
     kotlin {
-        // for some reason, these files are all empty...?
         targetExclude(
-            "build/generated/source/proto/proto/kotlin/org/noelware/charted/emails/protobufs/v1/EmailsOuterClassKt.kt",
-            "build/generated/source/proto/main/kotlin/org/noelware/charted/emails/protobufs/v1/EmailsOuterClassKt.kt",
-            "build/generated/source/proto/proto/kotlin/com/google/protobuf/StructProtoKt.kt",
-            "build/generated/source/proto/main/kotlin/com/google/protobuf/StructProtoKt.kt"
+            "build/generated/source/proto/main/grpc-kotlin/org/noelware/charted/emails/protobufs/v1/**/*.kt",
+            "build/generated/source/proto/proto/grpc-kotlin/org/noelware/charted/emails/protobufs/v1/**/*.kt",
+            "build/generated/source/proto/proto/kotlin/org/noelware/charted/emails/protobufs/v1/**/*.kt",
+            "build/generated/source/proto/main/kotlin/org/noelware/charted/emails/protobufs/v1/**/*.kt",
+            "build/generated/source/proto/proto/kotlin/com/google/protobuf/**/*.kt",
+            "build/generated/source/proto/main/kotlin/com/google/protobuf/**/*.kt"
+        )
+    }
+
+    java {
+        targetExclude(
+            "build/generated/source/proto/main/grpc/org/noelware/charted/emails/protobufs/v1/**/*.java",
+            "build/generated/source/proto/main/java/org/noelware/charted/emails/protobufs/v1/**/*.java",
+            "build/generated/source/proto/proto/grpc/org/noelware/charted/emails/protobufs/v1/**/*.java",
+            "build/generated/source/proto/proto/java/org/noelware/charted/emails/protobufs/v1/**/*.java",
+            "build/generated/source/proto/main/grpc/com/google/protobuf/**/*.java",
+            "build/generated/source/proto/main/java/com/google/protobuf/**/*.java",
+            "build/generated/source/proto/proto/grpc/com/google/protobuf/**/*.java",
+            "build/generated/source/proto/proto/java/com/google/protobuf/**/*.java",
         )
     }
 }
