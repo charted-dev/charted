@@ -36,7 +36,7 @@ atomicfu {
 
 group = "org.noelware.charted"
 version = "$VERSION"
-description = "\uD83D\uDCE6 You know, for Helm Charts? [Subproject $name]"
+description = "\uD83D\uDCE6 You know, for Helm Charts?"
 
 noelware {
     minimumJavaVersion by JAVA_VERSION
