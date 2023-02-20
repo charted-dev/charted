@@ -1,5 +1,5 @@
 // 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
-// Copyright 2022-2023 Noelware <team@noelware.org>
+// Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,64 +34,67 @@ import (
 )
 
 var (
-	version = "devel"
+	version = "master"
+	log     = slog.Make(sloghuman.Sink(os.Stdout))
+
+	options = CliOptions{}
 	rootCmd = &cobra.Command{
-		Use:          "clickhouse-migrations",
-		Short:        "Manages and runs the migrations for charted-server's ClickHouse database.",
+		Use:          "ch-migrations",
+		Short:        "Manages and runs the migrations for ClickHouse",
 		RunE:         execute,
 		SilenceUsage: true,
-		Version:      fmt.Sprintf("ch-migrations %s (%s/%s)", version, runtime.GOOS, runtime.GOARCH),
+		Version:      fmt.Sprintf("ch-migrations %s on %s/%s", version, runtime.GOOS, runtime.GOARCH),
 	}
-
-	log = slog.Make(sloghuman.Sink(os.Stdout))
-
-	tableName *string
-	hosts     *[]string
-	timeout   *string
-	username  *string
-	password  *string
-	database  *string
 )
 
+type CliOptions struct {
+	migrationsTableName string
+	username            string
+	password            string
+	database            string
+	timeout             time.Duration
+	hosts               []string
+}
+
 func init() {
-	tableName = rootCmd.Flags().StringP("table", "t", "migrations", "The migrations table name")
-	hosts = rootCmd.Flags().StringSlice("hosts", []string{"localhost:9000"}, "list of hosts to connect to")
-	timeout = rootCmd.Flags().String("timeout", "15s", "timeout from connecting to server")
-	username = rootCmd.Flags().StringP("username", "u", "", "username for authentication when connecting")
-	password = rootCmd.Flags().StringP("password", "p", "", "password for authentication when connecting")
-	database = rootCmd.Flags().StringP("database", "d", "charted", "database name")
+	rootCmd.Flags().StringVarP(&options.migrationsTableName, "migrations-table", "t", "migrations", "Table name for holding migration metadata")
+	rootCmd.Flags().StringSliceVar(&options.hosts, "hosts", []string{"localhost:9000"}, "List of ClickHouse nodes to connect to")
+	rootCmd.Flags().DurationVar(&options.timeout, "timeout", time.Second*15, "timeout from connecting to ClickHouse nodes")
+	rootCmd.Flags().StringVarP(&options.username, "username", "u", "", "username when connecting to the ClickHouse nodes")
+	rootCmd.Flags().StringVarP(&options.password, "password", "p", "", "password when connecting to the ClickHouse nodes")
+	rootCmd.Flags().StringVarP(&options.database, "database", "d", "charted", "database to connect to")
 }
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {
-		log.Fatal(context.TODO(), "failed to run command line runner", slog.F("err", err))
+		log.Fatal(context.TODO(), "failed to run migrations", slog.F("err", err))
 		os.Exit(1)
 	}
 }
 
-func connectionUrl() (*string, error) {
+func connectionUri() (*string, error) {
 	b := &strings.Builder{}
 	b.WriteString("clickhouse://")
 
-	for i, host := range *hosts {
-		if username != nil && *username != "" {
-			if password == nil || *password == "" {
+	for i, host := range options.hosts {
+		if options.username != "" {
+			if options.password == "" {
 				return nil, errors.New("missing 'password' flag, which is required when using --username flag")
 			}
 
-			b.WriteString(fmt.Sprintf("%s:%s@", *username, *password))
+			b.WriteString(fmt.Sprintf("%s:%s@", options.username, options.password))
 		}
 
 		b.WriteString(host)
 
-		if (i + 1) != len(*hosts) {
+		if (i + 1) != len(options.hosts) {
 			b.WriteRune(',')
 		}
 	}
 
-	if database != nil {
+	if options.database != "" {
 		b.WriteRune('/')
-		b.WriteString(*database)
+		b.WriteString(options.database)
 	}
 
 	url := b.String()
@@ -99,20 +102,15 @@ func connectionUrl() (*string, error) {
 }
 
 func execute(_ *cobra.Command, _ []string) error {
-	url, err := connectionUrl()
+	url, err := connectionUri()
 	if err != nil {
 		return err
 	}
 
-	t, err := time.ParseDuration(*timeout)
-	if err != nil {
-		return err
-	}
-
-	log.Info(context.TODO(), "preparing clickhouse connection with url", slog.F("url", url))
+	log.Info(context.TODO(), "preparing clickhouse connection", slog.F("url", url))
 	opts := &ch.Options{
-		Addr:        *hosts,
-		DialTimeout: t,
+		Addr:        options.hosts,
+		DialTimeout: options.timeout,
 		Settings: ch.Settings{
 			"allow_experimental_object_type": true,
 		},
@@ -121,31 +119,24 @@ func execute(_ *cobra.Command, _ []string) error {
 		},
 	}
 
-	auth := ch.Auth{Database: *database}
-
-	// safe because `username` and `password` are validated in connectionUrl()
-	if username != nil && password != nil {
-		if *username != "" {
-			auth.Username = *username
-		}
-
-		if *password != "" {
-			auth.Password = *password
-		}
+	auth := ch.Auth{Database: options.database}
+	if options.username != "" && options.password != "" {
+		auth.Username = options.username
+		auth.Password = options.password
 	}
 
 	opts.Auth = auth
-
-	// TODO(@auguwu): support SSL !
 	db := ch.OpenDB(opts)
+
+	log.Info(context.TODO(), "attempting to ping database...", slog.F("url", url))
 	if err := db.Ping(); err != nil {
 		return err
 	}
 
 	config := &clickhouse.Config{
-		DatabaseName:          *database,
-		MigrationsTable:       *tableName,
 		MultiStatementEnabled: true,
+		MigrationsTable:       options.migrationsTableName,
+		DatabaseName:          options.database,
 	}
 
 	ch, err := clickhouse.WithInstance(db, config)

@@ -17,7 +17,7 @@ run:
   timeout: 1m
   issue-exit-code: 1
   allow-parallel-runners: true
-  go: '1.19'
+  go: '1.20.1'
   skip-dirs: [vendor]
 output:
   format: colored-line-number
