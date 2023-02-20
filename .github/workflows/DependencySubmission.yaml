@@ -71,6 +71,6 @@ jobs:
       - name: Run snapshot
         uses: actions/go-dependency-submission@v1
         with:
-          go-mod-path: ./databases/clickhouse/migrations/go.mod
-          go-build-target: ./databases/clickhouse/migrations/main.go
+          go-mod-path: databases/clickhouse/migrations/go.mod
+          go-build-target: databases/clickhouse/migrations/main.go
           token: ${{secrets.GITHUB_TOKEN}}
