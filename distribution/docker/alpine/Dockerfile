@@ -26,9 +26,10 @@ RUN apk update && \
 
 FROM --platform=$BUILDPLATFORM eclipse-temurin:17.0.6_10-jdk-alpine AS gradle-build
 
-RUN apk update && apk add --no-cache git ca-certificates gcompat libc6-compat curl
+RUN apk update && apk add --no-cache git ca-certificates gcompat libc6-compat curl && apk add --no-cache protobuf-dev --repository=https://dl-cdn.alpinelinux.org/alpine/edge/main
 WORKDIR /build/server
 
+ENV CHARTED_PROTOC_PATH=protoc
 COPY . .
 RUN chmod +x ./gradlew && ./gradlew :cli:installDist --no-daemon --stacktrace
 
