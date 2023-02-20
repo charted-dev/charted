@@ -20,6 +20,7 @@ on:
     branches:
       - main
     paths-ignore:
+      - '.github/**'
       - '.husky/**'
       - '.vscode/**'
       - 'assets/**'
@@ -56,21 +57,4 @@ jobs:
           sub-module-mode: INDIVIDUAL_DEEP
           include-build-environment: true
           use-gradlew: true
-          token: ${{secrets.GITHUB_TOKEN}}
-  go:
-    name: Go Dependency Submission
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Setup Go v1.20.x
-        uses: actions/setup-go@v3
-        with:
-          go-version: v1.20.x
-
-      - name: Run snapshot
-        uses: actions/go-dependency-submission@v1
-        with:
-          go-mod-path: databases/clickhouse/migrations/go.mod
-          go-build-target: databases/clickhouse/migrations/main.go
           token: ${{secrets.GITHUB_TOKEN}}
