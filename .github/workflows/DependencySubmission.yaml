@@ -35,19 +35,21 @@ on:
   schedule:
     - cron: 0 0 * * *
 jobs:
-  dependencies:
-    name: Dependency Submission
+  gradle:
+    name: Gradle Dependency Submission
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Setup Java 19
         uses: actions/setup-java@v3
         with:
           java-version: 19.x
           distribution: temurin
+
       - name: Run snapshot
         uses: mikepenz/gradle-dependency-submission@v0.8.4
         with:
@@ -55,4 +57,21 @@ jobs:
           sub-module-mode: INDIVIDUAL_DEEP
           include-build-environment: true
           use-gradlew: true
+          token: ${{secrets.GITHUB_TOKEN}}
+  go:
+    name: Gradle Dependency Submission
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Setup Go v1.20.x
+        uses: actions/setup-go@v3
+        with:
+          go-version: v1.20.x
+
+      - name: Run snapshot
+        uses: actions/go-dependency-submission@v1
+        with:
+          go-mod-path: ./databases/clickhouse/migrations/go.mod
+          go-build-target: ./databases/clickhouse/migrations/main.go
           token: ${{secrets.GITHUB_TOKEN}}

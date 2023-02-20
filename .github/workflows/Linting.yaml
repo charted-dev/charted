@@ -108,10 +108,10 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Setup Go 1.19
+      - name: Setup Go 1.20
         uses: actions/setup-go@v3
         with:
-          go-version: 1.19
+          go-version: 1.20.x
 
       - name: Cache Go modules
         uses: actions/cache@v3
@@ -119,9 +119,9 @@ jobs:
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
-          key: ${{ runner.os }}-ch-migrations-1.19-go-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-ch-migrations-1.20.x-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-ch-migrations-1.19-go-
+            ${{ runner.os }}-ch-migrations-1.20.x-go-
 
       - name: Install dependencies
         working-directory: ./databases/clickhouse/migrations
