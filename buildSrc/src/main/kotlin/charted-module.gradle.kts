@@ -46,7 +46,6 @@ noelware {
     projectEmoji by "\uD83D\uDCE6"
     projectName by "charted-server"
     currentYear by "2022-2023"
-    unitTests by true
     license by Licenses.APACHE
 }
 

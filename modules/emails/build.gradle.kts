@@ -66,7 +66,7 @@ spotless {
             "build/generated/source/proto/proto/kotlin/org/noelware/charted/emails/protobufs/v1/**/*.kt",
             "build/generated/source/proto/main/kotlin/org/noelware/charted/emails/protobufs/v1/**/*.kt",
             "build/generated/source/proto/proto/kotlin/com/google/protobuf/**/*.kt",
-            "build/generated/source/proto/main/kotlin/com/google/protobuf/**/*.kt"
+            "build/generated/source/proto/main/kotlin/com/google/protobuf/**/*.kt",
         )
     }
 

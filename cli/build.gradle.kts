@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-import org.noelware.charted.gradle.*
 import dev.floofy.utils.gradle.*
+import org.noelware.charted.gradle.*
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -72,7 +72,7 @@ distributions {
 
             from(
                 "$projectDir/distribution/README.txt",
-                "$projectDir/distribution/LICENSE"
+                "$projectDir/distribution/LICENSE",
             )
         }
     }
@@ -86,8 +86,8 @@ tasks {
                 mapOf(
                     "version" to "$VERSION",
                     "commit_sha" to VERSION.gitCommitHash!!.trim(),
-                    "build_date" to formatter.format(Date())
-                )
+                    "build_date" to formatter.format(Date()),
+                ),
             )
         }
     }

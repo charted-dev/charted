@@ -29,7 +29,7 @@ pluginManagement {
 
 buildscript {
     dependencies {
-        classpath("org.noelware.gradle:gradle-infra-plugin:1.2.0")
+        classpath("org.noelware.gradle:gradle-infra-plugin:1.3.0")
     }
 }
 
@@ -45,7 +45,6 @@ include(
     ":distribution:deb",
     ":distribution:rpm",
     ":databases:clickhouse",
-    ":databases:clickhouse:migrations",
     ":databases:postgres",
     ":modules:analytics:extensions",
     ":modules:analytics",

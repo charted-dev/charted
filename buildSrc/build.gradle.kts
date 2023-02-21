@@ -36,7 +36,7 @@ dependencies {
     implementation("com.diffplug.spotless:spotless-plugin-gradle:6.15.0")
     implementation("com.netflix.nebula:gradle-ospackage-plugin:11.0.0")
     implementation("com.google.protobuf:protobuf-gradle-plugin:0.9.2")
-    implementation("org.noelware.gradle:gradle-infra-plugin:1.2.0")
+    implementation("org.noelware.gradle:gradle-infra-plugin:1.3.0")
     implementation("dev.floofy.commons:gradle:2.5.0")
     implementation(kotlin("serialization", "1.8.10"))
     implementation(kotlin("gradle-plugin", "1.8.10"))
