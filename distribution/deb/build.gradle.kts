@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-import org.noelware.charted.gradle.Architecture
-import org.noelware.charted.gradle.VERSION
 import com.netflix.gradle.plugins.deb.Deb
 import dev.floofy.utils.gradle.*
+import org.noelware.charted.gradle.Architecture
+import org.noelware.charted.gradle.VERSION
 
 plugins {
     id("org.noelware.charted.dist.nebula")

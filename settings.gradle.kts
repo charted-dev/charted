@@ -75,7 +75,7 @@ include(
     ":modules:telemetry",
     ":modules:webhooks",
     ":test:containers",
-    ":test:framework"
+    ":test:framework",
 )
 
 dependencyResolutionManagement {

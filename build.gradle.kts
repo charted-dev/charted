@@ -15,9 +15,12 @@
  * limitations under the License.
  */
 
+import com.diffplug.gradle.spotless.SpotlessExtensionPredeclare
 import org.noelware.charted.gradle.*
 
 plugins {
+    id("org.noelware.gradle.kotlin")
+    id("org.noelware.gradle.java")
     id("com.diffplug.spotless")
     application
 }
@@ -29,6 +32,34 @@ description = "\uD83D\uDCE6 You know, for Helm Charts?"
 repositories {
     mavenCentral()
     mavenLocal()
+}
+
+spotless {
+    predeclareDeps()
+    encoding("UTF-8")
+
+    kotlin {
+        targetExclude("buildSrc/**/*.kt")
+    }
+
+    kotlinGradle {
+        targetExclude("modules/build.gradle.kts")
+    }
+}
+
+the<SpotlessExtensionPredeclare>().apply {
+    kotlinGradle {
+        ktlint()
+    }
+
+    kotlin {
+        ktlint()
+    }
+
+    java {
+        googleJavaFormat()
+        palantirJavaFormat()
+    }
 }
 
 tasks {

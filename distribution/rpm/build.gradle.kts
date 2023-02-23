@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-import org.noelware.charted.gradle.Architecture
-import org.noelware.charted.gradle.VERSION
 import com.netflix.gradle.plugins.rpm.Rpm
 import dev.floofy.utils.gradle.*
+import org.noelware.charted.gradle.Architecture
+import org.noelware.charted.gradle.VERSION
 
 val Architecture.rpmArch: org.redline_rpm.header.Architecture
     get() = when (this) {

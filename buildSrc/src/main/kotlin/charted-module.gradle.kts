@@ -15,13 +15,11 @@
  * limitations under the License.
  */
 
+import dev.floofy.utils.gradle.*
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.noelware.infra.gradle.Licenses
 import org.noelware.charted.gradle.*
-import dev.floofy.utils.gradle.*
+import org.noelware.infra.gradle.Licenses
 
 plugins {
     id("org.noelware.gradle.kotlin")
@@ -101,8 +99,8 @@ tasks {
                 mapOf(
                     "Implementation-Version" to "$VERSION",
                     "Implementation-Vendor" to "Noelware, LLC. [team@noelware.org]",
-                    "Implementation-Title" to "charted-server"
-                )
+                    "Implementation-Title" to "charted-server",
+                ),
             )
         }
     }
@@ -120,7 +118,7 @@ tasks {
                 TestLogEvent.SKIPPED,
                 TestLogEvent.STANDARD_ERROR,
                 TestLogEvent.STANDARD_OUT,
-                TestLogEvent.STARTED
+                TestLogEvent.STARTED,
             )
 
             showCauses = true

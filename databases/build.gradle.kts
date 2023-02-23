@@ -1,6 +1,6 @@
 /*
  * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright 2022 Noelware <team@noelware.org>
+ * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,3 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// it's here so spotless doesn't think this file can't be linted cuz it dum
+plugins {
+    `charted-module`
+}
