@@ -19,8 +19,6 @@ import com.diffplug.gradle.spotless.SpotlessExtensionPredeclare
 import org.noelware.charted.gradle.*
 
 plugins {
-    id("org.noelware.gradle.kotlin")
-    id("org.noelware.gradle.java")
     id("com.diffplug.spotless")
     application
 }
@@ -37,14 +35,6 @@ repositories {
 spotless {
     predeclareDeps()
     encoding("UTF-8")
-
-    kotlin {
-        targetExclude("buildSrc/**/*.kt")
-    }
-
-    kotlinGradle {
-        targetExclude("modules/build.gradle.kts")
-    }
 }
 
 the<SpotlessExtensionPredeclare>().apply {
