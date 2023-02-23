@@ -15,7 +15,7 @@
 ~ See the License for the specific language governing permissions and
 ~ limitations under the License.
 -->
-<configuration debug="true" packagingData="true">
+<configuration debug="false" packagingData="true">
     <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
     <conversionRule
         conversionWord="logLevel"
