@@ -31,6 +31,10 @@ import org.noelware.charted.ChartedInfo;
 public class ClassicLogbackJsonLayout extends LogbackJsonLayout<ILoggingEvent> {
     private final ThrowableHandlingConverter throwableProxyConverter = new ThrowableProxyConverter();
 
+    public void setTimezone(String timezone) {
+        super.setTimezone(timezone);
+    }
+
     /**
      * Transforms the given event into a {@link Map}.
      * @param event The event object that was given from {@link LogbackJsonLayout#doLayout(Object)}.

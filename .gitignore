@@ -680,7 +680,7 @@ FodyWeavers.xsd
 ### charted-server ###
 config.yml
 instance.uuid
-server/src/main/resources/config/logback.properties
+logback.properties
 .data/
 .caches/
 !**/distribution/bin/

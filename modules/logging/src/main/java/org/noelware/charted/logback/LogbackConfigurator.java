@@ -22,10 +22,7 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.classic.spi.Configurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.spi.ContextAwareBase;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.Map;
@@ -41,139 +38,73 @@ public class LogbackConfigurator extends ContextAwareBase implements Configurato
         // Set the logger context to the one we have right now.
         setContext(context);
 
-        // The priority on how charted loads the Logback configuration file is:
-        // environment variable > system property > classpath > safe default config
-        final String environmentVariable = System.getenv(ENVIRONMENT_VARIABLE_KEY);
-        if (environmentVariable != null) {
-            addInfo("Pulling Logback configuration from path [%s] from environment variable [%s]"
-                    .formatted(environmentVariable, ENVIRONMENT_VARIABLE_KEY));
+        // priority: environment variable > system property > classpath > default
+        final String envVar = System.getenv(ENVIRONMENT_VARIABLE_KEY);
+        if (resolveFileFromPath(context, envVar)) return process0(context);
 
-            File file = new File(environmentVariable);
-            if (!file.exists()) {
-                addError("Path [%s] doesn't exist".formatted(file.toString()));
-                throw new IllegalStateException(
-                        "Path [%s] doesn't exist. Make sure it exists!".formatted(file.toString()));
+        final String sysProp = System.getProperty(SYSTEM_PROPERTY_KEY);
+        if (resolveFileFromPath(context, sysProp)) return process0(context);
+
+        // Check if we can find it in the ./config directory, since the Docker image
+        // and archives provide a default one
+        final File configDir = new File("./config");
+        if (configDir.exists()) {
+            if (resolveFileFromPath(context, new File(configDir, "logback.properties").getAbsolutePath())) {
+                return process0(context);
             }
-
-            if (!file.isFile()) {
-                addError("Path [%s] was not a file".formatted(file.toString()));
-                throw new IllegalStateException(
-                        "Path [%s] was not a file. Make sure it is a file!".formatted(file.toString()));
-            }
-
-            if (Files.isSymbolicLink(file.toPath())) {
-                File original = file;
-                try {
-                    file = Files.readSymbolicLink(file.toPath()).toFile();
-                } catch (IOException e) {
-                    throw new RuntimeException(
-                            "Unable to read symbolic link from path [%s]".formatted(file.toString()), e);
-                }
-
-                addInfo("Resolved path [%s] ~> [%s]".formatted(original, file));
-            }
-
-            final Properties properties = new Properties();
-            try (final FileInputStream is = new FileInputStream(file)) {
-                properties.load(is);
-            } catch (IOException e) {
-                throw new RuntimeException("Unable to create input stream from file:", e);
-            }
-
-            for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-                final String key = (String) entry.getKey();
-                final Object value = entry.getValue();
-
-                context.putProperty(key, value.toString());
-            }
-
-            return process0(context);
         }
 
-        final String systemProperty = System.getProperty(SYSTEM_PROPERTY_KEY);
-        if (systemProperty != null && !systemProperty.isBlank()) {
-            addInfo("Pulling Logback configuration from path [%s] from property key [%s]"
-                    .formatted(systemProperty, SYSTEM_PROPERTY_KEY));
-
-            File file = new File(systemProperty);
-            if (!file.exists()) {
-                addError("Path [%s] doesn't exist".formatted(file.toString()));
-                throw new IllegalStateException(
-                        "Path [%s] doesn't exist. Make sure it exists!".formatted(file.toString()));
-            }
-
-            if (!file.isFile()) {
-                addError("Path [%s] was not a file".formatted(file.toString()));
-                throw new IllegalStateException(
-                        "Path [%s] was not a file. Make sure it is a file!".formatted(file.toString()));
-            }
-
-            if (Files.isSymbolicLink(file.toPath())) {
-                File original = file;
-                try {
-                    file = Files.readSymbolicLink(file.toPath()).toFile();
-                } catch (IOException e) {
-                    throw new RuntimeException(
-                            "Unable to read symbolic link from path [%s]".formatted(file.toString()), e);
-                }
-
-                addInfo("Resolved path [%s] ~> [%s]".formatted(original, file));
-            }
-
-            final Properties properties = new Properties();
-            try (final FileInputStream is = new FileInputStream(file)) {
-                properties.load(is);
-            } catch (IOException e) {
-                throw new RuntimeException("Unable to create input stream from file:", e);
-            }
-
-            for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-                final String key = (String) entry.getKey();
-                final Object value = entry.getValue();
-
-                context.putProperty(key, value.toString());
-            }
-
-            return process0(context);
-        }
-
-        final URL resourcePath = this.getClass().getResource("/config/logback.properties");
+        // If we can resolve it in the root directory of the project
+        if (resolveFileFromPath(context, "./logback.properties")) return process0(context);
+        final URL resourcePath = getClass().getResource("/config/logback.properties");
         if (resourcePath != null) {
-            addInfo("Loading from resource path [%s]".formatted(resourcePath.toString()));
-
-            try (final InputStream stream = this.getClass().getResourceAsStream("/config/logback.properties")) {
-                final Properties properties = new Properties();
-                properties.load(stream);
-
-                for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-                    final String key = (String) entry.getKey();
-                    final Object value = entry.getValue();
-
-                    context.putProperty(key, value.toString());
-                }
-            } catch (IOException e) {
-                throw new RuntimeException("Unable to create input stream from file:", e);
-            }
+            final InputStream is = getClass().getResourceAsStream("/config/logback.properties");
+            applyProperties(context, is);
 
             return process0(context);
         }
 
-        // Represents the default configuration if the configurator can't:
-        // - Load it from system property
-        // - Load it from classpath
-        // - Load it from the environment variable
-        //
-        // The log level will be set to INFO, which will be minimal output
-        // instead of the verbose DEBUG/TRACE levels.
-        //
-        // JSON is set to be the default output, so it'll be easier to used
-        // with other services that can check up on the logging system.
-        addWarn("Unable to load from file or JAR resources, resulting to safe defaults...");
-        context.putProperty("charted.log.level", "info");
-        context.putProperty("charted.console.json", "true");
-        context.putProperty("charted.appenders", "");
-
+        context.putProperty("charted.log.level", "INFO");
         return process0(context);
+    }
+
+    private boolean resolveFileFromPath(LoggerContext context, String filePath) {
+        if (filePath != null) {
+            File file = new File(filePath);
+            if (!file.exists()) {
+                addError("Path [%s] doesn't exist".formatted(file.toString()));
+                throw new IllegalStateException(
+                        "Path [%s] doesn't exist. Make sure it exists!".formatted(file.toString()));
+            }
+
+            if (!file.isFile()) {
+                addError("Path [%s] was not a file".formatted(file.toString()));
+                throw new IllegalStateException(
+                        "Path [%s] was not a file. Make sure it is a file!".formatted(file.toString()));
+            }
+
+            if (Files.isSymbolicLink(file.toPath())) {
+                File original = file;
+                try {
+                    file = Files.readSymbolicLink(file.toPath()).toFile();
+                } catch (IOException e) {
+                    throw new RuntimeException(
+                            "Unable to read symbolic link from path [%s]".formatted(file.toString()), e);
+                }
+
+                addInfo("Resolved path [%s] ~> [%s]".formatted(original, file));
+            }
+
+            try {
+                applyProperties(context, new FileInputStream(file));
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     private Configurator.ExecutionStatus process0(LoggerContext context) {
@@ -185,6 +116,22 @@ public class LogbackConfigurator extends ContextAwareBase implements Configurato
             return ExecutionStatus.DO_NOT_INVOKE_NEXT_IF_ANY;
         } catch (JoranException e) {
             throw new RuntimeException("Unable to configure Joran:", e);
+        }
+    }
+
+    private void applyProperties(LoggerContext context, InputStream stream) {
+        try (stream) {
+            final Properties properties = new Properties();
+            properties.load(stream);
+
+            for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+                final String key = (String) entry.getKey();
+                final Object value = entry.getValue();
+
+                context.putProperty(key, value.toString());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

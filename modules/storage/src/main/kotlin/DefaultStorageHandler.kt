@@ -50,7 +50,10 @@ class DefaultStorageHandler(private val config: StorageConfig) : StorageHandler 
             config.azure != null -> AzureBlobStorageService(config.azure!!.toRemiConfig())
             config.gcs != null -> GoogleCloudStorageService(config.gcs!!.toRemiConfig())
             config.s3 != null -> AmazonS3StorageService(config.s3!!.toRemiConfig())
-            else -> throw IllegalStateException("Unable to determine which storage handler to use")
+            else -> {
+                log.warn("Using filesystem storage service by default!")
+                FilesystemStorageService("./data")
+            }
         }
 
         log.info("Configured to use storage trailer ${service.name()}")

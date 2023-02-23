@@ -19,7 +19,6 @@ package org.noelware.charted.server
 
 import dev.floofy.utils.slf4j.logging
 import org.noelware.charted.server.bootstrap.BootstrapPhase
-import org.slf4j.bridge.SLF4JBridgeHandler
 import java.io.File
 
 /**
@@ -29,9 +28,6 @@ object Bootstrap {
     private val log by logging<Bootstrap>()
 
     suspend fun start(configPath: File) {
-        // Replace java.util.logging => slf4j so OpenTelemetry logs will match the ones
-        // we configured in Logback
-        SLF4JBridgeHandler.install()
         Thread.currentThread().name = "Server-BootstrapThread"
 
         for (phase in BootstrapPhase.PHASES) {
