@@ -44,8 +44,17 @@ spotless {
             "**/*.md"
         )
 
-        // Exclude all Helm templates and .idea files
+        // Exclude all Helm templates, .idea files, and submodule
+        // in modules/emails/vendor
         targetExclude(
+            "modules/emails/vendor/protos/.devcontainer/*.json",
+            "modules/emails/vendor/protos/.vscode/*.json",
+            "modules/emails/vendor/protos/.github/*.md",
+            "modules/emails/vendor/protos/*.json",
+            "modules/emails/vendor/protos/*.yaml",
+            "modules/emails/vendor/protos/*.yml",
+            "modules/emails/vendor/protos/*.xml",
+            "modules/emails/vendor/protos/*.md",
             "distribution/chart/templates/configmap/*.yml",
             "distribution/chart/templates/server/*.yml",
             "distribution/chart/templates/*.yaml",
