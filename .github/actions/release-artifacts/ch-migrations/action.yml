@@ -16,60 +16,60 @@
 name: Artifacts Publishing (ch-migrations)
 description: Abstraction over publishing artifacts to Noelware's Container Registry
 inputs:
-  go-version:
-    description: The Go version to use when building
-    required: false
-    default: 1.20.x
-  goos:
-    description: Go operating system to build off
-    required: true
-  goarch:
-    description: Go CPU architecture to build off
-    required: true
-  ext:
-    description: Extension
-    required: true
+    go-version:
+        description: The Go version to use when building
+        required: false
+        default: 1.20.x
+    goos:
+        description: Go operating system to build off
+        required: true
+    goarch:
+        description: Go CPU architecture to build off
+        required: true
+    ext:
+        description: Extension
+        required: true
 runs:
-  using: composite
-  steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
-        submodules: recursive
+    using: composite
+    steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
+          with:
+              submodules: recursive
 
-    - name: Get current release tag
-      uses: auguwu/git-tag-action@master
-      id: tag
+        - name: Get current release tag
+          uses: auguwu/git-tag-action@master
+          id: tag
 
-    - name: Setup Go ${{inputs.go-version}}
-      uses: actions/setup-go@v3
-      with:
-        go-version: ${{inputs.go-version}}
+        - name: Setup Go ${{inputs.go-version}}
+          uses: actions/setup-go@v3
+          with:
+              go-version: ${{inputs.go-version}}
 
-    - name: Build migrations binary
-      working-directory: ./databases/clickhouse/migrations
-      run: go build -mod=readonly -ldflags "-s -w -X main.version=${{steps.tag.outputs.version}}" -o ./bin/ch-migrations-${{inputs.goos}}-${{inputs.goarch}}${{inputs.ext}}
+        - name: Build migrations binary
+          working-directory: ./databases/clickhouse/migrations
+          run: go build -mod=readonly -ldflags "-s -w -X main.version=${{steps.tag.outputs.version}}" -o ./bin/ch-migrations-${{inputs.goos}}-${{inputs.goarch}}${{inputs.ext}}
 
-    - name: Upload artifact to workflow
-      uses: actions/upload-artifact@v3
-      with:
-        name: ch-migrations-${{matrix.dist.goos}}-${{matrix.dist.goarch}}${{matrix.dist.ext}}
-        path: ./databases/clickhouse/migrations/bin/ch-migrations-${{inputs.goos}}-${{inputs.goarch}}${{inputs.ext}}
+        - name: Upload artifact to workflow
+          uses: actions/upload-artifact@v3
+          with:
+              name: ch-migrations-${{matrix.dist.goos}}-${{matrix.dist.goarch}}${{matrix.dist.ext}}
+              path: ./databases/clickhouse/migrations/bin/ch-migrations-${{inputs.goos}}-${{inputs.goarch}}${{inputs.ext}}
 
-    - name: Upload artifact to release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: ./databases/clickhouse/migrations/bin/ch-migrations-${{inputs.goos}}-${{inputs.goarch}}${{inputs.ext}}
+        - name: Upload artifact to release
+          uses: softprops/action-gh-release@v1
+          with:
+              files: ./databases/clickhouse/migrations/bin/ch-migrations-${{inputs.goos}}-${{inputs.goarch}}${{inputs.ext}}
 
-    - name: Upload artifacts to Noelware's Artifact Registry
-      uses: Noelware/s3-action@2.1.0
-      with:
-        enforce-path-access-style: true
-        files: ./databases/clickhouse/migrations/bin/ch-migrations-${{inputs.goos}}-${{inputs.goarch}}${{inputs.ext}}
-        path-format: $(prefix)/charted/server/${{steps.tag.outputs.version}}/ch-migrations-${{inputs.goos}}-${{inputs.goarch}}${{inputs.ext}}
-        access-key-id: ${{secrets.S3_ACCESS_KEY}}
-        secret-key: ${{secrets.S3_SECRET_KEY}}
-        endpoint: ${{secrets.S3_ENDPOINT}}
-        region: us-east-1
-        prefix: /noelware/artifacts
-        bucket: august
+        - name: Upload artifacts to Noelware's Artifact Registry
+          uses: Noelware/s3-action@2.1.0
+          with:
+              enforce-path-access-style: true
+              files: ./databases/clickhouse/migrations/bin/ch-migrations-${{inputs.goos}}-${{inputs.goarch}}${{inputs.ext}}
+              path-format: $(prefix)/charted/server/${{steps.tag.outputs.version}}/ch-migrations-${{inputs.goos}}-${{inputs.goarch}}${{inputs.ext}}
+              access-key-id: ${{secrets.S3_ACCESS_KEY}}
+              secret-key: ${{secrets.S3_SECRET_KEY}}
+              endpoint: ${{secrets.S3_ENDPOINT}}
+              region: us-east-1
+              prefix: /noelware/artifacts
+              bucket: august

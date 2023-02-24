@@ -11,9 +11,9 @@ $ helm install charted-server charted/server
 
 ## Prerequisites
 
-- Kubernetes 1.23+
-- Helm 3.2+
-- ReadWriteMany provisioners
+-   Kubernetes 1.23+
+-   Helm 3.2+
+-   ReadWriteMany provisioners
 
 ## Parameters
 

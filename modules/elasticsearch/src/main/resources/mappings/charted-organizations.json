@@ -1,46 +1,46 @@
 {
-  "settings": {
-    "number_of_shards": 2,
-    "number_of_replicas": 1
-  },
-  "mappings": {
-    "properties": {
-      "verified_publisher": {
-        "type": "boolean"
-      },
-      "twitter_handle": {
-        "type": "text"
-      },
-      "gravatar_email": {
-        "type": "keyword"
-      },
-      "display_name": {
-        "type": "keyword"
-      },
-      "created_at": {
-        "type": "date"
-      },
-      "updated_at": {
-        "type": "date"
-      },
-      "description": {
-        "type": "text"
-      },
-      "icon_hash": {
-        "type": "text"
-      },
-      "owner": {
-        "type": "long"
-      },
-      "flags": {
-        "type": "long"
-      },
-      "name": {
-        "type": "text"
-      },
-      "id": {
-        "type": "long"
-      }
+    "settings": {
+        "number_of_shards": 2,
+        "number_of_replicas": 1
+    },
+    "mappings": {
+        "properties": {
+            "verified_publisher": {
+                "type": "boolean"
+            },
+            "twitter_handle": {
+                "type": "text"
+            },
+            "gravatar_email": {
+                "type": "keyword"
+            },
+            "display_name": {
+                "type": "keyword"
+            },
+            "created_at": {
+                "type": "date"
+            },
+            "updated_at": {
+                "type": "date"
+            },
+            "description": {
+                "type": "text"
+            },
+            "icon_hash": {
+                "type": "text"
+            },
+            "owner": {
+                "type": "long"
+            },
+            "flags": {
+                "type": "long"
+            },
+            "name": {
+                "type": "text"
+            },
+            "id": {
+                "type": "long"
+            }
+        }
     }
-  }
 }

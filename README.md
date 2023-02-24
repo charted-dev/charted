@@ -18,5 +18,6 @@ is meant to be a very easy solution to distribute Helm charts on the cloud witho
 **charted-server** is also Noelware's first official product that we host our [official instance](https://charts.noelware.org)!
 
 ## License
+
 **Noelware's Charts Platform** (charted-server) is released under the **Apache 2.0** License with love by Noelware~!
 If you wish to know more, you can read the [LICENSE](./LICENSE) file for more information.

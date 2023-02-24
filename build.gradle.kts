@@ -35,6 +35,29 @@ repositories {
 spotless {
     predeclareDeps()
     encoding("UTF-8")
+    format("prettier") {
+        target(
+            "**/*.json",
+            "**/*.yaml",
+            "**/*.yml",
+            "**/*.xml",
+            "**/*.md"
+        )
+
+        // Exclude all Helm templates and .idea files
+        targetExclude(
+            "distribution/chart/templates/configmap/*.yml",
+            "distribution/chart/templates/server/*.yml",
+            "distribution/chart/templates/*.yaml",
+            "distribution/chart/templates/*.yml",
+            ".idea/inspectionProfiles/*.xml",
+            ".idea/*.xml"
+        )
+
+        prettier(mapOf("prettier" to "2.8.4", "@prettier/plugin-xml" to "2.2.0")).apply {
+            configFile(file("$projectDir/.prettierrc.json"))
+        }
+    }
 }
 
 the<SpotlessExtensionPredeclare>().apply {

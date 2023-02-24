@@ -15,46 +15,46 @@
 
 name: Dependency Submission
 on:
-  workflow_dispatch: {}
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - '.github/**'
-      - '.husky/**'
-      - '.vscode/**'
-      - 'assets/**'
-      - 'locales/**'
-      - 'docker/**'
-      - '.dockerignore'
-      - '.eslintignore'
-      - '.gitignore'
-      - '**.md'
-      - 'LICENSE'
-      - 'renovate.json'
-  schedule:
-    - cron: 0 0 * * *
+    workflow_dispatch: {}
+    push:
+        branches:
+            - main
+        paths-ignore:
+            - '.github/**'
+            - '.husky/**'
+            - '.vscode/**'
+            - 'assets/**'
+            - 'locales/**'
+            - 'docker/**'
+            - '.dockerignore'
+            - '.eslintignore'
+            - '.gitignore'
+            - '**.md'
+            - 'LICENSE'
+            - 'renovate.json'
+    schedule:
+        - cron: 0 0 * * *
 jobs:
-  gradle:
-    name: Gradle Dependency Submission
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+    gradle:
+        name: Gradle Dependency Submission
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
 
-      - name: Setup Java 19
-        uses: actions/setup-java@v3
-        with:
-          java-version: 19.x
-          distribution: temurin
+            - name: Setup Java 19
+              uses: actions/setup-java@v3
+              with:
+                  java-version: 19.x
+                  distribution: temurin
 
-      - name: Run snapshot
-        uses: mikepenz/gradle-dependency-submission@v0.8.4
-        with:
-          gradle-build-configuration: compileClasspath
-          sub-module-mode: INDIVIDUAL_DEEP
-          include-build-environment: true
-          use-gradlew: true
-          token: ${{secrets.GITHUB_TOKEN}}
+            - name: Run snapshot
+              uses: mikepenz/gradle-dependency-submission@v0.8.4
+              with:
+                  gradle-build-configuration: compileClasspath
+                  sub-module-mode: INDIVIDUAL_DEEP
+                  include-build-environment: true
+                  use-gradlew: true
+                  token: ${{secrets.GITHUB_TOKEN}}

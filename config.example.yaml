@@ -31,7 +31,7 @@
 # >
 # > Type: Secure String
 # > Default: `JWT_SECRET_KEY` environment variable if it exists or an error will log to the console.
-jwt_secret_key: "${JWT_SECRET_KEY:-}"
+jwt_secret_key: '${JWT_SECRET_KEY:-}'
 
 # > Whether if the server is invite-only. If this value is set to true, you will have to manually
 # > invite users to your instance with:
@@ -97,28 +97,28 @@ debug: false
 # >
 # > This feature is opt-in, so you will need to use the "features" configuration key to enable it.
 docker_registry:
-  # > Represents a mapping of "Key: Value" pairs to use as custom headers to the requests of
-  # > the local OCI-complaint container registry. `Authorization`, `Content-Type`, and `Content-Length` are
-  # > ignored if you ever wish to provide them here.
-  # >
-  # > Type: key => value pairs
-  # > Default: {}
-  headers: {}
-  #  X-Custom-Value: another value to use
+    # > Represents a mapping of "Key: Value" pairs to use as custom headers to the requests of
+    # > the local OCI-complaint container registry. `Authorization`, `Content-Type`, and `Content-Length` are
+    # > ignored if you ever wish to provide them here.
+    # >
+    # > Type: key => value pairs
+    # > Default: {}
+    headers: {}
+    #  X-Custom-Value: another value to use
 
-  # > Represents the host address to connect to the local OCI-compliant container registry to connect to.
-  # >
-  # > Type: IPv(4|6) Address
-  # > Default: 127.0.0.1
-  host: 127.0.0.1
+    # > Represents the host address to connect to the local OCI-compliant container registry to connect to.
+    # >
+    # > Type: IPv(4|6) Address
+    # > Default: 127.0.0.1
+    host: 127.0.0.1
 
-  # > Represents the host port to connect to the local OCI-compliant container registry, if there is ever need
-  # > one to specify. If this value is not used, the `docker_registry.host` configuration will assume the value
-  # > is a valid absolute URL.
-  # >
-  # > Type: Number [in range - 1024..65535]
-  # > Default: 5000
-  port: 5000
+    # > Represents the host port to connect to the local OCI-compliant container registry, if there is ever need
+    # > one to specify. If this value is not used, the `docker_registry.host` configuration will assume the value
+    # > is a valid absolute URL.
+    # >
+    # > Type: Number [in range - 1024..65535]
+    # > Default: 5000
+    port: 5000
 
 # > The `clickhouse` configuration object is to configure using ClickHouse (https://clickhouse.com) as an external
 # > database to host the Audit Logs and Webhook Events that can be configured. This is mainly used for the Audit Logs
@@ -127,11 +127,11 @@ docker_registry:
 # > The ClickHouse migrations are used in a separate project. You can run the `charted ch-migrations` command to perform
 # > the migrations for you.
 clickhouse:
-  # > The database name that the server should connect to.
-  # >
-  # > Type: String
-  # > Default: charted
-  database: charted
+    # > The database name that the server should connect to.
+    # >
+    # > Type: String
+    # > Default: charted
+    database: charted
 
 # > The `analytics` configuration object is used to configure Noelware Analytics (https://analytics.noelware.org).
 analytics:
@@ -140,12 +140,13 @@ analytics:
 database:
 
 # > The `features` configuration array is used to opt-in into features that are disabled by default.
-features: []
-  # > The `audit-logs` feature is used to configure the Audit Logs API.
-  # - audit-logs
+features:
+    []
+    # > The `audit-logs` feature is used to configure the Audit Logs API.
+    # - audit-logs
 
-  # > The `webhooks` feature is used to configure the Webhooks API.
-  # - webhooks
+    # > The `webhooks` feature is used to configure the Webhooks API.
+    # - webhooks
 
-  # > The `docker-registry` feature is used to configure the Docker Registry feature.
-  # - docker-registry
+    # > The `docker-registry` feature is used to configure the Docker Registry feature.
+    # - docker-registry

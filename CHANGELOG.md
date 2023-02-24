@@ -2,41 +2,41 @@
 
 ## ✅ Additions
 
-- Helm Plugin for easily integrating charted-server into your CI/CD pipeline ([@auguwu](https://github.com/auguwu), [@spotlightishere](https://github.com/spotlightishere))
-- [cli] **charted accounts create** and **charted accounts list** subcommands ([@auguwu](https://github.com/auguwu))
-- [tools] **kt-to-rust** tool, very bare-bones and not meant to be outside charted. ([@auguwu](https://github.com/auguwu))
+-   Helm Plugin for easily integrating charted-server into your CI/CD pipeline ([@auguwu](https://github.com/auguwu), [@spotlightishere](https://github.com/spotlightishere))
+-   [cli] **charted accounts create** and **charted accounts list** subcommands ([@auguwu](https://github.com/auguwu))
+-   [tools] **kt-to-rust** tool, very bare-bones and not meant to be outside charted. ([@auguwu](https://github.com/auguwu))
 
 ## :bug: Infrastructure
 
-- [deps] Upgrade `alpine` Docker tag to v3.17 ([@renovate-bot](https://github.com/apps/renovate), #)
-- [deps] Upgrade `elastic-apm` to v1.35.0 ([@renovate-bot](https://github.com/apps/renovate), #)
-- [deps] Kotlin's Explicit API now enabled on configuration DSL and common modules ([@auguwu](https://github.com/auguwu))
-- [deps] Upgrade Spring Security Crypto to v6.0.1 ([@renovate-bot](https://github.com/apps/renovate), #)
-- [deps] Upgrade Gradle Enterprise plugin to v3.12.1 ([@renovate-bot](https://github.com/apps/renovate), #)
-- [deps] Upgrade `prometheus` Helm release to `~19.2.0` ([@renovate-bot](https://github.com/apps/renovate), #)
-- [deps] Upgrade `serde` Rust create to `1.0.152` ([@renovate-bot](https://github.com/apps/renovate), #)
-- [deps] Upgrade `com.github.ajalt.clikt:clikt` to `3.5.1` ([@renovate-bot](https://github.com/apps/renovate), #)
-- [deps] Upgrade `org.mockito:mockito-core` to `4.11.0` ([@renovate-bot](https://github.com/apps/renovate), #)
-- [deps] Upgrade `io.insert-koin:koin-core` to `3.3.2` ([@renovate-bot](https://github.com/apps/renovate), #)
-- [deps] Upgrade `once_cell` Rust crate to `1.17.0` ([@renovate-bot](https://github.com/apps/renovate), #)
-- [deps] Migrate to [charted-dev/snowflake](https://github.com/charted-dev/snowflake) for more accurate snowflake generation ([@auguwu](https://github.com/auguwu))
-- [ci] Allow PRs to run in `.github/` folders ([@auguwu](https://github.com/auguwu))
-- [ides/fleet] Add Fleet settings to allow development with JetBrains Fleet
+-   [deps] Upgrade `alpine` Docker tag to v3.17 ([@renovate-bot](https://github.com/apps/renovate), #)
+-   [deps] Upgrade `elastic-apm` to v1.35.0 ([@renovate-bot](https://github.com/apps/renovate), #)
+-   [deps] Kotlin's Explicit API now enabled on configuration DSL and common modules ([@auguwu](https://github.com/auguwu))
+-   [deps] Upgrade Spring Security Crypto to v6.0.1 ([@renovate-bot](https://github.com/apps/renovate), #)
+-   [deps] Upgrade Gradle Enterprise plugin to v3.12.1 ([@renovate-bot](https://github.com/apps/renovate), #)
+-   [deps] Upgrade `prometheus` Helm release to `~19.2.0` ([@renovate-bot](https://github.com/apps/renovate), #)
+-   [deps] Upgrade `serde` Rust create to `1.0.152` ([@renovate-bot](https://github.com/apps/renovate), #)
+-   [deps] Upgrade `com.github.ajalt.clikt:clikt` to `3.5.1` ([@renovate-bot](https://github.com/apps/renovate), #)
+-   [deps] Upgrade `org.mockito:mockito-core` to `4.11.0` ([@renovate-bot](https://github.com/apps/renovate), #)
+-   [deps] Upgrade `io.insert-koin:koin-core` to `3.3.2` ([@renovate-bot](https://github.com/apps/renovate), #)
+-   [deps] Upgrade `once_cell` Rust crate to `1.17.0` ([@renovate-bot](https://github.com/apps/renovate), #)
+-   [deps] Migrate to [charted-dev/snowflake](https://github.com/charted-dev/snowflake) for more accurate snowflake generation ([@auguwu](https://github.com/auguwu))
+-   [ci] Allow PRs to run in `.github/` folders ([@auguwu](https://github.com/auguwu))
+-   [ides/fleet] Add Fleet settings to allow development with JetBrains Fleet
 
 ## :whale: Docker Registry
 
-- Authorization is now ready, but hasn't been tested yet ([@auguwu](https://github.com/auguwu))
+-   Authorization is now ready, but hasn't been tested yet ([@auguwu](https://github.com/auguwu))
 
 ## :package: Server
 
-- Fix multiple server tests ([@auguwu](https://github.com/auguwu))
-- Fix OpenAPI runtime errors when parsing dates ([@auguwu](https://github.com/auguwu))
-- Added `/features` endpoint ([@auguwu](https://github.com/auguwu))
-- Allow embedding Swagger UI as an endpoint on the server (configurable via `config.swagger_ui`) ([@auguwu](https://github.com/auguwu))
-- Organizations feature is now implemented ([@auguwu](https://github.com/auguwu))
-- The api key scopes' bit values have been changed ([@auguwu](https://github.com/auguwu))
-- OpenAPI definitions are now up-to-date ([@auguwu](https://github.com/auguwu))
-- CDN endpoints now support caching headers ([@auguwu](https://github.com/auguwu))
+-   Fix multiple server tests ([@auguwu](https://github.com/auguwu))
+-   Fix OpenAPI runtime errors when parsing dates ([@auguwu](https://github.com/auguwu))
+-   Added `/features` endpoint ([@auguwu](https://github.com/auguwu))
+-   Allow embedding Swagger UI as an endpoint on the server (configurable via `config.swagger_ui`) ([@auguwu](https://github.com/auguwu))
+-   Organizations feature is now implemented ([@auguwu](https://github.com/auguwu))
+-   The api key scopes' bit values have been changed ([@auguwu](https://github.com/auguwu))
+-   OpenAPI definitions are now up-to-date ([@auguwu](https://github.com/auguwu))
+-   CDN endpoints now support caching headers ([@auguwu](https://github.com/auguwu))
 
 ## API Key Scope Updates
 
@@ -54,9 +54,9 @@
 
 ### Repositories
 
-- `repo:view` is now removed in this release, use the `repo:access` scope instead
-- `repo:invites` and `repo:member:invites` is now removed, use `repo:members:invites:access` instead
-- `repo:member:*` scopes are now prefixed `repo:members:`
+-   `repo:view` is now removed in this release, use the `repo:access` scope instead
+-   `repo:invites` and `repo:member:invites` is now removed, use `repo:members:invites:access` instead
+-   `repo:member:*` scopes are now prefixed `repo:members:`
 
 | Name                          | Old Value                | New Value          |
 | ----------------------------- | ------------------------ | ------------------ |
@@ -93,8 +93,8 @@
 
 ### Organizations
 
-- `org:invites` has been removed, please use `org:members:invites`
-- `org:member:*` scopes have use the `org:members:` prefix
+-   `org:invites` has been removed, please use `org:members:invites`
+-   `org:member:*` scopes have use the `org:members:` prefix
 
 | Name                         | Old Value | New Value                |
 | ---------------------------- | --------- | ------------------------ |
@@ -115,14 +115,14 @@
 
 ## :octocat: GitHub
 
-- Add support for GitHub Codespaces for remote development ([@auguwu](https://github.com/auguwu))
+-   Add support for GitHub Codespaces for remote development ([@auguwu](https://github.com/auguwu))
 
 # v0.3.2-nightly
 
 ## Fixes
 
-- [cli] Make sure `--config`/`--logback-config` can only read files and not error when the file is not writable ([@auguwu](https://github.com/auguwu))
-- [chart] Default to the chart's AppVersion if `image.tag` is not defined ([@auguwu](https://github.com/auguwu))
+-   [cli] Make sure `--config`/`--logback-config` can only read files and not error when the file is not writable ([@auguwu](https://github.com/auguwu))
+-   [chart] Default to the chart's AppVersion if `image.tag` is not defined ([@auguwu](https://github.com/auguwu))
 
 **Full Changelog**: https://github.com/charted-dev/charted/compare/0.3.1-nightly...0.3.2-nightly
 
@@ -130,7 +130,7 @@
 
 ## Fixes
 
-- Allow `--config`/`--logback-config` to be readonly when loading ([@auguwu](https://github.com/auguwu))
+-   Allow `--config`/`--logback-config` to be readonly when loading ([@auguwu](https://github.com/auguwu))
 
 **Full Changelog**: https://github.com/charted-dev/charted/compare/0.3.0-nightly...0.3.1-nightly
 
@@ -138,31 +138,31 @@
 
 This is the most anticipated release of this project. This contains a full refactored version of the old project which includes:
 
-- a new CLI to do management stuff with, in the future, you will be able to create accounts/repos/orgs and such through the CLI.
-- new and fresh codebase that is easier to navigate.
-- and more!!!
+-   a new CLI to do management stuff with, in the future, you will be able to create accounts/repos/orgs and such through the CLI.
+-   new and fresh codebase that is easier to navigate.
+-   and more!!!
 
 ## Additions
 
-- Partial support for **Noelware Analytics** ([@auguwu](https://github.com/auguwu), [@IceeMC](https://github.com/IceeMC))
-- The major components are fully testable (mainly the HTTP server, but most tests aren't finished) ([@auguwu](https://github.com/auguwu))
-- OpenAPI definitions are more clear now and will be available at `charts.noelware.org/api/openapi?format=json`. ([@auguwu](https://github.com/auguwu))
-- Elastic APM is fully supported for tracing, not all methods are traceable yet. ([@auguwu](https://github.com/auguwu))
-- Repositories can now list their `Chart.yaml`, `index.yaml` and template files from their tarball and not by releasing. ([@auguwu](https://github.com/auguwu))
-- Patching repository metadata is now added ([@auguwu](https://github.com/auguwu))
-- Server now has preconditions, so we don't have to repeat most preconditions in Repositories and Organizations API ([@auguwu](https://github.com/auguwu))
-- Repository members are partially added ([@auguwu](https://github.com/auguwu))
-- **charted** now comes with a fully working PowerShell script, useful for Windows users. ([@auguwu](https://github.com/auguwu))
-- All artifacts will be pushed to `artifacts.noelware.cloud` as well on GitHub releases. ([@auguwu](https://github.com/auguwu))
-- Elasticsearch SSL connections are now fully supported. ([@IceeMC](https://github.com/IceeMC))
+-   Partial support for **Noelware Analytics** ([@auguwu](https://github.com/auguwu), [@IceeMC](https://github.com/IceeMC))
+-   The major components are fully testable (mainly the HTTP server, but most tests aren't finished) ([@auguwu](https://github.com/auguwu))
+-   OpenAPI definitions are more clear now and will be available at `charts.noelware.org/api/openapi?format=json`. ([@auguwu](https://github.com/auguwu))
+-   Elastic APM is fully supported for tracing, not all methods are traceable yet. ([@auguwu](https://github.com/auguwu))
+-   Repositories can now list their `Chart.yaml`, `index.yaml` and template files from their tarball and not by releasing. ([@auguwu](https://github.com/auguwu))
+-   Patching repository metadata is now added ([@auguwu](https://github.com/auguwu))
+-   Server now has preconditions, so we don't have to repeat most preconditions in Repositories and Organizations API ([@auguwu](https://github.com/auguwu))
+-   Repository members are partially added ([@auguwu](https://github.com/auguwu))
+-   **charted** now comes with a fully working PowerShell script, useful for Windows users. ([@auguwu](https://github.com/auguwu))
+-   All artifacts will be pushed to `artifacts.noelware.cloud` as well on GitHub releases. ([@auguwu](https://github.com/auguwu))
+-   Elasticsearch SSL connections are now fully supported. ([@IceeMC](https://github.com/IceeMC))
 
 # Updates/Fixes
 
-- A bunch of dependency updates by @renovate-bot
+-   A bunch of dependency updates by @renovate-bot
 
 # Removed
 
-- Cassandra has been swapped with ClickHouse due to Noelware's infrastructure conflicts. ([@auguwu](https://github.com/auguwu))
+-   Cassandra has been swapped with ClickHouse due to Noelware's infrastructure conflicts. ([@auguwu](https://github.com/auguwu))
 
 **Full Changelog**: https://github.com/charted-dev/charted/compare/v0.2.0-nightly.1...v0.3-nightly
 
@@ -176,19 +176,19 @@ This release comes with a few changes and dependency upgrades. v0.3-nightly shou
 
 ## Additions
 
-- OpenAPI support is available on the server, which you can access from `<server url>/openapi.json` or `<server url>/openapi.yaml`. Documentation for **charted-server** will be relied on the official instance for API endpoints and official SDKs for **charted-server** will exist around October to November 2022.
-- Elastic APM tracing is supported, but it is very limiting. We do plan to support anything that supports the OpenTelemetry API.
-- Images for the Cassandra database should be available from the `ghcr.io/charted-dev/charted/migrations` image, not sure!
-- Generating instance UUIDs for Noelware Analytics can be disabled with the `CHARTED_NO_ANALYTICS` environment variable.
-- Docker image will use JDK 19 instead of JDK 18 (thanks #122 by @renovate-bot)
+-   OpenAPI support is available on the server, which you can access from `<server url>/openapi.json` or `<server url>/openapi.yaml`. Documentation for **charted-server** will be relied on the official instance for API endpoints and official SDKs for **charted-server** will exist around October to November 2022.
+-   Elastic APM tracing is supported, but it is very limiting. We do plan to support anything that supports the OpenTelemetry API.
+-   Images for the Cassandra database should be available from the `ghcr.io/charted-dev/charted/migrations` image, not sure!
+-   Generating instance UUIDs for Noelware Analytics can be disabled with the `CHARTED_NO_ANALYTICS` environment variable.
+-   Docker image will use JDK 19 instead of JDK 18 (thanks #122 by @renovate-bot)
 
 ## Dependency Updates
 
-- Upgrade **io.insert-koin:koin-core** from v3.2.0 to v3.2.1 by @renovate-bot in #89
-- Upgrade Helm release **postgresql** from ~11.8.0 to ~11.9.0 by @renovate-bot in #59
-- Upgrade Helm release **cassandra** from to ~9.5.0 by @renovate-bot in #90
-- Upgrade **org.slf4j** dependencies (`org.slf4j:slf4j-api`, `org.slf4j:slf4j-simple`) from 2.0.0 to 2.0.1 by @renovate-bot in #94, #104, #125, #106
-- Upgrade **com.google.protobuf:protoc** dependency from 3.21.5 to 3.21.7 by @renovate-bot in #64
+-   Upgrade **io.insert-koin:koin-core** from v3.2.0 to v3.2.1 by @renovate-bot in #89
+-   Upgrade Helm release **postgresql** from ~11.8.0 to ~11.9.0 by @renovate-bot in #59
+-   Upgrade Helm release **cassandra** from to ~9.5.0 by @renovate-bot in #90
+-   Upgrade **org.slf4j** dependencies (`org.slf4j:slf4j-api`, `org.slf4j:slf4j-simple`) from 2.0.0 to 2.0.1 by @renovate-bot in #94, #104, #125, #106
+-   Upgrade **com.google.protobuf:protoc** dependency from 3.21.5 to 3.21.7 by @renovate-bot in #64
 
 (this is not all the dependency updates, check the changelog below to go through all of them)
 

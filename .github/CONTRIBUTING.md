@@ -12,9 +12,9 @@ and search for the issue.
 
 If the issue is not present in the issue board, you can submit a **Bug Reports** issue. Please make sure to do the following:
 
-- Label the issue with the `bug` label.
-- Be clear and concise with the title, it will help others link their issues and solutions to yours.
-- Specify the ways to reproduce the bug, so we know how to fix it.
+-   Label the issue with the `bug` label.
+-   Be clear and concise with the title, it will help others link their issues and solutions to yours.
+-   Specify the ways to reproduce the bug, so we know how to fix it.
 
 We recommend using the terminal (if possible) to check for issues, i.e (simple example to show how it can be reproduced):
 
@@ -120,7 +120,7 @@ It is recommended to add a `config.yml` file in the root directory and put the c
 ```yaml
 jwt_secret_key: <THIS IS WHERE YOU GENERATE A RANDOM KEY>
 database:
-  host: postgres
+    host: postgres
 redis:
-  host: redis
+    host: redis
 ```

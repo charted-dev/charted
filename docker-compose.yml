@@ -13,71 +13,71 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: "3.8"
+version: '3.8'
 services:
-  charted:
-    container_name: charted-server
-    image: ghcr.io/charted-dev/charted:nightly
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - charted
-    ports:
-      - "3651:3651"
-    environment:
-      - CHARTED_CONFIG_PATH=/app/noelware/charted/server/config/charted.yaml
-    volumes:
-      - ./config.example.yaml:/app/noelware/charted/server/config/charted.yaml:ro
-      - charted_data:/var/lib/noelware/charted/data
-    healthcheck:
-      test: ["CMD", "curl", "-fs", "http://localhost:3651/heartbeat"]
-      interval: 30s
-      retries: 10
-      start_period: 10s
-      timeout: 60s
-  postgres:
-    container_name: postgres
-    image: bitnami/postgresql:15.2.0
-    networks:
-      - charted
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRESQL_USERNAME=charted
-      - POSTGRESQL_PASSWORD=charted
-      - POSTGRESQL_DATABASE=charted
-    volumes:
-      - postgres_data:/bitnami/postgresql
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "charted"]
-      interval: 30s
-      retries: 10
-      start_period: 10s
-      timeout: 60s
-  redis:
-    container_name: redis
-    image: bitnami/redis:7.0.8
-    networks:
-      - charted
-    ports:
-      - "6379:6379"
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
-    volumes:
-      - redis_data:/bitnami/redis
-    healthcheck:
-      test: ["CMD", "redis-cli", "PING"]
-      interval: 30s
-      retries: 10
-      start_period: 10s
-      timeout: 60s
+    charted:
+        container_name: charted-server
+        image: ghcr.io/charted-dev/charted:nightly
+        depends_on:
+            postgres:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+        networks:
+            - charted
+        ports:
+            - '3651:3651'
+        environment:
+            - CHARTED_CONFIG_PATH=/app/noelware/charted/server/config/charted.yaml
+        volumes:
+            - ./config.example.yaml:/app/noelware/charted/server/config/charted.yaml:ro
+            - charted_data:/var/lib/noelware/charted/data
+        healthcheck:
+            test: ['CMD', 'curl', '-fs', 'http://localhost:3651/heartbeat']
+            interval: 30s
+            retries: 10
+            start_period: 10s
+            timeout: 60s
+    postgres:
+        container_name: postgres
+        image: bitnami/postgresql:15.2.0
+        networks:
+            - charted
+        ports:
+            - '5432:5432'
+        environment:
+            - POSTGRESQL_USERNAME=charted
+            - POSTGRESQL_PASSWORD=charted
+            - POSTGRESQL_DATABASE=charted
+        volumes:
+            - postgres_data:/bitnami/postgresql
+        healthcheck:
+            test: ['CMD', 'pg_isready', '-U', 'charted']
+            interval: 30s
+            retries: 10
+            start_period: 10s
+            timeout: 60s
+    redis:
+        container_name: redis
+        image: bitnami/redis:7.0.8
+        networks:
+            - charted
+        ports:
+            - '6379:6379'
+        environment:
+            - ALLOW_EMPTY_PASSWORD=yes
+        volumes:
+            - redis_data:/bitnami/redis
+        healthcheck:
+            test: ['CMD', 'redis-cli', 'PING']
+            interval: 30s
+            retries: 10
+            start_period: 10s
+            timeout: 60s
 networks:
-  charted:
-    driver: bridge
+    charted:
+        driver: bridge
 volumes:
-  postgres_data:
-  charted_data:
-  redis_data:
+    postgres_data:
+    charted_data:
+    redis_data:

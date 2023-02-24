@@ -1,37 +1,37 @@
 {
-  "settings": {
-    "number_of_shards": 2,
-    "number_of_replicas": 1
-  },
-  "mappings": {
-    "properties": {
-      "gravatar_email": {
-        "type": "keyword"
-      },
-      "description": {
-        "type": "text"
-      },
-      "avatar_hash": {
-        "type": "text"
-      },
-      "created_at": {
-        "type": "date"
-      },
-      "updated_at": {
-        "type": "date"
-      },
-      "username": {
-        "type": "text"
-      },
-      "flags": {
-        "type": "long"
-      },
-      "name": {
-        "type": "text"
-      },
-      "id": {
-        "type": "long"
-      }
+    "settings": {
+        "number_of_shards": 2,
+        "number_of_replicas": 1
+    },
+    "mappings": {
+        "properties": {
+            "gravatar_email": {
+                "type": "keyword"
+            },
+            "description": {
+                "type": "text"
+            },
+            "avatar_hash": {
+                "type": "text"
+            },
+            "created_at": {
+                "type": "date"
+            },
+            "updated_at": {
+                "type": "date"
+            },
+            "username": {
+                "type": "text"
+            },
+            "flags": {
+                "type": "long"
+            },
+            "name": {
+                "type": "text"
+            },
+            "id": {
+                "type": "long"
+            }
+        }
     }
-  }
 }

@@ -15,125 +15,125 @@
 
 name: Linting and Unit Testing
 on:
-  workflow_dispatch: {}
-  pull_request:
-    types: [opened, synchronize]
-    branches:
-      - 'issue/gh-**'
-      - 'feat/**'
-      - main
+    workflow_dispatch: {}
+    pull_request:
+        types: [opened, synchronize]
+        branches:
+            - 'issue/gh-**'
+            - 'feat/**'
+            - main
 
-    paths-ignore:
-      - '.vscode/**'
-      - 'assets/**'
-      - .dockerignore
-      - .gitignore
-      - '**.md'
-      - LICENSE
-      - renovate.json
-  push:
-    branches:
-      - 'issue/gh-**'
-      - 'feat/**'
-      - main
+        paths-ignore:
+            - '.vscode/**'
+            - 'assets/**'
+            - .dockerignore
+            - .gitignore
+            - '**.md'
+            - LICENSE
+            - renovate.json
+    push:
+        branches:
+            - 'issue/gh-**'
+            - 'feat/**'
+            - main
 
-    paths-ignore:
-      - '.github/**'
-      - '.vscode/**'
-      - 'assets/**'
-      - .dockerignore
-      - .gitignore
-      - '**.md'
-      - LICENSE
-      - renovate.json
+        paths-ignore:
+            - '.github/**'
+            - '.vscode/**'
+            - 'assets/**'
+            - .dockerignore
+            - .gitignore
+            - '**.md'
+            - LICENSE
+            - renovate.json
 jobs:
-  spotless:
-    name: Spotless [${{matrix.runner}}, Java ${{matrix.java-version}}]
-    runs-on: ${{matrix.runner}}
-    strategy:
-      matrix:
-        java-version: [17, 19]
-        runner: [windows-latest, ubuntu-latest, macos-latest, self-hosted]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
+    spotless:
+        name: Spotless [${{matrix.runner}}, Java ${{matrix.java-version}}]
+        runs-on: ${{matrix.runner}}
+        strategy:
+            matrix:
+                java-version: [17, 19]
+                runner: [windows-latest, ubuntu-latest, macos-latest, self-hosted]
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+              with:
+                  submodules: recursive
 
-      - name: Setup Java ${{matrix.java-version}}
-        uses: actions/setup-java@v3
-        with:
-          java-version: ${{matrix.java-version}}
-          distribution: temurin
-          architecture: ${{matrix.runner == 'self-hosted' && 'aarch64' || 'amd64'}}
+            - name: Setup Java ${{matrix.java-version}}
+              uses: actions/setup-java@v3
+              with:
+                  java-version: ${{matrix.java-version}}
+                  distribution: temurin
+                  architecture: ${{matrix.runner == 'self-hosted' && 'aarch64' || 'amd64'}}
 
-      # Node.js is required for Spotless to install Prettier
-      - name: Setup Node.js v19.x
-        uses: actions/setup-node@v3
-        with:
-          node-version: 19.x
-          architecture: ${{matrix.runner == 'self-hosted' && 'arm64' || 'x64'}}
+            # Node.js is required for Spotless to install Prettier
+            - name: Setup Node.js v19.x
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 19.x
+                  architecture: ${{matrix.runner == 'self-hosted' && 'arm64' || 'x64'}}
 
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+            - name: Setup Gradle
+              uses: gradle/gradle-build-action@v2
 
-      - name: Validate Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v1
+            - name: Validate Gradle Wrapper
+              uses: gradle/wrapper-validation-action@v1
 
-      - name: Lint code-base with Spotless
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: spotlessCheck --no-daemon --scan
+            - name: Lint code-base with Spotless
+              uses: gradle/gradle-build-action@v2
+              with:
+                  arguments: spotlessCheck --no-daemon --scan
 
-      - name: Compiles Kotlin source sets
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: compileKotlin --no-daemon --scan
+            - name: Compiles Kotlin source sets
+              uses: gradle/gradle-build-action@v2
+              with:
+                  arguments: compileKotlin --no-daemon --scan
 
-      - name: Compiles Java source sets
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: compileJava --no-daemon --scan
+            - name: Compiles Java source sets
+              uses: gradle/gradle-build-action@v2
+              with:
+                  arguments: compileJava --no-daemon --scan
 
-      - name: Run unit and integration tests
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: test --no-daemon --scan
-  goci:
-    name: ClickHouse Migrations CI
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
+            - name: Run unit and integration tests
+              uses: gradle/gradle-build-action@v2
+              with:
+                  arguments: test --no-daemon --scan
+    goci:
+        name: ClickHouse Migrations CI
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+              with:
+                  submodules: recursive
 
-      - name: Setup Go 1.20
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.20.x
+            - name: Setup Go 1.20
+              uses: actions/setup-go@v3
+              with:
+                  go-version: 1.20.x
 
-      - name: Cache Go modules
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: ${{ runner.os }}-ch-migrations-1.20.x-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-ch-migrations-1.20.x-go-
+            - name: Cache Go modules
+              uses: actions/cache@v3
+              with:
+                  path: |
+                      ~/go/pkg/mod
+                      ~/.cache/go-build
+                  key: ${{ runner.os }}-ch-migrations-1.20.x-go-${{ hashFiles('**/go.sum') }}
+                  restore-keys: |
+                      ${{ runner.os }}-ch-migrations-1.20.x-go-
 
-      - name: Install dependencies
-        working-directory: ./databases/clickhouse/migrations
-        run: go mod download
+            - name: Install dependencies
+              working-directory: ./databases/clickhouse/migrations
+              run: go mod download
 
-      - name: Lint with golangci
-        uses: golangci/golangci-lint-action@v3
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          skip-cache: false
-          working-directory: ./databases/clickhouse/migrations
-          args: --issues-exit-code=1
-          only-new-issues: false
-          skip-pkg-cache: true
-          skip-build-cache: true
+            - name: Lint with golangci
+              uses: golangci/golangci-lint-action@v3
+              with:
+                  github-token: ${{secrets.GITHUB_TOKEN}}
+                  skip-cache: false
+                  working-directory: ./databases/clickhouse/migrations
+                  args: --issues-exit-code=1
+                  only-new-issues: false
+                  skip-pkg-cache: true
+                  skip-build-cache: true

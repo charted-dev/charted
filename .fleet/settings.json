@@ -1,4 +1,4 @@
 {
-  "backend.maxHeapSizeMb": 4096,
-  "toolchains": []
+    "backend.maxHeapSizeMb": 4096,
+    "toolchains": []
 }

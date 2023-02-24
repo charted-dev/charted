@@ -31,19 +31,19 @@
 ## @param global.podSecurityContext Security context for the server pods
 ## @param global.containerSecurityContext Security context for the Deployment
 global:
-  fullNameOverride: ''
-  nameOverride: ''
-  replicas: 1
-  jvmOptions: '-Xmx4096 -Xms1024m'
-  debug: false
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-  annotations: {}
-  extraEnvVars: []
-  initContainers: []
-  podSecurityContext: {}
-  containerSecurityContext: {}
+    fullNameOverride: ''
+    nameOverride: ''
+    replicas: 1
+    jvmOptions: '-Xmx4096 -Xms1024m'
+    debug: false
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+    annotations: {}
+    extraEnvVars: []
+    initContainers: []
+    podSecurityContext: {}
+    containerSecurityContext: {}
 
 ## @section Service Parameters
 ## This will configure the Service template for having any connections between the server.
@@ -54,11 +54,11 @@ global:
 ## @param service.loadBalancerIP Load Balancer IP
 ## @param service.annotations List of annotations to append to the service
 service:
-  type: ClusterIP
-  port: 3651
-  clusterIP: ''
-  loadBalancerIP: ''
-  annotations: {}
+    type: ClusterIP
+    port: 3651
+    clusterIP: ''
+    loadBalancerIP: ''
+    annotations: {}
 
 ## @section Ingress Parameters
 ## @param ingress.enabled Enable ingress record generation
@@ -68,12 +68,12 @@ service:
 ## @param ingress.className IngressClass that will be used to implement the Ingress record
 ## @param ingress.path Default path for the ingress record
 ingress:
-  enabled: false
-  pathType: ImplementationSpecific
-  hostname: charted.local
-  annotations: {}
-  className: ''
-  path: /
+    enabled: false
+    pathType: ImplementationSpecific
+    hostname: charted.local
+    annotations: {}
+    className: ''
+    path: /
 
 ## @section PostgreSQL Parameters
 ## @param postgresql.enabled Whether if PostgreSQL should be installed alongside charted-server. This will install Bitnami's PostgreSQL distribution from their Helm Charts. This can be set to `false` if you already have PostgreSQL running.
@@ -84,17 +84,17 @@ ingress:
 ## @param postgresql.architecture PostgreSQL architecture (`standalone` or `replication`)
 ## @param postgresql.primary.service.ports.postgresql PostgreSQL service port
 postgresql:
-  enabled: true
-  auth:
-    username: charted
-    password: ''
-    database: charted
-    existingSecret: ''
-  architecture: standalone
-  primary:
-    service:
-      ports:
-        postgresql: 5432
+    enabled: true
+    auth:
+        username: charted
+        password: ''
+        database: charted
+        existingSecret: ''
+    architecture: standalone
+    primary:
+        service:
+            ports:
+                postgresql: 5432
 
 ## @section Redis Parameters
 ## @param redis.enabled Whether if Redis should be installed alongside charted-server. This will install Bitnami's Redis distribution from their Helm Charts. This can be set to `false` if you already have PostgreSQL running.
@@ -105,50 +105,50 @@ postgresql:
 ## @param redis.auth.password Redis password
 ## @param redis.auth.existingSecret Name of a secret containing the Redis password
 redis:
-  enabled: true
-  architecture: standalone
-  existingSecret: ''
-  master:
-    service:
-      ports:
-        redis: 6379
-  auth:
     enabled: true
-    password: ''
+    architecture: standalone
     existingSecret: ''
+    master:
+        service:
+            ports:
+                redis: 6379
+    auth:
+        enabled: true
+        password: ''
+        existingSecret: ''
 
 ## @skip defaultConfig
 defaultConfig: |-
-  # refer to the configuration for more details: https://charts.noelware.org/docs/server/latest/self-hosting/configuration
-  jwt_secret_key: ${JWT_SECRET_KEY}
-  database:
-    host: {{ include "charted.postgres.host" . | quote }}
-    port: {{ include "charted.postgres.port" . }}
-    database: {{ default "charted" (include "charted.postgres.database" .) | quote }}
-    password: {{ include "charted.postgres.password" . | quote . }}
-  redis:
-    host: {{ include "charted.redis.host" . | quote }}
-    port: {{ include "charted.redis.port" . }}
-    index: {{ include "charted.redis.db" . }}
-  storage:
-  {{- if eq "filesystem" .Values.storage.driver }}
-    filesystem:
-      directory: {{ .Values.storage.filesystem.directory }}
-  {{- end }}
-  {{- if eq "s3" .Values.storage.driver }}
-    s3:
-      default_object_acl: bucket-owner-full-control
-      default_bucket_acl: bucket-owner-full-control
-      secret_key: ${AWS_SECRET_ACCESS_KEY}
-      access_key: ${AWS_ACCESS_KEY_ID}
-      region: us-east-1
-      bucket: charted
-  {{- end }}
+    # refer to the configuration for more details: https://charts.noelware.org/docs/server/latest/self-hosting/configuration
+    jwt_secret_key: ${JWT_SECRET_KEY}
+    database:
+      host: {{ include "charted.postgres.host" . | quote }}
+      port: {{ include "charted.postgres.port" . }}
+      database: {{ default "charted" (include "charted.postgres.database" .) | quote }}
+      password: {{ include "charted.postgres.password" . | quote . }}
+    redis:
+      host: {{ include "charted.redis.host" . | quote }}
+      port: {{ include "charted.redis.port" . }}
+      index: {{ include "charted.redis.db" . }}
+    storage:
+    {{- if eq "filesystem" .Values.storage.driver }}
+      filesystem:
+        directory: {{ .Values.storage.filesystem.directory }}
+    {{- end }}
+    {{- if eq "s3" .Values.storage.driver }}
+      s3:
+        default_object_acl: bucket-owner-full-control
+        default_bucket_acl: bucket-owner-full-control
+        secret_key: ${AWS_SECRET_ACCESS_KEY}
+        access_key: ${AWS_ACCESS_KEY_ID}
+        region: us-east-1
+        bucket: charted
+    {{- end }}
 
 ## @skip defaultLogbackConfig
 defaultLogbackConfig: |-
-  charted.log.level=INFO
-  charted.console.json=yes
+    charted.log.level=INFO
+    charted.console.json=yes
 
 ## @section Server Configuration
 ## This is the configuration for configuring charted-server and its logging system. Refer to the documentation:
@@ -161,32 +161,32 @@ defaultLogbackConfig: |-
 ## @param config.logback.mapName             The ConfigMap name for the Logback properties file
 ## @param config.logback.path                Absolute path to load the logback.properties file from
 config:
-  mapName: config
-  path: /app/noelware/charted/server/config/charted.yaml
-  jwtSecretKey:
-    generate: true
-    existingSecret: ''
-  logback:
-    mapName: logback-config
-    path: /app/noelware/charted/server/config/logback.properties
+    mapName: config
+    path: /app/noelware/charted/server/config/charted.yaml
+    jwtSecretKey:
+        generate: true
+        existingSecret: ''
+    logback:
+        mapName: logback-config
+        path: /app/noelware/charted/server/config/logback.properties
 
 ## @section Docker Image Parameters
 ## @param image.repository Full repository URL to the charted-server Docker image
 ## @param image.pullPolicy Pull policy for the image. If the `image.tag` is latest, then use `Always`.
 ## @param image.tag        The tag of the Docker image to run
 image:
-  repository: ghcr.io/charted-dev/charted
-  tag: ''
-  pullPolicy: IfNotPresent
+    repository: ghcr.io/charted-dev/charted
+    tag: ''
+    pullPolicy: IfNotPresent
 
 ## @section Service Account Parameters
 ## @param serviceAccount.create      Specifies whether a service account should be created
 ## @param serviceAccount.annotations Annotations to add to the service account
 ## @param serviceAccount.name        The name of the service account to use. If not set and create is true, a name is generated using the fullname template
 serviceAccount:
-  create: true
-  annotations: {}
-  name: ''
+    create: true
+    annotations: {}
+    name: ''
 
 ## @section Storage Driver Parameters
 ## @param storage.driver                                   The driver to use when configuring storage. (allowed: filesystem, s3)
@@ -211,32 +211,32 @@ serviceAccount:
 ## @param storage.s3.secrets.keys.secretAccessKey          Key value for the secret access key
 ## @param storage.s3.secrets.keys.accessKeyId              Key value for the access key ID
 storage:
-  driver: filesystem
-  filesystem:
-    directory: /var/lib/noelware/charted/data
-    persistence:
-      enabled: true
-      claimName: data
-      storageClass: ''
-      annotations: {}
-      accessModes: [ReadWriteMany]
-      size: 8Gi
-      selector: {}
-  s3:
-    enableSignerV4Requests: false
-    enforcePathAccessStyle: false
-    defaultObjectAcl: bucket-owner-full-control
-    defaultBucketAcl: bucket-owner-full-control
-    endpoint: s3.amazonaws.com
-    region: us-east-1
-    bucket: charted
-    secrets:
-      create: true
-      name: aws-creds
-      existingSecret: ''
-      keys:
-        secretAccessKey: aws-secret-access-key
-        accessKeyId: aws-access-key-id
+    driver: filesystem
+    filesystem:
+        directory: /var/lib/noelware/charted/data
+        persistence:
+            enabled: true
+            claimName: data
+            storageClass: ''
+            annotations: {}
+            accessModes: [ReadWriteMany]
+            size: 8Gi
+            selector: {}
+    s3:
+        enableSignerV4Requests: false
+        enforcePathAccessStyle: false
+        defaultObjectAcl: bucket-owner-full-control
+        defaultBucketAcl: bucket-owner-full-control
+        endpoint: s3.amazonaws.com
+        region: us-east-1
+        bucket: charted
+        secrets:
+            create: true
+            name: aws-creds
+            existingSecret: ''
+            keys:
+                secretAccessKey: aws-secret-access-key
+                accessKeyId: aws-access-key-id
 
 ## @section External Services
 ## This configures the external services that charted might require. This is just in case you don't want a
@@ -264,27 +264,27 @@ storage:
 ## @param external.postgres.existingUsernameSecretKey
 ## @param external.postgres.existingPasswordSecretKey
 external:
-  redis:
-    host: ''
-    port: 6379
-    password: ''
-    existingPasswordSecret: ''
-    existingPasswordSecretKey: ''
-    database: 7
-    sentinels:
-      endpoints: []
-      masterName: ''
-      existingMasterNameSecret: ''
-      existingMasterNameSecretKey: ''
-  postgres:
-    host: ''
-    port: 5432
-    username: ''
-    existingUsernameSecretKey: ''
-    existingUsernameSecret: ''
-    existingAuthSecret: ''
-    password: ''
-    existingPasswordSecretKey: ''
-    existingPasswordSecret: ''
-    database: charted
-    schema: ''
+    redis:
+        host: ''
+        port: 6379
+        password: ''
+        existingPasswordSecret: ''
+        existingPasswordSecretKey: ''
+        database: 7
+        sentinels:
+            endpoints: []
+            masterName: ''
+            existingMasterNameSecret: ''
+            existingMasterNameSecretKey: ''
+    postgres:
+        host: ''
+        port: 5432
+        username: ''
+        existingUsernameSecretKey: ''
+        existingUsernameSecret: ''
+        existingAuthSecret: ''
+        password: ''
+        existingPasswordSecretKey: ''
+        existingPasswordSecret: ''
+        database: charted
+        schema: ''

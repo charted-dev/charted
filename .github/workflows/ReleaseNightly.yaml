@@ -15,163 +15,163 @@
 
 name: Nightly Release Pipeline
 on:
-  release:
-    types: [prereleased]
+    release:
+        types: [prereleased]
 permissions:
-  contents: write
-  packages: write
+    contents: write
+    packages: write
 jobs:
-  archives:
-    name: Build and publish CLI archive [${{matrix.tasks.prettyName}}]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        tasks:
-          - { ext: 'tar.gz', task: 'distTar', prettyName: 'Tarball' }
-          - { ext: 'zip', task: 'distZip', prettyName: 'Zip' }
-    steps:
-      - uses: ./.github/actions/release-artifacts/charted
-        with:
-          task: ${{matrix.tasks.task}}
-          ext: ${{matrix.tasks.ext}}
-  migrations:
-    name: Build and push ClickHouse migrations
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        dist:
-          - { goos: windows, goarch: amd64, ext: '.exe' }
-          - { goos: windows, goarch: i386,  ext: '.exe' }
-          - { goos: darwin,  goarch: amd64, ext: ''     }
-          - { goos: darwin,  goarch: arm64, ext: ''     }
-          - { goos: linux,   goarch: amd64, ext: ''     }
-          - { goos: linux,   goarch: arm64, ext: ''     }
-    steps:
-      - uses: ./.github/actions/release-artifacts/ch-migrations
-        with:
-          goos: ${{matrix.dist.goos}}
-          goarch: ${{matrix.dist.goarch}}
-          ext: ${{matrix.dist.ext}}
-  docker-image-debian-x64:
-    name: Build Debian Docker Image [linux/amd64]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: ./.github/actions/docker-build-push/nightly
-        with:
-          dockerfile: ./distribution/docker/debian/Dockerfile
-          platforms: linux/amd64
-          suffix: amd64
-  docker-image-alpine-x64:
-    name: Build Alpine Docker Image [linux/amd64]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: ./.github/actions/docker-build-push/nightly
-        with:
-          dockerfile: ./distribution/docker/alpine/Dockerfile
-          platforms: linux/amd64
-          suffix: alpine-amd64
-  docker-image-debian-arm:
-    name: Build Debian Docker Image [linux/arm64]
-    runs-on: self-hosted
-    steps:
-      - uses: ./.github/actions/docker-build-push/nightly
-        with:
-          dockerfile: ./distribution/docker/debian/Dockerfile
-          platforms: linux/arm64
-          suffix: arm64
-  docker-image-alpine-arm:
-    name: Build Alpine Docker Image [linux/arm64]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: ./.github/actions/docker-build-push/nightly
-        with:
-          dockerfile: ./distribution/docker/alpine/Dockerfile
-          platforms: linux/arm64
-          suffix: alpine-arm64
-  manifests:
-    name: Merge Docker manifests
-    runs-on: ubuntu-latest
-    needs: [docker-image-debian-x64, docker-image-alpine-x64, docker-image-debian-arm, docker-image-alpine-arm]
-    steps:
-      - name: Get current release tag
-        uses: auguwu/git-tag-action@master
-        id: tag
+    archives:
+        name: Build and publish CLI archive [${{matrix.tasks.prettyName}}]
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                tasks:
+                    - { ext: 'tar.gz', task: 'distTar', prettyName: 'Tarball' }
+                    - { ext: 'zip', task: 'distZip', prettyName: 'Zip' }
+        steps:
+            - uses: ./.github/actions/release-artifacts/charted
+              with:
+                  task: ${{matrix.tasks.task}}
+                  ext: ${{matrix.tasks.ext}}
+    migrations:
+        name: Build and push ClickHouse migrations
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                dist:
+                    - { goos: windows, goarch: amd64, ext: '.exe' }
+                    - { goos: windows, goarch: i386, ext: '.exe' }
+                    - { goos: darwin, goarch: amd64, ext: '' }
+                    - { goos: darwin, goarch: arm64, ext: '' }
+                    - { goos: linux, goarch: amd64, ext: '' }
+                    - { goos: linux, goarch: arm64, ext: '' }
+        steps:
+            - uses: ./.github/actions/release-artifacts/ch-migrations
+              with:
+                  goos: ${{matrix.dist.goos}}
+                  goarch: ${{matrix.dist.goarch}}
+                  ext: ${{matrix.dist.ext}}
+    docker-image-debian-x64:
+        name: Build Debian Docker Image [linux/amd64]
+        runs-on: ubuntu-latest
+        steps:
+            - uses: ./.github/actions/docker-build-push/nightly
+              with:
+                  dockerfile: ./distribution/docker/debian/Dockerfile
+                  platforms: linux/amd64
+                  suffix: amd64
+    docker-image-alpine-x64:
+        name: Build Alpine Docker Image [linux/amd64]
+        runs-on: ubuntu-latest
+        steps:
+            - uses: ./.github/actions/docker-build-push/nightly
+              with:
+                  dockerfile: ./distribution/docker/alpine/Dockerfile
+                  platforms: linux/amd64
+                  suffix: alpine-amd64
+    docker-image-debian-arm:
+        name: Build Debian Docker Image [linux/arm64]
+        runs-on: self-hosted
+        steps:
+            - uses: ./.github/actions/docker-build-push/nightly
+              with:
+                  dockerfile: ./distribution/docker/debian/Dockerfile
+                  platforms: linux/arm64
+                  suffix: arm64
+    docker-image-alpine-arm:
+        name: Build Alpine Docker Image [linux/arm64]
+        runs-on: ubuntu-latest
+        steps:
+            - uses: ./.github/actions/docker-build-push/nightly
+              with:
+                  dockerfile: ./distribution/docker/alpine/Dockerfile
+                  platforms: linux/arm64
+                  suffix: alpine-arm64
+    manifests:
+        name: Merge Docker manifests
+        runs-on: ubuntu-latest
+        needs: [docker-image-debian-x64, docker-image-alpine-x64, docker-image-debian-arm, docker-image-alpine-arm]
+        steps:
+            - name: Get current release tag
+              uses: auguwu/git-tag-action@master
+              id: tag
 
-      - name: Login into GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: charted-dev
-          password: ${{secrets.GITHUB_TOKEN}}
+            - name: Login into GitHub Container Registry
+              uses: docker/login-action@v2
+              with:
+                  registry: ghcr.io
+                  username: charted-dev
+                  password: ${{secrets.GITHUB_TOKEN}}
 
-      - name: Create Debian Manifest Image [:nightly]
-        uses: Noelware/docker-manifest-action@0.3.1
-        with:
-          push: true
-          inputs: ghcr.io/charted-dev/charted:nightly
-          images: |
-            ghcr.io/charted-dev/charted:nightly-amd64,
-            ghcr.io/charted-dev/charted:nightly-arm64
+            - name: Create Debian Manifest Image [:nightly]
+              uses: Noelware/docker-manifest-action@0.3.1
+              with:
+                  push: true
+                  inputs: ghcr.io/charted-dev/charted:nightly
+                  images: |
+                      ghcr.io/charted-dev/charted:nightly-amd64,
+                      ghcr.io/charted-dev/charted:nightly-arm64
 
-      - name: Create Debian Manifest Image [:${{steps.tag.outputs.major}}-nightly]
-        uses: Noelware/docker-manifest-action@0.3.1
-        with:
-          push: true
-          inputs: ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-nightly
-          images: |
-            ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-nightly-amd64,
-            ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-nightly-arm64
+            - name: Create Debian Manifest Image [:${{steps.tag.outputs.major}}-nightly]
+              uses: Noelware/docker-manifest-action@0.3.1
+              with:
+                  push: true
+                  inputs: ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-nightly
+                  images: |
+                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-nightly-amd64,
+                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-nightly-arm64
 
-      - name: Create Debian Manifest Image [:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly]
-        uses: Noelware/docker-manifest-action@0.3.1
-        with:
-          push: true
-          inputs: ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly
-          images: |
-            ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly-amd64,
-            ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly-arm64
+            - name: Create Debian Manifest Image [:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly]
+              uses: Noelware/docker-manifest-action@0.3.1
+              with:
+                  push: true
+                  inputs: ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly
+                  images: |
+                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly-amd64,
+                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly-arm64
 
-      - name: Create Debian Manifest Image [:${{steps.tag.outputs.version}}-nightly]
-        uses: Noelware/docker-manifest-action@0.3.1
-        with:
-          push: true
-          inputs: ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-nightly
-          images: |
-            ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-nightly-amd64,
-            ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-nightly-arm64
+            - name: Create Debian Manifest Image [:${{steps.tag.outputs.version}}-nightly]
+              uses: Noelware/docker-manifest-action@0.3.1
+              with:
+                  push: true
+                  inputs: ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-nightly
+                  images: |
+                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-nightly-amd64,
+                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-nightly-arm64
 
-      - name: Create Alpine Manifest Image [:nightly-alpine]
-        uses: Noelware/docker-manifest-action@0.3.1
-        with:
-          push: true
-          inputs: ghcr.io/charted-dev/charted:nightly-alpine
-          images: |
-            ghcr.io/charted-dev/charted:nightly-alpine-amd64,
-            ghcr.io/charted-dev/charted:nightly-alpine-arm64
+            - name: Create Alpine Manifest Image [:nightly-alpine]
+              uses: Noelware/docker-manifest-action@0.3.1
+              with:
+                  push: true
+                  inputs: ghcr.io/charted-dev/charted:nightly-alpine
+                  images: |
+                      ghcr.io/charted-dev/charted:nightly-alpine-amd64,
+                      ghcr.io/charted-dev/charted:nightly-alpine-arm64
 
-      - name: Create Alpine Manifest Image [:${{steps.tag.outputs.major}}-nightly-alpine]
-        uses: Noelware/docker-manifest-action@0.3.1
-        with:
-          push: true
-          inputs: ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-nightly-alpine
-          images: |
-            ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-nightly-alpine-amd64,
-            ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-nightly-alpine-arm64
+            - name: Create Alpine Manifest Image [:${{steps.tag.outputs.major}}-nightly-alpine]
+              uses: Noelware/docker-manifest-action@0.3.1
+              with:
+                  push: true
+                  inputs: ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-nightly-alpine
+                  images: |
+                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-nightly-alpine-amd64,
+                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-nightly-alpine-arm64
 
-      - name: Create Alpine Manifest Image [:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly-alpine]
-        uses: Noelware/docker-manifest-action@0.3.1
-        with:
-          push: true
-          inputs: ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly-alpine
-          images: |
-            ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly-alpine-amd64,
-            ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly-alpine-arm64
+            - name: Create Alpine Manifest Image [:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly-alpine]
+              uses: Noelware/docker-manifest-action@0.3.1
+              with:
+                  push: true
+                  inputs: ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly-alpine
+                  images: |
+                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly-alpine-amd64,
+                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly-alpine-arm64
 
-      - name: Create Alpine Manifest Image [:${{steps.tag.outputs.version}}-alpine]
-        uses: Noelware/docker-manifest-action@0.3.1
-        with:
-          push: true
-          inputs: ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-alpine
-          images: |
-            ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-alpine-amd64,
-            ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-alpine-arm64
+            - name: Create Alpine Manifest Image [:${{steps.tag.outputs.version}}-alpine]
+              uses: Noelware/docker-manifest-action@0.3.1
+              with:
+                  push: true
+                  inputs: ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-alpine
+                  images: |
+                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-alpine-amd64,
+                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-alpine-arm64

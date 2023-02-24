@@ -13,24 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: "1.0"
+version: '1.0'
 linter: ghcr.io/charted-dev/qodana-jvm-node:2022.3
 exclude:
-  # Most confusing one out of them all. Just read up on what Qodana generated
-  # here: https://github.com/charted-dev/charted/security/code-scanning/36
-  - name: NullArgumentToVariableArgMethod
+    # Most confusing one out of them all. Just read up on what Qodana generated
+    # here: https://github.com/charted-dev/charted/security/code-scanning/36
+    - name: NullArgumentToVariableArgMethod
 
-  # In most cases, it's usually on the File class, which can
-  # be safely ignored.
-  - name: IgnoreResultOfCall
+    # In most cases, it's usually on the File class, which can
+    # be safely ignored.
+    - name: IgnoreResultOfCall
 
-  # Since Gradle's version catalog is incubating, it doesn't feel right
-  # for this to be enabled in settings.gradle.kts
-  - name: UnstableApiUsage
-    paths:
-      - settings.gradle.kts
+    # Since Gradle's version catalog is incubating, it doesn't feel right
+    # for this to be enabled in settings.gradle.kts
+    - name: UnstableApiUsage
+      paths:
+          - settings.gradle.kts
 
-  # Disable this since I am too lazy to fix this.
-  - name: PackageDirectoryMismatch
-    paths:
-      - modules/docker-registry
+    # Disable this since I am too lazy to fix this.
+    - name: PackageDirectoryMismatch
+      paths:
+          - modules/docker-registry

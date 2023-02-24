@@ -1,19 +1,19 @@
 version: '3.8'
 networks:
-  app-tier:
-    driver: bridge
+    app-tier:
+        driver: bridge
 services:
-  redis:
-    image: 'bitnami/redis:latest'
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
-    networks:
-      - app-tier
-  redis-sentinel:
-    image: 'bitnami/redis-sentinel:latest'
-    environment:
-      - REDIS_MASTER_HOST=redis
-    ports:
-      - '26379:26379'
-    networks:
-      - app-tier
+    redis:
+        image: 'bitnami/redis:latest'
+        environment:
+            - ALLOW_EMPTY_PASSWORD=yes
+        networks:
+            - app-tier
+    redis-sentinel:
+        image: 'bitnami/redis-sentinel:latest'
+        environment:
+            - REDIS_MASTER_HOST=redis
+        ports:
+            - '26379:26379'
+        networks:
+            - app-tier

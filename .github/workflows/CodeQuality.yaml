@@ -15,77 +15,77 @@
 
 name: Code Quality (CodeQL, Qodana)
 on:
-  workflow_dispatch: {}
-  schedule:
-    - cron: '0 0 * * *'
-  push:
-    branches:
-      - 'issue/gh-**'
-      - 'feat/**'
-      - main
-    paths-ignore:
-      - '.github/**'
-      - '.vscode/**'
-      - 'assets/**'
-      - 'distribution/**'
-      - .gitignore
-      - '**.md'
-      - LICENSE
-      - renovate.json
+    workflow_dispatch: {}
+    schedule:
+        - cron: '0 0 * * *'
+    push:
+        branches:
+            - 'issue/gh-**'
+            - 'feat/**'
+            - main
+        paths-ignore:
+            - '.github/**'
+            - '.vscode/**'
+            - 'assets/**'
+            - 'distribution/**'
+            - .gitignore
+            - '**.md'
+            - LICENSE
+            - renovate.json
 jobs:
-  codeql:
-    name: CodeQL (Java ${{matrix.java-version}}, ${{matrix.language}})
-    runs-on: Ubuntu-latest
-    if: ${{false}} # disable it for now
-    permissions:
-      security-events: write
-      contents: read
-      actions: read
-    strategy:
-      fail-fast: false
-      matrix:
-        java-version: [17, 19]
-        language: [kotlin, java]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        
-      - name: Setup Java ${{matrix.java-version}}
-        uses: actions/setup-java@v3
-        with:
-          java-version: ${{matrix.java-version}}
-          distribution: temurin
-          
-      - name: Setup Node.js 19.x
-        uses: actions/setup-node@v3
-        with:
-          node-version: 19.x
-          
-      - name: Init CodeQL
-        uses: github/codeql-action/init@v2
-        with:
-          languages: ${{matrix.language}}
-          
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v2
-        
-      - name: Perform analysis
-        uses: github/codeql-action/analyze@v2
-  qodana:
-    name: Qodana
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          
-      - name: Perform scan
-        uses: JetBrains/qodana-action@v2022.3.4
-        with:
-          args: --baseline,qodana.sarif.json,--save-report
+    codeql:
+        name: CodeQL (Java ${{matrix.java-version}}, ${{matrix.language}})
+        runs-on: Ubuntu-latest
+        if: ${{false}} # disable it for now
+        permissions:
+            security-events: write
+            contents: read
+            actions: read
+        strategy:
+            fail-fast: false
+            matrix:
+                java-version: [17, 19]
+                language: [kotlin, java]
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
 
-      - name: Upload Sarif Results to GitHub
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: ${{runner.temp}}/qodana/results/qodana.sarif.json
+            - name: Setup Java ${{matrix.java-version}}
+              uses: actions/setup-java@v3
+              with:
+                  java-version: ${{matrix.java-version}}
+                  distribution: temurin
+
+            - name: Setup Node.js 19.x
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 19.x
+
+            - name: Init CodeQL
+              uses: github/codeql-action/init@v2
+              with:
+                  languages: ${{matrix.language}}
+
+            - name: Autobuild
+              uses: github/codeql-action/autobuild@v2
+
+            - name: Perform analysis
+              uses: github/codeql-action/analyze@v2
+    qodana:
+        name: Qodana
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+              with:
+                  fetch-depth: 0
+
+            - name: Perform scan
+              uses: JetBrains/qodana-action@v2022.3.4
+              with:
+                  args: --baseline,qodana.sarif.json,--save-report
+
+            - name: Upload Sarif Results to GitHub
+              uses: github/codeql-action/upload-sarif@v2
+              with:
+                  sarif_file: ${{runner.temp}}/qodana/results/qodana.sarif.json

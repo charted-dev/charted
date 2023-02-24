@@ -14,27 +14,27 @@
 # limitations under the License.
 
 run:
-  timeout: 1m
-  issue-exit-code: 1
-  allow-parallel-runners: true
-  go: '1.20.1'
-  skip-dirs: [vendor]
+    timeout: 1m
+    issue-exit-code: 1
+    allow-parallel-runners: true
+    go: '1.20.1'
+    skip-dirs: [vendor]
 output:
-  format: colored-line-number
+    format: colored-line-number
 linters:
-  enable:
-    - bodyclose
-    - dupl
-    - exportloopref
-    - goconst
-    - goprintffuncname
-    - misspell
-    - prealloc
-    - unconvert
-    - unparam
-    - whitespace
+    enable:
+        - bodyclose
+        - dupl
+        - exportloopref
+        - goconst
+        - goprintffuncname
+        - misspell
+        - prealloc
+        - unconvert
+        - unparam
+        - whitespace
 
-  disable:
-    - gosimple
-    - govet
-    - staticcheck
+    disable:
+        - gosimple
+        - govet
+        - staticcheck
