@@ -51,7 +51,7 @@ jobs:
                   distribution: temurin
 
             - name: Run snapshot
-              uses: mikepenz/gradle-dependency-submission@v0.8.4
+              uses: mikepenz/gradle-dependency-submission@v0.8.5
               with:
                   gradle-build-configuration: compileClasspath
                   sub-module-mode: INDIVIDUAL_DEEP
