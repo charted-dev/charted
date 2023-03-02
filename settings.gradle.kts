@@ -35,7 +35,7 @@ buildscript {
 
 plugins {
     id("org.noelware.gradle.settings") version "1.3.0"
-    id("com.gradle.enterprise") version "3.12.3"
+    id("com.gradle.enterprise") version "3.12.4"
 }
 
 include(
