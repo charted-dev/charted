@@ -61,7 +61,7 @@ dependencies {
     implementation(kotlin("stdlib"))
 
     // Java Annotations (only for Java usage)
-    implementation("org.jetbrains:annotations:24.0.0")
+    implementation("org.jetbrains:annotations:24.0.1")
 
     // Test Dependencies
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
