@@ -28,7 +28,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.google.protobuf:protobuf-kotlin:3.22.0")
+    implementation("com.google.protobuf:protobuf-kotlin:3.22.2")
     implementation("com.google.protobuf:protobuf-java:3.22.1")
     compileOnly("org.apache.tomcat:annotations-api:6.0.53")
     implementation("io.grpc:grpc-kotlin-stub:1.3.0")
