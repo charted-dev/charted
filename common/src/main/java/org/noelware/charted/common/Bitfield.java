@@ -1,6 +1,6 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright (c) 2022-2023 Noelware, LLC. <team@noelware.org>
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
  * over what RBAC permissions a user has or not. This is also used for organization flags (for experimental reasons),
  * API key scopes, and repository flags (i.e, if it is private or not)
  *
- * @author Noel
+ * @author Noel (cutie@floofy.dev)
  * @since 31.05.2022
  */
 public class Bitfield {

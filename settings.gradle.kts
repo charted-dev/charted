@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,68 +15,18 @@
  * limitations under the License.
  */
 
-rootProject.name = "charted-server"
-
 pluginManagement {
     repositories {
-        maven("https://maven.floofy.dev/repo/releases")
-        maven("https://maven.noelware.org")
         gradlePluginPortal()
         mavenCentral()
         mavenLocal()
     }
 }
 
-buildscript {
-    dependencies {
-        classpath("org.noelware.gradle:gradle-infra-plugin:1.3.0")
-    }
-}
-
 plugins {
-    id("org.noelware.gradle.settings") version "1.3.0"
-    id("com.gradle.enterprise") version "3.12.4"
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.4.0"
+    id("com.gradle.enterprise") version "3.12.3"
 }
-
-include(
-    ":cli",
-    ":common",
-    ":server",
-    ":distribution:deb",
-    ":distribution:rpm",
-    ":databases:clickhouse",
-    ":databases:postgres",
-    ":modules:analytics:extensions",
-    ":modules:analytics",
-    ":modules:apikeys",
-    ":modules:audit-logs",
-    ":modules:avatars",
-    ":modules:config:dsl",
-    ":modules:config:kotlin-script",
-    ":modules:config:yaml",
-    ":modules:docker-registry",
-    ":modules:elasticsearch",
-    ":modules:emails",
-    ":modules:garbage-collector",
-    ":modules:helm-charts",
-    ":modules:invitations",
-    ":modules:logging",
-    ":modules:meilisearch",
-    ":modules:metrics",
-    ":modules:redis",
-    ":modules:sessions",
-    ":modules:sessions:ldap",
-    ":modules:sessions:local",
-    ":modules:sessions:openid",
-    ":modules:sessions:passwordless",
-    ":modules:sessions:integrations:github",
-    ":modules:sessions:integrations:noelware",
-    ":modules:storage",
-    ":modules:telemetry",
-    ":modules:webhooks",
-    ":test:containers",
-    ":test:framework",
-)
 
 dependencyResolutionManagement {
     versionCatalogs {
@@ -85,3 +35,41 @@ dependencyResolutionManagement {
         }
     }
 }
+
+includeBuild("build-tools")
+include(
+    ":cli",
+    ":common",
+    ":server",
+    ":config",
+    ":config:dsl",
+    ":config:kotlin-script",
+    ":config:yaml",
+    ":distribution:debian",
+    ":features:audit-logs",
+    ":features:docker-registry",
+    ":features:garbage-collection",
+    ":features:invitations",
+    ":features:webhooks",
+    ":modules:analytics",
+    ":modules:avatars",
+    ":modules:emails",
+    ":modules:helm-charts",
+    ":modules:invitations",
+    ":modules:logging",
+    ":modules:metrics",
+    ":modules:openapi",
+    ":modules:postgresql",
+    ":modules:redis",
+    ":modules:search",
+    ":modules:search:elasticsearch",
+    ":modules:search:meilisearch",
+    ":modules:sessions",
+    ":modules:sessions:integrations:github",
+    ":modules:sessions:ldap",
+    ":modules:sessions:local",
+    ":modules:storage",
+    ":modules:telemetry",
+    ":testing:containers",
+    ":testing:framework",
+)

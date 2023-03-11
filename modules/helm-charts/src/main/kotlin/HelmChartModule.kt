@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,8 +18,8 @@
 package org.noelware.charted.modules.helm.charts
 
 import io.ktor.http.content.*
-import org.noelware.charted.databases.postgres.models.Repository
-import org.noelware.charted.types.helm.ChartIndexYaml
+import org.noelware.charted.common.types.helm.ChartIndexYaml
+import org.noelware.charted.models.repositories.Repository
 import java.io.InputStream
 
 interface HelmChartModule {

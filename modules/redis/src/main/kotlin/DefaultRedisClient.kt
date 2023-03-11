@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,16 +25,16 @@ import io.lettuce.core.api.async.RedisAsyncCommands
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.await
 import org.apache.commons.lang3.time.StopWatch
+import org.noelware.charted.common.extensions.formatting.doFormatTime
+import org.noelware.charted.common.extensions.iterable.associateOrNull
 import org.noelware.charted.configuration.kotlin.dsl.RedisConfig
-import org.noelware.charted.extensions.associateOrNull
-import org.noelware.charted.extensions.doFormatTime
 import org.noelware.charted.modules.redis.metrics.RedisServerStats
 import java.util.concurrent.TimeUnit
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 import io.lettuce.core.RedisClient as LettuceRedisClient
 
-class DefaultRedisClient(config: RedisConfig) : RedisClient {
+class DefaultRedisClient(config: RedisConfig): RedisClient {
     private val _connection: SetOnce<StatefulRedisConnection<String, String>> = SetOnce()
     private val _commands: SetOnce<RedisAsyncCommands<String, String>> = SetOnce()
     private val client: LettuceRedisClient
@@ -43,10 +43,10 @@ class DefaultRedisClient(config: RedisConfig) : RedisClient {
     init {
         log.debug("Creating Redis client...")
 
-        val redisURI = if (config.sentinels.isNotEmpty() && config.master != null) {
+        val redisURI = if (config.sentinels.isNotEmpty() && config.masterName != null) {
             log.debug("Redis configuration is set to be using a Sentinel connection!")
             val builder = RedisURI.builder()
-                .withSentinelMasterId(config.master)
+                .withSentinelMasterId(config.masterName)
                 .withDatabase(config.index)
 
             for (host in config.sentinels) {
@@ -73,7 +73,7 @@ class DefaultRedisClient(config: RedisConfig) : RedisClient {
 
             val builder = RedisURI.builder()
                 .withHost(config.host)
-                .withPort(config.port)
+                .withPort(config.port.toInt())
                 .withDatabase(config.index)
 
             if (config.password != null) {

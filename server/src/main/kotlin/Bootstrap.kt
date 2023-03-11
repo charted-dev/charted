@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,18 +21,15 @@ import dev.floofy.utils.slf4j.logging
 import org.noelware.charted.server.bootstrap.BootstrapPhase
 import java.io.File
 
-/**
- * Represents the server bootstrap, which... bootstraps and loads the server.
- */
 object Bootstrap {
     private val log by logging<Bootstrap>()
 
-    suspend fun start(configPath: File) {
+    suspend fun start(config: File) {
         Thread.currentThread().name = "Server-BootstrapThread"
 
         for (phase in BootstrapPhase.PHASES) {
-            log.debug("Initializing bootstrap phase [${phase::class.simpleName}]")
-            phase.bootstrap(configPath)
+            log.debug("Passing through phase [${phase::class.simpleName}]")
+            phase.phaseThrough(config)
         }
     }
 }

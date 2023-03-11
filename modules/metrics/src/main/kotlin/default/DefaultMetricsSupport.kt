@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,13 +20,17 @@ package org.noelware.charted.modules.metrics.default
 import dev.floofy.utils.kotlin.ifNotNull
 import org.noelware.charted.modules.metrics.Collector
 import org.noelware.charted.modules.metrics.MetricsSupport
+import org.noelware.charted.modules.metrics.collectors.JvmProcessInfoMetrics
 import org.noelware.charted.modules.metrics.collectors.JvmThreadsMetrics
+import org.noelware.charted.modules.metrics.collectors.OperatingSystemMetrics
 import kotlin.reflect.KClass
 
-class DefaultMetricsSupport : MetricsSupport {
+class DefaultMetricsSupport: MetricsSupport {
     private val _collectors: MutableList<Collector<*>> = mutableListOf()
 
     init {
+        add(OperatingSystemMetrics.Collector())
+        add(JvmProcessInfoMetrics.Collector())
         add(JvmThreadsMetrics.Collector())
     }
 

@@ -1,6 +1,0 @@
-{
-    "editor.tabSize": 4,
-    "[go]": {
-        "editor.defaultFormatter": "golang.go"
-    }
-}

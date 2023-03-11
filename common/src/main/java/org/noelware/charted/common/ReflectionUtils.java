@@ -1,6 +1,6 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright (c) 2022-2023 Noelware, LLC. <team@noelware.org>
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,38 +20,37 @@ package org.noelware.charted.common;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import java.lang.reflect.Field;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Utilities to access values through reflection.
+ * Utilities to perform reflection calls easily and efficiently.
+ * @author Noel (cutie@floofy.dev)
  */
 public class ReflectionUtils {
     private static final Logger LOG = LoggerFactory.getLogger(ReflectionUtils.class);
 
-    // Keep a simple cache for reflection fields (to improve performance when performing reflection checks)
-    // class#field_name => java.lang.reflect.Field
+    // This might be even more inefficient since we shouldn't even do runtime reflection
+    // most of the time, only if we need it but whatever.
     //
-    // since the ReflectionUtil shouldn't be accessed a whole ton, the max size should be
-    // >=100 entries and cache entries expire in 2 hours.
+    // This just keeps a simple cache of reflection fields that expires after accessing
+    // for ~10 minutes with a max of 20 fields allowed.
     private static final Cache<String, Object> _fieldCache = Caffeine.newBuilder()
             .maximumSize(100)
-            .expireAfterAccess(2, TimeUnit.HOURS)
+            .expireAfterAccess(10, TimeUnit.MINUTES)
             .build();
 
-    // private instance, nu look
+    // private instance, nu construct
     private ReflectionUtils() {}
 
-    /**
-     * Reflectively set a value from the instance variable to whatever <code>value</code> is.
-     * @param instance The instance variable to set the field on
-     * @param fieldName Field name
-     * @param value Field value
-     * @return {@link Boolean boolean} to indicate the success if the value was set or not.
-     */
-    public static <C, T> boolean setField(C instance, String fieldName, T value) {
+    public static <C, T> boolean setField(@NotNull C instance, @NotNull String fieldName, T value) {
+        Objects.requireNonNull(instance);
+        Objects.requireNonNull(fieldName);
+
         final Class<?> klazz = instance.getClass();
         LOG.info("Finding field [{}] in class [{}]!", fieldName, klazz.getSimpleName());
 
@@ -73,18 +72,12 @@ public class ReflectionUtils {
         }
     }
 
-    /**
-     * Fetch and use the field from the given {@link Class<C> class}.
-     *
-     * @param instance   The instance to get the field from
-     * @param inferClass The class to infer the given result as.
-     * @param fieldName  field name
-     * @param <C>        <code>instance</code> type
-     * @param <T>        <code>inferred</code> type
-     * @return           The given field, or <code>null</code> if the field was not found, and it can't be cached.
-     */
     @Nullable
-    public static <C, T> T getAndUseField(C instance, Class<T> inferClass, String fieldName) {
+    public static <C, T> T getAndUse(@NotNull C instance, @NotNull Class<T> inferTo, @NotNull String fieldName) {
+        Objects.requireNonNull(instance);
+        Objects.requireNonNull(inferTo);
+        Objects.requireNonNull(fieldName);
+
         final Class<?> klazz = instance.getClass();
         final String cacheKey = "%s#%s".formatted(klazz.getSimpleName(), fieldName);
         final Object cachedResult = _fieldCache.get(cacheKey, (key) -> {
@@ -92,7 +85,7 @@ public class ReflectionUtils {
                     "Finding field [{}] in class [{}], with infer class [{}]",
                     fieldName,
                     klazz.getSimpleName(),
-                    inferClass);
+                    inferTo);
             try {
                 final Field field = klazz.getDeclaredField(fieldName);
                 field.setAccessible(true);
@@ -110,7 +103,7 @@ public class ReflectionUtils {
             return null;
         } else {
             LOG.debug("Found field [{}] in class [{}]!", fieldName, klazz.getSimpleName());
-            return inferClass.cast(cachedResult);
+            return inferTo.cast(cachedResult);
         }
     }
 }

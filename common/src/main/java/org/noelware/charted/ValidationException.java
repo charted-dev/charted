@@ -1,6 +1,6 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright (c) 2022-2023 Noelware, LLC. <team@noelware.org>
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,30 +17,31 @@
 
 package org.noelware.charted;
 
-/** Represents a validation exception within a kotlinx.serialization object. */
+import static java.lang.String.format;
+
+/**
+ * Represents a {@link RuntimeException} of a validation error from any source.
+ */
 public class ValidationException extends RuntimeException {
-    private final String path;
     private final String message;
+    private final String path;
 
     public ValidationException(String path, String message) {
-        super(String.format("[%s] %s", path, message));
+        super(format("[%s] %s", path, message));
 
         this.message = message;
         this.path = path;
     }
 
-    public ValidationException(String path, String message, Exception cause) {
-        super(String.format("[%s] %s", path, message), cause);
-
-        this.message = message;
-        this.path = path;
-    }
-
-    public String getValidationMessage() {
+    /**
+     * @return validation message
+     */
+    public String validationMessage() {
         return message;
     }
 
-    public String getPath() {
+    /** @return validation path */
+    public String path() {
         return path;
     }
 }

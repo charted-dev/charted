@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,7 +35,7 @@ data class JvmThreadsMetrics(
     val peak: Int,
     val background: Int,
     val threads: List<ThreadInfo>
-) : org.noelware.analytics.jvm.server.serialization.Serializable {
+): org.noelware.analytics.jvm.server.serialization.Serializable {
     @Serializable
     data class ThreadInfo(
         val stacktrace: List<StackTrace> = listOf(),
@@ -95,7 +95,7 @@ data class JvmThreadsMetrics(
         }.toGrpcValue()
     }
 
-    class Collector : org.noelware.charted.modules.metrics.Collector<JvmThreadsMetrics>, io.prometheus.client.Collector() {
+    class Collector: org.noelware.charted.modules.metrics.Collector<JvmThreadsMetrics>, io.prometheus.client.Collector() {
         private val threads = ManagementFactory.getThreadMXBean()
 
         override val name: String = "threads"

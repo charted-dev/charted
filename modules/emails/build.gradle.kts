@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,8 +16,10 @@
  */
 
 import com.google.protobuf.gradle.*
+import de.undercouch.gradle.tasks.download.Download
 
 plugins {
+    id("de.undercouch.download") version "5.3.1"
     id("com.google.protobuf")
     `charted-module`
     idea
@@ -28,14 +30,22 @@ repositories {
 }
 
 dependencies {
-    implementation("com.google.protobuf:protobuf-kotlin:3.22.0")
-    implementation("com.google.protobuf:protobuf-java:3.22.0")
-    compileOnly("org.apache.tomcat:annotations-api:6.0.53")
-    implementation("io.grpc:grpc-kotlin-stub:1.3.0")
-    runtimeOnly("io.grpc:grpc-netty-shaded:1.53.0")
-    implementation("io.grpc:grpc-protobuf:1.53.0")
-    implementation("io.grpc:grpc-services:1.53.0")
-    implementation("io.grpc:grpc-stub:1.53.0")
+    compileOnly(libs.tomcat.annotations.api)
+    implementation(libs.grpc.kotlin.stub)
+    implementation(libs.protobuf.kotlin)
+    runtimeOnly(libs.grpc.netty.shaded)
+    implementation(libs.protobuf.java)
+    implementation(libs.grpc.protobuf)
+    implementation(libs.grpc.services)
+    implementation(libs.grpc.stub)
+}
+
+tasks {
+    create<Download>("downloadProtos") {
+        overwrite(false)
+        dest(file("$projectDir/src/main/proto/emails.proto"))
+        src("https://raw.githubusercontent.com/charted-dev/email-service/main/protos/emails.proto")
+    }
 }
 
 sourceSets {
@@ -121,11 +131,4 @@ protobuf {
             }
         }
     }
-}
-
-val copyProtobufs by tasks.registering(Copy::class) {
-    from(file("$projectDir/vendor/protos/protos"))
-    into(file("$projectDir/src/main/proto"))
-
-    include("*.proto")
 }

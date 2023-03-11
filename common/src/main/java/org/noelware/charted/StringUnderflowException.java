@@ -1,6 +1,6 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright (c) 2022-2023 Noelware, LLC. <team@noelware.org>
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,30 @@
 
 package org.noelware.charted;
 
+import static java.lang.String.format;
+
 public class StringUnderflowException extends ValidationException {
-    public StringUnderflowException(String path, int length, int maxLen) {
+    private final int maxLength;
+    private final int len;
+
+    public StringUnderflowException(String path, int len, int maxLength) {
         super(
                 path,
-                String.format(
-                        "String underflowed from %d characters, need %d more characters.", maxLen, maxLen - length));
+                len != 0
+                        ? format("String was under %d characters! Need %d more to complete", maxLength, maxLength - len)
+                        : format("String was empty or contained whitespace, need %d characters or lower", maxLength));
+
+        this.maxLength = maxLength;
+        this.len = len;
+    }
+
+    /** @return Length of the data scalar that was under the {@link #maxLength()} */
+    public int length() {
+        return len;
+    }
+
+    /** @return Maximum length to complete the underflow data scalar */
+    public int maxLength() {
+        return maxLength;
     }
 }

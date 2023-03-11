@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,52 +24,7 @@ kotlin {
 }
 
 dependencies {
-    // kotlinx.serialization
-    api(libs.kotlinx.serialization.core)
-    api(libs.kotlinx.serialization.json)
-
-    // kotlinx.coroutines
-    api(libs.kotlinx.coroutines.core)
-    api(libs.kotlinx.coroutines.jdk8)
-
-    // kotlinx.datetime
-    api(libs.kotlinx.datetime)
-
-    // Logging (slf4j)
-    api(libs.slf4j.api)
-
-    // Noel's Utilities
-    api(libs.noel.commons.extensions.kotlin)
-    api(libs.noel.commons.extensions.koin)
-    api(libs.noel.commons.java.utils)
-    api(libs.noel.commons.slf4j)
-
-    // Apache Utilities
-    api(libs.apache.commons.lang3)
-
-    // Sentry
-    api(libs.sentry.kotlin.extensions)
-    api(libs.sentry)
-
-    // OpenTelemetry annotations (for tracing)
-    api(libs.opentelemetry.annotations)
-
-    // Remi
-    api(libs.remi.storage.azure)
-    api(libs.remi.storage.gcs)
-    api(libs.remi.storage.s3)
-    api(libs.remi.storage.fs)
-    api(libs.remi.core)
-
-    // Caffeine (in-memory cache)
-    api(libs.caffeine)
-
-    // Bouncycastle
-    api(libs.bouncycastle)
-
-    // Snowflake
-    api(libs.charted.snowflake)
-
-    // Okio
-    api(libs.okio)
+    implementation(libs.jackson.databind)
+    implementation(libs.ktor.server.core)
+    implementation(libs.caffeine)
 }

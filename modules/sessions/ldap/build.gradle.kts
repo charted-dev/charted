@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,9 +20,9 @@ plugins {
 }
 
 dependencies {
-    implementation("com.unboundid:unboundid-ldapsdk:6.0.7")
-    implementation(project(":databases:postgres"))
+    implementation(project(":modules:postgresql"))
     implementation(project(":modules:sessions"))
     implementation(project(":modules:redis"))
+    implementation(libs.unbound.ldap.sdk)
     implementation(libs.jwt)
 }

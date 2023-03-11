@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +24,7 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 
-public object ChartedScope : CoroutineScope {
+public object ChartedScope: CoroutineScope {
     override val coroutineContext: CoroutineContext =
         SupervisorJob() + Executors.newCachedThreadPool(createThreadFactory("Charted-CoroutineExecutor")).asCoroutineDispatcher()
 }

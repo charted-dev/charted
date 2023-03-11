@@ -1,6 +1,6 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright (c) 2022-2023 Noelware, LLC. <team@noelware.org>
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,8 +42,8 @@ public class MultiValidationException extends RuntimeException {
         final var builder = new StringBuilder();
         for (ValidationException ex : exceptions) {
             // [body.username] Username "noel" didn't follow validations.
-            builder.append("[").append(ex.getPath()).append("]");
-            builder.append(" ").append(ex.getValidationMessage()).append('\n');
+            builder.append("[").append(ex.path()).append("]");
+            builder.append(" ").append(ex.validationMessage()).append('\n');
         }
 
         return builder.toString();

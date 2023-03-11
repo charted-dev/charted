@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,14 +29,14 @@ import kotlinx.serialization.encodeToString
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.utils.IOUtils
+import org.noelware.charted.common.types.helm.ChartIndexSpec
+import org.noelware.charted.common.types.helm.ChartIndexYaml
+import org.noelware.charted.common.types.helm.ChartSpec
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.toApiBaseUrl
 import org.noelware.charted.configuration.kotlin.dsl.toCdnBaseUrl
-import org.noelware.charted.databases.postgres.models.Repository
-import org.noelware.charted.modules.storage.StorageHandler
-import org.noelware.charted.types.helm.ChartIndexSpec
-import org.noelware.charted.types.helm.ChartIndexYaml
-import org.noelware.charted.types.helm.ChartSpec
+import org.noelware.charted.models.repositories.Repository
+import org.noelware.charted.modules.storage.StorageModule
 import org.noelware.remi.support.filesystem.FilesystemStorageService
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -49,7 +49,7 @@ private val allowedFilesRegex = """(Chart.lock|Chart.ya?ml|values.ya?ml|[.]helmi
 private val exemptedFiles = listOf("values.schema.json")
 
 class DefaultHelmChartModule(
-    private val storage: StorageHandler,
+    private val storage: StorageModule,
     private val config: Config,
     private val yaml: Yaml
 ) : HelmChartModule {

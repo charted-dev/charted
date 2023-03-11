@@ -19,19 +19,24 @@
     <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
     <conversionRule
         conversionWord="logLevel"
-        converterClass="org.noelware.charted.logback.composite.LogLevelColorComposite"
+        converterClass="org.noelware.charted.modules.logging.composites.LogLevelComposite"
     />
 
     <conversionRule
         conversionWord="threadName"
-        converterClass="org.noelware.charted.logback.composite.ThreadNameComposite"
+        converterClass="org.noelware.charted.modules.logging.composites.ThreadNameComposite"
+    />
+
+    <conversionRule
+        conversionWord="mdc"
+        converterClass="org.noelware.charted.modules.logging.composites.MdcComposite"
     />
 
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <if condition='isDefined("charted.console.json")'>
             <then>
                 <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-                    <layout class="org.noelware.charted.logback.json.ClassicLogbackJsonLayout">
+                    <layout class="org.noelware.charted.modules.logging.json.ClassicJsonLayout">
                         <if condition='isDefined("charted.console.json.pretty")'>
                             <then>
                                 <prettyPrint>${charted.console.json.pretty}</prettyPrint>
@@ -64,7 +69,7 @@
                 <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
                     <charset>utf-8</charset>
                     <pattern>
-                        [%d{yyyy-MM-dd @ HH:mm:ss.SSS, +10}] %boldCyan([%-38threadName]) %logLevel([%level]) [%-48logger{36}] :: %msg%n
+                        [%d{yyyy-MM-dd @ HH:mm:ss.SSS, +10}] %boldCyan([%-48threadName]) %logLevel([%5level]) [%-48logger{36}] %mdc :: %msg%n
                     </pattern>
                 </encoder>
             </else>

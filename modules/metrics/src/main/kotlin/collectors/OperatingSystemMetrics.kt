@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,8 +40,8 @@ data class OperatingSystemMetrics(
     val distro: String? = null,
     val arch: String,
     val name: String
-) : org.noelware.analytics.jvm.server.serialization.Serializable {
-    class Collector : org.noelware.charted.modules.metrics.Collector<OperatingSystemMetrics>, io.prometheus.client.Collector() {
+): org.noelware.analytics.jvm.server.serialization.Serializable {
+    class Collector: org.noelware.charted.modules.metrics.Collector<OperatingSystemMetrics>, io.prometheus.client.Collector() {
         override val name: String = "os"
 
         private val os = ManagementFactory.getOperatingSystemMXBean()

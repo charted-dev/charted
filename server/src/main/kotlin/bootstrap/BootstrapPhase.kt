@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,14 +20,24 @@ package org.noelware.charted.server.bootstrap
 import java.io.File
 
 /**
- * Represents a phase when bootstrapping charted-server. This was only made to put pieces
- * together (i.e, add hooks then collect what modules to add, etc).
+ * Represents a phase when bootstrapping the API server.
+ *
+ * ## Phases
+ * [PreinitPhase] ~> [ConfigureModulesPhase] ~> [StartServerPhase] ~> (killed if exited) [ShutdownPhaseThread]
  */
 abstract class BootstrapPhase {
-    abstract suspend fun bootstrap(configPath: File)
+    /**
+     * Runs through the bootstrap phase and calls the next one in line.
+     */
+    abstract suspend fun phaseThrough(config: File)
     companion object {
+        /**
+         * List of all the [bootstrap phases][BootstrapPhase] available. This should
+         * be in chronological order.
+         */
+        @JvmStatic
         val PHASES: List<BootstrapPhase> = listOf(
-            OnStartPhase,
+            PreinitPhase,
             ConfigureModulesPhase,
             StartServerPhase,
         )

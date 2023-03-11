@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,13 +33,13 @@ data class JvmProcessInfoMetrics(
     @SerialName("start_time")
     val startTime: Instant,
     val pid: Long
-) : org.noelware.analytics.jvm.server.serialization.Serializable {
+): org.noelware.analytics.jvm.server.serialization.Serializable {
     override fun toGrpcValue(): Value = Struct {
         put(this, JvmProcessInfoMetrics::startTime)
         put(this, JvmProcessInfoMetrics::pid)
     }.toGrpcValue()
 
-    class Collector : org.noelware.charted.modules.metrics.Collector<JvmProcessInfoMetrics>, io.prometheus.client.Collector() {
+    class Collector: org.noelware.charted.modules.metrics.Collector<JvmProcessInfoMetrics>, io.prometheus.client.Collector() {
         private val current: ProcessHandle
             get() = ProcessHandle.current()
 

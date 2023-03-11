@@ -1,4 +1,4 @@
-# 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+# 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
 # Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,14 +23,3 @@ exclude:
     # In most cases, it's usually on the File class, which can
     # be safely ignored.
     - name: IgnoreResultOfCall
-
-    # Since Gradle's version catalog is incubating, it doesn't feel right
-    # for this to be enabled in settings.gradle.kts
-    - name: UnstableApiUsage
-      paths:
-          - settings.gradle.kts
-
-    # Disable this since I am too lazy to fix this.
-    - name: PackageDirectoryMismatch
-      paths:
-          - modules/docker-registry

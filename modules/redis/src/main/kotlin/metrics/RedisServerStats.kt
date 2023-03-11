@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,7 +46,7 @@ data class RedisServerStats(
     val version: String,
     val mode: String,
     val ping: Long
-) : org.noelware.analytics.jvm.server.serialization.Serializable {
+): org.noelware.analytics.jvm.server.serialization.Serializable {
     override fun toGrpcValue(): Value = Struct {
         put(this, RedisServerStats::totalConnectionsReceived)
         put(this, RedisServerStats::totalCommandsProcessed)

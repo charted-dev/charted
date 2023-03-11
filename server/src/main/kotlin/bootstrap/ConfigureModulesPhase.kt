@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,103 +39,84 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.DatabaseConfig
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import org.noelware.charted.ChartedInfo
-import org.noelware.charted.configuration.host.ConfigurationHost
-import org.noelware.charted.configuration.kotlin.dsl.sessions.SessionType
-import org.noelware.charted.configuration.kotlin.host.KotlinScriptHost
+import org.noelware.charted.Server
+import org.noelware.charted.common.extensions.formatting.doFormatTime
+import org.noelware.charted.configuration.ConfigurationHost
+import org.noelware.charted.configuration.kotlin.host.KotlinScriptConfigurationHost
 import org.noelware.charted.configuration.yaml.YamlConfigurationHost
-import org.noelware.charted.databases.clickhouse.ClickHouseConnection
-import org.noelware.charted.databases.clickhouse.DefaultClickHouseConnection
-import org.noelware.charted.databases.postgres.createOrUpdateEnums
-import org.noelware.charted.databases.postgres.metrics.PostgreSQLMetricsCollector
-import org.noelware.charted.databases.postgres.tables.*
-import org.noelware.charted.extensions.doFormatTime
-import org.noelware.charted.modules.analytics.AnalyticsDaemon
-import org.noelware.charted.modules.apikeys.ApiKeyManager
-import org.noelware.charted.modules.apikeys.DefaultApiKeyManager
-import org.noelware.charted.modules.avatars.avatarsModule
-import org.noelware.charted.modules.elasticsearch.DefaultElasticsearchModule
-import org.noelware.charted.modules.elasticsearch.ElasticsearchModule
-import org.noelware.charted.modules.elasticsearch.metrics.ElasticsearchStats
-import org.noelware.charted.modules.email.DefaultEmailService
-import org.noelware.charted.modules.email.EmailService
+import org.noelware.charted.modules.avatars.AvatarModule
+import org.noelware.charted.modules.avatars.DefaultAvatarModule
+import org.noelware.charted.modules.emails.DefaultEmailService
+import org.noelware.charted.modules.emails.EmailService
 import org.noelware.charted.modules.helm.charts.DefaultHelmChartModule
 import org.noelware.charted.modules.helm.charts.HelmChartModule
-import org.noelware.charted.modules.metrics.collectors.JvmProcessInfoMetrics
-import org.noelware.charted.modules.metrics.collectors.JvmThreadsMetrics
-import org.noelware.charted.modules.metrics.collectors.OperatingSystemMetrics
 import org.noelware.charted.modules.metrics.disabled.DisabledMetricsSupport
 import org.noelware.charted.modules.metrics.prometheus.PrometheusMetricsSupport
+import org.noelware.charted.modules.postgresql.asyncTransaction
+import org.noelware.charted.modules.postgresql.createOrUpdateEnums
+import org.noelware.charted.modules.postgresql.metrics.PostgresServerStats
+import org.noelware.charted.modules.postgresql.tables.*
 import org.noelware.charted.modules.redis.DefaultRedisClient
 import org.noelware.charted.modules.redis.RedisClient
-import org.noelware.charted.modules.redis.metrics.RedisMetricsCollector
-import org.noelware.charted.modules.sessions.SessionManager
-import org.noelware.charted.modules.sessions.ldap.LDAPSessionManager
+import org.noelware.charted.modules.sessions.AbstractSessionManager
 import org.noelware.charted.modules.sessions.local.LocalSessionManager
-import org.noelware.charted.modules.storage.DefaultStorageHandler
-import org.noelware.charted.modules.storage.StorageHandler
-import org.noelware.charted.server.ChartedServer
-import org.noelware.charted.server.endpoints.v1.endpointsModule
-import org.noelware.charted.server.internal.DefaultChartedServer
-import org.noelware.charted.server.internal.analytics.ChartedAnalyticsExtension
-import org.noelware.charted.server.internal.metrics.ServerInfoMetricsCollector
-import org.noelware.charted.server.internal.sideLoadOtelJavaAgent
-import org.noelware.charted.server.logging.KoinLogger
+import org.noelware.charted.modules.storage.DefaultStorageModule
+import org.noelware.charted.modules.storage.StorageModule
+import org.noelware.charted.server.internal.DefaultServer
+import org.noelware.charted.server.routing.routingModule
 import org.noelware.charted.snowflake.Snowflake
+import org.slf4j.MDC
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
 import java.io.File
 import kotlin.time.Duration.Companion.seconds
 
-object ConfigureModulesPhase : BootstrapPhase() {
+object ConfigureModulesPhase: BootstrapPhase() {
     private val log by logging<ConfigureModulesPhase>()
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override suspend fun bootstrap(configPath: File) {
+    override suspend fun phaseThrough(@Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE") configFile: File) {
+        MDC.put("bootstrap.phase", "configure modules")
+
         val yaml = Yaml(
             EmptySerializersModule(),
             YamlConfiguration(
-                encodeDefaults = true,
                 strictMode = true,
             ),
         )
 
-        val configHost: ConfigurationHost = if (listOf("yaml", "yml").contains(configPath.extension)) {
-            YamlConfigurationHost(yaml)
-        } else if (configPath.extension.contains("kts")) {
-            KotlinScriptHost
-        } else {
-            throw IllegalStateException("Unable to determine which configuration host to use")
+        // Determine the configuration host to... actually load the configuration
+        // file.
+        val configHost: ConfigurationHost = when {
+            listOf("yaml", "yml").contains(configFile.extension) -> YamlConfigurationHost(yaml)
+            configFile.extension.contains("kts") -> KotlinScriptConfigurationHost
+            else -> throw IllegalStateException("Unable to determine what configuration host to use")
         }
 
         val sw = StopWatch.createStarted()
-        val realPath = withContext(Dispatchers.IO) {
-            configPath.toPath().toRealPath()
+        val realConfigPath = withContext(Dispatchers.IO) {
+            configFile.toPath().toRealPath()
         }
 
-        log.info("Loading configuration from path [$realPath]")
-        val config = configHost.load(realPath.toString())
-            ?: throw IllegalStateException("Unable to load configuration in path [$realPath]")
+        log.info("Loading configuration file from path [$realConfigPath]")
+        val config = configHost.load(configFile)
 
-        sw.suspend()
-        log.info("Loaded configuration in [${sw.doFormatTime()}], configuring PostgreSQL...")
-
-        sw.resume()
         DebugProbes.enableCreationStackTraces = config.debug
         DebugProbes.install()
 
-        if (config.tracing != null) {
-            sideLoadOtelJavaAgent()
-        }
+        sw.suspend()
+        log.info("Loaded configuration in [${sw.doFormatTime()}], configuring PostgreSQL connection...")
+
+        sw.resume()
 
         val ds = HikariDataSource(
             HikariConfig().apply {
                 leakDetectionThreshold = 30.seconds.inWholeMilliseconds
                 driverClassName = "org.postgresql.Driver"
                 isAutoCommit = false
-                poolName = "Postgres-HikariPool"
+                poolName = "Charted-Postgres-HikariPool"
                 username = config.database.username
                 password = config.database.password
                 jdbcUrl = "jdbc:postgresql://${config.database.host}:${config.database.port}/${config.database.database}"
@@ -158,40 +139,38 @@ object ConfigureModulesPhase : BootstrapPhase() {
         )
 
         sw.suspend()
-        log.info("Connected to PostgreSQL in [${sw.doFormatTime()}], running migrations...")
-        sw.resume()
+        log.info("Connected to PostgreSQL in [${sw.doFormatTime()}], running pending migrations...")
 
-        transaction {
+        sw.resume()
+        asyncTransaction {
             createOrUpdateEnums()
             SchemaUtils.createMissingTablesAndColumns(
-                ApiKeysTable,
+                ApiKeyTable,
                 OrganizationTable,
                 OrganizationMemberTable,
                 RepositoryTable,
                 RepositoryMemberTable,
-                RepositoryReleasesTable,
+                RepositoryReleaseTable,
                 UserTable,
                 UserConnectionsTable,
             )
         }
 
         sw.suspend()
-        log.info("Ran all migrations in [${sw.doFormatTime()}]")
+        log.info("Ran all migrations in [${sw.doFormatTime()}], configuring Redis...")
 
         if (config.sentryDsn != null) {
-            log.info("Enabling Sentry due to [config.sentryDsn] was set")
+            log.debug("Enabling Sentry with DSN [${config.sentryDsn}]")
             Sentry.init {
                 it.release = "charted-server v${ChartedInfo.version}+${ChartedInfo.commitHash}"
                 it.dsn = config.sentryDsn
             }
-
-            log.info("Sentry is now enabled!")
         }
 
         val redis = DefaultRedisClient(config.redis)
         redis.connect()
 
-        val storage = DefaultStorageHandler(config.storage)
+        val storage = DefaultStorageModule(config.storage)
         storage.init()
 
         val json = Json {
@@ -200,118 +179,68 @@ object ConfigureModulesPhase : BootstrapPhase() {
             isLenient = true
         }
 
-        // epoch is Dec 1st, 2022
-        val snowflake = Snowflake(0, 1669791600000)
+        // 1677654000000 = March 1st, 2023
+        val snowflake = Snowflake(0, 1677654000000)
         val argon2 = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8()
-        val apiKeyManager = DefaultApiKeyManager(redis)
-        val sessions: SessionManager = when (config.sessions.type) {
-            SessionType.Local -> LocalSessionManager(argon2, redis, json, config)
-            SessionType.LDAP -> LDAPSessionManager(redis, json, config)
-            else -> throw IllegalStateException("Session type [${config.sessions.type}] is unsupported")
-        }
-
         val metrics = if (config.metrics.enabled) {
             PrometheusMetricsSupport(ds)
         } else {
             DisabledMetricsSupport()
         }
 
-        metrics.add(RedisMetricsCollector(redis, config.metrics))
-        metrics.add(PostgreSQLMetricsCollector(config))
-        metrics.add(JvmThreadsMetrics.Collector())
-        metrics.add(JvmProcessInfoMetrics.Collector())
-        metrics.add(OperatingSystemMetrics.Collector())
-        metrics.add(ServerInfoMetricsCollector)
+        metrics.add(PostgresServerStats.Collector(config))
+
+        val httpClient = HttpClient(Java) {
+            install(ContentNegotiation) {
+                this.json(json)
+            }
+        }
 
         val koinModule = module {
+            single<AbstractSessionManager> { LocalSessionManager(json, config, redis, argon2) }
             single<HelmChartModule> { DefaultHelmChartModule(storage, config, yaml) }
             single { EmailValidator.getInstance(true, true) }
-            single<StorageHandler> { storage }
-            single<ChartedServer> { DefaultChartedServer(config) }
-            single<ApiKeyManager> { apiKeyManager }
+            single<AvatarModule> { DefaultAvatarModule(storage, httpClient) }
+            single<StorageModule> { storage }
             single<RedisClient> { redis }
+            single<Server> { DefaultServer(config) }
+            single { httpClient }
             single { snowflake }
-            single { sessions }
             single { argon2 }
             single { config }
             single { yaml }
             single { json }
             single { ds }
-
-            single {
-                HttpClient(Java) {
-                    install(ContentNegotiation) {
-                        this.json(json)
-                    }
-                }
-            }
         }
 
-        val modules = mutableListOf(*endpointsModule.toTypedArray(), avatarsModule, koinModule)
-        if (config.search != null) {
-            if (config.search!!.elasticsearch != null) {
-                val elasticsearch = DefaultElasticsearchModule(config, json)
-                elasticsearch.connect()
-                if (config.metrics.enabled) {
-                    val collector = ElasticsearchStats.Collector(elasticsearch, config)
-                    metrics.add(collector)
-                }
+        val modules = mutableListOf(
+            *routingModule.toTypedArray(),
+            koinModule,
+        )
 
-                modules.add(
-                    module {
-                        single<ElasticsearchModule> { elasticsearch }
-                    },
-                )
-            }
-        }
-
-        if (config.clickhouse != null) {
-            val clickhouse = DefaultClickHouseConnection(config.clickhouse!!)
-            clickhouse.connect()
-
-            modules.add(
-                module {
-                    single<ClickHouseConnection> { clickhouse }
-                },
-            )
-        }
-
-        if (config.analytics != null) {
-            val daemon = AnalyticsDaemon(json, config.analytics!!, ChartedAnalyticsExtension(metrics))
-            modules.add(
-                module {
-                    single { daemon }
-                },
-            )
-        }
-
-        if (config.emailsEndpoint != null) {
-            log.info("Creating emails gRPC service...")
+        if (config.emailsGrpcEndpoint != null) {
+            log.debug("Configuring emails gRPC microservice with URI [${config.emailsGrpcEndpoint}]")
             val service = DefaultEmailService(config)
 
-            log.info("Pinging emails gRPC service...")
             val ok = service.ping()
-            if (!ok) log.warn("Unable to ping emails gRPC with endpoint [${config.emailsEndpoint}], this might not work correctly!")
+            if (!ok) log.warn("Unable to ping gRPC endpoint, this might not work correctly!")
 
             modules.add(
                 module {
-                    single<EmailService> {
-                        service
-                    }
+                    single<EmailService> { service }
                 },
             )
         }
 
         modules.add(
             module {
-                single {
-                    metrics
-                }
+                single { metrics }
             },
         )
 
+        // remove it so the koin logger doesn't inherit this
+        MDC.remove("bootstrap.phase")
         startKoin {
-            logger(KoinLogger)
             modules(*modules.toTypedArray())
         }
     }

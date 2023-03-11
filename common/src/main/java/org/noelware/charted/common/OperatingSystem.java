@@ -1,6 +1,6 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright (c) 2022-2023 Noelware, LLC. <team@noelware.org>
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,47 +20,77 @@ package org.noelware.charted.common;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents the current host operating system.
- *
- * @since 11.07.2022
- * @author Noel <cutie@floofy.dev>
+ * Represents the host operating system.
  */
 public enum OperatingSystem {
     WINDOWS,
+    LINUX,
     MACOS,
-    LINUX;
+    UNSUPPORTED;
 
-    /** Returns the current operating system. */
-    public static @NotNull OperatingSystem current() {
-        final String os = System.getProperty("os.name", "");
+    /**
+     * @return the host operating system, never null
+     */
+    @NotNull
+    public static OperatingSystem current() {
+        final String os = System.getProperty("os.name");
+        if (os.equals("Linux")) return LINUX;
+        if (os.equals("Mac OS X")) return MACOS;
         if (os.startsWith("Windows")) return WINDOWS;
-        if (os.startsWith("Mac")) return MACOS;
-        if (os.startsWith("Linux")) return LINUX;
 
-        throw new IllegalStateException("Unknown architecture [%s]".formatted(os));
+        return UNSUPPORTED;
     }
 
+    /**
+     * @return the host architecture's prettified name, never null
+     */
+    @NotNull
+    public String getName() {
+        return switch (this) {
+            case UNSUPPORTED -> "unsupported";
+            case WINDOWS -> "windows";
+            case MACOS -> "macos";
+            case LINUX -> "linux";
+        };
+    }
+
+    /**
+     * @return whether if the host os is unsupported
+     */
+    public boolean isUnsupported() {
+        return this == UNSUPPORTED;
+    }
+
+    /**
+     * @return whether if the host os is Windows
+     */
     public boolean isWindows() {
-        return this == OperatingSystem.WINDOWS;
+        return this == WINDOWS;
     }
 
+    /**
+     * @return whether if the host os is macOS
+     */
     public boolean isMacOS() {
-        return this == OperatingSystem.MACOS;
+        return this == MACOS;
     }
 
+    /**
+     * @return whether if the host os is Linux
+     */
     public boolean isLinux() {
-        return this == OperatingSystem.LINUX;
+        return this == LINUX;
     }
 
+    /**
+     * @return whether if the host os is Unix-like
+     */
     public boolean isUnix() {
         return isLinux() || isMacOS();
     }
 
-    public String key() {
-        return switch (this) {
-            case WINDOWS -> "windows";
-            case LINUX -> "linux";
-            case MACOS -> "darwin";
-        };
+    @Override
+    public String toString() {
+        return "OperatingSystem(%s)".formatted(getName());
     }
 }

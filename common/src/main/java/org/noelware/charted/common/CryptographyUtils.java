@@ -1,6 +1,6 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright (c) 2022-2023 Noelware, LLC. <team@noelware.org>
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,16 +95,5 @@ public class CryptographyUtils {
         assert digest != null : "Digest was not found.";
 
         return doHexHash(digest, text.getBytes());
-    }
-
-    public static boolean safeTimeEquals(byte[] expected, byte[] actual) {
-        if (expected.length != actual.length) return false;
-
-        var result = 0;
-        for (var i = 0; i < expected.length; i++) {
-            result |= expected[i] ^ actual[i];
-        }
-
-        return result == 0;
     }
 }

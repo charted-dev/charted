@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,7 +31,7 @@ import org.noelware.charted.modules.metrics.default.DefaultMetricsSupport
 import java.io.Writer
 import kotlin.reflect.KClass
 
-class PrometheusMetricsSupport(dataSource: HikariDataSource) : MetricsSupport {
+class PrometheusMetricsSupport(dataSource: HikariDataSource): MetricsSupport {
     private val _delegate: MetricsSupport = DefaultMetricsSupport()
     private val registry: CollectorRegistry = CollectorRegistry()
     private val log by logging<PrometheusMetricsSupport>()
@@ -54,12 +54,12 @@ class PrometheusMetricsSupport(dataSource: HikariDataSource) : MetricsSupport {
         if (collector is io.prometheus.client.Collector) {
             registry.register(collector)
         } else {
-            log.warn("Collector $collector doesn't implement [io.prometheus.client.Collector], collector might not be available in final Prometheus output!")
+            log.warn("Collector [${collector::class.simpleName}] doesn't implement [io.prometheus.client.Collector], collector might not be available in final Prometheus output!")
         }
     }
 
     override suspend fun collect(): Map<String, Any> = _delegate.collect()
-    override suspend fun <U : Any> collectFrom(collector: KClass<Collector<U>>): U? = _delegate.collectFrom(collector)
+    override suspend fun <U: Any> collectFrom(collector: KClass<Collector<U>>): U? = _delegate.collectFrom(collector)
 
-    fun <W : Writer> writeIn(writer: W): Unit = TextFormat.write004(writer, registry.metricFamilySamples())
+    fun <W: Writer> writeIn(writer: W): Unit = TextFormat.write004(writer, registry.metricFamilySamples())
 }

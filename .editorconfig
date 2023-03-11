@@ -1,4 +1,4 @@
-# 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+# 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
 # Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,14 +16,15 @@
 root = true
 
 [*]
+indent_size = 4
+end_of_line = lf
 charset = utf-8
 indent_style = space
 insert_final_newline = true
 trim_trailing_whitespace = true
+max_line_length = 120
 
 [*.{kt,kts}]
-indent_size = 4
-end_of_line = lf
 ij_kotlin_allow_trailing_comma = false
 ktlint_standard = enabled
 ktlint_experimental = enabled
@@ -40,6 +41,4 @@ ktlint_standard_annotation-spacing = disabled
 ktlint_standard_filename = disabled
 ktlint_standard_no-wildcard-imports = disabled
 ktlint_standard_argument-list-wrapping = disabled
-
-[*.{json,yaml,yml,md}]
-indent_size = 2
+max_line_length = off

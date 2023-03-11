@@ -1,6 +1,6 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright (c) 2022-2023 Noelware, LLC. <team@noelware.org>
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,23 @@ public interface Lazy<T> {
      * @param <T> Resolvent type.
      */
     static <T> Lazy<T> create(Lazy<T> provider) {
-        return new LazyImpl<>(provider);
+        return new Lazy<>() {
+            private static final Object UNINIT = new Object();
+            private static volatile Object _value = UNINIT;
+
+            private final Object MUTEX = new Object();
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public T get() {
+                synchronized (MUTEX) {
+                    if (_value == UNINIT) {
+                        _value = provider.get();
+                    }
+                }
+
+                return (T) _value;
+            }
+        };
     }
 }

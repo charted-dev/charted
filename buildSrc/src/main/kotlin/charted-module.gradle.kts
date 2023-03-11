@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,32 +19,28 @@ import dev.floofy.utils.gradle.*
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.noelware.charted.gradle.*
-import org.noelware.infra.gradle.Licenses
+import kotlin.jvm.optionals.getOrNull
 
 plugins {
-    id("org.noelware.gradle.kotlin")
-    id("org.noelware.gradle.java")
     kotlin("plugin.serialization")
+    id("com.diffplug.spotless")
     id("kotlinx-atomicfu")
-}
+    kotlin("jvm")
 
-// https://github.com/Kotlin/kotlinx-atomicfu/issues/210
-atomicfu {
-    val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-    dependenciesVersion = libs.findVersion("kotlinx-atomicfu").get().requiredVersion
+    java
 }
 
 group = "org.noelware.charted"
 version = "$VERSION"
 description = "\uD83D\uDCE6 You know, for Helm Charts?"
 
-noelware {
-    minimumJavaVersion by JAVA_VERSION
-    projectDescription by "Free, open source, and reliable Helm Chart registry made in Kotlin."
-    projectEmoji by "\uD83D\uDCE6"
-    projectName by "charted-server"
-    currentYear by "2022-2023"
-    license by Licenses.APACHE
+val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+fun VersionCatalog.version(name: String): String = libs.findVersion(name).getOrNull()?.requiredVersion ?: error("Unknown version for catalog '$name' exists!")
+fun VersionCatalog.get(name: String): MinimalExternalModuleDependency = libs.findLibrary(name).getOrNull()?.get() ?: error("Unknown library '$name' in catalog")
+
+// https://github.com/Kotlin/kotlinx-atomicfu/issues/210
+atomicfu {
+    dependenciesVersion = libs.version("kotlinx-atomicfu")
 }
 
 repositories {
@@ -61,24 +57,63 @@ dependencies {
     implementation(kotlin("stdlib"))
 
     // Java Annotations (only for Java usage)
-    implementation("org.jetbrains:annotations:24.0.0")
+    implementation(libs.get("jetbrains-annotations"))
 
     // Test Dependencies
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
-    testImplementation("org.testcontainers:testcontainers:1.17.6")
-    testImplementation("org.testcontainers:junit-jupiter:1.17.6")
-    testImplementation("org.slf4j:slf4j-simple:2.0.6")
-    testImplementation(project(":test:containers"))
+    testImplementation(libs.get("testcontainers-junit"))
+    testImplementation(libs.get("junit-jupiter-engine"))
+    testImplementation(libs.get("testcontainers-core"))
+    testImplementation(project(":testing:containers"))
+    testImplementation(libs.get("junit-jupiter-api"))
+    testImplementation(libs.get("slf4j-simple"))
     testImplementation(kotlin("test"))
 
+    // Add the `:common` module to all projects that aren't :common
     if (name != "common") {
         implementation(project(":common"))
-        if (path != ":modules:config:dsl") {
-            implementation(project(":modules:config:dsl"))
+
+        // Include the configuration DSL if we aren't :common OR :config:dsl
+        if (path != ":config:dsl") {
+            implementation(project(":config:dsl"))
         }
     }
+
+    // Add common libraries that are used through out all projects
+    // kotlinx.serialization
+    api(libs.get("kotlinx-serialization-core"))
+    api(libs.get("kotlinx-serialization-json"))
+
+    // kotlinx.coroutines
+    api(libs.get("kotlinx-coroutines-core"))
+    api(libs.get("kotlinx-coroutines-jdk8"))
+
+    // kotlinx.datatime
+    api(libs.get("kotlinx-datetime"))
+
+    // SLF4J
+    api(libs.get("slf4j-api"))
+
+    // Noel's Utilities
+    api(libs.get("noel-commons-extensions-kotlin"))
+    api(libs.get("noel-commons-extensions-koin"))
+    api(libs.get("noel-commons-java-utils"))
+    api(libs.get("noel-commons-slf4j"))
+
+    // Apache Utilities
+    api(libs.get("apache-commons-lang3"))
+
+    // Sentry
+    api(libs.get("sentry-kotlin-extensions"))
+    api(libs.get("sentry"))
+
+    // Bouncycastle
+    api(libs.get("bouncycastle"))
+
+    // Snowflake
+    api(libs.get("snowflake"))
 }
+
+applySpotless()
 
 // This will transform the project path:
 //

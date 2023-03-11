@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,13 +20,12 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":databases:postgres"))
+    implementation(project(":modules:postgresql"))
     implementation(project(":modules:storage"))
 
     implementation(libs.apache.commons.compress)
     implementation(libs.ktor.server.core)
+    implementation(libs.remi.storage.fs)
+    implementation(libs.remi.core)
     implementation(libs.kaml)
-
-    testImplementation(libs.testcontainers.k3s)
-    testImplementation(libs.kubernetes.client)
 }

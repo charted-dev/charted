@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ package org.noelware.charted.modules.metrics
 /**
  * Represents a collector that collects anything represented as [T].
  */
-interface Collector<T : Any> {
+interface Collector<T: Any> {
     /**
      * The collector's name
      */

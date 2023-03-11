@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,9 +19,9 @@ package org.noelware.charted.modules.avatars
 
 import io.ktor.http.*
 import io.ktor.http.content.*
-import org.noelware.charted.databases.postgres.models.Organization
-import org.noelware.charted.databases.postgres.models.Repository
-import org.noelware.charted.databases.postgres.models.User
+import org.noelware.charted.models.organizations.Organization
+import org.noelware.charted.models.repositories.Repository
+import org.noelware.charted.models.users.User
 
 /**
  * Represents the module for handling avatars from different sources.

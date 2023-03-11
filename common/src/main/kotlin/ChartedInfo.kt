@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,18 +18,23 @@
 package org.noelware.charted
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.jsonPrimitive
 
+/**
+ * Represents metadata about the API server
+ */
 @OptIn(ExperimentalSerializationApi::class)
 public object ChartedInfo {
     /**
      * Returns the current distribution type that the server is running from.
      */
     @JvmStatic
-    public val distribution: DistributionType = DistributionType.fromSystemProperty()
+    public val distribution: Distribution = Distribution.fromSystemProperty()
 
     /**
      * Returns the current version that the server is running from.
@@ -82,5 +87,63 @@ public object ChartedInfo {
         commitHash = data["commit.sha"]?.jsonPrimitive?.content ?: error("Unable to retrieve the `commit.sha` key from build-info.json file")
         buildDate = data["build.date"]?.jsonPrimitive?.content ?: error("Unable to retrieve the `build.date` key from the build-info.json file")
         version = data["version"]?.jsonPrimitive?.content ?: error("Unable to retrieve the `version` key from the build-info.json file")
+    }
+
+    /**
+     * Represents the distribution that the server was distributed from.
+     * @param key The key to retrieve the enumeration member.
+     */
+    @Serializable
+    public enum class Distribution(public val key: String) {
+        /**
+         * Distribution type is running on a Kubernetes cluster
+         */
+        @SerialName("kubernetes")
+        KUBERNETES("kubernetes"),
+
+        /**
+         * The distribution type is unknown or was an invalid distribution type. Be cautious!
+         */
+        @SerialName("unknown")
+        UNKNOWN("unknown"),
+
+        /**
+         * The distribution type that represents the server is running in a Docker container.
+         */
+        @SerialName("docker")
+        DOCKER("docker"),
+
+        /**
+         * The distribution type that represents the server was pulled from the Yum package manager
+         * in a Fedora-based Linux distribution, maintained by Noelware.
+         */
+        @SerialName("rpm")
+        RPM("rpm"),
+
+        /**
+         * The distribution type that represents the server was pulled from the APT package manager
+         * in a Debian-based Linux distribution, maintained by Noelware.
+         */
+        @SerialName("deb")
+        DEB("deb"),
+
+        /**
+         * The distribution type that represents the server is running from the GitHub repository via
+         * `./gradlew :server:installDist` or `make run`.
+         */
+        @SerialName("git")
+        GIT("git");
+
+        override fun toString(): String = key
+        public companion object {
+            /**
+             * Finds the distribution type via the Java system properties. The server binary will
+             * implement this automatically, but it can be tampered, so be cautious!
+             */
+            public fun fromSystemProperty(): Distribution {
+                val property = System.getProperty("org.noelware.charted.distribution.type") ?: return UNKNOWN
+                return values().find { it.key == property } ?: UNKNOWN
+            }
+        }
     }
 }

@@ -36,7 +36,7 @@
 -   Organizations feature is now implemented ([@auguwu](https://github.com/auguwu))
 -   The api key scopes' bit values have been changed ([@auguwu](https://github.com/auguwu))
 -   OpenAPI definitions are now up-to-date ([@auguwu](https://github.com/auguwu))
--   CDN endpoints now support caching headers ([@auguwu](https://github.com/auguwu))
+-   CDN routing now support caching headers ([@auguwu](https://github.com/auguwu))
 
 ## API Key Scope Updates
 
@@ -176,7 +176,7 @@ This release comes with a few changes and dependency upgrades. v0.3-nightly shou
 
 ## Additions
 
--   OpenAPI support is available on the server, which you can access from `<server url>/openapi.json` or `<server url>/openapi.yaml`. Documentation for **charted-server** will be relied on the official instance for API endpoints and official SDKs for **charted-server** will exist around October to November 2022.
+-   OpenAPI support is available on the server, which you can access from `<server url>/openapi.json` or `<server url>/openapi.yaml`. Documentation for **charted-server** will be relied on the official instance for API routing and official SDKs for **charted-server** will exist around October to November 2022.
 -   Elastic APM tracing is supported, but it is very limiting. We do plan to support anything that supports the OpenTelemetry API.
 -   Images for the Cassandra database should be available from the `ghcr.io/charted-dev/charted/migrations` image, not sure!
 -   Generating instance UUIDs for Noelware Analytics can be disabled with the `CHARTED_NO_ANALYTICS` environment variable.

@@ -1,5 +1,5 @@
-# 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
-# Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
+# 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+# Copyright 2022-2023 Noelware <team@noelware.org>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,35 +13,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# This file was generated using a Kotlin DSL.
+# If you want to modify the workflow, please change the Kotlin source and regenerate this YAML file.
+# Generated with https://github.com/krzema12/github-workflows-kt
+
 name: Linting and Unit Testing
 on:
     workflow_dispatch: {}
     pull_request:
-        types: [opened, synchronize]
+        types:
+            - opened
+            - synchronize
         branches:
-            - 'issue/gh-**'
-            - 'feat/**'
+            - issue/gh-**
+            - feat/**
             - main
-
         paths-ignore:
-            - '.vscode/**'
-            - 'assets/**'
-            - .dockerignore
+            - .github/**
+            - .vscode/**
+            - assets/**
             - .gitignore
             - '**.md'
             - LICENSE
             - renovate.json
     push:
         branches:
-            - 'issue/gh-**'
-            - 'feat/**'
+            - issue/gh-**
+            - feat/**
             - main
-
         paths-ignore:
-            - '.github/**'
-            - '.vscode/**'
-            - 'assets/**'
-            - .dockerignore
+            - .github/**
+            - .vscode/**
+            - assets/**
             - .gitignore
             - '**.md'
             - LICENSE
@@ -52,88 +55,56 @@ jobs:
         runs-on: ${{matrix.runner}}
         strategy:
             matrix:
-                java-version: [17, 19]
-                runner: [windows-latest, ubuntu-latest, macos-latest, self-hosted]
+                java-version:
+                    - 17
+                    - 19
+                runner:
+                    - windows-latest
+                    - ubuntu-latest
+                    - macos-latest
+                    - self-hosted
         steps:
-            - name: Checkout repository
+            - id: step-0
+              name: Checkout repository
               uses: actions/checkout@v3
               with:
-                  submodules: recursive
-
-            - name: Setup Java ${{matrix.java-version}}
+                  submodules: true
+            - id: step-1
+              name: Setup Java ${{matrix.java-version}}
               uses: actions/setup-java@v3
               with:
                   java-version: ${{matrix.java-version}}
                   distribution: temurin
                   architecture: ${{matrix.runner == 'self-hosted' && 'aarch64' || 'amd64'}}
-
-            # Node.js is required for Spotless to install Prettier
-            - name: Setup Node.js v19.x
+            - id: step-2
+              name: Setup Node.js v19.x
               uses: actions/setup-node@v3
               with:
                   node-version: 19.x
-                  architecture: ${{matrix.runner == 'self-hosted' && 'arm64' || 'x64'}}
-
-            - name: Setup Gradle
+                  architecture: ${{matrix.runner == 'self-hosted' && 'aarch64' || 'amd64'}}
+            - id: step-3
+              name: Setup Gradle
               uses: gradle/gradle-build-action@v2
-
-            - name: Validate Gradle Wrapper
+            - id: step-4
+              name: Validate Gradle Wrapper
               uses: gradle/wrapper-validation-action@v1
-
-            - name: Lint code-base with Spotless
+            - id: step-5
+              name: Lint code-base with Spotless
               uses: gradle/gradle-build-action@v2
               with:
-                  arguments: spotlessCheck --no-daemon --scan
-
-            - name: Compiles Kotlin source sets
+                  arguments: spotlessCheck --scan
+            - id: step-6
+              name: Compiles Kotlin source sets
               uses: gradle/gradle-build-action@v2
               with:
-                  arguments: compileKotlin --no-daemon --scan
-
-            - name: Compiles Java source sets
+                  arguments: compileKotlin --scan
+            - id: step-7
+              name: Compiles Java source sets
               uses: gradle/gradle-build-action@v2
               with:
-                  arguments: compileJava --no-daemon --scan
-
-            - name: Run unit and integration tests
+                  arguments: compileJava --scan
+            - id: step-8
+              name: Run unit and integration tests
               uses: gradle/gradle-build-action@v2
               with:
-                  arguments: test --no-daemon --scan
-    goci:
-        name: ClickHouse Migrations CI
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v3
-              with:
-                  submodules: recursive
-
-            - name: Setup Go 1.20
-              uses: actions/setup-go@v3
-              with:
-                  go-version: 1.20.x
-
-            - name: Cache Go modules
-              uses: actions/cache@v3
-              with:
-                  path: |
-                      ~/go/pkg/mod
-                      ~/.cache/go-build
-                  key: ${{ runner.os }}-ch-migrations-1.20.x-go-${{ hashFiles('**/go.sum') }}
-                  restore-keys: |
-                      ${{ runner.os }}-ch-migrations-1.20.x-go-
-
-            - name: Install dependencies
-              working-directory: ./databases/clickhouse/migrations
-              run: go mod download
-
-            - name: Lint with golangci
-              uses: golangci/golangci-lint-action@v3
-              with:
-                  github-token: ${{secrets.GITHUB_TOKEN}}
-                  skip-cache: false
-                  working-directory: ./databases/clickhouse/migrations
-                  args: --issues-exit-code=1
-                  only-new-issues: false
-                  skip-pkg-cache: true
-                  skip-build-cache: true
+                  arguments: test --scan

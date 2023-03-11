@@ -1,3 +1,0 @@
-storage:
-    filesystem:
-        directory: /var/lib/noelware/charted/data

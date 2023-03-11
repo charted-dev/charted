@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,13 +20,6 @@ plugins {
 }
 
 dependencies {
-    // Metrics module (so it can consume more data)
-    implementation(project(":modules:analytics:extensions"))
-    implementation(project(":modules:elasticsearch"))
-    implementation(project(":databases:postgres"))
-    implementation(project(":modules:metrics"))
-    implementation(project(":modules:redis"))
-
     // Noelware Analytics
     api(libs.noelware.analytics.server.kotlin.support)
     api(libs.noelware.analytics.server)

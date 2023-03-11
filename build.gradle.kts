@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,46 +32,7 @@ repositories {
     mavenLocal()
 }
 
-spotless {
-    predeclareDeps()
-    encoding("UTF-8")
-    format("prettier") {
-        target(
-            "**/*.json",
-            "**/*.yaml",
-            "**/*.yml",
-            "**/*.xml",
-            "**/*.md"
-        )
-
-        // Exclude all Helm templates, .idea files, and submodule
-        // in modules/emails/vendor
-        targetExclude(
-            "modules/emails/vendor/protos/.github/workflows/*.yaml",
-            "modules/emails/vendor/protos/.devcontainer/*.json",
-            "modules/emails/vendor/protos/.vscode/*.json",
-            "modules/emails/vendor/protos/.github/*.md",
-            "modules/emails/vendor/protos/*.json",
-            "modules/emails/vendor/protos/*.yaml",
-            "modules/emails/vendor/protos/*.yml",
-            "modules/emails/vendor/protos/*.xml",
-            "modules/emails/vendor/protos/*.md",
-
-            "distribution/chart/templates/configmap/*.yml",
-            "distribution/chart/templates/server/*.yml",
-            "distribution/chart/templates/*.yaml",
-            "distribution/chart/templates/*.yml",
-
-            ".idea/inspectionProfiles/*.xml",
-            ".idea/*.xml"
-        )
-
-        prettier(mapOf("prettier" to "2.8.4", "@prettier/plugin-xml" to "2.2.0")).apply {
-            configFile(file("$projectDir/.prettierrc.json"))
-        }
-    }
-}
-
+applyRootProjectSpotless()
 the<SpotlessExtensionPredeclare>().apply {
     kotlinGradle {
         ktlint()

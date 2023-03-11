@@ -1,5 +1,5 @@
-# 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
-# Copyright 2022 Noelware <team@noelware.org>
+# 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+# Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -7,7 +7,7 @@
 #
 #    http://www.apache.org/licenses/LICENSE-2.0
 #
-#  Unless required by applicable law or agreed to in writing, software
+# Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
@@ -52,13 +52,13 @@ function FindJavaFromRegistry {
 
 $DistributionType = [Environment]::GetEnvironmentVariable("CHARTED_DISTRIBUTION") ?? "local";
 $ResolvedJavaOpts = $(
-    "-Djava.awt.headless=true",
-    "-XX:+HeapDumpOnOutOfMemoryError",
-    "-XX:+ExitOnOutOfMemoryError",
-    "-XX:ErrorFile=logs/hs_err_pid%p.log",
-    "-XX:SurvivorRatio=8",
-    "-XX:UseSerialGC",
-    "-Dfile.encoding=UTF-8"
+"-Djava.awt.headless=true",
+"-XX:+HeapDumpOnOutOfMemoryError",
+"-XX:+ExitOnOutOfMemoryError",
+"-XX:ErrorFile=logs/hs_err_pid%p.log",
+"-XX:SurvivorRatio=8",
+"-XX:UseSerialGC",
+"-Dfile.encoding=UTF-8"
 )
 
 $JavaOpts = $ResolvedJavaOpts -join " "

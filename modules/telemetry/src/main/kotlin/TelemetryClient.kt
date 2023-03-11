@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,20 +17,25 @@
 
 package org.noelware.charted.modules.telemetry
 
-// You can view the source of the telemetry server: https://github.com/Noelware/telemetry
-const val TELEMETRY_SERVER: String = "https://telemetry.noelware.org"
+import io.ktor.client.*
+import io.ktor.client.request.*
+import org.noelware.charted.ChartedInfo
 
-/**
- * Represents a client for [Noelware Telemetry](https://telemetry.noelware.org) that is completely
- * opt-in and disabled by default
- */
-interface TelemetryClient {
-    /** Returns if this client is enabled or not. */
-    val enabled: Boolean
+const val TELEMETRY_URL: String = "https://telemetry.noelware.org/api"
 
-    /**
-     * Sends a telemetry packet to the server if it is enabled.
-     * @param packet The telemetry packet
-     */
-    suspend fun send(packet: TelemetryPacket)
+class TelemetryClient(private val httpClient: HttpClient) {
+    suspend fun <T> createEvent(event: String, data: T? = null) {
+        httpClient.post("$TELEMETRY_URL/track") {
+            setBody(
+                TelemetryPacket(
+                    ChartedInfo.distribution,
+                    ChartedInfo.buildDate,
+                    ChartedInfo.version,
+                    ChartedInfo.commitHash,
+                    event,
+                    data,
+                ),
+            )
+        }
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,17 +29,17 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
-import org.noelware.charted.RandomStringGenerator
 import org.noelware.charted.ValidationException
 import org.noelware.charted.common.CryptographyUtils
-import org.noelware.charted.databases.postgres.asyncTransaction
-import org.noelware.charted.databases.postgres.models.Organization
-import org.noelware.charted.databases.postgres.models.Repository
-import org.noelware.charted.databases.postgres.models.User
-import org.noelware.charted.databases.postgres.tables.OrganizationTable
-import org.noelware.charted.databases.postgres.tables.RepositoryTable
-import org.noelware.charted.databases.postgres.tables.UserTable
-import org.noelware.charted.modules.storage.StorageHandler
+import org.noelware.charted.models.organizations.Organization
+import org.noelware.charted.models.repositories.Repository
+import org.noelware.charted.models.users.User
+import org.noelware.charted.modules.postgresql.asyncTransaction
+import org.noelware.charted.modules.postgresql.tables.OrganizationTable
+import org.noelware.charted.modules.postgresql.tables.RepositoryTable
+import org.noelware.charted.modules.postgresql.tables.UserTable
+import org.noelware.charted.modules.storage.StorageModule
+import org.noelware.charted.utils.randomString
 import org.noelware.remi.support.filesystem.FilesystemStorageService
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -47,9 +47,9 @@ import java.io.File
 private val acceptableContentTypes: List<String> = listOf("png", "jpeg", "gif").map { "image/$it" }
 
 class DefaultAvatarModule(
-    private val storage: StorageHandler,
+    private val storage: StorageModule,
     private val httpClient: HttpClient
-) : AvatarModule {
+): AvatarModule {
     private val log by logging<DefaultAvatarModule>()
 
     init {
@@ -189,7 +189,7 @@ class DefaultAvatarModule(
             throw ValidationException("multipart.body.${part.originalFileName ?: "<unknown file>"}", "File was not the correct content type [${acceptableContentTypes.joinToString(", ")}], received [$contentType]")
         }
 
-        val hash = RandomStringGenerator.generate(8)
+        val hash = randomString(8)
         val ext = when {
             contentType.startsWith("image/jpg") || contentType.startsWith("image/jpeg") -> ".jpg"
             contentType.startsWith("image/png") -> ".png"

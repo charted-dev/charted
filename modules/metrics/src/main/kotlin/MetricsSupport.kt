@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,5 +45,5 @@ interface MetricsSupport {
      * @param collector Collector to use to collect the data.
      * @return Data represented as
      */
-    suspend fun <U : Any> collectFrom(collector: KClass<Collector<U>>): U?
+    suspend fun <U: Any> collectFrom(collector: KClass<Collector<U>>): U?
 }

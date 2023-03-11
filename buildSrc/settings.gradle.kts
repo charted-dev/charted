@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("UnstableApiUsage")
+import org.gradle.toolchains.foojay.FoojayToolchainsConventionPlugin
 
 pluginManagement {
     repositories {
@@ -23,6 +23,14 @@ pluginManagement {
     }
 }
 
-plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.4.0"
+buildscript {
+    repositories {
+        gradlePluginPortal()
+    }
+
+    dependencies {
+        classpath("org.gradle.toolchains:foojay-resolver:0.4.0")
+    }
 }
+
+apply<FoojayToolchainsConventionPlugin>()

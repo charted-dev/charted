@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,25 +19,21 @@
 
 package org.noelware.charted.cli
 
-import com.github.ajalt.clikt.completion.CompletionCommand
-import com.github.ajalt.clikt.core.*
+import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.options.versionOption
-import com.github.ajalt.mordant.rendering.TextColors.*
-import com.github.ajalt.mordant.rendering.TextStyles.*
 import com.github.ajalt.mordant.terminal.Terminal
 import org.noelware.charted.ChartedInfo
-import org.noelware.charted.cli.commands.*
-import org.noelware.charted.cli.commands.accounts.BaseAccountsCommand
-import kotlin.system.exitProcess
+import org.noelware.charted.cli.commands.ServerCommand
 
-private class ChartedCli(private val terminal: Terminal) : CliktCommand(
-    help = "Command line runner for managing charted-server",
+private class ChartedCli(private val terminal: Terminal): CliktCommand(
+    "Command line runner for managing charted-server",
     name = "charted",
     printHelpOnEmptyArgs = true,
     allowMultipleSubcommands = true,
 ) {
     init {
-        versionOption("${ChartedInfo.version}+${ChartedInfo.commitHash}") {
+        versionOption("${ChartedInfo.version}+${ChartedInfo.commitHash}", names = setOf("-v", "--version")) {
             """
             |charted-server v$it (build date: ${ChartedInfo.buildDate})
             |>> Website: https://charts.noelware.org
@@ -45,23 +41,12 @@ private class ChartedCli(private val terminal: Terminal) : CliktCommand(
             """.trimMargin("|")
         }
 
-        context {
-            findOrSetObject {
-                terminal
-            }
-        }
-
         subcommands(
-            CompletionCommand(name = "completions"),
-            ClickHouseMigrationsCommand(terminal),
-            GenerateConfigCommand(terminal),
-            BaseAccountsCommand(terminal),
-            OpenAPICommand(terminal),
             ServerCommand(terminal),
         )
     }
 
-    // It will print on help anyway, so we don't need to do anything fancy in here :D
+    // we will run the help command
     override fun run() {}
 }
 
@@ -72,8 +57,7 @@ fun main(args: Array<String>) {
     try {
         val cli = ChartedCli(terminal)
         cli.main(args)
-    } catch (e: Exception) {
+    } catch (e: Throwable) {
         e.printStackTrace()
-        exitProcess(1)
     }
 }

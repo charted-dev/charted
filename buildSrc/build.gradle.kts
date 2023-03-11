@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,9 +18,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    `java-gradle-plugin`
+    id("com.diffplug.spotless") version "6.16.0"
     `kotlin-dsl`
-    java
 }
 
 repositories {
@@ -33,28 +32,56 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.20.0")
-    implementation("com.diffplug.spotless:spotless-plugin-gradle:6.16.0")
+    implementation("com.diffplug.spotless:spotless-plugin-gradle:6.15.0")
     implementation("com.netflix.nebula:gradle-ospackage-plugin:11.0.0")
     implementation("com.google.protobuf:protobuf-gradle-plugin:0.9.2")
-    implementation("org.noelware.gradle:gradle-infra-plugin:1.3.0")
     implementation("dev.floofy.commons:gradle:2.5.0")
     implementation(kotlin("serialization", "1.8.10"))
     implementation(kotlin("gradle-plugin", "1.8.10"))
     implementation(gradleApi())
 }
 
-gradlePlugin {
-    plugins {
-        create("nebula") {
-            id = "org.noelware.charted.dist.nebula"
-            implementationClass = "org.noelware.charted.gradle.plugins.nebula.ChartedNebulaPlugin"
-        }
-    }
-}
-
 kotlin {
     jvmToolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
+spotless {
+    // For Kotlin and Kotlin (Gradle), we will need to move the license header
+    // as the last step due to https://github.com/diffplug/spotless/issues/1599
+    kotlin {
+        targetExclude("**/*.charted.kts")
+        endWithNewline()
+        encoding("UTF-8")
+        target("**/*.kt")
+        ktlint().apply {
+            setUseExperimental(true)
+            setEditorConfigPath(file("${rootProject.projectDir}/../.editorconfig"))
+        }
+
+        licenseHeaderFile(file("${rootProject.projectDir}/../assets/HEADING"))
+    }
+
+    kotlinGradle {
+        endWithNewline()
+        encoding("UTF-8")
+        target("**/*.gradle.kts")
+        ktlint().apply {
+            setUseExperimental(true)
+            setEditorConfigPath(file("${rootProject.projectDir}/../.editorconfig"))
+        }
+
+        licenseHeaderFile(file("${rootProject.projectDir}/../assets/HEADING"), "(package |@file|import |pluginManagement|plugins|rootProject.name)")
+    }
+
+    java {
+        licenseHeaderFile(file("${rootProject.projectDir}/../assets/HEADING"))
+        trimTrailingWhitespace()
+        removeUnusedImports()
+        palantirJavaFormat()
+        endWithNewline()
+        encoding("UTF-8")
     }
 }
 

@@ -1,6 +1,6 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
- * Copyright (c) 2022-2023 Noelware, LLC. <team@noelware.org>
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,30 @@
 
 package org.noelware.charted;
 
+import static java.lang.String.format;
+
 public class StringOverflowException extends ValidationException {
-    public StringOverflowException(String path, int maxSize, int length) {
+    private final int maxLength;
+    private final int len;
+
+    public StringOverflowException(String path, int maxLength, int len) {
         super(
                 path,
-                "String overflowed from %d characters, exceeded %d characters".formatted(maxSize, length - maxSize));
+                format(
+                        "String has exceeded to %d characters, need less than %d characters",
+                        maxLength, len - maxLength));
+
+        this.maxLength = maxLength;
+        this.len = len;
     }
 
-    public StringOverflowException(String path, int maxSize) {
-        super(
-                path,
-                String.format(
-                        "String overflowed from %d characters, exceeded %d characters",
-                        maxSize, path.length() - maxSize));
+    /** @return Length of the data scalar that was over the {@link #maxLength()} */
+    public int length() {
+        return len;
+    }
+
+    /** @return Maximum length to complete the overflowed data scalar */
+    public int maxLength() {
+        return maxLength;
     }
 }

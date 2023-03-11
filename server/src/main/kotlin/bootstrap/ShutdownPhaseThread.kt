@@ -1,5 +1,5 @@
 /*
- * 📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
  * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,41 +19,29 @@ package org.noelware.charted.server.bootstrap
 
 import com.zaxxer.hikari.HikariDataSource
 import dev.floofy.utils.koin.inject
-import dev.floofy.utils.koin.injectOrNull
 import dev.floofy.utils.slf4j.logging
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import org.koin.core.context.GlobalContext
 import org.noelware.charted.ChartedScope
-import org.noelware.charted.databases.clickhouse.ClickHouseConnection
-import org.noelware.charted.extensions.closeable.closeQuietly
-import org.noelware.charted.modules.analytics.AnalyticsDaemon
-import org.noelware.charted.modules.elasticsearch.ElasticsearchModule
+import org.noelware.charted.Server
+import org.noelware.charted.common.extensions.closeable.closeQuietly
 import org.noelware.charted.modules.redis.RedisClient
-import org.noelware.charted.modules.sessions.SessionManager
-import org.noelware.charted.server.ChartedServer
+import org.noelware.charted.modules.sessions.AbstractSessionManager
 
-object ShutdownPhaseThread : Thread("Server-ShutdownThread") {
+object ShutdownPhaseThread: Thread("Server-ShutdownPhaseThread") {
     private val log by logging<ShutdownPhaseThread>()
 
     override fun run() {
-        log.warn("API server is shutting down...")
+        log.warn("Closing server...")
 
         val koin = GlobalContext.getKoinApplicationOrNull()
         if (koin != null) {
-            val analyticsDaemon: AnalyticsDaemon? by injectOrNull()
-            val elasticsearch: ElasticsearchModule? by injectOrNull()
-            val clickhouse: ClickHouseConnection? by injectOrNull()
-            val sessions: SessionManager by inject()
+            val sessions: AbstractSessionManager by inject()
             val hikari: HikariDataSource by inject()
-            val server: ChartedServer by inject()
+            val server: Server by inject()
             val redis: RedisClient by inject()
 
-            // Stop the Analytics Protocol Daemon thread
-            StartServerPhase.analyticsDaemonThread?.interrupt()
-            analyticsDaemon?.closeQuietly()
-            elasticsearch?.closeQuietly()
-            clickhouse?.closeQuietly()
             sessions.closeQuietly()
             hikari.closeQuietly()
             redis.closeQuietly()

@@ -1,6 +1,0 @@
-xpack.security.authc.api_key.enabled: true
-xpack.monitoring.collection.enabled: true
-xpack.security.enabled: true
-cluster.name: charted-es-cluster
-network.host: 0.0.0.0
-node.name: charted-es-node
