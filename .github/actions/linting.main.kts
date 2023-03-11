@@ -81,9 +81,9 @@ val lintAndUnitWorkflow = workflow(
 
         // Node.js is required for Spotless to install and run Prettier
         uses(
-            "Setup Node.js v19.x",
+            "Setup latest Node.js",
             SetupNodeV3(
-                nodeVersion = "19",
+                nodeVersion = "latest",
                 architecture = "\${{matrix.runner == 'self-hosted' && 'aarch64' || 'amd64'}}",
             ),
         )

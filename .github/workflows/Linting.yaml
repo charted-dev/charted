@@ -77,10 +77,10 @@ jobs:
                   distribution: temurin
                   architecture: ${{matrix.runner == 'self-hosted' && 'aarch64' || 'amd64'}}
             - id: step-2
-              name: Setup Node.js v19.x
+              name: Setup latest Node.js
               uses: actions/setup-node@v3
               with:
-                  node-version: 19
+                  node-version: latest
                   architecture: ${{matrix.runner == 'self-hosted' && 'aarch64' || 'amd64'}}
             - id: step-3
               name: Setup Gradle
