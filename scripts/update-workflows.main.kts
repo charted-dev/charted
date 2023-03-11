@@ -44,10 +44,13 @@ for (file in actionsDir) {
     // Convert from snake-case -> PascalCase
     val workflowName = ".github/workflows/${file.name.toPascalCase().replace("MainKts", "")}.yaml"
 
+    println("Updating workflow from file [$file] ~> $workflowName")
+
     // Now, we need to execute the command
     val proc = ProcessBuilder("kotlin", ".github/actions/${file.name}").start()
     val generatedContent = String(proc.inputStream.readBytes())
     val workflowFile = File(workflowName)
 
     workflowFile.writeText(licenseHeader + "\n" + generatedContent.trim(), Charset.defaultCharset())
+    println("Updated workflow [$workflowName] successfully!")
 }

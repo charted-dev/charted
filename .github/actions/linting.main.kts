@@ -83,7 +83,7 @@ val lintAndUnitWorkflow = workflow(
         uses(
             "Setup Node.js v19.x",
             SetupNodeV3(
-                nodeVersion = "19.x",
+                nodeVersion = "19",
                 architecture = "\${{matrix.runner == 'self-hosted' && 'aarch64' || 'amd64'}}",
             ),
         )

@@ -25,6 +25,7 @@ fi
 echo "Running Spotless..."
 ./gradlew spotlessCheck
 
+# shellcheck disable=SC2181
 if [[ "$?" != "0" ]]; then
   echo "Spotless was not ran successfully! Please run \`make spotless\` to fix the changes above."
   exit 1

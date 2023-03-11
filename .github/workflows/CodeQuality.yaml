@@ -63,10 +63,11 @@ jobs:
                   java-version: ${{matrix.java-version}}
                   distribution: temurin
             - id: step-2
-              name: Setup Node.js 19.x
+              name: Setup Node.js v19.x
               uses: actions/setup-node@v3
               with:
-                  node-version: 19.x
+                  node-version: 19
+                  architecture: ${{matrix.runner == 'self-hosted' && 'aarch64' || 'amd64'}}
             - id: step-3
               name: Init CodeQL
               uses: github/codeql-action/init@v2

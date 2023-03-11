@@ -134,8 +134,14 @@ val codeQualityWorkflow = workflow(
             ),
         )
 
-        // Node.js is required for Spotless
-        uses("Setup Node.js 19.x", SetupNodeV3(nodeVersion = "19.x"))
+        // Node.js is required for Spotless to install and run Prettier
+        uses(
+            "Setup Node.js v19.x",
+            SetupNodeV3(
+                nodeVersion = "19",
+                architecture = "\${{matrix.runner == 'self-hosted' && 'aarch64' || 'amd64'}}",
+            ),
+        )
 
         // Initialize CodeQL
         uses("Init CodeQL", InitCodeQLAction(languages = "\${{matrix.language}}"))
