@@ -13,88 +13,79 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This file was generated using a Kotlin DSL.
-# If you want to modify the workflow, please change the Kotlin source and regenerate this YAML file.
-# Generated with https://github.com/krzema12/github-workflows-kt
-
-name: Code Quality
+name: Code Quality (CodeQL, Qodana)
 on:
     workflow_dispatch: {}
     schedule:
-        - cron: 0 0 * * *
+        - cron: '0 0 * * *'
     push:
         branches:
-            - issue/gh-**
-            - feat/**
+            - 'issue/gh-**'
+            - 'feat/**'
             - main
         paths-ignore:
-            - .github/**
-            - .vscode/**
-            - assets/**
+            - '.github/**'
+            - '.vscode/**'
+            - 'assets/**'
+            - 'distribution/**'
             - .gitignore
             - '**.md'
             - LICENSE
             - renovate.json
 jobs:
     codeql:
-        name: CodeQL (Java ${{matrix.java-version}} ~ ${{matrix.language}})
-        runs-on: ubuntu-latest
-        if: ${{false}}
-        strategy:
-            matrix:
-                java-version:
-                    - 17
-                    - 19
-                language:
-                    - java
-                    - kotlin
+        name: CodeQL (Java ${{matrix.java-version}}, ${{matrix.language}})
+        runs-on: Ubuntu-latest
+        if: ${{false}} # disable it for now
         permissions:
             security-events: write
             contents: read
             actions: read
+        strategy:
+            fail-fast: false
+            matrix:
+                java-version: [17, 19]
+                language: [kotlin, java]
         steps:
-            - id: step-0
-              name: Checkout
+            - name: Checkout
               uses: actions/checkout@v3
-            - id: step-1
-              name: Setup Java ${{matrix.java-version}}
+
+            - name: Setup Java ${{matrix.java-version}}
               uses: actions/setup-java@v3
               with:
                   java-version: ${{matrix.java-version}}
                   distribution: temurin
-            - id: step-2
-              name: Setup latest Node.js
+
+            - name: Setup Node.js 19.x
               uses: actions/setup-node@v3
               with:
-                  node-version: latest
-                  architecture: ${{matrix.runner == 'self-hosted' && 'aarch64' || 'amd64'}}
-            - id: step-3
-              name: Init CodeQL
+                  node-version: 19.x
+
+            - name: Init CodeQL
               uses: github/codeql-action/init@v2
               with:
                   languages: ${{matrix.language}}
-            - id: step-4
-              name: Autobuild
+
+            - name: Autobuild
               uses: github/codeql-action/autobuild@v2
-            - id: step-5
-              name: Analyze
+
+            - name: Perform analysis
               uses: github/codeql-action/analyze@v2
     qodana:
         name: Qodana
         runs-on: ubuntu-latest
         steps:
-            - id: step-0
-              name: Checkout
+            - name: Checkout
               uses: actions/checkout@v3
               with:
                   fetch-depth: 0
-            - id: step-1
-              name: Perform Qodana scan
+
+            - name: Perform scan
               uses: JetBrains/qodana-action@v2022.3.4
               with:
                   args: --baseline,qodana.sarif.json,--save-report
-            - id: step-2
-              name: Upload Sarif Results to GitHub
+
+            - name: Upload Sarif Results to GitHub
               uses: github/codeql-action/upload-sarif@v2
               with:
                   sarif_file: ${{runner.temp}}/qodana/results/qodana.sarif.json

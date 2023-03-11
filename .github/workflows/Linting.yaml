@@ -13,38 +13,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This file was generated using a Kotlin DSL.
-# If you want to modify the workflow, please change the Kotlin source and regenerate this YAML file.
-# Generated with https://github.com/krzema12/github-workflows-kt
-
 name: Linting and Unit Testing
 on:
     workflow_dispatch: {}
     pull_request:
-        types:
-            - opened
-            - synchronize
+        types: [opened, synchronize]
         branches:
-            - issue/gh-**
-            - feat/**
+            - 'issue/gh-**'
+            - 'feat/**'
             - main
+
         paths-ignore:
-            - .github/**
-            - .vscode/**
-            - assets/**
+            - '.vscode/**'
+            - 'assets/**'
+            - .dockerignore
             - .gitignore
             - '**.md'
             - LICENSE
             - renovate.json
     push:
         branches:
-            - issue/gh-**
-            - feat/**
+            - 'issue/gh-**'
+            - 'feat/**'
             - main
+
         paths-ignore:
-            - .github/**
-            - .vscode/**
-            - assets/**
+            - '.github/**'
+            - '.vscode/**'
+            - 'assets/**'
+            - .dockerignore
             - .gitignore
             - '**.md'
             - LICENSE
@@ -55,56 +52,50 @@ jobs:
         runs-on: ${{matrix.runner}}
         strategy:
             matrix:
-                java-version:
-                    - 17
-                    - 19
-                runner:
-                    - windows-latest
-                    - ubuntu-latest
-                    - macos-latest
-                    - self-hosted
+                java-version: [17, 19]
+                runner: [windows-latest, ubuntu-latest, macos-latest, self-hosted]
         steps:
-            - id: step-0
-              name: Checkout repository
+            - name: Checkout repository
               uses: actions/checkout@v3
               with:
-                  submodules: true
-            - id: step-1
-              name: Setup Java ${{matrix.java-version}}
+                  submodules: recursive
+
+            - name: Setup Java ${{matrix.java-version}}
               uses: actions/setup-java@v3
               with:
                   java-version: ${{matrix.java-version}}
                   distribution: temurin
                   architecture: ${{matrix.runner == 'self-hosted' && 'aarch64' || 'amd64'}}
-            - id: step-2
-              name: Setup latest Node.js
+
+            # Node.js is required for Spotless to install Prettier
+            - name: Setup Node.js v19.x
               uses: actions/setup-node@v3
               with:
-                  node-version: latest
-                  architecture: ${{matrix.runner == 'self-hosted' && 'aarch64' || 'amd64'}}
-            - id: step-3
-              name: Setup Gradle
+                  node-version: 19.x
+                  architecture: ${{matrix.runner == 'self-hosted' && 'arm64' || 'x64'}}
+
+            - name: Setup Gradle
               uses: gradle/gradle-build-action@v2
-            - id: step-4
-              name: Validate Gradle Wrapper
+
+            - name: Validate Gradle Wrapper
               uses: gradle/wrapper-validation-action@v1
-            - id: step-5
-              name: Lint code-base with Spotless
+
+            - name: Lint code-base with Spotless
               uses: gradle/gradle-build-action@v2
               with:
-                  arguments: spotlessCheck --scan
-            - id: step-6
-              name: Compiles Kotlin source sets
+                  arguments: spotlessCheck --no-daemon --scan
+
+            - name: Compiles Kotlin source sets
               uses: gradle/gradle-build-action@v2
               with:
-                  arguments: compileKotlin --scan
-            - id: step-7
-              name: Compiles Java source sets
+                  arguments: compileKotlin --no-daemon --scan
+
+            - name: Compiles Java source sets
               uses: gradle/gradle-build-action@v2
               with:
-                  arguments: compileJava --scan
-            - id: step-8
-              name: Run unit and integration tests
+                  arguments: compileJava --no-daemon --scan
+
+            - name: Run unit and integration tests
               uses: gradle/gradle-build-action@v2
               with:
-                  arguments: test --scan
+                  arguments: test --no-daemon --scan
