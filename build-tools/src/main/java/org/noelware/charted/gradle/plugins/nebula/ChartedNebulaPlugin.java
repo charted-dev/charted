@@ -1,20 +1,37 @@
+/*
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+ * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.noelware.charted.gradle.plugins.nebula;
 
 import com.netflix.gradle.plugins.packaging.ProjectPackagingExtension;
+import java.io.File;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.jetbrains.annotations.NotNull;
 import org.noelware.charted.gradle.Architecture;
 
-import java.io.File;
-
 /**
  * Gradle plugin to apply the <code>com.netflix.nebula.ospackage-base</code> plugin that
  * provides defaults for charted's Debian and RPM repositories.
  */
 public class ChartedNebulaPlugin implements Plugin<Project> {
-    private static final String DESCRIPTION = """
+    private static final String DESCRIPTION =
+            """
     charted-server is a Helm chart registry made in Kotlin for providing a self-managed
     cloud service to host Helm charts easily without configuring a lot of things.
 
@@ -25,7 +42,8 @@ public class ChartedNebulaPlugin implements Plugin<Project> {
     ❯ Issue Tracker: https://github.com/charted-dev/charted/issues
 
     ~ Noelware, LLC. ^~^
-    """.trim();
+    """
+                    .trim();
 
     @Override
     public void apply(@NotNull Project project) {

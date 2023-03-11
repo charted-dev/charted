@@ -61,4 +61,12 @@ tasks {
         from(file("${project.rootDir}/scripts/pre-commit"))
         into(file("${project.rootDir}/.git/hooks"))
     }
+
+    named("spotlessCheck") {
+        dependsOn(gradle.includedBuilds.map { it.task(":spotlessCheck") })
+    }
+
+    named("spotlessApply") {
+        dependsOn(gradle.includedBuilds.map { it.task(":spotlessApply") })
+    }
 }

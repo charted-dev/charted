@@ -33,7 +33,7 @@ fun Project.applyRootProjectSpotless() {
                 "**/*.yaml",
                 "**/*.yml",
                 "**/*.xml",
-                "**/*.md"
+                "**/*.md",
             )
 
             // Exclude all Helm templates, .idea files, and submodule
@@ -55,7 +55,7 @@ fun Project.applyRootProjectSpotless() {
                 "distribution/chart/templates/*.yml",
 
                 ".idea/inspectionProfiles/*.xml",
-                ".idea/*.xml"
+                ".idea/*.xml",
             )
 
             prettier(mapOf("prettier" to "2.8.4", "@prettier/plugin-xml" to "2.2.0")).apply {
@@ -76,6 +76,10 @@ fun Project.applyRootProjectSpotless() {
         }
 
         kotlinGradle {
+            targetExclude(
+                "buildSrc/build/kotlin-dsl/plugins-blocks/extracted/charted-module.gradle.kts",
+            )
+
             endWithNewline()
             encoding("UTF-8")
             target("**/*.gradle.kts")
