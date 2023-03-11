@@ -105,7 +105,7 @@ protobuf {
         if (protocPath != null) {
             path = protocPath
         } else {
-            artifact = "com.google.protobuf:protoc:3.22.1"
+            artifact = "com.google.protobuf:protoc:3.22.2"
         }
     }
 
