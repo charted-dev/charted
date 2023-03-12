@@ -42,37 +42,33 @@ public class ClassicJsonLayout extends JsonLayout<ILoggingEvent> {
         // Key-value pairs
         final List<KeyValuePair> pairs = event.getKeyValuePairs();
         if (pairs != null && !pairs.isEmpty()) {
-            data.put("args", new HashMap<>() {
-                {
-                    for (KeyValuePair pair : pairs) {
-                        put(pair.key, pair.value);
-                    }
-                }
-            });
+            final HashMap<String, Object> argsMap = new HashMap<>();
+            for (KeyValuePair pair : pairs) {
+                argsMap.put(pair.key, pair.value);
+            }
+
+            data.put("args", argsMap);
         }
 
+        final HashMap<String, Object> logArgs = new HashMap<>();
+        logArgs.put("context", event.getLoggerContextVO().getName());
+        logArgs.put("level", event.getLevel().toString().toLowerCase());
+        logArgs.put("name", event.getLoggerName());
+
         // Log context
-        data.put("log", new HashMap<>() {
-            {
-                put("context", event.getLoggerContextVO().getName());
-                put("level", event.getLevel().toString().toLowerCase());
-                put("name", event.getLoggerName());
-            }
-        });
+        data.put("log", logArgs);
 
         // metadata
-        data.put("metadata", new HashMap<>() {
-            {
-                put("version", ChartedInfo.getVersion());
-                put("commit_hash", ChartedInfo.getCommitHash());
-                put("build_date", ChartedInfo.getBuildDate());
-                put("distribution", ChartedInfo.getDistribution().getKey());
+        final HashMap<String, Object> metadataMap = new HashMap<>();
+        metadataMap.put("version", ChartedInfo.getVersion());
+        metadataMap.put("commit_hash", ChartedInfo.getCommitHash());
+        metadataMap.put("build_date", ChartedInfo.getBuildDate());
+        metadataMap.put("distribution", ChartedInfo.getDistribution().getKey());
+        if (ChartedInfo.getDedicatedNode() != null) {
+            metadataMap.put("dedi_node", ChartedInfo.getDedicatedNode());
+        }
 
-                if (ChartedInfo.getDedicatedNode() != null) {
-                    put("dedi_node", ChartedInfo.getDedicatedNode());
-                }
-            }
-        });
+        data.put("metadata", metadataMap);
 
         // mdc properties
         final Map<String, String> mdc = event.getMDCPropertyMap();

@@ -16,10 +16,15 @@
  */
 
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import kotlin.jvm.optionals.getOrElse
 
 plugins {
     id("com.diffplug.spotless") version "6.16.0"
+
+    `java-gradle-plugin`
     `kotlin-dsl`
+
+    java
 }
 
 repositories {
@@ -30,6 +35,9 @@ repositories {
     mavenLocal()
 }
 
+val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+fun VersionCatalog.get(name: String): MinimalExternalModuleDependency = libs.findLibrary(name).getOrElse { null }?.get() ?: error("Unknown library '$name' in catalog")
+
 dependencies {
     implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.20.0")
     implementation("com.diffplug.spotless:spotless-plugin-gradle:6.15.0")
@@ -39,6 +47,25 @@ dependencies {
     implementation(kotlin("serialization", "1.8.10"))
     implementation(kotlin("gradle-plugin", "1.8.10"))
     implementation(gradleApi())
+
+    // test dependencies
+    testImplementation("uk.org.webcompere:system-stubs-jupiter:2.0.2")
+    testImplementation("uk.org.webcompere:system-stubs-core:2.0.2")
+    testImplementation(libs.get("junit-jupiter-engine"))
+    testImplementation(libs.get("junit-jupiter-api"))
+}
+
+@Suppress("UnstableApiUsage")
+gradlePlugin {
+    website.set("https://charts.noelware.org")
+    vcsUrl.set("https://github.com/charted-dev/charted/tree/main/build-tools")
+
+    plugins {
+        create("nebula") {
+            implementationClass = "org.noelware.charted.gradle.plugins.nebula.ChartedNebulaPlugin"
+            id = "org.noelware.charted.dist.nebula"
+        }
+    }
 }
 
 kotlin {
@@ -85,8 +112,32 @@ spotless {
     }
 }
 
-tasks.withType<KotlinCompile>().configureEach {
-    kotlinOptions.jvmTarget = "17"
+tasks {
+    withType<KotlinCompile>().configureEach {
+        kotlinOptions.jvmTarget = "17"
+    }
+
+    withType<Test>().configureEach {
+        useJUnitPlatform()
+        outputs.upToDateWhen { false }
+        maxParallelForks = Runtime.getRuntime().availableProcessors()
+        failFast = true
+
+        testLogging {
+            events(
+                org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED,
+                org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED,
+                org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED,
+                org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_ERROR,
+                org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_OUT,
+                org.gradle.api.tasks.testing.logging.TestLogEvent.STARTED,
+            )
+
+            showCauses = true
+            showExceptions = true
+            exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        }
+    }
 }
 
 configurations.configureEach {

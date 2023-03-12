@@ -36,7 +36,6 @@ dependencyResolutionManagement {
     }
 }
 
-includeBuild("build-tools")
 include(
     ":cli",
     ":common",

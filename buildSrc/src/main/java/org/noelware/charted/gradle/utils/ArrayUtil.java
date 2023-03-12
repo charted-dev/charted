@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 
-pluginManagement {
-    repositories {
-        maven("https://maven.floofy.dev/repo/releases")
-        maven("https://maven.noelware.org")
-        gradlePluginPortal()
-        mavenCentral()
+package org.noelware.charted.gradle.utils;
+
+import java.util.Arrays;
+
+public class ArrayUtil {
+    public static <T> T[] pop(T[] array) {
+        return Arrays.copyOf(array, array.length - 1);
     }
 }

@@ -15,30 +15,22 @@
  * limitations under the License.
  */
 
-import org.gradle.toolchains.foojay.FoojayToolchainsConventionPlugin
+package org.noelware.charted.gradle.util;
 
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
+import java.io.*;
+
+public class FileUtil {
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public static void writeFile(File file, String content) throws IOException {
+        if (!file.getParentFile().exists()) file.getParentFile().mkdirs();
+        try (final BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write(content);
+        }
     }
-}
 
-buildscript {
-    repositories {
-        gradlePluginPortal()
-    }
-
-    dependencies {
-        classpath("org.gradle.toolchains:foojay-resolver:0.4.0")
-    }
-}
-
-apply<FoojayToolchainsConventionPlugin>()
-
-dependencyResolutionManagement {
-    versionCatalogs {
-        create("libs") {
-            from(files("../gradle/build.versions.toml"))
+    public static String readFile(File file) throws IOException {
+        try (final FileInputStream stream = new FileInputStream(file)) {
+            return new String(stream.readAllBytes());
         }
     }
 }

@@ -36,15 +36,8 @@ build: spotless ## Runs the `spotless` target and builds the API server
 
 .PHONY: spotless
 spotless: ## Runs the Spotless formatter on the project
+	@./gradlew :buildSrc:spotlessApply
 	@./gradlew spotlessApply
-
-.PHONY: clippy
-clippy: ## Runs the `cargo clippy` command
-	@(cd ./tools/helm-plugin && cargo clippy)
-
-.PHONY: clippy-fix
-clippy-fix: ## Runs `cargo clippy` with the --fix, --allow-dirty, and --allow-staged flags.
-	@(cd ./tools/helm-plugin && cargo clippy --fix --allow-dirty --allow-staged)
 
 .PHONY: clean
 clean: ## Executes the `clean` Gradle task
@@ -52,13 +45,10 @@ clean: ## Executes the `clean` Gradle task
 
 .PHONY: test
 test: clean spotless ## Runs all the project tests
+	@./gradlew :buildSrc:test
 	@./gradlew test
 
 # Not recommended but whatever
 .PHONY: kill-gradle-daemons
 kill-gradle-daemons: ## Kills all the Gradle daemons
 	@pkill -f '.*GradleDaemon.*'
-
-.PHONY: migrations
-migrations: ## Builds and runs the migrations tool
-	@(cd ./databases/clickhouse/migrations && go build -mod=readonly -ldflags "-s -w -X main.version=master" -o ./bin/ch-migrations && ./bin/ch-migrations)

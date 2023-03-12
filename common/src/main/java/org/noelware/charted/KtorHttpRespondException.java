@@ -19,35 +19,29 @@ package org.noelware.charted;
 
 import io.ktor.http.HttpStatusCode;
 import java.util.List;
-import org.jetbrains.annotations.Nullable;
 import org.noelware.charted.common.types.responses.ApiError;
 
 /**
- * {@link RuntimeException} to throw to send back to a REST handler.
+ * {@link RuntimeException} to throw to send back to a REST handler. This should
+ * only be for code that can't heavily rely on {@link io.ktor.server.application.ApplicationCall}
+ * directly.
  */
 public class KtorHttpRespondException extends RuntimeException {
-    private final HttpStatusCode httpStatusCode;
+    // use transient to skip serializing #writeObject (since transient and static aren't reported
+    // and making this static will be weird? idk.)
+    private final transient HttpStatusCode httpStatusCode;
     private final List<ApiError> errors;
 
-    @Nullable
-    private final Throwable cause;
-
     public KtorHttpRespondException(HttpStatusCode statusCode, List<ApiError> errors, Throwable cause) {
+        super(cause);
+
         this.httpStatusCode = statusCode;
         this.errors = errors;
-        this.cause = cause;
     }
 
     public KtorHttpRespondException(HttpStatusCode statusCode, List<ApiError> errors) {
         this.httpStatusCode = statusCode;
         this.errors = errors;
-        this.cause = null;
-    }
-
-    @Override
-    @Nullable
-    public Throwable getCause() {
-        return cause;
     }
 
     public HttpStatusCode httpStatusCode() {
