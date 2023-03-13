@@ -63,9 +63,7 @@ class InMemoryRateLimiter(
             return RateLimiter.State.Exhausted(timeToWait(lastRefillAt).milliseconds)
         }
 
-        cache.invalidate(rateLimitKey)
         cache.put(rateLimitKey, old.copy(lastRefillAt = lastRefillAt, limit = remain))
-
         return RateLimiter.State.Available(remain, maxRequests, lastRefillAt + timeWindow.inWholeMilliseconds)
     }
 
