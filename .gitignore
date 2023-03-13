@@ -713,6 +713,7 @@ FodyWeavers.xsd
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
 
+.data/
 config.yml
 server/src/main/resources/config/logback.properties
 !server/src/main/kotlin/routing/v1/repositories/releases/
