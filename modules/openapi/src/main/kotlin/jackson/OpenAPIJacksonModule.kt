@@ -21,10 +21,21 @@ import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.module.kotlin.addSerializer
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 
 object OpenAPIJacksonModule: SimpleModule() {
     init {
+        addSerializer(
+            Instant::class,
+            object: JsonSerializer<Instant>() {
+                override fun serialize(value: Instant, gen: JsonGenerator, serializers: SerializerProvider) {
+                    gen.writeString(value.toString())
+                }
+            },
+        )
+
         addSerializer(
             LocalDateTime::class.java,
             object: JsonSerializer<LocalDateTime>() {

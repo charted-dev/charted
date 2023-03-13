@@ -17,41 +17,57 @@
 
 package org.noelware.charted.modules.postgresql.controllers.users
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import dev.floofy.utils.koin.inject
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.apache.commons.validator.routines.EmailValidator
 import org.noelware.charted.StringOverflowException
-import org.noelware.charted.StringUnderflowException
 import org.noelware.charted.ValidationException
-import org.noelware.charted.common.extensions.regexp.matchesNameRegex
+import org.noelware.charted.common.extensions.regexp.matchesNameAndIdRegex
 import org.noelware.charted.common.extensions.regexp.matchesPasswordRegex
 
 @Serializable
-data class NewUserBody(
-    val username: String,
-    val password: String,
-    val email: String
+data class PatchUserPayload(
+    @JsonProperty("gravatar_email")
+    @SerialName("gravatar_email")
+    val gravatarEmail: String? = null,
+    val description: String? = null,
+    val username: String? = null,
+    val password: String? = null,
+    val email: String? = null,
+    val name: String? = null
 ) {
     init {
-        val validator: EmailValidator by inject()
-        if (!validator.isValid(email)) {
-            throw ValidationException("body.email", "Email [$email] was not a valid email.")
+        val emailValidator: EmailValidator by inject()
+        if (gravatarEmail != null && !emailValidator.isValid(gravatarEmail)) {
+            throw ValidationException("body.gravatar_email", "The gravatar email provided was not a valid email.")
         }
 
-        if (username.isBlank()) {
-            throw StringUnderflowException("body.username", 0, 32)
+        if (description != null && description.length > 240) {
+            throw StringOverflowException("body.description", description.length, 240)
         }
 
-        if (username.length > 32) {
-            throw StringOverflowException("body.username", 32, username.length)
+        if (password != null && !password.matchesPasswordRegex()) {
+            throw ValidationException("body.password", "New user password can only contain letters, digits, and special characters.")
         }
 
-        if (!username.matchesNameRegex()) {
-            throw ValidationException("body.username", "Username can only contain letters, digits, dashes, or underscores.")
+        if (username != null) {
+            if (username.length > 32) {
+                throw StringOverflowException("body.username", username.length, 32)
+            }
+
+            if (!username.matchesNameAndIdRegex()) {
+                throw ValidationException("body.username", "Username can only contain letters, digits, dashes, or underscores.")
+            }
         }
 
-        if (!password.matchesPasswordRegex()) {
-            throw ValidationException("body.password", "Password can only contain letters, digits, and special characters.")
+        if (email != null && !emailValidator.isValid(email)) {
+            throw ValidationException("body.email", "Email was not valid")
+        }
+
+        if (name != null && name.length > 64) {
+            throw StringOverflowException("body.name", name.length, 64)
         }
     }
 }

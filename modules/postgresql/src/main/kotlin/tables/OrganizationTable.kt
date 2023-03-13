@@ -33,5 +33,5 @@ object OrganizationTable: SnowflakeTable("organizations") {
     val iconHash = text("icon_hash").nullable().default(null)
     val private = bool("private").default(false)
     val owner = reference("owner_id", UserTable)
-    val name = varchar("name", 32).uniqueIndex()
+    val name = varchar("name", 32)
 }

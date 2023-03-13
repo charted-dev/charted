@@ -21,13 +21,14 @@ import org.koin.dsl.module
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.toApiBaseUrl
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
+import org.noelware.charted.modules.openapi.modelConverterContext
 import org.noelware.charted.modules.openapi.openApi
 import org.noelware.charted.server.routing.v1.routingV1Module
 
 val routingModule = routingV1Module + module {
     single {
         val config: Config = get()
-        openApi {
+        val openApi = openApi {
             server {
                 description("Production Server/Official Instance")
                 url("https://charts.noelware.org/api")
@@ -48,8 +49,26 @@ val routingModule = routingV1Module + module {
 
                         schema<String>()
                     }
+
+                    queryParameter {
+                        description = "Only applicable to `?format=json` -- if the document should be pretty or not"
+                        name = "pretty"
+
+                        schema<Boolean>()
+                    }
                 }
             }
         }
+
+        val controllers: List<RestController> = getAll()
+        for (controller in controllers) {
+            openApi.paths.addPathItem(controller.path, controller.toPathDsl())
+        }
+
+        for ((name, schema) in modelConverterContext.definedModels.entries.sortedBy { it.key }) {
+            openApi.components.addSchemas(name, schema)
+        }
+
+        openApi
     }
 }

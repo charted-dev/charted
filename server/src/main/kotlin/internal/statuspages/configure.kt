@@ -118,7 +118,7 @@ fun StatusPagesConfig.configure(config: Config) {
         log.error("Received multiple validation exceptions on REST handler [${call.request.httpMethod.value} ${call.request.path()}]", cause)
         call.respond(
             HttpStatusCode.NotAcceptable,
-            cause.exceptions().map { ApiError("VALIDATION_EXCEPTION", it.validationMessage()) },
+            cause.exceptions().map { ApiError(it.codeToUse() ?: "VALIDATION_EXCEPTION", it.validationMessage()) },
         )
     }
 
@@ -128,7 +128,7 @@ fun StatusPagesConfig.configure(config: Config) {
         log.error("Received an validation exception on REST handler [${call.request.httpMethod.value} ${call.request.path()}] ~> ${cause.path()} [${cause.validationMessage()}]")
         call.respond(
             HttpStatusCode.NotAcceptable,
-            ApiResponse.err("VALIDATION_EXCEPTION", cause.validationMessage()),
+            ApiResponse.err(cause.codeToUse() ?: "VALIDATION_EXCEPTION", cause.validationMessage()),
         )
     }
 

@@ -15,19 +15,25 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.modules.postgresql.ktor
+package org.noelware.charted.modules.postgresql.controllers.organizations
 
-import io.ktor.server.application.*
-import io.ktor.util.*
-import org.noelware.charted.modules.postgresql.entities.ApiKeyEntity
-import org.noelware.charted.modules.postgresql.entities.UserEntity
+import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-val UserEntityAttributeKey: AttributeKey<UserEntity> = AttributeKey("User Entity")
-val ApiKeyAttributeKey: AttributeKey<ApiKeyEntity> = AttributeKey("Api Key")
+@Serializable
+data class PatchOrganizationPayload(
+    @JsonProperty("twitter_handle")
+    @SerialName("twitter_handle")
+    val twitterHandle: String? = null,
 
-// this is only for the repository controller
-val OwnerIdAttributeKey: AttributeKey<Long> = AttributeKey("Owner ID")
+    @JsonProperty("gravatar_email")
+    @SerialName("gravatar_email")
+    val gravatarEmail: String? = null,
 
-// internal because it only belongs here, not outside
-internal val ApplicationCall.ownerId: Long?
-    get() = attributes.getOrNull(OwnerIdAttributeKey)
+    @JsonProperty("display_name")
+    @SerialName("display_name")
+    val displayName: String? = null,
+    val private: Boolean? = null,
+    val name: String? = null
+)

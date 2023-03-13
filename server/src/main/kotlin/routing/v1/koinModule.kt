@@ -22,6 +22,7 @@ import org.koin.dsl.module
 import org.noelware.charted.server.routing.RestController
 
 val routingV1Module = module {
+    single { IndexMappingsRestController(get(), getOrNull(), get(), get()) } bind RestController::class
     single { FeaturesRestController(get()) } bind RestController::class
     single { HeartbeatRestController() } bind RestController::class
     single { InfoRestController() } bind RestController::class

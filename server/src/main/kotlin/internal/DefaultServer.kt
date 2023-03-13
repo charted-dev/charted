@@ -44,7 +44,6 @@ import org.koin.core.context.GlobalContext
 import org.noelware.charted.Server
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.server.KtorRateLimitBackend
-import org.noelware.charted.modules.openapi.modelConverterContext
 import org.noelware.charted.modules.openapi.toJson
 import org.noelware.charted.modules.openapi.toYaml
 import org.noelware.charted.server.extensions.realIP
@@ -145,17 +144,7 @@ class DefaultServer(private val config: Config): Server {
         }
 
         val openapiDoc: OpenAPI by inject()
-
-        // TODO(@auguwu): add a public member in org.noelware.charted.modules.openapi.kotlin.dsl.OpenApiDslBuilder
-        //                to register paths.
         val controllers: List<RestController> = GlobalContext.retrieveAll()
-        for (controller in controllers) {
-            openapiDoc.paths.addPathItem(controller.path, controller.toPathDsl())
-        }
-
-        for ((name, schema) in modelConverterContext.definedModels.entries.sortedBy { it.key }) {
-            openapiDoc.components.addSchemas(name, schema)
-        }
 
         routing {
             for (controller in controllers) {

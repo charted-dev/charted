@@ -22,11 +22,13 @@ import io.ktor.server.application.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.update
 import org.noelware.charted.KtorHttpRespondException
+import org.noelware.charted.ValidationException
 import org.noelware.charted.common.Bitfield
 import org.noelware.charted.common.CryptographyUtils
 import org.noelware.charted.common.types.responses.ApiError
@@ -35,68 +37,27 @@ import org.noelware.charted.models.flags.ApiKeyScopes
 import org.noelware.charted.models.flags.SCOPES
 import org.noelware.charted.modules.postgresql.asyncTransaction
 import org.noelware.charted.modules.postgresql.controllers.AbstractController
-import org.noelware.charted.modules.postgresql.controllers.BooleanOrError
+import org.noelware.charted.modules.postgresql.controllers.getOrNullByProp
 import org.noelware.charted.modules.postgresql.entities.ApiKeyEntity
 import org.noelware.charted.modules.postgresql.extensions.fromEntity
 import org.noelware.charted.modules.postgresql.ktor.UserEntityAttributeKey
 import org.noelware.charted.modules.postgresql.tables.ApiKeyTable
 import org.noelware.charted.snowflake.Snowflake
 import org.noelware.charted.utils.randomString
+import kotlin.reflect.KProperty0
 import kotlin.time.DurationUnit
 
 class ApiKeyController(private val snowflake: Snowflake): AbstractController<ApiKeys, CreateApiKeyBody, PatchApiKeyBody>() {
-    override suspend fun getOrNull(id: Long): ApiKeys? = asyncTransaction {
-        ApiKeyEntity.findById(id)?.let { entity -> ApiKeys.fromEntity(entity, false) }
-    }
-
-    override suspend fun delete(id: Long): Unit = asyncTransaction {
-        ApiKeyTable.deleteWhere { ApiKeyTable.id eq id }
-    }
-
-    override suspend fun update(call: ApplicationCall, id: Long, patched: PatchApiKeyBody): Map<String, BooleanOrError> {
-        val currentUserEntity = call.attributes.getOrNull(UserEntityAttributeKey) ?: throw IllegalStateException("Unable to fetch user")
-        if (patched.name != null) {
-            val found = asyncTransaction {
-                ApiKeyEntity.find {
-                    (ApiKeyTable.name eq patched.name) and (ApiKeyTable.owner eq currentUserEntity.id)
-                }.firstOrNull()
-            }
-
-            if (found != null) {
-                return mapOf(
-                    "body.name" to BooleanOrError(
-                        ApiError(
-                            "EXISTING_API_KEY",
-                            "API key with new name [${patched.name}] already exists on your account.",
-                        ),
-                    ),
-                )
-            }
+    override suspend fun getOrNull(id: Long): ApiKeys? = getOrNullByProp(ApiKeyTable, ApiKeyTable::id to id)
+    override suspend fun <V> getOrNullByProp(prop: KProperty0<Column<V>>, value: V): ApiKeys? = asyncTransaction {
+        ApiKeyEntity.find { prop.get() eq value }.firstOrNull()?.let { entity ->
+            ApiKeys.fromEntity(entity)
         }
+    }
 
-        val bitfield = getApiKeyScopes(patched.scopes)
-        return asyncTransaction {
-            ApiKeyTable.update({ ApiKeyTable.id eq id }) {
-                it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-
-                if (patched.description != null) {
-                    it[description] = patched.description
-                }
-
-                if (patched.expiresIn != null) {
-                    it[expiresIn] = Clock.System.now().plus(patched.expiresIn.toDuration(DurationUnit.MILLISECONDS)).toLocalDateTime(TimeZone.currentSystemDefault())
-                }
-
-                if (patched.scopes.isNotEmpty()) {
-                    it[scopes] = bitfield.bits()
-                }
-
-                if (patched.name != null) {
-                    it[name] = patched.name
-                }
-            }
-
-            emptyMap()
+    override suspend fun delete(id: Long) {
+        asyncTransaction {
+            ApiKeyTable.deleteWhere { ApiKeyTable.id eq id }
         }
     }
 
@@ -128,6 +89,44 @@ class ApiKeyController(private val snowflake: Snowflake): AbstractController<Api
         }
     }
 
+    override suspend fun update(call: ApplicationCall, id: Long, patched: PatchApiKeyBody) {
+        val currentUserEntity = call.attributes.getOrNull(UserEntityAttributeKey) ?: throw IllegalStateException("Unable to fetch user")
+        if (patched.name != null) {
+            val found = asyncTransaction {
+                ApiKeyEntity.find {
+                    (ApiKeyTable.name eq patched.name) and (ApiKeyTable.owner eq currentUserEntity.id)
+                }.firstOrNull()
+            }
+
+            if (found != null) {
+                throw ValidationException("body.name", "API key with new name [${patched.name}] already exists on your account", "EXISTING_API_KEY")
+            }
+        }
+
+        val bitfield = getApiKeyScopes(patched.scopes)
+        return asyncTransaction {
+            ApiKeyTable.update({ ApiKeyTable.id eq id }) {
+                it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+
+                if (patched.description != null) {
+                    it[description] = patched.description
+                }
+
+                if (patched.expiresIn != null) {
+                    it[expiresIn] = Clock.System.now().plus(patched.expiresIn.toDuration(DurationUnit.MILLISECONDS)).toLocalDateTime(TimeZone.currentSystemDefault())
+                }
+
+                if (patched.scopes.isNotEmpty()) {
+                    it[scopes] = bitfield.bits()
+                }
+
+                if (patched.name != null) {
+                    it[name] = patched.name
+                }
+            }
+        }
+    }
+
     private fun getApiKeyScopes(scopes: List<String>): Bitfield {
         val bitfield = ApiKeyScopes()
 
@@ -153,8 +152,4 @@ class ApiKeyController(private val snowflake: Snowflake): AbstractController<Api
 
         return bitfield
     }
-}
-
-suspend fun ApiKeyController.getOrNullByName(name: String): ApiKeys? = asyncTransaction {
-    ApiKeyEntity.find { ApiKeyTable.name eq name }.firstOrNull()?.let { entity -> ApiKeys.fromEntity(entity, false) }
 }

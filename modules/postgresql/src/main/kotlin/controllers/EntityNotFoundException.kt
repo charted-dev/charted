@@ -22,4 +22,7 @@ import java.lang.RuntimeException
 /**
  * [RuntimeException] for the entity by its ID that couldn't be found in the database.
  */
-class EntityNotFoundException(id: Long): RuntimeException("Entity with ID [$id] was not found.")
+class EntityNotFoundException(message: String): RuntimeException(message) {
+    constructor(): this("Entity was not found")
+    constructor(id: Long): this("Entity with ID [$id] was not found")
+}

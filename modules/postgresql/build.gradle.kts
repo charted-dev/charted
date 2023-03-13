@@ -24,6 +24,7 @@ dependencies {
     implementation(libs.exposed.powergamer.tools)
     implementation(libs.apache.commons.validator)
     implementation(libs.exposed.kotlin.datetime)
+    implementation(libs.spring.security.crypto)
     implementation(project(":modules:metrics"))
     implementation(libs.ktor.server.core)
     implementation(libs.exposed.jdbc)

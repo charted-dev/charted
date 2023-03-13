@@ -19,23 +19,35 @@ package org.noelware.charted;
 
 import static java.lang.String.format;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Represents a {@link RuntimeException} of a validation error from any source.
  */
 public class ValidationException extends RuntimeException {
+    private final String codeToUse;
     private final String message;
     private final String path;
 
     public ValidationException(String path, String message) {
+        this(path, message, null);
+    }
+
+    public ValidationException(String path, String message, @Nullable String codeToUse) {
         super(format("[%s] %s", path, message));
 
+        this.codeToUse = codeToUse;
         this.message = message;
         this.path = path;
     }
 
-    /**
-     * @return validation message
-     */
+    /** @return API error code to use */
+    @Nullable
+    public String codeToUse() {
+        return codeToUse;
+    }
+
+    /** @return validation message */
     public String validationMessage() {
         return message;
     }

@@ -15,19 +15,17 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.modules.postgresql.ktor
+package org.noelware.charted.modules.postgresql.controllers
 
-import io.ktor.server.application.*
-import io.ktor.util.*
-import org.noelware.charted.modules.postgresql.entities.ApiKeyEntity
-import org.noelware.charted.modules.postgresql.entities.UserEntity
+import org.koin.dsl.module
+import org.noelware.charted.modules.postgresql.controllers.apikeys.ApiKeyController
+import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationController
+import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryController
+import org.noelware.charted.modules.postgresql.controllers.users.UserController
 
-val UserEntityAttributeKey: AttributeKey<UserEntity> = AttributeKey("User Entity")
-val ApiKeyAttributeKey: AttributeKey<ApiKeyEntity> = AttributeKey("Api Key")
-
-// this is only for the repository controller
-val OwnerIdAttributeKey: AttributeKey<Long> = AttributeKey("Owner ID")
-
-// internal because it only belongs here, not outside
-internal val ApplicationCall.ownerId: Long?
-    get() = attributes.getOrNull(OwnerIdAttributeKey)
+val controllerModule = module {
+    single { UserController(get(), get(), get()) }
+    single { OrganizationController(get()) }
+    single { RepositoryController(get()) }
+    single { ApiKeyController(get()) }
+}

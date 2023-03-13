@@ -17,6 +17,7 @@
 
 package org.noelware.charted.common.types.helm
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -36,7 +37,10 @@ import org.noelware.charted.common.extensions.string.toUriOrNull
  */
 @Serializable(with = ChartSpecVersion.Companion::class)
 public enum class ChartSpecVersion(private val version: String) {
+    @JsonProperty("v1")
     V2("v1"),
+
+    @JsonProperty("v2")
     V3("v2");
 
     internal companion object : KSerializer<ChartSpecVersion> {
@@ -50,12 +54,15 @@ public enum class ChartSpecVersion(private val version: String) {
 
 @Serializable
 public enum class RepoType {
+    @JsonProperty("application")
     @SerialName("application")
     APPLICATION,
 
+    @JsonProperty("library")
     @SerialName("library")
     LIBRARY,
 
+    @JsonProperty("operator")
     @SerialName("operator")
     OPERATOR
 }

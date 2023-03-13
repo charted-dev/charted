@@ -24,7 +24,6 @@ kotlin {
 }
 
 dependencies {
-    implementation(libs.jackson.databind)
     implementation(libs.ktor.server.core)
     implementation(libs.caffeine)
 }

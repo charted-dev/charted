@@ -25,7 +25,9 @@ import org.noelware.charted.configuration.kotlin.dsl.features.DockerRegistryConf
 import org.noelware.charted.configuration.kotlin.dsl.features.ExperimentalFeature
 import org.noelware.charted.configuration.kotlin.dsl.features.Feature
 import org.noelware.charted.configuration.kotlin.dsl.metrics.MetricsConfig
+import org.noelware.charted.configuration.kotlin.dsl.search.SearchConfig
 import org.noelware.charted.configuration.kotlin.dsl.server.KtorServerConfig
+import org.noelware.charted.configuration.kotlin.dsl.sessions.SessionsConfig
 import org.noelware.charted.configuration.kotlin.dsl.storage.StorageConfig
 import org.noelware.charted.utils.randomString
 
@@ -145,6 +147,16 @@ public data class Config(
     val metrics: MetricsConfig = MetricsConfig(),
 
     /**
+     * Search configuration
+     */
+    val search: SearchConfig? = null,
+
+    /**
+     * Sessions configuration
+     */
+    val sessions: SessionsConfig = SessionsConfig(),
+
+    /**
      * Server configuration to configure
      */
     val server: KtorServerConfig = KtorServerConfig(),
@@ -259,6 +271,16 @@ public data class Config(
         private var server: KtorServerConfig = KtorServerConfig()
 
         /**
+         * Session configuration
+         */
+        private var sessions: SessionsConfig = SessionsConfig()
+
+        /**
+         * Search configuration
+         */
+        private var search: SearchConfig? = null
+
+        /**
          * Metrics configuration
          */
         private var metrics: MetricsConfig = MetricsConfig()
@@ -353,6 +375,16 @@ public data class Config(
             return this
         }
 
+        public fun sessions(builder: SessionsConfig.Builder.() -> Unit = {}): Builder {
+            sessions = SessionsConfig.Builder().apply(builder).build()
+            return this
+        }
+
+        public fun search(builder: SearchConfig.Builder.() -> Unit = {}): Builder {
+            search = SearchConfig.Builder().apply(builder).build()
+            return this
+        }
+
         public fun redis(builder: RedisConfig.Builder.() -> Unit = {}): Builder {
             redis = RedisConfig.Builder().apply(builder).build()
             return this
@@ -375,6 +407,8 @@ public data class Config(
             analytics,
             sentryDsn,
             metrics,
+            search,
+            sessions,
             server,
             storage,
             swagger,

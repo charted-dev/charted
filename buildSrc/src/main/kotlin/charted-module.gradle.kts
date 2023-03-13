@@ -111,6 +111,9 @@ dependencies {
 
     // Snowflake
     api(libs.get("snowflake"))
+
+    // Jackson
+    api(libs.get("jackson-databind"))
 }
 
 applySpotless()
