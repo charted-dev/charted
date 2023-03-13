@@ -89,9 +89,6 @@ public val SCOPES: Map<String, Long> = mapOf(
     //    Administration Scopes
     // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
     "admin:stats" to (1L shl 46),
-
-    "repo:metadata:update" to (1L shl 47),
-    "repo:metadata:delete" to (1L shl 48),
 )
 
 /**
@@ -99,6 +96,10 @@ public val SCOPES: Map<String, Long> = mapOf(
  */
 public class ApiKeyScopes(bits: Long = 0): Bitfield(bits, SCOPES) {
     private val log by logging<ApiKeyScopes>()
+
+    public fun add(flag: ApiKeyScope): Bitfield = super.add(flag.key)
+    public fun available(flag: ApiKeyScope): Boolean = super.available(flag.key)
+
     override fun add(flag: String): Bitfield {
         if (deprecatedApiScopes.containsKey(flag)) {
             log.warn("API key scope [$flag (${deprecatedApiScopes[flag]})] is deprecated and will be removed in a future release")

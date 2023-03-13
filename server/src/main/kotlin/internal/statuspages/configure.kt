@@ -152,6 +152,15 @@ fun StatusPagesConfig.configure(config: Config) {
         )
     }
 
+    exception<MissingRequestParameterException> { call, cause ->
+        ifSentryEnabled { Sentry.captureException(cause) }
+
+        call.respond(
+            HttpStatusCode.NotAcceptable,
+            ApiResponse.err("MISSING_REQUEST_PARAMETER", "Parameter [${cause.parameterName}] was missing in the request"),
+        )
+    }
+
     exception<Exception> { call, cause ->
         ifSentryEnabled { Sentry.captureException(cause) }
 

@@ -31,6 +31,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.noelware.charted.common.CryptographyUtils
 import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.models.flags.ApiKeyScope
 import org.noelware.charted.models.flags.ApiKeyScopes
 import org.noelware.charted.modules.postgresql.asyncTransaction
 import org.noelware.charted.modules.postgresql.entities.ApiKeyEntity
@@ -89,6 +90,7 @@ class Sessions private constructor(private val config: Configuration) {
          *
          * @param key bit to assign
          */
+        @Deprecated("Please use the plusAssign(ApiKeyScope) overload instead as this is unsafe")
         infix operator fun plusAssign(key: Long) {
             if (!scopes.available(key)) throw IllegalStateException("API key scope [$key] doesn't exist")
             scopes.add(key)
@@ -107,8 +109,27 @@ class Sessions private constructor(private val config: Configuration) {
          *
          * @param key bit flag to assign
          */
+        @Deprecated("Please use the plusAssign(ApiKeyScope) overload instead as this is unsafe")
         infix operator fun plusAssign(key: String) {
             if (!scopes.available(key)) throw IllegalStateException("API key scope [$key] doesn't exist")
+            scopes.add(key)
+        }
+
+        /**
+         * Same as [plusAssign(Long)][plusAssign], but uses the [ApiKeyScope] utility classes instead of the bit
+         * itself to be used.
+         *
+         * # Example
+         * ```kotlin
+         * install(SessionsPlugin) {
+         *    this += ApiKeyScope.Repositories.Access
+         * }
+         * ```
+         *
+         * @param key bit flag to assign
+         */
+        infix operator fun plusAssign(key: ApiKeyScope) {
+            if (!scopes.available(key)) throw IllegalStateException("API key scope [${key.key}] doesn't exist")
             scopes.add(key)
         }
     }

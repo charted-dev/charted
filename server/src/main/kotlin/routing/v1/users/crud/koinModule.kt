@@ -15,17 +15,16 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.routing.v1
+package org.noelware.charted.server.routing.v1.users.crud
 
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.noelware.charted.server.routing.RestController
-import org.noelware.charted.server.routing.v1.users.usersV1Module
 
-val routingV1Module = usersV1Module + module {
-    single { IndexMappingsRestController(get(), getOrNull(), get(), get()) } bind RestController::class
-    single { FeaturesRestController(get()) } bind RestController::class
-    single { HeartbeatRestController() } bind RestController::class
-    single { InfoRestController() } bind RestController::class
-    single { MainRestController() } bind RestController::class
+val userV1CrudModule = module {
+    single { CreateUserRestController(get(), getOrNull(), get(), get()) } bind RestController::class
+    single { DeleteUserRestController(getOrNull(), get(), get()) } bind RestController::class
+    single { PatchUserRestController(get()) } bind RestController::class
+    single { GetUserRestController(get()) } bind RestController::class
+    single { GetMeRestController(get()) } bind RestController::class
 }

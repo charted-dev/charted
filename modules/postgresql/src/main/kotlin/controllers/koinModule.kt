@@ -22,10 +22,12 @@ import org.noelware.charted.modules.postgresql.controllers.apikeys.ApiKeyControl
 import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationController
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryController
 import org.noelware.charted.modules.postgresql.controllers.users.UserController
+import org.noelware.charted.modules.postgresql.controllers.users.connections.UserConnectionsController
 
 val controllerModule = module {
     single { UserController(get(), get(), get()) }
     single { OrganizationController(get()) }
+    single { UserConnectionsController() }
     single { RepositoryController(get()) }
     single { ApiKeyController(get()) }
 }
