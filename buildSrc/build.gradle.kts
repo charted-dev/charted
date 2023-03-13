@@ -40,7 +40,7 @@ fun VersionCatalog.get(name: String): MinimalExternalModuleDependency = libs.fin
 
 dependencies {
     implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.20.0")
-    implementation("com.diffplug.spotless:spotless-plugin-gradle:6.15.0")
+    implementation("com.diffplug.spotless:spotless-plugin-gradle:6.17.0")
     implementation("com.netflix.nebula:gradle-ospackage-plugin:11.0.0")
     implementation("com.google.protobuf:protobuf-gradle-plugin:0.9.2")
     implementation("dev.floofy.commons:gradle:2.5.0")
