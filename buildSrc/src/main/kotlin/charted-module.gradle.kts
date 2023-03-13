@@ -164,4 +164,10 @@ tasks {
             exceptionFormat = TestExceptionFormat.FULL
         }
     }
+
+    withType<JavaCompile>().configureEach {
+        options.isIncremental = true
+        options.encoding = "UTF-8"
+        options.isFork = true
+    }
 }
