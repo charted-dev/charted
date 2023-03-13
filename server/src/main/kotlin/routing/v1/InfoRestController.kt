@@ -17,6 +17,7 @@
 
 package org.noelware.charted.server.routing.v1
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -43,9 +44,11 @@ import org.noelware.charted.server.routing.RestController
 data class InfoResponse(
     val distribution: ChartedInfo.Distribution,
 
+    @JsonProperty("commit_sha")
     @SerialName("commit_sha")
     val commitHash: String,
 
+    @JsonProperty("build_date")
     @SerialName("build_date")
     val buildDate: String,
     val product: String,
@@ -75,18 +78,16 @@ class InfoRestController: RestController("/info") {
         get {
             response(HttpStatusCode.OK) {
                 contentType(ContentType.Application.Json) {
-                    schema(
-                        ApiResponse.ok(
-                            InfoResponse(
-                                ChartedInfo.distribution,
-                                ChartedInfo.commitHash,
-                                ChartedInfo.buildDate,
-                                "charted-server",
-                                ChartedInfo.version,
-                                "Noelware",
-                            ),
-                        ),
+                    example = InfoResponse(
+                        ChartedInfo.distribution,
+                        ChartedInfo.commitHash,
+                        ChartedInfo.buildDate,
+                        "charted-server",
+                        ChartedInfo.version,
+                        "Noelware",
                     )
+
+                    schema<ApiResponse.Ok<InfoResponse>>()
                 }
             }
         }

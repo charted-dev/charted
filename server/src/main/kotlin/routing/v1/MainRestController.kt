@@ -59,15 +59,13 @@ class MainRestController: RestController("/") {
         get {
             response(HttpStatusCode.OK) {
                 contentType(ContentType.Application.Json) {
-                    schema(
-                        ApiResponse.ok(
-                            MainResponse(
-                                message = "Hello, world! \uD83D\uDC4B",
-                                tagline = "You know, for Helm charts?",
-                                docs = "https://charts.noelware.org/docs",
-                            ),
-                        ),
+                    example = MainResponse(
+                        message = "Hello, world! \uD83D\uDC4B",
+                        tagline = "You know, for Helm charts?",
+                        docs = "https://charts.noelware.org/docs",
                     )
+
+                    schema<ApiResponse.Ok<MainResponse>>()
                 }
             }
         }

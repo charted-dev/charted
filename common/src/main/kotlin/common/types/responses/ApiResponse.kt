@@ -40,7 +40,7 @@ public sealed class ApiResponse<out T>(public val success: Boolean) {
      *             must be marked with [Serializable][kotlinx.serialization.Serializable] or
      *             the server will not know how to serialize it to JSON.
      */
-    public data class Ok<out T>(val data: T? = null) : ApiResponse<T>(true)
+    public data class Ok<out T>(val data: T? = null): ApiResponse<T>(true)
 
     /**
      * Represents an unsuccessful response, with any errors that might've occurred during
@@ -48,7 +48,7 @@ public sealed class ApiResponse<out T>(public val success: Boolean) {
      *
      * @param errors A list of API errors that might've occurred when invoking the request.
      */
-    public data class Err(val errors: List<ApiError>) : ApiResponse<Unit>(false)
+    public data class Err(val errors: List<ApiError>): ApiResponse<Unit>(false)
     public companion object {
         /**
          * Sends out an empty response payload with only the success marker.

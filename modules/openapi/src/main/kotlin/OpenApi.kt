@@ -32,7 +32,7 @@ import org.noelware.charted.modules.openapi.kotlin.dsl.OpenAPIDslBuilder
 import kotlin.reflect.KType
 import kotlin.reflect.javaType
 
-private val modelConverterContext = ModelConverterContextImpl(ModelConverters.getInstance().converters)
+val modelConverterContext = ModelConverterContextImpl(ModelConverters.getInstance().converters)
 private val jsonMapper: ObjectMapper = Json.mapper().apply {
     registerModules(kotlinModule(), OpenAPIJacksonModule)
 }
@@ -45,11 +45,7 @@ private val yamlMapper: ObjectMapper = Yaml.mapper().apply {
  * Builds and constructs a [OpenAPI] document.
  * @param builder DSL object to construct the [OpenAPI] builder.
  */
-fun openApi(builder: OpenAPIDsl.() -> Unit): OpenAPI = OpenAPIDslBuilder().apply(builder).build().apply {
-    for ((name, schema) in modelConverterContext.definedModels.entries.sortedBy { it.key }) {
-        components.addSchemas(name, schema)
-    }
-}
+fun openApi(builder: OpenAPIDsl.() -> Unit): OpenAPI = OpenAPIDslBuilder().apply(builder).build()
 
 /**
  * Transforms this [OpenAPI] document into a JSON object

@@ -38,14 +38,13 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.netty.util.Version
 import io.swagger.v3.oas.models.OpenAPI
-import io.swagger.v3.oas.models.Paths
 import kotlinx.atomicfu.AtomicBoolean
 import kotlinx.atomicfu.atomic
 import org.koin.core.context.GlobalContext
 import org.noelware.charted.Server
-import org.noelware.charted.common.extensions.reflection.getAndUseField
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.server.KtorRateLimitBackend
+import org.noelware.charted.modules.openapi.modelConverterContext
 import org.noelware.charted.modules.openapi.toJson
 import org.noelware.charted.modules.openapi.toYaml
 import org.noelware.charted.server.extensions.realIP
@@ -151,8 +150,11 @@ class DefaultServer(private val config: Config): Server {
         //                to register paths.
         val controllers: List<RestController> = GlobalContext.retrieveAll()
         for (controller in controllers) {
-            val paths: Paths = openapiDoc.getAndUseField("paths")!!
-            paths.addPathItem(controller.path, controller.toPathDsl())
+            openapiDoc.paths.addPathItem(controller.path, controller.toPathDsl())
+        }
+
+        for ((name, schema) in modelConverterContext.definedModels.entries.sortedBy { it.key }) {
+            openapiDoc.components.addSchemas(name, schema)
         }
 
         routing {

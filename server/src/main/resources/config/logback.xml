@@ -80,9 +80,6 @@
     <logger name="io.swagger.v3.core.jackson.ModelResolver" level="OFF" />
     <logger name="org.codehaus.janino" level="OFF" />
     <logger name="org.postgresql" level="INFO" />
-
-    <!-- people are going to have a field day when they see this -->
-    <logger name="jdk.security" level="OFF" />
     <if condition='isDefined("charted.appenders")'>
         <then>
             <if condition='property("charted.appenders").contains("sentry")'>

@@ -100,11 +100,10 @@ class OpenAPIDslBuilder: OpenAPIDsl, Buildable<OpenAPI> {
         info(
             Info().apply {
                 description("\uD83D\uDC3B\u200D❄️\uD83D\uDCE6 Free, open source, and reliable Helm Chart registry made in Kotlin")
-                termsOfService("https://charts.noelware.org/legal/tos")
                 version("v${ChartedInfo.version}+${ChartedInfo.commitHash}")
-                title("charted-server")
-
                 externalDocs(this@OpenAPIDslBuilder.externalDocumentation)
+                termsOfService("https://charts.noelware.org/legal/tos")
+                title("charted-server")
                 license(
                     License().apply {
                         name = "Apache 2.0"

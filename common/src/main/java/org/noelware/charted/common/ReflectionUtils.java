@@ -52,7 +52,7 @@ public class ReflectionUtils {
         Objects.requireNonNull(fieldName);
 
         final Class<?> klazz = instance.getClass();
-        LOG.info("Finding field [{}] in class [{}]!", fieldName, klazz.getSimpleName());
+        LOG.trace("Finding field [{}] in class [{}]!", fieldName, klazz.getSimpleName());
 
         Field field;
         try {
@@ -85,7 +85,7 @@ public class ReflectionUtils {
                     "Finding field [{}] in class [{}], with infer class [{}]",
                     fieldName,
                     klazz.getSimpleName(),
-                    inferTo);
+                    inferTo.getCanonicalName());
             try {
                 final Field field = klazz.getDeclaredField(fieldName);
                 field.setAccessible(true);

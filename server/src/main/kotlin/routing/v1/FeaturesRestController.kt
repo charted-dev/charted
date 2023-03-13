@@ -17,6 +17,7 @@
 
 package org.noelware.charted.server.routing.v1
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -44,16 +45,17 @@ import org.noelware.charted.server.routing.RestController
  */
 @Serializable
 data class FeaturesResponse(
+    @JsonProperty("docker_registry")
     @SerialName("docker_registry")
     val dockerRegistry: Boolean,
     val registrations: Boolean,
 
+    @JsonProperty("audit_logs")
     @SerialName("audit_logs")
     val auditLogs: Boolean,
-
-    @SerialName("webhooks")
     val webhooks: Boolean,
 
+    @JsonProperty("is_invite_only")
     @SerialName("is_invite_only")
     val isInviteOnly: Boolean,
     val integrations: Map<String, Boolean>,
@@ -82,18 +84,15 @@ class FeaturesRestController(private val config: Config): RestController("/featu
             description = "Retrieve all the server instance's features"
             response(HttpStatusCode.OK) {
                 contentType(ContentType.Application.Json) {
-                    schema(
-                        ApiResponse.ok(
-                            FeaturesResponse(
-                                config.features.contains(Feature.DockerRegistry) || config.experimentalFeatures.contains(ExperimentalFeature.ExternalOciRegistry),
-                                config.registrations,
-                                config.features.contains(Feature.AuditLogging),
-                                config.features.contains(Feature.Webhooks),
-                                config.inviteOnly,
-                                mapOf(),
-                                false,
-                            ),
-                        ),
+                    schema<ApiResponse.Ok<FeaturesResponse>>()
+                    example = FeaturesResponse(
+                        config.features.contains(Feature.DockerRegistry) || config.experimentalFeatures.contains(ExperimentalFeature.ExternalOciRegistry),
+                        config.registrations,
+                        config.features.contains(Feature.AuditLogging),
+                        config.features.contains(Feature.Webhooks),
+                        config.inviteOnly,
+                        mapOf(),
+                        false,
                     )
                 }
             }
