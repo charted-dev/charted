@@ -25,8 +25,9 @@ import com.github.ajalt.clikt.parameters.options.versionOption
 import com.github.ajalt.mordant.terminal.Terminal
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.cli.commands.ServerCommand
+import org.noelware.charted.cli.commands.ValidateKotlinScriptCommand
 
-private class ChartedCli(private val terminal: Terminal): CliktCommand(
+private class ChartedCli(terminal: Terminal): CliktCommand(
     "Command line runner for managing charted-server",
     name = "charted",
     printHelpOnEmptyArgs = true,
@@ -42,6 +43,7 @@ private class ChartedCli(private val terminal: Terminal): CliktCommand(
         }
 
         subcommands(
+            ValidateKotlinScriptCommand(terminal),
             ServerCommand(terminal),
         )
     }

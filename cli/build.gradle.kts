@@ -26,13 +26,17 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.hikaricp)
     implementation(libs.mordant)
     implementation(libs.semver)
     implementation(libs.clikt)
     implementation(libs.kaml)
 
     // Required subprojects that the :cli requires
-    implementation(project(":server"))
+    implementation(projects.config.kotlinScript)
+    implementation(projects.config.yaml)
+    implementation(projects.server)
+    implementation(projects.config)
 }
 
 application {

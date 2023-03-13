@@ -19,6 +19,7 @@ package org.noelware.charted.common
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -91,7 +92,12 @@ public class ByteSizeValue(public val value: Long) {
                 encoder.encodeString(value.toString())
             }
 
-            override fun deserialize(decoder: Decoder): ByteSizeValue = ofString(decoder.decodeString())
+            override fun deserialize(decoder: Decoder): ByteSizeValue = try {
+                val raw = decoder.decodeLong()
+                ByteSizeValue(raw)
+            } catch (ignored: SerializationException) {
+                ofString(decoder.decodeString())
+            }
         }
     }
 
@@ -148,11 +154,11 @@ public class ByteSizeValue(public val value: Long) {
         }
 
         internal companion object {
-            internal val byte: Long = 1
-            internal val kilo: Long = byte * 1024L
-            internal val mega: Long = kilo * 1024L
-            internal val giga: Long = mega * 1024L
-            internal val tera: Long = giga * 1024L
+            internal const val byte: Long = 1
+            internal const val kilo: Long = byte * 1024L
+            internal const val mega: Long = kilo * 1024L
+            internal const val giga: Long = mega * 1024L
+            internal const val tera: Long = giga * 1024L
         }
     }
 }

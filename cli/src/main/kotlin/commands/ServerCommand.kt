@@ -17,7 +17,6 @@
 
 package org.noelware.charted.cli.commands
 
-import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.mordant.rendering.TextAlign
@@ -27,14 +26,14 @@ import com.github.ajalt.mordant.rendering.TextStyles
 import com.github.ajalt.mordant.terminal.Terminal
 import dev.floofy.utils.slf4j.logging
 import kotlinx.coroutines.runBlocking
+import org.noelware.charted.cli.commands.abstractions.ConfigAwareCliktCommand
 import org.noelware.charted.server.Bootstrap
 import java.io.File
 import kotlin.system.exitProcess
 
-class ServerCommand(private val terminal: Terminal): CliktCommand(
+class ServerCommand(private val terminal: Terminal): ConfigAwareCliktCommand(
     "Bootstrap and starts the server in the same process",
     name = "server",
-    invokeWithoutSubcommand = true,
 ) {
     private val log by logging<ServerCommand>()
     private val logbackPath: File? by option(
@@ -43,19 +42,6 @@ class ServerCommand(private val terminal: Terminal): CliktCommand(
         envvar = "CHARTED_LOGBACK_CONFIG_PATH",
     ).file(
         mustExist = true,
-        canBeFile = true,
-        canBeDir = false,
-        mustBeWritable = false,
-        mustBeReadable = true,
-        canBeSymlink = true,
-    )
-
-    private val config: File? by option(
-        "--config", "-c",
-        help = "The configuration path to use",
-        envvar = "CHARTED_CONFIG_PATH",
-    ).file(
-        mustExist = false,
         canBeFile = true,
         canBeDir = false,
         mustBeWritable = false,

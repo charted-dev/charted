@@ -16,3 +16,41 @@
  */
 
 package org.noelware.charted.cli.commands
+
+import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.parameters.arguments.argument
+import com.github.ajalt.clikt.parameters.types.file
+import com.github.ajalt.mordant.terminal.Terminal
+import org.noelware.charted.cli.logger
+import org.noelware.charted.configuration.kotlin.host.KotlinScriptConfigurationHost
+import java.io.File
+
+class ValidateKotlinScriptCommand(private val terminal: Terminal): CliktCommand(
+    help = "Validates a .charted.kts file",
+    name = "kotlin-script",
+) {
+    private val file: File by argument(
+        "dest",
+        "Valid file to a .charted.kts file.",
+    ).file(
+        mustExist = false,
+        canBeFile = true,
+        canBeDir = false,
+        mustBeWritable = false,
+        mustBeReadable = false,
+        canBeSymlink = true,
+    )
+
+    override fun run() {
+        if (!file.extension.contains("kts")) {
+            terminal.logger.fatal("File [$file] was not a .charted.kts file!")
+        }
+
+        try {
+            KotlinScriptConfigurationHost.load(file)
+            terminal.logger.info("Kotlin Script is valid")
+        } catch (e: Exception) {
+            terminal.logger.fatal("Kotlin Script was not validated successfully:", e.message!!)
+        }
+    }
+}
