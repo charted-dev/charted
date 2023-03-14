@@ -15,49 +15,54 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.routing.v1.users.sessions
+package org.noelware.charted.server.routing.v1.users.avatars
 
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.swagger.v3.oas.models.PathItem
-import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.modules.avatars.AvatarModule
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
-import org.noelware.charted.modules.sessions.AbstractSessionManager
 import org.noelware.charted.server.extensions.addAuthenticationResponses
-import org.noelware.charted.server.extensions.sessionKey
+import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.util.createBodyWithByteArray
 
-class DeleteUserSessionRestController(
-    private val sessionManager: AbstractSessionManager
-): RestController("/users/@me/logout", HttpMethod.Delete) {
+class GetCurrentUserAvatarRestController(private val avatars: AvatarModule): RestController("/users/@me/avatars/{hash?}") {
     override fun Route.init() {
-        install(Sessions) {
-            assertSessionOnly = true
-        }
+        install(Sessions)
     }
 
     override suspend fun call(call: ApplicationCall) {
-        val currentSession = call.attributes[sessionKey]
-        sessionManager.revoke(currentSession)
+        val (contentType, bytes) = avatars.retrieveUserAvatar(call.currentUser!!, call.parameters["hash"])
+            ?: return call.respond(HttpStatusCode.NotFound)
 
-        call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
+        call.respond(HttpStatusCode.OK, createBodyWithByteArray(bytes, contentType))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/users/@me/logout") {
-        delete {
-            description = "Logs out of the current session"
+    override fun toPathDsl(): PathItem = toPaths("/users/@me/avatars/{hash?}") {
+        get {
+            description = "Returns the current authenticated user's avatar, if any."
+
+            pathParameter {
+                description = "Avatar hash, if this was not provided, then it will find the latest one."
+                required = false
+                name = "hash"
+
+                schema<String>()
+            }
 
             addAuthenticationResponses()
-            response(HttpStatusCode.Accepted) {
-                description = "The session was deleted"
-                contentType(ContentType.Application.Json) {
-                    schema<ApiResponse.Ok<Unit>>()
-                    example = ApiResponse.ok()
-                }
+            response(HttpStatusCode.OK) {
+                description = "The avatar itself in bytes"
+
+                contentType(ContentType.Image.JPEG)
+                contentType(ContentType.Image.SVG)
+                contentType(ContentType.Image.GIF)
+                contentType(ContentType.Image.PNG)
             }
         }
     }

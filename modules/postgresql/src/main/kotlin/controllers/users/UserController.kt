@@ -24,6 +24,7 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.noelware.charted.ValidationException
+import org.noelware.charted.common.extensions.regexp.matchesNameRegex
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.sessions.SessionType
 import org.noelware.charted.models.users.User
@@ -44,8 +45,7 @@ class UserController(
 ): AbstractController<User, CreateUserPayload, PatchUserPayload>() {
     override suspend fun getOrNull(id: Long): User? = getOrNullByProp(UserTable, UserTable::id to id)
     override suspend fun <V> getOrNullByProp(prop: KProperty0<Column<V>>, value: V): User? = asyncTransaction {
-        val key = prop.get()
-        UserEntity.find { key eq value }.firstOrNull()?.let { entity ->
+        UserEntity.find { prop.get() eq value }.firstOrNull()?.let { entity ->
             User.fromEntity(entity)
         }
     }
@@ -120,5 +120,11 @@ class UserController(
                 email = data.email
             }.let { entity -> User.fromEntity(entity) }
         }
+    }
+
+    suspend fun getByIdOrName(idOrName: String): User? = when {
+        idOrName.toLongOrNull() != null -> getOrNull(idOrName.toLong())
+        idOrName.matchesNameRegex() -> getOrNullByProp(UserTable::username to idOrName)
+        else -> null
     }
 }

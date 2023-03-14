@@ -15,15 +15,14 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.routing.v1.users
+package org.noelware.charted.server.routing.v1.users.avatars
 
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.noelware.charted.server.routing.RestController
-import org.noelware.charted.server.routing.v1.users.avatars.usersV1AvatarModule
-import org.noelware.charted.server.routing.v1.users.crud.usersV1CrudModule
-import org.noelware.charted.server.routing.v1.users.sessions.usersV1SessionsModule
 
-val usersV1Module = usersV1CrudModule + usersV1AvatarModule + usersV1SessionsModule + module {
-    single { MainUserRestController() } bind RestController::class
+val usersV1AvatarModule = module {
+    single { GetCurrentUserAvatarRestController(get()) } bind RestController::class
+    single { GetUserAvatarRestController(get(), get()) } bind RestController::class
+    single { UploadUserAvatarRestController(get()) } bind RestController::class
 }

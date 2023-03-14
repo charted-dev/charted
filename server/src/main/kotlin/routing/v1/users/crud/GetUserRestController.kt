@@ -22,8 +22,11 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.util.*
 import io.swagger.v3.oas.models.PathItem
-import org.noelware.charted.common.extensions.regexp.matchesNameRegex
+import org.noelware.charted.common.extensions.regexp.matchesNameAndIdRegex
 import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.models.users.User
+import org.noelware.charted.modules.openapi.kotlin.dsl.schema
+import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.EntityNotFoundException
 import org.noelware.charted.modules.postgresql.controllers.get
 import org.noelware.charted.modules.postgresql.controllers.getByProp
@@ -46,7 +49,7 @@ class GetUserRestController(private val controller: UserController): RestControl
                 )
             }
 
-            idOrName.matchesNameRegex() -> try {
+            idOrName.matchesNameAndIdRegex() -> try {
                 call.respond(HttpStatusCode.OK, ApiResponse.ok(controller.getByProp(UserTable::username to idOrName)))
             } catch (e: EntityNotFoundException) {
                 call.respond(
@@ -67,7 +70,35 @@ class GetUserRestController(private val controller: UserController): RestControl
         }
     }
 
-    override fun toPathDsl(): PathItem {
-        TODO("Not yet implemented")
+    override fun toPathDsl(): PathItem = toPaths("/users/{idOrName}") {
+        get {
+            description = "Retrieves a user from the database"
+            pathParameter {
+                description = "The snowflake or username to use"
+                name = "idOrName"
+
+                schema<String>()
+            }
+
+            response(HttpStatusCode.OK) {
+                contentType(ContentType.Application.Json) {
+                    schema<ApiResponse.Ok<User>>()
+                }
+            }
+
+            response(HttpStatusCode.BadRequest) {
+                description = "If the provided idOrName parameter wasn't a snowflake or username"
+                contentType(ContentType.Application.Json) {
+                    schema<ApiResponse.Err>()
+                }
+            }
+
+            response(HttpStatusCode.NotFound) {
+                description = "If a user by the idOrName parameter was not found"
+                contentType(ContentType.Application.Json) {
+                    schema<ApiResponse.Err>()
+                }
+            }
+        }
     }
 }

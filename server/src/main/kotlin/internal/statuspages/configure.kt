@@ -20,6 +20,7 @@ package org.noelware.charted.server.internal.statuspages
 import com.charleskorn.kaml.YamlException
 import dev.floofy.utils.slf4j.logging
 import io.ktor.http.*
+import io.ktor.serialization.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
 import io.ktor.server.plugins.statuspages.*
@@ -164,7 +165,7 @@ fun StatusPagesConfig.configure(config: Config) {
     exception<Exception> { call, cause ->
         ifSentryEnabled { Sentry.captureException(cause) }
 
-        log.error("Unknown exception had occurred while handling request [${call.request.httpMethod.value} ${call.request.path()}]", cause)
+        log.error("Unknown exception had occurred while handling request", cause)
         call.respond(
             HttpStatusCode.InternalServerError,
             ApiResponse.err(

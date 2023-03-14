@@ -52,6 +52,9 @@ class Sessions private constructor(private val config: Configuration) {
         private val _conditions: MutableList<suspend (call: ApplicationCall) -> PreconditionResult> = mutableListOf()
         internal val scopes: ApiKeyScopes = ApiKeyScopes()
 
+        /** If the middleware should validate if the session's refresh token is the same as the one the session is using right now. */
+        var requireRefreshToken: Boolean = false
+
         /** If the session middleware can allow Api Key usage or not. */
         var assertSessionOnly: Boolean = false
 
@@ -224,6 +227,20 @@ class Sessions private constructor(private val config: Configuration) {
                         },
                     ),
                 )
+
+            if (config.requireRefreshToken && session.refreshToken != token) {
+                return call.respond(
+                    HttpStatusCode.BadRequest,
+                    ApiResponse.err(
+                        "REQUIRED_REFRESH_TOKEN",
+                        "Current token provided needs to be the refresh token",
+                        buildJsonObject {
+                            put("method", call.request.httpMethod.value)
+                            put("uri", call.request.path())
+                        },
+                    ),
+                )
+            }
 
             call.attributes.put(sessionKey, session)
             return runPreconditions(call)

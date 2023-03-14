@@ -21,7 +21,7 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.noelware.charted.server.routing.RestController
 
-val userV1CrudModule = module {
+val usersV1CrudModule = module {
     single { CreateUserRestController(get(), getOrNull(), get(), get()) } bind RestController::class
     single { DeleteUserRestController(getOrNull(), get(), get()) } bind RestController::class
     single { PatchUserRestController(get()) } bind RestController::class

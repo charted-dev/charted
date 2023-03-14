@@ -93,7 +93,7 @@ suspend fun <T, Created, Patched> AbstractController<T, Created, Patched>.get(id
  * @param pair A pair of prop -> value to check for.
  * @return entity as [T], or `null` if it wasn't found.
  */
-suspend fun <T, Created, Patched, V> AbstractController<T, Created, Patched>.getOrNullByProp(
+suspend fun <T, V, Created, Patched> AbstractController<T, Created, Patched>.getOrNullByProp(
     pair: Pair<KProperty0<Column<V>>, V>
 ): T? = getOrNullByProp(pair.first, pair.second)
 
@@ -105,7 +105,7 @@ suspend fun <T, Created, Patched, V> AbstractController<T, Created, Patched>.get
  * @return entity as [T], or `null` if it wasn't found.
  * @throws EntityNotFoundException If the entity couldn't be found.
  */
-suspend fun <T, Created, Patched, V> AbstractController<T, Created, Patched>.getByProp(
+suspend fun <T, V, Created, Patched> AbstractController<T, Created, Patched>.getByProp(
     pair: Pair<KProperty0<Column<V>>, V>
 ): T = getOrNullByProp(pair.first, pair.second) ?: throw EntityNotFoundException()
 // ^ we can't infer that V is a long, so we will have to be vague about it

@@ -16,3 +16,66 @@
  */
 
 package org.noelware.charted.server.routing.v1.users.avatars
+
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.util.*
+import io.swagger.v3.oas.models.PathItem
+import org.noelware.charted.modules.avatars.AvatarModule
+import org.noelware.charted.modules.openapi.kotlin.dsl.schema
+import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.postgresql.controllers.users.UserController
+import org.noelware.charted.server.extensions.addAuthenticationResponses
+import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.util.createBodyWithByteArray
+
+class GetUserAvatarRestController(
+    private val avatars: AvatarModule,
+    private val controller: UserController
+): RestController("/users/{idOrName}/avatars/{hash?}") {
+    override suspend fun call(call: ApplicationCall) {
+        val user = controller.getByIdOrName(call.parameters.getOrFail("idOrName"))
+            ?: return call.respond(HttpStatusCode.NotFound)
+
+        val (contentType, bytes) = avatars.retrieveUserAvatar(user, call.parameters["hash"])
+            ?: return call.respond(HttpStatusCode.NotFound)
+
+        call.respond(HttpStatusCode.OK, createBodyWithByteArray(bytes, contentType))
+    }
+
+    override fun toPathDsl(): PathItem = toPaths("/users/{idOrName}/avatars/{hash?}") {
+        get {
+            description = "Returns the current authenticated user's avatar, if any."
+
+            pathParameter {
+                description = "The snowflake or username to find"
+                name = "idOrName"
+
+                // just use a string, since we can't do unions;
+                // maybe we can, but it'll be harder to do it
+                // anyway.
+                schema<String>()
+            }
+
+            pathParameter {
+                description = "Avatar hash, if this was not provided, then it will find the latest one."
+                required = false
+                name = "hash"
+
+                schema<String>()
+            }
+
+            addAuthenticationResponses()
+            response(HttpStatusCode.OK) {
+                description = "The avatar itself in bytes"
+
+                contentType(ContentType.Image.JPEG)
+                contentType(ContentType.Image.SVG)
+                contentType(ContentType.Image.GIF)
+                contentType(ContentType.Image.PNG)
+            }
+        }
+    }
+}

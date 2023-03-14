@@ -16,3 +16,46 @@
  */
 
 package org.noelware.charted.server.routing.v1.users.sessions
+
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.swagger.v3.oas.models.PathItem
+import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.models.flags.ApiKeyScope
+import org.noelware.charted.modules.openapi.kotlin.dsl.schema
+import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.sessions.AbstractSessionManager
+import org.noelware.charted.modules.sessions.Session
+import org.noelware.charted.server.extensions.addAuthenticationResponses
+import org.noelware.charted.server.extensions.currentUser
+import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.routing.RestController
+
+class GetUserSessionsRestController(private val sessionManager: AbstractSessionManager): RestController("/users/@me/sessions") {
+    override fun Route.init() {
+        install(Sessions) {
+            this += ApiKeyScope.User.Sessions.List
+        }
+    }
+
+    override suspend fun call(call: ApplicationCall) {
+        val sessions = sessionManager.all(call.currentUser!!.id)
+        call.respond(HttpStatusCode.OK, ApiResponse.ok(sessions.map { it.toJsonObject() }))
+    }
+
+    override fun toPathDsl(): PathItem = toPaths("/users/@me/sessions") {
+        get {
+            description = "Lists all the available sessions from the current authenticated user"
+
+            addAuthenticationResponses()
+            response(HttpStatusCode.OK) {
+                contentType(ContentType.Application.Json) {
+                    schema<ApiResponse.Ok<List<Session>>>()
+                    example = ApiResponse.ok(listOf<Session>())
+                }
+            }
+        }
+    }
+}

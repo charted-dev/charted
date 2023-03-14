@@ -129,6 +129,18 @@ abstract class AbstractSessionManager(
     }
 
     /**
+     * Returns all the sessions that the [user with this ID][userID] has created.
+     * @param userID The user ID that was already created
+     * @return [List] of all the sessions
+     */
+    suspend fun all(userID: Long): List<Session> = redis.commands.hgetall(redisTableKey)
+        .await()
+        .mapValues { json.decodeFromString(Session.serializer(), it.value) }
+        .filterValues { it.userID == userID }
+        .toList()
+        .map { it.second }
+
+    /**
      * Fetch a [Session] from Redis with the given [token]. If the session was found
      * and hasn't expired, a [Session] object will return, otherwise null.
      *
@@ -146,7 +158,9 @@ abstract class AbstractSessionManager(
         val headers: JsonObject = json.decodeFromString(String(Base64.getDecoder().decode(jwt.header.toByteArray())))
 
         val issuer = payload["iss"]?.jsonPrimitive?.content
-        if (issuer == null || issuer != "Noelware/charted-server") {
+            ?: throw IllegalStateException("Malformed JWT token: missing 'iss' key")
+
+        if (issuer != "Noelware/charted") {
             throw IllegalStateException("Malformed JWT token: 'issuer' was not 'Noelware/charted'")
         }
 
