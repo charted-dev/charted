@@ -42,7 +42,7 @@ runs:
           id: tag
 
         - name: Setup Go ${{inputs.go-version}}
-          uses: actions/setup-go@v3
+          uses: actions/setup-go@v4
           with:
               go-version: ${{inputs.go-version}}
 
