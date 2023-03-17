@@ -16,3 +16,66 @@
  */
 
 package org.noelware.charted.server.routing.v1.repositories.crud
+
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.swagger.v3.oas.models.PathItem
+import org.noelware.charted.common.types.helm.RepoType
+import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.models.flags.ApiKeyScope.Repositories
+import org.noelware.charted.models.repositories.Repository
+import org.noelware.charted.modules.openapi.kotlin.dsl.schema
+import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.postgresql.controllers.repositories.CreateRepositoryPayload
+import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryController
+import org.noelware.charted.modules.postgresql.ktor.OwnerIdAttributeKey
+import org.noelware.charted.server.extensions.addAuthenticationResponses
+import org.noelware.charted.server.extensions.currentUser
+import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.routing.RestController
+
+class CreateUserRepositoryRestController(
+    private val controller: RepositoryController
+): RestController("/users/@me/repositories", HttpMethod.Put) {
+    override fun Route.init() {
+        install(Sessions) {
+            this += Repositories.Create
+        }
+    }
+
+    override suspend fun call(call: ApplicationCall) {
+        val body: CreateRepositoryPayload = call.receive()
+
+        call.attributes.put(OwnerIdAttributeKey, call.currentUser!!.id)
+        call.respond(HttpStatusCode.Created, ApiResponse.ok(controller.create(call, body)))
+
+        call.attributes.remove(OwnerIdAttributeKey)
+    }
+
+    override fun toPathDsl(): PathItem = toPaths("/users/@me/repositories") {
+        put {
+            description = "Creates a repository that is owned by the current authenticated user"
+            requestBody {
+                contentType(ContentType.Application.Json) {
+                    schema<CreateRepositoryPayload>()
+                    example = CreateRepositoryPayload(
+                        "helm library to provide common stuff",
+                        false,
+                        "common",
+                        RepoType.LIBRARY,
+                    )
+                }
+            }
+
+            addAuthenticationResponses()
+            response(HttpStatusCode.Created) {
+                contentType(ContentType.Application.Json) {
+                    schema<ApiResponse.Ok<Repository>>()
+                }
+            }
+        }
+    }
+}

@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+rootProject.name = "charted-server"
+
 pluginManagement {
     repositories {
         gradlePluginPortal()

@@ -102,12 +102,12 @@ spotless {
             setEditorConfigPath(file("${rootProject.projectDir}/.editorconfig"))
         }
 
-        licenseHeaderFile(file("${rootProject.projectDir}/assets/HEADING"), "(package |@file|plugins|pluginManagement|import)")
+        licenseHeaderFile(file("${rootProject.projectDir}/assets/HEADING"), "(package |@file|plugins|pluginManagement|import|rootProject)")
     }
 
     val terraformBinary = FindBinaryUtil.find("terraform")
     if (terraformBinary != null) {
-        logger.lifecycle("Found Terraform binary in [$terraformBinary] -- Spotless will be enabled for Terraform files")
+        logger.info("Found Terraform binary in [$terraformBinary] -- Spotless will be enabled for Terraform files")
         format("terraform") {
             target(".noelware/deployment/**/*.tf", ".noelware/deployment/**/*.tf")
             nativeCmd(

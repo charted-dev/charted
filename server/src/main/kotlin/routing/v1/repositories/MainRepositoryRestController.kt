@@ -16,3 +16,39 @@
  */
 
 package org.noelware.charted.server.routing.v1.repositories
+
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.swagger.v3.oas.models.PathItem
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import org.noelware.charted.ChartedInfo
+import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.modules.openapi.kotlin.dsl.schema
+import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.v1.users.MainUserResponse
+
+@Serializable
+data class MainRepositoryResponse(
+    val message: String = "Welcome to the Repositories API!",
+
+    @SerialName("docs_url")
+    val docsUrl: String = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api/repositories"
+)
+
+class MainRepositoryRestController: RestController("/repositories") {
+    override suspend fun call(call: ApplicationCall): Unit = call.respond(HttpStatusCode.OK, ApiResponse.ok(MainUserResponse()))
+    override fun toPathDsl(): PathItem = toPaths("/repositories") {
+        get {
+            description = "Generic entrypoint for the Repositories API"
+            response(HttpStatusCode.OK) {
+                contentType(ContentType.Application.Json) {
+                    schema<ApiResponse.Ok<MainUserResponse>>()
+                    example = ApiResponse.ok(MainUserResponse())
+                }
+            }
+        }
+    }
+}

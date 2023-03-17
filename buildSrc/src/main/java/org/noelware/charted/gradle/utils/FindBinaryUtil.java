@@ -18,9 +18,13 @@
 package org.noelware.charted.gradle.utils;
 
 import java.io.File;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.noelware.charted.gradle.OperatingSystem;
 
 public class FindBinaryUtil {
+    private static final Logger LOG = Logging.getLogger(FindBinaryUtil.class);
+
     /**
      * Utility to find a binary from the <code>$PATH</code> environment variable. This
      * command has only been tested on Linux, so there is limited support for this.
@@ -29,6 +33,8 @@ public class FindBinaryUtil {
      * @return The full, absolute path to the binary, or <code>null</code> if it couldn't be found.
      */
     public static String find(String binary) {
+        LOG.info("Finding binary '{}'...", binary);
+
         // Since this has been tested on Linux, there is limited support
         // for finding a binary.
         if (!OperatingSystem.current().isLinux()) return null;
@@ -36,7 +42,9 @@ public class FindBinaryUtil {
         final String path = System.getenv("PATH");
         assert path != null : "Unable to locate $PATH environment variable.";
 
+        LOG.debug("$PATH: {}", path);
         String[] folders = path.split(":");
+
         if (folders.length == 0) return null;
         if (folders.length == 1) {
             // Get the first item in the array
@@ -47,7 +55,6 @@ public class FindBinaryUtil {
 
             // Skip on invalid entries (i.e, files)
             if (!stat.isDirectory()) return null;
-
             final File[] locatedFiles = stat.listFiles(File::isFile);
 
             // If an I/O error occurred, then we will have to break,
@@ -64,8 +71,10 @@ public class FindBinaryUtil {
             folders = ArrayUtil.pop(folders);
             if (folders.length == 0) break;
 
-            // Get the first item in the array
-            String folder = folders[0];
+            // Get the last item in the array. At the moment ArrayUtil#pop
+            // goes from last <- first, when this was written, it should've been
+            // first -> last.
+            String folder = folders[folders.length - 1];
 
             // Stat the file to check if it exists
             final File stat = new File(folder);
@@ -78,8 +87,13 @@ public class FindBinaryUtil {
             // If an I/O error occurred, then we will have to break,
             // so we don't get anymore or do we just continue?
             if (locatedFiles == null) break;
-
             for (File located : locatedFiles) {
+                LOG.debug(
+                        "File [{}]: {} (found: {})",
+                        located.getName(),
+                        located,
+                        located.getName().equalsIgnoreCase(binary));
+
                 if (located.getName().equalsIgnoreCase(binary)) {
                     return located.getAbsolutePath();
                 }
