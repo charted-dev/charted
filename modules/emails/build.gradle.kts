@@ -19,7 +19,7 @@ import com.google.protobuf.gradle.*
 import de.undercouch.gradle.tasks.download.Download
 
 plugins {
-    id("de.undercouch.download") version "5.3.1"
+    id("de.undercouch.download") version "5.4.0"
     id("com.google.protobuf")
     `charted-module`
     idea
