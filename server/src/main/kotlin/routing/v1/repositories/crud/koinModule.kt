@@ -15,22 +15,15 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.gradle.util;
+package org.noelware.charted.server.routing.v1.repositories.crud
 
-import java.io.*;
+import org.koin.dsl.bind
+import org.koin.dsl.module
+import org.noelware.charted.server.routing.RestController
 
-public class FileUtil {
-    @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void writeFile(File file, String content) throws IOException {
-        if (!file.getParentFile().exists()) file.getParentFile().mkdirs();
-        try (final BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            writer.write(content);
-        }
-    }
-
-    public static String readFile(File file) throws IOException {
-        try (final FileInputStream stream = new FileInputStream(file)) {
-            return new String(stream.readAllBytes());
-        }
-    }
+val repositoriesV1CrudModule = module {
+    single { CreateOrganizationRepositoryRestController(get()) } bind RestController::class
+    single { CreateUserRepositoryRestController(get()) } bind RestController::class
+    single { GetSingleRepositoryRestController(get()) } bind RestController::class
+    single { DeleteRepositoryRestController(get()) } bind RestController::class
 }

@@ -167,6 +167,7 @@ jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", ver
 
 # swagger
 swagger-core-models = { module = "io.swagger.core.v3:swagger-models", version.ref = "swagger-core" }
+swagger-annotations = { module = "io.swagger.core.v3:swagger-annotations", version.ref = "swagger-core" }
 swagger-core = { module = "io.swagger.core.v3:swagger-core", version.ref = "swagger-core" }
 
 # external libraries

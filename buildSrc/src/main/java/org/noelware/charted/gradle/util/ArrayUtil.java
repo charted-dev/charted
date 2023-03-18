@@ -15,13 +15,25 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.routing.v1.repositories
+package org.noelware.charted.gradle.util;
 
-import org.koin.dsl.bind
-import org.koin.dsl.module
-import org.noelware.charted.server.routing.RestController
-import org.noelware.charted.server.routing.v1.repositories.crud.repositoriesV1CrudModule
+import java.util.Arrays;
+import java.util.Objects;
+import org.jetbrains.annotations.NotNull;
 
-val repositoriesV1Module = repositoriesV1CrudModule + module {
-    single { MainRepositoryRestController() } bind RestController::class
+public class ArrayUtil {
+    // no direct construct pls
+    private ArrayUtil() {}
+
+    /**
+     * Pops the last element out of the originating array and returns a new copied
+     * array that goes from last <- first.
+     *
+     * @param array Array to "pop" its last item from
+     * @return New copied array
+     */
+    public static <T> T[] pop(@NotNull T[] array) {
+        Objects.requireNonNull(array, "Array cannot be null");
+        return Arrays.copyOf(array, array.length - 1);
+    }
 }

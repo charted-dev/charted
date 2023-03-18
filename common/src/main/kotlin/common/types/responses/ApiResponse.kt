@@ -17,6 +17,7 @@
 
 package org.noelware.charted.common.types.responses
 
+import io.swagger.v3.oas.annotations.media.Schema
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -40,6 +41,7 @@ public sealed class ApiResponse<out T>(public val success: Boolean) {
      *             must be marked with [Serializable][kotlinx.serialization.Serializable] or
      *             the server will not know how to serialize it to JSON.
      */
+    @Schema(description = "Represents a successful response, with any data attached if any")
     public data class Ok<out T>(val data: T? = null): ApiResponse<T>(true)
 
     /**
@@ -48,7 +50,9 @@ public sealed class ApiResponse<out T>(public val success: Boolean) {
      *
      * @param errors A list of API errors that might've occurred when invoking the request.
      */
+    @Schema(description = "Represents an unsuccessful response, with any errors that might've occurred during the invocation of the request")
     public data class Err(val errors: List<ApiError>): ApiResponse<Unit>(false)
+
     public companion object {
         /**
          * Sends out an empty response payload with only the success marker.

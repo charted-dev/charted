@@ -25,6 +25,7 @@ import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.extensions.regexp.matchesNameAndIdRegex
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.users.User
+import org.noelware.charted.modules.openapi.NameOrSnowflake
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.EntityNotFoundException
@@ -77,7 +78,7 @@ class GetUserRestController(private val controller: UserController): RestControl
                 description = "The snowflake or username to use"
                 name = "idOrName"
 
-                schema<String>()
+                schema<NameOrSnowflake>()
             }
 
             response(HttpStatusCode.OK) {

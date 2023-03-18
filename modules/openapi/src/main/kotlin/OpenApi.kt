@@ -32,7 +32,6 @@ import org.noelware.charted.modules.openapi.kotlin.dsl.OpenAPIDslBuilder
 import kotlin.reflect.KType
 import kotlin.reflect.javaType
 
-val modelConverterContext = ModelConverterContextImpl(ModelConverters.getInstance().converters)
 private val jsonMapper: ObjectMapper = Json.mapper().apply {
     registerModules(kotlinModule(), OpenAPIJacksonModule)
 }
@@ -40,6 +39,10 @@ private val jsonMapper: ObjectMapper = Json.mapper().apply {
 private val yamlMapper: ObjectMapper = Yaml.mapper().apply {
     registerModules(kotlinModule(), OpenAPIJacksonModule)
 }
+
+val modelConverterContext = ModelConverterContextImpl(
+    ModelConverters.getInstance().apply { addConverter(KotlinxDatetimeModelConverter(jsonMapper)) }.converters,
+)
 
 /**
  * Builds and constructs a [OpenAPI] document.

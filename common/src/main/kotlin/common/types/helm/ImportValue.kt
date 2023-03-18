@@ -17,7 +17,10 @@
 
 package org.noelware.charted.common.types.helm
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import io.swagger.v3.oas.annotations.media.Schema
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
@@ -28,7 +31,7 @@ import kotlinx.serialization.encoding.Encoder
  * ImportValues holds the mapping of source values to parent key to be imported.
  * Each item can be a string or pair of child/parent sublist items.
  */
-@kotlinx.serialization.Serializable
+@Serializable
 public data class ImportValue(
     /** The source key of the values to be imported */
     val child: String,
@@ -37,19 +40,22 @@ public data class ImportValue(
     val parent: String
 )
 
-@kotlinx.serialization.Serializable(with = StringOrImportValue.Companion::class)
-public class StringOrImportValue(private val value: Any) {
+@Serializable(with = StringOrImportValue.Companion::class)
+@Schema(oneOf = [String::class, ImportValue::class])
+public class StringOrImportValue(@JsonIgnore private val value: Any) {
     init {
         require(value is String || value is ImportValue) { "Can't resolve a `import-value` from anything other than a String or ImportValue" }
     }
 
+    @get:JsonIgnore
     public val stringOrNull: String?
         get() = value as? String
 
+    @get:JsonIgnore
     public val importValueOrNull: ImportValue?
         get() = value as? ImportValue
 
-    internal companion object : KSerializer<StringOrImportValue> {
+    internal companion object: KSerializer<StringOrImportValue> {
         override val descriptor: SerialDescriptor = buildClassSerialDescriptor("charted.StringOrImportValue")
         override fun deserialize(decoder: Decoder): StringOrImportValue = try {
             val string = decoder.decodeString()

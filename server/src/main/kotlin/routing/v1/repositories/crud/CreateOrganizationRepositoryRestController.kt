@@ -30,10 +30,10 @@ import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope.Repositories
 import org.noelware.charted.models.organizations.Organization
 import org.noelware.charted.models.repositories.Repository
+import org.noelware.charted.modules.openapi.NameOrSnowflake
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.asyncTransaction
-import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationController
 import org.noelware.charted.modules.postgresql.controllers.repositories.CreateRepositoryPayload
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryController
 import org.noelware.charted.modules.postgresql.entities.OrganizationEntity
@@ -46,8 +46,7 @@ import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.RestController
 
 class CreateOrganizationRepositoryRestController(
-    private val controller: RepositoryController,
-    private val organization: OrganizationController
+    private val controller: RepositoryController
 ): RestController("/organizations/{idOrName}/repositories", HttpMethod.Put) {
     override fun Route.init() {
         install(Sessions) {
@@ -81,9 +80,17 @@ class CreateOrganizationRepositoryRestController(
         call.attributes.remove(OwnerIdAttributeKey)
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/users/@me/repositories") {
+    override fun toPathDsl(): PathItem = toPaths("/organizations/{idOrName}/repositories") {
         put {
             description = "Creates a repository that is owned by the current authenticated user"
+
+            pathParameter {
+                description = "Represents a Name or Snowflake to query the organization as"
+                name = "idOrName"
+
+                schema<NameOrSnowflake>()
+            }
+
             requestBody {
                 contentType(ContentType.Application.Json) {
                     schema<CreateRepositoryPayload>()

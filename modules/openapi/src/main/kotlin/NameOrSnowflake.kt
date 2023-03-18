@@ -15,13 +15,16 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.routing.v1.repositories
+package org.noelware.charted.modules.openapi
 
-import org.koin.dsl.bind
-import org.koin.dsl.module
-import org.noelware.charted.server.routing.RestController
-import org.noelware.charted.server.routing.v1.repositories.crud.repositoriesV1CrudModule
+import io.swagger.v3.oas.annotations.media.Schema
 
-val repositoriesV1Module = repositoriesV1CrudModule + module {
-    single { MainRepositoryRestController() } bind RestController::class
-}
+/**
+ * Represents a dummy class to use for resolving "idOrName" parameters
+ * with this class.
+ */
+@Schema(
+    description = "Represents a value that handles Name and Snowflake parameters",
+    oneOf = [String::class, Long::class],
+)
+class NameOrSnowflake

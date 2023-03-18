@@ -15,36 +15,12 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.gradle
+import org.gradle.api.artifacts.MinimalExternalModuleDependency
+import org.gradle.api.artifacts.VersionCatalog
+import kotlin.jvm.optionals.getOrNull
 
-import com.diffplug.gradle.spotless.SpotlessExtension
-import org.gradle.api.Project
-import org.gradle.kotlin.dsl.configure
+public fun VersionCatalog.version(name: String): String =
+    findVersion(name).getOrNull()?.requiredVersion ?: throw IllegalStateException("Unknown version in catalog: $name")
 
-fun Project.applySpotless() {
-    configure<SpotlessExtension> {
-        // For Kotlin and Kotlin (Gradle), we will need to move the license header
-        // as the last step due to https://github.com/diffplug/spotless/issues/1599
-        kotlin {
-            targetExclude("**/*.charted.kts")
-            endWithNewline()
-            encoding("UTF-8")
-            target("**/*.kt")
-            ktlint().apply {
-                setUseExperimental(true)
-                setEditorConfigPath(file("${rootProject.projectDir}/.editorconfig"))
-            }
-
-            licenseHeaderFile(file("${rootProject.projectDir}/assets/HEADING"))
-        }
-
-        java {
-            licenseHeaderFile(file("${rootProject.projectDir}/assets/HEADING"))
-            trimTrailingWhitespace()
-            removeUnusedImports()
-            palantirJavaFormat()
-            endWithNewline()
-            encoding("UTF-8")
-        }
-    }
-}
+public fun VersionCatalog.get(name: String): MinimalExternalModuleDependency =
+    findLibrary(name).getOrNull()?.get() ?: throw IllegalStateException("Unknown library in catalog: $name")

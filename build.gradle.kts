@@ -17,7 +17,7 @@
 
 import com.diffplug.gradle.spotless.SpotlessExtensionPredeclare
 import org.noelware.charted.gradle.*
-import org.noelware.charted.gradle.utils.FindBinaryUtil
+import org.noelware.charted.gradle.util.FindBinaryUtil
 
 plugins {
     id("com.diffplug.spotless")
@@ -72,7 +72,7 @@ spotless {
             ".idea/*.xml",
         )
 
-        prettier(kotlin.collections.mapOf("prettier" to "2.8.4", "@prettier/plugin-xml" to "2.2.0")).apply {
+        prettier(mapOf("prettier" to "2.8.4", "@prettier/plugin-xml" to "2.2.0")).apply {
             configFile(file("$projectDir/.prettierrc.json"))
         }
     }
@@ -134,6 +134,11 @@ the<SpotlessExtensionPredeclare>().apply {
     }
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
 tasks {
     wrapper {
         distributionType = Wrapper.DistributionType.ALL
@@ -146,5 +151,13 @@ tasks {
     create<Copy>("precommitHook") {
         from(file("${project.rootDir}/scripts/pre-commit"))
         into(file("${project.rootDir}/.git/hooks"))
+    }
+
+    named("spotlessCheck") {
+        dependsOn(gradle.includedBuilds.map { it.task(":spotlessCheck") })
+    }
+
+    named("spotlessApply") {
+        dependsOn(gradle.includedBuilds.map { it.task(":spotlessApply") })
     }
 }

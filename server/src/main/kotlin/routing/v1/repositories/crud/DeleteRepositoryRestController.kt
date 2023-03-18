@@ -19,11 +19,16 @@ package org.noelware.charted.server.routing.v1.repositories.crud
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.util.*
 import io.swagger.v3.oas.models.PathItem
+import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope.Repositories
+import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryController
+import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.RestController
 
@@ -35,12 +40,42 @@ class DeleteRepositoryRestController(private val controller: RepositoryControlle
     }
 
     override suspend fun call(call: ApplicationCall) {
-        TODO("Not yet implemented")
+        val id = call.parameters.getOrFail("id").toLongOrNull()
+            ?: return call.respond(
+                HttpStatusCode.UnprocessableEntity,
+                ApiResponse.err(
+                    "UNABLE_TO_PARSE",
+                    "Unable to convert into a Snowflake",
+                ),
+            )
+
+        controller.delete(id)
+        call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
     }
 
     override fun toPathDsl(): PathItem = toPaths("/repositories/{id}") {
         delete {
             description = "Deletes a repository"
+
+            addAuthenticationResponses()
+            response(HttpStatusCode.Accepted) {
+                description = "The repository was deleted successfully"
+                contentType(ContentType.Application.Json) {
+                    schema(ApiResponse.ok())
+                }
+            }
+
+            response(HttpStatusCode.UnprocessableEntity) {
+                description = "If the `id` path parameter couldn't be into a valid Snowflake"
+                contentType(ContentType.Application.Json) {
+                    schema(
+                        ApiResponse.err(
+                            "UNABLE_TO_PARSE",
+                            "Unable to convert into a Snowflake",
+                        ),
+                    )
+                }
+            }
         }
     }
 }

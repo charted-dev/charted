@@ -24,6 +24,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.modules.avatars.AvatarModule
+import org.noelware.charted.modules.openapi.NameOrSnowflake
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.users.UserController
@@ -53,10 +54,7 @@ class GetUserAvatarRestController(
                 description = "The snowflake or username to find"
                 name = "idOrName"
 
-                // just use a string, since we can't do unions;
-                // maybe we can, but it'll be harder to do it
-                // anyway.
-                schema<String>()
+                schema<NameOrSnowflake>()
             }
 
             pathParameter {

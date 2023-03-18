@@ -48,6 +48,17 @@ import kotlin.reflect.KProperty0
 import kotlin.time.DurationUnit
 
 class ApiKeyController(private val snowflake: Snowflake): AbstractController<ApiKeys, CreateApiKeyBody, PatchApiKeyBody>() {
+    override suspend fun <V> all(condition: Pair<KProperty0<Column<V>>, V>?): List<ApiKeys> = asyncTransaction {
+        if (condition == null) {
+            ApiKeyEntity.all().toList().map { entity -> ApiKeys.fromEntity(entity) }
+        } else {
+            val (property, value) = condition
+            val innerProp = property.get()
+
+            ApiKeyEntity.find { innerProp eq value }.toList().map { entity -> ApiKeys.fromEntity(entity) }
+        }
+    }
+
     override suspend fun getOrNull(id: Long): ApiKeys? = getOrNullByProp(ApiKeyTable, ApiKeyTable::id to id)
     override suspend fun <V> getOrNullByProp(prop: KProperty0<Column<V>>, value: V): ApiKeys? = asyncTransaction {
         ApiKeyEntity.find { prop.get() eq value }.firstOrNull()?.let { entity ->

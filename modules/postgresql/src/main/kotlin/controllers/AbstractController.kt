@@ -34,6 +34,14 @@ import kotlin.reflect.KProperty0
  */
 abstract class AbstractController<T, Created, Patched> {
     /**
+     * Returns all the elements of this entity with an optional condition.
+     * @param condition Optional condition to use
+     * @return List of elements that were queried by the [condition], or all the entities
+     * available otherwise.
+     */
+    abstract suspend fun <V> all(condition: Pair<KProperty0<Column<V>>, V>? = null): List<T>
+
+    /**
      * Retrieve an entity from this controller from the specified [id], or `null`
      * if the entity couldn't be found.
      *

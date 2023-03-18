@@ -43,6 +43,17 @@ class UserController(
     private val config: Config,
     private val snowflake: Snowflake
 ): AbstractController<User, CreateUserPayload, PatchUserPayload>() {
+    override suspend fun <V> all(condition: Pair<KProperty0<Column<V>>, V>?): List<User> = asyncTransaction {
+        if (condition == null) {
+            UserEntity.all().toList().map { entity -> User.fromEntity(entity) }
+        } else {
+            val (property, value) = condition
+            val innerProp = property.get()
+
+            UserEntity.find { innerProp eq value }.toList().map { entity -> User.fromEntity(entity) }
+        }
+    }
+
     override suspend fun getOrNull(id: Long): User? = getOrNullByProp(UserTable, UserTable::id to id)
     override suspend fun <V> getOrNullByProp(prop: KProperty0<Column<V>>, value: V): User? = asyncTransaction {
         UserEntity.find { prop.get() eq value }.firstOrNull()?.let { entity ->

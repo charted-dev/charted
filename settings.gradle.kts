@@ -30,6 +30,7 @@ plugins {
     id("com.gradle.enterprise") version "3.12.3"
 }
 
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
@@ -73,4 +74,5 @@ include(
     ":modules:telemetry",
     ":testing:containers",
     ":testing:framework",
+    ":testing:gradle:integ-runner",
 )

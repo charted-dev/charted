@@ -16,6 +16,7 @@
  */
 
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+// import org.noelware.charted.gradle.*
 import kotlin.jvm.optionals.getOrElse
 
 plugins {
@@ -27,6 +28,11 @@ plugins {
     java
 }
 
+group = "org.noelware.charted.gradle"
+
+val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+fun VersionCatalog.get(name: String): MinimalExternalModuleDependency = libs.findLibrary(name).getOrElse { null }?.get() ?: error("Unknown library '$name' in catalog")
+
 repositories {
     maven("https://maven.floofy.dev/repo/releases")
     maven("https://maven.noelware.org")
@@ -34,9 +40,6 @@ repositories {
     mavenCentral()
     mavenLocal()
 }
-
-val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-fun VersionCatalog.get(name: String): MinimalExternalModuleDependency = libs.findLibrary(name).getOrElse { null }?.get() ?: error("Unknown library '$name' in catalog")
 
 dependencies {
     implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.20.0")
@@ -58,7 +61,7 @@ dependencies {
 @Suppress("UnstableApiUsage")
 gradlePlugin {
     website.set("https://charts.noelware.org")
-    vcsUrl.set("https://github.com/charted-dev/charted/tree/main/build-tools")
+    vcsUrl.set("https://github.com/charted-dev/charted/tree/main/buildSrc")
 
     plugins {
         create("nebula") {
@@ -69,6 +72,7 @@ gradlePlugin {
 }
 
 kotlin {
+    explicitApi()
     jvmToolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
     }

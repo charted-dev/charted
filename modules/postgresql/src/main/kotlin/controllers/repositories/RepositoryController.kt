@@ -34,6 +34,17 @@ import org.noelware.charted.snowflake.Snowflake
 import kotlin.reflect.KProperty0
 
 class RepositoryController(private val snowflake: Snowflake): AbstractController<Repository, CreateRepositoryPayload, PatchRepositoryPayload>() {
+    override suspend fun <V> all(condition: Pair<KProperty0<Column<V>>, V>?): List<Repository> = asyncTransaction {
+        if (condition == null) {
+            RepositoryEntity.all().toList().map { entity -> Repository.fromEntity(entity) }
+        } else {
+            val (property, value) = condition
+            val innerProp = property.get()
+
+            RepositoryEntity.find { innerProp eq value }.toList().map { entity -> Repository.fromEntity(entity) }
+        }
+    }
+
     override suspend fun <V> getOrNullByProp(prop: KProperty0<Column<V>>, value: V): Repository? = asyncTransaction {
         RepositoryEntity.find { prop.get() eq value }.firstOrNull()?.let { entity ->
             Repository.fromEntity(entity)

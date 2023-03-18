@@ -41,4 +41,5 @@ ktlint_standard_annotation-spacing = disabled
 ktlint_standard_filename = disabled
 ktlint_standard_no-wildcard-imports = disabled
 ktlint_standard_argument-list-wrapping = disabled
+ktlint_standard_import-ordering = disabled
 max_line_length = off

@@ -32,17 +32,17 @@ import org.noelware.charted.gradle.Architecture;
 public class ChartedNebulaPlugin implements Plugin<Project> {
     private static final String DESCRIPTION =
             """
-    charted-server is a Helm chart registry made in Kotlin for providing a self-managed
-    cloud service to host Helm charts easily without configuring a lot of things.
+charted-server is a Helm chart registry made in Kotlin for providing a self-managed
+cloud service to host Helm charts easily without configuring a lot of things.
 
-    This software is packaged through Noelware's Artifacts Repository hosted at:
-                        https://artifacts.noelware.cloud
+This software is packaged through Noelware's Artifacts Repository hosted at:
+                    https://artifacts.noelware.cloud
 
-    ❯ Documentation: https://charts.noelware.org/docs
-    ❯ Issue Tracker: https://github.com/charted-dev/charted/issues
+❯ Documentation: https://charts.noelware.org/docs
+❯ Issue Tracker: https://github.com/charted-dev/charted/issues
 
-    ~ Noelware, LLC. ^~^
-    """
+~ Noelware, LLC. ^~^
+"""
                     .trim();
 
     @Override

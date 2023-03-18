@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.gradle.utils;
+package org.noelware.charted.gradle.util;
 
 import java.io.File;
 import org.gradle.api.logging.Logger;

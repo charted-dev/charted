@@ -39,6 +39,17 @@ import org.noelware.charted.snowflake.Snowflake
 import kotlin.reflect.KProperty0
 
 class OrganizationController(private val snowflake: Snowflake): AbstractController<Organization, CreateOrganizationPayload, PatchOrganizationPayload>() {
+    override suspend fun <V> all(condition: Pair<KProperty0<Column<V>>, V>?): List<Organization> = asyncTransaction {
+        if (condition == null) {
+            OrganizationEntity.all().toList().map { entity -> Organization.fromEntity(entity) }
+        } else {
+            val (property, value) = condition
+            val innerProp = property.get()
+
+            OrganizationEntity.find { innerProp eq value }.toList().map { entity -> Organization.fromEntity(entity) }
+        }
+    }
+
     override suspend fun <V> getOrNullByProp(prop: KProperty0<Column<V>>, value: V): Organization? = asyncTransaction {
         OrganizationEntity.find { prop.get() eq value }.firstOrNull()?.let { entity ->
             Organization.fromEntity(entity)

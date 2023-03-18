@@ -34,7 +34,6 @@ buildscript {
 }
 
 apply<FoojayToolchainsConventionPlugin>()
-
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {

@@ -16,10 +16,14 @@
  */
 
 import dev.floofy.utils.gradle.*
+import org.gradle.api.artifacts.VersionCatalog
+import org.gradle.api.tasks.bundling.Jar
+import org.gradle.api.tasks.compile.JavaCompile
+import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.gradle.kotlin.dsl.*
 import org.noelware.charted.gradle.*
-import kotlin.jvm.optionals.getOrNull
 
 plugins {
     kotlin("plugin.serialization")
@@ -34,9 +38,7 @@ group = "org.noelware.charted"
 version = "$VERSION"
 description = "\uD83D\uDCE6 You know, for Helm Charts?"
 
-val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-fun VersionCatalog.version(name: String): String = libs.findVersion(name).getOrNull()?.requiredVersion ?: error("Unknown version for catalog '$name' exists!")
-fun VersionCatalog.get(name: String): MinimalExternalModuleDependency = libs.findLibrary(name).getOrNull()?.get() ?: error("Unknown library '$name' in catalog")
+public val libs: VersionCatalog = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
 // https://github.com/Kotlin/kotlinx-atomicfu/issues/210
 atomicfu {
@@ -114,6 +116,9 @@ dependencies {
 
     // Jackson
     api(libs.get("jackson-databind"))
+
+    // Swagger Annotations
+    api(libs.get("swagger-annotations"))
 }
 
 applySpotless()
@@ -124,7 +129,7 @@ applySpotless()
 //    - :modules:elasticsearch -> elasticsearch
 //    - :modules:tracing:apm -> tracing-apm
 //    - :sessions:integrations:noelware -> sessions-integrations-noelware
-val projectName = path
+public val projectName: String = path
     .substring(1)
     .replace(':', '-')
     .replace("modules-", "")

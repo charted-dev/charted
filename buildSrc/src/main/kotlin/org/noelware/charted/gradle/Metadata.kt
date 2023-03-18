@@ -15,12 +15,10 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.gradle.utils;
+package org.noelware.charted.gradle
 
-import java.util.Arrays;
+import dev.floofy.utils.gradle.*
+import org.gradle.api.JavaVersion
 
-public class ArrayUtil {
-    public static <T> T[] pop(T[] array) {
-        return Arrays.copyOf(array, array.length - 1);
-    }
-}
+public val VERSION: Version = Version(0, 4, 0, ReleaseType("nightly"), true)
+public val JAVA_VERSION: JavaVersion = JavaVersion.VERSION_17

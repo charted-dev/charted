@@ -15,10 +15,20 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.gradle
+plugins {
+    `java-gradle-plugin`
+    `charted-module`
+}
 
-import dev.floofy.utils.gradle.*
-import org.gradle.api.JavaVersion
+@Suppress("UnstableApiUsage")
+gradlePlugin {
+    website.set("https://charts.noelware.org")
+    vcsUrl.set("https://github.com/charted-dev/charted/tree/main/testing/gradle/integ-runner")
 
-val VERSION = Version(0, 4, 0, ReleaseType("nightly"), true)
-val JAVA_VERSION = JavaVersion.VERSION_17
+    plugins {
+        create("runner") {
+            implementationClass = "org.noelware.charted.gradle.testing.IntegTestRunnerPlugin"
+            id = "org.noelware.charted.integTest"
+        }
+    }
+}

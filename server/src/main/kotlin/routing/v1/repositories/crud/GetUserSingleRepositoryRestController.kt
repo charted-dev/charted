@@ -15,13 +15,4 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.routing.v1.repositories
-
-import org.koin.dsl.bind
-import org.koin.dsl.module
-import org.noelware.charted.server.routing.RestController
-import org.noelware.charted.server.routing.v1.repositories.crud.repositoriesV1CrudModule
-
-val repositoriesV1Module = repositoriesV1CrudModule + module {
-    single { MainRepositoryRestController() } bind RestController::class
-}
+package org.noelware.charted.server.routing.v1.repositories.crud

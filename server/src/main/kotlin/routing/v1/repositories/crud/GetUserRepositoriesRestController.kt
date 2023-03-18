@@ -16,3 +16,22 @@
  */
 
 package org.noelware.charted.server.routing.v1.repositories.crud
+
+import io.ktor.server.application.*
+import io.swagger.v3.oas.models.PathItem
+import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryController
+import org.noelware.charted.modules.postgresql.controllers.users.UserController
+import org.noelware.charted.server.routing.RestController
+
+class GetUserRepositoriesRestController(
+    private val controller: RepositoryController,
+    private val usersController: UserController
+): RestController("/users/{idOrName}/repositories") {
+    override suspend fun call(call: ApplicationCall) {
+        TODO("Not yet implemented")
+    }
+
+    override fun toPathDsl(): PathItem = toPaths("/users/{idOrName}/repositories") {
+    }
+}
