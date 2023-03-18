@@ -36,6 +36,14 @@ import org.noelware.charted.modules.postgresql.tables.UserConnectionsTable
 import kotlin.reflect.KProperty0
 
 class UserConnectionsController: AbstractController<UserConnections, Long, PatchUserConnectionsPayload>() {
+    override suspend fun <V> all(condition: Pair<KProperty0<Column<V>>, V>?): List<UserConnections> = asyncTransaction {
+        if (condition == null) {
+            UserConnectionsEntity.all().map { entity -> UserConnections.fromEntity(entity) }
+        } else {
+            UserConnectionsEntity.find { condition.first.get() eq condition.second }.map { entity -> UserConnections.fromEntity(entity) }
+        }
+    }
+
     override suspend fun <V> getOrNullByProp(prop: KProperty0<Column<V>>, value: V): UserConnections? = asyncTransaction {
         UserConnectionsEntity.find { prop.get() eq value }.firstOrNull()?.let { entity ->
             UserConnections.fromEntity(entity)

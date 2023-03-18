@@ -21,10 +21,10 @@ plugins {
 
 dependencies {
     // testing :quantD:
-    testImplementation(project(":config"))
+    testImplementation(projects.config)
 
     // definitions
-    implementation(project(":config"))
+    implementation(projects.config)
 
     // kotlin scripting host
     implementation(kotlin("scripting-jvm-host"))

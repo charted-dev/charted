@@ -20,8 +20,8 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":modules:postgresql"))
-    implementation(project(":modules:storage"))
+    implementation(projects.modules.postgresql)
+    implementation(projects.modules.storage)
     implementation(libs.ktor.client.core)
     implementation(libs.remi.storage.fs)
     implementation(libs.remi.core)

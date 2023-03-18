@@ -38,6 +38,7 @@ dependencies {
     implementation(projects.modules.sessions)
     implementation(projects.modules.logging)
     implementation(projects.modules.openapi)
+    implementation(projects.modules.storage)
     implementation(projects.modules.avatars)
     implementation(projects.modules.metrics)
     implementation(projects.modules.emails)

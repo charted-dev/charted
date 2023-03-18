@@ -20,7 +20,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":modules:analytics"))
+    implementation(projects.modules.analytics)
     implementation(libs.exposed.powergamer.tools)
     implementation(libs.apache.commons.validator)
     implementation(libs.exposed.kotlin.datetime)
