@@ -27,17 +27,18 @@ import org.noelware.charted.modules.avatars.AvatarModule
 import org.noelware.charted.modules.openapi.NameOrSnowflake
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
-import org.noelware.charted.modules.postgresql.controllers.users.UserController
+import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
+import org.noelware.charted.modules.postgresql.controllers.users.getByIdOrNameOrNull
 import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.routing.RestController
 import org.noelware.charted.server.util.createBodyWithByteArray
 
 class GetUserAvatarRestController(
     private val avatars: AvatarModule,
-    private val controller: UserController
+    private val controller: UserDatabaseController
 ): RestController("/users/{idOrName}/avatars/{hash?}") {
     override suspend fun call(call: ApplicationCall) {
-        val user = controller.getByIdOrName(call.parameters.getOrFail("idOrName"))
+        val user = controller.getByIdOrNameOrNull(call.parameters.getOrFail("idOrName"))
             ?: return call.respond(HttpStatusCode.NotFound)
 
         val (contentType, bytes) = avatars.retrieveUserAvatar(user, call.parameters["hash"])

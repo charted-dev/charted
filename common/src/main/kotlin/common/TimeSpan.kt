@@ -17,6 +17,7 @@
 
 package org.noelware.charted.common
 
+import io.swagger.v3.oas.annotations.media.Schema
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -33,6 +34,7 @@ import kotlin.time.toDuration
 /**
  * Represents a slice of a specific point of time. This is represented as "2 seconds" -> 2000.
  */
+@Schema(description = "Represents a slice of a specific point of time. This is represented as \"2 seconds\" -> 2000 milliseconds", implementation = Long::class)
 @Serializable(with = TimeSpan.Companion.Serializer::class)
 public class TimeSpan(public val value: Long) {
     /**

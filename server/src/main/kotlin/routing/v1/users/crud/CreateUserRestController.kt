@@ -30,15 +30,15 @@ import org.noelware.charted.modules.helm.charts.HelmChartModule
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.users.CreateUserPayload
-import org.noelware.charted.modules.postgresql.controllers.users.UserController
-import org.noelware.charted.modules.postgresql.controllers.users.connections.UserConnectionsController
+import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
+import org.noelware.charted.modules.postgresql.controllers.users.connections.UserConnectionsDatabaseController
 import org.noelware.charted.server.routing.RestController
 
 class CreateUserRestController(
     private val config: Config,
     private val charts: HelmChartModule? = null,
-    private val controller: UserController,
-    private val connectionsController: UserConnectionsController
+    private val controller: UserDatabaseController,
+    private val connectionsController: UserConnectionsDatabaseController
 ): RestController("/users", HttpMethod.Put) {
     override suspend fun call(call: ApplicationCall) {
         if (!config.registrations) {

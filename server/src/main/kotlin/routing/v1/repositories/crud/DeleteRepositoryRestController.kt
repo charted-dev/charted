@@ -27,12 +27,12 @@ import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope.Repositories
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
-import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryController
+import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
 import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.RestController
 
-class DeleteRepositoryRestController(private val controller: RepositoryController): RestController("/repositories/{id}", HttpMethod.Delete) {
+class DeleteRepositoryRestController(private val controller: RepositoryDatabaseController): RestController("/repositories/{id}", HttpMethod.Delete) {
     override fun Route.init() {
         install(Sessions) {
             this += Repositories.Delete

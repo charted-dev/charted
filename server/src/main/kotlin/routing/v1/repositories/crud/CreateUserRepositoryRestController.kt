@@ -30,7 +30,7 @@ import org.noelware.charted.models.repositories.Repository
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.repositories.CreateRepositoryPayload
-import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryController
+import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
 import org.noelware.charted.modules.postgresql.ktor.OwnerIdAttributeKey
 import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.extensions.currentUser
@@ -38,7 +38,7 @@ import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.RestController
 
 class CreateUserRepositoryRestController(
-    private val controller: RepositoryController
+    private val controller: RepositoryDatabaseController
 ): RestController("/users/@me/repositories", HttpMethod.Put) {
     override fun Route.init() {
         install(Sessions) {

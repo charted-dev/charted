@@ -56,7 +56,7 @@ import org.noelware.charted.modules.helm.charts.HelmChartModule
 import org.noelware.charted.modules.metrics.disabled.DisabledMetricsSupport
 import org.noelware.charted.modules.metrics.prometheus.PrometheusMetricsSupport
 import org.noelware.charted.modules.postgresql.asyncTransaction
-import org.noelware.charted.modules.postgresql.controllers.controllerModule
+import org.noelware.charted.modules.postgresql.controllers.controllersModule
 import org.noelware.charted.modules.postgresql.createOrUpdateEnums
 import org.noelware.charted.modules.postgresql.metrics.PostgresServerStats
 import org.noelware.charted.modules.postgresql.tables.*
@@ -216,7 +216,7 @@ object ConfigureModulesPhase: BootstrapPhase() {
 
         val modules = mutableListOf(
             *routingModule.toTypedArray(),
-            controllerModule,
+            controllersModule,
             koinModule,
         )
 

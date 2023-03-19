@@ -29,17 +29,17 @@ import org.noelware.charted.models.repositories.Repository
 import org.noelware.charted.modules.openapi.NameOrSnowflake
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
-import org.noelware.charted.modules.postgresql.controllers.getOrNullByProp
-import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationController
-import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryController
+import org.noelware.charted.modules.postgresql.controllers.getOrNull
+import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationDatabaseController
+import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
 import org.noelware.charted.modules.postgresql.tables.OrganizationTable
 import org.noelware.charted.modules.postgresql.tables.RepositoryTable
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.RestController
 
 class GetOrganizationRepositoriesRestController(
-    private val controller: RepositoryController,
-    private val organizationController: OrganizationController
+    private val controller: RepositoryDatabaseController,
+    private val organizationController: OrganizationDatabaseController
 ): RestController("/organizations/{idOrName}/repositories") {
     override fun Route.init() {
         install(Sessions) {
@@ -52,8 +52,8 @@ class GetOrganizationRepositoriesRestController(
     override suspend fun call(call: ApplicationCall) {
         val idOrName = call.parameters.getOrFail("idOrName")
         val org = when {
-            idOrName.toLongOrNull() != null -> organizationController.getOrNullByProp(OrganizationTable, OrganizationTable::id to idOrName.toLong())
-            idOrName.matchesNameAndIdRegex() -> organizationController.getOrNullByProp(OrganizationTable::name to idOrName)
+            idOrName.toLongOrNull() != null -> organizationController.getOrNull(OrganizationTable, OrganizationTable::id to idOrName.toLong())
+            idOrName.matchesNameAndIdRegex() -> organizationController.getOrNull(OrganizationTable::name to idOrName)
             else -> null
         } ?: return call.respond(
             HttpStatusCode.BadRequest,

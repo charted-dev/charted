@@ -27,13 +27,13 @@ import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
-import org.noelware.charted.modules.postgresql.controllers.users.UserController
+import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
 import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.RestController
 
-class PatchUserRestController(private val controller: UserController): RestController("/users", HttpMethod.Patch) {
+class PatchUserRestController(private val controller: UserDatabaseController): RestController("/users", HttpMethod.Patch) {
     override fun Route.init() {
         install(Sessions) {
             this += ApiKeyScope.User.Update

@@ -36,6 +36,7 @@ build: spotless ## Runs the `spotless` target and builds the API server
 
 .PHONY: spotless
 spotless: ## Runs the Spotless formatter on the project
+	@./gradlew :buildSrc:spotlessApply
 	@./gradlew spotlessApply
 
 .PHONY: clean

@@ -18,45 +18,26 @@
 package org.noelware.charted.modules.postgresql.controllers.organizations
 
 import io.ktor.server.application.*
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.update
 import org.noelware.charted.ValidationException
 import org.noelware.charted.models.organizations.Organization
 import org.noelware.charted.modules.postgresql.asyncTransaction
-import org.noelware.charted.modules.postgresql.controllers.AbstractController
-import org.noelware.charted.modules.postgresql.controllers.getOrNullByProp
+import org.noelware.charted.modules.postgresql.controllers.AbstractDatabaseController
 import org.noelware.charted.modules.postgresql.entities.OrganizationEntity
 import org.noelware.charted.modules.postgresql.extensions.fromEntity
 import org.noelware.charted.modules.postgresql.ktor.UserEntityAttributeKey
 import org.noelware.charted.modules.postgresql.tables.OrganizationTable
 import org.noelware.charted.snowflake.Snowflake
-import kotlin.reflect.KProperty0
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.Clock
 
-class OrganizationController(private val snowflake: Snowflake): AbstractController<Organization, CreateOrganizationPayload, PatchOrganizationPayload>() {
-    override suspend fun <V> all(condition: Pair<KProperty0<Column<V>>, V>?): List<Organization> = asyncTransaction {
-        if (condition == null) {
-            OrganizationEntity.all().toList().map { entity -> Organization.fromEntity(entity) }
-        } else {
-            val (property, value) = condition
-            val innerProp = property.get()
-
-            OrganizationEntity.find { innerProp eq value }.toList().map { entity -> Organization.fromEntity(entity) }
-        }
-    }
-
-    override suspend fun <V> getOrNullByProp(prop: KProperty0<Column<V>>, value: V): Organization? = asyncTransaction {
-        OrganizationEntity.find { prop.get() eq value }.firstOrNull()?.let { entity ->
-            Organization.fromEntity(entity)
-        }
-    }
-
-    override suspend fun getOrNull(id: Long): Organization? = getOrNullByProp(OrganizationTable, OrganizationTable::id to id)
+class OrganizationDatabaseController(private val snowflake: Snowflake): AbstractDatabaseController<Organization, OrganizationEntity, CreateOrganizationPayload, PatchOrganizationPayload>(
+    OrganizationTable,
+    OrganizationEntity,
+    { entity -> Organization.fromEntity(entity) },
+) {
     override suspend fun create(call: ApplicationCall, data: CreateOrganizationPayload): Organization {
         // Since we can't get the extension for ApplicationCall.currentUserEntity (since
         // :server depends on :modules:postgresql, and we can't have circular dependencies),
@@ -65,15 +46,9 @@ class OrganizationController(private val snowflake: Snowflake): AbstractControll
         // we can use. This is filled in if a session is available to us.
         val currentUserEntity = call.attributes.getOrNull(UserEntityAttributeKey) ?: throw IllegalStateException("Unable to fetch user")
 
-        // Check if the owner owns an organization by that name
-        val hasOrg = asyncTransaction {
-            OrganizationEntity.find {
-                (OrganizationTable.name eq data.name) and (OrganizationTable.owner eq currentUserEntity.id)
-            }.firstOrNull()
-        }
-
+        val hasOrg = getEntityOrNull { (OrganizationTable.name eq data.name) and (OrganizationTable.owner eq currentUserEntity.id) }
         if (hasOrg != null) {
-            throw ValidationException("body.name", "Organization by name [${data.name}] is already taken on your account.", "ORG_ALREADY_EXISTS")
+            throw ValidationException("body.name", "Organization [${data.name}] already exists!", "EXISTING_ORGANIZATION")
         }
 
         val id = snowflake.generate()
@@ -87,24 +62,18 @@ class OrganizationController(private val snowflake: Snowflake): AbstractControll
         }
     }
 
-    override suspend fun delete(id: Long) {
-        asyncTransaction {
-            OrganizationTable.deleteWhere { OrganizationTable.id eq id }
-        }
-    }
-
     override suspend fun update(call: ApplicationCall, id: Long, patched: PatchOrganizationPayload) {
+        // Since we can't get the extension for ApplicationCall.currentUserEntity (since
+        // :server depends on :modules:postgresql, and we can't have circular dependencies),
+        //
+        // We have a `UserEntityAttributeKey` in modules/postgresql/src/main/kotlin/ktor/AttributeKeys.kt that
+        // we can use. This is filled in if a session is available to us.
         val currentUserEntity = call.attributes.getOrNull(UserEntityAttributeKey) ?: throw IllegalStateException("Unable to fetch user")
-        if (patched.name != null) {
-            // Check if the owner owns an organization by that name
-            val hasOrg = asyncTransaction {
-                OrganizationEntity.find {
-                    (OrganizationTable.name eq patched.name) and (OrganizationTable.owner eq currentUserEntity.id)
-                }.firstOrNull()
-            }
 
+        if (patched.name != null) {
+            val hasOrg = getEntityOrNull { (OrganizationTable.name eq patched.name) and (OrganizationTable.owner eq currentUserEntity.id) }
             if (hasOrg != null) {
-                throw ValidationException("body.name", "Organization by name [${patched.name}] is already taken on your account.", "ORG_ALREADY_EXISTS")
+                throw ValidationException("body.name", "Organization [${patched.name}] already exists!", "EXISTING_ORGANIZATION")
             }
         }
 
@@ -146,3 +115,44 @@ class OrganizationController(private val snowflake: Snowflake): AbstractControll
         }
     }
 }
+
+/*
+    override suspend fun update(call: ApplicationCall, id: Long, patched: PatchOrganizationPayload) {
+        return asyncTransaction {
+            OrganizationTable.update({ OrganizationTable.id eq id }) {
+                it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                if (patched.twitterHandle != null) {
+                    if (patched.twitterHandle.isBlank()) {
+                        it[twitterHandle] = null
+                    } else {
+                        it[twitterHandle] = patched.twitterHandle
+                    }
+                }
+
+                if (patched.gravatarEmail != null) {
+                    if (patched.gravatarEmail.isBlank()) {
+                        it[gravatarEmail] = null
+                    } else {
+                        it[gravatarEmail] = patched.gravatarEmail
+                    }
+                }
+
+                if (patched.displayName != null) {
+                    if (patched.displayName.isBlank()) {
+                        it[displayName] = null
+                    } else {
+                        it[displayName] = patched.displayName
+                    }
+                }
+
+                if (patched.private != null) {
+                    it[private] = patched.private
+                }
+
+                if (patched.name != null) {
+                    it[name] = patched.name
+                }
+            }
+        }
+    }
+ */

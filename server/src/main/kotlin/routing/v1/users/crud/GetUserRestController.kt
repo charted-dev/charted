@@ -30,12 +30,11 @@ import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.EntityNotFoundException
 import org.noelware.charted.modules.postgresql.controllers.get
-import org.noelware.charted.modules.postgresql.controllers.getByProp
-import org.noelware.charted.modules.postgresql.controllers.users.UserController
+import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
 import org.noelware.charted.modules.postgresql.tables.UserTable
 import org.noelware.charted.server.routing.RestController
 
-class GetUserRestController(private val controller: UserController): RestController("/users/{idOrName}") {
+class GetUserRestController(private val controller: UserDatabaseController): RestController("/users/{idOrName}") {
     override suspend fun call(call: ApplicationCall) {
         val idOrName = call.parameters.getOrFail("idOrName")
         return when {
@@ -51,7 +50,7 @@ class GetUserRestController(private val controller: UserController): RestControl
             }
 
             idOrName.matchesNameAndIdRegex() -> try {
-                call.respond(HttpStatusCode.OK, ApiResponse.ok(controller.getByProp(UserTable::username to idOrName)))
+                call.respond(HttpStatusCode.OK, ApiResponse.ok(controller.get(UserTable::username to idOrName)))
             } catch (e: EntityNotFoundException) {
                 call.respond(
                     HttpStatusCode.NotFound,

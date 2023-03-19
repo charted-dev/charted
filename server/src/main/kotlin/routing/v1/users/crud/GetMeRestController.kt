@@ -28,13 +28,13 @@ import org.noelware.charted.models.users.User
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.get
-import org.noelware.charted.modules.postgresql.controllers.users.UserController
+import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
 import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.RestController
 
-class GetMeRestController(private val controller: UserController): RestController("/users/@me") {
+class GetMeRestController(private val controller: UserDatabaseController): RestController("/users/@me") {
     override fun Route.init() {
         install(Sessions) {
             this += ApiKeyScope.User.Access

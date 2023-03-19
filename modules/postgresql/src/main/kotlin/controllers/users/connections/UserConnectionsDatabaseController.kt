@@ -18,45 +18,23 @@
 package org.noelware.charted.modules.postgresql.controllers.users.connections
 
 import io.ktor.server.application.*
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.sql.*
 import org.noelware.charted.ValidationException
 import org.noelware.charted.models.users.UserConnections
 import org.noelware.charted.modules.postgresql.asyncTransaction
-import org.noelware.charted.modules.postgresql.controllers.AbstractController
-import org.noelware.charted.modules.postgresql.controllers.getOrNullByProp
+import org.noelware.charted.modules.postgresql.controllers.AbstractDatabaseController
 import org.noelware.charted.modules.postgresql.entities.UserConnectionsEntity
 import org.noelware.charted.modules.postgresql.extensions.fromEntity
 import org.noelware.charted.modules.postgresql.tables.UserConnectionsTable
-import kotlin.reflect.KProperty0
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
-class UserConnectionsController: AbstractController<UserConnections, Long, PatchUserConnectionsPayload>() {
-    override suspend fun <V> all(condition: Pair<KProperty0<Column<V>>, V>?): List<UserConnections> = asyncTransaction {
-        if (condition == null) {
-            UserConnectionsEntity.all().map { entity -> UserConnections.fromEntity(entity) }
-        } else {
-            UserConnectionsEntity.find { condition.first.get() eq condition.second }.map { entity -> UserConnections.fromEntity(entity) }
-        }
-    }
-
-    override suspend fun <V> getOrNullByProp(prop: KProperty0<Column<V>>, value: V): UserConnections? = asyncTransaction {
-        UserConnectionsEntity.find { prop.get() eq value }.firstOrNull()?.let { entity ->
-            UserConnections.fromEntity(entity)
-        }
-    }
-
-    override suspend fun getOrNull(id: Long): UserConnections? = getOrNullByProp(UserConnectionsTable, UserConnectionsTable::id to id)
-    override suspend fun delete(id: Long) {
-        asyncTransaction {
-            UserConnectionsTable.deleteWhere { UserConnectionsTable.id eq id }
-        }
-    }
-
+class UserConnectionsDatabaseController: AbstractDatabaseController<UserConnections, UserConnectionsEntity, Long, PatchUserConnectionsPayload>(
+    UserConnectionsTable,
+    UserConnectionsEntity,
+    { entity -> UserConnections.fromEntity(entity) },
+) {
     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE", "MoveLambdaOutsideParentheses") // it doesn't make sense to be `data` since it's only the user ID
     override suspend fun create(call: ApplicationCall, user: Long): UserConnections = asyncTransaction {
         // looks weird when it's new(user) {}, so it's new(user, {})
@@ -65,31 +43,31 @@ class UserConnectionsController: AbstractController<UserConnections, Long, Patch
 
     override suspend fun update(call: ApplicationCall, id: Long, patched: PatchUserConnectionsPayload) {
         // Check if a Noelware account already exists with the patched ID
-        if (patched.noelwareAccountID != null) {
-            val existingNLWAccount = getOrNullByProp(UserConnectionsTable::noelwareAccountID to patched.noelwareAccountID)
+        if (patched.noelwareAccountID != null && patched.noelwareAccountID != (-1).toLong()) {
+            val existingNLWAccount = getOrNull(UserConnectionsTable::noelwareAccountID to patched.noelwareAccountID)
             if (existingNLWAccount != null) {
                 throw ValidationException("body.noelware_account_id", "Account with ID [${patched.noelwareAccountID}] already exists")
             }
         }
 
         if (!patched.githubAccountID.isNullOrBlank()) {
-            val existingGHAccount = getOrNullByProp(UserConnectionsTable::githubAccountID to patched.githubAccountID)
+            val existingGHAccount = getOrNull(UserConnectionsTable::githubAccountID to patched.githubAccountID)
             if (existingGHAccount != null) {
-                throw ValidationException("body.noelware_account_id", "GitHub account with ID [${patched.noelwareAccountID}] already exists")
+                throw ValidationException("body.github_account_id", "GitHub account with ID [${patched.noelwareAccountID}] already exists")
             }
         }
 
         if (!patched.googleAccountID.isNullOrBlank()) {
-            val existingGoogleAccount = getOrNullByProp(UserConnectionsTable::googleAccountID to patched.googleAccountID)
+            val existingGoogleAccount = getOrNull(UserConnectionsTable::googleAccountID to patched.googleAccountID)
             if (existingGoogleAccount != null) {
-                throw ValidationException("body.noelware_account_id", "Google Account with ID [${patched.noelwareAccountID}] already exists")
+                throw ValidationException("body.google_account_id", "Google Account with ID [${patched.noelwareAccountID}] already exists")
             }
         }
 
         if (!patched.appleAccountID.isNullOrBlank()) {
-            val existingAPLAccount = getOrNullByProp(UserConnectionsTable::appleAccountID to patched.appleAccountID)
+            val existingAPLAccount = getOrNull(UserConnectionsTable::appleAccountID to patched.appleAccountID)
             if (existingAPLAccount != null) {
-                throw ValidationException("body.noelware_account_id", "Apple ID with ID [${patched.appleAccountID}] already exists")
+                throw ValidationException("body.apple_account_id", "Apple ID with ID [${patched.appleAccountID}] already exists")
             }
         }
 
@@ -98,7 +76,11 @@ class UserConnectionsController: AbstractController<UserConnections, Long, Patch
                 it[updatedAt] = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
                 if (patched.noelwareAccountID != null) {
-                    it[noelwareAccountID] = patched.noelwareAccountID
+                    if (patched.noelwareAccountID != (-1).toLong()) {
+                        it[noelwareAccountID] = patched.noelwareAccountID
+                    } else {
+                        it[noelwareAccountID] = null
+                    }
                 }
 
                 if (patched.githubAccountID != null) {

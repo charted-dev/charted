@@ -34,7 +34,7 @@ import org.noelware.charted.modules.helm.charts.HelmChartModule
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.asyncTransaction
-import org.noelware.charted.modules.postgresql.controllers.users.UserController
+import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
 import org.noelware.charted.modules.postgresql.tables.RepositoryTable
 import org.noelware.charted.modules.sessions.AbstractSessionManager
 import org.noelware.charted.server.extensions.addAuthenticationResponses
@@ -45,7 +45,7 @@ import org.noelware.charted.server.routing.RestController
 class DeleteUserRestController(
     private val charts: HelmChartModule? = null,
     private val sessions: AbstractSessionManager,
-    private val controller: UserController
+    private val controller: UserDatabaseController
 ): RestController("/users", HttpMethod.Delete) {
     override fun Route.init() {
         install(Sessions) {

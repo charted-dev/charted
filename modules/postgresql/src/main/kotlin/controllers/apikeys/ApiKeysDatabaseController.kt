@@ -19,60 +19,35 @@ package org.noelware.charted.modules.postgresql.controllers.apikeys
 
 import io.ktor.http.*
 import io.ktor.server.application.*
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.update
 import org.noelware.charted.KtorHttpRespondException
 import org.noelware.charted.ValidationException
 import org.noelware.charted.common.Bitfield
-import org.noelware.charted.common.CryptographyUtils
 import org.noelware.charted.common.types.responses.ApiError
 import org.noelware.charted.models.ApiKeys
 import org.noelware.charted.models.flags.ApiKeyScopes
 import org.noelware.charted.models.flags.SCOPES
 import org.noelware.charted.modules.postgresql.asyncTransaction
-import org.noelware.charted.modules.postgresql.controllers.AbstractController
-import org.noelware.charted.modules.postgresql.controllers.getOrNullByProp
+import org.noelware.charted.modules.postgresql.controllers.AbstractDatabaseController
 import org.noelware.charted.modules.postgresql.entities.ApiKeyEntity
 import org.noelware.charted.modules.postgresql.extensions.fromEntity
 import org.noelware.charted.modules.postgresql.ktor.UserEntityAttributeKey
 import org.noelware.charted.modules.postgresql.tables.ApiKeyTable
 import org.noelware.charted.snowflake.Snowflake
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import org.noelware.charted.common.CryptographyUtils
 import org.noelware.charted.utils.randomString
-import kotlin.reflect.KProperty0
 import kotlin.time.DurationUnit
 
-class ApiKeyController(private val snowflake: Snowflake): AbstractController<ApiKeys, CreateApiKeyBody, PatchApiKeyBody>() {
-    override suspend fun <V> all(condition: Pair<KProperty0<Column<V>>, V>?): List<ApiKeys> = asyncTransaction {
-        if (condition == null) {
-            ApiKeyEntity.all().toList().map { entity -> ApiKeys.fromEntity(entity) }
-        } else {
-            val (property, value) = condition
-            val innerProp = property.get()
-
-            ApiKeyEntity.find { innerProp eq value }.toList().map { entity -> ApiKeys.fromEntity(entity) }
-        }
-    }
-
-    override suspend fun getOrNull(id: Long): ApiKeys? = getOrNullByProp(ApiKeyTable, ApiKeyTable::id to id)
-    override suspend fun <V> getOrNullByProp(prop: KProperty0<Column<V>>, value: V): ApiKeys? = asyncTransaction {
-        ApiKeyEntity.find { prop.get() eq value }.firstOrNull()?.let { entity ->
-            ApiKeys.fromEntity(entity)
-        }
-    }
-
-    override suspend fun delete(id: Long) {
-        asyncTransaction {
-            ApiKeyTable.deleteWhere { ApiKeyTable.id eq id }
-        }
-    }
-
-    override suspend fun create(call: ApplicationCall, data: CreateApiKeyBody): ApiKeys {
+class ApiKeysDatabaseController(private val snowflake: Snowflake): AbstractDatabaseController<ApiKeys, ApiKeyEntity, CreateApiKeyPayload, PatchApiKeyPayload>(
+    ApiKeyTable,
+    ApiKeyEntity,
+    { entity -> ApiKeys.fromEntity(entity) },
+) {
+    override suspend fun create(call: ApplicationCall, data: CreateApiKeyPayload): ApiKeys {
         val expiresIn = if (data.expiresIn != null) data.expiresIn.toDuration(DurationUnit.MILLISECONDS) else null
         val bitfield = getApiKeyScopes(data.scopes)
         val token = randomString(32)
@@ -83,7 +58,9 @@ class ApiKeyController(private val snowflake: Snowflake): AbstractController<Api
         //
         // We have a `UserEntityAttributeKey` in modules/postgresql/src/main/kotlin/ktor/AttributeKeys.kt that
         // we can use. This is filled in if a session is available to us.
-        val currentUserEntity = call.attributes.getOrNull(UserEntityAttributeKey) ?: throw IllegalStateException("Unable to fetch user")
+        val currentUserEntity = call.attributes.getOrNull(UserEntityAttributeKey)
+            ?: throw IllegalStateException("Unable to fetch user. This is a bug")
+
         return asyncTransaction {
             ApiKeyEntity.new(id.value) {
                 this.expiresIn = if (expiresIn != null) {
@@ -100,15 +77,12 @@ class ApiKeyController(private val snowflake: Snowflake): AbstractController<Api
         }
     }
 
-    override suspend fun update(call: ApplicationCall, id: Long, patched: PatchApiKeyBody) {
-        val currentUserEntity = call.attributes.getOrNull(UserEntityAttributeKey) ?: throw IllegalStateException("Unable to fetch user")
-        if (patched.name != null) {
-            val found = asyncTransaction {
-                ApiKeyEntity.find {
-                    (ApiKeyTable.name eq patched.name) and (ApiKeyTable.owner eq currentUserEntity.id)
-                }.firstOrNull()
-            }
+    override suspend fun update(call: ApplicationCall, id: Long, patched: PatchApiKeyPayload) {
+        val currentUserEntity = call.attributes.getOrNull(UserEntityAttributeKey)
+            ?: throw IllegalStateException("Unable to fetch user. This is a bug")
 
+        if (patched.name != null) {
+            val found = getEntityOrNull { (ApiKeyTable.name eq patched.name) and (ApiKeyTable.owner eq currentUserEntity.id) }
             if (found != null) {
                 throw ValidationException("body.name", "API key with new name [${patched.name}] already exists on your account", "EXISTING_API_KEY")
             }
@@ -124,7 +98,9 @@ class ApiKeyController(private val snowflake: Snowflake): AbstractController<Api
                 }
 
                 if (patched.expiresIn != null) {
-                    it[expiresIn] = Clock.System.now().plus(patched.expiresIn.toDuration(DurationUnit.MILLISECONDS)).toLocalDateTime(TimeZone.currentSystemDefault())
+                    it[expiresIn] = Clock.System.now().plus(patched.expiresIn.toDuration(DurationUnit.MILLISECONDS)).toLocalDateTime(
+                        TimeZone.currentSystemDefault(),
+                    )
                 }
 
                 if (patched.scopes.isNotEmpty()) {

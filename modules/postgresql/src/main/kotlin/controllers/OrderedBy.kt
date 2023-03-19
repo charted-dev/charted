@@ -17,11 +17,21 @@
 
 package org.noelware.charted.modules.postgresql.controllers
 
-import org.jetbrains.exposed.sql.Column
-import java.lang.RuntimeException
-import kotlin.reflect.KProperty0
+import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-class EntityNotFoundException internal constructor(message: String): RuntimeException(message) {
-    internal constructor(id: Long): this("Entity with ID [$id] was not found")
-    internal constructor(expr: Pair<KProperty0<Column<Any>>, Any>): this("Entity with ${expr.first.get().name} [${expr.second}] was not found")
+@Serializable
+enum class OrderedBy {
+    @JsonProperty("ASC")
+    @SerialName("ASC")
+    Ascending,
+
+    @JsonProperty("DESC")
+    @SerialName("DESC")
+    Descending,
+
+    @JsonProperty("NONE")
+    @SerialName("NONE")
+    None
 }

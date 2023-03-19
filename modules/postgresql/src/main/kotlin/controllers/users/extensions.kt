@@ -15,13 +15,16 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.modules.postgresql.controllers
+@file:JvmName("UserDatabaseControllerExtensionsKt")
 
-import org.jetbrains.exposed.sql.Column
-import java.lang.RuntimeException
-import kotlin.reflect.KProperty0
+package org.noelware.charted.modules.postgresql.controllers.users
 
-class EntityNotFoundException internal constructor(message: String): RuntimeException(message) {
-    internal constructor(id: Long): this("Entity with ID [$id] was not found")
-    internal constructor(expr: Pair<KProperty0<Column<Any>>, Any>): this("Entity with ${expr.first.get().name} [${expr.second}] was not found")
+import org.noelware.charted.common.extensions.regexp.matchesNameAndIdRegex
+import org.noelware.charted.models.users.User
+import org.noelware.charted.modules.postgresql.tables.UserTable
+
+suspend fun UserDatabaseController.getByIdOrNameOrNull(idOrName: String): User? = when {
+    idOrName.toLongOrNull() != null -> getOrNull(idOrName.toLong())
+    idOrName.matchesNameAndIdRegex() -> getOrNull(UserTable::username to idOrName)
+    else -> null
 }

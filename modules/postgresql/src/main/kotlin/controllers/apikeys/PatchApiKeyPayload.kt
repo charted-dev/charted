@@ -17,7 +17,9 @@
 
 package org.noelware.charted.modules.postgresql.controllers.apikeys
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import dev.floofy.utils.kotlin.every
+import io.swagger.v3.oas.annotations.media.Schema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.noelware.charted.StringOverflowException
@@ -27,22 +29,23 @@ import org.noelware.charted.models.flags.SCOPES
 import kotlin.time.Duration.Companion.seconds
 
 /**
- * Represents a resource for creating API keys. A user is only allocated ~15 API keys that can be created,
- * updated, or destroyed.
+ * Represents a resource for patching API key metadata.
  *
  * @param description The key's description
- * @param expiresIn   [local date time][LocalDateTime] of when the API key will expire
+ * @param expiresIn   [TimeSpan] of when the API key will expire
  * @param scopes      List of [API Key scopes](https://charts.noelware.org/docs/server/current/api/api-keys#reference)
  * @param name        The name of the API key
  */
+@Schema(description = "Represents a resource for patching API key metadata")
 @Serializable
-data class CreateApiKeyBody(
+data class PatchApiKeyPayload(
     val description: String? = null,
 
+    @JsonProperty("expires_in")
     @SerialName("expires_in")
     val expiresIn: TimeSpan? = null,
     val scopes: List<String> = listOf(),
-    val name: String
+    val name: String? = null
 ) {
     init {
         if (description != null && description.length > 140) {
@@ -53,26 +56,28 @@ data class CreateApiKeyBody(
             if (expiresIn.value < 30.seconds.inWholeMilliseconds) {
                 throw ValidationException("body.expires_in", "Expiration time can't be under 30 seconds")
             }
+        }
 
-            if (scopes.isNotEmpty()) {
-                val isAddAll = scopes.size == 1 && scopes.first() == "*"
-                if (!isAddAll && !scopes.every { SCOPES.containsKey(it) }) {
-                    val invalidScopes = scopes.filter { !SCOPES.containsKey(it) }
-                    throw ValidationException("body.scopes", "Invalid scopes: [${invalidScopes.joinToString(", ")}]")
-                }
+        if (scopes.isNotEmpty()) {
+            val isAddAll = scopes.size == 1 && scopes.first() == "*"
+            if (!isAddAll && !scopes.every { SCOPES.containsKey(it) }) {
+                val invalidScopes = scopes.filter { !SCOPES.containsKey(it) }
+                throw ValidationException("body.scopes", "Invalid scopes: [${invalidScopes.joinToString(", ")}]")
             }
         }
 
-        if (name.isBlank()) {
-            throw ValidationException("body.name", "API key name can't be blank")
-        }
+        if (name != null) {
+            if (name.isBlank()) {
+                throw ValidationException("body.name", "API key name can't be blank")
+            }
 
-        if (!(name matches "^([A-z]|-|_|\\d{0,9}){0,32}".toRegex())) {
-            throw ValidationException("body.name", "API key name can only contain letters, digits, dashes, or underscores.")
-        }
+            if (!(name matches "^([A-z]|-|_|\\d{0,9}){0,32}".toRegex())) {
+                throw ValidationException("body.name", "API key name can only contain letters, digits, dashes, or underscores.")
+            }
 
-        if (name.length > 64) {
-            throw StringOverflowException("body.name", 64, name.length)
+            if (name.length > 64) {
+                throw StringOverflowException("body.name", 64, name.length)
+            }
         }
     }
 }

@@ -18,40 +18,28 @@
 package org.noelware.charted.modules.postgresql.controllers.repositories
 
 import io.ktor.server.application.*
-import kotlinx.datetime.*
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.SqlExpressionBuilder
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.update
 import org.noelware.charted.ValidationException
 import org.noelware.charted.models.repositories.Repository
 import org.noelware.charted.modules.postgresql.asyncTransaction
-import org.noelware.charted.modules.postgresql.controllers.AbstractController
-import org.noelware.charted.modules.postgresql.controllers.getOrNullByProp
+import org.noelware.charted.modules.postgresql.controllers.AbstractDatabaseController
 import org.noelware.charted.modules.postgresql.entities.RepositoryEntity
 import org.noelware.charted.modules.postgresql.extensions.fromEntity
 import org.noelware.charted.modules.postgresql.ktor.ownerId
 import org.noelware.charted.modules.postgresql.tables.RepositoryTable
 import org.noelware.charted.snowflake.Snowflake
-import kotlin.reflect.KProperty0
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
-class RepositoryController(private val snowflake: Snowflake): AbstractController<Repository, CreateRepositoryPayload, PatchRepositoryPayload>() {
-    override suspend fun <V> all(condition: Pair<KProperty0<Column<V>>, V>?): List<Repository> = asyncTransaction {
-        if (condition == null) {
-            RepositoryEntity.all().toList().map { entity -> Repository.fromEntity(entity) }
-        } else {
-            val (property, value) = condition
-            val innerProp = property.get()
-
-            RepositoryEntity.find { innerProp eq value }.toList().map { entity -> Repository.fromEntity(entity) }
-        }
-    }
-
-    override suspend fun <V> getOrNullByProp(prop: KProperty0<Column<V>>, value: V): Repository? = asyncTransaction {
-        RepositoryEntity.find { prop.get() eq value }.firstOrNull()?.let { entity ->
-            Repository.fromEntity(entity)
-        }
-    }
-
-    override suspend fun getOrNull(id: Long): Repository? = getOrNullByProp(RepositoryTable, RepositoryTable::id to id)
+class RepositoryDatabaseController(private val snowflake: Snowflake): AbstractDatabaseController<Repository, RepositoryEntity, CreateRepositoryPayload, PatchRepositoryPayload>(
+    RepositoryTable,
+    RepositoryEntity,
+    { entity -> Repository.fromEntity(entity) },
+) {
     override suspend fun create(call: ApplicationCall, data: CreateRepositoryPayload): Repository {
         val ownerId = call.ownerId ?: error("BUG: Missing owner id to create a repository!")
         val id = snowflake.generate()
@@ -67,23 +55,12 @@ class RepositoryController(private val snowflake: Snowflake): AbstractController
         }
     }
 
-    override suspend fun delete(id: Long) {
-        asyncTransaction {
-            RepositoryTable.deleteWhere { RepositoryTable.id eq id }
-        }
-    }
-
     override suspend fun update(call: ApplicationCall, id: Long, patched: PatchRepositoryPayload) {
         val ownerId = call.ownerId ?: error("BUG: Missing owner id when updating a repository!")
         val sqlSelector: SqlExpressionBuilder.() -> Op<Boolean> = { RepositoryTable.id eq id }
 
         if (patched.name != null) {
-            val repoWithName = asyncTransaction {
-                RepositoryEntity.find {
-                    (RepositoryTable.name eq patched.name) and (RepositoryTable.owner eq ownerId)
-                }.firstOrNull()
-            }
-
+            val repoWithName = getEntityOrNull { (RepositoryTable.name eq patched.name) and (RepositoryTable.owner eq ownerId) }
             if (repoWithName != null) {
                 throw ValidationException("body.name", "Repository with name [${patched.name}] already exists")
             }

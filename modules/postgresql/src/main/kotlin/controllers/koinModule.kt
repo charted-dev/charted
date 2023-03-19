@@ -18,16 +18,16 @@
 package org.noelware.charted.modules.postgresql.controllers
 
 import org.koin.dsl.module
-import org.noelware.charted.modules.postgresql.controllers.apikeys.ApiKeyController
-import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationController
-import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryController
-import org.noelware.charted.modules.postgresql.controllers.users.UserController
-import org.noelware.charted.modules.postgresql.controllers.users.connections.UserConnectionsController
+import org.noelware.charted.modules.postgresql.controllers.apikeys.ApiKeysDatabaseController
+import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationDatabaseController
+import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
+import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
+import org.noelware.charted.modules.postgresql.controllers.users.connections.UserConnectionsDatabaseController
 
-val controllerModule = module {
-    single { UserController(get(), get(), get()) }
-    single { OrganizationController(get()) }
-    single { UserConnectionsController() }
-    single { RepositoryController(get()) }
-    single { ApiKeyController(get()) }
+val controllersModule = module {
+    single { UserDatabaseController(get(), get(), get()) }
+    single { OrganizationDatabaseController(get()) }
+    single { RepositoryDatabaseController(get()) }
+    single { UserConnectionsDatabaseController() }
+    single { ApiKeysDatabaseController(get()) }
 }
