@@ -77,18 +77,6 @@ spotless {
         }
     }
 
-    kotlin {
-        endWithNewline()
-        encoding("UTF-8")
-        target("**/*.main.kts")
-        ktlint().apply {
-            setUseExperimental(true)
-            setEditorConfigPath(file("${rootProject.projectDir}/.editorconfig"))
-        }
-
-        licenseHeaderFile(file("${rootProject.projectDir}/assets/HEADING"))
-    }
-
     kotlinGradle {
         targetExclude(
             "buildSrc/build/kotlin-dsl/plugins-blocks/extracted/charted-module.gradle.kts",
