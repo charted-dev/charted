@@ -23,6 +23,14 @@ if [[ "x$SKIP_SPOTLESS" != "x" ]]; then
 fi
 
 echo "Running Spotless..."
+./gradlew :buildSrc:spotlessCheck
+
+# shellcheck disable=SC2181
+if [[ "$?" != "0" ]]; then
+  echo "Spotless was not ran successfully! Please run \`make spotless\` to fix the changes above."
+  exit 1
+fi
+
 ./gradlew spotlessCheck
 
 # shellcheck disable=SC2181
