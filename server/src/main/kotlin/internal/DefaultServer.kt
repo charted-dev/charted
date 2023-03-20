@@ -70,10 +70,8 @@ class DefaultServer(private val config: Config): Server {
     private val log by logging<DefaultServer>()
 
     private val _server: SetOnce<NettyApplicationEngine> = SetOnce()
-
     override val started: Boolean get() = hasStarted.value
 
-    @Suppress("DuplicatedCode")
     override fun Application.module() {
         val log = this@DefaultServer.log
 

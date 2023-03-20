@@ -28,10 +28,11 @@ import org.noelware.charted.models.repositories.Repository
 import org.noelware.charted.modules.openapi.NameOrSnowflake
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.postgresql.controllers.getByIdOrNameOrNull
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
-import org.noelware.charted.modules.postgresql.controllers.users.getByIdOrNameOrNull
 import org.noelware.charted.modules.postgresql.tables.RepositoryTable
+import org.noelware.charted.modules.postgresql.tables.UserTable
 import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.RestController
@@ -48,7 +49,7 @@ class GetAllUserRepositoriesRestController(
 
     override suspend fun call(call: ApplicationCall) {
         val idOrName = call.parameters.getOrFail("idOrName")
-        val user = usersController.getByIdOrNameOrNull(idOrName) ?: return call.respond(
+        val user = usersController.getByIdOrNameOrNull(idOrName, UserTable::username) ?: return call.respond(
             HttpStatusCode.BadRequest,
             ApiResponse.err(
                 "UNKNOWN_USER",

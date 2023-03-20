@@ -45,6 +45,7 @@ import org.noelware.charted.ChartedInfo
 import org.noelware.charted.Server
 import org.noelware.charted.common.extensions.formatting.doFormatTime
 import org.noelware.charted.configuration.ConfigurationHost
+import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.host.KotlinScriptConfigurationHost
 import org.noelware.charted.configuration.yaml.YamlConfigurationHost
 import org.noelware.charted.modules.avatars.AvatarModule
@@ -77,7 +78,6 @@ import kotlin.time.Duration.Companion.seconds
 object ConfigureModulesPhase: BootstrapPhase() {
     private val log by logging<ConfigureModulesPhase>()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun phaseThrough(@Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE") configFile: File) {
         MDC.put("bootstrap.phase", "configure modules")
 
@@ -96,13 +96,17 @@ object ConfigureModulesPhase: BootstrapPhase() {
             else -> throw IllegalStateException("Unable to determine what configuration host to use")
         }
 
-        val sw = StopWatch.createStarted()
         val realConfigPath = withContext(Dispatchers.IO) {
             configFile.toPath().toRealPath()
         }
 
         log.info("Loading configuration file from path [$realConfigPath]")
-        val config = configHost.load(configFile)
+        return phaseThrough(configHost.load(configFile))
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    suspend fun phaseThrough(config: Config) {
+        val sw = StopWatch.createStarted()
 
         DebugProbes.enableCreationStackTraces = config.debug
         DebugProbes.install()
@@ -196,6 +200,13 @@ object ConfigureModulesPhase: BootstrapPhase() {
                 this.json(json)
             }
         }
+
+        val yaml = Yaml(
+            EmptySerializersModule(),
+            YamlConfiguration(
+                strictMode = true,
+            ),
+        )
 
         val koinModule = module {
             single<AbstractSessionManager> { LocalSessionManager(json, config, redis, argon2) }

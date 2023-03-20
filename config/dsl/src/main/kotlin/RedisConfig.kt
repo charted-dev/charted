@@ -48,7 +48,7 @@ public data class RedisConfig(
     val host: String = "localhost",
 
     /** Port to connect to, this is only for standalone connections */
-    val port: Short = 6379,
+    val port: Int = 6379,
 
     /** If the client connections should use SSL or not */
     val ssl: Boolean = false
@@ -69,7 +69,7 @@ public data class RedisConfig(
         public var host: String = "localhost"
 
         /** Port to connect to, this is only for standalone connections */
-        public var port: Short = 6379
+        public var port: Int = 6379
 
         /** If the client connections should use SSL or not */
         public var ssl: Boolean = false

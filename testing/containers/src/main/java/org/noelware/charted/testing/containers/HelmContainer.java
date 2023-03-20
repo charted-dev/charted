@@ -20,11 +20,15 @@ package org.noelware.charted.testing.containers;
 import java.io.File;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 
+/**
+ * Container for executing Helm commands with Docker
+ */
 public class HelmContainer extends GenericContainer<HelmContainer> {
-    private static final String DEFAULT_HELM_VERSION = "3.11.1";
+    private static final String DEFAULT_HELM_VERSION = "3.11.2";
     private final File helmCacheDir;
     private final File helmDir;
 
@@ -36,6 +40,7 @@ public class HelmContainer extends GenericContainer<HelmContainer> {
         this(helmVersion, null, null);
     }
 
+    @SuppressWarnings("resource")
     public HelmContainer(@NotNull String helmVersion, @Nullable File helmDir, @Nullable File helmCacheDir) {
         super(DockerImageName.parse("alpine/helm").withTag(helmVersion));
 
@@ -44,5 +49,13 @@ public class HelmContainer extends GenericContainer<HelmContainer> {
 
         // helm dir (i.e, ~/.helm)
         this.helmDir = helmDir;
+
+        if (helmCacheDir != null && helmCacheDir.isDirectory()) {
+            withFileSystemBind(helmCacheDir.getAbsolutePath(), "~/.config/helm", BindMode.READ_WRITE);
+        }
+
+        if (helmDir != null && helmDir.isDirectory()) {
+            withFileSystemBind(helmDir.getAbsolutePath(), "~/.helm", BindMode.READ_WRITE);
+        }
     }
 }

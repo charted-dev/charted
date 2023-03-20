@@ -19,6 +19,8 @@ package org.noelware.charted.configuration.kotlin.dsl
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.noelware.charted.MultiValidationException
+import org.noelware.charted.ValidationException
 import org.noelware.charted.common.Buildable
 import org.noelware.charted.common.serializers.SecretStringSerializer
 import org.noelware.charted.configuration.kotlin.dsl.features.DockerRegistryConfig
@@ -202,6 +204,18 @@ public data class Config(
      */
     val cdn: CdnConfig? = null
 ) {
+    init {
+        if (registrations && inviteOnly)
+            throw MultiValidationException(listOf(
+                ValidationException("body.registrations", "`registrations` and `invite_only` is mutually exclusive"),
+                ValidationException("body.invite_only", "`registrations` and `invite_only` is mutually exclusive")
+            ))
+    }
+
+    public companion object {
+        public operator fun invoke(builder: Builder.() -> Unit): Config = Builder().apply(builder).build()
+    }
+
     @Suppress("MemberVisibilityCanBePrivate")
     public open class Builder: Buildable<Config> {
         /** List of enabled experimental features on the server. */

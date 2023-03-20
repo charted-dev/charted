@@ -26,6 +26,7 @@ dependencies {
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.ktor.serialization)
     testImplementation(libs.ktor.client.java)
+    testImplementation(libs.ktor.server.core)
 
     // Modules that we require (which is... most of them!)
     implementation(projects.modules.sessions.integrations.github)
