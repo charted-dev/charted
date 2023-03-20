@@ -34,8 +34,14 @@ import org.noelware.charted.snowflake.Snowflake
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.noelware.charted.modules.storage.StorageModule
+import java.io.ByteArrayInputStream
+import java.nio.charset.Charset
 
-class RepositoryDatabaseController(private val snowflake: Snowflake): AbstractDatabaseController<Repository, RepositoryEntity, CreateRepositoryPayload, PatchRepositoryPayload>(
+class RepositoryDatabaseController(
+    private val snowflake: Snowflake,
+    private val storage: StorageModule
+): AbstractDatabaseController<Repository, RepositoryEntity, CreateRepositoryPayload, PatchRepositoryPayload>(
     RepositoryTable,
     RepositoryEntity,
     { entity -> Repository.fromEntity(entity) },
@@ -43,6 +49,9 @@ class RepositoryDatabaseController(private val snowflake: Snowflake): AbstractDa
     override suspend fun create(call: ApplicationCall, data: CreateRepositoryPayload): Repository {
         val ownerId = call.ownerId ?: error("BUG: Missing owner id to create a repository!")
         val id = snowflake.generate()
+        if (data.readme != null) {
+            storage.upload("./repositories/$id/README", ByteArrayInputStream(data.readme.toByteArray(Charset.defaultCharset())), "text/plain; charset=utf-8")
+        }
 
         return asyncTransaction {
             RepositoryEntity.new(id.value) {

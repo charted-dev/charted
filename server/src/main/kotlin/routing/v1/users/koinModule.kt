@@ -22,8 +22,13 @@ import org.koin.dsl.module
 import org.noelware.charted.server.routing.RestController
 import org.noelware.charted.server.routing.v1.users.avatars.usersV1AvatarModule
 import org.noelware.charted.server.routing.v1.users.crud.usersV1CrudModule
+import org.noelware.charted.server.routing.v1.users.repositories.usersV1RepositoriesModule
 import org.noelware.charted.server.routing.v1.users.sessions.usersV1SessionsModule
+import org.noelware.charted.server.util.composeKoinModules
 
-val usersV1Module = usersV1CrudModule + usersV1AvatarModule + usersV1SessionsModule + module {
-    single { MainUserRestController() } bind RestController::class
-}
+val usersV1Module = composeKoinModules(
+    usersV1AvatarModule, usersV1CrudModule, usersV1RepositoriesModule, usersV1SessionsModule,
+    module {
+        single { MainUserRestController() } bind RestController::class
+    },
+)

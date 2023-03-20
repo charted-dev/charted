@@ -162,6 +162,18 @@ fun StatusPagesConfig.configure(config: Config) {
         )
     }
 
+    exception<ParameterConversionException> { call, cause ->
+        ifSentryEnabled { Sentry.captureException(cause) }
+
+        call.respond(
+            HttpStatusCode.UnprocessableEntity,
+            ApiResponse.err(
+                "UNABLE_TO_CONVERT_PARAMETER",
+                cause.message!!,
+            ),
+        )
+    }
+
     exception<Exception> { call, cause ->
         ifSentryEnabled { Sentry.captureException(cause) }
 

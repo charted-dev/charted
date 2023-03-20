@@ -20,12 +20,13 @@ plugins {
 }
 
 dependencies {
-    implementation(projects.modules.analytics)
     implementation(libs.exposed.powergamer.tools)
     implementation(libs.apache.commons.validator)
     implementation(libs.exposed.kotlin.datetime)
     implementation(libs.spring.security.crypto)
-    implementation(project(":modules:metrics"))
+    implementation(projects.modules.analytics)
+    implementation(projects.modules.metrics)
+    implementation(projects.modules.storage)
     implementation(libs.ktor.server.core)
     implementation(libs.exposed.jdbc)
     implementation(libs.postgresql)

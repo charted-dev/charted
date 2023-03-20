@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.routing.v1.repositories.crud
+package org.noelware.charted.server.routing.v1.users.repositories
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -32,17 +32,16 @@ import org.noelware.charted.modules.postgresql.controllers.repositories.Reposito
 import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.users.getByIdOrNameOrNull
 import org.noelware.charted.modules.postgresql.tables.RepositoryTable
+import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.RestController
 
-class GetUserRepositoriesRestController(
+class GetAllUserRepositoriesRestController(
     private val controller: RepositoryDatabaseController,
     private val usersController: UserDatabaseController
 ): RestController("/users/{idOrName}/repositories") {
     override fun Route.init() {
         install(Sessions) {
-            // We will allow non-authorized requests, but we will not show
-            // private repositories a user has.
             allowNonAuthorizedRequests = true
         }
     }
@@ -56,6 +55,15 @@ class GetUserRepositoriesRestController(
                 "Unknown user with username or snowflake [$idOrName]",
             ),
         )
+
+        val repos = controller.all(RepositoryTable::owner to user.id)
+        if (call.currentUser == null) {
+            return call.respond(HttpStatusCode.OK, ApiResponse.ok(repos.filterNot { it.private }))
+        }
+
+        if (call.currentUser!!.id != user.id) {
+            return call.respond(HttpStatusCode.OK, ApiResponse.ok(repos.filterNot { it.private }))
+        }
 
         call.respond(HttpStatusCode.OK, ApiResponse.ok(controller.all(RepositoryTable::owner to user.id)))
     }

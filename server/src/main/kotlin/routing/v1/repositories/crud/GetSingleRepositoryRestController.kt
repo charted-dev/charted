@@ -17,19 +17,80 @@
 
 package org.noelware.charted.server.routing.v1.repositories.crud
 
+import io.ktor.client.engine.*
+import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.util.*
 import io.swagger.v3.oas.models.PathItem
+import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.models.repositories.Repository
+import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
+import org.noelware.charted.server.extensions.currentUser
+import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.RestController
 
 class GetSingleRepositoryRestController(private val controller: RepositoryDatabaseController): RestController("/repositories/{id}") {
+    override fun Route.init() {
+        install(Sessions) {
+            allowNonAuthorizedRequests = true
+        }
+    }
+
     override suspend fun call(call: ApplicationCall) {
+        val id = call.parameters.getOrFail<Long>("id")
+        val repo = controller.getEntityOrNull(id) ?: return call.respond(
+            HttpStatusCode.NotFound,
+            ApiResponse.err(
+                "UNKNOWN_REPOSITORY",
+                "Repository with ID [$id] was not found",
+            ),
+        )
+
+        if (repo.private) {
+            if (call.currentUser == null) {
+                return call.respond(
+                    HttpStatusCode.Unauthorized,
+                    ApiResponse.err(
+                        "INVALID_ACCESS",
+                        "Repository ${repo.name} is private and you don't have access to it",
+                    ),
+                )
+            }
+
+            if (!repo.members.any { it.account.id.value == call.currentUser!!.id }) {
+                return call.respond(
+                    HttpStatusCode.Unauthorized,
+                    ApiResponse.err(
+                        "INVALID_ACCESS",
+                        "Repository ${repo.name} is private and you don't have access to it",
+                    ),
+                )
+            }
+        }
+
+        call.respond(HttpStatusCode.OK, ApiResponse.ok(repo))
     }
 
     override fun toPathDsl(): PathItem = toPaths("/repositories/{id}") {
         get {
             description = "Returns a repository entity with the given ID. Use the /users/{idOrName}/repos/{repoIdOrName} to fetch a user repository with a ID or name, or /organizations/{idOrName}/repos/{repoIdOrName} to fetch a organization repository with a ID or name"
+
+            pathParameter {
+                description = "Snowflake of the repository to look up"
+                name = "id"
+
+                schema<String>()
+            }
+
+            response(HttpStatusCode.OK) {
+                contentType(ContentType.Application.Json) {
+                    schema<ApiResponse.Ok<Repository>>()
+                }
+            }
         }
     }
 }

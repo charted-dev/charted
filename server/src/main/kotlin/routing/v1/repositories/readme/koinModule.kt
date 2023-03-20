@@ -15,13 +15,14 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.routing.v1.repositories.crud
+package org.noelware.charted.server.routing.v1.repositories.readme
 
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.noelware.charted.server.routing.RestController
 
-val repositoriesV1CrudModule = module {
-    single { GetSingleRepositoryRestController(get()) } bind RestController::class
-    single { DeleteRepositoryRestController(get()) } bind RestController::class
+val repositoriesV1ReadmeModule = module {
+    single { CreateOrPatchRepositoryReadmeRestController(get(), get()) } bind RestController::class
+    single { DeleteRepositoryReadmeRestController(get(), get()) } bind RestController::class
+    single { GetRepositoryReadmeRestController(get(), get()) } bind RestController::class
 }

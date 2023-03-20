@@ -44,6 +44,11 @@ sealed class PreconditionResult {
          * @param error single [API error][ApiError] to send back to the user
          */
         constructor(status: HttpStatusCode = HttpStatusCode.PreconditionFailed, error: ApiError): this(status, listOf(error))
+
+        /**
+         * @param error single [API error][ApiError] to send back
+         */
+        constructor(error: ApiError): this(HttpStatusCode.PreconditionFailed, error)
     }
 }
 

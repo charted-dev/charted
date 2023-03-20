@@ -15,13 +15,19 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.routing.v1.repositories.crud
+package org.noelware.charted.server.util
 
-import org.koin.dsl.bind
-import org.koin.dsl.module
-import org.noelware.charted.server.routing.RestController
+import org.koin.core.module.Module
 
-val repositoriesV1CrudModule = module {
-    single { GetSingleRepositoryRestController(get()) } bind RestController::class
-    single { DeleteRepositoryRestController(get()) } bind RestController::class
+/**
+ * Composes a list of modules into one big list of modules for Koin.
+ * @param module The module to add to the list (this is required)
+ * @param modules Other modules to combine
+ * @return combined list of modules
+ */
+fun composeKoinModules(module: Module, vararg modules: Module): List<Module> {
+    val combined = mutableListOf(module)
+    for (mod in modules) combined.add(mod)
+
+    return combined
 }

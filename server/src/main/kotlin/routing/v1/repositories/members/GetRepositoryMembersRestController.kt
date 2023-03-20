@@ -16,3 +16,5 @@
  */
 
 package org.noelware.charted.server.routing.v1.repositories.members
+
+class GetRepositoryMembersRestController

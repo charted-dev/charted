@@ -15,4 +15,8 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.routing.v1.repositories.crud
+package org.noelware.charted.server.routing.v1.repositories.members
+
+import org.koin.dsl.module
+
+val repositoriesV1MembersModule = module {}

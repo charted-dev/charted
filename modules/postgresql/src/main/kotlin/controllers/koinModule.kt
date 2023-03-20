@@ -26,8 +26,8 @@ import org.noelware.charted.modules.postgresql.controllers.users.connections.Use
 
 val controllersModule = module {
     single { UserDatabaseController(get(), get(), get()) }
+    single { RepositoryDatabaseController(get(), get()) }
     single { OrganizationDatabaseController(get()) }
-    single { RepositoryDatabaseController(get()) }
     single { UserConnectionsDatabaseController() }
     single { ApiKeysDatabaseController(get()) }
 }

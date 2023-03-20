@@ -27,6 +27,7 @@ import org.noelware.charted.common.types.helm.RepoType
 data class CreateRepositoryPayload(
     val description: String? = null,
     val private: Boolean = false,
+    val readme: String? = null,
     val name: String,
     val type: RepoType
 ) {

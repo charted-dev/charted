@@ -29,6 +29,12 @@ import org.noelware.charted.modules.openapi.ToPaths
  */
 abstract class RestController(internal val path: String, internal val method: HttpMethod = HttpMethod.Get): ToPaths {
     /**
+     * [APIVersion] this [RestController] is using. It will use the default one.
+     */
+    open val apiVersion: APIVersion
+        get() = APIVersion.default()
+
+    /**
      * Initializes this [RestController] when routing is being configured.
      */
     open fun Route.init() {}

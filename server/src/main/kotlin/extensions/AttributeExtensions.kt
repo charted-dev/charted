@@ -27,11 +27,22 @@ import org.noelware.charted.modules.postgresql.extensions.fromEntity
 import org.noelware.charted.modules.postgresql.ktor.ApiKeyAttributeKey
 import org.noelware.charted.modules.postgresql.ktor.UserEntityAttributeKey
 import org.noelware.charted.modules.sessions.Session
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 internal val sessionKey: AttributeKey<Session> = AttributeKey("Session")
 
 val ApplicationCall.session: Session?
     get() = attributes.getOrNull(sessionKey)
+
+@OptIn(ExperimentalContracts::class)
+suspend fun <K: Any, T> Attributes.putAndRemove(attr: AttributeKey<K>, value: K, block: suspend () -> T): T {
+    contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
+
+    put(attr, value)
+    return block().also { remove(attr) }
+}
 
 /**
  * Same as [currentUserEntity] but returns a safe-serializable [User] entity.

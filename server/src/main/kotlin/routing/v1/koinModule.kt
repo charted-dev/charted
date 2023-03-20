@@ -20,10 +20,11 @@ package org.noelware.charted.server.routing.v1
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.v1.organizations.organizationsV1Module
 import org.noelware.charted.server.routing.v1.repositories.repositoriesV1Module
 import org.noelware.charted.server.routing.v1.users.usersV1Module
 
-val routingV1Module = usersV1Module + repositoriesV1Module + module {
+val routingV1Module = usersV1Module + repositoriesV1Module + organizationsV1Module + module {
     single { IndexMappingsRestController(get(), getOrNull(), get(), get()) } bind RestController::class
     single { FeaturesRestController(get()) } bind RestController::class
     single { HeartbeatRestController() } bind RestController::class

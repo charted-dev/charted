@@ -15,74 +15,81 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.routing.v1.repositories.crud
+package org.noelware.charted.server.routing.v1.users.repositories
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.swagger.v3.oas.models.PathItem
-import org.noelware.charted.common.extensions.regexp.matchesNameAndIdRegex
 import org.noelware.charted.common.types.responses.ApiResponse
-import org.noelware.charted.models.repositories.Repository
+import org.noelware.charted.models.flags.ApiKeyScope
 import org.noelware.charted.modules.openapi.NameOrSnowflake
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
-import org.noelware.charted.modules.postgresql.controllers.getOrNull
-import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationDatabaseController
+import org.noelware.charted.modules.postgresql.controllers.get
+import org.noelware.charted.modules.postgresql.controllers.getByIdOrNameOrNull
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
-import org.noelware.charted.modules.postgresql.tables.OrganizationTable
-import org.noelware.charted.modules.postgresql.tables.RepositoryTable
+import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
+import org.noelware.charted.modules.postgresql.ktor.OwnerIdAttributeKey
+import org.noelware.charted.modules.postgresql.tables.UserTable
+import org.noelware.charted.server.extensions.addAuthenticationResponses
+import org.noelware.charted.server.extensions.putAndRemove
 import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.plugins.sessions.preconditions.canEditMetadata
 import org.noelware.charted.server.routing.RestController
 
-class GetOrganizationRepositoriesRestController(
+class PatchUserRepositoryRestController(
     private val controller: RepositoryDatabaseController,
-    private val organizationController: OrganizationDatabaseController
-): RestController("/organizations/{idOrName}/repositories") {
+    private val usersController: UserDatabaseController
+): RestController("/users/{idOrName}/repositories/{id}", HttpMethod.Patch) {
     override fun Route.init() {
         install(Sessions) {
-            // We will allow non-authorized requests, but we will not show
-            // private repositories an organization has.
-            allowNonAuthorizedRequests = true
+            this += ApiKeyScope.Repositories.Update
+            condition { call -> canEditMetadata(call, controller) }
         }
     }
 
     override suspend fun call(call: ApplicationCall) {
         val idOrName = call.parameters.getOrFail("idOrName")
-        val org = when {
-            idOrName.toLongOrNull() != null -> organizationController.getOrNull(OrganizationTable, OrganizationTable::id to idOrName.toLong())
-            idOrName.matchesNameAndIdRegex() -> organizationController.getOrNull(OrganizationTable::name to idOrName)
-            else -> null
-        } ?: return call.respond(
-            HttpStatusCode.BadRequest,
-            ApiResponse.err(
-                "UNKNOWN_ORGANIZATION",
-                "Unknown organization found [$idOrName]",
-            ),
-        )
+        val user = usersController.getByIdOrNameOrNull(idOrName, UserTable::username)
+            ?: return call.respond(
+                HttpStatusCode.NotFound,
+                ApiResponse.err(
+                    "UNKNOWN_USER",
+                    "User with name or snowflake [$idOrName] was not found",
+                ),
+            )
 
-        call.respond(HttpStatusCode.OK, ApiResponse.ok(controller.all(RepositoryTable::owner to org.id)))
+        val repo = controller.get(call.parameters.getOrFail<Long>("id"))
+        return call.attributes.putAndRemove(OwnerIdAttributeKey, user.id) {
+            controller.update(call, repo.id, call.receive())
+            call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
+        }
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/organizations/{idOrName}/repositories") {
-        get {
-            description = "Returns all of an organization's repositories"
-
+    override fun toPathDsl(): PathItem = toPaths("/users/{idOrName}/repositories/{id}") {
+        patch {
             pathParameter {
                 name = "idOrName"
                 schema<NameOrSnowflake>()
             }
 
+            pathParameter {
+                name = "id"
+                schema<Long>()
+            }
+
+            addAuthenticationResponses()
             response(HttpStatusCode.OK) {
                 contentType(ContentType.Application.Json) {
-                    schema(ApiResponse.ok(listOf<Repository>()))
+                    schema(ApiResponse.ok())
                 }
             }
 
             response(HttpStatusCode.NotFound) {
-                description = "if an organization couldn't be found"
                 contentType(ContentType.Application.Json) {
                     schema<ApiResponse.Err>()
                 }

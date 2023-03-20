@@ -15,13 +15,20 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.routing.v1.repositories.crud
+package org.noelware.charted.server.routing
 
-import org.koin.dsl.bind
-import org.koin.dsl.module
-import org.noelware.charted.server.routing.RestController
+/**
+ * Represents the API version a [RestController] is on
+ */
+enum class APIVersion {
+    V1;
 
-val repositoriesV1CrudModule = module {
-    single { GetSingleRepositoryRestController(get()) } bind RestController::class
-    single { DeleteRepositoryRestController(get()) } bind RestController::class
+    fun toRoutePath(): String = "/${name.lowercase()}"
+
+    companion object {
+        /**
+         * Returns the default [APIVersion] available
+         */
+        fun default(): APIVersion = V1
+    }
 }

@@ -15,16 +15,27 @@
  * limitations under the License.
  */
 
-@file:JvmName("UserDatabaseControllerExtensionsKt")
+package org.noelware.charted.modules.postgresql.controllers
 
-package org.noelware.charted.modules.postgresql.controllers.users
-
+import org.jetbrains.exposed.dao.LongEntity
+import org.jetbrains.exposed.sql.Column
 import org.noelware.charted.common.extensions.regexp.matchesNameAndIdRegex
-import org.noelware.charted.models.users.User
-import org.noelware.charted.modules.postgresql.tables.UserTable
+import kotlin.reflect.KProperty0
 
-suspend fun UserDatabaseController.getByIdOrNameOrNull(idOrName: String): User? = when {
+suspend fun <T, Entity: LongEntity, Created: Any, Patched: Any> AbstractDatabaseController<T, Entity, Created, Patched>.getByIdOrNameOrNull(
+    idOrName: String,
+    column: KProperty0<Column<String>>
+): T? = when {
     idOrName.toLongOrNull() != null -> getOrNull(idOrName.toLong())
-    idOrName.matchesNameAndIdRegex() -> getOrNull(UserTable::username to idOrName)
+    idOrName.matchesNameAndIdRegex() -> getOrNull(column to idOrName)
+    else -> null
+}
+
+suspend fun <T, Entity: LongEntity, Created: Any, Patched: Any> AbstractDatabaseController<T, Entity, Created, Patched>.getEntityByIdOrNameOrNull(
+    idOrName: String,
+    column: KProperty0<Column<String>>
+): Entity? = when {
+    idOrName.toLongOrNull() != null -> getEntityOrNull(idOrName.toLong())
+    idOrName.matchesNameAndIdRegex() -> getEntityOrNull(column to idOrName)
     else -> null
 }

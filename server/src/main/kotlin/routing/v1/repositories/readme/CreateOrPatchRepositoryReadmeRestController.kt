@@ -16,3 +16,61 @@
  */
 
 package org.noelware.charted.server.routing.v1.repositories.readme
+
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.util.*
+import io.ktor.utils.io.jvm.javaio.*
+import io.swagger.v3.oas.models.PathItem
+import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.models.flags.ApiKeyScope
+import org.noelware.charted.modules.openapi.kotlin.dsl.schema
+import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
+import org.noelware.charted.modules.storage.StorageModule
+import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.plugins.sessions.preconditions.canEditMetadata
+import org.noelware.charted.server.routing.RestController
+
+class CreateOrPatchRepositoryReadmeRestController(
+    private val controller: RepositoryDatabaseController,
+    private val storage: StorageModule
+): RestController("/repositories/{id}/readme", HttpMethod.Post) {
+    override fun Route.init() {
+        install(Sessions) {
+            this += ApiKeyScope.Repositories.Update
+            condition { call -> canEditMetadata(call, controller) }
+        }
+    }
+
+    override suspend fun call(call: ApplicationCall) {
+        val id = call.parameters.getOrFail<Long>("id")
+        val body = call.receiveChannel()
+
+        storage.upload("./repositories/$id/README", body.toInputStream(), "text/plain; charset=utf-8")
+        call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
+    }
+
+    override fun toPathDsl(): PathItem = toPaths("/repositories/{id}/readme") {
+        post {
+            description = "Creates or updates a repository's README"
+
+            pathParameter {
+                description = "Snowflake to query a repository"
+                name = "id"
+
+                schema<Long>()
+            }
+
+            response(HttpStatusCode.Accepted) {
+                description = "README was updated successfully"
+                contentType(ContentType.Application.Json) {
+                    schema(ApiResponse.ok())
+                }
+            }
+        }
+    }
+}

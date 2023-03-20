@@ -21,7 +21,17 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.noelware.charted.server.routing.RestController
 import org.noelware.charted.server.routing.v1.repositories.crud.repositoriesV1CrudModule
+import org.noelware.charted.server.routing.v1.repositories.members.repositoriesV1MembersModule
+import org.noelware.charted.server.routing.v1.repositories.readme.repositoriesV1ReadmeModule
+import org.noelware.charted.server.routing.v1.repositories.releases.repositoriesV1ReleaseModule
+import org.noelware.charted.server.util.composeKoinModules
 
-val repositoriesV1Module = repositoriesV1CrudModule + module {
-    single { MainRepositoryRestController() } bind RestController::class
-}
+val repositoriesV1Module = composeKoinModules(
+    repositoriesV1CrudModule,
+    repositoriesV1MembersModule,
+    repositoriesV1ReadmeModule,
+    repositoriesV1ReleaseModule,
+    module {
+        single { MainRepositoryRestController() } bind RestController::class
+    },
+)

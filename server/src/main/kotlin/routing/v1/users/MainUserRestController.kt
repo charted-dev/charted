@@ -47,8 +47,7 @@ class MainUserRestController: RestController("/users") {
             description = "Generic entrypoint for the Users API"
             response(HttpStatusCode.OK) {
                 contentType(ContentType.Application.Json) {
-                    schema<ApiResponse.Ok<MainUserResponse>>()
-                    example = ApiResponse.ok(MainUserResponse())
+                    schema(ApiResponse.ok(MainUserResponse()))
                 }
             }
         }

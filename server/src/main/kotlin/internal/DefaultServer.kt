@@ -51,6 +51,7 @@ import org.noelware.charted.server.internal.statuspages.configure
 import org.noelware.charted.server.plugins.Log
 import org.noelware.charted.server.ratelimit.InMemoryRateLimiter
 import org.noelware.charted.server.ratelimit.RedisRateLimiter
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 import org.noelware.charted.server.routing.v1.CdnRestController
 import org.slf4j.LoggerFactory
@@ -148,8 +149,15 @@ class DefaultServer(private val config: Config): Server {
 
         routing {
             for (controller in controllers) {
-                log.trace("Configuring rest controller [${controller.method.value} ${controller.path}] (${controller::class.toString().replace("class ", "")})")
-                route(controller.path, controller.method) {
+                log.trace("Configuring REST controller [${controller.method.value} ${controller.path}] (${controller::class.toString().replace("class ", "")})")
+                if (APIVersion.default() == controller.apiVersion) {
+                    route(controller.path, controller.method) {
+                        controller.initRoute(this)
+                        handle { controller.call(call) }
+                    }
+                }
+
+                route("${controller.apiVersion.toRoutePath()}${controller.path}", controller.method) {
                     controller.initRoute(this)
                     handle { controller.call(call) }
                 }
