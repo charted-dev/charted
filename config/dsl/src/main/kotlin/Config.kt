@@ -205,11 +205,14 @@ public data class Config(
     val cdn: CdnConfig? = null
 ) {
     init {
-        if (registrations && inviteOnly)
-            throw MultiValidationException(listOf(
-                ValidationException("body.registrations", "`registrations` and `invite_only` is mutually exclusive"),
-                ValidationException("body.invite_only", "`registrations` and `invite_only` is mutually exclusive")
-            ))
+        if (registrations && inviteOnly) {
+            throw MultiValidationException(
+                listOf(
+                    ValidationException("body.registrations", "`registrations` and `invite_only` is mutually exclusive"),
+                    ValidationException("body.invite_only", "`registrations` and `invite_only` is mutually exclusive"),
+                ),
+            )
+        }
     }
 
     public companion object {
