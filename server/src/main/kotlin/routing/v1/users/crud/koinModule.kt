@@ -22,8 +22,8 @@ import org.koin.dsl.module
 import org.noelware.charted.server.routing.RestController
 
 val usersV1CrudModule = module {
-    single { CreateUserRestController(get(), getOrNull(), get(), get()) } bind RestController::class
-    single { DeleteUserRestController(getOrNull(), get(), get()) } bind RestController::class
+    single { CreateUserRestController(get(), getOrNull(), getOrNull(), get(), get()) } bind RestController::class
+    single { DeleteUserRestController(getOrNull(), getOrNull(), get(), get()) } bind RestController::class
     single { PatchUserRestController(get()) } bind RestController::class
     single { GetUserRestController(get()) } bind RestController::class
     single { GetMeRestController(get()) } bind RestController::class
