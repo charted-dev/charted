@@ -59,7 +59,7 @@ services:
             timeout: 60s
     redis:
         container_name: redis
-        image: bitnami/redis:7.0.8
+        image: bitnami/redis:7.0.10
         networks:
             - charted
         ports:
