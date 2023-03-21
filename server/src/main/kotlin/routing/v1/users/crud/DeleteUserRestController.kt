@@ -36,6 +36,7 @@ import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.asyncTransaction
 import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
 import org.noelware.charted.modules.postgresql.tables.RepositoryTable
+import org.noelware.charted.modules.search.SearchModule
 import org.noelware.charted.modules.sessions.AbstractSessionManager
 import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.extensions.currentUser
@@ -44,6 +45,7 @@ import org.noelware.charted.server.routing.RestController
 
 class DeleteUserRestController(
     private val charts: HelmChartModule? = null,
+    private val search: SearchModule? = null,
     private val sessions: AbstractSessionManager,
     private val controller: UserDatabaseController
 ): RestController("/users", HttpMethod.Delete) {
@@ -85,6 +87,7 @@ class DeleteUserRestController(
         // I plan to have this called in a separate worker pool.
         sessions.revokeAll(currentUser.id)
         charts?.destroyIndexYaml(currentUser.id)
+        search?.unindexUser(currentUser)
 
         call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
     }
@@ -96,8 +99,7 @@ class DeleteUserRestController(
             addAuthenticationResponses()
             response(HttpStatusCode.Accepted) {
                 contentType(ContentType.Application.Json) {
-                    schema<ApiResponse.Ok<Unit>>()
-                    example = ApiResponse.ok()
+                    schema(ApiResponse.ok())
                 }
             }
         }

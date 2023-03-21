@@ -32,11 +32,13 @@ import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.users.CreateUserPayload
 import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.users.connections.UserConnectionsDatabaseController
+import org.noelware.charted.modules.search.SearchModule
 import org.noelware.charted.server.routing.RestController
 
 class CreateUserRestController(
     private val config: Config,
     private val charts: HelmChartModule? = null,
+    private val search: SearchModule? = null,
     private val controller: UserDatabaseController,
     private val connectionsController: UserConnectionsDatabaseController
 ): RestController("/users", HttpMethod.Put) {
@@ -60,6 +62,8 @@ class CreateUserRestController(
         connectionsController.create(call, user.id)
 
         charts?.createIndexYaml(user.id)
+        search?.indexUser(user)
+
         call.respond(HttpStatusCode.Created, ApiResponse.ok(user))
     }
 

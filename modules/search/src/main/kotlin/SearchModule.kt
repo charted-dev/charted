@@ -53,6 +53,24 @@ interface SearchModule: Closeable {
     suspend fun indexOrganization(org: Organization)
 
     /**
+     * Un-indexes a user from this [SearchModule].
+     * @param user The user to insert
+     */
+    suspend fun unindexUser(user: User)
+
+    /**
+     * Un-indexes a repository from this [SearchModule].
+     * @param repository The repository to insert
+     */
+    suspend fun unindexRepository(repository: Repository)
+
+    /**
+     * Un-indexes an organization from this [SearchModule]
+     * @param org The organization to insert
+     */
+    suspend fun unindexOrganization(org: Organization)
+
+    /**
      * Indexes all the data available into all indexes. This is a very expensive
      * function, so this will be called at the start of the server's
      * lifespan.

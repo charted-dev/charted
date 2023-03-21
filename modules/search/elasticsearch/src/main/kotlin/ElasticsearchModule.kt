@@ -17,9 +17,27 @@
 
 package org.noelware.charted.modules.search.elasticsearch
 
+import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient
 import org.noelware.charted.modules.search.SearchModule
 import org.noelware.charted.modules.search.elasticsearch.metrics.ElasticsearchStats
 
 interface ElasticsearchModule: SearchModule {
+    /**
+     * The built [asynchronous client][ElasticsearchAsyncClient]
+     */
+    val client: ElasticsearchAsyncClient
+
+    /**
+     * Returns the Elasticsearch cluster's name that was collected when the client was
+     * being connected.
+     */
+    val clusterName: String
+
+    /**
+     * Returns the Elasticsearch cluster's UUID that was collected when the
+     * client was being collected.
+     */
+    val clusterUUID: String
+
     suspend fun stats(): ElasticsearchStats
 }

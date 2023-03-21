@@ -62,7 +62,38 @@ val routingModule = routingV1Module + module {
 
         val controllers: List<RestController> = getAll()
         for (controller in controllers) {
-            openApi.paths.addPathItem(controller.path, controller.toPathDsl())
+            if (openApi.paths.containsKey(controller.path)) {
+                val pathItem = openApi.paths[controller.path]!!
+                val newPathItem = controller.toPathDsl()
+
+                if (newPathItem.get != null && pathItem.get == null) {
+                    pathItem.get(newPathItem.get!!)
+                }
+
+                if (newPathItem.put != null && pathItem.put == null) {
+                    pathItem.put(newPathItem.put!!)
+                }
+
+                if (newPathItem.head != null && pathItem.head == null) {
+                    pathItem.head(newPathItem.head!!)
+                }
+
+                if (newPathItem.post != null && pathItem.post == null) {
+                    pathItem.post(newPathItem.head!!)
+                }
+
+                if (newPathItem.patch != null && pathItem.patch == null) {
+                    pathItem.patch(newPathItem.patch!!)
+                }
+
+                if (newPathItem.delete != null && pathItem.delete == null) {
+                    pathItem.delete(newPathItem.delete!!)
+                }
+
+                openApi.paths.addPathItem(controller.path, pathItem)
+            } else {
+                openApi.paths.addPathItem(controller.path, controller.toPathDsl())
+            }
         }
 
         for ((name, schema) in modelConverterContext.definedModels.entries.sortedBy { it.key }) {

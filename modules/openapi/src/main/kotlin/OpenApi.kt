@@ -26,18 +26,18 @@ import io.swagger.v3.core.util.Json
 import io.swagger.v3.core.util.Yaml
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.media.Schema
-import org.noelware.charted.modules.openapi.jackson.OpenAPIJacksonModule
+import org.noelware.charted.common.jackson.KotlinxDatetimeJacksonModule
 import org.noelware.charted.modules.openapi.kotlin.dsl.OpenAPIDsl
 import org.noelware.charted.modules.openapi.kotlin.dsl.OpenAPIDslBuilder
 import kotlin.reflect.KType
 import kotlin.reflect.javaType
 
 private val jsonMapper: ObjectMapper = Json.mapper().apply {
-    registerModules(kotlinModule(), OpenAPIJacksonModule)
+    registerModules(kotlinModule(), KotlinxDatetimeJacksonModule())
 }
 
 private val yamlMapper: ObjectMapper = Yaml.mapper().apply {
-    registerModules(kotlinModule(), OpenAPIJacksonModule)
+    registerModules(kotlinModule(), KotlinxDatetimeJacksonModule())
 }
 
 val modelConverterContext = ModelConverterContextImpl(

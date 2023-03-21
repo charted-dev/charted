@@ -63,6 +63,8 @@ import org.noelware.charted.modules.postgresql.metrics.PostgresServerStats
 import org.noelware.charted.modules.postgresql.tables.*
 import org.noelware.charted.modules.redis.DefaultRedisClient
 import org.noelware.charted.modules.redis.RedisClient
+import org.noelware.charted.modules.search.SearchModule
+import org.noelware.charted.modules.search.elasticsearch.DefaultElasticsearchModule
 import org.noelware.charted.modules.sessions.AbstractSessionManager
 import org.noelware.charted.modules.sessions.local.LocalSessionManager
 import org.noelware.charted.modules.storage.DefaultStorageModule
@@ -243,6 +245,19 @@ object ConfigureModulesPhase: BootstrapPhase() {
                     single<EmailService> { service }
                 },
             )
+        }
+
+        if (config.search != null) {
+            if (config.search!!.elasticsearch != null) {
+                val elasticsearchModule = DefaultElasticsearchModule(json, config)
+                elasticsearchModule.init()
+
+                modules.add(
+                    module {
+                        single<SearchModule> { elasticsearchModule }
+                    },
+                )
+            }
         }
 
         modules.add(

@@ -30,6 +30,7 @@ dependencies {
 
     // Modules that we require (which is... most of them!)
     implementation(projects.modules.sessions.integrations.github)
+    implementation(projects.modules.search.elasticsearch)
     implementation(projects.modules.sessions.local)
     implementation(projects.modules.sessions.ldap)
     implementation(projects.config.kotlinScript)
@@ -42,6 +43,7 @@ dependencies {
     implementation(projects.modules.storage)
     implementation(projects.modules.avatars)
     implementation(projects.modules.metrics)
+    implementation(projects.modules.search)
     implementation(projects.modules.emails)
     implementation(projects.modules.redis)
     implementation(projects.config.yaml)
