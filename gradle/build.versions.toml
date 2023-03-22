@@ -16,7 +16,7 @@
 [versions]
 apache-commons-validator = "1.7"
 exposed-powergamer-tools = "1.2.1"
-apache-commons-compress = "1.22"
+apache-commons-compress = "1.23.0"
 tomcat-annotations-api = "6.0.53"
 spring-security-crypto = "6.0.2"
 kotlinx-serialization = "1.5.0"
