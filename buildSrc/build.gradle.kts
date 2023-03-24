@@ -42,7 +42,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.20.0")
+    implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.20.1")
     implementation("com.diffplug.spotless:spotless-plugin-gradle:6.17.0")
     implementation("com.netflix.nebula:gradle-ospackage-plugin:11.0.0")
     implementation("com.google.protobuf:protobuf-gradle-plugin:0.9.2")
