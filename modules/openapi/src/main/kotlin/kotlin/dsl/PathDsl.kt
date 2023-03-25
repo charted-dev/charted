@@ -51,6 +51,11 @@ interface PathDsl {
     fun post(block: OperationDsl.() -> Unit = {})
 
     /**
+     * Adds a HEAD [OperationDsl] object into this [PathDsl].
+     */
+    fun head(block: OperationDsl.() -> Unit = {})
+
+    /**
      * Adds a PUT [OperationDsl] object into this [PathDsl].
      */
     fun put(block: OperationDsl.() -> Unit = {})
@@ -69,7 +74,7 @@ class PathDslBuilder(private val path: String): PathDsl, Buildable<PathItem> {
     override var description: String? by _description
 
     private fun registerMethod(method: HttpMethod, block: OperationDsl.() -> Unit) {
-        if (_methods.containsKey(method)) throw IllegalStateException("HTTP method '${method.value}' is already registered")
+        if (_methods.containsKey(method)) throw IllegalStateException("Path with HTTP method [$path '${method.value}'] is already registered")
 
         _methods[method] = OperationDslBuilder().apply(block).build().apply {
             externalDocs(
@@ -83,12 +88,9 @@ class PathDslBuilder(private val path: String): PathDsl, Buildable<PathItem> {
     override fun delete(block: OperationDsl.() -> Unit) = registerMethod(HttpMethod.Delete, block)
     override fun patch(block: OperationDsl.() -> Unit) = registerMethod(HttpMethod.Patch, block)
     override fun post(block: OperationDsl.() -> Unit) = registerMethod(HttpMethod.Post, block)
+    override fun head(block: OperationDsl.() -> Unit) = registerMethod(HttpMethod.Head, block)
     override fun put(block: OperationDsl.() -> Unit) = registerMethod(HttpMethod.Put, block)
-    override fun get(block: OperationDsl.() -> Unit) {
-        registerMethod(HttpMethod.Get, block)
-        registerMethod(HttpMethod.Head, block)
-    }
-
+    override fun get(block: OperationDsl.() -> Unit) = registerMethod(HttpMethod.Get, block)
     override fun build(): PathItem = PathItem().apply {
         _description.valueOrNull?.let { description(it) }
 

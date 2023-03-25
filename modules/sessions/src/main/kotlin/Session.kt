@@ -17,6 +17,8 @@
 
 package org.noelware.charted.modules.sessions
 
+import com.fasterxml.jackson.annotation.JsonProperty
+import io.swagger.v3.oas.annotations.media.Schema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
@@ -33,19 +35,26 @@ import java.util.UUID
  * @param accessToken  The token for accessing the API server as the user. This is dangerous to someone who
  *                     knows your credentials.
  * @param sessionID    Unique identifier to identify this session.
- * @param user         The user who owns this session.
+ * @param userID       The user (by ID) who owns this session.
  */
+@Schema(description = "Represents a session token object. This is how sessions are stored when authenticating to charted-server.")
 @Serializable
 data class Session(
+    @JsonProperty("refresh_token")
     @SerialName("refresh_token")
     val refreshToken: String,
 
+    @JsonProperty("access_token")
     @SerialName("access_token")
     val accessToken: String,
 
     @Serializable(with = UUIDSerializer::class)
+    @JsonProperty("session_id")
     @SerialName("session_id")
     val sessionID: UUID,
+
+    @JsonProperty("user_id")
+    @SerialName("user_id")
     val userID: Long
 ) {
     fun toJsonObject(showToken: Boolean = false): JsonObject = buildJsonObject {
