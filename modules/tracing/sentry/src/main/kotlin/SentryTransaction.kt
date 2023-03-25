@@ -15,25 +15,36 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.routing.v1.apikeys
+package org.noelware.charted.modules.tracing.sentry
 
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.routing.*
-import io.swagger.v3.oas.models.PathItem
-import org.noelware.charted.modules.postgresql.controllers.apikeys.ApiKeysDatabaseController
-import org.noelware.charted.server.routing.RestController
+import io.sentry.ITransaction
+import io.sentry.SpanStatus
+import org.noelware.charted.modules.tracing.Span
+import org.noelware.charted.modules.tracing.Tracer
+import org.noelware.charted.modules.tracing.Transaction
 
-class CreateApiKeyRestController(private val controller: ApiKeysDatabaseController): RestController("/apikeys", HttpMethod.Put) {
-    override fun Route.init() {
+class SentryTransaction(private val inner: ITransaction): Transaction {
+    override fun createSpan(name: String, operation: String?): Span {
         TODO("Not yet implemented")
     }
 
-    override suspend fun call(call: ApplicationCall) {
+    override fun createSpan(name: String): Span {
         TODO("Not yet implemented")
     }
 
-    override fun toPathDsl(): PathItem {
+    override fun tracer(): Tracer {
         TODO("Not yet implemented")
+    }
+
+    override fun operation(): String? {
+        TODO("Not yet implemented")
+    }
+
+    override fun name(): String {
+        TODO("Not yet implemented")
+    }
+
+    override fun close() {
+        inner.finish(SpanStatus.OK)
     }
 }

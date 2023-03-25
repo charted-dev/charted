@@ -15,16 +15,18 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.modules.postgresql.controllers.repositories.releases
+package org.noelware.charted.modules.tracing;
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-@Serializable
-data class CreateRepositoryReleasePayload(
-    @JsonProperty("update_text")
-    @SerialName("update_text")
-    val updateText: String? = null,
-    val tag: String
-)
+public interface Span extends AutoCloseable {
+    @NotNull
+    Transaction transaction();
+
+    @Nullable
+    String operation();
+
+    @NotNull
+    String name();
+}

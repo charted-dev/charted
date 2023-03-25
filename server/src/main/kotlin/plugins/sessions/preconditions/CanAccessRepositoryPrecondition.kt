@@ -17,49 +17,48 @@
 
 package org.noelware.charted.server.plugins.sessions.preconditions
 
+import dev.floofy.utils.koin.inject
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.response.*
 import io.ktor.server.util.*
 import org.noelware.charted.common.types.responses.ApiError
-import org.noelware.charted.models.repositories.RepositoryMember
-import org.noelware.charted.models.repositories.permissions
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
-import org.noelware.charted.modules.postgresql.extensions.fromEntity
 import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.PreconditionResult
 
-suspend fun canEditMetadata(call: ApplicationCall, controller: RepositoryDatabaseController): PreconditionResult =
-    doPermissionCheck(call, controller, "metadata:update")
+suspend fun canAccessRepository(call: ApplicationCall, failOnNoAuth: Boolean = true): PreconditionResult {
+    val controller: RepositoryDatabaseController by inject()
+    if (call.currentUser == null) {
+        if (failOnNoAuth) return PreconditionResult.Failed(ApiError("UNAUTHORIZED", "Unable to view this resource"))
+    }
 
-suspend fun canDeleteMetadata(call: ApplicationCall, controller: RepositoryDatabaseController): PreconditionResult =
-    doPermissionCheck(call, controller, "metadata:delete")
-
-suspend fun doPermissionCheck(call: ApplicationCall, controller: RepositoryDatabaseController, permission: String): PreconditionResult {
     val id = call.parameters.getOrFail<Long>("id")
     val repo = controller.getEntityOrNull(id) ?: return PreconditionResult.Failed(
         HttpStatusCode.NotFound,
         ApiError("UNKNOWN_REPOSITORY", "Repository with ID [$id] was not found"),
     )
 
-    // this will always return false when used in organization repositories
-    if (repo.owner == call.currentUser!!.id) return PreconditionResult.Success
+    if (repo.private) {
+        if (call.currentUser == null) {
+            return PreconditionResult.Failed(
+                HttpStatusCode.Unauthorized,
+                ApiError(
+                    "INVALID_ACCESS",
+                    "Repository ${repo.name} is private and you don't have access to it",
+                ),
+            )
+        }
 
-    val member = repo.members.singleOrNull { it.account.id.value == call.currentUser!!.id }
-        ?: return PreconditionResult.Failed(
-            HttpStatusCode.Unauthorized,
-            ApiError(
-                "UNAUTHORIZED", "You are not a member of this repository",
-            ),
-        )
-
-    val m = RepositoryMember.fromEntity(member)
-    if (!m.permissions.has(permission)) {
-        return PreconditionResult.Failed(
-            ApiError(
-                "MISSING_PERMISSIONS",
-                "You are missing the 'metadata:update' permission",
-            ),
-        )
+        if (!repo.members.any { it.account.id.value == call.currentUser!!.id }) {
+            return PreconditionResult.Failed(
+                HttpStatusCode.Unauthorized,
+                ApiError(
+                    "INVALID_ACCESS",
+                    "Repository ${repo.name} is private and you don't have access to it",
+                ),
+            )
+        }
     }
 
     return PreconditionResult.Success

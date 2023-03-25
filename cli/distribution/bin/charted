@@ -19,100 +19,106 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-function fatal {
-  echo "FATAL :: $1"
-  exit 1
+fatal() {
+    local message="$*"
+
+    echo "[charted][failure] $message"
+    exit 1
 }
 
-function join {
-  local IFS="$1"
-  shift
+join() {
+    local IFS="$1"
+    shift
 
-  echo "$*"
+    echo "$*"
 }
 
-function debug! {
-  local message="$1"
-  if ! [[ "${CHARTED_DEBUG}" =~ ^(no|false|0)$ ]]; then
-    echo "$message"
-  fi
+debug() {
+    local message="$*"
+    if ! [[ "${CHARTED_DEBUG:-}" =~ ^(no|false|0)$ ]]; then
+        echo "[charted][debug] $message"
+    fi
 }
 
-# Resolve links: $0 may be a link
-app_path=$0
+BASH_SRC=${BASH_SOURCE[0]}
+while [ -L "$BASH_SRC" ]; do
+    target=$(readlink "$BASH_SRC")
+    if [[ $target == /* ]]; then
+        debug "source [$BASH_SRC] is an absolute symlink to $target"
+        BASH_SRC=$target
+    else
+        dir=$(dirname "$BASH_SRC")
+        debug "source [$BASH_SRC] is a relative symlink to [$target] (relative -> $dir)"
 
-# Need this for daisy-chained symlinks.
-while
-    APP_HOME=${app_path%"${app_path##*/}"}  # leaves a trailing /; empty if no leading path
-    [ -h "$app_path" ]
-do
-    ls=$( ls -ld "$app_path" )
-    link=${ls#*' -> '}
-    case $link in             #(
-      /*)   app_path=$link ;; #(
-      *)    app_path=$APP_HOME$link ;;
-    esac
+        BASH_SRC=$dir/$target
+    fi
 done
 
-APP_HOME=$( cd "${APP_HOME:-./}" && pwd -P ) || exit
+REAL_DIR=$(dirname "$BASH_SRC")
+DIR=$(cd -P "$(dirname "$BASH_SRC")" >/dev/null 2>&1 && pwd)
+if [ "$DIR" != "$REAL_DIR" ]; then
+    debug "Directory [$REAL_DIR] resolves to [$DIR]"
+fi
 
-# shellcheck disable=SC2034
-APP_NAME="charted"
-
-# shellcheck disable=SC2034
-APP_BASE_NAME=${0##*/}
 CHARTED_DISTRIBUTION=${CHARTED_DISTRIBUTION_TYPE:-git}
 CHARTED_DEBUG=${CHARTED_DEBUG:-no}
 RESOLVED_JAVA_OPTS=(
-  "-XX:+HeapDumpOnOutOfMemoryError"
-  "-XX:+ExitOnOutOfMemoryError"
-  "-XX:ErrorFile=logs/hs_err_pid%p.log"
-  "-XX:SurvivorRatio=8"
-  "-XX:+UseSerialGC"
-  "-Dfile.encoding=UTF-8"
-  "-Djava.awt.headless=true"
+    "-XX:+HeapDumpOnOutOfMemoryError"
+    "-XX:+ExitOnOutOfMemoryError"
+    "-XX:ErrorFile=logs/hs_err_pid%p.log"
+    "-XX:SurvivorRatio=8"
+    "-XX:+UseSerialGC"
+    "-Dfile.encoding=UTF-8"
+    "-Djava.awt.headless=true"
 
-  # netty-specific settings to optimize buffers
-  # https://stackoverflow.com/questions/57885828/netty-cannot-access-class-jdk-internal-misc-unsafe#57892679
-  # https://github.com/netty/netty/issues/7817
-  "-Dio.netty.tryReflectionSetAccessible=true"
-  "--add-opens java.base/jdk.internal.misc=ALL-UNNAMED"
-  "--add-opens java.base/java.nio=ALL-UNNAMED"
+    # netty-specific settings to optimize buffers
+    # https://stackoverflow.com/questions/57885828/netty-cannot-access-class-jdk-internal-misc-unsafe#57892679
+    # https://github.com/netty/netty/issues/7817
+    "-Dio.netty.tryReflectionSetAccessible=true"
+    "--add-opens java.base/jdk.internal.misc=ALL-UNNAMED"
+    "--add-opens java.base/java.nio=ALL-UNNAMED"
 
-  # Useful for loading our tracing agent
-  "-Djdk.attach.allowAttachSelf=true"
+    # Useful for loading our tracing agent
+    "-Djdk.attach.allowAttachSelf=true"
 )
 
-# shellcheck disable=SC2155
 export JAVA_OPTS=$(join ' ' "${RESOLVED_JAVA_OPTS[@]}")
-debug! "[debug:preinit] Resolved Java Options ==> $JAVA_OPTS"
+debug "Resolved Java Options ~> $JAVA_OPTS"
 
-# Determine the Java command to use.
 if [ -n "${JAVA_HOME:-}" ]; then
-  if [ -x "$JAVA_HOME/jre/sh/java" ]; then
-    JAVA_EXEC=$JAVA_HOME/jre/sh/java
-    debug! "[debug:java] Found JAVA_EXEC in $JAVA_HOME/jre/sh/java"
-  else
-    debug! "[debug:java] Found JAVA_EXEC in $JAVA_HOME/bin/java"
-    JAVA_EXEC=$JAVA_HOME/bin/java
-  fi
+    if [ -x "$JAVA_HOME/jre/sh/java" ]; then
+        JAVA_EXEC=$JAVA_HOME/jre/sh/java
+        debug "Found Java binary in $JAVA_EXEC"
+    else
+        debug "Assuming Java binary is in $JAVA_HOME/bin/java"
+        JAVA_EXEC=$JAVA_HOME/bin/java
+    fi
 
-  if [ ! -x "$JAVA_EXEC" ]; then
-    fatal "The home path for Java was set to an invalid directory: $JAVA_HOME
-Please set the location of the JAVA_HOME environment variable to match the location
-of the Java installation."
-  fi
+    if [ ! -x "$JAVA_EXEC" ]; then
+        fatal "Java installation was set to an invalid directory: $JAVA_HOME
+Please set the location of the \$JAVA_HOME environment variable to match the location
+of the Java installation
+        "
+    fi
 else
-  JAVA_EXEC=java
-  # shellcheck disable=SC2015
-  which java >/dev/null 2>&1 && debug! "[debug:java] Found JAVA_EXEC from PATH" || fatal "The JAVA_HOME environment variable was not set and no 'java' command can be
-found in the current PATH.
-Please set the location of the JAVA_HOME environment variable to match the location
-of the Java installation."
+    JAVA_EXEC=java
+    which java >/dev/null 2>&1 && debug "Found Java binary from PATH" || fatal "The \$JAVA_HOME environment variable was not set and couldn't find Java
+in system \$PATH. Please set the \$JAVA_HOME environment variable to match a Java installation."
+fi
+
+JAVA_VERSION=$($JAVA_EXEC -version 2>&1 | head -n1 | sed -E -n 's/.* version "([^.-]*).*"/\1/p' | cut -d' ' -f1)
+debug "Received major version '$JAVA_VERSION'"
+
+if ! [ "$JAVA_VERSION" ]; then
+    fatal "Unable to fetch current Java version -- exiting"
+fi
+
+if [ "$JAVA_VERSION" -lt "17" ]; then
+    fatal "charted-server only supports Java 17 or higher, received: $JAVA_VERSION"
 fi
 
 # $APP_HOME = bin/, so we need to go back so we can load up the classpath
-CHARTED_CLASSPATH="$APP_HOME/../lib/*"
+CHARTED_CLASSPATH="$DIR/../lib/*"
 exec \
   "$JAVA_EXEC" \
   $JAVA_OPTS \

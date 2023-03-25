@@ -15,16 +15,9 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.modules.postgresql.controllers.repositories.releases
+package org.noelware.charted.server.routing.v1.apikeys
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+import org.koin.dsl.module
 
-@Serializable
-data class CreateRepositoryReleasePayload(
-    @JsonProperty("update_text")
-    @SerialName("update_text")
-    val updateText: String? = null,
-    val tag: String
-)
+val apiKeysV1Module = module {
+}

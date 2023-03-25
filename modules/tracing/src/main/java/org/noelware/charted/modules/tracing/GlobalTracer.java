@@ -15,25 +15,30 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.routing.v1.apikeys
+package org.noelware.charted.modules.tracing;
 
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.routing.*
-import io.swagger.v3.oas.models.PathItem
-import org.noelware.charted.modules.postgresql.controllers.apikeys.ApiKeysDatabaseController
-import org.noelware.charted.server.routing.RestController
+import dev.floofy.utils.java.SetOnce;
+import org.jetbrains.annotations.NotNull;
 
-class CreateApiKeyRestController(private val controller: ApiKeysDatabaseController): RestController("/apikeys", HttpMethod.Put) {
-    override fun Route.init() {
-        TODO("Not yet implemented")
+public class GlobalTracer {
+    private static final SetOnce<Tracer> globalInstance = new SetOnce<>();
+
+    /**
+     * @return global {@link Tracer} instance, cannot be null
+     * @throws IllegalStateException If the {@link GlobalTracer} wasn't previously set
+     */
+    @NotNull
+    public static Tracer getInstance() {
+        return globalInstance.getValue();
     }
 
-    override suspend fun call(call: ApplicationCall) {
-        TODO("Not yet implemented")
-    }
-
-    override fun toPathDsl(): PathItem {
-        TODO("Not yet implemented")
+    /**
+     * Sets a global tracer, if a tracer was already set, then it will
+     * not do anything.
+     *
+     * @param tracer The tracer to set
+     */
+    public static void set(Tracer tracer) {
+        globalInstance.setValue(tracer);
     }
 }

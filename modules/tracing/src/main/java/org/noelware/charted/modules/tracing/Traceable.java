@@ -15,16 +15,24 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.modules.postgresql.controllers.repositories.releases
+package org.noelware.charted.modules.tracing;
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+/**
+ * Annotation to declare on any method to provide tracing via the charted's Java Agent for
+ * tracing.
+ *
+ * @author Noel Towa (cutie@floofy.dev)
+ * @since 23.03.23
+ */
+public @interface Traceable {
+    /**
+     * @return Operation of this traceable method, defaults to nothing
+     */
+    String operation() default "";
 
-@Serializable
-data class CreateRepositoryReleasePayload(
-    @JsonProperty("update_text")
-    @SerialName("update_text")
-    val updateText: String? = null,
-    val tag: String
-)
+    /**
+     * @return name of this transaction, defaults to 'method class#method-name', i.e:
+     * method TraceAgent#doTracing
+     */
+    String name() default "";
+}

@@ -15,16 +15,28 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.modules.postgresql.controllers.repositories.releases
+import org.noelware.charted.gradle.*
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+plugins {
+    `charted-module`
+}
 
-@Serializable
-data class CreateRepositoryReleasePayload(
-    @JsonProperty("update_text")
-    @SerialName("update_text")
-    val updateText: String? = null,
-    val tag: String
-)
+dependencies {
+    implementation("net.bytebuddy:byte-buddy-agent:1.14.2")
+    implementation("net.bytebuddy:byte-buddy:1.14.2")
+}
+
+tasks.withType<Jar>().configureEach {
+    manifest {
+        attributes(
+            mapOf(
+                "Can-Retransform-Classes" to "true",
+                "Implementation-Version" to "$VERSION",
+                "Implementation-Vendor" to "Noelware, LLC. [team@noelware.org]",
+                "Implementation-Title" to "charted-server",
+                "Can-Redefine-Classes" to "true",
+                "Agent-Class" to "org.noelware.charted.modules.tracing.agent.TracingAgent",
+            ),
+        )
+    }
+}

@@ -15,16 +15,21 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.modules.postgresql.controllers.repositories.releases
+package org.noelware.charted.modules.tracing.sentry
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+import org.noelware.charted.modules.tracing.Tracer
+import org.noelware.charted.modules.tracing.Transaction
 
-@Serializable
-data class CreateRepositoryReleasePayload(
-    @JsonProperty("update_text")
-    @SerialName("update_text")
-    val updateText: String? = null,
-    val tag: String
-)
+class SentryTracer: Tracer {
+    override fun createTransaction(name: String, operation: String?): Transaction {
+        TODO("Not yet implemented")
+    }
+
+    override fun createTransaction(name: String): Transaction {
+        TODO("Not yet implemented")
+    }
+
+    override fun close() {
+        // we don't implement close i dont think
+    }
+}

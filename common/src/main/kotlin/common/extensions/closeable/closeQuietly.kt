@@ -30,3 +30,13 @@ public fun <T: Closeable> T.closeQuietly() {
         /* ignore */
     }
 }
+
+public fun <T: AutoCloseable> T.closeQuietly() {
+    try {
+        close()
+    } catch (e: RuntimeException) {
+        throw e
+    } catch (ignored: Exception) {
+        /* ignore */
+    }
+}

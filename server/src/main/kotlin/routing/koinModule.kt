@@ -79,7 +79,7 @@ val routingModule = routingV1Module + module {
                 }
 
                 if (newPathItem.post != null && pathItem.post == null) {
-                    pathItem.post(newPathItem.head!!)
+                    pathItem.post(newPathItem.post!!)
                 }
 
                 if (newPathItem.patch != null && pathItem.patch == null) {

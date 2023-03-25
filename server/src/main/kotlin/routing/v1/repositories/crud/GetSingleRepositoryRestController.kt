@@ -28,49 +28,23 @@ import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.repositories.Repository
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.postgresql.controllers.get
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
-import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.plugins.sessions.preconditions.canAccessRepository
 import org.noelware.charted.server.routing.RestController
 
 class GetSingleRepositoryRestController(private val controller: RepositoryDatabaseController): RestController("/repositories/{id}") {
     override fun Route.init() {
         install(Sessions) {
             allowNonAuthorizedRequests = true
+            condition { call -> canAccessRepository(call, false) }
         }
     }
 
     override suspend fun call(call: ApplicationCall) {
         val id = call.parameters.getOrFail<Long>("id")
-        val repo = controller.getEntityOrNull(id) ?: return call.respond(
-            HttpStatusCode.NotFound,
-            ApiResponse.err(
-                "UNKNOWN_REPOSITORY",
-                "Repository with ID [$id] was not found",
-            ),
-        )
-
-        if (repo.private) {
-            if (call.currentUser == null) {
-                return call.respond(
-                    HttpStatusCode.Unauthorized,
-                    ApiResponse.err(
-                        "INVALID_ACCESS",
-                        "Repository ${repo.name} is private and you don't have access to it",
-                    ),
-                )
-            }
-
-            if (!repo.members.any { it.account.id.value == call.currentUser!!.id }) {
-                return call.respond(
-                    HttpStatusCode.Unauthorized,
-                    ApiResponse.err(
-                        "INVALID_ACCESS",
-                        "Repository ${repo.name} is private and you don't have access to it",
-                    ),
-                )
-            }
-        }
+        val repo = controller.get(id)
 
         call.respond(HttpStatusCode.OK, ApiResponse.ok(repo))
     }

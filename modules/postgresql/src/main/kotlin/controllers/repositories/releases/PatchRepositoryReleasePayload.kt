@@ -16,3 +16,14 @@
  */
 
 package org.noelware.charted.modules.postgresql.controllers.repositories.releases
+
+import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class PatchRepositoryReleasePayload(
+    @JsonProperty("update_text")
+    @SerialName("update_text")
+    val updateText: String? = null
+)

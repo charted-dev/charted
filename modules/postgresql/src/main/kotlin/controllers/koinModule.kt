@@ -21,11 +21,13 @@ import org.koin.dsl.module
 import org.noelware.charted.modules.postgresql.controllers.apikeys.ApiKeysDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
+import org.noelware.charted.modules.postgresql.controllers.repositories.releases.RepositoryReleaseDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.users.connections.UserConnectionsDatabaseController
 
 val controllersModule = module {
     single { UserDatabaseController(get(), get(), get()) }
+    single { RepositoryReleaseDatabaseController(get()) }
     single { RepositoryDatabaseController(get(), get()) }
     single { OrganizationDatabaseController(get()) }
     single { UserConnectionsDatabaseController() }

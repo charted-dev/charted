@@ -31,3 +31,5 @@ fun composeKoinModules(module: Module, vararg modules: Module): List<Module> {
 
     return combined
 }
+
+fun composeKoinModules(modules: List<Module>, vararg mods: Module): List<Module> = modules + mods.toList()

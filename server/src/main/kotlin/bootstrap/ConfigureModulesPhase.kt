@@ -109,7 +109,6 @@ object ConfigureModulesPhase: BootstrapPhase() {
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun phaseThrough(config: Config) {
         val sw = StopWatch.createStarted()
-
         DebugProbes.enableCreationStackTraces = config.debug
         DebugProbes.install()
 

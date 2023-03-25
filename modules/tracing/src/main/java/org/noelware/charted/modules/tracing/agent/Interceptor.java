@@ -15,16 +15,22 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.modules.postgresql.controllers.repositories.releases
+package org.noelware.charted.modules.tracing.agent;
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+import java.lang.reflect.Method;
+import java.util.concurrent.Callable;
+import net.bytebuddy.implementation.bind.annotation.Origin;
+import net.bytebuddy.implementation.bind.annotation.RuntimeType;
+import net.bytebuddy.implementation.bind.annotation.SuperCall;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Serializable
-data class CreateRepositoryReleasePayload(
-    @JsonProperty("update_text")
-    @SerialName("update_text")
-    val updateText: String? = null,
-    val tag: String
-)
+public class Interceptor {
+    private static final Logger LOG = LoggerFactory.getLogger(Interceptor.class);
+
+    @RuntimeType
+    public static Object intercept(@Origin Method method, @SuperCall Callable<?> callable) throws Exception {
+        LOG.info("intercepted!!!!");
+        return callable.call();
+    }
+}
