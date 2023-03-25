@@ -31,6 +31,7 @@ import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseCon
 import org.noelware.charted.modules.postgresql.controllers.getByIdOrNameOrNull
 import org.noelware.charted.modules.postgresql.tables.UserTable
 import org.noelware.charted.server.extensions.addAuthenticationResponses
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 import org.noelware.charted.server.util.createBodyWithByteArray
 
@@ -38,6 +39,7 @@ class GetUserAvatarRestController(
     private val avatars: AvatarModule,
     private val controller: UserDatabaseController
 ): RestController("/users/{idOrName}/avatars/{hash?}") {
+    override val apiVersion: APIVersion = APIVersion.V1
     override suspend fun call(call: ApplicationCall) {
         val user = controller.getByIdOrNameOrNull(call.parameters.getOrFail("idOrName"), UserTable::username)
             ?: return call.respond(HttpStatusCode.NotFound)

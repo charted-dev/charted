@@ -25,6 +25,7 @@ import kotlinx.serialization.Serializable
 import org.noelware.charted.StringOverflowException
 import org.noelware.charted.ValidationException
 import org.noelware.charted.common.TimeSpan
+import org.noelware.charted.common.extensions.regexp.matchesNameAndIdRegex
 import org.noelware.charted.models.flags.SCOPES
 import kotlin.time.Duration.Companion.seconds
 
@@ -71,7 +72,7 @@ data class CreateApiKeyPayload(
             throw ValidationException("body.name", "API key name can't be blank")
         }
 
-        if (!(name matches "^([A-z]|-|_|\\d{0,9}){0,32}".toRegex())) {
+        if (!name.matchesNameAndIdRegex()) {
             throw ValidationException("body.name", "API key name can only contain letters, digits, dashes, or underscores.")
         }
 

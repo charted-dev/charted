@@ -33,12 +33,14 @@ import org.noelware.charted.modules.postgresql.controllers.repositories.Reposito
 import org.noelware.charted.modules.storage.StorageModule
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.plugins.sessions.preconditions.canEditMetadata
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 class CreateOrPatchRepositoryReadmeRestController(
     private val controller: RepositoryDatabaseController,
     private val storage: StorageModule
 ): RestController("/repositories/{id}/readme", HttpMethod.Post) {
+    override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions) {
             this += ApiKeyScope.Repositories.Update

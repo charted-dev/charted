@@ -17,7 +17,6 @@
 
 package org.noelware.charted.server.routing.v1.repositories.crud
 
-import io.ktor.client.engine.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -32,9 +31,11 @@ import org.noelware.charted.modules.postgresql.controllers.get
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.plugins.sessions.preconditions.canAccessRepository
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 class GetSingleRepositoryRestController(private val controller: RepositoryDatabaseController): RestController("/repositories/{id}") {
+    override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions) {
             allowNonAuthorizedRequests = true

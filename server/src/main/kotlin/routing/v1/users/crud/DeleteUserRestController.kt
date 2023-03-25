@@ -41,6 +41,7 @@ import org.noelware.charted.modules.sessions.AbstractSessionManager
 import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 class DeleteUserRestController(
@@ -49,6 +50,7 @@ class DeleteUserRestController(
     private val sessions: AbstractSessionManager,
     private val controller: UserDatabaseController
 ): RestController("/users", HttpMethod.Delete) {
+    override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions) {
             this += ApiKeyScope.User.Delete

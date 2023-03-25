@@ -30,6 +30,7 @@ import org.noelware.charted.modules.helm.charts.acceptableContentTypes
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.storage.StorageModule
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 import org.noelware.charted.server.util.createBodyWithByteArray
 import org.noelware.remi.support.filesystem.FilesystemStorageService
@@ -39,6 +40,7 @@ class CdnRestController(
     private val config: Config,
     private val storage: StorageModule
 ): RestController("${config.cdn!!.prefix}/{params...}") {
+    override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(CachingHeaders) {
             options { _, content ->

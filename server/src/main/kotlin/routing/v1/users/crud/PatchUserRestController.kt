@@ -31,9 +31,11 @@ import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseCon
 import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 class PatchUserRestController(private val controller: UserDatabaseController): RestController("/users", HttpMethod.Patch) {
+    override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions) {
             this += ApiKeyScope.User.Update

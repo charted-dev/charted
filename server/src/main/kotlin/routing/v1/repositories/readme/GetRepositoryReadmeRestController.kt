@@ -31,6 +31,7 @@ import org.noelware.charted.modules.postgresql.controllers.repositories.Reposito
 import org.noelware.charted.modules.storage.StorageModule
 import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 import org.noelware.charted.server.util.createBodyFromInputStream
 
@@ -38,6 +39,7 @@ class GetRepositoryReadmeRestController(
     private val controller: RepositoryDatabaseController,
     private val storage: StorageModule
 ): RestController("/repositories/{id}/readme") {
+    override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions) {
             this += ApiKeyScope.Repositories.Access

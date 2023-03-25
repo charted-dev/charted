@@ -35,11 +35,13 @@ import org.noelware.charted.modules.postgresql.ktor.OwnerIdAttributeKey
 import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 class CreateUserRepositoryRestController(
     private val controller: RepositoryDatabaseController
 ): RestController("/users/@me/repositories", HttpMethod.Put) {
+    override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions) {
             this += Repositories.Create

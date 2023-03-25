@@ -39,12 +39,14 @@ import org.noelware.charted.server.extensions.putAndRemove
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.plugins.sessions.preconditions.canAccessRepository
 import org.noelware.charted.server.plugins.sessions.preconditions.canEditMetadata
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 class CreateRepositoryReleaseRestController(
     private val controller: RepositoryReleaseDatabaseController,
     private val repositoriesController: RepositoryDatabaseController
 ): RestController("/repositories/{id}/releases", HttpMethod.Put) {
+    override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions) {
             this += Repositories.Releases.Create

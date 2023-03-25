@@ -37,6 +37,7 @@ import org.noelware.charted.modules.postgresql.entities.UserEntity
 import org.noelware.charted.modules.postgresql.tables.UserTable
 import org.noelware.charted.modules.sessions.AbstractSessionManager
 import org.noelware.charted.modules.sessions.Session
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 /**
@@ -72,6 +73,7 @@ data class UserLoginPayload(
 }
 
 class UserLoginRestController(private val sessionManager: AbstractSessionManager): RestController("/users/login", HttpMethod.Post) {
+    override val apiVersion: APIVersion = APIVersion.V1
     override suspend fun call(call: ApplicationCall) {
         val body: UserLoginPayload = call.receive()
         val key = when {

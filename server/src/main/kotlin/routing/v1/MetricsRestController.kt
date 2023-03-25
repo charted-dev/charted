@@ -27,9 +27,11 @@ import org.noelware.charted.modules.metrics.disabled.DisabledMetricsSupport
 import org.noelware.charted.modules.metrics.prometheus.PrometheusMetricsSupport
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 class MetricsRestController(private val metrics: MetricsSupport): RestController("/metrics") {
+    override val apiVersion: APIVersion = APIVersion.V1
     override suspend fun call(call: ApplicationCall) {
         if (metrics is DisabledMetricsSupport) {
             return call.respond(HttpStatusCode.NotFound)

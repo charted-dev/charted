@@ -54,6 +54,7 @@ import org.noelware.charted.server.ratelimit.RedisRateLimiter
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 import org.noelware.charted.server.routing.v1.CdnRestController
+import org.noelware.charted.server.util.createBodyFromInputStream
 import org.slf4j.LoggerFactory
 import kotlin.time.DurationUnit
 
@@ -155,7 +156,7 @@ class DefaultServer(private val config: Config): Server {
                     }
                 }
 
-                route("${controller.apiVersion.toRoutePath()}${controller.path}", controller.method) {
+                route("${controller.apiVersion.toRoutePath()}${controller.path}".trimEnd('/'), controller.method) {
                     controller.initRoute(this)
                     handle { controller.call(call) }
                 }
@@ -166,6 +167,13 @@ class DefaultServer(private val config: Config): Server {
                 route(controller.path, controller.method) {
                     controller.initRoute(this)
                     handle { controller.call(call) }
+                }
+            }
+
+            if (config.swagger) {
+                get("/_swagger") {
+                    val stream = this@DefaultServer::class.java.getResourceAsStream("/swagger/index.html")!!
+                    call.respond(createBodyFromInputStream(stream, ContentType.Text.Html.withCharset(Charsets.UTF_8)))
                 }
             }
 

@@ -183,20 +183,22 @@ fun StatusPagesConfig.configure(config: Config) {
             ApiResponse.err(
                 "INTERNAL_SERVER_ERROR", cause.message ?: "(unknown)",
                 buildJsonObject {
+                    put("class", cause.javaClass.toString().replace("class ", "").trim())
+                    if (config.debug) {
+                        put("stacktrace", cause.stackTraceToString())
+                    }
+
                     if (cause.cause != null) {
                         put(
                             "cause",
                             buildJsonObject {
+                                put("class", cause.cause!!.javaClass.toString().replace("class ", "").trim())
                                 put("message", cause.cause!!.message ?: "(unknown)")
                                 if (config.debug) {
                                     put("stacktrace", cause.cause!!.stackTraceToString())
                                 }
                             },
                         )
-                    }
-
-                    if (config.debug) {
-                        put("stacktrace", cause.stackTraceToString())
                     }
                 },
             ),

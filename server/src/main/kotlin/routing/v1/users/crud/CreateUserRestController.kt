@@ -33,6 +33,7 @@ import org.noelware.charted.modules.postgresql.controllers.users.CreateUserPaylo
 import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.users.connections.UserConnectionsDatabaseController
 import org.noelware.charted.modules.search.SearchModule
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 class CreateUserRestController(
@@ -42,6 +43,7 @@ class CreateUserRestController(
     private val controller: UserDatabaseController,
     private val connectionsController: UserConnectionsDatabaseController
 ): RestController("/users", HttpMethod.Put) {
+    override val apiVersion: APIVersion = APIVersion.V1
     override suspend fun call(call: ApplicationCall) {
         if (!config.registrations) {
             return call.respond(

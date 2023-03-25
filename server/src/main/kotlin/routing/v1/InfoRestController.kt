@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.media.SchemaProperty
 import io.swagger.v3.oas.models.PathItem
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -28,6 +30,7 @@ import org.noelware.charted.ChartedInfo
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 /**
@@ -40,23 +43,34 @@ import org.noelware.charted.server.routing.RestController
  * @param version The version of the server.
  * @param vendor The vendor that maintains this project, will always be Noelware.
  */
+@Schema(description = "Represents the response for the `GET /info` REST handler.")
 @Serializable
 data class InfoResponse(
+    @SchemaProperty(schema = Schema(description = "The distribution the server is running off from"))
     val distribution: ChartedInfo.Distribution,
 
+    @SchemaProperty(schema = Schema(description = "The commit hash from the Git repository."))
     @JsonProperty("commit_sha")
     @SerialName("commit_sha")
     val commitHash: String,
 
+    @SchemaProperty(schema = Schema(description = "Build date in RFC3339 format"))
     @JsonProperty("build_date")
     @SerialName("build_date")
     val buildDate: String,
+
+    @SchemaProperty(schema = Schema(description = "Product name. Will always be \"charted-server\""))
     val product: String,
+
+    @SchemaProperty(schema = Schema(description = "Valid SemVer 2 of the current version of this instance"))
     val version: String,
+
+    @SchemaProperty(schema = Schema(description = "Vendor of charted-server, will always be \"Noelware\""))
     val vendor: String
 )
 
 class InfoRestController: RestController("/info") {
+    override val apiVersion: APIVersion = APIVersion.V1
     override suspend fun call(call: ApplicationCall) {
         call.respond(
             HttpStatusCode.OK,
@@ -78,16 +92,16 @@ class InfoRestController: RestController("/info") {
         get {
             response(HttpStatusCode.OK) {
                 contentType(ContentType.Application.Json) {
-                    example = InfoResponse(
-                        ChartedInfo.distribution,
-                        ChartedInfo.commitHash,
-                        ChartedInfo.buildDate,
-                        "charted-server",
-                        ChartedInfo.version,
-                        "Noelware",
+                    schema(
+                        InfoResponse(
+                            ChartedInfo.distribution,
+                            ChartedInfo.commitHash,
+                            ChartedInfo.buildDate,
+                            "charted-server",
+                            ChartedInfo.version,
+                            "Noelware",
+                        ),
                     )
-
-                    schema<ApiResponse.Ok<InfoResponse>>()
                 }
             }
         }

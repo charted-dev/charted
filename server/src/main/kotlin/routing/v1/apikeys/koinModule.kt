@@ -17,7 +17,10 @@
 
 package org.noelware.charted.server.routing.v1.apikeys
 
+import org.koin.dsl.bind
 import org.koin.dsl.module
+import org.noelware.charted.server.routing.RestController
 
 val apiKeysV1Module = module {
+    single { CreateApiKeyRestController(get()) } bind RestController::class
 }

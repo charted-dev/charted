@@ -29,11 +29,13 @@ import org.noelware.charted.modules.sessions.AbstractSessionManager
 import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.extensions.sessionKey
 import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 class DeleteUserSessionRestController(
     private val sessionManager: AbstractSessionManager
 ): RestController("/users/@me/logout", HttpMethod.Delete) {
+    override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions) {
             assertSessionOnly = true

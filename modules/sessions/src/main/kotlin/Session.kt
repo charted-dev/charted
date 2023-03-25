@@ -19,6 +19,7 @@ package org.noelware.charted.modules.sessions
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.media.SchemaProperty
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
@@ -40,19 +41,39 @@ import java.util.UUID
 @Schema(description = "Represents a session token object. This is how sessions are stored when authenticating to charted-server.")
 @Serializable
 data class Session(
+    @SchemaProperty(
+        schema = Schema(
+            description = "The token for refreshing this session to get a new one. The web UI uses this token to refresh your session when it expires. This token only lasts for 1 week, and a new session will need to be created.",
+        ),
+    )
     @JsonProperty("refresh_token")
     @SerialName("refresh_token")
     val refreshToken: String,
 
+    @SchemaProperty(
+        schema = Schema(
+            description = "The token for accessing the API server as the user. This is dangerous to someone who knows your credentials.",
+        ),
+    )
     @JsonProperty("access_token")
     @SerialName("access_token")
     val accessToken: String,
 
+    @SchemaProperty(
+        schema = Schema(
+            description = "Unique identifier to identify this session.",
+        ),
+    )
     @Serializable(with = UUIDSerializer::class)
     @JsonProperty("session_id")
     @SerialName("session_id")
     val sessionID: UUID,
 
+    @SchemaProperty(
+        schema = Schema(
+            description = "The user (by ID) who owns this session.",
+        ),
+    )
     @JsonProperty("user_id")
     @SerialName("user_id")
     val userID: Long

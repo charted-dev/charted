@@ -39,12 +39,14 @@ import org.noelware.charted.modules.postgresql.tables.UserTable
 import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 class GetSingleUserRepositoryRestController(
     private val controller: RepositoryDatabaseController,
     private val usersController: UserDatabaseController
 ): RestController("/users/{idOrName}/repositories/{repoIdOrName}") {
+    override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions) {
             allowNonAuthorizedRequests = true

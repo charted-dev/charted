@@ -32,9 +32,11 @@ import org.noelware.charted.modules.postgresql.controllers.EntityNotFoundExcepti
 import org.noelware.charted.modules.postgresql.controllers.get
 import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
 import org.noelware.charted.modules.postgresql.tables.UserTable
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 class GetUserRestController(private val controller: UserDatabaseController): RestController("/users/{idOrName}") {
+    override val apiVersion: APIVersion = APIVersion.V1
     override suspend fun call(call: ApplicationCall) {
         val idOrName = call.parameters.getOrFail("idOrName")
         return when {

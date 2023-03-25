@@ -20,11 +20,14 @@ package org.noelware.charted.server.routing.v1
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.media.SchemaProperty
 import io.swagger.v3.oas.models.PathItem
 import kotlinx.serialization.Serializable
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 /**
@@ -35,20 +38,26 @@ import org.noelware.charted.server.routing.RestController
  */
 @Serializable
 data class MainResponse(
+    @SchemaProperty(schema = Schema(description = "Message to greet users! Will always be \"Hello, world! \uD83D\uDC4B\""))
     val message: String,
+
+    @SchemaProperty(schema = Schema(description = "Tagline of charted-server, will always be \"You know, for Helm charts?\""))
     val tagline: String,
+
+    @SchemaProperty(schema = Schema(description = "Documentation URI for charted-server."))
     val docs: String
 )
 
 class MainRestController: RestController("/") {
+    override val apiVersion: APIVersion = APIVersion.V1
     override suspend fun call(call: ApplicationCall) {
         call.respond(
             HttpStatusCode.OK,
             ApiResponse.ok(
                 MainResponse(
-                    message = "Hello, world! \uD83D\uDC4B",
-                    tagline = "You know, for Helm charts?",
-                    docs = "https://charts.noelware.org/docs",
+                    "Hello, world! \uD83D\uDC4B",
+                    "You know, for Helm charts?",
+                    "https://charts.noelware.org/docs",
                 ),
             ),
         )
@@ -59,13 +68,15 @@ class MainRestController: RestController("/") {
         get {
             response(HttpStatusCode.OK) {
                 contentType(ContentType.Application.Json) {
-                    example = MainResponse(
-                        message = "Hello, world! \uD83D\uDC4B",
-                        tagline = "You know, for Helm charts?",
-                        docs = "https://charts.noelware.org/docs",
+                    schema(
+                        ApiResponse.ok(
+                            MainResponse(
+                                "Hello, world! \uD83D\uDC4B",
+                                "You know, for Helm charts?",
+                                "https://charts.noelware.org/docs",
+                            ),
+                        ),
                     )
-
-                    schema<ApiResponse.Ok<MainResponse>>()
                 }
             }
         }

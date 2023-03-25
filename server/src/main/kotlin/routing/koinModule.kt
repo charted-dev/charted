@@ -17,6 +17,7 @@
 
 package org.noelware.charted.server.routing
 
+import io.swagger.v3.oas.models.PathItem
 import org.koin.dsl.module
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.toApiBaseUrl
@@ -61,11 +62,9 @@ val routingModule = routingV1Module + module {
         }
 
         val controllers: List<RestController> = getAll()
-        for (controller in controllers) {
-            if (openApi.paths.containsKey(controller.path)) {
-                val pathItem = openApi.paths[controller.path]!!
-                val newPathItem = controller.toPathDsl()
-
+        fun configurePathItem(path: String, newPathItem: PathItem) {
+            if (openApi.paths.containsKey(path)) {
+                val pathItem = openApi.paths[path]!!
                 if (newPathItem.get != null && pathItem.get == null) {
                     pathItem.get(newPathItem.get!!)
                 }
@@ -90,10 +89,18 @@ val routingModule = routingV1Module + module {
                     pathItem.delete(newPathItem.delete!!)
                 }
 
-                openApi.paths.addPathItem(controller.path, pathItem)
+                openApi.paths.addPathItem(path, pathItem)
             } else {
-                openApi.paths.addPathItem(controller.path, controller.toPathDsl())
+                openApi.paths.addPathItem(path, newPathItem)
             }
+        }
+
+        for (controller in controllers) {
+            if (APIVersion.default() == controller.apiVersion) {
+                configurePathItem(controller.path, controller.toPathDsl())
+            }
+
+            configurePathItem("${controller.apiVersion.toRoutePath()}${controller.path}".trimEnd('/'), controller.toPathDsl())
         }
 
         for ((name, schema) in modelConverterContext.definedModels.entries.sortedBy { it.key }) {

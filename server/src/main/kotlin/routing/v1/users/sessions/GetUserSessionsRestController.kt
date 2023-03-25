@@ -31,9 +31,11 @@ import org.noelware.charted.modules.sessions.Session
 import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 class GetUserSessionsRestController(private val sessionManager: AbstractSessionManager): RestController("/users/@me/sessions") {
+    override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions) {
             this += ApiKeyScope.User.Sessions.List

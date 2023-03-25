@@ -72,7 +72,9 @@ class OpenAPIDslBuilder: OpenAPIDsl, Buildable<OpenAPI> {
                     SecurityScheme().apply {
                         bearerFormat = "Bearer"
                         description = "Session token from the POST /users/login endpoint"
+                        scheme = "Bearer"
                         type = SecurityScheme.Type.HTTP
+                        `in` = SecurityScheme.In.HEADER
                     },
                 )
 
@@ -81,6 +83,7 @@ class OpenAPIDslBuilder: OpenAPIDsl, Buildable<OpenAPI> {
                     SecurityScheme().apply {
                         bearerFormat = "ApiKey"
                         type = SecurityScheme.Type.APIKEY
+                        `in` = SecurityScheme.In.HEADER
                     },
                 )
 
@@ -89,7 +92,9 @@ class OpenAPIDslBuilder: OpenAPIDsl, Buildable<OpenAPI> {
                     SecurityScheme().apply {
                         bearerFormat = "Basic"
                         description = "Basic authentication"
+                        scheme = "Basic"
                         type = SecurityScheme.Type.HTTP
+                        `in` = SecurityScheme.In.HEADER
                     },
                 )
             },

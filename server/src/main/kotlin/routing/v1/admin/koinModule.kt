@@ -16,3 +16,11 @@
  */
 
 package org.noelware.charted.server.routing.v1.admin
+
+import org.koin.dsl.bind
+import org.koin.dsl.module
+import org.noelware.charted.server.routing.RestController
+
+val adminV1RoutingModule = module {
+    single { MainAdminRestController() } bind RestController::class
+}

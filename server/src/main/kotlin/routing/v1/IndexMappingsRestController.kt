@@ -36,6 +36,7 @@ import org.noelware.charted.modules.postgresql.controllers.organizations.Organiz
 import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
 import org.noelware.charted.modules.postgresql.tables.OrganizationTable
 import org.noelware.charted.modules.postgresql.tables.UserTable
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 import org.noelware.charted.server.util.createBodyWithByteArray
 import java.io.ByteArrayOutputStream
@@ -46,6 +47,7 @@ class IndexMappingsRestController(
     private val userController: UserDatabaseController,
     private val organizationController: OrganizationDatabaseController
 ): RestController("/indexes/{idOrName}") {
+    override val apiVersion: APIVersion = APIVersion.V1
     override suspend fun call(call: ApplicationCall) {
         if (charts == null) {
             return call.respond(HttpStatusCode.NotFound)

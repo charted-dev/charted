@@ -16,3 +16,57 @@
  */
 
 package org.noelware.charted.server.routing.v1.admin
+
+import com.fasterxml.jackson.annotation.JsonProperty
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.models.PathItem
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import org.noelware.charted.ChartedInfo
+import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.modules.openapi.kotlin.dsl.schema
+import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.server.extensions.addAuthenticationResponses
+import org.noelware.charted.server.plugins.sessions.IsAdminGuard
+import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.routing.APIVersion
+import org.noelware.charted.server.routing.RestController
+
+@Schema(description = "Generic entrypoint response for the Admin API")
+@Serializable
+data class MainAdminResponse(
+    val message: String = "Welcome to the Admin API!",
+
+    @JsonProperty("docs_url")
+    @SerialName("docs_url")
+    val docsUrl: String = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api/admin"
+)
+
+class MainAdminRestController: RestController("/admin") {
+    override val apiVersion: APIVersion = APIVersion.V1
+    override fun Route.init() {
+        install(Sessions)
+        install(IsAdminGuard)
+    }
+
+    override suspend fun call(call: ApplicationCall) {
+        call.respond(MainAdminResponse())
+    }
+
+    override fun toPathDsl(): PathItem = toPaths("/admin") {
+        get {
+            description = "Generic entrypoint for the Admin API"
+
+            addAuthenticationResponses()
+            response(HttpStatusCode.OK) {
+                contentType(ContentType.Application.Json) {
+                    schema(ApiResponse.ok(MainAdminResponse()))
+                }
+            }
+        }
+    }
+}

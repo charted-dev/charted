@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.media.SchemaProperty
 import io.swagger.v3.oas.models.PathItem
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -30,6 +32,7 @@ import org.noelware.charted.configuration.kotlin.dsl.features.ExperimentalFeatur
 import org.noelware.charted.configuration.kotlin.dsl.features.Feature
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 /**
@@ -45,24 +48,40 @@ import org.noelware.charted.server.routing.RestController
  */
 @Serializable
 data class FeaturesResponse(
+    @SchemaProperty(
+        schema = Schema(
+            description = "Whether if the external OCI registry experimental feature or the home-made implementation registry feature is enabled or not.",
+        ),
+    )
     @JsonProperty("docker_registry")
     @SerialName("docker_registry")
     val dockerRegistry: Boolean,
+
+    @SchemaProperty(schema = Schema(description = "Whether if registrations are enabled on the server"))
     val registrations: Boolean,
 
+    @SchemaProperty(schema = Schema(description = "Whether if the Audit Logging feature is enabled or not."))
     @JsonProperty("audit_logs")
     @SerialName("audit_logs")
     val auditLogs: Boolean,
+
+    @SchemaProperty(schema = Schema(description = "Whether if the Webhooks feature is enabled or not."))
     val webhooks: Boolean,
 
+    @SchemaProperty(schema = Schema(description = "Whether if this server instance is invite-only."))
     @JsonProperty("is_invite_only")
     @SerialName("is_invite_only")
     val isInviteOnly: Boolean,
+
+    @SchemaProperty(schema = Schema(description = "Mapping of all available session integrations."))
     val integrations: Map<String, Boolean>,
+
+    @SchemaProperty(schema = Schema(description = "Whether if the server has search capabilities with the Elasticsearch or Meilisearch backend"))
     val search: Boolean
 )
 
 class FeaturesRestController(private val config: Config): RestController("/features") {
+    override val apiVersion: APIVersion = APIVersion.V1
     override suspend fun call(call: ApplicationCall) {
         call.respond(
             ApiResponse.ok(

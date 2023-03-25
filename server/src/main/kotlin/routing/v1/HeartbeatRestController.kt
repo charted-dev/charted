@@ -23,9 +23,11 @@ import io.ktor.server.response.*
 import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 class HeartbeatRestController: RestController("/heartbeat") {
+    override val apiVersion: APIVersion = APIVersion.V1
     override suspend fun call(call: ApplicationCall) {
         call.respond("Ok.")
     }

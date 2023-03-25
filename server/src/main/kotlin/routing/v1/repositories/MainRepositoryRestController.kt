@@ -28,7 +28,6 @@ import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.server.routing.RestController
-import org.noelware.charted.server.routing.v1.users.MainUserResponse
 
 @Serializable
 data class MainRepositoryResponse(
@@ -39,14 +38,13 @@ data class MainRepositoryResponse(
 )
 
 class MainRepositoryRestController: RestController("/repositories") {
-    override suspend fun call(call: ApplicationCall): Unit = call.respond(HttpStatusCode.OK, ApiResponse.ok(MainUserResponse()))
+    override suspend fun call(call: ApplicationCall): Unit = call.respond(HttpStatusCode.OK, ApiResponse.ok(MainRepositoryResponse()))
     override fun toPathDsl(): PathItem = toPaths("/repositories") {
         get {
             description = "Generic entrypoint for the Repositories API"
             response(HttpStatusCode.OK) {
                 contentType(ContentType.Application.Json) {
-                    schema<ApiResponse.Ok<MainUserResponse>>()
-                    example = ApiResponse.ok(MainUserResponse())
+                    schema(MainRepositoryResponse())
                 }
             }
         }

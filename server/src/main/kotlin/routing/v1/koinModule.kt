@@ -20,6 +20,7 @@ package org.noelware.charted.server.routing.v1
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.v1.admin.adminV1RoutingModule
 import org.noelware.charted.server.routing.v1.apikeys.apiKeysV1Module
 import org.noelware.charted.server.routing.v1.organizations.organizationsV1Module
 import org.noelware.charted.server.routing.v1.repositories.repositoriesV1Module
@@ -31,6 +32,7 @@ val routingV1Module = composeKoinModules(
     *repositoriesV1Module.toTypedArray(),
     organizationsV1Module,
     apiKeysV1Module,
+    adminV1RoutingModule,
     module {
         single { IndexMappingsRestController(get(), getOrNull(), get(), get()) } bind RestController::class
         single { FeaturesRestController(get()) } bind RestController::class

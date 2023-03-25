@@ -31,12 +31,14 @@ import org.noelware.charted.modules.postgresql.controllers.repositories.Reposito
 import org.noelware.charted.modules.storage.StorageModule
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.plugins.sessions.preconditions.canDeleteMetadata
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 class DeleteRepositoryReadmeRestController(
     private val controller: RepositoryDatabaseController,
     private val storage: StorageModule
 ): RestController("/repositories/{id}/readme", HttpMethod.Delete) {
+    override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions) {
             this += ApiKeyScope.Repositories.Delete

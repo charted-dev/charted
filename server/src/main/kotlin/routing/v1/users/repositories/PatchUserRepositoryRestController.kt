@@ -39,12 +39,14 @@ import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.extensions.putAndRemove
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.plugins.sessions.preconditions.canEditMetadata
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 class PatchUserRepositoryRestController(
     private val controller: RepositoryDatabaseController,
     private val usersController: UserDatabaseController
 ): RestController("/users/{idOrName}/repositories/{id}", HttpMethod.Patch) {
+    override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions) {
             this += ApiKeyScope.Repositories.Update

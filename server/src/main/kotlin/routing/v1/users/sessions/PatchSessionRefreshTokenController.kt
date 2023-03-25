@@ -30,11 +30,13 @@ import org.noelware.charted.modules.sessions.Session
 import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.extensions.session
 import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 class PatchSessionRefreshTokenController(
     private val sessionManager: AbstractSessionManager
 ): RestController("/users/@me/sessions/refresh_token", HttpMethod.Post) {
+    override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions) {
             requireRefreshToken = true

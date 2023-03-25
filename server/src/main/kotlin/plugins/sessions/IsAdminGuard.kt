@@ -32,11 +32,13 @@ object IsAdminGuard: BaseRouteScopedPlugin<Unit, IsAdminGuard> {
                 return@intercept call.respond(
                     HttpStatusCode.Unauthorized,
                     ApiResponse.err(
-                        "MISSING_ADMIN_PERMISSIONS",
+                        "UNAUTHORIZED",
                         "You must have administrator privileges to access this route",
                     ),
                 )
             }
+
+            proceed()
         }
 
         return this
