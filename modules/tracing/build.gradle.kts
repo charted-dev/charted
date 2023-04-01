@@ -22,8 +22,8 @@ plugins {
 }
 
 dependencies {
-    implementation("net.bytebuddy:byte-buddy-agent:1.14.2")
-    implementation("net.bytebuddy:byte-buddy:1.14.2")
+    implementation("net.bytebuddy:byte-buddy-agent:1.14.3")
+    implementation("net.bytebuddy:byte-buddy:1.14.3")
 }
 
 tasks.withType<Jar>().configureEach {
