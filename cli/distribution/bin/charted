@@ -67,7 +67,7 @@ RESOLVED_JAVA_OPTS=(
     "-XX:+ExitOnOutOfMemoryError"
     "-XX:ErrorFile=logs/hs_err_pid%p.log"
     "-XX:SurvivorRatio=8"
-    "-XX:+UseSerialGC"
+    "-XX:+UseG1GC"
     "-Dfile.encoding=UTF-8"
     "-Djava.awt.headless=true"
 
