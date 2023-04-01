@@ -17,6 +17,7 @@
 
 package org.noelware.charted.modules.metrics.collectors
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.google.protobuf.Value
 import io.prometheus.client.Predicate
 import io.prometheus.client.SampleNameFilter
@@ -39,8 +40,12 @@ data class JvmThreadsMetrics(
     @Serializable
     data class ThreadInfo(
         val stacktrace: List<StackTrace> = listOf(),
+
+        @JsonProperty("user_time_ms")
         @SerialName("user_time_ms")
         val userTimeMs: Long,
+
+        @JsonProperty("cpu_time_ms")
         @SerialName("cpu_time_ms")
         val cpuTimeMs: Long,
         val suspended: Boolean,
@@ -63,26 +68,32 @@ data class JvmThreadsMetrics(
 
     @Serializable
     data class StackTrace(
+        @JsonProperty("class_loader_name")
         @SerialName("class_loader_name")
         val classLoaderName: String? = null,
 
+        @JsonProperty("module_name")
         @SerialName("module_name")
         val moduleName: String? = null,
 
+        @JsonProperty("module_version")
         @SerialName("module_version")
         val moduleVersion: String? = null,
 
+        @JsonProperty("declaring_class")
         @SerialName("declaring_class")
         val declaringClass: String,
 
+        @JsonProperty("method_name")
         @SerialName("method_name")
         val methodName: String,
         val file: String? = null,
         val line: Int? = null,
 
+        @JsonProperty("is_native_method")
         @SerialName("is_native_method")
         val isNativeMethod: Boolean
-    ) : org.noelware.analytics.jvm.server.serialization.Serializable {
+    ): org.noelware.analytics.jvm.server.serialization.Serializable {
         override fun toGrpcValue(): Value = Struct {
             put(this, StackTrace::classLoaderName)
             put(this, StackTrace::moduleVersion)

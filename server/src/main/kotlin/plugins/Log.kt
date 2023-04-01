@@ -36,6 +36,7 @@ import org.noelware.charted.server.internal.DefaultServer
 import org.noelware.charted.server.internal.bootTime
 import org.noelware.charted.server.internal.hasStarted
 import org.slf4j.MDC
+import java.lang.IllegalStateException
 
 object Log: BaseApplicationPlugin<ApplicationCallPipeline, Unit, Log> {
     private val histogramKey: AttributeKey<Histogram.Timer> = AttributeKey("Prometheus Histogram Timer")
@@ -90,9 +91,23 @@ object Log: BaseApplicationPlugin<ApplicationCallPipeline, Unit, Log> {
             val stopwatch = call.attributes[stopwatchKey]
             val userAgent = call.request.userAgent() ?: "Unknown"
 
-            stopwatch.stop()
+            // Fixes with issues that might occur when handling a request.
+            // I blame Ktor for being weird :(
+            val formattedTime = run {
+                try {
+                    stopwatch.stop()
+                    stopwatch.doFormatTime()
+                } catch (e: IllegalStateException) {
+                    if (e.message?.contains("Stopwatch is not running.") == false) {
+                        throw e
+                    }
+
+                    ""
+                }
+            }
+
             histogram?.observeDuration()
-            log.info("~> ${method.value} $endpoint [HTTP $version] ~ ${status.value} ${status.description} [$userAgent (${stopwatch.doFormatTime()})]")
+            log.info("~> ${method.value} $endpoint [HTTP $version] ~ ${status.value} ${status.description} [$userAgent${formattedTime.ifBlank { "" }}]".trim())
 
             MDC.remove("http.method")
             MDC.remove("http.version")

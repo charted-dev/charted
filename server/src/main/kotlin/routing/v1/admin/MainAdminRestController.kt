@@ -27,10 +27,6 @@ import io.swagger.v3.oas.models.PathItem
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.noelware.charted.ChartedInfo
-import org.noelware.charted.common.types.responses.ApiResponse
-import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
-import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.plugins.sessions.IsAdminGuard
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
@@ -57,16 +53,5 @@ class MainAdminRestController: RestController("/admin") {
         call.respond(MainAdminResponse())
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/admin") {
-        get {
-            description = "Generic entrypoint for the Admin API"
-
-            addAuthenticationResponses()
-            response(HttpStatusCode.OK) {
-                contentType(ContentType.Application.Json) {
-                    schema(ApiResponse.ok(MainAdminResponse()))
-                }
-            }
-        }
-    }
+    override fun toPathDsl(): PathItem = TODO("admin endpoints shouldn't be in the OpenAPI document")
 }

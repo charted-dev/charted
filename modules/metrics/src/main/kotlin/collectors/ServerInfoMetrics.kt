@@ -18,6 +18,7 @@
 package org.noelware.charted.modules.metrics.collectors
 
 import com.google.protobuf.Value
+import io.ktor.server.application.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.noelware.charted.ChartedInfo
@@ -46,10 +47,27 @@ data class ServerInfoMetrics(
         put(this, ServerInfoMetrics::distribution)
         put(this, ServerInfoMetrics::ktorVersion)
         put(this, ServerInfoMetrics::commitHash)
-        put(this, ServerInfoMetrics::requests)
         put(this, ServerInfoMetrics::buildDate)
+        put(this, ServerInfoMetrics::requests)
         put(this, ServerInfoMetrics::product)
         put(this, ServerInfoMetrics::version)
         put(this, ServerInfoMetrics::vendor)
     }.toGrpcValue()
+
+    class Collector(private val getRequestCounter: () -> Long): org.noelware.charted.modules.metrics.Collector<ServerInfoMetrics> {
+        override val name: String = "server"
+        override suspend fun supply(): ServerInfoMetrics {
+            val ktorVersion = Application::class.java.`package`.implementationVersion!!
+            return ServerInfoMetrics(
+                ChartedInfo.distribution,
+                ktorVersion,
+                ChartedInfo.commitHash,
+                getRequestCounter(),
+                ChartedInfo.buildDate,
+                "charted-server",
+                ChartedInfo.version,
+                "Noelware, LLC.",
+            )
+        }
+    }
 }

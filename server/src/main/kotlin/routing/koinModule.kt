@@ -96,11 +96,17 @@ val routingModule = routingV1Module + module {
         }
 
         for (controller in controllers) {
+            val dsl = try {
+                controller.toPathDsl()
+            } catch (e: NotImplementedError) {
+                null
+            } ?: continue
+
             if (APIVersion.default() == controller.apiVersion) {
-                configurePathItem(controller.path, controller.toPathDsl())
+                configurePathItem(controller.path, dsl)
             }
 
-            configurePathItem("${controller.apiVersion.toRoutePath()}${controller.path}".trimEnd('/'), controller.toPathDsl())
+            configurePathItem("${controller.apiVersion.toRoutePath()}${controller.path}".trimEnd('/'), dsl)
         }
 
         for ((name, schema) in modelConverterContext.definedModels.entries.sortedBy { it.key }) {

@@ -17,6 +17,7 @@
 
 package org.noelware.charted.modules.metrics.collectors
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.google.protobuf.Value
 import io.prometheus.client.Predicate
 import io.prometheus.client.SampleNameFilter
@@ -30,6 +31,7 @@ import org.noelware.charted.modules.analytics.kotlin.dsl.toGrpcValue
 
 @Serializable
 data class JvmProcessInfoMetrics(
+    @JsonProperty("start_time")
     @SerialName("start_time")
     val startTime: Instant,
     val pid: Long

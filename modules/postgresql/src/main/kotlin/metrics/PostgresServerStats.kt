@@ -17,11 +17,13 @@
 
 package org.noelware.charted.modules.postgresql.metrics
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.google.protobuf.Value
 import io.prometheus.client.GaugeMetricFamily
 import io.prometheus.client.Predicate
 import io.prometheus.client.SampleNameFilter
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.TextColumnType
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -40,6 +42,9 @@ data class PostgresServerStats(
     val organizations: Long,
     val repositories: Long,
     val version: String,
+
+    @JsonProperty("db_size")
+    @SerialName("db_size")
     val dbSize: Long,
     val uptime: Long,
     val users: Long

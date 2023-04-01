@@ -22,5 +22,6 @@ import org.koin.dsl.module
 import org.noelware.charted.server.routing.RestController
 
 val adminV1RoutingModule = module {
+    single { AdminStatsRestController(get()) } bind RestController::class
     single { MainAdminRestController() } bind RestController::class
 }

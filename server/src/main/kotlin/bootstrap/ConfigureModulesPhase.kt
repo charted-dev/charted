@@ -21,6 +21,7 @@ import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import dev.floofy.utils.koin.inject
 import dev.floofy.utils.slf4j.logging
 import io.ktor.client.*
 import io.ktor.client.engine.java.*
@@ -54,6 +55,7 @@ import org.noelware.charted.modules.emails.DefaultEmailService
 import org.noelware.charted.modules.emails.EmailService
 import org.noelware.charted.modules.helm.charts.DefaultHelmChartModule
 import org.noelware.charted.modules.helm.charts.HelmChartModule
+import org.noelware.charted.modules.metrics.collectors.ServerInfoMetrics
 import org.noelware.charted.modules.metrics.disabled.DisabledMetricsSupport
 import org.noelware.charted.modules.metrics.prometheus.PrometheusMetricsSupport
 import org.noelware.charted.modules.postgresql.asyncTransaction
@@ -195,6 +197,12 @@ object ConfigureModulesPhase: BootstrapPhase() {
         }
 
         metrics.add(PostgresServerStats.Collector(config))
+        metrics.add(
+            ServerInfoMetrics.Collector {
+                val server: Server by inject()
+                (server as DefaultServer).requests
+            },
+        )
 
         val httpClient = HttpClient(Java) {
             install(ContentNegotiation) {
@@ -214,9 +222,9 @@ object ConfigureModulesPhase: BootstrapPhase() {
             single<HelmChartModule> { DefaultHelmChartModule(storage, config, yaml) }
             single { EmailValidator.getInstance(true, true) }
             single<AvatarModule> { DefaultAvatarModule(storage, httpClient) }
+            single<Server> { DefaultServer(config) }
             single<StorageModule> { storage }
             single<RedisClient> { redis }
-            single<Server> { DefaultServer(config) }
             single { httpClient }
             single { snowflake }
             single { argon2 }
