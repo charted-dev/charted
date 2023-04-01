@@ -323,7 +323,7 @@ class DefaultElasticsearchModule(
         // (https://www.elastic.co/guide/en/elasticsearch/reference/8.5/cluster-nodes-stats.html)
         val nodesStats = client.nodes().stats().await()
         for ((node, stats) in nodesStats.nodes()) {
-            val shards = stats.indices()?.shards()?.totalCount() ?: 0L
+            val shards = stats.indices()?.shardStats()?.totalCount() ?: 0L
             val documents = stats.indices()?.docs()?.count() ?: 0L
             val deletedDocuments = stats.indices()?.docs()?.deleted() ?: 0L
             val totalIndexes = stats.indices()?.indexing()?.indexTotal() ?: 0L
