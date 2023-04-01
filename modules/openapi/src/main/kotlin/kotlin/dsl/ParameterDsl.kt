@@ -88,7 +88,7 @@ class ParameterDslBuilder: ParameterDsl, Buildable<Parameter> {
         }
 
     override var required: Boolean
-        get() = _required.valueOrNull ?: false
+        get() = _required.valueOrNull ?: true
         set(value) {
             _required.value = value
         }

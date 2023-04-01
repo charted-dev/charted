@@ -15,4 +15,33 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.routing.v1.apikeys
+package org.noelware.charted.features.invitations
+
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import org.noelware.charted.common.serializers.UUIDSerializer
+import java.util.*
+
+@Serializable
+data class RepoMemberInvite(
+    @SerialName("repository_id")
+    val repositoryID: Long,
+
+    @SerialName("user_id")
+    val userID: Long,
+
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID
+)
+
+@Serializable
+data class OrgMemberInvite(
+    @SerialName("organization_id")
+    val organizationID: Long,
+
+    @SerialName("user_id")
+    val userID: Long,
+
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID
+)

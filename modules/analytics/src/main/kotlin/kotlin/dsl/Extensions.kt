@@ -22,7 +22,6 @@ import com.google.protobuf.Struct
 import com.google.protobuf.Value
 import kotlinx.datetime.Instant
 import org.noelware.analytics.jvm.server.serialization.Serializable
-import org.noelware.analytics.jvm.server.util.GrpcValueUtil
 import org.noelware.analytics.protobufs.v1.BuildFlavour
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.ChartedInfo.Distribution
@@ -66,7 +65,7 @@ fun <T : Any, U : Any> T.put(builder: Struct.Builder, property: KProperty1<T, U?
     return builder
 }
 
-private fun Any?.toGrpcValue(): Value = when (this) {
+fun Any?.toGrpcValue(): Value = when (this) {
     null -> Value.newBuilder().apply { nullValue = NullValue.NULL_VALUE }.build()
     is String -> toGrpcValue()
     is Number -> toGrpcValue()
@@ -94,33 +93,3 @@ fun Distribution.toBuildFlavour(): BuildFlavour = when (this) {
     Distribution.DEB -> BuildFlavour.DEB
     Distribution.GIT -> BuildFlavour.GIT
 }
-
-/**
- * Transforms this string into a [Value]. This internally uses the [GrpcValueUtil.toValue] method.
- * @return [serializable gRPC value][Value]
- */
-fun String.toGrpcValue(): Value = GrpcValueUtil.toValue(this)
-
-/**
- * Transforms this number into a [Value]. This internally uses the [GrpcValueUtil.toValue] method.
- * @return [serializable gRPC value][Value]
- */
-fun Number.toGrpcValue(): Value = GrpcValueUtil.toValue(this)
-
-/**
- * Transforms this boolean into a [Value]. This internally uses the [GrpcValueUtil.toValue] method.
- * @return [serializable gRPC value][Value]
- */
-fun Boolean.toGrpcValue(): Value = GrpcValueUtil.toValue(this)
-
-/**
- * Transforms this list into a [Value]. This internally uses the [GrpcValueUtil.toValue] method.
- * @return [serializable gRPC value][Value]
- */
-fun <T> List<T>.toGrpcValue(): Value = GrpcValueUtil.toValue(this)
-
-/**
- * Transforms a [Struct] into a [Value]. Internally uses the [GrpcValueUtil.toValue] method.
- * @return [serializable gRPC value][Value]
- */
-fun Struct.toGrpcValue(): Value = GrpcValueUtil.toValue(this)

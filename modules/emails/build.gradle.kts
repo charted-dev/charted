@@ -31,13 +31,13 @@ repositories {
 
 dependencies {
     compileOnly(libs.tomcat.annotations.api)
-    implementation(libs.grpc.kotlin.stub)
-    implementation(libs.protobuf.kotlin)
+    api(libs.grpc.kotlin.stub)
+    api(libs.protobuf.kotlin)
     runtimeOnly(libs.grpc.netty.shaded)
-    implementation(libs.protobuf.java)
-    implementation(libs.grpc.protobuf)
-    implementation(libs.grpc.services)
-    implementation(libs.grpc.stub)
+    api(libs.protobuf.java)
+    api(libs.grpc.protobuf)
+    api(libs.grpc.services)
+    api(libs.grpc.stub)
 }
 
 tasks {
