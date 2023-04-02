@@ -63,6 +63,9 @@ val hasStarted: AtomicBoolean = atomic(false)
 
 /** The boot time (in nanoseconds) */
 val bootTime: Long = System.nanoTime()
+private fun RestController.initRoute(route: Route) {
+    route.init()
+}
 
 class DefaultServer(private val config: Config): Server {
     internal val requestsHandled = atomic(0L)
@@ -177,7 +180,7 @@ class DefaultServer(private val config: Config): Server {
                 }
             }
 
-            get("/_/openapi") {
+            get("/_openapi") {
                 val pretty = call.request.queryParameters["pretty"] != null
                 val format = when (call.request.queryParameters["format"]) {
                     "json" -> "json"

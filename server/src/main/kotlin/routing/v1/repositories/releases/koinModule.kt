@@ -17,6 +17,14 @@
 
 package org.noelware.charted.server.routing.v1.repositories.releases
 
+import org.koin.dsl.bind
 import org.koin.dsl.module
+import org.noelware.charted.server.routing.RestController
 
-val repositoriesV1ReleaseModule = module {}
+val repositoriesV1ReleaseModule = module {
+    single { GetSingleRepositoryReleaseTemplateRestController(get(), getOrNull(), get()) } bind RestController::class
+    single { GetRepositoryReleaseChartYamlRestController(get(), getOrNull(), get()) } bind RestController::class
+    single { GetRepositoryReleaseTemplatesRestController(get(), getOrNull(), get()) } bind RestController::class
+    single { GetRepositoryReleaseTarballRestController(get(), getOrNull(), get()) } bind RestController::class
+    single { GetRepositoryReleaseValuesRestController(get(), getOrNull(), get()) } bind RestController::class
+}

@@ -15,18 +15,22 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-}
+package org.noelware.charted.cli.commands.services
 
-dependencies {
-    implementation(project(":modules:postgresql"))
-    implementation(project(":modules:storage"))
+import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.subcommands
+import com.github.ajalt.mordant.terminal.Terminal
 
-    implementation(libs.apache.commons.compress)
-    implementation(libs.ktor.server.core)
-    implementation(libs.remi.storage.fs)
-    implementation(libs.remi.core)
-    implementation(libs.semver)
-    implementation(libs.kaml)
+class ServiceCommand(terminal: Terminal): CliktCommand(
+    "Manages charted-server's microservices directly if not using Docker or Kubernetes",
+    name = "services",
+    printHelpOnEmptyArgs = true,
+) {
+    init {
+        subcommands(
+            StartServiceCommand(terminal),
+        )
+    }
+
+    override fun run() {}
 }

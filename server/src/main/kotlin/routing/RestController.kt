@@ -39,10 +39,4 @@ abstract class RestController(internal val path: String, internal val method: Ht
      */
     open fun Route.init() {}
     abstract suspend fun call(call: ApplicationCall)
-
-    // TODO(@auguwu): try to disallow this to be called anywhere, but not in
-    //                DefaultServer.
-    internal fun initRoute(route: Route) {
-        route.init()
-    }
 }

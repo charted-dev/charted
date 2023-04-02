@@ -18,38 +18,23 @@
 package org.noelware.charted.common.types.helm
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import org.noelware.charted.ValidationException
 import org.noelware.charted.common.extensions.string.toUriOrNull
 
 /**
  * The apiVersion field should be v2 for Helm charts that require at least Helm 3. Charts supporting previous
  * Helm versions have an apiVersion set to v1 and are still installable by Helm 3.
- *
- * @param version The version key to make up this enum.
  */
-@Serializable(with = ChartSpecVersion.Companion::class)
-public enum class ChartSpecVersion(private val version: String) {
+public enum class ChartSpecVersion {
+    @SerialName("v1")
     @JsonProperty("v1")
-    V2("v1"),
+    V1,
 
+    @SerialName("v2")
     @JsonProperty("v2")
-    V3("v2");
-
-    internal companion object : KSerializer<ChartSpecVersion> {
-        override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("charted.ChartSpecVersion", PrimitiveKind.STRING)
-        override fun deserialize(decoder: Decoder): ChartSpecVersion = values().single { it.version == decoder.decodeString() }
-        override fun serialize(encoder: Encoder, value: ChartSpecVersion) {
-            encoder.encodeString(value.version)
-        }
-    }
+    V2
 }
 
 @Serializable

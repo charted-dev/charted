@@ -19,13 +19,16 @@
 
 package org.noelware.charted.cli
 
+import com.github.ajalt.clikt.completion.CompletionCommand
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.options.versionOption
 import com.github.ajalt.mordant.terminal.Terminal
 import org.noelware.charted.ChartedInfo
+import org.noelware.charted.cli.commands.GenerateConfigCommand
 import org.noelware.charted.cli.commands.ServerCommand
 import org.noelware.charted.cli.commands.ValidateKotlinScriptCommand
+import org.noelware.charted.cli.commands.services.ServiceCommand
 
 private class ChartedCli(terminal: Terminal): CliktCommand(
     "Command line runner for managing charted-server",
@@ -43,7 +46,10 @@ private class ChartedCli(terminal: Terminal): CliktCommand(
         }
 
         subcommands(
+            CompletionCommand(name = "completions"),
             ValidateKotlinScriptCommand(terminal),
+            GenerateConfigCommand(terminal),
+            ServiceCommand(terminal),
             ServerCommand(terminal),
         )
     }

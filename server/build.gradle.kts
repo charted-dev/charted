@@ -95,4 +95,7 @@ dependencies {
 
     // Caffeine
     implementation(libs.caffeine)
+
+    // SemVer
+    implementation(libs.semver)
 }

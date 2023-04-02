@@ -55,10 +55,10 @@ public class ByteSizeValue(public val value: Long) {
 
             return pluralize(value, res, Unit.byte, "byte")
         } else {
-            if (res >= Unit.tera) return "${res}TB"
-            if (res >= Unit.giga) return "${res}GB"
-            if (res >= Unit.mega) return "${res}MB"
-            if (res >= Unit.kilo) return "${res}KB"
+            if (res >= Unit.tera) return "${res / Unit.tera}TB"
+            if (res >= Unit.giga) return "${res / Unit.giga}GB"
+            if (res >= Unit.mega) return "${res / Unit.mega}MB"
+            if (res >= Unit.kilo) return "${res / Unit.kilo}KB"
 
             return "${res}B"
         }

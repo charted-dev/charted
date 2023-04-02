@@ -19,6 +19,8 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+CHARTED_DEBUG=${CHARTED_DEBUG:-0}
+
 fatal() {
     local message="$*"
 
@@ -35,7 +37,7 @@ join() {
 
 debug() {
     local message="$*"
-    if ! [[ "${CHARTED_DEBUG:-}" =~ ^(no|false|0)$ ]]; then
+    if ! [[ "${CHARTED_DEBUG}" =~ ^(no|false|0)$ ]]; then
         echo "[charted][debug] $message"
     fi
 }

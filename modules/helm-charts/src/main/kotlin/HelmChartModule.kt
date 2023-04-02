@@ -24,6 +24,17 @@ import java.io.InputStream
 
 interface HelmChartModule {
     /**
+     * Returns the latest SemVer version that is available to look-up. If [allowPrereleases] is set to
+     * `true`, then it will attempt to look up pre-releases (i.e, `0.1.2-alpha.3`).
+     *
+     * @param owner repository owner
+     * @param repo repository ID
+     * @param allowPrereleases If pre-releases should be allowed in this lookup or not
+     * @return latest, valid SemVer version available, or `null` if not available.
+     */
+    suspend fun getLatestVersion(owner: Long, repo: Long, allowPrereleases: Boolean = false): String?
+
+    /**
      * Returns the `index.yaml` contents serialized as [ChartIndexYaml] with the given user.
      * @param owner repository owner
      * @return [ChartIndexYaml] object if it exists, `null` if not.

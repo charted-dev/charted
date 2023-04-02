@@ -15,18 +15,4 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-}
-
-dependencies {
-    implementation(project(":modules:postgresql"))
-    implementation(project(":modules:storage"))
-
-    implementation(libs.apache.commons.compress)
-    implementation(libs.ktor.server.core)
-    implementation(libs.remi.storage.fs)
-    implementation(libs.remi.core)
-    implementation(libs.semver)
-    implementation(libs.kaml)
-}
+package org.noelware.charted.cli.commands.services

@@ -15,18 +15,19 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
-}
+package org.noelware.charted.cli.commands.services.resolver
 
-dependencies {
-    implementation(project(":modules:postgresql"))
-    implementation(project(":modules:storage"))
+import com.github.ajalt.mordant.terminal.Terminal
 
-    implementation(libs.apache.commons.compress)
-    implementation(libs.ktor.server.core)
-    implementation(libs.remi.storage.fs)
-    implementation(libs.remi.core)
-    implementation(libs.semver)
-    implementation(libs.kaml)
+/**
+ * Represents a resolver to resolve a charted-server microservice.
+ */
+interface BaseServiceResolver {
+    fun resolve(version: String): String
+
+    companion object {
+        val RESOLVERS: List<BaseServiceResolver> = listOf(
+            EmailServiceResolver(Terminal()),
+        )
+    }
 }

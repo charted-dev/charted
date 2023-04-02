@@ -21,6 +21,8 @@ import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.decodeFromStream
 import com.charleskorn.kaml.encodeToStream
 import dev.floofy.utils.slf4j.logging
+import io.github.z4kn4fein.semver.VersionFormatException
+import io.github.z4kn4fein.semver.toVersion
 import io.ktor.http.content.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -37,6 +39,8 @@ import org.noelware.charted.configuration.kotlin.dsl.toApiBaseUrl
 import org.noelware.charted.configuration.kotlin.dsl.toCdnBaseUrl
 import org.noelware.charted.models.repositories.Repository
 import org.noelware.charted.modules.storage.StorageModule
+import org.noelware.remi.core.Blob
+import org.noelware.remi.core.ListBlobsRequest
 import org.noelware.remi.support.filesystem.FilesystemStorageService
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -74,6 +78,45 @@ class DefaultHelmChartModule(
                 dirFile.mkdir()
             }
         }
+    }
+
+    /**
+     * Returns the latest SemVer version that is available to look-up. If [allowPrereleases] is set to
+     * `true`, then it will attempt to look up pre-releases (i.e, `0.1.2-alpha.3`).
+     *
+     * @param owner repository owner
+     * @param repo repository ID
+     * @param allowPrereleases If pre-releases should be allowed in this lookup or not
+     * @return latest, valid SemVer version available, or `null` if not available.
+     */
+    override suspend fun getLatestVersion(owner: Long, repo: Long, allowPrereleases: Boolean): String? {
+        if (!storage.exists("./repositories/$owner/$repo")) return null
+
+        val files: List<Blob> = storage.service.blobs(
+            ListBlobsRequest.Builder().apply {
+                withPrefix("./repositories/$owner/$repo/tarballs")
+            }.build(),
+        )
+
+        return files
+            .asSequence()
+            .mapNotNull {
+                try {
+                    it.name().toVersion(false)
+                } catch (e: VersionFormatException) {
+                    null
+                }
+            }
+            .sortedWith(Comparator(io.github.z4kn4fein.semver.Version::compareTo))
+            .filter {
+                if (allowPrereleases) {
+                    true
+                } else {
+                    it.isStable
+                }
+            }
+            .map { it.toString() }
+            .firstOrNull()
     }
 
     /**
