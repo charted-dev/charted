@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Utilities to perform reflection calls easily and efficiently.
- * @author Noel (cutie@floofy.dev)
+ * @author Noel Towa (cutie@floofy.dev)
  */
 public class ReflectionUtils {
     private static final Logger LOG = LoggerFactory.getLogger(ReflectionUtils.class);

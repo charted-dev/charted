@@ -26,4 +26,5 @@ kotlin {
 dependencies {
     implementation(libs.ktor.server.core)
     implementation(libs.caffeine)
+    implementation(libs.semver)
 }

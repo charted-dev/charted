@@ -17,19 +17,26 @@
 
 package org.noelware.charted.common.jackson;
 
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import io.github.z4kn4fein.semver.Version;
+import java.io.IOException;
 
 /**
- * {@link SimpleModule} that adds the {@link LocalDateTimeJsonSerializer} and {@link InstantJsonSerializer} serializers
- * to be easily used with Jackson. Which <code>charted-server</code> uses for Elasticsearch and OpenAPI.
+ * {@link JsonSerializer} for {@link Version}.
  *
+ * @since 02.04.23
  * @author Noel Towa (cutie@floofy.dev)
- * @since 21.03.23
  */
-public class KotlinxDatetimeJacksonModule extends SimpleModule {
-    public KotlinxDatetimeJacksonModule() {
-        addSerializer(new LocalDateTimeJsonSerializer());
-        addSerializer(new VersionJsonSerializer());
-        addSerializer(new InstantJsonSerializer());
+public class VersionJsonSerializer extends StdSerializer<Version> {
+    protected VersionJsonSerializer() {
+        super(Version.class);
+    }
+
+    @Override
+    public void serialize(Version value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+        gen.writeString(value.toString());
     }
 }

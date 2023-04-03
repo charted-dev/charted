@@ -43,7 +43,6 @@ suspend fun doPermissionCheck(call: ApplicationCall, controller: RepositoryDatab
 
     // this will always return false when used in organization repositories
     if (repo.owner == call.currentUser!!.id) return PreconditionResult.Success
-
     val member = repo.members.singleOrNull { it.account.id.value == call.currentUser!!.id }
         ?: return PreconditionResult.Failed(
             HttpStatusCode.Unauthorized,

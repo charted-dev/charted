@@ -23,6 +23,7 @@ import com.charleskorn.kaml.encodeToStream
 import dev.floofy.utils.slf4j.logging
 import io.github.z4kn4fein.semver.VersionFormatException
 import io.github.z4kn4fein.semver.toVersion
+import io.ktor.http.*
 import io.ktor.http.content.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -31,9 +32,11 @@ import kotlinx.serialization.encodeToString
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.utils.IOUtils
+import org.noelware.charted.KtorHttpRespondException
 import org.noelware.charted.common.types.helm.ChartIndexSpec
 import org.noelware.charted.common.types.helm.ChartIndexYaml
 import org.noelware.charted.common.types.helm.ChartSpec
+import org.noelware.charted.common.types.responses.ApiError
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.toApiBaseUrl
 import org.noelware.charted.configuration.kotlin.dsl.toCdnBaseUrl
@@ -56,7 +59,7 @@ class DefaultHelmChartModule(
     private val storage: StorageModule,
     private val config: Config,
     private val yaml: Yaml
-) : HelmChartModule {
+): HelmChartModule {
     private val log by logging<DefaultHelmChartModule>()
 
     init {
@@ -177,6 +180,17 @@ class DefaultHelmChartModule(
      */
     override suspend fun uploadReleaseTarball(owner: Long, repo: Repository, version: String, multipart: PartData.FileItem) {
         log.info("Uploading release tarball $version.tar.gz to repository [$owner/${repo.name}]")
+
+        // Disallow overwriting the tarball -- just delete the release and then re-do the upload. The Helm plugin
+        // will do it for you if you provide the `--overwrite` flag when you use `helm charted push`.
+        if (storage.exists("./repositories/$owner/${repo.id}/tarballs/$version.tar.gz")) {
+            throw KtorHttpRespondException(
+                HttpStatusCode.Conflict,
+                listOf(
+                    ApiError("TARBALL_ALREADY_EXISTS", "Tarball for version '$version' already exists"),
+                ),
+            )
+        }
 
         // First, we need to get the data itself. This will determine if the tarball
         // sent to us was actually a tarball or not.
@@ -479,5 +493,14 @@ class DefaultHelmChartModule(
         }
 
         return data
+    }
+
+    override suspend fun deleteReleaseTarball(owner: Long, repo: Long, version: String) {
+        if (!storage.exists("./repositories/$owner/$repo/tarballs/$version.tar.gz")) return
+
+        val wasDeleted = storage.delete("./repositories/$owner/$repo/tarballs/$version.tar.gz")
+        if (!wasDeleted) {
+            log.warn("Unable to delete repository tarball release in [./repositories/$owner/$repo/tarballs/$version.tar.gz]")
+        }
     }
 }

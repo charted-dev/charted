@@ -16,3 +16,34 @@
  */
 
 package org.noelware.charted.server.routing.v1.organizations
+
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.swagger.v3.oas.models.PathItem
+import kotlinx.serialization.Serializable
+import org.noelware.charted.ChartedInfo
+import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.modules.openapi.kotlin.dsl.schema
+import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.server.routing.RestController
+
+@Serializable
+data class MainOrganizationResponse(
+    val message: String = "Welcome to the Organizations API!",
+    val docs: String = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api/organizations"
+)
+
+class MainOrganizationsRestController: RestController("/organizations") {
+    override suspend fun call(call: ApplicationCall): Unit = call.respond(HttpStatusCode.OK, ApiResponse.ok(MainOrganizationResponse()))
+    override fun toPathDsl(): PathItem = toPaths("/organizations") {
+        get {
+            description = "Generic entrypoint for the Repositories API"
+            response(HttpStatusCode.OK) {
+                contentType(ContentType.Application.Json) {
+                    schema(MainOrganizationResponse())
+                }
+            }
+        }
+    }
+}

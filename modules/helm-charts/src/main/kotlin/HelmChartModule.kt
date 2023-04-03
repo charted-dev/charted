@@ -120,4 +120,12 @@ interface HelmChartModule {
      * @param version   release id
      */
     suspend fun getChartYaml(owner: Long, repo: Long, version: String): InputStream?
+
+    /**
+     * Deletes a release tarball from the storage service, if we can
+     * @param owner   owner ID
+     * @param repo    repository id
+     * @param version release version
+     */
+    suspend fun deleteReleaseTarball(owner: Long, repo: Long, version: String)
 }

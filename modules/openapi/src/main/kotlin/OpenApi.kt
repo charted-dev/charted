@@ -41,7 +41,9 @@ private val yamlMapper: ObjectMapper = Yaml.mapper().apply {
 }
 
 val modelConverterContext = ModelConverterContextImpl(
-    ModelConverters.getInstance().apply { addConverter(KotlinxDatetimeModelConverter(jsonMapper)) }.converters,
+    ModelConverters.getInstance().apply {
+        addConverter(KotlinxDatetimeModelConverter(jsonMapper))
+    }.converters,
 )
 
 /**

@@ -23,8 +23,10 @@ import org.noelware.charted.server.routing.RestController
 
 val repositoriesV1ReleaseModule = module {
     single { GetSingleRepositoryReleaseTemplateRestController(get(), getOrNull(), get()) } bind RestController::class
+    single { CreateRepositoryReleaseTarballRestController(get(), getOrNull(), get()) } bind RestController::class
     single { GetRepositoryReleaseChartYamlRestController(get(), getOrNull(), get()) } bind RestController::class
     single { GetRepositoryReleaseTemplatesRestController(get(), getOrNull(), get()) } bind RestController::class
     single { GetRepositoryReleaseTarballRestController(get(), getOrNull(), get()) } bind RestController::class
     single { GetRepositoryReleaseValuesRestController(get(), getOrNull(), get()) } bind RestController::class
+    single { CreateRepositoryReleaseRestController(get(), get()) } bind RestController::class
 }

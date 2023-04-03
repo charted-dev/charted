@@ -101,6 +101,7 @@ public data class ChartDependency(
      * ImportValues holds the mapping of source values to parent key to be imported.
      * Each item can be a string or pair of child/parent sublist items.
      */
+    @JsonProperty("import-values")
     @SerialName("import-values")
     val importValues: List<StringOrImportValue> = listOf(),
 

@@ -35,7 +35,7 @@ class RequestBodyDslBuilder: RequestBodyDsl, BodyBuilder(), Buildable<RequestBod
 
     override var description: String? by _description
     override var required: Boolean
-        get() = _required.valueOrNull ?: false
+        get() = _required.valueOrNull ?: true
         set(value) {
             _required.value = value
         }

@@ -17,6 +17,7 @@
 
 package org.noelware.charted.server.routing
 
+import io.ktor.http.*
 import io.swagger.v3.oas.models.PathItem
 import org.koin.dsl.module
 import org.noelware.charted.configuration.kotlin.dsl.Config
@@ -40,7 +41,18 @@ val routingModule = routingV1Module + module {
                 url(config.toApiBaseUrl().trimEnd('/'))
             }
 
-            path("/_/openapi") {
+            if (config.swagger) {
+                path("/_swagger") {
+                    description = "Endpoint for Swagger UI"
+                    get {
+                        response(HttpStatusCode.OK) {
+                            contentType(ContentType.Text.Html)
+                        }
+                    }
+                }
+            }
+
+            path("/_openapi") {
                 description = "Endpoint for the OpenAPI specification for charted-server"
                 get {
                     description = "Gets the document in JSON format or YAML format"

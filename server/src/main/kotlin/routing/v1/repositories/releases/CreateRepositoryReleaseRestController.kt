@@ -17,6 +17,8 @@
 
 package org.noelware.charted.server.routing.v1.repositories.releases
 
+import io.github.z4kn4fein.semver.VersionFormatException
+import io.github.z4kn4fein.semver.toVersion
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -57,9 +59,24 @@ class CreateRepositoryReleaseRestController(
     }
 
     override suspend fun call(call: ApplicationCall) {
-        val repo = repositoriesController.getEntityOrNull(call.parameters.getOrFail<Long>("id"))!!
+        val id = call.parameters.getOrFail<Long>("id")
+        val repo = repositoriesController.getEntityOrNull(id)!!
+        val payload: CreateRepositoryReleasePayload = call.receive()
+
+        try {
+            payload.tag.toVersion(true)
+        } catch (e: VersionFormatException) {
+            return call.respond(
+                HttpStatusCode.BadRequest,
+                ApiResponse.err(
+                    "INVALID_SEMVER",
+                    "Version provided '${payload.tag}' was not a valid SemVer value",
+                ),
+            )
+        }
+
         return call.attributes.putAndRemove(RepositoryAttributeKey, repo) {
-            val release = controller.create(call, call.receive())
+            val release = controller.create(call, payload)
             call.respond(HttpStatusCode.Created, ApiResponse.ok(release))
         }
     }
@@ -69,8 +86,6 @@ class CreateRepositoryReleaseRestController(
             description = "Creates a repository release"
             requestBody {
                 description = "Payload for creating a repository release"
-                required = true
-
                 contentType(ContentType.Application.Json) {
                     schema(
                         CreateRepositoryReleasePayload(

@@ -17,4 +17,136 @@
 
 package org.noelware.charted.server.routing.v1.repositories.releases
 
-class GetSingleRepositoryReleaseRestController
+import io.github.z4kn4fein.semver.VersionFormatException
+import io.github.z4kn4fein.semver.toVersion
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.util.*
+import io.swagger.v3.oas.models.PathItem
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.exposed.sql.and
+import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.configuration.kotlin.dsl.Config
+import org.noelware.charted.configuration.kotlin.dsl.features.ExperimentalFeature
+import org.noelware.charted.configuration.kotlin.dsl.features.Feature
+import org.noelware.charted.models.repositories.RepositoryRelease
+import org.noelware.charted.modules.openapi.VersionConstraint
+import org.noelware.charted.modules.openapi.kotlin.dsl.schema
+import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.postgresql.controllers.get
+import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
+import org.noelware.charted.modules.postgresql.controllers.repositories.releases.RepositoryReleaseDatabaseController
+import org.noelware.charted.modules.postgresql.extensions.fromEntity
+import org.noelware.charted.modules.postgresql.tables.RepositoryReleaseTable
+import org.noelware.charted.server.extensions.addAuthenticationResponses
+import org.noelware.charted.server.plugins.sessions.PreconditionResult
+import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.plugins.sessions.preconditions.canAccessRepository
+import org.noelware.charted.server.routing.RestController
+
+class GetSingleRepositoryReleaseRestController(
+    private val repositories: RepositoryDatabaseController,
+    private val releases: RepositoryReleaseDatabaseController,
+    private val config: Config
+): RestController("/repositories/{id}/releases/{version}") {
+    override fun Route.init() {
+        install(Sessions) {
+            allowNonAuthorizedRequests = true
+
+            condition { call -> canAccessRepository(call, false) }
+            condition { call ->
+                if (config.features.contains(Feature.DockerRegistry) || config.experimentalFeatures.contains(
+                        ExperimentalFeature.ExternalOciRegistry,
+                    )
+                ) {
+                    call.respond(HttpStatusCode.NotFound)
+                    return@condition PreconditionResult.Failed()
+                }
+
+                PreconditionResult.Success
+            }
+        }
+    }
+
+    override suspend fun call(call: ApplicationCall) {
+        val repo = repositories.get(call.parameters.getOrFail<Long>("id"))
+        val version = call.parameters.getOrFail("version")
+
+        try {
+            version.toVersion(true)
+        } catch (e: VersionFormatException) {
+            return call.respond(
+                HttpStatusCode.BadRequest,
+                ApiResponse.err(
+                    "INVALID_SEMVER",
+                    "Version provided '$version' was not a valid SemVer value",
+                ),
+            )
+        }
+
+        val release = releases.getEntityOrNull {
+            (RepositoryReleaseTable.repository eq repo.id) and (RepositoryReleaseTable.tag eq version)
+        } ?: return call.respond(
+            HttpStatusCode.NotFound,
+            ApiResponse.err(
+                "UNKNOWN_RELEASE",
+                "Release tag '$version' was not found",
+            ),
+        )
+
+        call.respond(HttpStatusCode.OK, ApiResponse.ok(RepositoryRelease.fromEntity(release)))
+    }
+
+    override fun toPathDsl(): PathItem = toPaths("/repositories/{id}/releases/{version}") {
+        get {
+            description = "Retrieve a single repository release resource"
+
+            pathParameter {
+                description = "Repository ID to lookup"
+                name = "id"
+
+                schema<Long>()
+            }
+
+            pathParameter {
+                description = "Valid SemVer version to lookup the release for"
+                name = "version"
+
+                schema<VersionConstraint>()
+            }
+
+            addAuthenticationResponses()
+            response(HttpStatusCode.OK) {
+                contentType(ContentType.Application.Json) {
+                    schema(
+                        ApiResponse.ok(
+                            RepositoryRelease(
+                                "# v0.0.1-beta\n* Added new stuff",
+                                Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
+                                Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
+                                "0.0.1-beta",
+                                1234,
+                            ),
+                        ),
+                    )
+                }
+            }
+
+            response(HttpStatusCode.BadRequest) {
+                description = "Invalid SemVer version"
+                contentType(ContentType.Application.Json) {
+                    schema(
+                        ApiResponse.err(
+                            "INVALID_SEMVER",
+                            "Version provided 'v1.noel-is-cute' was not a valid SemVer value",
+                        ),
+                    )
+                }
+            }
+        }
+    }
+}
