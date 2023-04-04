@@ -24,7 +24,6 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.noelware.charted.gradle.*
 
@@ -162,7 +161,6 @@ val projectName: String = path
 tasks {
     withType<KotlinCompile>().configureEach {
         compilerOptions {
-            languageVersion by KotlinVersion.KOTLIN_1_9
             javaParameters by true
             jvmTarget by JvmTarget.fromTarget(JAVA_VERSION.majorVersion)
         }

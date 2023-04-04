@@ -132,3 +132,9 @@ protobuf {
         }
     }
 }
+
+tasks {
+    named<ProtobufExtract>("extractIncludeTestProto") {
+        dependsOn("transformAtomicfuClasses")
+    }
+}
