@@ -23,6 +23,7 @@ import com.github.ajalt.clikt.completion.CompletionCommand
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.options.versionOption
+import com.github.ajalt.mordant.terminal.ExperimentalTerminalApi
 import com.github.ajalt.mordant.terminal.Terminal
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.cli.commands.GenerateConfigCommand
@@ -58,6 +59,7 @@ private class ChartedCli(terminal: Terminal): CliktCommand(
     override fun run() {}
 }
 
+@OptIn(ExperimentalTerminalApi::class)
 fun main(args: Array<String>) {
     Thread.currentThread().name = "Charted-CliThread"
 

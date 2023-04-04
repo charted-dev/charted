@@ -86,32 +86,3 @@ class DeleteRepositoryReleaseRestController(
         }
     }
 }
-
-/*
-    override fun toPathDsl(): PathItem = toPaths("/repositories/{id}/releases") {
-        put {
-            description = "Creates a repository release"
-            requestBody {
-                description = "Payload for creating a repository release"
-                contentType(ContentType.Application.Json) {
-                    schema(
-                        CreateRepositoryReleasePayload(
-                            updateText = "# 0.0.1-beta\nSome updates!",
-                            "0.0.1-beta",
-                        ),
-                    )
-                }
-            }
-
-            addAuthenticationResponses()
-            response(HttpStatusCode.Created) {
-                description = "Release resource was created successfully"
-                contentType(ContentType.Application.Json) {
-                    schema<ApiResponse.Ok<RepositoryRelease>>()
-                }
-            }
-        }
-    }
-}
-
- */

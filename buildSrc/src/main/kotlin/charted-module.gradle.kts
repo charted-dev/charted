@@ -23,6 +23,9 @@ import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.kotlin.dsl.*
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.noelware.charted.gradle.*
 
 plugins {
@@ -123,18 +126,48 @@ dependencies {
 
 applySpotless()
 
+// We also enable testing on the new K2 compiler that we do tests
+// on, or just in case to preview builds on
+val enableK2Compiler = System.getProperty("org.noelware.charted.k2-compiler", "false")
+    .let { it matches "^(yes|true|1|si*)$".toRegex() }
+
+kotlin {
+    if (enableK2Compiler) {
+        logger.info("Detected `org.noelware.charted.k2-compiler` system property enabling it in this source-set")
+        sourceSets.all {
+            languageSettings {
+                languageVersion = "2.0"
+            }
+        }
+    }
+}
+
+java {
+    toolchain {
+        languageVersion by JavaLanguageVersion.of(JAVA_VERSION.majorVersion)
+    }
+}
+
 // This will transform the project path:
 //
 //    - :sessions -> sessions
 //    - :modules:elasticsearch -> elasticsearch
 //    - :modules:tracing:apm -> tracing-apm
 //    - :sessions:integrations:noelware -> sessions-integrations-noelware
-public val projectName: String = path
+val projectName: String = path
     .substring(1)
     .replace(':', '-')
     .replace("modules-", "")
 
 tasks {
+    withType<KotlinCompile>().configureEach {
+        compilerOptions {
+            languageVersion by KotlinVersion.KOTLIN_1_9
+            javaParameters by true
+            jvmTarget by JvmTarget.fromTarget(JAVA_VERSION.majorVersion)
+        }
+    }
+
     withType<Jar> {
         archiveFileName by "charted-$projectName-$VERSION.jar"
         manifest {
@@ -174,5 +207,15 @@ tasks {
         options.isIncremental = true
         options.encoding = "UTF-8"
         options.isFork = true
+    }
+
+    // an "attempt" to fix:
+    // * What went wrong:
+    // Execution failed for task ':common:jar'.
+    // > Entry META-INF/common.kotlin_module is a duplicate but no duplicate handling strategy has been set.
+    //   Please refer to https://docs.gradle.org/8.0.2/dsl/org.gradle.api.tasks.Copy.html#org.gradle.api.tasks.Copy:duplicatesStrategy
+    //   for details.
+    jar {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 }

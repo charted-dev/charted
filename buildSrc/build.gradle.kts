@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 // import org.noelware.charted.gradle.*
 import kotlin.jvm.optionals.getOrElse
@@ -47,8 +48,8 @@ dependencies {
     implementation("com.netflix.nebula:gradle-ospackage-plugin:11.2.0")
     implementation("com.google.protobuf:protobuf-gradle-plugin:0.9.2")
     implementation("dev.floofy.commons:gradle:2.5.1")
-    implementation(kotlin("serialization", "1.8.10"))
-    implementation(kotlin("gradle-plugin", "1.8.10"))
+    implementation(kotlin("serialization", "1.8.20"))
+    implementation(kotlin("gradle-plugin", "1.8.20"))
     implementation(gradleApi())
 
     // test dependencies
@@ -72,7 +73,6 @@ gradlePlugin {
 }
 
 kotlin {
-    explicitApi()
     jvmToolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
     }
@@ -118,7 +118,9 @@ spotless {
 
 tasks {
     withType<KotlinCompile>().configureEach {
-        kotlinOptions.jvmTarget = "17"
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
     }
 
     withType<Test>().configureEach {

@@ -17,6 +17,7 @@
 
 package org.noelware.charted.cli.commands.services.resolver
 
+import com.github.ajalt.mordant.terminal.ExperimentalTerminalApi
 import com.github.ajalt.mordant.terminal.Terminal
 
 /**
@@ -26,6 +27,7 @@ interface BaseServiceResolver {
     fun resolve(version: String): String
 
     companion object {
+        @OptIn(ExperimentalTerminalApi::class)
         val RESOLVERS: List<BaseServiceResolver> = listOf(
             EmailServiceResolver(Terminal()),
         )

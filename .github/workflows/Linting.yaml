@@ -80,22 +80,27 @@ jobs:
             - name: Validate Gradle Wrapper
               uses: gradle/wrapper-validation-action@v1
 
+            - name: Lint code-base with Spotless (buildSrc)
+              uses: gradle/gradle-build-action@v2
+              with:
+                  arguments: :buildSrc:spotlessCheck --scan
+
             - name: Lint code-base with Spotless
               uses: gradle/gradle-build-action@v2
               with:
-                  arguments: spotlessCheck --no-daemon --scan
+                  arguments: spotlessCheck --scan
 
             - name: Compiles Kotlin source sets
               uses: gradle/gradle-build-action@v2
               with:
-                  arguments: compileKotlin --no-daemon --scan
+                  arguments: compileKotlin --scan
 
             - name: Compiles Java source sets
               uses: gradle/gradle-build-action@v2
               with:
-                  arguments: compileJava --no-daemon --scan
+                  arguments: compileJava --scan
 
             - name: Run unit and integration tests
               uses: gradle/gradle-build-action@v2
               with:
-                  arguments: test --no-daemon --scan
+                  arguments: test --scan
