@@ -29,6 +29,11 @@ services:
             - '3651:3651'
         environment:
             - CHARTED_CONFIG_PATH=/app/noelware/charted/server/config/charted.yaml
+            - config.redis.host=redis
+            - config.database.host=postgres
+            - config.database.username=charted
+            - config.database.password=charted
+            - config.storage.filesystem.directory=/var/lib/noelware/charted/data
         volumes:
             - ./config.example.yaml:/app/noelware/charted/server/config/charted.yaml:ro
             - charted_data:/var/lib/noelware/charted/data

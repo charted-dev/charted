@@ -17,6 +17,9 @@
 
 package org.noelware.charted.cli.commands
 
+import com.charleskorn.kaml.SequenceStyle
+import com.charleskorn.kaml.Yaml
+import com.charleskorn.kaml.YamlConfiguration
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.mordant.rendering.TextAlign
@@ -26,7 +29,10 @@ import com.github.ajalt.mordant.rendering.TextStyles
 import com.github.ajalt.mordant.terminal.Terminal
 import dev.floofy.utils.slf4j.logging
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.modules.EmptySerializersModule
 import org.noelware.charted.cli.commands.abstractions.ConfigAwareCliktCommand
+import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.server.Bootstrap
 import java.io.File
 import kotlin.system.exitProcess
@@ -61,13 +67,34 @@ class ServerCommand(private val terminal: Terminal): ConfigAwareCliktCommand(
         terminal.println("")
 
         if (logbackPath != null && logbackPath!!.exists()) {
-            System.setProperty("-Dorg.noelware.charted.logback.config", logbackPath.toString())
+            System.setProperty("org.noelware.charted.logback.config", logbackPath.toString())
         }
 
-        val configPath = if (config != null) {
-            config!!
-        } else {
-            File("./config.yml")
+        val configDir = File("./config")
+        val rootConfigFile = File("./config.yml")
+        var configPath = when {
+            config != null -> config
+            configDir.exists() && configDir.isDirectory -> File(configDir, "charted.yaml")
+            rootConfigFile.exists() -> rootConfigFile
+            else -> null
+        }
+
+        if (configPath == null) {
+            if (!configDir.exists()) configDir.mkdirs()
+            val yaml = Yaml(
+                EmptySerializersModule(),
+                YamlConfiguration(
+                    encodeDefaults = false,
+                    sequenceStyle = SequenceStyle.Block,
+                    sequenceBlockIndent = 4,
+                ),
+            )
+
+            val config = Config()
+            val configFilePath = File(configDir, "charted.yaml")
+            configFilePath.writeText(yaml.encodeToString(config))
+
+            configPath = configFilePath
         }
 
         try {

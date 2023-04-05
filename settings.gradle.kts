@@ -49,6 +49,7 @@ include(
     ":server:single-user",
     ":config",
     ":config:dsl",
+    ":config:env-system",
     ":config:kotlin-script",
     ":config:yaml",
     ":distribution:debian",
