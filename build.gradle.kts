@@ -95,9 +95,9 @@ spotless {
 
     val terraformBinary = FindBinaryUtil.find("terraform")
     if (terraformBinary != null) {
-        logger.info("Found Terraform binary in [$terraformBinary] -- Spotless will be enabled for Terraform files")
+        logger.info("Found Terraform binary in [$terraformBinary], Spotless will be enabled for Terraform files")
         format("terraform") {
-            target(".noelware/deployment/**/*.tf", ".noelware/deployment/**/*.tf")
+            target(".noelware/deployment/**/*.tf", ".noelware/deployment/**/*.tfvars")
             nativeCmd(
                 "terraform",
                 terraformBinary,
