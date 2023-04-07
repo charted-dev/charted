@@ -15,11 +15,26 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.annotations
+package org.noelware.charted.testing.yamlTestRunner.directives.internal.statusCode;
+
+import io.ktor.http.HttpStatusCode;
+import org.noelware.charted.testing.yamlTestRunner.Descriptor;
 
 /**
- * Delimited annotation for charted-server DSL objects, refer to [DslMarker]
- * for more information.
+ * {@link Descriptor} for the {@link StatusCodeYamlDirective hasStatusCode(int)} directive.
  */
-@DslMarker
-public annotation class ChartedDsl
+public class StatusCodeDescriptor implements Descriptor {
+    private final int httpStatusCode;
+
+    /**
+     * Constructs a new instance for this {@link StatusCodeDescriptor}.
+     * @param httpStatusCode Status code to resolve
+     */
+    public StatusCodeDescriptor(int httpStatusCode) {
+        this.httpStatusCode = httpStatusCode;
+    }
+
+    public HttpStatusCode statusCode() {
+        return HttpStatusCode.Companion.fromValue(httpStatusCode);
+    }
+}

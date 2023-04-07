@@ -33,7 +33,12 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.Clock
 
-class OrganizationDatabaseController(private val snowflake: Snowflake): AbstractDatabaseController<Organization, OrganizationEntity, CreateOrganizationPayload, PatchOrganizationPayload>(
+class OrganizationDatabaseController(private val snowflake: Snowflake): AbstractDatabaseController<
+    Organization,
+    OrganizationEntity,
+    CreateOrganizationPayload,
+    PatchOrganizationPayload,
+    >(
     OrganizationTable,
     OrganizationEntity,
     { entity -> Organization.fromEntity(entity) },
@@ -45,7 +50,6 @@ class OrganizationDatabaseController(private val snowflake: Snowflake): Abstract
         // We have a `UserEntityAttributeKey` in modules/postgresql/src/main/kotlin/ktor/AttributeKeys.kt that
         // we can use. This is filled in if a session is available to us.
         val currentUserEntity = call.attributes.getOrNull(UserEntityAttributeKey) ?: throw IllegalStateException("Unable to fetch user")
-
         val hasOrg = getEntityOrNull { (OrganizationTable.name eq data.name) and (OrganizationTable.owner eq currentUserEntity.id) }
         if (hasOrg != null) {
             throw ValidationException("body.name", "Organization [${data.name}] already exists!", "EXISTING_ORGANIZATION")
@@ -69,7 +73,6 @@ class OrganizationDatabaseController(private val snowflake: Snowflake): Abstract
         // We have a `UserEntityAttributeKey` in modules/postgresql/src/main/kotlin/ktor/AttributeKeys.kt that
         // we can use. This is filled in if a session is available to us.
         val currentUserEntity = call.attributes.getOrNull(UserEntityAttributeKey) ?: throw IllegalStateException("Unable to fetch user")
-
         if (patched.name != null) {
             val hasOrg = getEntityOrNull { (OrganizationTable.name eq patched.name) and (OrganizationTable.owner eq currentUserEntity.id) }
             if (hasOrg != null) {

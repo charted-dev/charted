@@ -28,6 +28,7 @@ import org.noelware.charted.annotations.ChartedDsl
 import org.noelware.charted.common.Buildable
 import org.noelware.charted.common.extensions.setonce.getValue
 import org.noelware.charted.common.extensions.setonce.setValue
+import org.noelware.charted.modules.openapi.NameOrSnowflake
 
 @ChartedDsl
 interface OperationDsl {
@@ -74,6 +75,95 @@ interface OperationDsl {
      * @param tags List of tags to append
      */
     fun tags(vararg tags: String)
+}
+
+fun OperationDsl.idOrName() {
+    pathParameter {
+        description = "Represents a value that handles Name and Snowflake parameters"
+        name = "idOrName"
+
+        schema<NameOrSnowflake>()
+    }
+}
+
+/**
+ * Alias for [response(HttpStatusCode.OK) {}][OperationDsl.response] for easy consumption
+ * @param block [ResponseDsl] object builder to build the [ApiResponse].
+ */
+fun OperationDsl.ok(block: ResponseDsl.() -> Unit = {}) {
+    response(HttpStatusCode.OK, block)
+}
+
+/**
+ * Alias for [response(HttpStatusCode.Accepted) {}][OperationDsl.response] for easy consumption
+ * @param block [ResponseDsl] object builder to build the [ApiResponse].
+ */
+fun OperationDsl.accepted(block: ResponseDsl.() -> Unit = {}) {
+    response(HttpStatusCode.Accepted, block)
+}
+
+/**
+ * Alias for [response(HttpStatusCode.Created) {}][OperationDsl.response] for easy consumption
+ * @param block [ResponseDsl] object builder to build the [ApiResponse].
+ */
+fun OperationDsl.created(block: ResponseDsl.() -> Unit = {}) {
+    response(HttpStatusCode.Created, block)
+}
+
+/**
+ * Alias for [response(HttpStatusCode.BadRequest) {}][OperationDsl.response] for easy consumption
+ * @param block [ResponseDsl] object builder to build the [ApiResponse].
+ */
+fun OperationDsl.badRequest(block: ResponseDsl.() -> Unit = {}) {
+    response(HttpStatusCode.BadRequest, block)
+}
+
+/**
+ * Alias for [response(HttpStatusCode.NotFound) {}][OperationDsl.response] for easy consumption
+ * @param block [ResponseDsl] object builder to build the [ApiResponse].
+ */
+fun OperationDsl.notFound(block: ResponseDsl.() -> Unit = {}) {
+    response(HttpStatusCode.NotFound, block)
+}
+
+/**
+ * Alias for [response(HttpStatusCode.NotAcceptable) {}][OperationDsl.response] for easy consumption
+ * @param block [ResponseDsl] object builder to build the [ApiResponse].
+ */
+fun OperationDsl.notAcceptable(block: ResponseDsl.() -> Unit = {}) {
+    response(HttpStatusCode.NotAcceptable, block)
+}
+
+/**
+ * Alias for [response(HttpStatusCode.Forbidden) {}][OperationDsl.response] for easy consumption
+ * @param block [ResponseDsl] object builder to build the [ApiResponse].
+ */
+fun OperationDsl.forbidden(block: ResponseDsl.() -> Unit = {}) {
+    response(HttpStatusCode.Forbidden, block)
+}
+
+/**
+ * Alias for [response(HttpStatusCode.UnprocessableEntity) {}][OperationDsl.response] for easy consumption
+ * @param block [ResponseDsl] object builder to build the [ApiResponse].
+ */
+fun OperationDsl.unprocessableEntity(block: ResponseDsl.() -> Unit = {}) {
+    response(HttpStatusCode.UnprocessableEntity, block)
+}
+
+/**
+ * Alias for [response(HttpStatusCode.Unauthorized) {}][OperationDsl.response] for easy consumption
+ * @param block [ResponseDsl] object builder to build the [ApiResponse].
+ */
+fun OperationDsl.unauthorized(block: ResponseDsl.() -> Unit = {}) {
+    response(HttpStatusCode.Unauthorized, block)
+}
+
+/**
+ * Alias for [response(HttpStatusCode.NotImplemented) {}][OperationDsl.response] for easy consumption
+ * @param block [ResponseDsl] object builder to build the [ApiResponse].
+ */
+fun OperationDsl.notImplemented(block: ResponseDsl.() -> Unit = {}) {
+    response(HttpStatusCode.NotImplemented, block)
 }
 
 class OperationDslBuilder: OperationDsl, Buildable<Operation> {
@@ -132,7 +222,9 @@ class OperationDslBuilder: OperationDsl, Buildable<Operation> {
 
     override fun build(): Operation = Operation().apply {
         _description.valueOrNull?.let { description(it) }
-        deprecated(this@OperationDslBuilder.deprecated)
+        if (_deprecated.value) {
+            deprecated(true)
+        }
 
         for (tag in _tags.distinct()) addTagsItem(tag)
         for (param in _parameters) addParametersItem(param)

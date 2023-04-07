@@ -32,14 +32,17 @@ import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.repositories.CreateRepositoryPayload
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
 import org.noelware.charted.modules.postgresql.ktor.OwnerIdAttributeKey
+import org.noelware.charted.modules.search.SearchModule
 import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.extensions.currentUser
+import org.noelware.charted.server.extensions.putAndRemove
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 class CreateUserRepositoryRestController(
-    private val controller: RepositoryDatabaseController
+    private val controller: RepositoryDatabaseController,
+    private val search: SearchModule? = null
 ): RestController("/users/@me/repositories", HttpMethod.Put) {
     override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
@@ -49,12 +52,12 @@ class CreateUserRepositoryRestController(
     }
 
     override suspend fun call(call: ApplicationCall) {
-        val body: CreateRepositoryPayload = call.receive()
+        call.attributes.putAndRemove(OwnerIdAttributeKey, call.currentUser!!.id) {
+            val repo = controller.create(call, call.receive())
 
-        call.attributes.put(OwnerIdAttributeKey, call.currentUser!!.id)
-        call.respond(HttpStatusCode.Created, ApiResponse.ok(controller.create(call, body)))
-
-        call.attributes.remove(OwnerIdAttributeKey)
+            search?.indexRepository(repo)
+            call.respond(HttpStatusCode.Created, ApiResponse.ok(repo))
+        }
     }
 
     override fun toPathDsl(): PathItem = toPaths("/users/@me/repositories") {
@@ -62,13 +65,14 @@ class CreateUserRepositoryRestController(
             description = "Creates a repository that is owned by the current authenticated user"
             requestBody {
                 contentType(ContentType.Application.Json) {
-                    schema<CreateRepositoryPayload>()
-                    example = CreateRepositoryPayload(
-                        "helm library to provide common stuff",
-                        false,
-                        "# Hello, world!\n> we do magic stuff here~!",
-                        "common",
-                        RepoType.LIBRARY,
+                    schema(
+                        CreateRepositoryPayload(
+                            "helm library to provide common stuff",
+                            false,
+                            "# Hello, world!\n> we do magic stuff here~!",
+                            "common",
+                            RepoType.LIBRARY,
+                        ),
                     )
                 }
             }

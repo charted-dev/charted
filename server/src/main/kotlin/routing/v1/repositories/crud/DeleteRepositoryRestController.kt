@@ -27,9 +27,12 @@ import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope.Repositories
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.postgresql.controllers.get
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
 import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.plugins.sessions.preconditions.canAccessRepository
+import org.noelware.charted.server.plugins.sessions.preconditions.canDeleteMetadata
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
@@ -38,20 +41,29 @@ class DeleteRepositoryRestController(private val controller: RepositoryDatabaseC
     override fun Route.init() {
         install(Sessions) {
             this += Repositories.Delete
+
+            condition(::canAccessRepository)
+            condition { call -> canDeleteMetadata(call, controller) }
+//            condition { call ->
+//                val repo = controller.get(call.parameters.getOrFail<Long>("id"))
+//                if (repo.ownerID != call.currentUser!!.id)
+//                    PreconditionResult.Failed(
+//                        HttpStatusCode.BadRequest,
+//                        listOf(
+//                            ApiError(
+//                                "NOT_THE_OWNER",
+//                                "You do not have access to delete this repository"
+//                            )
+//                        )
+//                    )
+//                else
+//                    PreconditionResult.Success
+//            }
         }
     }
 
     override suspend fun call(call: ApplicationCall) {
-        val id = call.parameters.getOrFail("id").toLongOrNull()
-            ?: return call.respond(
-                HttpStatusCode.UnprocessableEntity,
-                ApiResponse.err(
-                    "UNABLE_TO_PARSE",
-                    "Unable to convert into a Snowflake",
-                ),
-            )
-
-        controller.delete(id)
+        controller.delete(call.parameters.getOrFail<Long>("id"))
         call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
     }
 

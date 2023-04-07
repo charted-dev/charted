@@ -20,6 +20,6 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":config"))
+    implementation(projects.config)
     implementation(libs.kaml)
 }

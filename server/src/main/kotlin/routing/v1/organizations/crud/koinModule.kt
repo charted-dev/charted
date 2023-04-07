@@ -15,6 +15,13 @@
  * limitations under the License.
  */
 
-plugins {
-    `charted-module`
+package org.noelware.charted.server.routing.v1.organizations.crud
+
+import org.koin.dsl.bind
+import org.koin.dsl.module
+import org.noelware.charted.server.routing.RestController
+
+val organizationsV1Crud = module {
+    single { CreateOrganizationRestController(get()) } bind RestController::class
+    single { DeleteOrganizationRestController(get()) } bind RestController::class
 }

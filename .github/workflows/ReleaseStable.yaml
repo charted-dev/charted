@@ -13,16 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Stable Release Pipeline
+name: Release Workflow (Nightly)
 on:
     release:
-        types: [released]
+        types:
+            - prereleased
 permissions:
     contents: write
     packages: write
 jobs:
     archives:
-        name: Build and publish CLI archive [${{matrix.tasks.prettyName}}]
+        name: Build and publish archive packages [${{matrix.tasks.prettyName}}]
         runs-on: ubuntu-latest
         strategy:
             matrix:
@@ -30,72 +31,123 @@ jobs:
                     - { ext: 'tar.gz', task: 'distTar', prettyName: 'Tarball' }
                     - { ext: 'zip', task: 'distZip', prettyName: 'Zip' }
         steps:
-            - uses: ./.github/actions/release-artifacts/charted
+            - name: Checkout repository
+              uses: actions/checkout@v3
               with:
-                  task: ${{matrix.tasks.task}}
-                  ext: ${{matrix.tasks.ext}}
-    migrations:
-        name: Build and push ClickHouse migrations
-        runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                dist:
-                    - { goos: windows, goarch: amd64, ext: '.exe' }
-                    - { goos: windows, goarch: i386, ext: '.exe' }
-                    - { goos: darwin, goarch: amd64, ext: '' }
-                    - { goos: darwin, goarch: arm64, ext: '' }
-                    - { goos: linux, goarch: amd64, ext: '' }
-                    - { goos: linux, goarch: arm64, ext: '' }
-        steps:
-            - uses: ./.github/actions/release-artifacts/ch-migrations
-              with:
-                  goos: ${{matrix.dist.goos}}
-                  goarch: ${{matrix.dist.goarch}}
-                  ext: ${{matrix.dist.ext}}
-    docker-image-debian-x64:
-        name: Build Debian Docker Image [linux/amd64]
-        runs-on: ubuntu-latest
-        steps:
-            - uses: ./.github/actions/docker-build-push/stable
-              with:
-                  dockerfile: ./distribution/docker/debian/Dockerfile
-                  platforms: linux/amd64
-                  suffix: amd64
-    docker-image-alpine-x64:
-        name: Build Alpine Docker Image [linux/amd64]
-        runs-on: ubuntu-latest
-        steps:
-            - uses: ./.github/actions/docker-build-push/stable
-              with:
-                  dockerfile: ./distribution/docker/alpine/Dockerfile
-                  platforms: linux/amd64
-                  suffix: alpine-amd64
-    docker-image-debian-arm:
-        name: Build Debian Docker Image [linux/arm64]
-        runs-on: self-hosted
-        steps:
-            - uses: ./.github/actions/docker-build-push/stable
-              with:
-                  dockerfile: ./distribution/docker/debian/Dockerfile
-                  platforms: linux/arm64
-                  suffix: arm64
-    docker-image-alpine-arm:
-        name: Build Alpine Docker Image [linux/arm64]
-        runs-on: ubuntu-latest
-        steps:
-            - uses: ./.github/actions/docker-build-push/stable
-              with:
-                  dockerfile: ./distribution/docker/alpine/Dockerfile
-                  platforms: linux/arm64
-                  suffix: alpine-arm64
-    manifests:
-        name: Merge Docker manifests
-        runs-on: ubuntu-latest
-        needs: [docker-image-debian-x64, docker-image-alpine-x64, docker-image-debian-arm, docker-image-alpine-arm]
-        steps:
+                  submodules: recursive
+
             - name: Get current release tag
               uses: auguwu/git-tag-action@master
               id: tag
+
+            - name: Setup Java 17
+              uses: actions/setup-java@v3
+              with:
+                  distribution: temurin
+                  java-version: 17
+
+            # Node.js is required for Spotless to run Prettier
+            - name: Setup Node.js 19
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 19.x
+
+            - name: Setup Gradle
+              uses: gradle/gradle-build-action@v2
+
+            - name: Validate Gradle Wrapper
+              uses: gradle/wrapper-validation-action@v1
+
+            - name: Lint code-base with Spotless
+              uses: gradle/gradle-build-action@v2
+              with:
+                  arguments: spotlessCheck --no-daemon --scan
+
+            - name: Compiles Kotlin source sets
+              uses: gradle/gradle-build-action@v2
+              with:
+                  arguments: compileKotlin --no-daemon --scan
+
+            - name: Compiles Java source sets
+              uses: gradle/gradle-build-action@v2
+              with:
+                  arguments: compileJava --no-daemon --scan
+
+            - name: Run unit and integration tests
+              uses: gradle/gradle-build-action@v2
+              with:
+                  arguments: test --no-daemon --scan
+
+            - name: Build artifact
+              uses: gradle/gradle-build-action@v2
+              with:
+                  arguments: :cli:${{matrix.tasks.task}} --no-daemon --scan
+
+            - name: Upload artifact to workflow
+              uses: actions/upload-artifact@v3
+              with:
+                  name: charted-server.${{matrix.tasks.ext}}
+                  path: ./cli/build/distributions/charted-server.${{matrix.tasks.ext}}
+
+            - name: Upload artifact to release
+              uses: softprops/action-gh-release@v1
+              with:
+                  files: ./cli/build/distributions/charted-server.${{matrix.tasks.ext}}
+
+            - name: Upload artifacts to Noelware's Artifact Registry (/charted/server/{{steps.tag.outputs.version}})
+              uses: Noelware/s3-action@2.1.0
+              with:
+                  enforce-path-access-style: true
+                  files: ./cli/build/distributions/charted-server.${{matrix.tasks.ext}}
+                  path-format: $(prefix)/charted/server/${{steps.tag.outputs.version}}/charted-server.${{matrix.tasks.ext}}
+                  access-key-id: ${{secrets.S3_ACCESS_KEY}}
+                  secret-key: ${{secrets.S3_SECRET_KEY}}
+                  endpoint: ${{secrets.S3_ENDPOINT}}
+                  region: us-east-1
+                  prefix: /noelware/artifacts
+                  bucket: august
+
+            - name: Upload artifacts to Noelware's Artifact Registry (/charted/server/latest)
+              uses: Noelware/s3-action@2.1.0
+              with:
+                  enforce-path-access-style: true
+                  files: ./cli/build/distributions/charted-server.${{matrix.tasks.ext}}
+                  path-format: $(prefix)/charted/server/latest/charted-server.${{matrix.tasks.ext}}
+                  access-key-id: ${{secrets.S3_ACCESS_KEY}}
+                  secret-key: ${{secrets.S3_SECRET_KEY}}
+                  endpoint: ${{secrets.S3_ENDPOINT}}
+                  region: us-east-1
+                  prefix: /noelware/artifacts
+                  bucket: august
+    debian-docker-image:
+        runs-on: ubuntu-latest
+        name: Build Docker image (Debian)
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+              with:
+                  submodules: recursive
+
+            - name: Get current release tag
+              uses: auguwu/git-tag-action@master
+              id: tag
+
+            - name: Get commit hash
+              id: commit-hash
+              run: echo "commit=$(git rev-parse --short=8 $GITHUB_SHA)" >> $GITHUB_OUTPUT
+
+            - name: Setup Docker buildx
+              uses: docker/setup-buildx-action@v2
+
+            - name: Setup QEMU
+              uses: docker/setup-qemu-action@v2
+
+            - name: Login into Noelware's Container Registry
+              uses: docker/login-action@v2
+              with:
+                  registry: cr.noelware.cloud
+                  username: noel
+                  password: ${{secrets.REGISTRY_PASSWORD}}
 
             - name: Login into GitHub Container Registry
               uses: docker/login-action@v2
@@ -104,153 +156,92 @@ jobs:
                   username: charted-dev
                   password: ${{secrets.GITHUB_TOKEN}}
 
-            - name: Login into Noelware Container Registry
+            - name: Build and push!
+              uses: docker/build-push-action@v4
+              with:
+                  provenance: false
+                  platforms: linux/amd64,linux/arm64
+                  cache-from: type=gha,scope=debian
+                  cache-to: type=gha,scope=debian
+                  context: .
+                  file: ./distribution/docker/debian/Dockerfile
+                  tags: |
+                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}},
+                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}},
+                      cr.noelware.cloud/charted/server:${{steps.tag.output.version}},
+                      cr.noelware.cloud/charted/server:latest,
+                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}},
+                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}},
+                      ghcr.io/charted-dev/charted:${{steps.tag.output.version}},
+                      ghcr.io/charted-dev/charted:latest
+                  labels: |
+                      org.opencontainers.image.title=charted-server
+                      org.opencontainers.image.description=📦 You know, for Helm Charts?
+                      org.opencontainers.image.version=${{steps.tag.outputs.version}}
+                      org.opencontainers.image.revision=${{steps.commit-hash.outputs.commit}}
+                      org.opencontainers.image.licenses=Apache-2.0
+                      org.opencontainers.image.documentation=https://charts.noelware.org/docs/server/${{steps.tag.outputs.version}}
+                      org.opencontainers.image.source=https://github.com/charted-dev/charted
+    alpine-docker-image:
+        runs-on: ubuntu-latest
+        name: Build Docker image (Alpine)
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+              with:
+                  submodules: recursive
+
+            - name: Get current release tag
+              uses: auguwu/git-tag-action@master
+              id: tag
+
+            - name: Get commit hash
+              id: commit-hash
+              run: echo "commit=$(git rev-parse --short=8 $GITHUB_SHA)" >> $GITHUB_OUTPUT
+
+            - name: Setup Docker buildx
+              uses: docker/setup-buildx-action@v2
+
+            - name: Setup QEMU
+              uses: docker/setup-qemu-action@v2
+
+            - name: Login into Noelware's Container Registry
               uses: docker/login-action@v2
               with:
                   registry: cr.noelware.cloud
                   username: noel
                   password: ${{secrets.REGISTRY_PASSWORD}}
 
-            - name: Create Debian Manifest Image [cr.noelware.cloud, latest]
-              uses: Noelware/docker-manifest-action@0.3.1
+            - name: Login into GitHub Container Registry
+              uses: docker/login-action@v2
               with:
-                  push: true
-                  inputs: cr.noelware.cloud/charted/server:latest
-                  images: |
-                      cr.noelware.cloud/charted/server:latest-amd64,
-                      cr.noelware.cloud/charted/server:latest-arm64
+                  registry: ghcr.io
+                  username: charted-dev
+                  password: ${{secrets.GITHUB_TOKEN}}
 
-            - name: Create Debian Manifest Image [cr.noelware.cloud, :${{steps.tag.outputs.major}}]
-              uses: Noelware/docker-manifest-action@0.3.1
+            - name: Build and push!
+              uses: docker/build-push-action@v4
               with:
-                  push: true
-                  inputs: cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}
-                  images: |
-                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}-amd64,
-                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}-arm64
-
-            - name: Create Debian Manifest Image [cr.noelware.cloud, :${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}]
-              uses: Noelware/docker-manifest-action@0.3.1
-              with:
-                  push: true
-                  inputs: cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}
-                  images: |
-                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-amd64,
-                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-arm64
-
-            - name: Create Debian Manifest Image [cr.noelware.cloud, :${{steps.tag.outputs.version}}]
-              uses: Noelware/docker-manifest-action@0.3.1
-              with:
-                  push: true
-                  inputs: cr.noelware.cloud/charted/server:${{steps.tag.outputs.version}}
-                  images: |
-                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.version}}-amd64,
-                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.version}}-arm64
-
-            - name: Create Alpine Manifest Image [cr.noelware.cloud, :alpine]
-              uses: Noelware/docker-manifest-action@0.3.1
-              with:
-                  push: true
-                  inputs: cr.noelware.cloud/charted/server:alpine
-                  images: |
-                      cr.noelware.cloud/charted/server:alpine-amd64,
-                      cr.noelware.cloud/charted/server:alpine-arm64
-
-            - name: Create Alpine Manifest Image [cr.noelware.cloud, :${{steps.tag.outputs.major}}-alpine]
-              uses: Noelware/docker-manifest-action@0.3.1
-              with:
-                  push: true
-                  inputs: cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}-alpine
-                  images: |
-                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}-alpine-amd64,
-                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}-alpine-arm64
-
-            - name: Create Alpine Manifest Image [cr.noelware.cloud, :${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine]
-              uses: Noelware/docker-manifest-action@0.3.1
-              with:
-                  push: true
-                  inputs: cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine
-                  images: |
-                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine-amd64,
-                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine-arm64
-
-            - name: Create Alpine Manifest Image [cr.noelware.cloud, :${{steps.tag.outputs.version}}-alpine]
-              uses: Noelware/docker-manifest-action@0.3.1
-              with:
-                  push: true
-                  inputs: cr.noelware.cloud/charted/server:${{steps.tag.outputs.version}}-alpine
-                  images: |
-                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.version}}-alpine-amd64,
-                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.version}}-alpine-arm64
-
-            - name: Create Debian Manifest Image [ghcr.io, latest]
-              uses: Noelware/docker-manifest-action@0.3.1
-              with:
-                  push: true
-                  inputs: ghcr.io/charted-dev/charted:latest
-                  images: |
-                      ghcr.io/charted-dev/charted:latest-amd64,
-                      ghcr.io/charted-dev/charted:latest-arm64
-
-            - name: Create Debian Manifest Image [ghcr.io, :${{steps.tag.outputs.major}}]
-              uses: Noelware/docker-manifest-action@0.3.1
-              with:
-                  push: true
-                  inputs: ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}
-                  images: |
-                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-amd64,
-                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-arm64
-
-            - name: Create Debian Manifest Image [ghcr.io, :${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}]
-              uses: Noelware/docker-manifest-action@0.3.1
-              with:
-                  push: true
-                  inputs: ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}
-                  images: |
-                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-amd64,
-                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-arm64
-
-            - name: Create Debian Manifest Image [ghcr.io, :${{steps.tag.outputs.version}}]
-              uses: Noelware/docker-manifest-action@0.3.1
-              with:
-                  push: true
-                  inputs: ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}
-                  images: |
-                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-amd64,
-                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-arm64
-
-            - name: Create Alpine Manifest Image [ghcr.io, :alpine]
-              uses: Noelware/docker-manifest-action@0.3.1
-              with:
-                  push: true
-                  inputs: ghcr.io/charted-dev/charted:alpine
-                  images: |
-                      ghcr.io/charted-dev/charted:alpine-amd64,
-                      ghcr.io/charted-dev/charted:alpine-arm64
-
-            - name: Create Alpine Manifest Image [ghcr.io, :${{steps.tag.outputs.major}}-alpine]
-              uses: Noelware/docker-manifest-action@0.3.1
-              with:
-                  push: true
-                  inputs: ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-alpine
-                  images: |
-                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-alpine-amd64,
-                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-alpine-arm64
-
-            - name: Create Alpine Manifest Image [ghcr.io, :${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine]
-              uses: Noelware/docker-manifest-action@0.3.1
-              with:
-                  push: true
-                  inputs: ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine
-                  images: |
-                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine-amd64,
-                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine-arm64
-
-            - name: Create Alpine Manifest Image [ghcr.io, :${{steps.tag.outputs.version}}-alpine]
-              uses: Noelware/docker-manifest-action@0.3.1
-              with:
-                  push: true
-                  inputs: ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-alpine
-                  images: |
-                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-alpine-amd64,
-                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-alpine-arm64
+                  provenance: false
+                  platforms: linux/amd64
+                  cache-from: type=gha,scope=alpine
+                  cache-to: type=gha,scope=alpine
+                  context: .
+                  file: ./distribution/docker/alpine/Dockerfile
+                  tags: |
+                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine,
+                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}-alpine,
+                      cr.noelware.cloud/charted/server:${{steps.tag.output.version}}-alpine,
+                      cr.noelware.cloud/charted/server:latest-alpine,
+                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine,
+                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-alpine,
+                      ghcr.io/charted-dev/charted:${{steps.tag.output.version}}-alpine,
+                      ghcr.io/charted-dev/charted:latest-alpine
+                  labels: |
+                      org.opencontainers.image.title=charted-server
+                      org.opencontainers.image.description=📦 You know, for Helm Charts?
+                      org.opencontainers.image.version=${{steps.tag.outputs.version}}
+                      org.opencontainers.image.revision=${{steps.commit-hash.outputs.commit}}
+                      org.opencontainers.image.licenses=Apache-2.0
+                      org.opencontainers.image.documentation=https://charts.noelware.org/docs/server/${{steps.tag.outputs.version}}
+                      org.opencontainers.image.source=https://github.com/charted-dev/charted

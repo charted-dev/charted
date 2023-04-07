@@ -15,6 +15,29 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.gradle.testing;
+package org.noelware.charted.testing.yamlTestRunner.annotations;
 
-public class JUnit5Runner {}
+import org.noelware.charted.testing.yamlTestRunner.Descriptor;
+
+/**
+ * Annotation to apply metadata to a {@link org.noelware.charted.testing.yamlTestRunner.directives.YamlDirective}.
+ */
+public @interface Directive {
+    /**
+     * @return descriptor class for this directive, this must be a valid {@link Descriptor}
+     * or it will fail at runtime.
+     */
+    Class<? extends Descriptor> descriptor();
+
+    /**
+     * @return the name of the directive, must be a valid camelCase function
+     * name.
+     */
+    String name();
+
+    /**
+     * @return argument count when the directive was called, defaults to
+     * 0.
+     */
+    int argc() default 0;
+}

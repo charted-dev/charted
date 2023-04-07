@@ -23,12 +23,12 @@ plugins {
 @Suppress("UnstableApiUsage")
 gradlePlugin {
     website.set("https://charts.noelware.org")
-    vcsUrl.set("https://github.com/charted-dev/charted/tree/main/testing/gradle/integ-runner")
+    vcsUrl.set("https://github.com/charted-dev/charted/tree/main/testing/gradle/yamlTestRunner")
 
     plugins {
         create("runner") {
-            implementationClass = "org.noelware.charted.gradle.testing.IntegTestRunnerPlugin"
-            id = "org.noelware.charted.integTest"
+            implementationClass = "org.noelware.charted.gradle.testing.YamlTestRunnerPlugin"
+            id = "org.noelware.charted.testing.yamlTestRunner"
         }
     }
 }

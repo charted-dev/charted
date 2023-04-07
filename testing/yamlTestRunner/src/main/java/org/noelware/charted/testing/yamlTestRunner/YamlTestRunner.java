@@ -15,11 +15,10 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.annotations
+package org.noelware.charted.testing.yamlTestRunner;
 
 /**
- * Delimited annotation for charted-server DSL objects, refer to [DslMarker]
- * for more information.
+ * An instance of the YAML test runner itself. This is the base class to implement
+ * testing YAML files with the runner.
  */
-@DslMarker
-public annotation class ChartedDsl
+public interface YamlTestRunner {}

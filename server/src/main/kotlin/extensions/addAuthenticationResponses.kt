@@ -17,36 +17,34 @@
 
 package org.noelware.charted.server.extensions
 
-import io.ktor.http.*
 import org.noelware.charted.common.types.responses.ApiResponse
-import org.noelware.charted.modules.openapi.kotlin.dsl.OperationDsl
-import org.noelware.charted.modules.openapi.kotlin.dsl.schema
+import org.noelware.charted.modules.openapi.kotlin.dsl.*
 
 fun OperationDsl.addAuthenticationResponses() {
-    response(HttpStatusCode.Unauthorized) {
+    unauthorized {
         description = "If the authentication handler couldn't authorize successfully"
-        contentType(ContentType.Application.Json) {
+        json {
             schema<ApiResponse.Err>()
         }
     }
 
-    response(HttpStatusCode.Forbidden) {
+    forbidden {
         description = "Whether if the `Authorization` header is not present or a REST controller requires the authentication type to be from a Session Token"
-        contentType(ContentType.Application.Json) {
+        json {
             schema<ApiResponse.Err>()
         }
     }
 
-    response(HttpStatusCode.NotFound) {
+    notFound {
         description = "If a session couldn't be found based off the authentication details given, or if a user wasn't found (can happen if a user was deleted)"
-        contentType(ContentType.Application.Json) {
+        json {
             schema<ApiResponse.Err>()
         }
     }
 
-    response(HttpStatusCode.NotAcceptable) {
+    notAcceptable {
         description = "Whether if the `Authorization` header is not in an acceptable format"
-        contentType(ContentType.Application.Json) {
+        json {
             schema<ApiResponse.Err>()
         }
     }

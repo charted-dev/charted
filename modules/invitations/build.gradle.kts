@@ -20,7 +20,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":modules:postgresql"))
-    implementation(project(":modules:emails"))
-    implementation(project(":modules:redis"))
+    implementation(projects.modules.postgresql)
+    implementation(projects.modules.emails)
+    implementation(projects.modules.redis)
 }

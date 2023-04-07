@@ -16,3 +16,74 @@
  */
 
 package org.noelware.charted.server.routing.v1.organizations.crud
+
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.util.*
+import io.swagger.v3.oas.models.PathItem
+import org.noelware.charted.common.types.responses.ApiError
+import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.models.flags.ApiKeyScope
+import org.noelware.charted.modules.openapi.kotlin.dsl.accepted
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
+import org.noelware.charted.modules.openapi.kotlin.dsl.schema
+import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.postgresql.controllers.get
+import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationDatabaseController
+import org.noelware.charted.server.extensions.addAuthenticationResponses
+import org.noelware.charted.server.extensions.currentUser
+import org.noelware.charted.server.plugins.sessions.PreconditionResult
+import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.plugins.sessions.preconditions.canAccessOrganization
+import org.noelware.charted.server.routing.RestController
+
+class DeleteOrganizationRestController(private val organizations: OrganizationDatabaseController): RestController("/organizations/{id}", HttpMethod.Delete) {
+    override fun Route.init() {
+        install(Sessions) {
+            this += ApiKeyScope.Organizations.Delete
+
+            condition(::canAccessOrganization)
+            condition { call ->
+                val org = organizations.get(call.parameters.getOrFail<Long>("id"))
+                if (org.owner.id != call.currentUser!!.id) {
+                    PreconditionResult.Failed(
+                        ApiError(
+                            "UNABLE_TO_DELETE",
+                            "To delete an organization, you must be the owner of the organization",
+                        ),
+                    )
+                } else {
+                    PreconditionResult.Success
+                }
+            }
+        }
+    }
+
+    override suspend fun call(call: ApplicationCall) {
+        organizations.delete(call.parameters.getOrFail<Long>("id"))
+        call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
+    }
+
+    override fun toPathDsl(): PathItem = toPaths("/organizations/{id}") {
+        delete {
+            description = "Deletes an organization resource"
+
+            pathParameter {
+                description = "Snowflake ID of the organization resource to delete"
+                name = "id"
+
+                schema<Long>()
+            }
+
+            addAuthenticationResponses()
+            accepted {
+                description = "Organization was successfully deleted"
+                json {
+                    schema(ApiResponse.ok())
+                }
+            }
+        }
+    }
+}

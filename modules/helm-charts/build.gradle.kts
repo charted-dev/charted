@@ -20,8 +20,8 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":modules:postgresql"))
-    implementation(project(":modules:storage"))
+    implementation(projects.modules.postgresql)
+    implementation(projects.modules.storage)
 
     implementation(libs.apache.commons.compress)
     implementation(libs.ktor.server.core)

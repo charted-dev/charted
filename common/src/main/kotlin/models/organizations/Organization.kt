@@ -18,6 +18,7 @@
 package org.noelware.charted.models.organizations
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import io.swagger.v3.oas.annotations.media.Schema
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -27,6 +28,7 @@ import org.noelware.charted.models.users.User
 public data class Organization(
     @JsonProperty("verified_publisher")
     @SerialName("verified_publisher")
+    @get:Schema(description = "Whether if this organization is a verified publisher on this instance")
     val verifiedPublisher: Boolean = false,
 
     @JsonProperty("twitter_handle")

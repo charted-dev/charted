@@ -86,8 +86,8 @@ include(
     ":modules:tracing:opentelemetry",
     ":modules:tracing:sentry",
     ":testing:containers",
-    ":testing:framework",
-    ":testing:gradle:integ-runner",
+    ":testing:yamlTestRunner",
+    ":testing:gradle:yamlTestRunner",
 )
 
 val buildScanServer: String = System.getProperty("org.noelware.gradle.build-scan.server", "")

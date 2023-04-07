@@ -46,7 +46,6 @@ spotless {
             "**/*.json",
             "**/*.yaml",
             "**/*.yml",
-            "**/*.xml",
             "**/*.md",
         )
 
@@ -72,7 +71,7 @@ spotless {
             ".idea/*.xml",
         )
 
-        prettier(mapOf("prettier" to "2.8.4", "@prettier/plugin-xml" to "2.2.0")).apply {
+        prettier(mapOf("prettier" to "2.8.4")).apply {
             configFile(file("$projectDir/.prettierrc.json"))
         }
     }

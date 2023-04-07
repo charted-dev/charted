@@ -15,11 +15,10 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.annotations
+package org.noelware.charted.testing.yamlTestRunner.types;
 
-/**
- * Delimited annotation for charted-server DSL objects, refer to [DslMarker]
- * for more information.
- */
-@DslMarker
-public annotation class ChartedDsl
+public class TestBodyDescriptor {
+    static class DoBodyDescriptor {}
+
+    static class MatchBodyDescriptor {}
+}

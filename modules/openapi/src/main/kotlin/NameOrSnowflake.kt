@@ -25,6 +25,17 @@ import io.swagger.v3.oas.annotations.media.Schema
  */
 @Schema(
     description = "Represents a value that handles Name and Snowflake parameters",
-    oneOf = [String::class, Long::class],
+    oneOf = [Name::class, Long::class],
 )
-class NameOrSnowflake
+class NameOrSnowflake private constructor()
+
+/**
+ * Dummy object to represent a Name that is a valid user, repository, or organization
+ * name to be queried by the API server.
+ */
+@Schema(
+    description = "Schema to resolve a valid user, repository, or organization successfully.",
+    implementation = String::class,
+    pattern = """^([A-z]|-|_|\d{0,9}){0,32}""",
+)
+object Name

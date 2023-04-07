@@ -29,6 +29,14 @@ interface BodyDsl {
     fun contentType(type: ContentType, block: MediaTypeDsl.() -> Unit = {})
 }
 
+/**
+ * Alias for [contentType(ContentType.Application.Json) {}][BodyDsl.contentType] for easy consumption.
+ * @param block [MediaTypeDsl] object to attach to this [BodyDsl].
+ */
+fun BodyDsl.json(block: MediaTypeDsl.() -> Unit = {}) {
+    contentType(ContentType.Application.Json, block)
+}
+
 open class BodyBuilder: BodyDsl {
     @Suppress("PropertyName")
     internal val _contentTypes: MutableMap<String, MediaType> = mutableMapOf()

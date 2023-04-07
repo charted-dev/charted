@@ -15,11 +15,10 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.annotations
+plugins {
+    `charted-module`
+}
 
-/**
- * Delimited annotation for charted-server DSL objects, refer to [DslMarker]
- * for more information.
- */
-@DslMarker
-public annotation class ChartedDsl
+dependencies {
+    implementation(libs.ktor.server.core)
+}

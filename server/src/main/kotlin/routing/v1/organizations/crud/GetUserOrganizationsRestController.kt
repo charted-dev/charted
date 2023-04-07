@@ -16,3 +16,7 @@
  */
 
 package org.noelware.charted.server.routing.v1.organizations.crud
+
+import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationDatabaseController
+
+class GetUserOrganizationsRestController(private val organizations: OrganizationDatabaseController)

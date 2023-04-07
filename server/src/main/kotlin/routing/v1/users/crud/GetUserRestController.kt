@@ -26,7 +26,7 @@ import org.noelware.charted.common.extensions.regexp.matchesNameAndIdRegex
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.users.User
 import org.noelware.charted.modules.openapi.NameOrSnowflake
-import org.noelware.charted.modules.openapi.kotlin.dsl.schema
+import org.noelware.charted.modules.openapi.kotlin.dsl.*
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.EntityNotFoundException
 import org.noelware.charted.modules.postgresql.controllers.get
@@ -82,22 +82,22 @@ class GetUserRestController(private val controller: UserDatabaseController): Res
                 schema<NameOrSnowflake>()
             }
 
-            response(HttpStatusCode.OK) {
-                contentType(ContentType.Application.Json) {
+            ok {
+                json {
                     schema<ApiResponse.Ok<User>>()
                 }
             }
 
-            response(HttpStatusCode.BadRequest) {
+            badRequest {
                 description = "If the provided idOrName parameter wasn't a snowflake or username"
-                contentType(ContentType.Application.Json) {
+                json {
                     schema<ApiResponse.Err>()
                 }
             }
 
-            response(HttpStatusCode.NotFound) {
+            notFound {
                 description = "If a user by the idOrName parameter was not found"
-                contentType(ContentType.Application.Json) {
+                json {
                     schema<ApiResponse.Err>()
                 }
             }
