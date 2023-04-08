@@ -158,10 +158,11 @@ jobs:
                   cache-to: type=gha,scope=debian
                   context: .
                   file: ./distribution/docker/debian/Dockerfile
+                  push: true
                   tags: |
                       ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly,
                       ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-nightly,
-                      ghcr.io/charted-dev/charted:${{steps.tag.output.version}},
+                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}},
                       ghcr.io/charted-dev/charted:nightly
                   labels: |
                       org.opencontainers.image.title=charted-server
@@ -210,10 +211,11 @@ jobs:
                   cache-to: type=gha,scope=alpine
                   context: .
                   file: ./distribution/docker/alpine/Dockerfile
+                  push: true
                   tags: |
                       ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly-alpine,
                       ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-nightly-alpine,
-                      ghcr.io/charted-dev/charted:${{steps.tag.output.version}}-alpine,
+                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-alpine,
                       ghcr.io/charted-dev/charted:nightly-alpine
                   labels: |
                       org.opencontainers.image.title=charted-server

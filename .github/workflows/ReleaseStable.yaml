@@ -168,11 +168,11 @@ jobs:
                   tags: |
                       cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}},
                       cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}},
-                      cr.noelware.cloud/charted/server:${{steps.tag.output.version}},
+                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.version}},
                       cr.noelware.cloud/charted/server:latest,
                       ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}},
                       ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}},
-                      ghcr.io/charted-dev/charted:${{steps.tag.output.version}},
+                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}},
                       ghcr.io/charted-dev/charted:latest
                   labels: |
                       org.opencontainers.image.title=charted-server
@@ -231,11 +231,11 @@ jobs:
                   tags: |
                       cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine,
                       cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}-alpine,
-                      cr.noelware.cloud/charted/server:${{steps.tag.output.version}}-alpine,
+                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.version}}-alpine,
                       cr.noelware.cloud/charted/server:latest-alpine,
                       ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine,
                       ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-alpine,
-                      ghcr.io/charted-dev/charted:${{steps.tag.output.version}}-alpine,
+                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-alpine,
                       ghcr.io/charted-dev/charted:latest-alpine
                   labels: |
                       org.opencontainers.image.title=charted-server
