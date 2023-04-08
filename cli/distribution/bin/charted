@@ -84,6 +84,11 @@ RESOLVED_JAVA_OPTS=(
     "-Djdk.attach.allowAttachSelf=true"
 )
 
+if [ -n "${CHARTED_JAVA_OPTS:-}" ]; then
+    debug "Received extra options: ${CHARTED_JAVA_OPTS}"
+    RESOLVED_JAVA_OPTS+=("$CHARTED_JAVA_OPTS")
+fi
+
 export JAVA_OPTS=$(join ' ' "${RESOLVED_JAVA_OPTS[@]}")
 debug "Resolved Java Options ~> $JAVA_OPTS"
 

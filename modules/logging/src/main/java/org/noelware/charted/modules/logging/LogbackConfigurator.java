@@ -59,7 +59,8 @@ public class LogbackConfigurator extends ContextAwareBase implements Configurato
         // Set the current context we received as the current one
         setContext(context);
 
-        // PRIORITY: env > system props > ./config/logback.properties > ./logback.properties > classpath > default
+        // PRIORITY: env > system props > ./config/logback.properties > ./config/logback.properties > classpath >
+        // default
         if (resolveFileFromPath(context, System.getenv(ENVIRONMENT_VARIABLE_NAME))) return process0(context);
         if (resolveFileFromPath(context, System.getProperty(SYSTEM_PROPERTY_NAME))) return process0(context);
 
