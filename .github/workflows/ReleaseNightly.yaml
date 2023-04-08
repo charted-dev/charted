@@ -46,37 +46,11 @@ jobs:
                   distribution: temurin
                   java-version: 17
 
-            # Node.js is required for Spotless to run Prettier
-            - name: Setup Node.js 19
-              uses: actions/setup-node@v3
-              with:
-                  node-version: 19.x
-
             - name: Setup Gradle
               uses: gradle/gradle-build-action@v2
 
             - name: Validate Gradle Wrapper
               uses: gradle/wrapper-validation-action@v1
-
-            - name: Lint code-base with Spotless
-              uses: gradle/gradle-build-action@v2
-              with:
-                  arguments: spotlessCheck --no-daemon --scan
-
-            - name: Compiles Kotlin source sets
-              uses: gradle/gradle-build-action@v2
-              with:
-                  arguments: compileKotlin --no-daemon --scan
-
-            - name: Compiles Java source sets
-              uses: gradle/gradle-build-action@v2
-              with:
-                  arguments: compileJava --no-daemon --scan
-
-            - name: Run unit and integration tests
-              uses: gradle/gradle-build-action@v2
-              with:
-                  arguments: test --no-daemon --scan
 
             - name: Build artifact
               uses: gradle/gradle-build-action@v2
