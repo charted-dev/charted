@@ -20,5 +20,5 @@ package org.noelware.charted.gradle
 import dev.floofy.utils.gradle.*
 import org.gradle.api.JavaVersion
 
-public val VERSION: Version = Version(0, 4, 0, ReleaseType("nightly"), true)
-public val JAVA_VERSION: JavaVersion = JavaVersion.VERSION_17
+val VERSION: Version = Version(0, 4, 0, ReleaseType("unstable"), true)
+val JAVA_VERSION: JavaVersion = JavaVersion.VERSION_17

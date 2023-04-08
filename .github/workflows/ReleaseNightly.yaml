@@ -94,7 +94,7 @@ jobs:
               with:
                   files: ./cli/build/distributions/charted-server.${{matrix.tasks.ext}}
 
-            - name: Upload artifacts to Noelware's Artifact Registry (/charted/server/{{steps.tag.outputs.version}})
+            - name: Upload artifacts to Noelware's Artifact Registry (/charted/server/${{steps.tag.outputs.version}})
               uses: Noelware/s3-action@2.1.0
               with:
                   enforce-path-access-style: true
