@@ -13,8 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Cron Jobs
+name: Generate OpenAPI doc
 on:
+    workflow_dispatch: {}
     push:
         branches:
             - main
@@ -27,7 +28,7 @@ on:
             - LICENSE
             - renovate.json
     schedule:
-        - cron: '* * 0 0 0'
+        - cron: '0 0 * * *'
 jobs:
     openapi:
         name: Generate OpenAPI document
