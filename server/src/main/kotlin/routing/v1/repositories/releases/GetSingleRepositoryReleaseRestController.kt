@@ -25,9 +25,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.swagger.v3.oas.models.PathItem
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.and
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.configuration.kotlin.dsl.Config
@@ -126,8 +124,8 @@ class GetSingleRepositoryReleaseRestController(
                         ApiResponse.ok(
                             RepositoryRelease(
                                 "# v0.0.1-beta\n* Added new stuff",
-                                Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
-                                Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
+                                LocalDateTime.parse("2023-04-08T02:37:53.741502369"),
+                                LocalDateTime.parse("2023-04-08T02:37:53.741502369"),
                                 "0.0.1-beta",
                                 1234,
                             ),

@@ -24,6 +24,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.swagger.v3.oas.models.PathItem
 import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.noelware.charted.common.TimeSpan
@@ -88,8 +89,8 @@ class CreateApiKeyRestController(private val controller: ApiKeysDatabaseControll
                                     null,
                                     null,
                                     null,
-                                    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
-                                    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
+                                    LocalDateTime.parse("2023-04-08T02:37:53.741502369"),
+                                    LocalDateTime.parse("2023-04-08T02:37:53.741502369"),
                                     "noel",
                                     true,
                                     "Noel",
