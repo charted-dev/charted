@@ -18,6 +18,8 @@
 # This script is mainly used by the Linting GitHub action,
 # so it will only be applicable to that only.
 
+chmod +x ./cli/build/install/charted/bin/charted
+
 CONFIG_YAML="
 jwt_secret_key: woofbarkbark
 database:
