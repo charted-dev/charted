@@ -54,7 +54,7 @@ class PrometheusMetricsSupport(dataSource: HikariDataSource): MetricsSupport {
         if (collector is io.prometheus.client.Collector) {
             registry.register(collector)
         } else {
-            log.warn("Collector [${collector::class.simpleName}] doesn't implement [io.prometheus.client.Collector], collector might not be available in final Prometheus output!")
+            log.warn("Collector [${collector::class}] doesn't implement [io.prometheus.client.Collector], collector might not be available in final Prometheus output!")
         }
     }
 

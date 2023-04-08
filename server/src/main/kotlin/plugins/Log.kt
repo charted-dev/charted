@@ -115,7 +115,7 @@ object Log: BaseApplicationPlugin<ApplicationCallPipeline, Unit, Log> {
         }
     }
 
-    private fun onApplicationStarted(app: Application) {
+    private fun onApplicationStarted(@Suppress("UNUSED_PARAMETER") app: Application) {
         val time = (System.nanoTime() - bootTime).doFormatTime()
 
         log.info("API server has started in $time")

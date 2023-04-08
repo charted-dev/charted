@@ -15,13 +15,15 @@
  * limitations under the License.
  */
 
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 // import org.noelware.charted.gradle.*
 import kotlin.jvm.optionals.getOrElse
 
 plugins {
-    id("com.diffplug.spotless") version "6.17.0"
+    id("com.diffplug.spotless") version "6.18.0"
 
     `java-gradle-plugin`
     `kotlin-dsl`
@@ -131,17 +133,17 @@ tasks {
 
         testLogging {
             events(
-                org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED,
-                org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED,
-                org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED,
-                org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_ERROR,
-                org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_OUT,
-                org.gradle.api.tasks.testing.logging.TestLogEvent.STARTED,
+                TestLogEvent.PASSED,
+                TestLogEvent.FAILED,
+                TestLogEvent.SKIPPED,
+                TestLogEvent.STANDARD_ERROR,
+                TestLogEvent.STANDARD_OUT,
+                TestLogEvent.STARTED,
             )
 
             showCauses = true
             showExceptions = true
-            exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+            exceptionFormat = TestExceptionFormat.FULL
         }
     }
 }

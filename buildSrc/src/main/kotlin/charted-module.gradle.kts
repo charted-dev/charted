@@ -27,6 +27,9 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.noelware.charted.gradle.*
 
+import java.text.SimpleDateFormat
+import java.util.Date
+
 plugins {
     kotlin("plugin.serialization")
     id("com.diffplug.spotless")
@@ -71,6 +74,15 @@ dependencies {
     testImplementation(libs.get("junit-jupiter-api"))
     testImplementation(libs.get("slf4j-simple"))
     testImplementation(kotlin("test"))
+
+    // Make sure the runtime is available so that the server doesn't crash whenever
+    // if 'kotlinx/atomicfu/AtomicFU' was not loaded.
+    //
+    // The plugin source declares the JVM dependency as `implementation` (https://github.com/Kotlin/kotlinx-atomicfu/blob/master/atomicfu-gradle-plugin/src/main/kotlin/kotlinx/atomicfu/plugin/gradle/AtomicFUGradlePlugin.kt#L50-L56)
+    // and implementation dependency configurations are only scoped to that project and wasn't able to be accessed,
+    // so `api` is used for the dependency instead of `implementation`, which is global to add
+    // modules that implement it but in our case, it's loaded into every module anyway so...
+    api("org.jetbrains.kotlinx:atomicfu-jvm:${libs.version("kotlinx-atomicfu")}")
 
     // Add the `:common` module to all projects that aren't :common
     if (name != "common") {
@@ -132,7 +144,7 @@ val enableK2Compiler = System.getProperty("org.noelware.charted.k2-compiler", "f
 
 kotlin {
     if (enableK2Compiler) {
-        logger.info("Detected `org.noelware.charted.k2-compiler` system property enabling it in this source-set")
+        logger.info("Detected `org.noelware.charted.k2-compiler` system property, enabling it in this source-set")
         sourceSets.all {
             languageSettings {
                 languageVersion = "2.0"
@@ -158,6 +170,7 @@ val projectName: String = path
     .replace(':', '-')
     .replace("modules-", "")
 
+val RFC3339Formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
 tasks {
     withType<KotlinCompile>().configureEach {
         compilerOptions {
@@ -171,9 +184,12 @@ tasks {
         manifest {
             attributes(
                 mapOf(
+                    "Implementation-Build-Date" to RFC3339Formatter.format(Date()),
                     "Implementation-Version" to "$VERSION",
-                    "Implementation-Vendor" to "Noelware, LLC. [team@noelware.org]",
-                    "Implementation-Title" to "charted-server",
+                    "Implementation-Vendor" to "Noelware, LLC.",
+                    "Implementation-Title" to "charted-$projectName",
+                    "X-Git-Commit" to VERSION.gitCommitHash,
+                    "Name" to "charted-$projectName",
                 ),
             )
         }

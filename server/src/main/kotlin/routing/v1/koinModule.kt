@@ -30,7 +30,7 @@ import org.noelware.charted.server.util.composeKoinModules
 val routingV1Module = composeKoinModules(
     usersV1Module,
     *repositoriesV1Module.toTypedArray(),
-    organizationsV1Module,
+    *organizationsV1Module.toTypedArray(),
     apiKeysV1Module,
     adminV1RoutingModule,
     module {

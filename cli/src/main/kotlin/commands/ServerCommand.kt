@@ -71,11 +71,14 @@ class ServerCommand(private val terminal: Terminal): ConfigAwareCliktCommand(
         }
 
         val configDir = File("./config")
+        val chartedConfigYamlFile = File(configDir, "charted.yaml")
+        val chartedKtsScriptFile = File(configDir, "config.charted.kts")
         val rootConfigFile = File("./config.yml")
         var configPath = when {
             config != null -> config
-            configDir.exists() && configDir.isDirectory -> File(configDir, "charted.yaml")
-            rootConfigFile.exists() -> rootConfigFile
+            rootConfigFile.exists() && rootConfigFile.isFile -> rootConfigFile
+            configDir.exists() && chartedConfigYamlFile.exists() -> chartedConfigYamlFile
+            configDir.exists() && chartedKtsScriptFile.exists() -> chartedKtsScriptFile
             else -> null
         }
 

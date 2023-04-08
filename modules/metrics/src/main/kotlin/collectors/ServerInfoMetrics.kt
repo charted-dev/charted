@@ -19,12 +19,16 @@ package org.noelware.charted.modules.metrics.collectors
 
 import com.google.protobuf.Value
 import io.ktor.server.application.*
+import io.prometheus.client.Predicate
+import io.prometheus.client.SampleNameFilter
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.modules.analytics.kotlin.dsl.Struct
 import org.noelware.charted.modules.analytics.kotlin.dsl.put
 import org.noelware.charted.modules.analytics.kotlin.dsl.toGrpcValue
+import org.noelware.charted.modules.metrics.Collector
 
 @Serializable
 data class ServerInfoMetrics(
@@ -54,7 +58,9 @@ data class ServerInfoMetrics(
         put(this, ServerInfoMetrics::vendor)
     }.toGrpcValue()
 
-    class Collector(private val getRequestCounter: () -> Long): org.noelware.charted.modules.metrics.Collector<ServerInfoMetrics> {
+    class Collector(
+        private val getRequestCounter: () -> Long
+    ): org.noelware.charted.modules.metrics.Collector<ServerInfoMetrics>, io.prometheus.client.Collector() {
         override val name: String = "server"
         override suspend fun supply(): ServerInfoMetrics {
             val ktorVersion = Application::class.java.`package`.implementationVersion!!
@@ -68,6 +74,19 @@ data class ServerInfoMetrics(
                 ChartedInfo.version,
                 "Noelware, LLC.",
             )
+        }
+
+        override fun collect(): MutableList<MetricFamilySamples> = collect(null)
+        override fun collect(sampleNameFilter: Predicate<String>?): MutableList<MetricFamilySamples> {
+            val mfs = mutableListOf<MetricFamilySamples>()
+            val predicate = sampleNameFilter ?: SampleNameFilter.ALLOW_ALL
+
+            collect0(mfs, predicate)
+            return mfs
+        }
+
+        private fun collect0(mfs: MutableList<MetricFamilySamples>, predicate: Predicate<String>) {
+            val stats = runBlocking { supply() }
         }
     }
 }
