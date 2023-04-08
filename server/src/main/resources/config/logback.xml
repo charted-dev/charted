@@ -88,6 +88,9 @@
                         <options>
                             <dsn>${charted.sentry.dsn}</dsn>
                         </options>
+
+                        <!-- TODO: should this be configurable with charted.sentry.breadcrumb-level? -->
+                        <minimumBreadcrumbLevel>OFF</minimumBreadcrumbLevel>
                     </appender>
                 </then>
             </if>
@@ -121,44 +124,19 @@
                 </then>
             </if>
 
-            <if condition='isNull("charted.log.level")'>
-                <then>
-                    <if condition='property("charted.appenders").contains("sentry")'>
-                        <then>
-                            <root level="error">
-                                <appender-ref ref="Sentry" />
-                            </root>
-                        </then>
-                    </if>
-
-                    <root level="info">
-                        <appender-ref ref="Console" />
-                        <if condition='property("charted.appenders").contains("logstash")'>
-                            <then>
-                                <appender-ref ref="Logstash" />
-                            </then>
-                        </if>
-                    </root>
-                </then>
-                <else>
-                    <if condition='property("charted.appenders").contains("sentry")'>
-                        <then>
-                            <root level="error">
-                                <appender-ref ref="Sentry" />
-                            </root>
-                        </then>
-                    </if>
-
-                    <root level="${charted.log.level}">
-                        <appender-ref ref="Console" />
-                        <if condition='property("charted.appenders").contains("logstash")'>
-                            <then>
-                                <appender-ref ref="Logstash" />
-                            </then>
-                        </if>
-                    </root>
-                </else>
-            </if>
+            <root level="${charted.log.level}">
+                <appender-ref ref="Console" />
+                <if condition='property("charted.appenders").contains("logstash")'>
+                    <then>
+                        <appender-ref ref="Logstash" />
+                    </then>
+                </if>
+                <if condition='property("charted.appenders").contains("sentry")'>
+                    <then>
+                        <appender-ref ref="Sentry" />
+                    </then>
+                </if>
+            </root>
         </then>
         <else>
             <if condition='isNull("charted.log.level")'>
