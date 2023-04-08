@@ -34,8 +34,8 @@ echo "$CONFIG_YAML" >> ./config.yml
 
 RETRIES=0
 while true; do
-    if [ $RETRIES -eq 5 ]; then
-        echo "Unable to request to heartbeat endpoint -- retries 5 times and didn't succeed. :("
+    if [ $RETRIES -eq 10 ]; then
+        echo "Unable to request to heartbeat endpoint -- retries 10 times and didn't succeed. :("
         exit 1
     fi
 
@@ -44,8 +44,8 @@ while true; do
         break
     fi
 
-    echo "Received status code [$STATUS_CODE], retrying in 5 seconds [$(( RETRIES++ ))/5]"
-    sleep 5
+    echo "Received status code [$STATUS_CODE], retrying in 15 seconds [$(( RETRIES++ ))/10]"
+    sleep 15
 done
 
 rm ./assets/openapi.json

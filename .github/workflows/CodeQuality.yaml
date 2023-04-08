@@ -24,6 +24,7 @@ on:
             - feat/**
             - main
         paths-ignore:
+            - 'scripts/*.sh'
             - .github/**
             - .vscode/**
             - assets/**

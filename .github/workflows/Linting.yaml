@@ -24,6 +24,7 @@ on:
             - main
 
         paths-ignore:
+            - 'scripts/*.sh'
             - '.vscode/**'
             - 'assets/**'
             - .dockerignore
