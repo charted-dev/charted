@@ -222,7 +222,7 @@ class OperationDslBuilder: OperationDsl, Buildable<Operation> {
 
     override fun build(): Operation = Operation().apply {
         _description.valueOrNull?.let { description(it) }
-        if (_deprecated.value) {
+        if (_deprecated.valueOrNull == true) {
             deprecated(true)
         }
 
