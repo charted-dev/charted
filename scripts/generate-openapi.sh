@@ -21,8 +21,6 @@
 CONFIG_YAML="
 jwt_secret_key: woofbarkbark
 database:
-    username: charted
-    password: charted
     host: postgres
     port: 5432
 redis:
