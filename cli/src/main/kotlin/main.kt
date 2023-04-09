@@ -19,6 +19,7 @@
 
 package org.noelware.charted.cli
 
+import ch.qos.logback.classic.Level
 import com.github.ajalt.clikt.completion.CompletionCommand
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands
@@ -29,7 +30,10 @@ import org.noelware.charted.ChartedInfo
 import org.noelware.charted.cli.commands.GenerateConfigCommand
 import org.noelware.charted.cli.commands.ServerCommand
 import org.noelware.charted.cli.commands.ValidateKotlinScriptCommand
+import org.noelware.charted.cli.commands.accounts.AccountsCommand
 import org.noelware.charted.cli.commands.services.ServiceCommand
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 private class ChartedCli(terminal: Terminal): CliktCommand(
     "Command line runner for managing charted-server",
@@ -50,13 +54,20 @@ private class ChartedCli(terminal: Terminal): CliktCommand(
             CompletionCommand(name = "completions"),
             ValidateKotlinScriptCommand(terminal),
             GenerateConfigCommand(terminal),
+            AccountsCommand(terminal),
             ServiceCommand(terminal),
             ServerCommand(terminal),
         )
     }
 
     // we will run the help command
-    override fun run() {}
+    override fun run() {
+        // Disable Logback from being used in non-server commands
+        if (commandName != "server") {
+            val log = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as? ch.qos.logback.classic.Logger
+            log?.level = Level.OFF
+        }
+    }
 }
 
 @OptIn(ExperimentalTerminalApi::class)

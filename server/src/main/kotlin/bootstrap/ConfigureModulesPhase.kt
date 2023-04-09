@@ -38,7 +38,6 @@ import org.apache.commons.lang3.time.StopWatch
 import org.apache.commons.validator.routines.EmailValidator
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.DatabaseConfig
-import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
@@ -58,9 +57,8 @@ import org.noelware.charted.modules.helm.charts.HelmChartModule
 import org.noelware.charted.modules.metrics.collectors.ServerInfoMetrics
 import org.noelware.charted.modules.metrics.disabled.DisabledMetricsSupport
 import org.noelware.charted.modules.metrics.prometheus.PrometheusMetricsSupport
-import org.noelware.charted.modules.postgresql.asyncTransaction
+import org.noelware.charted.modules.postgresql.configure
 import org.noelware.charted.modules.postgresql.controllers.controllersModule
-import org.noelware.charted.modules.postgresql.createOrUpdateEnums
 import org.noelware.charted.modules.postgresql.metrics.PostgresServerStats
 import org.noelware.charted.modules.postgresql.tables.*
 import org.noelware.charted.modules.redis.DefaultRedisClient
@@ -79,27 +77,28 @@ import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
 import java.io.File
 import kotlin.time.Duration.Companion.seconds
 
+private val yaml = Yaml(
+    EmptySerializersModule(),
+    YamlConfiguration(
+        strictMode = true,
+    ),
+)
+
+fun getConfigurationHost(configFile: File): ConfigurationHost = when {
+    listOf("yaml", "yml").contains(configFile.extension) -> YamlConfigurationHost(yaml)
+    configFile.extension.contains("kts") -> KotlinScriptConfigurationHost
+    else -> throw IllegalStateException("Unable to determine what configuration host to use")
+}
+
 object ConfigureModulesPhase: BootstrapPhase() {
     private val log by logging<ConfigureModulesPhase>()
 
     override suspend fun phaseThrough(@Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE") configFile: File) {
         MDC.put("bootstrap.phase", "configure modules")
 
-        val yaml = Yaml(
-            EmptySerializersModule(),
-            YamlConfiguration(
-                strictMode = true,
-            ),
-        )
-
         // Determine the configuration host to... actually load the configuration
         // file.
-        val configHost: ConfigurationHost = when {
-            listOf("yaml", "yml").contains(configFile.extension) -> YamlConfigurationHost(yaml)
-            configFile.extension.contains("kts") -> KotlinScriptConfigurationHost
-            else -> throw IllegalStateException("Unable to determine what configuration host to use")
-        }
-
+        val configHost = getConfigurationHost(configFile)
         val realConfigPath = withContext(Dispatchers.IO) {
             configFile.toPath().toRealPath()
         }
@@ -146,27 +145,7 @@ object ConfigureModulesPhase: BootstrapPhase() {
             },
         )
 
-        sw.suspend()
-        log.info("Connected to PostgreSQL in [${sw.doFormatTime()}], running pending migrations...")
-
-        sw.resume()
-        asyncTransaction {
-            createOrUpdateEnums()
-            SchemaUtils.createMissingTablesAndColumns(
-                ApiKeyTable,
-                OrganizationTable,
-                OrganizationMemberTable,
-                RepositoryTable,
-                RepositoryMemberTable,
-                RepositoryReleaseTable,
-                UserTable,
-                UserConnectionsTable,
-            )
-        }
-
-        sw.suspend()
-        log.info("Ran all migrations in [${sw.doFormatTime()}], configuring Redis...")
-
+        configure(config, sw)
         if (config.sentryDsn != null) {
             log.debug("Enabling Sentry with DSN [${config.sentryDsn}]")
             Sentry.init {
@@ -209,13 +188,6 @@ object ConfigureModulesPhase: BootstrapPhase() {
                 this.json(json)
             }
         }
-
-        val yaml = Yaml(
-            EmptySerializersModule(),
-            YamlConfiguration(
-                strictMode = true,
-            ),
-        )
 
         val koinModule = module {
             single<AbstractSessionManager> { LocalSessionManager(json, config, redis, argon2) }

@@ -26,13 +26,16 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.logback.classic)
     implementation(libs.mordant)
+    implementation(libs.picnic)
     implementation(libs.semver)
     implementation(libs.clikt)
     implementation(libs.kaml)
 
     // Required subprojects that the :cli requires
     implementation(projects.config.kotlinScript)
+    implementation(projects.modules.postgresql)
     implementation(projects.config.yaml)
     implementation(projects.server)
     implementation(projects.config)

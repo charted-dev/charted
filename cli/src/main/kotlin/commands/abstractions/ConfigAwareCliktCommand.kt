@@ -17,9 +17,15 @@
 
 package org.noelware.charted.cli.commands.abstractions
 
+import com.charleskorn.kaml.SequenceStyle
+import com.charleskorn.kaml.Yaml
+import com.charleskorn.kaml.YamlConfiguration
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.modules.EmptySerializersModule
+import org.noelware.charted.configuration.kotlin.dsl.Config
 import java.io.File
 
 /**
@@ -49,6 +55,22 @@ abstract class ConfigAwareCliktCommand(
     treatUnknownOptionsAsArgs,
     hidden,
 ) {
+    private val yaml = Yaml(
+        EmptySerializersModule(),
+        YamlConfiguration(
+            encodeDefaults = false,
+            sequenceStyle = SequenceStyle.Block,
+            sequenceBlockIndent = 4,
+        ),
+    )
+
+    // canonical locations that *might* have what we're looking for
+    private val rootConfigFile = File("./config.yml")
+    private val configDir = File("./config")
+    private val chartedKtsScriptFile = File(configDir, "config.charted.kts")
+    private val chartedConfigYamlFile = File(configDir, "charted.yaml")
+
+    @Suppress("MemberVisibilityCanBePrivate")
     internal val config: File? by option(
         "--config", "-c",
         help = "The configuration path to use",
@@ -61,4 +83,20 @@ abstract class ConfigAwareCliktCommand(
         mustBeReadable = true,
         canBeSymlink = true,
     )
+
+    fun resolveConfigFile(): File = when {
+        config != null -> config!!
+        rootConfigFile.exists() && rootConfigFile.isFile -> rootConfigFile
+        configDir.exists() && chartedConfigYamlFile.exists() -> chartedConfigYamlFile
+        configDir.exists() && chartedKtsScriptFile.exists() -> chartedKtsScriptFile
+        else -> {
+            if (!configDir.exists()) {
+                configDir.mkdirs()
+            }
+
+            val config = Config()
+            chartedConfigYamlFile.writeText(yaml.encodeToString(config))
+            chartedConfigYamlFile
+        }
+    }
 }

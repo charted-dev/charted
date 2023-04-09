@@ -16,3 +16,40 @@
  */
 
 package org.noelware.charted.cli.commands.accounts
+
+import org.noelware.charted.cli.commands.abstractions.ConfigAwareCliktCommand
+import org.noelware.charted.modules.postgresql.configure
+import org.noelware.charted.server.bootstrap.getConfigurationHost
+
+abstract class AccountsAwareCommand(
+    help: String = "",
+    epilog: String = "",
+    name: String? = null,
+    invokeWithoutSubcommand: Boolean = false,
+    printHelpOnEmptyArgs: Boolean = false,
+    helpTags: Map<String, String> = emptyMap(),
+    autoCompleteEnvvar: String? = "",
+    allowMultipleSubcommands: Boolean = false,
+    treatUnknownOptionsAsArgs: Boolean = false,
+    hidden: Boolean = false
+): ConfigAwareCliktCommand(
+    help,
+    epilog,
+    name,
+    invokeWithoutSubcommand,
+    printHelpOnEmptyArgs,
+    helpTags,
+    autoCompleteEnvvar,
+    allowMultipleSubcommands,
+    treatUnknownOptionsAsArgs,
+    hidden,
+) {
+    abstract fun execute()
+    override fun run() {
+        val configFile = resolveConfigFile()
+        val config = getConfigurationHost(configFile).load(configFile)
+
+        configure(config)
+        execute()
+    }
+}
