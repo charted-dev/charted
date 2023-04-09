@@ -21,8 +21,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.sentry.Sentry
-import io.sentry.kotlin.SentryContext
+import org.noelware.charted.launch
 import io.swagger.v3.oas.models.PathItem
 import kotlinx.coroutines.launch
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -64,9 +63,7 @@ class DeleteUserRestController(
         // As the scope can be cancelled, this should be moved to its own worker pool
         // where it can be cached via Redis and be picked back up once the server
         // starts again, so we don't have any corrupted data.
-        ChartedScope.launch(
-            if (Sentry.isEnabled()) SentryContext() + ChartedScope.coroutineContext else ChartedScope.coroutineContext,
-        ) {
+        ChartedScope.launch {
             // Delete the user, which will delete all of their organizations
             // except their repositories since repositories can be tied to both
             // organization and a user. So, we can do that after.

@@ -32,6 +32,12 @@
         converterClass="org.noelware.charted.modules.logging.composites.MdcComposite"
     />
 
+    <!-- Disable these loggers (since it can get annoying & spammy) -->
+    <logger name="io.swagger.v3.core.converter.ModelConverterContextImpl" level="OFF" />
+    <logger name="io.swagger.v3.core.jackson.ModelResolver" level="OFF" />
+    <logger name="org.codehaus.janino" level="OFF" />
+    <logger name="org.postgresql" level="INFO" />
+
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <if condition='isDefined("charted.console.json")'>
             <then>
@@ -41,26 +47,18 @@
                             <then>
                                 <prettyPrint>${charted.console.json.pretty}</prettyPrint>
                             </then>
-                            <else>
-                                <prettyPrint>false</prettyPrint>
-                            </else>
                         </if>
+
                         <if condition='isDefined("charted.console.json.timezone")'>
                             <then>
                                 <timezone>${charted.console.json.timezone}</timezone>
                             </then>
-                            <else>
-                                <timezone>UTC</timezone>
-                            </else>
                         </if>
 
                         <if condition='isDefined("charted.console.json.timestamp-format")'>
                             <then>
                                 <timestampFormat>${charted.console.json.timestamp-format}</timestampFormat>
                             </then>
-                            <else>
-                                <timestampFormat>yyyy-MM-dd'T'HH:mm:ssXXX</timestampFormat>
-                            </else>
                         </if>
                     </layout>
                 </encoder>
@@ -76,81 +74,71 @@
         </if>
     </appender>
 
-    <logger name="io.swagger.v3.core.converter.ModelConverterContextImpl" level="OFF" />
-    <logger name="io.swagger.v3.core.jackson.ModelResolver" level="OFF" />
-    <logger name="org.codehaus.janino" level="OFF" />
-    <logger name="org.postgresql" level="INFO" />
-    <if condition='isDefined("charted.appenders")'>
+    <if condition='isDefined("charted.appenders") &amp;&amp; property("charted.appenders").contains("sentry")'>
         <then>
-            <if condition='property("charted.appenders").contains("sentry")'>
-                <then>
-                    <appender name="Sentry" class="io.sentry.logback.SentryAppender">
-                        <options>
-                            <dsn>${charted.sentry.dsn}</dsn>
-                        </options>
+            <appender name="Sentry" class="io.sentry.logback.SentryAppender">
+                <options>
+                    <dsn>${charted.sentry.dsn}</dsn>
+                </options>
+            </appender>
+        </then>
+    </if>
 
-                        <!-- TODO: should this be configurable with charted.sentry.breadcrumb-level? -->
-                        <minimumBreadcrumbLevel>OFF</minimumBreadcrumbLevel>
-                    </appender>
-                </then>
-            </if>
+    <if condition='isDefined("charted.appenders") &amp;&amp; property("charted.appenders").contains("logstash")'>
+        <then>
+            <appender name="Logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+                <destination>${charted.logstash.endpoint}</destination>
+                <keepAliveDuration>5 minutes</keepAliveDuration>
+                <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+                    <providers>
+                        <timestamp />
+                        <message />
+                        <loggerName />
+                        <threadName />
+                        <logLevel />
+                        <callerData />
+                        <stackTrace />
+                        <contextName />
+                        <mdc />
+                        <tags />
+                        <logstashMarkers />
+                        <throwableClassName />
+                        <throwableMessage />
+                        <throwableRootCauseClassName />
+                        <throwableRootCauseMessage />
+                    </providers>
+                    <customFields>{"product":"charted-server","vendor":"Noelware"}</customFields>
+                </encoder>
+            </appender>
+        </then>
+    </if>
 
-            <if condition='property("charted.appenders").contains("logstash")'>
-                <then>
-                    <appender name="Logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-                        <destination>${charted.logstash.endpoint}</destination>
-                        <keepAliveDuration>5 minutes</keepAliveDuration>
-                        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
-                            <providers>
-                                <timestamp />
-                                <message />
-                                <loggerName />
-                                <threadName />
-                                <logLevel />
-                                <callerData />
-                                <stackTrace />
-                                <contextName />
-                                <mdc />
-                                <tags />
-                                <logstashMarkers />
-                                <throwableClassName />
-                                <throwableMessage />
-                                <throwableRootCauseClassName />
-                                <throwableRootCauseMessage />
-                            </providers>
-                            <customFields>{"product":"charted-server","vendor":"Noelware"}</customFields>
-                        </encoder>
-                    </appender>
-                </then>
-            </if>
-
+    <if condition='isDefined("charted.log.level")'>
+        <then>
             <root level="${charted.log.level}">
                 <appender-ref ref="Console" />
-                <if condition='property("charted.appenders").contains("logstash")'>
-                    <then>
-                        <appender-ref ref="Logstash" />
-                    </then>
-                </if>
-                <if condition='property("charted.appenders").contains("sentry")'>
-                    <then>
-                        <appender-ref ref="Sentry" />
-                    </then>
-                </if>
             </root>
         </then>
         <else>
-            <if condition='isNull("charted.log.level")'>
-                <then>
-                    <root level="info">
-                        <appender-ref ref="Console" />
-                    </root>
-                </then>
-                <else>
-                    <root level="${charted.log.level}">
-                        <appender-ref ref="Console" />
-                    </root>
-                </else>
-            </if>
+            <root level="INFO">
+                <appender-ref ref="Console" />
+            </root>
         </else>
+    </if>
+
+    <if condition='isDefined("charted.appenders") &amp;&amp; property("charted.appenders").contains("logstash")'>
+        <then>
+            <root>
+                <appender-ref ref="Logstash" />
+            </root>
+        </then>
+    </if>
+
+    <if condition='isDefined("charted.appenders") &amp;&amp; property("charted.appenders").contains("sentry")'>
+        <then>
+            <root>
+                <appender-ref ref="Sentry" />
+            </root>
+        </then>
     </if>
 </configuration>

@@ -20,13 +20,12 @@ package org.noelware.charted.features.invitations
 import com.google.protobuf.Struct
 import dev.floofy.utils.slf4j.logging
 import io.lettuce.core.SetArgs
-import io.sentry.Sentry
-import io.sentry.kotlin.SentryContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.await
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.noelware.charted.ChartedScope
+import org.noelware.charted.launch
 import org.noelware.charted.emails.protobufs.v1.SendEmailRequest
 import org.noelware.charted.models.repositories.Repository
 import org.noelware.charted.models.repositories.RepositoryMember
@@ -65,9 +64,7 @@ class DefaultInvitationManager(
                 runBlocking { redis.commands.hdel(redisTableKey, key).await() }
             } else {
                 log.trace("...invitation [$key] expires in $ttl seconds")
-                invitationExpirationJobs[uuid] = ChartedScope.launch(
-                    if (Sentry.isEnabled()) SentryContext() + ChartedScope.coroutineContext else ChartedScope.coroutineContext,
-                ) {
+                invitationExpirationJobs[uuid] = ChartedScope.launch {
                     delay(ttl.toDuration(DurationUnit.SECONDS).inWholeMilliseconds)
                     redis.commands.hdel(redisTableKey, key).await()
                 }
@@ -92,9 +89,7 @@ class DefaultInvitationManager(
             },
         ).await()
 
-        invitationExpirationJobs[invite.id] = ChartedScope.launch(
-            if (Sentry.isEnabled()) SentryContext() + ChartedScope.coroutineContext else ChartedScope.coroutineContext,
-        ) {
+        invitationExpirationJobs[invite.id] = ChartedScope.launch {
             delay(fifteenMin)
             redis.commands.hdel(redisTableKey, invite.id.toString()).await()
         }

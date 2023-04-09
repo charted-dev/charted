@@ -68,6 +68,7 @@ import org.noelware.charted.modules.postgresql.entities.RepositoryEntity
 import org.noelware.charted.modules.postgresql.entities.UserEntity
 import org.noelware.charted.modules.postgresql.extensions.fromEntity
 import org.noelware.charted.modules.search.elasticsearch.metrics.ElasticsearchStats
+import org.noelware.charted.launch
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.security.KeyStore

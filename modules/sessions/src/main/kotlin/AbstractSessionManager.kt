@@ -24,7 +24,7 @@ import dev.floofy.utils.kotlin.ifNotNull
 import dev.floofy.utils.slf4j.logging
 import io.lettuce.core.SetArgs
 import io.sentry.Sentry
-import io.sentry.kotlin.SentryContext
+import org.noelware.charted.launch
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
@@ -78,7 +78,7 @@ abstract class AbstractSessionManager(
                 runBlocking { redis.commands.hdel(redisTableKey, key).await() }
             } else {
                 log.trace("...session [$key] expires in $ttl seconds")
-                expirationJobs[uuidKey] = ChartedScope.launch(if (Sentry.isEnabled()) SentryContext() + ChartedScope.coroutineContext else ChartedScope.coroutineContext) {
+                expirationJobs[uuidKey] = ChartedScope.launch {
                     delay((ttl.toDuration(DurationUnit.SECONDS)).inWholeMilliseconds)
                     revoke(session)
                 }
