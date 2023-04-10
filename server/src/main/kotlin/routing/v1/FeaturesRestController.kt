@@ -48,7 +48,7 @@ import org.noelware.charted.server.routing.RestController
  */
 @Serializable
 data class FeaturesResponse(
-    @SchemaProperty(
+    @get:SchemaProperty(
         schema = Schema(
             description = "Whether if the external OCI registry experimental feature or the home-made implementation registry feature is enabled or not.",
         ),
@@ -57,26 +57,26 @@ data class FeaturesResponse(
     @SerialName("docker_registry")
     val dockerRegistry: Boolean,
 
-    @SchemaProperty(schema = Schema(description = "Whether if registrations are enabled on the server"))
+    @get:SchemaProperty(schema = Schema(description = "Whether if registrations are enabled on the server"))
     val registrations: Boolean,
 
-    @SchemaProperty(schema = Schema(description = "Whether if the Audit Logging feature is enabled or not."))
+    @get:SchemaProperty(schema = Schema(description = "Whether if the Audit Logging feature is enabled or not."))
     @JsonProperty("audit_logs")
     @SerialName("audit_logs")
     val auditLogs: Boolean,
 
-    @SchemaProperty(schema = Schema(description = "Whether if the Webhooks feature is enabled or not."))
+    @get:SchemaProperty(schema = Schema(description = "Whether if the Webhooks feature is enabled or not."))
     val webhooks: Boolean,
 
-    @SchemaProperty(schema = Schema(description = "Whether if this server instance is invite-only."))
+    @get:SchemaProperty(schema = Schema(description = "Whether if this server instance is invite-only."))
     @JsonProperty("is_invite_only")
     @SerialName("is_invite_only")
     val isInviteOnly: Boolean,
 
-    @SchemaProperty(schema = Schema(description = "Mapping of all available session integrations."))
+    @get:SchemaProperty(schema = Schema(description = "Mapping of all available session integrations."))
     val integrations: Map<String, Boolean>,
 
-    @SchemaProperty(schema = Schema(description = "Whether if the server has search capabilities with the Elasticsearch or Meilisearch backend"))
+    @get:SchemaProperty(schema = Schema(description = "Whether if the server has search capabilities with the Elasticsearch or Meilisearch backend"))
     val search: Boolean
 )
 
@@ -88,11 +88,13 @@ class FeaturesRestController(private val config: Config): RestController("/featu
                 FeaturesResponse(
                     config.features.contains(Feature.DockerRegistry) || config.experimentalFeatures.contains(ExperimentalFeature.ExternalOciRegistry),
                     config.registrations,
-                    config.features.contains(Feature.AuditLogging),
-                    config.features.contains(Feature.Webhooks),
+                    false,
+                    false,
+                    // config.features.contains(Feature.AuditLogging),
+                    // config.features.contains(Feature.Webhooks),
                     config.inviteOnly,
                     mapOf(),
-                    false,
+                    config.search != null,
                 ),
             ),
         )
@@ -107,8 +109,10 @@ class FeaturesRestController(private val config: Config): RestController("/featu
                     example = FeaturesResponse(
                         config.features.contains(Feature.DockerRegistry) || config.experimentalFeatures.contains(ExperimentalFeature.ExternalOciRegistry),
                         config.registrations,
-                        config.features.contains(Feature.AuditLogging),
-                        config.features.contains(Feature.Webhooks),
+                        false,
+                        false,
+//                        config.features.contains(Feature.AuditLogging),
+//                        config.features.contains(Feature.Webhooks),
                         config.inviteOnly,
                         mapOf(),
                         false,

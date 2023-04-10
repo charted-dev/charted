@@ -19,6 +19,7 @@ package org.noelware.charted.configuration.kotlin.dsl.features
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.noelware.charted.configuration.kotlin.dsl.enumSets.EnumSet
 
 /**
  * List of stable features that can be enabled.
@@ -37,23 +38,6 @@ public enum class Feature {
     DockerRegistry,
 
     /**
-     * Enables the Audit Logs feature. Audit logs are a way to introspect what you
-     * or a team member is doing.
-     */
-    @SerialName("audit_logs")
-    AuditLogging,
-
-    /**
-     * Enables the Webhooks feature. Webhooks are a way to introspect any event that occurs
-     * and posts it in a Discord channel, Slack channel, HTTP webhook, or more.
-     *
-     * This will also register the `webhook_settings` PostgreSQL table to configure the webhook
-     * settings per repository, organization, or user.
-     */
-    @SerialName("webhooks")
-    Webhooks,
-
-    /**
      * Wildcard feature, that will enable all features except the [DockerRegistry] one
      * since that will require the user to enable it if they want to and not force it
      * if a wildcard is present.
@@ -63,17 +47,12 @@ public enum class Feature {
 }
 
 /**
- * Determines if a specific stable feature is enabled or not.
+ * Returns the [EnumSet] for the [features][Feature].
  */
-public infix fun List<Feature>.enabled(feature: Feature): Boolean = isWildcard() || any { it == feature }
+public val Feature.Companion.enumSet: FeatureEnumSet
+    get() = FeatureEnumSet
 
-/**
- * Determine if the given list of [Feature] is a wildcard, so we list
- * all the options in the key-set instead of specific keys.
- */
-public fun List<Feature>.isWildcard(): Boolean {
-    if (isEmpty()) return false
-    if (size == 1) return first() == Feature.Wildcard
-
-    return any { it == Feature.Wildcard }
+public object FeatureEnumSet: EnumSet<Feature>(Feature::class) {
+    override val wildcard: Feature
+        get() = Feature.Wildcard
 }

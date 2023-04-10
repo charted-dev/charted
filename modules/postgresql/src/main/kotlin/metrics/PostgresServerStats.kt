@@ -28,8 +28,9 @@ import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.TextColumnType
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.noelware.charted.configuration.kotlin.dsl.Config
+import org.noelware.charted.configuration.kotlin.dsl.enumSets.serialName
 import org.noelware.charted.configuration.kotlin.dsl.metrics.keysets.PostgresKeysets
-import org.noelware.charted.configuration.kotlin.dsl.metrics.keysets.isWildcard
+import org.noelware.charted.configuration.kotlin.dsl.metrics.keysets.enumSet
 import org.noelware.charted.modules.analytics.kotlin.dsl.*
 import org.noelware.charted.modules.metrics.Collector
 import org.noelware.charted.modules.postgresql.entities.OrganizationEntity
@@ -93,9 +94,7 @@ data class PostgresServerStats(
         }
 
         override fun collect(): MutableList<MetricFamilySamples> = collect {
-            config.metrics.metricSets.postgres.isWildcard() || config.metrics.metricSets.postgres.find { keySet ->
-                keySet.key == it
-            } != null
+            PostgresKeysets.enumSet.enabled(config.metrics.metricSets.postgres, it)
         }
 
         override fun collect(predicate: Predicate<String>?): MutableList<MetricFamilySamples> {
@@ -107,60 +106,60 @@ data class PostgresServerStats(
 
         private fun collect0(predicate: Predicate<String>, mfs: MutableList<MetricFamilySamples>) {
             val stats = runBlocking { supply() }
-            if (predicate.test(PostgresKeysets.TotalOrganizationsAvailable.key)) {
+            if (predicate.test(PostgresKeysets.TotalOrganizationsAvailable.serialName!!)) {
                 mfs.add(
                     GaugeMetricFamily(
-                        PostgresKeysets.TotalOrganizationsAvailable.key,
+                        PostgresKeysets.TotalOrganizationsAvailable.serialName!!,
                         "Returns how many registered organizations are available",
                         stats.organizations.toDouble(),
                     ),
                 )
             }
 
-            if (predicate.test(PostgresKeysets.TotalRepositoriesAvailable.key)) {
+            if (predicate.test(PostgresKeysets.TotalRepositoriesAvailable.serialName!!)) {
                 mfs.add(
                     GaugeMetricFamily(
-                        PostgresKeysets.TotalRepositoriesAvailable.key,
+                        PostgresKeysets.TotalRepositoriesAvailable.serialName!!,
                         "Returns how many registered repositories are available",
                         stats.repositories.toDouble(),
                     ),
                 )
             }
 
-            if (predicate.test(PostgresKeysets.TotalUsersAvailable.key)) {
+            if (predicate.test(PostgresKeysets.TotalUsersAvailable.serialName!!)) {
                 mfs.add(
                     GaugeMetricFamily(
-                        PostgresKeysets.TotalUsersAvailable.key,
+                        PostgresKeysets.TotalUsersAvailable.serialName!!,
                         "Returns how many registered users are available",
                         stats.users.toDouble(),
                     ),
                 )
             }
 
-            if (predicate.test(PostgresKeysets.DatabaseSize.key)) {
+            if (predicate.test(PostgresKeysets.DatabaseSize.serialName!!)) {
                 mfs.add(
                     GaugeMetricFamily(
-                        PostgresKeysets.DatabaseSize.key,
+                        PostgresKeysets.DatabaseSize.serialName!!,
                         "The database size (in bytes), or -1 if it couldn't be calculated",
                         stats.dbSize.toDouble(),
                     ),
                 )
             }
 
-            if (predicate.test(PostgresKeysets.ServerUptime.key)) {
+            if (predicate.test(PostgresKeysets.ServerUptime.serialName!!)) {
                 mfs.add(
                     GaugeMetricFamily(
-                        PostgresKeysets.ServerUptime.key,
+                        PostgresKeysets.ServerUptime.serialName!!,
                         "Returns the uptime (in milliseconds) of the Postgres server.",
                         stats.uptime.toDouble(),
                     ),
                 )
             }
 
-            if (predicate.test(PostgresKeysets.Version.key)) {
+            if (predicate.test(PostgresKeysets.Version.serialName!!)) {
                 mfs.add(
                     GaugeMetricFamily(
-                        PostgresKeysets.Version.key,
+                        PostgresKeysets.Version.serialName!!,
                         "Returns the current PostgresSQL server version",
                         listOf("version"),
                     ).apply { addMetric(listOf(stats.version), 1.0) },

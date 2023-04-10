@@ -59,13 +59,7 @@ private class ChartedCli(terminal: Terminal): CliktCommand(
     }
 
     // we will run the help command
-    override fun run() {
-        // Disable Logback from being used in non-server commands
-        if (commandName != "server") {
-            val log = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as? ch.qos.logback.classic.Logger
-            log?.level = Level.OFF
-        }
-    }
+    override fun run() {}
 }
 
 @OptIn(ExperimentalTerminalApi::class)
@@ -74,6 +68,12 @@ fun main(args: Array<String>) {
 
     val terminal = Terminal()
     try {
+        if (args.isNotEmpty() && args.first() != "server") {
+            // Disable Logback from being used in non-server commands
+            val log = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as? ch.qos.logback.classic.Logger
+            log?.level = Level.OFF
+        }
+
         val cli = ChartedCli(terminal)
         cli.main(args)
     } catch (e: Throwable) {

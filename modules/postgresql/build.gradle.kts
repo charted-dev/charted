@@ -22,7 +22,6 @@ plugins {
 dependencies {
     implementation(libs.exposed.powergamer.tools)
     implementation(libs.apache.commons.validator)
-    implementation(libs.exposed.kotlin.datetime)
     implementation(libs.spring.security.crypto)
     implementation(projects.modules.analytics)
     implementation(projects.modules.metrics)
@@ -31,6 +30,7 @@ dependencies {
     implementation(libs.exposed.jdbc)
     implementation(libs.postgresql)
 
+    api(libs.exposed.kotlin.datetime)
     api(libs.exposed.core)
     api(libs.exposed.dao)
     api(libs.hikaricp)
