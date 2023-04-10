@@ -36,7 +36,7 @@ class LocalSessionManager(
 ): AbstractSessionManager("local", config, json, redis) {
     override suspend fun doAuthenticate(user: UserEntity, password: String): Session {
         check(user.password != null) {
-            "`password` field is null, which I'd to assume -- this account was from a non-local session manager. Please run the `charted sessions migrate --from=ldap --to=local` command."
+            "`password` field is null, which I'd to assume that this account was from a non-local session manager. Please run the `charted sessions migrate --from=ldap --to=local` command."
         }
 
         if (!isPasswordValid(user, password)) {
@@ -48,7 +48,7 @@ class LocalSessionManager(
 
     override suspend fun isPasswordValid(user: UserEntity, password: String): Boolean {
         check(user.password != null) {
-            "`password` field is null, which I'd to assume -- this account was from a non-local session manager. Please run the `charted sessions migrate --from=ldap --to=local` command."
+            "`password` field is null, which I'd to assume that this account was from a non-local session manager. Please run the `charted sessions migrate --from=ldap --to=local` command."
         }
 
         return argon2.matches(password, user.password)

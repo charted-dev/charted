@@ -156,7 +156,7 @@ public data class Config(
     /**
      * Sessions configuration
      */
-    val sessions: SessionsConfig = SessionsConfig(),
+    val sessions: SessionsConfig = SessionsConfig.Local,
 
     /**
      * Server configuration to configure

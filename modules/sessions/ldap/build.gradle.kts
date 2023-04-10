@@ -20,9 +20,9 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":modules:postgresql"))
-    implementation(project(":modules:sessions"))
-    implementation(project(":modules:redis"))
+    implementation(projects.modules.postgresql)
+    implementation(projects.modules.sessions)
+    implementation(projects.modules.redis)
     implementation(libs.unbound.ldap.sdk)
     implementation(libs.jwt)
 }

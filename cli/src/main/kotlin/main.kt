@@ -31,7 +31,6 @@ import org.noelware.charted.cli.commands.GenerateConfigCommand
 import org.noelware.charted.cli.commands.ServerCommand
 import org.noelware.charted.cli.commands.ValidateKotlinScriptCommand
 import org.noelware.charted.cli.commands.accounts.AccountsCommand
-import org.noelware.charted.cli.commands.services.ServiceCommand
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -55,7 +54,6 @@ private class ChartedCli(terminal: Terminal): CliktCommand(
             ValidateKotlinScriptCommand(terminal),
             GenerateConfigCommand(terminal),
             AccountsCommand(terminal),
-            ServiceCommand(terminal),
             ServerCommand(terminal),
         )
     }

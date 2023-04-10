@@ -18,7 +18,9 @@
 package org.noelware.charted.configuration.kotlin.dsl.sessions
 
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 public enum class SessionType {
     @SerialName("local")
     Local,

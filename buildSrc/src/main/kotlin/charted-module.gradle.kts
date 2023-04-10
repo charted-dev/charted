@@ -37,6 +37,7 @@ plugins {
     kotlin("jvm")
 
     java
+    idea
 }
 
 group = "org.noelware.charted"
@@ -187,9 +188,8 @@ tasks {
                     "Implementation-Build-Date" to RFC3339Formatter.format(Date()),
                     "Implementation-Version" to "$VERSION",
                     "Implementation-Vendor" to "Noelware, LLC.",
-                    "Implementation-Title" to "charted-$projectName",
-                    "X-Git-Commit" to VERSION.gitCommitHash,
-                    "Name" to "charted-$projectName",
+                    "Implementation-Title" to projectName,
+                    "Created-By" to GradleVersion.current(),
                 ),
             )
         }
