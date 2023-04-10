@@ -26,6 +26,9 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.apache.commons.validator)
+    implementation(libs.spring.security.crypto)
+    implementation(libs.ktor.server.core)
     implementation(libs.logback.classic)
     implementation(libs.mordant)
     implementation(libs.picnic)

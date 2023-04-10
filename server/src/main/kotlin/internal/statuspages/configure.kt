@@ -91,7 +91,7 @@ fun StatusPagesConfig.configure(config: Config) {
         val header = call.request.header("Content-Type")
         call.respond(
             HttpStatusCode.UnsupportedMediaType,
-            ApiResponse.err("UNSUPPORTED_CONTENT_TYPE", "Invalid content type [$header], was expecting \"application/json\""),
+            ApiResponse.err("UNSUPPORTED_CONTENT_TYPE", "Invalid content type [$header], expected [application/json]"),
         )
     }
 

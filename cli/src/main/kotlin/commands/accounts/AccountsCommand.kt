@@ -28,6 +28,11 @@ class AccountsCommand(terminal: Terminal): CliktCommand(
 ) {
     init {
         subcommands(
+            RevokeVerifiedPublisherCommand(terminal),
+            GrantVerifiedPublisherCommand(terminal),
+            RevokeAdminRoleCommand(terminal),
+            GrantAdminRoleCommand(terminal),
+            CreateAccountCommand(terminal),
             ListAccountsCommand(terminal),
         )
     }

@@ -25,7 +25,9 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.modules.EmptySerializersModule
+import org.noelware.charted.configuration.ConfigurationHost
 import org.noelware.charted.configuration.kotlin.dsl.Config
+import org.noelware.charted.server.bootstrap.getConfigurationHost
 import java.io.File
 
 /**
@@ -100,3 +102,5 @@ abstract class ConfigAwareCliktCommand(
         }
     }
 }
+
+fun ConfigAwareCliktCommand.resolveConfigHost(): ConfigurationHost = getConfigurationHost(resolveConfigFile())

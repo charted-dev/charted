@@ -42,6 +42,7 @@ import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import org.noelware.charted.ChartedInfo
+import org.noelware.charted.SNOWFLAKE_EPOCH
 import org.noelware.charted.Server
 import org.noelware.charted.common.extensions.formatting.doFormatTime
 import org.noelware.charted.configuration.ConfigurationHost
@@ -167,7 +168,7 @@ object ConfigureModulesPhase: BootstrapPhase() {
         }
 
         // 1677654000000 = March 1st, 2023
-        val snowflake = Snowflake(0, 1677654000000)
+        val snowflake = Snowflake(0, SNOWFLAKE_EPOCH)
         val argon2 = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8()
         val metrics = if (config.metrics.enabled) {
             PrometheusMetricsSupport(ds)

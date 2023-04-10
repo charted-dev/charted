@@ -50,7 +50,7 @@ class ListAccountsCommand(private val terminal: Terminal): AccountsAwareCommand(
     help = "Lists all the available accounts on this instance",
     name = "list",
 ) {
-    private val dateTimeFormat = SimpleDateFormat("MMM d, yyyy 'at' k:mm:ss zzz")
+    private val dateTimeFormat = SimpleDateFormat("MMM d, yyyy 'at' k:mm:ss.SS zzz")
     private val page: Int by option(
         "--page", "-p",
         help = "Page to use for pagination",
@@ -67,7 +67,6 @@ class ListAccountsCommand(private val terminal: Terminal): AccountsAwareCommand(
                 cellStyle {
                     paddingLeft = 1
                     paddingRight = 1
-
                     border = true
                 }
 

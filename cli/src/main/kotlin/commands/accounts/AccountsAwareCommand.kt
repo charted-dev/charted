@@ -18,8 +18,8 @@
 package org.noelware.charted.cli.commands.accounts
 
 import org.noelware.charted.cli.commands.abstractions.ConfigAwareCliktCommand
+import org.noelware.charted.cli.commands.abstractions.resolveConfigHost
 import org.noelware.charted.modules.postgresql.configure
-import org.noelware.charted.server.bootstrap.getConfigurationHost
 
 abstract class AccountsAwareCommand(
     help: String = "",
@@ -46,8 +46,7 @@ abstract class AccountsAwareCommand(
 ) {
     abstract fun execute()
     override fun run() {
-        val configFile = resolveConfigFile()
-        val config = getConfigurationHost(configFile).load(configFile)
+        val config = resolveConfigHost().load(resolveConfigFile())
 
         configure(config)
         execute()

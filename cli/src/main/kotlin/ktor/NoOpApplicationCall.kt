@@ -15,4 +15,26 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.cli.commands.apikeys
+package org.noelware.charted.cli.ktor
+
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.util.*
+
+class NoOpApplicationCall(override val parameters: Parameters): ApplicationCall {
+    constructor(): this(parametersOf())
+
+    override val application: Application
+        get() = TODO("Not yet implemented")
+
+    override val attributes: Attributes
+        get() = Attributes(true)
+
+    override val request: ApplicationRequest
+        get() = TODO("Not yet implemented")
+
+    override val response: ApplicationResponse
+        get() = TODO("Not yet implemented")
+}
