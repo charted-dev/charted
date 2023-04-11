@@ -55,14 +55,16 @@ class PatchUserRestController(private val controller: UserDatabaseController): R
 
             requestBody {
                 json {
-                    schema(PatchUserPayload(
-                        null,
-                        "a cute polar bear",
-                        null,
-                        null,
-                        "polarboi@floofy.dev",
-                        "heck"
-                    ))
+                    schema(
+                        PatchUserPayload(
+                            null,
+                            "a cute polar bear",
+                            null,
+                            null,
+                            "polarboi@floofy.dev",
+                            "heck",
+                        ),
+                    )
                 }
             }
 
