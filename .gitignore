@@ -718,3 +718,6 @@ config.yml
 server/src/main/resources/config/logback.properties
 !server/src/main/kotlin/routing/v1/repositories/releases/
 !modules/postgresql/src/main/kotlin/controllers/repositories/releases/
+
+# exclude .idea/codeStyles
+.idea/codeStyles/

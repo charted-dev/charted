@@ -81,7 +81,7 @@ class ListAccountsCommand(private val terminal: Terminal): AccountsAwareCommand(
                     ).joinToString(", ").ifBlank { "None" }
 
                     row(
-                        account.name.ifNotNull { "$this (@${account.username}" } ?: "@${account.username}",
+                        account.name.ifNotNull { "$this (@${account.username})" } ?: "@${account.username}",
                         account.id,
                         dateTimeFormat.format(Date.from(account.createdAt.toInstant(TimeZone.currentSystemDefault()).toJavaInstant())),
                         dateTimeFormat.format(Date.from(account.updatedAt.toInstant(TimeZone.currentSystemDefault()).toJavaInstant())),

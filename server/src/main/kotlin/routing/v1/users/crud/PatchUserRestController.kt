@@ -25,8 +25,10 @@ import io.ktor.server.routing.*
 import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.postgresql.controllers.users.PatchUserPayload
 import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
 import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.extensions.currentUser
@@ -51,11 +53,23 @@ class PatchUserRestController(private val controller: UserDatabaseController): R
         delete {
             description = "Patch the current authenticated user's metadata"
 
+            requestBody {
+                json {
+                    schema(PatchUserPayload(
+                        null,
+                        "a cute polar bear",
+                        null,
+                        null,
+                        "polarboi@floofy.dev",
+                        "heck"
+                    ))
+                }
+            }
+
             addAuthenticationResponses()
             response(HttpStatusCode.Accepted) {
                 contentType(ContentType.Application.Json) {
-                    schema<ApiResponse.Ok<Unit>>()
-                    example = ApiResponse.ok()
+                    schema(ApiResponse.ok())
                 }
             }
         }
