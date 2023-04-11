@@ -202,7 +202,6 @@ fabric.properties
 
 .idea/*
 
-!.idea/codeStyles
 !.idea/runConfigurations
 
 ### Kotlin ###
@@ -630,7 +629,7 @@ node_modules/
 **/*.DesktopClient/ModelManifest.xml
 **/*.Server/GeneratedArtifacts
 **/*.Server/ModelManifest.xml
-_Pvt_Extensions
+_Pvt_Extensions.
 
 # Paket dependency manager
 .paket/paket.exe
