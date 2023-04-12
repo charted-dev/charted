@@ -31,6 +31,11 @@ interface RedisClient: Closeable {
     val commands: RedisAsyncCommands<String, String>
 
     /**
+     * The created [RedisClient][io.lettuce.core.RedisClient].
+     */
+    val client: io.lettuce.core.RedisClient
+
+    /**
      * Returns the [RedisServerStats] object from the Redis server itself.
      */
     fun stats(): RedisServerStats

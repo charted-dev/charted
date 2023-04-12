@@ -37,7 +37,7 @@ import io.lettuce.core.RedisClient as LettuceRedisClient
 class DefaultRedisClient(config: RedisConfig): RedisClient {
     private val _connection: SetOnce<StatefulRedisConnection<String, String>> = SetOnce()
     private val _commands: SetOnce<RedisAsyncCommands<String, String>> = SetOnce()
-    private val client: LettuceRedisClient
+    private val _client: SetOnce<LettuceRedisClient> = SetOnce()
     private val log by logging<DefaultRedisClient>()
 
     init {
@@ -84,7 +84,7 @@ class DefaultRedisClient(config: RedisConfig): RedisClient {
         }
 
         log.debug("Configured Redis URI ~> [$redisURI]")
-        client = LettuceRedisClient.create(redisURI)
+        _client.value = LettuceRedisClient.create(redisURI)
     }
 
     /**
@@ -92,6 +92,12 @@ class DefaultRedisClient(config: RedisConfig): RedisClient {
      */
     override val commands: RedisAsyncCommands<String, String>
         get() = _commands.value
+
+    /**
+     * The created [RedisClient][io.lettuce.core.RedisClient].
+     */
+    override val client: LettuceRedisClient
+        get() = _client.value
 
     /**
      * Returns the [RedisServerStats] object from the Redis server itself.

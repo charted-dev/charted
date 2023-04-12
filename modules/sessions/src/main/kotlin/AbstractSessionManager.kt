@@ -73,6 +73,12 @@ abstract class AbstractSessionManager(
 
             log.trace("...found session [$key]")
             val ttl = runBlocking { redis.commands.ttl("$redisTableKey:$key").await() }
+
+            if (ttl == -2L) {
+                log.warn("Missing TTL for Redis key [$redisTableKey:$key], deleting...")
+                continue
+            }
+
             if (ttl == -1L) {
                 log.warn("Session with key [$key] has expired")
                 runBlocking { redis.commands.hdel(redisTableKey, key).await() }
@@ -209,7 +215,7 @@ abstract class AbstractSessionManager(
 
         val session = Session(refreshToken, accessToken, sessionID, userID)
         redis.commands.hmset(redisTableKey, mapOf("$sessionID" to json.encodeToString(session))).await()
-        redis.commands.set(sessionID.toString(), "<nothing to see here!>", SetArgs().ex(week.toJavaDuration())).await()
+        redis.commands.set("$redisTableKey:$sessionID", "<nothing to see here!>", SetArgs().ex(week.toJavaDuration())).await()
 
         // Now, we create the expiration job here
         expirationJobs[sessionID] = ChartedScope.launch {

@@ -13,6 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# https://stackoverflow.com/a/14061796
+# we only do this with `charted` recipe.
+ifeq (charted, $(firstword $(MAKECMDGOALS)))
+  runargs := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
+  $(eval $(runargs):;@true)
+endif
+
 # Usage: `make help`
 .PHONY: help
 help: ## Prints the help usage on the charted-server toolchain.
@@ -25,9 +32,13 @@ help: ## Prints the help usage on the charted-server toolchain.
 	@printf "\n:: Targets ::\n"
 	@awk 'BEGIN {FS = ":.*##"; } /^[a-zA-Z_-]+:.*?##/ { printf "  make \033[36m%-25s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 25) } ' $(MAKEFILE_LIST)
 
+.PHONY: charted
+charted: ## Runs a command from the charted CLI.
+	@./cli/build/install/charted/bin/charted $(runargs)
+
 .PHONY: run
 run: build ## Builds the project and runs the API server
-	@./cli/build/install/charted/bin/charted server
+	@make charted server
 
 .PHONY: build
 build: spotless ## Runs the `spotless` target and builds the API server
