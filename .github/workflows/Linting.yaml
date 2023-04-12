@@ -24,8 +24,6 @@ on:
             - main
 
         paths-ignore:
-            - 'scripts/*.sh'
-            - '.vscode/**'
             - 'assets/**'
             - .dockerignore
             - .gitignore
@@ -40,10 +38,10 @@ on:
 
         paths-ignore:
             - '.github/**'
+            - '.coder/**'
             - '.vscode/**'
             - 'assets/**'
-            - .dockerignore
-            - .gitignore
+            - '.*ignore'
             - '**.md'
             - LICENSE
             - renovate.json
@@ -53,7 +51,7 @@ jobs:
         runs-on: ${{matrix.runner}}
         strategy:
             matrix:
-                java-version: [17, 19]
+                java-version: [17, 20]
                 runner: [windows-latest, ubuntu-latest, macos-latest, self-hosted]
         steps:
             - name: Checkout repository
