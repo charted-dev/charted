@@ -30,7 +30,6 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.enumSets.serialName
 import org.noelware.charted.configuration.kotlin.dsl.metrics.keysets.PostgresKeysets
-import org.noelware.charted.configuration.kotlin.dsl.metrics.keysets.enumSet
 import org.noelware.charted.modules.analytics.kotlin.dsl.*
 import org.noelware.charted.modules.postgresql.entities.OrganizationEntity
 import org.noelware.charted.modules.postgresql.entities.RepositoryEntity

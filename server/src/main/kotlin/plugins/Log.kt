@@ -68,8 +68,8 @@ object Log: BaseApplicationPlugin<ApplicationCallPipeline, Unit, Log> {
 
             if (metrics is PrometheusMetricsSupport) {
                 val m = metrics as PrometheusMetricsSupport
-                m.serverRequests.inc()
 
+                m.serverRequests.inc()
                 call.attributes.put(
                     histogramKey,
                     m.serverRequestLatency.labels(
@@ -96,7 +96,7 @@ object Log: BaseApplicationPlugin<ApplicationCallPipeline, Unit, Log> {
             val formattedTime = run {
                 try {
                     stopwatch.stop()
-                    stopwatch.doFormatTime()
+                    " (${stopwatch.doFormatTime()})"
                 } catch (e: IllegalStateException) {
                     if (e.message?.contains("Stopwatch is not running.") == false) {
                         throw e
@@ -107,7 +107,7 @@ object Log: BaseApplicationPlugin<ApplicationCallPipeline, Unit, Log> {
             }
 
             histogram?.observeDuration()
-            log.info("~> ${method.value} $endpoint [HTTP $version] ~ ${status.value} ${status.description} [$userAgent${formattedTime.ifBlank { "" }}]".trim())
+            log.info("~> ${method.value} $endpoint <$version> ~ ${status.value} ${status.description} [$userAgent${formattedTime.ifBlank { "" }}]".trim())
 
             MDC.remove("http.method")
             MDC.remove("http.version")

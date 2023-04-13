@@ -27,8 +27,9 @@ on:
             - 'scripts/*.sh'
             - .github/**
             - .vscode/**
+            - .coder/**
             - assets/**
-            - .gitignore
+            - .*ignore
             - '**.md'
             - LICENSE
             - renovate.json

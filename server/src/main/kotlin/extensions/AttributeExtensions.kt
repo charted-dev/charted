@@ -40,7 +40,11 @@ val ApplicationCall.session: Session?
 suspend fun <K: Any, T> Attributes.putAndRemove(attr: AttributeKey<K>, value: K, block: suspend () -> T): T {
     contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
 
-    put(attr, value)
+    // if it doesn't contain the attribute, then add it.
+    if (!contains(attr)) {
+        put(attr, value)
+    }
+
     return block().also { remove(attr) }
 }
 

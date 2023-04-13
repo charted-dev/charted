@@ -36,7 +36,10 @@ import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.apikeys.ApiKeysDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.apikeys.CreateApiKeyPayload
+import org.noelware.charted.modules.postgresql.ktor.UserEntityAttributeKey
 import org.noelware.charted.server.extensions.addAuthenticationResponses
+import org.noelware.charted.server.extensions.currentUserEntity
+import org.noelware.charted.server.extensions.putAndRemove
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
@@ -52,7 +55,7 @@ class CreateApiKeyRestController(private val controller: ApiKeysDatabaseControll
         }
     }
 
-    override suspend fun call(call: ApplicationCall) {
+    override suspend fun call(call: ApplicationCall): Unit = call.attributes.putAndRemove(UserEntityAttributeKey, call.currentUserEntity!!) {
         val apikey = controller.create(call, call.receive())
         call.respond(HttpStatusCode.Created, ApiResponse.ok(apikey))
     }
