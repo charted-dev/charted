@@ -24,4 +24,7 @@ dependencies {
     implementation(libs.logback.classic)
     implementation(libs.sentry.logback)
     implementation(libs.logback.core)
+
+    testImplementation(libs.system.stubs.jupiter)
+    testImplementation(libs.system.stubs.core)
 }

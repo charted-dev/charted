@@ -45,17 +45,14 @@ public enum class PostgresKeysets {
     @SerialName("charted_postgres_version")
     Version;
 
+    public object EnumSet: org.noelware.charted.configuration.kotlin.dsl.enumSets.EnumSet<PostgresKeysets>(PostgresKeysets::class) {
+        override val wildcard: PostgresKeysets
+            get() = Wildcard
+    }
+
     public companion object {
         // I don't know why this is kept but whatever
         @Suppress("unused")
         internal object Serializer: KSerializer<PostgresKeysets> by PostgresKeysets.serializer()
     }
-}
-
-public val PostgresKeysets.Companion.enumSet: EnumSet<PostgresKeysets>
-    get() = PostgresKeysetEnumSet
-
-public object PostgresKeysetEnumSet: EnumSet<PostgresKeysets>(PostgresKeysets::class) {
-    override val wildcard: PostgresKeysets
-        get() = PostgresKeysets.Wildcard
 }

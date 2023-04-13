@@ -53,7 +53,7 @@ data class JvmThreadsMetrics(
         val state: String,
         val name: String,
         val id: Long
-    ) : org.noelware.analytics.jvm.server.serialization.Serializable {
+    ): org.noelware.analytics.jvm.server.serialization.Serializable {
         override fun toGrpcValue(): Value = Struct {
             put(this, ThreadInfo::stacktrace)
             put(this, ThreadInfo::userTimeMs)

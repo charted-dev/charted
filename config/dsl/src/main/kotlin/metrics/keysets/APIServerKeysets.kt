@@ -16,3 +16,43 @@
  */
 
 package org.noelware.charted.configuration.kotlin.dsl.metrics.keysets
+
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+public enum class APIServerKeysets {
+    @SerialName("charted_server_distribution")
+    Distribution,
+
+    @SerialName("charted_server_ktor_version")
+    KtorVersion,
+
+    @SerialName("charted_server_commit_hash")
+    CommitHash,
+
+    @SerialName("charted_server_requests_count")
+    Requests,
+
+    @SerialName("charted_server_build_date")
+    BuildDate,
+
+    @SerialName("charted_server_product")
+    Product,
+
+    @SerialName("charted_server_vendor")
+    Vendor,
+
+    @SerialName("charted_server_version")
+    Version,
+
+    @SerialName("*")
+    Wildcard;
+
+    public companion object {
+        public object EnumSet: org.noelware.charted.configuration.kotlin.dsl.enumSets.EnumSet<APIServerKeysets>(APIServerKeysets::class) {
+            override val wildcard: APIServerKeysets
+                get() = Wildcard
+        }
+    }
+}

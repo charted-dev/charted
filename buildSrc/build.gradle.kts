@@ -55,10 +55,10 @@ dependencies {
     implementation(gradleApi())
 
     // test dependencies
-    testImplementation("uk.org.webcompere:system-stubs-jupiter:2.0.2")
-    testImplementation("uk.org.webcompere:system-stubs-core:2.0.2")
+    testImplementation(libs.get("system-stubs-jupiter"))
     testImplementation(libs.get("junit-jupiter-engine"))
     testImplementation(libs.get("junit-jupiter-api"))
+    testImplementation(libs.get("system-stubs-core"))
 }
 
 @Suppress("UnstableApiUsage")

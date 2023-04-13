@@ -32,7 +32,6 @@ import org.noelware.charted.configuration.kotlin.dsl.enumSets.serialName
 import org.noelware.charted.configuration.kotlin.dsl.metrics.keysets.PostgresKeysets
 import org.noelware.charted.configuration.kotlin.dsl.metrics.keysets.enumSet
 import org.noelware.charted.modules.analytics.kotlin.dsl.*
-import org.noelware.charted.modules.metrics.Collector
 import org.noelware.charted.modules.postgresql.entities.OrganizationEntity
 import org.noelware.charted.modules.postgresql.entities.RepositoryEntity
 import org.noelware.charted.modules.postgresql.entities.UserEntity
@@ -94,7 +93,7 @@ data class PostgresServerStats(
         }
 
         override fun collect(): MutableList<MetricFamilySamples> = collect {
-            PostgresKeysets.enumSet.enabled(config.metrics.metricSets.postgres, it)
+            PostgresKeysets.EnumSet.enabled(config.metrics.metricSets.postgres, it)
         }
 
         override fun collect(predicate: Predicate<String>?): MutableList<MetricFamilySamples> {
