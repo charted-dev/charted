@@ -43,6 +43,7 @@ import org.noelware.charted.server.extensions.putAndRemove
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import kotlin.reflect.typeOf
 import kotlin.time.Duration.Companion.days
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -81,6 +82,7 @@ class CreateApiKeyRestController(private val controller: ApiKeysDatabaseControll
             response(HttpStatusCode.Created) {
                 contentType(ContentType.Application.Json) {
                     schema(
+                        typeOf<ApiResponse.Ok<ApiKeys>>(),
                         ApiResponse.ok(
                             ApiKeys(
                                 "API key to automate some stuff!",

@@ -41,6 +41,7 @@ import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import kotlin.reflect.typeOf
 
 class GetSingleUserRepositoryRestController(
     private val controller: RepositoryDatabaseController,
@@ -122,7 +123,7 @@ class GetSingleUserRepositoryRestController(
             addAuthenticationResponses()
             response(HttpStatusCode.OK) {
                 contentType(ContentType.Application.Json) {
-                    schema(ApiResponse.ok(listOf<Repository>()))
+                    schema(typeOf<ApiResponse.Ok<List<Repository>>>(), ApiResponse.ok(listOf<Repository>()))
                 }
             }
 

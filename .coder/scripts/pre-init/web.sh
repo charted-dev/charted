@@ -15,25 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if [ -d "~/.persist" ]; then
-    mkdir ~/.persist
-fi
+echo "===> Installing \`pnpm\`..."
+npm i -g pnpm
 
-mkdir ~/.persist
-
-SERVICES=$(docker compose -f docker-compose.yml config --format=json | jq '.services')
-SERVICE_KEYS=$(echo "$SERVICES" | jq 'keys[]' | tr -d '"')
-
-for key in $SERVICE_KEYS; do
-    echo "===> Creating persistence directory in [~/.persist/$key]"
-    DIR=~/.persist/"$key"
-
-    [ ! -d "$DIR" ] && mkdir "$DIR"
-    if [ "$key" == "postgres" ]; then
-        sudo chown -R 1001:1001 ~/.persist/postgres
-    fi
-
-    if [ "$key" == "redis" ]; then
-        sudo chown -R 1001:1001 ~/.persist/redis
-    fi
-done
+echo "===> Installing web dependencies..."
+(cd ../web && pnpm install -r)

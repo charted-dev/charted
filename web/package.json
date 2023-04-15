@@ -1,0 +1,11 @@
+{
+    "name": "@charted/web",
+    "description": "🐻‍❄️📦 Web interface for interacting with charted-server, made with Vue",
+    "version": "0.0.0-devel.0",
+    "private": true,
+    "homepage": "https://charts.noelware.org",
+    "bugs": "https://github.com/charted-dev/charted/issues/new",
+    "devDependencies": {
+        "typescript": "5.0.4"
+    }
+}

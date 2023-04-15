@@ -82,7 +82,8 @@ public class LogbackConfiguratorTests {
                             assertThrows(IllegalStateException.class, () -> configurator.configure(loggerContext));
 
                     assertNotNull(thrown.getMessage());
-                    assertEquals(format("Path [%s/dir] was not a file", tmpDir), thrown.getMessage());
+                    assertEquals(
+                            format("Path [%s%sdir] was not a file", tmpDir, File.separatorChar), thrown.getMessage());
                 });
 
         loggerContext.reset();

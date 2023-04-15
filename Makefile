@@ -14,8 +14,13 @@
 # limitations under the License.
 
 # https://stackoverflow.com/a/14061796
-# we only do this with `charted` recipe.
+# we only do this with the `charted` or `web` recipes.
 ifeq (charted, $(firstword $(MAKECMDGOALS)))
+  runargs := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
+  $(eval $(runargs):;@true)
+endif
+
+ifeq (web, $(firstword $(MAKECMDGOALS)))
   runargs := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
   $(eval $(runargs):;@true)
 endif
@@ -62,3 +67,20 @@ test: spotless ## Runs all the project tests
 .PHONY: kill-gradle-daemons
 kill-gradle-daemons: ## Kills all the Gradle daemons
 	@pkill -f '.*GradleDaemon.*'
+
+.PHONY: build-web
+build-web: fmt eslint ## Builds `charted-web`. Required Node.js to be installed
+	@(cd web && pnpm run build)
+	@chmod +x ./web/dist/bin/charted-web
+
+.PHONY: web
+web:
+	@(cd web && ./dist/bin/charted-web $(runargs))
+
+.PHONY: eslint
+eslint: ## Runs `eslint` in web/
+	@(cd web && pnpm run lint)
+
+.PHONY: fmt
+fmt: ## Runs `prettier` in web/
+	@(cd web && pnpm run fmt)

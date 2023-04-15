@@ -19,8 +19,6 @@ package org.noelware.charted.server.bootstrap
 
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
-import com.zaxxer.hikari.HikariConfig
-import com.zaxxer.hikari.HikariDataSource
 import dev.floofy.utils.koin.inject
 import dev.floofy.utils.slf4j.logging
 import io.ktor.client.*
@@ -36,9 +34,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.EmptySerializersModule
 import org.apache.commons.lang3.time.StopWatch
 import org.apache.commons.validator.routines.EmailValidator
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.DatabaseConfig
-import org.jetbrains.exposed.sql.Slf4jSqlDebugLogger
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import org.noelware.charted.ChartedInfo
@@ -76,7 +71,6 @@ import org.noelware.charted.snowflake.Snowflake
 import org.slf4j.MDC
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
 import java.io.File
-import kotlin.time.Duration.Companion.seconds
 
 private val yaml = Yaml(
     EmptySerializersModule(),
@@ -119,34 +113,7 @@ object ConfigureModulesPhase: BootstrapPhase() {
 
         sw.resume()
 
-        val ds = HikariDataSource(
-            HikariConfig().apply {
-                leakDetectionThreshold = 30.seconds.inWholeMilliseconds
-                driverClassName = "org.postgresql.Driver"
-                isAutoCommit = false
-                poolName = "Charted-Postgres-HikariPool"
-                username = config.database.username
-                password = config.database.password
-                jdbcUrl = "jdbc:postgresql://${config.database.host}:${config.database.port}/${config.database.database}"
-                schema = config.database.schema
-
-                addDataSourceProperty("reWriteBatchedInserts", "true")
-            },
-        )
-
-        Database.connect(
-            ds,
-            databaseConfig = DatabaseConfig {
-                defaultRepetitionAttempts = 5
-                sqlLogger = if (config.debug || System.getProperty("org.noelware.charted.debug", "false") == "true") {
-                    Slf4jSqlDebugLogger
-                } else {
-                    null
-                }
-            },
-        )
-
-        configure(config, sw)
+        val ds = configure(config, sw)
         if (config.sentryDsn != null) {
             log.debug("Enabling Sentry with DSN [${config.sentryDsn}]")
             Sentry.init {

@@ -39,6 +39,7 @@ import org.noelware.charted.server.plugins.sessions.PreconditionResult
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.plugins.sessions.preconditions.canAccessRepository
 import org.noelware.charted.server.routing.RestController
+import kotlin.reflect.typeOf
 
 class GetRepositoryReleaseTemplatesRestController(
     private val controller: RepositoryDatabaseController,
@@ -121,6 +122,7 @@ class GetRepositoryReleaseTemplatesRestController(
                 description = "All the templates available"
                 contentType(ContentType.Application.Json) {
                     schema(
+                        typeOf<ApiResponse.Ok<List<String>>>(),
                         ApiResponse.ok(
                             listOf("http://localhost:3651/repositories/1/releases/1.0.2-alpha/templates/statefulset.yaml"),
                         ),

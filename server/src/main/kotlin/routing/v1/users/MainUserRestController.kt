@@ -32,6 +32,7 @@ import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import kotlin.reflect.typeOf
 
 @Schema(description = "Generic entrypoint response for the Users API")
 @Serializable
@@ -56,7 +57,14 @@ class MainUserRestController: RestController("/users") {
             description = "Generic entrypoint for the Users API"
             response(HttpStatusCode.OK) {
                 contentType(ContentType.Application.Json) {
-                    schema(ApiResponse.ok(MainUserResponse()))
+                    // type information get lost when using ApiResponse.ok() since
+                    // ApiResponse.ok([data]) returns ApiResponse, so it gets lost.
+                    schema(
+                        typeOf<ApiResponse.Ok<MainUserResponse>>(),
+                        ApiResponse.ok(
+                            MainUserResponse(),
+                        ),
+                    )
                 }
             }
         }

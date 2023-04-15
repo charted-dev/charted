@@ -61,7 +61,7 @@ data class Session(
 
     @SchemaProperty(
         schema = Schema(
-            description = "Unique identifier to identify this session.",
+            description = "Unique identifier represented as a `UUID` to identify this session.",
         ),
     )
     @Serializable(with = UUIDSerializer::class)

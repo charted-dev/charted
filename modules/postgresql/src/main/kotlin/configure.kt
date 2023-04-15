@@ -35,7 +35,7 @@ import org.noelware.charted.modules.postgresql.tables.*
 import kotlin.time.Duration.Companion.seconds
 
 private val log by logging("org.noelware.charted.modules.postgresql.ConfigurePostgreSQLKt")
-fun configure(config: Config, sw: StopWatch? = null) {
+fun configure(config: Config, sw: StopWatch? = null): HikariDataSource {
     if (sw?.isSuspended == true) sw.resume()
     val ds = HikariDataSource(
         HikariConfig().apply {
@@ -89,4 +89,6 @@ fun configure(config: Config, sw: StopWatch? = null) {
         suspend()
         log.info("Ran all migrations in [${doFormatTime()}]")
     }
+
+    return ds
 }

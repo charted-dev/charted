@@ -29,6 +29,7 @@ import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import kotlin.reflect.typeOf
 
 /**
  * Represents the response for the `GET /` method.
@@ -69,6 +70,7 @@ class MainRestController: RestController("/") {
             response(HttpStatusCode.OK) {
                 contentType(ContentType.Application.Json) {
                     schema(
+                        typeOf<ApiResponse.Ok<MainResponse>>(),
                         ApiResponse.ok(
                             MainResponse(
                                 "Hello, world! \uD83D\uDC4B",

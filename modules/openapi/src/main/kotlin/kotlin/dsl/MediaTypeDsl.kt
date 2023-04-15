@@ -47,6 +47,16 @@ inline fun <reified T> MediaTypeDsl.schema(example: T) {
     schema(typeOf<T>())
 }
 
+/**
+ * Applies a schema based off the [type] with an [example].
+ * @param type [KType] to use for computing the schema
+ * @param example Example to give
+ */
+fun <T> MediaTypeDsl.schema(type: KType, example: T) {
+    this.example = example
+    schema(type)
+}
+
 class MediaTypeDslBuilder: MediaTypeDsl, Buildable<MediaType> {
     private val _example: SetOnce<Any> = SetOnce()
     private val _schema: SetOnce<Schema<*>> = SetOnce()
