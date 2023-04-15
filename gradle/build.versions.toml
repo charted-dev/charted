@@ -42,6 +42,7 @@ protobuf = "3.22.2"
 caffeine = "3.1.6"
 hikaricp = "5.0.1"
 jackson = "2.14.2"
+assertj = "3.24.2"
 mordant = "2.0.0-beta13"
 lettuce = "6.2.3.RELEASE"
 logback = "1.4.6"
@@ -67,6 +68,7 @@ kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 kotlinx-coroutines-debug = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-debug", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-jdk8 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8", version.ref = "kotlinx-coroutines" }
+kotlinx-atomicfu-jvm = { module = "org.jetbrains.kotlinx:atomicfu-jvm", version.ref = "kotlinx-atomicfu" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 
 # slf4j libraries
@@ -189,6 +191,7 @@ hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
 caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffeine" }
 mordant = { module = "com.github.ajalt.mordant:mordant", version.ref = "mordant" }
 lettuce = { module = "io.lettuce:lettuce-core", version.ref = "lettuce" }
+assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 picnic = { module = "com.jakewharton.picnic:picnic", version.ref = "picnic" }
 janino = { module = "org.codehaus.janino:janino", version.ref = "janino" }
 semver = { module = "io.github.z4kn4fein:semver", version.ref = "semver" }

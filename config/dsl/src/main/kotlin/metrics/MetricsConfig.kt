@@ -99,6 +99,10 @@ public data class MetricsConfig(
     /** Path to locate the metrics endpoint. */
     val path: String = "/metrics"
 ) {
+    init {
+        check(path.startsWith('/')) { "Path [$path] must start with '/'" }
+    }
+
     @Suppress("MemberVisibilityCanBePrivate")
     public class Builder: Buildable<MetricsConfig> {
         private var metricSets = Metricsets()

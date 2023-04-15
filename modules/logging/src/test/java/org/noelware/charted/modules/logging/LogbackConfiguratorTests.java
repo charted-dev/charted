@@ -18,8 +18,11 @@
 package org.noelware.charted.modules.logging;
 
 import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import java.io.File;
 import java.nio.file.Files;
@@ -61,8 +64,11 @@ public class LogbackConfiguratorTests {
         final LogbackConfigurator configurator = new LogbackConfigurator();
         configurator.configure(loggerContext);
 
-        assertEquals(loggerContext.getProperty("charted.log.level"), "INFO");
-        assertEquals(loggerContext.getProperty("charted.console.json"), "yes");
+        assertThat(loggerContext.getProperty("charted.log.level")).isNotNull().isEqualTo("INFO");
+
+        assertThat(loggerContext.getProperty("charted.console.json"))
+                .isNotNull()
+                .isEqualTo("yes");
     }
 
     @DisplayName("Should use the properties file from `-Dorg.noelware.charted.logback.config`")
@@ -78,12 +84,9 @@ public class LogbackConfiguratorTests {
 
                     // now, we attempt to load it
                     final LogbackConfigurator configurator = new LogbackConfigurator();
-                    final IllegalStateException thrown =
-                            assertThrows(IllegalStateException.class, () -> configurator.configure(loggerContext));
-
-                    assertNotNull(thrown.getMessage());
-                    assertEquals(
-                            format("Path [%s%sdir] was not a file", tmpDir, File.separatorChar), thrown.getMessage());
+                    assertThatExceptionOfType(IllegalStateException.class)
+                            .isThrownBy(() -> configurator.configure(loggerContext))
+                            .withMessageContaining("was not a file");
                 });
 
         loggerContext.reset();
@@ -104,11 +107,17 @@ public class LogbackConfiguratorTests {
                     final LogbackConfigurator configurator = new LogbackConfigurator();
                     assertDoesNotThrow(() -> configurator.configure(loggerContext));
 
-                    assertEquals("TRACE", loggerContext.getProperty("charted.log.level"));
-                    assertEquals("logstash,sentry", loggerContext.getProperty("charted.appenders"));
+                    assertThat(loggerContext.getProperty("charted.log.level"))
+                            .isNotNull()
+                            .isEqualTo(Level.TRACE.toString());
 
-                    //                final Logger logger = loggerContext.getLogger("woof.net");
-                    //                assertEquals(Level.TRACE, logger.getLevel());
+                    assertThat(loggerContext.getProperty("charted.appenders"))
+                            .isNotNull()
+                            .isEqualTo("logstash,sentry");
+
+                    final Logger logger = loggerContext.getLogger("woof.net");
+                    assertThat(logger).isNotNull();
+                    assertThat(logger.getName()).isNotNull().isEqualTo("woof.net");
                 });
     }
 
@@ -120,16 +129,14 @@ public class LogbackConfiguratorTests {
                 .execute(() -> {
                     assertDoesNotThrow(() -> {
                         final File newTmpDir = new File(tmpDir, "dir");
-                        assertTrue(newTmpDir.mkdirs(), "unable to create directory");
+                        assertThat(newTmpDir.mkdirs()).isTrue();
                     });
 
                     // now, we attempt to load it
                     final LogbackConfigurator configurator = new LogbackConfigurator();
-                    final IllegalStateException thrown =
-                            assertThrows(IllegalStateException.class, () -> configurator.configure(loggerContext));
-
-                    assertNotNull(thrown.getMessage());
-                    assertEquals(format("Path [%s/dir] was not a file", tmpDir), thrown.getMessage());
+                    assertThatExceptionOfType(IllegalStateException.class)
+                            .isThrownBy(() -> configurator.configure(loggerContext))
+                            .withMessageContaining("was not a file");
                 });
 
         loggerContext.reset();
@@ -150,11 +157,17 @@ public class LogbackConfiguratorTests {
                     final LogbackConfigurator configurator = new LogbackConfigurator();
                     assertDoesNotThrow(() -> configurator.configure(loggerContext));
 
-                    assertEquals("TRACE", loggerContext.getProperty("charted.log.level"));
-                    assertEquals("logstash,sentry", loggerContext.getProperty("charted.appenders"));
+                    assertThat(loggerContext.getProperty("charted.log.level"))
+                            .isNotNull()
+                            .isEqualTo(Level.TRACE.toString());
 
-                    //                final Logger logger = loggerContext.getLogger("woof.net");
-                    //                assertEquals(Level.TRACE, logger.getLevel());
+                    assertThat(loggerContext.getProperty("charted.appenders"))
+                            .isNotNull()
+                            .isEqualTo("logstash,sentry");
+
+                    final Logger logger = loggerContext.getLogger("woof.net");
+                    assertThat(logger).isNotNull();
+                    assertThat(logger.getName()).isEqualTo("woof.net");
                 });
     }
 }

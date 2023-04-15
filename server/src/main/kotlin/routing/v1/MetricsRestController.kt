@@ -21,16 +21,17 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.swagger.v3.oas.models.PathItem
-import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.modules.metrics.MetricsSupport
 import org.noelware.charted.modules.metrics.disabled.DisabledMetricsSupport
 import org.noelware.charted.modules.metrics.prometheus.PrometheusMetricsSupport
-import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
-class MetricsRestController(private val metrics: MetricsSupport): RestController("/metrics") {
+class MetricsRestController(
+    private val metrics: MetricsSupport,
+    private val config: Config
+): RestController(config.metrics.path) {
     override val apiVersion: APIVersion = APIVersion.V1
     override suspend fun call(call: ApplicationCall) {
         if (metrics is DisabledMetricsSupport) {
@@ -43,20 +44,5 @@ class MetricsRestController(private val metrics: MetricsSupport): RestController
         }
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/metrics") {
-        description = "Runs the Prometheus metrics handler, if enabled"
-        get {
-            response(HttpStatusCode.OK) {
-                contentType(ContentType.parse("text/plain; version=0.0.4; charset=utf-8")) {
-                    schema<String>()
-                }
-            }
-
-            response(HttpStatusCode.NotFound) {
-                contentType(ContentType.Application.Json) {
-                    schema<ApiResponse.Err>()
-                }
-            }
-        }
-    }
+    override fun toPathDsl(): PathItem = TODO("Dynamic route prefix")
 }

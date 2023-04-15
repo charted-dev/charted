@@ -24,11 +24,13 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.util.*
 import io.swagger.v3.oas.models.PathItem
+import kotlinx.datetime.Instant
 import org.noelware.charted.common.extensions.regexp.matchesNameRegex
 import org.noelware.charted.common.types.helm.ChartIndexYaml
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.modules.helm.charts.HelmChartModule
-import org.noelware.charted.modules.openapi.kotlin.dsl.schema
+import org.noelware.charted.modules.openapi.NameOrSnowflake
+import org.noelware.charted.modules.openapi.kotlin.dsl.*
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.EntityNotFoundException
 import org.noelware.charted.modules.postgresql.controllers.get
@@ -99,14 +101,26 @@ class IndexMappingsRestController(
     override fun toPathDsl(): PathItem = toPaths("/indexes/{idOrName}") {
         get {
             description = "Returns a user or organization's chart index"
-            response(HttpStatusCode.OK) {
-                contentType(ContentType.parse("text/yaml; charset=utf-8")) {
-                    schema<ChartIndexYaml>()
+
+            pathParameter {
+                description = "Name or Snowflake ID parameter to find the index.yaml file"
+                name = "idOrName"
+
+                schema<NameOrSnowflake>()
+            }
+
+            ok {
+                yaml {
+                    schema(
+                        ChartIndexYaml(
+                            generated = Instant.parse("2023-04-15T02:58:04.965058010Z"),
+                        ),
+                    )
                 }
             }
 
-            response(HttpStatusCode.NotFound) {
-                contentType(ContentType.Application.Json) {
+            notFound {
+                json {
                     schema<ApiResponse.Err>()
                 }
             }

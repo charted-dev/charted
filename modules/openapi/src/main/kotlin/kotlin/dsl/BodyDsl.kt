@@ -37,6 +37,10 @@ fun BodyDsl.json(block: MediaTypeDsl.() -> Unit = {}) {
     contentType(ContentType.Application.Json, block)
 }
 
+fun BodyDsl.yaml(block: MediaTypeDsl.() -> Unit = {}) {
+    contentType(ContentType.parse("text/yaml; charset=utf-8"), block)
+}
+
 open class BodyBuilder: BodyDsl {
     @Suppress("PropertyName")
     internal val _contentTypes: MutableMap<String, MediaType> = mutableMapOf()

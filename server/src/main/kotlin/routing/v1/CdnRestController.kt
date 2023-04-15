@@ -27,8 +27,6 @@ import io.ktor.server.routing.*
 import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.modules.helm.charts.acceptableContentTypes
-import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.storage.StorageModule
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
@@ -82,30 +80,5 @@ class CdnRestController(
         call.respond(createBodyWithByteArray(data, contentType))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("${config.cdn!!.prefix}/{params...}") {
-        description = "Fetches CDN objects and returns it to the user. Excludes getting private information (i.e, private organization's index.yaml/private repo metadata)"
-        get {
-            description = "Redirect to a file as the absolute path from the CDN"
-            tags("cdn")
-
-            pathParameter {
-                description = "Path to redirect to when proxying towards the CDN"
-                name = "params"
-
-                schema<String>()
-            }
-
-            // list of all the available content types that
-            // the CDN might send out
-            response(HttpStatusCode.OK) {
-                acceptableContentTypes.forEach { ct ->
-                    contentType(ContentType.parse(ct))
-                }
-
-                // What is the acceptable content type for Markdown?
-                contentType(ContentType.parse("application/markdown; charset=utf-8"))
-                contentType(ContentType.parse("text/yaml; charset=utf-8"))
-            }
-        }
-    }
+    override fun toPathDsl(): PathItem = TODO("Not available to be generated since dynamic prefix")
 }

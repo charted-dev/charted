@@ -22,7 +22,8 @@
         </encoder>
     </appender>
 
-    <root level="INFO">
+    <!-- in tests, it'll always be present -->
+    <root level="${charted.log.level}">
         <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

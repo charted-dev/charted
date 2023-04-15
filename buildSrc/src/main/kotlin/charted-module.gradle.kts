@@ -74,6 +74,7 @@ dependencies {
     testImplementation(project(":testing:containers"))
     testImplementation(libs.get("junit-jupiter-api"))
     testImplementation(libs.get("slf4j-simple"))
+    testImplementation(libs.get("assertj"))
     testImplementation(kotlin("test"))
 
     // Make sure the runtime is available so that the server doesn't crash whenever
@@ -83,7 +84,7 @@ dependencies {
     // and implementation dependency configurations are only scoped to that project and wasn't able to be accessed,
     // so `api` is used for the dependency instead of `implementation`, which is global to add
     // modules that implement it but in our case, it's loaded into every module anyway so...
-    api("org.jetbrains.kotlinx:atomicfu-jvm:${libs.version("kotlinx-atomicfu")}")
+    api(libs.get("kotlinx-atomicfu-jvm"))
 
     // Add the `:common` module to all projects that aren't :common
     if (name != "common") {
