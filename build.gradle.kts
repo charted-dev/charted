@@ -19,8 +19,14 @@ import com.diffplug.gradle.spotless.SpotlessExtensionPredeclare
 import org.noelware.charted.gradle.*
 import org.noelware.charted.gradle.util.FindBinaryUtil
 
+buildscript {
+    dependencies {
+        classpath("org.noelware.charted.gradle:build-logic:0.0.0-devel.0")
+    }
+}
+
 plugins {
-    id("com.diffplug.spotless")
+    id("com.diffplug.spotless") version "6.18.0"
     application
 }
 
@@ -78,7 +84,7 @@ spotless {
 
     kotlinGradle {
         targetExclude(
-            "buildSrc/build/kotlin-dsl/plugins-blocks/extracted/charted-module.gradle.kts",
+            "build-logic/build/kotlin-dsl/plugins-blocks/extracted/charted-module.gradle.kts",
         )
 
         endWithNewline()
@@ -132,6 +138,7 @@ tasks {
     }
 
     test {
+        dependsOn(gradle.includedBuilds.map { it.task(":test") })
         useJUnitPlatform()
     }
 

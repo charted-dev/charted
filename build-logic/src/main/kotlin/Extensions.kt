@@ -15,12 +15,18 @@
  * limitations under the License.
  */
 
+import org.gradle.api.Project
 import org.gradle.api.artifacts.MinimalExternalModuleDependency
 import org.gradle.api.artifacts.VersionCatalog
+import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.kotlin.dsl.getByType
 import kotlin.jvm.optionals.getOrNull
 
-public fun VersionCatalog.version(name: String): String =
-    findVersion(name).getOrNull()?.requiredVersion ?: throw IllegalStateException("Unknown version in catalog: $name")
+internal val Project.libs: VersionCatalog
+    get() = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
-public fun VersionCatalog.get(name: String): MinimalExternalModuleDependency =
-    findLibrary(name).getOrNull()?.get() ?: throw IllegalStateException("Unknown library in catalog: $name")
+fun VersionCatalog.library(name: String): MinimalExternalModuleDependency =
+    findLibrary(name).getOrNull()?.get() ?: error("Unknown library [$name] in version catalog!")
+
+fun VersionCatalog.version(name: String): String =
+    findVersion(name).getOrNull()?.requiredVersion ?: error("Unknown version name [$name] in version catalog!")

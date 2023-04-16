@@ -18,7 +18,7 @@
 import org.noelware.charted.gradle.*
 
 plugins {
-    `charted-module`
+    id("charted-module")
 }
 
 dependencies {

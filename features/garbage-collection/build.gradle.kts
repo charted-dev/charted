@@ -16,5 +16,10 @@
  */
 
 plugins {
-    `charted-module`
+    id("charted-module")
+    antlr
+}
+
+dependencies {
+    antlr("org.antlr:antlr4:4.12.0")
 }

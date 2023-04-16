@@ -16,5 +16,10 @@
  */
 
 plugins {
-    `charted-module`
+    id("charted-module")
+}
+
+dependencies {
+    implementation(projects.modules.storage)
+    implementation(libs.ktor.client.core)
 }

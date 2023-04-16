@@ -42,6 +42,7 @@ dependencyResolutionManagement {
     }
 }
 
+includeBuild("build-logic")
 include(
     ":cli",
     ":common",

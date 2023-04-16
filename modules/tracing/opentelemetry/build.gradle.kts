@@ -16,5 +16,5 @@
  */
 
 plugins {
-    `charted-module`
+    id("charted-module")
 }

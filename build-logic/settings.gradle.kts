@@ -15,10 +15,30 @@
  * limitations under the License.
  */
 
-plugins {
-    id("charted-module")
+import org.gradle.toolchains.foojay.FoojayToolchainsConventionPlugin
+
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+    }
 }
 
-dependencies {
-    implementation(projects.modules.tracing)
+buildscript {
+    repositories {
+        gradlePluginPortal()
+    }
+
+    dependencies {
+        classpath("org.gradle.toolchains:foojay-resolver:0.4.0")
+    }
+}
+
+rootProject.name = "build-logic"
+apply<FoojayToolchainsConventionPlugin>()
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("libs") {
+            from(files("../gradle/build.versions.toml"))
+        }
+    }
 }

@@ -16,7 +16,6 @@
  */
 
 import dev.floofy.utils.gradle.*
-import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
@@ -44,8 +43,6 @@ group = "org.noelware.charted"
 version = "$VERSION"
 description = "\uD83D\uDCE6 You know, for Helm Charts?"
 
-public val libs: VersionCatalog = extensions.getByType<VersionCatalogsExtension>().named("libs")
-
 // https://github.com/Kotlin/kotlinx-atomicfu/issues/210
 atomicfu {
     dependenciesVersion = libs.version("kotlinx-atomicfu")
@@ -64,17 +61,17 @@ dependencies {
     implementation(kotlin("reflect"))
     implementation(kotlin("stdlib"))
 
-    // Java Annotations (only for Java usage)
-    implementation(libs.get("jetbrains-annotations"))
+    // Java Annotations
+    implementation(libs.library("jetbrains-annotations"))
 
     // Test Dependencies
-    testImplementation(libs.get("testcontainers-junit"))
-    testImplementation(libs.get("junit-jupiter-engine"))
-    testImplementation(libs.get("testcontainers-core"))
+    testImplementation(libs.library("testcontainers-junit"))
+    testImplementation(libs.library("junit-jupiter-engine"))
+    testImplementation(libs.library("testcontainers-core"))
     testImplementation(project(":testing:containers"))
-    testImplementation(libs.get("junit-jupiter-api"))
-    testImplementation(libs.get("slf4j-simple"))
-    testImplementation(libs.get("assertj"))
+    testImplementation(libs.library("junit-jupiter-api"))
+    testImplementation(libs.library("slf4j-simple"))
+    testImplementation(libs.library("assertj"))
     testImplementation(kotlin("test"))
 
     // Make sure the runtime is available so that the server doesn't crash whenever
@@ -84,7 +81,7 @@ dependencies {
     // and implementation dependency configurations are only scoped to that project and wasn't able to be accessed,
     // so `api` is used for the dependency instead of `implementation`, which is global to add
     // modules that implement it but in our case, it's loaded into every module anyway so...
-    api(libs.get("kotlinx-atomicfu-jvm"))
+    api(libs.library("kotlinx-atomicfu-jvm"))
 
     // Add the `:common` module to all projects that aren't :common
     if (name != "common") {
@@ -98,51 +95,50 @@ dependencies {
 
     // Add common libraries that are used through out all projects
     // kotlinx.serialization
-    api(libs.get("kotlinx-serialization-core"))
-    api(libs.get("kotlinx-serialization-json"))
+    api(libs.library("kotlinx-serialization-core"))
+    api(libs.library("kotlinx-serialization-json"))
 
     // kotlinx.coroutines
-    api(libs.get("kotlinx-coroutines-core"))
-    api(libs.get("kotlinx-coroutines-jdk8"))
+    api(libs.library("kotlinx-coroutines-core"))
+    api(libs.library("kotlinx-coroutines-jdk8"))
 
     // kotlinx.datatime
-    api(libs.get("kotlinx-datetime"))
+    api(libs.library("kotlinx-datetime"))
 
     // SLF4J
-    api(libs.get("slf4j-api"))
+    api(libs.library("slf4j-api"))
 
     // Noel's Utilities
-    api(libs.get("noel-commons-extensions-kotlin"))
-    api(libs.get("noel-commons-extensions-koin"))
-    api(libs.get("noel-commons-java-utils"))
-    api(libs.get("noel-commons-slf4j"))
+    api(libs.library("noel-commons-extensions-kotlin"))
+    api(libs.library("noel-commons-extensions-koin"))
+    api(libs.library("noel-commons-java-utils"))
+    api(libs.library("noel-commons-slf4j"))
 
     // Apache Utilities
-    api(libs.get("apache-commons-lang3"))
+    api(libs.library("apache-commons-lang3"))
 
     // Sentry
-    api(libs.get("sentry-kotlin-extensions"))
-    api(libs.get("sentry"))
+    api(libs.library("sentry-kotlin-extensions"))
+    api(libs.library("sentry"))
 
     // Bouncycastle
-    api(libs.get("bouncycastle"))
+    api(libs.library("bouncycastle"))
 
     // Snowflake
-    api(libs.get("snowflake"))
+    api(libs.library("snowflake"))
 
     // Jackson
-    api(libs.get("jackson-databind"))
+    api(libs.library("jackson-databind"))
 
     // Swagger Annotations
-    api(libs.get("swagger-annotations"))
+    api(libs.library("swagger-annotations"))
 }
 
 applySpotless()
 
 // We also enable testing on the new K2 compiler that we do tests
 // on, or just in case to preview builds on
-val enableK2Compiler = System.getProperty("org.noelware.charted.k2-compiler", "false")
-    .let { it matches "^(yes|true|1|si*)$".toRegex() }
+val enableK2Compiler = System.getProperty("org.noelware.charted.k2-compiler", "false") matches "^(yes|true|1|si*)$".toRegex()
 
 kotlin {
     if (enableK2Compiler) {

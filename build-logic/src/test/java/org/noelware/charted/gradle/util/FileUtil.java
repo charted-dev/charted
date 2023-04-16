@@ -15,29 +15,17 @@
  * limitations under the License.
  */
 
-import org.gradle.toolchains.foojay.FoojayToolchainsConventionPlugin
+package org.noelware.charted.gradle.util;
 
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-    }
-}
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
-buildscript {
-    repositories {
-        gradlePluginPortal()
-    }
-
-    dependencies {
-        classpath("org.gradle.toolchains:foojay-resolver:0.4.0")
-    }
-}
-
-apply<FoojayToolchainsConventionPlugin>()
-dependencyResolutionManagement {
-    versionCatalogs {
-        create("libs") {
-            from(files("../gradle/build.versions.toml"))
+public class FileUtil {
+    public static void writeFile(File file, String content) throws IOException {
+        try (final FileOutputStream fos = new FileOutputStream(file)) {
+            fos.write(content.getBytes(StandardCharsets.UTF_8));
         }
     }
 }

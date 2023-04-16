@@ -21,7 +21,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 plugins {
-    `charted-module`
+    id("charted-module")
     application
 }
 

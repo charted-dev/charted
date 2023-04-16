@@ -19,22 +19,20 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-// import org.noelware.charted.gradle.*
 import kotlin.jvm.optionals.getOrElse
 
 plugins {
     id("com.diffplug.spotless") version "6.18.0"
-
     `java-gradle-plugin`
     `kotlin-dsl`
-
     java
 }
 
 group = "org.noelware.charted.gradle"
+version = "0.0.0-devel.0"
 
 val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-fun VersionCatalog.get(name: String): MinimalExternalModuleDependency = libs.findLibrary(name).getOrElse { null }?.get() ?: error("Unknown library '$name' in catalog")
+fun get(name: String): MinimalExternalModuleDependency = libs.findLibrary(name).getOrElse { null }?.get() ?: error("Unknown library '$name' in catalog")
 
 repositories {
     maven("https://maven.floofy.dev/repo/releases")
@@ -55,16 +53,17 @@ dependencies {
     implementation(gradleApi())
 
     // test dependencies
-    testImplementation(libs.get("system-stubs-jupiter"))
-    testImplementation(libs.get("junit-jupiter-engine"))
-    testImplementation(libs.get("junit-jupiter-api"))
-    testImplementation(libs.get("system-stubs-core"))
+    testImplementation(get("system-stubs-jupiter"))
+    testImplementation(get("junit-jupiter-engine"))
+    testImplementation(get("junit-jupiter-api"))
+    testImplementation(get("system-stubs-core"))
+    testImplementation(get("assertj"))
 }
 
 @Suppress("UnstableApiUsage")
 gradlePlugin {
+    vcsUrl.set("https://github.com/charted-dev/charted/tree/main/build-logic")
     website.set("https://charts.noelware.org")
-    vcsUrl.set("https://github.com/charted-dev/charted/tree/main/buildSrc")
 
     plugins {
         create("nebula") {
