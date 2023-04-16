@@ -79,11 +79,6 @@ jobs:
             - name: Validate Gradle Wrapper
               uses: gradle/wrapper-validation-action@v1
 
-            - name: Lint code-base with Spotless (buildSrc)
-              uses: gradle/gradle-build-action@v2
-              with:
-                  arguments: :buildSrc:spotlessCheck --scan
-
             - name: Lint code-base with Spotless
               uses: gradle/gradle-build-action@v2
               with:
