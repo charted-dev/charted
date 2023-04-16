@@ -20,6 +20,14 @@ import org.noelware.charted.gradle.*
 import org.noelware.charted.gradle.util.FindBinaryUtil
 
 buildscript {
+    repositories {
+        maven("https://maven.floofy.dev/repo/releases")
+        maven("https://maven.noelware.org")
+        gradlePluginPortal()
+        mavenCentral()
+        mavenLocal()
+    }
+
     dependencies {
         classpath("org.noelware.charted.gradle:build-logic:0.0.0-devel.0")
     }
