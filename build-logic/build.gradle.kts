@@ -19,7 +19,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import kotlin.jvm.optionals.getOrElse
+import kotlin.jvm.optionals.getOrNull
 
 plugins {
     id("com.diffplug.spotless") version "6.18.0"
@@ -31,8 +31,9 @@ plugins {
 group = "org.noelware.charted.gradle"
 version = "0.0.0-devel.0"
 
-val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-fun get(name: String): MinimalExternalModuleDependency = libs.findLibrary(name).getOrElse { null }?.get() ?: error("Unknown library '$name' in catalog")
+val libs: VersionCatalog = extensions.getByType<VersionCatalogsExtension>().named("libs")
+fun get(name: String): MinimalExternalModuleDependency =
+    libs.findLibrary(name).getOrNull()?.get() ?: error("Unknown library '$name' in catalog")
 
 repositories {
     maven("https://maven.floofy.dev/repo/releases")
@@ -83,7 +84,6 @@ spotless {
     // For Kotlin and Kotlin (Gradle), we will need to move the license header
     // as the last step due to https://github.com/diffplug/spotless/issues/1599
     kotlin {
-        targetExclude("**/*.charted.kts")
         endWithNewline()
         encoding("UTF-8")
         target("**/*.kt")

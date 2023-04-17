@@ -64,33 +64,6 @@ local.properties
 # Spring Boot Tooling
 .sts4-cache/
 
-### Go ###
-# If you prefer the allow list template instead of the deny list, see community template:
-# https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
-#
-# Binaries for programs and plugins
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
-
-# Test binary, built with `go test -c`
-*.test
-
-# Output of the go coverage tool, specifically when used with LiteIDE
-*.out
-
-# Dependency directories (remove the comment below to include it)
-# vendor/
-
-# Go workspace file
-go.work
-
-### Helm ###
-# Chart dependencies
-**/charts/*.tgz
-
 ### Java ###
 # Compiled class file
 *.class
@@ -202,6 +175,7 @@ fabric.properties
 
 .idea/*
 
+!.idea/codeStyles
 !.idea/runConfigurations
 
 ### Kotlin ###
@@ -216,16 +190,6 @@ fabric.properties
 # Package Files #
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-
-### NetBeans ###
-**/nbproject/private/
-**/nbproject/Makefile-*.mk
-**/nbproject/Package-*.bash
-build/
-nbbuild/
-dist/
-nbdist/
-.nb-gradle/
 
 ### Terraform ###
 # Local .terraform directories
@@ -262,16 +226,6 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
-
-### Vagrant ###
-# General
-.vagrant/
-
-# Log files (if you are creating logs in debug mode, uncomment this)
-# *.log
-
-### Vagrant Patch ###
-*.box
 
 ### VisualStudioCode ###
 .vscode/*
@@ -629,7 +583,7 @@ node_modules/
 **/*.DesktopClient/ModelManifest.xml
 **/*.Server/GeneratedArtifacts
 **/*.Server/ModelManifest.xml
-_Pvt_Extensions.
+_Pvt_Extensions
 
 # Paket dependency manager
 .paket/paket.exe

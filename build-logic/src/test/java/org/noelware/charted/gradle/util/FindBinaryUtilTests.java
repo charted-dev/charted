@@ -24,6 +24,8 @@ import java.io.File;
 import java.io.IOException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.noelware.charted.gradle.OperatingSystem;
@@ -32,6 +34,7 @@ import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 import uk.org.webcompere.systemstubs.properties.SystemProperties;
 
+@EnabledOnOs({OS.LINUX})
 @ExtendWith(SystemStubsExtension.class)
 public class FindBinaryUtilTests {
     @TempDir
@@ -62,7 +65,7 @@ public class FindBinaryUtilTests {
         assertThat(OperatingSystem.current().isLinux()).isTrue();
         assertThat(FindBinaryUtil.find("awauctl")).isNull();
 
-        // Write a shell file to it
+        // Write a file to it
         final File file = new File(tempDir, "awauctl");
         writeFile(file, """
         #!/bin/bash
