@@ -111,7 +111,7 @@ protobuf {
 
     plugins {
         id("grpc") {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.54.0"
+            artifact = "io.grpc:protoc-gen-grpc-java:1.54.1"
         }
 
         id("grpc-kotlin") {
