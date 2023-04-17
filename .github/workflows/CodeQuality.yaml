@@ -35,7 +35,7 @@ on:
             - renovate.json
 jobs:
     codeql:
-        name: CodeQL (Java ${{matrix.java-version}} ~ ${{matrix.language}})
+        name: CodeQL (Java ${{matrix.java-version}} [${{matrix.languages}}])
         runs-on: ubuntu-latest
         strategy:
             matrix:
