@@ -17,6 +17,108 @@
 
 package org.noelware.charted.server.routing.v1.organizations.crud
 
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.util.*
+import io.swagger.v3.oas.models.PathItem
+import kotlinx.datetime.LocalDateTime
+import org.jetbrains.exposed.dao.id.EntityID
+import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.models.flags.ApiKeyScope
+import org.noelware.charted.models.organizations.Organization
+import org.noelware.charted.models.users.User
+import org.noelware.charted.modules.openapi.NameOrSnowflake
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
+import org.noelware.charted.modules.openapi.kotlin.dsl.ok
+import org.noelware.charted.modules.openapi.kotlin.dsl.schema
+import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.postgresql.controllers.getByIdOrNameOrNull
 import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationDatabaseController
+import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
+import org.noelware.charted.modules.postgresql.tables.OrganizationTable
+import org.noelware.charted.modules.postgresql.tables.UserTable
+import org.noelware.charted.server.extensions.currentUser
+import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.routing.RestController
+import kotlin.reflect.typeOf
 
-class GetUserOrganizationsRestController(private val organizations: OrganizationDatabaseController)
+class GetUserOrganizationsRestController(
+    private val organizations: OrganizationDatabaseController,
+    private val users: UserDatabaseController
+): RestController("/users/{idOrName}/organizations") {
+    override fun Route.init() {
+        install(Sessions) {
+            this += ApiKeyScope.Organizations.Access
+            allowNonAuthorizedRequests = true
+        }
+    }
+
+    override suspend fun call(call: ApplicationCall) {
+        val user = users.getByIdOrNameOrNull(call.parameters.getOrFail("idOrName"), UserTable::username)
+            ?: return call.respond(
+                HttpStatusCode.NotFound,
+                ApiResponse.err(
+                    "UNKNOWN_USER",
+                    "User with username or snowflake [${call.parameters.getOrFail("idOrName")}] was not found",
+                ),
+            )
+
+        val organizations = organizations.all(OrganizationTable::owner to EntityID(user.id, UserTable))
+        if (call.currentUser == null || call.currentUser?.id != user.id) {
+            return call.respond(HttpStatusCode.OK, ApiResponse.ok(organizations.filterNot { it.private }))
+        }
+
+        call.respond(HttpStatusCode.OK, ApiResponse.ok(organizations))
+    }
+
+    override fun toPathDsl(): PathItem = toPaths("/users/{idOrName}/organizations") {
+        get {
+            description = "Returns all the organizations that a user owns"
+
+            pathParameter {
+                description = "Snowflake or Name of the user to search for"
+                name = "idOrName"
+
+                schema<NameOrSnowflake>()
+            }
+
+            ok {
+                json {
+                    schema(
+                        typeOf<ApiResponse.Ok<List<Organization>>>(),
+                        ApiResponse.ok(
+                            listOf(
+                                Organization(
+                                    true,
+                                    "noelwareorg",
+                                    null,
+                                    "\uD83D\uDC3B\u200D❄️ Noelware, LLC.",
+                                    LocalDateTime.parse("2023-04-17T08:28:31.302Z"),
+                                    LocalDateTime.parse("2023-04-17T08:28:31.302Z"),
+                                    null,
+                                    false,
+                                    User(
+                                        true,
+                                        null,
+                                        null,
+                                        null,
+                                        LocalDateTime.parse("2023-04-08T02:37:53.741502369"),
+                                        LocalDateTime.parse("2023-04-08T02:37:53.741502369"),
+                                        "noel",
+                                        true,
+                                        "Noel",
+                                        1,
+                                    ),
+                                    "noelware",
+                                    2,
+                                ),
+                            ),
+                        ),
+                    )
+                }
+            }
+        }
+    }
+}

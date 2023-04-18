@@ -15,16 +15,8 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.routing.v1.organizations.crud
+package org.noelware.charted.server.extensions
 
-import org.koin.dsl.bind
-import org.koin.dsl.module
-import org.noelware.charted.server.routing.RestController
+import io.ktor.http.*
 
-val organizationsV1Crud = module {
-    single { GetUserOrganizationsRestController(get(), get()) } bind RestController::class
-    single { GetSingleOrganizationRestController(get()) } bind RestController::class
-    single { CreateOrganizationRestController(get()) } bind RestController::class
-    single { DeleteOrganizationRestController(get()) } bind RestController::class
-    single { PatchOrganizationRestController(get()) } bind RestController::class
-}
+fun String.contentType(): ContentType = ContentType.parse(this)

@@ -30,7 +30,10 @@ dependencies {
 
     // Modules that we require (which is... most of them!)
     implementation(projects.modules.sessions.integrations.github)
+    implementation(projects.modules.tracing.opentelemetry)
     implementation(projects.modules.search.elasticsearch)
+    implementation(projects.modules.tracing.elasticApm)
+    implementation(projects.modules.tracing.sentry)
     implementation(projects.modules.sessions.local)
     implementation(projects.modules.sessions.ldap)
     implementation(projects.config.kotlinScript)

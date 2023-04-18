@@ -29,9 +29,12 @@ import io.ktor.util.*
 import io.prometheus.client.Histogram
 import org.apache.commons.lang3.time.StopWatch
 import org.noelware.charted.Server
+import org.noelware.charted.common.extensions.closeable.closeQuietly
 import org.noelware.charted.common.extensions.formatting.doFormatTime
 import org.noelware.charted.modules.metrics.MetricsSupport
 import org.noelware.charted.modules.metrics.prometheus.PrometheusMetricsSupport
+import org.noelware.charted.modules.tracing.Tracer
+import org.noelware.charted.modules.tracing.Transaction
 import org.noelware.charted.server.internal.DefaultServer
 import org.noelware.charted.server.internal.bootTime
 import org.noelware.charted.server.internal.hasStarted
@@ -40,10 +43,12 @@ import java.lang.IllegalStateException
 
 object Log: BaseApplicationPlugin<ApplicationCallPipeline, Unit, Log> {
     private val histogramKey: AttributeKey<Histogram.Timer> = AttributeKey("Prometheus Histogram Timer")
+    private val transactionKey: AttributeKey<Transaction> = AttributeKey("Transaction")
     private val stopwatchKey: AttributeKey<StopWatch> = AttributeKey("Stopwatch")
     private val log by logging("org.noelware.charted.server.plugins.KtorLogger")
 
     private val metrics: MetricsSupport by inject()
+    private val tracer: Tracer? = Tracer.globalOrNull()
     private val server: Server by inject()
 
     override val key: AttributeKey<Log> = AttributeKey("Logging Plugin")
@@ -66,6 +71,8 @@ object Log: BaseApplicationPlugin<ApplicationCallPipeline, Unit, Log> {
             MDC.put("http.version", call.request.httpVersion)
             MDC.put("http.url", call.request.path())
 
+            val transaction = tracer?.createTransaction("${call.request.httpVersion} ${call.request.httpMethod.value.uppercase()} ${call.request.path()}", "HTTP Request")
+            if (transaction != null) call.attributes.put(transactionKey, transaction)
             if (metrics is PrometheusMetricsSupport) {
                 val m = metrics as PrometheusMetricsSupport
 
@@ -89,6 +96,7 @@ object Log: BaseApplicationPlugin<ApplicationCallPipeline, Unit, Log> {
             val status = call.response.status() ?: HttpStatusCode(-1, "Unknown HTTP Method")
             val histogram = call.attributes.getOrNull(histogramKey)
             val stopwatch = call.attributes[stopwatchKey]
+            val transaction = call.attributes.getOrNull(transactionKey)
             val userAgent = call.request.userAgent() ?: "Unknown"
 
             // Fixes with issues that might occur when handling a request.
@@ -106,6 +114,7 @@ object Log: BaseApplicationPlugin<ApplicationCallPipeline, Unit, Log> {
                 }
             }
 
+            transaction?.closeQuietly()
             histogram?.observeDuration()
             log.info("~> ${method.value} $endpoint <$version> ~ ${status.value} ${status.description} [$userAgent${formattedTime.ifBlank { "" }}]".trim())
 

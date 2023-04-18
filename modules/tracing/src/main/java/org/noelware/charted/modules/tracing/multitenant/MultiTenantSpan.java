@@ -23,10 +23,22 @@ import org.jetbrains.annotations.Nullable;
 import org.noelware.charted.modules.tracing.Span;
 import org.noelware.charted.modules.tracing.Transaction;
 
+/**
+ * Represents a wrapper for {@link Span spans} to be collected from more
+ * than once tracer.
+ */
 public class MultiTenantSpan implements Span {
     private final Transaction parent;
     private final List<Span> spans;
 
+    /**
+     * Constructs a new {@link MultiTenantSpan}.
+     * @param parent The parent transaction that this span belongs to. This will most
+     *               likely be a {@link MultiTenantTransaction}.
+     *
+     * @param spans A list of the spans that this {@link MultiTenantSpan} takes
+     *              care of.
+     */
     public MultiTenantSpan(Transaction parent, List<Span> spans) {
         this.parent = parent;
         this.spans = spans;

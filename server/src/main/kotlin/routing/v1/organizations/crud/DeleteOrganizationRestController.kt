@@ -23,7 +23,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.swagger.v3.oas.models.PathItem
-import org.noelware.charted.common.types.responses.ApiError
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope
 import org.noelware.charted.modules.openapi.kotlin.dsl.accepted
@@ -33,10 +32,9 @@ import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.get
 import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationDatabaseController
 import org.noelware.charted.server.extensions.addAuthenticationResponses
-import org.noelware.charted.server.extensions.currentUser
-import org.noelware.charted.server.plugins.sessions.PreconditionResult
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.plugins.sessions.preconditions.canAccessOrganization
+import org.noelware.charted.server.plugins.sessions.preconditions.canDeleteMetadata
 import org.noelware.charted.server.routing.RestController
 
 class DeleteOrganizationRestController(private val organizations: OrganizationDatabaseController): RestController("/organizations/{id}", HttpMethod.Delete) {
@@ -45,19 +43,7 @@ class DeleteOrganizationRestController(private val organizations: OrganizationDa
             this += ApiKeyScope.Organizations.Delete
 
             condition(::canAccessOrganization)
-            condition { call ->
-                val org = organizations.get(call.parameters.getOrFail<Long>("id"))
-                if (org.owner.id != call.currentUser!!.id) {
-                    PreconditionResult.Failed(
-                        ApiError(
-                            "UNABLE_TO_DELETE",
-                            "To delete an organization, you must be the owner of the organization",
-                        ),
-                    )
-                } else {
-                    PreconditionResult.Success
-                }
-            }
+            condition { call -> canDeleteMetadata(call, organizations) }
         }
     }
 

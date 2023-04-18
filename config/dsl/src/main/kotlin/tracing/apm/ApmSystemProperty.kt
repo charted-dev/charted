@@ -15,16 +15,13 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.routing.v1.organizations.crud
+package org.noelware.charted.configuration.kotlin.dsl.tracing.apm
 
-import org.koin.dsl.bind
-import org.koin.dsl.module
-import org.noelware.charted.server.routing.RestController
-
-val organizationsV1Crud = module {
-    single { GetUserOrganizationsRestController(get(), get()) } bind RestController::class
-    single { GetSingleOrganizationRestController(get()) } bind RestController::class
-    single { CreateOrganizationRestController(get()) } bind RestController::class
-    single { DeleteOrganizationRestController(get()) } bind RestController::class
-    single { PatchOrganizationRestController(get()) } bind RestController::class
-}
+/**
+ * Represents an annotation to let the APM tracer know which system property to use, since
+ * it will write a properties file to the temporary directory so the Java APM Agent can
+ * load it and use it.
+ *
+ * This was just made to make it easier.
+ */
+public annotation class ApmSystemProperty(val value: String)

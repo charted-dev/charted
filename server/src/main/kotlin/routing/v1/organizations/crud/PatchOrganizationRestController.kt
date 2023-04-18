@@ -17,6 +17,81 @@
 
 package org.noelware.charted.server.routing.v1.organizations.crud
 
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.util.*
+import io.swagger.v3.oas.models.PathItem
+import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.models.flags.ApiKeyScope
+import org.noelware.charted.modules.openapi.NameOrSnowflake
+import org.noelware.charted.modules.openapi.kotlin.dsl.accepted
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
+import org.noelware.charted.modules.openapi.kotlin.dsl.schema
+import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.postgresql.controllers.getByIdOrNameOrNull
 import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationDatabaseController
+import org.noelware.charted.modules.postgresql.controllers.organizations.PatchOrganizationPayload
+import org.noelware.charted.modules.postgresql.ktor.UserEntityAttributeKey
+import org.noelware.charted.modules.postgresql.tables.OrganizationTable
+import org.noelware.charted.server.extensions.addAuthenticationResponses
+import org.noelware.charted.server.extensions.currentUserEntity
+import org.noelware.charted.server.extensions.putAndRemove
+import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.plugins.sessions.preconditions.canAccessOrganization
+import org.noelware.charted.server.plugins.sessions.preconditions.canEditMetadata
+import org.noelware.charted.server.routing.RestController
 
-class PatchOrganizationRestController(private val organizations: OrganizationDatabaseController)
+class PatchOrganizationRestController(private val organizations: OrganizationDatabaseController): RestController("/organizations/{idOrName}", HttpMethod.Patch) {
+    override fun Route.init() {
+        install(Sessions) {
+            this += ApiKeyScope.Organizations.Update
+
+            condition(::canAccessOrganization)
+            condition { call -> canEditMetadata(call, organizations) }
+        }
+    }
+
+    override suspend fun call(call: ApplicationCall): Unit = call.attributes.putAndRemove(UserEntityAttributeKey, call.currentUserEntity!!) {
+        val org = organizations.getByIdOrNameOrNull(call.parameters.getOrFail("idOrName"), OrganizationTable::name)!!
+        organizations.update(call, org.id, call.receive())
+
+        call.respond(HttpStatusCode.Accepted)
+    }
+
+    override fun toPathDsl(): PathItem = toPaths("/organizations/{idOrName}") {
+        patch {
+            description = "Patch an organization's metadata"
+
+            pathParameter {
+                description = "Snowflake or Name of the user to search for"
+                name = "idOrName"
+
+                schema<NameOrSnowflake>()
+            }
+
+            requestBody {
+                json {
+                    schema(
+                        PatchOrganizationPayload(
+                            null,
+                            null,
+                            "awau!",
+                            true,
+                            "heck",
+                        ),
+                    )
+                }
+            }
+
+            addAuthenticationResponses()
+            accepted {
+                json {
+                    schema(ApiResponse.ok())
+                }
+            }
+        }
+    }
+}

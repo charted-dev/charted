@@ -15,16 +15,19 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.routing.v1.organizations.crud
+package org.noelware.charted.modules.tracing.sentry
 
-import org.koin.dsl.bind
-import org.koin.dsl.module
-import org.noelware.charted.server.routing.RestController
+import io.sentry.SpanStatus
+import org.noelware.charted.modules.tracing.Span
+import org.noelware.charted.modules.tracing.Transaction
 
-val organizationsV1Crud = module {
-    single { GetUserOrganizationsRestController(get(), get()) } bind RestController::class
-    single { GetSingleOrganizationRestController(get()) } bind RestController::class
-    single { CreateOrganizationRestController(get()) } bind RestController::class
-    single { DeleteOrganizationRestController(get()) } bind RestController::class
-    single { PatchOrganizationRestController(get()) } bind RestController::class
+class SentrySpan(private val parent: Transaction, private val inner: io.sentry.ISpan): Span {
+    override fun transaction(): Transaction = parent
+
+    override fun operation(): String? = inner.description
+    override fun name(): String = inner.operation
+
+    override fun close() {
+        inner.finish(SpanStatus.OK)
+    }
 }

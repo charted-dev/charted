@@ -21,8 +21,11 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.util.*
 import org.noelware.charted.common.types.responses.ApiError
+import org.noelware.charted.models.organizations.OrganizationMember
+import org.noelware.charted.models.organizations.permissions
 import org.noelware.charted.models.repositories.RepositoryMember
 import org.noelware.charted.models.repositories.permissions
+import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
 import org.noelware.charted.modules.postgresql.extensions.fromEntity
 import org.noelware.charted.server.extensions.currentUser
@@ -41,7 +44,6 @@ suspend fun doPermissionCheck(call: ApplicationCall, controller: RepositoryDatab
         ApiError("UNKNOWN_REPOSITORY", "Repository with ID [$id] was not found"),
     )
 
-    // this will always return false when used in organization repositories
     if (repo.owner == call.currentUser!!.id) return PreconditionResult.Success
     val member = repo.members.singleOrNull { it.account.id.value == call.currentUser!!.id }
         ?: return PreconditionResult.Failed(
@@ -56,7 +58,42 @@ suspend fun doPermissionCheck(call: ApplicationCall, controller: RepositoryDatab
         return PreconditionResult.Failed(
             ApiError(
                 "MISSING_PERMISSIONS",
-                "You are missing the 'metadata:update' permission",
+                "You are missing the [$permission] permission",
+            ),
+        )
+    }
+
+    return PreconditionResult.Success
+}
+
+suspend fun canEditMetadata(call: ApplicationCall, controller: OrganizationDatabaseController): PreconditionResult =
+    doPermissionCheck(call, controller, "metadata:update")
+
+suspend fun canDeleteMetadata(call: ApplicationCall, controller: OrganizationDatabaseController): PreconditionResult =
+    doPermissionCheck(call, controller, "metadata:delete")
+
+suspend fun doPermissionCheck(call: ApplicationCall, controller: OrganizationDatabaseController, permission: String): PreconditionResult {
+    val id = call.parameters.getOrFail<Long>("id")
+    val org = controller.getEntityOrNull(id) ?: return PreconditionResult.Failed(
+        HttpStatusCode.NotFound,
+        ApiError("UNKNOWN_REPOSITORY", "Repository with ID [$id] was not found"),
+    )
+
+    if (org.owner.id.value == call.currentUser!!.id) return PreconditionResult.Success
+    val member = org.members.singleOrNull { it.account.id.value == call.currentUser!!.id }
+        ?: return PreconditionResult.Failed(
+            HttpStatusCode.Unauthorized,
+            ApiError(
+                "UNAUTHORIZED", "You are not a member of this repository",
+            ),
+        )
+
+    val m = OrganizationMember.fromEntity(member)
+    if (!m.permissions.has(permission)) {
+        return PreconditionResult.Failed(
+            ApiError(
+                "MISSING_PERMISSIONS",
+                "You are missing the [$permission] permission",
             ),
         )
     }

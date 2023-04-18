@@ -17,17 +17,21 @@
 
 package org.noelware.charted.modules.tracing.sentry
 
+import io.sentry.Sentry
 import org.noelware.charted.modules.tracing.Tracer
 import org.noelware.charted.modules.tracing.Transaction
 
-class SentryTracer: Tracer {
-    override fun createTransaction(name: String, operation: String?): Transaction {
-        TODO("Not yet implemented")
-    }
+/**
+ * Represents a [Tracer] for Sentry, which will output all tracing
+ * metadata to a Sentry server configured by the DSN.
+ */
+object SentryTracer: Tracer {
+    override fun createTransaction(name: String, operation: String?): Transaction = SentryTransaction(
+        this,
+        Sentry.startTransaction(name, operation ?: "(unknown)"),
+    )
 
-    override fun createTransaction(name: String): Transaction {
-        TODO("Not yet implemented")
-    }
+    override fun createTransaction(name: String): Transaction = createTransaction(name, null)
 
     override fun close() {
         // we don't implement close i dont think

@@ -25,9 +25,16 @@ import org.jetbrains.annotations.Nullable;
 import org.noelware.charted.modules.tracing.Tracer;
 import org.noelware.charted.modules.tracing.Transaction;
 
+/**
+ * Represents a wrapper for including multiple tracers at once, if configured.
+ */
 public class MultiTenantTracer implements Tracer {
     private final List<Tracer> tracers;
 
+    /**
+     * Creates a new {@link MultiTenantTracer}.
+     * @param tracers A list of all configured tracers
+     */
     public MultiTenantTracer(List<Tracer> tracers) {
         this.tracers = tracers;
     }

@@ -15,16 +15,10 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.routing.v1.organizations.crud
+package org.noelware.charted.configuration.kotlin.dsl.tracing.otel
 
-import org.koin.dsl.bind
-import org.koin.dsl.module
-import org.noelware.charted.server.routing.RestController
-
-val organizationsV1Crud = module {
-    single { GetUserOrganizationsRestController(get(), get()) } bind RestController::class
-    single { GetSingleOrganizationRestController(get()) } bind RestController::class
-    single { CreateOrganizationRestController(get()) } bind RestController::class
-    single { DeleteOrganizationRestController(get()) } bind RestController::class
-    single { PatchOrganizationRestController(get()) } bind RestController::class
-}
+/**
+ * Similarly to [ApmSystemProperty][org.noelware.charted.configuration.kotlin.dsl.tracing.apm.ApmSystemProperty],
+ * this will provide a system property key for an OpenTelemetry configuration property.
+ */
+public annotation class OTelSystemProperty(val value: String)

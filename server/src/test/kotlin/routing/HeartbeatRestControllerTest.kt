@@ -24,11 +24,10 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.noelware.charted.server.AbstractServerTest
 import org.noelware.charted.server.createHttpClient
+import org.noelware.charted.server.extensions.contentType
 import kotlin.test.assertEquals
 
 class HeartbeatRestControllerTest: AbstractServerTest() {
-    private fun String.contentType(): ContentType = ContentType.parse(this)
-
     @DisplayName("request to GET /heartbeat controller")
     @Test
     fun test0(): Unit = withServer {

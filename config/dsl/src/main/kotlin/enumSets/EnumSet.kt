@@ -24,7 +24,7 @@ import kotlin.reflect.KClass
 /**
  * Represents an enum set with a `wildcard`
  */
-public abstract class EnumSet<E: Enum<E>>(private val klazz: KClass<*>) {
+public abstract class EnumSet<E: Enum<E>>(private val klazz: KClass<E>) {
     private val log by logging<EnumSet<E>>()
 
     public abstract val wildcard: E

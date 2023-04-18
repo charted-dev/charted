@@ -23,26 +23,12 @@ import org.noelware.charted.modules.tracing.Span
 import org.noelware.charted.modules.tracing.Tracer
 import org.noelware.charted.modules.tracing.Transaction
 
-class SentryTransaction(private val inner: ITransaction): Transaction {
-    override fun createSpan(name: String, operation: String?): Span {
-        TODO("Not yet implemented")
-    }
-
-    override fun createSpan(name: String): Span {
-        TODO("Not yet implemented")
-    }
-
-    override fun tracer(): Tracer {
-        TODO("Not yet implemented")
-    }
-
-    override fun operation(): String? {
-        TODO("Not yet implemented")
-    }
-
-    override fun name(): String {
-        TODO("Not yet implemented")
-    }
+class SentryTransaction(private val tracer: Tracer, private val inner: ITransaction): Transaction {
+    override fun createSpan(name: String, operation: String?): Span = SentrySpan(this, inner.startChild(name, operation))
+    override fun createSpan(name: String): Span = createSpan(name, null)
+    override fun tracer(): Tracer = tracer
+    override fun operation(): String? = inner.description
+    override fun name(): String = inner.operation
 
     override fun close() {
         inner.finish(SpanStatus.OK)

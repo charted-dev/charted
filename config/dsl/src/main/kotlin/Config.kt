@@ -31,6 +31,7 @@ import org.noelware.charted.configuration.kotlin.dsl.search.SearchConfig
 import org.noelware.charted.configuration.kotlin.dsl.server.KtorServerConfig
 import org.noelware.charted.configuration.kotlin.dsl.sessions.SessionsConfig
 import org.noelware.charted.configuration.kotlin.dsl.storage.StorageConfig
+import org.noelware.charted.configuration.kotlin.dsl.tracing.TracingConfig
 import org.noelware.charted.utils.randomString
 
 /**
@@ -173,6 +174,11 @@ public data class Config(
      */
     @SerialName("swagger_ui")
     val swagger: Boolean = true,
+
+    /**
+     * List of configured tracers to apply when enabling tracing.
+     */
+    val tracers: List<TracingConfig> = listOf(),
 
     /**
      * Configuration for PostgreSQL, the main database for holding persistent metadata
@@ -319,6 +325,11 @@ public data class Config(
         private var database: DatabaseConfig = DatabaseConfig()
 
         /**
+         * List of configured tracers to apply
+         */
+        public var tracers: List<TracingConfig> = listOf()
+
+        /**
          * URI that is used as the "base URL" for entities that require linking API server entities
          * to a normalized URL.
          */
@@ -429,6 +440,7 @@ public data class Config(
             server,
             storage,
             swagger,
+            tracers,
             database,
             baseUrl,
             redis,
