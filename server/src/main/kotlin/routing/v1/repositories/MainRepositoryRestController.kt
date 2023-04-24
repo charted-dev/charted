@@ -27,6 +27,7 @@ import org.noelware.charted.ChartedInfo
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 import kotlin.reflect.typeOf
 
@@ -39,6 +40,7 @@ data class MainRepositoryResponse(
 )
 
 class MainRepositoryRestController: RestController("/repositories") {
+    override val apiVersion: APIVersion = APIVersion.V1
     override suspend fun call(call: ApplicationCall): Unit = call.respond(HttpStatusCode.OK, ApiResponse.ok(MainRepositoryResponse()))
     override fun toPathDsl(): PathItem = toPaths("/repositories") {
         get {

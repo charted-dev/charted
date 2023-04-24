@@ -19,6 +19,7 @@ package org.noelware.charted.configuration.kotlin.dsl.search.elasticsearch
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.noelware.charted.configuration.kotlin.dsl.enumSets.EnumSet
 
 /**
  * Represents all the metric set keys for using the Elasticsearch metrics collector. The `%s` is
@@ -36,7 +37,6 @@ import kotlinx.serialization.Serializable
  * - `index_%s_health`            :: Current health of this index
  * - `index_%s_size`              :: Size (in bytes) of the index
  * - `index_%s_uuid`              :: UUID of the index
- * - `index_%s_*`                 :: Wildcard to enable all index-related keys
  *
  * ## Elasticsearch Node Keys
  * - `node_%s_deleted_documents` :: Count of deleted documents in all of this node's managed indexes
@@ -56,10 +56,6 @@ public enum class MetricKeyset {
     /** How many live documents are available in this index */
     @SerialName("index_%s_documents")
     IndexTotalDocuments,
-
-    /** Wildcard type to enable all metrics for a specific index */
-    @SerialName("index_%s_*")
-    IndexWildcard,
 
     /** Current health of this index */
     @SerialName("es_index_%s_health")
@@ -91,35 +87,15 @@ public enum class MetricKeyset {
     NodeIndexSize,
 
     /** Total shards in this node */
-    @SerialName("%s_total_shards")
+    @SerialName("node_%s_total_shards")
     NodeShards,
-
-    /** Wildcard to enable all node metrics */
-    @SerialName("node_%s_*")
-    NodeWildcard,
 
     /** Wildcard to enable all index and node metrics */
     @SerialName("*")
-    Wildcard
-}
+    Wildcard;
 
-private val allWildcardsAvailable = listOf(MetricKeyset.Wildcard, MetricKeyset.IndexWildcard, MetricKeyset.NodeWildcard)
-
-public fun List<MetricKeyset>.isNodeWildcard(): Boolean {
-    if (isEmpty()) return false
-    return if (size == 1) first() == MetricKeyset.NodeWildcard else any { it == MetricKeyset.NodeWildcard }
-}
-
-public fun List<MetricKeyset>.isIndexWildcard(): Boolean {
-    if (isEmpty()) return false
-    return if (size == 1) first() == MetricKeyset.IndexWildcard else any { it == MetricKeyset.IndexWildcard }
-}
-
-/**
- * Determine if the given list of [MetricKeyset] is a wildcard, so we list
- * all the options in the key-set instead of specific keys.
- */
-public fun List<MetricKeyset>.isWildcard(): Boolean {
-    if (isEmpty()) return false
-    return if (size == 1) allWildcardsAvailable.contains(first()) else any { allWildcardsAvailable.contains(it) }
+    public object EnumSet: org.noelware.charted.configuration.kotlin.dsl.enumSets.EnumSet<MetricKeyset>(MetricKeyset::class) {
+        override val wildcard: MetricKeyset
+            get() = Wildcard
+    }
 }

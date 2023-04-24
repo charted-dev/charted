@@ -26,6 +26,7 @@ import org.noelware.charted.ChartedInfo
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 @Serializable
@@ -35,6 +36,7 @@ data class MainOrganizationResponse(
 )
 
 class MainOrganizationsRestController: RestController("/organizations") {
+    override val apiVersion: APIVersion = APIVersion.V1
     override suspend fun call(call: ApplicationCall): Unit = call.respond(HttpStatusCode.OK, ApiResponse.ok(MainOrganizationResponse()))
     override fun toPathDsl(): PathItem = toPaths("/organizations") {
         get {

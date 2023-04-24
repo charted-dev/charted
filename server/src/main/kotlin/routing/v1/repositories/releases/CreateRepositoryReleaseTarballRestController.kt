@@ -43,6 +43,7 @@ import org.noelware.charted.server.plugins.sessions.PreconditionResult
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.plugins.sessions.preconditions.canAccessRepository
 import org.noelware.charted.server.plugins.sessions.preconditions.canEditMetadata
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 class CreateRepositoryReleaseTarballRestController(
@@ -50,6 +51,7 @@ class CreateRepositoryReleaseTarballRestController(
     private val charts: HelmChartModule? = null,
     private val config: Config
 ): RestController("/repositories/{id}/releases/{version}.tar.gz", HttpMethod.Post) {
+    override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions) {
             this += ApiKeyScope.Repositories.Releases.Create

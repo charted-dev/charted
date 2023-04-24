@@ -38,6 +38,7 @@ import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.get
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
 import org.noelware.charted.server.extensions.addAuthenticationResponses
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 import org.noelware.charted.server.util.createBodyFromInputStream
 
@@ -46,6 +47,7 @@ class GetRepositoryReleaseTarballRestController(
     private val charts: HelmChartModule? = null,
     private val config: Config
 ): RestController("/repositories/{id}/releases/{version}.tar.gz") {
+    override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions) {
             allowNonAuthorizedRequests = true

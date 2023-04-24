@@ -35,9 +35,11 @@ import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.plugins.sessions.preconditions.canAccessOrganization
 import org.noelware.charted.server.plugins.sessions.preconditions.canDeleteMetadata
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 class DeleteOrganizationRestController(private val organizations: OrganizationDatabaseController): RestController("/organizations/{id}", HttpMethod.Delete) {
+    override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions) {
             this += ApiKeyScope.Organizations.Delete

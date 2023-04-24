@@ -31,9 +31,6 @@ public enum class APIServerKeysets {
     @SerialName("charted_server_commit_hash")
     CommitHash,
 
-    @SerialName("charted_server_requests_count")
-    Requests,
-
     @SerialName("charted_server_build_date")
     BuildDate,
 
@@ -49,10 +46,8 @@ public enum class APIServerKeysets {
     @SerialName("*")
     Wildcard;
 
-    public companion object {
-        public object EnumSet: org.noelware.charted.configuration.kotlin.dsl.enumSets.EnumSet<APIServerKeysets>(APIServerKeysets::class) {
-            override val wildcard: APIServerKeysets
-                get() = Wildcard
-        }
+    public object EnumSet: org.noelware.charted.configuration.kotlin.dsl.enumSets.EnumSet<APIServerKeysets>(APIServerKeysets::class) {
+        override val wildcard: APIServerKeysets
+            get() = Wildcard
     }
 }

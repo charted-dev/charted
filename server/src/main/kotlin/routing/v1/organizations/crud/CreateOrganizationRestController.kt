@@ -36,6 +36,7 @@ import org.noelware.charted.modules.postgresql.controllers.organizations.Organiz
 import org.noelware.charted.modules.search.SearchModule
 import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 class CreateOrganizationRestController(
@@ -43,6 +44,7 @@ class CreateOrganizationRestController(
     private val search: SearchModule? = null,
     private val charts: HelmChartModule? = null
 ): RestController("/organizations", HttpMethod.Put) {
+    override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions) {
             this += ApiKeyScope.Organizations.Create

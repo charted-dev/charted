@@ -41,6 +41,7 @@ import org.noelware.charted.modules.postgresql.tables.OrganizationTable
 import org.noelware.charted.modules.postgresql.tables.UserTable
 import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 import kotlin.reflect.typeOf
 
@@ -48,6 +49,7 @@ class GetUserOrganizationsRestController(
     private val organizations: OrganizationDatabaseController,
     private val users: UserDatabaseController
 ): RestController("/users/{idOrName}/organizations") {
+    override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions) {
             this += ApiKeyScope.Organizations.Access

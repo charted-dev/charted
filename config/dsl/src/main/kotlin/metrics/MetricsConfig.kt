@@ -19,9 +19,10 @@ package org.noelware.charted.configuration.kotlin.dsl.metrics
 
 import kotlinx.serialization.Serializable
 import org.noelware.charted.common.Buildable
+import org.noelware.charted.configuration.kotlin.dsl.metrics.keysets.APIServerKeysets
 import org.noelware.charted.configuration.kotlin.dsl.metrics.keysets.PostgresKeysets
+import org.noelware.charted.configuration.kotlin.dsl.metrics.keysets.RedisKeysets
 import org.noelware.charted.configuration.kotlin.dsl.search.elasticsearch.MetricKeyset as ElasticsearchMetricKeysets
-import org.noelware.charted.configuration.kotlin.dsl.server.MetricKeysets as ServerMetricKeysets
 
 @Serializable
 public data class Metricsets(
@@ -32,12 +33,16 @@ public data class Metricsets(
     val postgres: List<PostgresKeysets> = listOf(),
 
     /** Key-set for configuring API server metrics. */
-    val server: List<ServerMetricKeysets> = listOf()
+    val server: List<APIServerKeysets> = listOf(),
+
+    /** Key-set for configuring Redis metrics */
+    val redis: List<RedisKeysets> = listOf()
 ) {
     public class Builder: Buildable<Metricsets> {
         private val elasticsearch = mutableListOf<ElasticsearchMetricKeysets>()
         private val postgres = mutableListOf<PostgresKeysets>()
-        private val server = mutableListOf<ServerMetricKeysets>()
+        private val server = mutableListOf<APIServerKeysets>()
+        private val redis = mutableListOf<RedisKeysets>()
 
         /**
          * Enables one or more key-sets for our Elasticsearch connection
@@ -73,9 +78,9 @@ public data class Metricsets(
          * Enables one or more key-sets for the API server to produce
          * metrics.
          *
-         * @param keys List of [ServerMetricKeysets] to configure
+         * @param keys List of [APIServerKeysets] to configure
          */
-        public fun server(vararg keys: ServerMetricKeysets): Builder {
+        public fun server(vararg keys: APIServerKeysets): Builder {
             for (key in keys) {
                 if (server.contains(key)) continue
                 server.add(key)
@@ -84,7 +89,22 @@ public data class Metricsets(
             return this
         }
 
-        override fun build(): Metricsets = Metricsets(elasticsearch, postgres, server)
+        /**
+         * Enables one or more key-sets for Redis to produce
+         * metrics.
+         *
+         * @param keys List of [RedisKeysets] to configure
+         */
+        public fun redis(vararg keys: RedisKeysets): Builder {
+            for (key in keys) {
+                if (redis.contains(key)) continue
+                redis.add(key)
+            }
+
+            return this
+        }
+
+        override fun build(): Metricsets = Metricsets(elasticsearch, postgres, server, redis)
     }
 }
 

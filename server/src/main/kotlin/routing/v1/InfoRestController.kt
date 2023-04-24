@@ -22,7 +22,6 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.swagger.v3.oas.annotations.media.Schema
-import io.swagger.v3.oas.annotations.media.SchemaProperty
 import io.swagger.v3.oas.models.PathItem
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -46,26 +45,26 @@ import org.noelware.charted.server.routing.RestController
 @Schema(description = "Represents the response for the `GET /info` REST handler.")
 @Serializable
 data class InfoResponse(
-    @SchemaProperty(schema = Schema(description = "The distribution the server is running off from"))
+    @get:Schema(description = "The distribution the server is running off from")
     val distribution: ChartedInfo.Distribution,
 
-    @SchemaProperty(schema = Schema(description = "The commit hash from the Git repository."))
+    @get:Schema(description = "The commit hash from the Git repository.")
     @JsonProperty("commit_sha")
     @SerialName("commit_sha")
     val commitHash: String,
 
-    @SchemaProperty(schema = Schema(description = "Build date in RFC3339 format"))
+    @get:Schema(description = "Build date in RFC3339 format")
     @JsonProperty("build_date")
     @SerialName("build_date")
     val buildDate: String,
 
-    @SchemaProperty(schema = Schema(description = "Product name. Will always be \"charted-server\""))
+    @get:Schema(description = "Product name. Will always be \"charted-server\"")
     val product: String,
 
-    @SchemaProperty(schema = Schema(description = "Valid SemVer 2 of the current version of this instance"))
+    @get:Schema(description = "Valid SemVer 2 of the current version of this instance")
     val version: String,
 
-    @SchemaProperty(schema = Schema(description = "Vendor of charted-server, will always be \"Noelware\""))
+    @get:Schema(description = "Vendor of charted-server, will always be \"Noelware\"")
     val vendor: String
 )
 

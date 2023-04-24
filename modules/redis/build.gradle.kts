@@ -20,6 +20,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":modules:analytics"))
+    implementation(projects.modules.analytics)
+    implementation(projects.modules.metrics)
     api(libs.lettuce)
 }

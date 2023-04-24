@@ -24,6 +24,7 @@ import org.noelware.charted.server.routing.RestController
 val apiKeysV1Module = module {
     single { GetSingleApiKeyRestController(get()) } bind RestController::class
     single { CreateApiKeyRestController(get()) } bind RestController::class
+    single { PatchApiKeyRestController(get()) } bind RestController::class
     single { GetApiKeysRestController(get()) } bind RestController::class
     single { DeleteApiKeyController(get()) } bind RestController::class
 }

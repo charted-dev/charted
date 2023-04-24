@@ -16,3 +16,44 @@
  */
 
 package org.noelware.charted.configuration.kotlin.dsl.metrics.keysets
+
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+public enum class RedisKeysets {
+    @SerialName("charted_redis_total_connections_received")
+    TotalConnectionsReceived,
+
+    @SerialName("charted_redis_total_commands_processed")
+    TotalCommandsProcessed,
+
+    @SerialName("charted_redis_total_network_output")
+    TotalNetworkOutput,
+
+    @SerialName("charted_redis_total_network_input")
+    TotalNetworkInput,
+
+    @SerialName("charted_redis_allocator")
+    Allocator,
+
+    @SerialName("*")
+    Wildcard,
+
+    @SerialName("charted_redis_version")
+    Version,
+
+    @SerialName("charted_redis_uptime")
+    Uptime,
+
+    @SerialName("charted_redis_mode")
+    Mode,
+
+    @SerialName("charted_redis_ping")
+    Ping;
+
+    public object EnumSet: org.noelware.charted.configuration.kotlin.dsl.enumSets.EnumSet<RedisKeysets>(RedisKeysets::class) {
+        override val wildcard: RedisKeysets
+            get() = Wildcard
+    }
+}

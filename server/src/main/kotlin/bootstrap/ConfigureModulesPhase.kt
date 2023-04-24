@@ -61,8 +61,10 @@ import org.noelware.charted.modules.postgresql.metrics.PostgresServerStats
 import org.noelware.charted.modules.postgresql.tables.*
 import org.noelware.charted.modules.redis.DefaultRedisClient
 import org.noelware.charted.modules.redis.RedisClient
+import org.noelware.charted.modules.redis.metrics.RedisServerStats
 import org.noelware.charted.modules.search.SearchModule
 import org.noelware.charted.modules.search.elasticsearch.DefaultElasticsearchModule
+import org.noelware.charted.modules.search.elasticsearch.metrics.ElasticsearchStats
 import org.noelware.charted.modules.sessions.AbstractSessionManager
 import org.noelware.charted.modules.sessions.local.LocalSessionManager
 import org.noelware.charted.modules.storage.DefaultStorageModule
@@ -149,8 +151,9 @@ object ConfigureModulesPhase: BootstrapPhase() {
         }
 
         metrics.add(PostgresServerStats.Collector(config))
+        metrics.add(RedisServerStats.Collector(redis, config))
         metrics.add(
-            ServerInfoMetrics.Collector {
+            ServerInfoMetrics.Collector(config) {
                 val server: Server by inject()
                 (server as DefaultServer).requests
             },
@@ -204,6 +207,7 @@ object ConfigureModulesPhase: BootstrapPhase() {
                 val elasticsearchModule = DefaultElasticsearchModule(json, config)
                 elasticsearchModule.init()
 
+                metrics.add(ElasticsearchStats.Collector(elasticsearchModule, config))
                 modules.add(
                     module {
                         single<SearchModule> { elasticsearchModule }

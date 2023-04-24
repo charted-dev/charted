@@ -36,9 +36,11 @@ import org.noelware.charted.modules.postgresql.tables.ApiKeyTable
 import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.extensions.currentUserEntity
 import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 class GetSingleApiKeyRestController(private val controller: ApiKeysDatabaseController): RestController("/apikeys/{nameOrId}") {
+    override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions)
     }

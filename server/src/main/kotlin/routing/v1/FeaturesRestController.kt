@@ -22,7 +22,6 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.swagger.v3.oas.annotations.media.Schema
-import io.swagger.v3.oas.annotations.media.SchemaProperty
 import io.swagger.v3.oas.models.PathItem
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -48,35 +47,33 @@ import org.noelware.charted.server.routing.RestController
  */
 @Serializable
 data class FeaturesResponse(
-    @get:SchemaProperty(
-        schema = Schema(
-            description = "Whether if the external OCI registry experimental feature or the home-made implementation registry feature is enabled or not.",
-        ),
+    @get:Schema(
+        description = "Whether if the external OCI registry experimental feature or the home-made implementation registry feature is enabled or not.",
     )
     @JsonProperty("docker_registry")
     @SerialName("docker_registry")
     val dockerRegistry: Boolean,
 
-    @get:SchemaProperty(schema = Schema(description = "Whether if registrations are enabled on the server"))
+    @get:Schema(description = "Whether if registrations are enabled on the server")
     val registrations: Boolean,
 
-    @get:SchemaProperty(schema = Schema(description = "Whether if the Audit Logging feature is enabled or not."))
+    @get:Schema(description = "Whether if the Audit Logging feature is enabled or not.")
     @JsonProperty("audit_logs")
     @SerialName("audit_logs")
     val auditLogs: Boolean,
 
-    @get:SchemaProperty(schema = Schema(description = "Whether if the Webhooks feature is enabled or not."))
+    @get:Schema(description = "Whether if the Webhooks feature is enabled or not.")
     val webhooks: Boolean,
 
-    @get:SchemaProperty(schema = Schema(description = "Whether if this server instance is invite-only."))
+    @get:Schema(description = "Whether if this server instance is invite-only.")
     @JsonProperty("is_invite_only")
     @SerialName("is_invite_only")
     val isInviteOnly: Boolean,
 
-    @get:SchemaProperty(schema = Schema(description = "Mapping of all available session integrations."))
+    @get:Schema(description = "Mapping of all available session integrations.")
     val integrations: Map<String, Boolean>,
 
-    @get:SchemaProperty(schema = Schema(description = "Whether if the server has search capabilities with the Elasticsearch or Meilisearch backend"))
+    @get:Schema(description = "Whether if the server has search capabilities with the Elasticsearch or Meilisearch backend")
     val search: Boolean
 )
 

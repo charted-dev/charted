@@ -38,6 +38,7 @@ import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.plugins.sessions.PreconditionResult
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.plugins.sessions.preconditions.canAccessRepository
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 import org.noelware.charted.server.util.createBodyFromInputStream
 
@@ -46,6 +47,7 @@ class GetSingleRepositoryReleaseTemplateRestController(
     private val charts: HelmChartModule? = null,
     private val config: Config
 ): RestController("/repositories/{id}/releases/{version}/template/{template}") {
+    override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions) {
             allowNonAuthorizedRequests = true

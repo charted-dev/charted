@@ -30,7 +30,7 @@ import org.noelware.charted.server.routing.RestController
 
 class MetricsRestController(
     private val metrics: MetricsSupport,
-    private val config: Config
+    config: Config
 ): RestController(config.metrics.path) {
     override val apiVersion: APIVersion = APIVersion.V1
     override suspend fun call(call: ApplicationCall) {

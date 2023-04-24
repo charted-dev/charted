@@ -35,6 +35,7 @@ val routingV1Module = composeKoinModules(
     adminV1RoutingModule,
     module {
         single { IndexMappingsRestController(get(), getOrNull(), get(), get()) } bind RestController::class
+        single { MetricsRestController(get(), get()) } bind RestController::class
         single { FeaturesRestController(get()) } bind RestController::class
         single { HeartbeatRestController() } bind RestController::class
         single { InfoRestController() } bind RestController::class

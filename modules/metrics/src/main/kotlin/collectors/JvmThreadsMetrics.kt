@@ -162,6 +162,9 @@ data class JvmThreadsMetrics(
     }
 
     override fun toGrpcValue(): Value = Struct {
+        put(this, JvmThreadsMetrics::background)
+        put(this, JvmThreadsMetrics::current)
         put(this, JvmThreadsMetrics::threads)
+        put(this, JvmThreadsMetrics::peak)
     }.toGrpcValue()
 }

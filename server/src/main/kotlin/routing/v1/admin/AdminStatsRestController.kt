@@ -22,29 +22,17 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.swagger.v3.oas.models.PathItem
-import kotlinx.serialization.Serializable
+import org.noelware.charted.common.serialization.toJsonObject
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.modules.metrics.MetricsSupport
-import org.noelware.charted.modules.metrics.collectors.JvmProcessInfoMetrics
-import org.noelware.charted.modules.metrics.collectors.JvmThreadsMetrics
-import org.noelware.charted.modules.metrics.collectors.OperatingSystemMetrics
-import org.noelware.charted.modules.metrics.collectors.ServerInfoMetrics
 import org.noelware.charted.modules.metrics.disabled.DisabledMetricsSupport
-import org.noelware.charted.modules.postgresql.metrics.PostgresServerStats
 import org.noelware.charted.server.plugins.sessions.IsAdminGuard
 import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
-@Serializable
-data class AdminStatsResponse(
-    val postgresql: PostgresServerStats,
-    val process: JvmProcessInfoMetrics,
-    val threads: JvmThreadsMetrics,
-    val server: ServerInfoMetrics,
-    val os: OperatingSystemMetrics
-)
-
 class AdminStatsRestController(private val metrics: MetricsSupport): RestController("/admin/stats") {
+    override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions)
         install(IsAdminGuard)
@@ -58,15 +46,7 @@ class AdminStatsRestController(private val metrics: MetricsSupport): RestControl
         val stats = metrics.collect()
         call.respond(
             HttpStatusCode.OK,
-            ApiResponse.ok(
-                AdminStatsResponse(
-                    stats["postgresql"] as PostgresServerStats,
-                    stats["process"] as JvmProcessInfoMetrics,
-                    stats["threads"] as JvmThreadsMetrics,
-                    stats["server"] as ServerInfoMetrics,
-                    stats["os"] as OperatingSystemMetrics,
-                ),
-            ),
+            ApiResponse.ok(stats.toJsonObject()),
         )
     }
 
