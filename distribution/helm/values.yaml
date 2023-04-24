@@ -1,0 +1,293 @@
+# 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+# Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+## @section Global Parameters
+## Contains all the global parameters for this Helm Chart. This will be applied on the templates
+## might use these parameters.
+
+## @param fullNameOverride Override the Helm installation name for all Helm-managed objects that we control
+fullNameOverride: ''
+
+## @param nameOverride Override the Helm installation name for all Helm-managed objects that we control
+nameOverride: ''
+
+## @param replicas How many replicas for the Deployment. As of 0.4.0-unstable.2, we do not include HA
+replicas: 1
+
+## @param jvmOptions JVM options to use when running the server.
+jvmOptions: '-Xmx2040 -Xms1024m'
+
+## @param debug If debug mode should be enabled. This can be controlled from the configuration.
+debug: false
+
+## @param nodeSelector Constrainted node labels for the charted-server pod
+nodeSelector: {}
+
+## @param tolerations Tolerations for the Pod
+tolerations: []
+
+## @param affinity Pod affinity to apply
+affinity: {}
+
+## @param annotations Object of all annotations to apply to each Helm-managed object
+annotations: {}
+
+## @param extraEnvVars List of environment variables to apply to the Pod
+extraEnvVars: []
+
+## @param initContainers List of init containers to apply when running the main container.
+initContainers: []
+
+## @param podSecurityContext Security context for each Pod that is created by the deployment
+podSecurityContext: {}
+
+## @param containerSecurityContext Security context for the container
+containerSecurityContext: {}
+
+## @section Service Parameters
+## This will configure the Service template for having any connections between the server.
+##
+## @param service.type Service type
+## @param service.port Port for connecting to the API server
+## @param service.clusterIP service Cluster IP
+## @param service.loadBalancerIP Load Balancer IP
+## @param service.annotations List of annotations to append to the service
+service:
+    type: ClusterIP
+    port: 3651
+    clusterIP: ''
+    loadBalancerIP: ''
+    annotations: {}
+
+## @section Ingress Parameters
+## @param ingress.enabled Enable ingress record generation
+## @param ingress.pathType Ingress path type
+## @param ingress.hostname Default hostname for the ingress record
+## @param ingress.annotations List of annotations to append to the ingress record
+## @param ingress.className IngressClass that will be used to implement the Ingress record
+## @param ingress.path Default path for the ingress record
+ingress:
+    enabled: false
+    pathType: ImplementationSpecific
+    hostname: charted.local
+    annotations: {}
+    className: ''
+    path: /
+
+## @section PostgreSQL Parameters
+## @param postgresql.enabled Whether if PostgreSQL should be installed alongside charted-server. This will install Bitnami's PostgreSQL distribution from their Helm Charts. This can be set to `false` if you already have PostgreSQL running.
+## @param postgresql.auth.username Name for a custom user to create
+## @param postgresql.auth.password Password for the custom user to create
+## @param postgresql.auth.database Name for a custom database to create
+## @param postgresql.auth.existingSecret Name of existing secret to use for PostgreSQL credentials
+## @param postgresql.architecture PostgreSQL architecture (`standalone` or `replication`)
+## @param postgresql.primary.service.ports.postgresql PostgreSQL service port
+postgresql:
+    enabled: true
+    auth:
+        username: charted
+        password: ''
+        database: charted
+        existingSecret: ''
+    architecture: standalone
+    primary:
+        service:
+            ports:
+                postgresql: 5432
+
+## @section Redis Parameters
+## @param redis.enabled Whether if Redis should be installed alongside charted-server. This will install Bitnami's Redis distribution from their Helm Charts. This can be set to `false` if you already have PostgreSQL running.
+## @param redis.existingSecret Name of a secret containing redis credentials
+## @param redis.architecture Set Redis architecture
+## @param redis.master.service.ports.redis Redis port
+## @param redis.auth.enabled Enable Redis auth
+## @param redis.auth.password Redis password
+## @param redis.auth.existingSecret Name of a secret containing the Redis password
+redis:
+    enabled: true
+    architecture: standalone
+    existingSecret: ''
+    master:
+        service:
+            ports:
+                redis: 6379
+    auth:
+        enabled: true
+        password: ''
+        existingSecret: ''
+
+## @section Metrics
+## @param metrics.enabled Whether if metrics should be enabled
+## @param metrics.prometheusRule.enabled If the Helm chart should provide a PrometheusRule object
+## @param metrics.prometheusRule.rules A list of rules to apply
+## @param metrics.metricSets.elasticsearch A list of Elasticsearch metric key-sets to enable. Refer to https://charts.noelware.org/docs/server/latest/self-hosting/configuration#keysets for more information.
+## @param metrics.metricSets.postgresql A list of PostgreSQL metric key-sets to enable. Refer to https://charts.noelware.org/docs/server/latest/self-hosting/configuration#keysets for more information.
+## @param metrics.metricSets.server A list of API server metric key-sets to enable. Refer to https://charts.noelware.org/docs/server/latest/self-hosting/configuration#keysets for more information.
+## @param metrics.metricSets.redis A list of Redis metric key-sets to enable. Refer to https://charts.noelware.org/docs/server/latest/self-hosting/configuration#keysets for more information.
+## @param metrics.metricSets.jvm A list of JVM-specific metric key-sets to enable. Refer to https://charts.noelware.org/docs/server/latest/self-hosting/configuration#keysets for more information.
+metrics:
+    enabled: true
+    prometheusRule:
+        enabled: false
+        rules: []
+    metricSets:
+        elasticsearch: []
+        postgresql: []
+        server: []
+        redis: []
+        jvm: []
+
+## @section Server Configuration
+## This is the configuration for configuring charted-server and its logging system. Refer to the documentation:
+## https://charts.noelware.org/docs/server/latest/self-hosting/configuration
+##
+## @skip config.config
+## @skip config.logback.config
+## @param config.mapName                     The ConfigMap name for the server configuration
+## @param config.path                        Absolute path to load the server configuration file from
+## @param config.jwtSecretKey.generate       Generates a JWT secret key if this is true as a secret.
+## @param config.jwtSecretKey.existingSecret The existing secret name for the JWT secret key. It must have only one key: `secret`
+## @param config.logback.mapName             The ConfigMap name for the Logback properties file
+## @param config.logback.path                Absolute path to load the logback.properties file from
+config:
+    mapName: config
+    path: /app/noelware/charted/server/config/charted.yaml
+    config: ''
+    jwtSecretKey:
+        generate: true
+        existingSecret: ''
+    logback:
+        mapName: logback-config
+        path: /app/noelware/charted/server/config/logback.properties
+        config: ''
+
+## @section Docker Image Parameters
+## @param image.repository Full repository URL to the charted-server Docker image
+## @param image.pullPolicy Pull policy for the image. If the `image.tag` is latest, then use `Always`.
+## @param image.tag        The tag of the Docker image to run
+image:
+    repository: ghcr.io/charted-dev/charted
+    tag: ''
+    pullPolicy: IfNotPresent
+
+## @section Service Account Parameters
+## @param serviceAccount.create      Specifies whether a service account should be created
+## @param serviceAccount.annotations Annotations to add to the service account
+## @param serviceAccount.name        The name of the service account to use. If not set and create is true, a name is generated using the fullname template
+serviceAccount:
+    create: true
+    annotations: {}
+    name: ''
+
+## @section Storage Driver Parameters
+## @param storage.driver                                   The driver to use when configuring storage. (allowed: filesystem, s3)
+## @param storage.filesystem.directory                     The container directory path to mount it to
+## @param storage.filesystem.persistence.enabled           If persistence is enabled or not
+## @param storage.filesystem.persistence.claimName         The name to the PVC name
+## @param storage.filesystem.persistence.storageClass      Storage class of backing PVC
+## @param storage.filesystem.persistence.annotations       List of annotations to append to this PVC
+## @param storage.filesystem.persistence.accessModes       Persistent Volume Access Modes
+## @param storage.filesystem.persistence.size              Max size of this PVC
+## @param storage.filesystem.persistence.selector          Selector to match an existing Persistent Volume for the data PVC
+## @param storage.s3.enableSignerV4Requests                If we should enable signer v4 requests when requesting to Amazon S3.
+## @param storage.s3.enforcePathAccessStyle                If the S3 client should be configured to use the new path style for S3 connections. This is recommended to be `true` for Minio installations
+## @param storage.s3.defaultObjectAcl                      Access Control Level for creating objects into S3.
+## @param storage.s3.defaultBucketAcl                      Access Control Level for creating the bucket in S3 if it doesn't exist
+## @param storage.s3.endpoint                              AWS endpoint to hit when connecting to S3
+## @param storage.s3.region                                Region to connect to when connecting to S3
+## @param storage.s3.bucket                                Bucket name
+## @param storage.s3.secrets.create                        If the Helm chart should create a secret for holding AWS credentials or not
+## @param storage.s3.secrets.name                          Secret name to use
+## @param storage.s3.secrets.existingSecret                Existing secret resource name
+## @param storage.s3.secrets.keys.secretAccessKey          Key value for the secret access key
+## @param storage.s3.secrets.keys.accessKeyId              Key value for the access key ID
+storage:
+    driver: filesystem
+    filesystem:
+        directory: /var/lib/noelware/charted/data
+        persistence:
+            enabled: true
+            claimName: data
+            storageClass: ''
+            annotations: {}
+            accessModes: [ReadWriteMany]
+            size: 8Gi
+            selector: {}
+    s3:
+        enableSignerV4Requests: false
+        enforcePathAccessStyle: false
+        defaultObjectAcl: bucket-owner-full-control
+        defaultBucketAcl: bucket-owner-full-control
+        endpoint: s3.amazonaws.com
+        region: us-east-1
+        bucket: charted
+        secrets:
+            create: true
+            name: aws-creds
+            existingSecret: ''
+            keys:
+                secretAccessKey: aws-secret-access-key
+                accessKeyId: aws-access-key-id
+
+## @section External Services
+## This configures the external services that charted might require. This is just in case you don't want a
+## seperate installation of each service you want to enable.
+##
+## @param external.redis.host External Redis host
+## @param external.redis.port External Redis port
+## @param external.redis.password Redis password, if auth is needed
+## @param external.redis.database Redis database
+## @param external.redis.existingPasswordSecret Secret resource for the Redis password
+## @param external.redis.existingPasswordSecretKey Secret resource name for the Redis password
+## @param external.redis.sentinels.endpoints List of sentinel endpoints to use if Redis connection is in Sentinel mode
+## @param external.redis.sentinels.masterName Sentinel master name if Redis connection is in Sentinel mode
+## @param external.redis.sentinels.existingMasterNameSecret Secret resource for the sentinel master name if Redis connection is in Sentinel mode
+## @param external.redis.sentinels.existingMasterNameSecretKey Secret resource key name for the sentinel master name if Redis connection is in Sentinel mode
+## @param external.postgres.host
+## @param external.postgres.port
+## @param external.postgres.username
+## @param external.postgres.password
+## @param external.postgres.database
+## @param external.postgres.schema
+## @param external.postgres.existingAuthSecret
+## @param external.postgres.existingUsernameSecret
+## @param external.postgres.existingPasswordSecret
+## @param external.postgres.existingUsernameSecretKey
+## @param external.postgres.existingPasswordSecretKey
+external:
+    redis:
+        host: ''
+        port: 6379
+        password: ''
+        existingPasswordSecret: ''
+        existingPasswordSecretKey: ''
+        database: 8
+        sentinels:
+            endpoints: []
+            masterName: ''
+            existingMasterNameSecret: ''
+            existingMasterNameSecretKey: ''
+    postgres:
+        host: ''
+        port: 5432
+        username: ''
+        existingUsernameSecretKey: ''
+        existingUsernameSecret: ''
+        existingAuthSecret: ''
+        password: ''
+        existingPasswordSecretKey: ''
+        existingPasswordSecret: ''
+        database: charted
+        schema: ''

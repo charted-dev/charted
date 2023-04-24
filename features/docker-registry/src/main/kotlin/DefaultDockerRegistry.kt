@@ -15,12 +15,14 @@
  * limitations under the License.
  */
 
-plugins {
-    id("charted-module")
-}
+package org.noelware.charted.features.oci.registry
 
-dependencies {
-    implementation(projects.modules.storage)
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.server.core)
+import org.noelware.charted.features.oci.registry.extensions.Extension
+import org.noelware.charted.modules.storage.StorageModule
+import java.util.ServiceLoader
+
+class DefaultDockerRegistry(private val storage: StorageModule): DockerRegistry {
+    @Suppress("UNCHECKED_CAST")
+    override val extensions: List<Extension>
+        get() = ServiceLoader.load(Extension::class.java).stream().toList() as MutableList<Extension>
 }

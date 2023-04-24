@@ -76,10 +76,10 @@ spotless {
             "modules/emails/vendor/protos/*.xml",
             "modules/emails/vendor/protos/*.md",
 
-            "distribution/chart/templates/configmap/*.yml",
-            "distribution/chart/templates/server/*.yml",
-            "distribution/chart/templates/*.yaml",
-            "distribution/chart/templates/*.yml",
+            "distribution/helm/templates/configmap/*.yaml",
+            "distribution/helm/templates/configmap/*.yml",
+            "distribution/helm/templates/*.yaml",
+            "distribution/helm/templates/*.yml",
 
             ".idea/inspectionProfiles/*.xml",
             ".idea/*.xml",

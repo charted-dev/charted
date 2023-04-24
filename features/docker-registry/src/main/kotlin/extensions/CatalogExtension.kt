@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-plugins {
-    id("charted-module")
-}
+package org.noelware.charted.features.oci.registry.extensions
 
-dependencies {
-    implementation(projects.modules.storage)
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.server.core)
+import io.ktor.server.application.*
+
+class CatalogExtension: Extension {
+    override val path: String = "catalog"
+    override suspend fun run(call: ApplicationCall) {
+        TODO("not implemented yet")
+    }
 }

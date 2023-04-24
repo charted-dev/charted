@@ -15,12 +15,8 @@
  * limitations under the License.
  */
 
-plugins {
-    id("charted-module")
-}
+package org.noelware.charted.testing.containers
 
-dependencies {
-    implementation(projects.modules.storage)
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.server.core)
-}
+import org.testcontainers.utility.DockerImageName
+
+fun String.toImageName(): DockerImageName = DockerImageName.parse(this)

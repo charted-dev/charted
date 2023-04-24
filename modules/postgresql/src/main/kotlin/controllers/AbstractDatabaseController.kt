@@ -41,10 +41,11 @@ import kotlin.reflect.KProperty0
  * @param table The [SnowflakeTable] to do operations on
  * @param entityClass The [LongEntityClass] to perform SQL expressions on
  */
+@Suppress("MemberVisibilityCanBePrivate")
 abstract class AbstractDatabaseController<T, Entity: LongEntity, Created: Any, Patched: Any>(
-    private val table: SnowflakeTable,
-    private val entityClass: LongEntityClass<Entity>,
-    private val onEntityResolve: (entity: Entity) -> T
+    internal val table: SnowflakeTable,
+    internal val entityClass: LongEntityClass<Entity>,
+    internal val onEntityResolve: (entity: Entity) -> T
 ) {
     // these are all unique to each entity, so it must be explicitly specified.
     /**

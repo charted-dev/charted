@@ -15,12 +15,11 @@
  * limitations under the License.
  */
 
-plugins {
-    id("charted-module")
-}
+package org.noelware.charted.features.oci.registry.external
 
-dependencies {
-    implementation(projects.modules.storage)
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.server.core)
-}
+/**
+ * Represents a Ktor feature that wraps all endpoints that start with `/v2`
+ * and proxy through them and provide charted-server's authentication mechanisms
+ * when being proxied.
+ */
+class ExternalDockerRegistry

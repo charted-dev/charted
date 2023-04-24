@@ -15,12 +15,17 @@
  * limitations under the License.
  */
 
-plugins {
-    id("charted-module")
-}
+package org.noelware.charted.features.oci.registry.extensions
 
-dependencies {
-    implementation(projects.modules.storage)
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.server.core)
+import io.ktor.server.application.*
+
+/**
+ * Represents a registry extension
+ */
+interface Extension {
+    /**
+     * The path to use, will always be `/v2/_{path}`.
+     */
+    val path: String
+    suspend fun run(call: ApplicationCall)
 }

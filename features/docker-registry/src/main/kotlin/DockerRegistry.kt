@@ -15,12 +15,20 @@
  * limitations under the License.
  */
 
-plugins {
-    id("charted-module")
-}
+package org.noelware.charted.features.oci.registry
 
-dependencies {
-    implementation(projects.modules.storage)
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.server.core)
+import org.noelware.charted.features.oci.registry.extensions.Extension
+
+/**
+ * Represents the implementation details for the home-grown implementation
+ * of an OCI registry that plugs into charted-server's authentication mechanisms.
+ *
+ * This *could* also be used as a Docker Registry if you wish, but it is not
+ * recommended.
+ */
+interface DockerRegistry {
+    /**
+     * List of extensions that are available
+     */
+    val extensions: List<Extension>
 }

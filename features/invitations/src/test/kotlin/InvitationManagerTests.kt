@@ -15,12 +15,20 @@
  * limitations under the License.
  */
 
-plugins {
-    id("charted-module")
-}
+package org.noelware.charted.features.invitations
 
-dependencies {
-    implementation(projects.modules.storage)
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.server.core)
-}
+// import org.noelware.charted.testing.containers.toImageName
+// import org.testcontainers.containers.GenericContainer
+// import org.testcontainers.junit.jupiter.Testcontainers
+//
+// @Testcontainers(disabledWithoutDocker = true)
+// class InvitationManagerTests {
+//    companion object {
+//        private val greenmail: GenericContainer<*> = GenericContainer("".toImageName())
+//        private val emailService: GenericContainer<*> = GenericContainer("ghcr.io/charted-dev/email-service:0.1.0-alpine".toImageName()).apply {
+//            withEnv(mapOf(
+//                "EMAILS_LOG_LEVEL" to "error"
+//            ))
+//        }
+//    }
+// }
