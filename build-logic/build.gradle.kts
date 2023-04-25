@@ -49,8 +49,8 @@ dependencies {
     implementation("com.netflix.nebula:gradle-ospackage-plugin:11.2.0")
     implementation("com.google.protobuf:protobuf-gradle-plugin:0.9.2")
     implementation("dev.floofy.commons:gradle:2.5.1")
-    implementation(kotlin("serialization", "1.8.20"))
-    implementation(kotlin("gradle-plugin", "1.8.20"))
+    implementation(kotlin("serialization", "1.8.21"))
+    implementation(kotlin("gradle-plugin", "1.8.21"))
     implementation(gradleApi())
 
     // test dependencies
