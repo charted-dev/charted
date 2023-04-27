@@ -66,7 +66,7 @@ class RepositoryDatabaseController(
 
     override suspend fun update(call: ApplicationCall, id: Long, patched: PatchRepositoryPayload) {
         val ownerId = call.ownerId ?: error("BUG: Missing owner id when updating a repository!")
-        val sqlSelector: SqlExpressionBuilder.() -> Op<Boolean> = { RepositoryTable.id eq id }
+        val sqlSelector: SqlExpressionBuilder.() -> Op<Boolean> = { (RepositoryTable.owner eq ownerId) and (RepositoryTable.id eq id) }
 
         if (patched.name != null) {
             val repoWithName = getEntityOrNull { (RepositoryTable.name eq patched.name) and (RepositoryTable.owner eq ownerId) }

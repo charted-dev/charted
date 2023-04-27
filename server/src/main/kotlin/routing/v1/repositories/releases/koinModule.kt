@@ -28,5 +28,9 @@ val repositoriesV1ReleaseModule = module {
     single { GetRepositoryReleaseTemplatesRestController(get(), getOrNull(), get()) } bind RestController::class
     single { GetRepositoryReleaseTarballRestController(get(), getOrNull(), get()) } bind RestController::class
     single { GetRepositoryReleaseValuesRestController(get(), getOrNull(), get()) } bind RestController::class
+    single { GetSingleRepositoryReleaseRestController(get(), get(), get()) } bind RestController::class
+    single { GetAllRepositoryReleasesRestController(get(), get(), get()) } bind RestController::class
+    single { PatchRepositoryReleaseRestController(get(), get(), get()) } bind RestController::class
+    single { DeleteRepositoryReleaseRestController(get(), get()) } bind RestController::class
     single { CreateRepositoryReleaseRestController(get(), get()) } bind RestController::class
 }

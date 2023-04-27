@@ -35,8 +35,11 @@ import org.noelware.charted.cli.ktor.NoOpApplicationCall
 import org.noelware.charted.cli.logger
 import org.noelware.charted.common.extensions.regexp.matchesPasswordRegex
 import org.noelware.charted.configuration.kotlin.dsl.sessions.SessionType
+import org.noelware.charted.models.users.User
 import org.noelware.charted.modules.postgresql.controllers.users.CreateUserPayload
 import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
+import org.noelware.charted.modules.postgresql.entities.UserEntity
+import org.noelware.charted.modules.postgresql.extensions.fromEntity
 import org.noelware.charted.modules.postgresql.tables.UserTable
 import org.noelware.charted.snowflake.Snowflake
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
@@ -66,7 +69,7 @@ class CreateAccountCommand(private val terminal: Terminal): AccountsAwareCommand
     ).optional()
 
     private val verifiedPublisher: Boolean by option(
-        "--verified-publisher", "-vp",
+        "--verified-publisher", "--vp",
         help = "If the created user should be a verified publisher",
     ).flag(default = false)
 
@@ -90,15 +93,54 @@ class CreateAccountCommand(private val terminal: Terminal): AccountsAwareCommand
             )
         }
 
-        val config = resolveConfigHost().load(resolveConfigFile())
-        if (config.sessions.type != SessionType.Local) {
-            terminal.logger.warn("Session manager is not configured to be the local one, please create it yourself.")
-            exitProcess(1)
-        }
-
         val argon2 = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8()
         val snowflake = Snowflake(0, SNOWFLAKE_EPOCH)
+        val config = resolveConfigHost().load(resolveConfigFile())
         val controller = UserDatabaseController(argon2, config, snowflake)
+        if (config.sessions.type != SessionType.Local) {
+            terminal.logger.warn(
+                """
+            |Your configured session manager is [${config.sessions.type}], which means you will need
+            |to create an account that can be resolved to the local account @$username.
+            |
+            |~> LDAP: Create a user in the specified group (from the `config.sessions.ldap.group_id` configuration
+            |key) and it will automatically be queried and resolved on every login invocation.
+            """.trimMargin("|"),
+            )
+
+            if (password != null) {
+                terminal.logger.warn("Providing a password is optional and will not be resolved in the final local account creation.")
+            }
+
+            val userByUsername = runBlocking { controller.getOrNull(UserTable::username to username) }
+            if (userByUsername != null) {
+                terminal.logger.fatal("Username [$username] is already taken!")
+            }
+
+            val userByEmail = runBlocking { controller.getOrNull(UserTable::email to email) }
+            if (userByEmail != null) {
+                terminal.logger.fatal("Email [$email] is already taken!")
+            }
+
+            val id = runBlocking { snowflake.generate() }
+            val user = transaction {
+                UserEntity.new(id.value) {
+                    createdAt = LocalDateTime.now().toKotlinLocalDateTime()
+                    updatedAt = LocalDateTime.now().toKotlinLocalDateTime()
+                    username = username
+                    email = email
+                }
+            }.let { entity -> User.fromEntity(entity) }
+
+            val abilities = listOfNotNull(
+                if (user.admin) "Administrator" else null,
+                if (user.verifiedPublisher) "Verified Publisher" else null,
+            ).joinToString(", ")
+
+            terminal.logger.info("Created user @$username with${if (abilities.isNotBlank()) " abilities [$abilities]" else " no abilities"}. (${user.id})")
+            exitProcess(0) // force kill for koin
+        }
+
         val user = runBlocking {
             controller.create(
                 NoOpApplicationCall(),

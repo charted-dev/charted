@@ -15,6 +15,15 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.routing.v1.repositories.releases
+package org.noelware.charted.server.routing.v1.organizations.repositories
 
-class GetRepositoryReleasesRestController
+import org.koin.dsl.bind
+import org.koin.dsl.module
+import org.noelware.charted.server.routing.RestController
+
+val organizationRepositoriesV1Module = module {
+    single { CreateOrganizationRepositoryRestController(get(), get(), getOrNull()) } bind RestController::class
+    single { GetSingleOrganizationRepositoryRestController(get(), get()) } bind RestController::class
+    single { GetAllOrganizationRepositoriesRestController(get(), get()) } bind RestController::class
+    single { PatchOrganizationRepositoryRestController(get(), get()) } bind RestController::class
+}

@@ -19,6 +19,7 @@ package org.noelware.charted.server.plugins.sessions
 
 import com.auth0.jwt.exceptions.JWTDecodeException
 import com.auth0.jwt.exceptions.TokenExpiredException
+import org.noelware.charted.server.extensions.currentUser
 import dev.floofy.utils.koin.inject
 import dev.floofy.utils.slf4j.logging
 import io.ktor.http.*
@@ -59,7 +60,7 @@ class Sessions private constructor(private val config: Configuration) {
         var assertSessionOnly: Boolean = false
 
         /**
-         * Allows non authorization requests to be passed by. This means that [currentUser] will be null
+         * Allows non authorization requests to be passed by. This means that [currentUser][ApplicationCall.currentUser] will be null
          * if no authorization header was passed and all checks are bypassed, except for precondition
          * checks.
          */

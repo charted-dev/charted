@@ -57,7 +57,7 @@ public open class SessionsConfig(public val type: SessionType) {
      * control authentication.
      *
      * The `PUT /users` REST controller is disabled, and users are automatically pulled from
-     * the specified [group] it resides in, and will create users based off that.
+     * the specified group it resides in, and will create users based off that.
      *
      * @param abandonOnTimeout If a connection timed out, abandon the connection in the pool
      * @param maxConnections Maximum amount of connections to pool connections over.

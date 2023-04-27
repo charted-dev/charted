@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.server.routing.v1.users.repositories
+package org.noelware.charted.server.routing.v1.organizations.repositories
 
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -25,34 +25,37 @@ import io.ktor.server.util.*
 import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.repositories.Repository
-import org.noelware.charted.modules.openapi.NameOrSnowflake
+import org.noelware.charted.modules.openapi.kotlin.dsl.idOrName
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
-import org.noelware.charted.modules.postgresql.controllers.getByIdOrNameOrNull
+import org.noelware.charted.modules.postgresql.controllers.getEntityByIdOrNameOrNull
+import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
-import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
+import org.noelware.charted.modules.postgresql.tables.OrganizationTable
 import org.noelware.charted.modules.postgresql.tables.RepositoryTable
-import org.noelware.charted.modules.postgresql.tables.UserTable
 import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.plugins.sessions.preconditions.canAccessOrganization
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 import kotlin.reflect.typeOf
 
-class GetAllUserRepositoriesRestController(
-    private val controller: RepositoryDatabaseController,
-    private val usersController: UserDatabaseController
-): RestController("/users/{idOrName}/repositories") {
+class GetAllOrganizationRepositoriesRestController(
+    private val organizations: OrganizationDatabaseController,
+    private val controller: RepositoryDatabaseController
+): RestController("/organizations/{idOrName}/repositories") {
     override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions) {
             allowNonAuthorizedRequests = true
+
+            condition { call -> canAccessOrganization(call, false) }
         }
     }
 
     override suspend fun call(call: ApplicationCall) {
         val idOrName = call.parameters.getOrFail("idOrName")
-        val user = usersController.getByIdOrNameOrNull(idOrName, UserTable::username) ?: return call.respond(
+        val org = organizations.getEntityByIdOrNameOrNull(idOrName, OrganizationTable::name) ?: return call.respond(
             HttpStatusCode.BadRequest,
             ApiResponse.err(
                 "UNKNOWN_USER",
@@ -60,27 +63,23 @@ class GetAllUserRepositoriesRestController(
             ),
         )
 
-        val repos = controller.all(RepositoryTable::owner to user.id)
+        val repos = controller.all(RepositoryTable::owner to org.id.value)
         if (call.currentUser == null) {
             return call.respond(HttpStatusCode.OK, ApiResponse.ok(repos.filterNot { it.private }))
         }
 
-        if (call.currentUser!!.id != user.id) {
+        if (org.owner.id.value != call.currentUser?.id || !org.members.any { it.account.id.value == call.currentUser!!.id }) {
             return call.respond(HttpStatusCode.OK, ApiResponse.ok(repos.filterNot { it.private }))
         }
 
-        call.respond(HttpStatusCode.OK, ApiResponse.ok(controller.all(RepositoryTable::owner to user.id)))
+        call.respond(HttpStatusCode.OK, ApiResponse.ok(repos))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/users/{idOrName}/repositories") {
+    override fun toPathDsl(): PathItem = toPaths("/organizations/{idOrName}/repositories") {
         get {
-            description = "Returns all of an user's repositories"
+            description = "Returns all of an organization's repositories"
 
-            pathParameter {
-                name = "idOrName"
-                schema<NameOrSnowflake>()
-            }
-
+            idOrName()
             response(HttpStatusCode.OK) {
                 contentType(ContentType.Application.Json) {
                     schema(typeOf<ApiResponse.Ok<List<Repository>>>(), ApiResponse.ok(listOf<Repository>()))

@@ -170,6 +170,7 @@ prometheus-simpleclient = { module = "io.prometheus:simpleclient", version.ref =
 
 # jackson libraries
 jackson-kotlin-module = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+jackson-format-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
 
 # swagger

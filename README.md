@@ -1,6 +1,6 @@
-# 📦 Noelware's Charts Platform (charted-server)
+# 🐻‍❄️📦 charted-server
 
-[![Kotlin v1.8.10](https://img.shields.io/badge/kotlin-1.8.10-blue.svg?logo=kotlin)](https://kotlinlang.org)
+[![Kotlin v1.8.21](https://img.shields.io/badge/kotlin-1.8.21-blue.svg?logo=kotlin)](https://kotlinlang.org)
 [![GitHub License](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Linting and Unit Testing](https://github.com/charted-dev/charted/actions/workflows/Linting.yaml/badge.svg?branch=main)](https://github.com/charted-dev/charted/actions/workflows/Linting.yaml)
 [![ktlint](https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg)](https://ktlint.github.io/)
@@ -19,5 +19,5 @@ is meant to be a very easy solution to distribute Helm charts on the cloud witho
 
 ## License
 
-**Noelware's Charts Platform** (charted-server) is released under the **Apache 2.0** License with love by Noelware~!
-If you wish to know more, you can read the [LICENSE](./LICENSE) file for more information.
+**charted-server** is released under the **Apache 2.0** License with love by Noelware~! If you wish to know more,
+you can read the [LICENSE](./LICENSE) file for more information.

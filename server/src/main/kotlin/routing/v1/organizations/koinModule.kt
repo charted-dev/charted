@@ -21,10 +21,12 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.noelware.charted.server.routing.RestController
 import org.noelware.charted.server.routing.v1.organizations.crud.organizationsV1Crud
+import org.noelware.charted.server.routing.v1.organizations.repositories.organizationRepositoriesV1Module
 import org.noelware.charted.server.util.composeKoinModules
 
 val organizationsV1Module = composeKoinModules(
     organizationsV1Crud,
+    organizationRepositoriesV1Module,
     module {
         single { MainOrganizationsRestController() } bind RestController::class
     },
