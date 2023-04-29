@@ -15,10 +15,14 @@
  * limitations under the License.
  */
 
-plugins {
-    id("charted-module")
-}
+package org.noelware.charted.modules.search.elasticsearch.jobs
 
-dependencies {
-    implementation(libs.cron.utils)
+import org.koin.dsl.bind
+import org.koin.dsl.module
+import org.noelware.charted.modules.tasks.scheduling.jobs.CronJob
+
+val elasticsearchCronJobModule = module {
+    single { IndexAllOrganizationsCronJob(get()) } bind CronJob::class
+    single { IndexAllRepositoriesCronJob(get()) } bind CronJob::class
+    single { IndexAllUsersCronJob(get(), get()) } bind CronJob::class
 }

@@ -17,7 +17,26 @@
 
 package org.noelware.charted.modules.tasks.scheduling
 
+import org.noelware.charted.modules.tasks.scheduling.jobs.CronJob
+
 /**
  * Represents a scheduler for handling tasks in the background.
  */
-interface TaskScheduler
+interface TaskScheduler {
+    /**
+     * Returns the list of scheduled jobs
+     */
+    val jobs: List<CronJob>
+
+    /**
+     * Schedules all the available classes that can be instances
+     * of [CronJob].
+     */
+    fun scheduleAll()
+
+    /**
+     * Un-schedules all the available jobs that were executed in this
+     * [TaskScheduler].
+     */
+    fun unscheduleAll()
+}

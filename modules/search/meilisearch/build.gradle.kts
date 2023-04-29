@@ -18,3 +18,8 @@
 plugins {
     id("charted-module")
 }
+
+dependencies {
+    implementation(projects.modules.taskScheduler)
+    implementation(libs.ktor.client.core)
+}

@@ -20,6 +20,7 @@ plugins {
 }
 
 dependencies {
+    implementation(projects.modules.taskScheduler)
     implementation(projects.modules.postgresql)
     implementation(projects.modules.storage)
 

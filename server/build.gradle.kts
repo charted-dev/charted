@@ -36,6 +36,7 @@ dependencies {
     implementation(projects.modules.tracing.sentry)
     implementation(projects.modules.sessions.local)
     implementation(projects.modules.sessions.ldap)
+    implementation(projects.modules.taskScheduler)
     implementation(projects.config.kotlinScript)
     implementation(projects.modules.helmCharts)
     implementation(projects.modules.postgresql)

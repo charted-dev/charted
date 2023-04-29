@@ -64,11 +64,14 @@ import org.noelware.charted.modules.redis.RedisClient
 import org.noelware.charted.modules.redis.metrics.RedisServerStats
 import org.noelware.charted.modules.search.SearchModule
 import org.noelware.charted.modules.search.elasticsearch.DefaultElasticsearchModule
+import org.noelware.charted.modules.search.elasticsearch.jobs.elasticsearchCronJobModule
 import org.noelware.charted.modules.search.elasticsearch.metrics.ElasticsearchStats
 import org.noelware.charted.modules.sessions.AbstractSessionManager
 import org.noelware.charted.modules.sessions.local.LocalSessionManager
 import org.noelware.charted.modules.storage.DefaultStorageModule
 import org.noelware.charted.modules.storage.StorageModule
+import org.noelware.charted.modules.tasks.scheduling.DefaultTaskScheduler
+import org.noelware.charted.modules.tasks.scheduling.TaskScheduler
 import org.noelware.charted.modules.tracing.Tracer
 import org.noelware.charted.modules.tracing.multitenant.MultiTenantTracer
 import org.noelware.charted.modules.tracing.sentry.SentryTracer
@@ -143,6 +146,7 @@ object ConfigureModulesPhase: BootstrapPhase() {
 
         // 1677654000000 = March 1st, 2023
         val snowflake = Snowflake(0, SNOWFLAKE_EPOCH)
+        val taskScheduler = DefaultTaskScheduler()
         val argon2 = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8()
         val metrics = if (config.metrics.enabled) {
             PrometheusMetricsSupport(ds)
@@ -171,6 +175,7 @@ object ConfigureModulesPhase: BootstrapPhase() {
             single { EmailValidator.getInstance(true, true) }
             single<AvatarModule> { DefaultAvatarModule(storage, httpClient) }
             single<Server> { DefaultServer(config) }
+            single<TaskScheduler> { taskScheduler }
             single<StorageModule> { storage }
             single<RedisClient> { redis }
             single { httpClient }
@@ -208,10 +213,13 @@ object ConfigureModulesPhase: BootstrapPhase() {
                 elasticsearchModule.init()
 
                 metrics.add(ElasticsearchStats.Collector(elasticsearchModule, config))
-                modules.add(
-                    module {
-                        single<SearchModule> { elasticsearchModule }
-                    },
+                modules.addAll(
+                    listOf(
+                        elasticsearchCronJobModule,
+                        module {
+                            single<SearchModule> { elasticsearchModule }
+                        },
+                    ),
                 )
             }
         }

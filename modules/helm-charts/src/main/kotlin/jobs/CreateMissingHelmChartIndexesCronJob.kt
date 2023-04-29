@@ -15,10 +15,19 @@
  * limitations under the License.
  */
 
-plugins {
-    id("charted-module")
-}
+package org.noelware.charted.modules.helm.charts.jobs
 
-dependencies {
-    implementation(libs.cron.utils)
+import kotlinx.atomicfu.atomic
+import org.noelware.charted.modules.helm.charts.HelmChartModule
+import org.noelware.charted.modules.tasks.scheduling.jobs.CronJob
+
+class CreateMissingHelmChartIndexesCronJob(private val charts: HelmChartModule): CronJob(
+    "create or missing helm chart indexes",
+    "*/10 * * * *",
+) {
+    // keep track if we are still checking
+    private val isStillExecuting = atomic(false)
+
+    override suspend fun execute() {
+    }
 }

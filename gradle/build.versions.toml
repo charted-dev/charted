@@ -38,6 +38,7 @@ bouncycastle = "1.73"
 noel-commons = "2.5.1"
 elastic-apm = "1.37.0"
 grpc-kotlin = "1.3.0"
+cron-utils = "9.2.0"
 postgresql = "42.6.0"
 snowflake = "0.1-beta"
 protobuf = "3.22.3"
@@ -203,6 +204,7 @@ tomcat-annotations-api = { module = "org.apache.tomcat:annotations-api", version
 jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jb-annotations" }
 unbound-ldap-sdk = { module = "com.unboundid:unboundid-ldapsdk", version.ref = "unbound-ldap" }
 bouncycastle = { module = "org.bouncycastle:bcpkix-jdk15to18", version.ref = "bouncycastle" }
+cron-utils = { module = "com.cronutils:cron-utils", version.ref = "cron-utils" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 snowflake = { module = "org.noelware.charted.snowflake:snowflake", version.ref = "snowflake" }
 hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }

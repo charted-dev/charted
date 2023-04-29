@@ -19,11 +19,15 @@ package org.noelware.charted.server.bootstrap
 
 import dev.floofy.utils.koin.inject
 import org.noelware.charted.Server
+import org.noelware.charted.modules.tasks.scheduling.TaskScheduler
 import java.io.File
 
 object StartServerPhase: BootstrapPhase() {
     override suspend fun phaseThrough(config: File) {
         val server: Server by inject()
+        val taskScheduler: TaskScheduler by inject()
+
+        taskScheduler.scheduleAll()
         server.start()
     }
 }

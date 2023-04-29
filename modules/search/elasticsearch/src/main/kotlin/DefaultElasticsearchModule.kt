@@ -31,7 +31,6 @@ import kotlinx.atomicfu.AtomicBoolean
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
@@ -51,7 +50,6 @@ import org.elasticsearch.client.sniff.ElasticsearchNodesSniffer
 import org.elasticsearch.client.sniff.SniffOnFailureListener
 import org.elasticsearch.client.sniff.Sniffer
 import org.jetbrains.exposed.sql.transactions.TransactionManager
-import org.noelware.charted.ChartedScope
 import org.noelware.charted.common.extensions.closeable.closeQuietly
 import org.noelware.charted.common.extensions.formatting.doFormatTime
 import org.noelware.charted.common.extensions.sentry.ifSentryEnabled
@@ -68,7 +66,6 @@ import org.noelware.charted.modules.postgresql.entities.RepositoryEntity
 import org.noelware.charted.modules.postgresql.entities.UserEntity
 import org.noelware.charted.modules.postgresql.extensions.fromEntity
 import org.noelware.charted.modules.search.elasticsearch.metrics.ElasticsearchStats
-import org.noelware.charted.launch
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.security.KeyStore
@@ -276,13 +273,7 @@ class DefaultElasticsearchModule(
 
         try {
             log.info("Starting to index documents...")
-
-            // Start in a background coroutine so other components can load since
-            // indexing in Elasticsearch can take a while ;-;
-            ChartedScope.launch {
-                createOrUpdateIndices()
-                indexAllData()
-            }
+            createOrUpdateIndices()
         } catch (e: Exception) {
             ifSentryEnabled { Sentry.captureException(e) }
             log.error("Unable to index all documents into Elasticsearch, data might be loss!", e)
@@ -447,7 +438,7 @@ class DefaultElasticsearchModule(
                             }
                         }
 
-                        runBulkRequest(sw, index, baos)
+                        runBulkRequest(index, baos)
                     }
                 }
 
@@ -473,7 +464,7 @@ class DefaultElasticsearchModule(
                             }
                         }
 
-                        runBulkRequest(sw, index, baos)
+                        runBulkRequest(index, baos)
                     }
                 }
 
@@ -499,7 +490,7 @@ class DefaultElasticsearchModule(
                             }
                         }
 
-                        runBulkRequest(sw, index, baos)
+                        runBulkRequest(index, baos)
                     }
                 }
 
@@ -559,8 +550,7 @@ class DefaultElasticsearchModule(
         }
     }
 
-    private suspend fun runBulkRequest(
-        sw: StopWatch,
+    internal suspend fun runBulkRequest(
         index: String,
         baos: ByteArrayOutputStream
     ) {
@@ -577,8 +567,7 @@ class DefaultElasticsearchModule(
                 }
 
                 override fun onSuccess(response: Response) {
-                    sw.suspend()
-                    log.info("Performed request [$request] with status line [${response.statusLine}][${sw.doFormatTime()}]")
+                    log.info("Performed request [$request] with status line [${response.statusLine}]")
                     fut.complete(Unit)
                 }
             },

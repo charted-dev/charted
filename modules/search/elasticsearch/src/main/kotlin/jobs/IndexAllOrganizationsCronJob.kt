@@ -15,10 +15,20 @@
  * limitations under the License.
  */
 
-plugins {
-    id("charted-module")
-}
+package org.noelware.charted.modules.search.elasticsearch.jobs
 
-dependencies {
-    implementation(libs.cron.utils)
+import dev.floofy.utils.slf4j.logging
+import org.noelware.charted.modules.search.SearchModule
+import org.noelware.charted.modules.search.elasticsearch.ElasticsearchModule
+import org.noelware.charted.modules.tasks.scheduling.jobs.CronJob
+
+class IndexAllOrganizationsCronJob(search: SearchModule): CronJob(
+    "index organizations into elasticsearch",
+    "@hourly",
+) {
+    private val elasticsearch = search as ElasticsearchModule
+    private val log by logging<IndexAllOrganizationsCronJob>()
+
+    override suspend fun execute() {
+    }
 }

@@ -19,6 +19,7 @@ package org.noelware.charted.server.bootstrap
 
 import com.zaxxer.hikari.HikariDataSource
 import dev.floofy.utils.koin.inject
+import dev.floofy.utils.koin.injectOrNull
 import dev.floofy.utils.slf4j.logging
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
@@ -27,7 +28,9 @@ import org.noelware.charted.ChartedScope
 import org.noelware.charted.Server
 import org.noelware.charted.common.extensions.closeable.closeQuietly
 import org.noelware.charted.modules.redis.RedisClient
+import org.noelware.charted.modules.search.elasticsearch.ElasticsearchModule
 import org.noelware.charted.modules.sessions.AbstractSessionManager
+import org.noelware.charted.modules.tasks.scheduling.TaskScheduler
 
 object ShutdownPhaseThread: Thread("Server-ShutdownPhaseThread") {
     private val log by logging<ShutdownPhaseThread>()
@@ -37,11 +40,15 @@ object ShutdownPhaseThread: Thread("Server-ShutdownPhaseThread") {
 
         val koin = GlobalContext.getKoinApplicationOrNull()
         if (koin != null) {
+            val taskScheduler: TaskScheduler by inject()
+            val elasticsearch: ElasticsearchModule? by injectOrNull()
             val sessions: AbstractSessionManager by inject()
             val hikari: HikariDataSource by inject()
             val server: Server by inject()
             val redis: RedisClient by inject()
 
+            taskScheduler.unscheduleAll()
+            elasticsearch?.closeQuietly()
             sessions.closeQuietly()
             hikari.closeQuietly()
             redis.closeQuietly()
