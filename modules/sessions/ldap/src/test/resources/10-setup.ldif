@@ -1,0 +1,51 @@
+# 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+# Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+dn: ou=employees,DC=ldap,DC=charts,DC=noelware,DC=org
+objectClass: organizationalUnit
+ou: employees
+
+dn: uid=noel,ou=employees,DC=ldap,DC=charts,DC=noelware,DC=org
+uid: noel
+uidNumber: 1000
+gidNumber: 1000
+homeDirectory: /home/noel
+cn: Noel Towa
+sn: Noel Towa
+objectClass: posixAccount
+userPassword: noelownsyoursoul
+mail: noel@ldap.charts.noelware.org
+
+dn: uid=boel,ou=employees,DC=ldap,DC=charts,DC=noelware,DC=org
+uid: boel
+uidNumber: 1001
+gidNumber: 1001
+homeDirectory: /home/boel
+cn: Boel Towa
+sn: Boel Towa
+objectClass: posixAccount
+userPassword: theactualownerofnoelware
+mail: boel@ldap.charts.noelware.org
+
+dn: uid=kadi,ou=employees,DC=ldap,DC=charts,DC=noelware,DC=org
+uid: kadi
+uidNumber: 1002
+gidNumber: 1002
+homeDirectory: /home/kadi
+cn: Kadi Panda
+sn: Kadi Panda
+objectClass: posixAccount
+userPassword: harmlessandwholesomepaba
+mail: kadi@ldap.charts.noelware.org

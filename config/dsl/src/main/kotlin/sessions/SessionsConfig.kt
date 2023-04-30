@@ -61,7 +61,7 @@ public open class SessionsConfig(public val type: SessionType) {
      *
      * @param abandonOnTimeout If a connection timed out, abandon the connection in the pool
      * @param maxConnections Maximum amount of connections to pool connections over.
-     * @param objectCategory The object category to filter when searching
+     * @param objectClass The object category to filter when searching
      * @param organization Organization name
      * @param keepAlive If `SO_KEEPALIVE` should be enabled on the connection pool
      * @param role The binding role to use to pull new users into the API server. (i.e, `CN=Something,CN=Else`)
@@ -73,11 +73,11 @@ public open class SessionsConfig(public val type: SessionType) {
         @SerialName("abandon-on-timeout")
         val abandonOnTimeout: Boolean = true,
 
-        @SerialName("max-connections")
+        @SerialName("max_connections")
         val maxConnections: Int = 10,
 
-        @SerialName("object-category")
-        val objectCategory: String,
+        @SerialName("object_class")
+        val objectClass: String,
         val organization: String,
 
         @SerialName("keep-alive")
@@ -95,7 +95,7 @@ public open class SessionsConfig(public val type: SessionType) {
             public var maxConnections: Int = 10
 
             /** The object category to filter when searching */
-            public var objectCategory: String by Delegates.notNull()
+            public var objectClass: String by Delegates.notNull()
 
             /** Organization name */
             public var organization: String by Delegates.notNull()
@@ -112,7 +112,7 @@ public open class SessionsConfig(public val type: SessionType) {
             /** The port to connect to */
             public var port: Int = 389
 
-            override fun build(): LDAP = LDAP(abandonOnTimeout, maxConnections, objectCategory, organization, keepAlive, role, host, port)
+            override fun build(): LDAP = LDAP(abandonOnTimeout, maxConnections, objectClass, organization, keepAlive, role, host, port)
         }
     }
 

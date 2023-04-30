@@ -23,6 +23,14 @@ exclude:
     # In most cases, it's usually on the File class, which can
     # be safely ignored.
     - name: IgnoreResultOfCall
+
+    # in Kotlin source code, we don't use string argument templates,
+    # (maybe we do?), but at the moment, we do not.
+    - name: LoggingStringTemplateAsArgument
+      paths:
+          - '**/*.kt'
+          - '**/*.kts'
+
     - name: All
       paths:
           - build-logic/build/**

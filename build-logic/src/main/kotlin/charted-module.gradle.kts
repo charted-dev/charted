@@ -68,8 +68,9 @@ dependencies {
     testImplementation(libs.library("testcontainers-junit"))
     testImplementation(libs.library("junit-jupiter-engine"))
     testImplementation(libs.library("testcontainers-core"))
-    testImplementation(project(":testing:containers"))
+    testImplementation(libs.library("kotlinx-coroutines-test"))
     testImplementation(libs.library("junit-jupiter-api"))
+    testImplementation(project(":testing:containers"))
     testImplementation(libs.library("slf4j-simple"))
     testImplementation(libs.library("assertj"))
     testImplementation(kotlin("test"))
@@ -93,7 +94,7 @@ dependencies {
         }
     }
 
-    // Add common libraries that are used through out all projects
+    // Add common libraries that are used throughout all projects
     // kotlinx.serialization
     api(libs.library("kotlinx-serialization-core"))
     api(libs.library("kotlinx-serialization-json"))

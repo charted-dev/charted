@@ -26,11 +26,9 @@ import org.noelware.charted.modules.postgresql.entities.UserEntity
 import org.noelware.charted.modules.redis.RedisClient
 import org.noelware.charted.modules.sessions.AbstractSessionManager
 import org.noelware.charted.modules.sessions.Session
-import org.noelware.charted.snowflake.Snowflake
 import java.net.InetAddress
 
 class LdapSessionManager(
-    private val snowflake: Snowflake,
     config: Config,
     redis: RedisClient,
     json: Json

@@ -17,6 +17,7 @@
 
 package org.noelware.charted
 
+import dev.floofy.utils.kotlin.ifNotNull
 import dev.floofy.utils.kotlin.threading.createThreadFactory
 import io.sentry.Sentry
 import io.sentry.kotlin.SentryContext
@@ -29,19 +30,27 @@ public object ChartedScope: CoroutineScope {
         SupervisorJob() + Executors.newCachedThreadPool(createThreadFactory("Charted-CoroutineExecutor")).asCoroutineDispatcher()
 }
 
+private fun ChartedScope.createCoroutineContext(subContext: CoroutineContext?): CoroutineContext {
+    val context = if (Sentry.isEnabled()) SentryContext() + coroutineContext else coroutineContext
+    return subContext.ifNotNull { this + context } ?: context
+}
+
 /**
  * Launches a new coroutine [job][Job] without blocking the main thread. This should
  * be the preferred way to launch coroutines since it will automatically attach a [SentryContext]
- * to the job if it is enabled by the API server.
+ * to the job if it is enabled by the API server, and a [subContext] if instructed
+ * to.
  *
+ * @param subContext A sub [CoroutineContext] to append to the [Job].
  * @param start [CoroutineStart] on how to start the coroutine
  * @param block Code to execute when launched
  */
 public fun ChartedScope.launch(
+    subContext: CoroutineContext? = null,
     start: CoroutineStart = CoroutineStart.DEFAULT,
     block: suspend CoroutineScope.() -> Unit = {}
 ): Job = launch(
-    if (Sentry.isEnabled()) SentryContext() + coroutineContext else coroutineContext,
+    createCoroutineContext(subContext),
     start,
     block,
 )
