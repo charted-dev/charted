@@ -30,7 +30,7 @@ pluginManagement {
 
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.5.0"
-    id("com.gradle.enterprise") version "3.13"
+    id("com.gradle.enterprise") version "3.13.1"
 }
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
