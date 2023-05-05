@@ -69,6 +69,14 @@ fun main(args: Array<String>) {
     val terminal = Terminal()
     try {
         if (args.isNotEmpty() && args.first() != "server") {
+            // Remove `logback.*` from system properties,
+            // so we don't get Logback information
+            for (name in System.getProperties().keys) {
+                if (name is String && name.startsWith("logback")) {
+                    System.getProperties().remove(name)
+                }
+            }
+
             // Disable Logback from being used in non-server commands
             val log = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as? ch.qos.logback.classic.Logger
             log?.level = Level.OFF
