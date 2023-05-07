@@ -29,10 +29,10 @@ import org.noelware.charted.server.util.composeKoinModules
 
 val routingV1Module = composeKoinModules(
     usersV1Module,
-    *repositoriesV1Module.toTypedArray(),
-    *organizationsV1Module.toTypedArray(),
     apiKeysV1Module,
     adminV1RoutingModule,
+    *repositoriesV1Module.toTypedArray(),
+    *organizationsV1Module.toTypedArray(),
     module {
         single { IndexMappingsRestController(get(), getOrNull(), get(), get()) } bind RestController::class
         single { MetricsRestController(get(), get()) } bind RestController::class

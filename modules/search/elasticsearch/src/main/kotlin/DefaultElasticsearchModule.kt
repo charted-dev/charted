@@ -276,11 +276,9 @@ class DefaultElasticsearchModule(
 
         try {
             log.info("Starting to index documents...")
+            createOrUpdateIndices()
 
-            // Start in a background coroutine so other components can load since
-            // indexing in Elasticsearch can take a while ;-;
             ChartedScope.launch {
-                createOrUpdateIndices()
                 indexAllData()
             }
         } catch (e: Exception) {

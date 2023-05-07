@@ -35,7 +35,7 @@ import org.noelware.remi.support.filesystem.FilesystemStorageService
 import kotlin.time.Duration.Companion.hours
 
 class CdnRestController(
-    private val config: Config,
+    config: Config,
     private val storage: StorageModule
 ): RestController("${config.cdn!!.prefix}/{params...}") {
     override val apiVersion: APIVersion = APIVersion.V1

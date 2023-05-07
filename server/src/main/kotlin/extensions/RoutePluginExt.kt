@@ -15,6 +15,16 @@
  * limitations under the License.
  */
 
-plugins {
-    id("charted-module")
+package org.noelware.charted.server.extensions
+
+import io.ktor.server.application.*
+import io.ktor.server.routing.*
+import org.noelware.charted.server.plugins.sessions.IsAdminGuard
+import org.noelware.charted.server.plugins.sessions.Sessions
+
+fun Route.sessions(adminGuard: Boolean = false, block: Sessions.Configuration.() -> Unit = {}) {
+    install(Sessions, block)
+    if (adminGuard) {
+        install(IsAdminGuard)
+    }
 }

@@ -77,7 +77,6 @@ include(
     ":modules:setup",
     ":modules:setup:single-user",
     ":modules:storage",
-    ":modules:task-scheduler",
     ":modules:telemetry",
     ":modules:tracing",
     ":modules:tracing:elastic-apm",

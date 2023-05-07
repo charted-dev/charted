@@ -89,7 +89,7 @@ noel-commons-slf4j = { module = "dev.floofy.commons:slf4j", version.ref = "noel-
 
 # apache utilities
 apache-commons-validator = { module = "commons-validator:commons-validator", version.ref = "apache-commons-validator" }
-apache-commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "apache-commons-compress"}
+apache-commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "apache-commons-compress" }
 apache-commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "apache-commons-lang3" }
 
 # remi libraries
