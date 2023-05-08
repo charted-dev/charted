@@ -33,6 +33,7 @@ plugins {
     id("com.gradle.enterprise") version "3.13.1"
 }
 
+enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 dependencyResolutionManagement {
     versionCatalogs {

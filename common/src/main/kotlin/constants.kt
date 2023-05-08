@@ -22,3 +22,23 @@ package org.noelware.charted
  * be March 1st, 2023
  */
 public const val SNOWFLAKE_EPOCH: Long = 1677654000000
+
+/**
+ * Regular expression to evaluate booleans with human-input like `yes`.
+ */
+public val TRUE_BOOL_REGEX: Regex = "^(yes|true|1|enabled|enable|si*)$".toRegex()
+
+/**
+ * Checks if we are in debug-mode or not.
+ *
+ * Priority is:
+ *  - `CHARTED_DEBUG` environment variable
+ *  - `-Dorg.noelware.charted.debug` system property
+ */
+public fun isDebugEnabled(): Boolean {
+    val environmentVariable = System.getenv("CHARTED_DEBUG")
+    if (environmentVariable != null) return environmentVariable matches TRUE_BOOL_REGEX
+
+    val systemProperty: String = System.getProperty("org.noelware.charted.debug", "false")
+    return systemProperty matches TRUE_BOOL_REGEX
+}

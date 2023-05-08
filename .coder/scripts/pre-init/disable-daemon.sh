@@ -15,23 +15,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if ! [ -d "$HOME/.persist" ]; then
-    mkdir "$HOME/.persist"
+# In small-tight Coder deployments, it is recommended to disable the Gradle
+# daemon so we do not leak too much memory from Gradle since IntelliJ does
+# take a chunk of memory itself.
+
+echo "===> Disabling Gradle daemon..."
+if ! [ -f "$HOME/.gradle/gradle.properties" ]; then
+    echo "org.gradle.daemon=false" >> "$HOME/.gradle/gradle.properties"
 fi
-
-SERVICES=$(docker compose -f docker-compose.yml config --format=json | jq '.services')
-SERVICE_KEYS=$(echo "$SERVICES" | jq 'keys[]' | tr -d '"')
-
-for key in $SERVICE_KEYS; do
-    echo "===> Creating persistence directory in [~/.persist/$key]"
-    DIR=~/.persist/"$key"
-
-    [ ! -d "$DIR" ] && mkdir "$DIR"
-    if [ "$key" == "postgres" ]; then
-        sudo chown -R 1001:1001 ~/.persist/postgres
-    fi
-
-    if [ "$key" == "redis" ]; then
-        sudo chown -R 1001:1001 ~/.persist/redis
-    fi
-done

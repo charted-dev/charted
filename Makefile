@@ -14,7 +14,7 @@
 # limitations under the License.
 
 # https://stackoverflow.com/a/14061796
-# we only do this with the `charted` or `web` recipes.
+# we only do this with the `charted` recipes.
 ifeq (charted, $(firstword $(MAKECMDGOALS)))
   runargs := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
   $(eval $(runargs):;@true)
@@ -29,11 +29,12 @@ endif
 .PHONY: help
 help: ## Prints the help usage on the charted-server toolchain.
 	@printf "\033[34m────────────────────────────────────────────────────────────────────────────────────────────\033[0m\n"
-	@printf "This is the help command for building charted-server. To get started, run 'make run' to\n"
-	@printf "begin the build process and run the API server."
+	@printf "charted-server uses Make to automate most repeative Gradle tasks (i.e, :cli:installDist), but\n"
+	@printf "Gradle is our main build-system and this Makefile doesn't give granular control over\n"
+	@printf "Gradle execution."
 	@printf "\n"
 	@printf "\n:: Usage ::\n"
-	@printf "make <target> [VARIABLE=value]\n"
+	@printf "make <target>\n"
 	@printf "\n:: Targets ::\n"
 	@awk 'BEGIN {FS = ":.*##"; } /^[a-zA-Z_-]+:.*?##/ { printf "  make \033[36m%-25s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 25) } ' $(MAKEFILE_LIST)
 
@@ -66,20 +67,3 @@ test: spotless ## Runs all the project tests
 .PHONY: kill-gradle-daemons
 kill-gradle-daemons: ## Kills all the Gradle daemons
 	@pkill -f '.*GradleDaemon.*'
-
-.PHONY: build-web
-build-web: fmt eslint ## Builds `charted-web`. Required Node.js to be installed
-	@(cd web && pnpm run build)
-	@chmod +x ./web/dist/bin/charted-web
-
-.PHONY: web
-web:
-	@(cd web && ./dist/bin/charted-web $(runargs))
-
-.PHONY: eslint
-eslint: ## Runs `eslint` in web/
-	@(cd web && pnpm run lint)
-
-.PHONY: fmt
-fmt: ## Runs `prettier` in web/
-	@(cd web && pnpm run fmt)

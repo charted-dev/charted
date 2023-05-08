@@ -101,4 +101,7 @@ dependencies {
 
     // SemVer
     implementation(libs.semver)
+
+    // Logback
+    implementation(libs.logback.classic)
 }
