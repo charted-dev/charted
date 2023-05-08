@@ -27,6 +27,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.util.*
 import io.prometheus.client.Histogram
+import io.sentry.Sentry
 import org.apache.commons.lang3.time.StopWatch
 import org.noelware.charted.Server
 import org.noelware.charted.common.extensions.closeable.closeQuietly
@@ -121,6 +122,8 @@ object Log: BaseApplicationPlugin<ApplicationCallPipeline, Unit, Log> {
             MDC.remove("http.method")
             MDC.remove("http.version")
             MDC.remove("http.url")
+
+            if (Sentry.isEnabled()) Sentry.setUser(null)
         }
     }
 

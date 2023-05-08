@@ -121,7 +121,7 @@ object ConfigureModulesPhase: BootstrapPhase() {
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun phaseThrough(config: Config) {
         val sw = StopWatch.createStarted()
-        DebugProbes.enableCreationStackTraces = config.debug
+        DebugProbes.enableCreationStackTraces = config.debug || isDebugEnabled()
         DebugProbes.install()
 
         sw.suspend()
@@ -133,7 +133,9 @@ object ConfigureModulesPhase: BootstrapPhase() {
         if (config.sentryDsn != null) {
             log.debug("Enabling Sentry with DSN [${config.sentryDsn}]")
             Sentry.init {
-                it.release = "charted-server v${ChartedInfo.version}+${ChartedInfo.commitHash}"
+                it.isAttachServerName = true
+                it.isAttachThreads = true
+                it.release = "charted-server@${ChartedInfo.version}+${ChartedInfo.commitHash}"
                 it.dsn = config.sentryDsn
             }
         }

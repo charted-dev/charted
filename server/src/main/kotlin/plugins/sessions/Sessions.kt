@@ -28,6 +28,8 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.util.*
 import io.ktor.util.pipeline.*
+import io.sentry.Sentry
+import io.sentry.protocol.User
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.noelware.charted.common.CryptographyUtils
@@ -42,6 +44,7 @@ import org.noelware.charted.modules.postgresql.ktor.UserEntityAttributeKey
 import org.noelware.charted.modules.postgresql.tables.ApiKeyTable
 import org.noelware.charted.modules.postgresql.tables.UserTable
 import org.noelware.charted.modules.sessions.AbstractSessionManager
+import org.noelware.charted.server.extensions.currentUserEntity
 import org.noelware.charted.server.extensions.sessionKey
 import java.util.*
 
@@ -188,7 +191,7 @@ class Sessions private constructor(private val config: Configuration) {
         }
 
         val (prefix, token) = data
-        return when (prefix) {
+        when (prefix) {
             "Bearer" -> {
                 log.trace("Authorization header prefix for request [${call.request.httpMethod.value} ${call.request.path()}] is [Bearer]")
                 doSessionBasedAuth(call, token)
@@ -204,12 +207,22 @@ class Sessions private constructor(private val config: Configuration) {
                 doBasicAuth(call, token)
             }
 
-            else -> call.respond(
+            else -> return call.respond(
                 HttpStatusCode.NotAcceptable,
                 ApiResponse.err(
                     "INVALID_AUTHORIZATION_HEADER_PREFIX",
                     "The given authorization prefix [$prefix] was not 'Bearer', 'ApiKey', or 'Basic'",
                 ),
+            )
+        }
+
+        if (Sentry.isEnabled()) {
+            Sentry.setUser(
+                User().apply {
+                    email = call.currentUserEntity!!.email
+                    username = call.currentUserEntity!!.username
+                    id = call.currentUserEntity!!.id.value.toString()
+                },
             )
         }
     }
