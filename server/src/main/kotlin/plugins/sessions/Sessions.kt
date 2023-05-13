@@ -147,7 +147,7 @@ class Sessions private constructor(private val config: Configuration) {
     private suspend fun doAuthorize(call: ApplicationCall) {
         log.trace("Checking if request has a [Authorization] header")
 
-        val auth = call.request.header(HttpHeaders.Authorization)
+        val auth = call.request.authorization()
         if (auth == null) {
             if (config.allowNonAuthorizedRequests) {
                 log.trace("Configured endpoint allows non authorized requests! Skipping authentication and running all preconditions!")

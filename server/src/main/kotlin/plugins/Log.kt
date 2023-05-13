@@ -101,22 +101,25 @@ object Log: BaseApplicationPlugin<ApplicationCallPipeline, Unit, Log> {
 
             // Fixes with issues that might occur when handling a request.
             // I blame Ktor for being weird :(
-            val formattedTime = run {
-                try {
-                    stopwatch.stop()
-                    " (${stopwatch.doFormatTime()})"
-                } catch (e: IllegalStateException) {
-                    if (e.message?.contains("Stopwatch is not running.") == false) {
-                        throw e
-                    }
-
-                    ""
+            val formattedTime = try {
+                stopwatch.stop()
+                "(${stopwatch.doFormatTime()})"
+            } catch (e: IllegalStateException) {
+                if (e.message?.contains("Stopwatch is not running.") == false) {
+                    throw e
                 }
+
+                ""
             }
 
             transaction?.closeQuietly()
             histogram?.observeDuration()
-            log.info("~> ${method.value} $endpoint <$version> ~ ${status.value} ${status.description} [$userAgent${formattedTime.ifBlank { "" }}]".trim())
+
+            // Ignore logging on /heartbeat endpoint since it'll spam if you
+            // are using healthcheck in Docker or livenessProbe in Kubernetes
+            if (call.request.path() != "/heartbeat") {
+                log.info("~> ${method.value} $endpoint [$version] ~ ${status.value} ${status.description} [$userAgent ${formattedTime.ifBlank { "" }}]")
+            }
 
             MDC.remove("http.method")
             MDC.remove("http.version")
