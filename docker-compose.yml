@@ -45,7 +45,7 @@ services:
             timeout: 60s
     postgres:
         container_name: postgres
-        image: bitnami/postgresql:15.2.0
+        image: bitnami/postgresql:15.3.0
         networks:
             - charted
         ports:
