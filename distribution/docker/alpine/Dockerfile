@@ -33,7 +33,7 @@ ENV CHARTED_PROTOC_PATH=protoc
 COPY . .
 RUN chmod +x ./gradlew && ./gradlew :cli:installDist --no-daemon --stacktrace
 
-FROM --platform=$BUILDPLATFORM alpine:3.17
+FROM --platform=$BUILDPLATFORM alpine:3.18
 
 RUN apk update && apk add --no-cache bash tini libc6-compat gcompat
 WORKDIR /app/noelware/charted/server

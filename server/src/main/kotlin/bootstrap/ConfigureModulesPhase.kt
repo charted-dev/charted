@@ -17,6 +17,7 @@
 
 package org.noelware.charted.server.bootstrap
 
+import ch.qos.logback.classic.Level
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
 import dev.floofy.utils.koin.inject
@@ -46,6 +47,7 @@ import org.noelware.charted.configuration.kotlin.dsl.enumSets.serialName
 import org.noelware.charted.configuration.kotlin.dsl.tracing.TracerType
 import org.noelware.charted.configuration.kotlin.host.KotlinScriptConfigurationHost
 import org.noelware.charted.configuration.yaml.YamlConfigurationHost
+import org.noelware.charted.isDebugEnabled
 import org.noelware.charted.modules.avatars.AvatarModule
 import org.noelware.charted.modules.avatars.DefaultAvatarModule
 import org.noelware.charted.modules.emails.DefaultEmailService
@@ -75,6 +77,8 @@ import org.noelware.charted.modules.tracing.sentry.SentryTracer
 import org.noelware.charted.server.internal.DefaultServer
 import org.noelware.charted.server.routing.routingModule
 import org.noelware.charted.snowflake.Snowflake
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
 import java.io.File
@@ -98,6 +102,11 @@ object ConfigureModulesPhase: BootstrapPhase() {
     override suspend fun phaseThrough(@Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE") configFile: File) {
         MDC.put("bootstrap.phase", "configure modules")
 
+        if (isDebugEnabled()) {
+            val rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as? ch.qos.logback.classic.Logger
+            rootLogger?.level = Level.DEBUG
+        }
+
         // Determine the configuration host to... actually load the configuration
         // file.
         val configHost = getConfigurationHost(configFile)
@@ -112,7 +121,7 @@ object ConfigureModulesPhase: BootstrapPhase() {
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun phaseThrough(config: Config) {
         val sw = StopWatch.createStarted()
-        DebugProbes.enableCreationStackTraces = config.debug
+        DebugProbes.enableCreationStackTraces = config.debug || isDebugEnabled()
         DebugProbes.install()
 
         sw.suspend()
@@ -124,7 +133,9 @@ object ConfigureModulesPhase: BootstrapPhase() {
         if (config.sentryDsn != null) {
             log.debug("Enabling Sentry with DSN [${config.sentryDsn}]")
             Sentry.init {
-                it.release = "charted-server v${ChartedInfo.version}+${ChartedInfo.commitHash}"
+                it.isAttachServerName = true
+                it.isAttachThreads = true
+                it.release = "charted-server@${ChartedInfo.version}+${ChartedInfo.commitHash}"
                 it.dsn = config.sentryDsn
             }
         }

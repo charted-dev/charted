@@ -34,7 +34,7 @@ maintainers:
 dependencies:
     - name: postgresql
       repository: https://charts.bitnami.com/bitnami
-      version: ~12.4.0
+      version: ~12.5.0
       condition: postgresql.enabled
 
     - name: redis
@@ -57,7 +57,7 @@ dependencies:
     # used for common Helm utilities
     - name: common
       repository: https://charts.bitnami.com/bitnami
-      version: ~2.2.4
+      version: ~2.3.0
 
     # used for the Audit Logs and Webhooks features
     # - name: clickhouse
