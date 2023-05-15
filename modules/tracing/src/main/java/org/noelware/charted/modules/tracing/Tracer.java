@@ -70,4 +70,9 @@ public interface Tracer extends Closeable {
      */
     @NotNull
     Transaction createTransaction(@NotNull String name);
+
+    /**
+     * Initialises this {@link Tracer}, if we need to.
+     */
+    default void init() {}
 }

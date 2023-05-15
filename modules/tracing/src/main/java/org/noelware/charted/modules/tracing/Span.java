@@ -20,7 +20,7 @@ package org.noelware.charted.modules.tracing;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface Span extends AutoCloseable {
+public interface Span {
     @NotNull
     Transaction transaction();
 
@@ -29,4 +29,10 @@ public interface Span extends AutoCloseable {
 
     @NotNull
     String name();
+
+    /**
+     * Ends this {@link Span} marking it as done or with
+     * an exception, if thrown.
+     */
+    default void end(@Nullable Throwable throwable) {}
 }

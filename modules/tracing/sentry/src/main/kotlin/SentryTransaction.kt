@@ -30,7 +30,7 @@ class SentryTransaction(private val tracer: Tracer, private val inner: ITransact
     override fun operation(): String? = inner.description
     override fun name(): String = inner.operation
 
-    override fun close() {
-        inner.finish(SpanStatus.OK)
+    override fun end(throwable: Throwable?) {
+        inner.finish(throwable?.let { SpanStatus.UNKNOWN_ERROR } ?: SpanStatus.OK)
     }
 }

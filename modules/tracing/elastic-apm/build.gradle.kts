@@ -18,3 +18,10 @@
 plugins {
     id("charted-module")
 }
+
+dependencies {
+    implementation(libs.elastic.apm.agent.attach)
+    implementation(libs.elastic.apm.agent.api)
+    implementation(projects.modules.tracing)
+    implementation(libs.ktor.server.core) // to get the Ktor version
+}

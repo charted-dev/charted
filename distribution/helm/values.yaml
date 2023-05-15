@@ -255,17 +255,15 @@ storage:
 ## @param external.redis.sentinels.masterName Sentinel master name if Redis connection is in Sentinel mode
 ## @param external.redis.sentinels.existingMasterNameSecret Secret resource for the sentinel master name if Redis connection is in Sentinel mode
 ## @param external.redis.sentinels.existingMasterNameSecretKey Secret resource key name for the sentinel master name if Redis connection is in Sentinel mode
-## @param external.postgres.host
-## @param external.postgres.port
-## @param external.postgres.username
-## @param external.postgres.password
-## @param external.postgres.database
-## @param external.postgres.schema
-## @param external.postgres.existingAuthSecret
-## @param external.postgres.existingUsernameSecret
-## @param external.postgres.existingPasswordSecret
-## @param external.postgres.existingUsernameSecretKey
-## @param external.postgres.existingPasswordSecretKey
+## @param external.postgres.host External PostgreSQL host
+## @param external.postgres.port External PostgreSQL port
+## @param external.postgres.username PostgreSQL username for authentication
+## @param external.postgres.password PostgreSQL password for authentication
+## @param external.postgres.database PostgreSQL database name, defaults to `charted`.
+## @param external.postgres.schema PostgreSQL schema to use, defaults to `public`
+## @param external.postgres.existingAuthSecret Existing authentication secret name to do authentication on.
+## @param external.postgres.existingUsernameSecretKey Secret key name for the username for authentication.
+## @param external.postgres.existingPasswordSecretKey Secret key name for the password for authentciaton
 external:
     redis:
         host: ''
@@ -284,10 +282,8 @@ external:
         port: 5432
         username: ''
         existingUsernameSecretKey: ''
-        existingUsernameSecret: ''
         existingAuthSecret: ''
         password: ''
         existingPasswordSecretKey: ''
-        existingPasswordSecret: ''
         database: charted
         schema: ''

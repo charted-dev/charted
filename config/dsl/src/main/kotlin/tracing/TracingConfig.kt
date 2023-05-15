@@ -37,7 +37,7 @@ public enum class TracerType {
     @SerialName("otel")
     OpenTelemetry,
 
-    @SerialName("elastic_apm")
+    @SerialName("apm")
     ElasticAPM,
 
     @SerialName("sentry")
@@ -47,7 +47,6 @@ public enum class TracerType {
 
 @Serializable(with = TracingConfig.Serializer::class)
 public sealed class TracingConfig(public val type: TracerType) {
-    // used to trick the serialization compiler
     @Suppress("unused")
     private constructor(): this(TracerType.Unknown)
 
@@ -415,7 +414,7 @@ public sealed class TracingConfig(public val type: TracerType) {
                 when (val index = decodeElementIndex(descriptor)) {
                     CompositeDecoder.DECODE_DONE -> break@loop
                     0 -> {
-                        type = decodeSerializableElement(descriptor, 0, TracerType.serializer())
+                        type = decodeSerializableElement(descriptor, index, TracerType.serializer())
                         if (type == TracerType.Sentry) {
                             config = Sentry
                             break@loop
@@ -423,12 +422,12 @@ public sealed class TracingConfig(public val type: TracerType) {
                     }
 
                     1 -> {
-                        assert(type != TracerType.ElasticAPM) { "Expected 'config.tracing.apm', but gotten $type [index: $index]" }
+                        require(type == TracerType.ElasticAPM) { "Expected 'config.tracing.apm' to be 'apm', but got $type [$index]" }
                         config = decodeSerializableElement(descriptor, index, ElasticAPM.serializer())
                     }
 
                     2 -> {
-                        assert(type != TracerType.OpenTelemetry) { "Expected 'config.tracing.otel', but got $type [$index]" }
+                        require(type == TracerType.OpenTelemetry) { "Expected 'config.tracing.otel' to be 'otel', but got $type [$index]" }
                         config = decodeSerializableElement(descriptor, index, OpenTelemetry.serializer())
                     }
 

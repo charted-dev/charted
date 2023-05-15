@@ -92,7 +92,7 @@ public class MultiTenantTransaction implements Transaction {
     }
 
     @Override
-    public void close() throws Exception {
-        for (Transaction transaction : transactions) transaction.close();
+    public void end(@Nullable Throwable throwable) {
+        for (Transaction transaction : transactions) transaction.end(throwable);
     }
 }

@@ -56,7 +56,7 @@ k8s.noelware.cloud/chart: {{ include "charted.chart" . }}
 {{- if .Chart.AppVersion }}
 k8s.noelware.cloud/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
-k8s.noelware.cloud/managed-by: {{ .Release.Name }}
+k8s.noelware.cloud/managed-by: Helm
 {{- end }}
 
 {{- define "charted.selectorLabels" -}}

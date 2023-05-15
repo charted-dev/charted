@@ -17,7 +17,6 @@
 
 package org.noelware.charted.modules.tracing
 
-import org.noelware.charted.common.extensions.closeable.closeQuietly
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -38,7 +37,7 @@ private class NoopTransaction(private val name: String, private val operation: S
     override fun operation(): String? = operation
     override fun name(): String = name
 
-    override fun close() {
+    override fun end(throwable: Throwable?) {
         // do nothing
     }
 }
@@ -47,10 +46,6 @@ private class NoopSpan(private val name: String, private val operation: String? 
     override fun transaction(): Transaction = parent
     override fun operation(): String? = operation
     override fun name(): String = name
-
-    override fun close() {
-        // do nothing
-    }
 }
 
 @OptIn(ExperimentalContracts::class)
@@ -59,5 +54,5 @@ fun withTracing(name: String, operation: String? = null, block: Transaction.() -
 
     val tracer = Tracer.globalOrNull() ?: NoopTracer
     val transaction = tracer.createTransaction(name, operation)
-    return transaction.block().also { transaction.closeQuietly() }
+    return transaction.block().also { transaction.end(null) }
 }

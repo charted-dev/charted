@@ -23,11 +23,10 @@ import org.noelware.charted.modules.tracing.Transaction
 
 class SentrySpan(private val parent: Transaction, private val inner: io.sentry.ISpan): Span {
     override fun transaction(): Transaction = parent
-
     override fun operation(): String? = inner.description
     override fun name(): String = inner.operation
 
-    override fun close() {
-        inner.finish(SpanStatus.OK)
+    override fun end(throwable: Throwable?) {
+        inner.finish(throwable?.let { SpanStatus.UNKNOWN_ERROR } ?: SpanStatus.OK)
     }
 }

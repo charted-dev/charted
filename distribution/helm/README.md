@@ -22,6 +22,7 @@ $ helm install charted-server charted/server
 | Name                       | Description                                                                        | Value                |
 | -------------------------- | ---------------------------------------------------------------------------------- | -------------------- |
 | `fullNameOverride`         | Override the Helm installation name for all Helm-managed objects that we control   | `""`                 |
+| `nameOverride`             | Override the Helm installation name for all Helm-managed objects that we control   | `""`                 |
 | `replicas`                 | How many replicas for the Deployment. As of 0.4.0-unstable.2, we do not include HA | `1`                  |
 | `jvmOptions`               | JVM options to use when running the server.                                        | `-Xmx2040 -Xms1024m` |
 | `debug`                    | If debug mode should be enabled. This can be controlled from the configuration.    | `false`              |
@@ -152,21 +153,19 @@ $ helm install charted-server charted/server
 | `external.redis.host`                                  | External Redis host                                                                           | `""`      |
 | `external.redis.port`                                  | External Redis port                                                                           | `6379`    |
 | `external.redis.password`                              | Redis password, if auth is needed                                                             | `""`      |
-| `external.redis.database`                              | Redis database                                                                                | `7`       |
+| `external.redis.database`                              | Redis database                                                                                | `8`       |
 | `external.redis.existingPasswordSecret`                | Secret resource for the Redis password                                                        | `""`      |
 | `external.redis.existingPasswordSecretKey`             | Secret resource name for the Redis password                                                   | `""`      |
 | `external.redis.sentinels.endpoints`                   | List of sentinel endpoints to use if Redis connection is in Sentinel mode                     | `[]`      |
 | `external.redis.sentinels.masterName`                  | Sentinel master name if Redis connection is in Sentinel mode                                  | `""`      |
 | `external.redis.sentinels.existingMasterNameSecret`    | Secret resource for the sentinel master name if Redis connection is in Sentinel mode          | `""`      |
 | `external.redis.sentinels.existingMasterNameSecretKey` | Secret resource key name for the sentinel master name if Redis connection is in Sentinel mode | `""`      |
-| `external.postgres.host`                               |                                                                                               | `""`      |
-| `external.postgres.port`                               |                                                                                               | `5432`    |
-| `external.postgres.username`                           |                                                                                               | `""`      |
-| `external.postgres.password`                           |                                                                                               | `""`      |
-| `external.postgres.database`                           |                                                                                               | `charted` |
-| `external.postgres.schema`                             |                                                                                               | `""`      |
-| `external.postgres.existingAuthSecret`                 |                                                                                               | `""`      |
-| `external.postgres.existingUsernameSecret`             |                                                                                               | `""`      |
-| `external.postgres.existingPasswordSecret`             |                                                                                               | `""`      |
-| `external.postgres.existingUsernameSecretKey`          |                                                                                               | `""`      |
-| `external.postgres.existingPasswordSecretKey`          |                                                                                               | `""`      |
+| `external.postgres.host`                               | External PostgreSQL host                                                                      | `""`      |
+| `external.postgres.port`                               | External PostgreSQL port                                                                      | `5432`    |
+| `external.postgres.username`                           | PostgreSQL username for authentication                                                        | `""`      |
+| `external.postgres.password`                           | PostgreSQL password for authentication                                                        | `""`      |
+| `external.postgres.database`                           | PostgreSQL database name, defaults to `charted`.                                              | `charted` |
+| `external.postgres.schema`                             | PostgreSQL schema to use, defaults to `public`                                                | `""`      |
+| `external.postgres.existingAuthSecret`                 | Existing authentication secret name to do authentication on.                                  | `""`      |
+| `external.postgres.existingUsernameSecretKey`          | Secret key name for the username for authentication.                                          | `""`      |
+| `external.postgres.existingPasswordSecretKey`          | Secret key name for the password for authentciaton                                            | `""`      |

@@ -93,8 +93,7 @@ public class MultiTenantSpan implements Span {
         return builder.toString().trim();
     }
 
-    @Override
-    public void close() throws Exception {
-        for (Span span : spans) span.close();
+    public void end(@Nullable Throwable throwable) {
+        for (Span span : spans) span.end(throwable);
     }
 }

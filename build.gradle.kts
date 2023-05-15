@@ -78,6 +78,8 @@ spotless {
 
             "distribution/helm/templates/configmap/*.yaml",
             "distribution/helm/templates/configmap/*.yml",
+            "distribution/helm/templates/secrets/*.yml",
+            "distribution/helm/templates/secrets/*.yaml",
             "distribution/helm/templates/*.yaml",
             "distribution/helm/templates/*.yml",
 

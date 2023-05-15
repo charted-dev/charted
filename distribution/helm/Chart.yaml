@@ -28,6 +28,7 @@ maintainers:
     - name: Noel Towa
       email: cutie@floofy.dev
       url: https://floofy.dev
+
     - name: Noelware Team
       email: team@noelware.org
       url: https://noelware.org
@@ -42,18 +43,6 @@ dependencies:
       version: ~17.10.0
       condition: redis.enabled
 
-    # TODO: migrate to https://charts.noelware.org/~/noelware/elasticsearch
-    - name: elasticsearch
-      repository: https://helm.elastic.co
-      version: ~8.5.1
-      condition: elasticsearch.enabled
-
-    # TODO: migrate to https://charts.noelware.org/~/noelware/metricbeat
-    - name: metricbeat
-      repository: https://helm.elastic.co
-      version: ~8.5.1
-      condition: elasticsearch.metrics.enabled
-
     # used for common Helm utilities
     - name: common
       repository: https://charts.bitnami.com/bitnami
@@ -64,3 +53,9 @@ dependencies:
     #   repository: https://charts.bitnami.com/bitnami
     #   version: ~3.2.1
     #   condition: features.auditLogs
+
+    # used to enable Hoshi, the web UI for charted
+    # - name: hoshi
+    #   repository: https://charts.noelware.org/~/charted
+    #   version: ~0.4.0-nightly
+    #   condition: web.enabled

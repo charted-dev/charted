@@ -178,6 +178,7 @@ public data class Config(
     /**
      * List of configured tracers to apply when enabling tracing.
      */
+    @SerialName("tracing")
     val tracers: List<TracingConfig> = listOf(),
 
     /**

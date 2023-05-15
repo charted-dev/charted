@@ -34,6 +34,5 @@ object SentryTracer: Tracer {
     override fun createTransaction(name: String): Transaction = createTransaction(name, null)
 
     override fun close() {
-        // we don't implement close i dont think
     }
 }

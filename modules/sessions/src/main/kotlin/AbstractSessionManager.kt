@@ -76,6 +76,8 @@ abstract class AbstractSessionManager(
 
             if (ttl == -2L) {
                 log.warn("Missing TTL for Redis key [$redisTableKey:$key], deleting...")
+                runBlocking { redis.commands.hdel(redisTableKey, key).await() }
+
                 continue
             }
 

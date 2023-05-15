@@ -30,7 +30,6 @@ import io.prometheus.client.Histogram
 import io.sentry.Sentry
 import org.apache.commons.lang3.time.StopWatch
 import org.noelware.charted.Server
-import org.noelware.charted.common.extensions.closeable.closeQuietly
 import org.noelware.charted.common.extensions.formatting.doFormatTime
 import org.noelware.charted.modules.metrics.MetricsSupport
 import org.noelware.charted.modules.metrics.prometheus.PrometheusMetricsSupport
@@ -113,7 +112,7 @@ object Log: BaseApplicationPlugin<ApplicationCallPipeline, Unit, Log> {
                 ""
             }
 
-            transaction?.closeQuietly()
+            transaction?.end(null)
             histogram?.observeDuration()
 
             // Ignore logging on /heartbeat endpoint since it'll spam if you

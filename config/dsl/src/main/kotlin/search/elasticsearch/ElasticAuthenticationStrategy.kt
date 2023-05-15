@@ -127,12 +127,12 @@ public sealed class AuthenticationStrategy(public val type: AuthStrategyType) {
                     DECODE_DONE -> break@loop
                     0 -> type = decodeSerializableElement(descriptor, 0, AuthStrategyType.serializer())
                     1 -> {
-                        assert(type != AuthStrategyType.Cloud) { "Received authentication type '$type' when expecting 'cloud'" }
+                        require(type == AuthStrategyType.Cloud) { "Received authentication type '$type' when expecting 'cloud'" }
                         authStrategy = Cloud(decodeSerializableElement(descriptor, index, SecretStringSerializer))
                     }
 
                     2 -> {
-                        assert(type != AuthStrategyType.Basic) {
+                        require(type == AuthStrategyType.Basic) {
                             "Received authentication type '$type' when expecting 'basic'"
                         }
 
@@ -140,7 +140,7 @@ public sealed class AuthenticationStrategy(public val type: AuthStrategyType) {
                     }
 
                     3 -> {
-                        assert(type != AuthStrategyType.Basic) {
+                        require(type == AuthStrategyType.Basic) {
                             "Received authentication type '$type' when expecting 'basic'"
                         }
 
@@ -153,7 +153,7 @@ public sealed class AuthenticationStrategy(public val type: AuthStrategyType) {
                     }
 
                     4 -> {
-                        assert(type != AuthStrategyType.ApiKey) {
+                        require(type == AuthStrategyType.ApiKey) {
                             "Received authentication type '$type' when expecting 'apikey'"
                         }
 

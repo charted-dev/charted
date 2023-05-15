@@ -43,8 +43,7 @@ import org.noelware.charted.Server
 import org.noelware.charted.common.extensions.formatting.doFormatTime
 import org.noelware.charted.configuration.ConfigurationHost
 import org.noelware.charted.configuration.kotlin.dsl.Config
-import org.noelware.charted.configuration.kotlin.dsl.enumSets.serialName
-import org.noelware.charted.configuration.kotlin.dsl.tracing.TracerType
+import org.noelware.charted.configuration.kotlin.dsl.tracing.TracingConfig
 import org.noelware.charted.configuration.kotlin.host.KotlinScriptConfigurationHost
 import org.noelware.charted.configuration.yaml.YamlConfigurationHost
 import org.noelware.charted.isDebugEnabled
@@ -72,6 +71,7 @@ import org.noelware.charted.modules.sessions.local.LocalSessionManager
 import org.noelware.charted.modules.storage.DefaultStorageModule
 import org.noelware.charted.modules.storage.StorageModule
 import org.noelware.charted.modules.tracing.Tracer
+import org.noelware.charted.modules.tracing.elastic.APMTracer
 import org.noelware.charted.modules.tracing.multitenant.MultiTenantTracer
 import org.noelware.charted.modules.tracing.sentry.SentryTracer
 import org.noelware.charted.server.internal.DefaultServer
@@ -228,11 +228,10 @@ object ConfigureModulesPhase: BootstrapPhase() {
         }
 
         if (config.tracers.isNotEmpty()) {
-            log.info("Configuring tracers [${config.tracers.joinToString(", ") { it.type.serialName!! }}")
-
             val tracer = configureTracing(config)
             if (tracer != null) {
                 Tracer.setGlobal(tracer)
+                Tracer.global().init()
             }
         }
 
@@ -250,11 +249,11 @@ object ConfigureModulesPhase: BootstrapPhase() {
     }
 
     private fun configureTracing(config: Config): Tracer? {
+        log.info("Now configuring tracing!")
         if (config.tracers.size == 1) {
-            val tracer = config.tracers.first()
-            return when (tracer.type) {
-                TracerType.OpenTelemetry, TracerType.ElasticAPM -> null
-                TracerType.Sentry -> {
+            return when (val tracer = config.tracers.first()) {
+                is TracingConfig.OpenTelemetry -> null
+                is TracingConfig.Sentry -> {
                     if (config.sentryDsn == null) {
                         log.warn("Unable to configure Sentry tracer due to no Sentry DSN provided, not tracing with Sentry")
                         return null
@@ -263,15 +262,17 @@ object ConfigureModulesPhase: BootstrapPhase() {
                     SentryTracer
                 }
 
+                is TracingConfig.ElasticAPM -> APMTracer(tracer)
                 else -> null
             }
         }
 
         val tracers: MutableList<Tracer> = mutableListOf()
         for (tracer in config.tracers) {
-            when (tracer.type) {
-                TracerType.OpenTelemetry, TracerType.ElasticAPM -> {}
-                TracerType.Sentry -> {
+            when (tracer) {
+                is TracingConfig.OpenTelemetry -> {}
+                is TracingConfig.ElasticAPM -> tracers.add(APMTracer(tracer))
+                is TracingConfig.Sentry -> {
                     if (config.sentryDsn == null) {
                         log.warn("Unable to configure Sentry tracer due to no Sentry DSN provided, not tracing with Sentry")
                         continue

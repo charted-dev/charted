@@ -5,14 +5,8 @@ dependencies:
 - name: redis
   repository: https://charts.bitnami.com/bitnami
   version: 17.10.3
-- name: elasticsearch
-  repository: https://helm.elastic.co
-  version: 8.5.1
-- name: metricbeat
-  repository: https://helm.elastic.co
-  version: 8.5.1
 - name: common
   repository: https://charts.bitnami.com/bitnami
   version: 2.3.0
-digest: sha256:3dbc3d4c858b216163eb70e1f1362368912c3684f7e29382d5eafcc16b9edb0a
-generated: "2023-05-12T23:19:48.992037876Z"
+digest: sha256:1af54a761f4dcc6fd983f35ba3fa7b55a0db84f6c75ae28236d5315a8f23399b
+generated: "2023-05-13T02:12:26.593700771-07:00"

@@ -30,6 +30,7 @@ import org.noelware.charted.common.extensions.closeable.closeQuietly
 import org.noelware.charted.modules.redis.RedisClient
 import org.noelware.charted.modules.search.SearchModule
 import org.noelware.charted.modules.sessions.AbstractSessionManager
+import org.noelware.charted.modules.tracing.Tracer
 
 object ShutdownPhaseThread: Thread("Server-ShutdownPhaseThread") {
     private val log by logging<ShutdownPhaseThread>()
@@ -42,6 +43,7 @@ object ShutdownPhaseThread: Thread("Server-ShutdownPhaseThread") {
             val sessions: AbstractSessionManager by inject()
             val search: SearchModule? by injectOrNull()
             val hikari: HikariDataSource by inject()
+            val tracer: Tracer? = Tracer.globalOrNull()
             val server: Server by inject()
             val redis: RedisClient by inject()
 
@@ -50,6 +52,7 @@ object ShutdownPhaseThread: Thread("Server-ShutdownPhaseThread") {
             hikari.closeQuietly()
             redis.closeQuietly()
             server.closeQuietly()
+            tracer?.closeQuietly()
 
             runBlocking {
                 ChartedScope.cancel()
