@@ -17,7 +17,6 @@
 
 package org.noelware.charted.modules.search.elasticsearch.metrics
 
-import com.google.protobuf.Value
 import io.prometheus.client.GaugeMetricFamily
 import io.prometheus.client.Predicate
 import io.prometheus.client.SampleNameFilter
@@ -27,10 +26,6 @@ import kotlinx.serialization.Serializable
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.enumSets.serialName
 import org.noelware.charted.configuration.kotlin.dsl.search.elasticsearch.MetricKeyset
-import org.noelware.charted.modules.analytics.kotlin.dsl.Struct
-import org.noelware.charted.modules.analytics.kotlin.dsl.put
-import org.noelware.charted.modules.analytics.kotlin.dsl.toGrpcValue
-import org.noelware.charted.modules.metrics.Collector
 import org.noelware.charted.modules.search.elasticsearch.ElasticsearchModule
 
 /**
@@ -45,12 +40,7 @@ import org.noelware.charted.modules.search.elasticsearch.ElasticsearchModule
 data class ElasticsearchStats(
     val indexes: Map<String, IndexStats> = mapOf(),
     val nodes: Map<String, NodeStats> = mapOf()
-): org.noelware.analytics.jvm.server.serialization.Serializable {
-    override fun toGrpcValue(): Value = Struct {
-        put(this, ElasticsearchStats::indexes)
-        put(this, ElasticsearchStats::nodes)
-    }.toGrpcValue()
-
+) {
     /**
      * Statistics object for a specific index
      *
@@ -74,17 +64,7 @@ data class ElasticsearchStats(
         val health: String,
         val size: Long,
         val uuid: String
-    ): org.noelware.analytics.jvm.server.serialization.Serializable {
-        override fun toGrpcValue(): Value = Struct {
-            put(this, IndexStats::averageQueryTimeInMs)
-            put(this, IndexStats::deletedDocuments)
-            put(this, IndexStats::documents)
-            put(this, IndexStats::queries)
-            put(this, IndexStats::health)
-            put(this, IndexStats::size)
-            put(this, IndexStats::uuid)
-        }.toGrpcValue()
-    }
+    )
 
     /**
      * Statistics object of all the Elasticsearch nodes that are used to perform indexing
@@ -111,15 +91,7 @@ data class ElasticsearchStats(
         val totalIndexesSize: Long,
         val documents: Long,
         val shards: Long
-    ): org.noelware.analytics.jvm.server.serialization.Serializable {
-        override fun toGrpcValue(): Value = Struct {
-            put(this, NodeStats::averageIndexTimeInMs)
-            put(this, NodeStats::totalIndexesSize)
-            put(this, NodeStats::deletedDocuments)
-            put(this, NodeStats::documents)
-            put(this, NodeStats::shards)
-        }.toGrpcValue()
-    }
+    )
 
     class Collector(
         private val elasticsearchModule: ElasticsearchModule,

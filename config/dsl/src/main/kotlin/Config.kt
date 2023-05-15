@@ -132,12 +132,6 @@ public data class Config(
     val telemetry: Boolean = false,
 
     /**
-     * Configuration for configuration [Noelware Analytics](https://analytics.noelware.org)'s [gRPC Protocol Service](https://analytics.noelware.org/docs/protocol-server/current)
-     * that will export all metrics towards Noelware Analytics.
-     */
-    val analytics: NoelwareAnalyticsConfig? = null,
-
-    /**
      * If the server should send exception and tracing metadata to a Sentry project via its DSN.
      */
     @SerialName("sentry_dsn")
@@ -279,12 +273,6 @@ public data class Config(
         public var telemetry: Boolean = false
 
         /**
-         * Configuration for configuration [Noelware Analytics](https://analytics.noelware.org)'s [gRPC Protocol Service](https://analytics.noelware.org/docs/protocol-server/current)
-         * that will export all metrics towards Noelware Analytics.
-         */
-        private var analytics: NoelwareAnalyticsConfig? = null
-
-        /**
          * If the server should send exception and tracing metadata to a Sentry project via its DSN.
          */
         public var sentryDsn: String? = null
@@ -379,11 +367,6 @@ public data class Config(
             return this
         }
 
-        public fun analytics(builder: NoelwareAnalyticsConfig.Builder.() -> Unit = {}): Builder {
-            analytics = NoelwareAnalyticsConfig.Builder().apply(builder).build()
-            return this
-        }
-
         public fun metrics(builder: MetricsConfig.Builder.() -> Unit = {}): Builder {
             metrics = MetricsConfig.Builder().apply(builder).build()
             return this
@@ -433,7 +416,6 @@ public data class Config(
             inviteOnly,
             features,
             telemetry,
-            analytics,
             sentryDsn,
             metrics,
             search,

@@ -18,16 +18,12 @@
 package org.noelware.charted.modules.metrics.collectors
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.google.protobuf.Value
 import io.prometheus.client.Predicate
 import io.prometheus.client.SampleNameFilter
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toKotlinInstant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.noelware.charted.modules.analytics.kotlin.dsl.Struct
-import org.noelware.charted.modules.analytics.kotlin.dsl.put
-import org.noelware.charted.modules.analytics.kotlin.dsl.toGrpcValue
 
 @Serializable
 data class JvmProcessInfoMetrics(
@@ -35,12 +31,7 @@ data class JvmProcessInfoMetrics(
     @SerialName("start_time")
     val startTime: Instant,
     val pid: Long
-): org.noelware.analytics.jvm.server.serialization.Serializable {
-    override fun toGrpcValue(): Value = Struct {
-        put(this, JvmProcessInfoMetrics::startTime)
-        put(this, JvmProcessInfoMetrics::pid)
-    }.toGrpcValue()
-
+) {
     class Collector: org.noelware.charted.modules.metrics.Collector<JvmProcessInfoMetrics>, io.prometheus.client.Collector() {
         private val current: ProcessHandle
             get() = ProcessHandle.current()

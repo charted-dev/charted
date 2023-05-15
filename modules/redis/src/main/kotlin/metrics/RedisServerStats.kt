@@ -17,7 +17,6 @@
 
 package org.noelware.charted.modules.redis.metrics
 
-import com.google.protobuf.Value
 import io.prometheus.client.GaugeMetricFamily
 import io.prometheus.client.Predicate
 import io.prometheus.client.SampleNameFilter
@@ -27,9 +26,6 @@ import kotlinx.serialization.Serializable
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.enumSets.serialName
 import org.noelware.charted.configuration.kotlin.dsl.metrics.keysets.RedisKeysets
-import org.noelware.charted.modules.analytics.kotlin.dsl.Struct
-import org.noelware.charted.modules.analytics.kotlin.dsl.put
-import org.noelware.charted.modules.analytics.kotlin.dsl.toGrpcValue
 import org.noelware.charted.modules.redis.RedisClient
 
 /**
@@ -62,19 +58,7 @@ data class RedisServerStats(
     val version: String,
     val mode: String,
     val ping: Long
-): org.noelware.analytics.jvm.server.serialization.Serializable {
-    override fun toGrpcValue(): Value = Struct {
-        put(this, RedisServerStats::totalConnectionsReceived)
-        put(this, RedisServerStats::totalCommandsProcessed)
-        put(this, RedisServerStats::totalNetworkOutput)
-        put(this, RedisServerStats::totalNetworkInput)
-        put(this, RedisServerStats::allocator)
-        put(this, RedisServerStats::version)
-        put(this, RedisServerStats::uptime)
-        put(this, RedisServerStats::mode)
-        put(this, RedisServerStats::ping)
-    }.toGrpcValue()
-
+) {
     class Collector(
         private val redis: RedisClient,
         private val config: Config

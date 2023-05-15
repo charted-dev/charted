@@ -57,7 +57,6 @@ include(
     ":features:docker-registry",
     ":features:garbage-collection",
     ":features:invitations",
-    ":modules:analytics",
     ":modules:avatars",
     ":modules:cache-worker",
     ":modules:clickhouse",

@@ -17,7 +17,9 @@
 
 package org.noelware.charted.features.invitations
 
-import com.google.protobuf.Struct
+import com.google.protobuf.NullValue
+import com.google.protobuf.struct
+import com.google.protobuf.value
 import dev.floofy.utils.slf4j.logging
 import io.lettuce.core.SetArgs
 import kotlinx.coroutines.*
@@ -30,8 +32,6 @@ import org.noelware.charted.emails.protobufs.v1.SendEmailRequest
 import org.noelware.charted.models.repositories.Repository
 import org.noelware.charted.models.repositories.RepositoryMember
 import org.noelware.charted.models.users.User
-import org.noelware.charted.modules.analytics.kotlin.dsl.Struct
-import org.noelware.charted.modules.analytics.kotlin.dsl.toGrpcValue
 import org.noelware.charted.modules.emails.EmailService
 import org.noelware.charted.modules.redis.RedisClient
 import java.util.UUID
@@ -98,31 +98,49 @@ class DefaultInvitationManager(
             SendEmailRequest.newBuilder().apply {
                 this.to = to
 
-                subject = "${if (user.name != null) user.name else "@${user.username}"} has invited you to join the ${repo.name} repository! \uD83C\uDF89"
-                context = Struct {
-                    putAllFields(
-                        mapOf(
-                            "repo" to Struct {
-                                putAllFields(
-                                    mapOf(
-                                        "id" to repo.id.toGrpcValue(),
-                                        "name" to repo.name.toGrpcValue(),
-                                        "description" to repo.description.toGrpcValue(),
-                                    ),
-                                )
-                            }.toGrpcValue(),
+                subject =
+                    "${if (user.name != null) user.name else "@${user.username}"} has invited you to join the ${repo.name} repository! \uD83C\uDF89"
 
-                            "user" to Struct {
-                                putAllFields(
-                                    mapOf(
-                                        "id" to user.id.toGrpcValue(),
-                                        "name" to user.name.toGrpcValue(),
-                                        "username" to user.username.toGrpcValue(),
-                                    ),
-                                )
-                            }.toGrpcValue(),
-                        ),
-                    )
+                context = struct {
+                    fields["repo"] = value {
+                        structValue = struct {
+                            fields["description"] = value {
+                                if (repo.description != null) {
+                                    stringValue = repo.description!!
+                                } else {
+                                    nullValue = NullValue.NULL_VALUE
+                                }
+                            }
+
+                            fields["name"] = value {
+                                stringValue = repo.name
+                            }
+
+                            fields["id"] = value {
+                                numberValue = repo.id.toDouble()
+                            }
+                        }
+                    }
+
+                    fields["user"] = value {
+                        structValue = struct {
+                            fields["username"] = value {
+                                stringValue = user.username
+                            }
+
+                            fields["name"] = value {
+                                if (user.name != null) {
+                                    stringValue = user.name!!
+                                } else {
+                                    nullValue = NullValue.NULL_VALUE
+                                }
+                            }
+
+                            fields["id"] = value {
+                                numberValue = user.id.toDouble()
+                            }
+                        }
+                    }
                 }
             }.build(),
         )

@@ -21,7 +21,6 @@ plugins {
 
 dependencies {
     implementation(libs.prometheus.simpleclient.hotspot)
-    implementation(projects.modules.analytics)
     implementation(libs.ktor.server.core)
     implementation(libs.hikaricp)
 

@@ -17,16 +17,11 @@
 
 package org.noelware.charted.modules.metrics.collectors
 
-import com.google.protobuf.Value
 import io.prometheus.client.Predicate
 import io.prometheus.client.SampleNameFilter
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.noelware.charted.common.OperatingSystem
-import org.noelware.charted.modules.analytics.kotlin.dsl.Struct
-import org.noelware.charted.modules.analytics.kotlin.dsl.put
-import org.noelware.charted.modules.analytics.kotlin.dsl.toGrpcValue
-import org.noelware.charted.modules.metrics.Collector
 import java.io.File
 import java.lang.management.ManagementFactory
 import java.nio.charset.Charset
@@ -40,7 +35,7 @@ data class OperatingSystemMetrics(
     val distro: String? = null,
     val arch: String,
     val name: String
-): org.noelware.analytics.jvm.server.serialization.Serializable {
+) {
     class Collector: org.noelware.charted.modules.metrics.Collector<OperatingSystemMetrics>, io.prometheus.client.Collector() {
         override val name: String = "os"
 
@@ -84,13 +79,4 @@ data class OperatingSystemMetrics(
         private fun collect0(predicate: Predicate<String>, mfs: MutableList<MetricFamilySamples>) {
         }
     }
-
-    override fun toGrpcValue(): Value = Struct {
-        put(this, OperatingSystemMetrics::systemLoadAverage)
-        put(this, OperatingSystemMetrics::processors)
-        put(this, OperatingSystemMetrics::version)
-        put(this, OperatingSystemMetrics::distro)
-        put(this, OperatingSystemMetrics::arch)
-        put(this, OperatingSystemMetrics::name)
-    }.toGrpcValue()
 }

@@ -20,7 +20,6 @@ plugins {
 }
 
 dependencies {
-    implementation(projects.modules.analytics)
     implementation(projects.modules.emails)
     implementation(projects.modules.redis)
 }

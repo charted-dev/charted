@@ -18,7 +18,6 @@
 package org.noelware.charted.modules.postgresql.metrics
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.google.protobuf.Value
 import io.prometheus.client.GaugeMetricFamily
 import io.prometheus.client.Predicate
 import io.prometheus.client.SampleNameFilter
@@ -30,7 +29,6 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.enumSets.serialName
 import org.noelware.charted.configuration.kotlin.dsl.metrics.keysets.PostgresKeysets
-import org.noelware.charted.modules.analytics.kotlin.dsl.*
 import org.noelware.charted.modules.postgresql.entities.OrganizationEntity
 import org.noelware.charted.modules.postgresql.entities.RepositoryEntity
 import org.noelware.charted.modules.postgresql.entities.UserEntity
@@ -47,16 +45,7 @@ data class PostgresServerStats(
     val dbSize: Long,
     val uptime: Long,
     val users: Long
-): org.noelware.analytics.jvm.server.serialization.Serializable {
-    override fun toGrpcValue(): Value = Struct {
-        put(this, PostgresServerStats::organizations)
-        put(this, PostgresServerStats::repositories)
-        put(this, PostgresServerStats::version)
-        put(this, PostgresServerStats::dbSize)
-        put(this, PostgresServerStats::uptime)
-        put(this, PostgresServerStats::users)
-    }.toGrpcValue()
-
+) {
     class Collector(private val config: Config): org.noelware.charted.modules.metrics.Collector<PostgresServerStats>, io.prometheus.client.Collector() {
         override val name: String = "postgresql"
         override suspend fun supply(): PostgresServerStats = transaction {

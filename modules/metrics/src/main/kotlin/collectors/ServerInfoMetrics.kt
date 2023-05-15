@@ -17,7 +17,6 @@
 
 package org.noelware.charted.modules.metrics.collectors
 
-import com.google.protobuf.Value
 import io.ktor.server.application.*
 import io.prometheus.client.GaugeMetricFamily
 import io.prometheus.client.Predicate
@@ -29,10 +28,6 @@ import org.noelware.charted.ChartedInfo
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.enumSets.serialName
 import org.noelware.charted.configuration.kotlin.dsl.metrics.keysets.APIServerKeysets
-import org.noelware.charted.modules.analytics.kotlin.dsl.Struct
-import org.noelware.charted.modules.analytics.kotlin.dsl.put
-import org.noelware.charted.modules.analytics.kotlin.dsl.toGrpcValue
-import org.noelware.charted.modules.metrics.Collector
 
 @Serializable
 data class ServerInfoMetrics(
@@ -50,18 +45,7 @@ data class ServerInfoMetrics(
     val product: String,
     val version: String,
     val vendor: String
-): org.noelware.analytics.jvm.server.serialization.Serializable {
-    override fun toGrpcValue(): Value = Struct {
-        put(this, ServerInfoMetrics::distribution)
-        put(this, ServerInfoMetrics::ktorVersion)
-        put(this, ServerInfoMetrics::commitHash)
-        put(this, ServerInfoMetrics::buildDate)
-        put(this, ServerInfoMetrics::requests)
-        put(this, ServerInfoMetrics::product)
-        put(this, ServerInfoMetrics::version)
-        put(this, ServerInfoMetrics::vendor)
-    }.toGrpcValue()
-
+) {
     class Collector(
         private val config: Config,
         private val getRequestCounter: () -> Long

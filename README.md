@@ -17,6 +17,60 @@ is meant to be a very easy solution to distribute Helm charts on the cloud witho
 
 **charted-server** is also Noelware's first official product that we host our [official instance](https://charts.noelware.org)!
 
+## Installation
+
+### Docker
+
+To install **charted-server** with Docker, you will need to have the [Docker Engine](https://docker.com) installed on your machine.
+Once you have Docker installed, you can pull the images from Noelware's Container Registry, it depends on what you preferably
+recommend to use.
+
+The image can consist around multiple tags that are suited for your environment. **charted-server**'s images are built with
+the `linux/amd64` and `linux/arm64` architectures.
+
+-   `latest`, `nightly`, `unstable` - The latest versions for each channel (`latest` for the **stable** channel, `nightly` for the **nightly** channel, `unstable` for the **unstable** channel)
+-   `alpine` - This tag runs **charted-server** with the [Alpine](https://hub.docker.com/_/alpine) image instead of [Ubuntu](https://hub.docker.com/_/ubuntu), which is recommended for production environments since it's more compact and smaller.
+-   `{version}`, `{version}-nightly` - The **{version}** placeholder is for any specific version of **charted-server** to run, which you can view all the releases on [GitHub](https://github.com/charted-dev/charted/releases). The `-nightly` prefix is for users who want to preview upcoming features or to use a specific nightly version.
+-   `{version}-alpine` - Similarly to the stock `alpine` image tag, but uses a specific version of **charted-server** to run.
+
+Before we run **charted-server** on Docker, we will need to create a volume with the `docker volume` subcommand, or you can
+use a regular filesystem mount (i.e, `~/.local/containers/charted-server`).
+
+**charted-server** holds persistence between your Helm chart indexes, releases, and user-registered avatars. It is not recommended to
+not persist your data, only if you're not going to use **charted-server** in the long-term!
+
+You can create a volume with `docker volume create` as shown below:
+
+```shell
+$ docker volume create charted
+```
+
+Or mount it with a directory on your filesystem.
+
+> **Note**: You can substitute `charted` with any volume name, but you will have to change `charted` to the volume
+> name in later examples if you went with creating a volume with `docker volume`.
+>
+> For regular filesystem-mounted directories, you will need to change the ownership of the directory so
+> the server can read & write to it. You can use the `chown` command to do so:
+>
+> ```shell
+> $ chown -R 1001:1001 <directory>
+> ```
+
+Now that a volume for **charted-server** exists, now we can pull the image from [Noelware's Container Registry](https://cr.noelware.cloud):
+
+```shell
+$ docker pull cr.noelware.cloud/charted/server:latest
+```
+
+Now, we can run the container with the following command:
+
+```shell
+$ docker run -d -p 3651:3651 --name charted-server \
+  -v charted:/var/lib/noelware/charted/data \
+  cr.noelware.cloud/charted/server:latest
+```
+
 ## License
 
 **charted-server** is released under the **Apache 2.0** License with love by Noelware~! If you wish to know more,

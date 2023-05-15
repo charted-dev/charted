@@ -38,11 +38,10 @@ We always accept code contributions since your contributions make **charted-serv
 since it's based off of community feedback and how we should make our product better.
 
 This repository only holds the backend server code for the **charted** project, the web interface's repository is located in
-[charted-dev/web](https://github.com/charted-dev/web).
+[charted-dev/hoshi](https://github.com/charted-dev/hoshi).
 
-**charted-server** has GitHub Codespaces support that allows you to use [GitHub's Codespaces](https://github.com/codespaces) to develop in
-a remote environment, and **charted-server** has support for Coder located in the [coder-templates](https://github.com/charted-dev/coder-templates).
-Both Coder and GitHub Codespaces have all the necessary tools that you would need to run and develop **charted-server**.
+**charted-server** has support for [GitHub Codespaces](https://github.com/codespaces) and [Coder](https://coder.com) via [Noel's Coder templates](https://github.com/auguwu/coder-images).
+Both Coder and Codespaces have the necessary tools you would need to develop and run **charted-server**.
 
 ### Coder
 

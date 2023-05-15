@@ -39,7 +39,6 @@ dependencies {
     implementation(projects.config.kotlinScript)
     implementation(projects.modules.helmCharts)
     implementation(projects.modules.postgresql)
-    implementation(projects.modules.analytics)
     implementation(projects.modules.sessions)
     implementation(projects.modules.tracing)
     implementation(projects.modules.logging)

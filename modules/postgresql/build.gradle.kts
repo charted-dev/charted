@@ -23,7 +23,6 @@ dependencies {
     implementation(libs.exposed.powergamer.tools)
     implementation(libs.apache.commons.validator)
     implementation(libs.spring.security.crypto)
-    implementation(projects.modules.analytics)
     implementation(projects.modules.metrics)
     implementation(projects.modules.storage)
     implementation(libs.ktor.server.core)

@@ -23,10 +23,9 @@ dependencies {
     implementation(libs.elasticsearch.rest.client.sniffer)
     implementation(libs.elasticsearch.rest.client)
     implementation(libs.elasticsearch.java.client)
-    implementation(project(":modules:postgresql"))
-    implementation(project(":modules:analytics"))
-    implementation(project(":modules:metrics"))
-    implementation(project(":modules:search"))
+    implementation(projects.modules.postgresql)
     implementation(libs.jackson.kotlin.module)
+    implementation(projects.modules.metrics)
+    implementation(projects.modules.search)
     implementation(libs.jackson.databind)
 }
