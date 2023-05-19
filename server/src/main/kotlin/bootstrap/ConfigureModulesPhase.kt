@@ -43,12 +43,17 @@ import org.noelware.charted.Server
 import org.noelware.charted.common.extensions.formatting.doFormatTime
 import org.noelware.charted.configuration.ConfigurationHost
 import org.noelware.charted.configuration.kotlin.dsl.Config
+import org.noelware.charted.configuration.kotlin.dsl.enumSets.serialName
+import org.noelware.charted.configuration.kotlin.dsl.server.CacheDriver
 import org.noelware.charted.configuration.kotlin.dsl.tracing.TracingConfig
 import org.noelware.charted.configuration.kotlin.host.KotlinScriptConfigurationHost
 import org.noelware.charted.configuration.yaml.YamlConfigurationHost
 import org.noelware.charted.isDebugEnabled
 import org.noelware.charted.modules.avatars.AvatarModule
 import org.noelware.charted.modules.avatars.DefaultAvatarModule
+import org.noelware.charted.modules.caching.CacheWorker
+import org.noelware.charted.modules.caching.caffeine.CaffeineCacheWorker
+import org.noelware.charted.modules.caching.redis.RedisCacheWorker
 import org.noelware.charted.modules.emails.DefaultEmailService
 import org.noelware.charted.modules.emails.EmailService
 import org.noelware.charted.modules.helm.charts.DefaultHelmChartModule
@@ -231,7 +236,26 @@ object ConfigureModulesPhase: BootstrapPhase() {
             val tracer = configureTracing(config)
             if (tracer != null) {
                 Tracer.setGlobal(tracer)
-                Tracer.global().init()
+                tracer.init()
+            }
+        }
+
+        @Suppress("RemoveExplicitTypeArguments")
+        if (config.server.caching.driver != CacheDriver.None) {
+            log.info("Using cache driver [${config.server.caching.driver.serialName}] to cache response entities!")
+
+            val worker = when (config.server.caching.driver) {
+                CacheDriver.InMemory -> CaffeineCacheWorker()
+                CacheDriver.Redis -> RedisCacheWorker(redis, json)
+                else -> null
+            }
+
+            if (worker != null) {
+                modules.add(
+                    module {
+                        single<CacheWorker> { worker }
+                    },
+                )
             }
         }
 

@@ -19,7 +19,11 @@ package org.noelware.charted.modules.tracing.opentelemetry;
 
 import io.opentelemetry.api.OpenTelemetry;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
@@ -56,20 +60,61 @@ public class OpenTelemetryTracer implements Tracer {
         if (!initialized.compareAndSet(false, true)) return;
 
         LOG.info("Now initializing OpenTelemetry tracing...");
-
-        // First, we need to create a temporary file which the OpenTelemetry
-        // Java Agent will initialize the options from the settings provided.
         File tempPropertiesFile;
         try {
-            tempPropertiesFile = File.createTempFile("opentelemetry-javaagent", ".tmp");
-        } catch (IOException ioe) {
-            LOG.error("Unable to create temp properties file for OpenTelemetry", ioe);
+            tempPropertiesFile = createTempConfigFile(Path.of(System.getProperty("java.io.tmpdir")));
+        } catch (IOException ignored) {
             return;
         }
 
-        LOG.debug("Created temporary properties file [{}]", tempPropertiesFile);
+        // awau
     }
 
     @Override
     public void close() {}
+
+    File createTempConfigFile(Path tmpdir) throws IOException {
+        File tempPropertiesFile;
+        try {
+            tempPropertiesFile = Files.createTempFile(tmpdir, "charted-otel-javaagent", ".tmp")
+                    .toFile();
+        } catch (IOException ioe) {
+            LOG.error("Unable to create temporary properties file", ioe);
+            throw ioe;
+        }
+
+        String serviceName = System.getProperty("otel.service.name");
+        if (serviceName == null) {
+            System.setProperty("otel.service.name", "charted-server");
+        }
+
+        LOG.debug("Created temporary properties file in path [{}]", tempPropertiesFile);
+        System.setProperty("otel.javaagent.configuration-file", tempPropertiesFile.getAbsolutePath());
+
+        try (final FileWriter fileWriter = new FileWriter(tempPropertiesFile)) {
+            final List<String> captureClientResponseHeaders = settings.getCaptureClientResponseHeaders();
+            if (!captureClientResponseHeaders.isEmpty()) {
+                fileWriter.append("otel.instrumentation.http.capture-headers.client.response=");
+
+                for (String item : captureClientResponseHeaders) {
+                    fileWriter.append(item).append(',');
+                }
+
+                fileWriter.append('\n');
+            }
+
+            final List<String> captureServerResponseHeaders = settings.getCaptureServerResponseHeaders();
+            if (!captureServerResponseHeaders.isEmpty()) {
+                fileWriter.append("otel.instrumentation.http.capture-headers.server.response=");
+
+                for (String item : captureServerResponseHeaders) {
+                    fileWriter.append(item).append(',');
+                }
+
+                fileWriter.append('\n');
+            }
+        }
+
+        return tempPropertiesFile;
+    }
 }

@@ -45,3 +45,12 @@ public fun ChartedScope.launch(
     start,
     block,
 )
+
+public fun <T> ChartedScope.async(
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> T
+): Deferred<T> = async(
+    if (Sentry.isEnabled()) SentryContext() + coroutineContext else coroutineContext,
+    start,
+    block,
+)

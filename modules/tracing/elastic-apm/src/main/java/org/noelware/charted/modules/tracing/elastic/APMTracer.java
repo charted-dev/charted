@@ -74,10 +74,12 @@ public class APMTracer implements Tracer {
                     apmConfig,
                     "stress_monitor_gc_relief_threshold",
                     String.valueOf(circuitBreakerConfig.getReliefThreshold()));
+
             insert(
                     apmConfig,
                     "stress_monitor_gc_stress_threshold",
                     String.valueOf(circuitBreakerConfig.getThreshold()));
+
             insert(apmConfig, "stress_monitoring_interval", circuitBreakerConfig.getInterval());
         }
 
@@ -85,11 +87,6 @@ public class APMTracer implements Tracer {
         insert(apmConfig, "service_name", settings.getServiceName());
         insert(apmConfig, "application_packages", "org.noelware.charted");
         insert(apmConfig, "log_level", "TRACE");
-
-        // Disable 'central_config' since you aren't most likely going to
-        // edit these settings in Kibana itself; if you do and want
-        // support for it, create a PR.
-        insert(apmConfig, "central_config", "false");
 
         final String nodeName = getServiceNodeName();
         if (!nodeName.isEmpty()) {
@@ -152,7 +149,7 @@ public class APMTracer implements Tracer {
             insert(apmConfig, "server_urls", String.join(",", serverUrls));
         }
 
-        System.out.println(apmConfig);
+        LOG.trace("Using configuration options for APM agent attacher:\n{}", apmConfig);
         ElasticApmAttacher.attach(apmConfig);
     }
 

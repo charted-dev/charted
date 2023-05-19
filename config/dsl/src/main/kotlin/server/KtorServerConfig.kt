@@ -109,7 +109,13 @@ public data class KtorServerConfig(
     /**
      * Represents the configuration for server-side rate-limiting.
      */
-    val rateLimit: KtorRateLimitConfig? = null
+    val rateLimit: KtorRateLimitConfig? = null,
+
+    /**
+     * Configuration for configuring response cache between objects to help
+     * reduce latency between API calls.
+     */
+    val caching: ServerCacheConfig = ServerCacheConfig()
 ) {
     @Suppress("MemberVisibilityCanBePrivate")
     public class Builder: Buildable<KtorServerConfig> {
@@ -163,6 +169,7 @@ public data class KtorServerConfig(
          * Represents the configuration for configuring server-side rate-limiting.
          */
         private var rateLimit: KtorRateLimitConfig? = null
+        private var caching: ServerCacheConfig = ServerCacheConfig()
 
         /**
          * Configures SSL on the server.
@@ -218,6 +225,11 @@ public data class KtorServerConfig(
             return this
         }
 
+        public fun caching(builder: ServerCacheConfig.Builder.() -> Unit = {}): Builder {
+            caching = ServerCacheConfig.Builder().apply(builder).build()
+            return this
+        }
+
         override fun build(): KtorServerConfig = KtorServerConfig(
             securityHeaders,
             requestQueueLimit,
@@ -232,6 +244,7 @@ public data class KtorServerConfig(
             host,
             port,
             rateLimit,
+            caching,
         )
     }
 }
