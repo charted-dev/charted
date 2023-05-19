@@ -14,6 +14,7 @@
 # limitations under the License.
 
 [versions]
+otel-instrumentation-alpha = "1.26.0-alpha" # why does opentelemetry have inconsistent versions WAAAAAA
 apache-commons-validator = "1.7"
 exposed-powergamer-tools = "1.2.1"
 apache-commons-compress = "1.23.0"
@@ -40,10 +41,10 @@ elastic-apm = "1.38.0"
 grpc-kotlin = "1.3.0"
 postgresql = "42.6.0"
 snowflake = "0.1-beta"
-protobuf = "3.23.0"
+protobuf = "3.23.1"
 caffeine = "3.1.6"
 hikaricp = "5.0.1"
-jackson = "2.15.0"
+jackson = "2.15.1"
 assertj = "3.24.2"
 mordant = "2.0.0-beta13"
 lettuce = "6.2.4.RELEASE"
@@ -52,7 +53,7 @@ exposed = "0.41.1"
 junit5 = "5.9.3"
 janino = "3.1.9"
 picnic = "0.6.0"
-sentry = "6.18.1"
+sentry = "6.19.0"
 clikt = "3.5.1"
 semver = "1.4.2"
 slf4j = "2.0.7"
@@ -187,12 +188,10 @@ elastic-apm-agent-attach = { module = "co.elastic.apm:apm-agent-attach", version
 elastic-apm-agent-api = { module = "co.elastic.apm:apm-agent-api", version.ref = "elastic-apm" }
 
 # opentelemetry
-opentelemetry-logback-appender = { module = "io.opentelemetry.instrumentation:opentelemetry-logback-appender-1.0", version.ref = "otel-instrumentation" }
 opentelemetry-exporter-otlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp", version.ref = "otel" }
-opentelemetry-logback-mdc = { module = "io.opentelemetry.instrumentation:opentelemetry-logback-appender-1.0", version.ref = "otel-instrumentation" }
+opentelemetry-logback-mdc = { module = "io.opentelemetry.instrumentation:opentelemetry-logback-mdc-1.0", version.ref = "otel-instrumentation-alpha" }
 opentelemetry-annotations = { module = "io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations", version.ref = "otel-instrumentation" }
 opentelemetry-javaagent = { module = "io.opentelemetry.javaagent:opentelemetry-javaagent", version.ref = "otel-instrumentation" }
-opentelemetry-ktor = { module = "io.opentelemetry.instrumentation:opentelemetry-ktor-2.0", version.ref = "otel-instrumentation" }
 opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api", version.ref = "otel" }
 opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "otel" }
 

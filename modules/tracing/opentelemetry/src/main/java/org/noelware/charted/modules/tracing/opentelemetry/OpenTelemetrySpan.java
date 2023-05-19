@@ -15,16 +15,6 @@
  * limitations under the License.
  */
 
-plugins {
-    id("charted-module")
-}
+package org.noelware.charted.modules.tracing.opentelemetry;
 
-dependencies {
-    implementation(libs.opentelemetry.exporter.otlp)
-    implementation(libs.opentelemetry.logback.mdc)
-    implementation(libs.opentelemetry.annotations)
-    implementation(libs.opentelemetry.javaagent)
-    implementation(projects.modules.tracing)
-    implementation(libs.opentelemetry.api)
-    implementation(libs.opentelemetry.sdk)
-}
+public class OpenTelemetrySpan {}

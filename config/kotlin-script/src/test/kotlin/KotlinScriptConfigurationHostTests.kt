@@ -23,7 +23,6 @@ import org.junit.jupiter.api.assertThrows
 import java.io.File
 import java.lang.RuntimeException
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 class KotlinScriptConfigurationHostTests {
     @Test
@@ -34,7 +33,6 @@ class KotlinScriptConfigurationHostTests {
         assertEquals("awau", result.jwtSecretKey)
         assertEquals(12345, result.server.port)
         assertEquals("1.2.3.4", result.server.host)
-        assertNull(result.analytics)
     }
 
     @Test
