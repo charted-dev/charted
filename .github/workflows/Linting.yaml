@@ -21,7 +21,6 @@ on:
         branches:
             - 'issue/gh-**'
             - 'feat/**'
-            - main
 
         paths-ignore:
             - 'assets/**'
@@ -32,8 +31,6 @@ on:
             - renovate.json
     push:
         branches:
-            - 'issue/gh-**'
-            - 'feat/**'
             - main
 
         paths-ignore:
