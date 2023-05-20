@@ -103,12 +103,31 @@ class CreateRepositoryReleaseTarballRestController(
                 HttpStatusCode.BadRequest,
                 ApiResponse.err(
                     "NOT_FILE_PART",
-                    "Part was not a file.",
+                    "Part [${part.name}] was not a file.",
                 ),
             )
         }
 
-        charts!!.uploadReleaseTarball(repo.ownerID, repo, version, part)
+        val provenancePart = multipart.readPart()
+        if (provenancePart != null && provenancePart !is PartData.FileItem) {
+            return call.respond(
+                HttpStatusCode.BadRequest,
+                ApiResponse.err(
+                    "NOT_FILE_PART",
+                    "Part [${provenancePart.name}] was not a file.",
+                ),
+            )
+        }
+
+        charts!!.uploadReleaseTarball {
+            this.provenanceFile = if (provenancePart != null) provenancePart as PartData.FileItem else null
+            this.version = version
+            this.repo = repo
+
+            tarballFile = part
+            owner = repo.ownerID
+        }
+
         call.respond(HttpStatusCode.Created, ApiResponse.ok())
     }
 

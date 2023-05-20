@@ -19,6 +19,8 @@ package org.noelware.charted.common.lazy;
 
 /**
  * Represents a lazily evaluated expression that can only be initialized once.
+ * @author Noel Towa (cutie@floofy.dev)
+ * @since 03.03.23
  */
 @FunctionalInterface
 public interface Lazy<T> {

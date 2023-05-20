@@ -19,5 +19,7 @@ package org.noelware.charted;
 
 /**
  * {@link RuntimeException} to throw when an experimental feature is not enabled.
+ * @author Noel Towa (cutie@floofy.dev)
+ * @since 03.03.23
  */
 public class ExperimentalFeatureException extends RuntimeException {}
