@@ -20,6 +20,8 @@ package org.noelware.charted.common;
 /**
  * Represents an interface that has a {@link #build()} method to build this buildable object.
  * @param <T> Scalar to use when building the buildable object
+ * @author Noel Towa (cutie@floofy.dev)
+ * @since 03.03.23
  */
 public interface Buildable<T> {
     /** @return Object represented as {@link T}. */

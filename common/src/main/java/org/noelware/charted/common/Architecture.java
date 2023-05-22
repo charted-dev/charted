@@ -21,6 +21,8 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents the host's CPU architecture.
+ * @author Noel Towa (cutie@floofy.dev)
+ * @since 03.03.23
  */
 public enum Architecture {
     X64,

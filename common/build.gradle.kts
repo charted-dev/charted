@@ -24,6 +24,7 @@ kotlin {
 }
 
 dependencies {
+    implementation(libs.apache.commons.compress)
     implementation(libs.ktor.server.core)
     implementation(libs.caffeine)
     implementation(libs.semver)

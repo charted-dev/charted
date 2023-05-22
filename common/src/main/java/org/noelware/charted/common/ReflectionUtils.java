@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Utilities to perform reflection calls easily and efficiently.
  * @author Noel Towa (cutie@floofy.dev)
+ * @since 04.04.23
  */
 public class ReflectionUtils {
     private static final Logger LOG = LoggerFactory.getLogger(ReflectionUtils.class);
@@ -47,6 +48,19 @@ public class ReflectionUtils {
     // private instance, nu construct
     private ReflectionUtils() {}
 
+    /**
+     * Sets a file in a class instance.
+     *
+     * @param instance Instance to fetch the field from, and to set reflectively.
+     * @param fieldName The name of the field, this must be accurate to the field you're
+     *                  trying to look for, or it will log a warning if it couldn't
+     *                  be found.
+     *
+     * @param value Actual value to set to the field.
+     * @return Indication by a {@link Boolean boolean} if the field was set to what {@code value} was.
+     * @param <C> Instance class type
+     * @param <T> Field value type
+     */
     public static <C, T> boolean setField(@NotNull C instance, @NotNull String fieldName, T value) {
         Objects.requireNonNull(instance);
         Objects.requireNonNull(fieldName);
@@ -67,11 +81,26 @@ public class ReflectionUtils {
             field.set(instance, value);
             return true;
         } catch (IllegalAccessException e) {
-            LOG.warn("Unable to set field [{}] in class [{}]: {}", fieldName, klazz.getSimpleName(), e);
+            LOG.warn("Unable to set field [{}] in class [{}]", fieldName, klazz.getSimpleName(), e);
             return false;
         }
     }
 
+    /**
+     * Grabs and uses a field from any class instance, even if it is private
+     * or not. This is useful mainly for tests for the configuration settings.
+     *
+     * @param instance Instance to fetch the field from.
+     * @param inferTo Class reference to infer the field as, this will return null
+     *                if the inferred class is not the same as the field's class.
+     *
+     * @param fieldName Accurate name of the field to fetch.
+     * @return The actual field's instance, or {@code null} for any reason it couldn't be fetched.
+     * @param <C> Instance class type
+     * @param <T> Field value type
+     * @throws ClassCastException If the inferred class is not the same as the one
+     * that the field was using.
+     */
     @Nullable
     public static <C, T> T getAndUse(@NotNull C instance, @NotNull Class<T> inferTo, @NotNull String fieldName) {
         Objects.requireNonNull(instance);

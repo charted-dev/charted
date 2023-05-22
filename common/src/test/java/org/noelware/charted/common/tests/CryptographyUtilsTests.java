@@ -17,74 +17,74 @@
 
 package org.noelware.charted.common.tests;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
-import java.util.concurrent.atomic.AtomicReference;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.noelware.charted.common.CryptographyUtils;
 
+@SuppressWarnings("removal")
 public class CryptographyUtilsTests {
+    @TempDir
+    private File tempDir;
+
+    @DisplayName("Test that using a line of text can produce a valid MD5 digest")
     @Test
     public void test_md5Hex() {
-        final var encoded = CryptographyUtils.md5Hex("Hello, world!");
-        final var result = "6cd3556deb0da54bca060b4c39479839";
-
-        assertEquals(result, encoded);
+        assertThat(CryptographyUtils.md5Hex("Hello, world!")).isNotNull().isEqualTo("6cd3556deb0da54bca060b4c39479839");
     }
 
+    @DisplayName("Test that using a line of text can produce a valid SHA256 digest")
     @Test
     public void test_sha256Hex() {
-        final var encoded = CryptographyUtils.sha256Hex("beep boop ur gay!");
-        final var result = "da78e20121eb26af9b1e69e15efcc52ca2a8830d5e4aa0781a9c8cee6796236f";
-
-        assertEquals(result, encoded);
+        assertThat(CryptographyUtils.sha256Hex("beep boop ur gay!"))
+                .isNotNull()
+                .isEqualTo("da78e20121eb26af9b1e69e15efcc52ca2a8830d5e4aa0781a9c8cee6796236f");
     }
 
+    @DisplayName("Test if checksum hex can be validated on binary data")
     @Test
     public void test_checksumHex() throws IOException, NoSuchAlgorithmException {
-        final var bytes = "Hello, world?".getBytes();
-        try (final var is = new ByteArrayInputStream(bytes)) {
-            final var checksum = CryptographyUtils.checksumHex(CryptographyUtils.ALGORITHM_SHA256, is);
-            assertEquals("407e1b6fc892e3340482da07d6c07d8180bdbb1fcf4329ba96559db159316ce7", checksum);
+        final byte[] bytes = "Hello, world?".getBytes();
+        try (final ByteArrayInputStream is = new ByteArrayInputStream(bytes)) {
+            assertThat(CryptographyUtils.checksumHex(CryptographyUtils.ALGORITHM_SHA256, is))
+                    .isNotNull()
+                    .isEqualTo("407e1b6fc892e3340482da07d6c07d8180bdbb1fcf4329ba96559db159316ce7");
         }
     }
 
+    @DisplayName("Check if checksum generation is accurate on files")
     @Test
-    public void test_fileChecksum() throws IOException, NoSuchAlgorithmException {
-        var tmpdir = new AtomicReference<Path>();
-        assertDoesNotThrow(() -> {
-            tmpdir.set(Files.createTempDirectory("tmp-" + System.currentTimeMillis()));
-        });
+    public void test_fileChecksum() {
+        final File file = new File(tempDir, "uwu.txt");
 
-        final var td = tmpdir.get();
-        final var file = new File(td.toFile(), "uwu.txt");
-        assertFalse(file.exists());
-        assertDoesNotThrow(() -> {
-            assertTrue(file.createNewFile());
-        });
+        // Checks if we can write to the temp directory created by JUnit
+        assertThat(file.exists()).isFalse();
+        assertThatNoException()
+                .isThrownBy(() -> assertThat(file.createNewFile()).isTrue());
+        assertThat(file.exists()).isTrue();
 
-        assertTrue(file.exists());
-        try (final var writer = new PrintWriter(file)) {
+        // Now, let's write some mock data
+        try (final PrintWriter writer = new PrintWriter(file)) {
             writer.write("We do a little trolling\n");
-            writer.printf("I cost %d$ and you cost %d$, we are not the same.", 1_000_00, 10);
+            writer.printf("I cost %d$ and you cost %d$, we are not the same.", 1_000_000, 10);
+        } catch (FileNotFoundException ex) {
+            // We shouldn't get this, so fail immediately
+            fail(ex);
         }
 
-        try (final var is = new FileInputStream(file)) {
-            final var checksum = CryptographyUtils.checksumHex(CryptographyUtils.ALGORITHM_SHA256, is);
-            assertEquals("c81deaa586399232c1d94ca6e5bfd8e7b1f91755958edd36015dd8ac24c76f4c", checksum);
-        }
-
-        // once the tests pass, let's just delete the file
-        // and temp directory.
-        try {
-            Files.delete(file.toPath());
-            Files.delete(td);
-        } catch (IOException e) {
-            System.err.printf("Received exception when cleaning up! Please clean [%s] and [%s] for me!%n", file, td);
+        try (final FileInputStream fis = new FileInputStream(file)) {
+            final String checksum = CryptographyUtils.checksumHex(CryptographyUtils.ALGORITHM_SHA256, fis);
+            assertThat(checksum)
+                    .isNotNull()
+                    .isEqualTo("19ba84e7a737db7d58e67ea9a8b575ab14ff36802f396436a9ef79820a4e6c31");
+        } catch (IOException | NoSuchAlgorithmException ex) {
+            // We shouldn't get this, so fail immediately
+            fail(ex);
         }
     }
 }

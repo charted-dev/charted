@@ -19,7 +19,7 @@ package org.noelware.charted.modules.helm.charts
 
 import io.ktor.http.content.*
 import org.noelware.charted.common.types.helm.ChartIndexYaml
-import org.noelware.charted.models.repositories.Repository
+import org.noelware.charted.modules.helm.charts.buildables.UploadReleaseTarball
 import java.io.InputStream
 
 interface HelmChartModule {
@@ -71,17 +71,10 @@ interface HelmChartModule {
      *    - (mapped from storage handler):            $ROOT/{users|organizations}/{id}/releases/{version}.tar.gz
      *    - (repositories api):                       $SERVER_URL/repositories/{id}/releases/{version}/{version}.tar.gz
      *
-     * @param owner     owner ID
-     * @param repo      repository object
-     * @param version   release version
-     * @param multipart multipart/form-data packet to store
+     * @param uploadDataDsl The [UploadReleaseTarball] builder DSL to use to
+     * identify the data that is being uploaded.
      */
-    suspend fun uploadReleaseTarball(
-        owner: Long,
-        repo: Repository,
-        version: String,
-        multipart: PartData.FileItem
-    )
+    suspend fun uploadReleaseTarball(uploadDataDsl: UploadReleaseTarball.Builder.() -> Unit)
 
     /**
      * Retrieves a template from the given [repository][repo] and returns an [InputStream] that is

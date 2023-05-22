@@ -25,6 +25,7 @@ import io.github.z4kn4fein.semver.VersionFormatException
 import io.github.z4kn4fein.semver.toVersion
 import io.ktor.http.*
 import io.ktor.http.content.*
+import io.ktor.utils.io.core.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
@@ -33,6 +34,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.utils.IOUtils
 import org.noelware.charted.KtorHttpRespondException
+import org.noelware.charted.common.CryptographyUtils
 import org.noelware.charted.common.types.helm.ChartIndexSpec
 import org.noelware.charted.common.types.helm.ChartIndexYaml
 import org.noelware.charted.common.types.helm.ChartSpec
@@ -40,7 +42,7 @@ import org.noelware.charted.common.types.responses.ApiError
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.toApiBaseUrl
 import org.noelware.charted.configuration.kotlin.dsl.toCdnBaseUrl
-import org.noelware.charted.models.repositories.Repository
+import org.noelware.charted.modules.helm.charts.buildables.UploadReleaseTarball
 import org.noelware.charted.modules.storage.StorageModule
 import org.noelware.remi.core.Blob
 import org.noelware.remi.core.ListBlobsRequest
@@ -50,6 +52,8 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.InputStream
 import java.util.zip.GZIPInputStream
+import kotlin.io.use
+import kotlin.text.toByteArray
 
 val acceptableContentTypes: List<String> = listOf("gzip", "tar+gzip", "tar").map { "application/$it" }
 private val allowedFilesRegex = """(Chart.lock|Chart.ya?ml|values.ya?ml|[.]helmignore|templates/\w+.*[.](txt|tpl|ya?ml)|charts/\w+.*.(tgz|tar.gz))""".toRegex()
@@ -173,12 +177,13 @@ class DefaultHelmChartModule(
      *    - (mapped from storage handler):            $ROOT/{users|organizations}/{id}/releases/{version}.tar.gz
      *    - (repositories api):                       $SERVER_URL/repositories/{id}/releases/{version}/{version}.tar.gz
      *
-     * @param owner     owner ID
-     * @param repo      repository ID
-     * @param version   release version
-     * @param multipart multipart/form-data packet to store
+     * @param uploadDataDsl The [UploadReleaseTarball] builder DSL to use to
+     * identify the data that is being uploaded.
      */
-    override suspend fun uploadReleaseTarball(owner: Long, repo: Repository, version: String, multipart: PartData.FileItem) {
+    override suspend fun uploadReleaseTarball(uploadDataDsl: UploadReleaseTarball.Builder.() -> Unit) {
+        val uploadData = UploadReleaseTarball.Builder().apply(uploadDataDsl).build()
+        val (_, tarballFile, version, owner, repo) = uploadData
+
         log.info("Uploading release tarball $version.tar.gz to repository [$owner/${repo.name}]")
 
         // Disallow overwriting the tarball -- just delete the release and then re-do the upload. The Helm plugin
@@ -186,15 +191,13 @@ class DefaultHelmChartModule(
         if (storage.exists("./repositories/$owner/${repo.id}/tarballs/$version.tar.gz")) {
             throw KtorHttpRespondException(
                 HttpStatusCode.Conflict,
-                listOf(
-                    ApiError("TARBALL_ALREADY_EXISTS", "Tarball for version '$version' already exists"),
-                ),
+                ApiError("TARBALL_ALREADY_EXISTS", "Tarball for version '$version' already exists"),
             )
         }
 
         // First, we need to get the data itself. This will determine if the tarball
         // sent to us was actually a tarball or not.
-        val inputStream = multipart.streamProvider()
+        val inputStream = tarballFile.streamProvider()
         val baos = ByteArrayOutputStream()
         withContext(Dispatchers.IO) {
             inputStream.transferTo(baos)
@@ -257,10 +260,10 @@ class DefaultHelmChartModule(
 
         if (storage.service is FilesystemStorageService) {
             val tarballPath = (storage.service as FilesystemStorageService).normalizePath("./repositories/$owner/${repo.id}/tarballs")
-            val tarballFile = File(tarballPath)
+            val file = File(tarballPath)
 
-            if (!tarballFile.exists()) {
-                tarballFile.mkdirs()
+            if (!file.exists()) {
+                file.mkdirs()
             }
         }
 
@@ -271,50 +274,29 @@ class DefaultHelmChartModule(
             "application/tar+gzip",
         )
 
-        // Update the owner's index.yaml file for this release
         val indexYaml = getIndexYaml(owner)!!
         val entries = indexYaml.entries.toMutableMap()
-        val host = config.toApiBaseUrl()
-        val cdnBaseUrl = config.toCdnBaseUrl("/repositories/${repo.id}/releases/$version.tar.gz")
-        entries[repo.name] = if (!entries.containsKey(repo.name)) {
-            listOf(
-                ChartIndexSpec.fromSpec(
-                    listOf(
-                        "$host/repositories/${repo.id}/releases/$version.tar.gz",
+        val host = config.toApiBaseUrl("/repositories/${repo.id}/releases/$version.tar.gz")
+        val cdnBase = config.toCdnBaseUrl("/repositories/${repo.id}/releases/$version.tar.gz")
 
-                        // We have this so if charted-server isn't available and the CDN proxy is
-                        // properly configured, Helm will try to request to the CDN. This is mainly
-                        // used in production.
-                        if (config.cdn != null && config.cdn!!.enabled) {
-                            cdnBaseUrl
-                        } else {
-                            null
-                        },
-                    ).mapNotNullTo(mutableListOf()) { it },
+        val digest = CryptographyUtils.sha256Stream(ByteArrayInputStream(IOUtils.toByteArray(tarInputStream)))
+        if (!entries.containsKey(repo.name)) {
+            entries[repo.name] = listOf(
+                ChartIndexSpec.fromSpec(
+                    listOf(host, cdnBase),
                     Clock.System.now(),
                     false,
-                    null,
+                    digest,
                     chartSpec,
                 ),
             )
         } else {
-            entries[repo.name]!! + listOf(
+            entries[repo.name] = entries[repo.name]!! + listOf(
                 ChartIndexSpec.fromSpec(
-                    listOf(
-                        "$host/repositories/${repo.id}/releases/$version.tar.gz",
-
-                        // We have this so if charted-server isn't available and the CDN proxy is
-                        // properly configured, Helm will try to request to the CDN. This is mainly
-                        // used in production.
-                        if (config.cdn != null && config.cdn!!.enabled) {
-                            cdnBaseUrl
-                        } else {
-                            null
-                        },
-                    ).mapNotNullTo(mutableListOf()) { it },
+                    listOf(host, cdnBase),
                     Clock.System.now(),
                     false,
-                    null,
+                    digest,
                     chartSpec,
                 ),
             )
@@ -322,7 +304,7 @@ class DefaultHelmChartModule(
 
         // Upload updated index.yaml file
         val stream = ByteArrayOutputStream()
-        yaml.encodeToStream(indexYaml.copy(entries = entries), stream)
+        yaml.encodeToStream(indexYaml.copy(entries = entries, generated = Clock.System.now()), stream)
 
         storage.upload(
             "./metadata/$owner/index.yaml",

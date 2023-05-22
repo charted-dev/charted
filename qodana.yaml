@@ -26,3 +26,13 @@ exclude:
     - name: All
       paths:
           - build-logic/build/**
+
+    # Don't feel like updating unresolved references, maybe in a future
+    # release.
+    - name: KDocUnresolvedReference
+
+    # Disable using blocking functions in non-blocking contexts
+    # as we cannot do this efficiently in Java.
+    - name: BlockingMethodInNonBlockingContext
+      paths:
+          - '**/*.java'
