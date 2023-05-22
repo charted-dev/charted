@@ -113,9 +113,8 @@ public class CryptographyUtils {
     @NotNull
     public static String sha256(@NotNull InputStream stream) throws IOException {
         Objects.requireNonNull(stream, "Stream cannot be null");
-
-        if (stream.available() == 0) {
-            throw new IOException("Cannot use 0-length stream for checksum");
+        if (stream.available() <= 0) {
+            throw new IOException("Cannot use under 0-length stream for checksum");
         }
 
         final MessageDigest digest = getMessageDigest(ALGORITHM_SHA256);

@@ -25,9 +25,24 @@ import org.jetbrains.annotations.NotNull;
  * @since 03.03.23
  */
 public enum OperatingSystem {
+    /**
+     * charted-server is running on a Windows host.
+     */
     WINDOWS,
+
+    /**
+     * charted-server is running on a Linux host.
+     */
     LINUX,
+
+    /**
+     * charted-server is running on a macOS host.
+     */
     MACOS,
+
+    /**
+     * charted-server is running on an unsupported host.
+     */
     UNSUPPORTED;
 
     /**

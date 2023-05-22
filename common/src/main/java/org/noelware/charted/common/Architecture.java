@@ -25,8 +25,20 @@ import org.jetbrains.annotations.NotNull;
  * @since 03.03.23
  */
 public enum Architecture {
+    /**
+     * Host CPU architecture is x86_64
+     */
     X64,
+
+    /**
+     * Host CPU architecture is aarch64
+     */
     AARCH64,
+
+    /**
+     * Host CPU architecture is not supported or couldn't
+     * be detected.
+     */
     UNSUPPORTED;
 
     /**
