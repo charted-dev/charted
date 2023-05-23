@@ -1,5 +1,5 @@
 # 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
-# Copyright 2022-2023 Noelware <team@noelware.org>
+# Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,23 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Release Workflow (Nightly)
+name: Release Pipeline (unstable channel)
 on:
-    release:
-        types:
-            - prereleased
-permissions:
-    contents: write
-    packages: write
+    push:
+        tags:
+            # should match '0.4.0-unstable.3'/'0.6.0-unstable'
+            - 'v[0-9].[0-9].[0-9]-unstable'
+            - 'v[0-9].[0-9].[0-9]-unstable.[0-9]'
 jobs:
     archives:
-        name: Build and publish archive packages [${{matrix.tasks.prettyName}}]
+        name: Build and Publish Archive Packages [${{matrix.tasks.task == 'distTar' && 'Tarball' || matrix.tasks.task == 'distZip' && 'Zip' || 'Unknown' }}]
         runs-on: ubuntu-latest
         strategy:
             matrix:
                 tasks:
-                    - { ext: 'tar.gz', task: 'distTar', prettyName: 'Tarball' }
-                    - { ext: 'zip', task: 'distZip', prettyName: 'Zip' }
+                    - { ext: 'tar.gz', task: distTar }
+                    - { ext: zip, task: distZip }
         steps:
             - name: Checkout repository
               uses: actions/checkout@v3
@@ -69,7 +68,7 @@ jobs:
                   files: ./cli/build/distributions/charted-server.${{matrix.tasks.ext}}
 
             - name: Upload artifacts to Noelware's Artifact Registry (/charted/server/${{steps.tag.outputs.version}})
-              uses: Noelware/s3-action@2.1.0
+              uses: Noelware/s3-action@2.2.0
               with:
                   enforce-path-access-style: true
                   files: ./cli/build/distributions/charted-server.${{matrix.tasks.ext}}
@@ -81,12 +80,12 @@ jobs:
                   prefix: /noelware/artifacts
                   bucket: august
 
-            - name: Upload artifacts to Noelware's Artifact Registry (/charted/server/nightly)
-              uses: Noelware/s3-action@2.1.0
+            - name: Upload artifacts to Noelware's Artifact Registry (/charted/server/unstable)
+              uses: Noelware/s3-action@2.2.0
               with:
                   enforce-path-access-style: true
                   files: ./cli/build/distributions/charted-server.${{matrix.tasks.ext}}
-                  path-format: $(prefix)/charted/server/latest/charted-server.${{matrix.tasks.ext}}
+                  path-format: $(prefix)/charted/server/unstable/charted-server.${{matrix.tasks.ext}}
                   access-key-id: ${{secrets.S3_ACCESS_KEY}}
                   secret-key: ${{secrets.S3_SECRET_KEY}}
                   endpoint: ${{secrets.S3_ENDPOINT}}
@@ -134,10 +133,10 @@ jobs:
                   file: ./distribution/docker/debian/Dockerfile
                   push: true
                   tags: |
-                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly,
-                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}-nightly,
+                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-unstable,
+                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}-unstable,
                       cr.noelware.cloud/charted/server:${{steps.tag.outputs.version}},
-                      cr.noelware.cloud/charted/server:nightly
+                      cr.noelware.cloud/charted/server:unstable
                   labels: |
                       org.opencontainers.image.title=charted-server
                       org.opencontainers.image.description=📦 You know, for Helm Charts?
@@ -187,10 +186,10 @@ jobs:
                   file: ./distribution/docker/alpine/Dockerfile
                   push: true
                   tags: |
-                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-nightly-alpine,
-                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}-nightly-alpine,
-                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.version}}-alpine,
-                      cr.noelware.cloud/charted/server:nightly-alpine
+                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-unstable-alpine,
+                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-unstable-alpine,
+                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-alpine,
+                      ghcr.io/charted-dev/charted:unstable-alpine
                   labels: |
                       org.opencontainers.image.title=charted-server
                       org.opencontainers.image.description=📦 You know, for Helm Charts?

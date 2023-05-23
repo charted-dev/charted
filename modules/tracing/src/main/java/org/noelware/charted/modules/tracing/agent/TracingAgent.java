@@ -17,20 +17,23 @@
 
 package org.noelware.charted.modules.tracing.agent;
 
-import com.sun.tools.attach.AgentInitializationException;
-import com.sun.tools.attach.AgentLoadException;
-import com.sun.tools.attach.AttachNotSupportedException;
-import com.sun.tools.attach.VirtualMachine;
-import java.io.IOException;
+import java.io.File;
 import java.lang.instrument.Instrumentation;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.Method;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
+import net.bytebuddy.agent.ByteBuddyAgent;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.implementation.MethodDelegation;
-import net.bytebuddy.implementation.SuperMethodCall;
+import net.bytebuddy.implementation.bind.annotation.Origin;
+import net.bytebuddy.implementation.bind.annotation.RuntimeType;
+import net.bytebuddy.implementation.bind.annotation.SuperCall;
 import net.bytebuddy.matcher.ElementMatchers;
 import org.jetbrains.annotations.NotNull;
 import org.noelware.charted.modules.tracing.Traceable;
+import org.noelware.charted.modules.tracing.agent.init.Instrumented;
+import org.noelware.charted.modules.tracing.agent.init.NonInstrumented;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,12 +45,25 @@ public class TracingAgent {
         // If we have already initialized, then we will not do this again
         if (!hasInit.compareAndSet(false, true)) return;
 
-        LOG.info("Initializing agent...");
+        LOG.info("Initializing agent!");
+
+        ByteBuddyAgent.install();
         new AgentBuilder.Default()
+                .with(new InstallationListener())
                 .type(ElementMatchers.any())
-                .transform((builder, type, _loader, _jModule, _domain) -> builder.method(
-                                ElementMatchers.isAnnotatedWith(Traceable.class))
-                        .intercept(MethodDelegation.to(Interceptor.class).andThen(SuperMethodCall.INSTANCE)))
+                .transform((builder, typeDescription, loader, jModule, _domain) -> {
+                    //                    LOG.trace(
+                    //                            "Creating transformation for description [{}] in loader [{}
+                    // module={}]",
+                    //                            typeDescription,
+                    //                            loader,
+                    //                            jModule);
+
+                    return builder.method(ElementMatchers.not(ElementMatchers.isAbstract())
+                                    .and(ElementMatchers.isAnnotatedWith(Traceable.class)))
+                            .intercept(MethodDelegation.to(Interceptor.class));
+                })
+                .warmUp(NonInstrumented.class, Instrumented.class)
                 .installOn(inst);
     }
 
@@ -56,8 +72,7 @@ public class TracingAgent {
      * tracing configuration is done by the API server, we can't statically load this from
      * the <code>-javaagent</code> JVM argument.
      */
-    public static void doSideLoad()
-            throws IOException, AttachNotSupportedException, AgentLoadException, AgentInitializationException {
+    public static void doSideLoad() {
         LOG.info("Starting side-loading this agent to the current JVM...");
 
         final String vmName = ManagementFactory.getRuntimeMXBean().getName();
@@ -74,7 +89,7 @@ public class TracingAgent {
 
         String javaAgentJar = null;
         for (String item : classpath.split(":")) {
-            LOG.trace("item '{}' (found: {})", item, item.contains("charted-tracing"));
+            LOG.trace("classpath item [{}] (found?: {})", item, item.contains("charted-tracing"));
             if (item.contains("charted-tracing")) {
                 LOG.debug("Found tracing JAR from classpath [{}]", item);
                 javaAgentJar = item;
@@ -87,8 +102,20 @@ public class TracingAgent {
             return;
         }
 
-        final VirtualMachine vm = VirtualMachine.attach(actualPid);
-        vm.loadAgent(javaAgentJar, "");
-        vm.detach();
+        try {
+            ByteBuddyAgent.attach(new File(javaAgentJar), actualPid, (String) null);
+        } catch (RuntimeException e) {
+            LOG.error("Unable to attach Byte Buddy agent", e);
+        }
+    }
+
+    public static class Interceptor {
+        private static final Logger LOG = LoggerFactory.getLogger(Interceptor.class);
+
+        @RuntimeType
+        public static Object intercept(@Origin Method method, @SuperCall Callable<?> callable) throws Exception {
+            System.out.println("babe fluffs do be lookin mad tasty :sheesh:");
+            return callable.call();
+        }
     }
 }

@@ -26,6 +26,7 @@ dependencies {
     implementation(projects.modules.postgresql)
     implementation(libs.jackson.kotlin.module)
     implementation(projects.modules.metrics)
+    implementation(projects.modules.tracing)
     implementation(projects.modules.search)
     implementation(libs.jackson.databind)
 }

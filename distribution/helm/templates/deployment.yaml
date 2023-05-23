@@ -12,3 +12,112 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: {{ include "charted.fullname" . }}
+    namespace: {{ .Release.Namespace | quote }}
+    labels:
+        {{- include "charted.labels" . | nindent 6 }}
+    annotations:
+        {{- include "charted.defaultAnnotations" . | nindent 6 }}
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            {{- include "charted.labels" . | nindent 8 }}
+    template:
+        metadata:
+            labels:
+                {{- include "charted.labels" . | nindent 12 }}
+        spec:
+            serviceAccountName: {{ include "charted.serviceAccountName" . }}
+            securityContext: {{ default (include "charted.defaultPodSecurityContext" .) .Values.global.podSecurityContext | nindent 8 }}
+            {{- with .Values.nodeSelector }}
+            nodeSelector:
+                {{- toYaml . | nindent 12 }}
+            {{- end }}
+            {{- with .Values.affinity }}
+            affinity:
+                {{- toYaml . | nindent 12 }}
+            {{- end }}
+            {{- with .Values.tolerations  }}
+            tolerations:
+                {{- toYaml . | nindent 12 }}
+            {{- end }}
+            volumes:
+                - name: {{ .Values.config.mapName }}
+                  configMap:
+                    name: {{ printf "%s-%s" (include "charted.fullname" .) .Values.config.mapName }}
+                    defaultMode: 420
+                - name: {{ .Values.config.logback.mapName }}
+                  configMap:
+                    name: {{ printf "%s-%s" (include "charted.fullname" .) .Values.config.logback.mapName }}
+                    defaultMode: 420
+                {{- if and (eq "filesystem" .Values.storage.driver) (.Values.storage.filesystem.persistence.enabled) }}
+                - name: {{ .Values.storage.filesystem.persistence.claimName }}
+                  persistentVolumeClaim:
+                    claimName: {{ printf "%s-%s" (include "charted.fullname" .) .Values.storage.filesystem.persistence.claimName }}
+                {{- end }}
+            containers:
+                - name: {{ include "charted.fullname" . }}
+                  image: {{ printf "%s:%s" .Values.image.repository (default .Chart.AppVersion .Values.image.tag) }}
+                  imagePullPolicy: {{ default "IfNotPresent" .Values.image.pullPolicy }}
+                  securityContext: {{ default (include "charted.defaultContainerSecurityContext" .) .Values.global.containerSecurityContext | nindent 12 }}
+                  resources:
+                    limits:
+                        cpu: 1500m
+                        memory: 2Gi
+                    requests:
+                        cpu: 10m
+                        memory: 200Mi
+                  ports:
+                    - name: http
+                      containerPort:  {{ .Values.service.port }}
+                      protocol: TCP
+                  readinessProbe:
+                    httpGet:
+                        path: /heartbeat
+                        port: {{ .Values.service.port }}
+                    failureThreshold: 3
+                    initialDelaySeconds: 10
+                    periodSeconds: 30
+                    timeoutSeconds: 5
+                  livenessProbe:
+                    httpGet:
+                        path: /heartbeat
+                        port: {{ .Values.service.port }}
+                    failureThreshold: 3
+                    initialDelaySeconds: 10
+                    periodSeconds: 30
+                    timeoutSeconds: 5
+                  startupProbe:
+                    httpGet:
+                        path: /heartbeat
+                        port: {{ .Values.service.port }}
+                    failureThreshold: 3
+                    initialDelaySeconds: 10
+                    periodSeconds: 30
+                    timeoutSeconds: 5
+                  env:
+                    {{- with .Values.extraEnvVars }}
+                        {{- toYaml . | nindent 14 }}
+                    {{- end }}
+                    - name: CHARTED_CONFIG_PATH
+                      value: {{ .Values.config.path }}
+                    - name: CHARTED_LOGBACK_CONFIG_PATH
+                      value: {{ .Values.config.logback.path }}
+                    {{- if .Values.config.jwtSecretKey.existingSecret }}
+                    - name: JWT_SECRET_KEY
+                      valueFrom:
+                        secretKeyRef:
+                            key: jwtSecretKey
+                            name: {{ .Values.config.jwtSecretKey.existingSecret }}
+                    {{- else }}
+                    - name: JWT_SECRET_KEY
+                      valueFrom:
+                        secretKeyRef:
+                            key: jwtSecretKey
+                            name: {{ printf "%s-%s" (include "charted.fullname" .) "jwt-secret-key" }}
+                    {{- end }}

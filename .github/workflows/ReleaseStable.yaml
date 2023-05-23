@@ -123,13 +123,6 @@ jobs:
                   username: noel
                   password: ${{secrets.REGISTRY_PASSWORD}}
 
-            - name: Login into GitHub Container Registry
-              uses: docker/login-action@v2
-              with:
-                  registry: ghcr.io
-                  username: charted-dev
-                  password: ${{secrets.GITHUB_TOKEN}}
-
             - name: Build and push!
               uses: docker/build-push-action@v4
               with:
@@ -143,11 +136,7 @@ jobs:
                       cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}},
                       cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}},
                       cr.noelware.cloud/charted/server:${{steps.tag.outputs.version}},
-                      cr.noelware.cloud/charted/server:latest,
-                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}},
-                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}},
-                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}},
-                      ghcr.io/charted-dev/charted:latest
+                      cr.noelware.cloud/charted/server:latest
                   labels: |
                       org.opencontainers.image.title=charted-server
                       org.opencontainers.image.description=📦 You know, for Helm Charts?
@@ -186,13 +175,6 @@ jobs:
                   username: noel
                   password: ${{secrets.REGISTRY_PASSWORD}}
 
-            - name: Login into GitHub Container Registry
-              uses: docker/login-action@v2
-              with:
-                  registry: ghcr.io
-                  username: charted-dev
-                  password: ${{secrets.GITHUB_TOKEN}}
-
             - name: Build and push!
               uses: docker/build-push-action@v4
               with:
@@ -206,11 +188,7 @@ jobs:
                       cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine,
                       cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}-alpine,
                       cr.noelware.cloud/charted/server:${{steps.tag.outputs.version}}-alpine,
-                      cr.noelware.cloud/charted/server:latest-alpine,
-                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine,
-                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.major}}-alpine,
-                      ghcr.io/charted-dev/charted:${{steps.tag.outputs.version}}-alpine,
-                      ghcr.io/charted-dev/charted:latest-alpine
+                      cr.noelware.cloud/charted/server:latest-alpine
                   labels: |
                       org.opencontainers.image.title=charted-server
                       org.opencontainers.image.description=📦 You know, for Helm Charts?
@@ -219,3 +197,26 @@ jobs:
                       org.opencontainers.image.licenses=Apache-2.0
                       org.opencontainers.image.documentation=https://charts.noelware.org/docs/server/${{steps.tag.outputs.version}}
                       org.opencontainers.image.source=https://github.com/charted-dev/charted
+    deploy:
+        name: Deploy to Kubernetes
+        runs-on: ubuntu-latest
+        if: ${{ github.repository_owner == 'charted-dev' }}
+        needs: [alpine-docker-image]
+        steps:
+            - name: Get current release tag
+              uses: auguwu/git-tag-action@master
+              id: tag
+
+            - name: Setup kubeconfig
+              run: |
+                  if ! [ -d "~/.kube" ]; then
+                      mkdir -p ~/.kube
+                  fi
+
+                  echo "${{secrets.KUBECONFIG}}" >> ~/.kube/config
+
+            - name: Set image server
+              run: kubectl set image deployment/charted-server --namespace=noelware charted-server=cr.noelware.cloud/charted/server:${{steps.tag.outputs.version}}-alpine
+
+            - name: Deploy!
+              run: kubectl rollout status deployment/charted-server --namespace=noelware

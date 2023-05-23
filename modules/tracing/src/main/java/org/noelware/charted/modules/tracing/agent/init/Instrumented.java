@@ -15,24 +15,13 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.modules.tracing;
+package org.noelware.charted.modules.tracing.agent.init;
 
-/**
- * Annotation to declare on any method to provide tracing via the charted's Java Agent for
- * tracing.
- *
- * @author Noel Towa (cutie@floofy.dev)
- * @since 23.03.23
- */
-public @interface Traceable {
-    /**
-     * @return Operation of this traceable method, defaults to nothing
-     */
-    String operation() default "";
+import org.noelware.charted.modules.tracing.Traceable;
 
-    /**
-     * @return name of this transaction, defaults to 'method class#method-name', i.e:
-     * method TracingAgent#doTracing
-     */
-    String name() default "";
+public class Instrumented {
+    @Traceable
+    public static boolean isInstrumented() {
+        return true;
+    }
 }

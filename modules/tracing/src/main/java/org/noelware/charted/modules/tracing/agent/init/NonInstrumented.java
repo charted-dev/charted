@@ -15,22 +15,6 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.modules.tracing.agent;
+package org.noelware.charted.modules.tracing.agent.init;
 
-import java.lang.reflect.Method;
-import java.util.concurrent.Callable;
-import net.bytebuddy.implementation.bind.annotation.Origin;
-import net.bytebuddy.implementation.bind.annotation.RuntimeType;
-import net.bytebuddy.implementation.bind.annotation.SuperCall;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-public class Interceptor {
-    private static final Logger LOG = LoggerFactory.getLogger(Interceptor.class);
-
-    @RuntimeType
-    public static Object intercept(@Origin Method method, @SuperCall Callable<?> callable) throws Exception {
-        LOG.info("intercepted!!!!");
-        return callable.call();
-    }
-}
+public class NonInstrumented {}
