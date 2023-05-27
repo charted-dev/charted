@@ -21,6 +21,7 @@ on:
         branches:
             - 'issue/gh-**'
             - 'feat/**'
+            - main
 
         paths-ignore:
             - 'assets/**'
