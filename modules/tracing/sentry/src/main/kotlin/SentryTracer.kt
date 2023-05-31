@@ -17,7 +17,9 @@
 
 package org.noelware.charted.modules.tracing.sentry
 
+import dev.floofy.utils.java.SetOnce
 import io.sentry.Sentry
+import org.noelware.charted.common.extensions.setonce.getValue
 import org.noelware.charted.modules.tracing.Tracer
 import org.noelware.charted.modules.tracing.Transaction
 
@@ -26,12 +28,30 @@ import org.noelware.charted.modules.tracing.Transaction
  * metadata to a Sentry server configured by the DSN.
  */
 object SentryTracer: Tracer {
+    private val _current: SetOnce<Transaction> = SetOnce()
+
     override fun createTransaction(name: String, operation: String?): Transaction = SentryTransaction(
         this,
         Sentry.startTransaction(name, operation ?: "(unknown)"),
     )
 
     override fun createTransaction(name: String): Transaction = createTransaction(name, null)
+    override fun currentTransaction(): Transaction? = _current.valueOrNull
+    override fun withTransaction(name: String, operation: String?): AutoCloseable {
+        if (_current.wasSet()) {
+            throw IllegalStateException("There is already an ongoing transaction, please use spans!")
+        }
+
+        val transaction = createTransaction(name, operation)
+        _current.value = transaction
+
+        return AutoCloseable {
+            transaction.end(null)
+            _current.reset()
+        }
+    }
+
+    override fun withTransaction(name: String): AutoCloseable = withTransaction(name, null)
 
     override fun close() {
     }

@@ -55,6 +55,30 @@ public interface Tracer extends Closeable {
     }
 
     /**
+     * @return current {@link Transaction} that this tracer is using, if this is used with
+     * the {@link #withTransaction(String, String)} or {@link #withTransaction(String)} methods,
+     * it will be the transaction that is being executed in the try-resources statement. If not,
+     * it will always return null as there can be multiple transactions on each thread being
+     * executed.
+     */
+    @Nullable
+    Transaction currentTransaction();
+
+    /**
+     * Creates a {@link Transaction} with a {@link Closeable} method for Java's try-resources
+     * feature.
+     *
+     * @param name Name of this transaction
+     * @param operation The operation
+     * @return newly created {@link Transaction}
+     */
+    @NotNull
+    AutoCloseable withTransaction(@NotNull String name, @Nullable String operation);
+
+    @NotNull
+    AutoCloseable withTransaction(@NotNull String name);
+
+    /**
      * Creates a simple {@link Transaction}.
      * @param name The name of the transaction
      * @param operation Operation, can be null.

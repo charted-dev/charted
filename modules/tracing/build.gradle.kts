@@ -15,29 +15,6 @@
  * limitations under the License.
  */
 
-import org.noelware.charted.gradle.*
-
 plugins {
     id("charted-module")
-}
-
-dependencies {
-    implementation("net.bytebuddy:byte-buddy-agent:1.14.4")
-    implementation("net.bytebuddy:byte-buddy:1.14.4")
-    implementation(libs.elastic.apm.agent.attach)
-}
-
-tasks.withType<Jar>().configureEach {
-    manifest {
-        attributes(
-            mapOf(
-                "Can-Retransform-Classes" to "true",
-                "Implementation-Version" to "$VERSION",
-                "Implementation-Vendor" to "Noelware, LLC. [team@noelware.org]",
-                "Implementation-Title" to "charted-server",
-                "Can-Redefine-Classes" to "true",
-                "Agent-Class" to "org.noelware.charted.modules.tracing.agent.TracingAgent",
-            ),
-        )
-    }
 }

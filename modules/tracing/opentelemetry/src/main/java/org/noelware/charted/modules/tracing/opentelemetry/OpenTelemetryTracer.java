@@ -17,104 +17,37 @@
 
 package org.noelware.charted.modules.tracing.opentelemetry;
 
-import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.sdk.resources.Resource;
+import io.opentelemetry.semconv.resource.attributes.ResourceAttributes;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.noelware.charted.configuration.kotlin.dsl.tracing.TracingConfig;
-import org.noelware.charted.modules.tracing.Tracer;
-import org.noelware.charted.modules.tracing.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class OpenTelemetryTracer implements Tracer {
-    private final AtomicBoolean initialized = new AtomicBoolean(false);
+public class OpenTelemetryTracer {
+    private final TracingConfig.OpenTelemetry settings;
     private final Logger LOG = LoggerFactory.getLogger(getClass());
 
-    private final TracingConfig.OpenTelemetry settings;
-    private OpenTelemetry openTelemetry;
-
-    public OpenTelemetryTracer(TracingConfig.OpenTelemetry settings) {
-        this.settings = Objects.requireNonNull(settings, "OpenTelemetry settings shouldn't be null.");
+    public OpenTelemetryTracer(@NotNull TracingConfig.OpenTelemetry settings) {
+        this.settings = settings;
     }
 
-    @Override
-    public @NotNull Transaction createTransaction(@NotNull String name, @Nullable String operation) {
-        throw new RuntimeException("#createTransaction is not available at the moment.");
-    }
-
-    @Override
-    public @NotNull Transaction createTransaction(@NotNull String name) {
-        throw new RuntimeException("#createTransaction is not available at the moment.");
-    }
-
-    @Override
     public void init() {
-        if (!initialized.compareAndSet(false, true)) return;
-
-        LOG.info("Now initializing OpenTelemetry tracing...");
-        File tempPropertiesFile;
-        try {
-            tempPropertiesFile = createTempConfigFile(Path.of(System.getProperty("java.io.tmpdir")));
-        } catch (IOException ignored) {
-            return;
-        }
-
-        // awau
+        LOG.info("Creating manual instrumentation");
+        final Resource resource = Resource.getDefault()
+                .merge(Resource.create(Attributes.of(ResourceAttributes.SERVICE_NAME, "charted-server")));
     }
 
-    @Override
-    public void close() {}
+    File createTempPropertiesFile(@Nullable File tempdir) throws IOException {
+        final File tmpDir = tempdir == null ? new File(System.getProperty("java.io.tmpdir")) : tempdir;
+        final File tempProps = Files.createTempFile(tmpDir.toPath(), "charted-opentelemetry-properties", ".tmp")
+                .toFile();
 
-    File createTempConfigFile(Path tmpdir) throws IOException {
-        File tempPropertiesFile;
-        try {
-            tempPropertiesFile = Files.createTempFile(tmpdir, "charted-otel-javaagent", ".tmp")
-                    .toFile();
-        } catch (IOException ioe) {
-            LOG.error("Unable to create temporary properties file", ioe);
-            throw ioe;
-        }
-
-        String serviceName = System.getProperty("otel.service.name");
-        if (serviceName == null) {
-            System.setProperty("otel.service.name", "charted-server");
-        }
-
-        LOG.debug("Created temporary properties file in path [{}]", tempPropertiesFile);
-        System.setProperty("otel.javaagent.configuration-file", tempPropertiesFile.getAbsolutePath());
-
-        try (final FileWriter fileWriter = new FileWriter(tempPropertiesFile)) {
-            final List<String> captureClientResponseHeaders = settings.getCaptureClientResponseHeaders();
-            if (!captureClientResponseHeaders.isEmpty()) {
-                fileWriter.append("otel.instrumentation.http.capture-headers.client.response=");
-
-                for (String item : captureClientResponseHeaders) {
-                    fileWriter.append(item).append(',');
-                }
-
-                fileWriter.append('\n');
-            }
-
-            final List<String> captureServerResponseHeaders = settings.getCaptureServerResponseHeaders();
-            if (!captureServerResponseHeaders.isEmpty()) {
-                fileWriter.append("otel.instrumentation.http.capture-headers.server.response=");
-
-                for (String item : captureServerResponseHeaders) {
-                    fileWriter.append(item).append(',');
-                }
-
-                fileWriter.append('\n');
-            }
-        }
-
-        return tempPropertiesFile;
+        return tempProps;
     }
 }

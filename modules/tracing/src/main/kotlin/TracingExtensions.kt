@@ -24,6 +24,9 @@ import kotlin.contracts.contract
 object NoopTracer: Tracer {
     override fun createTransaction(name: String, operation: String?): Transaction = NoopTransaction(name, operation)
     override fun createTransaction(name: String): Transaction = createTransaction(name, null)
+    override fun currentTransaction(): Transaction? = null
+    override fun withTransaction(name: String, operation: String?): AutoCloseable = AutoCloseable {}
+    override fun withTransaction(name: String): AutoCloseable = withTransaction(name, null)
 
     override fun close() {
         // do nothing

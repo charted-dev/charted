@@ -23,6 +23,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import kotlinx.serialization.SerialName;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,6 +40,7 @@ import org.slf4j.LoggerFactory;
  * A {@link Tracer} module that its scope is only available to the Elastic APM Java agent.
  */
 public class APMTracer implements Tracer {
+    private final AtomicReference<Transaction> currentTransaction = new AtomicReference<>(null);
     private final AtomicBoolean hasStarted = new AtomicBoolean(false);
     private final Logger LOG = LoggerFactory.getLogger(getClass());
     private final TracingConfig.ElasticAPM settings;
@@ -149,8 +151,36 @@ public class APMTracer implements Tracer {
             insert(apmConfig, "server_urls", String.join(",", serverUrls));
         }
 
-        LOG.trace("Using configuration options for APM agent attacher:\n{}", apmConfig);
+        LOG.trace("Using configuration options for APM agent: {}", apmConfig);
         ElasticApmAttacher.attach(apmConfig);
+    }
+
+    @NotNull
+    @Override
+    public AutoCloseable withTransaction(@NotNull String name, @Nullable String operation) {
+        if (currentTransaction.get() != null) {
+            throw new IllegalStateException("There is already an ongoing transaction, please use spans!");
+        }
+
+        final Transaction transaction = createTransaction(name, operation);
+        currentTransaction.set(transaction);
+
+        return () -> {
+            transaction.end(null);
+            currentTransaction.set(null);
+        };
+    }
+
+    @NotNull
+    @Override
+    public AutoCloseable withTransaction(@NotNull String name) {
+        return withTransaction(name, null);
+    }
+
+    @Nullable
+    @Override
+    public Transaction currentTransaction() {
+        return currentTransaction.get();
     }
 
     @NotNull
@@ -194,18 +224,22 @@ public class APMTracer implements Tracer {
         }
 
         // Last resort: use the host name
-        LOG.warn("Getting service node name for APM via service hostname!");
+        LOG.info("Getting service node name for APM via service hostname!");
         try {
             final InetAddress localhost = InetAddress.getLocalHost();
             final String hostName = localhost.getHostName();
             final String username = System.getProperty("user.name");
 
             if (hostName != null) {
-                return "%s@%s".formatted(hostName, username);
+                return "%s@%s".formatted(username, hostName);
             }
 
+            LOG.warn("Unable to fetch service node name for APM, using empty string as last resort");
             return "";
-        } catch (UnknownHostException ignored) {
+        } catch (UnknownHostException e) {
+            LOG.warn(
+                    "Received UnknownHostException while trying to retrieve localhost, using empty string as last resort!",
+                    e);
             return "";
         }
     }

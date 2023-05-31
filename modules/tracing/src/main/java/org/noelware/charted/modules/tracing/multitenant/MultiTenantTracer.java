@@ -20,6 +20,7 @@ package org.noelware.charted.modules.tracing.multitenant;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.noelware.charted.modules.tracing.Tracer;
@@ -29,6 +30,7 @@ import org.noelware.charted.modules.tracing.Transaction;
  * Represents a wrapper for including multiple tracers at once, if configured.
  */
 public class MultiTenantTracer implements Tracer {
+    private final AtomicReference<Transaction> current = new AtomicReference<>(null);
     private final List<Tracer> tracers;
 
     /**
@@ -37,6 +39,31 @@ public class MultiTenantTracer implements Tracer {
      */
     public MultiTenantTracer(List<Tracer> tracers) {
         this.tracers = tracers;
+    }
+
+    @Override
+    public @Nullable Transaction currentTransaction() {
+        return current.get();
+    }
+
+    @Override
+    public @NotNull AutoCloseable withTransaction(@NotNull String name, @Nullable String operation) {
+        if (current.get() != null) {
+            throw new IllegalStateException("There is already an ongoing transaction, please use spans!");
+        }
+
+        final Transaction transaction = createTransaction(name, operation);
+        current.set(transaction);
+
+        return () -> {
+            transaction.end(null);
+            current.set(null);
+        };
+    }
+
+    @Override
+    public @NotNull AutoCloseable withTransaction(@NotNull String name) {
+        return withTransaction(name, null);
     }
 
     @Override

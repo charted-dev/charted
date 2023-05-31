@@ -31,7 +31,6 @@ import kotlinx.atomicfu.AtomicBoolean
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
@@ -69,7 +68,6 @@ import org.noelware.charted.modules.postgresql.entities.UserEntity
 import org.noelware.charted.modules.postgresql.extensions.fromEntity
 import org.noelware.charted.modules.search.elasticsearch.metrics.ElasticsearchStats
 import org.noelware.charted.launch
-import org.noelware.charted.modules.tracing.Traceable
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.security.KeyStore
@@ -288,7 +286,6 @@ class DefaultElasticsearchModule(
         }
     }
 
-    @Traceable(operation = "metrics.collect")
     override suspend fun stats(): ElasticsearchStats {
         val indexes = mutableMapOf<String, ElasticsearchStats.IndexStats>()
         val nodes = mutableMapOf<String, ElasticsearchStats.NodeStats>()

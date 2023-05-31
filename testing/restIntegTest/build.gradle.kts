@@ -15,24 +15,20 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.modules.tracing;
+plugins {
+    id("charted-module")
+    `java-gradle-plugin`
+}
 
-/**
- * Annotation to declare on any method to provide tracing via the charted's Java Agent for
- * tracing.
- *
- * @author Noel Towa (cutie@floofy.dev)
- * @since 23.03.23
- */
-public @interface Traceable {
-    /**
-     * @return Operation of this traceable method, defaults to nothing
-     */
-    String operation() default "";
+@Suppress("UnstableApiUsage")
+gradlePlugin {
+    vcsUrl.set("https://github.com/charted-dev/charted/tree/main/testing/restIntegTest")
+    website.set("https://charts.noelware.org")
 
-    /**
-     * @return name of this transaction, defaults to 'method class#method-name', i.e:
-     * method TracingAgent#doTracing
-     */
-    String name() default "";
+    plugins {
+        create("restIntegTest") {
+            implementationClass = "org.noelware.charted.testing.restIntegTest.gradle.RestIntegTestPlugin"
+            id = "org.noelware.charted.restIntegTest"
+        }
+    }
 }

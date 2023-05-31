@@ -30,7 +30,7 @@ import org.noelware.charted.configuration.kotlin.dsl.tracing.apm.ApmSystemProper
 import org.noelware.charted.configuration.kotlin.dsl.tracing.apm.CircuitBreakerConfig
 import org.noelware.charted.configuration.kotlin.dsl.tracing.apm.Instrumentation
 import org.noelware.charted.configuration.kotlin.dsl.tracing.otel.Instrumentation as OtelInstumentation
-import org.noelware.charted.configuration.kotlin.dsl.tracing.otel.OTelSystemProperty
+import kotlin.properties.Delegates
 
 @Serializable
 public enum class TracerType {
@@ -242,11 +242,11 @@ public sealed class TracingConfig(public val type: TracerType) {
 
     @Serializable
     public data class OpenTelemetry(
+        // agent options
         /**
          * A comma-separated list of HTTP header names. HTTP server instrumentations will capture HTTP response header
          * values for all configured header names.
          */
-        @OTelSystemProperty("otel.instrumentation.http.capture-headers.client.response")
         @SerialName("capture_client_response_headers")
         val captureClientResponseHeaders: List<String> = listOf(),
 
@@ -254,7 +254,6 @@ public sealed class TracingConfig(public val type: TracerType) {
          * A comma-separated list of HTTP header names. HTTP client instrumentations will capture HTTP response header
          * values for all configured header names.
          */
-        @OTelSystemProperty("otel.instrumentation.http.capture-headers.server.response")
         @SerialName("capture_server_response_headers")
         val captureServerResponseHeaders: List<String> = listOf(),
 
@@ -262,7 +261,6 @@ public sealed class TracingConfig(public val type: TracerType) {
          * A comma-separated list of HTTP header names. HTTP client instrumentations will capture HTTP response header
          * values for all configured header names.
          */
-        @OTelSystemProperty("otel.instrumentation.http.capture-headers.server.request")
         @SerialName("capture_client_request_headers")
         val captureClientRequestHeaders: List<String> = listOf(),
 
@@ -270,7 +268,6 @@ public sealed class TracingConfig(public val type: TracerType) {
          * A comma-separated list of HTTP header names. HTTP server instrumentations will capture HTTP response header
          * values for all configured header names.
          */
-        @OTelSystemProperty("otel.instrumentation.http.capture-headers.client.request")
         @SerialName("capture_server_request_headers")
         val captureServerRequestHeaders: List<String> = listOf(),
 
@@ -300,7 +297,6 @@ public sealed class TracingConfig(public val type: TracerType) {
          *
          * This behavior is turned on by default for all database instrumentations.
          */
-        @OTelSystemProperty("otel.instrumentation.common.db-statement-sanitizer.enabled")
         @SerialName("db_stmt_sanitizer")
         val dbStatementSanitizer: Boolean = true,
 
@@ -317,10 +313,32 @@ public sealed class TracingConfig(public val type: TracerType) {
          *
          * Then, requests to 1.2.3.4 will have a peer.service attribute of cats-service and requests to dogs-abcdef123.serverlessapis.com will have an attribute of dogs-api.
          */
-        @OTelSystemProperty("otel.instrumentation.common.peer-service-mapping")
         @SerialName("peer_service_mapping")
-        val peerServiceMapping: List<String> = listOf()
+        val peerServiceMapping: List<String> = listOf(),
+
+        // non-agent options
+        /**
+         * URL to connect to a OTLP collector instance.
+         */
+        @SerialName("otlp_url")
+        val otlpUrl: String = "localhost:4132",
+
+        /**
+         * Connection type to use when connecting to the [otlpUrl]
+         */
+        @SerialName("otlp_type")
+        val otlpType: OtlpConnectionType
     ): TracingConfig(TracerType.OpenTelemetry) {
+        @Serializable
+        public enum class OtlpConnectionType {
+            @SerialName("http")
+            HTTP,
+
+            @SerialName("grpc")
+            GRPC
+        }
+
+        @Suppress("MemberVisibilityCanBePrivate")
         public class Builder: Buildable<OpenTelemetry> {
             private val captureServerResponseHeaders: MutableList<String> = mutableListOf()
             private val captureClientResponseHeaders: MutableList<String> = mutableListOf()
@@ -329,6 +347,9 @@ public sealed class TracingConfig(public val type: TracerType) {
             private val disabledInstrumentation: MutableList<OtelInstumentation> = mutableListOf()
             private val enabledInstrumentation: MutableList<OtelInstumentation> = mutableListOf()
             private val peerServiceMapping: MutableList<String> = mutableListOf()
+
+            public var otlpUrl: String by Delegates.notNull()
+            public var otlpType: OtlpConnectionType = OtlpConnectionType.HTTP
 
             /**
              * The agent sanitizes all database queries/statements before setting the db.statement semantic attribute.
@@ -344,7 +365,7 @@ public sealed class TracingConfig(public val type: TracerType) {
              *
              * This behavior is turned on by default for all database instrumentations.
              */
-            public val dbStatementSanitizer: Boolean = true
+            public var dbStatementSanitizer: Boolean = true
 
             public fun captureServerResponseHeaders(vararg headers: String): Builder {
                 if (headers.isNotEmpty()) {
@@ -395,6 +416,8 @@ public sealed class TracingConfig(public val type: TracerType) {
                 enabledInstrumentation,
                 dbStatementSanitizer,
                 peerServiceMapping,
+                otlpUrl,
+                otlpType,
             )
         }
     }
