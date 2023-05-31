@@ -25,7 +25,7 @@ import kotlinx.serialization.encoding.Encoder
 
 private val environmentVariableRegex: Regex = """[$]\{([\w.]+)(:-\w+)?}""".toRegex()
 
-public object SecretStringSerializer : KSerializer<String> {
+public object SecretStringSerializer: KSerializer<String> {
     override val descriptor: SerialDescriptor = String.serializer().descriptor
     override fun deserialize(decoder: Decoder): String {
         val decoded = decoder.decodeString()
@@ -39,5 +39,5 @@ public object SecretStringSerializer : KSerializer<String> {
         return decoded
     }
 
-    override fun serialize(encoder: Encoder, value: String): Unit = String.serializer().serialize(encoder, value)
+    override fun serialize(encoder: Encoder, value: String): Unit = encoder.encodeString(value)
 }

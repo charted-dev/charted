@@ -67,9 +67,11 @@ dependencies {
     // Test Dependencies
     testImplementation(libs.library("testcontainers-junit"))
     testImplementation(libs.library("junit-jupiter-engine"))
+    testImplementation(libs.library("system-stubs-jupiter"))
     testImplementation(libs.library("testcontainers-core"))
-    testImplementation(project(":testing:containers"))
     testImplementation(libs.library("junit-jupiter-api"))
+    testImplementation(libs.library("system-stubs-core"))
+    testImplementation(project(":testing:containers"))
     testImplementation(libs.library("slf4j-simple"))
     testImplementation(libs.library("assertj"))
     testImplementation(kotlin("test"))
