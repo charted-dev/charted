@@ -34,7 +34,7 @@ buildscript {
 }
 
 plugins {
-    id("com.diffplug.spotless") version "6.18.0"
+    id("com.diffplug.spotless") version "6.19.0"
     application
 }
 

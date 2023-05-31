@@ -80,7 +80,7 @@ class DefaultElasticsearchModule(
     private val config: Config
 ): ElasticsearchModule {
     private val _serverVersion: SetOnce<String> = SetOnce()
-    private val _clusterInfo: SetOnce<Pair</* name */ String, /* uuid */ String>> = SetOnce()
+    private val _clusterInfo: SetOnce<Pair<String, String>> = SetOnce()
     private val _closed: AtomicBoolean = atomic(false)
     private val _client: SetOnce<ElasticsearchAsyncClient> = SetOnce()
     private val log by logging<DefaultElasticsearchModule>()
