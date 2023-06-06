@@ -20,7 +20,6 @@ package org.noelware.charted.gradle.util;
 import java.io.File;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
-import org.noelware.charted.gradle.OperatingSystem;
 
 public class FindBinaryUtil {
     private static final Logger LOG = Logging.getLogger(FindBinaryUtil.class);
@@ -35,25 +34,17 @@ public class FindBinaryUtil {
     public static String find(String binary) {
         LOG.info("Finding binary '{}'...", binary);
 
-        // Since this has been tested on Linux, there is limited support
-        // for finding a binary.
-        if (!OperatingSystem.current().isLinux()) return null;
-
         final String path = System.getenv("PATH");
         assert path != null : "Unable to locate $PATH environment variable.";
 
         LOG.debug("$PATH: {}", path);
-        String[] folders = path.split(":");
+        String[] folders = path.split(File.pathSeparator);
 
         if (folders.length == 0) return null;
         if (folders.length == 1) {
-            // Get the first item in the array
-            String folder = folders[0];
-
-            // Stat the file to check if it exists
+            final String folder = folders[0];
             final File stat = new File(folder);
 
-            // Skip on invalid entries (i.e, files)
             if (!stat.isDirectory()) return null;
             final File[] locatedFiles = stat.listFiles(File::isFile);
 
@@ -76,12 +67,9 @@ public class FindBinaryUtil {
             // first -> last.
             String folder = folders[folders.length - 1];
 
-            // Stat the file to check if it exists
             final File stat = new File(folder);
 
-            // Skip on invalid entries (i.e, files)
             if (!stat.isDirectory()) continue;
-
             final File[] locatedFiles = stat.listFiles(File::isFile);
 
             // If an I/O error occurred, then we will have to break,
