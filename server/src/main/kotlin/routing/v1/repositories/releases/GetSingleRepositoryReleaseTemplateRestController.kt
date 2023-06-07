@@ -116,6 +116,13 @@ class GetSingleRepositoryReleaseTemplateRestController(
                 schema<String>()
             }
 
+            pathParameter {
+                description = "Valid template to look for"
+                name = "template"
+
+                schema<String>()
+            }
+
             queryParameter {
                 description = "If we are allowed to look-up for pre-releases if the version path parameter is \"latest\""
                 name = "allow_prerelease"

@@ -30,6 +30,8 @@ import org.jetbrains.exposed.sql.and
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope
 import org.noelware.charted.modules.helm.charts.HelmChartModule
+import org.noelware.charted.modules.openapi.VersionConstraint
+import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.repositories.releases.RepositoryReleaseDatabaseController
@@ -83,6 +85,20 @@ class DeleteRepositoryReleaseRestController(
     override fun toPathDsl(): PathItem = toPaths("/repositories/{id}/releases/{version}") {
         delete {
             description = "Deletes a repository release, and the tarball if it exists"
+
+            pathParameter {
+                description = "Repository ID to lookup"
+                name = "id"
+
+                schema<Long>()
+            }
+
+            pathParameter {
+                description = "Valid SemVer version to lookup the release for"
+                name = "version"
+
+                schema<VersionConstraint>()
+            }
         }
     }
 }

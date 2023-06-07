@@ -33,8 +33,8 @@ import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.features.ExperimentalFeature
 import org.noelware.charted.configuration.kotlin.dsl.features.Feature
 import org.noelware.charted.models.flags.ApiKeyScope
+import org.noelware.charted.modules.openapi.VersionConstraint
 import org.noelware.charted.modules.openapi.kotlin.dsl.accepted
-import org.noelware.charted.modules.openapi.kotlin.dsl.idOrName
 import org.noelware.charted.modules.openapi.kotlin.dsl.json
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
@@ -110,12 +110,18 @@ class PatchRepositoryReleaseRestController(
         patch {
             description = "Patch a repository release's metadata"
 
-            idOrName()
             pathParameter {
-                description = "SemVer 2 version to pull the release from"
+                description = "Repository ID to lookup"
+                name = "id"
+
+                schema<Long>()
+            }
+
+            pathParameter {
+                description = "Valid SemVer version to lookup the release for"
                 name = "version"
 
-                schema<String>()
+                schema<VersionConstraint>()
             }
 
             requestBody {

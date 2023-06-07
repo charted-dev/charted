@@ -45,7 +45,7 @@ class GetCurrentUserAvatarRestController(private val avatars: AvatarModule): Res
         call.respond(HttpStatusCode.OK, createBodyWithByteArray(bytes, contentType))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/users/@me/avatars/{hash?}") {
+    override fun toPathDsl(): PathItem = toPaths("/users/@me/avatars/{hash}") {
         get {
             description = "Returns the current authenticated user's avatar, if any."
 

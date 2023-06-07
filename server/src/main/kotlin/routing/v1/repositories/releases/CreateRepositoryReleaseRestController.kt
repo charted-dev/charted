@@ -84,6 +84,14 @@ class CreateRepositoryReleaseRestController(
     override fun toPathDsl(): PathItem = toPaths("/repositories/{id}/releases") {
         put {
             description = "Creates a repository release"
+
+            pathParameter {
+                description = "ID of the repository"
+                name = "id"
+
+                schema<Long>()
+            }
+
             requestBody {
                 description = "Payload for creating a repository release"
                 contentType(ContentType.Application.Json) {

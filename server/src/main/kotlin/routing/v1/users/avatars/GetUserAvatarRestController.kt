@@ -50,7 +50,7 @@ class GetUserAvatarRestController(
         call.respond(HttpStatusCode.OK, createBodyWithByteArray(bytes, contentType))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/users/{idOrName}/avatars/{hash?}") {
+    override fun toPathDsl(): PathItem = toPaths("/users/{idOrName}/avatars/{hash}") {
         get {
             description = "Returns the current authenticated user's avatar, if any."
 

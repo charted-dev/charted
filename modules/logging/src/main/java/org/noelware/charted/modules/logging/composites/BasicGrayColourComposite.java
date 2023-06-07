@@ -17,27 +17,12 @@
 
 package org.noelware.charted.modules.logging.composites;
 
-import ch.qos.logback.classic.pattern.NamedConverter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.pattern.color.ForegroundCompositeConverterBase;
 
-public class ThreadNameComposite extends NamedConverter {
-    protected String getFullyQualifiedName(ILoggingEvent event) {
-        @SuppressWarnings("StringBufferReplaceableByString")
-        final StringBuilder builder = new StringBuilder();
-
-        // bracket
-        builder.append('\033').append("[38;2;134;134;134m<").append('\033').append("[0m");
-
-        // thread name
-        builder.append('\033')
-                .append("[38;2;255;105;189m")
-                .append(event.getThreadName())
-                .append('\033')
-                .append("[0m");
-
-        // other bracket
-        builder.append('\033').append("[38;2;134;134;134m>]").append('\033').append("[0m");
-
-        return builder.toString();
+public class BasicGrayColourComposite extends ForegroundCompositeConverterBase<ILoggingEvent> {
+    @Override
+    protected String getForegroundColorCode(ILoggingEvent event) {
+        return "38;2;134;134;134";
     }
 }

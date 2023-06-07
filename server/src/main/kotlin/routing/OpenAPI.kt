@@ -99,8 +99,9 @@ fun generateOpenAPIDocument(
 }
 
 private fun OpenAPI.configurePathItem(path: String, newPathItem: PathItem) {
-    if (paths.containsKey(path)) {
-        val pathItem = paths[path]!!
+    val actualPath = if (path.endsWith("?}")) path.substring(0, path.indexOf("?}")) + "}" else path
+    if (paths.containsKey(actualPath)) {
+        val pathItem = paths[actualPath]!!
         if (newPathItem.get != null && pathItem.get == null) {
             pathItem.get(newPathItem.get!!)
         }
@@ -125,8 +126,8 @@ private fun OpenAPI.configurePathItem(path: String, newPathItem: PathItem) {
             pathItem.delete(newPathItem.delete!!)
         }
 
-        paths.addPathItem(path, pathItem)
+        paths.addPathItem(actualPath, pathItem)
     } else {
-        paths.addPathItem(path, newPathItem)
+        paths.addPathItem(actualPath, newPathItem)
     }
 }

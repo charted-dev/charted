@@ -36,6 +36,8 @@ class ServerCommand(private val terminal: Terminal): ConfigAwareCliktCommand(
     name = "server",
 ) {
     private val log by logging<ServerCommand>()
+
+    @Suppress("unused")
     private val logbackPath: File? by option(
         "--logback-config", "-lc",
         help = "Configuration file for customizing charted-server's logging system",
@@ -59,10 +61,6 @@ class ServerCommand(private val terminal: Terminal): ConfigAwareCliktCommand(
         terminal.println(gray("+   ${bannerColour("\\___|_| |_|\\__,_|_|   \\__\\___|\\__,_|     |___/\\___|_|    \\_/ \\___|_|")}    +"), align = TextAlign.CENTER)
         terminal.println(gray("+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+"), align = TextAlign.CENTER)
         terminal.println("")
-
-        if (logbackPath != null && logbackPath!!.exists()) {
-            System.setProperty("org.noelware.charted.logback.config", logbackPath.toString())
-        }
 
         try {
             runBlocking {

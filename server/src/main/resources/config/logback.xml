@@ -32,6 +32,11 @@
         converterClass="org.noelware.charted.modules.logging.composites.MdcComposite"
     />
 
+    <conversionRule
+        conversionWord="basicGray"
+        converterClass="org.noelware.charted.modules.logging.composites.BasicGrayColourComposite"
+    />
+
     <!-- Disable these loggers (since it can get annoying & spammy) -->
     <logger name="io.swagger.v3.core.converter.ModelConverterContextImpl" level="OFF" />
     <logger name="io.swagger.v3.core.jackson.ModelResolver" level="OFF" />
@@ -67,7 +72,7 @@
                 <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
                     <charset>utf-8</charset>
                     <pattern>
-                        [%d{yyyy-MM-dd @ HH:mm:ss.SSS, +10}] %boldCyan([%-48threadName]) %logLevel([%5level]) [%-48logger{36}] %mdc :: %msg%n
+                        %basicGray([%d{yyyy/MM/dd - HH:mm:ss.SSS, +10}]) %logLevel(%-5level) %basicGray([%cyan(%-56logger{48})) %threadName :: %mdc%msg%n
                     </pattern>
                 </encoder>
             </else>
@@ -113,18 +118,9 @@
         </then>
     </if>
 
-    <if condition='isDefined("charted.log.level")'>
-        <then>
-            <root level="${charted.log.level}">
-                <appender-ref ref="Console" />
-            </root>
-        </then>
-        <else>
-            <root level="INFO">
-                <appender-ref ref="Console" />
-            </root>
-        </else>
-    </if>
+    <root level="${charted.log.level:-INFO}">
+        <appender-ref ref="Console" />
+    </root>
 
     <if condition='isDefined("charted.appenders") &amp;&amp; property("charted.appenders").contains("logstash")'>
         <then>

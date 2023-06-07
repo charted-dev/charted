@@ -29,7 +29,7 @@ import org.noelware.charted.ValidationException
 import org.noelware.charted.common.extensions.regexp.matchesNameAndIdRegex
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope
-import org.noelware.charted.modules.openapi.NameOrSnowflake
+import org.noelware.charted.modules.openapi.kotlin.dsl.idOrName
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.apikeys.ApiKeysDatabaseController
@@ -40,7 +40,7 @@ import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
-class DeleteApiKeyController(private val controller: ApiKeysDatabaseController): RestController("/apikeys/{nameOrId}", HttpMethod.Delete) {
+class DeleteApiKeyController(private val controller: ApiKeysDatabaseController): RestController("/apikeys/{idOrName}", HttpMethod.Delete) {
     override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions) {
@@ -49,7 +49,7 @@ class DeleteApiKeyController(private val controller: ApiKeysDatabaseController):
     }
 
     override suspend fun call(call: ApplicationCall) {
-        val name = call.parameters.getOrFail("nameOrId")
+        val name = call.parameters.getOrFail("idOrName")
         if (name.toLongOrNull() != null) {
             val id = name.toLong()
             controller.getEntityOrNull {
@@ -88,16 +88,11 @@ class DeleteApiKeyController(private val controller: ApiKeysDatabaseController):
         call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/apikeys/{nameOrId}") {
+    override fun toPathDsl(): PathItem = toPaths("/apikeys/{idOrName}") {
         delete {
             description = "Deletes an API key resource off the current authenticated user's account"
-            pathParameter {
-                description = "Name of the given API key to delete, or a Snowflake value to delete the API key by"
-                name = "name"
 
-                schema<NameOrSnowflake>()
-            }
-
+            idOrName()
             addAuthenticationResponses()
             response(HttpStatusCode.Accepted) {
                 description = "API key resource was deleted"

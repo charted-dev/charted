@@ -94,7 +94,7 @@ class GetUserOrganizationsRestController(
                             listOf(
                                 Organization(
                                     true,
-                                    "noelwareorg",
+                                    "@noelware",
                                     null,
                                     "\uD83D\uDC3B\u200D❄️ Noelware, LLC.",
                                     LocalDateTime.parse("2023-04-08T02:37:53.741502369"),

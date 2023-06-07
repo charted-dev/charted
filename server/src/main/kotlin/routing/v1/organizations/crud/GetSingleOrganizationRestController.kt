@@ -23,9 +23,15 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.swagger.v3.oas.models.PathItem
+import kotlinx.datetime.LocalDateTime
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope
 import org.noelware.charted.models.organizations.Organization
+import org.noelware.charted.models.users.User
+import org.noelware.charted.modules.openapi.kotlin.dsl.idOrName
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
+import org.noelware.charted.modules.openapi.kotlin.dsl.ok
+import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.getEntityByIdOrNameOrNull
 import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationDatabaseController
@@ -83,10 +89,38 @@ class GetSingleOrganizationRestController(private val organizations: Organizatio
     override fun toPathDsl(): PathItem = toPaths("/organizations/{idOrName}") {
         get {
             description = "Grabs an organization resource by its ID or name."
+            idOrName()
 
-            pathParameter {
-                description = "Snowflake ID or name to retrieve an organization"
-                name = "idOrName"
+            ok {
+                description = "Returns the organization resource"
+                json {
+                    schema(
+                        Organization(
+                            true,
+                            "@noelware",
+                            null,
+                            "\uD83D\uDC3B\u200D❄️ Noelware, LLC.",
+                            LocalDateTime.parse("2023-04-08T02:37:53.741502369"),
+                            LocalDateTime.parse("2023-04-08T02:37:53.741502369"),
+                            null,
+                            false,
+                            User(
+                                true,
+                                null,
+                                null,
+                                null,
+                                LocalDateTime.parse("2023-04-08T02:37:53.741502369"),
+                                LocalDateTime.parse("2023-04-08T02:37:53.741502369"),
+                                "noel",
+                                true,
+                                "Noel",
+                                1,
+                            ),
+                            "noelware",
+                            2,
+                        ),
+                    )
+                }
             }
         }
     }

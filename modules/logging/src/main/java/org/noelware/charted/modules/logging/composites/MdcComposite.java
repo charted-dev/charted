@@ -34,12 +34,12 @@ public class MdcComposite extends NamedConverter {
             // More than 15 entries is probably too crazy to log!
             if (idx++ == 15) break;
 
-            builder.append('[')
+            builder.append("\033[38;2;134;134;134m")
                     .append(entry.getKey())
-                    .append(": ")
+                    .append('=')
                     .append(entry.getValue())
-                    .append(']')
-                    .append(' ');
+                    .append(' ')
+                    .append("\033[0m");
         }
 
         return builder.toString();

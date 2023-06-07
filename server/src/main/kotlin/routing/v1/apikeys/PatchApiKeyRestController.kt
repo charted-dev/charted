@@ -24,69 +24,50 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.swagger.v3.oas.models.PathItem
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.and
-import org.noelware.charted.common.extensions.regexp.matchesNameAndIdRegex
 import org.noelware.charted.common.types.responses.ApiResponse
-import org.noelware.charted.modules.openapi.NameOrSnowflake
+import org.noelware.charted.modules.openapi.kotlin.dsl.idOrName
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.apikeys.ApiKeysDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.apikeys.PatchApiKeyPayload
+import org.noelware.charted.modules.postgresql.controllers.getByIdOrNameOrNull
 import org.noelware.charted.modules.postgresql.tables.ApiKeyTable
 import org.noelware.charted.server.extensions.addAuthenticationResponses
-import org.noelware.charted.server.extensions.currentUserEntity
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
-class PatchApiKeyRestController(private val controller: ApiKeysDatabaseController): RestController("/apikeys/{nameOrId}", HttpMethod.Patch) {
+class PatchApiKeyRestController(private val controller: ApiKeysDatabaseController): RestController("/apikeys/{idOrName}", HttpMethod.Patch) {
     override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
         install(Sessions)
     }
 
     override suspend fun call(call: ApplicationCall) {
-        val nameOrId = call.parameters.getOrFail("nameOrId")
+        val idOrName = call.parameters.getOrFail("idOrName")
 
         // We query it first to see if it exists or not
-        val apikey = when {
-            nameOrId.toLongOrNull() != null -> controller.getEntityOrNull {
-                (ApiKeyTable.id eq nameOrId.toLong()) and (ApiKeyTable.owner eq call.currentUserEntity!!.id)
-            }
-
-            nameOrId.matchesNameAndIdRegex() -> controller.getEntityOrNull {
-                (ApiKeyTable.name eq nameOrId) and (ApiKeyTable.owner eq call.currentUserEntity!!.id)
-            }
-
-            else -> null
-        } ?: return call.respond(
+        val apikey = controller.getByIdOrNameOrNull(idOrName, ApiKeyTable::name) ?: return call.respond(
             HttpStatusCode.NotFound,
             ApiResponse.err(
                 "API_KEY_NOT_FOUND",
-                "API key with name or ID '$nameOrId' was not found",
+                "API key with name or ID '$idOrName' was not found",
             ),
         )
 
-        controller.update(call, apikey.id.value, call.receive())
+        controller.update(call, apikey.id, call.receive())
         call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/apikeys/{nameOrId}") {
+    override fun toPathDsl(): PathItem = toPaths("/apikeys/{idOrName}") {
         patch {
             description = "Patches an API key resource with a given name or snowflake ID"
 
+            idOrName()
             requestBody {
                 contentType(ContentType.Application.Json) {
                     schema<PatchApiKeyPayload>()
                 }
-            }
-
-            pathParameter {
-                description = "Name of the given API key to delete, or a Snowflake value to delete the API key by"
-                name = "name"
-
-                schema<NameOrSnowflake>()
             }
 
             addAuthenticationResponses()

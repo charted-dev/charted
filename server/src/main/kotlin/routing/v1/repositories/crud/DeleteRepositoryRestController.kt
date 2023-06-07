@@ -71,6 +71,13 @@ class DeleteRepositoryRestController(private val controller: RepositoryDatabaseC
         delete {
             description = "Deletes a repository"
 
+            pathParameter {
+                description = "ID of the repository"
+                name = "id"
+
+                schema<Long>()
+            }
+
             addAuthenticationResponses()
             response(HttpStatusCode.Accepted) {
                 description = "The repository was deleted successfully"
