@@ -98,9 +98,9 @@ class InfoRestController: RestController("/info") {
                         typeOf<ApiResponse.Ok<InfoResponse>>(),
                         ApiResponse.ok(
                             InfoResponse(
-                                ChartedInfo.distribution,
-                                ChartedInfo.commitHash,
-                                ChartedInfo.buildDate,
+                                ChartedInfo.Distribution.GIT,
+                                "dafe863f",
+                                "2023-06-11T01:04:19Z",
                                 "charted-server",
                                 ChartedInfo.version,
                                 "Noelware",
