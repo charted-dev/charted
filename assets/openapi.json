@@ -412,8 +412,8 @@
                                 "example": {
                                     "data": {
                                         "distribution": "git",
-                                        "commit_sha": "95554558",
-                                        "build_date": "2023-05-31T07:17:28-07:00",
+                                        "commit_sha": "dafe863f",
+                                        "build_date": "2023-06-11T01:04:19Z",
                                         "product": "charted-server",
                                         "version": "0.4.0-unstable.4",
                                         "vendor": "Noelware"
