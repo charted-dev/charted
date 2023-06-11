@@ -73,7 +73,10 @@ jobs:
                   arguments: :cli:installDist
 
             - name: Generate OpenAPI document
-              run: rm ./assets/openapi.json && make charted openapi > ./assets/openapi.json
+              run: |
+                  chmod +x ./cli/build/install/charted/bin/charted
+                  rm ./assets/openapi.json
+                  make charted openapi > ./assets/openapi.json
 
             - name: Commit!
               uses: EndBug/add-and-commit@v9
