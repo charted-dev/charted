@@ -23,7 +23,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.types.responses.ApiResponse
-import org.noelware.charted.modules.openapi.kotlin.dsl.schema
+import org.noelware.charted.modules.openapi.kotlin.dsl.*
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.sessions.AbstractSessionManager
 import org.noelware.charted.modules.sessions.Session
@@ -32,6 +32,8 @@ import org.noelware.charted.server.extensions.session
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 
 class PatchSessionRefreshTokenController(
     private val sessionManager: AbstractSessionManager
@@ -81,4 +83,38 @@ class PatchSessionRefreshTokenController(
             }
         }
     }
+
+    companion object: ResourceDescription by describeResource("/users/@me/sessions", {
+        description = "REST controller for refreshing sessions by the refresh token provided when logging in"
+        delete {
+            description = "Refresh the session and give a new session in return"
+            ok {
+                description = "Refreshed session"
+                json {
+                    schema<ApiResponse.Ok<Session>>()
+                }
+            }
+
+            unauthorized {
+                description = "If the session token couldn't be authorized successfully"
+                json {
+                    schema<ApiResponse.Err>()
+                }
+            }
+
+            forbidden {
+                description = "Whether if the `Authorization` header is not present, the body was not in the format a Session Token would be in, or if the refresh token was not provided as the token it wants."
+                json {
+                    schema<ApiResponse.Err>()
+                }
+            }
+
+            notAcceptable {
+                description = "Whether if the `Authorization` header was not in an acceptable format"
+                json {
+                    schema<ApiResponse.Err>()
+                }
+            }
+        }
+    })
 }

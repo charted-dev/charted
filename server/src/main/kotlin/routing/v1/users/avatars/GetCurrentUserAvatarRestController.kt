@@ -21,15 +21,15 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.swagger.v3.oas.models.PathItem
+import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.modules.avatars.AvatarModule
-import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
-import org.noelware.charted.server.extensions.addAuthenticationResponses
+import org.noelware.charted.modules.openapi.kotlin.dsl.*
 import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 import org.noelware.charted.server.util.createBodyWithByteArray
 
 class GetCurrentUserAvatarRestController(private val avatars: AvatarModule): RestController("/users/@me/avatars/{hash?}") {
@@ -45,27 +45,32 @@ class GetCurrentUserAvatarRestController(private val avatars: AvatarModule): Res
         call.respond(HttpStatusCode.OK, createBodyWithByteArray(bytes, contentType))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/users/@me/avatars/{hash}") {
+    companion object: ResourceDescription by describeResource("/users/@me/avatars/{hash}", {
+        description = "REST controller for fetching the current authenticated user's current avatar, with an optional hash identifier"
         get {
-            description = "Returns the current authenticated user's avatar, if any."
-
+            description = "Retrieves and returns the current authenticated user's current avatar, or with the `hash` path parameter, return it by the specific hash"
             pathParameter {
-                description = "Avatar hash, if this was not provided, then it will find the latest one."
+                description = "Hash of the avatar to look-up for a user."
                 required = false
                 name = "hash"
 
                 schema<String>()
             }
 
-            addAuthenticationResponses()
-            response(HttpStatusCode.OK) {
-                description = "The avatar itself in bytes"
-
+            ok {
+                description = "Avatar that was fetched from the storage service"
                 contentType(ContentType.Image.JPEG)
                 contentType(ContentType.Image.SVG)
                 contentType(ContentType.Image.GIF)
                 contentType(ContentType.Image.PNG)
             }
+
+            notFound {
+                description = "If the resource was not found"
+                json {
+                    schema<ApiResponse.Err>()
+                }
+            }
         }
-    }
+    })
 }

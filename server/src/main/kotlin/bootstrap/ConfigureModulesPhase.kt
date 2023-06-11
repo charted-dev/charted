@@ -240,7 +240,6 @@ object ConfigureModulesPhase: BootstrapPhase() {
             }
         }
 
-        @Suppress("RemoveExplicitTypeArguments")
         if (config.server.caching.driver != CacheDriver.None) {
             log.info("Using cache driver [${config.server.caching.driver.serialName}] to cache response entities!")
 

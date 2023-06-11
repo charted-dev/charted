@@ -122,7 +122,7 @@ class DefaultServer(private val config: Config): Server {
                     rateLimiter { _, key ->
                         when (config.server.rateLimit!!.backend) {
                             KtorRateLimitBackend.InMemory -> InMemoryRateLimiter(
-                                "authenticated", key as String,
+                                "default", key as String,
                                 rateLimitConfig.timeWindow.toDuration(
                                     DurationUnit.MILLISECONDS,
                                 ),

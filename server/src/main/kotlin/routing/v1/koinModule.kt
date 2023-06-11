@@ -17,6 +17,7 @@
 
 package org.noelware.charted.server.routing.v1
 
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.noelware.charted.server.routing.RestController
@@ -34,11 +35,11 @@ val routingV1Module = composeKoinModules(
     *repositoriesV1Module.toTypedArray(),
     *organizationsV1Module.toTypedArray(),
     module {
-        single { IndexMappingsRestController(get(), getOrNull(), get(), get()) } bind RestController::class
-        single { MetricsRestController(get(), get()) } bind RestController::class
-        single { FeaturesRestController(get()) } bind RestController::class
-        single { HeartbeatRestController() } bind RestController::class
-        single { InfoRestController() } bind RestController::class
-        single { MainRestController() } bind RestController::class
+        singleOf(::IndexMappingsRestController) bind RestController::class
+        singleOf(::HeartbeatRestController) bind RestController::class
+        singleOf(::FeaturesRestController) bind RestController::class
+        singleOf(::MetricsRestController) bind RestController::class
+        singleOf(::InfoRestController) bind RestController::class
+        singleOf(::MainRestController) bind RestController::class
     },
 )

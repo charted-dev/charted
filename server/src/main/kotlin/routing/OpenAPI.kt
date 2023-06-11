@@ -57,7 +57,7 @@ fun generateOpenAPIDocument(
                 }
 
                 queryParameter {
-                    description = "Only applicable to `?format=json` -- if the document should be pretty or not"
+                    description = "If the document should be pretty or not, this is only applicable to the JSON format"
                     name = "pretty"
 
                     schema<Boolean>()
@@ -77,6 +77,12 @@ fun generateOpenAPIDocument(
         }
     }
 
+    for (d in controllers.mapNotNull { it.describeResource() }) {
+        openApi.configurePathItem(d.path, d.describe())
+    }
+
+    // Not all controllers have migrated to the new ResourceDescription
+    // API, so we will leave this here
     for (controller in controllers) {
         val dsl = try {
             controller.toPathDsl()
@@ -98,7 +104,7 @@ fun generateOpenAPIDocument(
     return openApi
 }
 
-private fun OpenAPI.configurePathItem(path: String, newPathItem: PathItem) {
+fun OpenAPI.configurePathItem(path: String, newPathItem: PathItem) {
     val actualPath = if (path.endsWith("?}")) path.substring(0, path.indexOf("?}")) + "}" else path
     if (paths.containsKey(actualPath)) {
         val pathItem = paths[actualPath]!!

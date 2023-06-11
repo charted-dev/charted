@@ -22,25 +22,26 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.swagger.v3.oas.annotations.media.Schema
-import io.swagger.v3.oas.annotations.media.SchemaProperty
-import io.swagger.v3.oas.models.PathItem
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
+import org.noelware.charted.modules.openapi.kotlin.dsl.ok
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 import kotlin.reflect.typeOf
 
 @Schema(description = "Generic entrypoint response for the Users API")
 @Serializable
 data class MainUserResponse(
-    @SchemaProperty(name = "message", schema = Schema(description = "Generic message to greet the user to the Users API!"))
+    @get:Schema(description = "Generic message to greet the user to the Users API!")
     val message: String = "Welcome to the Users API!",
 
-    @SchemaProperty(name = "docs_url", schema = Schema(description = "Documentation URL for the Users API"))
+    @get:Schema(description = "Documentation URL for the Users API")
     @JsonProperty("docs_url")
     @SerialName("docs_url")
     val docsUrl: String = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api/users"
@@ -52,21 +53,14 @@ class MainUserRestController: RestController("/users") {
         call.respond(HttpStatusCode.OK, ApiResponse.ok(MainUserResponse()))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/users") {
+    companion object: ResourceDescription by describeResource("/users", {
+        description = "Generic entrypoint for the Users API"
         get {
-            description = "Generic entrypoint for the Users API"
-            response(HttpStatusCode.OK) {
-                contentType(ContentType.Application.Json) {
-                    // type information get lost when using ApiResponse.ok() since
-                    // ApiResponse.ok([data]) returns ApiResponse, so it gets lost.
-                    schema(
-                        typeOf<ApiResponse.Ok<MainUserResponse>>(),
-                        ApiResponse.ok(
-                            MainUserResponse(),
-                        ),
-                    )
+            ok {
+                json {
+                    schema(typeOf<ApiResponse.Ok<MainUserResponse>>(), ApiResponse.ok(MainUserResponse()))
                 }
             }
         }
-    }
+    })
 }

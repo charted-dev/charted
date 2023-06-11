@@ -23,10 +23,10 @@ import com.charleskorn.kaml.YamlConfiguration
 import com.charleskorn.kaml.encodeToStream
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
-import com.github.ajalt.clikt.parameters.options.flag
-import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.mordant.terminal.Terminal
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.modules.EmptySerializersModule
 import org.noelware.charted.cli.logger
 import org.noelware.charted.configuration.kotlin.dsl.Config
@@ -37,13 +37,9 @@ class GenerateConfigCommand(private val terminal: Terminal): CliktCommand(
     name = "generate-config",
     help = "Generates a configuration file in the specified destination",
 ) {
-    private val dryRun: Boolean by option(
-        help = "If the configuration file shouldn't be written, it'll just print to stdout",
-    ).flag("--dry-run", "-d")
-
-    private val dest: File by argument(
+    private val dest: File? by argument(
         "dest",
-        "Destination file to write to",
+        "Destination file to write to, it will write to stdout if this is not passed in",
     ).file(
         mustExist = false,
         canBeFile = true,
@@ -51,10 +47,10 @@ class GenerateConfigCommand(private val terminal: Terminal): CliktCommand(
         mustBeWritable = false,
         mustBeReadable = false,
         canBeSymlink = false,
-    )
+    ).optional()
 
     override fun run() {
-        if (dest.exists()) {
+        if (dest != null && dest!!.exists()) {
             terminal.logger.warn("Destination file [$dest] already exists")
             exitProcess(0)
         }
@@ -71,7 +67,12 @@ class GenerateConfigCommand(private val terminal: Terminal): CliktCommand(
             ),
         )
 
-        dest.outputStream().use { stream -> yaml.encodeToStream(config, stream) }
+        if (dest == null) {
+            println(yaml.encodeToString(config))
+            exitProcess(0)
+        }
+
+        dest!!.outputStream().use { stream -> yaml.encodeToStream(config, stream) }
         terminal.logger.info("Wrote configuration file in [$dest]")
     }
 }

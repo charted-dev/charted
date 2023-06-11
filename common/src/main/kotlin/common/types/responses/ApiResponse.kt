@@ -115,7 +115,7 @@ public sealed class ApiResponse<out T>(public val success: Boolean) {
          * exception into an [ApiError] that the serializer can serialize.
          */
         @JvmStatic
-        public fun <T : Throwable> err(throwable: T): ApiResponse<Unit> = err("INTERNAL_SERVER_ERROR", throwable.message ?: "(empty message)")
+        public fun <T: Throwable> err(throwable: T): ApiResponse<Unit> = err("INTERNAL_SERVER_ERROR", throwable.message ?: "(empty message)")
     }
 }
 

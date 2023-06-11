@@ -24,7 +24,6 @@ import io.ktor.server.http.*
 import io.ktor.server.plugins.cachingheaders.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.modules.helm.charts.acceptableContentTypes
 import org.noelware.charted.modules.storage.StorageModule
@@ -79,6 +78,4 @@ class CdnRestController(
 
         call.respond(createBodyWithByteArray(data, contentType))
     }
-
-    override fun toPathDsl(): PathItem = TODO("Not available to be generated since dynamic prefix")
 }

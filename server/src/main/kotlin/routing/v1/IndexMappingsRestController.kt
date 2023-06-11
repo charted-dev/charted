@@ -23,15 +23,11 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
-import kotlinx.datetime.Instant
 import org.noelware.charted.common.extensions.regexp.matchesNameRegex
 import org.noelware.charted.common.types.helm.ChartIndexYaml
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.modules.helm.charts.HelmChartModule
-import org.noelware.charted.modules.openapi.NameOrSnowflake
 import org.noelware.charted.modules.openapi.kotlin.dsl.*
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.EntityNotFoundException
 import org.noelware.charted.modules.postgresql.controllers.get
 import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationDatabaseController
@@ -40,6 +36,8 @@ import org.noelware.charted.modules.postgresql.tables.OrganizationTable
 import org.noelware.charted.modules.postgresql.tables.UserTable
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 import org.noelware.charted.server.util.createBodyWithByteArray
 import java.io.ByteArrayOutputStream
 
@@ -98,32 +96,25 @@ class IndexMappingsRestController(
         }
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/indexes/{idOrName}") {
+    companion object: ResourceDescription by describeResource("/indexes", {
+        description = "Returns a organization or user's Helm index, which shows all the repositories to the Helm CLI."
         get {
-            description = "Returns a user or organization's chart index"
+            description = "Retrieve an organization or user's Helm index"
 
-            pathParameter {
-                description = "Name or Snowflake ID parameter to find the index.yaml file"
-                name = "idOrName"
-
-                schema<NameOrSnowflake>()
-            }
-
+            idOrName()
             ok {
+                description = "Helm index for the organization or user"
                 yaml {
-                    schema(
-                        ChartIndexYaml(
-                            generated = Instant.parse("2023-04-15T02:58:04.965058010Z"),
-                        ),
-                    )
+                    schema<ChartIndexYaml>()
                 }
             }
 
             notFound {
+                description = "User or organization doesn't exist"
                 json {
                     schema<ApiResponse.Err>()
                 }
             }
         }
-    }
+    })
 }

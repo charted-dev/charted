@@ -88,7 +88,7 @@ public class APMTracer implements Tracer {
         insert(apmConfig, "instrument", settings.getInstrument() ? "true" : "false");
         insert(apmConfig, "service_name", settings.getServiceName());
         insert(apmConfig, "application_packages", "org.noelware.charted");
-        insert(apmConfig, "log_level", "TRACE");
+        insert(apmConfig, "log_level", "INFO");
 
         final String nodeName = getServiceNodeName();
         if (!nodeName.isEmpty()) {
@@ -199,7 +199,7 @@ public class APMTracer implements Tracer {
     public void close() {}
 
     private void insert(HashMap<String, String> map, @NotNull String key, String value) {
-        map.put("elastic.apm.%s".formatted(key), value);
+        map.put(key, value);
     }
 
     private String getServiceNodeName() {
@@ -240,6 +240,7 @@ public class APMTracer implements Tracer {
             LOG.warn(
                     "Received UnknownHostException while trying to retrieve localhost, using empty string as last resort!",
                     e);
+
             return "";
         }
     }

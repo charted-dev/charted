@@ -28,6 +28,7 @@ import com.github.ajalt.mordant.terminal.ExperimentalTerminalApi
 import com.github.ajalt.mordant.terminal.Terminal
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.cli.commands.GenerateConfigCommand
+import org.noelware.charted.cli.commands.OpenAPICommand
 import org.noelware.charted.cli.commands.ServerCommand
 import org.noelware.charted.cli.commands.ValidateKotlinScriptCommand
 import org.noelware.charted.cli.commands.accounts.AccountsCommand
@@ -54,11 +55,11 @@ private class ChartedCli(terminal: Terminal): CliktCommand(
             ValidateKotlinScriptCommand(terminal),
             GenerateConfigCommand(terminal),
             AccountsCommand(terminal),
+            OpenAPICommand(terminal),
             ServerCommand(terminal),
         )
     }
 
-    // we will run the help command
     override fun run() {}
 }
 

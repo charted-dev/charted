@@ -39,6 +39,7 @@ dependencies {
     // Required subprojects that the :cli requires
     implementation(projects.config.kotlinScript)
     implementation(projects.modules.postgresql)
+    implementation(projects.modules.openapi)
     implementation(projects.config.yaml)
     implementation(projects.server)
     implementation(projects.config)

@@ -87,6 +87,7 @@ public data class KtorServerConfig(
      * is 50MB before the server will throw a INTERNAL_SERVER_ERROR code. This is tailored to
      * your liking, 50MB is just a nice default.
      */
+    @SerialName("max_data_payload")
     val maxDataPayload: ByteSizeValue = ByteSizeValue.ofString("50mb"),
 
     /**

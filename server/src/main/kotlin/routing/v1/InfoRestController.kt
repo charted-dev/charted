@@ -22,15 +22,18 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.swagger.v3.oas.annotations.media.Schema
-import io.swagger.v3.oas.models.PathItem
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
+import org.noelware.charted.modules.openapi.kotlin.dsl.ok
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
+import kotlin.reflect.typeOf
 
 /**
  * Represents the response for the `GET /info` REST handler.
@@ -86,23 +89,26 @@ class InfoRestController: RestController("/info") {
         )
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/info") {
-        description = "Returns basic information about the server"
+    companion object: ResourceDescription by describeResource("/info", {
+        description = "Information about the server, like version, commit, build-date, etc."
         get {
-            response(HttpStatusCode.OK) {
-                contentType(ContentType.Application.Json) {
+            ok {
+                json {
                     schema(
-                        InfoResponse(
-                            ChartedInfo.distribution,
-                            ChartedInfo.commitHash,
-                            ChartedInfo.buildDate,
-                            "charted-server",
-                            ChartedInfo.version,
-                            "Noelware",
+                        typeOf<ApiResponse.Ok<InfoResponse>>(),
+                        ApiResponse.ok(
+                            InfoResponse(
+                                ChartedInfo.distribution,
+                                ChartedInfo.commitHash,
+                                ChartedInfo.buildDate,
+                                "charted-server",
+                                ChartedInfo.version,
+                                "Noelware",
+                            ),
                         ),
                     )
                 }
             }
         }
-    }
+    })
 }

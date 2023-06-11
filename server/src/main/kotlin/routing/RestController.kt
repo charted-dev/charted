@@ -20,14 +20,17 @@ package org.noelware.charted.server.routing
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
+import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.modules.openapi.ToPaths
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import kotlin.reflect.full.companionObjectInstance
 
 /**
  * Represents a REST controller that is available to be used through-out the application.
  * @param path The path to call this controller
  * @param method list of valid [http methods][HttpMethod] to use.
  */
-abstract class RestController(internal val path: String, internal val method: HttpMethod = HttpMethod.Get): ToPaths {
+abstract class RestController(val path: String, internal val method: HttpMethod = HttpMethod.Get): ToPaths {
     /**
      * [APIVersion] this [RestController] is using. It will use the default one.
      */
@@ -39,4 +42,13 @@ abstract class RestController(internal val path: String, internal val method: Ht
      */
     open fun Route.init() {}
     abstract suspend fun call(call: ApplicationCall)
+
+    override fun toPathDsl(): PathItem = TODO()
+
+    /**
+     * Returns the [ResourceDescription] that was attached to this [RestController] by its
+     * companion object, or `null` if there is no companion object, or it doesn't implement
+     * the [ResourceDescription] interface.
+     */
+    fun describeResource(): ResourceDescription? = this::class.companionObjectInstance as? ResourceDescription
 }

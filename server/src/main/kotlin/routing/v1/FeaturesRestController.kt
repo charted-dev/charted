@@ -22,17 +22,20 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.swagger.v3.oas.annotations.media.Schema
-import io.swagger.v3.oas.models.PathItem
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.features.ExperimentalFeature
 import org.noelware.charted.configuration.kotlin.dsl.features.Feature
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
+import org.noelware.charted.modules.openapi.kotlin.dsl.ok
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
+import kotlin.reflect.typeOf
 
 /**
  * Represents the response for the GET /features REST controller
@@ -80,6 +83,7 @@ data class FeaturesResponse(
 class FeaturesRestController(private val config: Config): RestController("/features") {
     override val apiVersion: APIVersion = APIVersion.V1
     override suspend fun call(call: ApplicationCall) {
+        @Suppress("BooleanLiteralArgument")
         call.respond(
             ApiResponse.ok(
                 FeaturesResponse(
@@ -97,25 +101,32 @@ class FeaturesRestController(private val config: Config): RestController("/featu
         )
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/features") {
+    @Suppress("BooleanLiteralArgument")
+    companion object: ResourceDescription by describeResource("/features", {
+        description = "REST controller to describe all the server features. This is useful to determine if this instance is using the OCI registry or not"
         get {
-            description = "Retrieve all the server instance's features"
-            response(HttpStatusCode.OK) {
-                contentType(ContentType.Application.Json) {
-                    schema<ApiResponse.Ok<FeaturesResponse>>()
-                    example = FeaturesResponse(
-                        config.features.contains(Feature.DockerRegistry) || config.experimentalFeatures.contains(ExperimentalFeature.ExternalOciRegistry),
-                        config.registrations,
-                        false,
-                        false,
-//                        config.features.contains(Feature.AuditLogging),
-//                        config.features.contains(Feature.Webhooks),
-                        config.inviteOnly,
-                        mapOf(),
-                        false,
+            description = "Retrieve the instance's enabled features"
+            ok {
+                json {
+                    schema(
+                        typeOf<ApiResponse.Ok<FeaturesResponse>>(),
+                        ApiResponse.ok(
+                            FeaturesResponse(
+                                false,
+                                true,
+                                false,
+                                false,
+                                false,
+                                mapOf(
+                                    "github" to false,
+                                    "noelware" to true,
+                                ),
+                                false,
+                            ),
+                        ),
                     )
                 }
             }
         }
-    }
+    })
 }

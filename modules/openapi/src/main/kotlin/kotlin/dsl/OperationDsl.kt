@@ -103,6 +103,14 @@ fun OperationDsl.accepted(block: ResponseDsl.() -> Unit = {}) {
 }
 
 /**
+ * Alias for [response(HttpStatusCode.NoContent) {}][OperationDsl.response] for easy consumption
+ * @param block [ResponseDsl] object builder to build the [ApiResponse].
+ */
+fun OperationDsl.noContent(block: ResponseDsl.() -> Unit = {}) {
+    response(HttpStatusCode.NoContent, block)
+}
+
+/**
  * Alias for [response(HttpStatusCode.Created) {}][OperationDsl.response] for easy consumption
  * @param block [ResponseDsl] object builder to build the [ApiResponse].
  */

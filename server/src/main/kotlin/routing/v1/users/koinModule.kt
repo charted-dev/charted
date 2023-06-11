@@ -17,6 +17,7 @@
 
 package org.noelware.charted.server.routing.v1.users
 
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.noelware.charted.server.routing.RestController
@@ -29,6 +30,6 @@ import org.noelware.charted.server.util.composeKoinModules
 val usersV1Module = composeKoinModules(
     usersV1AvatarModule, usersV1CrudModule, usersV1RepositoriesModule, usersV1SessionsModule,
     module {
-        single { MainUserRestController() } bind RestController::class
+        singleOf(::MainUserRestController) bind RestController::class
     },
 )

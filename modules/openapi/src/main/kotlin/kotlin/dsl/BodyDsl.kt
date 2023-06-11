@@ -37,6 +37,14 @@ fun BodyDsl.json(block: MediaTypeDsl.() -> Unit = {}) {
     contentType(ContentType.Application.Json, block)
 }
 
+/**
+ * Alias for [contentType(ContentType.Text.Plain) {}][BodyDsl.contentType] for easy consumption.
+ * @param block [MediaTypeDsl] object to attach to this [BodyDsl].
+ */
+fun BodyDsl.text(block: MediaTypeDsl.() -> Unit = {}) {
+    contentType(ContentType.Text.Plain, block)
+}
+
 fun BodyDsl.yaml(block: MediaTypeDsl.() -> Unit = {}) {
     contentType(ContentType.parse("text/yaml; charset=utf-8"), block)
 }

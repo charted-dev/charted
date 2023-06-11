@@ -20,7 +20,6 @@ package org.noelware.charted.server.routing.v1
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
-import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.modules.metrics.MetricsSupport
 import org.noelware.charted.modules.metrics.disabled.DisabledMetricsSupport
@@ -43,6 +42,4 @@ class MetricsRestController(
             m.writeIn(this)
         }
     }
-
-    override fun toPathDsl(): PathItem = TODO("Dynamic route prefix")
 }

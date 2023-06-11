@@ -20,11 +20,13 @@ package org.noelware.charted.server.routing.v1
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
-import io.swagger.v3.oas.models.PathItem
+import org.noelware.charted.modules.openapi.kotlin.dsl.ok
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.openapi.kotlin.dsl.text
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 
 class HeartbeatRestController: RestController("/heartbeat") {
     override val apiVersion: APIVersion = APIVersion.V1
@@ -32,14 +34,15 @@ class HeartbeatRestController: RestController("/heartbeat") {
         call.respond("Ok.")
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/heartbeat") {
-        description = "Heartbeat REST handler, to check server availability"
+    companion object: ResourceDescription by describeResource("/heartbeat", {
+        description = "REST controller to check server availability, useful for Docker healthchecks or Kubernetes liveness, readiness, and startup probes"
         get {
-            response(HttpStatusCode.OK) {
-                contentType(ContentType.Text.Plain) {
+            ok {
+                description = "The server has responded successfully, indicating that it is live"
+                text {
                     schema("Ok.")
                 }
             }
         }
-    }
+    })
 }

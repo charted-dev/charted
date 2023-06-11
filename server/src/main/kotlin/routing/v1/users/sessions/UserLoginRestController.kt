@@ -22,6 +22,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.models.PathItem
 import kotlinx.serialization.Serializable
 import org.apache.commons.validator.routines.EmailValidator
@@ -30,7 +31,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.noelware.charted.ValidationException
 import org.noelware.charted.common.extensions.regexp.matchesNameAndIdRegex
 import org.noelware.charted.common.types.responses.ApiResponse
-import org.noelware.charted.modules.openapi.kotlin.dsl.schema
+import org.noelware.charted.modules.openapi.kotlin.dsl.*
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.asyncTransaction
 import org.noelware.charted.modules.postgresql.entities.UserEntity
@@ -39,6 +40,8 @@ import org.noelware.charted.modules.sessions.AbstractSessionManager
 import org.noelware.charted.modules.sessions.Session
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 
 /**
  * Payload for logging into charted-server
@@ -48,8 +51,13 @@ import org.noelware.charted.server.routing.RestController
  */
 @Serializable
 data class UserLoginPayload(
+    @get:Schema(description = "Username to authenticate as. This is mutually exclusive with `email`.")
     val username: String? = null,
+
+    @get:Schema(description = "Raw password to authenticate the user as.")
     val password: String,
+
+    @get:Schema(description = "Email to authenticate a user as, this is mutually exclusive with `username`.")
     val email: String? = null
 ) {
     init {
@@ -136,4 +144,38 @@ class UserLoginRestController(private val sessionManager: AbstractSessionManager
             }
         }
     }
+
+    companion object: ResourceDescription by describeResource("/users/@me/sessions", {
+        description = "REST controller for creating sessions that last over 7 days for services like Hoshi."
+        delete {
+            description = "Creates a long-lived session"
+            requestBody {
+                description = "User loging payload to identify a user"
+                json {
+                    schema(UserLoginPayload("noel", "a password that is probably not valid"))
+                }
+            }
+
+            created {
+                description = "Newly created session"
+                json {
+                    schema<ApiResponse.Ok<Session>>()
+                }
+            }
+
+            notFound {
+                description = "If a user by their username or email was not found"
+                json {
+                    schema<ApiResponse.Err>()
+                }
+            }
+
+            unauthorized {
+                description = "If the password specified was not the right one"
+                json {
+                    schema<ApiResponse.Err>()
+                }
+            }
+        }
+    })
 }

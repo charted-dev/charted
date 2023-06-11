@@ -64,7 +64,7 @@ object Logger {
     fun debug(vararg messages: String) {
         val debugEnv = System.getenv("CHARTED_DEBUG")
         if ((debugEnv ?: "") matches "^(yes|true|1|si|si*)$".toRegex()) {
-            println("${(debugColour + bold)("debug")}   | ${(pink + bold)(getCurrentDate())} ~ ${messages.joinToString(System.lineSeparator())}")
+            println("${(debugColour + bold)("debug")} | ${(pink + bold)(getCurrentDate())} ~ ${messages.joinToString(System.lineSeparator())}")
         }
     }
 }

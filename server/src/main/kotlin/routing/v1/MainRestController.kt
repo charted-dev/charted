@@ -21,14 +21,15 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.swagger.v3.oas.annotations.media.Schema
-import io.swagger.v3.oas.annotations.media.SchemaProperty
-import io.swagger.v3.oas.models.PathItem
 import kotlinx.serialization.Serializable
 import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
+import org.noelware.charted.modules.openapi.kotlin.dsl.ok
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 import kotlin.reflect.typeOf
 
 /**
@@ -37,15 +38,16 @@ import kotlin.reflect.typeOf
  * @param tagline You know, for Helm charts?
  * @param docs The documentation URL.
  */
+@Schema(description = "Represents the response for the `GET /` method.")
 @Serializable
 data class MainResponse(
-    @SchemaProperty(schema = Schema(description = "Message to greet users! Will always be \"Hello, world! \uD83D\uDC4B\""))
+    @get:Schema(description = "Message to greet users! Will always be \"Hello, world! \uD83D\uDC4B\"")
     val message: String,
 
-    @SchemaProperty(schema = Schema(description = "Tagline of charted-server, will always be \"You know, for Helm charts?\""))
+    @get:Schema(description = "Tagline of charted-server, will always be \"You know, for Helm charts?\"")
     val tagline: String,
 
-    @SchemaProperty(schema = Schema(description = "Documentation URI for charted-server."))
+    @get:Schema(description = "Documentation URI for charted-server.")
     val docs: String
 )
 
@@ -64,11 +66,11 @@ class MainRestController: RestController("/") {
         )
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/") {
-        description = "Generic main entrypoint"
+    companion object: ResourceDescription by describeResource("/", {
+        description = "Generic main entrypoint to charted-server's API server"
         get {
-            response(HttpStatusCode.OK) {
-                contentType(ContentType.Application.Json) {
+            ok {
+                json {
                     schema(
                         typeOf<ApiResponse.Ok<MainResponse>>(),
                         ApiResponse.ok(
@@ -82,5 +84,5 @@ class MainRestController: RestController("/") {
                 }
             }
         }
-    }
+    })
 }

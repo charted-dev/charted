@@ -17,12 +17,13 @@
 
 package org.noelware.charted.server.routing.v1.users.avatars
 
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.noelware.charted.server.routing.RestController
 
 val usersV1AvatarModule = module {
-    single { GetCurrentUserAvatarRestController(get()) } bind RestController::class
-    single { GetUserAvatarRestController(get(), get()) } bind RestController::class
-    single { UploadUserAvatarRestController(get()) } bind RestController::class
+    singleOf(::GetCurrentUserAvatarRestController) bind RestController::class
+    singleOf(::UploadUserAvatarRestController) bind RestController::class
+    singleOf(::GetUserAvatarRestController) bind RestController::class
 }
