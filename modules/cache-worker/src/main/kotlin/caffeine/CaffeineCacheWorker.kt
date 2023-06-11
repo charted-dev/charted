@@ -43,7 +43,7 @@ class CaffeineCacheWorker: CacheWorker {
     }
 
     override suspend fun <T: Any> getOrPut(key: String, klazz: KClass<T>, push: suspend (key: String) -> T?): T? {
-        val value = innerCache.get(key) { key, _ ->
+        val value = innerCache.get(key) { _, _ ->
             ChartedScope.async { push(key) }.asCompletableFuture()
         }.await() ?: return null
 

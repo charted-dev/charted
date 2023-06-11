@@ -71,7 +71,7 @@ class DefaultAvatarModule(
         .body()
 
     override suspend fun gravatar(email: String): ByteArray {
-        val hash = CryptographyUtils.md5Hex(email)
+        val hash = CryptographyUtils.md5(email)
         return httpClient.get("https://secure.gravatar.com/avatar/$hash.png").body()
     }
 

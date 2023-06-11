@@ -338,7 +338,7 @@ class Sessions private constructor(private val config: Configuration) {
     }
 
     private suspend fun doApiKeyBasedAuth(call: ApplicationCall, token: String) {
-        val hashed = CryptographyUtils.sha256Hex(token)
+        val hashed = CryptographyUtils.sha256(token)
         val apiKey = asyncTransaction {
             ApiKeyEntity.find { ApiKeyTable.token eq hashed }.firstOrNull()
         } ?: return call.respond(

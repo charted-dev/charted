@@ -1,976 +1,1016 @@
-[38;2;165;204;165;1minfo[39;22m  | [38;2;241;204;209;1m06/11/2023 ~ 12:43:43 AM[39;22m ~ Generating OpenAPI spec with format [json]
 {
-  "openapi" : "3.0.1",
-  "info" : {
-    "title" : "charted-server",
-    "description" : "🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Kotlin",
-    "termsOfService" : "https://charts.noelware.org/legal/tos",
-    "contact" : {
-      "name" : "Noelware, LLC.",
-      "url" : "https://noelware.org",
-      "email" : "team@noelware.org"
-    },
-    "license" : {
-      "name" : "Apache 2.0",
-      "url" : "https://www.apache.org/licenses/LICENSE-2.0"
-    },
-    "version" : "v0.4.0-unstable.4"
-  },
-  "externalDocs" : {
-    "url" : "https://charts.noelware.org/docs/server/0.4.0-unstable.4"
-  },
-  "servers" : [ {
-    "url" : "https://charts.noelware.org/api",
-    "description" : "Official Instance"
-  } ],
-  "paths" : {
-    "/_openapi" : {
-      "description" : "Endpoint for the OpenAPI specification for charted-server",
-      "get" : {
-        "description" : "Gets the document in JSON format or YAML format",
-        "externalDocs" : {
-          "url" : "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/_openapi"
+    "openapi": "3.0.1",
+    "info": {
+        "title": "charted-server",
+        "description": "🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Kotlin",
+        "termsOfService": "https://charts.noelware.org/legal/tos",
+        "contact": {
+            "name": "Noelware, LLC.",
+            "url": "https://noelware.org",
+            "email": "team@noelware.org"
         },
-        "parameters" : [ {
-          "name" : "format",
-          "in" : "query",
-          "description" : "Format to use",
-          "required" : true,
-          "deprecated" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        }, {
-          "name" : "pretty",
-          "in" : "query",
-          "description" : "If the document should be pretty or not, this is only applicable to the JSON format",
-          "required" : true,
-          "deprecated" : false,
-          "schema" : {
-            "type" : "boolean"
-          }
-        } ],
-        "responses" : { }
-      }
-    },
-    "/_swagger" : {
-      "description" : "Endpoint for Swagger UI",
-      "get" : {
-        "externalDocs" : {
-          "url" : "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/_swagger"
+        "license": {
+            "name": "Apache 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0"
         },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "text/html" : { }
-            }
-          }
+        "version": "v0.4.0-unstable.4"
+    },
+    "externalDocs": {
+        "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4"
+    },
+    "servers": [
+        {
+            "url": "https://charts.noelware.org/api",
+            "description": "Official Instance"
         }
-      }
-    },
-    "/features" : {
-      "description" : "REST controller to describe all the server features. This is useful to determine if this instance is using the OCI registry or not",
-      "get" : {
-        "description" : "Retrieve the instance's enabled features",
-        "externalDocs" : {
-          "url" : "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/features"
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/OkFeaturesResponse"
+    ],
+    "paths": {
+        "/_openapi": {
+            "description": "Endpoint for the OpenAPI specification for charted-server",
+            "get": {
+                "description": "Gets the document in JSON format or YAML format",
+                "externalDocs": {
+                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/_openapi"
                 },
-                "example" : {
-                  "data" : {
-                    "docker_registry" : false,
-                    "registrations" : true,
-                    "audit_logs" : false,
-                    "webhooks" : false,
-                    "is_invite_only" : false,
-                    "integrations" : {
-                      "github" : false,
-                      "noelware" : true
+                "parameters": [
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "description": "Format to use",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        }
                     },
-                    "search" : false
-                  },
-                  "success" : true
-                }
-              }
+                    {
+                        "name": "pretty",
+                        "in": "query",
+                        "description": "If the document should be pretty or not, this is only applicable to the JSON format",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {}
             }
-          }
-        }
-      }
-    },
-    "/users/@me/logout" : {
-      "description" : "REST controller for revoking session tokens",
-      "delete" : {
-        "description" : "Revokes a session token from the server",
-        "externalDocs" : {
-          "url" : "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/DELETE-/users/@me/logout"
         },
-        "responses" : {
-          "202" : {
-            "description" : "Session token was deleted from the server, and can't be validated again",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ApiResponseUnit"
+        "/_swagger": {
+            "description": "Endpoint for Swagger UI",
+            "get": {
+                "externalDocs": {
+                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/_swagger"
                 },
-                "example" : {
-                  "success" : true
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/html": {}
+                        }
+                    }
                 }
-              }
             }
-          },
-          "401" : {
-            "description" : "If the session token couldn't be authorized successfully",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Err"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Whether if the `Authorization` header is not present or the body was not a proper session token",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Err"
-                }
-              }
-            }
-          },
-          "406" : {
-            "description" : "Whether if the `Authorization` header was not in an acceptable format",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Err"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/users/{idOrName}/avatars/{hash}" : {
-      "description" : "REST controller for fetching a user's current avatar, with an optional hash identifier",
-      "get" : {
-        "description" : "Retrieves and returns a user's current avatar, or with the `hash` path parameter, return it by the specific hash",
-        "externalDocs" : {
-          "url" : "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/users/{idOrName}/avatars/{hash}"
         },
-        "parameters" : [ {
-          "name" : "idOrName",
-          "in" : "path",
-          "description" : "Represents a value that handles Name and Snowflake parameters",
-          "required" : true,
-          "deprecated" : false,
-          "schema" : {
-            "$ref" : "#/components/schemas/NameOrSnowflake"
-          }
-        }, {
-          "name" : "hash",
-          "in" : "path",
-          "description" : "Hash of the avatar to look-up for a user.",
-          "required" : false,
-          "deprecated" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Avatar that was fetched from the storage service",
-            "content" : {
-              "image/jpeg" : { },
-              "image/svg+xml" : { },
-              "image/gif" : { },
-              "image/png" : { }
-            }
-          },
-          "404" : {
-            "description" : "If the resource was not found",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Err"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/heartbeat" : {
-      "description" : "REST controller to check server availability, useful for Docker healthchecks or Kubernetes liveness, readiness, and startup probes",
-      "get" : {
-        "externalDocs" : {
-          "url" : "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/heartbeat"
-        },
-        "responses" : {
-          "200" : {
-            "description" : "The server has responded successfully, indicating that it is live",
-            "content" : {
-              "text/plain" : {
-                "schema" : {
-                  "type" : "string"
+        "/features": {
+            "description": "REST controller to describe all the server features. This is useful to determine if this instance is using the OCI registry or not",
+            "get": {
+                "description": "Retrieve the instance's enabled features",
+                "externalDocs": {
+                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/features"
                 },
-                "example" : "Ok."
-              }
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OkFeaturesResponse"
+                                },
+                                "example": {
+                                    "data": {
+                                        "docker_registry": false,
+                                        "registrations": true,
+                                        "audit_logs": false,
+                                        "webhooks": false,
+                                        "is_invite_only": false,
+                                        "integrations": {
+                                            "github": false,
+                                            "noelware": true
+                                        },
+                                        "search": false
+                                    },
+                                    "success": true
+                                }
+                            }
+                        }
+                    }
+                }
             }
-          }
-        }
-      }
-    },
-    "/users/@me/sessions" : {
-      "description" : "REST controller for listing all the sessions by the current authenticated user",
-      "get" : {
-        "description" : "Retrieve all the sessions by the current authenticated user",
-        "externalDocs" : {
-          "url" : "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/users/@me/sessions"
         },
-        "responses" : {
-          "200" : {
-            "description" : "All the sessions that the API server is managing",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/OkListSession"
+        "/users/@me/logout": {
+            "description": "REST controller for revoking session tokens",
+            "delete": {
+                "description": "Revokes a session token from the server",
+                "externalDocs": {
+                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/DELETE-/users/@me/logout"
                 },
-                "example" : {
-                  "data" : [ ],
-                  "success" : true
+                "responses": {
+                    "202": {
+                        "description": "Session token was deleted from the server, and can't be validated again",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseUnit"
+                                },
+                                "example": {
+                                    "success": true
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "If the session token couldn't be authorized successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Whether if the `Authorization` header is not present or the body was not a proper session token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "Whether if the `Authorization` header was not in an acceptable format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    }
                 }
-              }
             }
-          },
-          "401" : {
-            "description" : "If the session token couldn't be authorized successfully",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Err"
-                }
-              }
-            }
-          },
-          "403" : {
-            "description" : "Whether if the `Authorization` header is not present, or doesn't have the 'users:sessions:list' API key scope.",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Err"
-                }
-              }
-            }
-          },
-          "406" : {
-            "description" : "Whether if the `Authorization` header was not in an acceptable format",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Err"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete" : {
-        "description" : "Creates a long-lived session",
-        "externalDocs" : {
-          "url" : "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/DELETE-/users/@me/sessions"
         },
-        "responses" : {
-          "201" : {
-            "description" : "Newly created session",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/OkSession"
-                }
-              }
-            }
-          },
-          "404" : {
-            "description" : "If a user by their username or email was not found",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Err"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "If the password specified was not the right one",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Err"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/indexes" : {
-      "description" : "Returns a organization or user's Helm index, which shows all the repositories to the Helm CLI.",
-      "get" : {
-        "description" : "Retrieve an organization or user's Helm index",
-        "externalDocs" : {
-          "url" : "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/indexes"
-        },
-        "parameters" : [ {
-          "name" : "idOrName",
-          "in" : "path",
-          "description" : "Represents a value that handles Name and Snowflake parameters",
-          "required" : true,
-          "deprecated" : false,
-          "schema" : {
-            "$ref" : "#/components/schemas/NameOrSnowflake"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Helm index for the organization or user",
-            "content" : {
-              "text/yaml" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ChartIndexYaml"
-                }
-              }
-            }
-          },
-          "404" : {
-            "description" : "User or organization doesn't exist",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Err"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/users" : {
-      "description" : "Generic entrypoint for the Users API",
-      "get" : {
-        "externalDocs" : {
-          "url" : "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/users"
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/OkMainUserResponse"
+        "/users/{idOrName}/avatars/{hash}": {
+            "description": "REST controller for fetching a user's current avatar, with an optional hash identifier",
+            "get": {
+                "description": "Retrieves and returns a user's current avatar, or with the `hash` path parameter, return it by the specific hash",
+                "externalDocs": {
+                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/users/{idOrName}/avatars/{hash}"
                 },
-                "example" : {
-                  "data" : {
-                    "message" : "Welcome to the Users API!",
-                    "docs_url" : "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/users"
-                  },
-                  "success" : true
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Represents a value that handles Name and Snowflake parameters",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
+                    },
+                    {
+                        "name": "hash",
+                        "in": "path",
+                        "description": "Hash of the avatar to look-up for a user.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Avatar that was fetched from the storage service",
+                        "content": {
+                            "image/jpeg": {},
+                            "image/svg+xml": {},
+                            "image/gif": {},
+                            "image/png": {}
+                        }
+                    },
+                    "404": {
+                        "description": "If the resource was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    }
                 }
-              }
             }
-          }
-        }
-      }
-    },
-    "/info" : {
-      "description" : "Information about the server, like version, commit, build-date, etc.",
-      "get" : {
-        "externalDocs" : {
-          "url" : "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/info"
         },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/OkInfoResponse"
+        "/heartbeat": {
+            "description": "REST controller to check server availability, useful for Docker healthchecks or Kubernetes liveness, readiness, and startup probes",
+            "get": {
+                "externalDocs": {
+                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/heartbeat"
                 },
-                "example" : {
-                  "data" : {
-                    "distribution" : "git",
-                    "commit_sha" : "9a564391",
-                    "build_date" : "2023-06-11T00:43:33Z",
-                    "product" : "charted-server",
-                    "version" : "0.4.0-unstable.4",
-                    "vendor" : "Noelware"
-                  },
-                  "success" : true
+                "responses": {
+                    "200": {
+                        "description": "The server has responded successfully, indicating that it is live",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "example": "Ok."
+                            }
+                        }
+                    }
                 }
-              }
             }
-          }
-        }
-      }
-    },
-    "/users/@me/avatars/{hash}" : {
-      "description" : "REST controller for fetching the current authenticated user's current avatar, with an optional hash identifier",
-      "get" : {
-        "description" : "Retrieves and returns the current authenticated user's current avatar, or with the `hash` path parameter, return it by the specific hash",
-        "externalDocs" : {
-          "url" : "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/users/@me/avatars/{hash}"
         },
-        "parameters" : [ {
-          "name" : "hash",
-          "in" : "path",
-          "description" : "Hash of the avatar to look-up for a user.",
-          "required" : false,
-          "deprecated" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "Avatar that was fetched from the storage service",
-            "content" : {
-              "image/jpeg" : { },
-              "image/svg+xml" : { },
-              "image/gif" : { },
-              "image/png" : { }
-            }
-          },
-          "404" : {
-            "description" : "If the resource was not found",
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/Err"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/" : {
-      "description" : "Generic main entrypoint to charted-server's API server",
-      "get" : {
-        "externalDocs" : {
-          "url" : "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/"
-        },
-        "responses" : {
-          "200" : {
-            "content" : {
-              "application/json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/OkMainResponse"
+        "/users/@me/sessions": {
+            "description": "REST controller for listing all the sessions by the current authenticated user",
+            "get": {
+                "description": "Retrieve all the sessions by the current authenticated user",
+                "externalDocs": {
+                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/users/@me/sessions"
                 },
-                "example" : {
-                  "data" : {
-                    "message" : "Hello, world! 👋",
-                    "tagline" : "You know, for Helm charts?",
-                    "docs" : "https://charts.noelware.org/docs"
-                  },
-                  "success" : true
+                "responses": {
+                    "200": {
+                        "description": "All the sessions that the API server is managing",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OkListSession"
+                                },
+                                "example": {
+                                    "data": [],
+                                    "success": true
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "If the session token couldn't be authorized successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Whether if the `Authorization` header is not present, or doesn't have the 'users:sessions:list' API key scope.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "Whether if the `Authorization` header was not in an acceptable format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    }
                 }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  "components" : {
-    "schemas" : {
-      "ApiError" : {
-        "required" : [ "code", "message" ],
-        "type" : "object",
-        "properties" : {
-          "code" : {
-            "type" : "string"
-          },
-          "message" : {
-            "type" : "string"
-          },
-          "detail" : {
-            "type" : "object"
-          }
-        }
-      },
-      "ApiResponseUnit" : {
-        "required" : [ "success" ],
-        "type" : "object",
-        "properties" : {
-          "success" : {
-            "type" : "boolean"
-          }
-        }
-      },
-      "ChartDependency" : {
-        "required" : [ "import-values", "name", "tags" ],
-        "type" : "object",
-        "properties" : {
-          "name" : {
-            "type" : "string"
-          },
-          "version" : {
-            "type" : "string"
-          },
-          "repository" : {
-            "type" : "string"
-          },
-          "condition" : {
-            "type" : "string"
-          },
-          "tags" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
-          "import-values" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/StringOrImportValue"
-            }
-          },
-          "alias" : {
-            "type" : "string"
-          }
-        }
-      },
-      "ChartIndexSpec" : {
-        "required" : [ "annotations", "apiVersion", "dependencies", "deprecated", "keywords", "maintainers", "name", "removed", "sources", "urls", "version" ],
-        "type" : "object",
-        "properties" : {
-          "apiVersion" : {
-            "type" : "string",
-            "enum" : [ "v1", "v2" ]
-          },
-          "name" : {
-            "type" : "string"
-          },
-          "version" : {
-            "type" : "string"
-          },
-          "kubeVersion" : {
-            "type" : "string"
-          },
-          "description" : {
-            "type" : "string"
-          },
-          "type" : {
-            "type" : "string",
-            "enum" : [ "application", "library", "operator" ]
-          },
-          "keywords" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
-          "home" : {
-            "type" : "string"
-          },
-          "sources" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
-          "dependencies" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/ChartDependency"
-            }
-          },
-          "maintainers" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/ChartMaintainer"
-            }
-          },
-          "icon" : {
-            "type" : "string"
-          },
-          "appVersion" : {
-            "type" : "string"
-          },
-          "deprecated" : {
-            "type" : "boolean"
-          },
-          "annotations" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "string"
-            }
-          },
-          "urls" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
-          "created" : {
-            "type" : "string",
-            "format" : "date"
-          },
-          "removed" : {
-            "type" : "boolean"
-          },
-          "digest" : {
-            "type" : "string"
-          }
-        }
-      },
-      "ChartIndexYaml" : {
-        "required" : [ "apiVersion", "entries", "generated" ],
-        "type" : "object",
-        "properties" : {
-          "apiVersion" : {
-            "type" : "string"
-          },
-          "entries" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "array",
-              "items" : {
-                "$ref" : "#/components/schemas/ChartIndexSpec"
-              }
-            }
-          },
-          "generated" : {
-            "type" : "string",
-            "format" : "date"
-          }
-        }
-      },
-      "ChartMaintainer" : {
-        "required" : [ "name" ],
-        "type" : "object",
-        "properties" : {
-          "name" : {
-            "type" : "string"
-          },
-          "email" : {
-            "type" : "string"
-          },
-          "url" : {
-            "type" : "string"
-          }
-        }
-      },
-      "Err" : {
-        "required" : [ "errors", "success" ],
-        "type" : "object",
-        "properties" : {
-          "errors" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/ApiError"
-            }
-          },
-          "success" : {
-            "type" : "boolean"
-          }
-        },
-        "description" : "Represents an unsuccessful response, with any errors that might've occurred during the invocation of the request"
-      },
-      "FeaturesResponse" : {
-        "required" : [ "audit_logs", "docker_registry", "integrations", "is_invite_only", "registrations", "search", "webhooks" ],
-        "type" : "object",
-        "properties" : {
-          "docker_registry" : {
-            "type" : "boolean",
-            "description" : "Whether if the external OCI registry experimental feature or the home-made implementation registry feature is enabled or not."
-          },
-          "registrations" : {
-            "type" : "boolean",
-            "description" : "Whether if registrations are enabled on the server"
-          },
-          "audit_logs" : {
-            "type" : "boolean",
-            "description" : "Whether if the Audit Logging feature is enabled or not."
-          },
-          "webhooks" : {
-            "type" : "boolean",
-            "description" : "Whether if the Webhooks feature is enabled or not."
-          },
-          "is_invite_only" : {
-            "type" : "boolean",
-            "description" : "Whether if this server instance is invite-only."
-          },
-          "integrations" : {
-            "type" : "object",
-            "additionalProperties" : {
-              "type" : "boolean",
-              "description" : "Mapping of all available session integrations."
             },
-            "description" : "Mapping of all available session integrations."
-          },
-          "search" : {
-            "type" : "boolean",
-            "description" : "Whether if the server has search capabilities with the Elasticsearch or Meilisearch backend"
-          }
-        }
-      },
-      "ImportValue" : {
-        "required" : [ "child", "parent" ],
-        "type" : "object",
-        "properties" : {
-          "child" : {
-            "type" : "string"
-          },
-          "parent" : {
-            "type" : "string"
-          }
-        }
-      },
-      "InfoResponse" : {
-        "required" : [ "build_date", "commit_sha", "distribution", "product", "vendor", "version" ],
-        "type" : "object",
-        "properties" : {
-          "distribution" : {
-            "type" : "string",
-            "description" : "The distribution the server is running off from",
-            "enum" : [ "kubernetes", "unknown", "docker", "rpm", "deb", "git" ]
-          },
-          "commit_sha" : {
-            "type" : "string",
-            "description" : "The commit hash from the Git repository."
-          },
-          "build_date" : {
-            "type" : "string",
-            "description" : "Build date in RFC3339 format"
-          },
-          "product" : {
-            "type" : "string",
-            "description" : "Product name. Will always be \"charted-server\""
-          },
-          "version" : {
-            "type" : "string",
-            "description" : "Valid SemVer 2 of the current version of this instance"
-          },
-          "vendor" : {
-            "type" : "string",
-            "description" : "Vendor of charted-server, will always be \"Noelware\""
-          }
-        },
-        "description" : "Represents the response for the `GET /info` REST handler."
-      },
-      "MainResponse" : {
-        "required" : [ "docs", "message", "tagline" ],
-        "type" : "object",
-        "properties" : {
-          "message" : {
-            "type" : "string",
-            "description" : "Message to greet users! Will always be \"Hello, world! 👋\""
-          },
-          "tagline" : {
-            "type" : "string",
-            "description" : "Tagline of charted-server, will always be \"You know, for Helm charts?\""
-          },
-          "docs" : {
-            "type" : "string",
-            "description" : "Documentation URI for charted-server."
-          }
-        },
-        "description" : "Represents the response for the `GET /` method."
-      },
-      "MainUserResponse" : {
-        "required" : [ "docs_url", "message" ],
-        "type" : "object",
-        "properties" : {
-          "message" : {
-            "type" : "string",
-            "description" : "Generic message to greet the user to the Users API!"
-          },
-          "docs_url" : {
-            "type" : "string",
-            "description" : "Documentation URL for the Users API"
-          }
-        },
-        "description" : "Generic entrypoint response for the Users API"
-      },
-      "NameOrSnowflake" : {
-        "type" : "object",
-        "description" : "Represents a value that handles Name and Snowflake parameters",
-        "oneOf" : [ {
-          "type" : "string"
-        }, {
-          "type" : "integer",
-          "format" : "int64"
-        } ]
-      },
-      "Ok" : {
-        "required" : [ "success" ],
-        "type" : "object",
-        "description" : "Represents a successful response, with any data attached if any",
-        "allOf" : [ {
-          "$ref" : "#/components/schemas/ApiResponseUnit"
-        }, {
-          "type" : "object",
-          "properties" : {
-            "data" : {
-              "type" : "object"
+            "delete": {
+                "description": "Creates a long-lived session",
+                "externalDocs": {
+                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/DELETE-/users/@me/sessions"
+                },
+                "responses": {
+                    "201": {
+                        "description": "Newly created session",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OkSession"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "If a user by their username or email was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "If the password specified was not the right one",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    }
+                }
             }
-          }
-        } ]
-      },
-      "OkFeaturesResponse" : {
-        "required" : [ "success" ],
-        "type" : "object",
-        "properties" : {
-          "data" : {
-            "$ref" : "#/components/schemas/FeaturesResponse"
-          },
-          "success" : {
-            "type" : "boolean"
-          }
         },
-        "description" : "Represents a successful response, with any data attached if any"
-      },
-      "OkInfoResponse" : {
-        "required" : [ "success" ],
-        "type" : "object",
-        "properties" : {
-          "data" : {
-            "$ref" : "#/components/schemas/InfoResponse"
-          },
-          "success" : {
-            "type" : "boolean"
-          }
-        },
-        "description" : "Represents a successful response, with any data attached if any"
-      },
-      "OkListSession" : {
-        "required" : [ "success" ],
-        "type" : "object",
-        "properties" : {
-          "data" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/Session"
+        "/indexes": {
+            "description": "Returns a organization or user's Helm index, which shows all the repositories to the Helm CLI.",
+            "get": {
+                "description": "Retrieve an organization or user's Helm index",
+                "externalDocs": {
+                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/indexes"
+                },
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Represents a value that handles Name and Snowflake parameters",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Helm index for the organization or user",
+                        "content": {
+                            "text/yaml": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ChartIndexYaml"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User or organization doesn't exist",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    }
+                }
             }
-          },
-          "success" : {
-            "type" : "boolean"
-          }
         },
-        "description" : "Represents a successful response, with any data attached if any"
-      },
-      "OkMainResponse" : {
-        "required" : [ "success" ],
-        "type" : "object",
-        "properties" : {
-          "data" : {
-            "$ref" : "#/components/schemas/MainResponse"
-          },
-          "success" : {
-            "type" : "boolean"
-          }
+        "/users": {
+            "description": "Generic entrypoint for the Users API",
+            "get": {
+                "externalDocs": {
+                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/users"
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OkMainUserResponse"
+                                },
+                                "example": {
+                                    "data": {
+                                        "message": "Welcome to the Users API!",
+                                        "docs_url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/users"
+                                    },
+                                    "success": true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         },
-        "description" : "Represents a successful response, with any data attached if any"
-      },
-      "OkMainUserResponse" : {
-        "required" : [ "success" ],
-        "type" : "object",
-        "properties" : {
-          "data" : {
-            "$ref" : "#/components/schemas/MainUserResponse"
-          },
-          "success" : {
-            "type" : "boolean"
-          }
+        "/info": {
+            "description": "Information about the server, like version, commit, build-date, etc.",
+            "get": {
+                "externalDocs": {
+                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/info"
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OkInfoResponse"
+                                },
+                                "example": {
+                                    "data": {
+                                        "distribution": "git",
+                                        "commit_sha": "95554558",
+                                        "build_date": "2023-05-31T07:17:28-07:00",
+                                        "product": "charted-server",
+                                        "version": "0.4.0-unstable.4",
+                                        "vendor": "Noelware"
+                                    },
+                                    "success": true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         },
-        "description" : "Represents a successful response, with any data attached if any"
-      },
-      "OkSession" : {
-        "required" : [ "success" ],
-        "type" : "object",
-        "properties" : {
-          "data" : {
-            "$ref" : "#/components/schemas/Session"
-          },
-          "success" : {
-            "type" : "boolean"
-          }
+        "/users/@me/avatars/{hash}": {
+            "description": "REST controller for fetching the current authenticated user's current avatar, with an optional hash identifier",
+            "get": {
+                "description": "Retrieves and returns the current authenticated user's current avatar, or with the `hash` path parameter, return it by the specific hash",
+                "externalDocs": {
+                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/users/@me/avatars/{hash}"
+                },
+                "parameters": [
+                    {
+                        "name": "hash",
+                        "in": "path",
+                        "description": "Hash of the avatar to look-up for a user.",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Avatar that was fetched from the storage service",
+                        "content": {
+                            "image/jpeg": {},
+                            "image/svg+xml": {},
+                            "image/gif": {},
+                            "image/png": {}
+                        }
+                    },
+                    "404": {
+                        "description": "If the resource was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         },
-        "description" : "Represents a successful response, with any data attached if any"
-      },
-      "Session" : {
-        "required" : [ "access_token", "refresh_token", "session_id", "user_id" ],
-        "type" : "object",
-        "properties" : {
-          "refresh_token" : {
-            "type" : "string"
-          },
-          "access_token" : {
-            "type" : "string"
-          },
-          "session_id" : {
-            "type" : "string",
-            "format" : "uuid"
-          },
-          "user_id" : {
-            "type" : "integer",
-            "format" : "int64"
-          }
-        },
-        "description" : "Represents a session token object. This is how sessions are stored when authenticating to charted-server."
-      },
-      "StringOrImportValue" : {
-        "type" : "object",
-        "oneOf" : [ {
-          "type" : "string"
-        }, {
-          "$ref" : "#/components/schemas/ImportValue"
-        } ]
-      },
-      "UserLoginPayload" : {
-        "required" : [ "password" ],
-        "type" : "object",
-        "properties" : {
-          "username" : {
-            "type" : "string",
-            "description" : "Username to authenticate as. This is mutually exclusive with `email`."
-          },
-          "password" : {
-            "type" : "string",
-            "description" : "Raw password to authenticate the user as."
-          },
-          "email" : {
-            "type" : "string",
-            "description" : "Email to authenticate a user as, this is mutually exclusive with `username`."
-          }
+        "/": {
+            "description": "Generic main entrypoint to charted-server's API server",
+            "get": {
+                "externalDocs": {
+                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/"
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OkMainResponse"
+                                },
+                                "example": {
+                                    "data": {
+                                        "message": "Hello, world! 👋",
+                                        "tagline": "You know, for Helm charts?",
+                                        "docs": "https://charts.noelware.org/docs"
+                                    },
+                                    "success": true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
-      }
     },
-    "securitySchemes" : {
-      "SessionToken" : {
-        "type" : "http",
-        "description" : "Session token from the POST /users/login endpoint",
-        "in" : "header",
-        "scheme" : "Bearer",
-        "bearerFormat" : "Bearer"
-      },
-      "ApiKey" : {
-        "type" : "apiKey",
-        "in" : "header",
-        "bearerFormat" : "ApiKey"
-      },
-      "Basic" : {
-        "type" : "http",
-        "description" : "Basic authentication",
-        "in" : "header",
-        "scheme" : "Basic",
-        "bearerFormat" : "Basic"
-      }
+    "components": {
+        "schemas": {
+            "ApiError": {
+                "required": ["code", "message"],
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "detail": {
+                        "type": "object"
+                    }
+                }
+            },
+            "ApiResponseUnit": {
+                "required": ["success"],
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "ChartDependency": {
+                "required": ["import-values", "name", "tags"],
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "version": {
+                        "type": "string"
+                    },
+                    "repository": {
+                        "type": "string"
+                    },
+                    "condition": {
+                        "type": "string"
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "import-values": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StringOrImportValue"
+                        }
+                    },
+                    "alias": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ChartIndexSpec": {
+                "required": [
+                    "annotations",
+                    "apiVersion",
+                    "dependencies",
+                    "deprecated",
+                    "keywords",
+                    "maintainers",
+                    "name",
+                    "removed",
+                    "sources",
+                    "urls",
+                    "version"
+                ],
+                "type": "object",
+                "properties": {
+                    "apiVersion": {
+                        "type": "string",
+                        "enum": ["v1", "v2"]
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "version": {
+                        "type": "string"
+                    },
+                    "kubeVersion": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": ["application", "library", "operator"]
+                    },
+                    "keywords": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "home": {
+                        "type": "string"
+                    },
+                    "sources": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "dependencies": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ChartDependency"
+                        }
+                    },
+                    "maintainers": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ChartMaintainer"
+                        }
+                    },
+                    "icon": {
+                        "type": "string"
+                    },
+                    "appVersion": {
+                        "type": "string"
+                    },
+                    "deprecated": {
+                        "type": "boolean"
+                    },
+                    "annotations": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "urls": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "created": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "removed": {
+                        "type": "boolean"
+                    },
+                    "digest": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ChartIndexYaml": {
+                "required": ["apiVersion", "entries", "generated"],
+                "type": "object",
+                "properties": {
+                    "apiVersion": {
+                        "type": "string"
+                    },
+                    "entries": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/ChartIndexSpec"
+                            }
+                        }
+                    },
+                    "generated": {
+                        "type": "string",
+                        "format": "date"
+                    }
+                }
+            },
+            "ChartMaintainer": {
+                "required": ["name"],
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Err": {
+                "required": ["errors", "success"],
+                "type": "object",
+                "properties": {
+                    "errors": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApiError"
+                        }
+                    },
+                    "success": {
+                        "type": "boolean"
+                    }
+                },
+                "description": "Represents an unsuccessful response, with any errors that might've occurred during the invocation of the request"
+            },
+            "FeaturesResponse": {
+                "required": [
+                    "audit_logs",
+                    "docker_registry",
+                    "integrations",
+                    "is_invite_only",
+                    "registrations",
+                    "search",
+                    "webhooks"
+                ],
+                "type": "object",
+                "properties": {
+                    "docker_registry": {
+                        "type": "boolean",
+                        "description": "Whether if the external OCI registry experimental feature or the home-made implementation registry feature is enabled or not."
+                    },
+                    "registrations": {
+                        "type": "boolean",
+                        "description": "Whether if registrations are enabled on the server"
+                    },
+                    "audit_logs": {
+                        "type": "boolean",
+                        "description": "Whether if the Audit Logging feature is enabled or not."
+                    },
+                    "webhooks": {
+                        "type": "boolean",
+                        "description": "Whether if the Webhooks feature is enabled or not."
+                    },
+                    "is_invite_only": {
+                        "type": "boolean",
+                        "description": "Whether if this server instance is invite-only."
+                    },
+                    "integrations": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "boolean",
+                            "description": "Mapping of all available session integrations."
+                        },
+                        "description": "Mapping of all available session integrations."
+                    },
+                    "search": {
+                        "type": "boolean",
+                        "description": "Whether if the server has search capabilities with the Elasticsearch or Meilisearch backend"
+                    }
+                }
+            },
+            "ImportValue": {
+                "required": ["child", "parent"],
+                "type": "object",
+                "properties": {
+                    "child": {
+                        "type": "string"
+                    },
+                    "parent": {
+                        "type": "string"
+                    }
+                }
+            },
+            "InfoResponse": {
+                "required": ["build_date", "commit_sha", "distribution", "product", "vendor", "version"],
+                "type": "object",
+                "properties": {
+                    "distribution": {
+                        "type": "string",
+                        "description": "The distribution the server is running off from",
+                        "enum": ["kubernetes", "unknown", "docker", "rpm", "deb", "git"]
+                    },
+                    "commit_sha": {
+                        "type": "string",
+                        "description": "The commit hash from the Git repository."
+                    },
+                    "build_date": {
+                        "type": "string",
+                        "description": "Build date in RFC3339 format"
+                    },
+                    "product": {
+                        "type": "string",
+                        "description": "Product name. Will always be \"charted-server\""
+                    },
+                    "version": {
+                        "type": "string",
+                        "description": "Valid SemVer 2 of the current version of this instance"
+                    },
+                    "vendor": {
+                        "type": "string",
+                        "description": "Vendor of charted-server, will always be \"Noelware\""
+                    }
+                },
+                "description": "Represents the response for the `GET /info` REST handler."
+            },
+            "MainResponse": {
+                "required": ["docs", "message", "tagline"],
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "description": "Message to greet users! Will always be \"Hello, world! 👋\""
+                    },
+                    "tagline": {
+                        "type": "string",
+                        "description": "Tagline of charted-server, will always be \"You know, for Helm charts?\""
+                    },
+                    "docs": {
+                        "type": "string",
+                        "description": "Documentation URI for charted-server."
+                    }
+                },
+                "description": "Represents the response for the `GET /` method."
+            },
+            "MainUserResponse": {
+                "required": ["docs_url", "message"],
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "description": "Generic message to greet the user to the Users API!"
+                    },
+                    "docs_url": {
+                        "type": "string",
+                        "description": "Documentation URL for the Users API"
+                    }
+                },
+                "description": "Generic entrypoint response for the Users API"
+            },
+            "NameOrSnowflake": {
+                "type": "object",
+                "description": "Represents a value that handles Name and Snowflake parameters",
+                "oneOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ]
+            },
+            "Ok": {
+                "required": ["success"],
+                "type": "object",
+                "description": "Represents a successful response, with any data attached if any",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiResponseUnit"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "data": {
+                                "type": "object"
+                            }
+                        }
+                    }
+                ]
+            },
+            "OkFeaturesResponse": {
+                "required": ["success"],
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/FeaturesResponse"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    }
+                },
+                "description": "Represents a successful response, with any data attached if any"
+            },
+            "OkInfoResponse": {
+                "required": ["success"],
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/InfoResponse"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    }
+                },
+                "description": "Represents a successful response, with any data attached if any"
+            },
+            "OkListSession": {
+                "required": ["success"],
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Session"
+                        }
+                    },
+                    "success": {
+                        "type": "boolean"
+                    }
+                },
+                "description": "Represents a successful response, with any data attached if any"
+            },
+            "OkMainResponse": {
+                "required": ["success"],
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/MainResponse"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    }
+                },
+                "description": "Represents a successful response, with any data attached if any"
+            },
+            "OkMainUserResponse": {
+                "required": ["success"],
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/MainUserResponse"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    }
+                },
+                "description": "Represents a successful response, with any data attached if any"
+            },
+            "OkSession": {
+                "required": ["success"],
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/Session"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    }
+                },
+                "description": "Represents a successful response, with any data attached if any"
+            },
+            "Session": {
+                "required": ["access_token", "refresh_token", "session_id", "user_id"],
+                "type": "object",
+                "properties": {
+                    "refresh_token": {
+                        "type": "string"
+                    },
+                    "access_token": {
+                        "type": "string"
+                    },
+                    "session_id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                },
+                "description": "Represents a session token object. This is how sessions are stored when authenticating to charted-server."
+            },
+            "StringOrImportValue": {
+                "type": "object",
+                "oneOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/components/schemas/ImportValue"
+                    }
+                ]
+            },
+            "UserLoginPayload": {
+                "required": ["password"],
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "type": "string",
+                        "description": "Username to authenticate as. This is mutually exclusive with `email`."
+                    },
+                    "password": {
+                        "type": "string",
+                        "description": "Raw password to authenticate the user as."
+                    },
+                    "email": {
+                        "type": "string",
+                        "description": "Email to authenticate a user as, this is mutually exclusive with `username`."
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "SessionToken": {
+                "type": "http",
+                "description": "Session token from the POST /users/login endpoint",
+                "in": "header",
+                "scheme": "Bearer",
+                "bearerFormat": "Bearer"
+            },
+            "ApiKey": {
+                "type": "apiKey",
+                "in": "header",
+                "bearerFormat": "ApiKey"
+            },
+            "Basic": {
+                "type": "http",
+                "description": "Basic authentication",
+                "in": "header",
+                "scheme": "Basic",
+                "bearerFormat": "Basic"
+            }
+        }
     }
-  }
 }

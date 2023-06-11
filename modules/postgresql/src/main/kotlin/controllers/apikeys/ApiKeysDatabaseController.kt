@@ -69,7 +69,7 @@ class ApiKeysDatabaseController(private val snowflake: Snowflake): AbstractDatab
                     null
                 }
 
-                this.token = CryptographyUtils.sha256Hex(token)
+                this.token = CryptographyUtils.sha256(token)
                 scopes = bitfield.bits()
                 owner = currentUserEntity
                 name = data.name

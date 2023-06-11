@@ -55,7 +55,6 @@ class OpenAPICommand(private val terminal: Terminal): CliktCommand(
 
     @OptIn(KoinInternalApi::class)
     override fun run() {
-        terminal.logger.info("Generating OpenAPI spec with format [$format]")
         val koin = startKoin {
             modules(*routingModule.toTypedArray())
         }
@@ -124,5 +123,6 @@ class OpenAPICommand(private val terminal: Terminal): CliktCommand(
         }
 
         println(doc)
+        koin.close()
     }
 }

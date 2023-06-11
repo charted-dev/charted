@@ -19,14 +19,10 @@
 
 package org.noelware.charted.modules.postgresql.controllers
 
-import dev.floofy.utils.kotlin.ifNotNull
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.Column
 import org.noelware.charted.modules.postgresql.SnowflakeTable
-import org.noelware.charted.modules.postgresql.asyncTransaction
-import org.noelware.charted.modules.postgresql.pagination.PaginationObject
-import java.util.Base64
 import kotlin.reflect.KProperty0
 
 /**
@@ -67,17 +63,17 @@ suspend fun <T, Table: SnowflakeTable, Entity: LongEntity, Created: Any, Patched
     expr: Pair<KProperty0<Column<EntityID<Long>>>, Long>
 ): T? = getOrNull(expr.first to EntityID(expr.second, table))
 
-/**
- * Paginates all the entries in this database controller.
- * @param limit The limit to use
- */
-suspend fun <T, Entity: LongEntity, Created: Any, Patched: Any> AbstractDatabaseController<T, Entity, Created, Patched>.paginate(
-    limit: Int = 25,
-    pageInfo: PaginationObject.PageInfo,
-    orderedBy: OrderedBy = OrderedBy.Ascending
-): PaginationObject<T> = asyncTransaction {
-    val prevId = pageInfo.previous.ifNotNull { String(Base64.getDecoder().decode(this)).split(':')[1].toLong() }
-    val nextId = pageInfo.next.ifNotNull { String(Base64.getDecoder().decode(this)).split(':')[1].toLong() }
-
-    TODO("woof")
-}
+// /**
+// * Paginates all the entries in this database controller.
+// * @param limit The limit to use
+// */
+// suspend fun <T, Entity: LongEntity, Created: Any, Patched: Any> AbstractDatabaseController<T, Entity, Created, Patched>.paginate(
+//    limit: Int = 25,
+//    pageInfo: PaginationObject.PageInfo,
+//    orderedBy: OrderedBy = OrderedBy.Ascending
+// ): PaginationObject<T> = asyncTransaction {
+//    val prevId = pageInfo.previous.ifNotNull { String(Base64.getDecoder().decode(this)).split(':')[1].toLong() }
+//    val nextId = pageInfo.next.ifNotNull { String(Base64.getDecoder().decode(this)).split(':')[1].toLong() }
+//
+//    TODO("woof")
+// }

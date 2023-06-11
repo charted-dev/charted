@@ -61,6 +61,14 @@ jobs:
                   java-version: 20.x
                   distribution: temurin
 
+            - name: Setup Node.js 20
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 20.x
+
+            - name: Install Prettier
+              run: npm i -g prettier
+
             - name: Setup Gradle
               uses: gradle/gradle-build-action@v2
 
@@ -77,6 +85,7 @@ jobs:
                   chmod +x ./cli/build/install/charted/bin/charted
                   rm ./assets/openapi.json
                   make charted openapi > ./assets/openapi.json
+                  prettier --config ./.prettierrc.json --write ./assets/openapi.json
 
             - name: Commit!
               uses: EndBug/add-and-commit@v9

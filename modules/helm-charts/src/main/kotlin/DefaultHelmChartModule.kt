@@ -279,7 +279,7 @@ class DefaultHelmChartModule(
         val host = config.toApiBaseUrl("/repositories/${repo.id}/releases/$version.tar.gz")
         val cdnBase = config.toCdnBaseUrl("/repositories/${repo.id}/releases/$version.tar.gz")
 
-        val digest = CryptographyUtils.sha256Stream(ByteArrayInputStream(IOUtils.toByteArray(tarInputStream)))
+        val digest = CryptographyUtils.sha256(ByteArrayInputStream(IOUtils.toByteArray(tarInputStream)))
         if (!entries.containsKey(repo.name)) {
             entries[repo.name] = listOf(
                 ChartIndexSpec.fromSpec(
