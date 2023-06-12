@@ -73,7 +73,6 @@
             }
         },
         "/users": {
-            "description": "REST controller to create a user",
             "get": {
                 "externalDocs": {
                     "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/users"
@@ -125,6 +124,57 @@
                     },
                     "403": {
                         "description": "If the server doesn't allow new users to be created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes the current authenticated user. This will destroy all metadata (repositories, organizations), search indexing (if enabled), and all Helm charts that are published.",
+                "externalDocs": {
+                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/DELETE-/users"
+                },
+                "responses": {
+                    "202": {
+                        "description": "Session token was deleted from the server, and can't be validated again",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseUnit"
+                                },
+                                "example": {
+                                    "success": true
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "If the session token couldn't be authorized successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Whether if the `Authorization` header is not present or the body was not a proper session token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "Whether if the `Authorization` header was not in an acceptable format",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -188,6 +238,57 @@
                                 },
                                 "example": {
                                     "success": true
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "If the session token couldn't be authorized successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Whether if the `Authorization` header is not present or the body was not a proper session token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "Whether if the `Authorization` header was not in an acceptable format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/@me": {
+            "description": "REST controller to retrieve the current authenticated user's metadata.",
+            "get": {
+                "description": "REST controller to retrieve the current authenticated user's metadata.",
+                "externalDocs": {
+                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/users/@me"
+                },
+                "responses": {
+                    "200": {
+                        "description": "User resource that was located",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OkUser"
                                 }
                             }
                         }
@@ -352,14 +453,65 @@
                     }
                 }
             },
-            "delete": {
+            "patch": {
+                "description": "Refresh the session and give a new session in return",
+                "externalDocs": {
+                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/PATCH-/users/@me/sessions"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Refreshed session",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OkSession"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "If the session token couldn't be authorized successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Whether if the `Authorization` header is not present, the body was not in the format a Session Token would be in, or if the refresh token was not provided as the token it wants.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "Whether if the `Authorization` header was not in an acceptable format",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/login": {
+            "description": "REST controller for creating sessions that last over 7 days for services like Hoshi.",
+            "post": {
                 "description": "Creates a long-lived session",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/DELETE-/users/@me/sessions"
+                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/POST-/users/login"
                 },
                 "responses": {
                     "201": {
-                        "description": "Newly created session",
+                        "description": "Session object that was created on the server",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -369,7 +521,7 @@
                         }
                     },
                     "404": {
-                        "description": "If a user by their username or email was not found",
+                        "description": "If the user credentials weren't found in the server",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -379,7 +531,7 @@
                         }
                     },
                     "401": {
-                        "description": "If the password specified was not the right one",
+                        "description": "Specified password was not the right one to authenticate the user",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -484,6 +636,59 @@
                     },
                     "404": {
                         "description": "User or organization doesn't exist",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{idOrName}": {
+            "description": "REST controller to retrieve a user from the server",
+            "get": {
+                "description": "Retrieve a User object from the server",
+                "externalDocs": {
+                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/users/{idOrName}"
+                },
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Parameter that can take [Name] or [Snowflake] as a way to identify this resource.",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resource was found from the server",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OkUser"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "If the `idOrName` path parameter was not a [Snowflake] or a [Name]",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "If the resource was not found.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -602,22 +807,27 @@
                 "type": "object",
                 "properties": {
                     "code": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Kind of error that occurred. You can look up all the codes in the API documentation: https://charts.noelware.org/docs/server/api/reference#error-codes"
                     },
                     "message": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "More meaningful, humane response on why this request failed."
                     },
                     "detail": {
-                        "type": "object"
+                        "type": "object",
+                        "description": "Extra context about the error that might help prevent it in the future"
                     }
-                }
+                },
+                "description": "Represents a structured object that can be serialized as an API response error for anyreason that might've occurred in a REST controller. It contains a `code` property, to identifythe error kind that this error is, a `message` property to give a more humane response on whyit failed, and optionally a `detail` property that gives more context on how this error came through.\nYou can read up all the codes present in the API documentation: https://charts.noelware.org/docs/server/current/api/reference#error-codes"
             },
             "ApiResponseUnit": {
                 "required": ["success"],
                 "type": "object",
                 "properties": {
                     "success": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicator to whenever this request succeeded or not."
                     }
                 }
             },
@@ -819,6 +1029,7 @@
                         "properties": {
                             "errors": {
                                 "type": "array",
+                                "description": "List of [ApiError] objects that might've occurred when invoking an request.",
                                 "items": {
                                     "$ref": "#/components/schemas/ApiError"
                                 }
@@ -871,7 +1082,8 @@
                         "type": "boolean",
                         "description": "Whether if the server has search capabilities with the Elasticsearch or Meilisearch backend"
                     }
-                }
+                },
+                "description": "Data that is sent out to the recipient, this can be any unstructured object that is returned from the API, or `null` if none is present."
             },
             "ImportValue": {
                 "required": ["child", "parent"],
@@ -980,7 +1192,8 @@
                         "type": "object",
                         "properties": {
                             "data": {
-                                "type": "object"
+                                "type": "object",
+                                "description": "Data that is sent out to the recipient, this can be any unstructured object that is returned from the API, or `null` if none is present."
                             }
                         }
                     }
@@ -994,7 +1207,8 @@
                         "$ref": "#/components/schemas/FeaturesResponse"
                     },
                     "success": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicator to whenever this request succeeded or not."
                     }
                 },
                 "description": "Represents a successful response, with any data attached if any"
@@ -1007,7 +1221,8 @@
                         "$ref": "#/components/schemas/InfoResponse"
                     },
                     "success": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicator to whenever this request succeeded or not."
                     }
                 },
                 "description": "Represents a successful response, with any data attached if any"
@@ -1018,12 +1233,14 @@
                 "properties": {
                     "data": {
                         "type": "array",
+                        "description": "Data that is sent out to the recipient, this can be any unstructured object that is returned from the API, or `null` if none is present.",
                         "items": {
                             "$ref": "#/components/schemas/Session"
                         }
                     },
                     "success": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicator to whenever this request succeeded or not."
                     }
                 },
                 "description": "Represents a successful response, with any data attached if any"
@@ -1036,7 +1253,8 @@
                         "$ref": "#/components/schemas/MainResponse"
                     },
                     "success": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicator to whenever this request succeeded or not."
                     }
                 },
                 "description": "Represents a successful response, with any data attached if any"
@@ -1049,7 +1267,8 @@
                         "$ref": "#/components/schemas/MainUserResponse"
                     },
                     "success": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicator to whenever this request succeeded or not."
                     }
                 },
                 "description": "Represents a successful response, with any data attached if any"
@@ -1062,7 +1281,8 @@
                         "$ref": "#/components/schemas/Session"
                     },
                     "success": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicator to whenever this request succeeded or not."
                     }
                 },
                 "description": "Represents a successful response, with any data attached if any"
@@ -1075,7 +1295,8 @@
                         "$ref": "#/components/schemas/Unit"
                     },
                     "success": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicator to whenever this request succeeded or not."
                     }
                 },
                 "description": "Represents a successful response, with any data attached if any"
@@ -1088,7 +1309,8 @@
                         "$ref": "#/components/schemas/User"
                     },
                     "success": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Indicator to whenever this request succeeded or not."
                     }
                 },
                 "description": "Represents a successful response, with any data attached if any"
@@ -1132,7 +1354,8 @@
                 ]
             },
             "Unit": {
-                "type": "object"
+                "type": "object",
+                "description": "Data that is sent out to the recipient, this can be any unstructured object that is returned from the API, or `null` if none is present."
             },
             "User": {
                 "required": ["admin", "created_at", "id", "updated_at", "username", "verified_publisher"],
