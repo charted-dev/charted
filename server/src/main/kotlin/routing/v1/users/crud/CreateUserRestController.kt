@@ -21,20 +21,21 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
-import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.sessions.SessionType
 import org.noelware.charted.models.users.User
 import org.noelware.charted.modules.helm.charts.HelmChartModule
-import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.openapi.kotlin.dsl.*
 import org.noelware.charted.modules.postgresql.controllers.users.CreateUserPayload
 import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.users.connections.UserConnectionsDatabaseController
 import org.noelware.charted.modules.search.SearchModule
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
+import kotlin.reflect.typeOf
 
 class CreateUserRestController(
     private val config: Config,
@@ -54,13 +55,28 @@ class CreateUserRestController(
             )
         }
 
-        // Check if the server's session manager is using the LDAP provider,
-        // if so, they will have to manually do it.
-        if (config.sessions.type != SessionType.Local) {
-            return call.respond(HttpStatusCode.NotImplemented)
+        val payload: CreateUserPayload = call.receive()
+        if (config.sessions.type == SessionType.Local && payload.password == null) {
+            return call.respond(
+                HttpStatusCode.BadRequest,
+                ApiResponse.err(
+                    "MISSING_PASSWORD_FIELD",
+                    "Missing the `password` field to create this resource",
+                ),
+            )
         }
 
-        val user = controller.create(call, call.receive())
+        if (config.sessions.type != SessionType.Local && payload.password != null) {
+            return call.respond(
+                HttpStatusCode.BadRequest,
+                ApiResponse.err(
+                    "UNAVAILABLE_BODY_PARAMETER",
+                    "`password` is meant to be used with the local session manager, this is not required for the session manager this instance is using.",
+                ),
+            )
+        }
+
+        val user = controller.create(call, payload)
         connectionsController.create(call, user.id)
 
         charts?.createIndexYaml(user.id)
@@ -69,38 +85,39 @@ class CreateUserRestController(
         call.respond(HttpStatusCode.Created, ApiResponse.ok(user))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/users") {
+    companion object: ResourceDescription by describeResource("/users", {
+        description = "REST controller to create a user"
         put {
-            description = "Creates a user that can interact with this instance"
+            description = "REST controller to create a new user into this instance. This can fail if the server is invite-only or if registrations are disabled."
             requestBody {
-                description = "Payload to create a user"
+                description = "Payload object to create this user"
                 required = true
 
-                contentType(ContentType.Application.Json) {
+                json {
                     schema<CreateUserPayload>()
                 }
             }
 
-            response(HttpStatusCode.Created) {
-                description = "The created user"
-                contentType(ContentType.Application.Json) {
-                    schema<ApiResponse.Ok<User>>()
+            created {
+                description = "User resource was successfully created"
+                json {
+                    schema(typeOf<ApiResponse.Ok<User>>())
                 }
             }
 
-            response(HttpStatusCode.Forbidden) {
-                description = "If the server doesn't allow registrations"
-                contentType(ContentType.Application.Json) {
-                    schema<ApiResponse.Err>()
+            badRequest {
+                description = "If the session manager configured for this server is local, then this will indicate a password was not available"
+                json {
+                    schema(typeOf<ApiResponse.Ok<User>>())
                 }
             }
 
-            response(HttpStatusCode.NotImplemented) {
-                description = "If the configured session manager is not the local one"
-                contentType(ContentType.Application.Json) {
+            forbidden {
+                description = "If the server doesn't allow new users to be created"
+                json {
                     schema<ApiResponse.Err>()
                 }
             }
         }
-    }
+    })
 }

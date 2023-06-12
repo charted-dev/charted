@@ -20,10 +20,9 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.jackson.kotlin.module)
     implementation(libs.jackson.databind)
     implementation(libs.ktor.server.core)
-    api(libs.jackson.kotlin.module)
     api(libs.swagger.core.models)
     implementation(libs.semver)
-    api(libs.swagger.core)
 }

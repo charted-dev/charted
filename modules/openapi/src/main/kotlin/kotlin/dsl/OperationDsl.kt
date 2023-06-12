@@ -28,7 +28,7 @@ import org.noelware.charted.annotations.ChartedDsl
 import org.noelware.charted.common.Buildable
 import org.noelware.charted.common.extensions.setonce.getValue
 import org.noelware.charted.common.extensions.setonce.setValue
-import org.noelware.charted.modules.openapi.NameOrSnowflake
+import org.noelware.charted.models.NameOrSnowflake
 
 @ChartedDsl
 interface OperationDsl {
@@ -77,9 +77,13 @@ interface OperationDsl {
     fun tags(vararg tags: String)
 }
 
+/**
+ * Alias for creating a [pathParameter][OperationDsl.pathParameter] that can resolve
+ * a Snowflake or Name.
+ */
 fun OperationDsl.idOrName() {
     pathParameter {
-        description = "Represents a value that handles Name and Snowflake parameters"
+        description = "Parameter that can take [Name] or [Snowflake] as a way to identify this resource."
         name = "idOrName"
 
         schema<NameOrSnowflake>()

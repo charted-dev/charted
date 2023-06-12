@@ -134,6 +134,7 @@ dependencies {
 
     // Swagger Annotations
     api(libs.library("swagger-annotations"))
+    api(libs.library("swagger-core"))
 }
 
 applySpotless()

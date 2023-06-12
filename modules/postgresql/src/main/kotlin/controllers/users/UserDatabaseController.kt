@@ -52,10 +52,13 @@ class UserDatabaseController(
         val id = snowflake.generate()
         return asyncTransaction {
             UserEntity.new(id.value) {
+                if (data.password != null) {
+                    password = argon2.encode(data.password)
+                }
+
                 createdAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 updatedAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 username = data.username
-                password = argon2.encode(data.password)
                 email = data.email
             }.let { entity -> User.fromEntity(entity) }
         }

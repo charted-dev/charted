@@ -22,6 +22,8 @@ import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.toApiBaseUrl
+import org.noelware.charted.models.NameSchema
+import org.noelware.charted.models.SnowflakeSchema
 import org.noelware.charted.modules.openapi.kotlin.dsl.ok
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.modelConverterContext
@@ -97,11 +99,24 @@ fun generateOpenAPIDocument(
         openApi.configurePathItem("${controller.apiVersion.toRoutePath()}${controller.path}".trimEnd('/'), dsl)
     }
 
-    for ((name, schema) in modelConverterContext.definedModels.entries.sortedBy { it.key }) {
-        openApi.components.addSchemas(name, schema)
-    }
-
+    openApi.registerSchemas()
     return openApi
+}
+
+fun OpenAPI.registerSchemas() {
+    for ((name, schema) in modelConverterContext.definedModels.entries.sortedBy { it.key }) {
+        if (name == "Name") {
+            components.addSchemas("Name", NameSchema())
+            continue
+        }
+
+        if (name == "Snowflake") {
+            components.addSchemas("Snowflake", SnowflakeSchema())
+            continue
+        }
+
+        components.addSchemas(name, schema)
+    }
 }
 
 fun OpenAPI.configurePathItem(path: String, newPathItem: PathItem) {

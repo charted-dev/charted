@@ -23,16 +23,17 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope.User
 import org.noelware.charted.modules.avatars.AvatarModule
-import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.openapi.kotlin.dsl.*
 import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
+import kotlin.reflect.typeOf
 
 class UploadUserAvatarRestController(
     private val avatars: AvatarModule
@@ -68,28 +69,54 @@ class UploadUserAvatarRestController(
         call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/users/@me/avatars") {
+    companion object: ResourceDescription by describeResource("/users/@me/avatars", {
+        description = "Upload a new avatar for the current authenticated user"
         post {
-            description = "Updates the current authenticated user's avatar"
-
+            description = "Upload a new avatar, this can be in a `multipart/form-data` content-type, or in a `text/plain` type with the image being base64 encoded"
             requestBody {
-                description = "multipart/form-data of the image. If multiple parts were appended, then it will only use the first one"
-                contentType(ContentType.MultiPart.FormData)
+                description = "A multipart form-data of the image itself; if multiple parts were appended to this request, then all subsequent parts except the first one will be used. If this is a 'text/plain' request, then the server will only accept 'data:image/png;base64,<...>' as the body"
+
+                text()
+                multipart()
             }
 
-            response(HttpStatusCode.Accepted) {
-                description = "The avatar was successfully updated"
-                contentType(ContentType.Application.Json) {
-                    schema<ApiResponse.Ok<Unit>>()
+            accepted {
+                description = "Avatar was successfully updated, this will return an empty response"
+                json {
+                    schema(typeOf<ApiResponse.Ok<Unit>>())
                 }
             }
 
-            response(HttpStatusCode.BadRequest) {
-                description = "If we couldn't find the file part to use, or if the selected part was not a file"
-                contentType(ContentType.Application.Json) {
+            badRequest {
+                description = "If the request was a multipart form-data, this will indicate that the selected part was not a File type"
+                json {
+                    schema<ApiResponse.Err>()
+                }
+            }
+
+            unauthorized {
+                description = "If the session token couldn't be authorized successfully"
+                json {
+                    schema<ApiResponse.Err>()
+                }
+            }
+
+            forbidden {
+                description = "Whether if the `Authorization` header is not present or the body was not a proper session token"
+                json {
+                    schema<ApiResponse.Err>()
+                }
+            }
+
+            notAcceptable {
+                description = "This can indicate two types of problems:\n" +
+                    "* If it failed at the authentication level, it is indicated that the `Authorization` header was not in a valid format the server can accept,\n" +
+                    "* This can also indicate that the request body was not formatted in the way it can be accepted; it has to be in the form of 'data:image/{format};base64,...'"
+
+                json {
                     schema<ApiResponse.Err>()
                 }
             }
         }
-    }
+    })
 }

@@ -38,13 +38,25 @@ fun BodyDsl.json(block: MediaTypeDsl.() -> Unit = {}) {
 }
 
 /**
- * Alias for [contentType(ContentType.Text.Plain) {}][BodyDsl.contentType] for easy consumption.
+ * Alias for [contentType(ContentType.Text.Plain)][BodyDsl.contentType] for easy consumption.
  * @param block [MediaTypeDsl] object to attach to this [BodyDsl].
  */
 fun BodyDsl.text(block: MediaTypeDsl.() -> Unit = {}) {
     contentType(ContentType.Text.Plain, block)
 }
 
+/**
+ * Alias for [contentType(ContentType.MultiPart.FormData)][BodyDsl.contentType] for easy consumption.
+ * @param block [MediaTypeDsl] object to attach to this [BodyDsl].
+ */
+fun BodyDsl.multipart(block: MediaTypeDsl.() -> Unit = {}) {
+    contentType(ContentType.MultiPart.FormData, block)
+}
+
+/**
+ * Alias for [contentType(ContentType.parse("text/plain; charset=utf-8"))][BodyDsl.contentType] for easy consumption.
+ * @param block [MediaTypeDsl] object to attach to this [BodyDsl].
+ */
 fun BodyDsl.yaml(block: MediaTypeDsl.() -> Unit = {}) {
     contentType(ContentType.parse("text/yaml; charset=utf-8"), block)
 }

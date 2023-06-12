@@ -93,33 +93,15 @@ class PathDslBuilder(private val path: String): PathDsl, Buildable<PathItem> {
     override fun get(block: OperationDsl.() -> Unit) = registerMethod(HttpMethod.Get, block)
     override fun build(): PathItem = PathItem().apply {
         _description.valueOrNull?.let { description(it) }
-
-        // TODO(@auguwu): find a better way of doing this
-        //
-        // doesn't .toList allocate? might have to refactor this
-        // to reduce memory allocations
-        if (_methods.contains(HttpMethod.Delete)) {
-            delete(_methods.toList().single { it.first == HttpMethod.Delete }.second)
-        }
-
-        if (_methods.contains(HttpMethod.Patch)) {
-            patch(_methods.toList().single { it.first == HttpMethod.Patch }.second)
-        }
-
-        if (_methods.contains(HttpMethod.Post)) {
-            post(_methods.toList().single { it.first == HttpMethod.Post }.second)
-        }
-
-        if (_methods.contains(HttpMethod.Put)) {
-            put(_methods.toList().single { it.first == HttpMethod.Put }.second)
-        }
-
-        if (_methods.contains(HttpMethod.Head)) {
-            head(_methods.toList().single { it.first == HttpMethod.Head }.second)
-        }
-
-        if (_methods.contains(HttpMethod.Get)) {
-            get(_methods.toList().single { it.first == HttpMethod.Get }.second)
+        for ((method, operation) in _methods) {
+            when (method) {
+                HttpMethod.Delete -> delete(operation)
+                HttpMethod.Patch -> patch(operation)
+                HttpMethod.Post -> post(operation)
+                HttpMethod.Head -> head(operation)
+                HttpMethod.Put -> put(operation)
+                HttpMethod.Get -> get(operation)
+            }
         }
     }
 }

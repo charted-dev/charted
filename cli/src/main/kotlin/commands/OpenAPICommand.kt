@@ -29,12 +29,12 @@ import org.noelware.charted.ValidationException
 import org.noelware.charted.cli.logger
 import org.noelware.charted.modules.openapi.kotlin.dsl.ok
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.modelConverterContext
 import org.noelware.charted.modules.openapi.openApi
 import org.noelware.charted.modules.openapi.toJson
 import org.noelware.charted.modules.openapi.toYaml
 import org.noelware.charted.server.routing.configurePathItem
 import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.registerSchemas
 import org.noelware.charted.server.routing.routingModule
 import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.jvm.jvmName
@@ -112,10 +112,7 @@ class OpenAPICommand(private val terminal: Terminal): CliktCommand(
             openApi.configurePathItem(descriptor.path, descriptor.describe())
         }
 
-        for ((name, schema) in modelConverterContext.definedModels.entries.sortedBy { it.key }) {
-            openApi.components.addSchemas(name, schema)
-        }
-
+        openApi.registerSchemas()
         val doc = when (format) {
             "json" -> openApi.toJson(true)
             "yaml" -> openApi.toYaml()

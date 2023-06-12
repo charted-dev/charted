@@ -27,12 +27,14 @@ import io.swagger.v3.oas.annotations.media.Schema
     description = "Represents a value that handles Name and Snowflake parameters",
     oneOf = [Name::class, Long::class],
 )
+@Deprecated("Replaced with [org.noelware.charted.modules.NameOrSnowflake]", replaceWith = ReplaceWith("NameOrSnowflake", "org.noelware.charted.models.NameOrSnowflake"))
 class NameOrSnowflake private constructor()
 
 /**
  * Dummy object to represent a Name that is a valid user, repository, or organization
  * name to be queried by the API server.
  */
+@Deprecated("Replaced with [org.noelware.charted.models.Name]", replaceWith = ReplaceWith("Name", "org.noelware.charted.models.Name"))
 @Schema(
     description = "Schema to resolve a valid user, repository, or organization successfully.",
     implementation = String::class,
