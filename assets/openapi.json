@@ -72,6 +72,70 @@
                 }
             }
         },
+        "/users": {
+            "description": "REST controller to create a user",
+            "get": {
+                "externalDocs": {
+                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/users"
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OkMainUserResponse"
+                                },
+                                "example": {
+                                    "data": {
+                                        "message": "Welcome to the Users API!",
+                                        "docs_url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/users"
+                                    },
+                                    "success": true
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "REST controller to create a new user into this instance. This can fail if the server is invite-only or if registrations are disabled.",
+                "externalDocs": {
+                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/PUT-/users"
+                },
+                "responses": {
+                    "201": {
+                        "description": "User resource was successfully created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OkUser"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "If the session manager configured for this server is local, then this will indicate a password was not available",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OkUser"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "If the server doesn't allow new users to be created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/features": {
             "description": "REST controller to describe all the server features. This is useful to determine if this instance is using the OCI registry or not",
             "get": {
@@ -172,7 +236,7 @@
                     {
                         "name": "idOrName",
                         "in": "path",
-                        "description": "Represents a value that handles Name and Snowflake parameters",
+                        "description": "Parameter that can take [Name] or [Snowflake] as a way to identify this resource.",
                         "required": true,
                         "deprecated": false,
                         "schema": {
@@ -327,6 +391,67 @@
                 }
             }
         },
+        "/users/@me/avatars": {
+            "description": "Upload a new avatar for the current authenticated user",
+            "post": {
+                "description": "Upload a new avatar, this can be in a `multipart/form-data` content-type, or in a `text/plain` type with the image being base64 encoded",
+                "externalDocs": {
+                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/POST-/users/@me/avatars"
+                },
+                "responses": {
+                    "202": {
+                        "description": "Avatar was successfully updated, this will return an empty response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OkUnit"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "If the request was a multipart form-data, this will indicate that the selected part was not a File type",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "If the session token couldn't be authorized successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Whether if the `Authorization` header is not present or the body was not a proper session token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "This can indicate two types of problems:\n* If it failed at the authentication level, it is indicated that the `Authorization` header was not in a valid format the server can accept,\n* This can also indicate that the request body was not formatted in the way it can be accepted; it has to be in the form of 'data:image/{format};base64,...'",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Err"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/indexes": {
             "description": "Returns a organization or user's Helm index, which shows all the repositories to the Helm CLI.",
             "get": {
@@ -338,7 +463,7 @@
                     {
                         "name": "idOrName",
                         "in": "path",
-                        "description": "Represents a value that handles Name and Snowflake parameters",
+                        "description": "Parameter that can take [Name] or [Snowflake] as a way to identify this resource.",
                         "required": true,
                         "deprecated": false,
                         "schema": {
@@ -363,32 +488,6 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/Err"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/users": {
-            "description": "Generic entrypoint for the Users API",
-            "get": {
-                "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/users"
-                },
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/OkMainUserResponse"
-                                },
-                                "example": {
-                                    "data": {
-                                        "message": "Welcome to the Users API!",
-                                        "docs_url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/users"
-                                    },
-                                    "success": true
                                 }
                             }
                         }
@@ -688,21 +787,45 @@
                     }
                 }
             },
+            "CreateUserPayload": {
+                "required": ["email", "username"],
+                "type": "object",
+                "properties": {
+                    "password": {
+                        "pattern": "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$",
+                        "type": "string",
+                        "description": "Password for logging in, if the server is configured to use the local session manager, this is a required field."
+                    },
+                    "username": {
+                        "$ref": "#/components/schemas/Name"
+                    },
+                    "email": {
+                        "type": "string",
+                        "description": "Email address to identify this user"
+                    }
+                },
+                "description": "Payload object to create a new User resource"
+            },
             "Err": {
                 "required": ["errors", "success"],
                 "type": "object",
-                "properties": {
-                    "errors": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ApiError"
-                        }
+                "description": "Represents an unsuccessful response, with any errors that might've occurred during the invocation of the request",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiResponseUnit"
                     },
-                    "success": {
-                        "type": "boolean"
+                    {
+                        "type": "object",
+                        "properties": {
+                            "errors": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/ApiError"
+                                }
+                            }
+                        }
                     }
-                },
-                "description": "Represents an unsuccessful response, with any errors that might've occurred during the invocation of the request"
+                ]
             },
             "FeaturesResponse": {
                 "required": [
@@ -828,16 +951,20 @@
                 },
                 "description": "Generic entrypoint response for the Users API"
             },
+            "Name": {
+                "pattern": "^([A-z]|-|_|\\d{0,9}){0,32}",
+                "type": "string",
+                "description": "Valid UTF-8 string that is used to point to a user, repository, or organization resource. Mainly used for `idOrName` path parameters in REST controllers to help identify which resource to locate from a valid `Snowflake` identifier, or a Name to point to a resource."
+            },
             "NameOrSnowflake": {
                 "type": "object",
-                "description": "Represents a value that handles Name and Snowflake parameters",
+                "description": "Union discriminated type that can resolve a valid `Snowflake`, or a `Name` that can safely point to a user, organization, or repository",
                 "oneOf": [
                     {
-                        "type": "string"
+                        "$ref": "#/components/schemas/Snowflake"
                     },
                     {
-                        "type": "integer",
-                        "format": "int64"
+                        "$ref": "#/components/schemas/Name"
                     }
                 ]
             },
@@ -940,6 +1067,32 @@
                 },
                 "description": "Represents a successful response, with any data attached if any"
             },
+            "OkUnit": {
+                "required": ["success"],
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/Unit"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    }
+                },
+                "description": "Represents a successful response, with any data attached if any"
+            },
+            "OkUser": {
+                "required": ["success"],
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    }
+                },
+                "description": "Represents a successful response, with any data attached if any"
+            },
             "Session": {
                 "required": ["access_token", "refresh_token", "session_id", "user_id"],
                 "type": "object",
@@ -961,6 +1114,12 @@
                 },
                 "description": "Represents a session token object. This is how sessions are stored when authenticating to charted-server."
             },
+            "Snowflake": {
+                "minLength": 15,
+                "type": "integer",
+                "description": "A unique identifier that points to a User, Repository, or Organization resource",
+                "format": "int64"
+            },
             "StringOrImportValue": {
                 "type": "object",
                 "oneOf": [
@@ -971,6 +1130,56 @@
                         "$ref": "#/components/schemas/ImportValue"
                     }
                 ]
+            },
+            "Unit": {
+                "type": "object"
+            },
+            "User": {
+                "required": ["admin", "created_at", "id", "updated_at", "username", "verified_publisher"],
+                "type": "object",
+                "properties": {
+                    "verified_publisher": {
+                        "type": "boolean",
+                        "description": "Whether if this User is a Verified Publisher or not."
+                    },
+                    "gravatar_email": {
+                        "type": "string",
+                        "description": "Valid email address that points to an Gravatar avatar, or `null` if it shouldn't use one as the primary avatar"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Short description about this user, can be `null` if none was provided."
+                    },
+                    "avatar_hash": {
+                        "type": "string",
+                        "description": "Unique hash to locate a user's avatar, this also includes the extension that this avatar is, i.e, `png`."
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "description": "Date of when this user was registered to this instance",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "description": "Date of when the server has last updated this user",
+                        "format": "date-time"
+                    },
+                    "username": {
+                        "$ref": "#/components/schemas/Name"
+                    },
+                    "admin": {
+                        "type": "boolean",
+                        "description": "Whether if this User is an Administrator of this instance"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Display name for this user, it should be displayed as '{name} (@{username})' or just '@{username}' if there is no display name"
+                    },
+                    "id": {
+                        "$ref": "#/components/schemas/Snowflake"
+                    }
+                },
+                "description": "Represents an account that can own repositories and organizations"
             },
             "UserLoginPayload": {
                 "required": ["password"],
