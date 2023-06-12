@@ -34,7 +34,10 @@ import kotlinx.serialization.json.JsonEncoder
  * Represents a generic API response object.
  */
 @Serializable(with = KResponseSerializer::class)
-public sealed class ApiResponse<out T>(public val success: Boolean) {
+public sealed class ApiResponse<out T>(
+    @get:Schema(description = "Indicator to whenever this request succeeded or not.")
+    public val success: Boolean
+) {
     /**
      * Represents a successful response, with any data attached if any.
      * @param data The data to use to send out the response. The [T] generic
@@ -42,7 +45,10 @@ public sealed class ApiResponse<out T>(public val success: Boolean) {
      *             the server will not know how to serialize it to JSON.
      */
     @Schema(description = "Represents a successful response, with any data attached if any")
-    public data class Ok<out T>(val data: T? = null): ApiResponse<T>(true)
+    public data class Ok<out T>(
+        @get:Schema(description = "Data that is sent out to the recipient, this can be any unstructured object that is returned from the API, or `null` if none is present.")
+        val data: T? = null
+    ): ApiResponse<T>(true)
 
     /**
      * Represents an unsuccessful response, with any errors that might've occurred during
@@ -51,7 +57,10 @@ public sealed class ApiResponse<out T>(public val success: Boolean) {
      * @param errors A list of API errors that might've occurred when invoking the request.
      */
     @Schema(description = "Represents an unsuccessful response, with any errors that might've occurred during the invocation of the request")
-    public data class Err(val errors: List<ApiError>): ApiResponse<Unit>(false)
+    public data class Err(
+        @get:Schema(description = "List of [ApiError] objects that might've occurred when invoking an request.")
+        val errors: List<ApiError>
+    ): ApiResponse<Unit>(false)
 
     public companion object {
         /**

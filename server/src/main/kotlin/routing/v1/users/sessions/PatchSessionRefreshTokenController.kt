@@ -21,13 +21,10 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.modules.openapi.kotlin.dsl.*
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.sessions.AbstractSessionManager
 import org.noelware.charted.modules.sessions.Session
-import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.extensions.session
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
@@ -64,29 +61,9 @@ class PatchSessionRefreshTokenController(
         call.respond(HttpStatusCode.Accepted, ApiResponse.ok(new.toJsonObject(true)))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/users/@me/sessions/refresh_token") {
-        post {
-            description = "Refreshes the current authenticated session's access token with the refresh token."
-
-            addAuthenticationResponses()
-            response(HttpStatusCode.Accepted) {
-                contentType(ContentType.Application.Json) {
-                    schema<ApiResponse.Ok<Session>>()
-                }
-            }
-
-            response(HttpStatusCode.BadRequest) {
-                description = "If the access token is still too new or if the passed in Authorization header didn't use the refresh token"
-                contentType(ContentType.Application.Json) {
-                    schema<ApiResponse.Err>()
-                }
-            }
-        }
-    }
-
     companion object: ResourceDescription by describeResource("/users/@me/sessions", {
         description = "REST controller for refreshing sessions by the refresh token provided when logging in"
-        delete {
+        patch {
             description = "Refresh the session and give a new session in return"
             ok {
                 description = "Refreshed session"

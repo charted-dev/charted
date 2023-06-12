@@ -17,6 +17,7 @@
 
 package org.noelware.charted.common.types.responses
 
+import io.swagger.v3.oas.annotations.media.Schema
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -25,19 +26,35 @@ import kotlinx.serialization.encoding.*
 import kotlinx.serialization.json.JsonEncoder
 
 /**
- * Represents an API error that might occur in a REST handler. It contains the [code]
- * and [message] elements to give a better understanding on what happened. You can read up
- * on all the codes here: https://charts.noelware.org/docs/server/api/reference#error-codes.
+ * Represents a structured object that can be serialized as an API response error for any
+ * reason that might've occurred in a REST controller. It contains a [code] property, to identify
+ * the error kind that this error is, a [message] property to give a more humane response on why
+ * it failed, and optionally a [detail] property that gives more context on how this error
+ * came through.
  *
- * @param code The error code that broaden what happened
- * @param message Human-readable message of the [code] element.
- * @param detail Extra detail to give more context on what happened.
+ * You can read up all the codes present in the API documentation: https://charts.noelware.org/docs/server/current/api/reference#error-codes
+ *
+ * @param code Kind of error that occurred.
+ * @param message More meaningful, humane response on why this request failed.
+ * @param detail Extra context about the error that might help prevent it in the future
  */
+@Schema(
+    description = "Represents a structured object that can be serialized as an API response error for any" +
+        "reason that might've occurred in a REST controller. It contains a `code` property, to identify" +
+        "the error kind that this error is, a `message` property to give a more humane response on why" +
+        "it failed, and optionally a `detail` property that gives more context on how this error came through." +
+        "\n" +
+        "You can read up all the codes present in the API documentation: https://charts.noelware.org/docs/server/current/api/reference#error-codes",
+)
 @Serializable(with = ApiError.Companion::class)
 public data class ApiError(
+    @get:Schema(description = "Kind of error that occurred. You can look up all the codes in the API documentation: https://charts.noelware.org/docs/server/api/reference#error-codes")
     val code: String,
+
+    @get:Schema(description = "More meaningful, humane response on why this request failed.")
     val message: String,
 
+    @get:Schema(description = "Extra context about the error that might help prevent it in the future")
     @Contextual
     val detail: Any? = null
 ) {

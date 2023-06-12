@@ -34,6 +34,9 @@ import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseCon
 import org.noelware.charted.modules.postgresql.tables.UserTable
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
+import kotlin.reflect.typeOf
 
 class GetUserRestController(private val controller: UserDatabaseController): RestController("/users/{idOrName}") {
     override val apiVersion: APIVersion = APIVersion.V1
@@ -103,4 +106,33 @@ class GetUserRestController(private val controller: UserDatabaseController): Res
             }
         }
     }
+
+    companion object: ResourceDescription by describeResource("/users/{idOrName}", {
+        description = "REST controller to retrieve a user from the server"
+        get {
+            description = "Retrieve a User object from the server"
+            idOrName()
+
+            ok {
+                description = "Resource was found from the server"
+                json {
+                    schema(typeOf<ApiResponse.Ok<User>>())
+                }
+            }
+
+            badRequest {
+                description = "If the `idOrName` path parameter was not a [Snowflake] or a [Name]"
+                json {
+                    schema<ApiResponse.Err>()
+                }
+            }
+
+            notFound {
+                description = "If the resource was not found."
+                json {
+                    schema<ApiResponse.Err>()
+                }
+            }
+        }
+    })
 }

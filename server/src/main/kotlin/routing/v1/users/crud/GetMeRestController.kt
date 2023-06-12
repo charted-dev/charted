@@ -21,19 +21,19 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope
 import org.noelware.charted.models.users.User
-import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.openapi.kotlin.dsl.*
 import org.noelware.charted.modules.postgresql.controllers.get
 import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
-import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
+import kotlin.reflect.typeOf
 
 class GetMeRestController(private val controller: UserDatabaseController): RestController("/users/@me") {
     override val apiVersion: APIVersion = APIVersion.V1
@@ -47,17 +47,37 @@ class GetMeRestController(private val controller: UserDatabaseController): RestC
         call.respond(HttpStatusCode.OK, ApiResponse.ok(controller.get(call.currentUser!!.id)))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/users/@me") {
+    companion object: ResourceDescription by describeResource("/users/@me", {
+        description = "REST controller to retrieve the current authenticated user's metadata."
         get {
-            description = "Gets the current authentication user's metadata"
+            description = "REST controller to retrieve the current authenticated user's metadata."
+            ok {
+                description = "User resource that was located"
+                json {
+                    schema(typeOf<ApiResponse.Ok<User>>())
+                }
+            }
 
-            addAuthenticationResponses()
-            response(HttpStatusCode.OK) {
-                description = "Current authentication user's metadata"
-                contentType(ContentType.Application.Json) {
-                    schema<ApiResponse.Ok<User>>()
+            unauthorized {
+                description = "If the session token couldn't be authorized successfully"
+                json {
+                    schema<ApiResponse.Err>()
+                }
+            }
+
+            forbidden {
+                description = "Whether if the `Authorization` header is not present or the body was not a proper session token"
+                json {
+                    schema<ApiResponse.Err>()
+                }
+            }
+
+            notAcceptable {
+                description = "Whether if the `Authorization` header was not in an acceptable format"
+                json {
+                    schema<ApiResponse.Err>()
                 }
             }
         }
-    }
+    })
 }

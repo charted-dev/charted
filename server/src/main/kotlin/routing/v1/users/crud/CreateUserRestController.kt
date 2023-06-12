@@ -86,7 +86,6 @@ class CreateUserRestController(
     }
 
     companion object: ResourceDescription by describeResource("/users", {
-        description = "REST controller to create a user"
         put {
             description = "REST controller to create a new user into this instance. This can fail if the server is invite-only or if registrations are disabled."
             requestBody {

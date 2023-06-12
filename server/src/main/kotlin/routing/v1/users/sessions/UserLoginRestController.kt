@@ -23,7 +23,6 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.swagger.v3.oas.annotations.media.Schema
-import io.swagger.v3.oas.models.PathItem
 import kotlinx.serialization.Serializable
 import org.apache.commons.validator.routines.EmailValidator
 import org.jetbrains.exposed.sql.Op
@@ -32,7 +31,6 @@ import org.noelware.charted.ValidationException
 import org.noelware.charted.common.extensions.regexp.matchesNameAndIdRegex
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.modules.openapi.kotlin.dsl.*
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.asyncTransaction
 import org.noelware.charted.modules.postgresql.entities.UserEntity
 import org.noelware.charted.modules.postgresql.tables.UserTable
@@ -42,6 +40,7 @@ import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 import org.noelware.charted.server.routing.openapi.ResourceDescription
 import org.noelware.charted.server.routing.openapi.describeResource
+import kotlin.reflect.typeOf
 
 /**
  * Payload for logging into charted-server
@@ -110,68 +109,33 @@ class UserLoginRestController(private val sessionManager: AbstractSessionManager
         call.respond(HttpStatusCode.Created, ApiResponse.ok(session.toJsonObject(true)))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/users/login") {
-        post {
-            description = "Login into charted-server with a username and password"
-
-            requestBody {
-                description = "Payload for logging into charted-server"
-                contentType(ContentType.Application.Json) {
-                    schema<UserLoginPayload>()
-                    example = UserLoginPayload(
-                        "noel",
-                        "somepasswordthatisnotvalid",
-                    )
-                }
-            }
-
-            response(HttpStatusCode.Created) {
-                description = "Newly created session that was created"
-                contentType(ContentType.Application.Json) {
-                    schema<ApiResponse.Ok<Session>>()
-                }
-            }
-
-            response(HttpStatusCode.NotFound) {
-                description = "If the user wasn't found"
-                contentType(ContentType.Application.Json) {
-                    schema<ApiResponse.Err>()
-                    example = ApiResponse.err(
-                        "UNKNOWN_USER",
-                        "User with username [noel] was not found",
-                    )
-                }
-            }
-        }
-    }
-
-    companion object: ResourceDescription by describeResource("/users/@me/sessions", {
+    companion object: ResourceDescription by describeResource("/users/login", {
         description = "REST controller for creating sessions that last over 7 days for services like Hoshi."
-        delete {
+        post {
             description = "Creates a long-lived session"
             requestBody {
-                description = "User loging payload to identify a user"
+                description = "Payload object for user credentials"
                 json {
                     schema(UserLoginPayload("noel", "a password that is probably not valid"))
                 }
             }
 
             created {
-                description = "Newly created session"
+                description = "Session object that was created on the server"
                 json {
-                    schema<ApiResponse.Ok<Session>>()
+                    schema(typeOf<ApiResponse.Ok<Session>>())
                 }
             }
 
             notFound {
-                description = "If a user by their username or email was not found"
+                description = "If the user credentials weren't found in the server"
                 json {
                     schema<ApiResponse.Err>()
                 }
             }
 
             unauthorized {
-                description = "If the password specified was not the right one"
+                description = "Specified password was not the right one to authenticate the user"
                 json {
                     schema<ApiResponse.Err>()
                 }

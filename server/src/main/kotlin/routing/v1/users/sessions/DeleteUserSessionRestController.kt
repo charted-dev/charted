@@ -52,7 +52,6 @@ class DeleteUserSessionRestController(
         description = "REST controller for revoking session tokens"
         delete {
             description = "Revokes a session token from the server"
-
             accepted {
                 description = "Session token was deleted from the server, and can't be validated again"
                 json {

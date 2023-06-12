@@ -22,7 +22,6 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.noelware.charted.launch
-import io.swagger.v3.oas.models.PathItem
 import kotlinx.coroutines.launch
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
@@ -30,18 +29,19 @@ import org.noelware.charted.ChartedScope
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope
 import org.noelware.charted.modules.helm.charts.HelmChartModule
-import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.openapi.kotlin.dsl.*
 import org.noelware.charted.modules.postgresql.asyncTransaction
 import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
 import org.noelware.charted.modules.postgresql.tables.RepositoryTable
 import org.noelware.charted.modules.search.SearchModule
 import org.noelware.charted.modules.sessions.AbstractSessionManager
-import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
+import kotlin.reflect.typeOf
 
 class DeleteUserRestController(
     private val charts: HelmChartModule? = null,
@@ -91,16 +91,43 @@ class DeleteUserRestController(
         call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/users") {
+    companion object: ResourceDescription by describeResource("/users", {
         delete {
-            description = "Deletes the current authentication user"
+            description = "Deletes the current authenticated user. This will destroy all metadata (repositories, organizations), search indexing (if enabled), and all Helm charts that are published."
+            accepted {
+                description = "Server has acknowledged that the authenticated user wants to be deleted, as that is a heavy task, it might take a while for all data to be deleted."
+                json {
+                    schema(typeOf<ApiResponse.Ok<Unit>>())
+                }
+            }
 
-            addAuthenticationResponses()
-            response(HttpStatusCode.Accepted) {
-                contentType(ContentType.Application.Json) {
+            accepted {
+                description = "Session token was deleted from the server, and can't be validated again"
+                json {
                     schema(ApiResponse.ok())
                 }
             }
+
+            unauthorized {
+                description = "If the session token couldn't be authorized successfully"
+                json {
+                    schema<ApiResponse.Err>()
+                }
+            }
+
+            forbidden {
+                description = "Whether if the `Authorization` header is not present or the body was not a proper session token"
+                json {
+                    schema<ApiResponse.Err>()
+                }
+            }
+
+            notAcceptable {
+                description = "Whether if the `Authorization` header was not in an acceptable format"
+                json {
+                    schema<ApiResponse.Err>()
+                }
+            }
         }
-    }
+    })
 }
