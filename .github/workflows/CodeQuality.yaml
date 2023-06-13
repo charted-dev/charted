@@ -83,7 +83,7 @@ jobs:
                   submodules: recursive
 
             - name: Perform Qodana scan
-              uses: JetBrains/qodana-action@v2023.1.0
+              uses: JetBrains/qodana-action@v2023.1.4
               with:
                   args: --baseline,qodana.sarif.json,--save-report
 
