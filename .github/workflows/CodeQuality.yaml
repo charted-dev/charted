@@ -84,6 +84,8 @@ jobs:
 
             - name: Perform Qodana scan
               uses: JetBrains/qodana-action@v2023.1.4
+              env:
+                  QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
               with:
                   args: --baseline,qodana.sarif.json,--save-report
 
