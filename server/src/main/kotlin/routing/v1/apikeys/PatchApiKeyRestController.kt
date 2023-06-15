@@ -25,8 +25,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.types.responses.ApiResponse
-import org.noelware.charted.modules.openapi.kotlin.dsl.idOrName
-import org.noelware.charted.modules.openapi.kotlin.dsl.schema
+import org.noelware.charted.modules.openapi.kotlin.dsl.*
 import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.apikeys.ApiKeysDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.apikeys.PatchApiKeyPayload
@@ -36,6 +35,8 @@ import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 
 class PatchApiKeyRestController(private val controller: ApiKeysDatabaseController): RestController("/apikeys/{idOrName}", HttpMethod.Patch) {
     override val apiVersion: APIVersion = APIVersion.V1
@@ -59,26 +60,26 @@ class PatchApiKeyRestController(private val controller: ApiKeysDatabaseControlle
         call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/apikeys/{idOrName}") {
+    companion object: ResourceDescription by describeResource("/apikeys/{idOrName}", {
         patch {
             description = "Patches an API key resource with a given name or snowflake ID"
 
             idOrName()
             requestBody {
-                contentType(ContentType.Application.Json) {
+                json {
                     schema<PatchApiKeyPayload>()
                 }
             }
 
             addAuthenticationResponses()
-            response(HttpStatusCode.Accepted) {
-                contentType(ContentType.Application.Json) {
+            accepted {
+                json {
                     schema(ApiResponse.ok())
                 }
             }
 
-            response(HttpStatusCode.NotFound) {
-                contentType(ContentType.Application.Json) {
+            notFound {
+                json {
                     schema(
                         ApiResponse.err(
                             "API_KEY_NOT_FOUND",
@@ -88,5 +89,5 @@ class PatchApiKeyRestController(private val controller: ApiKeysDatabaseControlle
                 }
             }
         }
-    }
+    })
 }
