@@ -22,17 +22,20 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
+import org.noelware.charted.modules.openapi.kotlin.dsl.notFound
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.openapi.kotlin.dsl.text
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
 import org.noelware.charted.modules.storage.StorageModule
 import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 import org.noelware.charted.server.util.createBodyFromInputStream
 
 class GetRepositoryReadmeRestController(
@@ -82,7 +85,7 @@ class GetRepositoryReadmeRestController(
         call.respond(createBodyFromInputStream(readme, ContentType.Text.Plain))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/repositories/{id}/readme") {
+    companion object: ResourceDescription by describeResource("/repositories/{id}/readme", {
         get {
             description = "Retrieve a repository's README"
 
@@ -95,17 +98,17 @@ class GetRepositoryReadmeRestController(
 
             response(HttpStatusCode.OK) {
                 description = "README content in Markdown"
-                contentType(ContentType.Text.Plain) {
+                text {
                     schema("# Some Markdown\n> Hopefully...")
                 }
             }
 
-            response(HttpStatusCode.NotFound) {
+            notFound {
                 description = "If a repository wasn't found or if there is no README"
-                contentType(ContentType.Application.Json) {
+                json {
                     schema<ApiResponse.Err>()
                 }
             }
         }
-    }
+    })
 }

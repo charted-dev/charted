@@ -22,17 +22,19 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.repositories.Repository
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
+import org.noelware.charted.modules.openapi.kotlin.dsl.ok
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.get
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.plugins.sessions.preconditions.canAccessRepository
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 
 class GetSingleRepositoryRestController(private val controller: RepositoryDatabaseController): RestController("/repositories/{id}") {
     override val apiVersion: APIVersion = APIVersion.V1
@@ -50,7 +52,7 @@ class GetSingleRepositoryRestController(private val controller: RepositoryDataba
         call.respond(HttpStatusCode.OK, ApiResponse.ok(repo))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/repositories/{id}") {
+    companion object: ResourceDescription by describeResource("/repositories/{id}", {
         get {
             description = "Returns a repository entity with the given ID. Use the /users/{idOrName}/repos/{repoIdOrName} to fetch a user repository with a ID or name, or /organizations/{idOrName}/repos/{repoIdOrName} to fetch a organization repository with a ID or name"
 
@@ -61,11 +63,11 @@ class GetSingleRepositoryRestController(private val controller: RepositoryDataba
                 schema<String>()
             }
 
-            response(HttpStatusCode.OK) {
-                contentType(ContentType.Application.Json) {
-                    schema<ApiResponse.Ok<Repository>>()
+            ok {
+                json {
+                    schema<Repository>()
                 }
             }
         }
-    }
+    })
 }

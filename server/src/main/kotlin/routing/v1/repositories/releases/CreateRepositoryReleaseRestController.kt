@@ -25,12 +25,11 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope.Repositories
 import org.noelware.charted.models.repositories.RepositoryRelease
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.get
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.repositories.releases.CreateRepositoryReleasePayload
@@ -43,6 +42,8 @@ import org.noelware.charted.server.plugins.sessions.preconditions.canAccessRepos
 import org.noelware.charted.server.plugins.sessions.preconditions.canEditMetadata
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 
 class CreateRepositoryReleaseRestController(
     private val controller: RepositoryReleaseDatabaseController,
@@ -81,7 +82,7 @@ class CreateRepositoryReleaseRestController(
         }
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/repositories/{id}/releases") {
+    companion object: ResourceDescription by describeResource("/repositories/{id}/releases", {
         put {
             description = "Creates a repository release"
 
@@ -94,7 +95,7 @@ class CreateRepositoryReleaseRestController(
 
             requestBody {
                 description = "Payload for creating a repository release"
-                contentType(ContentType.Application.Json) {
+                json {
                     schema(
                         CreateRepositoryReleasePayload(
                             updateText = "# 0.0.1-beta\nSome updates!",
@@ -107,10 +108,10 @@ class CreateRepositoryReleaseRestController(
             addAuthenticationResponses()
             response(HttpStatusCode.Created) {
                 description = "Release resource was created successfully"
-                contentType(ContentType.Application.Json) {
-                    schema<ApiResponse.Ok<RepositoryRelease>>()
+                json {
+                    schema<RepositoryRelease>()
                 }
             }
         }
-    }
+    })
 }

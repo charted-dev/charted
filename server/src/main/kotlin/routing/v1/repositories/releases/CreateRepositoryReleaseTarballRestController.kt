@@ -26,7 +26,6 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.features.ExperimentalFeature
@@ -34,8 +33,10 @@ import org.noelware.charted.configuration.kotlin.dsl.features.Feature
 import org.noelware.charted.models.flags.ApiKeyScope
 import org.noelware.charted.modules.helm.charts.HelmChartModule
 import org.noelware.charted.modules.openapi.VersionConstraint
+import org.noelware.charted.modules.openapi.kotlin.dsl.badRequest
+import org.noelware.charted.modules.openapi.kotlin.dsl.created
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.get
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
 import org.noelware.charted.server.extensions.addAuthenticationResponses
@@ -45,6 +46,8 @@ import org.noelware.charted.server.plugins.sessions.preconditions.canAccessRepos
 import org.noelware.charted.server.plugins.sessions.preconditions.canEditMetadata
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 
 class CreateRepositoryReleaseTarballRestController(
     private val controller: RepositoryDatabaseController,
@@ -131,7 +134,7 @@ class CreateRepositoryReleaseTarballRestController(
         call.respond(HttpStatusCode.Created, ApiResponse.ok())
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/repositories/{id}/releases/{version}.tar.gz") {
+    companion object: ResourceDescription by describeResource("/repositories/{id}/releases/{version}.tar.gz", {
         post {
             description = "Uploads a tarball that is a valid Helm tarball that was generated from the `helm package` command."
 
@@ -155,16 +158,16 @@ class CreateRepositoryReleaseTarballRestController(
             }
 
             addAuthenticationResponses()
-            response(HttpStatusCode.Created) {
+            created {
                 description = "Tarball was stored successfully"
-                contentType(ContentType.Application.Json) {
+                json {
                     schema(ApiResponse.ok())
                 }
             }
 
-            response(HttpStatusCode.BadRequest) {
+            badRequest {
                 description = "Invalid multipart/form-data object"
-                contentType(ContentType.Application.Json) {
+                json {
                     schema(
                         ApiResponse.err(
                             "NOT_FILE_PART",
@@ -174,5 +177,5 @@ class CreateRepositoryReleaseTarballRestController(
                 }
             }
         }
-    }
+    })
 }

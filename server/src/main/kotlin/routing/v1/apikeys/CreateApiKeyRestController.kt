@@ -22,7 +22,6 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.swagger.v3.oas.models.PathItem
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -35,7 +34,6 @@ import org.noelware.charted.models.users.User
 import org.noelware.charted.modules.openapi.kotlin.dsl.created
 import org.noelware.charted.modules.openapi.kotlin.dsl.json
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.apikeys.ApiKeysDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.apikeys.CreateApiKeyPayload
 import org.noelware.charted.modules.postgresql.ktor.UserEntityAttributeKey

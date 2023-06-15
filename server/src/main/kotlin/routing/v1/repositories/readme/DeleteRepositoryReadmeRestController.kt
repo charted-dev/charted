@@ -22,17 +22,19 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope
+import org.noelware.charted.modules.openapi.kotlin.dsl.accepted
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
 import org.noelware.charted.modules.storage.StorageModule
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.plugins.sessions.preconditions.canDeleteMetadata
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 
 class DeleteRepositoryReadmeRestController(
     private val controller: RepositoryDatabaseController,
@@ -53,7 +55,7 @@ class DeleteRepositoryReadmeRestController(
         call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/repositories/{id}/readme") {
+    companion object: ResourceDescription by describeResource("/repositories/{id}/readme", {
         delete {
             description = "Creates or updates a repository's README"
 
@@ -64,12 +66,12 @@ class DeleteRepositoryReadmeRestController(
                 schema<Long>()
             }
 
-            response(HttpStatusCode.Accepted) {
+            accepted {
                 description = "README was updated successfully"
-                contentType(ContentType.Application.Json) {
+                json {
                     schema(ApiResponse.ok())
                 }
             }
         }
-    }
+    })
 }

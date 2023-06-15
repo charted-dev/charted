@@ -22,7 +22,6 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
 import org.jetbrains.exposed.sql.and
 import org.noelware.charted.StringOverflowException
 import org.noelware.charted.ValidationException
@@ -30,7 +29,6 @@ import org.noelware.charted.common.extensions.regexp.matchesNameAndIdRegex
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope
 import org.noelware.charted.modules.openapi.kotlin.dsl.*
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.apikeys.ApiKeysDatabaseController
 import org.noelware.charted.modules.postgresql.tables.ApiKeyTable
 import org.noelware.charted.server.extensions.addAuthenticationResponses

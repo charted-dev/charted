@@ -24,14 +24,12 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.features.ExperimentalFeature
 import org.noelware.charted.configuration.kotlin.dsl.features.Feature
 import org.noelware.charted.modules.helm.charts.HelmChartModule
-import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.openapi.kotlin.dsl.*
 import org.noelware.charted.modules.postgresql.controllers.get
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
 import org.noelware.charted.server.extensions.addAuthenticationResponses
@@ -40,6 +38,8 @@ import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.plugins.sessions.preconditions.canAccessRepository
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 import kotlin.reflect.typeOf
 
 class GetRepositoryReleaseTemplatesRestController(
@@ -95,7 +95,7 @@ class GetRepositoryReleaseTemplatesRestController(
         call.respond(HttpStatusCode.OK, ApiResponse.ok(templates))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/repositories/{id}/releases/{version}/templates") {
+    companion object: ResourceDescription by describeResource("/repositories/{id}/releases/{version}/templates", {
         get {
             description = "List of all available templates of a given release"
             pathParameter {
@@ -120,9 +120,9 @@ class GetRepositoryReleaseTemplatesRestController(
             }
 
             addAuthenticationResponses()
-            response(HttpStatusCode.OK) {
+            ok {
                 description = "All the templates available"
-                contentType(ContentType.Application.Json) {
+                json {
                     schema(
                         typeOf<ApiResponse.Ok<List<String>>>(),
                         ApiResponse.ok(
@@ -132,9 +132,9 @@ class GetRepositoryReleaseTemplatesRestController(
                 }
             }
 
-            response(HttpStatusCode.BadRequest) {
+            badRequest {
                 description = "If the version path parameter wasn't a valid SemVer version"
-                contentType(ContentType.Application.Json) {
+                json {
                     schema(
                         ApiResponse.err(
                             "INVALID_SEMVER",
@@ -144,10 +144,10 @@ class GetRepositoryReleaseTemplatesRestController(
                 }
             }
 
-            response(HttpStatusCode.NotFound) {
+            notFound {
                 description = "If the tar resource wasn't found"
                 contentType(ContentType.Application.Json)
             }
         }
-    }
+    })
 }

@@ -24,7 +24,6 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.features.ExperimentalFeature
 import org.noelware.charted.configuration.kotlin.dsl.features.Feature
@@ -33,13 +32,14 @@ import org.noelware.charted.server.plugins.sessions.PreconditionResult
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.plugins.sessions.preconditions.canAccessRepository
 import org.noelware.charted.common.types.responses.ApiResponse
-import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.openapi.kotlin.dsl.*
 import org.noelware.charted.modules.postgresql.controllers.get
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
 import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 import org.noelware.charted.server.util.createBodyFromInputStream
 
 class GetRepositoryReleaseTarballRestController(
@@ -97,7 +97,7 @@ class GetRepositoryReleaseTarballRestController(
         call.respond(createBodyFromInputStream(stream, ContentType.parse("application/tar+gzip")))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/repositories/{id}/releases/{version}.tar.gz") {
+    companion object: ResourceDescription by describeResource("/repositories/{id}/releases/{version}.tar.gz", {
         get {
             description = "Gets a repository release's tarball, if the version exists"
             pathParameter {
@@ -122,14 +122,14 @@ class GetRepositoryReleaseTarballRestController(
             }
 
             addAuthenticationResponses()
-            response(HttpStatusCode.OK) {
+            ok {
                 description = "Tar resource itself"
                 contentType(ContentType.parse("application/tar+gzip"))
             }
 
-            response(HttpStatusCode.BadRequest) {
+            badRequest {
                 description = "If the version path parameter wasn't a valid SemVer version"
-                contentType(ContentType.Application.Json) {
+                json {
                     schema(
                         ApiResponse.err(
                             "INVALID_SEMVER",
@@ -139,10 +139,10 @@ class GetRepositoryReleaseTarballRestController(
                 }
             }
 
-            response(HttpStatusCode.NotFound) {
+            notFound {
                 description = "If the tar resource wasn't found"
-                contentType(ContentType.Application.Json)
+                json()
             }
         }
-    }
+    })
 }
