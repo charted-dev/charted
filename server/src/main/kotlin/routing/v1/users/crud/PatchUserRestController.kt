@@ -25,6 +25,7 @@ import io.ktor.server.routing.*
 import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope
+import org.noelware.charted.modules.openapi.kotlin.dsl.accepted
 import org.noelware.charted.modules.openapi.kotlin.dsl.json
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.toPaths
@@ -69,8 +70,8 @@ class PatchUserRestController(private val controller: UserDatabaseController): R
             }
 
             addAuthenticationResponses()
-            response(HttpStatusCode.Accepted) {
-                contentType(ContentType.Application.Json) {
+            accepted {
+                json {
                     schema(ApiResponse.ok())
                 }
             }
