@@ -23,14 +23,12 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope
 import org.noelware.charted.modules.openapi.NameOrSnowflake
 import org.noelware.charted.modules.openapi.kotlin.dsl.accepted
 import org.noelware.charted.modules.openapi.kotlin.dsl.json
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.getByIdOrNameOrNull
 import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.organizations.PatchOrganizationPayload
@@ -44,6 +42,8 @@ import org.noelware.charted.server.plugins.sessions.preconditions.canAccessOrgan
 import org.noelware.charted.server.plugins.sessions.preconditions.canEditMetadata
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 
 class PatchOrganizationRestController(private val organizations: OrganizationDatabaseController): RestController("/organizations/{idOrName}", HttpMethod.Patch) {
     override val apiVersion: APIVersion = APIVersion.V1
@@ -63,7 +63,7 @@ class PatchOrganizationRestController(private val organizations: OrganizationDat
         call.respond(HttpStatusCode.Accepted)
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/organizations/{idOrName}") {
+    companion object: ResourceDescription by describeResource("/organizations/{idOrName}", {
         patch {
             description = "Patch an organization's metadata"
 
@@ -95,5 +95,5 @@ class PatchOrganizationRestController(private val organizations: OrganizationDat
                 }
             }
         }
-    }
+    })
 }

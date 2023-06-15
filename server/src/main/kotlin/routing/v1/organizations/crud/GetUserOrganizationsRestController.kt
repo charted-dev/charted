@@ -22,18 +22,16 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.dao.id.EntityID
 import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.models.NameOrSnowflake
 import org.noelware.charted.models.flags.ApiKeyScope
 import org.noelware.charted.models.organizations.Organization
 import org.noelware.charted.models.users.User
-import org.noelware.charted.modules.openapi.NameOrSnowflake
 import org.noelware.charted.modules.openapi.kotlin.dsl.json
 import org.noelware.charted.modules.openapi.kotlin.dsl.ok
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.getByIdOrNameOrNull
 import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
@@ -43,6 +41,8 @@ import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 import kotlin.reflect.typeOf
 
 class GetUserOrganizationsRestController(
@@ -75,7 +75,7 @@ class GetUserOrganizationsRestController(
         call.respond(HttpStatusCode.OK, ApiResponse.ok(organizations))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/users/{idOrName}/organizations") {
+    companion object: ResourceDescription by describeResource("/users/{idOrName}/organizations", {
         get {
             description = "Returns all the organizations that a user owns"
 
@@ -122,5 +122,5 @@ class GetUserOrganizationsRestController(
                 }
             }
         }
-    }
+    })
 }

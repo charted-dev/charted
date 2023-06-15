@@ -22,12 +22,12 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.repositories.Repository
 import org.noelware.charted.modules.openapi.kotlin.dsl.idOrName
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
+import org.noelware.charted.modules.openapi.kotlin.dsl.ok
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.getEntityByIdOrNameOrNull
 import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
@@ -38,7 +38,8 @@ import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.plugins.sessions.preconditions.canAccessOrganization
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
-import kotlin.reflect.typeOf
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 
 class GetAllOrganizationRepositoriesRestController(
     private val organizations: OrganizationDatabaseController,
@@ -75,16 +76,19 @@ class GetAllOrganizationRepositoriesRestController(
         call.respond(HttpStatusCode.OK, ApiResponse.ok(repos))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/organizations/{idOrName}/repositories") {
+    companion object: ResourceDescription by describeResource("/organizations/{idOrName}/repositories", {
+        description = "Returns all of an organization's repositories."
+
         get {
-            description = "Returns all of an organization's repositories"
+            description = "Returns all of an organization's repositories."
 
             idOrName()
-            response(HttpStatusCode.OK) {
-                contentType(ContentType.Application.Json) {
-                    schema(typeOf<ApiResponse.Ok<List<Repository>>>(), ApiResponse.ok(listOf<Repository>()))
+            ok {
+                description = "A list of repositories within this organization."
+                json {
+                    schema<List<Repository>>()
                 }
             }
         }
-    }
+    })
 }

@@ -22,7 +22,6 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
 import kotlinx.datetime.LocalDateTime
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope
@@ -32,7 +31,6 @@ import org.noelware.charted.modules.openapi.kotlin.dsl.idOrName
 import org.noelware.charted.modules.openapi.kotlin.dsl.json
 import org.noelware.charted.modules.openapi.kotlin.dsl.ok
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.getEntityByIdOrNameOrNull
 import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationDatabaseController
 import org.noelware.charted.modules.postgresql.extensions.fromEntity
@@ -41,6 +39,8 @@ import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 
 class GetSingleOrganizationRestController(private val organizations: OrganizationDatabaseController): RestController("/organizations/{idOrName}") {
     override val apiVersion: APIVersion = APIVersion.V1
@@ -86,7 +86,7 @@ class GetSingleOrganizationRestController(private val organizations: Organizatio
         call.respond(HttpStatusCode.OK, ApiResponse.ok(Organization.fromEntity(org)))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/organizations/{idOrName}") {
+    companion object: ResourceDescription by describeResource("/organizations/{idOrName}", {
         get {
             description = "Grabs an organization resource by its ID or name."
             idOrName()
@@ -123,5 +123,5 @@ class GetSingleOrganizationRestController(private val organizations: Organizatio
                 }
             }
         }
-    }
+    })
 }
