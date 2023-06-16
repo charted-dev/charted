@@ -49,6 +49,8 @@ jobs:
     generate-openapi:
         name: Generate OpenAPI document
         runs-on: ubuntu-latest
+        # https://stackoverflow.com/a/74439898
+        if: needs.pr-check.outputs.number == 'null'
         steps:
             - name: Checkout repository
               uses: actions/checkout@v3
