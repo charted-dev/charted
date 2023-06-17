@@ -234,6 +234,8 @@ class OperationDslBuilder: OperationDsl, Buildable<Operation> {
 
     override fun build(): Operation = Operation().apply {
         _description.valueOrNull?.let { description(it) }
+        _requestBody.valueOrNull?.let { requestBody(it) }
+
         if (_deprecated.valueOrNull == true) {
             deprecated(true)
         }

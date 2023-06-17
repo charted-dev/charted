@@ -15,17 +15,9 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.common.types.helm
+package org.noelware.charted.models
 
-import io.swagger.v3.oas.annotations.media.Schema
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.serialization.Serializable
-
-@Schema(description = "The index file in a chart repository")
-@Serializable
-public data class ChartIndexYaml(
-    val apiVersion: String = "v1",
-    val entries: Map<String, List<ChartIndexSpec>> = mutableMapOf(),
-    val generated: Instant = Clock.System.now()
-)
+/**
+ * Constraint that resolves to a valid SemVer 2 version string. This should be only for `@Schema` annotations.
+ */
+public object VersionConstraint

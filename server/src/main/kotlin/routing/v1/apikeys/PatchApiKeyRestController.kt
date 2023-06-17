@@ -44,8 +44,6 @@ class PatchApiKeyRestController(private val controller: ApiKeysDatabaseControlle
 
     override suspend fun call(call: ApplicationCall) {
         val idOrName = call.parameters.getOrFail("idOrName")
-
-        // We query it first to see if it exists or not
         val apikey = controller.getByIdOrNameOrNull(idOrName, ApiKeyTable::name) ?: return call.respond(
             HttpStatusCode.NotFound,
             ApiResponse.err(
@@ -60,7 +58,7 @@ class PatchApiKeyRestController(private val controller: ApiKeysDatabaseControlle
 
     companion object: ResourceDescription by describeResource("/apikeys/{idOrName}", {
         patch {
-            description = "Patches an API key resource with a given name or snowflake ID"
+            description = "Patches an API key resource"
 
             idOrName()
             requestBody {

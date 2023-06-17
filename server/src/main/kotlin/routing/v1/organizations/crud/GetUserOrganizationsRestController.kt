@@ -25,10 +25,10 @@ import io.ktor.server.util.*
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.dao.id.EntityID
 import org.noelware.charted.common.types.responses.ApiResponse
-import org.noelware.charted.models.NameOrSnowflake
 import org.noelware.charted.models.flags.ApiKeyScope
 import org.noelware.charted.models.organizations.Organization
 import org.noelware.charted.models.users.User
+import org.noelware.charted.modules.openapi.kotlin.dsl.idOrName
 import org.noelware.charted.modules.openapi.kotlin.dsl.json
 import org.noelware.charted.modules.openapi.kotlin.dsl.ok
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
@@ -77,15 +77,9 @@ class GetUserOrganizationsRestController(
 
     companion object: ResourceDescription by describeResource("/users/{idOrName}/organizations", {
         get {
-            description = "Returns all the organizations that a user owns"
+            description = "Retrieves all of the user's organization."
 
-            pathParameter {
-                description = "Snowflake or Name of the user to search for"
-                name = "idOrName"
-
-                schema<NameOrSnowflake>()
-            }
-
+            idOrName()
             ok {
                 json {
                     schema(

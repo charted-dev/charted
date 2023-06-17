@@ -15,17 +15,13 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.common.types.helm
+package org.noelware.charted.models.openapi.schemas
 
-import io.swagger.v3.oas.annotations.media.Schema
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.serialization.Serializable
+import io.swagger.v3.oas.models.media.StringSchema
 
-@Schema(description = "The index file in a chart repository")
-@Serializable
-public data class ChartIndexYaml(
-    val apiVersion: String = "v1",
-    val entries: Map<String, List<ChartIndexSpec>> = mutableMapOf(),
-    val generated: Instant = Clock.System.now()
-)
+public class VersionConstraintSchema: StringSchema() {
+    init {
+        description = "Constraint that resolves to a valid SemVer 2 version string."
+        pattern = """^v?(0|[1-9]\d*)(?:\.(0|[1-9]\d*))?(?:\.(0|[1-9]\d*))?(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"""
+    }
+}

@@ -88,9 +88,9 @@ class GetSingleOrganizationRestController(private val organizations: Organizatio
 
     companion object: ResourceDescription by describeResource("/organizations/{idOrName}", {
         get {
-            description = "Grabs an organization resource by its ID or name."
-            idOrName()
+            description = "Retrieve an organization resource by its [NameOrSnowflake]."
 
+            idOrName()
             ok {
                 description = "Returns the organization resource"
                 json {

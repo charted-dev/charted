@@ -25,7 +25,6 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope
-import org.noelware.charted.modules.openapi.NameOrSnowflake
 import org.noelware.charted.modules.openapi.kotlin.dsl.accepted
 import org.noelware.charted.modules.openapi.kotlin.dsl.json
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
@@ -44,6 +43,7 @@ import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 import org.noelware.charted.server.routing.openapi.ResourceDescription
 import org.noelware.charted.server.routing.openapi.describeResource
+import org.noelware.charted.modules.openapi.kotlin.dsl.idOrName
 
 class PatchOrganizationRestController(private val organizations: OrganizationDatabaseController): RestController("/organizations/{idOrName}", HttpMethod.Patch) {
     override val apiVersion: APIVersion = APIVersion.V1
@@ -67,13 +67,7 @@ class PatchOrganizationRestController(private val organizations: OrganizationDat
         patch {
             description = "Patch an organization's metadata"
 
-            pathParameter {
-                description = "Snowflake or Name of the user to search for"
-                name = "idOrName"
-
-                schema<NameOrSnowflake>()
-            }
-
+            idOrName()
             requestBody {
                 json {
                     schema(

@@ -63,11 +63,8 @@ class CreateOrganizationRestController(
     }
 
     companion object: ResourceDescription by describeResource("/organizations", {
-        description = "Allows creating an organization."
-
         put {
             description = "Creates an organization resource with the specified parameters."
-
             requestBody {
                 description = "Payload for creating an organization"
 

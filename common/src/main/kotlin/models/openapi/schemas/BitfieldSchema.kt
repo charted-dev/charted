@@ -15,17 +15,13 @@
  * limitations under the License.
  */
 
-package org.noelware.charted.common.types.helm
+package org.noelware.charted.models.openapi.schemas
 
-import io.swagger.v3.oas.annotations.media.Schema
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.serialization.Serializable
+import io.swagger.v3.oas.models.media.IntegerSchema
 
-@Schema(description = "The index file in a chart repository")
-@Serializable
-public data class ChartIndexYaml(
-    val apiVersion: String = "v1",
-    val entries: Map<String, List<ChartIndexSpec>> = mutableMapOf(),
-    val generated: Instant = Clock.System.now()
-)
+public class BitfieldSchema: IntegerSchema() {
+    init {
+        description("A packed binary representation to represent flags, permissions, or scopes to any API server resource available")
+        format("int64")
+    }
+}

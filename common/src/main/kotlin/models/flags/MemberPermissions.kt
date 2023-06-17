@@ -56,4 +56,93 @@ private val genericMemberPermissions: Map<String, Long> = mapOf(
     "metadata:delete" to (1L shl 9),
 )
 
+/**
+ * [Bitfield] container for all member permissions.
+ */
 public class MemberPermissions(bits: Long = 0): Bitfield(bits, genericMemberPermissions)
+
+/**
+ * Represents a type-safe permissions container for retrieving a [member permission][MemberPermissions]
+ * from the [genericMemberPermissions] map.
+ *
+ * @param key Key from the [genericMemberPermissions] map.
+ */
+public sealed class MemberPermission(public val key: String) {
+    public val bit: Long
+        get() = genericMemberPermissions[key] ?: error("BUG: Key [$key] was not found in permission map.")
+
+    /**
+     * This member has permission to invite new members into the repository or organization,
+     * and view all other repository or organization invites.
+     */
+    public object Invite: MemberPermission("member:invite")
+
+    /**
+     * This member can update any member's permissions.
+     */
+    public object Update: MemberPermission("member:update")
+
+    /**
+     * This member has the right to kick any member off the repository or organization's
+     * member list.
+     */
+    public object Kick: MemberPermission("member:kick")
+
+    /**
+     * Represents a top-level object for all `metadata:` prefixed keys from the [genericMemberPermissions]. This can be anything
+     * related to repository or organization metadata.
+     */
+    public sealed class Metadata {
+        /**
+         * Whether if this member has permission to update any repository or organization
+         * metadata.
+         */
+        public object Update: MemberPermission("metadata:update")
+
+        /**
+         * Whether if this member has permission to delete any repository/organization metadata (i.e. repo releases)
+         */
+        public object Delete: MemberPermission("metadata:delete")
+    }
+
+    /**
+     * Represents a top-level object for all `repo:` prefixed keys in the [genericMemberPermissions] map. This
+     * is related to repository resources.
+     *
+     * * For organizations, this is all the repositories that is owned by the organization. In a future release,
+     * this can be tied to specific repositories.
+     * * For repositories, this is only the selected repository that the member is in.
+     */
+    public sealed class Repository {
+        /**
+         * Whether if this member has permission to create a repository in an organization. If this
+         * is related to a repository member, this is no-op.
+         */
+        public object Create: MemberPermission("repo:create")
+
+        /**
+         * Whether if this member has permission to delete a repository resource.
+         */
+        public object Delete: MemberPermission("repo:delete")
+    }
+
+    public sealed class Webhooks {
+        /**
+         * Whether if this member has permission to create repository or organization
+         * webhooks.
+         */
+        public object Create: MemberPermission("webhooks:create")
+
+        /**
+         * Whether if this member has permission to delete a repository or organization
+         * webhook.
+         */
+        public object Delete: MemberPermission("webhooks:delete")
+
+        /**
+         * Whether if this member has permission to update any repository or organization
+         * webhooks.
+         */
+        public object Update: MemberPermission("webhooks:update")
+    }
+}

@@ -23,7 +23,6 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.swagger.v3.oas.annotations.media.Schema
-import io.swagger.v3.oas.models.PathItem
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.noelware.charted.ChartedInfo
@@ -35,8 +34,11 @@ import org.noelware.charted.server.routing.RestController
 @Schema(description = "Generic entrypoint response for the Admin API")
 @Serializable
 data class MainAdminResponse(
+    @get:Schema(description = "A cute welcoming message.")
     val message: String = "Welcome to the Admin API!",
 
+    @get:Schema(description = "URI that points to the Admin API documentation. This is a deprecated property since Admin APIs are not documented.", deprecated = true)
+    @Deprecated("Admin APIs are not documented. Scheduled to be removed in v0.5-nightly")
     @JsonProperty("docs_url")
     @SerialName("docs_url")
     val docsUrl: String = "https://charts.noelware.org/docs/server/${ChartedInfo.version}/api/admin"
@@ -52,6 +54,4 @@ class MainAdminRestController: RestController("/admin") {
     override suspend fun call(call: ApplicationCall) {
         call.respond(MainAdminResponse())
     }
-
-    override fun toPathDsl(): PathItem = TODO("admin endpoints shouldn't be in the OpenAPI document")
 }

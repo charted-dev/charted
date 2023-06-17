@@ -17,14 +17,11 @@
 
 package org.noelware.charted.modules.openapi
 
-import io.swagger.v3.oas.annotations.media.Schema
-
 /**
  * Dummy object for OpenAPI to resolve [Version][io.github.z4kn4fein.semver.Version] as a String
  */
-@Schema(
-    description = "Constraint that resolves to a Valid SemVer version string",
-    implementation = String::class,
-    pattern = """^v?(0|[1-9]\d*)(?:\.(0|[1-9]\d*))?(?:\.(0|[1-9]\d*))?(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$""",
+@Deprecated(
+    message = "Use the [org.noelware.charted.models.VersionConstraint] object instead.",
+    replaceWith = ReplaceWith("VersionConstraint", "org.noelware.charted.models.VersionConstraint"),
 )
 object VersionConstraint

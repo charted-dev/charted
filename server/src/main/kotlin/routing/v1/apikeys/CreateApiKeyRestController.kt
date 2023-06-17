@@ -22,11 +22,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import org.noelware.charted.common.TimeSpan
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.ApiKeys
 import org.noelware.charted.models.flags.ApiKeyScope
@@ -46,9 +42,6 @@ import org.noelware.charted.server.routing.RestController
 import org.noelware.charted.server.routing.openapi.ResourceDescription
 import org.noelware.charted.server.routing.openapi.describeResource
 import kotlin.reflect.typeOf
-import kotlin.time.Duration.Companion.days
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 
 class CreateApiKeyRestController(private val controller: ApiKeysDatabaseController): RestController("/apikeys", HttpMethod.Put) {
     override val apiVersion: APIVersion = APIVersion.V1
@@ -72,7 +65,7 @@ class CreateApiKeyRestController(private val controller: ApiKeysDatabaseControll
                     schema(
                         CreateApiKeyPayload(
                             "API key to automate some stuff!",
-                            TimeSpan.ofString("3 weeks"),
+                            null,
                             listOf("apikeys:create", "user:access"),
                             "some-api-key",
                         ),
@@ -88,7 +81,7 @@ class CreateApiKeyRestController(private val controller: ApiKeysDatabaseControll
                         ApiResponse.ok(
                             ApiKeys(
                                 "API key to automate some stuff!",
-                                Clock.System.now().plus(24.days.inWholeMilliseconds.toDuration(DurationUnit.MILLISECONDS)).toLocalDateTime(TimeZone.currentSystemDefault()),
+                                null,
                                 536870913,
                                 null,
                                 User(

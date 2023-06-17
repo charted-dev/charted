@@ -56,9 +56,8 @@ class DeleteOrganizationRestController(private val organizations: OrganizationDa
 
     companion object: ResourceDescription by describeResource("/organizations/{id}", {
         description = "Allows deleting an organization."
-
         delete {
-            description = "Deletes an organization resource"
+            description = "Allows deleting an organization."
 
             pathParameter {
                 description = "Snowflake ID of the organization resource to delete"

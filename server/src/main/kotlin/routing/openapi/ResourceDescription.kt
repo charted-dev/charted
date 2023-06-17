@@ -37,6 +37,12 @@ interface ResourceDescription {
     fun describe(): PathItem
 }
 
+/**
+ * Creates a new [ResourceDescription] object from a [path] and [dsl] object.
+ * @param path HTTP path that belongs to this resource description.
+ * @param dsl DSL object that is used to describe this resource in a Kotlin-idiomatic way.
+ * @return A new [ResourceDescription] object.
+ */
 fun describeResource(path: String, dsl: PathDslBuilder.() -> Unit): ResourceDescription = object: ResourceDescription {
     override val path: String = path
     override fun describe(): PathItem = toPaths(path, dsl)

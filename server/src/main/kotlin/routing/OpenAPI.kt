@@ -24,6 +24,8 @@ import org.noelware.charted.configuration.kotlin.dsl.Config
 import org.noelware.charted.configuration.kotlin.dsl.toApiBaseUrl
 import org.noelware.charted.models.NameSchema
 import org.noelware.charted.models.SnowflakeSchema
+import org.noelware.charted.models.openapi.schemas.BitfieldSchema
+import org.noelware.charted.models.openapi.schemas.VersionConstraintSchema
 import org.noelware.charted.modules.openapi.kotlin.dsl.ok
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
 import org.noelware.charted.modules.openapi.modelConverterContext
@@ -105,6 +107,10 @@ fun generateOpenAPIDocument(
 
 fun OpenAPI.registerSchemas() {
     for ((name, schema) in modelConverterContext.definedModels.entries.sortedBy { it.key }) {
+        if (name == "Bitfield") {
+            components.addSchemas("Bitfield", BitfieldSchema())
+        }
+
         if (name == "Name") {
             components.addSchemas("Name", NameSchema())
             continue
@@ -113,6 +119,10 @@ fun OpenAPI.registerSchemas() {
         if (name == "Snowflake") {
             components.addSchemas("Snowflake", SnowflakeSchema())
             continue
+        }
+
+        if (name == "VersionConstraint") {
+            components.addSchemas("VersionConstraint", VersionConstraintSchema())
         }
 
         components.addSchemas(name, schema)

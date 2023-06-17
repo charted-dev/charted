@@ -97,7 +97,7 @@ class CreateOrganizationRepositoryRestController(
                 description = "The [Repository] of the newly created repository."
 
                 json {
-                    schema<Repository>()
+                    schema<ApiResponse.Ok<Repository>>()
                 }
             }
         }

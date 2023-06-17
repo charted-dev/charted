@@ -21,7 +21,6 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.serialization.toJsonObject
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.modules.metrics.MetricsSupport
@@ -49,6 +48,4 @@ class AdminStatsRestController(private val metrics: MetricsSupport): RestControl
             ApiResponse.ok(stats.toJsonObject()),
         )
     }
-
-    override fun toPathDsl(): PathItem = TODO("admin endpoints shouldn't be in the OpenAPI document")
 }

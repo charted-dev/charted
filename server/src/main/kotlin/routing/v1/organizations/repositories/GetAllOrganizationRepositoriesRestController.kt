@@ -40,6 +40,7 @@ import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 import org.noelware.charted.server.routing.openapi.ResourceDescription
 import org.noelware.charted.server.routing.openapi.describeResource
+import kotlin.reflect.typeOf
 
 class GetAllOrganizationRepositoriesRestController(
     private val organizations: OrganizationDatabaseController,
@@ -86,7 +87,7 @@ class GetAllOrganizationRepositoriesRestController(
             ok {
                 description = "A list of repositories within this organization."
                 json {
-                    schema<List<Repository>>()
+                    schema(typeOf<ApiResponse.Ok<List<Repository>>>())
                 }
             }
         }

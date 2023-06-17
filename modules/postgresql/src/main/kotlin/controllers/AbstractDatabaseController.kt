@@ -18,6 +18,7 @@
 package org.noelware.charted.modules.postgresql.controllers
 
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.sql.Column
