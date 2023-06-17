@@ -1,0 +1,81 @@
+# 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+# Copyright 2022-2023 Noelware <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Generate OpenAPI spec.
+on:
+    workflow_dispatch: {}
+    push:
+        branches:
+            - main
+
+        paths-ignore:
+            - '.github/**'
+            - '.coder/**'
+            - '.vscode/**'
+            - 'assets/**'
+            - '.*ignore'
+            - '**.md'
+            - LICENSE
+            - renovate.json
+jobs:
+    openapi:
+        name: Generate spec.
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+              with:
+                  submodules: recursive
+
+            - name: Setup Java 20
+              uses: actions/setup-java@v3
+              with:
+                  java-version: 20.x
+                  distribution: temurin
+
+            - name: Setup Node.js 20
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 20.x
+
+            - name: Install Prettier
+              run: npm i -g prettier
+
+            - name: Setup Gradle
+              uses: gradle/gradle-build-action@v2
+
+            - name: Validate Gradle Wrapper
+              uses: gradle/wrapper-validation-action@v1
+
+            - name: Build project
+              uses: gradle/gradle-build-action@v2
+              with:
+                  arguments: :cli:installDist
+
+            - name: Generate OpenAPI document
+              run: |
+                  chmod +x ./cli/build/install/charted/bin/charted
+                  rm ./assets/openapi.json
+                  make charted openapi > ./assets/openapi.json
+                  prettier --config ./.prettierrc.json --write ./assets/openapi.json
+
+            - name: Commit!
+              uses: EndBug/add-and-commit@v9
+              with:
+                  author_name: Noel[bot]
+                  default_author: user_info
+                  author_email: noelbot@users.noreply.github.com
+                  message: '[skip ci] :sparkles: Update OpenAPI spec'
+                  push: true
