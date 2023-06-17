@@ -101,6 +101,17 @@
                 "externalDocs": {
                     "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/PUT-/users"
                 },
+                "requestBody": {
+                    "description": "Payload object to create this user",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateUserPayload"
+                            }
+                        }
+                    },
+                    "required": true
+                },
                 "responses": {
                     "201": {
                         "description": "User resource was successfully created",
@@ -211,7 +222,7 @@
                         "required": true,
                         "deprecated": false,
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/components/schemas/VersionConstraint"
                         }
                     }
                 ],
@@ -320,7 +331,7 @@
                         "required": true,
                         "deprecated": false,
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/components/schemas/VersionConstraint"
                         }
                     }
                 ],
@@ -350,10 +361,23 @@
                         "required": true,
                         "deprecated": false,
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/components/schemas/VersionConstraint"
                         }
                     }
                 ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchRepositoryReleasePayload"
+                            },
+                            "example": {
+                                "update_text": "# Hello, world?\n> Some markdown! :D"
+                            }
+                        }
+                    },
+                    "required": true
+                },
                 "responses": {
                     "401": {
                         "description": "If the authentication handler couldn't authorize successfully",
@@ -411,7 +435,6 @@
             }
         },
         "/organizations": {
-            "description": "Allows creating an organization.",
             "get": {
                 "description": "Generic entrypoint for the Repositories API",
                 "externalDocs": {
@@ -437,6 +460,22 @@
                 "description": "Creates an organization resource with the specified parameters.",
                 "externalDocs": {
                     "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/PUT-/organizations"
+                },
+                "requestBody": {
+                    "description": "Payload for creating an organization",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateOrganizationPayload"
+                            },
+                            "example": {
+                                "display_name": "Noelware, LLC.",
+                                "private": false,
+                                "name": "noelware"
+                            }
+                        }
+                    },
+                    "required": true
                 },
                 "responses": {
                     "401": {
@@ -637,10 +676,17 @@
                         "required": true,
                         "deprecated": false,
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/components/schemas/VersionConstraint"
                         }
                     }
                 ],
+                "requestBody": {
+                    "description": "multipart/form-data object with a file part being the actual tarball",
+                    "content": {
+                        "multipart/form-data": {}
+                    },
+                    "required": true
+                },
                 "responses": {
                     "401": {
                         "description": "If the authentication handler couldn't authorize successfully",
@@ -1239,6 +1285,21 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "description": "Payload for creating a repository release",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateRepositoryReleasePayload"
+                            },
+                            "example": {
+                                "update_text": "# 0.0.1-beta\nSome updates!",
+                                "tag": "0.0.1-beta"
+                            }
+                        }
+                    },
+                    "required": true
+                },
                 "responses": {
                     "401": {
                         "description": "If the authentication handler couldn't authorize successfully",
@@ -1413,6 +1474,21 @@
                 "externalDocs": {
                     "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/PUT-/apikeys"
                 },
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateApiKeyPayload"
+                            },
+                            "example": {
+                                "description": "API key to automate some stuff!",
+                                "scopes": ["apikeys:create", "user:access"],
+                                "name": "some-api-key"
+                            }
+                        }
+                    },
+                    "required": true
+                },
                 "responses": {
                     "401": {
                         "description": "If the authentication handler couldn't authorize successfully",
@@ -1463,7 +1539,6 @@
                                 "example": {
                                     "data": {
                                         "description": "API key to automate some stuff!",
-                                        "expires_in": "2023-07-11T07:40:36.471153166",
                                         "scopes": 536870913,
                                         "owner": {
                                             "verified_publisher": true,
@@ -1992,7 +2067,7 @@
                 }
             },
             "patch": {
-                "description": "Patches an API key resource with a given name or snowflake ID",
+                "description": "Patches an API key resource",
                 "externalDocs": {
                     "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/PATCH-/apikeys/{idOrName}"
                 },
@@ -2008,6 +2083,16 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchApiKeyPayload"
+                            }
+                        }
+                    },
+                    "required": true
+                },
                 "responses": {
                     "401": {
                         "description": "If the authentication handler couldn't authorize successfully",
@@ -2074,7 +2159,7 @@
         },
         "/organizations/{idOrName}": {
             "get": {
-                "description": "Grabs an organization resource by its ID or name.",
+                "description": "Retrieve an organization resource by its [NameOrSnowflake].",
                 "externalDocs": {
                     "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/organizations/{idOrName}"
                 },
@@ -2131,7 +2216,7 @@
                     {
                         "name": "idOrName",
                         "in": "path",
-                        "description": "Snowflake or Name of the user to search for",
+                        "description": "Parameter that can take [Name] or [Snowflake] as a way to identify this resource.",
                         "required": true,
                         "deprecated": false,
                         "schema": {
@@ -2139,6 +2224,21 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchOrganizationPayload"
+                            },
+                            "example": {
+                                "display_name": "awau!",
+                                "private": true,
+                                "name": "heck"
+                            }
+                        }
+                    },
+                    "required": true
+                },
                 "responses": {
                     "401": {
                         "description": "If the authentication handler couldn't authorize successfully",
@@ -2201,6 +2301,21 @@
                 "description": "Creates a long-lived session",
                 "externalDocs": {
                     "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/POST-/users/login"
+                },
+                "requestBody": {
+                    "description": "Payload object for user credentials",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserLoginPayload"
+                            },
+                            "example": {
+                                "username": "noel",
+                                "password": "a password that is probably not valid"
+                            }
+                        }
+                    },
+                    "required": true
                 },
                 "responses": {
                     "201": {
@@ -2366,6 +2481,14 @@
                 "description": "Upload a new avatar, this can be in a `multipart/form-data` content-type, or in a `text/plain` type with the image being base64 encoded",
                 "externalDocs": {
                     "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/POST-/users/@me/avatars"
+                },
+                "requestBody": {
+                    "description": "A multipart form-data of the image itself; if multiple parts were appended to this request, then all subsequent parts except the first one will be used. If this is a 'text/plain' request, then the server will only accept 'data:image/png;base64,<...>' as the body",
+                    "content": {
+                        "text/plain": {},
+                        "multipart/form-data": {}
+                    },
+                    "required": true
                 },
                 "responses": {
                     "202": {
@@ -2663,7 +2786,7 @@
         },
         "/users/{idOrName}/organizations": {
             "get": {
-                "description": "Returns all the organizations that a user owns",
+                "description": "Retrieves all of the user's organization.",
                 "externalDocs": {
                     "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/users/{idOrName}/organizations"
                 },
@@ -2671,7 +2794,7 @@
                     {
                         "name": "idOrName",
                         "in": "path",
-                        "description": "Snowflake or Name of the user to search for",
+                        "description": "Parameter that can take [Name] or [Snowflake] as a way to identify this resource.",
                         "required": true,
                         "deprecated": false,
                         "schema": {
@@ -2741,10 +2864,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Repository"
-                                    }
+                                    "$ref": "#/components/schemas/OkListRepository"
                                 }
                             }
                         }
@@ -2768,13 +2888,30 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateRepositoryPayload"
+                            },
+                            "example": {
+                                "description": "helm library to provide common stuff",
+                                "private": false,
+                                "readme": "# Hello, world!\n> we do magic stuff here~!",
+                                "name": "common",
+                                "type": "LIBRARY"
+                            }
+                        }
+                    },
+                    "required": true
+                },
                 "responses": {
                     "201": {
                         "description": "The [Repository] of the newly created repository.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Repository"
+                                    "$ref": "#/components/schemas/OkRepository"
                                 }
                             }
                         }
@@ -2787,6 +2924,23 @@
                 "description": "Creates a repository that is owned by the current authenticated user",
                 "externalDocs": {
                     "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/PUT-/users/@me/repositories"
+                },
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateRepositoryPayload"
+                            },
+                            "example": {
+                                "description": "helm library to provide common stuff",
+                                "private": false,
+                                "readme": "# Hello, world!\n> we do magic stuff here~!",
+                                "name": "common",
+                                "type": "LIBRARY"
+                            }
+                        }
+                    },
+                    "required": true
                 },
                 "responses": {
                     "401": {
@@ -3143,7 +3297,7 @@
         "/organizations/{id}": {
             "description": "Allows deleting an organization.",
             "delete": {
-                "description": "Deletes an organization resource",
+                "description": "Allows deleting an organization.",
                 "externalDocs": {
                     "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/DELETE-/organizations/{id}"
                 },
@@ -3298,33 +3452,41 @@
                 "type": "object",
                 "properties": {
                     "name": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "The name of the chart."
                     },
                     "version": {
-                        "type": "string"
+                        "$ref": "#/components/schemas/VersionConstraint"
                     },
                     "repository": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "The repository URL or alias"
                     },
                     "condition": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "YAML path that resolves to a Boolean, used for enabling/disabling charts."
                     },
                     "tags": {
                         "type": "array",
+                        "description": "Tags can be used to group charts for enabling/disabling together",
                         "items": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "Tags can be used to group charts for enabling/disabling together"
                         }
                     },
                     "import-values": {
                         "type": "array",
+                        "description": "ImportValues holds the mapping of source values to parent key to be imported. Each item can be a string or pair of child/parent sublist items.",
                         "items": {
                             "$ref": "#/components/schemas/StringOrImportValue"
                         }
                     },
                     "alias": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Alias to be used for the chart. Useful when you have to add the same chart multiple times"
                     }
-                }
+                },
+                "description": "In Helm, one chart may depend on any number of other charts. These dependencies can be dynamically linked using the dependencies' field in Chart.yaml or brought in to the charts/ directory and managed manually. The charts required by the current chart are defined as a list in the dependencies field."
             },
             "ChartIndexSpec": {
                 "required": [
@@ -3344,65 +3506,81 @@
                 "properties": {
                     "apiVersion": {
                         "type": "string",
+                        "description": "The apiVersion field should be v2 for Helm charts that require at least Helm 3. Charts supporting previous Helm versions have an apiVersion set to v1 and are still installable by Helm 3.",
                         "enum": ["v1", "v2"]
                     },
                     "name": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "The name of the chart"
                     },
                     "version": {
-                        "type": "string"
+                        "$ref": "#/components/schemas/VersionConstraint"
                     },
                     "kubeVersion": {
-                        "type": "string"
+                        "$ref": "#/components/schemas/VersionConstraint"
                     },
                     "description": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "A single-sentence description of this project"
                     },
                     "type": {
                         "type": "string",
+                        "description": "The type of the chart",
                         "enum": ["application", "library", "operator"]
                     },
                     "keywords": {
                         "type": "array",
+                        "description": "List of keywords about this project. These keywords can be searched via the Repository Search API if a search backend is enabled.",
                         "items": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "List of keywords about this project. These keywords can be searched via the Repository Search API if a search backend is enabled."
                         }
                     },
                     "home": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "The URL of this project's homepage."
                     },
                     "sources": {
                         "type": "array",
+                        "description": "A list of URLs to the source code for this project",
                         "items": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "A list of URLs to the source code for this project"
                         }
                     },
                     "dependencies": {
                         "type": "array",
+                        "description": "In Helm, one chart may depend on any number of other charts. These dependencies can be dynamically linked using the dependencies' field in Chart.yaml or brought in to the charts/ directory and managed manually. The charts required by the current chart are defined as a list in the dependencies field.",
                         "items": {
                             "$ref": "#/components/schemas/ChartDependency"
                         }
                     },
                     "maintainers": {
                         "type": "array",
+                        "description": "A list of name and URL/email address combinations for the maintainer(s)",
                         "items": {
                             "$ref": "#/components/schemas/ChartMaintainer"
                         }
                     },
                     "icon": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "A URL or an SVG or PNG image to be used as an icon"
                     },
                     "appVersion": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Note that the appVersion field is not related to the version field. It is a way of specifying the version of theapplication. For example, the drupal chart may have an appVersion: \"8.2.1\", indicating that the version of Drupalincluded in the chart (by default) is 8.2.1. This field is informational, and has no impact on chart version calculations.\nWrapping the version in quotes is highly recommended. It forces the YAML parser to treat the version number as a string.Leaving it unquoted can lead to parsing issues in some cases. For example, YAML interprets 1.0 as a floating point value,and a git commit SHA like 1234e10 as scientific notation."
                     },
                     "deprecated": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "When managing charts in a Chart Repository, it is sometimes necessary to deprecate a chart. The optional deprecated fieldin Chart.yaml can be used to mark a chart as deprecated. If the latest version of a chart in the repository is markedas deprecated, then the chart as a whole is considered to be deprecated.\nThe chart name can be later reused by publishing a newer version that is not marked as deprecated."
                     },
                     "annotations": {
                         "type": "object",
                         "additionalProperties": {
-                            "type": "string"
-                        }
+                            "type": "string",
+                            "description": "A list of annotations keyed by name and value."
+                        },
+                        "description": "A list of annotations keyed by name and value."
                     },
                     "urls": {
                         "type": "array",
@@ -3442,7 +3620,8 @@
                         "type": "string",
                         "format": "date"
                     }
-                }
+                },
+                "description": "The index file in a chart repository"
             },
             "ChartMaintainer": {
                 "required": ["name"],
@@ -3457,7 +3636,8 @@
                     "url": {
                         "type": "string"
                     }
-                }
+                },
+                "description": "Name and URL/email address combination as a maintainer. The `name` can be a [NameOrSnowflake] to reference a maintainer in the Hoshi UI."
             },
             "ChartSpec": {
                 "required": [
@@ -3475,67 +3655,84 @@
                 "properties": {
                     "apiVersion": {
                         "type": "string",
+                        "description": "The apiVersion field should be v2 for Helm charts that require at least Helm 3. Charts supporting previous Helm versions have an apiVersion set to v1 and are still installable by Helm 3.",
                         "enum": ["v1", "v2"]
                     },
                     "name": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "The name of the chart"
                     },
                     "version": {
-                        "type": "string"
+                        "$ref": "#/components/schemas/VersionConstraint"
                     },
                     "kubeVersion": {
-                        "type": "string"
+                        "$ref": "#/components/schemas/VersionConstraint"
                     },
                     "description": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "A single-sentence description of this project"
                     },
                     "type": {
                         "type": "string",
+                        "description": "The type of the chart",
                         "enum": ["application", "library", "operator"]
                     },
                     "keywords": {
                         "type": "array",
+                        "description": "List of keywords about this project. These keywords can be searched via the Repository Search API if a search backend is enabled.",
                         "items": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "List of keywords about this project. These keywords can be searched via the Repository Search API if a search backend is enabled."
                         }
                     },
                     "home": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "The URL of this project's homepage."
                     },
                     "sources": {
                         "type": "array",
+                        "description": "A list of URLs to the source code for this project",
                         "items": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "A list of URLs to the source code for this project"
                         }
                     },
                     "dependencies": {
                         "type": "array",
+                        "description": "In Helm, one chart may depend on any number of other charts. These dependencies can be dynamically linked using the dependencies' field in Chart.yaml or brought in to the charts/ directory and managed manually. The charts required by the current chart are defined as a list in the dependencies field.",
                         "items": {
                             "$ref": "#/components/schemas/ChartDependency"
                         }
                     },
                     "maintainers": {
                         "type": "array",
+                        "description": "A list of name and URL/email address combinations for the maintainer(s)",
                         "items": {
                             "$ref": "#/components/schemas/ChartMaintainer"
                         }
                     },
                     "icon": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "A URL or an SVG or PNG image to be used as an icon"
                     },
                     "appVersion": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Note that the appVersion field is not related to the version field. It is a way of specifying the version of theapplication. For example, the drupal chart may have an appVersion: \"8.2.1\", indicating that the version of Drupalincluded in the chart (by default) is 8.2.1. This field is informational, and has no impact on chart version calculations.\nWrapping the version in quotes is highly recommended. It forces the YAML parser to treat the version number as a string.Leaving it unquoted can lead to parsing issues in some cases. For example, YAML interprets 1.0 as a floating point value,and a git commit SHA like 1234e10 as scientific notation."
                     },
                     "deprecated": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "When managing charts in a Chart Repository, it is sometimes necessary to deprecate a chart. The optional deprecated fieldin Chart.yaml can be used to mark a chart as deprecated. If the latest version of a chart in the repository is markedas deprecated, then the chart as a whole is considered to be deprecated.\nThe chart name can be later reused by publishing a newer version that is not marked as deprecated."
                     },
                     "annotations": {
                         "type": "object",
                         "additionalProperties": {
-                            "type": "string"
-                        }
+                            "type": "string",
+                            "description": "A list of annotations keyed by name and value."
+                        },
+                        "description": "A list of annotations keyed by name and value."
                     }
-                }
+                },
+                "description": "Represents a `Chart.yaml` definition object."
             },
             "CreateApiKeyPayload": {
                 "required": ["name", "scopes"],
@@ -3810,14 +4007,13 @@
             },
             "NameOrSnowflake": {
                 "type": "object",
-                "description": "Represents a value that handles Name and Snowflake parameters",
+                "description": "Union discriminated type that can resolve a valid `Snowflake`, or a `Name` that can safely point to a user, organization, or repository",
                 "oneOf": [
                     {
-                        "type": "string"
+                        "$ref": "#/components/schemas/Snowflake"
                     },
                     {
-                        "type": "integer",
-                        "format": "int64"
+                        "$ref": "#/components/schemas/Name"
                     }
                 ]
             },
@@ -4083,40 +4279,46 @@
                         "description": "Whether if this organization is a verified publisher on this instance"
                     },
                     "twitter_handle": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Twitter handle for this organization that will probably lead to a valid Twitter account."
                     },
                     "gravatar_email": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Valid email address that points to a Gravatar avatar, or `null` if it shouldn't use one as the primary avatar"
                     },
                     "display_name": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Display name for this organization. It should be formatted as '{display_name} (@{name})'or just '{name}' in applications that use the API and the default formatting that Hoshi uses"
                     },
                     "created_at": {
                         "type": "string",
+                        "description": "Date of when this organization was registered to this instance",
                         "format": "date-time"
                     },
                     "updated_at": {
                         "type": "string",
+                        "description": "Date of when the server has last updated this organization",
                         "format": "date-time"
                     },
                     "icon_hash": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Unique hash to locate an organization's icon, this also includes the extension that this icon is, i.e, `png`."
                     },
                     "private": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "description": "Whether this organization is private and only its member can access this resource."
                     },
                     "owner": {
                         "$ref": "#/components/schemas/User"
                     },
                     "name": {
-                        "type": "string"
+                        "$ref": "#/components/schemas/Name"
                     },
                     "id": {
-                        "type": "integer",
-                        "format": "int64"
+                        "$ref": "#/components/schemas/Snowflake"
                     }
                 },
-                "description": "Data that is sent out to the recipient, this can be any unstructured object that is returned from the API, or `null` if none is present."
+                "description": "Represents a unified organization that can own and manage repositories. An \"organization\" in the API server is used as a business that houses multiple Helm projects."
             },
             "PatchApiKeyPayload": {
                 "required": ["scopes"],
@@ -4179,7 +4381,7 @@
                     },
                     "deprecated": {
                         "type": "boolean",
-                        "description": "Whether if this repository is deprecated"
+                        "description": "Whether if this repository is or not"
                     },
                     "created_at": {
                         "type": "string",
@@ -4220,25 +4422,27 @@
                 "type": "object",
                 "properties": {
                     "update_text": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Markdown-formatted string that contains a changelog of this release."
                     },
                     "created_at": {
                         "type": "string",
+                        "description": "Date-time of when this repository release resource was created at.",
                         "format": "date-time"
                     },
                     "updated_at": {
                         "type": "string",
+                        "description": "Date-time of when this repository release was last updated at.",
                         "format": "date-time"
                     },
                     "tag": {
-                        "type": "string"
+                        "$ref": "#/components/schemas/VersionConstraint"
                     },
                     "id": {
-                        "type": "integer",
-                        "format": "int64"
+                        "$ref": "#/components/schemas/Snowflake"
                     }
                 },
-                "description": "Data that is sent out to the recipient, this can be any unstructured object that is returned from the API, or `null` if none is present."
+                "description": "Represents a Repository Release resource. Releases are a way to group Helm chart versions as a singular tag that can be fetched from the API server.\nAny repository can have an unlimited amount of tags, but tags cannot clash into each other, so there is no more than release tag per release. Each tag has to be a SemVer 2 comformant string and is validated by the API server."
             },
             "Session": {
                 "required": ["access_token", "refresh_token", "session_id", "user_id"],
@@ -4269,6 +4473,7 @@
             },
             "StringOrImportValue": {
                 "type": "object",
+                "description": "ImportValues holds the mapping of source values to parent key to be imported. Each item can be a string or pair of child/parent sublist items.",
                 "oneOf": [
                     {
                         "type": "string"
@@ -4292,7 +4497,7 @@
                     },
                     "gravatar_email": {
                         "type": "string",
-                        "description": "Valid email address that points to an Gravatar avatar, or `null` if it shouldn't use one as the primary avatar"
+                        "description": "Valid email address that points to a Gravatar avatar, or `null` if it shouldn't use one as the primary avatar"
                     },
                     "description": {
                         "type": "string",
@@ -4346,6 +4551,10 @@
                         "description": "Email to authenticate a user as, this is mutually exclusive with `username`."
                     }
                 }
+            },
+            "VersionConstraint": {
+                "type": "object",
+                "description": "The version of the chart."
             }
         },
         "securitySchemes": {
