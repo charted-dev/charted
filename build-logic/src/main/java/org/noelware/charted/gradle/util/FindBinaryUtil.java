@@ -83,6 +83,7 @@ public class FindBinaryUtil {
                         located.getName().equalsIgnoreCase(binary));
 
                 if (located.getName().equalsIgnoreCase(binary)) {
+                    LOG.lifecycle("Located binary '{}' ~> {}", binary, located.getAbsolutePath());
                     return located.getAbsolutePath();
                 }
             }

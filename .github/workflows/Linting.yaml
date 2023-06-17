@@ -85,7 +85,7 @@ jobs:
                   repo-token: ${{secrets.GITHUB_TOKEN}}
 
             - name: Update GitHub env
-              run: echo "CHARTED_PROTOC=${{steps.protoc.outputs.binary}}" >> $GITHUB_ENV
+              run: echo "CHARTED_PROTOC_PATH=${{steps.protoc.outputs.binary}}" >> $GITHUB_ENV
 
             - name: Setup Gradle
               uses: gradle/gradle-build-action@v2

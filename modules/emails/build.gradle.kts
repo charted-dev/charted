@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+import org.noelware.charted.gradle.util.FindBinaryUtil
 import com.google.protobuf.gradle.*
 import de.undercouch.gradle.tasks.download.Download
 
@@ -42,7 +43,7 @@ dependencies {
 
 tasks {
     create<Download>("downloadProtos") {
-        overwrite(false)
+        overwrite(true)
         dest(file("$projectDir/src/main/proto/emails.proto"))
         src("https://raw.githubusercontent.com/charted-dev/email-service/main/protos/emails.proto")
     }
@@ -103,8 +104,18 @@ protobuf {
     protoc {
         val protocPath = System.getenv("CHARTED_PROTOC_PATH")
         if (protocPath != null) {
+            logger.lifecycle("Found `CHARTED_PROTOC_PATH` environment variable! Using [$protocPath] as the `protoc` binary path")
             path = protocPath
-        } else {
+        }
+
+        val protocBinary = FindBinaryUtil.find("protoc")
+        if (path == null && protocBinary != null) {
+            logger.lifecycle("Found `protoc` binary from system \$PATH! Using [$protocBinary] as the `protoc` binary path")
+            path = protocBinary
+        }
+
+        if (path == null) {
+            logger.lifecycle("Using `protoc` binary from Maven artifact [com.google.protobuf:protoc]. Releases from this are very un-deterministic and might not be available on Maven, so please install `protoc` on the host machine.")
             artifact = "com.google.protobuf:protoc:3.23.2"
         }
     }
