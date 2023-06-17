@@ -1463,7 +1463,7 @@
                                 "example": {
                                     "data": {
                                         "description": "API key to automate some stuff!",
-                                        "expires_in": "2023-07-11T05:33:20.388348790",
+                                        "expires_in": "2023-07-11T07:40:36.471153166",
                                         "scopes": 536870913,
                                         "owner": {
                                             "verified_publisher": true,
