@@ -22,7 +22,6 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
 import org.jetbrains.exposed.dao.id.EntityID
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.configuration.kotlin.dsl.Config
@@ -32,7 +31,6 @@ import org.noelware.charted.models.repositories.RepositoryRelease
 import org.noelware.charted.modules.openapi.kotlin.dsl.json
 import org.noelware.charted.modules.openapi.kotlin.dsl.ok
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.get
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.repositories.releases.RepositoryReleaseDatabaseController
@@ -45,6 +43,8 @@ import org.noelware.charted.server.plugins.sessions.preconditions.canAccessRepos
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 import kotlinx.datetime.LocalDateTime
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 import kotlin.reflect.typeOf
 
 class GetAllRepositoryReleasesRestController(
@@ -79,7 +79,7 @@ class GetAllRepositoryReleasesRestController(
         call.respond(HttpStatusCode.OK, ApiResponse.ok(releases))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/repositories/{id}/releases") {
+    companion object: ResourceDescription by describeResource("/repositories/{id}/releases", {
         get {
             description = "Retrieve all repository releases"
 
@@ -108,5 +108,5 @@ class GetAllRepositoryReleasesRestController(
                 }
             }
         }
-    }
+    })
 }

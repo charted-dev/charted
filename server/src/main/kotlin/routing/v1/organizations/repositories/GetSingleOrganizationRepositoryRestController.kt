@@ -22,15 +22,12 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
 import org.jetbrains.exposed.sql.and
 import org.noelware.charted.common.extensions.regexp.matchesRepoNameAndIdRegex
 import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.models.NameOrSnowflake
 import org.noelware.charted.models.repositories.Repository
-import org.noelware.charted.modules.openapi.NameOrSnowflake
-import org.noelware.charted.modules.openapi.kotlin.dsl.idOrName
-import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.openapi.kotlin.dsl.*
 import org.noelware.charted.modules.postgresql.controllers.getByIdOrNameOrNull
 import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
@@ -43,7 +40,8 @@ import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.plugins.sessions.preconditions.canAccessOrganization
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
-import kotlin.reflect.typeOf
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 
 class GetSingleOrganizationRepositoryRestController(
     private val organizations: OrganizationDatabaseController,
@@ -106,31 +104,33 @@ class GetSingleOrganizationRepositoryRestController(
         call.respond(HttpStatusCode.OK, ApiResponse.ok(Repository.fromEntity(repo)))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/organizations/{idOrName}/repositories/{repoIdOrName}") {
+    companion object: ResourceDescription by describeResource("/organizations/{idOrName}/repositories/{repoIdOrName}", {
+        description = "Fetches a single repository from an organization."
         get {
-            description = "Fetch a single repository from an organization"
+            description = "Fetches a single repository from the given organization based on its name or ID."
 
             idOrName()
             pathParameter {
-                description = "Name or Snowflake to query a repository"
+                description = "The [Name] or [Snowflake] ID of the repository being queried."
                 name = "repoIdOrName"
 
                 schema<NameOrSnowflake>()
             }
 
             addAuthenticationResponses()
-            response(HttpStatusCode.OK) {
-                contentType(ContentType.Application.Json) {
-                    schema(typeOf<ApiResponse.Ok<List<Repository>>>(), ApiResponse.ok(listOf<Repository>()))
+            ok {
+                description = "The metadata of this [Repository]."
+                json {
+                    schema<Repository>()
                 }
             }
 
-            response(HttpStatusCode.NotFound) {
-                description = "if a organization or repository couldn't be found"
-                contentType(ContentType.Application.Json) {
+            notFound {
+                description = "Organization or repository doesn't exist"
+                json {
                     schema<ApiResponse.Err>()
                 }
             }
         }
-    }
+    })
 }

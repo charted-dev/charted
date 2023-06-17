@@ -23,12 +23,13 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.models.NameOrSnowflake
 import org.noelware.charted.models.flags.ApiKeyScope
-import org.noelware.charted.modules.openapi.NameOrSnowflake
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
+import org.noelware.charted.modules.openapi.kotlin.dsl.notFound
+import org.noelware.charted.modules.openapi.kotlin.dsl.ok
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.get
 import org.noelware.charted.modules.postgresql.controllers.getByIdOrNameOrNull
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
@@ -41,6 +42,8 @@ import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.plugins.sessions.preconditions.canEditMetadata
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 
 class PatchUserRepositoryRestController(
     private val controller: RepositoryDatabaseController,
@@ -72,7 +75,7 @@ class PatchUserRepositoryRestController(
         }
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/users/{idOrName}/repositories/{id}") {
+    companion object: ResourceDescription by describeResource("/users/{idOrName}/repositories/{id}", {
         patch {
             pathParameter {
                 name = "idOrName"
@@ -85,17 +88,17 @@ class PatchUserRepositoryRestController(
             }
 
             addAuthenticationResponses()
-            response(HttpStatusCode.OK) {
-                contentType(ContentType.Application.Json) {
+            ok {
+                json {
                     schema(ApiResponse.ok())
                 }
             }
 
-            response(HttpStatusCode.NotFound) {
-                contentType(ContentType.Application.Json) {
+            notFound {
+                json {
                     schema<ApiResponse.Err>()
                 }
             }
         }
-    }
+    })
 }

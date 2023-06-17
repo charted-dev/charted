@@ -21,11 +21,11 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.ApiKeys
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
+import org.noelware.charted.modules.openapi.kotlin.dsl.ok
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.apikeys.ApiKeysDatabaseController
 import org.noelware.charted.modules.postgresql.tables.ApiKeyTable
 import org.noelware.charted.server.extensions.addAuthenticationResponses
@@ -33,6 +33,8 @@ import org.noelware.charted.server.extensions.currentUserEntity
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 
 class GetApiKeysRestController(private val controller: ApiKeysDatabaseController): RestController("/apikeys") {
     override val apiVersion: APIVersion = APIVersion.V1
@@ -45,16 +47,16 @@ class GetApiKeysRestController(private val controller: ApiKeysDatabaseController
         call.respond(HttpStatusCode.OK, ApiResponse.ok(keys))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/apikeys") {
+    companion object: ResourceDescription by describeResource("/apikeys", {
         get {
             description = "Returns all of the API key resources created by the current authenticated user"
 
             addAuthenticationResponses()
-            response(HttpStatusCode.OK) {
-                contentType(ContentType.Application.Json) {
-                    schema<ApiResponse.Ok<List<ApiKeys>>>()
+            ok {
+                json {
+                    schema<List<ApiKeys>>()
                 }
             }
         }
-    }
+    })
 }

@@ -22,11 +22,12 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope.Repositories
+import org.noelware.charted.modules.openapi.kotlin.dsl.accepted
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.openapi.kotlin.dsl.unprocessableEntity
 import org.noelware.charted.modules.postgresql.controllers.get
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
 import org.noelware.charted.server.extensions.addAuthenticationResponses
@@ -35,6 +36,8 @@ import org.noelware.charted.server.plugins.sessions.preconditions.canAccessRepos
 import org.noelware.charted.server.plugins.sessions.preconditions.canDeleteMetadata
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 
 class DeleteRepositoryRestController(private val controller: RepositoryDatabaseController): RestController("/repositories/{id}", HttpMethod.Delete) {
     override val apiVersion: APIVersion = APIVersion.V1
@@ -67,7 +70,7 @@ class DeleteRepositoryRestController(private val controller: RepositoryDatabaseC
         call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/repositories/{id}") {
+    companion object: ResourceDescription by describeResource("/repositories/{id}", {
         delete {
             description = "Deletes a repository"
 
@@ -79,16 +82,16 @@ class DeleteRepositoryRestController(private val controller: RepositoryDatabaseC
             }
 
             addAuthenticationResponses()
-            response(HttpStatusCode.Accepted) {
+            accepted {
                 description = "The repository was deleted successfully"
-                contentType(ContentType.Application.Json) {
+                json {
                     schema(ApiResponse.ok())
                 }
             }
 
-            response(HttpStatusCode.UnprocessableEntity) {
+            unprocessableEntity {
                 description = "If the `id` path parameter couldn't be into a valid Snowflake"
-                contentType(ContentType.Application.Json) {
+                json {
                     schema(
                         ApiResponse.err(
                             "UNABLE_TO_PARSE",
@@ -98,5 +101,5 @@ class DeleteRepositoryRestController(private val controller: RepositoryDatabaseC
                 }
             }
         }
-    }
+    })
 }

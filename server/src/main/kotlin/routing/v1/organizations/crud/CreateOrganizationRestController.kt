@@ -22,15 +22,15 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.swagger.v3.oas.models.PathItem
 import kotlinx.datetime.LocalDateTime
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope
 import org.noelware.charted.models.organizations.Organization
 import org.noelware.charted.models.users.User
 import org.noelware.charted.modules.helm.charts.HelmChartModule
+import org.noelware.charted.modules.openapi.kotlin.dsl.accepted
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.organizations.CreateOrganizationPayload
 import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationDatabaseController
 import org.noelware.charted.modules.search.SearchModule
@@ -38,6 +38,8 @@ import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 
 class CreateOrganizationRestController(
     private val organizations: OrganizationDatabaseController,
@@ -60,13 +62,16 @@ class CreateOrganizationRestController(
         call.respond(HttpStatusCode.Created, ApiResponse.ok(org))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/organizations") {
+    companion object: ResourceDescription by describeResource("/organizations", {
+        description = "Allows creating an organization."
+
         put {
-            description = "Creates an organization resource"
+            description = "Creates an organization resource with the specified parameters."
 
             requestBody {
                 description = "Payload for creating an organization"
-                contentType(ContentType.Application.Json) {
+
+                json {
                     schema(
                         CreateOrganizationPayload(
                             "Noelware, LLC.",
@@ -78,9 +83,10 @@ class CreateOrganizationRestController(
             }
 
             addAuthenticationResponses()
-            response(HttpStatusCode.Accepted) {
-                description = "Created organization resource"
-                contentType(ContentType.Application.Json) {
+            accepted {
+                description = "Returns the created organization resource."
+
+                json {
                     schema(
                         Organization(
                             true,
@@ -110,5 +116,5 @@ class CreateOrganizationRestController(
                 }
             }
         }
-    }
+    })
 }

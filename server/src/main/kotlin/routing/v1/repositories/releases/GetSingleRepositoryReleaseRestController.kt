@@ -24,7 +24,6 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.and
 import org.noelware.charted.common.types.responses.ApiResponse
@@ -33,8 +32,10 @@ import org.noelware.charted.configuration.kotlin.dsl.features.ExperimentalFeatur
 import org.noelware.charted.configuration.kotlin.dsl.features.Feature
 import org.noelware.charted.models.repositories.RepositoryRelease
 import org.noelware.charted.modules.openapi.VersionConstraint
+import org.noelware.charted.modules.openapi.kotlin.dsl.badRequest
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
+import org.noelware.charted.modules.openapi.kotlin.dsl.ok
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.get
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.repositories.releases.RepositoryReleaseDatabaseController
@@ -46,6 +47,8 @@ import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.plugins.sessions.preconditions.canAccessRepository
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 
 class GetSingleRepositoryReleaseRestController(
     private val repositories: RepositoryDatabaseController,
@@ -101,7 +104,7 @@ class GetSingleRepositoryReleaseRestController(
         call.respond(HttpStatusCode.OK, ApiResponse.ok(RepositoryRelease.fromEntity(release)))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/repositories/{id}/releases/{version}") {
+    companion object: ResourceDescription by describeResource("/repositories/{id}/releases/{version}", {
         get {
             description = "Retrieve a single repository release resource"
 
@@ -120,8 +123,8 @@ class GetSingleRepositoryReleaseRestController(
             }
 
             addAuthenticationResponses()
-            response(HttpStatusCode.OK) {
-                contentType(ContentType.Application.Json) {
+            ok {
+                json {
                     schema(
                         ApiResponse.ok(
                             RepositoryRelease(
@@ -136,9 +139,9 @@ class GetSingleRepositoryReleaseRestController(
                 }
             }
 
-            response(HttpStatusCode.BadRequest) {
+            badRequest {
                 description = "Invalid SemVer version"
-                contentType(ContentType.Application.Json) {
+                json {
                     schema(
                         ApiResponse.err(
                             "INVALID_SEMVER",
@@ -148,5 +151,5 @@ class GetSingleRepositoryReleaseRestController(
                 }
             }
         }
-    }
+    })
 }

@@ -21,13 +21,10 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.extensions.regexp.matchesNameAndIdRegex
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.users.User
-import org.noelware.charted.modules.openapi.NameOrSnowflake
 import org.noelware.charted.modules.openapi.kotlin.dsl.*
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.EntityNotFoundException
 import org.noelware.charted.modules.postgresql.controllers.get
 import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
@@ -72,38 +69,6 @@ class GetUserRestController(private val controller: UserDatabaseController): Res
                     "Provided idOrName parameter by request was not a valid snowflake or username.",
                 ),
             )
-        }
-    }
-
-    override fun toPathDsl(): PathItem = toPaths("/users/{idOrName}") {
-        get {
-            description = "Retrieves a user from the database"
-            pathParameter {
-                description = "The snowflake or username to use"
-                name = "idOrName"
-
-                schema<NameOrSnowflake>()
-            }
-
-            ok {
-                json {
-                    schema<ApiResponse.Ok<User>>()
-                }
-            }
-
-            badRequest {
-                description = "If the provided idOrName parameter wasn't a snowflake or username"
-                json {
-                    schema<ApiResponse.Err>()
-                }
-            }
-
-            notFound {
-                description = "If a user by the idOrName parameter was not found"
-                json {
-                    schema<ApiResponse.Err>()
-                }
-            }
         }
     }
 

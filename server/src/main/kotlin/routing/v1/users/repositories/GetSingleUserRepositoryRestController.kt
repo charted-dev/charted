@@ -22,14 +22,15 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
 import org.jetbrains.exposed.sql.and
 import org.noelware.charted.common.extensions.regexp.matchesRepoNameAndIdRegex
 import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.models.NameOrSnowflake
 import org.noelware.charted.models.repositories.Repository
-import org.noelware.charted.modules.openapi.NameOrSnowflake
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
+import org.noelware.charted.modules.openapi.kotlin.dsl.notFound
+import org.noelware.charted.modules.openapi.kotlin.dsl.ok
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.getByIdOrNameOrNull
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
@@ -41,6 +42,8 @@ import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 import kotlin.reflect.typeOf
 
 class GetSingleUserRepositoryRestController(
@@ -102,7 +105,7 @@ class GetSingleUserRepositoryRestController(
         call.respond(HttpStatusCode.OK, ApiResponse.ok(Repository.fromEntity(repo)))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/users/{idOrName}/repositories/{repoIdOrName}") {
+    companion object: ResourceDescription by describeResource("/users/{idOrName}/repositories/{repoIdOrName}", {
         get {
             description = "Fetch a single repository from a user"
 
@@ -121,18 +124,18 @@ class GetSingleUserRepositoryRestController(
             }
 
             addAuthenticationResponses()
-            response(HttpStatusCode.OK) {
-                contentType(ContentType.Application.Json) {
+            ok {
+                json {
                     schema(typeOf<ApiResponse.Ok<List<Repository>>>(), ApiResponse.ok(listOf<Repository>()))
                 }
             }
 
-            response(HttpStatusCode.NotFound) {
+            notFound {
                 description = "if a user or repository couldn't be found"
-                contentType(ContentType.Application.Json) {
+                json {
                     schema<ApiResponse.Err>()
                 }
             }
         }
-    }
+    })
 }

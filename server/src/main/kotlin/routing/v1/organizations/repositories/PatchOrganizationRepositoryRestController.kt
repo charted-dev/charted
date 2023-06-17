@@ -23,12 +23,9 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope
-import org.noelware.charted.modules.openapi.kotlin.dsl.idOrName
-import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.openapi.kotlin.dsl.*
 import org.noelware.charted.modules.postgresql.controllers.get
 import org.noelware.charted.modules.postgresql.controllers.getByIdOrNameOrNull
 import org.noelware.charted.modules.postgresql.controllers.organizations.OrganizationDatabaseController
@@ -43,6 +40,8 @@ import org.noelware.charted.server.plugins.sessions.preconditions.canAccessRepos
 import org.noelware.charted.server.plugins.sessions.preconditions.canEditMetadata
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 
 class PatchOrganizationRepositoryRestController(
     private val controller: RepositoryDatabaseController,
@@ -77,26 +76,31 @@ class PatchOrganizationRepositoryRestController(
         }
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/organizations/{idOrName}/repositories/{id}") {
+    companion object: ResourceDescription by describeResource("/organizations/{idOrName}/repositories/{id}", {
+        description = "Allows updating a repository based on its ID."
+
         patch {
+            description = "Updates an organization's repository based on its ID."
             idOrName()
             pathParameter {
+                description = "The [Snowflake] ID of the repository being queried."
                 name = "id"
+
                 schema<Long>()
             }
 
             addAuthenticationResponses()
-            response(HttpStatusCode.OK) {
-                contentType(ContentType.Application.Json) {
+            ok {
+                json {
                     schema(ApiResponse.ok())
                 }
             }
 
-            response(HttpStatusCode.NotFound) {
-                contentType(ContentType.Application.Json) {
+            notFound {
+                json {
                     schema<ApiResponse.Err>()
                 }
             }
         }
-    }
+    })
 }

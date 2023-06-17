@@ -22,12 +22,9 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.ApiKeys
-import org.noelware.charted.modules.openapi.kotlin.dsl.idOrName
-import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.openapi.kotlin.dsl.*
 import org.noelware.charted.modules.postgresql.controllers.apikeys.ApiKeysDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.getByIdOrNameOrNull
 import org.noelware.charted.modules.postgresql.tables.ApiKeyTable
@@ -35,6 +32,8 @@ import org.noelware.charted.server.extensions.addAuthenticationResponses
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 
 class GetSingleApiKeyRestController(private val controller: ApiKeysDatabaseController): RestController("/apikeys/{idOrName}") {
     override val apiVersion: APIVersion = APIVersion.V1
@@ -55,20 +54,20 @@ class GetSingleApiKeyRestController(private val controller: ApiKeysDatabaseContr
         call.respond(HttpStatusCode.OK, ApiResponse.ok(apikey))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/apikeys/{idOrName}") {
+    companion object: ResourceDescription by describeResource("/apikeys/{idOrName}", {
         get {
             description = "Returns a single API key resource owned by the current authenticated user"
 
             idOrName()
             addAuthenticationResponses()
-            response(HttpStatusCode.OK) {
-                contentType(ContentType.Application.Json) {
-                    schema<ApiResponse.Ok<ApiKeys>>()
+            ok {
+                json {
+                    schema<ApiKeys>()
                 }
             }
 
-            response(HttpStatusCode.NotFound) {
-                contentType(ContentType.Application.Json) {
+            notFound {
+                json {
                     schema(
                         ApiResponse.err(
                             "API_KEY_NOT_FOUND",
@@ -78,5 +77,5 @@ class GetSingleApiKeyRestController(private val controller: ApiKeysDatabaseContr
                 }
             }
         }
-    }
+    })
 }

@@ -20,15 +20,17 @@ package org.noelware.charted.server.routing.v1.repositories
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
-import io.swagger.v3.oas.models.PathItem
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.noelware.charted.ChartedInfo
 import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
+import org.noelware.charted.modules.openapi.kotlin.dsl.ok
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 import kotlin.reflect.typeOf
 
 @Serializable
@@ -42,11 +44,11 @@ data class MainRepositoryResponse(
 class MainRepositoryRestController: RestController("/repositories") {
     override val apiVersion: APIVersion = APIVersion.V1
     override suspend fun call(call: ApplicationCall): Unit = call.respond(HttpStatusCode.OK, ApiResponse.ok(MainRepositoryResponse()))
-    override fun toPathDsl(): PathItem = toPaths("/repositories") {
+    companion object: ResourceDescription by describeResource("/repositories", {
         get {
             description = "Generic entrypoint for the Repositories API"
-            response(HttpStatusCode.OK) {
-                contentType(ContentType.Application.Json) {
+            ok {
+                json {
                     // type information get lost when using ApiResponse.ok() since
                     // ApiResponse.ok([data]) returns ApiResponse, so it gets lost.
                     schema(
@@ -58,5 +60,5 @@ class MainRepositoryRestController: RestController("/repositories") {
                 }
             }
         }
-    }
+    })
 }

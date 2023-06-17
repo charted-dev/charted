@@ -22,16 +22,13 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
 import org.jetbrains.exposed.sql.and
 import org.noelware.charted.StringOverflowException
 import org.noelware.charted.ValidationException
 import org.noelware.charted.common.extensions.regexp.matchesNameAndIdRegex
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.flags.ApiKeyScope
-import org.noelware.charted.modules.openapi.kotlin.dsl.idOrName
-import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
+import org.noelware.charted.modules.openapi.kotlin.dsl.*
 import org.noelware.charted.modules.postgresql.controllers.apikeys.ApiKeysDatabaseController
 import org.noelware.charted.modules.postgresql.tables.ApiKeyTable
 import org.noelware.charted.server.extensions.addAuthenticationResponses
@@ -39,6 +36,8 @@ import org.noelware.charted.server.extensions.currentUserEntity
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 
 class DeleteApiKeyController(private val controller: ApiKeysDatabaseController): RestController("/apikeys/{idOrName}", HttpMethod.Delete) {
     override val apiVersion: APIVersion = APIVersion.V1
@@ -88,22 +87,22 @@ class DeleteApiKeyController(private val controller: ApiKeysDatabaseController):
         call.respond(HttpStatusCode.Accepted, ApiResponse.ok())
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/apikeys/{idOrName}") {
+    companion object: ResourceDescription by describeResource("/apikeys/{idOrName}", {
         delete {
             description = "Deletes an API key resource off the current authenticated user's account"
 
             idOrName()
             addAuthenticationResponses()
-            response(HttpStatusCode.Accepted) {
+            accepted {
                 description = "API key resource was deleted"
-                contentType(ContentType.Application.Json) {
+                json {
                     schema(ApiResponse.ok())
                 }
             }
 
-            response(HttpStatusCode.NotFound) {
+            notFound {
                 description = "API key resource with name or ID was not found"
-                contentType(ContentType.Application.Json) {
+                json {
                     schema(
                         ApiResponse.err(
                             "API_KEY_NOT_FOUND",
@@ -113,5 +112,5 @@ class DeleteApiKeyController(private val controller: ApiKeysDatabaseController):
                 }
             }
         }
-    }
+    })
 }

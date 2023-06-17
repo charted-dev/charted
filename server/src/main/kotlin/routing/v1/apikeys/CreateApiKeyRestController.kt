@@ -22,7 +22,6 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.swagger.v3.oas.models.PathItem
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -32,8 +31,9 @@ import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.models.ApiKeys
 import org.noelware.charted.models.flags.ApiKeyScope
 import org.noelware.charted.models.users.User
+import org.noelware.charted.modules.openapi.kotlin.dsl.created
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.apikeys.ApiKeysDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.apikeys.CreateApiKeyPayload
 import org.noelware.charted.modules.postgresql.ktor.UserEntityAttributeKey
@@ -43,6 +43,8 @@ import org.noelware.charted.server.extensions.putAndRemove
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 import kotlin.reflect.typeOf
 import kotlin.time.Duration.Companion.days
 import kotlin.time.DurationUnit
@@ -61,12 +63,12 @@ class CreateApiKeyRestController(private val controller: ApiKeysDatabaseControll
         call.respond(HttpStatusCode.Created, ApiResponse.ok(apikey))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/apikeys") {
+    companion object: ResourceDescription by describeResource("/apikeys", {
         put {
             description = "Creates an API key under the current authenticated user"
 
             requestBody {
-                contentType(ContentType.Application.Json) {
+                json {
                     schema(
                         CreateApiKeyPayload(
                             "API key to automate some stuff!",
@@ -79,8 +81,8 @@ class CreateApiKeyRestController(private val controller: ApiKeysDatabaseControll
             }
 
             addAuthenticationResponses()
-            response(HttpStatusCode.Created) {
-                contentType(ContentType.Application.Json) {
+            created {
+                json {
                     schema(
                         typeOf<ApiResponse.Ok<ApiKeys>>(),
                         ApiResponse.ok(
@@ -109,5 +111,5 @@ class CreateApiKeyRestController(private val controller: ApiKeysDatabaseControll
                 }
             }
         }
-    }
+    })
 }

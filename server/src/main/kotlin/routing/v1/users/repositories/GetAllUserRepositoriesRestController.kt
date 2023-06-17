@@ -22,12 +22,12 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.PathItem
 import org.noelware.charted.common.types.responses.ApiResponse
+import org.noelware.charted.models.NameOrSnowflake
 import org.noelware.charted.models.repositories.Repository
-import org.noelware.charted.modules.openapi.NameOrSnowflake
+import org.noelware.charted.modules.openapi.kotlin.dsl.json
+import org.noelware.charted.modules.openapi.kotlin.dsl.ok
 import org.noelware.charted.modules.openapi.kotlin.dsl.schema
-import org.noelware.charted.modules.openapi.toPaths
 import org.noelware.charted.modules.postgresql.controllers.getByIdOrNameOrNull
 import org.noelware.charted.modules.postgresql.controllers.repositories.RepositoryDatabaseController
 import org.noelware.charted.modules.postgresql.controllers.users.UserDatabaseController
@@ -37,6 +37,8 @@ import org.noelware.charted.server.extensions.currentUser
 import org.noelware.charted.server.plugins.sessions.Sessions
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
+import org.noelware.charted.server.routing.openapi.ResourceDescription
+import org.noelware.charted.server.routing.openapi.describeResource
 import kotlin.reflect.typeOf
 
 class GetAllUserRepositoriesRestController(
@@ -72,7 +74,7 @@ class GetAllUserRepositoriesRestController(
         call.respond(HttpStatusCode.OK, ApiResponse.ok(controller.all(RepositoryTable::owner to user.id)))
     }
 
-    override fun toPathDsl(): PathItem = toPaths("/users/{idOrName}/repositories") {
+    companion object: ResourceDescription by describeResource("/users/{idOrName}/repositories", {
         get {
             description = "Returns all of an user's repositories"
 
@@ -81,11 +83,11 @@ class GetAllUserRepositoriesRestController(
                 schema<NameOrSnowflake>()
             }
 
-            response(HttpStatusCode.OK) {
-                contentType(ContentType.Application.Json) {
+            ok {
+                json {
                     schema(typeOf<ApiResponse.Ok<List<Repository>>>(), ApiResponse.ok(listOf<Repository>()))
                 }
             }
         }
-    }
+    })
 }
