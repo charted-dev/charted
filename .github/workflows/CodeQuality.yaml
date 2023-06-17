@@ -35,11 +35,10 @@ on:
             - renovate.json
 jobs:
     codeql:
-        name: CodeQL (Java ${{matrix.java-version}} [${{matrix.languages}}])
+        name: CodeQL [${{matrix.languages}}])
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                java-version: [17, 20]
                 languages: [java, kotlin]
         permissions:
             security-events: write
@@ -51,10 +50,10 @@ jobs:
               with:
                   submodules: recursive
 
-            - name: Setup Java ${{matrix.java-version}}
+            - name: Setup latest Java
               uses: actions/setup-java@v3
               with:
-                  java-version: ${{matrix.java-version}}
+                  java-version: 20
                   distribution: temurin
 
             - name: Setup latest Node.js
