@@ -73,6 +73,20 @@ jobs:
                   node-version: 19.x
                   architecture: ${{matrix.runner == 'self-hosted' && 'arm64' || 'x64'}}
 
+            # Maven artifact for the `protoc` binary is undeterministic,
+            # sometimes it'll be available but other times, it won't be.
+            #
+            # So, we will use the 'Noelware/setup-protoc' action to do so,
+            # and pass in the `CHARTED_PROTOC` environment variable.
+            - name: Setup protoc
+              uses: Noelware/setup-protoc@1.1.0
+              id: protoc
+              with:
+                  repo-token: ${{secrets.GITHUB_TOKEN}}
+
+            - name: Update GitHub env
+              run: echo "CHARTED_PROTOC=${{steps.protoc.outputs.binary}}" >> $GITHUB_ENV
+
             - name: Setup Gradle
               uses: gradle/gradle-build-action@v2
 

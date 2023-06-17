@@ -674,3 +674,6 @@ server/src/main/resources/config/logback.properties
 
 # exclude .idea/codeStyles
 .idea/codeStyles/
+
+# not finalized
+docs/
