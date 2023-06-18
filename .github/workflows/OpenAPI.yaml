@@ -44,6 +44,18 @@ jobs:
               with:
                   java-version: 20.x
                   distribution: temurin
+            
+            # Similar to the linting/spotless workflow,
+            # we will use the 'Noelware/setup-protoc' action to obtain protoc,
+            # and pass in the `CHARTED_PROTOC` environment variable.
+            - name: Setup protoc
+              uses: Noelware/setup-protoc@1.1.0
+              id: protoc
+              with:
+                  repo-token: ${{secrets.GITHUB_TOKEN}}
+
+            - name: Update GitHub env
+              run: echo "CHARTED_PROTOC_PATH=${{steps.protoc.outputs.binary}}" >> $GITHUB_ENV
 
             - name: Setup Node.js 20
               uses: actions/setup-node@v3
