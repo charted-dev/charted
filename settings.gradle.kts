@@ -84,6 +84,7 @@ include(
     ":modules:tracing:sentry",
     ":testing:containers",
     ":testing:restIntegTest",
+    ":testing:restIntegTest:kotlin-dsl",
 )
 
 val buildScanServer: String = System.getProperty("org.noelware.gradle.build-scan.server", "")

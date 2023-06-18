@@ -71,6 +71,11 @@ gradlePlugin {
             implementationClass = "org.noelware.charted.gradle.plugins.nebula.ChartedNebulaPlugin"
             id = "org.noelware.charted.dist.nebula"
         }
+
+        create("restIntegTest") {
+            implementationClass = "org.noelware.charted.gradle.plugins.restIntegTest.RestIntegTestPlugin"
+            id = "org.noelware.charted.testing.restIntegTest"
+        }
     }
 }
 

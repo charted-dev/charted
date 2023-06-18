@@ -1,0 +1,3 @@
+testBed("some test bed") {
+
+}

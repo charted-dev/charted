@@ -15,14 +15,10 @@
  * limitations under the License.
  */
 
-plugins {
-    id("charted-module")
-}
+package org.noelware.charted.gradle.plugins.restIntegTest;
 
-dependencies {
-    implementation(projects.testing.restIntegTest.kotlinDsl)
-    implementation(kotlin("scripting-jvm-host"))
-    implementation(projects.testing.containers)
-    implementation(kotlin("scripting-common"))
-    implementation(kotlin("scripting-jvm"))
-}
+import org.gradle.api.tasks.CacheableTask;
+import org.gradle.api.tasks.testing.Test;
+
+@CacheableTask
+public class RestIntegTask extends Test {}

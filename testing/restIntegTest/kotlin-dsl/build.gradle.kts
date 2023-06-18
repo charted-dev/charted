@@ -19,10 +19,10 @@ plugins {
     id("charted-module")
 }
 
+kotlin {
+    explicitApi()
+}
+
 dependencies {
-    implementation(projects.testing.restIntegTest.kotlinDsl)
-    implementation(kotlin("scripting-jvm-host"))
-    implementation(projects.testing.containers)
-    implementation(kotlin("scripting-common"))
-    implementation(kotlin("scripting-jvm"))
+    implementation(libs.ktor.server.core)
 }

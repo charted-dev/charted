@@ -15,14 +15,19 @@
  * limitations under the License.
  */
 
-plugins {
-    id("charted-module")
-}
+package org.noelware.charted.gradle.plugins.restIntegTest.internal;
 
-dependencies {
-    implementation(projects.testing.restIntegTest.kotlinDsl)
-    implementation(kotlin("scripting-jvm-host"))
-    implementation(projects.testing.containers)
-    implementation(kotlin("scripting-common"))
-    implementation(kotlin("scripting-jvm"))
+import javax.inject.Inject;
+import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.internal.file.DefaultSourceDirectorySet;
+import org.gradle.api.internal.tasks.TaskDependencyFactory;
+import org.noelware.charted.gradle.plugins.restIntegTest.RestIntegTestSourceDirectorySet;
+
+public class DefaultRestIntegTestSourceDirectorySet extends DefaultSourceDirectorySet
+        implements RestIntegTestSourceDirectorySet {
+    @Inject
+    public DefaultRestIntegTestSourceDirectorySet(
+            SourceDirectorySet parentDirectorySet, TaskDependencyFactory taskDependencyFactory) {
+        super(parentDirectorySet, taskDependencyFactory);
+    }
 }

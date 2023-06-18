@@ -16,6 +16,7 @@
  */
 
 plugins {
+    id("org.noelware.charted.testing.restIntegTest")
     id("charted-module")
 }
 

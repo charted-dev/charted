@@ -15,14 +15,23 @@
  * limitations under the License.
  */
 
-plugins {
-    id("charted-module")
+package org.noelware.charted.testing.restIntegTest.kotlin.dsl.matchers
+
+import kotlin.reflect.KClass
+
+/**
+ * Represents a generic matcher that can be used to do a bunch of
+ * assertions. This adds custom assertions and brings in JUnit5's assertions
+ * as well.
+ */
+public interface MatcherContext {
+    /**
+     * Asserts that the response body that was executed from a test operation was [T] or
+     * not.
+     *
+     * @param expected Expected class
+     */
+    public fun <T: Any> assertResponseBody(expected: KClass<T>): T
 }
 
-dependencies {
-    implementation(projects.testing.restIntegTest.kotlinDsl)
-    implementation(kotlin("scripting-jvm-host"))
-    implementation(projects.testing.containers)
-    implementation(kotlin("scripting-common"))
-    implementation(kotlin("scripting-jvm"))
-}
+public inline fun <reified T: Any> MatcherContext.assertResponseBody(): T = assertResponseBody(T::class)

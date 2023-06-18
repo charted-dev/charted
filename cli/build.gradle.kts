@@ -16,6 +16,7 @@
  */
 
 import dev.floofy.utils.gradle.*
+import kotlinx.atomicfu.plugin.gradle.AtomicFUTransformTask
 import org.noelware.charted.gradle.*
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -100,5 +101,13 @@ tasks {
 
     startScripts {
         enabled = false
+    }
+
+    // This is only for mitigating Gradle input/output issues:
+    //
+    // Task ':cli:transformAtomicfuClasses' uses this output of task ':server:transformAtomicfuClasses' without declaring an explicit
+    // or implicit dependency. This can lead to incorrect results being produced, depending on what order the tasks are executed.
+    withType<AtomicFUTransformTask>().configureEach {
+        dependsOn(":server:transformAtomicfuClasses")
     }
 }
