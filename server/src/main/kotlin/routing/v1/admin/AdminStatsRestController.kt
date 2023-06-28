@@ -25,16 +25,14 @@ import org.noelware.charted.common.serialization.toJsonObject
 import org.noelware.charted.common.types.responses.ApiResponse
 import org.noelware.charted.modules.metrics.MetricsSupport
 import org.noelware.charted.modules.metrics.disabled.DisabledMetricsSupport
-import org.noelware.charted.server.plugins.sessions.IsAdminGuard
-import org.noelware.charted.server.plugins.sessions.Sessions
+import org.noelware.charted.server.extensions.sessions
 import org.noelware.charted.server.routing.APIVersion
 import org.noelware.charted.server.routing.RestController
 
 class AdminStatsRestController(private val metrics: MetricsSupport): RestController("/admin/stats") {
     override val apiVersion: APIVersion = APIVersion.V1
     override fun Route.init() {
-        install(Sessions)
-        install(IsAdminGuard)
+        sessions(true)
     }
 
     override suspend fun call(call: ApplicationCall) {

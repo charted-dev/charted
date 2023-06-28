@@ -60,39 +60,32 @@ public class APMTracer implements Tracer {
         final HashMap<String, String> apmConfig = new HashMap<>();
         final CircuitBreakerConfig circuitBreakerConfig = settings.getCircuitBreaker();
         if (circuitBreakerConfig != null && circuitBreakerConfig.getEnabled()) {
-            insert(apmConfig, "circuit_breaker_enabled", String.valueOf(circuitBreakerConfig.getEnabled()));
-            insert(
-                    apmConfig,
+            apmConfig.put("circuit_breaker_enabled", String.valueOf(circuitBreakerConfig.getEnabled()));
+            apmConfig.put(
                     "stress_monitor_system_cpu_relief_threshold",
                     String.valueOf(circuitBreakerConfig.getCpuReliefThreshold()));
 
-            insert(
-                    apmConfig,
+            apmConfig.put(
                     "stress_monitor_system_cpu_stress_threshold",
                     String.valueOf(circuitBreakerConfig.getCpuStressThreshold()));
 
-            insert(apmConfig, "stress_monitor_cpu_duration_threshold", circuitBreakerConfig.getCpuThreshold());
-            insert(
-                    apmConfig,
-                    "stress_monitor_gc_relief_threshold",
-                    String.valueOf(circuitBreakerConfig.getReliefThreshold()));
+            apmConfig.put("stress_monitor_cpu_duration_threshold", circuitBreakerConfig.getCpuThreshold());
+            apmConfig.put(
+                    "stress_monitor_gc_relief_threshold", String.valueOf(circuitBreakerConfig.getReliefThreshold()));
 
-            insert(
-                    apmConfig,
-                    "stress_monitor_gc_stress_threshold",
-                    String.valueOf(circuitBreakerConfig.getThreshold()));
+            apmConfig.put("stress_monitor_gc_stress_threshold", String.valueOf(circuitBreakerConfig.getThreshold()));
 
-            insert(apmConfig, "stress_monitoring_interval", circuitBreakerConfig.getInterval());
+            apmConfig.put("stress_monitoring_interval", circuitBreakerConfig.getInterval());
         }
 
-        insert(apmConfig, "instrument", settings.getInstrument() ? "true" : "false");
-        insert(apmConfig, "service_name", settings.getServiceName());
-        insert(apmConfig, "application_packages", "org.noelware.charted");
-        insert(apmConfig, "log_level", "INFO");
+        apmConfig.put("instrument", settings.getInstrument() ? "true" : "false");
+        apmConfig.put("service_name", settings.getServiceName());
+        apmConfig.put("application_packages", "org.noelware.charted");
+        apmConfig.put("log_level", "INFO");
 
         final String nodeName = getServiceNodeName();
         if (!nodeName.isEmpty()) {
-            insert(apmConfig, "service_node_name", nodeName);
+            apmConfig.put("service_node_name", nodeName);
         }
 
         final List<Instrumentation> enabledInstrumentation = settings.getEnabledInstrumentation();
@@ -104,7 +97,7 @@ public class APMTracer implements Tracer {
                     .toList();
 
             LOG.info("Configured instrumentation to be enabled (wildcard): [{}]", String.join(", ", instrumentation));
-            insert(apmConfig, "enable_instrumentations", String.join(",", instrumentation));
+            apmConfig.put("enable_instrumentations", String.join(",", instrumentation));
         } else if (!enabledInstrumentation.isEmpty()) {
             final List<String> instrumentation = enabledInstrumentation.stream()
                     .map(APMTracer::getSerialNameForInst)
@@ -112,7 +105,7 @@ public class APMTracer implements Tracer {
                     .toList();
 
             LOG.info("Configured instrumentation to be enabled: [{}]", String.join(", ", instrumentation));
-            insert(apmConfig, "enable_instrumentations", String.join(",", instrumentation));
+            apmConfig.put("enable_instrumentations", String.join(",", instrumentation));
         }
 
         final List<Instrumentation> disabledInstrumentation = settings.getDisabledInstrumentation();
@@ -124,7 +117,7 @@ public class APMTracer implements Tracer {
                     .toList();
 
             LOG.info("Configured instrumentation to be disabled (wildcard): [{}]", String.join(", ", instrumentation));
-            insert(apmConfig, "disable_instrumentations", String.join(",", instrumentation));
+            apmConfig.put("disable_instrumentations", String.join(",", instrumentation));
         } else if (!disabledInstrumentation.isEmpty()) {
             final List<String> instrumentation = disabledInstrumentation.stream()
                     .map(APMTracer::getSerialNameForInst)
@@ -132,7 +125,7 @@ public class APMTracer implements Tracer {
                     .toList();
 
             LOG.info("Configured instrumentation to be disabled: [{}]", String.join(", ", instrumentation));
-            insert(apmConfig, "disable_instrumentations", String.join(",", instrumentation));
+            apmConfig.put("disable_instrumentations", String.join(",", instrumentation));
         }
 
         final List<String> serverUrls = settings.getServerUrls();
@@ -145,10 +138,10 @@ public class APMTracer implements Tracer {
             final String serverUrl = serverUrls.get(0);
             LOG.debug("Using a single APM server [{}]", serverUrl);
 
-            insert(apmConfig, "server_url", serverUrl);
+            apmConfig.put("server_url", serverUrl);
         } else {
             LOG.debug("Using multiple APM servers for fail-over [{}]", String.join(", ", serverUrls));
-            insert(apmConfig, "server_urls", String.join(",", serverUrls));
+            apmConfig.put("server_urls", String.join(",", serverUrls));
         }
 
         LOG.trace("Using configuration options for APM agent: {}", apmConfig);
@@ -158,9 +151,7 @@ public class APMTracer implements Tracer {
     @NotNull
     @Override
     public AutoCloseable withTransaction(@NotNull String name, @Nullable String operation) {
-        if (currentTransaction.get() != null) {
-            throw new IllegalStateException("There is already an ongoing transaction, please use spans!");
-        }
+        assertNotInTransaction();
 
         final Transaction transaction = createTransaction(name, operation);
         currentTransaction.set(transaction);
@@ -198,8 +189,11 @@ public class APMTracer implements Tracer {
     @Override
     public void close() {}
 
-    private void insert(HashMap<String, String> map, @NotNull String key, String value) {
-        map.put(key, value);
+    private void assertNotInTransaction() {
+        if (currentTransaction.get() != null) {
+            throw new IllegalStateException(
+                    "An on-going transaction is already occurring in this scope. Please make use of spans!");
+        }
     }
 
     private String getServiceNodeName() {

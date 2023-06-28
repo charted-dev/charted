@@ -20,5 +20,18 @@ package org.noelware.charted.gradle
 import dev.floofy.utils.gradle.*
 import org.gradle.api.JavaVersion
 
-val VERSION: Version = Version(0, 4, 0, 4, ReleaseType("unstable"), true)
+/**
+ * Refers to the current release channel.
+ */
+val CHANNEL: Channels = Channels.BETA
+
+/**
+ * Refers to the current version of charted-server.
+ */
+val VERSION: Version = Version(0, 1, 0, CHANNEL.releaseType, true)
+
+/**
+ * Refers to the minimum Java version that is required and will
+ * be compiled towards.
+ */
 val JAVA_VERSION: JavaVersion = JavaVersion.VERSION_17

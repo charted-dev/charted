@@ -20,6 +20,7 @@
 # take a chunk of memory itself.
 
 echo "===> Disabling Gradle daemon..."
+! [ -d "$HOME/.gradle" ] && mkdir -p $HOME/.gradle
 if ! [ -f "$HOME/.gradle/gradle.properties" ]; then
     echo "org.gradle.daemon=false" >> "$HOME/.gradle/gradle.properties"
 fi

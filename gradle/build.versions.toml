@@ -15,9 +15,11 @@
 
 [versions]
 otel-instrumentation-alpha = "1.26.0-alpha" # why does opentelemetry have inconsistent versions WAAAAAA
+netflix-nebula-ospackage = "11.3.0"
 apache-commons-validator = "1.7"
 exposed-powergamer-tools = "1.2.1"
 apache-commons-compress = "1.23.0"
+protobuf-gradle-plugin = "0.9.3"
 tomcat-annotations-api = "6.0.53"
 spring-security-crypto = "6.1.1"
 kotlinx-serialization = "1.5.1"
@@ -31,7 +33,6 @@ logstash-logback = "7.4"
 prometheus-java = "0.16.0"
 testcontainers = "1.18.3"
 jb-annotations = "24.0.1"
-analytics-jvm = "0.1.4-beta"
 swagger-core = "2.2.14"
 unbound-ldap = "6.0.9"
 system-stubs = "2.0.2"
@@ -42,6 +43,7 @@ grpc-kotlin = "1.3.0"
 postgresql = "42.6.0"
 snowflake = "0.1-beta"
 protobuf = "3.23.3"
+spotless = "6.19.0"
 caffeine = "3.1.6"
 hikaricp = "5.0.1"
 jackson = "2.15.2"
@@ -50,6 +52,7 @@ mordant = "2.0.0-beta13"
 lettuce = "6.2.4.RELEASE"
 logback = "1.4.8"
 exposed = "0.41.1"
+kotlin = "1.8.22"
 junit5 = "5.9.3"
 janino = "3.1.9"
 picnic = "0.6.0"
@@ -85,6 +88,7 @@ slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 # noel utilities
 noel-commons-extensions-kotlin = { module = "dev.floofy.commons:extensions-kotlin", version.ref = "noel-commons" }
 noel-commons-extensions-koin = { module = "dev.floofy.commons:extensions-koin", version.ref = "noel-commons" }
+noel-commons-gradle-utils = { module = "dev.floofy.commons:gradle", version.ref = "noel-commons" }
 noel-commons-java-utils = { module = "dev.floofy.commons:java-utils", version.ref = "noel-commons" }
 noel-commons-slf4j = { module = "dev.floofy.commons:slf4j", version.ref = "noel-commons" }
 
@@ -133,10 +137,6 @@ sentry = { module = "io.sentry:sentry", version.ref = "sentry" }
 logback-logstash = { module = "net.logstash.logback:logstash-logback-encoder", version.ref = "logstash-logback" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
-
-# noelware analytics
-noelware-analytics-server-kotlin-support = { module = "org.noelware.analytics:analytics-kotlin-support-server", version.ref = "analytics-jvm" }
-noelware-analytics-server = { module = "org.noelware.analytics:analytics-server", version.ref = "analytics-jvm" }
 
 # protobuf
 protobuf-kotlin = { module = "com.google.protobuf:protobuf-kotlin", version.ref = "protobuf" }
@@ -194,6 +194,12 @@ opentelemetry-annotations = { module = "io.opentelemetry.instrumentation:opentel
 opentelemetry-javaagent = { module = "io.opentelemetry.javaagent:opentelemetry-javaagent", version.ref = "otel-instrumentation" }
 opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api", version.ref = "otel" }
 opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "otel" }
+
+# libraries for build-logic project build
+kotlinx-atomicfu-gradle-plugin = { module = "org.jetbrains.kotlinx:atomicfu-gradle-plugin", version.ref = "kotlinx-atomicfu" }
+netflix-nebula-ospackage = { module = "com.netflix.nebula:gradle-ospackage-plugin", version.ref = "netflix-nebula-ospackage" }
+protobuf-gradle-plugin = { module = "com.google.protobuf:protobuf-gradle-plugin", version.ref = "protobuf-gradle-plugin" }
+spotless-gradle-plugin = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 
 # external libraries
 exposed-powergamer-tools = { module = "net.perfectdreams.exposedpowerutils:postgres-power-utils", version.ref = "exposed-powergamer-tools" }

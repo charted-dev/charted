@@ -32,8 +32,10 @@ group = "org.noelware.charted.gradle"
 version = "0.0.0-devel.0"
 
 val libs: VersionCatalog = extensions.getByType<VersionCatalogsExtension>().named("libs")
-fun get(name: String): MinimalExternalModuleDependency =
+fun library(name: String): MinimalExternalModuleDependency =
     libs.findLibrary(name).getOrNull()?.get() ?: error("Unknown library '$name' in catalog")
+
+fun versionFor(name: String): String = libs.findVersion(name).getOrNull()?.preferredVersion ?: error("Unknown version in catalog: '$name'")
 
 repositories {
     maven("https://maven.floofy.dev/repo/releases")
@@ -44,21 +46,20 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.20.2")
-    implementation("com.diffplug.spotless:spotless-plugin-gradle:6.19.0")
-    implementation("com.netflix.nebula:gradle-ospackage-plugin:11.3.0")
-    implementation("com.google.protobuf:protobuf-gradle-plugin:0.9.3")
-    implementation("dev.floofy.commons:gradle:2.5.1")
-    implementation(kotlin("serialization", "1.8.22"))
-    implementation(kotlin("gradle-plugin", "1.8.22"))
+    implementation(library("kotlinx-atomicfu-gradle-plugin"))
+    implementation(kotlin("serialization", versionFor("kotlin")))
+    implementation(kotlin("gradle-plugin", versionFor("kotlin")))
+    implementation(library("noel-commons-gradle-utils"))
+    implementation(library("netflix-nebula-ospackage"))
+    implementation(library("spotless-gradle-plugin"))
+    implementation(library("protobuf-gradle-plugin"))
     implementation(gradleApi())
 
-    // test dependencies
-    testImplementation(get("system-stubs-jupiter"))
-    testImplementation(get("junit-jupiter-engine"))
-    testImplementation(get("junit-jupiter-api"))
-    testImplementation(get("system-stubs-core"))
-    testImplementation(get("assertj"))
+    testImplementation(library("system-stubs-jupiter"))
+    testImplementation(library("junit-jupiter-engine"))
+    testImplementation(library("junit-jupiter-api"))
+    testImplementation(library("system-stubs-core"))
+    testImplementation(library("assertj"))
 }
 
 @Suppress("UnstableApiUsage")

@@ -222,14 +222,4 @@ tasks {
         options.encoding = "UTF-8"
         options.isFork = true
     }
-
-    // an "attempt" to fix:
-    // * What went wrong:
-    // Execution failed for task ':common:jar'.
-    // > Entry META-INF/common.kotlin_module is a duplicate but no duplicate handling strategy has been set.
-    //   Please refer to https://docs.gradle.org/8.0.2/dsl/org.gradle.api.tasks.Copy.html#org.gradle.api.tasks.Copy:duplicatesStrategy
-    //   for details.
-    jar {
-        duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    }
 }

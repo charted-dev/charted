@@ -24,6 +24,7 @@ import org.noelware.charted.modules.openapi.kotlin.dsl.PathDslBuilder
  * Interface to implement to register the base class with
  * a [PathItem] that is acceptable by the [openApi] function.
  */
+@Deprecated("Since v0.1-beta: Moved to the new [ResourceDescription] API")
 interface ToPaths {
     /**
      * Transforms into a [PathItem]. Recommended to use the [toPaths] DSL
@@ -32,4 +33,5 @@ interface ToPaths {
     fun toPathDsl(): PathItem
 }
 
+@Deprecated("Since v0.1-beta: Moved to the new [ResourceDescription] API")
 fun toPaths(path: String, block: PathDslBuilder.() -> Unit): PathItem = PathDslBuilder(path).apply(block).build()
