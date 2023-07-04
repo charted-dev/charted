@@ -1,0 +1,35 @@
+{
+  "checksum": "3ee216071726916ab1776ff1353d60a1c0532dc7f9539a2298de7f8373fd80b6",
+  "crates": {
+    "charted-cli 0.0.0-devel.0": {
+      "name": "charted-cli",
+      "version": "0.0.0-devel.0",
+      "repository": null,
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "charted_cli",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "charted_cli",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2021",
+        "version": "0.0.0-devel.0"
+      },
+      "license": null
+    }
+  },
+  "binary_crates": [],
+  "workspace_members": {
+    "charted-cli 0.0.0-devel.0": "cli"
+  },
+  "conditions": {}
+}

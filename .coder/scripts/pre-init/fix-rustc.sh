@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
 # Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
 #
@@ -13,24 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '3.8'
-services:
-    workspace:
-        user: noel
-        command: sleep infinity
-        depends_on: [postgres, redis]
-        image: ghcr.io/charted-dev/devcontainer:latest
-        volumes:
-            - ..:/workspaces/charted:cached
-    redis:
-        image: bitnami/redis:7.0.11
-        restart: unless-stopped
-        environment:
-            - ALLOW_EMPTY_PASSWORD=yes
-    postgres:
-        image: bitnami/postgresql:15.3.0
-        restart: unless-stopped
-        environment:
-            - POSTGRESQL_DATABASE=charted
-            - POSTGRESQL_USERNAME=charted
-            - POSTGRESQL_PASSWORD=charted
+if ! command -v cargo >/dev/null; then
+    /tmp/rustup-init -y --profile minimal --default-toolchain "${RUST_VERSION}"
+    rustup component add clippy rustfmt
+fi

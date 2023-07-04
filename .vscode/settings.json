@@ -1,0 +1,19 @@
+{
+    "editor.tabSize": 4,
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "rust-analyzer.check.command": "clippy",
+    "files.associations": {
+        ".*-version": "plaintext",
+        ".bazelrc": "ignore"
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/bazel-*": true
+    }
+}

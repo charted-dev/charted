@@ -13,24 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '3.8'
-services:
-    workspace:
-        user: noel
-        command: sleep infinity
-        depends_on: [postgres, redis]
-        image: ghcr.io/charted-dev/devcontainer:latest
-        volumes:
-            - ..:/workspaces/charted:cached
-    redis:
-        image: bitnami/redis:7.0.11
-        restart: unless-stopped
-        environment:
-            - ALLOW_EMPTY_PASSWORD=yes
-    postgres:
-        image: bitnami/postgresql:15.3.0
-        restart: unless-stopped
-        environment:
-            - POSTGRESQL_DATABASE=charted
-            - POSTGRESQL_USERNAME=charted
-            - POSTGRESQL_PASSWORD=charted
+exports_files([
+    # Used for crates/common/build.rs -- which returns the latest version
+    # of the charted-server monorepo.
+    ".charted-version",
+
+    # Used for formatting Rust source code
+    "rustfmt.toml",
+
+    # Used for clippy
+    "clippy.toml",
+
+    # Used also in crates/common/build.rs -- which uses the commit hash to
+    # determine where this build was compiled from.
+    ".git"
+])

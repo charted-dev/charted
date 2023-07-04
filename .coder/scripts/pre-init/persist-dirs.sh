@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
 # Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
 #
@@ -13,24 +15,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '3.8'
-services:
-    workspace:
-        user: noel
-        command: sleep infinity
-        depends_on: [postgres, redis]
-        image: ghcr.io/charted-dev/devcontainer:latest
-        volumes:
-            - ..:/workspaces/charted:cached
-    redis:
-        image: bitnami/redis:7.0.11
-        restart: unless-stopped
-        environment:
-            - ALLOW_EMPTY_PASSWORD=yes
-    postgres:
-        image: bitnami/postgresql:15.3.0
-        restart: unless-stopped
-        environment:
-            - POSTGRESQL_DATABASE=charted
-            - POSTGRESQL_USERNAME=charted
-            - POSTGRESQL_PASSWORD=charted
+if ! [ -d "$HOME/.persist" ]; then
+    mkdir "$HOME/.persist"
+fi
+
+SERVICES=$(docker compose -f docker-compose.yml config --format=json | jq '.services')
+SERVICE_KEYS=$(echo "$SERVICES" | jq 'keys[]' | tr -d '"')
+
+for key in $SERVICE_KEYS; do
+    echo "===> Creating persistence directory in [~/.persist/$key]"
+    DIR=~/.persist/"$key"
+
+    [ ! -d "$DIR" ] && mkdir "$DIR"
+    if [ "$key" == "postgres" ]; then
+        sudo chown -R 1001:1001 ~/.persist/postgres
+    fi
+
+    if [ "$key" == "redis" ]; then
+        sudo chown -R 1001:1001 ~/.persist/redis
+    fi
+done
