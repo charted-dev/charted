@@ -58,8 +58,13 @@ cargo_bootstrap_repository(
 
 load("@rules_rust//crate_universe:defs.bzl", "crates_repository")
 crates_repository(
+    manifests = [
+        "//:Cargo.toml",
+        "//:cli/Cargo.toml",
+        "//:server/Cargo.toml"
+    ],
+
     cargo_lockfile = "//:Cargo.lock",
-    manifests = ["//:Cargo.toml", "//:cli/Cargo.toml"],
     lockfile = "//:Cargo.bzl.lock",
     name = "crate_index"
 )

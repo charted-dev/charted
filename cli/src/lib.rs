@@ -12,3 +12,21 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+#[macro_use]
+extern crate async_trait;
+
+use clap::Parser;
+
+#[derive(Debug, Clone, Parser)]
+#[clap(
+    about = "🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust",
+    author = "Noelware, LLC.",
+    override_usage = "charted <COMMAND> [...ARGS]",
+    arg_required_else_help = true
+)]
+pub struct Cli {
+    /// Whether if the CLI should print the current version of the CLI.
+    #[arg(short = 'v', long = "version", help = "Prints out the current version of the charted CLI")]
+    pub print_version: bool,
+}

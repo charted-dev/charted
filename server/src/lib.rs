@@ -13,25 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[cfg(not(bazel))]
-use charted_cli::Cli;
+#[macro_use]
+extern crate tracing;
 
-#[cfg(bazel)]
-extern crate cli;
+mod version;
 
-#[cfg(bazel)]
-use cli::Cli;
+pub(crate) mod middleware;
+pub(crate) mod models;
+pub mod routing;
 
-use std::{error::Error, process::exit};
-use clap::Parser;
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
-    let cli = Cli::parse();
-    if cli.print_version {
-        println!("charted v0.0.0-devel.0+??????? (????)");
-        exit(0);
-    }
-
-    Ok(())
-}
+pub use version::*;

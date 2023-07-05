@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
 # Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
 #
@@ -15,5 +13,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-echo "===> Symlinking \`bazel-buildifier\` ~> \`buildifier\`!"
-sudo ln -s /usr/local/bin/bazel-buildifier /usr/local/bin/buildifier
+load("//:build/rust_project.bzl", "rust_project")
+
+rust_project(
+    name = "server",
+    include_tests = True,
+    deps = [
+        "@crate_index//:ansi_term",
+        "@crate_index//:axum",
+        "@crate_index//:chrono",
+        "@crate_index//:eyre",
+        "@crate_index//:once_cell",
+        "@crate_index//:sentry",
+        "@crate_index//:sentry-tower",
+        "@crate_index//:sentry-tracing",
+        "@crate_index//:serde",
+        "@crate_index//:serde_json",
+        "@crate_index//:serde_yaml",
+        "@crate_index//:tokio",
+        "@crate_index//:tower",
+        "@crate_index//:tower-layer",
+        "@crate_index//:tracing"
+    ]
+)

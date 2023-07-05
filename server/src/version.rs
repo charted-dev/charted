@@ -13,25 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[cfg(not(bazel))]
-use charted_cli::Cli;
+/// Represents the REST version that an API controller is supported on.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord)]
+pub enum APIVersion {
+    /// v1
+    #[default]
+    V1
+}
 
-#[cfg(bazel)]
-extern crate cli;
-
-#[cfg(bazel)]
-use cli::Cli;
-
-use std::{error::Error, process::exit};
-use clap::Parser;
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
-    let cli = Cli::parse();
-    if cli.print_version {
-        println!("charted v0.0.0-devel.0+??????? (????)");
-        exit(0);
+impl APIVersion {
+    pub fn route(&self) -> &'static str {
+        match self {
+            APIVersion::V1 => "/v1"
+        }
     }
-
-    Ok(())
 }

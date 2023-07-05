@@ -6,6 +6,11 @@ build --@rules_rust//:clippy.toml=//:clippy.toml
 build --aspects=@rules_rust//rust:defs.bzl%rust_clippy_aspect
 build --output_groups=+clippy_checks
 
+# Required on windows
+common --enable_platform_specific_config
+startup --windows_enable_symlinks
+build:windows --enable_runfiles
+
 # Allows importing from user-defined .bazelrc files; this is ignored
 # by Git by default.
 try-import %workspace%/.user.bazelrc

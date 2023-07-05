@@ -15,5 +15,6 @@
         "**/.DS_Store": true,
         "**/Thumbs.db": true,
         "**/bazel-*": true
-    }
+    },
+    "rust-analyzer.showUnlinkedFileNotification": false
 }

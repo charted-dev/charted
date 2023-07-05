@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
 # Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
 #
@@ -13,18 +15,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[package]
-name = "charted-cli"
-description = "🐻‍❄️📦 Command-line executor for running charted's API server or administration tools via terminal"
-version = "0.0.0-devel.0"
-edition = "2021"
-homepage = "https://charts.noelware.org"
-authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
+if ! [ -f "/usr/local/bin/buildifier" ]; then
+    echo "===> Symlinking \`bazel-buildifier\` ~> \`buildifier\`!"
+    sudo ln -s /usr/local/bin/bazel-buildifier /usr/local/bin/buildifier
+fi
 
-[dependencies]
-async-trait = "0.1.70"
-chrono = "0.4.26"
-clap = { version = "4.3.10", features = ["derive"] }
-clap_complete = "4.3.1"
-charted-server = { path = "../server", version = "0.0.0-devel.0" }
-tokio = { version = "1.29.1", features = ["full"] }
+if ! [ -f "/usr/local/bin/sync-deps" ]; then
+    echo "===> Symlinking ./scripts/sync_deps.sh ~> sync-deps"
+    sudo ln -s $HOME/workspace/scripts/sync_deps.sh /usr/local/bin/sync-deps
+fi

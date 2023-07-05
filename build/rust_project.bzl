@@ -54,21 +54,23 @@ def rust_project(
         name = name,
         srcs = native.glob(["src/**/*.rs"], exclude = ["src/main.rs"]) + srcs,
         deps = deps,
-        proc_macro_deps = proc_macro_deps
+        proc_macro_deps = proc_macro_deps,
+        visibility = ["//visibility:public"]
     )
 
     if include_tests:
         rust_test(
-            name = "{0}-test".format(name),
-            srcs = native.glob(["src/**/*.rs", "tests/**/*.rs"], exclude = "src/main.rs"),
+            name = "{0}_test".format(name),
+            srcs = native.glob(["src/**/*.rs", "tests/**/*.rs"], exclude = ["src/main.rs"]),
             deps = [name] + deps + test_deps
         )
 
     if is_binary:
         rust_binary(
-            name = "{0}_bin".format(name),
+            name = "bin",
             srcs = ["src/main.rs"],
-            deps = [name] + deps
+            deps = [":{name}".format(name = name)] + deps,
+            rustc_flags = ["--cfg", "bazel"]
         )
 
     if include_build_script:

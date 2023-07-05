@@ -13,25 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[cfg(not(bazel))]
-use charted_cli::Cli;
+use axum::{Router, routing::*};
+use main::*;
 
-#[cfg(bazel)]
-extern crate cli;
+pub mod main;
 
-#[cfg(bazel)]
-use cli::Cli;
-
-use std::{error::Error, process::exit};
-use clap::Parser;
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
-    let cli = Cli::parse();
-    if cli.print_version {
-        println!("charted v0.0.0-devel.0+??????? (????)");
-        exit(0);
-    }
-
-    Ok(())
+pub fn create_router() -> Router {
+    Router::new()
+        .route("/", get(main))
 }
