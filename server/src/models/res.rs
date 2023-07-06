@@ -79,6 +79,7 @@ impl From<(&str, &str)> for Error {
     }
 }
 
+#[allow(dead_code)]
 pub fn ok<T: Serialize + Debug>(status: StatusCode, data: T) -> ApiResponse<T> {
     ApiResponse {
         success: true,
@@ -88,6 +89,7 @@ pub fn ok<T: Serialize + Debug>(status: StatusCode, data: T) -> ApiResponse<T> {
     }
 }
 
+#[allow(dead_code)]
 pub fn err(status: StatusCode, error: Error) -> ApiResponse<Empty> {
     ApiResponse {
         success: false,

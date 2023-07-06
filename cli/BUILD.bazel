@@ -20,10 +20,16 @@ rust_project(
     is_binary = True,
     proc_macro_deps = ["@crate_index//:async-trait"],
     deps = [
+        "@crate_index//:ansi_term",
         "@crate_index//:chrono",
         "@crate_index//:clap",
         "@crate_index//:clap_complete",
+        "@crate_index//:dotenv",
+        "@crate_index//:eyre",
+        "@crate_index//:color-eyre",
         "@crate_index//:tokio",
-        "//server:server"
+
+        "//crates/common:charted_common",
+        "//server:charted_server"
     ]
 )

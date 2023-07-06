@@ -11,6 +11,10 @@ common --enable_platform_specific_config
 startup --windows_enable_symlinks
 build:windows --enable_runfiles
 
+# workaround for test cache
+# https://github.com/bazelbuild/bazel/issues/6038
+common --experimental_allow_tags_propagation
+
 # Allows importing from user-defined .bazelrc files; this is ignored
 # by Git by default.
 try-import %workspace%/.user.bazelrc

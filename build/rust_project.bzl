@@ -17,6 +17,7 @@
 
 load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library", "rust_test")
 load("@rules_rust//cargo:defs.bzl", "cargo_build_script")
+load("@crate_index//:defs.bzl", "aliases")
 
 def rust_project(
     name,
@@ -26,7 +27,7 @@ def rust_project(
     include_tests = False,
     test_deps = [],
     is_binary = False,
-    include_build_script = False,
+    build_script = False,
     build_script_data = [],
     build_script_deps = []
 ):
@@ -43,7 +44,7 @@ def rust_project(
         is_binary: Whether if the `rust_binary` should be included for this project, for most Bazel packages, this will use
             the default (False) since the CLI and the OpenAPI codegen scripts are the only binaries that should be
             allowed.
-        include_build_script: Whether if the `cargo_build_script` macro should be included. This will always be `{name}_buildscript`
+        build_script: Whether if the `cargo_build_script` macro should be included. This will always be `{name}_buildscript`
             when used.
         build_script_data: Some buildscripts might require to read files or execute CLI commands, this is where you should
             include data that should be used when the Cargo buildscript is executed.
@@ -51,7 +52,10 @@ def rust_project(
     """
 
     rust_library(
-        name = name,
+        # We need it as charted_<name> so it can be referenced with Bazel
+        # without using 'extern crate {name}'!
+        name = "charted_{name}".format(name = name),
+        aliases = aliases(),
         srcs = native.glob(["src/**/*.rs"], exclude = ["src/main.rs"]) + srcs,
         deps = deps,
         proc_macro_deps = proc_macro_deps,
@@ -60,22 +64,30 @@ def rust_project(
 
     if include_tests:
         rust_test(
-            name = "{0}_test".format(name),
+            name = "tests",
             srcs = native.glob(["src/**/*.rs", "tests/**/*.rs"], exclude = ["src/main.rs"]),
-            deps = [name] + deps + test_deps
+            deps = [":charted_{name}".format(name = name)] + deps + test_deps,
+            tags = ["no-cache"]
         )
 
     if is_binary:
         rust_binary(
             name = "bin",
             srcs = ["src/main.rs"],
-            deps = [":{name}".format(name = name)] + deps,
-            rustc_flags = ["--cfg", "bazel"]
+            deps = [":charted_{name}".format(name = name)] + deps,
+            rustc_flags = ["-C", "incremental"]
         )
 
-    if include_build_script:
+        rust_binary(
+            name = "release_bin",
+            srcs = ["src/main.rs"],
+            deps = [":charted_{name}".format(name = name)] + deps,
+            rustc_flags = ["-C", "debuginfo=0", "-C", "opt-level=3", "-C", "lto=fat", "-C", "incremental=true"]
+        )
+
+    if build_script:
         cargo_build_script(
-            name = "{0}_buildscript".format(name),
+            name = "buildscript",
             srcs = ["build.rs"],
             data = build_script_data,
             deps = build_script_deps

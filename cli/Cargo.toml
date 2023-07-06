@@ -22,9 +22,14 @@ homepage = "https://charts.noelware.org"
 authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
 [dependencies]
+ansi_term = "0.12.1"
 async-trait = "0.1.70"
 chrono = "0.4.26"
-clap = { version = "4.3.10", features = ["derive"] }
+clap = { version = "4.3.10", features = ["derive", "env"] }
 clap_complete = "4.3.1"
+#charted-common = { path = "../crates/common", version = "0.0.0-devel.0" }
 charted-server = { path = "../server", version = "0.0.0-devel.0" }
+color-eyre = { version = "0.6.2", features = ["issue-url", "track-caller"] }
+dotenv = "0.15.0"
+eyre = "0.6.8"
 tokio = { version = "1.29.1", features = ["full"] }

@@ -1,5 +1,5 @@
 {
-  "checksum": "8e8514da4c32cfb50dc84ac0ffbb01e5a17ae5932d8a0fbec16a22f718c3798c",
+  "checksum": "c2f3aa2e592ca79aaa779c0c2243ff2ff00a9b14ced0995deb5cc6e8df85c440",
   "crates": {
     "addr2line 0.20.0": {
       "name": "addr2line",
@@ -916,6 +916,7 @@
         "crate_features": {
           "common": [
             "default",
+            "gimli-symbolize",
             "std"
           ],
           "selects": {}
@@ -1290,6 +1291,31 @@
       },
       "license": "MIT/Apache-2.0"
     },
+    "charted-bootstrap 0.0.0-devel.0": {
+      "name": "charted-bootstrap",
+      "version": "0.0.0-devel.0",
+      "repository": null,
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "charted_bootstrap",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "charted_bootstrap",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2021",
+        "version": "0.0.0-devel.0"
+      },
+      "license": null
+    },
     "charted-cli 0.0.0-devel.0": {
       "name": "charted-cli",
       "version": "0.0.0-devel.0",
@@ -1313,6 +1339,10 @@
         "deps": {
           "common": [
             {
+              "id": "ansi_term 0.12.1",
+              "target": "ansi_term"
+            },
+            {
               "id": "chrono 0.4.26",
               "target": "chrono"
             },
@@ -1323,6 +1353,18 @@
             {
               "id": "clap_complete 4.3.1",
               "target": "clap_complete"
+            },
+            {
+              "id": "color-eyre 0.6.2",
+              "target": "color_eyre"
+            },
+            {
+              "id": "dotenv 0.15.0",
+              "target": "dotenv"
+            },
+            {
+              "id": "eyre 0.6.8",
+              "target": "eyre"
             },
             {
               "id": "tokio 1.29.1",
@@ -1341,6 +1383,352 @@
           ],
           "selects": {}
         },
+        "version": "0.0.0-devel.0"
+      },
+      "license": null
+    },
+    "charted-common 0.0.0-devel.0": {
+      "name": "charted-common",
+      "version": "0.0.0-devel.0",
+      "repository": null,
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "charted_common",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "charted_common",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "md-5 0.10.5",
+              "target": "md5"
+            },
+            {
+              "id": "semver 1.0.17",
+              "target": "semver"
+            },
+            {
+              "id": "serde 1.0.166",
+              "target": "serde"
+            },
+            {
+              "id": "sha256 1.1.4",
+              "target": "sha256"
+            },
+            {
+              "id": "thiserror 1.0.41",
+              "target": "thiserror"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.0.0-devel.0"
+      },
+      "license": null
+    },
+    "charted-config 0.0.0-devel.0": {
+      "name": "charted-config",
+      "version": "0.0.0-devel.0",
+      "repository": null,
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "charted_config",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "charted_config",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2021",
+        "version": "0.0.0-devel.0"
+      },
+      "license": null
+    },
+    "charted-database 0.0.0-devel.0": {
+      "name": "charted-database",
+      "version": "0.0.0-devel.0",
+      "repository": null,
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "charted_database",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "charted_database",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2021",
+        "version": "0.0.0-devel.0"
+      },
+      "license": null
+    },
+    "charted-helm-charts 0.0.0-devel.0": {
+      "name": "charted-helm-charts",
+      "version": "0.0.0-devel.0",
+      "repository": null,
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "charted_helm_charts",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "charted_helm_charts",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2021",
+        "version": "0.0.0-devel.0"
+      },
+      "license": null
+    },
+    "charted-helm-plugin 0.0.0-devel.0": {
+      "name": "charted-helm-plugin",
+      "version": "0.0.0-devel.0",
+      "repository": null,
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "charted_helm_plugin",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "charted_helm_plugin",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "ansi_term 0.12.1",
+              "target": "ansi_term"
+            },
+            {
+              "id": "chrono 0.4.26",
+              "target": "chrono"
+            },
+            {
+              "id": "clap 4.3.10",
+              "target": "clap"
+            },
+            {
+              "id": "clap_complete 4.3.1",
+              "target": "clap_complete"
+            },
+            {
+              "id": "color-eyre 0.6.2",
+              "target": "color_eyre"
+            },
+            {
+              "id": "dotenv 0.15.0",
+              "target": "dotenv"
+            },
+            {
+              "id": "eyre 0.6.8",
+              "target": "eyre"
+            },
+            {
+              "id": "tokio 1.29.1",
+              "target": "tokio"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "proc_macro_deps": {
+          "common": [
+            {
+              "id": "async-trait 0.1.70",
+              "target": "async_trait"
+            }
+          ],
+          "selects": {}
+        },
+        "version": "0.0.0-devel.0"
+      },
+      "license": null
+    },
+    "charted-logging 0.0.0-devel.0": {
+      "name": "charted-logging",
+      "version": "0.0.0-devel.0",
+      "repository": null,
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "charted_logging",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "charted_logging",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2021",
+        "version": "0.0.0-devel.0"
+      },
+      "license": null
+    },
+    "charted-openapi 0.0.0-devel.0": {
+      "name": "charted-openapi",
+      "version": "0.0.0-devel.0",
+      "repository": null,
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "charted_openapi",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "charted_openapi",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2021",
+        "version": "0.0.0-devel.0"
+      },
+      "license": null
+    },
+    "charted-redis 0.0.0-devel.0": {
+      "name": "charted-redis",
+      "version": "0.0.0-devel.0",
+      "repository": null,
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "charted_redis",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "charted_redis",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2021",
+        "version": "0.0.0-devel.0"
+      },
+      "license": null
+    },
+    "charted-search 0.0.0-devel.0": {
+      "name": "charted-search",
+      "version": "0.0.0-devel.0",
+      "repository": null,
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "charted_search",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "charted_search",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2021",
+        "version": "0.0.0-devel.0"
+      },
+      "license": null
+    },
+    "charted-search-elasticsearch 0.0.0-devel.0": {
+      "name": "charted-search-elasticsearch",
+      "version": "0.0.0-devel.0",
+      "repository": null,
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "charted_search_elasticsearch",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "charted_search_elasticsearch",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2021",
+        "version": "0.0.0-devel.0"
+      },
+      "license": null
+    },
+    "charted-search-meilisearch 0.0.0-devel.0": {
+      "name": "charted-search-meilisearch",
+      "version": "0.0.0-devel.0",
+      "repository": null,
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "charted_search_meilisearch",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "charted_search_meilisearch",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2021",
         "version": "0.0.0-devel.0"
       },
       "license": null
@@ -1552,6 +1940,7 @@
             "color",
             "default",
             "derive",
+            "env",
             "error-context",
             "help",
             "std",
@@ -1615,6 +2004,7 @@
         "crate_features": {
           "common": [
             "color",
+            "env",
             "error-context",
             "help",
             "std",
@@ -1778,6 +2168,136 @@
         ],
         "edition": "2021",
         "version": "0.5.0"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
+    "color-eyre 0.6.2": {
+      "name": "color-eyre",
+      "version": "0.6.2",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/color-eyre/0.6.2/download",
+          "sha256": "5a667583cca8c4f8436db8de46ea8233c42a7d9ae424a82d338f2e4675229204"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "color_eyre",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "color_eyre",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "capture-spantrace",
+            "color-spantrace",
+            "default",
+            "issue-url",
+            "tracing-error",
+            "track-caller",
+            "url"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "backtrace 0.3.68",
+              "target": "backtrace"
+            },
+            {
+              "id": "color-spantrace 0.2.0",
+              "target": "color_spantrace"
+            },
+            {
+              "id": "eyre 0.6.8",
+              "target": "eyre"
+            },
+            {
+              "id": "indenter 0.3.3",
+              "target": "indenter"
+            },
+            {
+              "id": "once_cell 1.18.0",
+              "target": "once_cell"
+            },
+            {
+              "id": "owo-colors 3.5.0",
+              "target": "owo_colors"
+            },
+            {
+              "id": "tracing-error 0.2.0",
+              "target": "tracing_error"
+            },
+            {
+              "id": "url 2.4.0",
+              "target": "url"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.6.2"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
+    "color-spantrace 0.2.0": {
+      "name": "color-spantrace",
+      "version": "0.2.0",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/color-spantrace/0.2.0/download",
+          "sha256": "1ba75b3d9449ecdccb27ecbc479fdc0b87fa2dd43d2f8298f9bf0e59aacc8dce"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "color_spantrace",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "color_spantrace",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "once_cell 1.18.0",
+              "target": "once_cell"
+            },
+            {
+              "id": "owo-colors 3.5.0",
+              "target": "owo_colors"
+            },
+            {
+              "id": "tracing-core 0.1.31",
+              "target": "tracing_core"
+            },
+            {
+              "id": "tracing-error 0.2.0",
+              "target": "tracing_error"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.2.0"
       },
       "license": "MIT OR Apache-2.0"
     },
@@ -2087,6 +2607,36 @@
         "version": "0.10.7"
       },
       "license": "MIT OR Apache-2.0"
+    },
+    "dotenv 0.15.0": {
+      "name": "dotenv",
+      "version": "0.15.0",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/dotenv/0.15.0/download",
+          "sha256": "77c90badedccf4105eca100756a0b1289e191f6fcbdadd3cee1d2f614f97da8f"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "dotenv",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "dotenv",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2018",
+        "version": "0.15.0"
+      },
+      "license": "MIT"
     },
     "encoding_rs 0.8.32": {
       "name": "encoding_rs",
@@ -5057,6 +5607,52 @@
       },
       "license": "MIT"
     },
+    "md-5 0.10.5": {
+      "name": "md-5",
+      "version": "0.10.5",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/md-5/0.10.5/download",
+          "sha256": "6365506850d44bff6e2fbcb5176cf63650e48bd45ef2fe2665ae1570e0f4b9ca"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "md5",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "md5",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "default",
+            "std"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "digest 0.10.7",
+              "target": "digest"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.10.5"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
     "memchr 2.5.0": {
       "name": "memchr",
       "version": "2.5.0",
@@ -5966,6 +6562,36 @@
         },
         "edition": "2018",
         "version": "3.7.0"
+      },
+      "license": "MIT"
+    },
+    "owo-colors 3.5.0": {
+      "name": "owo-colors",
+      "version": "3.5.0",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/owo-colors/3.5.0/download",
+          "sha256": "c1b04fb49957986fdce4d6ee7a65027d55d4b6d2265e5848bbb507b58ccfdb6f"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "owo_colors",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "owo_colors",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2018",
+        "version": "3.5.0"
       },
       "license": "MIT"
     },
@@ -7510,6 +8136,7 @@
         "crate_features": {
           "common": [
             "default",
+            "serde",
             "std"
           ],
           "selects": {}
@@ -7519,6 +8146,10 @@
             {
               "id": "semver 1.0.17",
               "target": "build_script_build"
+            },
+            {
+              "id": "serde 1.0.166",
+              "target": "serde"
             }
           ],
           "selects": {}
@@ -8107,7 +8738,7 @@
               "target": "serde_json"
             },
             {
-              "id": "thiserror 1.0.40",
+              "id": "thiserror 1.0.41",
               "target": "thiserror"
             },
             {
@@ -8532,6 +9163,138 @@
         "version": "0.10.5"
       },
       "license": "MIT OR Apache-2.0"
+    },
+    "sha2 0.10.7": {
+      "name": "sha2",
+      "version": "0.10.7",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/sha2/0.10.7/download",
+          "sha256": "479fb9d862239e610720565ca91403019f2f00410f1864c5aa7479b950a76ed8"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "sha2",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "sha2",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "cfg-if 1.0.0",
+              "target": "cfg_if"
+            },
+            {
+              "id": "digest 0.10.7",
+              "target": "digest"
+            }
+          ],
+          "selects": {
+            "cfg(any(target_arch = \"aarch64\", target_arch = \"x86_64\", target_arch = \"x86\"))": [
+              {
+                "id": "cpufeatures 0.2.8",
+                "target": "cpufeatures"
+              }
+            ]
+          }
+        },
+        "edition": "2018",
+        "version": "0.10.7"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
+    "sha256 1.1.4": {
+      "name": "sha256",
+      "version": "1.1.4",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/sha256/1.1.4/download",
+          "sha256": "08a975c1bc0941703000eaf232c4d8ce188d8d5408d6344b6b2c8c6262772828"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "sha256",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "sha256",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "hex 0.4.3",
+              "target": "hex"
+            },
+            {
+              "id": "sha2 0.10.7",
+              "target": "sha2"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "1.1.4"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
+    "sharded-slab 0.1.4": {
+      "name": "sharded-slab",
+      "version": "0.1.4",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/sharded-slab/0.1.4/download",
+          "sha256": "900fba806f70c630b0a382d0d825e17a0f19fcd059a2ade1ff237bcddf446b31"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "sharded_slab",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "sharded_slab",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "lazy_static 1.4.0",
+              "target": "lazy_static"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.1.4"
+      },
+      "license": "MIT"
     },
     "signal-hook-registry 1.4.1": {
       "name": "signal-hook-registry",
@@ -8979,13 +9742,13 @@
       },
       "license": "MIT OR Apache-2.0"
     },
-    "thiserror 1.0.40": {
+    "thiserror 1.0.41": {
       "name": "thiserror",
-      "version": "1.0.40",
+      "version": "1.0.41",
       "repository": {
         "Http": {
-          "url": "https://crates.io/api/v1/crates/thiserror/1.0.40/download",
-          "sha256": "978c9a314bd8dc99be594bc3c175faaa9794be04a5a5e153caba6915336cebac"
+          "url": "https://crates.io/api/v1/crates/thiserror/1.0.41/download",
+          "sha256": "c16a64ba9387ef3fdae4f9c1a7f07a0997fce91985c0336f1ddc1822b3b37802"
         }
       },
       "targets": [
@@ -9016,7 +9779,7 @@
         "deps": {
           "common": [
             {
-              "id": "thiserror 1.0.40",
+              "id": "thiserror 1.0.41",
               "target": "build_script_build"
             }
           ],
@@ -9026,13 +9789,13 @@
         "proc_macro_deps": {
           "common": [
             {
-              "id": "thiserror-impl 1.0.40",
+              "id": "thiserror-impl 1.0.41",
               "target": "thiserror_impl"
             }
           ],
           "selects": {}
         },
-        "version": "1.0.40"
+        "version": "1.0.41"
       },
       "build_script_attrs": {
         "data_glob": [
@@ -9041,13 +9804,13 @@
       },
       "license": "MIT OR Apache-2.0"
     },
-    "thiserror-impl 1.0.40": {
+    "thiserror-impl 1.0.41": {
       "name": "thiserror-impl",
-      "version": "1.0.40",
+      "version": "1.0.41",
       "repository": {
         "Http": {
-          "url": "https://crates.io/api/v1/crates/thiserror-impl/1.0.40/download",
-          "sha256": "f9456a42c5b0d803c8cd86e73dd7cc9edd429499f37a3550d286d5e86720569f"
+          "url": "https://crates.io/api/v1/crates/thiserror-impl/1.0.41/download",
+          "sha256": "d14928354b01c4d6a4f0e549069adef399a284e7995c7ccca94e8a07a5346c59"
         }
       },
       "targets": [
@@ -9084,7 +9847,50 @@
           "selects": {}
         },
         "edition": "2018",
-        "version": "1.0.40"
+        "version": "1.0.41"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
+    "thread_local 1.1.7": {
+      "name": "thread_local",
+      "version": "1.1.7",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/thread_local/1.1.7/download",
+          "sha256": "3fdd6f064ccff2d6567adcb3873ca630700f00b5ad3f060c25b5dcfd9a4ce152"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "thread_local",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "thread_local",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "cfg-if 1.0.0",
+              "target": "cfg_if"
+            },
+            {
+              "id": "once_cell 1.18.0",
+              "target": "once_cell"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "1.1.7"
       },
       "license": "MIT OR Apache-2.0"
     },
@@ -9966,6 +10772,56 @@
       },
       "license": "MIT"
     },
+    "tracing-error 0.2.0": {
+      "name": "tracing-error",
+      "version": "0.2.0",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/tracing-error/0.2.0/download",
+          "sha256": "d686ec1c0f384b1277f097b2f279a2ecc11afe8c133c1aabf036a27cb4cd206e"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "tracing_error",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "tracing_error",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "default",
+            "traced-error"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "tracing 0.1.37",
+              "target": "tracing"
+            },
+            {
+              "id": "tracing-subscriber 0.3.17",
+              "target": "tracing_subscriber"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.2.0"
+      },
+      "license": "MIT"
+    },
     "tracing-subscriber 0.3.17": {
       "name": "tracing-subscriber",
       "version": "0.3.17",
@@ -9994,12 +10850,24 @@
         "crate_features": {
           "common": [
             "alloc",
-            "std"
+            "fmt",
+            "registry",
+            "sharded-slab",
+            "std",
+            "thread_local"
           ],
           "selects": {}
         },
         "deps": {
           "common": [
+            {
+              "id": "sharded-slab 0.1.4",
+              "target": "sharded_slab"
+            },
+            {
+              "id": "thread_local 1.1.7",
+              "target": "thread_local"
+            },
             {
               "id": "tracing-core 0.1.31",
               "target": "tracing_core"
@@ -11944,7 +12812,19 @@
   },
   "binary_crates": [],
   "workspace_members": {
+    "charted-bootstrap 0.0.0-devel.0": "crates/bootstrap",
     "charted-cli 0.0.0-devel.0": "cli",
+    "charted-common 0.0.0-devel.0": "crates/common",
+    "charted-config 0.0.0-devel.0": "crates/config",
+    "charted-database 0.0.0-devel.0": "crates/database",
+    "charted-helm-charts 0.0.0-devel.0": "crates/helm-charts",
+    "charted-helm-plugin 0.0.0-devel.0": "tools/helm-plugin",
+    "charted-logging 0.0.0-devel.0": "crates/logging",
+    "charted-openapi 0.0.0-devel.0": "crates/openapi",
+    "charted-redis 0.0.0-devel.0": "crates/redis",
+    "charted-search 0.0.0-devel.0": "crates/search",
+    "charted-search-elasticsearch 0.0.0-devel.0": "crates/search/elasticsearch",
+    "charted-search-meilisearch 0.0.0-devel.0": "crates/search/meilisearch",
     "charted-server 0.0.0-devel.0": "server"
   },
   "conditions": {
@@ -12062,6 +12942,28 @@
       "x86_64-pc-windows-msvc"
     ],
     "cfg(any(target_arch = \"aarch64\", target_arch = \"x86\", target_arch = \"x86_64\"))": [
+      "aarch64-apple-darwin",
+      "aarch64-apple-ios",
+      "aarch64-apple-ios-sim",
+      "aarch64-fuchsia",
+      "aarch64-linux-android",
+      "aarch64-pc-windows-msvc",
+      "aarch64-unknown-linux-gnu",
+      "i686-apple-darwin",
+      "i686-linux-android",
+      "i686-pc-windows-msvc",
+      "i686-unknown-freebsd",
+      "i686-unknown-linux-gnu",
+      "x86_64-apple-darwin",
+      "x86_64-apple-ios",
+      "x86_64-fuchsia",
+      "x86_64-linux-android",
+      "x86_64-pc-windows-msvc",
+      "x86_64-unknown-freebsd",
+      "x86_64-unknown-linux-gnu",
+      "x86_64-unknown-none"
+    ],
+    "cfg(any(target_arch = \"aarch64\", target_arch = \"x86_64\", target_arch = \"x86\"))": [
       "aarch64-apple-darwin",
       "aarch64-apple-ios",
       "aarch64-apple-ios-sim",

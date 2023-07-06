@@ -755,6 +755,8 @@ FodyWeavers.xsd
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
 
+!distribution/bin/
+!scripts/publish/
 config.yml
 .data/
 .env

@@ -17,7 +17,17 @@
 resolver = "2"
 members = [
     "cli",
-    #"crates/",
     "server",
-    #"tools/"
+    "crates/bootstrap",
+    "crates/common",
+    "crates/config",
+    "crates/database",
+    "crates/helm-charts",
+    "crates/logging",
+    "crates/openapi",
+    "crates/redis",
+    "crates/search",
+    "crates/search/elasticsearch",
+    "crates/search/meilisearch",
+    "tools/helm-plugin"
 ]

@@ -16,6 +16,7 @@
 workspace(name = "org_noelware_charted_server")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("//:build/utils.bzl", "get_cargo_manifests")
 
 http_archive(
     name = "rules_rust",
@@ -58,12 +59,7 @@ cargo_bootstrap_repository(
 
 load("@rules_rust//crate_universe:defs.bzl", "crates_repository")
 crates_repository(
-    manifests = [
-        "//:Cargo.toml",
-        "//:cli/Cargo.toml",
-        "//:server/Cargo.toml"
-    ],
-
+    manifests = get_cargo_manifests(),
     cargo_lockfile = "//:Cargo.lock",
     lockfile = "//:Cargo.bzl.lock",
     name = "crate_index"

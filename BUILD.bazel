@@ -18,6 +18,9 @@ exports_files([
     # of the charted-server monorepo.
     ".charted-version",
 
+    # used in the //scripts:sync-deps target
+    "Cargo.bzl.lock",
+
     # Used for formatting Rust source code
     "rustfmt.toml",
 

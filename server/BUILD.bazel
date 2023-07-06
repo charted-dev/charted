@@ -17,7 +17,6 @@ load("//:build/rust_project.bzl", "rust_project")
 
 rust_project(
     name = "server",
-    include_tests = True,
     deps = [
         "@crate_index//:ansi_term",
         "@crate_index//:axum",

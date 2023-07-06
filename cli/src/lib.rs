@@ -16,7 +16,12 @@
 #[macro_use]
 extern crate async_trait;
 
+mod commands;
+
 use clap::Parser;
+use crate::commands::Commands;
+
+pub use commands::execute;
 
 #[derive(Debug, Clone, Parser)]
 #[clap(
@@ -26,7 +31,6 @@ use clap::Parser;
     arg_required_else_help = true
 )]
 pub struct Cli {
-    /// Whether if the CLI should print the current version of the CLI.
-    #[arg(short = 'v', long = "version", help = "Prints out the current version of the charted CLI")]
-    pub print_version: bool,
+    #[command(subcommand)]
+    pub command: Commands,
 }
