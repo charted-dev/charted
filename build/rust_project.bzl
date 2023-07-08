@@ -15,31 +15,30 @@
 
 """ Common macro through-out all Rust crates. """
 
-load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library", "rust_test")
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_doc_test", "rust_library", "rust_test")
 load("@rules_rust//cargo:defs.bzl", "cargo_build_script")
 load("@crate_index//:defs.bzl", "aliases")
 
 def rust_project(
-    name,
-    srcs = [],
-    deps = [],
-    proc_macro_deps = [],
-    include_tests = False,
-    test_deps = [],
-    is_binary = False,
-    build_script = False,
-    build_script_data = [],
-    build_script_deps = []
-):
+        name,
+        deps = [],
+        proc_macro_deps = [],
+        include_tests = False,
+        include_doctests = False,
+        test_deps = [],
+        is_binary = False,
+        build_script = False,
+        build_script_data = [],
+        build_script_deps = []):
     """A common `rust_project` macro to help aid repeating ourselves.
 
     Args:
         name: The name of the project.
-        srcs: A list of sources for the `rust_library` macro, by default it will glob over 'src/**/*.rs' except 'src/main.rs'
         deps: A list of dependencies to use in the `rust_library`, `rust_binary` (if enabled), and `rust_test` (if enabled) macro(s).
         proc_macro_deps: A list of proc-macro related dependencies to use.
         include_tests: If the `rust_test` macro should be included. This will always be `{name}_test` when used with
             the `bazel test` command.
+        include_doctests: If doctests should be enable in this project.
         test_deps: Any other external dependencies that should be only in tests and not leaked into the main project scope.
         is_binary: Whether if the `rust_binary` should be included for this project, for most Bazel packages, this will use
             the default (False) since the CLI and the OpenAPI codegen scripts are the only binaries that should be
@@ -56,10 +55,10 @@ def rust_project(
         # without using 'extern crate {name}'!
         name = "charted_{name}".format(name = name),
         aliases = aliases(),
-        srcs = native.glob(["src/**/*.rs"], exclude = ["src/main.rs"]) + srcs,
+        srcs = native.glob(["src/**/*.rs"], exclude = ["src/main.rs"]),
         deps = deps,
         proc_macro_deps = proc_macro_deps,
-        visibility = ["//visibility:public"]
+        visibility = ["//visibility:public"],
     )
 
     if include_tests:
@@ -67,7 +66,13 @@ def rust_project(
             name = "tests",
             srcs = native.glob(["src/**/*.rs", "tests/**/*.rs"], exclude = ["src/main.rs"]),
             deps = [":charted_{name}".format(name = name)] + deps + test_deps,
-            tags = ["no-cache"]
+            tags = ["no-cache"],
+        )
+
+    if include_doctests:
+        rust_doc_test(
+            name = "doctests",
+            crate = ":charted_{name}".format(name = name),
         )
 
     if is_binary:
@@ -75,14 +80,14 @@ def rust_project(
             name = "bin",
             srcs = ["src/main.rs"],
             deps = [":charted_{name}".format(name = name)] + deps,
-            rustc_flags = ["-C", "incremental"]
+            rustc_flags = ["-C", "incremental=true"],
         )
 
         rust_binary(
             name = "release_bin",
             srcs = ["src/main.rs"],
             deps = [":charted_{name}".format(name = name)] + deps,
-            rustc_flags = ["-C", "debuginfo=0", "-C", "opt-level=3", "-C", "lto=fat", "-C", "incremental=true"]
+            rustc_flags = ["-C", "debuginfo=0", "-C", "opt-level=3", "-C", "lto=fat", "-C", "incremental=true"],
         )
 
     if build_script:
@@ -90,5 +95,5 @@ def rust_project(
             name = "buildscript",
             srcs = ["build.rs"],
             data = build_script_data,
-            deps = build_script_deps
+            deps = build_script_deps,
         )

@@ -13,12 +13,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@crate_index//:defs.bzl", "all_crate_deps")
 load("//:build/rust_project.bzl", "rust_project")
 
 rust_project(
     name = "common",
-    include_tests = True,
     build_script = True,
-    build_script_deps = ["@crate_index//:chrono", "@crate_index//:rustc-version"],
-    build_script_data = ["//:.charted-version", "//:.git"]
+    build_script_data = [
+        "//:.charted-version",
+        "//:.git",
+    ],
+    build_script_deps = all_crate_deps(build = True),
+    include_doctests = True,
+    include_tests = True,
+    deps = [
+        ":buildscript",
+        "@crate_index//:chrono",
+        "@crate_index//:hex",
+        "@crate_index//:lazy_static",
+        "@crate_index//:md-5",
+        "@crate_index//:once_cell",
+        "@crate_index//:regex",
+        "@crate_index//:semver",
+        "@crate_index//:serde",
+        "@crate_index//:thiserror",
+        "@crate_index//:utoipa",
+    ],
 )

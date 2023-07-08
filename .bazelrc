@@ -15,6 +15,9 @@ build:windows --enable_runfiles
 # https://github.com/bazelbuild/bazel/issues/6038
 common --experimental_allow_tags_propagation
 
+# Always show test output.
+test --test_output=all
+
 # Allows importing from user-defined .bazelrc files; this is ignored
 # by Git by default.
 try-import %workspace%/.user.bazelrc

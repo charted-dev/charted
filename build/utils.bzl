@@ -1,3 +1,4 @@
+# buildifier: disable=module-docstring
 # 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
 # Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
 #
@@ -13,7 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-def get_cargo_manifests(): # buildifier: disable=module-docstring
+""" bazel is mean """
+
+def get_cargo_manifests():
+    """
+    Method to return all the Cargo manifests.
+    """
+
     return ["//{}:Cargo.toml".format(f) for f in [
         "crates/bootstrap",
         "crates/common",
@@ -29,5 +36,5 @@ def get_cargo_manifests(): # buildifier: disable=module-docstring
         "tools/helm-plugin",
         "server",
         "cli",
-        ""
+        "",
     ]]

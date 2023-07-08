@@ -17,5 +17,5 @@ load("//:build/rust_project.bzl", "rust_project")
 
 rust_project(
     name = "openapi",
-    include_tests = True
+    include_tests = True,
 )

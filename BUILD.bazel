@@ -14,6 +14,9 @@
 # limitations under the License.
 
 exports_files([
+    # used for the NPM lock translation for Bazel.
+    ".bazelignore",
+
     # Used for crates/common/build.rs -- which returns the latest version
     # of the charted-server monorepo.
     ".charted-version",

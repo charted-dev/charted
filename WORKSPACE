@@ -47,48 +47,73 @@ http_archive(
 
 # Load up rules_rust dependencies
 load("@rules_rust//rust:repositories.bzl", "rules_rust_dependencies", "rust_register_toolchains")
+
 rules_rust_dependencies()
-rust_register_toolchains(edition = "2021", versions = ["1.70.0"])
+
+rust_register_toolchains(
+    edition = "2021",
+    versions = ["1.70.0"],
+)
 
 load("@rules_rust//cargo:defs.bzl", "cargo_bootstrap_repository")
+
 cargo_bootstrap_repository(
+    name = "charted-server",
     cargo_lockfile = "//:Cargo.lock",
     cargo_toml = "//:Cargo.toml",
-    name = "charted-server"
 )
 
 load("@rules_rust//crate_universe:defs.bzl", "crates_repository")
+
 crates_repository(
-    manifests = get_cargo_manifests(),
+    name = "crate_index",
     cargo_lockfile = "//:Cargo.lock",
     lockfile = "//:Cargo.bzl.lock",
-    name = "crate_index"
+    manifests = get_cargo_manifests(),
 )
 
 load("@crate_index//:defs.bzl", "crate_repositories")
+
 crate_repositories()
 
 # Load up rules_js/ts/esbuild dependencies next
 load("@aspect_rules_js//js:repositories.bzl", "rules_js_dependencies")
+
 rules_js_dependencies()
 
 load("@aspect_rules_ts//ts:repositories.bzl", "rules_ts_dependencies")
+
 rules_ts_dependencies(ts_version = "5.1.6")
 
 load("@aspect_rules_esbuild//esbuild:dependencies.bzl", "rules_esbuild_dependencies")
+
 rules_esbuild_dependencies()
 
-load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains", "node_repositories")
-node_repositories(
-    name = "nodejs_repo",
-    node_version = "20.3.1",
+load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
+
+nodejs_register_toolchains(
+    name = "nodejs",
     node_repositories = {
-        "20.3.1-linux_amd64": ("node-v20.3.1-linux-x64.tar.xz", "node-v20.3.1-linux-x64", "ecfe263dbd9c239f37b5adca823b60be1bb57feabbccd25db785e647ebc5ff5e"),
-        "20.3.1-linux_arm64": ("node-v20.3.1-linux-arm64.tar.gz", "node-v20.3.1-linux-arm64", "555b5c521e068acc976e672978ba0f5b1a0c030192b50639384c88143f4460bc"),
-        "20.3.1-darwin_amd64": ("node-v20.3.1-darwin-x64.tar.gz", "node-v20.3.1-darwin-x64", "3040210287a0b8d05af49f57de191afa783e497abbb10c340bae9158cb51fdd4"),
-        "20.3.1-darwin_arm64": ("node-v20.3.1-darwin-arm64.tar.gz", "node-v20.3.1-darwin-arm64", "2ccb24e9211f4d17d8d8cfc0ea521198bb6a54e2f779f8feda952dbd3bb651ac"),
-        "20.3.1-windows_amd64": ("node-v20.3.1-win-x64.zip", "node-v20.3.1-win-x64", "145bd2f79eaa50b76559bd78266f4585e57b88dbb94613698a9514a601f84e7f")
-    }
+        "20.4.0-linux_amd64": ("node-v20.4.0-linux-x64.tar.xz", "node-v20.4.0-linux-x64", "6b49a007f409fb7620350285cfc909fbc909604fd0ff5a87a1730365514b3712"),
+        "20.4.0-linux_arm64": ("node-v20.4.0-linux-arm64.tar.gz", "node-v20.4.0-linux-arm64", "6ed340475a8bd5db5f04fe943b8fb89b7b2a8fd919f91217c6386dfa59865ba3"),
+        "20.4.0-darwin_amd64": ("node-v20.4.0-darwin-x64.tar.gz", "node-v20.4.0-darwin-x64", "fe765474a8651b85cee04a64e8473089196b922a36621f464a985a5f4891a054"),
+        "20.4.0-darwin_arm64": ("node-v20.4.0-darwin-arm64.tar.gz", "node-v20.4.0-darwin-arm64", "34f51397b6aad957b1a8eb70d13da5baf357ead124c1e429a7e939aa61266c06"),
+        "20.4.0-windows_amd64": ("node-v20.4.0-win-x64.zip", "node-v20.4.0-win-x64", "91a51aaa9152db510704b4274cffd84c6e3572e1678e055e0d9c5cf7951ebc2a"),
+    },
+    node_version = "20.4.0",
 )
 
-nodejs_register_toolchains(name = "nodejs", node_version = "20.3.1")
+load("@aspect_rules_js//npm:repositories.bzl", "npm_translate_lock")
+
+npm_translate_lock(
+    name = "npm",
+    data = ["//web:package.json"],
+    npmrc = "//web:.npmrc",
+    pnpm_lock = "//web:pnpm-lock.yaml",
+    update_pnpm_lock = True,
+    verify_node_modules_ignored = "//:.bazelignore",
+)
+
+load("@npm//:repositories.bzl", "npm_repositories")
+
+npm_repositories()

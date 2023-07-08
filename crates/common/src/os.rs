@@ -13,25 +13,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_cli::{execute, Cli};
-use charted_common::{is_debug_enabled, COMMIT_HASH, RUSTC_VERSION, VERSION};
-use clap::Parser;
-use color_eyre::config::HookBuilder;
-use eyre::Result;
-use std::env::{set_var, var};
-
-#[tokio::main]
-async fn main() -> Result<()> {
-    if is_debug_enabled() && var("RUST_BACKTRACE").is_err() {
-        set_var("RUST_BACKTRACE", "1");
+/// Returns the target architecture that this crate was
+/// built off from.
+pub fn architecture() -> &'static str {
+    if cfg!(target_arch = "x86_64") {
+        "amd64"
+    } else if cfg!(target_arch = "aarch64") {
+        "arm64"
+    } else {
+        "unknown"
     }
+}
 
-    HookBuilder::new()
-        .issue_url("https://github.com/charted-dev/charted/issues/new")
-        .add_issue_metadata("version", format!("v{VERSION}+{COMMIT_HASH}"))
-        .add_issue_metadata("rustc", RUSTC_VERSION)
-        .install()?;
-
-    let cli = Cli::parse();
-    execute(&cli.command).await
+/// Returns a machine-readable OS name.
+pub fn os_name() -> &'static str {
+    if cfg!(target_os = "linux") {
+        "linux"
+    } else if cfg!(target_os = "macos") {
+        "macOS"
+    } else if cfg!(windows) {
+        "windows"
+    } else {
+        "unknown"
+    }
 }
