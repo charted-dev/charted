@@ -1,5 +1,5 @@
 {
-  "checksum": "155fed53ff5e70a893ac5f38e7dcf3b11ffaf641acfd3dd0cdb9c774f69a5c66",
+  "checksum": "c32c62fdd09a249b0979631694da405a05b7be41d44bc8cc9197fedcec9b4ddd",
   "crates": {
     "addr2line 0.20.0": {
       "name": "addr2line",
@@ -1508,10 +1508,6 @@
             {
               "id": "serde 1.0.166",
               "target": "serde"
-            },
-            {
-              "id": "sha256 1.1.4",
-              "target": "sha256"
             },
             {
               "id": "thiserror 1.0.41",
@@ -10086,99 +10082,6 @@
       },
       "license": "MIT OR Apache-2.0"
     },
-    "sha2 0.10.7": {
-      "name": "sha2",
-      "version": "0.10.7",
-      "repository": {
-        "Http": {
-          "url": "https://crates.io/api/v1/crates/sha2/0.10.7/download",
-          "sha256": "479fb9d862239e610720565ca91403019f2f00410f1864c5aa7479b950a76ed8"
-        }
-      },
-      "targets": [
-        {
-          "Library": {
-            "crate_name": "sha2",
-            "crate_root": "src/lib.rs",
-            "srcs": [
-              "**/*.rs"
-            ]
-          }
-        }
-      ],
-      "library_target_name": "sha2",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "deps": {
-          "common": [
-            {
-              "id": "cfg-if 1.0.0",
-              "target": "cfg_if"
-            },
-            {
-              "id": "digest 0.10.7",
-              "target": "digest"
-            }
-          ],
-          "selects": {
-            "cfg(any(target_arch = \"aarch64\", target_arch = \"x86_64\", target_arch = \"x86\"))": [
-              {
-                "id": "cpufeatures 0.2.8",
-                "target": "cpufeatures"
-              }
-            ]
-          }
-        },
-        "edition": "2018",
-        "version": "0.10.7"
-      },
-      "license": "MIT OR Apache-2.0"
-    },
-    "sha256 1.1.4": {
-      "name": "sha256",
-      "version": "1.1.4",
-      "repository": {
-        "Http": {
-          "url": "https://crates.io/api/v1/crates/sha256/1.1.4/download",
-          "sha256": "08a975c1bc0941703000eaf232c4d8ce188d8d5408d6344b6b2c8c6262772828"
-        }
-      },
-      "targets": [
-        {
-          "Library": {
-            "crate_name": "sha256",
-            "crate_root": "src/lib.rs",
-            "srcs": [
-              "**/*.rs"
-            ]
-          }
-        }
-      ],
-      "library_target_name": "sha256",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "deps": {
-          "common": [
-            {
-              "id": "hex 0.4.3",
-              "target": "hex"
-            },
-            {
-              "id": "sha2 0.10.7",
-              "target": "sha2"
-            }
-          ],
-          "selects": {}
-        },
-        "edition": "2018",
-        "version": "1.1.4"
-      },
-      "license": "MIT OR Apache-2.0"
-    },
     "sharded-slab 0.1.4": {
       "name": "sharded-slab",
       "version": "0.1.4",
@@ -14147,28 +14050,6 @@
       "x86_64-pc-windows-msvc"
     ],
     "cfg(any(target_arch = \"aarch64\", target_arch = \"x86\", target_arch = \"x86_64\"))": [
-      "aarch64-apple-darwin",
-      "aarch64-apple-ios",
-      "aarch64-apple-ios-sim",
-      "aarch64-fuchsia",
-      "aarch64-linux-android",
-      "aarch64-pc-windows-msvc",
-      "aarch64-unknown-linux-gnu",
-      "i686-apple-darwin",
-      "i686-linux-android",
-      "i686-pc-windows-msvc",
-      "i686-unknown-freebsd",
-      "i686-unknown-linux-gnu",
-      "x86_64-apple-darwin",
-      "x86_64-apple-ios",
-      "x86_64-fuchsia",
-      "x86_64-linux-android",
-      "x86_64-pc-windows-msvc",
-      "x86_64-unknown-freebsd",
-      "x86_64-unknown-linux-gnu",
-      "x86_64-unknown-none"
-    ],
-    "cfg(any(target_arch = \"aarch64\", target_arch = \"x86_64\", target_arch = \"x86\"))": [
       "aarch64-apple-darwin",
       "aarch64-apple-ios",
       "aarch64-apple-ios-sim",

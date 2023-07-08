@@ -20,10 +20,12 @@ use std::env::var;
 use utoipa::{
     openapi::{
         schema::{ObjectBuilder, OneOfBuilder, Schema},
-        KnownFormat, RefOr, SchemaFormat, SchemaType,
+        RefOr, SchemaType,
     },
     ToSchema,
 };
+
+use crate::ID;
 
 lazy_static! {
     static ref NAME_REGEX: Regex = Regex::new(r"^([A-z]|-|_|\\d{0,9}){0,32}").unwrap();
@@ -55,16 +57,8 @@ impl<'s> ToSchema<'s> for NameOrSnowflake {
             RefOr::T(Schema::OneOf(
                 OneOfBuilder::new()
                     .description(Some("Represents a union enum that can hold a Snowflake ([u64]-based integer) and a Name, which is a String that is validated with the Name regex."))
-                    .item(ObjectBuilder::new()
-                        .format(Some(SchemaFormat::KnownFormat(KnownFormat::Int64)))
-                        .schema_type(SchemaType::Integer)
-                        .description(Some("[u64]-based integer that can point to a entity resource.")).build())
-                    .item(ObjectBuilder::new()
-                        .schema_type(SchemaType::String)
-                        .description(Some("Valid UTF-8 string that is used to point to a entity resource. This is mainly used for `idOrName` path parameters in any of the REST API endpoints to help identify a resource by a Name or Snowflake pointer."))
-                        .pattern(Some(r"^([A-z]|-|_|\\d{0,9}){0,32}"))
-                        .max_length(Some(32))
-                        .build())
+                    .item(ID::schema().1)
+                    .item(Name::schema().1)
                     .build(),
             )),
         )
@@ -150,7 +144,7 @@ impl Distribution {
     pub fn detect() -> Distribution {
         match var("CHARTED_DISTRIBUTION_TYPE") {
             Ok(s) => match s.as_str() {
-                "kubernetes" | "k8s" => Distribution::Kubernetes,
+                "kubernetes" => Distribution::Kubernetes,
                 "docker" => Distribution::Docker,
                 "rpm" => Distribution::RPM,
                 "deb" => Distribution::Deb,
@@ -174,6 +168,32 @@ impl<'s> ToSchema<'s> for Distribution {
                     .schema_type(SchemaType::String)
                     .enum_values(Some(vec!["kubernetes", "docker", "rpm", "deb", "git", "unknown"]))
                     .default(Some("unknown".into()))
+                    .build(),
+            )),
+        )
+    }
+}
+
+/// Valid UTF-8 string that is used to point to a entity resource. This
+/// is mainly used for `idOrName` path parameters in any of the REST
+/// API endpoints to help identify a resource by a Name or Snowflake
+/// pointer.
+///
+/// Names are validated with the following regex: `^([A-z]|-|_|\\d{0,9}){0,32}`
+///
+/// This struct is only here for OpenAPI purposes, should never be used anywhere else.
+pub(crate) struct Name;
+
+impl<'s> ToSchema<'s> for Name {
+    fn schema() -> (&'s str, RefOr<Schema>) {
+        (
+            "Name",
+            RefOr::T(Schema::Object(
+                ObjectBuilder::new()
+                    .schema_type(SchemaType::String)
+                    .description(Some("Valid UTF-8 string that is used to point to a entity resource. This is mainly used for `idOrName` path parameters in any of the REST API endpoints to help identify a resource by a Name or Snowflake pointer."))
+                    .pattern(Some("^([A-z]|-|_|\\d{0,9}){0,32}"))
+                    .max_length(Some(32))
                     .build(),
             )),
         )
@@ -364,7 +384,7 @@ pub mod helm {
         pub description: Option<String>,
 
         /// The type of the chart.
-        #[serde(default)]
+        #[serde(rename = "type", default)]
         pub r#type: ChartType,
 
         /// A list of keywords about this project. These keywords can be searched
@@ -431,13 +451,13 @@ pub mod helm {
         #[serde(default)]
         pub urls: Vec<String>,
 
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         pub created: Option<DateTime>,
 
         #[serde(default = "falsy")]
         pub removed: bool,
 
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         pub digest: Option<String>,
     }
 
@@ -448,11 +468,14 @@ pub mod helm {
 
 pub mod entities {
     use super::{helm::ChartType, DateTime};
-    use crate::{hashmap, Bitfield};
+    use crate::{hashmap, Bitfield, ID};
     use once_cell::sync::Lazy;
     use semver::Version;
     use serde::{Deserialize, Serialize};
-    use utoipa::ToSchema;
+    use utoipa::{
+        openapi::{RefOr, Schema},
+        ToSchema,
+    };
 
     /// Returns an empty [Bitfield] with the available flags needed.
     #[allow(non_upper_case_globals)]
@@ -572,6 +595,15 @@ pub mod entities {
         })
     });
 
+    // only used for Utoipa to use the `ID` schema from snowflake.rs
+    fn snowflake_schema() -> RefOr<Schema> {
+        ID::schema().1
+    }
+
+    fn name_schema() -> RefOr<Schema> {
+        crate::models::Name::schema().1
+    }
+
     /// Represents an account that can own [repositories][Repository] and [organizations][Organizations]
     #[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema, PartialEq, Eq, PartialOrd, Ord)]
     pub struct User {
@@ -580,15 +612,15 @@ pub mod entities {
         pub verified_publisher: bool,
 
         /// Valid email address that points to a Gravatar avatar, or `null` if it shouldn't use one as the primary avatar
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         pub gravatar_email: Option<String>,
 
         /// Short description about this user, can be `null` if none was provided.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         pub description: Option<String>,
 
         /// Unique hash to locate a user's avatar, this also includes the extension that this avatar is, i.e, `png`.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         pub avatar_hash: Option<String>,
 
         /// Date of when this user was registered to this instance
@@ -605,10 +637,12 @@ pub mod entities {
         pub admin: bool,
 
         /// Display name for this user, it should be displayed as '{name} (@{username})' or just '@{username}' if there is no display name
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
+        #[schema(schema_with = name_schema)]
         pub name: Option<String>,
 
         /// Unique identifier to locate this user with the API
+        #[schema(schema_with = snowflake_schema)]
         pub id: u64,
     }
 
@@ -617,16 +651,16 @@ pub mod entities {
     #[derive(Debug, Clone, Default, ToSchema, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
     pub struct UserConnections {
         /// Snowflake ID that was sourced from [Noelware's Accounts System](https://accounts.noelware.org)
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         pub noelware_account_id: Option<u64>,
 
         /// Account ID that was sourced from Google OAuth2
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         pub google_account_id: Option<String>,
 
         /// Account ID that was sourced from GitHub OAuth2. This can differ from
         /// GitHub (https://github.com) and GitHub Enterprise usage.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         pub github_account_id: Option<String>,
 
         /// Date of when this connection was inserted to the database.
@@ -636,13 +670,14 @@ pub mod entities {
         pub updated_at: DateTime,
 
         /// Snowflake of the user that owns this connections object.
+        #[schema(schema_with = snowflake_schema)]
         pub id: u64,
     }
 
     #[derive(Debug, Clone, Default, ToSchema, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
     pub struct Repository {
         /// Short description about this user, can be `null` if none was provided.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         pub description: Option<String>,
 
         /// Whether if this repository is deprecated or not
@@ -656,7 +691,7 @@ pub mod entities {
         pub updated_at: DateTime,
 
         /// Unique hash to locate a repository's icon, this also includes the extension that this avatar is, i.e, `png`.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         pub icon_hash: Option<String>,
 
         /// Whether if this repository is private or not
@@ -673,6 +708,7 @@ pub mod entities {
         pub r#type: ChartType,
 
         /// Unique identifier to locate this repository from the API
+        #[schema(schema_with = snowflake_schema)]
         pub id: u64,
     }
 
@@ -690,7 +726,7 @@ pub mod entities {
         pub is_prerelease: bool,
 
         /// Markdown-formatted string that contains a changelog of this release.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         pub update_test: Option<String>,
 
         /// Date of when this release was registered to this instance
@@ -703,6 +739,7 @@ pub mod entities {
         pub tag: Version,
 
         /// Unique identifier to locate this repository release resource from the API.
+        #[schema(schema_with = snowflake_schema)]
         pub id: u64,
     }
 
@@ -727,6 +764,7 @@ pub mod entities {
         pub user: User,
 
         /// Unique identifier to locate this member with the API
+        #[schema(schema_with = snowflake_schema)]
         pub id: u64,
     }
 
@@ -743,6 +781,101 @@ pub mod entities {
         /// ```
         pub fn bitfield<'a>(&self) -> Bitfield<'a> {
             MemberPermissions.init(self.permissions)
+        }
+    }
+
+    /// Represents a unified entity that can manage and own repositories outside
+    /// a User. Organizations to the server is used for business-related Helm charts
+    /// that aren't tied to a specific User.
+    #[derive(Debug, Clone, ToSchema, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd, Ord)]
+    pub struct Organization {
+        /// Whether if this Organization is a Verified Publisher or not.
+        #[serde(default = "crate::models::helm::falsy")]
+        pub verified_publisher: bool,
+
+        /// Returns the twitter handle for this organization, if populated.
+        #[serde(default)]
+        pub twitter_handle: Option<String>,
+
+        /// Valid email address that points to a Gravatar avatar, or `null` if it shouldn't use one as the primary avatar
+        #[serde(default)]
+        pub gravatar_email: Option<String>,
+
+        /// Display name for this organization. It should be formatted as '{display_name} (@{name})'
+        /// or '@{name}'.
+        #[serde(default)]
+        pub display_name: Option<String>,
+
+        /// Date of when this organization was registered to this instance
+        pub created_at: DateTime,
+
+        /// Date of when the server has last updated this organization
+        pub updated_at: DateTime,
+
+        /// Unique hash to locate an organization's icon, this also includes the extension that this icon is, i.e, `png`.
+        #[serde(default)]
+        pub icon_hash: Option<String>,
+
+        /// Whether this organization is private and only its member can access this resource.
+        #[serde(default = "crate::models::helm::falsy")]
+        pub private: bool,
+
+        /// The User resource that owns this organization
+        pub owner: User,
+
+        /// The name for this organization.
+        pub name: String,
+
+        /// Unique identifier to locate this organization with the API
+        #[schema(schema_with = snowflake_schema)]
+        pub id: u64,
+    }
+
+    /// A resource for personal-managed API tokens that is created by a User. This is useful
+    /// for command line tools or scripts that need to interact with charted-server, but
+    /// the main use-case is for the [Helm plugin](https://charts.noelware.org/docs/helm-plugin/current).
+    #[derive(Debug, Clone, Default, ToSchema, Serialize, Deserialize)]
+    pub struct ApiKey {
+        /// Short description about this API key.
+        #[serde(default)]
+        pub description: Option<String>,
+
+        /// Date-time of when this API token expires in, `null` can be returned
+        /// if the token doesn't expire
+        #[serde(default)]
+        pub expires_in: Option<DateTime>,
+
+        /// The scopes that are attached to this API key resource.
+        pub scopes: u64,
+
+        /// The token itself. This is never revealed when querying, but only revealed
+        /// when you create the token.
+        pub token: Option<String>,
+
+        /// User resource that owns this API key.
+        pub owner: User,
+
+        /// The name of the API key.
+        pub name: String,
+
+        /// Unique identifer to locate this resource in the API server.
+        #[schema(schema_with = snowflake_schema)]
+        pub id: u64,
+    }
+
+    impl ApiKey {
+        /// Returns a new [`Bitfield`], but this member's permissions
+        /// are filled in for the bitfield.
+        ///
+        /// ## Example
+        /// ```
+        /// # use charted_common::models::entities::ApiKey;
+        /// #
+        /// let resource = ApiKey::default();
+        /// assert_eq!(resource.bitfield().bits(), 0);
+        /// ```
+        pub fn bitfield<'a>(&self) -> Bitfield<'a> {
+            ApiKeyScopes.init(self.scopes)
         }
     }
 }

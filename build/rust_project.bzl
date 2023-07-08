@@ -66,7 +66,6 @@ def rust_project(
             name = "tests",
             srcs = native.glob(["src/**/*.rs", "tests/**/*.rs"], exclude = ["src/main.rs"]),
             deps = [":charted_{name}".format(name = name)] + deps + test_deps,
-            tags = ["no-cache"],
         )
 
     if include_doctests:

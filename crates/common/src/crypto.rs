@@ -23,9 +23,6 @@ use md5::{digest::FixedOutput, Digest, Md5};
 /// Gravatar uses MD5 as the hashing algorithm to fetch a user avatar from
 /// an email.
 ///
-/// Please use the [`sha256`][sha256] function to do safe and secure hashing
-/// of anything.
-///
 /// ## Example
 /// ```no_run
 /// # use charted_common::crypto::md5;
@@ -33,8 +30,6 @@ use md5::{digest::FixedOutput, Digest, Md5};
 /// let hash = md5("Hello, world!");
 /// assert_eq!(hash.as_str(), "6cd3556deb0da54bca060b4c39479839");
 /// ```
-///
-/// [sha256]: crate::crypto::sha256
 pub fn md5<I: AsRef<[u8]>>(input: I) -> String {
     let mut hasher: Md5 = Md5::new();
     Digest::update(&mut hasher, input.as_ref());

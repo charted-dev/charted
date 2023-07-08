@@ -17,10 +17,16 @@ mod bitfield;
 pub mod crypto;
 pub mod models;
 pub mod os;
+mod snowflake;
 
 pub use bitfield::*;
+pub use snowflake::*;
+
 use lazy_static::lazy_static;
 use regex::Regex;
+
+/// Snowflake epoch used for ID generation. (March 1st, 2023)
+pub const SNOWFLAKE_EPOCH: usize = 1677654000000;
 
 /// Returns the version of the Rust compiler that charted-server
 /// was compiled on.
@@ -37,7 +43,7 @@ pub const BUILD_DATE: &str = env!("CHARTED_BUILD_DATE");
 pub const VERSION: &str = env!("CHARTED_VERSION");
 
 lazy_static! {
-    pub static ref TRUTHY_REGEX: Regex = Regex::new(r#""#).unwrap();
+    pub static ref TRUTHY_REGEX: Regex = Regex::new(r#"^(yes|true|si*|e|enable|1)$"#).unwrap();
 }
 
 /// Checks if debug mode is enabled or not.
