@@ -28,6 +28,7 @@ chrono = "0.4.26"
 clap = { version = "4.3.10", features = ["derive", "env"] }
 clap_complete = "4.3.1"
 charted-common = { path = "../crates/common", version = "0.0.0-devel.0" }
+charted-config = { path = "../crates/config", version = "0.0.0-devel.0" }
 charted-server = { path = "../server", version = "0.0.0-devel.0" }
 color-eyre = { version = "0.6.2", features = ["issue-url", "track-caller"] }
 dotenv = "0.15.0"
@@ -35,3 +36,4 @@ eyre = "0.6.8"
 tokio = { version = "1.29.1", features = ["full"] }
 sysinfo = "0.29.4"
 serde_json = "1.0.100"
+serde_yaml = "0.9.22"

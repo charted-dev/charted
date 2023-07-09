@@ -13,23 +13,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use super::models::AsyncExecute;
+use charted_config::{Config, Merge};
 use clap::Parser;
 use dotenv::dotenv;
 use eyre::Result;
 use std::path::PathBuf;
 
-use super::models::AsyncExecute;
-
 #[derive(Debug, Clone, Parser)]
-#[command(about = "Runs the API server in the same process invocation")]
+#[command(
+    about = "Runs the API server in the same process invocation",
+    override_usage = "charted server [--config=<PATH>]"
+)]
 pub struct Server {
-    #[arg(
-        short = 'c',
-        long = "config",
-        help = "Configuration file to run the server",
-        env = "CHARTED_CONFIG_FILE"
-    )]
+    #[arg(short = 'c', long = "config", help = "Configuration file to run the server")]
     config_file: Option<PathBuf>,
+
+    #[arg(
+        long = "print-config",
+        help = "Prints out the loaded configuration, but doesn't run the server"
+    )]
+    print_config: bool,
+
+    #[command(flatten)]
+    config_from_cli: Config,
 }
 
 #[async_trait]
@@ -37,6 +44,18 @@ impl AsyncExecute for Server {
     async fn execute(&self) -> Result<()> {
         // fast-load environment variables
         dotenv().unwrap_or_default();
+
+        // Load the config
+        Config::load(self.config_file.clone())?;
+        let config = &mut Config::get();
+        config.merge(self.config_from_cli.clone());
+
+        if self.print_config {
+            let res = serde_yaml::to_string(config).unwrap();
+            println!("{res}");
+
+            return Ok(());
+        }
 
         Ok(())
     }

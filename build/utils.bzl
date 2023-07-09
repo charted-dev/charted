@@ -22,7 +22,6 @@ def get_cargo_manifests():
     """
 
     return ["//{}:Cargo.toml".format(f) for f in [
-        "crates/bootstrap",
         "crates/common",
         "crates/config",
         "crates/database",

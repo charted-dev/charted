@@ -18,4 +18,16 @@ load("//:build/rust_project.bzl", "rust_project")
 rust_project(
     name = "config",
     include_tests = True,
+    deps = [
+        "//crates/common:charted_common",
+        "@crate_index//:clap",
+        "@crate_index//:eyre",
+        "@crate_index//:lazy_static",
+        "@crate_index//:once_cell",
+        "@crate_index//:regex",
+        "@crate_index//:serde",
+        "@crate_index//:serde_yaml",
+        "@crate_index//:thiserror",
+        "@crate_index//:tracing",
+    ],
 )

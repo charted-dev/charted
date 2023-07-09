@@ -21,6 +21,7 @@ rust_project(
     proc_macro_deps = ["@crate_index//:async-trait"],
     deps = [
         "//crates/common:charted_common",
+        "//crates/config:charted_config",
         "//server:charted_server",
         "@crate_index//:ansi_term",
         "@crate_index//:chrono",
@@ -30,6 +31,7 @@ rust_project(
         "@crate_index//:dotenv",
         "@crate_index//:eyre",
         "@crate_index//:serde_json",
+        "@crate_index//:serde_yaml",
         "@crate_index//:sysinfo",
         "@crate_index//:tokio",
     ],

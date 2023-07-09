@@ -20,3 +20,15 @@ version = "0.0.0-devel.0"
 edition = "2021"
 homepage = "https://charts.noelware.org"
 authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
+
+[dependencies]
+clap = { version = "4.3.11", features = ["derive"] }
+charted-common = { path = "../common", version = "0.0.0-devel.0" }
+lazy_static = "1.4.0"
+once_cell = "1.18.0"
+regex = "1.9.1"
+serde = { version = "1.0.167", features = ["derive"] }
+serde_yaml = "0.9.22"
+thiserror = "1.0.43"
+tracing = "0.1.37"
+eyre = "0.6.8"

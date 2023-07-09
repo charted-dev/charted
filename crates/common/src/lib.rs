@@ -23,6 +23,7 @@ pub use bitfield::*;
 pub use snowflake::*;
 
 use lazy_static::lazy_static;
+use rand::distributions::{Alphanumeric, DistString};
 use regex::Regex;
 
 /// Snowflake epoch used for ID generation. (March 1st, 2023)
@@ -53,6 +54,10 @@ pub fn is_debug_enabled() -> bool {
     }
 
     matches!(std::env::var("CHARTED_DEBUG"), Ok(val) if TRUTHY_REGEX.is_match(val.as_str()))
+}
+
+pub fn rand_string(len: usize) -> String {
+    Alphanumeric.sample_string(&mut rand::thread_rng(), len)
 }
 
 pub mod macros {

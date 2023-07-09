@@ -12,26 +12,3 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-use charted_cli::{execute, Cli};
-use charted_common::{is_debug_enabled, COMMIT_HASH, RUSTC_VERSION, VERSION};
-use clap::Parser;
-use color_eyre::config::HookBuilder;
-use eyre::Result;
-use std::env::{set_var, var};
-
-#[tokio::main]
-async fn main() -> Result<()> {
-    if is_debug_enabled() && var("RUST_BACKTRACE").is_err() {
-        set_var("RUST_BACKTRACE", "full");
-    }
-
-    HookBuilder::new()
-        .issue_url("https://github.com/charted-dev/charted/issues/new")
-        .add_issue_metadata("version", format!("v{VERSION}+{COMMIT_HASH}"))
-        .add_issue_metadata("rustc", RUSTC_VERSION)
-        .install()?;
-
-    let cli = Cli::parse();
-    execute(&cli.command).await
-}

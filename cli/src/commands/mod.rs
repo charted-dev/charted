@@ -25,7 +25,7 @@ use eyre::Result;
 
 #[derive(Debug, Clone, Subcommand)]
 pub enum Commands {
-    Server(Server),
+    Server(Box<Server>),
     Version(Version),
 }
 
