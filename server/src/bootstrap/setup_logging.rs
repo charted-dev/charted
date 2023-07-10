@@ -13,26 +13,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[macro_use]
-extern crate tracing;
-
-mod app;
-mod bootstrap;
-mod version;
-
-pub(crate) mod middleware;
-pub(crate) mod models;
-pub mod routing;
-
-pub use app::*;
+use super::BootstrapPhase;
 use charted_config::Config;
 use eyre::Result;
-pub use version::*;
+use std::{future::Future, pin::Pin};
 
-pub async fn bootstrap(config: &Config) -> Result<()> {
-    for phase in bootstrap::PHASES.iter() {
-        phase.bootstrap(config).await?;
+#[derive(Debug, Clone)]
+pub struct SetupLoggingPhase;
+
+impl SetupLoggingPhase {
+    pub(crate) async fn do_bootstrap(&self, _config: &Config) -> Result<()> {
+        Ok(())
+    }
+}
+
+impl BootstrapPhase for SetupLoggingPhase {
+    fn bootstrap<'l0, 'async_method>(
+        &'l0 self,
+        config: &'async_method Config,
+    ) -> Pin<Box<dyn Future<Output = Result<()>> + Send + 'async_method>>
+    where
+        'l0: 'async_method,
+        Self: 'async_method,
+    {
+        Box::pin(async move { self.do_bootstrap(config).await })
     }
 
-    Ok(())
+    fn try_clone(&self) -> eyre::Result<Box<dyn BootstrapPhase>> {
+        Ok(Box::new(self.clone()))
+    }
 }

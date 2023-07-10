@@ -23,7 +23,7 @@ pub mod v1;
 static default_router: Lazy<Box<dyn Fn() -> Router + Send + Sync>> = Lazy::new(|| Box::new(v1::create_router));
 
 macro_rules! create_router_internal {
-    ($($version:ident: $cr:ident),*) => {
+    ($($cr:ident),*) => {
         fn create_router_internal() -> ::axum::Router {
             let mut router = ::axum::Router::new();
             $(
@@ -36,12 +36,14 @@ macro_rules! create_router_internal {
     };
 }
 
-create_router_internal!(V1: v1);
+create_router_internal!(v1);
 
 pub fn create_router() -> Router {
     let stack = ServiceBuilder::new()
         .layer(sentry_tower::NewSentryLayer::new_from_top())
         .layer(sentry_tower::SentryHttpLayer::new());
 
-    create_router_internal().layer(stack).layer(axum::middleware::from_fn(crate::middleware::log))
+    create_router_internal()
+        .layer(stack)
+        .layer(axum::middleware::from_fn(crate::middleware::log))
 }

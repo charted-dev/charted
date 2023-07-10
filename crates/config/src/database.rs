@@ -84,7 +84,3 @@ fn host() -> String {
 fn port() -> u16 {
     5432
 }
-
-/*
-   val port: Int = 5432
-*/

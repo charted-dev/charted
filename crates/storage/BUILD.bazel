@@ -16,6 +16,13 @@
 load("//:build/rust_project.bzl", "rust_project")
 
 rust_project(
-    name = "search_meilisearch",
-    include_tests = True,
+    name = "storage",
+    deps = [
+        "//crates/config:charted_config",
+        "@crate_index//:bytes",
+        "@crate_index//:remi-core",
+        "@crate_index//:remi-fs",
+        "@crate_index//:remi-s3",
+        "@crate_index//:serde",
+    ],
 )

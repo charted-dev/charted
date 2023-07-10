@@ -757,6 +757,7 @@ FodyWeavers.xsd
 
 !distribution/bin/
 !scripts/publish/
+!Cargo.lock
 config.yml
 .data/
 .env

@@ -12,3 +12,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+// use crate::metrics::sets::gen_metricset;
+
+// gen_metricset! {
+//     /// Metricset configured to enable Elasticsearch-related
+//     /// metrics that are pointed to the indexes that charted-server
+//     /// only manage.
+//     ElasticsearchMetricset - "CHARTED_METRICS_SETS_ELASTICSEARCH" {
+//         wildcard: "es_index_{name}_*";
+//     }
+// }

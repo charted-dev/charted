@@ -13,18 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use serde::{Deserialize, Serialize};
+
 /// Represents the REST version that an API controller is supported on.
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd, Ord)]
+#[serde(rename_all = "lowercase")]
 pub enum APIVersion {
     /// v1
     #[default]
-    V1
-}
-
-impl APIVersion {
-    pub fn route(&self) -> &'static str {
-        match self {
-            APIVersion::V1 => "/v1"
-        }
-    }
+    V1,
 }

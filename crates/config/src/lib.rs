@@ -150,51 +150,64 @@ macro_rules! make_config {
 /// ```
 #[macro_export]
 macro_rules! var {
-    ($key:literal, to: $ty:ty, or_else: $else_:expr) => {{
+    ($key:literal, to: $ty:ty, or_else: $else_:expr) => {
+        var!($key, mapper: |p| {
+            p.parse::<$ty>().expect(concat!(
+                "Unable to resolve env var [",
+                $key,
+                "] to a [",
+                stringify!($ty),
+                "] value"
+            ))
+        })
+        .unwrap_or($else_)
+    };
+
+    ($key:literal, to: $ty:ty, is_optional: true) => {
+        var!($key, mapper: |p| p.parse::<$ty>().ok()).unwrap_or(None)
+    };
+
+    ($key:literal, to: $ty:ty) => {
+        var!($key, mapper: |p| {
+            p.parse::<$ty>().expect(concat!(
+                "Unable to resolve env var [",
+                $key,
+                "] to a [",
+                stringify!($ty),
+                "] value"
+            ))
+        })
+        .unwrap()
+    };
+
+    ($key:literal, {
+        or_else: $else_:expr;
+        mapper: $mapper:expr;
+    }) => {
+        var!($key, mapper: $mapper).unwrap_or($else_)
+    };
+
+    ($key:literal, mapper: $expr:expr) => {
+        var!($key).map($expr)
+    };
+
+    ($key:literal, use_default: true) => {
+        var!($key, or_else_do: |_| Default::default())
+    };
+
+    ($key:literal, or_else_do: $expr:expr) => {
+        var!($key).unwrap_or_else($expr)
+    };
+
+    ($key:literal, or_else: $else_:expr) => {
+        var!($key).unwrap_or($else_)
+    };
+
+    ($key:literal, is_optional: true) => {
+        var!($key).ok()
+    };
+
+    ($key:literal) => {
         ::std::env::var($key)
-            .map(|p| {
-                p.parse::<$ty>().expect(concat!(
-                    "Unable to resolve env var [",
-                    $key,
-                    "] to a [",
-                    stringify!($ty),
-                    "] value"
-                ))
-            })
-            .unwrap_or($else_)
-    }};
-
-    ($key:literal, to: $ty:ty, is_optional: true) => {{
-        ::std::env::var($key).map(|p| p.parse::<$ty>().ok()).unwrap_or(None)
-    }};
-
-    ($key:literal, to: $ty:ty) => {{
-        ::std::env::var($key)
-            .map(|p| {
-                p.parse::<$ty>().expect(concat!(
-                    "Unable to resolve env var [",
-                    $key,
-                    "] to a [",
-                    stringify!($ty),
-                    "] value"
-                ))
-            })
-            .unwrap()
-    }};
-
-    ($key:literal, use_default: true) => {{
-        ::std::env::var($key).unwrap_or_else(|_| Default::default())
-    }};
-
-    ($key:literal, or_else: $else_:expr) => {{
-        ::std::env::var($key).unwrap_or($else_)
-    }};
-
-    ($key:literal, is_optional: true) => {{
-        ::std::env::var($key).ok()
-    }};
-
-    ($key:literal) => {{
-        ::std::env::var($key).unwrap()
-    }};
+    };
 }

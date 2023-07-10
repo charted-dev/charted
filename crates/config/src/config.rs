@@ -15,12 +15,16 @@
 
 #![allow(unused_doc_comments)]
 
-use crate::{make_config, var, DatabaseConfig, FromEnv, LoggingConfig, SecureSetting, SecureSettingError};
+use crate::{
+    make_config, var, DatabaseConfig, FromEnv, LoggingConfig, SecureSetting, SecureSettingError, ServerConfig,
+    StorageConfig,
+};
 use charted_common::rand_string;
-use eyre::Result;
+use eyre::{eyre, Result};
 use once_cell::sync::OnceCell;
 use std::{
     fs::File,
+    panic::catch_unwind,
     path::{Path, PathBuf},
 };
 use tracing::warn;
@@ -75,6 +79,20 @@ make_config! {
         pub logging: LoggingConfig {
             default: LoggingConfig::default();
             env_value: LoggingConfig::from_env();
+        };
+
+        #[command(flatten)]
+        #[serde(default, with = "serde_yaml::with::singleton_map")]
+        pub storage: StorageConfig {
+            default: StorageConfig::default();
+            env_value: StorageConfig::from_env();
+        };
+
+        #[command(flatten)]
+        #[serde(default)]
+        pub server: ServerConfig {
+            default: ServerConfig::default();
+            env_value: ServerConfig::from_env();
         };
     }
 }
@@ -153,7 +171,12 @@ impl Config {
             None => match Config::find_default_conf_location() {
                 Some(p) => p,
                 None => {
-                    CONFIG.set(Config::from_env()).unwrap();
+                    // Since from any FromEnv impl. can panic, let's capture any panics
+                    // and return back to the caller.
+                    let env = catch_unwind(Config::from_env)
+                        .map_err(|e| eyre!(format!("Panic'd during transformation: {e:?}")))?;
+
+                    CONFIG.set(env).unwrap();
                     return Ok(());
                 }
             },

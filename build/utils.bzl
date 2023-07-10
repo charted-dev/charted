@@ -32,6 +32,7 @@ def get_cargo_manifests():
         "crates/search",
         "crates/search/elasticsearch",
         "crates/search/meilisearch",
+        "crates/storage",
         "tools/helm-plugin",
         "server",
         "cli",

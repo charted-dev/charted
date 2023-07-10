@@ -15,10 +15,15 @@
 
 use std::{
     cmp,
-    collections::{hash_map::Entry, HashMap},
+    collections::{hash_map::Entry, HashMap, HashSet},
     hash::Hash,
+    path::PathBuf,
 };
 
+use aws_sdk_s3::{
+    config::Region,
+    types::{BucketCannedAcl, ObjectCannedAcl},
+};
 use tracing::Level;
 
 pub trait Merge {
@@ -94,24 +99,29 @@ impl<K: Eq + Hash, V: Merge> Merge for HashMap<K, V> {
     }
 }
 
-impl Merge for bool {
+impl<T: Merge> Merge for HashSet<T> {
     fn merge(&mut self, other: Self) {
-        *self = !other;
+        *self = other;
     }
 }
 
-impl Merge for Level {
-    fn merge(&mut self, other: Self) {
-        // Don't do anything if the levels are the same.
-        if *self == other {
-            return;
-        }
+macro_rules! gen_equality_merges {
+    ($($ty:ty, )*) => {
+        $(
+            impl Merge for $ty {
+                fn merge(&mut self, other: Self) {
+                    if *self == other {
+                        return;
+                    }
 
-        if *self != other {
-            *self = other;
-        }
-    }
+                    *self = other;
+                }
+            }
+        )*
+    };
 }
+
+gen_equality_merges!(bool, Level, ObjectCannedAcl, BucketCannedAcl, PathBuf, Region,);
 
 #[cfg(test)]
 mod tests {

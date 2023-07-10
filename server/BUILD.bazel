@@ -15,6 +15,22 @@
 
 load("//:build/rust_project.bzl", "rust_project")
 
+local_crates = ["//{path}:charted_{name}".format(
+    name = name,
+    path = path,
+) for (path, name) in [
+    ("crates/common", "common"),
+    ("crates/config", "config"),
+    ("crates/database", "database"),
+    ("crates/logging", "logging"),
+    ("crates/redis", "redis"),
+    ("crates/openapi", "openapi"),
+    ("crates/storage", "storage"),
+    ("crates/search", "search"),
+    ("crates/search/elasticsearch", "search_elasticsearch"),
+    ("crates/search/meilisearch", "search_meilisearch"),
+]]
+
 rust_project(
     name = "server",
     deps = [
@@ -23,6 +39,9 @@ rust_project(
         "@crate_index//:chrono",
         "@crate_index//:eyre",
         "@crate_index//:once_cell",
+        "@crate_index//:remi-core",
+        "@crate_index//:remi-fs",
+        "@crate_index//:remi-s3",
         "@crate_index//:sentry",
         "@crate_index//:sentry-tower",
         "@crate_index//:sentry-tracing",
@@ -32,6 +51,7 @@ rust_project(
         "@crate_index//:tokio",
         "@crate_index//:tower",
         "@crate_index//:tower-layer",
-        "@crate_index//:tracing"
-    ]
+        "@crate_index//:tracing",
+        "@crate_index//:utoipa",
+    ] + local_crates,
 )

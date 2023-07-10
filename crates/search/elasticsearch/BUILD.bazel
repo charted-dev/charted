@@ -16,6 +16,6 @@
 load("//:build/rust_project.bzl", "rust_project")
 
 rust_project(
-    name = "elasticsearch",
+    name = "search_elasticsearch",
     include_tests = True,
 )

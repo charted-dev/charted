@@ -57,7 +57,7 @@ make_config! {
     /// crate with custom outputs, so this is how you can configure it.
     LoggingConfig {
         /// Specific log level to be at.
-        #[arg(long = "log-level", default_value_t = Level::INFO)]
+        #[arg(long = "log-level", required = false, default_value_t = Level::INFO)]
         #[serde(with = "log_serde")]
         pub level: Level {
             default: Level::INFO;
@@ -70,14 +70,14 @@ make_config! {
             }).unwrap_or(Level::INFO);
         };
 
-        /// The output type to use for outputting events that were
-        /// received via the JSON visitor into.
+        /// The output type to use for outputting events that were received via the JSON visitor into.
         ///
         /// * [`LogstashOutput::TCP`] is for the [TCP input plugin](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-tcp.html)
         ///   that will output everything in a single TCP socket connection.
         /// * [`LogstashOutput::UDP`] is for the [UDP input plugin](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-udp.html)
         ///   that will output everything in a UDP socket connection.
         #[arg(verbatim_doc_comment, long = "logstash-output", default_value = None, help = "Output type to use when using Logstash.")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
         pub logstash_output: Option<LogstashOutput> {
             default: None;
             env_value: var!("CHARTED_LOGSTASH_OUTPUT", to: LogstashOutput, is_optional: true);
@@ -85,13 +85,14 @@ make_config! {
 
         /// Connection URI to use when connecting to the configured Logstash TCP or UDP stream.
         #[arg(long = "logstash-connect-uri", default_value = None)]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
         pub logstash_connect_uri: Option<String> {
             default: None;
             env_value: var!("CHARTED_LOGSTASH_CONNECTION_URI", is_optional: true);
         };
 
         /// Whether the logger should only output JSON messages or not.
-        #[arg(long = "json-logging", default_value_t = false)]
+        #[arg(long = "json-logging", required = false, default_value_t = false)]
         #[serde(rename = "json", default = "falsy")]
         pub json_logging: bool {
             default: false;

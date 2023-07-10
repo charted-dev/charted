@@ -15,6 +15,7 @@
 
 use super::models::AsyncExecute;
 use charted_config::{Config, Merge};
+use charted_server::bootstrap;
 use clap::Parser;
 use dotenv::dotenv;
 use eyre::Result;
@@ -51,12 +52,13 @@ impl AsyncExecute for Server {
         config.merge(self.config_from_cli.clone());
 
         if self.print_config {
-            let res = serde_yaml::to_string(config).unwrap();
+            let res = serde_yaml::to_string(&config).unwrap();
             println!("{res}");
 
             return Ok(());
         }
 
+        bootstrap(config).await?;
         Ok(())
     }
 }
