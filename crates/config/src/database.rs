@@ -22,14 +22,13 @@ make_config! {
     DatabaseConfig {
         /// Set the maxmium number of connections that the database connection
         /// pool should maintain.
-        #[arg(long = "db-max-connections", default_value_t = 10, help = "Maximum amount of connections that the db pool should maintain.")]
+        #[serde(default = "max_connections")]
         pub max_connections: u32 {
             default: 10;
             env_value: var!("CHARTED_DATABASE_MAX_CONNECTIONS", to: u32, or_else: 10);
         };
 
         /// The password to use for authentication.
-        #[arg(long = "db-password", default_value = None, help = "Database password to use for authentication.")]
         #[serde(default, skip_serializing_if = "Option::is_none")]
         password: Option<String> {
             default: None;
@@ -37,7 +36,6 @@ make_config! {
         };
 
         /// The username to use for authentication
-        #[arg(long = "db-username", default_value = None, help = "Database username to use for authentication.")]
         #[serde(default, skip_serializing_if = "Option::is_none")]
         username: Option<String> {
             default: None;
@@ -45,14 +43,13 @@ make_config! {
         };
 
         /// Database name to use when connecting.
-        #[arg(long = "db-name", default_value = "charted")]
+        #[serde(default = "database")]
         pub database: String {
             default: "charted".into();
             env_value: var!("CHARTED_DATABASE_NAME", or_else: "charted".into());
         };
 
         /// Database schema to select when querying objects.
-        #[arg(long = "db-schema", default_value = None)]
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub schema: Option<String> {
             default: None;
@@ -60,7 +57,6 @@ make_config! {
         };
 
         /// Database host to connect to.
-        #[arg(long = "db-host", default_value = "localhost")]
         #[serde(default = "host")]
         pub host: String {
             default: host();
@@ -68,7 +64,6 @@ make_config! {
         };
 
         /// Database port to connect to.
-        #[arg(long = "db-port", default_value = "5432")]
         #[serde(default = "port")]
         pub port: u16 {
             default: port();
@@ -83,4 +78,12 @@ fn host() -> String {
 
 fn port() -> u16 {
     5432
+}
+
+fn max_connections() -> u32 {
+    10
+}
+
+fn database() -> String {
+    String::from("charted")
 }

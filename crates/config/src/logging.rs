@@ -15,7 +15,7 @@
 
 use std::str::FromStr;
 
-use crate::{make_config, var, Merge};
+use crate::{make_config, var};
 use charted_common::TRUTHY_REGEX;
 use serde::{Deserialize, Serialize};
 use tracing::Level;
@@ -43,25 +43,16 @@ impl FromStr for LogstashOutput {
     }
 }
 
-impl Merge for LogstashOutput {
-    fn merge(&mut self, other: Self) {
-        if *self != other {
-            *self = other;
-        }
-    }
-}
-
 make_config! {
     /// Represents the configuration to configure charted-server's logging
     /// capabilities. charted-server uses the [`tracing`](https://crates.io/crates/tracing)
     /// crate with custom outputs, so this is how you can configure it.
     LoggingConfig {
-        /// Specific log level to be at.
-        #[arg(long = "log-level", required = false, default_value_t = Level::INFO)]
+        /// Log level to output log messages in.
         #[serde(with = "log_serde")]
         pub level: Level {
             default: Level::INFO;
-            env_value: ::std::env::var("HAZEL_LOG_LEVEL").map(|val| match val.as_str() {
+            env_value: ::std::env::var("CHARTED_LOG_LEVEL").map(|val| match val.as_str() {
                 "trace" => Level::TRACE,
                 "debug" => Level::DEBUG,
                 "info" => Level::INFO,
@@ -76,7 +67,6 @@ make_config! {
         ///   that will output everything in a single TCP socket connection.
         /// * [`LogstashOutput::UDP`] is for the [UDP input plugin](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-udp.html)
         ///   that will output everything in a UDP socket connection.
-        #[arg(verbatim_doc_comment, long = "logstash-output", default_value = None, help = "Output type to use when using Logstash.")]
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub logstash_output: Option<LogstashOutput> {
             default: None;
@@ -84,7 +74,6 @@ make_config! {
         };
 
         /// Connection URI to use when connecting to the configured Logstash TCP or UDP stream.
-        #[arg(long = "logstash-connect-uri", default_value = None)]
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub logstash_connect_uri: Option<String> {
             default: None;
@@ -92,7 +81,6 @@ make_config! {
         };
 
         /// Whether the logger should only output JSON messages or not.
-        #[arg(long = "json-logging", required = false, default_value_t = false)]
         #[serde(rename = "json", default = "falsy")]
         pub json_logging: bool {
             default: false;

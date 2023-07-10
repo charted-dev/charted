@@ -18,4 +18,14 @@ load("//:build/rust_project.bzl", "rust_project")
 rust_project(
     name = "logging",
     include_tests = True,
+    deps = [
+        "//crates/config:charted_config",
+        "@crate_index//:ansi_term",
+        "@crate_index//:chrono",
+        "@crate_index//:sentry-tracing",
+        "@crate_index//:serde_json",
+        "@crate_index//:tracing",
+        "@crate_index//:tracing-log",
+        "@crate_index//:tracing-subscriber",
+    ],
 )

@@ -15,14 +15,21 @@
 
 use super::BootstrapPhase;
 use charted_config::Config;
+use charted_logging::server::ServerLayer;
 use eyre::Result;
 use std::{future::Future, pin::Pin};
+use tracing::metadata::LevelFilter;
+use tracing_subscriber::{prelude::*, registry};
 
 #[derive(Debug, Clone)]
 pub struct SetupLoggingPhase;
 
 impl SetupLoggingPhase {
-    pub(crate) async fn do_bootstrap(&self, _config: &Config) -> Result<()> {
+    pub(crate) async fn do_bootstrap(&self, config: &Config) -> Result<()> {
+        registry()
+            .with(ServerLayer::default().with_filter(LevelFilter::from_level(config.logging.level)))
+            .try_init()?;
+
         Ok(())
     }
 }

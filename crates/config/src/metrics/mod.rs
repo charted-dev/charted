@@ -22,7 +22,6 @@ make_config! {
     /// Represents the configuration for configuring the metrics pipeline.
     MetricsConfig {
         /// Whether if the metrics pipeline should be enabled or not.
-        #[arg(long = "metrics", default_value_t = false)]
         #[serde(default = "falsy")]
         pub enabled: bool {
             default: true;
@@ -35,7 +34,6 @@ make_config! {
         /// Whether if the `/admin/stats` would be enabled on the API server or not. This
         /// will allow administrators to pull server statistics to diagnose the server
         /// or whatever your intention is.
-        #[arg(long = "metrics-admin-endpoint", default_value_t = false)]
         #[serde(default = "falsy")]
         pub admin_endpoint: bool {
             default: false;

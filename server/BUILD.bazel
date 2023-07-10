@@ -52,6 +52,8 @@ rust_project(
         "@crate_index//:tower",
         "@crate_index//:tower-layer",
         "@crate_index//:tracing",
+        "@crate_index//:tracing-log",
+        "@crate_index//:tracing-subscriber",
         "@crate_index//:utoipa",
     ] + local_crates,
 )

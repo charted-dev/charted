@@ -22,6 +22,7 @@ rust_project(
     deps = [
         "//crates/common:charted_common",
         "//crates/config:charted_config",
+        "//crates/logging:charted_logging",
         "//server:charted_server",
         "@crate_index//:ansi_term",
         "@crate_index//:chrono",
@@ -34,5 +35,7 @@ rust_project(
         "@crate_index//:serde_yaml",
         "@crate_index//:sysinfo",
         "@crate_index//:tokio",
+        "@crate_index//:tracing",
+        "@crate_index//:tracing-subscriber",
     ],
 )

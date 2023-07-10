@@ -22,7 +22,6 @@ make_config! {
     ServerConfig {
         /// Host binding to create the inner [`SocketAddr`]. This flag
         /// supports using the common `HOST` environment variable.
-        #[arg(long = "host")]
         #[serde(default = "host")]
         pub host: String {
             default: host();
@@ -31,7 +30,6 @@ make_config! {
 
         /// Host port to bind towards. This flag supports using the common `PORT` environment
         /// variable.
-        #[arg(short = 'p', long = "port")]
         pub port: u16 {
             default: port();
             env_value: var!("CHARTED_SERVER_PORT", to: u16, or_else: var!("PORT", to: u16, or_else: port()));

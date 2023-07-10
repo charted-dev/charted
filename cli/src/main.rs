@@ -13,12 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_cli::{execute, Cli};
+use charted_cli::{commands::Commands, execute, Cli};
 use charted_common::{is_debug_enabled, COMMIT_HASH, RUSTC_VERSION, VERSION};
+use charted_logging::generic::GenericLayer;
 use clap::Parser;
 use color_eyre::config::HookBuilder;
 use eyre::Result;
-use std::env::{set_var, var};
+use std::{
+    env::{set_var, var},
+    time::SystemTime,
+};
+use tracing::debug;
+use tracing_subscriber::prelude::*;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -33,5 +39,14 @@ async fn main() -> Result<()> {
         .install()?;
 
     let cli = Cli::parse();
-    execute(&cli.command).await
+    if !matches!(cli.command, Commands::Server(_)) {
+        tracing::subscriber::set_global_default(
+            tracing_subscriber::registry().with(GenericLayer { verbose: cli.verbose }),
+        )?;
+    }
+
+    let now = SystemTime::now();
+    execute(&cli.command)
+        .await
+        .map(|_| debug!("took {:?} to run command", now.elapsed().unwrap()))
 }

@@ -37,3 +37,6 @@ tokio = { version = "1.29.1", features = ["full"] }
 sysinfo = "0.29.4"
 serde_json = "1.0.100"
 serde_yaml = "0.9.22"
+charted-logging = { version = "0.0.0-devel.0", path = "../crates/logging" }
+tracing = "0.1.37"
+tracing-subscriber = "0.3.17"

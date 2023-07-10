@@ -17,7 +17,6 @@ mod config;
 mod database;
 mod from_env;
 mod logging;
-mod merge;
 mod metrics;
 mod redis;
 mod search;
@@ -29,7 +28,6 @@ pub use config::*;
 pub use database::*;
 pub use from_env::*;
 pub use logging::*;
-pub use merge::*;
 pub use metrics::*;
 pub use redis::*;
 pub use search::*;
@@ -98,7 +96,7 @@ macro_rules! make_config {
         )* $(;)?
     }) => {
         $(#[$top_level_meta])*
-        #[derive(Debug, Clone, ::serde::Serialize, ::serde::Deserialize, ::clap::Parser)]
+        #[derive(Debug, Clone, ::serde::Serialize, ::serde::Deserialize)]
         pub struct $name {
             $(
                 $(#[$meta])*
@@ -123,14 +121,6 @@ macro_rules! make_config {
                         $key: $env,
                     )*
                 }
-            }
-        }
-
-        impl $crate::Merge for $name {
-            fn merge(&mut self, other: Self) {
-                $(
-                    $crate::Merge::merge(&mut self.$key, other.$key);
-                )*
             }
         }
     };

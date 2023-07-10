@@ -25,6 +25,7 @@ rust_project(
         "@crate_index//:clap",
         "@crate_index//:eyre",
         "@crate_index//:lazy_static",
+        "@crate_index//:merge-struct",
         "@crate_index//:once_cell",
         "@crate_index//:regex",
         "@crate_index//:remi-fs",

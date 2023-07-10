@@ -14,12 +14,12 @@
 // limitations under the License.
 
 use super::models::AsyncExecute;
-use charted_config::{Config, Merge};
+use charted_config::{Config, FromEnv};
 use charted_server::bootstrap;
 use clap::Parser;
 use dotenv::dotenv;
 use eyre::Result;
-use std::path::PathBuf;
+use std::{panic::catch_unwind, path::PathBuf};
 
 #[derive(Debug, Clone, Parser)]
 #[command(
@@ -35,9 +35,6 @@ pub struct Server {
         help = "Prints out the loaded configuration, but doesn't run the server"
     )]
     print_config: bool,
-
-    #[command(flatten)]
-    config_from_cli: Config,
 }
 
 #[async_trait]
@@ -48,9 +45,8 @@ impl AsyncExecute for Server {
 
         // Load the config
         Config::load(self.config_file.clone())?;
-        let config = &mut Config::get();
-        config.merge(self.config_from_cli.clone());
 
+        let config = Config::get();
         if self.print_config {
             let res = serde_yaml::to_string(&config).unwrap();
             println!("{res}");
@@ -58,7 +54,7 @@ impl AsyncExecute for Server {
             return Ok(());
         }
 
-        bootstrap(config).await?;
+        bootstrap(&config).await?;
         Ok(())
     }
 }

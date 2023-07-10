@@ -1,5 +1,5 @@
 {
-  "checksum": "352af4109aed8786616b75aaec8f5b30495abb3dae0f2aff1cbf9c71c2b5cb62",
+  "checksum": "3631d2b368155c83cad22dc48c633e17d484a232f6c07860e993ec8e4b5f82d7",
   "crates": {
     "addr2line 0.20.0": {
       "name": "addr2line",
@@ -3092,6 +3092,14 @@
             {
               "id": "tokio 1.29.1",
               "target": "tokio"
+            },
+            {
+              "id": "tracing 0.1.37",
+              "target": "tracing"
+            },
+            {
+              "id": "tracing-subscriber 0.3.17",
+              "target": "tracing_subscriber"
             }
           ],
           "selects": {}
@@ -3252,6 +3260,10 @@
             {
               "id": "lazy_static 1.4.0",
               "target": "lazy_static"
+            },
+            {
+              "id": "merge-struct 0.1.0",
+              "target": "merge_struct"
             },
             {
               "id": "once_cell 1.18.0",
@@ -3443,6 +3455,39 @@
         "compile_data_glob": [
           "**"
         ],
+        "deps": {
+          "common": [
+            {
+              "id": "ansi_term 0.12.1",
+              "target": "ansi_term"
+            },
+            {
+              "id": "chrono 0.4.26",
+              "target": "chrono"
+            },
+            {
+              "id": "sentry-tracing 0.31.5",
+              "target": "sentry_tracing"
+            },
+            {
+              "id": "serde_json 1.0.100",
+              "target": "serde_json"
+            },
+            {
+              "id": "tracing 0.1.37",
+              "target": "tracing"
+            },
+            {
+              "id": "tracing-log 0.1.3",
+              "target": "tracing_log"
+            },
+            {
+              "id": "tracing-subscriber 0.3.17",
+              "target": "tracing_subscriber"
+            }
+          ],
+          "selects": {}
+        },
         "edition": "2021",
         "version": "0.0.0-devel.0"
       },
@@ -3666,6 +3711,14 @@
             {
               "id": "tracing 0.1.37",
               "target": "tracing"
+            },
+            {
+              "id": "tracing-log 0.1.3",
+              "target": "tracing_log"
+            },
+            {
+              "id": "tracing-subscriber 0.3.17",
+              "target": "tracing_subscriber"
             },
             {
               "id": "utoipa 3.3.0",
@@ -8564,6 +8617,12 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "std"
+          ],
+          "selects": {}
+        },
         "edition": "2015",
         "version": "0.4.19"
       },
@@ -8815,6 +8874,49 @@
         }
       },
       "license": "MIT"
+    },
+    "merge-struct 0.1.0": {
+      "name": "merge-struct",
+      "version": "0.1.0",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/merge-struct/0.1.0/download",
+          "sha256": "1d82012d21e24135b839b6b9bebd622b7ff0cb40071498bc2d066d3a6d04dd4a"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "merge_struct",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "merge_struct",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "serde 1.0.167",
+              "target": "serde"
+            },
+            {
+              "id": "serde_json 1.0.100",
+              "target": "serde_json"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.1.0"
+      },
+      "license": "Apache-2.0"
     },
     "mime 0.3.17": {
       "name": "mime",
@@ -9217,6 +9319,52 @@
         ]
       },
       "license": "Apache-2.0 OR MIT"
+    },
+    "nu-ansi-term 0.46.0": {
+      "name": "nu-ansi-term",
+      "version": "0.46.0",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/nu-ansi-term/0.46.0/download",
+          "sha256": "77a8165726e8236064dbb45459242600304b42a5ea24ee2948e18e023bf7ba84"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "nu_ansi_term",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "nu_ansi_term",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "overload 0.1.1",
+              "target": "overload"
+            }
+          ],
+          "selects": {
+            "cfg(target_os = \"windows\")": [
+              {
+                "id": "winapi 0.3.9",
+                "target": "winapi"
+              }
+            ]
+          }
+        },
+        "edition": "2018",
+        "version": "0.46.0"
+      },
+      "license": "MIT"
     },
     "num-integer 0.1.45": {
       "name": "num-integer",
@@ -9868,6 +10016,36 @@
         ],
         "edition": "2021",
         "version": "0.5.1"
+      },
+      "license": "MIT"
+    },
+    "overload 0.1.1": {
+      "name": "overload",
+      "version": "0.1.1",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/overload/0.1.1/download",
+          "sha256": "b15813163c1d831bf4a13c3610c05c0d03b39feb07f7e09fa234dac9b15aaf39"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "overload",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "overload",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2018",
+        "version": "0.1.1"
       },
       "license": "MIT"
     },
@@ -15503,6 +15681,62 @@
       },
       "license": "MIT"
     },
+    "tracing-log 0.1.3": {
+      "name": "tracing-log",
+      "version": "0.1.3",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/tracing-log/0.1.3/download",
+          "sha256": "78ddad33d2d10b1ed7eb9d1f518a5674713876e97e5bb9b7345a7984fbb4f922"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "tracing_log",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "tracing_log",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "default",
+            "log-tracer",
+            "std",
+            "trace-logger"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "lazy_static 1.4.0",
+              "target": "lazy_static"
+            },
+            {
+              "id": "log 0.4.19",
+              "target": "log"
+            },
+            {
+              "id": "tracing-core 0.1.31",
+              "target": "tracing_core"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.1.3"
+      },
+      "license": "MIT"
+    },
     "tracing-subscriber 0.3.17": {
       "name": "tracing-subscriber",
       "version": "0.3.17",
@@ -15531,19 +15765,32 @@
         "crate_features": {
           "common": [
             "alloc",
+            "ansi",
+            "default",
             "fmt",
+            "nu-ansi-term",
             "registry",
             "sharded-slab",
+            "smallvec",
             "std",
-            "thread_local"
+            "thread_local",
+            "tracing-log"
           ],
           "selects": {}
         },
         "deps": {
           "common": [
             {
+              "id": "nu-ansi-term 0.46.0",
+              "target": "nu_ansi_term"
+            },
+            {
               "id": "sharded-slab 0.1.4",
               "target": "sharded_slab"
+            },
+            {
+              "id": "smallvec 1.10.0",
+              "target": "smallvec"
             },
             {
               "id": "thread_local 1.1.7",
@@ -15552,6 +15799,10 @@
             {
               "id": "tracing-core 0.1.31",
               "target": "tracing_core"
+            },
+            {
+              "id": "tracing-log 0.1.3",
+              "target": "tracing_log"
             }
           ],
           "selects": {}

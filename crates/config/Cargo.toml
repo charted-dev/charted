@@ -36,3 +36,4 @@ remi-fs = { version = "0.2.1", features = ["serde"] }
 remi-s3 = { version = "0.2.1", features = ["serde"] }
 aws-sdk-s3 = "0.28.0"
 paste = "1.0.13"
+merge-struct = "0.1.0"

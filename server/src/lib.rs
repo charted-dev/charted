@@ -31,6 +31,7 @@ pub use version::*;
 
 pub async fn bootstrap(config: &Config) -> Result<()> {
     for phase in bootstrap::PHASES.iter() {
+        tracing::debug!("entering phase {:?}", phase.clone());
         phase.bootstrap(config).await?;
     }
 

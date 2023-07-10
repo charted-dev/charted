@@ -13,13 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![allow(unused_imports)]
+
 #[macro_use]
 extern crate async_trait;
 
-mod commands;
+#[macro_use]
+extern crate tracing;
 
-use clap::Parser;
+pub mod commands;
+
 use crate::commands::Commands;
+use clap::Parser;
 
 pub use commands::execute;
 
@@ -31,6 +36,11 @@ pub use commands::execute;
     arg_required_else_help = true
 )]
 pub struct Cli {
+    /// Whether if verbose-mode should be enabled on the CLI. This will
+    /// not do anything if the 'server' command is invoked.
+    #[arg(global = true, short = 'v', long = "verbose")]
+    pub verbose: bool,
+
     #[command(subcommand)]
     pub command: Commands,
 }

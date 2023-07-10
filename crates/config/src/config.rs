@@ -21,6 +21,7 @@ use crate::{
 };
 use charted_common::rand_string;
 use eyre::{eyre, Result};
+use merge_struct::merge;
 use once_cell::sync::OnceCell;
 use std::{
     fs::File,
@@ -49,7 +50,6 @@ use tracing::warn;
 make_config! {
     Config {
         /// Secret key to use for encoding JWT values for sessions.
-        #[arg(default_value_t = Default::default(), long = "jwt-secret-key", help = "Secret key to use for encoding JWT values for sessions.")]
         #[serde(default)]
         jwt_secret_key: String {
             default: rand_string(32);
@@ -59,7 +59,6 @@ make_config! {
         /// A valid [DSN](https://docs.sentry.io/product/sentry-basics/dsn-explainer/) that is used
         /// to allow charted-server to output errors to [Sentry](https://sentry.io).
         #[serde(default, skip_serializing_if = "Option::is_none")]
-        #[arg(long = "sentry-dsn", help = "Valid DSN that is used to initialize Sentry")]
         sentry_dsn: Option<String> {
             default: None;
             env_value: var!("CHARTED_SENTRY_DSN", is_optional: true);
@@ -67,53 +66,29 @@ make_config! {
 
         /// Database configuration details.
         #[serde(default)]
-        #[command(flatten)]
         pub database: DatabaseConfig {
             default: DatabaseConfig::default();
             env_value: DatabaseConfig::from_env();
         };
 
         /// Logging configuration details.
-        #[command(flatten)]
         #[serde(default)]
         pub logging: LoggingConfig {
             default: LoggingConfig::default();
             env_value: LoggingConfig::from_env();
         };
 
-        #[command(flatten)]
         #[serde(default, with = "serde_yaml::with::singleton_map")]
         pub storage: StorageConfig {
             default: StorageConfig::default();
             env_value: StorageConfig::from_env();
         };
 
-        #[command(flatten)]
         #[serde(default)]
         pub server: ServerConfig {
             default: ServerConfig::default();
             env_value: ServerConfig::from_env();
         };
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::{Config, Merge};
-
-    #[test]
-    fn merge_config() {
-        let mut config = Config::default();
-        Merge::merge(
-            &mut config,
-            Config {
-                jwt_secret_key: "asecretkeywoah".into(),
-                ..Default::default()
-            },
-        );
-
-        assert_eq!(config.jwt_secret_key.as_str(), "asecretkeywoah");
-        assert!(config.sentry_dsn.is_none());
     }
 }
 
@@ -166,16 +141,14 @@ impl Config {
             return Ok(());
         }
 
+        // Since from any FromEnv impl. can panic, let's capture any panics
+        // and return back to the caller.
+        let env = catch_unwind(Config::from_env).map_err(|e| eyre!(format!("Panic'd during transformation: {e:?}")))?;
         let path = match path {
             Some(path) => path.as_ref().to_path_buf(),
             None => match Config::find_default_conf_location() {
                 Some(p) => p,
                 None => {
-                    // Since from any FromEnv impl. can panic, let's capture any panics
-                    // and return back to the caller.
-                    let env = catch_unwind(Config::from_env)
-                        .map_err(|e| eyre!(format!("Panic'd during transformation: {e:?}")))?;
-
                     CONFIG.set(env).unwrap();
                     return Ok(());
                 }
@@ -190,7 +163,7 @@ impl Config {
             };
         }
 
-        CONFIG.set(serialized.clone()).unwrap();
+        CONFIG.set(merge(&serialized.clone(), &env)?).unwrap();
         Ok(())
     }
 }
