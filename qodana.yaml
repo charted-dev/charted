@@ -16,6 +16,9 @@
 version: '1.0'
 linter: ghcr.io/charted-dev/qodana-jvm-node:2023.1
 exclude:
+    # a thing that we don't need
+    - name: DeprecatedCallableAddReplaceWith
+
     # Most confusing one out of them all. Just read up on what Qodana generated
     # here: https://github.com/charted-dev/charted/security/code-scanning/36
     - name: NullArgumentToVariableArgMethod
