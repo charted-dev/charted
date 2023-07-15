@@ -29,5 +29,7 @@ members = [
     "crates/search/elasticsearch",
     "crates/search/meilisearch",
     "crates/storage",
+    "test/proc-macro-libs/containers",
+    "test/containers",
     "tools/helm-plugin"
 ]

@@ -19,8 +19,8 @@ RUN apk update && apk add --no-cache git ca-certificates
 WORKDIR /build
 
 COPY . .
-RUN bazel build //cli:bin
-RUN mkdir -p /build/output && cp $(bazel cquery //cli:bin --output=files &>/dev/null | grep --color=never bazel-out) /build/output/charted
+RUN bazel build //cli:release_bin --compilation_mode=fastbuild
+RUN mkdir -p /build/output && cp $(bazel cquery //cli:release_bin --output=files &>/dev/null | grep --color=never bazel-out) /build/output/charted
 RUN bazel shutdown
 
 FROM alpine:3.18
@@ -28,9 +28,10 @@ FROM alpine:3.18
 RUN apk update && apk add --no-cache bash tini curl
 WORKDIR /app/noelware/charted/server
 
-COPY --from=build /build/output/charted /app/noelware/charted/server/bin/charted
-COPY distribution/docker/scripts        /app/noelware/charted/server/scripts
-COPY distribution/config                /app/noelware/charted/server/config
+COPY --from=build /build/crates/database/migrations /app/noelware/charted/server/migrations
+COPY --from=build /build/output/charted             /app/noelware/charted/server/bin/charted
+COPY distribution/docker/scripts                    /app/noelware/charted/server/scripts
+COPY distribution/config                            /app/noelware/charted/server/config
 
 ENV CHARTED_DISTRIBUTION_TYPE=docker
 EXPOSE 3651

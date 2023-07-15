@@ -48,28 +48,6 @@ impl SecureSetting {
     /// ## Example
     /// ```no_run
     /// # use charted_types::SecureSettting;
-
-    /*
-    impl<'de> Visitor<'de> for LongString {
-        type Value = String;
-
-        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-            write!(formatter, "a string containing at least {} bytes", self.min)
-        }
-
-        fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
-        where
-            E: de::Error,
-        {
-            if s.len() >= self.min {
-                Ok(s.to_owned())
-            } else {
-                Err(de::Error::invalid_value(Unexpected::Str(s), &self))
-            }
-        }
-    }
-    */
-
     /// #
     /// let sentry_dsn = SecureSetting::new("sentry_dsn");
     /// let dsn = sentry_dsn.load("${CHARTED_SENTRY_DSN:-deeznuts}");

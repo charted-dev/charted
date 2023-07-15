@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::Server;
 use axum::Router;
 use once_cell::sync::Lazy;
 use tower::ServiceBuilder;
@@ -20,17 +21,16 @@ use tower::ServiceBuilder;
 pub mod v1;
 
 #[allow(non_upper_case_globals)]
-static default_router: Lazy<Box<dyn Fn() -> Router + Send + Sync>> = Lazy::new(|| Box::new(v1::create_router));
+static default_router: Lazy<Box<dyn Fn() -> Router<Server> + Send + Sync>> = Lazy::new(|| Box::new(v1::create_router));
 
 macro_rules! create_router_internal {
     ($($cr:ident),*) => {
-        fn create_router_internal() -> ::axum::Router {
-            let mut router = ::axum::Router::new();
+        fn create_router_internal() -> ::axum::Router<$crate::Server> {
+            let mut router = ::axum::Router::new().merge(default_router());
             $(
                 router = router.clone().nest(concat!("/", stringify!($cr)), $crate::routing::$cr::create_router());
             )*
 
-            router = router.clone().merge(default_router());
             router
         }
     };
@@ -38,12 +38,14 @@ macro_rules! create_router_internal {
 
 create_router_internal!(v1);
 
-pub fn create_router() -> Router {
+pub fn create_router() -> Router<Server> {
     let stack = ServiceBuilder::new()
         .layer(sentry_tower::NewSentryLayer::new_from_top())
         .layer(sentry_tower::SentryHttpLayer::new());
 
-    create_router_internal()
+    Router::new()
+        .merge(create_router_internal())
         .layer(stack)
         .layer(axum::middleware::from_fn(crate::middleware::log))
+        .layer(axum::middleware::from_fn(crate::middleware::request_id))
 }

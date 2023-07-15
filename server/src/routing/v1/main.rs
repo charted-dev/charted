@@ -13,14 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::models::res::ok;
+use crate::{models::res::ok, openapi::gen_response_schema};
 use axum::{http::StatusCode, response::IntoResponse};
 use charted_common::VERSION;
 use serde::{Deserialize, Serialize};
 use utoipa::{
     openapi::{
         path::{OperationBuilder, PathItemBuilder},
-        ContentBuilder, PathItemType, Paths, PathsBuilder, RefOr, ResponseBuilder,
+        ContentBuilder, PathItem, PathItemType, Ref, RefOr, ResponseBuilder,
     },
     ToSchema,
 };
@@ -39,6 +39,8 @@ pub struct MainResponse {
     docs: String,
 }
 
+gen_response_schema!(MainResponse);
+
 impl Default for MainResponse {
     fn default() -> MainResponse {
         MainResponse {
@@ -53,27 +55,25 @@ pub async fn main() -> impl IntoResponse {
     ok(StatusCode::OK, MainResponse::default())
 }
 
-pub fn paths() -> Paths {
-    PathsBuilder::new()
-        .path(
-            "/",
-            PathItemBuilder::new()
-                .operation(
-                    PathItemType::Get,
-                    OperationBuilder::new()
-                        .description(Some("Generic main entrypoint to charted-server's API server"))
-                        .response(
-                            "200",
-                            RefOr::T(
-                                ResponseBuilder::new()
-                                    .content(
-                                        "application/json",
-                                        ContentBuilder::new().schema(MainResponse::schema().1).build(),
-                                    )
+pub fn paths() -> PathItem {
+    PathItemBuilder::new()
+        .operation(
+            PathItemType::Get,
+            OperationBuilder::new()
+                .description(Some("Generic main entrypoint to charted-server's API server"))
+                .response(
+                    "200",
+                    RefOr::T(
+                        ResponseBuilder::new()
+                            .description("Successful response.")
+                            .content(
+                                "application/json",
+                                ContentBuilder::new()
+                                    .schema(RefOr::Ref(Ref::from_schema_name("MainResponse")))
                                     .build(),
-                            ),
-                        )
-                        .build(),
+                            )
+                            .build(),
+                    ),
                 )
                 .build(),
         )

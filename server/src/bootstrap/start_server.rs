@@ -25,14 +25,14 @@ pub struct StartServerPhase;
 impl BootstrapPhase for StartServerPhase {
     fn bootstrap<'l0, 'async_method>(
         &'l0 self,
-        _config: &'async_method Config,
+        config: &'async_method Config,
     ) -> Pin<Box<dyn Future<Output = Result<()>> + Send + 'async_method>>
     where
         'l0: 'async_method,
         Self: 'async_method,
     {
         Box::pin(async move {
-            let server = Server::new().await?;
+            let server = Server::new(config.clone()).await?;
             server.run().await?;
 
             Ok(())

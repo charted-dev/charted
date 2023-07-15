@@ -14,5 +14,7 @@
 // limitations under the License.
 
 mod log;
+mod request_id;
 
 pub use log::*;
+pub use request_id::*;

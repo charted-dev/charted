@@ -16,17 +16,18 @@
 #[macro_use]
 extern crate tracing;
 
-mod app;
 mod bootstrap;
+mod server;
 mod version;
 
 pub(crate) mod middleware;
 pub(crate) mod models;
+pub mod openapi;
 pub mod routing;
 
-pub use app::*;
 use charted_config::Config;
 use eyre::Result;
+pub use server::*;
 pub use version::*;
 
 pub async fn bootstrap(config: &Config) -> Result<()> {

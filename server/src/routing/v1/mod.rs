@@ -13,12 +13,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use axum::{Router, routing::*};
+use axum::{routing::*, Router};
+use cdn::*;
+use features::*;
+use info::*;
 use main::*;
+// use metrics::*;
+use crate::Server;
+use openapi::*;
 
+pub mod cdn;
+pub mod features;
+pub mod info;
 pub mod main;
+pub mod metrics;
+pub mod openapi;
 
-pub fn create_router() -> Router {
+pub fn create_router() -> Router<Server> {
     Router::new()
         .route("/", get(main))
+        .route("/info", get(info))
+        .route("/features", get(features))
+        .route("/_openapi", get(openapi))
+        .route("/cdn/*file", get(cdn))
 }

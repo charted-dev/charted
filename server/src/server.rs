@@ -13,35 +13,41 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::routing::*;
-use charted_common::{COMMIT_HASH, VERSION};
+use crate::routing::create_router;
+use charted_common::{Snowflake, COMMIT_HASH, VERSION};
 use charted_config::{Config, ConfigExt, StorageConfig};
+use charted_database::controllers::users::UserDatabaseController;
+use charted_database::controllers::DatabaseController;
 use charted_storage::MultiStorageService;
 use eyre::Result;
 use remi_core::StorageService;
 use remi_fs::FilesystemStorageService;
 use remi_s3::S3StorageService;
-use sentry::{types::Dsn, ClientInitGuard, ClientOptions};
-use std::{borrow::Cow, str::FromStr, sync::Arc};
+use sentry::types::Dsn;
+use sentry::{ClientInitGuard, ClientOptions};
+use sqlx::postgres::PgPoolOptions;
+use sqlx::PgPool;
+use std::{any::Any, borrow::Cow, str::FromStr, sync::Arc};
 
+/// A default implemention of a [`Server`].
 #[derive(Clone)]
 pub struct Server {
-    /// Represents the configured storage service to use.
-    pub storage: MultiStorageService,
-
-    /// Represents a reference to the parsed [`Config`] from
-    /// the 'server' subcommand in the CLI.
-    pub config: Config,
-
-    // Sentry guard that will be dropped once this struct
-    // is done.
     _sentry_guard: Option<Arc<ClientInitGuard>>,
+
+    // a hacky solution to beat associated types
+    //
+    // is it wrong? probably.
+    // does it work? most likely.
+    controllers: Vec<Arc<(dyn Any + Send + Sync)>>,
+    snowflake: Snowflake,
+
+    pub storage: MultiStorageService,
+    pub config: Config,
+    pub pool: PgPool,
 }
 
 impl Server {
-    /// Creates a new [`Server`] object.
-    pub async fn new() -> Result<Server> {
-        let config = Config::get();
+    pub async fn new(config: Config) -> Result<Server> {
         let sentry_guard = match config.sentry_dsn() {
             Ok(Some(dsn)) => Some(Arc::new(sentry::init(ClientOptions {
                 dsn: Some(Dsn::from_str(dsn.as_str())?),
@@ -54,27 +60,51 @@ impl Server {
             _ => None,
         };
 
-        info!("server init: init storage service");
         let storage = match config.storage.clone() {
             StorageConfig::Filesystem(fs) => MultiStorageService::Filesystem(FilesystemStorageService::with_config(fs)),
             StorageConfig::S3(s3) => MultiStorageService::S3(S3StorageService::new(s3)),
         };
 
         storage.init().await?;
-        info!("server init: init storage server (success)");
+
+        let pool = PgPoolOptions::new()
+            .max_connections(config.database.max_connections)
+            .connect(config.database.to_string().as_str())
+            .await?;
+
+        // TODO(@auguwu): create cluster of snowflakes with 1023 nodes per
+        // server instance?
+        let snowflake = Snowflake::new(0);
+        let users = UserDatabaseController::new(pool.clone(), snowflake.clone());
 
         Ok(Server {
+            _sentry_guard: sentry_guard,
+            controllers: vec![Arc::new(users)],
+            snowflake,
             storage,
             config,
-            _sentry_guard: sentry_guard,
+            pool,
         })
     }
 
-    pub async fn run(&self) -> Result<()> {
-        let router = create_router();
-        let addr = self.config.server.addr();
+    pub fn controller<D: DatabaseController + 'static>(&self) -> &D {
+        self.controllers
+            .iter()
+            .find(move |f| f.is::<D>())
+            .expect("unable to find any db controller references with specified type")
+            .downcast_ref()
+            .expect("unable to downcast to &D")
+    }
 
-        info!(%addr, "charted-server is now listening on");
+    pub fn snowflake(&mut self) -> &mut Snowflake {
+        &mut self.snowflake
+    }
+
+    pub async fn run(&self) -> Result<()> {
+        let addr = self.config.server.addr();
+        info!(%addr, "now listening on");
+
+        let router: axum::Router = create_router().with_state(self.clone());
         axum::Server::bind(&addr).serve(router.into_make_service()).await?;
 
         Ok(())

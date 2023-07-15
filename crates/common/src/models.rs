@@ -31,7 +31,7 @@ lazy_static! {
     static ref NAME_REGEX: Regex = Regex::new(r"^([A-z]|-|_|\\d{0,9}){0,32}").unwrap();
 }
 
-pub type DateTime = chrono::DateTime<chrono::Utc>;
+pub type DateTime = chrono::DateTime<chrono::Local>;
 
 /// Represents a union enum that can hold a Snowflake ([u64]-based integer)
 /// and a Name, which is a String that is validated with the Name regex.
@@ -56,7 +56,7 @@ impl<'s> ToSchema<'s> for NameOrSnowflake {
             "NameOrSnowflake",
             RefOr::T(Schema::OneOf(
                 OneOfBuilder::new()
-                    .description(Some("Represents a union enum that can hold a Snowflake ([u64]-based integer) and a Name, which is a String that is validated with the Name regex."))
+                    .description(Some("Represents a union enum that can hold a Snowflake and a Name, which is a String that is validated with the Name regex."))
                     .item(ID::schema().1)
                     .item(Name::schema().1)
                     .build(),
@@ -77,21 +77,7 @@ impl NameOrSnowflake {
                 Ok(())
             }
 
-            NameOrSnowflake::Name(s) => {
-                if s.is_empty() {
-                    return Err("is empty");
-                }
-
-                if s.len() > 32 {
-                    return Err("exceeded over 32 characters");
-                }
-
-                if !NAME_REGEX.is_match(s.as_str()) {
-                    return Err("did not match to a valid Name");
-                }
-
-                Ok(())
-            }
+            NameOrSnowflake::Name(s) => Name::is_valid(s),
         }
     }
 }
@@ -116,6 +102,7 @@ impl From<String> for NameOrSnowflake {
 
 /// Represents the distribution that this instance is running off from.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd, Ord)]
+#[serde(rename_all = "lowercase")]
 pub enum Distribution {
     /// Running on a Kubernetes cluster, it can also be running
     /// from the [official Helm chart](https://charts.noelware.org/~/charted/server).
@@ -180,9 +167,7 @@ impl<'s> ToSchema<'s> for Distribution {
 /// pointer.
 ///
 /// Names are validated with the following regex: `^([A-z]|-|_|\\d{0,9}){0,32}`
-///
-/// This struct is only here for OpenAPI purposes, should never be used anywhere else.
-pub(crate) struct Name;
+pub struct Name;
 
 impl<'s> ToSchema<'s> for Name {
     fn schema() -> (&'s str, RefOr<Schema>) {
@@ -197,6 +182,25 @@ impl<'s> ToSchema<'s> for Name {
                     .build(),
             )),
         )
+    }
+}
+
+impl Name {
+    pub fn is_valid<I: AsRef<str>>(input: I) -> Result<(), &'static str> {
+        let s = input.as_ref();
+        if s.is_empty() {
+            return Err("was empty");
+        }
+
+        if s.len() > 32 {
+            return Err("exceeded over 32 characters");
+        }
+
+        if !NAME_REGEX.is_match(s) {
+            return Err("did not match to a valid Name");
+        }
+
+        Ok(())
     }
 }
 
@@ -472,6 +476,7 @@ pub mod entities {
     use once_cell::sync::Lazy;
     use semver::Version;
     use serde::{Deserialize, Serialize};
+    use sqlx::FromRow;
     use utoipa::{
         openapi::{RefOr, Schema},
         ToSchema,
@@ -605,7 +610,7 @@ pub mod entities {
     }
 
     /// Represents an account that can own [repositories][Repository] and [organizations][Organizations]
-    #[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema, PartialEq, Eq, PartialOrd, Ord)]
+    #[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema, FromRow)]
     pub struct User {
         /// Whether if this User is a Verified Publisher or not.
         #[serde(default = "crate::models::helm::falsy")]
@@ -643,12 +648,12 @@ pub mod entities {
 
         /// Unique identifier to locate this user with the API
         #[schema(schema_with = snowflake_schema)]
-        pub id: u64,
+        pub id: i64,
     }
 
     /// Represents a collection of a user's connections that can be used
     /// to login from different sources (like GitHub OAuth2)
-    #[derive(Debug, Clone, Default, ToSchema, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+    #[derive(Debug, Clone, Default, ToSchema, Serialize, Deserialize, FromRow)]
     pub struct UserConnections {
         /// Snowflake ID that was sourced from [Noelware's Accounts System](https://accounts.noelware.org)
         #[serde(default)]
@@ -671,10 +676,10 @@ pub mod entities {
 
         /// Snowflake of the user that owns this connections object.
         #[schema(schema_with = snowflake_schema)]
-        pub id: u64,
+        pub id: i64,
     }
 
-    #[derive(Debug, Clone, Default, ToSchema, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+    #[derive(Debug, Clone, Default, ToSchema, Serialize, Deserialize, FromRow)]
     pub struct Repository {
         /// Short description about this user, can be `null` if none was provided.
         #[serde(default)]
@@ -709,7 +714,7 @@ pub mod entities {
 
         /// Unique identifier to locate this repository from the API
         #[schema(schema_with = snowflake_schema)]
-        pub id: u64,
+        pub id: i64,
     }
 
     /// Represents a resource that contains a release from a [Repository] release. Releases
@@ -719,7 +724,7 @@ pub mod entities {
     /// Any repository can have an unlimited amount of releases, but tags cannot clash
     /// into each other, so the API server will not accept it. Each tag should be
     /// a SemVer 2 comformant string, parsing is related to how Cargo evaluates SemVer 2 tags.
-    #[derive(Debug, Clone, Serialize, Deserialize, ToSchema, PartialEq, Eq, PartialOrd, Ord)]
+    #[derive(Debug, Clone, Serialize, Deserialize, ToSchema, FromRow)]
     pub struct RepositoryRelease {
         /// Whether if this release is a pre-release or not.
         #[serde(default = "crate::models::helm::falsy")]
@@ -740,12 +745,12 @@ pub mod entities {
 
         /// Unique identifier to locate this repository release resource from the API.
         #[schema(schema_with = snowflake_schema)]
-        pub id: u64,
+        pub id: i64,
     }
 
     /// Represents a resource that is correlated to a repository or organization member
     /// that can control the repository's metadata.
-    #[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema, PartialEq, Eq, PartialOrd, Ord)]
+    #[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema, FromRow)]
     pub struct Member {
         /// Display name for this member. This should be formatted as '{display_name} (@{username})' if this
         /// is set, otherwise '@{username}' is used.
@@ -765,7 +770,7 @@ pub mod entities {
 
         /// Unique identifier to locate this member with the API
         #[schema(schema_with = snowflake_schema)]
-        pub id: u64,
+        pub id: i64,
     }
 
     impl Member {
@@ -787,7 +792,7 @@ pub mod entities {
     /// Represents a unified entity that can manage and own repositories outside
     /// a User. Organizations to the server is used for business-related Helm charts
     /// that aren't tied to a specific User.
-    #[derive(Debug, Clone, ToSchema, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd, Ord)]
+    #[derive(Debug, Clone, ToSchema, Serialize, Deserialize, Default, FromRow)]
     pub struct Organization {
         /// Whether if this Organization is a Verified Publisher or not.
         #[serde(default = "crate::models::helm::falsy")]
@@ -828,13 +833,13 @@ pub mod entities {
 
         /// Unique identifier to locate this organization with the API
         #[schema(schema_with = snowflake_schema)]
-        pub id: u64,
+        pub id: i64,
     }
 
     /// A resource for personal-managed API tokens that is created by a User. This is useful
     /// for command line tools or scripts that need to interact with charted-server, but
     /// the main use-case is for the [Helm plugin](https://charts.noelware.org/docs/helm-plugin/current).
-    #[derive(Debug, Clone, Default, ToSchema, Serialize, Deserialize)]
+    #[derive(Debug, Clone, Default, ToSchema, Serialize, Deserialize, FromRow)]
     pub struct ApiKey {
         /// Short description about this API key.
         #[serde(default)]
@@ -850,6 +855,7 @@ pub mod entities {
 
         /// The token itself. This is never revealed when querying, but only revealed
         /// when you create the token.
+        #[serde(default)]
         pub token: Option<String>,
 
         /// User resource that owns this API key.
@@ -860,7 +866,7 @@ pub mod entities {
 
         /// Unique identifer to locate this resource in the API server.
         #[schema(schema_with = snowflake_schema)]
-        pub id: u64,
+        pub id: i64,
     }
 
     impl ApiKey {

@@ -80,13 +80,14 @@ def rust_project(
             srcs = ["src/main.rs"],
             deps = [":charted_{name}".format(name = name)] + deps,
             rustc_flags = ["-C", "incremental=true"],
+            visibility = ["//visibility:public"],
         )
 
         rust_binary(
             name = "release_bin",
             srcs = ["src/main.rs"],
             deps = [":charted_{name}".format(name = name)] + deps,
-            rustc_flags = ["-C", "debuginfo=0", "-C", "opt-level=3", "-C", "lto=fat", "-C", "incremental=true"],
+            rustc_flags = ["-C", "lto=fat", "-C", "incremental=true"],
         )
 
     if build_script:

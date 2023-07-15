@@ -33,6 +33,8 @@ local_crates = ["//{path}:charted_{name}".format(
 
 rust_project(
     name = "server",
+    include_tests = True,
+    proc_macro_deps = ["@crate_index//:async-trait"],
     deps = [
         "@crate_index//:ansi_term",
         "@crate_index//:axum",
@@ -48,6 +50,7 @@ rust_project(
         "@crate_index//:serde",
         "@crate_index//:serde_json",
         "@crate_index//:serde_yaml",
+        "@crate_index//:sqlx",
         "@crate_index//:tokio",
         "@crate_index//:tower",
         "@crate_index//:tower-layer",

@@ -23,6 +23,7 @@
                 "hashicorp.terraform",
                 "redhat.vscode-yaml",
                 "antfu.iconify",
+                "hashicorp.hcl",
                 "Vue.volar"
             ],
             "settings": {

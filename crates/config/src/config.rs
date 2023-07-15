@@ -163,7 +163,7 @@ impl Config {
             };
         }
 
-        CONFIG.set(merge(&serialized.clone(), &env)?).unwrap();
+        CONFIG.set(merge(&env, &serialized.clone())?).unwrap();
         Ok(())
     }
 }

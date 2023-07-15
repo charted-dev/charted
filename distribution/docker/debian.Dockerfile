@@ -19,8 +19,8 @@ RUN apt update && apt install -y git ca-certificates
 WORKDIR /build
 
 COPY . .
-RUN bazel build //cli:bin
-RUN mkdir -p /build/output && cp $(bazel cquery //cli:bin --output=files &>/dev/null | grep --color=never bazel-out) /build/output/charted
+RUN bazel build //cli:release_bin --compilation_mode=fastbuild
+RUN mkdir -p /build/output && cp $(bazel cquery //cli:release_bin --output=files &>/dev/null | grep --color=never bazel-out) /build/output/charted
 RUN bazel shutdown
 
 FROM debian:bullseye-slim

@@ -37,6 +37,7 @@ rust_project(
         "@crate_index//:regex",
         "@crate_index//:semver",
         "@crate_index//:serde",
+        "@crate_index//:sqlx",
         "@crate_index//:thiserror",
         "@crate_index//:utoipa",
     ],

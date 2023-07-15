@@ -25,7 +25,7 @@ input:
   name: charted release binary
   type: "file"
   paths:
-    - ./bazel-out/k8-fastbuild/bin/cli/bin
+    - ./bazel-out/k8-fastbuild/bin/cli/release_bin
 output:
   - name: "tarball: charted distribution"
     type: tarball

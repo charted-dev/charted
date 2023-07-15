@@ -18,4 +18,17 @@ load("//:build/rust_project.bzl", "rust_project")
 rust_project(
     name = "database",
     include_tests = True,
+    proc_macro_deps = ["@crate_index//:async-trait"],
+    deps = [
+        "//crates/common:charted_common",
+        "@crate_index//:argon2",
+        "@crate_index//:eyre",
+        "@crate_index//:once_cell",
+        "@crate_index//:regex",
+        "@crate_index//:serde",
+        "@crate_index//:sqlx",
+        "@crate_index//:tracing",
+        "@crate_index//:utoipa",
+        "@crate_index//:validator",
+    ],
 )

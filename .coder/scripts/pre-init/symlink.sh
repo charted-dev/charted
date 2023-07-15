@@ -15,12 +15,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if ! [ -f "/usr/local/bin/buildifier" ]; then
+if ! [ -L "/usr/local/bin/buildifier" ]; then
     echo "===> Symlinking \`bazel-buildifier\` ~> \`buildifier\`!"
     sudo ln -s /usr/local/bin/bazel-buildifier /usr/local/bin/buildifier
 fi
 
-if ! [ -f "/usr/local/bin/sync-deps" ]; then
+if ! [ -L "/usr/local/bin/sync-deps" ]; then
     echo "===> Symlinking ./scripts/sync_deps.sh ~> sync-deps"
     sudo ln -s $HOME/workspace/scripts/sync_deps.sh /usr/local/bin/sync-deps
 fi

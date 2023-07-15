@@ -34,3 +34,15 @@ exports_files([
     # determine where this build was compiled from.
     ".git",
 ])
+
+alias(
+    name = "helm-plugin",
+    actual = "//tools/helm-plugin:bin",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "cli",
+    actual = "//cli:bin",
+    visibility = ["//visibility:public"],
+)

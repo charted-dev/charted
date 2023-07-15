@@ -13,9 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::collections::HashMap;
-
 use crate::hashmap;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
 pub enum BitfieldError {

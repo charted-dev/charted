@@ -16,12 +16,14 @@
 use std::fmt::Debug;
 
 use axum::{
-    http::StatusCode,
+    headers::HeaderValue,
+    http::{header, StatusCode},
     response::{IntoResponse, Response},
 };
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, ToSchema)]
 pub struct ApiResponse<T>
 where
     T: Serialize + Debug,
@@ -29,11 +31,15 @@ where
     #[serde(skip)]
     status: StatusCode,
 
+    /// Indicates whether if this response was a success or not.
     pub success: bool,
 
+    /// Optional data that was attached to this payload.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub data: Option<T>,
 
+    /// List of errors that might've occurred when this request
+    /// was being processed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub errors: Option<Vec<Error>>,
 }
@@ -42,6 +48,10 @@ impl<T: Serialize + Debug> IntoResponse for ApiResponse<T> {
     fn into_response(self) -> Response {
         let mut res = Response::new(serde_json::to_string(&self).unwrap());
         *res.status_mut() = self.status;
+        res.headers_mut().insert(
+            header::CONTENT_TYPE,
+            HeaderValue::from_static("application/json; charset=utf-8"),
+        );
 
         res.into_response()
     }
@@ -55,7 +65,7 @@ impl<T: Serialize + Debug> Into<Response> for ApiResponse<T> {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct Error {
     message: String,
     code: String,
