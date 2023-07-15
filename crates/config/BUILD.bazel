@@ -22,6 +22,7 @@ rust_project(
     deps = [
         "//crates/common:charted_common",
         "@crate_index//:aws-sdk-s3",
+        "@crate_index//:base64",
         "@crate_index//:clap",
         "@crate_index//:eyre",
         "@crate_index//:lazy_static",

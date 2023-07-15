@@ -13,9 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::Server;
-use axum::Router;
+use crate::{models::res::err, Server};
+use axum::{
+    body::Body,
+    http::{header, Method, Response, StatusCode},
+    Router,
+};
 use once_cell::sync::Lazy;
+use serde_json::json;
+use std::any::Any;
 use tower::ServiceBuilder;
 
 pub mod v1;
@@ -41,11 +47,54 @@ create_router_internal!(v1);
 pub fn create_router() -> Router<Server> {
     let stack = ServiceBuilder::new()
         .layer(sentry_tower::NewSentryLayer::new_from_top())
-        .layer(sentry_tower::SentryHttpLayer::new());
+        .layer(sentry_tower::SentryHttpLayer::new())
+        .layer(tower_http::catch_panic::CatchPanicLayer::custom(catch_panic))
+        .layer(
+            tower_http::cors::CorsLayer::new()
+                .allow_methods([
+                    Method::GET,
+                    Method::PUT,
+                    Method::HEAD,
+                    Method::POST,
+                    Method::PATCH,
+                    Method::DELETE,
+                ])
+                .allow_origin(tower_http::cors::Any),
+        );
 
     Router::new()
         .merge(create_router_internal())
         .layer(stack)
-        .layer(axum::middleware::from_fn(crate::middleware::log))
         .layer(axum::middleware::from_fn(crate::middleware::request_id))
+        .layer(axum::middleware::from_fn(crate::middleware::log))
+}
+
+fn catch_panic(error: Box<dyn Any + Send + 'static>) -> Response<Body> {
+    let details = if let Some(s) = error.downcast_ref::<String>() {
+        s.clone()
+    } else if let Some(s) = error.downcast_ref::<&str>() {
+        s.to_string()
+    } else {
+        "unknown panic message".into()
+    };
+
+    error!(%details, "received panic when executing rest handler");
+    Response::builder()
+        .status(StatusCode::INTERNAL_SERVER_ERROR)
+        .header(header::CONTENT_TYPE, "application/json; charset=utf-8")
+        .body(Body::from(
+            serde_json::to_string(&err(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                (
+                    "INTERNAL_SERVER_ERROR",
+                    "Unable to process your request. Please try again later or report this to Noelware via GitHub",
+                    json!({
+                        "new_issue_uri": "https://github.com/charted-dev/charted/issues/new"
+                    }),
+                )
+                    .into(),
+            ))
+            .unwrap(),
+        ))
+        .unwrap()
 }

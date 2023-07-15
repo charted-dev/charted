@@ -53,6 +53,7 @@ rust_project(
         "@crate_index//:sqlx",
         "@crate_index//:tokio",
         "@crate_index//:tower",
+        "@crate_index//:tower-http",
         "@crate_index//:tower-layer",
         "@crate_index//:tracing",
         "@crate_index//:tracing-log",

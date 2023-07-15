@@ -21,6 +21,7 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use utoipa::ToSchema;
 
 #[derive(Serialize, Deserialize, Debug, ToSchema)]
@@ -67,8 +68,9 @@ impl<T: Serialize + Debug> Into<Response> for ApiResponse<T> {
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct Error {
-    message: String,
     code: String,
+    message: String,
+    details: Option<Value>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -79,6 +81,15 @@ impl Error {
         Error {
             code: code.into(),
             message: message.into(),
+            details: None,
+        }
+    }
+
+    pub(crate) fn new_with_details(code: &str, message: &str, details: Value) -> Error {
+        Error {
+            code: code.into(),
+            message: message.into(),
+            details: Some(details),
         }
     }
 }
@@ -86,6 +97,12 @@ impl Error {
 impl From<(&str, &str)> for Error {
     fn from((code, message): (&str, &str)) -> Self {
         Error::new(code, message)
+    }
+}
+
+impl From<(&str, &str, Value)> for Error {
+    fn from((code, message, details): (&str, &str, Value)) -> Self {
+        Error::new_with_details(code, message, details)
     }
 }
 

@@ -25,8 +25,12 @@ use remi_fs::FilesystemStorageService;
 use remi_s3::S3StorageService;
 use sentry::types::Dsn;
 use sentry::{ClientInitGuard, ClientOptions};
-use sqlx::postgres::PgPoolOptions;
-use sqlx::PgPool;
+use sqlx::ConnectOptions;
+use sqlx::{
+    postgres::{PgConnectOptions, PgPoolOptions},
+    PgPool,
+};
+use std::time::Duration;
 use std::{any::Any, borrow::Cow, str::FromStr, sync::Arc};
 
 /// A default implemention of a [`Server`].
@@ -69,7 +73,11 @@ impl Server {
 
         let pool = PgPoolOptions::new()
             .max_connections(config.database.max_connections)
-            .connect(config.database.to_string().as_str())
+            .connect_with(
+                PgConnectOptions::from_str(config.database.to_string().as_str())?
+                    .log_statements(tracing::log::LevelFilter::Trace)
+                    .log_slow_statements(tracing::log::LevelFilter::Warn, Duration::from_secs(5)),
+            )
             .await?;
 
         // TODO(@auguwu): create cluster of snowflakes with 1023 nodes per

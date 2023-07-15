@@ -77,7 +77,7 @@ macro_rules! gen_response_schema_priv {
                     concat!("Api", stringify!($ty)),
                     ::utoipa::openapi::RefOr::T(
                         ::utoipa::openapi::ResponseBuilder::new()
-                            .description(concat!("Response object for ", stringify!($ty), ".").to_string())
+                            .description(concat!("Response object for ", stringify!($ty)).to_string())
                             .content($content, ::utoipa::openapi::ContentBuilder::new()
                                 .schema(::utoipa::openapi::RefOr::T(::utoipa::openapi::Schema::Object({
                                     ::utoipa::openapi::ObjectBuilder::new()
@@ -152,6 +152,7 @@ pub fn document() -> utoipa::openapi::OpenApi {
     openapi.merge(
         OpenApiBuilder::new()
             .paths(add_paths! {
+                "/heartbeat": crate::routing::v1::heartbeat::paths();
                 "/features": crate::routing::v1::features::paths();
                 "/info": crate::routing::v1::info::paths();
                 "/": crate::routing::v1::main::paths();

@@ -13,17 +13,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use axum::{routing::*, Router};
+use axum::{
+    body::Body,
+    http::{Request, StatusCode},
+    response::IntoResponse,
+    routing::*,
+    Router,
+};
 use cdn::*;
 use features::*;
+use heartbeat::*;
 use info::*;
 use main::*;
+use serde_json::json;
 // use metrics::*;
-use crate::Server;
+use crate::{models::res::err, Server};
 use openapi::*;
 
 pub mod cdn;
 pub mod features;
+pub mod heartbeat;
 pub mod info;
 pub mod main;
 pub mod metrics;
@@ -34,6 +43,23 @@ pub fn create_router() -> Router<Server> {
         .route("/", get(main))
         .route("/info", get(info))
         .route("/features", get(features))
+        .route("/heartbeat", get(heartbeat))
         .route("/_openapi", get(openapi))
         .route("/cdn/*file", get(cdn))
+        .fallback(fallback)
+}
+
+async fn fallback(req: Request<Body>) -> impl IntoResponse {
+    err(
+        StatusCode::NOT_FOUND,
+        (
+            "HANDLER_NOT_FOUND",
+            format!("Route was not found").as_str(),
+            json!({
+                "method": req.method().as_str().to_lowercase(),
+                "url": req.uri().path(),
+            }),
+        )
+            .into(),
+    )
 }

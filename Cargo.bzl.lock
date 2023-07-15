@@ -1,5 +1,5 @@
 {
-  "checksum": "be3221c35971a91f96f416eaa69335518927a7293d308be20f2f5b48f8454bf9",
+  "checksum": "93a0ff13829e56a960acc76805cc729c50f6826a7453333e31cce58052d0cdac",
   "crates": {
     "addr2line 0.20.0": {
       "name": "addr2line",
@@ -593,6 +593,36 @@
       },
       "license": "MIT OR Apache-2.0"
     },
+    "arc-swap 1.6.0": {
+      "name": "arc-swap",
+      "version": "1.6.0",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/arc-swap/1.6.0/download",
+          "sha256": "bddcadddf5e9015d310179a59bb28c4d4b9920ad0f11e8e14dbadf654890c9a6"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "arc_swap",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "arc_swap",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2018",
+        "version": "1.6.0"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
     "argon2 0.5.1": {
       "name": "argon2",
       "version": "0.5.1",
@@ -653,6 +683,53 @@
         },
         "edition": "2021",
         "version": "0.5.1"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
+    "async-recursion 1.0.4": {
+      "name": "async-recursion",
+      "version": "1.0.4",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/async-recursion/1.0.4/download",
+          "sha256": "0e97ce7de6cf12de5d7226c73f5ba9811622f4db3a5b91b55c53e987e5f91cba"
+        }
+      },
+      "targets": [
+        {
+          "ProcMacro": {
+            "crate_name": "async_recursion",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "async_recursion",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "proc-macro2 1.0.63",
+              "target": "proc_macro2"
+            },
+            {
+              "id": "quote 1.0.29",
+              "target": "quote"
+            },
+            {
+              "id": "syn 2.0.25",
+              "target": "syn"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "1.0.4"
       },
       "license": "MIT OR Apache-2.0"
     },
@@ -3732,6 +3809,10 @@
               "target": "aws_sdk_s3"
             },
             {
+              "id": "base64 0.21.2",
+              "target": "base64"
+            },
+            {
               "id": "clap 4.3.11",
               "target": "clap"
             },
@@ -4083,7 +4164,37 @@
         "compile_data_glob": [
           "**"
         ],
+        "deps": {
+          "common": [
+            {
+              "id": "eyre 0.6.8",
+              "target": "eyre"
+            },
+            {
+              "id": "redis 0.23.0",
+              "target": "redis"
+            },
+            {
+              "id": "tokio 1.29.1",
+              "target": "tokio"
+            },
+            {
+              "id": "tracing 0.1.37",
+              "target": "tracing"
+            }
+          ],
+          "selects": {}
+        },
         "edition": "2021",
+        "proc_macro_deps": {
+          "common": [
+            {
+              "id": "async-recursion 1.0.4",
+              "target": "async_recursion"
+            }
+          ],
+          "selects": {}
+        },
         "version": "0.0.0-devel.0"
       },
       "license": null
@@ -4252,6 +4363,10 @@
             {
               "id": "tower 0.4.13",
               "target": "tower"
+            },
+            {
+              "id": "tower-http 0.4.1",
+              "target": "tower_http"
             },
             {
               "id": "tower-layer 0.3.2",
@@ -4920,6 +5035,80 @@
         "version": "1.0.0"
       },
       "license": "MIT OR Apache-2.0"
+    },
+    "combine 4.6.6": {
+      "name": "combine",
+      "version": "4.6.6",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/combine/4.6.6/download",
+          "sha256": "35ed6e9d84f0b51a7f52daf1c7d71dd136fd7a3f41a8462b8cdb8c78d920fad4"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "combine",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "combine",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "alloc",
+            "bytes",
+            "futures-core-03",
+            "pin-project-lite",
+            "std",
+            "tokio",
+            "tokio-dep",
+            "tokio-util"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "bytes 1.4.0",
+              "target": "bytes"
+            },
+            {
+              "id": "futures-core 0.3.28",
+              "target": "futures_core",
+              "alias": "futures_core_03"
+            },
+            {
+              "id": "memchr 2.5.0",
+              "target": "memchr"
+            },
+            {
+              "id": "pin-project-lite 0.2.10",
+              "target": "pin_project_lite"
+            },
+            {
+              "id": "tokio 1.29.1",
+              "target": "tokio",
+              "alias": "tokio_dep"
+            },
+            {
+              "id": "tokio-util 0.7.8",
+              "target": "tokio_util"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "4.6.6"
+      },
+      "license": "MIT"
     },
     "const-oid 0.9.4": {
       "name": "const-oid",
@@ -8672,6 +8861,36 @@
         },
         "edition": "2018",
         "version": "0.4.5"
+      },
+      "license": "MIT"
+    },
+    "http-range-header 0.3.0": {
+      "name": "http-range-header",
+      "version": "0.3.0",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/http-range-header/0.3.0/download",
+          "sha256": "0bfe8eed0a9285ef776bb792479ea3834e8b94e13d615c2f66d03dd50a435a29"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "http_range_header",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "http_range_header",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2018",
+        "version": "0.3.0"
       },
       "license": "MIT"
     },
@@ -13053,6 +13272,124 @@
       },
       "license": "MIT OR Apache-2.0"
     },
+    "redis 0.23.0": {
+      "name": "redis",
+      "version": "0.23.0",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/redis/0.23.0/download",
+          "sha256": "3ea8c51b5dc1d8e5fd3350ec8167f464ec0995e79f2e90a075b63371500d557f"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "redis",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "redis",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "acl",
+            "aio",
+            "arc-swap",
+            "async-trait",
+            "bytes",
+            "connection-manager",
+            "default",
+            "futures",
+            "futures-util",
+            "geospatial",
+            "pin-project-lite",
+            "script",
+            "sha1_smol",
+            "streams",
+            "tokio",
+            "tokio-comp",
+            "tokio-util"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "arc-swap 1.6.0",
+              "target": "arc_swap"
+            },
+            {
+              "id": "bytes 1.4.0",
+              "target": "bytes"
+            },
+            {
+              "id": "combine 4.6.6",
+              "target": "combine"
+            },
+            {
+              "id": "futures 0.3.28",
+              "target": "futures"
+            },
+            {
+              "id": "futures-util 0.3.28",
+              "target": "futures_util"
+            },
+            {
+              "id": "itoa 1.0.8",
+              "target": "itoa"
+            },
+            {
+              "id": "percent-encoding 2.3.0",
+              "target": "percent_encoding"
+            },
+            {
+              "id": "pin-project-lite 0.2.10",
+              "target": "pin_project_lite"
+            },
+            {
+              "id": "ryu 1.0.14",
+              "target": "ryu"
+            },
+            {
+              "id": "sha1_smol 1.0.0",
+              "target": "sha1_smol"
+            },
+            {
+              "id": "tokio 1.29.1",
+              "target": "tokio"
+            },
+            {
+              "id": "tokio-util 0.7.8",
+              "target": "tokio_util"
+            },
+            {
+              "id": "url 2.4.0",
+              "target": "url"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "proc_macro_deps": {
+          "common": [
+            {
+              "id": "async-trait 0.1.71",
+              "target": "async_trait"
+            }
+          ],
+          "selects": {}
+        },
+        "version": "0.23.0"
+      },
+      "license": "BSD-3-Clause"
+    },
     "redox_syscall 0.2.16": {
       "name": "redox_syscall",
       "version": "0.2.16",
@@ -15911,6 +16248,36 @@
       },
       "license": "MIT OR Apache-2.0"
     },
+    "sha1_smol 1.0.0": {
+      "name": "sha1_smol",
+      "version": "1.0.0",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/sha1_smol/1.0.0/download",
+          "sha256": "ae1a47186c03a32177042e55dbc5fd5aee900b8e0069a8d70fba96a9375cd012"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "sha1_smol",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "sha1_smol",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "edition": "2018",
+        "version": "1.0.0"
+      },
+      "license": "BSD-3-Clause"
+    },
     "sha2 0.10.7": {
       "name": "sha2",
       "version": "0.10.7",
@@ -18729,6 +19096,100 @@
         },
         "edition": "2018",
         "version": "0.4.13"
+      },
+      "license": "MIT"
+    },
+    "tower-http 0.4.1": {
+      "name": "tower-http",
+      "version": "0.4.1",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/tower-http/0.4.1/download",
+          "sha256": "a8bd22a874a2d0b70452d5597b12c537331d49060824a95f49f108994f94aa4c"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "tower_http",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "tower_http",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "catch-panic",
+            "cors",
+            "default",
+            "httpdate",
+            "trace",
+            "tracing"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "bitflags 2.3.3",
+              "target": "bitflags"
+            },
+            {
+              "id": "bytes 1.4.0",
+              "target": "bytes"
+            },
+            {
+              "id": "futures-core 0.3.28",
+              "target": "futures_core"
+            },
+            {
+              "id": "futures-util 0.3.28",
+              "target": "futures_util"
+            },
+            {
+              "id": "http 0.2.9",
+              "target": "http"
+            },
+            {
+              "id": "http-body 0.4.5",
+              "target": "http_body"
+            },
+            {
+              "id": "http-range-header 0.3.0",
+              "target": "http_range_header"
+            },
+            {
+              "id": "httpdate 1.0.2",
+              "target": "httpdate"
+            },
+            {
+              "id": "pin-project-lite 0.2.10",
+              "target": "pin_project_lite"
+            },
+            {
+              "id": "tower-layer 0.3.2",
+              "target": "tower_layer"
+            },
+            {
+              "id": "tower-service 0.3.2",
+              "target": "tower_service"
+            },
+            {
+              "id": "tracing 0.1.37",
+              "target": "tracing"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.4.1"
       },
       "license": "MIT"
     },

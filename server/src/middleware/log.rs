@@ -13,13 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::time::Instant;
-
 use axum::{
     http::{Method, Request, Uri, Version},
     middleware::Next,
     response::IntoResponse,
 };
+use std::time::Instant;
 
 #[derive(axum::extract::FromRequestParts)]
 pub struct Metadata {
@@ -41,6 +40,9 @@ pub async fn log<B>(metadata: Metadata, req: Request<B>, next: Next<B>) -> impl 
         _ => "http/???",
     };
 
+    let http_span = info_span!("http.request", uri, method, version);
+    let _guard = http_span.enter();
+
     if !uri.contains("/heartbeat") {
         info!(
             %uri,
@@ -55,13 +57,14 @@ pub async fn log<B>(metadata: Metadata, req: Request<B>, next: Next<B>) -> impl 
 
     if !uri.contains("/heartbeat") {
         let status = res.status();
+
         info!(
             %uri,
             %method,
             %version,
-            "processed request -> {} [{:?}]",
-            status,
-            now
+            %status,
+            latency = format!("{now:?}").as_str(),
+            "processed request"
         );
     }
 

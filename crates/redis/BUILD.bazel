@@ -18,4 +18,11 @@ load("//:build/rust_project.bzl", "rust_project")
 rust_project(
     name = "redis",
     include_tests = True,
+    proc_macro_deps = ["@crate_index//:async-recursion"],
+    deps = [
+        "//crates/config:charted_config",
+        "@crate_index//:eyre",
+        "@crate_index//:redis",
+        "@crate_index//:tracing",
+    ],
 )

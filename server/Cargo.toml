@@ -51,6 +51,7 @@ serde_yaml = "0.9.21"
 sqlx = { version = "0.7.0", features = ["postgres", "runtime-tokio", "tls-native-tls"] }
 tokio = { version = "1.28.1", features = ["full"] }
 tower = { version = "0.4.13", features = ["tracing"] }
+tower-http = { version = "0.4.1", features = ["cors", "httpdate", "trace", "catch-panic"] }
 tower-layer = "0.3.2"
 tracing = "0.1.37"
 tracing-log = "0.1.3"
