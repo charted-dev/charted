@@ -28,7 +28,7 @@ pub enum MultiStorageService {
 
 macro_rules! gen_methods {
     (
-        $(fn $name:ident($($arg_name:ident: $ty:ty,)*)$(-> $return_:ty)?;)*
+        $(fn $name:ident($($arg_name:ident: $ty:ty),*)$(-> $return_:ty)?;)*
     ) => {
         $(
             fn $name<'life0, 'async_trait>(&'life0 self,$($arg_name: $ty,)*)$(-> ::std::pin::Pin<Box<dyn ::std::future::Future<Output = $return_> + Send + 'async_trait>>)?
@@ -58,11 +58,11 @@ impl StorageService for MultiStorageService {
 
     gen_methods! {
         fn init() -> Result<()>;
-        fn open(path: impl AsRef<::std::path::Path> + Send + 'async_trait,) -> Result<Option<::bytes::Bytes>>;
-        fn blob(path: impl AsRef<::std::path::Path> + Send + 'async_trait,) -> Result<Option<remi_core::Blob>>;
-        fn blobs(path: Option<impl AsRef<::std::path::Path> + Send + 'async_trait>, options: Option<remi_core::ListBlobsRequest>,) -> Result<Vec<remi_core::Blob>>;
-        fn delete(path: impl AsRef<::std::path::Path> + Send + 'async_trait,) -> Result<()>;
-        fn exists(path: impl AsRef<::std::path::Path> + Send + 'async_trait,) -> Result<bool>;
-        fn upload(path: impl AsRef<::std::path::Path> + Send + 'async_trait, options: remi_core::UploadRequest,) -> Result<()>;
+        fn open(path: impl AsRef<::std::path::Path> + Send + 'async_trait) -> Result<Option<::bytes::Bytes>>;
+        fn blob(path: impl AsRef<::std::path::Path> + Send + 'async_trait) -> Result<Option<remi_core::Blob>>;
+        fn blobs(path: Option<impl AsRef<::std::path::Path> + Send + 'async_trait>, options: Option<remi_core::ListBlobsRequest>) -> Result<Vec<remi_core::Blob>>;
+        fn delete(path: impl AsRef<::std::path::Path> + Send + 'async_trait) -> Result<()>;
+        fn exists(path: impl AsRef<::std::path::Path> + Send + 'async_trait) -> Result<bool>;
+        fn upload(path: impl AsRef<::std::path::Path> + Send + 'async_trait, options: remi_core::UploadRequest) -> Result<()>;
     }
 }

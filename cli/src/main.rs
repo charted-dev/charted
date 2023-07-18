@@ -19,11 +19,7 @@ use charted_logging::generic::GenericLayer;
 use clap::Parser;
 use color_eyre::config::HookBuilder;
 use eyre::Result;
-use std::{
-    env::{set_var, var},
-    time::SystemTime,
-};
-use tracing::debug;
+use std::env::{set_var, var};
 use tracing_subscriber::prelude::*;
 
 #[tokio::main]
@@ -45,8 +41,5 @@ async fn main() -> Result<()> {
         )?;
     }
 
-    let now = SystemTime::now();
-    execute(&cli.command)
-        .await
-        .map(|_| debug!("took {:?} to run command", now.elapsed().unwrap()))
+    execute(&cli.command).await
 }

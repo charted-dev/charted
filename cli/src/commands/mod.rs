@@ -13,11 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod generate_config;
 mod models;
+mod openapi;
 mod server;
 mod version;
 
+use crate::commands::generate_config::*;
 use crate::commands::models::*;
+use crate::commands::openapi::*;
 use crate::commands::server::*;
 use crate::commands::version::*;
 use clap::Subcommand;
@@ -25,6 +29,10 @@ use eyre::Result;
 
 #[derive(Debug, Clone, Subcommand)]
 pub enum Commands {
+    GenerateConfig(GenerateConfig),
+
+    #[command(name = "openapi")]
+    OpenAPI(OpenAPI),
     Server(Box<Server>),
     Version(Version),
 }
@@ -33,5 +41,7 @@ pub async fn execute(command: &Commands) -> Result<()> {
     match command {
         Commands::Server(server) => server.execute().await,
         Commands::Version(version) => version.execute(),
+        Commands::OpenAPI(openapi) => openapi.execute(),
+        Commands::GenerateConfig(generate) => generate.execute().await,
     }
 }

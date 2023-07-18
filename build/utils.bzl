@@ -34,8 +34,6 @@ def get_cargo_manifests():
         "crates/search/meilisearch",
         "crates/storage",
         "tools/helm-plugin",
-        "test/proc-macro-libs/containers",
-        "test/containers",
         "server",
         "cli",
         "",

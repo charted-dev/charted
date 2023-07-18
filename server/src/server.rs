@@ -18,6 +18,7 @@ use charted_common::{Snowflake, COMMIT_HASH, VERSION};
 use charted_config::{Config, ConfigExt, StorageConfig};
 use charted_database::controllers::users::UserDatabaseController;
 use charted_database::controllers::DatabaseController;
+use charted_database::MIGRATIONS;
 use charted_storage::MultiStorageService;
 use eyre::Result;
 use remi_core::StorageService;
@@ -79,6 +80,16 @@ impl Server {
                     .log_slow_statements(tracing::log::LevelFilter::Warn, Duration::from_secs(5)),
             )
             .await?;
+
+        {
+            let pool = pool.clone();
+            let _guard = info_span!("database.migrate.run");
+
+            info!("running migrations");
+            MIGRATIONS.run(&pool).await?;
+
+            info!("done!");
+        }
 
         // TODO(@auguwu): create cluster of snowflakes with 1023 nodes per
         // server instance?

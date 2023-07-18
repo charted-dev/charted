@@ -125,6 +125,14 @@ impl Config {
         }
     }
 
+    /// Sets a temporary [`Config`] that allows you to use the `get() -> Config`
+    /// command without it panic.
+    pub fn temporary() {
+        if CONFIG.get().is_none() {
+            CONFIG.set(Config::default()).unwrap();
+        }
+    }
+
     /// Returns a reference of the already-initialized configuration.
     ///
     /// ## Panics

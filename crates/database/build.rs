@@ -13,7 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod context;
-
-pub use charted_testcontainers_macros::*;
-pub use context::*;
+fn main() {
+    println!("cargo:rerun-if-changed=migrations");
+}

@@ -13,4 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use sqlx::{migrate, migrate::Migrator};
+
 pub mod controllers;
+
+/// A static [`Migrator`] instance for migrations that are embedded
+/// in this crate.
+pub static MIGRATIONS: Migrator = migrate!();

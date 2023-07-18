@@ -22,6 +22,7 @@ load("@crate_index//:defs.bzl", "aliases")
 def rust_project(
         name,
         deps = [],
+        external_data = [],
         proc_macro_deps = [],
         include_tests = False,
         include_doctests = False,
@@ -35,6 +36,7 @@ def rust_project(
     Args:
         name: The name of the project.
         deps: A list of dependencies to use in the `rust_library`, `rust_binary` (if enabled), and `rust_test` (if enabled) macro(s).
+        external_data: List of targets to use to embed data into `rust_library`.
         proc_macro_deps: A list of proc-macro related dependencies to use.
         include_tests: If the `rust_test` macro should be included. This will always be `{name}_test` when used with
             the `bazel test` command.
@@ -55,6 +57,7 @@ def rust_project(
         # without using 'extern crate {name}'!
         name = "charted_{name}".format(name = name),
         aliases = aliases(),
+        data = external_data,
         srcs = native.glob(["src/**/*.rs"], exclude = ["src/main.rs"]),
         deps = deps,
         proc_macro_deps = proc_macro_deps,

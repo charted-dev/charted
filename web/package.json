@@ -5,6 +5,16 @@
     "private": true,
     "author": "Noelware, LLC. <team@noelware.org>",
     "repository": "https://github.com/charted-dev/charted/tree/main/web",
-    "bugs": "https://github.com/charted-dev/charted/issues/new?label=web,bug",
-    "maintainers": ["Noel <cutie@floofy.dev>"]
+    "bugs": "https://github.com/charted-dev/charted/issues/new",
+    "maintainers": [
+        "Noel Towa <cutie@floofy.dev>",
+        "Noelware Team <team@noelware.org>"
+    ],
+    "dependencies": {
+        "@fontsource/cantarell": "^5.0.5",
+        "@fontsource/inter": "^5.0.5",
+        "@fontsource/jetbrains-mono": "^5.0.5",
+        "@ncharts/types": "0.1.0-unstable",
+        "@tanstack/vue-query": "^4.29.25"
+    }
 }

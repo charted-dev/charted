@@ -13,7 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM cr.floofy.dev/noel/bazel:6-alpine
+FROM cr.floofy.dev/noel/bazel:6-alpine AS web
+
+RUN apk update && apk add --no-cache git ca-certificates
+WORKDIR /build
+
+COPY . .
+RUN bazel build //web:vite_build_release --compilation_mode=fastbuild
+RUN mkdir -p /build/output && cp $(bazel cquery //cli:release_bin --output=files &>/dev/null | grep --color=never bazel-out) /build/output/charted
+RUN bazel shutdown
+
+FROM cr.floofy.dev/noel/bazel:6-alpine AS build
 
 RUN apk update && apk add --no-cache git ca-certificates
 WORKDIR /build
