@@ -70,13 +70,7 @@ pub fn create_router() -> Router<Server> {
 }
 
 fn catch_panic(error: Box<dyn Any + Send + 'static>) -> Response<Body> {
-    let details = if let Some(s) = error.downcast_ref::<String>() {
-        s.clone()
-    } else if let Some(s) = error.downcast_ref::<&str>() {
-        s.to_string()
-    } else {
-        "unknown panic message".into()
-    };
+    let details = charted_common::panic_message(error);
 
     error!(%details, "received panic when executing rest handler");
     Response::builder()

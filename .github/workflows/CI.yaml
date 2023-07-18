@@ -1,0 +1,98 @@
+# 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
+# Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: CI
+on:
+    workflow_dispatch: {}
+    push:
+        branches:
+            - 'issues/gh-**'
+            - 'feat/**'
+            - main
+        paths-ignore:
+            - '.coder/**'
+            - '.devcontainer/**'
+            - '.vscode/**'
+            - 'docs/**'
+            - 'scripts/**'
+            - '.*ignore'
+            - '**.md'
+            - renovate.json
+            - LICENSE
+    pull_request:
+        types: [synchronize]
+        paths-ignore:
+            - '.coder/**'
+            - '.devcontainer/**'
+            - '.vscode/**'
+            - 'docs/**'
+            - 'scripts/**'
+            - '.*ignore'
+            - '**.md'
+            - renovate.json
+            - LICENSE
+jobs:
+    ci:
+        name: Rust CI
+        runs-on: ${{matrix.runner}}
+        strategy:
+            fail-fast: true
+            matrix:
+                runner: [windows-latest, macos-latest, ubuntu-latest, self-hosted]
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+
+            - name: Setup Bazel cache
+              uses: actions/cache@v3
+              with:
+                path: |
+                    ~/.cache/bazelisk
+                    ~/.cache/bazel
+                key: bazel-cache-${{matrix.runner}}-${{ hashFiles('WORKSPACE', 'BUILD.bazel') }}
+                restore-keys: bazel-cache-${{matrix.runner}}-
+
+            - name: Sync dependencies
+              run: bazel sync --only=crate_index
+              env:
+                CARGO_BAZEL_REPIN: all
+
+            - name: Build project
+              run: bazel build //:cli
+
+            - name: Run rustfmt
+              run: bazel run @rules_rust//:rustfmt
+
+            - name: Run tests
+              run: bazel test //...
+    # node-ci:
+    #     name: Node.js CI [web]
+    #     runs-on: ${{matrix.runner}}
+    #     strategy:
+    #         fail-fast: true
+    #         matrix:
+    #             runner: [windows-latest, macos-latest, ubuntu-latest, self-hosted]
+    #     steps:
+    #         - name: Checkout repository
+    #           uses: actions/checkout@v3
+
+    #         - name: Setup Bazel cache
+    #           uses: actions/cache@v3
+    #           with:
+    #             path: |
+    #                 ~/.cache/bazelisk
+    #                 ~/.cache/bazel
+    #             key: bazel-cache-nodejs-${{matrix.runner}}-${{ hashFiles('WORKSPACE', 'web/BUILD.bazel') }}
+    #             restore-keys: bazel-cache-nodejs-${{matrix.runner}}-

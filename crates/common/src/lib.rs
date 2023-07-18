@@ -19,6 +19,8 @@ pub mod models;
 pub mod os;
 mod snowflake;
 
+use std::any::Any;
+
 pub use bitfield::*;
 pub use snowflake::*;
 
@@ -58,6 +60,16 @@ pub fn is_debug_enabled() -> bool {
 
 pub fn rand_string(len: usize) -> String {
     Alphanumeric.sample_string(&mut rand::thread_rng(), len)
+}
+
+pub fn panic_message(error: Box<dyn Any + Send + 'static>) -> String {
+    if let Some(s) = error.downcast_ref::<String>() {
+        s.clone()
+    } else if let Some(s) = error.downcast_ref::<&str>() {
+        s.to_string()
+    } else {
+        "unknown panic message received".into()
+    }
 }
 
 pub mod macros {

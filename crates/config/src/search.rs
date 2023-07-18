@@ -13,53 +13,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::make_config;
+use crate::{var, FromEnv};
+use serde::{Deserialize, Serialize};
 
-make_config! {
-    /// Represents the configuration for configuring a Elasticsearch cluster
-    /// or a Meilisearch server to do full-text search capabilities.
-    SearchConfig {
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub elasticsearch: Option<elasticsearch::Config> {
-            default: None;
-            env_value: {
-                let keys = ::std::env::vars();
-                let mut conf: Option<elasticsearch::Config> = None;
-
-                for (key, _) in keys.into_iter() {
-                    if key.starts_with("CHARTED_ELASTICSEARCH_") {
-                        conf = Some(elasticsearch::Config::from_env());
-                        break;
-                    }
-                }
-
-                conf
-            };
-        };
-
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub meilisearch: Option<meilisearch::Config> {
-            default: None;
-            env_value: {
-                let keys = ::std::env::vars();
-                let mut conf: Option<meilisearch::Config> = None;
-
-                for (key, _) in keys.into_iter() {
-                    if key.starts_with("CHARTED_MEILISEARCH_") {
-                        conf = Some(meilisearch::Config::from_env());
-                        break;
-                    }
-                }
-
-                conf
-            };
-        };
-    }
+/// Represents the configuration for configuring a Elasticsearch cluster
+/// or a Meilisearch server to do full-text search capabilities.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum SearchConfig {
+    Elasticsearch(elasticsearch::Config),
+    Meilisearch(meilisearch::Config),
 }
 
-/*
-elasticsearch::Config::from_env()
-*/
+impl FromEnv<Option<SearchConfig>> for SearchConfig {
+    fn from_env() -> Option<SearchConfig> {
+        match var!("CHARTED_SEARCH_BACKEND", is_optional: true) {
+            Some(backend) => match backend.as_str() {
+                "es" | "elasticsearch" => Some(SearchConfig::Elasticsearch(elasticsearch::Config::from_env())),
+                "meili" | "meilisearch" => Some(SearchConfig::Meilisearch(meilisearch::Config::from_env())),
+                _ => None,
+            },
+            None => None,
+        }
+    }
+}
 
 pub mod elasticsearch {
     use crate::{make_config, var, FromEnv};

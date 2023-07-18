@@ -15,7 +15,7 @@
 
 registry "default" {
     version = 1
-    url     = "https://noeldoc.dev/registry"
+    url     = "https://registry.noeldoc.dev"
 }
 
 noeldoc {

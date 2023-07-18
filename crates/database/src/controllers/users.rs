@@ -27,7 +27,7 @@ use eyre::{eyre, Result};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use sqlx::{postgres::PgQueryResult, query, query_as, types::chrono::Local, PgPool, Postgres, QueryBuilder};
+use sqlx::{postgres::PgQueryResult, query, query_as, PgPool, Postgres, QueryBuilder};
 use utoipa::ToSchema;
 use validator::validate_email;
 
@@ -43,7 +43,10 @@ pub struct CreateUserPayload {
     pub username: String,
 
     /// The password to use when authenticating, this is optional on non-local sessions.
-    #[schema(pattern = "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$")]
+    #[schema(
+        value_type = password,
+        pattern = "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$"
+    )]
     pub password: Option<String>,
 
     /// Email address to identify this user
@@ -161,11 +164,10 @@ impl DatabaseController for UserDatabaseController {
         let id = snowflake.generate();
 
         Ok(
-            query("INSERT INTO users(id, username, email, created_at, password) VALUES($1, $2, $3, $4, $5);")
+            query("INSERT INTO users(id, username, email, password) VALUES($1, $2, $3, $4);")
                 .bind(id.value() as i64)
                 .bind(payload.username)
                 .bind(payload.email)
-                .bind(Local::now())
                 .bind(match payload.password {
                     Some(res) => {
                         if !PASSWORD_REGEX.is_match(res.as_str()) {

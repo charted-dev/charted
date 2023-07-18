@@ -73,7 +73,7 @@ impl FromEnv<StorageConfig> for StorageConfig {
                     let access_key_id = var!("CHARTED_STORAGE_S3_ACCESS_KEY_ID", or_else_do: |_| panic!("Missing required environment variable: `CHARTED_STORAGE_S3_ACCESS_KEY_ID`."));
                     let region = var!("CHARTED_STORAGE_S3_REGION", {
                         or_else: Region::new(Cow::Owned("us-east-1".to_owned()));
-                        mapper: |val| Region::new(Cow::Owned(val.clone()));
+                        mapper: |val| Region::new(Cow::Owned(val));
                     });
 
                     let bucket = var!("CHARTED_STORAGE_S3_BUCKET", or_else_do: |_| panic!("Missing required environment variable: `CHARTED_STORAGE_S3_BUCKET`."));

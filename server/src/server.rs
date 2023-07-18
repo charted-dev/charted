@@ -62,6 +62,11 @@ impl Server {
                 ..Default::default()
             }))),
 
+            Err(e) => {
+                error!("unable to get Sentry DSN: {e}");
+                None
+            }
+
             _ => None,
         };
 

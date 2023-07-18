@@ -15,6 +15,7 @@
 
 use crate::{models::res::ok, openapi::gen_response_schema, Server};
 use axum::{extract::State, http::StatusCode, response::IntoResponse};
+use charted_common::hashmap;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use utoipa::{
@@ -41,6 +42,10 @@ pub struct FeaturesResponse {
     pub webhooks: bool,
 
     /// Whether if this server instance is invite-only.
+    #[deprecated(
+        since = "0.1.0-beta",
+        note = "`invite_only` is no longer a configuration key, this will always return 'false'"
+    )]
     pub is_invite_only: bool,
 
     /// Object of all the session integrations available.
@@ -52,10 +57,20 @@ pub struct FeaturesResponse {
 
 gen_response_schema!(FeaturesResponse);
 
+#[allow(deprecated)]
 pub async fn features(State(server): State<Server>) -> impl IntoResponse {
-    let _config = server.config.clone();
-
-    ok(StatusCode::OK, FeaturesResponse::default())
+    ok(
+        StatusCode::OK,
+        FeaturesResponse {
+            docker_registry: false,
+            is_invite_only: false,
+            registrations: server.config.registrations,
+            audit_logs: false,
+            webhooks: false,
+            integrations: hashmap!(),
+            search: server.config.search.is_some(),
+        },
+    )
 }
 
 pub fn paths() -> PathItem {

@@ -16,10 +16,10 @@
 #![allow(unused_doc_comments)]
 
 use crate::{
-    make_config, var, DatabaseConfig, FromEnv, LoggingConfig, SecureSetting, SecureSettingError, ServerConfig,
-    StorageConfig,
+    make_config, var, DatabaseConfig, FromEnv, LoggingConfig, SearchConfig, SecureSetting, SecureSettingError,
+    ServerConfig, StorageConfig,
 };
-use charted_common::rand_string;
+use charted_common::{panic_message, rand_string};
 use eyre::{eyre, Result};
 use merge_struct::merge;
 use once_cell::sync::OnceCell;
@@ -64,6 +64,13 @@ make_config! {
             env_value: var!("CHARTED_SENTRY_DSN", is_optional: true);
         };
 
+        /// Whether if registrations should be enabled on the server or not.
+        #[serde(default)]
+        pub registrations: bool {
+            default: false;
+            env_value: var!("CHARTED_ENABLE_REGISTRATIONS", to: bool, or_else: false);
+        };
+
         /// Database configuration details.
         #[serde(default)]
         pub database: DatabaseConfig {
@@ -88,6 +95,12 @@ make_config! {
         pub server: ServerConfig {
             default: ServerConfig::default();
             env_value: ServerConfig::from_env();
+        };
+
+        #[serde(default)]
+        pub search: Option<SearchConfig> {
+            default: None;
+            env_value: SearchConfig::from_env();
         };
     }
 }
@@ -151,7 +164,9 @@ impl Config {
 
         // Since from any FromEnv impl. can panic, let's capture any panics
         // and return back to the caller.
-        let env = catch_unwind(Config::from_env).map_err(|e| eyre!(format!("Panic'd during transformation: {e:?}")))?;
+        let env = catch_unwind(Config::from_env)
+            .map_err(|e| eyre!(format!("Panic'd during transformation: {}", panic_message(e))))?;
+
         let path = match path {
             Some(path) => path.as_ref().to_path_buf(),
             None => match Config::find_default_conf_location() {

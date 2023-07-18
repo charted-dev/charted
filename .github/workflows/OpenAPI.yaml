@@ -1,0 +1,87 @@
+# 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
+# Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Generate OpenAPI document
+on:
+    workflow_dispatch: {}
+    push:
+        branches:
+            - main
+        paths-ignore:
+            - '.coder/**'
+            - '.devcontainer/**'
+            - '.vscode/**'
+            - 'docs/**'
+            - 'scripts/**'
+            - '.*ignore'
+            - '**.md'
+            - renovate.json
+            - LICENSE
+    pull_request:
+        types: [synchronize]
+        paths-ignore:
+            - '.coder/**'
+            - '.devcontainer/**'
+            - '.vscode/**'
+            - 'docs/**'
+            - 'scripts/**'
+            - '.*ignore'
+            - '**.md'
+            - renovate.json
+            - LICENSE
+jobs:
+    openapi:
+        name: Generate
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+
+            - name: Setup Node.js 20.x
+              uses: actions/setup-node@v3
+              with:
+                node-version: 20.x
+
+            - name: Install Prettier
+              run: npm i -g prettier
+
+            - name: Setup Bazel cache
+              uses: actions/cache@v3
+              with:
+                path: |
+                    ~/.cache/bazelisk
+                    ~/.cache/bazel
+                key: bazel-cache-ubuntu-latest-${{ hashFiles('WORKSPACE', 'BUILD.bazel') }}
+                restore-keys: bazel-cache-ubuntu-latest-
+
+            - name: Sync dependencies
+              run: bazel sync --only=crate_index
+              env:
+                CARGO_BAZEL_REPIN: all
+
+            - name: Generate document and format
+              run: |
+                rm ${GITHUB_WORKSPACE}/assets/openapi.json
+                bazel run //:cli -- openapi ${GITHUB_WORKSPACE}/assets/openapi.json
+                prettier --write --config ${GITHUB_WORKSPACE}/web/.prettierrc.json ./assets/openapi.json
+
+            - name: Commit changes (if we can)
+              uses: EndBug/add-and-commit@v9
+              with:
+                  author_name: Noel[bot]
+                  default_author: user_info
+                  author_email: noelbot@users.noreply.github.com
+                  message: '[skip ci] :sparkles: Update OpenAPI spec'
+                  push: true
