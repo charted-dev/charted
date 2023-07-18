@@ -20,18 +20,7 @@ on:
         branches:
             - main
         paths-ignore:
-            - '.coder/**'
-            - '.devcontainer/**'
-            - '.vscode/**'
-            - 'docs/**'
-            - 'scripts/**'
-            - '.*ignore'
-            - '**.md'
-            - renovate.json
-            - LICENSE
-    pull_request:
-        types: [synchronize]
-        paths-ignore:
+            - '.github/**'
             - '.coder/**'
             - '.devcontainer/**'
             - '.vscode/**'
