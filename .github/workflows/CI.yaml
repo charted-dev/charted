@@ -71,29 +71,10 @@ jobs:
                 CARGO_BAZEL_REPIN: all
 
             - name: Build project
-              run: bazel build --bazelrc=${GITHUB_WORKSPACE}/.bazelrc //:cli
+              run: bazel --bazelrc=${GITHUB_WORKSPACE}/.bazelrc build //:cli
 
             - name: Run rustfmt
-              run: bazel run --bazelrc=${GITHUB_WORKSPACE}/.bazelrc @rules_rust//:rustfmt
+              run: bazel --bazelrc=${GITHUB_WORKSPACE}/.bazelrc run @rules_rust//:rustfmt
 
             - name: Run tests
-              run: bazel test --bazelrc=${GITHUB_WORKSPACE}/.bazelrc //...
-    # node-ci:
-    #     name: Node.js CI [web]
-    #     runs-on: ${{matrix.runner}}
-    #     strategy:
-    #         fail-fast: true
-    #         matrix:
-    #             runner: [windows-latest, macos-latest, ubuntu-latest, self-hosted]
-    #     steps:
-    #         - name: Checkout repository
-    #           uses: actions/checkout@v3
-
-    #         - name: Setup Bazel cache
-    #           uses: actions/cache@v3
-    #           with:
-    #             path: |
-    #                 ~/.cache/bazelisk
-    #                 ~/.cache/bazel
-    #             key: bazel-cache-nodejs-${{matrix.runner}}-${{ hashFiles('WORKSPACE', 'web/BUILD.bazel') }}
-    #             restore-keys: bazel-cache-nodejs-${{matrix.runner}}-
+              run: bazel --bazelrc=${GITHUB_WORKSPACE}/.bazelrc test //...
