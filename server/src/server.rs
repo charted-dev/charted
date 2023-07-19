@@ -14,12 +14,16 @@
 // limitations under the License.
 
 use crate::routing::create_router;
+use axum::http::Uri;
+use axum::response::IntoResponse;
+use axum::Router;
 use charted_common::{Snowflake, COMMIT_HASH, VERSION};
 use charted_config::{Config, ConfigExt, StorageConfig};
 use charted_database::controllers::users::UserDatabaseController;
 use charted_database::controllers::DatabaseController;
 use charted_database::MIGRATIONS;
 use charted_storage::MultiStorageService;
+use charted_web::WebUI;
 use eyre::Result;
 use remi_core::StorageService;
 use remi_fs::FilesystemStorageService;
@@ -128,9 +132,26 @@ impl Server {
         let addr = self.config.server.addr();
         info!(%addr, "now listening on");
 
-        let router: axum::Router = create_router().with_state(self.clone());
+        let router = match WebUI::enabled() {
+            true => {
+                info!("web ui is enabled, all api endpoints will be mounted on /api");
+                Router::new()
+                    .fallback(static_handler)
+                    .nest("/api", create_router().with_state(self.clone()))
+            }
+
+            false => create_router().with_state(self.clone()),
+        };
+
         axum::Server::bind(&addr).serve(router.into_make_service()).await?;
 
         Ok(())
     }
+}
+
+#[allow(dead_code)]
+const INDEX_HTML: &str = "index.html";
+
+async fn static_handler(_uri: Uri) -> impl IntoResponse {
+    /* TODO: this */
 }

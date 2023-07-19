@@ -13,22 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[workspace]
-resolver = "2"
-members = [
-    "cli",
-    "server",
-    "crates/common",
-    "crates/config",
-    "crates/database",
-    "crates/helm-charts",
-    "crates/logging",
-    "crates/openapi",
-    "crates/redis",
-    "crates/search",
-    "crates/search/elasticsearch",
-    "crates/search/meilisearch",
-    "crates/storage",
-    "tools/helm-plugin",
-    "web"
-]
+load("@aspect_bazel_lib//lib:copy_to_bin.bzl", "copy_to_bin")
+
+copy_to_bin(
+    name = "source",
+    srcs = glob([
+        "**/*.css",
+        "**/*.ts",
+        "**/*.vue",
+        "**/*.d.ts",
+    ]),
+    visibility = ["//web:__pkg__"],
+)
+
+copy_to_bin(
+    name = "rust",
+    srcs = ["lib.rs"],
+    visibility = ["//visibility:public"],
+)

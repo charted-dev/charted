@@ -13,22 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[workspace]
-resolver = "2"
-members = [
-    "cli",
-    "server",
-    "crates/common",
-    "crates/config",
-    "crates/database",
-    "crates/helm-charts",
-    "crates/logging",
-    "crates/openapi",
-    "crates/redis",
-    "crates/search",
-    "crates/search/elasticsearch",
-    "crates/search/meilisearch",
-    "crates/storage",
-    "tools/helm-plugin",
-    "web"
-]
+[package]
+name = "charted-web"
+description = "🐻‍❄️📦 Web UI distribution of charted-server"
+version = "0.0.0-devel.0"
+edition = "2021"
+homepage = "https://charts.noelware.org"
+authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
+
+[dependencies]
+rust-embed = { version = "6.8.1", features = ["axum", "compression", "tokio"] }

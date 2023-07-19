@@ -19,8 +19,8 @@ RUN apk update && apk add --no-cache git ca-certificates
 WORKDIR /build
 
 COPY . .
-RUN bazel build //web:vite_build_release --compilation_mode=fastbuild
-RUN mkdir -p /build/output && cp $(bazel cquery //cli:release_bin --output=files &>/dev/null | grep --color=never bazel-out) /build/output/charted
+RUN bazel build //web:build
+RUN cp -R $(bazel cquery //web:build --output=files &>/dev/null | grep --color=never bazel-out) /build/web/dist
 RUN bazel shutdown
 
 FROM cr.floofy.dev/noel/bazel:6-alpine AS build

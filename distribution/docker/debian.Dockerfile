@@ -13,6 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+FROM cr.floofy.dev/noel/bazel:6 AS web
+
+RUN apt update && apt install -y git ca-certificates
+WORKDIR /build
+
+COPY . .
+RUN bazel build //web:build
+RUN cp -R $(bazel cquery //web:build --output=files &>/dev/null | grep --color=never bazel-out) /build/web
+RUN bazel shutdown
+
 FROM cr.floofy.dev/noel/bazel:6 AS build
 
 RUN apt update && apt install -y git ca-certificates

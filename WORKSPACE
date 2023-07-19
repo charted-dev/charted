@@ -39,10 +39,10 @@ http_archive(
 )
 
 http_archive(
-    name = "aspect_rules_esbuild",
-    sha256 = "2ea31bd97181a315e048be693ddc2815fddda0f3a12ca7b7cc6e91e80f31bac7",
-    strip_prefix = "rules_esbuild-0.14.4",
-    url = "https://github.com/aspect-build/rules_esbuild/releases/download/v0.14.4/rules_esbuild-v0.14.4.tar.gz",
+    name = "aspect_rules_rollup",
+    sha256 = "3ae84fbf1f94cbe00c73be8114c35b713fd273eb66d26b14966172b18611738b",
+    strip_prefix = "rules_rollup-0.15.2",
+    url = "https://github.com/aspect-build/rules_rollup/releases/download/v0.15.2/rules_rollup-v0.15.2.tar.gz",
 )
 
 # Load up rules_rust dependencies
@@ -85,10 +85,6 @@ load("@aspect_rules_ts//ts:repositories.bzl", "rules_ts_dependencies")
 
 rules_ts_dependencies(ts_version = "5.1.6")
 
-load("@aspect_rules_esbuild//esbuild:dependencies.bzl", "rules_esbuild_dependencies")
-
-rules_esbuild_dependencies()
-
 load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
 
 nodejs_register_toolchains(
@@ -103,7 +99,7 @@ nodejs_register_toolchains(
     node_version = "20.4.0",
 )
 
-load("@aspect_rules_js//npm:repositories.bzl", "npm_translate_lock")
+load("@aspect_rules_js//npm:npm_import.bzl", "npm_translate_lock")
 
 npm_translate_lock(
     name = "npm",

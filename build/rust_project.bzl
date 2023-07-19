@@ -21,6 +21,7 @@ load("@crate_index//:defs.bzl", "aliases")
 
 def rust_project(
         name,
+        srcs = [],
         deps = [],
         external_data = [],
         proc_macro_deps = [],
@@ -30,11 +31,13 @@ def rust_project(
         is_binary = False,
         build_script = False,
         build_script_data = [],
-        build_script_deps = []):
+        build_script_deps = [],
+        **kwargs):
     """A common `rust_project` macro to help aid repeating ourselves.
 
     Args:
         name: The name of the project.
+        srcs: Extra sources to include in `rust_library`
         deps: A list of dependencies to use in the `rust_library`, `rust_binary` (if enabled), and `rust_test` (if enabled) macro(s).
         external_data: List of targets to use to embed data into `rust_library`.
         proc_macro_deps: A list of proc-macro related dependencies to use.
@@ -50,6 +53,7 @@ def rust_project(
         build_script_data: Some buildscripts might require to read files or execute CLI commands, this is where you should
             include data that should be used when the Cargo buildscript is executed.
         build_script_deps: List of dependencies to use only for the buildscript that is not leaked in the main/test project scope.
+        **kwargs: Extra arguments to append in `rust_library`
     """
 
     rust_library(
@@ -58,10 +62,11 @@ def rust_project(
         name = "charted_{name}".format(name = name),
         aliases = aliases(),
         data = external_data,
-        srcs = native.glob(["src/**/*.rs"], exclude = ["src/main.rs"]),
+        srcs = native.glob(["src/**/*.rs"], exclude = ["src/main.rs"]) + srcs,
         deps = deps,
         proc_macro_deps = proc_macro_deps,
         visibility = ["//visibility:public"],
+        **kwargs
     )
 
     if include_tests:
@@ -69,6 +74,8 @@ def rust_project(
             name = "tests",
             srcs = native.glob(["src/**/*.rs", "tests/**/*.rs"], exclude = ["src/main.rs"]),
             deps = [":charted_{name}".format(name = name)] + deps + test_deps,
+            compile_data = external_data,
+            proc_macro_deps = proc_macro_deps,
         )
 
     if include_doctests:
@@ -90,7 +97,17 @@ def rust_project(
             name = "release_bin",
             srcs = ["src/main.rs"],
             deps = [":charted_{name}".format(name = name)] + deps,
-            rustc_flags = ["-C", "lto=fat", "-C", "incremental=true"],
+            rustc_flags = [
+                "-C",
+                "debug-assertions=off",
+                "-C",
+                "opt-level=s",
+                "-C",
+                "lto=fat",
+                "-C",
+                "incremental=true",
+                "-Dwarnings",
+            ],
         )
 
     if build_script:

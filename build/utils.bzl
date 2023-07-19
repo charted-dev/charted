@@ -36,5 +36,6 @@ def get_cargo_manifests():
         "tools/helm-plugin",
         "server",
         "cli",
+        "web",
         "",
     ]]

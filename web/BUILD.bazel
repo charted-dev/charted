@@ -13,6 +13,140 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@npm//web:prettier/package_json.bzl", prettier = "bin")
+load("@npm//web:vue-tsc/package_json.bzl", vue_tsc = "bin")
+load("@npm//web:eslint/package_json.bzl", eslint = "bin")
+load("@npm//web:vite/package_json.bzl", vite = "bin")
+load("//:build/rust_project.bzl", "rust_project")
 load("@npm//:defs.bzl", "npm_link_all_packages")
 
 npm_link_all_packages(name = "node_modules")
+
+rust_project(
+    name = "web",
+    srcs = ["//web/src:rust"],
+    deps = ["@crate_index//:rust-embed"],
+)
+
+SRCS = [
+    "index.html",
+    "package.json",
+    "tsconfig.json",
+    "vite.config.ts",
+    "tailwind.config.js",
+    "postcss.config.js",
+    ":node_modules",
+    "//web/src:source",
+]
+
+DEPS = [
+    ":node_modules/@fontsource/cantarell",
+    ":node_modules/@fontsource/inter",
+    ":node_modules/@fontsource/jetbrains-mono",
+    ":node_modules/@ncharts/types",
+    ":node_modules/@tailwindcss/forms",
+    ":node_modules/@tailwindcss/typography",
+    ":node_modules/@tanstack/vue-query",
+    ":node_modules/@vueuse/core",
+    ":node_modules/highlight.js",
+    ":node_modules/luxon",
+    ":node_modules/markdown-it",
+    ":node_modules/markdown-it-emoji",
+    ":node_modules/markdown-it-highlightjs",
+    ":node_modules/pinia",
+    ":node_modules/tailwindcss",
+    ":node_modules/vue",
+    ":node_modules/vue-router",
+]
+
+POSTCSS_DEPS = [
+    ":node_modules/autoprefixer",
+    ":node_modules/postcss-import",
+]
+
+vite.vite_binary(
+    name = "vite",
+    chdir = package_name(),
+    data = SRCS + DEPS + POSTCSS_DEPS,
+)
+
+vite.vite(
+    name = "build",
+    srcs = SRCS + DEPS + POSTCSS_DEPS,
+    args = ["build"],
+    chdir = package_name(),
+    out_dirs = ["dist"],
+)
+
+vue_tsc.vue_tsc_test(
+    name = "typecheck",
+    args = [
+        "--noEmit",
+        "--pretty",
+    ],
+    chdir = package_name(),
+    data = [
+        "package.json",
+        "tsconfig.json",
+        "vite.config.ts",
+        ":node_modules/@augu/tsconfig",
+        ":node_modules/vite",
+        ":node_modules/@vitejs/plugin-vue-jsx",
+        ":node_modules/@vitejs/plugin-vue",
+        ":node_modules/unplugin-vue-router",
+        ":node_modules/vite-plugin-vue-devtools",
+        ":node_modules/@types/node",
+        "//web/src:source",
+    ] + DEPS,
+    include_declarations = True,
+)
+
+eslint.eslint_test(
+    name = "eslint",
+    args = [
+        "--ext .ts",
+        "--ext .js",
+        "--ext .tsx",
+        "--ext .vue",
+        "--ignore-path",
+        ".eslintignore",
+        "-c",
+        ".eslintrc.js",
+        "--format=codeframe",
+        "src",
+    ],
+    chdir = package_name(),
+    data = [
+        ".eslintignore",
+        ".eslintrc.js",
+        ".prettierignore",
+        ".prettierrc.json",
+        "tsconfig.eslint.json",
+        "tsconfig.json",
+        ":node_modules",
+        "//web/src:source",
+    ],
+)
+
+prettier.prettier_test(
+    name = "prettier",
+    args = [
+        "--check",
+        "--config",
+        ".prettierrc.json",
+        "**/*.{ts,js,vue,tsx,json,yaml,yml,html}",
+    ],
+    chdir = package_name(),
+    data = [
+        ".prettierignore",
+        ".prettierrc.json",
+        "index.html",
+        "package.json",
+        "postcss.config.js",
+        "tailwind.config.ts",
+        "tsconfig.json",
+        "vite.config.ts",
+        ":node_modules",
+        "//web/src:source",
+    ],
+)

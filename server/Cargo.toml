@@ -36,6 +36,7 @@ charted-search = { version = "0.0.0-devel.0", path = "../crates/search" }
 charted-search-elasticsearch = { version = "0.0.0-devel.0", path = "../crates/search/elasticsearch" }
 charted-search-meilisearch = { version = "0.0.0-devel.0", path = "../crates/search/meilisearch" }
 charted-storage = { version = "0.0.0-devel.0", path = "../crates/storage" }
+charted-web = { version = "0.0.0-devel.0", path = "../web" }
 chrono = "0.4.24"
 eyre = "0.6.8"
 once_cell = "1.18.0"

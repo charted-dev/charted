@@ -29,6 +29,7 @@ local_crates = ["//{path}:charted_{name}".format(
     ("crates/search", "search"),
     ("crates/search/elasticsearch", "search_elasticsearch"),
     ("crates/search/meilisearch", "search_meilisearch"),
+    ("web", "web"),
 ]]
 
 rust_project(

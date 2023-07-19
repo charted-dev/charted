@@ -4,9 +4,11 @@
     "editor.formatOnPaste": true,
     "rust-analyzer.check.command": "clippy",
     "rust-analyzer.showUnlinkedFileNotification": false,
+    "tailwindCSS.experimental.configFile": "web/tailwind.config.ts",
     "files.associations": {
         ".*-version": "plaintext",
-        ".bazelrc": "ignore"
+        ".bazelrc": "ignore",
+        "*.css": "tailwindcss"
     },
     "files.exclude": {
         "**/.git": true,

@@ -46,7 +46,7 @@ on:
             - LICENSE
 jobs:
     ci:
-        name: Rust CI
+        name: Rust CI (${{matrix.runner == 'ubuntu-latest' && 'Linux (x86_64)' || matrix.runner == 'self-hosted' && 'Linux (arm64)' || matrix.runner == 'macos-latest' && 'macOS (x86_64)' || 'Unknown'}})
         runs-on: ${{matrix.runner}}
         strategy:
             fail-fast: true
@@ -71,13 +71,13 @@ jobs:
                 CARGO_BAZEL_REPIN: all
 
             - name: Build project
-              run: bazel build //:cli
+              run: bazel build --bazelrc=${GITHUB_WORKSPACE}/.bazelrc //:cli
 
             - name: Run rustfmt
-              run: bazel run @rules_rust//:rustfmt
+              run: bazel run --bazelrc=${GITHUB_WORKSPACE}/.bazelrc @rules_rust//:rustfmt
 
             - name: Run tests
-              run: bazel test //...
+              run: bazel test --bazelrc=${GITHUB_WORKSPACE}/.bazelrc //...
     # node-ci:
     #     name: Node.js CI [web]
     #     runs-on: ${{matrix.runner}}

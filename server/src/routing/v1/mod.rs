@@ -54,7 +54,7 @@ async fn fallback(req: Request<Body>) -> impl IntoResponse {
         StatusCode::NOT_FOUND,
         (
             "HANDLER_NOT_FOUND",
-            format!("Route was not found").as_str(),
+            "Route was not found",
             json!({
                 "method": req.method().as_str().to_lowercase(),
                 "url": req.uri().path(),
