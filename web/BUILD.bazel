@@ -143,7 +143,7 @@ prettier.prettier_test(
         "index.html",
         "package.json",
         "postcss.config.js",
-        "tailwind.config.ts",
+        "tailwind.config.js",
         "tsconfig.json",
         "vite.config.ts",
         ":node_modules",
