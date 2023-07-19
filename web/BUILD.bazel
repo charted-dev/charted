@@ -96,6 +96,7 @@ vue_tsc.vue_tsc_test(
         ":node_modules/unplugin-vue-router",
         ":node_modules/vite-plugin-vue-devtools",
         ":node_modules/@types/node",
+        ":node_modules/unplugin-auto-import",
         "//web/src:source",
     ] + DEPS,
     include_declarations = True,
