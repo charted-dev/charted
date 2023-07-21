@@ -143,3 +143,10 @@ protobuf {
         }
     }
 }
+
+// TODO(spotlightishere): Remove once atomicfu-gradle-plugin can be upgraded to 0.21.x (or newer).
+tasks {
+    named<ProtobufExtract>("extractIncludeTestProto") {
+        dependsOn("transformAtomicfuClasses")
+    }
+}
