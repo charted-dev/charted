@@ -13,10 +13,10 @@
             "name": "Apache 2.0",
             "url": "https://www.apache.org/licenses/LICENSE-2.0"
         },
-        "version": "v0.4.0-unstable.4"
+        "version": "v0.1.0-beta"
     },
     "externalDocs": {
-        "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4"
+        "url": "https://charts.noelware.org/docs/server/0.1.0-beta"
     },
     "servers": [
         {
@@ -30,7 +30,7 @@
             "get": {
                 "description": "Gets the document in JSON format or YAML format",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/_openapi"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/_openapi"
                 },
                 "parameters": [
                     {
@@ -61,7 +61,7 @@
             "description": "Endpoint for Swagger UI",
             "get": {
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/_swagger"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/_swagger"
                 },
                 "responses": {
                     "200": {
@@ -75,7 +75,7 @@
         "/users": {
             "get": {
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/users"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/users"
                 },
                 "responses": {
                     "200": {
@@ -87,7 +87,7 @@
                                 "example": {
                                     "data": {
                                         "message": "Welcome to the Users API!",
-                                        "docs_url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/users"
+                                        "docs_url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/users"
                                     },
                                     "success": true
                                 }
@@ -99,7 +99,7 @@
             "put": {
                 "description": "REST controller to create a new user into this instance. This can fail if the server is invite-only or if registrations are disabled.",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/PUT-/users"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/PUT-/users"
                 },
                 "requestBody": {
                     "description": "Payload object to create this user",
@@ -148,7 +148,7 @@
             "delete": {
                 "description": "Deletes the current authenticated user. This will destroy all metadata (repositories, organizations), search indexing (if enabled), and all Helm charts that are published.",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/DELETE-/users"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/DELETE-/users"
                 },
                 "responses": {
                     "202": {
@@ -201,7 +201,7 @@
             "get": {
                 "description": "Retrieve a single repository release resource",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/repositories/{id}/releases/{version}"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/repositories/{id}/releases/{version}"
                 },
                 "parameters": [
                     {
@@ -310,7 +310,7 @@
             "delete": {
                 "description": "Deletes a repository release, and the tarball if it exists",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/DELETE-/repositories/{id}/releases/{version}"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/DELETE-/repositories/{id}/releases/{version}"
                 },
                 "parameters": [
                     {
@@ -340,7 +340,7 @@
             "patch": {
                 "description": "Patch a repository release's metadata",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/PATCH-/repositories/{id}/releases/{version}"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/PATCH-/repositories/{id}/releases/{version}"
                 },
                 "parameters": [
                     {
@@ -438,7 +438,7 @@
             "get": {
                 "description": "Generic entrypoint for the Repositories API",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/organizations"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/organizations"
                 },
                 "responses": {
                     "200": {
@@ -449,7 +449,7 @@
                                 },
                                 "example": {
                                     "message": "Welcome to the Organizations API!",
-                                    "docs": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/organizations"
+                                    "docs": "https://charts.noelware.org/docs/server/0.1.0-beta/api/organizations"
                                 }
                             }
                         }
@@ -459,7 +459,7 @@
             "put": {
                 "description": "Creates an organization resource with the specified parameters.",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/PUT-/organizations"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/PUT-/organizations"
                 },
                 "requestBody": {
                     "description": "Payload for creating an organization",
@@ -553,7 +553,7 @@
             "get": {
                 "description": "Gets a repository release's tarball, if the version exists",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/repositories/{id}/releases/{version}.tar.gz"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/repositories/{id}/releases/{version}.tar.gz"
                 },
                 "parameters": [
                     {
@@ -655,7 +655,7 @@
             "post": {
                 "description": "Uploads a tarball that is a valid Helm tarball that was generated from the `helm package` command.",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/POST-/repositories/{id}/releases/{version}.tar.gz"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/POST-/repositories/{id}/releases/{version}.tar.gz"
                 },
                 "parameters": [
                     {
@@ -768,7 +768,7 @@
             "get": {
                 "description": "Retrieve the instance's enabled features",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/features"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/features"
                 },
                 "responses": {
                     "200": {
@@ -802,7 +802,7 @@
             "get": {
                 "description": "Fetch a single repository from a user",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/users/{idOrName}/repositories/{repoIdOrName}"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/users/{idOrName}/repositories/{repoIdOrName}"
                 },
                 "parameters": [
                     {
@@ -887,7 +887,7 @@
             "get": {
                 "description": "Retrieve a repository's README",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/repositories/{id}/readme"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/repositories/{id}/readme"
                 },
                 "parameters": [
                     {
@@ -929,7 +929,7 @@
             "post": {
                 "description": "Creates or updates a repository's README",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/POST-/repositories/{id}/readme"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/POST-/repositories/{id}/readme"
                 },
                 "parameters": [
                     {
@@ -963,7 +963,7 @@
             "delete": {
                 "description": "Creates or updates a repository's README",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/DELETE-/repositories/{id}/readme"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/DELETE-/repositories/{id}/readme"
                 },
                 "parameters": [
                     {
@@ -999,7 +999,7 @@
             "get": {
                 "description": "Returns the given Chart.yaml file of this release",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/repositories/{id}/releases/{version}/Chart.yaml"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/repositories/{id}/releases/{version}/Chart.yaml"
                 },
                 "parameters": [
                     {
@@ -1109,7 +1109,7 @@
         "/users/{idOrName}/repositories/{id}": {
             "patch": {
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/PATCH-/users/{idOrName}/repositories/{id}"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/PATCH-/users/{idOrName}/repositories/{id}"
                 },
                 "parameters": [
                     {
@@ -1191,7 +1191,7 @@
             "get": {
                 "description": "Retrieve all repository releases",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/repositories/{id}/releases"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/repositories/{id}/releases"
                 },
                 "parameters": [
                     {
@@ -1270,7 +1270,7 @@
             "put": {
                 "description": "Creates a repository release",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/PUT-/repositories/{id}/releases"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/PUT-/repositories/{id}/releases"
                 },
                 "parameters": [
                     {
@@ -1359,7 +1359,7 @@
             "delete": {
                 "description": "Revokes a session token from the server",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/DELETE-/users/@me/logout"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/DELETE-/users/@me/logout"
                 },
                 "responses": {
                     "202": {
@@ -1412,7 +1412,7 @@
             "get": {
                 "description": "Returns all of the API key resources created by the current authenticated user",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/apikeys"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/apikeys"
                 },
                 "responses": {
                     "401": {
@@ -1472,7 +1472,7 @@
             "put": {
                 "description": "Creates an API key under the current authenticated user",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/PUT-/apikeys"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/PUT-/apikeys"
                 },
                 "requestBody": {
                     "content": {
@@ -1565,7 +1565,7 @@
             "patch": {
                 "description": "Updates an organization's repository based on its ID.",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/PATCH-/organizations/{idOrName}/repositories/{id}"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/PATCH-/organizations/{idOrName}/repositories/{id}"
                 },
                 "parameters": [
                     {
@@ -1650,7 +1650,7 @@
             "get": {
                 "description": "REST controller to retrieve the current authenticated user's metadata.",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/users/@me"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/users/@me"
                 },
                 "responses": {
                     "200": {
@@ -1700,7 +1700,7 @@
             "get": {
                 "description": "Returns all of an user's repositories",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/users/{idOrName}/repositories"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/users/{idOrName}/repositories"
                 },
                 "parameters": [
                     {
@@ -1735,7 +1735,7 @@
             "get": {
                 "description": "Retrieves and returns a user's current avatar, or with the `hash` path parameter, return it by the specific hash",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/users/{idOrName}/avatars/{hash}"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/users/{idOrName}/avatars/{hash}"
                 },
                 "parameters": [
                     {
@@ -1786,7 +1786,7 @@
             "description": "REST controller to check server availability, useful for Docker healthchecks or Kubernetes liveness, readiness, and startup probes",
             "get": {
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/heartbeat"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/heartbeat"
                 },
                 "responses": {
                     "200": {
@@ -1808,7 +1808,7 @@
             "get": {
                 "description": "Retrieve all the sessions by the current authenticated user",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/users/@me/sessions"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/users/@me/sessions"
                 },
                 "responses": {
                     "200": {
@@ -1860,7 +1860,7 @@
             "patch": {
                 "description": "Refresh the session and give a new session in return",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/PATCH-/users/@me/sessions"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/PATCH-/users/@me/sessions"
                 },
                 "responses": {
                     "200": {
@@ -1910,7 +1910,7 @@
             "get": {
                 "description": "Returns a single API key resource owned by the current authenticated user",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/apikeys/{idOrName}"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/apikeys/{idOrName}"
                 },
                 "parameters": [
                     {
@@ -1987,7 +1987,7 @@
             "delete": {
                 "description": "Deletes an API key resource off the current authenticated user's account",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/DELETE-/apikeys/{idOrName}"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/DELETE-/apikeys/{idOrName}"
                 },
                 "parameters": [
                     {
@@ -2069,7 +2069,7 @@
             "patch": {
                 "description": "Patches an API key resource",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/PATCH-/apikeys/{idOrName}"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/PATCH-/apikeys/{idOrName}"
                 },
                 "parameters": [
                     {
@@ -2161,7 +2161,7 @@
             "get": {
                 "description": "Retrieve an organization resource by its [NameOrSnowflake].",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/organizations/{idOrName}"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/organizations/{idOrName}"
                 },
                 "parameters": [
                     {
@@ -2210,7 +2210,7 @@
             "patch": {
                 "description": "Patch an organization's metadata",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/PATCH-/organizations/{idOrName}"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/PATCH-/organizations/{idOrName}"
                 },
                 "parameters": [
                     {
@@ -2300,7 +2300,7 @@
             "post": {
                 "description": "Creates a long-lived session",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/POST-/users/login"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/POST-/users/login"
                 },
                 "requestBody": {
                     "description": "Payload object for user credentials",
@@ -2355,7 +2355,7 @@
             "get": {
                 "description": "Returns a repository entity with the given ID. Use the /users/{idOrName}/repos/{repoIdOrName} to fetch a user repository with a ID or name, or /organizations/{idOrName}/repos/{repoIdOrName} to fetch a organization repository with a ID or name",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/repositories/{id}"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/repositories/{id}"
                 },
                 "parameters": [
                     {
@@ -2384,7 +2384,7 @@
             "delete": {
                 "description": "Deletes a repository",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/DELETE-/repositories/{id}"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/DELETE-/repositories/{id}"
                 },
                 "parameters": [
                     {
@@ -2480,7 +2480,7 @@
             "post": {
                 "description": "Upload a new avatar, this can be in a `multipart/form-data` content-type, or in a `text/plain` type with the image being base64 encoded",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/POST-/users/@me/avatars"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/POST-/users/@me/avatars"
                 },
                 "requestBody": {
                     "description": "A multipart form-data of the image itself; if multiple parts were appended to this request, then all subsequent parts except the first one will be used. If this is a 'text/plain' request, then the server will only accept 'data:image/png;base64,<...>' as the body",
@@ -2548,7 +2548,7 @@
             "get": {
                 "description": "List of all available templates of a given release",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/repositories/{id}/releases/{version}/templates"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/repositories/{id}/releases/{version}/templates"
                 },
                 "parameters": [
                     {
@@ -2663,7 +2663,7 @@
             "get": {
                 "description": "Retrieve an organization or user's Helm index",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/indexes"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/indexes"
                 },
                 "parameters": [
                     {
@@ -2706,7 +2706,7 @@
             "get": {
                 "description": "Retrieve a User object from the server",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/users/{idOrName}"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/users/{idOrName}"
                 },
                 "parameters": [
                     {
@@ -2758,7 +2758,7 @@
             "description": "Information about the server, like version, commit, build-date, etc.",
             "get": {
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/info"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/info"
                 },
                 "responses": {
                     "200": {
@@ -2773,7 +2773,7 @@
                                         "commit_sha": "dafe863f",
                                         "build_date": "2023-06-11T01:04:19Z",
                                         "product": "charted-server",
-                                        "version": "0.4.0-unstable.4",
+                                        "version": "0.1.0-beta",
                                         "vendor": "Noelware"
                                     },
                                     "success": true
@@ -2788,7 +2788,7 @@
             "get": {
                 "description": "Retrieves all of the user's organization.",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/users/{idOrName}/organizations"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/users/{idOrName}/organizations"
                 },
                 "parameters": [
                     {
@@ -2844,7 +2844,7 @@
             "get": {
                 "description": "Returns all of an organization's repositories.",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/organizations/{idOrName}/repositories"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/organizations/{idOrName}/repositories"
                 },
                 "parameters": [
                     {
@@ -2874,7 +2874,7 @@
             "put": {
                 "description": "Creates a repository that is owned by an organization.",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/PUT-/organizations/{idOrName}/repositories"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/PUT-/organizations/{idOrName}/repositories"
                 },
                 "parameters": [
                     {
@@ -2923,7 +2923,7 @@
             "put": {
                 "description": "Creates a repository that is owned by the current authenticated user",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/PUT-/users/@me/repositories"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/PUT-/users/@me/repositories"
                 },
                 "requestBody": {
                     "content": {
@@ -3000,7 +3000,7 @@
             "get": {
                 "description": "Retrieves and returns the current authenticated user's current avatar, or with the `hash` path parameter, return it by the specific hash",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/users/@me/avatars/{hash}"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/users/@me/avatars/{hash}"
                 },
                 "parameters": [
                     {
@@ -3041,7 +3041,7 @@
             "description": "Generic main entrypoint to charted-server's API server",
             "get": {
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/"
                 },
                 "responses": {
                     "200": {
@@ -3069,7 +3069,7 @@
             "get": {
                 "description": "Fetches a single repository from the given organization based on its name or ID.",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/organizations/{idOrName}/repositories/{repoIdOrName}"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/organizations/{idOrName}/repositories/{repoIdOrName}"
                 },
                 "parameters": [
                     {
@@ -3151,7 +3151,7 @@
             "get": {
                 "description": "Generic entrypoint for the Repositories API",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/repositories"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/repositories"
                 },
                 "responses": {
                     "200": {
@@ -3163,7 +3163,7 @@
                                 "example": {
                                     "data": {
                                         "message": "Welcome to the Repositories API!",
-                                        "docsUrl": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/repositories"
+                                        "docsUrl": "https://charts.noelware.org/docs/server/0.1.0-beta/api/repositories"
                                     },
                                     "success": true
                                 }
@@ -3177,7 +3177,7 @@
             "get": {
                 "description": "List of all available templates of a given release",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/GET-/repositories/{id}/releases/{version}/templates/{template}"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/GET-/repositories/{id}/releases/{version}/templates/{template}"
                 },
                 "parameters": [
                     {
@@ -3299,7 +3299,7 @@
             "delete": {
                 "description": "Allows deleting an organization.",
                 "externalDocs": {
-                    "url": "https://charts.noelware.org/docs/server/0.4.0-unstable.4/api/DELETE-/organizations/{id}"
+                    "url": "https://charts.noelware.org/docs/server/0.1.0-beta/api/DELETE-/organizations/{id}"
                 },
                 "parameters": [
                     {
