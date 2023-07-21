@@ -46,7 +46,16 @@ repositories {
 }
 
 dependencies {
-    implementation(library("kotlinx-atomicfu-gradle-plugin"))
+    // TODO(spotlightishere): Remove once atomicfu-gradle-plugin can be upgraded to 0.21.x (or newer).
+    // A mismatch between Kotlin 1.8 (as used by AtomicFU's Gradle plugin),
+    // and 1.9 (as used within charted) creates conflicts that break the build as follows:
+    //
+    //    config/dsl/src/main/kotlin/CdnConfig.kt:21:36 Unresolved reference: Buildable
+    //    config/dsl/src/main/kotlin/CdnConfig.kt:40:9 'build' overrides nothing
+    //    config/dsl/src/main/kotlin/CdnConfig.kt:40:9 Visibility must be specified in explicit API mode
+    //    config/dsl/src/main/kotlin/Config.kt:22:29 Unresolved reference: MultiValidationException
+    //
+    implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.20.2")
     implementation(kotlin("serialization", versionFor("kotlin")))
     implementation(kotlin("gradle-plugin", versionFor("kotlin")))
     implementation(library("noel-commons-gradle-utils"))

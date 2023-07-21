@@ -222,4 +222,11 @@ tasks {
         options.encoding = "UTF-8"
         options.isFork = true
     }
+
+    // TODO(spotlightishere): Remove once atomicfu-gradle-plugin can be upgraded to 0.21.x (or newer).
+    // For more information about what this resolves, please refer to:
+    // https://github.com/Kotlin/kotlinx-atomicfu/pull/303
+    jar {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
 }
