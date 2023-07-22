@@ -34,7 +34,7 @@ buildscript {
 }
 
 plugins {
-    id("com.diffplug.spotless") version "6.19.0"
+    id("com.diffplug.spotless") version "6.20.0"
     application
 }
 
@@ -101,7 +101,6 @@ spotless {
         encoding("UTF-8")
         target("**/*.gradle.kts")
         ktlint().apply {
-            setUseExperimental(true)
             setEditorConfigPath(file("${rootProject.projectDir}/.editorconfig"))
         }
 

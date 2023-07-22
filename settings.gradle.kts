@@ -48,7 +48,6 @@ include(
     ":cli",
     ":common",
     ":server",
-    ":server:single-user",
     ":config",
     ":config:dsl",
     ":config:kotlin-script",

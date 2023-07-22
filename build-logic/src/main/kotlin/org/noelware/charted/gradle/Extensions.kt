@@ -31,7 +31,6 @@ public fun Project.applySpotless() {
             encoding("UTF-8")
             target("**/*.kt")
             ktlint().apply {
-                setUseExperimental(true)
                 setEditorConfigPath(file("${rootProject.projectDir}/.editorconfig"))
             }
 
