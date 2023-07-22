@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import kotlin.jvm.optionals.getOrNull
 
 plugins {
-    id("com.diffplug.spotless") version "6.18.0"
+    id("com.diffplug.spotless") version "6.20.0"
     `java-gradle-plugin`
     `kotlin-dsl`
     java
@@ -98,7 +98,6 @@ spotless {
         encoding("UTF-8")
         target("**/*.kt")
         ktlint().apply {
-            setUseExperimental(true)
             setEditorConfigPath(file("${rootProject.projectDir}/../.editorconfig"))
         }
 
@@ -110,7 +109,6 @@ spotless {
         encoding("UTF-8")
         target("**/*.gradle.kts")
         ktlint().apply {
-            setUseExperimental(true)
             setEditorConfigPath(file("${rootProject.projectDir}/../.editorconfig"))
         }
 
