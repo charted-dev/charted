@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM --platform=$BUILDPLATFORM eclipse-temurin:17.0.7_7-jdk-jammy AS jdk-runtime
+FROM --platform=$BUILDPLATFORM eclipse-temurin:17.0.8_7-jdk-jammy AS jdk-runtime
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update && \
@@ -24,7 +24,7 @@ RUN apt update && \
             --compress=2 \
             --output /runtime
 
-FROM --platform=$BUILDPLATFORM eclipse-temurin:17.0.7_7-jdk-jammy AS gradle-build
+FROM --platform=$BUILDPLATFORM eclipse-temurin:17.0.8_7-jdk-jammy AS gradle-build
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update && apt install -y git ca-certificates curl
