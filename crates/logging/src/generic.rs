@@ -22,7 +22,6 @@ use tracing_subscriber::{layer::Context, Layer};
 use crate::DefaultVisitor;
 
 static FILE_LINE: Colour = Colour::RGB(255, 105, 189);
-static GRAY: Colour = Colour::RGB(134, 134, 134);
 
 /// Represents a generic [`Layer`] that is used not on the server level.
 pub struct GenericLayer {
@@ -34,7 +33,6 @@ impl<S: Subscriber> Layer<S> for GenericLayer {
         let mut writer = stdout();
         let metadata = event.normalized_metadata();
         let metadata = metadata.as_ref().unwrap_or_else(|| event.metadata());
-        let (b1, b2) = (GRAY.paint("["), GRAY.paint("]"));
         let level_color = match *metadata.level() {
             Level::DEBUG => Colour::RGB(163, 182, 138).bold(),
             Level::TRACE => Colour::RGB(163, 182, 138).bold(),
@@ -46,12 +44,18 @@ impl<S: Subscriber> Layer<S> for GenericLayer {
         if self.verbose {
             let _ = write!(
                 writer,
-                "{b1}{level}{b2} {b1}{}{b2} :: ",
+                "{level} {}   ",
                 FILE_LINE.paint(format!(
-                    "{}:{}",
+                    "in {}:{}",
                     metadata.file().unwrap_or("<unknown file>"),
                     metadata.line().unwrap_or(0)
                 )),
+                level = level_color.paint(format!("{:<5}", metadata.level().as_str()))
+            );
+        } else {
+            let _ = write!(
+                writer,
+                "{level}   ",
                 level = level_color.paint(format!("{:<5}", metadata.level().as_str()))
             );
         }

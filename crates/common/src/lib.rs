@@ -14,6 +14,7 @@
 // limitations under the License.
 
 mod bitfield;
+pub mod cli;
 pub mod crypto;
 pub mod models;
 pub mod os;

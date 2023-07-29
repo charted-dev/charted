@@ -30,7 +30,7 @@ pub use commands::execute;
 
 #[derive(Debug, Clone, Parser)]
 #[clap(
-    name = "charted",
+    bin_name = "charted",
     about = "🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust",
     author = "Noelware, LLC.",
     override_usage = "charted <COMMAND> [...ARGS]",

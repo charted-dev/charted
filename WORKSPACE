@@ -16,12 +16,12 @@
 workspace(name = "org_noelware_charted_server")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("//:build/utils.bzl", "get_cargo_manifests")
+load("//:build/utils.bzl", "CARGO_MANIFESTS")
 
 http_archive(
     name = "rules_rust",
-    sha256 = "4a9cb4fda6ccd5b5ec393b2e944822a62e050c7c06f1ea41607f14c4fdec57a2",
-    urls = ["https://github.com/bazelbuild/rules_rust/releases/download/0.25.1/rules_rust-v0.25.1.tar.gz"],
+    sha256 = "9d04e658878d23f4b00163a72da3db03ddb451273eb347df7d7c50838d698f49",
+    urls = ["https://github.com/bazelbuild/rules_rust/releases/download/0.26.0/rules_rust-v0.26.0.tar.gz"],
 )
 
 http_archive(
@@ -52,8 +52,15 @@ rules_rust_dependencies()
 
 rust_register_toolchains(
     edition = "2021",
-    versions = ["1.71.0"],
+    versions = [
+        "1.71.0",
+        "nightly/2023-07-28",
+    ],
 )
+
+load("@rules_rust//crate_universe:repositories.bzl", "crate_universe_dependencies")
+
+crate_universe_dependencies(bootstrap = True)
 
 load("@rules_rust//cargo:defs.bzl", "cargo_bootstrap_repository")
 
@@ -69,7 +76,7 @@ crates_repository(
     name = "crate_index",
     cargo_lockfile = "//:Cargo.lock",
     lockfile = "//:Cargo.bzl.lock",
-    manifests = get_cargo_manifests(),
+    manifests = CARGO_MANIFESTS,
 )
 
 load("@crate_index//:defs.bzl", "crate_repositories")

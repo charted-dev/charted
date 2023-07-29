@@ -13,34 +13,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod generate_config;
-mod openapi;
-mod server;
-mod version;
+mod web;
 
-use crate::commands::generate_config::*;
-use crate::commands::openapi::*;
-use crate::commands::server::*;
-use crate::commands::version::*;
-use charted_common::cli::*;
+use charted_common::cli::AsyncExecute;
 use clap::Subcommand;
 use eyre::Result;
+use web::*;
 
 #[derive(Debug, Clone, Subcommand)]
 pub enum Commands {
-    GenerateConfig(GenerateConfig),
-
-    #[command(name = "openapi")]
-    OpenAPI(OpenAPI),
-    Server(Box<Server>),
-    Version(Version),
+    Web(Web),
 }
 
-pub async fn execute(command: &Commands) -> Result<()> {
-    match command {
-        Commands::Server(server) => server.execute().await,
-        Commands::Version(version) => version.execute(),
-        Commands::OpenAPI(openapi) => openapi.execute(),
-        Commands::GenerateConfig(generate) => generate.execute().await,
+impl Commands {
+    pub async fn execute(self) -> Result<()> {
+        match self {
+            Commands::Web(web) => web.execute().await,
+        }
     }
 }

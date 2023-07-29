@@ -31,14 +31,14 @@ make_config! {
 
         /// The password to use for authentication.
         #[serde(default, skip_serializing_if = "Option::is_none")]
-        password: Option<String> {
+        pub(crate) password: Option<String> {
             default: None;
             env_value: var!("CHARTED_DATABASE_PASSWORD", is_optional: true);
         };
 
         /// The username to use for authentication
         #[serde(default, skip_serializing_if = "Option::is_none")]
-        username: Option<String> {
+        pub(crate) username: Option<String> {
             default: None;
             env_value: var!("CHARTED_DATABASE_USERNAME", is_optional: true);
         };

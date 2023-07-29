@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::models::AsyncExecute;
+use charted_common::cli::AsyncExecute;
 use charted_config::Config;
 use eyre::Result;
 use std::{io::Write, path::PathBuf};

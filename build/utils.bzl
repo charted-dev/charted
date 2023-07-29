@@ -16,26 +16,22 @@
 
 """ bazel is mean """
 
-def get_cargo_manifests():
-    """
-    Method to return all the Cargo manifests.
-    """
-
-    return ["//{}:Cargo.toml".format(f) for f in [
-        "crates/common",
-        "crates/config",
-        "crates/database",
-        "crates/helm-charts",
-        "crates/logging",
-        "crates/openapi",
-        "crates/redis",
-        "crates/search",
-        "crates/search/elasticsearch",
-        "crates/search/meilisearch",
-        "crates/storage",
-        "tools/helm-plugin",
-        "server",
-        "cli",
-        "web",
-        "",
-    ]]
+CARGO_MANIFESTS = ["//{}:Cargo.toml".format(f) for f in [
+    "crates/common",
+    "crates/config",
+    "crates/database",
+    "crates/helm-charts",
+    "crates/logging",
+    "crates/openapi",
+    "crates/redis",
+    "crates/search",
+    "crates/search/elasticsearch",
+    "crates/search/meilisearch",
+    "crates/storage",
+    "tools/helm-plugin",
+    "tools/devtools",
+    "server",
+    "cli",
+    "web",
+    "",
+]]

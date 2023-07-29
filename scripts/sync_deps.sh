@@ -15,7 +15,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Simple wrapper to sync dependencies in crate_index.
-
 echo "===> Syncing dependencies..."
-CARGO_BAZEL_REPIN=all bazel sync --only=crate_index
+CARGO_BAZEL_REPIN=1 bazel sync --only=crate_index

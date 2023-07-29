@@ -1,0 +1,66 @@
+#!/bin/bash
+
+# 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
+# Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+set -o errexit
+set -o pipefail
+
+function devtools::fatal {
+    echo "[dev][failure] $*"
+    exit 1
+}
+
+BASH_SRC=${BASH_SOURCE[0]}
+while [ -L "$BASH_SRC" ]; do
+    target=$(readlink "$BASH_SRC")
+    if [[ $target == /* ]]; then
+        BASH_SRC=$target
+    else
+        dir=$(dirname "$BASH_SRC")
+        BASH_SRC=$dir/$target
+    fi
+done
+
+SCRIPT_DIR=$(cd -P "$(dirname $BASH_SRC)" >/dev/null 2>&1 && pwd)
+! [ -d "$SCRIPT_DIR/.cache" ] && mkdir "$SCRIPT_DIR/.cache"
+
+# Check if we have Bazel installed
+if ! command -v bazel >/dev/null; then
+    devtools::fatal "unable to locate 'bazel' binary"
+fi
+
+if [[ "$1" == "sync-deps" ]]; then
+    echo "===> Syncing all crates..."
+    . "$SCRIPT_DIR/scripts/sync_deps.sh" >/dev/null 2>&1
+
+    echo "===> Done!"
+    exit 0
+fi
+
+if [[ ! -f "$SCRIPT_DIR/.cache/dev" || "x${DEV_REBUILD:-}" != "x" ]]; then
+    # if DEV_REBUILD was set and .cache/dev exists, then remove the old binary
+    [[ "x${DEV_REBUILD:-}" != "x" && -f "$SCRIPT_DIR/.cache/dev" ]] && rm -f "$SCRIPT_DIR/.cache/dev"
+
+    echo "===> Compiling devtools binary!"
+    bazel build //:devtools
+
+    output=$(bazel cquery //tools/devtools:release_binary --output=files 2>&1 | grep --color=never bazel-out)
+    cp "$SCRIPT_DIR/$output" "$SCRIPT_DIR/.cache"
+    mv "$SCRIPT_DIR/.cache/release_binary" "$SCRIPT_DIR/.cache/dev"
+fi
+
+echo "$ ./dev $@"
+"$SCRIPT_DIR/.cache/dev" "$@"

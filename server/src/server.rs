@@ -80,7 +80,6 @@ impl Server {
         };
 
         storage.init().await?;
-
         let pool = PgPoolOptions::new()
             .max_connections(config.database.max_connections)
             .connect_with(
@@ -144,7 +143,6 @@ impl Server {
         };
 
         axum::Server::bind(&addr).serve(router.into_make_service()).await?;
-
         Ok(())
     }
 }

@@ -86,7 +86,7 @@ def rust_project(
 
     if is_binary:
         rust_binary(
-            name = "bin",
+            name = "binary",
             srcs = ["src/main.rs"],
             deps = [":charted_{name}".format(name = name)] + deps,
             rustc_flags = ["-C", "incremental=true"],
@@ -94,7 +94,7 @@ def rust_project(
         )
 
         rust_binary(
-            name = "release_bin",
+            name = "release_binary",
             srcs = ["src/main.rs"],
             deps = [":charted_{name}".format(name = name)] + deps,
             rustc_flags = [
@@ -108,6 +108,7 @@ def rust_project(
                 "incremental=true",
                 "-Dwarnings",
             ],
+            visibility = ["//visibility:public"],
         )
 
     if build_script:

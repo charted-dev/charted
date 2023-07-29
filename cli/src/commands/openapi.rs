@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::models::Execute;
+use charted_common::cli::Execute;
 use charted_config::Config;
 use charted_server::openapi::document;
 use eyre::Result;

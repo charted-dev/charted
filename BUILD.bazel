@@ -30,6 +30,9 @@ exports_files([
     # Used for clippy
     "clippy.toml",
 
+    # for vendoring crates
+    "Cargo.toml",
+
     # Used also in crates/common/build.rs -- which uses the commit hash to
     # determine where this build was compiled from.
     ".git",
@@ -37,12 +40,18 @@ exports_files([
 
 alias(
     name = "helm-plugin",
-    actual = "//tools/helm-plugin:bin",
+    actual = "//tools/helm-plugin:binary",
     visibility = ["//visibility:public"],
 )
 
 alias(
     name = "cli",
-    actual = "//cli:bin",
+    actual = "//cli:binary",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "devtools",
+    actual = "//tools/devtools:release_binary",
     visibility = ["//visibility:public"],
 )

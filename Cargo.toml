@@ -29,6 +29,7 @@ members = [
     "crates/search/elasticsearch",
     "crates/search/meilisearch",
     "crates/storage",
+    "tools/devtools",
     "tools/helm-plugin",
     "web"
 ]

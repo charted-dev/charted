@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::models::Execute;
 use ansi_term::Style;
+use charted_common::cli::Execute;
 use charted_common::{os, BUILD_DATE, COMMIT_HASH, RUSTC_VERSION, VERSION};
 use chrono::DateTime;
 use eyre::Result;

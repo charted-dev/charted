@@ -32,6 +32,8 @@ use utoipa::ToSchema;
 use validator::validate_email;
 
 static ARGON2: Lazy<Argon2> = Lazy::new(Argon2::default);
+
+#[allow(clippy::invalid_regex)]
 static PASSWORD_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r#"^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\d)?(?=.*[!#\$%&? \"])?.*$"#).unwrap());
 

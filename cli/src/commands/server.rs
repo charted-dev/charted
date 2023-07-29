@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::models::AsyncExecute;
+use charted_common::cli::AsyncExecute;
 use charted_config::{Config, FromEnv};
 use charted_server::bootstrap;
 use clap::Parser;
@@ -22,10 +22,7 @@ use eyre::Result;
 use std::{panic::catch_unwind, path::PathBuf};
 
 #[derive(Debug, Clone, Parser)]
-#[command(
-    about = "Runs the API server in the same process invocation",
-    override_usage = "charted server [--config=<PATH>]"
-)]
+#[command(about = "Runs the API server in the same process invocation")]
 pub struct Server {
     #[arg(short = 'c', long = "config", help = "Configuration file to run the server")]
     config_file: Option<PathBuf>,

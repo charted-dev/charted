@@ -13,34 +13,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@crate_index//:defs.bzl", "all_crate_deps")
 load("//:build/rust_project.bzl", "rust_project")
 
+exports_files(["Cargo.toml"])
+
 rust_project(
-    name = "common",
-    build_script = True,
-    build_script_data = [
-        "//:.charted-version",
-        "//:.git",
+    name = "devtools",
+    compile_data = [
+        ":docker-compose.yml",
+        "//tools/devtools/configs/elasticsearch:elasticsearch.yml",
+        "//tools/devtools/configs/elasticsearch:jvm.options",
+        "//tools/devtools/configs/elasticsearch:log4j2.properties",
+        "//tools/devtools/configs/meilisearch:config.toml",
     ],
-    build_script_deps = all_crate_deps(build = True),
-    include_doctests = True,
-    include_tests = True,
+    is_binary = True,
     proc_macro_deps = ["@crate_index//:async-trait"],
     deps = [
-        ":buildscript",
-        "@crate_index//:chrono",
+        "//crates/common:charted_common",
+        "//crates/logging:charted_logging",
+        "@crate_index//:clap",
+        "@crate_index//:clap_complete",
+        "@crate_index//:color-eyre",
         "@crate_index//:eyre",
-        "@crate_index//:hex",
-        "@crate_index//:lazy_static",
-        "@crate_index//:md-5",
-        "@crate_index//:once_cell",
-        "@crate_index//:rand",
-        "@crate_index//:regex",
-        "@crate_index//:semver",
-        "@crate_index//:serde",
-        "@crate_index//:sqlx",
-        "@crate_index//:thiserror",
-        "@crate_index//:utoipa",
+        "@crate_index//:simple_tables",
+        "@crate_index//:tokio",
+        "@crate_index//:tracing",
+        "@crate_index//:tracing-subscriber",
+        "@crate_index//:which",
     ],
 )

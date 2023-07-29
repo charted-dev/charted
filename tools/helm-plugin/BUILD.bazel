@@ -17,5 +17,5 @@ load("//:build/rust_project.bzl", "rust_project")
 
 rust_project(
     name = "helm_plugin",
-    is_binary = True
+    is_binary = True,
 )
