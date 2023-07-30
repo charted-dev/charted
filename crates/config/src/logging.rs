@@ -49,7 +49,7 @@ make_config! {
     /// crate with custom outputs, so this is how you can configure it.
     LoggingConfig {
         /// Log level to output log messages in.
-        #[serde(with = "log_serde")]
+        #[serde(with = "serde_tracing")]
         pub level: Level {
             default: Level::INFO;
             env_value: ::std::env::var("CHARTED_LOG_LEVEL").map(|val| match val.as_str() {
@@ -81,7 +81,7 @@ make_config! {
         };
 
         /// Whether the logger should only output JSON messages or not.
-        #[serde(rename = "json", default = "falsy")]
+        #[serde(rename = "json", default)]
         pub json_logging: bool {
             default: false;
             env_value: ::std::env::var("CHARTED_LOG_JSON").map(|val| TRUTHY_REGEX.is_match(val.as_str())).unwrap_or(false);
@@ -89,11 +89,7 @@ make_config! {
     }
 }
 
-fn falsy() -> bool {
-    false
-}
-
-mod log_serde {
+pub mod serde_tracing {
     use serde::*;
     use tracing::Level;
 

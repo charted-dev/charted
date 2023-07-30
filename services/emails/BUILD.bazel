@@ -1,0 +1,48 @@
+# 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
+# Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+load("//:build/rust_project.bzl", "rust_project")
+
+rust_project(
+    name = "emails",
+    is_binary = True,
+    proc_macro_deps = ["@crate_index//:async-trait"],
+    deps = [
+        "//crates/common:charted_common",
+        "//crates/config:charted_config",
+        "//crates/logging:charted_logging",
+        "@crate_index//:chrono",
+        "@crate_index//:color-eyre",
+        "@crate_index//:dotenv",
+        "@crate_index//:eyre",
+        "@crate_index//:lettre",
+        "@crate_index//:merge-struct",
+        "@crate_index//:mustache",
+        "@crate_index//:once_cell",
+        "@crate_index//:prost",
+        "@crate_index//:prost-types",
+        "@crate_index//:regex",
+        "@crate_index//:sentry",
+        "@crate_index//:sentry-tower",
+        "@crate_index//:sentry-tracing",
+        "@crate_index//:serde",
+        "@crate_index//:serde_yaml",
+        "@crate_index//:tokio",
+        "@crate_index//:tonic",
+        "@crate_index//:tonic-health",
+        "@crate_index//:tracing",
+        "@crate_index//:tracing-subscriber",
+    ],
+)

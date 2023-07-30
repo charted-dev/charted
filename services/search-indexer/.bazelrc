@@ -1,0 +1,12 @@
+# Always show test output.
+test --test_output=all
+
+# Include ./scripts/stamp.sh when building
+build --stamp --workspace_status_command=./scripts/stamp.sh
+
+# Windows: Enables symlinks
+startup --windows_enable_symlinks
+
+# Allows importing from user-defined .bazelrc files; this is ignored
+# by Git by default.
+try-import %workspace%/.user.bazelrc

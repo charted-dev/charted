@@ -19,6 +19,14 @@
         "**/Thumbs.db": true,
         "**/bazel-*": true
     },
+    "[go]": {
+        "editor.defaultFormatter": "golang.go",
+        "editor.insertSpaces": false,
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
     "[rust]": {
         "editor.defaultFormatter": "rust-lang.rust-analyzer"
     },

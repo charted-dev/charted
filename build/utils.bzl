@@ -28,6 +28,7 @@ CARGO_MANIFESTS = ["//{}:Cargo.toml".format(f) for f in [
     "crates/search/elasticsearch",
     "crates/search/meilisearch",
     "crates/storage",
+    "services/emails",
     "tools/helm-plugin",
     "tools/devtools",
     "server",

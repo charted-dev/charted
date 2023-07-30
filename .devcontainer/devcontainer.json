@@ -24,6 +24,7 @@
                 "redhat.vscode-yaml",
                 "antfu.iconify",
                 "hashicorp.hcl",
+                "golang.go",
                 "Vue.volar"
             ],
             "settings": {

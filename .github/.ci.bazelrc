@@ -1,0 +1,8 @@
+# Don't show progress bar in CI
+--noshow_progress
+
+# Show verbose failures in CI
+--verbose_failures
+
+# Show errors when running tests
+--test_output=errors

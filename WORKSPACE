@@ -39,11 +39,52 @@ http_archive(
 )
 
 http_archive(
-    name = "aspect_rules_rollup",
-    sha256 = "3ae84fbf1f94cbe00c73be8114c35b713fd273eb66d26b14966172b18611738b",
-    strip_prefix = "rules_rollup-0.15.2",
-    url = "https://github.com/aspect-build/rules_rollup/releases/download/v0.15.2/rules_rollup-v0.15.2.tar.gz",
+    name = "io_bazel_rules_go",
+    sha256 = "278b7ff5a826f3dc10f04feaf0b70d48b68748ccd512d7f98bf442077f043fe3",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.41.0/rules_go-v0.41.0.zip",
+        "https://github.com/bazelbuild/rules_go/releases/download/v0.41.0/rules_go-v0.41.0.zip",
+    ],
 )
+
+http_archive(
+    name = "bazel_gazelle",
+    sha256 = "29218f8e0cebe583643cbf93cae6f971be8a2484cdcfa1e45057658df8d54002",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-gazelle/releases/download/v0.32.0/bazel-gazelle-v0.32.0.tar.gz",
+        "https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.32.0/bazel-gazelle-v0.32.0.tar.gz",
+    ],
+)
+
+http_archive(
+    name = "rules_proto",
+    sha256 = "dc3fb206a2cb3441b485eb1e423165b231235a1ea9b031b4433cf7bc1fa460dd",
+    strip_prefix = "rules_proto-5.3.0-21.7",
+    urls = [
+        "https://github.com/bazelbuild/rules_proto/archive/refs/tags/5.3.0-21.7.tar.gz",
+    ],
+)
+
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
+
+rules_proto_dependencies()
+
+rules_proto_toolchains()
+
+load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
+
+go_rules_dependencies()
+
+go_register_toolchains(version = "1.20.6")
+
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
+
+gazelle_dependencies()
+
+load("//services/search-indexer:deps.bzl", "go_dependencies")
+
+# gazelle:repository_macro services/search-indexer/deps.bzl%go_dependencies
+go_dependencies()
 
 # Load up rules_rust dependencies
 load("@rules_rust//rust:repositories.bzl", "rules_rust_dependencies", "rust_register_toolchains")
@@ -83,7 +124,7 @@ load("@crate_index//:defs.bzl", "crate_repositories")
 
 crate_repositories()
 
-# Load up rules_js/ts/esbuild dependencies next
+# Load up rules_js/ts dependencies next
 load("@aspect_rules_js//js:repositories.bzl", "rules_js_dependencies")
 
 rules_js_dependencies()

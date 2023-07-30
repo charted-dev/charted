@@ -44,6 +44,9 @@ on:
             - '**.md'
             - renovate.json
             - LICENSE
+env:
+    BAZEL_ARGS: --bazelrc=./.bazelrc --bazelrc=./.github/.ci.bazelrc --host_jvm_args=-Xmx500m --host_jvm_args=-Xms500m
+    PROJECTS: cli helm-plugin search-indexer emails
 jobs:
     ci:
         name: Rust CI (${{matrix.runner == 'ubuntu-latest' && 'Linux (x86_64)' || matrix.runner == 'self-hosted' && 'Linux (arm64)' || matrix.runner == 'macos-latest' && 'macOS (x86_64)' || 'Unknown'}})
@@ -51,7 +54,20 @@ jobs:
         strategy:
             fail-fast: true
             matrix:
-                runner: [macos-latest, ubuntu-latest, self-hosted]
+                runner: [macos-latest, ubuntu-latest, self-hosted, windows-latest]
+                include:
+                    - runner: ubuntu-latest
+                      bazel-cache-dir: ~/.cache/bazel
+                      bazelisk-cache-dir: ~/.cache/bazelisk
+                    - runner: self-hosted
+                      bazel-cache-dir: ~/.cache/bazel
+                      bazelisk-cache-dir: ~/.cache/bazelisk
+                    - runner: macos-latest
+                      bazel-cache-dir: /private/var/tmp/_bazel_runner/
+                      bazelisk-cache-dir: ~/Library/Caches/bazelisk
+                    - runner: windows-latest
+                      bazel-cache-dir: ~\bazel
+                      bazelisk-cache-dir: ~\AppData\Local\bazelisk
         steps:
             - name: Checkout repository
               uses: actions/checkout@v3
@@ -60,21 +76,27 @@ jobs:
               uses: actions/cache@v3
               with:
                 path: |
-                    ~/.cache/bazelisk
-                    ~/.cache/bazel
+                    ${{matrix.bazelisk-cache-dir}}
+                    ${{matrix.bazel-cache-dir}}
                 key: bazel-cache-${{matrix.runner}}-${{ hashFiles('WORKSPACE', 'BUILD.bazel') }}
                 restore-keys: bazel-cache-${{matrix.runner}}-
 
             - name: Sync dependencies
-              run: bazel sync --only=crate_index
-              env:
-                CARGO_BAZEL_REPIN: all
+              run: ./dev sync-deps
 
-            - name: Build project
-              run: bazel --bazelrc=${GITHUB_WORKSPACE}/.bazelrc build //:cli
+            - name: Build CLI
+              run: bazel ${BAZEL_ARGS} build //:cli
 
-            - name: Run rustfmt
-              run: bazel --bazelrc=${GITHUB_WORKSPACE}/.bazelrc run @rules_rust//:rustfmt
+            - name: Build Helm plugin
+              run: bazel ${BAZEL_ARGS} build //:helm-plugin
 
+            - name: Build search indexer
+              run: bazel ${BAZEL_ARGS} build //:search-indexer
+
+            - name: Build emails microservice
+              run: bazel ${BAZEL_ARGS} build //:emails
+
+            # TODO: include clippy, rustfmt, and testing ci tailoured
+            #       to GitHub Actions.
             - name: Run tests
-              run: bazel --bazelrc=${GITHUB_WORKSPACE}/.bazelrc test //...
+              run: bazel ${BAZEL_ARGS} test //...

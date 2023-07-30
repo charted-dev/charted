@@ -55,3 +55,15 @@ alias(
     actual = "//tools/devtools:release_binary",
     visibility = ["//visibility:public"],
 )
+
+alias(
+    name = "search-indexer",
+    actual = "//services/search-indexer:binary",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "emails",
+    actual = "//services/emails:binary",
+    visibility = ["//visibility:public"],
+)

@@ -31,12 +31,15 @@ static GRAY: Colour = Colour::RGB(134, 134, 134);
 pub(crate) struct JsonStorage(pub BTreeMap<String, Value>);
 
 pub struct ServerLayer {
-    config: Config,
+    pub json: bool,
 }
 
 impl Default for ServerLayer {
     fn default() -> Self {
-        ServerLayer { config: Config::get() }
+        let config = Config::get();
+        ServerLayer {
+            json: config.logging.json_logging,
+        }
     }
 }
 
@@ -46,7 +49,7 @@ where
     S: for<'l> LookupSpan<'l>,
 {
     fn on_new_span(&self, attrs: &Attributes<'_>, id: &Id, ctx: Context<'_, S>) {
-        if self.config.logging.json_logging {
+        if self.json {
             let curr_ctx = ctx.clone();
             let span = curr_ctx.span(id).unwrap();
             let mut data = BTreeMap::new();
@@ -59,7 +62,7 @@ where
     }
 
     fn on_record(&self, span: &Id, values: &Record<'_>, ctx: Context<'_, S>) {
-        if self.config.logging.json_logging {
+        if self.json {
             let span = ctx.span(span).unwrap();
             let mut exts = span.extensions_mut();
 
@@ -77,7 +80,7 @@ where
         let metadata = event.normalized_metadata();
         let metadata = metadata.as_ref().unwrap_or_else(|| event.metadata());
 
-        if self.config.logging.json_logging {
+        if self.json {
             let mut spans = vec![];
             if let Some(scope) = ctx.event_scope(event) {
                 for span in scope.from_root() {
