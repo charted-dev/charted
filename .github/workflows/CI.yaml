@@ -46,15 +46,14 @@ on:
             - LICENSE
 env:
     BAZEL_ARGS: --bazelrc=./.bazelrc --bazelrc=./.github/.ci.bazelrc --host_jvm_args=-Xmx500m --host_jvm_args=-Xms500m
-    PROJECTS: cli helm-plugin search-indexer emails
 jobs:
     ci:
-        name: Rust CI (${{matrix.runner == 'ubuntu-latest' && 'Linux (x86_64)' || matrix.runner == 'self-hosted' && 'Linux (arm64)' || matrix.runner == 'macos-latest' && 'macOS (x86_64)' || 'Unknown'}})
+        name: Rust CI (${{matrix.runner == 'ubuntu-latest' && 'Linux (x86_64)' || matrix.runner == 'self-hosted' && 'Linux (arm64)' || matrix.runner == 'macos-latest' && 'macOS (x86_64)' || matrix.runner == 'windows-latest' && 'Windows' || 'Unknown'}})
         runs-on: ${{matrix.runner}}
         strategy:
             fail-fast: true
             matrix:
-                runner: [macos-latest, ubuntu-latest, self-hosted, windows-latest]
+                runner: [macos-latest, ubuntu-latest, self-hosted]
                 include:
                     - runner: ubuntu-latest
                       bazel-cache-dir: ~/.cache/bazel
@@ -96,7 +95,7 @@ jobs:
             - name: Build emails microservice
               run: bazel ${BAZEL_ARGS} build //:emails
 
-            # TODO: include clippy, rustfmt, and testing ci tailoured
+            # TODO: include clippy, rustfmt, golangci-lint, and testing ci tailoured
             #       to GitHub Actions.
             - name: Run tests
               run: bazel ${BAZEL_ARGS} test //...
