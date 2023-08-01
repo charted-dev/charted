@@ -65,7 +65,7 @@ otel = "1.28.0"
 remi = "0.5.4-beta"
 kaml = "0.55.0"
 koin = "3.4.3"
-ktor = "2.3.2"
+ktor = "2.3.3"
 jwt = "4.4.0"
 
 [libraries]
