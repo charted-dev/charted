@@ -1,1 +1,3 @@
+.cache/docker/redis/data/appendonlydir
+.cache/docker/postgresql/data
 web/node_modules

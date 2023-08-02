@@ -144,6 +144,10 @@ load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
 
 gazelle_dependencies()
 
+load("@ash2k_bazel_tools//golangcilint:deps.bzl", "golangcilint_dependencies")
+
+golangcilint_dependencies()
+
 load("//services/search-indexer:deps.bzl", "go_dependencies")
 
 # gazelle:repository_macro services/search-indexer/deps.bzl%go_dependencies

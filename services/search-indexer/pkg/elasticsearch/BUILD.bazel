@@ -21,5 +21,6 @@ go_library(
         ["*.go"],
         exclude = ["*_test.go"],
     ),
+    importpath = "charts.noelware.org/search-indexer/pkg/elasticsearch",
     visibility = ["//visibility:public"],
 )

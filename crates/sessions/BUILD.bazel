@@ -26,6 +26,7 @@ rust_project(
         "//crates/redis:charted_redis",
         "@crate_index//:eyre",
         "@crate_index//:serde",
+        "@crate_index//:serde_json",
         "@crate_index//:sqlx",
         "@crate_index//:tokio",
         "@crate_index//:tokio-util",

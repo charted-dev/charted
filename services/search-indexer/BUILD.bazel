@@ -13,9 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@ash2k_bazel_tools//golangcilint:def.bzl", "golangcilint")
 load("@bazel_gazelle//:def.bzl", "gazelle")
 
 exports_files([
+    # Allows the `//services/search-indexer:golangci` target to access
+    # this file.
+    ".golangci.yml",
+
     # Allows `bazel build //cmd/search-indexer:bin` to read this file
     # and uses it as the version of the binary.
     ".indexer-version",
@@ -40,4 +45,15 @@ alias(
     name = "binary",
     actual = "//services/search-indexer/cmd/search-indexer:binary",
     visibility = ["//visibility:public"],
+)
+
+golangcilint(
+    name = "lint",
+    config = "//:.golangci.yml",
+    paths = [
+        ".",
+        "cmd/...",
+        "pkg/...",
+    ],
+    prefix = "charts.noelware.org/search-indexer",
 )

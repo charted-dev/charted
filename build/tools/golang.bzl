@@ -14,6 +14,7 @@
 # limitations under the License.
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")  # buildifier: disable=module-docstring
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 GOLANG_VERSION = "1.20.6"
 
@@ -34,4 +35,10 @@ def charted_golang_repositories():
             "https://mirror.bazel.build/github.com/bazelbuild/bazel-gazelle/releases/download/v0.32.0/bazel-gazelle-v0.32.0.tar.gz",
             "https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.32.0/bazel-gazelle-v0.32.0.tar.gz",
         ],
+    )
+
+    git_repository(
+        name = "ash2k_bazel_tools",
+        commit = "2add5bb84c2837a82a44b57e83c7414247aed43a",
+        remote = "https://github.com/ash2k/bazel-tools.git",
     )

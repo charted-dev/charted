@@ -13,14 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@io_bazel_rules_go//go:def.bzl", "go_library")
-
-go_library(
-    name = "meilisearch",
-    srcs = glob(
-        ["*.go"],
-        exclude = ["*_test.go"],
-    ),
-    importpath = "charts.noelware.org/search-indexer/pkg/meilisearch",
-    visibility = ["//visibility:public"],
-)
+run:
+  tests: false
+output:
+  format: colored-line-number
+linters:
+  enable:
+    - bodyclose
+    - dupl
+    - exportloopref
+    - goconst
+    - godot
+    - goprintffuncname
+    - gosec
+    - ifshort
+    - prealloc
+    - revive
+    - rowserrcheck
+    - sqlclosecheck
+    - unconvert
+    - unparam
+    - whitespace
