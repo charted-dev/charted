@@ -16,8 +16,8 @@
 #![allow(unused_doc_comments)]
 
 use crate::{
-    make_config, var, DatabaseConfig, FromEnv, LoggingConfig, SearchConfig, SecureSetting, SecureSettingError,
-    ServerConfig, StorageConfig,
+    cdn::CdnConfig, make_config, var, DatabaseConfig, FromEnv, LoggingConfig, MetricsConfig, RedisConfig, SearchConfig,
+    SecureSetting, SecureSettingError, ServerConfig, StorageConfig,
 };
 use charted_common::{panic_message, rand_string};
 use eyre::{eyre, Result};
@@ -92,6 +92,12 @@ make_config! {
         };
 
         #[serde(default)]
+        pub metrics: MetricsConfig {
+            default: MetricsConfig::default();
+            env_value: MetricsConfig::from_env();
+        };
+
+        #[serde(default)]
         pub server: ServerConfig {
             default: ServerConfig::default();
             env_value: ServerConfig::from_env();
@@ -101,6 +107,18 @@ make_config! {
         pub search: Option<SearchConfig> {
             default: None;
             env_value: SearchConfig::from_env();
+        };
+
+        #[serde(default)]
+        pub redis: RedisConfig {
+            default: RedisConfig::default();
+            env_value: RedisConfig::from_env();
+        };
+
+        #[serde(default)]
+        pub cdn: CdnConfig {
+            default: CdnConfig::default();
+            env_value: CdnConfig::from_env();
         };
     }
 }

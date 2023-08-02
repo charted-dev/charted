@@ -13,22 +13,47 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod cli;
+mod docker;
+mod generate;
+mod helm_plugin;
+mod server;
+mod services;
 mod web;
 
-use charted_common::cli::AsyncExecute;
+use charted_common::cli::*;
 use clap::Subcommand;
+use cli::*;
+use docker::*;
 use eyre::Result;
+use generate::*;
+use helm_plugin::*;
+use server::*;
 use web::*;
 
 #[derive(Debug, Clone, Subcommand)]
 pub enum Commands {
+    HelmPlugin(HelmPlugin),
+
+    #[command(subcommand)]
+    Generate(Generate),
+    Server(Server),
+
+    #[command(subcommand)]
+    Docker(Docker),
+    Cli(Cli),
     Web(Web),
 }
 
 impl Commands {
-    pub async fn execute(self) -> Result<()> {
+    pub fn execute(self) -> Result<()> {
         match self {
-            Commands::Web(web) => web.execute().await,
+            Commands::HelmPlugin(plugin) => plugin.execute(),
+            Commands::Generate(generate) => generate.execute(),
+            Commands::Server(server) => server.execute(),
+            Commands::Docker(docker) => docker.execute(),
+            Commands::Cli(cli) => cli.execute(),
+            Commands::Web(web) => web.execute(),
         }
     }
 }

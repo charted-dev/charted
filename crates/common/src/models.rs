@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::env::var;
@@ -27,9 +27,7 @@ use utoipa::{
 
 use crate::ID;
 
-lazy_static! {
-    static ref NAME_REGEX: Regex = Regex::new(r"^([A-z]|-|_|\\d{0,9}){0,32}").unwrap();
-}
+static NAME_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"^([A-z]|-|_|\d{0,9}){0,32}").unwrap());
 
 pub type DateTime = chrono::DateTime<chrono::Local>;
 
@@ -46,7 +44,7 @@ pub enum NameOrSnowflake {
     /// API endpoints to help identify a resource by a Name or Snowflake
     /// pointer.
     ///
-    /// Names are validated with the following regex: `^([A-z]|-|_|\\d{0,9}){0,32}`
+    /// Names are validated with the following regex: `^([A-z]|-|_|\d{0,9}){0,32}`
     Name(String),
 }
 

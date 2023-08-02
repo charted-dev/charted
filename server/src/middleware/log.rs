@@ -40,14 +40,20 @@ pub async fn log<B>(metadata: Metadata, req: Request<B>, next: Next<B>) -> impl 
         _ => "http/???",
     };
 
-    let http_span = info_span!("http.request", uri, method, version);
+    let http_span = info_span!(
+        "http.request",
+        http.uri = uri,
+        http.method = method,
+        http.version = version
+    );
+
     let _guard = http_span.enter();
 
     if !uri.contains("/heartbeat") {
         info!(
-            %uri,
-            %method,
-            %version,
+            http.uri = uri,
+            http.method = method,
+            http.version = version,
             "processing request"
         );
     }
@@ -56,14 +62,14 @@ pub async fn log<B>(metadata: Metadata, req: Request<B>, next: Next<B>) -> impl 
     let now = start.elapsed();
 
     if !uri.contains("/heartbeat") {
-        let status = res.status();
+        let status = res.status().as_u16();
 
         info!(
-            %uri,
-            %method,
-            %version,
-            %status,
-            latency = format!("{now:?}").as_str(),
+            http.uri = uri,
+            http.method = method,
+            http.version = version,
+            http.status = status,
+            http.latency = format!("{now:?}").as_str(),
             "processed request"
         );
     }

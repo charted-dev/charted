@@ -19,10 +19,10 @@ use charted_logging::generic::GenericLayer;
 use clap::Parser;
 use eyre::Result;
 use std::env::{set_var, var};
+use tracing::{metadata::LevelFilter, Level};
 use tracing_subscriber::{prelude::*, registry};
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     if is_debug_enabled() && var("RUST_BACKTRACE").is_err() {
         set_var("RUST_BACKTRACE", "full");
     }
@@ -30,8 +30,13 @@ async fn main() -> Result<()> {
     color_eyre::install()?;
 
     let cli = Cli::parse();
-    tracing::subscriber::set_global_default(registry().with(GenericLayer { verbose: cli.verbose }))?;
+    tracing::subscriber::set_global_default(registry().with(GenericLayer { verbose: cli.verbose }.with_filter(
+        match cli.verbose {
+            true => LevelFilter::from_level(Level::DEBUG),
+            false => LevelFilter::from_level(Level::INFO),
+        },
+    )))?;
 
-    cli.command.execute().await?;
+    cli.command.execute()?;
     Ok(())
 }

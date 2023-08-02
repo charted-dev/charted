@@ -22,6 +22,14 @@ use charted_config::{Config, ConfigExt, StorageConfig};
 use charted_database::controllers::users::UserDatabaseController;
 use charted_database::controllers::DatabaseController;
 use charted_database::MIGRATIONS;
+use charted_metrics::{
+    collectors::{os::*, process::*},
+    default::*,
+    disabled::*,
+    prometheus::*,
+    Registry,
+};
+use charted_redis::RedisClient;
 use charted_storage::MultiStorageService;
 use charted_web::WebUI;
 use eyre::Result;
@@ -49,11 +57,16 @@ pub struct Server {
     // does it work? most likely.
     controllers: Vec<Arc<(dyn Any + Send + Sync)>>,
     snowflake: Snowflake,
+    redis: RedisClient,
 
+    pub registry: Box<dyn Registry>,
     pub storage: MultiStorageService,
     pub config: Config,
     pub pool: PgPool,
 }
+
+unsafe impl Send for Server {}
+unsafe impl Sync for Server {}
 
 impl Server {
     pub async fn new(config: Config) -> Result<Server> {
@@ -80,6 +93,11 @@ impl Server {
         };
 
         storage.init().await?;
+        info!(
+            "storage service '{}' has been initialized, now connecting to PostgreSQL",
+            storage.clone().name()
+        );
+
         let pool = PgPoolOptions::new()
             .max_connections(config.database.max_connections)
             .connect_with(
@@ -88,6 +106,8 @@ impl Server {
                     .log_slow_statements(tracing::log::LevelFilter::Warn, Duration::from_secs(5)),
             )
             .await?;
+
+        info!("initialized PostgreSQL connection!");
 
         {
             let pool = pool.clone();
@@ -99,15 +119,52 @@ impl Server {
             info!("done!");
         }
 
+        info!("Connecting to Redis");
+        let redis = RedisClient::new()?;
+
         // TODO(@auguwu): create cluster of snowflakes with 1023 nodes per
         // server instance?
         let snowflake = Snowflake::new(0);
         let users = UserDatabaseController::new(pool.clone(), snowflake.clone());
+        let mut registry: Box<dyn Registry> = match (config.metrics.enabled, config.metrics.prometheus) {
+            (true, true) => {
+                let prom = new(Box::<DefaultRegistry>::default(), None);
+                let registry = prom.registry();
+                {
+                    let mut registry = registry.lock().unwrap();
+                    registry.register_collector(Box::<OperatingSystemCollector>::default());
+                    registry.register_collector(Box::<ProcessCollector>::default());
+                }
+
+                Box::new(prom)
+            }
+            (false, true) => {
+                warn!("Unable to disable the default metrics pipeline with `config.metrics.prometheus` being true! The default pipeline will be enabled.");
+
+                let prom = new(Box::<DefaultRegistry>::default(), None);
+                let registry = prom.registry();
+                {
+                    let mut registry = registry.lock().unwrap();
+                    registry.register_collector(Box::<OperatingSystemCollector>::default());
+                    registry.register_collector(Box::<ProcessCollector>::default());
+                }
+
+                Box::new(prom)
+            }
+
+            (true, false) => Box::<DefaultRegistry>::default(),
+            (false, false) => Box::<DisabledRegistry>::default(),
+        };
+
+        registry.insert(Box::<OperatingSystemCollector>::default());
+        registry.insert(Box::<ProcessCollector>::default());
 
         Ok(Server {
             _sentry_guard: sentry_guard,
             controllers: vec![Arc::new(users)],
             snowflake,
+            redis,
+            registry,
             storage,
             config,
             pool,
@@ -125,6 +182,10 @@ impl Server {
 
     pub fn snowflake(&mut self) -> &mut Snowflake {
         &mut self.snowflake
+    }
+
+    pub fn redis(&mut self) -> &mut RedisClient {
+        &mut self.redis
     }
 
     pub async fn run(&self) -> Result<()> {

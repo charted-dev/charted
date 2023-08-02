@@ -25,6 +25,6 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 async-recursion = "1.0.4"
 charted-config = { version = "0.0.0-devel.0", path = "../config" }
 eyre = "0.6.8"
-redis = { version = "0.23.0", features = ["tokio-comp", "connection-manager"] }
+redis = { version = "0.23.1", features = ["sentinel", "tokio-comp", "connection-manager"] }
 tokio = { version = "1.29.1", features = ["full"] }
 tracing = "0.1.37"

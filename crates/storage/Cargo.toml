@@ -15,7 +15,7 @@
 
 [package]
 name = "charted-storage"
-description = "🐻‍❄️📦 Configuration DSL and builder"
+description = "🐻‍❄️📦 Utilities for abstracting remi_* libraries"
 version = "0.0.0-devel.0"
 edition = "2021"
 homepage = "https://charts.noelware.org"

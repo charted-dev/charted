@@ -30,11 +30,13 @@ charted-config = { version = "0.0.0-devel.0", path = "../crates/config" }
 charted-database = { version = "0.0.0-devel.0", path = "../crates/database" }
 charted-helm-charts = { version = "0.0.0-devel.0", path = "../crates/helm-charts" }
 charted-logging = { version = "0.0.0-devel.0", path = "../crates/logging" }
+charted-metrics = { version = "0.0.0-devel.0", path = "../crates/metrics" }
 charted-openapi = { version = "0.0.0-devel.0", path = "../crates/openapi" }
 charted-redis = { version = "0.0.0-devel.0", path = "../crates/redis" }
 charted-search = { version = "0.0.0-devel.0", path = "../crates/search" }
 charted-search-elasticsearch = { version = "0.0.0-devel.0", path = "../crates/search/elasticsearch" }
 charted-search-meilisearch = { version = "0.0.0-devel.0", path = "../crates/search/meilisearch" }
+charted-sessions = { version = "0.0.0-devel.0", path = "../crates/sessions" }
 charted-storage = { version = "0.0.0-devel.0", path = "../crates/storage" }
 charted-web = { version = "0.0.0-devel.0", path = "../web" }
 chrono = "0.4.24"

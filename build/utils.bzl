@@ -1,4 +1,3 @@
-# buildifier: disable=module-docstring
 # 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
 # Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
 #
@@ -22,11 +21,17 @@ CARGO_MANIFESTS = ["//{}:Cargo.toml".format(f) for f in [
     "crates/database",
     "crates/helm-charts",
     "crates/logging",
+    "crates/metrics",
     "crates/openapi",
     "crates/redis",
     "crates/search",
     "crates/search/elasticsearch",
     "crates/search/meilisearch",
+    "crates/sessions/integrations/github",
+    "crates/sessions/integrations",
+    "crates/sessions/local",
+    "crates/sessions/ldap",
+    "crates/sessions",
     "crates/storage",
     "services/emails",
     "tools/helm-plugin",

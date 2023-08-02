@@ -32,5 +32,8 @@
     },
     "[starlark]": {
         "editor.defaultFormatter": "BazelBuild.vscode-bazel"
+    },
+    "[terraform]": {
+        "editor.defaultFormatter": "hashicorp.terraform"
     }
 }

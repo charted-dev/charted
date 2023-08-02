@@ -56,7 +56,10 @@ pub mod emails_server {
         async fn send(
             &self,
             request: tonic::Request<super::SendEmailRequest>,
-        ) -> std::result::Result<tonic::Response<super::SendEmailResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::SendEmailResponse>,
+            tonic::Status,
+        >;
         async fn ping(
             &self,
             request: tonic::Request<super::PingRequest>,
@@ -85,7 +88,10 @@ pub mod emails_server {
                 max_encoding_message_size: None,
             }
         }
-        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(
+            inner: T,
+            interceptor: F,
+        ) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -129,7 +135,10 @@ pub mod emails_server {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = std::convert::Infallible;
         type Future = BoxFuture<Self::Response, Self::Error>;
-        fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<std::result::Result<(), Self::Error>> {
+        fn poll_ready(
+            &mut self,
+            _cx: &mut Context<'_>,
+        ) -> Poll<std::result::Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
@@ -138,10 +147,17 @@ pub mod emails_server {
                 "/noelware.charted.emails.Emails/Send" => {
                     #[allow(non_camel_case_types)]
                     struct SendSvc<T: Emails>(pub Arc<T>);
-                    impl<T: Emails> tonic::server::UnaryService<super::SendEmailRequest> for SendSvc<T> {
+                    impl<T: Emails> tonic::server::UnaryService<super::SendEmailRequest>
+                    for SendSvc<T> {
                         type Response = super::SendEmailResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
-                        fn call(&mut self, request: tonic::Request<super::SendEmailRequest>) -> Self::Future {
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::SendEmailRequest>,
+                        ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move { (*inner).send(request).await };
                             Box::pin(fut)
@@ -157,8 +173,14 @@ pub mod emails_server {
                         let method = SendSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(accept_compression_encodings, send_compression_encodings)
-                            .apply_max_message_size_config(max_decoding_message_size, max_encoding_message_size);
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
@@ -167,10 +189,17 @@ pub mod emails_server {
                 "/noelware.charted.emails.Emails/Ping" => {
                     #[allow(non_camel_case_types)]
                     struct PingSvc<T: Emails>(pub Arc<T>);
-                    impl<T: Emails> tonic::server::UnaryService<super::PingRequest> for PingSvc<T> {
+                    impl<T: Emails> tonic::server::UnaryService<super::PingRequest>
+                    for PingSvc<T> {
                         type Response = super::PingResponse;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
-                        fn call(&mut self, request: tonic::Request<super::PingRequest>) -> Self::Future {
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::PingRequest>,
+                        ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move { (*inner).ping(request).await };
                             Box::pin(fut)
@@ -186,21 +215,31 @@ pub mod emails_server {
                         let method = PingSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(accept_compression_encodings, send_compression_encodings)
-                            .apply_max_message_size_config(max_decoding_message_size, max_encoding_message_size);
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)
                 }
-                _ => Box::pin(async move {
-                    Ok(http::Response::builder()
-                        .status(200)
-                        .header("grpc-status", "12")
-                        .header("content-type", "application/grpc")
-                        .body(empty_body())
-                        .unwrap())
-                }),
+                _ => {
+                    Box::pin(async move {
+                        Ok(
+                            http::Response::builder()
+                                .status(200)
+                                .header("grpc-status", "12")
+                                .header("content-type", "application/grpc")
+                                .body(empty_body())
+                                .unwrap(),
+                        )
+                    })
+                }
             }
         }
     }

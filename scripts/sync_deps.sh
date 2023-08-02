@@ -17,4 +17,3 @@
 
 echo "===> Syncing dependencies..."
 CARGO_BAZEL_REPIN=all bazel sync --only=crate_index
-CARGO_BAZEL_REPIN=all bazel sync --only=prost_crates_io

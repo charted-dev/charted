@@ -19,11 +19,14 @@ extern crate async_trait;
 #[macro_use]
 extern crate tracing;
 
+pub mod args;
 mod commands;
+pub mod services;
+pub mod utils;
 
 #[derive(Debug, Clone, clap::Parser)]
 #[clap(
-    bin_name = "dev",
+    bin_name = "./dev",
     about = "🐻‍❄️📦 Development Tool to help develop charted-server",
     author = "Noelware, LLC.",
     override_usage = "dev <COMMAND> [...ARGS]",

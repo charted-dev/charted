@@ -16,8 +16,11 @@
 mod bitfield;
 pub mod cli;
 pub mod crypto;
+pub mod extract;
 pub mod models;
 pub mod os;
+pub mod rust;
+pub mod serde;
 mod snowflake;
 
 use std::any::Any;
@@ -25,7 +28,7 @@ use std::any::Any;
 pub use bitfield::*;
 pub use snowflake::*;
 
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use rand::distributions::{Alphanumeric, DistString};
 use regex::Regex;
 
@@ -46,9 +49,8 @@ pub const BUILD_DATE: &str = env!("CHARTED_BUILD_DATE");
 /// Returns the current version of `charted-server`.
 pub const VERSION: &str = env!("CHARTED_VERSION");
 
-lazy_static! {
-    pub static ref TRUTHY_REGEX: Regex = Regex::new(r#"^(yes|true|si*|e|enable|1)$"#).unwrap();
-}
+/// Generic [`Regex`] implementation for possible truthy boolean values.
+pub static TRUTHY_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r#"^(yes|true|si*|e|enable|1)$"#).unwrap());
 
 /// Checks if debug mode is enabled or not.
 pub fn is_debug_enabled() -> bool {

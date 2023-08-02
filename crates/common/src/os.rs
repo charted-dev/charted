@@ -14,7 +14,8 @@
 // limitations under the License.
 
 /// Returns the target architecture that this crate was
-/// built off from.
+/// built off from. charted-server only supports running
+/// on x86_64 and ARMv8 chips.
 pub fn architecture() -> &'static str {
     if cfg!(target_arch = "x86_64") {
         "amd64"
@@ -25,7 +26,9 @@ pub fn architecture() -> &'static str {
     }
 }
 
-/// Returns a machine-readable OS name.
+/// Returns a machine-readable OS name. This will return `unknown` if
+/// this crate was built off an operating system that isn't supported
+/// by charted-server.
 pub fn os_name() -> &'static str {
     if cfg!(target_os = "linux") {
         "linux"

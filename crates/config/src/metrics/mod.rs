@@ -42,6 +42,17 @@ make_config! {
                 mapper: |val| TRUTHY_REGEX.is_match(val.as_str());
             });
         };
+
+        /// Whether if the `/metrics` endpoint should be enabled, for Prometheus
+        /// servers to scrape the data from.
+        #[serde(default)]
+        pub prometheus: bool {
+            default: false;
+            env_value: var!("CHARTED_METRICS_PROMETHEUS", {
+                or_else: false;
+                mapper: |val| TRUTHY_REGEX.is_match(val.as_str());
+            });
+        };
     }
 }
 

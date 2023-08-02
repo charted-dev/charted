@@ -15,7 +15,7 @@
 
 [package]
 name = "charted-devtools"
-description = "🐻‍❄️📦 Development Tool helper to help develop charted-server"
+description = "🐻‍❄️📦 Development tool helper to help develop charted-server"
 version = "0.0.0-devel.0"
 edition = "2021"
 homepage = "https://charts.noelware.org"
@@ -25,12 +25,16 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 async-trait = "0.1.72"
 charted-common = { path = "../../crates/common", version = "0.0.0-devel.0" }
 charted-logging = { path = "../../crates/logging", version = "0.0.0-devel.0" }
-clap = { version = "4.3.19", features = ["derive"] }
+clap = { version = "4.3.19", features = ["derive", "env"] }
 clap_complete = "4.3.2"
 color-eyre = "0.6.2"
 eyre = "0.6.8"
+itertools = "0.11.0"
 simple_tables = "0.3.0"
+serde = { version = "=1.0.171", features = ["derive"] }
 tokio = { version = "1.29.1", features = ["full"] }
 tracing = "0.1.37"
 tracing-subscriber = "0.3.17"
 which = "4.4.0"
+promptly = "0.3.1"
+toml = "0.7.6"

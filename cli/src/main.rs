@@ -14,16 +14,26 @@
 // limitations under the License.
 
 use charted_cli::{commands::Commands, execute, Cli};
-use charted_common::{is_debug_enabled, COMMIT_HASH, RUSTC_VERSION, VERSION};
+use charted_common::{is_debug_enabled, os, COMMIT_HASH, RUSTC_VERSION, VERSION};
 use charted_logging::generic::GenericLayer;
 use clap::Parser;
 use color_eyre::config::HookBuilder;
-use eyre::Result;
+use eyre::{eyre, Result};
 use std::env::{set_var, var};
 use tracing_subscriber::prelude::*;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    if os::os_name() == "unknown" {
+        return Err(eyre!("charted-server is not supported on any other operating systems. Windows, macOS, or Linux is only supported."));
+    }
+
+    if os::architecture() == "unknown" {
+        return Err(eyre!(
+            "charted-server is not supported on any other architectures. x86_64 and ARM64 is only supported."
+        ));
+    }
+
     if is_debug_enabled() && var("RUST_BACKTRACE").is_err() {
         set_var("RUST_BACKTRACE", "full");
     }

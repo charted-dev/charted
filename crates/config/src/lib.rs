@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod cdn;
 mod config;
 mod database;
 mod from_env;
@@ -22,6 +23,7 @@ mod redis;
 mod search;
 mod secure_setting;
 mod server;
+mod sessions;
 mod storage;
 
 pub use config::*;
@@ -33,56 +35,34 @@ pub use redis::*;
 pub use search::*;
 pub use secure_setting::*;
 pub use server::*;
+pub use sessions::*;
 pub use storage::*;
 
-/// Simple macro to implement a configuration struct
-/// that is consistent towards the whole project.
+/// Generic Rust functional macro to implement a common-style configuration struct
+/// that can be passed onto a [`Config`][crate::Config] struct (which also uses this macro)
+/// to be serialized from.
 ///
-/// This will:
-/// * Add the `Debug`, `Clone`, `serde::Serialize`, `serde::Deserialize`, and `clap::Parser` traits
-/// * Implement `Default` and `charted_config::FromEnv`
+/// ## Goals
+/// * Implement common Rust traits (`Debug`, `Clone`) and serde traits (`Serialize`, `Deserialize`).
+/// * Implement `Default` and [`FromEnv`][crate::FromEnv] automatically.
 ///
 /// ## Example
-/// ```no_run
+/// ```
 /// # use charted_config::{make_config, var};
 /// #
 /// make_config! {
-///     /// Simple doc comment.
-///     MyConfig {
+///     /// Simple doc comment
+///     SomeConfig {
 ///         /// A doc comment for this property.
 ///         pub name: String {
+///             // Used for the `Default` trait implementation
 ///             default: "".into();
-///             env: var!("CHARTED_SOME_CONFIG_KEY", "".into())
+///
+///             // Used for the `FromEnv` trait implementation
+///             env_value: var!("CHARTED_SOMETHING", or_else: "".into());
 ///         };
 ///     }
 /// }
-///
-/// /*
-/// expanded:
-///
-/// /// Simple doc comment.
-/// #[derive(Debug, Clone, clap::Parser, ::serde::Serialize, ::serde::Deserialize)]
-/// pub struct MyConfig {
-///     /// A doc comment for this property.
-///     pub name: String,
-/// }
-///
-/// impl Default for MyConfig {
-///     fn default() -> MyConfig {
-///         MyConfig {
-///             name: "".into(),
-///         }
-///     }
-/// }
-///
-/// impl charted_config::FromEnv<MyConfig> for MyConfig {
-///     fn from_env() -> MyConfig {
-///         MyConfig {
-///             name: ::std::env::var("CHARTED_SOME_CONFIG_KEY").unwrap_or("".into())
-///         }
-///     }
-/// }
-/// */
 /// ```
 #[macro_export]
 macro_rules! make_config {
@@ -126,18 +106,91 @@ macro_rules! make_config {
     };
 }
 
-/// Simple macro to export an environment variable for easy use. This is useful
-/// to not repeat yourself when fetching and possibly validating an
-/// environment variable.
+/// Generic Rust functional macro to help with locating an environment variable
+/// in the host machine. This macro is used to help with creating [configuration objects][crate::make_config]
+/// with the `make_config!` macro.
 ///
-/// ## Example
-/// ```no_run
-/// let p = var!("CHARTED_BARK", to: bool, or_else: false);
-/// // ::std::env::var("CHARTED_BARK").map(|p| p.parse::<bool>().expect("Unable to resolve env var [CHARTED_BARK] to a [bool] value")).unwrap_or(false)
+/// ## Variants
+/// ### `var!($key: literal)`
+/// This will just expand `$key` into a Result<[`String`][alloc::string::String], [`VarError`][std::env::VarError]> variant.
 ///
-/// let p2 = var!("CHARTED_BARK", or_else: "thing".into());
-/// // ::std::env::var("CHARTED_BARK").unwrap_or("thing".into());
 /// ```
+/// # use charted_config::var;
+/// #
+/// let result = var!("SOME_ENV_VARIABLE");
+/// // expanded: ::std::env::var("SOME_ENV_VARIABLE");
+/// #
+/// # assert!(result.is_err());
+/// ```
+///
+/// ### `var!($key: literal, is_optional: true)`
+/// Expands the `$key` into a Option type if a [`VarError`][std::env::VarError] occurs.
+///
+/// ```
+/// # use charted_config::var;
+/// #
+/// let result = var!("SOME_ENV_VARIABLE", is_optional: true);
+/// // expanded: ::std::env::var("SOME_ENV_VARIABLE").ok();
+/// #
+/// # assert!(result.is_none());
+/// ```
+///
+/// ### `var!($key: literal, or_else: $else: expr)`
+/// Expands `$key` into a String, but if a [`VarError`][std::env::VarError] occurs, then a provided `$else`
+/// is used as the default.
+///
+/// ```
+/// # use charted_config::var;
+/// #
+/// let result = var!("SOME_ENV_VARIABLE", or_else: "".into());
+/// // expanded: ::std::env::var("SOME_ENV_VARIABLE").unwrap_or("".into());
+/// #
+/// # assert!(result.is_empty());
+/// ```
+///
+/// ### `var!($key: literal, or_else_do: $else: expr)`
+/// Same as [`var!($key: literal, or_else: $else: expr)`][crate::var], but uses `.unwrap_or_else` to
+/// accept a [`Fn`][std::ops::Fn].
+///
+/// ```
+/// # use charted_config::var;
+/// #
+/// let result = var!("SOME_ENV_VARIABLE", or_else_do: |_| Default::default());
+/// // expanded: ::std::env::var("SOME_ENV_VARIABLE").unwrap_or_else(|_| Default::default());
+/// #
+/// # assert!(result.is_empty());
+/// ```
+///
+/// ### `var!($key: literal, use_default: true)`
+/// Same as [`var!($key: literal, or_else_do: $else: expr)`][crate::var], but will use the
+/// [Default][core::default::Default] implementation, if it can be resolved.
+///
+/// ```
+/// # use charted_config::var;
+/// #
+/// let result = var!("SOME_ENV_VARIABLE", use_default: true);
+/// // expanded: ::std::env::var("SOME_ENV_VARIABLE").unwrap_or_else(|_| Default::default());
+/// #
+/// # assert!(result.is_empty());
+/// ```
+///
+/// ### `var!($key: literal, mapper: $mapper: expr)`
+/// Uses the [`.map`][result-map] method with an accepted `mapper` to map to a different type.
+///
+/// ```
+/// # use charted_config::var;
+/// #
+/// let result = var!("SOME_ENV_VARIABLE", mapper: |val| &val == "true");
+///
+/// /*
+/// expanded:
+/// ::std::env::var("SOME_ENV_VARIABLE").map(|val| &val == "true");
+/// */
+/// #
+/// # assert!(result.is_err());
+/// ```
+///
+/// [result-map]: https://doc.rust-lang.org/nightly/core/result/enum.Result.html#method.map
 #[macro_export]
 macro_rules! var {
     ($key:literal, to: $ty:ty, or_else: $else_:expr) => {

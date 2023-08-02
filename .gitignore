@@ -755,6 +755,7 @@ FodyWeavers.xsd
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
 
+!server/src/routing/**/repositories/releases/
 !distribution/bin/
 !scripts/publish/
 .user.bazelrc

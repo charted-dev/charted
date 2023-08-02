@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-x-healthchecks: &healthchecks
+x-healthchecks: &healthcheck
   start_period: 10s
   interval: 30s
   timeout: 60s
@@ -32,13 +32,14 @@ services:
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
     volumes:
-      - ./.cache/redis:/bitnami/redis
+      - ./docker/redis:/bitnami/redis
     healthcheck:
-      <<: *healthchecks
+      <<: *healthcheck
       test: ["CMD", "redis-cli", "PING"]
   postgresql:
     <<: *container
     container_name: charted_postgresql
+    image: bitnami/postgresql:15.3.0
     ports:
       - "5432:5432"
     environment:
@@ -48,9 +49,9 @@ services:
       - POSTGRESQL_USERNAME=charted
       - POSTGRESQL_DATABASE=charted
     volumes:
-      - ./.cache/postgresql:/bitnami/postgresql
+      - ./docker/postgresql:/bitnami/postgresql
     healthcheck:
-      <<: *healthchecks
+      <<: *healthcheck
       test: ["CMD", "pg_isready", "-U", "charted"]
   elasticsearch:
     <<: *container
@@ -62,11 +63,11 @@ services:
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xms512m -Xmx2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
     volumes:
-      - ./.cache/elasticsearch/data:/usr/share/elasticsearch/data
+      - ./docker/elasticsearch/data:/usr/share/elasticsearch/data
       - type: bind
-        source: ./configs/elasticsearch
+        source: ./docker/elasticsearch/config
         target: /usr/share/elasticsearch/config
-    profiles: [search, elastic]
+    profiles: [elasticsearch]
     healthcheck:
       <<: *healthcheck
       test: ["CMD", "curl", "-fsu", "elastic:changeme", "http://localhost:9200/_cluster/health?wait_for_status=green&timeout=1s"]
@@ -74,7 +75,7 @@ services:
     <<: *container
     container_name: charted_meilisearch
     image: getmeili/meilisearch:v1.2
-    profiles: [search, meili]
+    profiles: [meilisearch]
     ports:
       - "7700:7700"
     environment:
