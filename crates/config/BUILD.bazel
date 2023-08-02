@@ -17,7 +17,6 @@ load("//:build/rust_project.bzl", "rust_project")
 
 rust_project(
     name = "config",
-    include_doctests = True,
     proc_macro_deps = ["@crate_index//:paste"],
     deps = [
         "//crates/common:charted_common",

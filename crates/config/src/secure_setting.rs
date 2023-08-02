@@ -47,9 +47,9 @@ impl SecureSetting {
     ///
     /// ## Example
     /// ```no_run
-    /// # use charted_types::SecureSettting;
+    /// # use charted_config::SecureSettting;
     /// #
-    /// let sentry_dsn = SecureSetting::new("sentry_dsn");
+    /// let sentry_dsn = SecureSetting::new("sentry_dsn".into());
     /// let dsn = sentry_dsn.load("${CHARTED_SENTRY_DSN:-deeznuts}");
     /// ```
     pub fn load<I: AsRef<str>>(&self, input: I) -> Result<String, SecureSettingError> {
@@ -66,13 +66,13 @@ impl SecureSetting {
     /// ```no_run
     /// # use charted_config::SecureSetting;
     /// #
-    /// let sentry_dsn = SecureSetting::new("sentry_dsn");
+    /// let sentry_dsn = SecureSetting::new("sentry_dsn".into());
     /// let res = sentry_dsn.load_optional("${CHARTED_SENTRY_DSN:-deeznuts}");
     ///
     /// assert!(res.is_ok());
     /// let value = res.unwrap();
     ///
-    /// assert!(res.is_some());
+    /// assert!(value.is_some());
     /// let dsn = value.unwrap();
     /// ```
     pub fn load_optional<I: AsRef<str>>(&self, input: I) -> Result<Option<String>, SecureSettingError> {
@@ -111,7 +111,7 @@ impl SecureSetting {
     /// # use charted_config::SecureSetting;
     /// # use sentry::types::Dsn;
     /// #
-    /// let sentry_dsn = SecureSetting::new("sentry_dsn");
+    /// let sentry_dsn = SecureSetting::new("sentry_dsn".into());
     /// sentry_dsn.load_with("${CHARTED_SENTRY_DSN:-deeznuts}", |x| Dsn::from_str(x.as_str()));
     /// // => Result<Option<Result<Dsn, _>>, SecureSettingError>
     /// ```
