@@ -100,6 +100,10 @@ vue_tsc.vue_tsc_test(
         "//web/src:source",
     ] + DEPS,
     include_declarations = True,
+    tags = [
+        "noclippy",
+        "norustfmt",
+    ],
 )
 
 eslint.eslint_test(
@@ -127,6 +131,10 @@ eslint.eslint_test(
         ":node_modules",
         "//web/src:source",
     ],
+    tags = [
+        "noclippy",
+        "norustfmt",
+    ],
 )
 
 prettier.prettier_test(
@@ -149,5 +157,9 @@ prettier.prettier_test(
         "vite.config.ts",
         ":node_modules",
         "//web/src:source",
+    ],
+    tags = [
+        "noclippy",
+        "norustfmt",
     ],
 )

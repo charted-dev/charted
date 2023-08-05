@@ -152,3 +152,11 @@ load("//services/search-indexer:deps.bzl", "go_dependencies")
 
 # gazelle:repository_macro services/search-indexer/deps.bzl%go_dependencies
 go_dependencies()
+
+load("//:build/tools/pkg.bzl", "charted_pkg_repositories")
+
+charted_pkg_repositories()
+
+load("@rules_pkg//:deps.bzl", "rules_pkg_dependencies")
+
+rules_pkg_dependencies()

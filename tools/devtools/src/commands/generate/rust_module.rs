@@ -94,13 +94,10 @@ impl Execute for RustModule {
         let final_path = workspace.join(location);
         info!("creating rust crate charted_{name} in {}", final_path.display());
 
-        if final_path.exists() {
-            error!("Path {} already exists.", final_path.display());
-            exit(1);
+        if !final_path.exists() {
+            create_dir_all(final_path.clone())?;
+            create_dir_all(final_path.clone().join("src"))?;
         }
-
-        create_dir_all(final_path.clone())?;
-        create_dir_all(final_path.clone().join("src"))?;
 
         let cargo_toml = workspace.join("Cargo.toml");
         let mut root_cargo_toml: RootCargoToml = toml::from_str(fs::read_to_string(cargo_toml.clone())?.as_str())?;

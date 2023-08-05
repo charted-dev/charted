@@ -12,3 +12,48 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+load("@rules_pkg//pkg:mappings.bzl", "pkg_files")
+load("@rules_pkg//pkg:zip.bzl", "pkg_zip")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+
+pkg_files(
+    name = "binary",
+    srcs = ["//cli:release_binary"],
+    prefix = "bin",
+    renames = {
+        "//cli:release_binary": "charted",
+    },
+)
+
+# tarball is a simple structure
+#
+# systemd/
+# config/
+# bin/
+# LICENSE
+# README.txt
+pkg_tar(
+    name = "tarball",
+    srcs = [
+        "//distribution:binary",
+        "//distribution/src/common:LICENSE",
+        "//distribution/src/common:README.txt",
+        "//distribution/src/config",
+        "//distribution/src/systemd",
+    ],
+    extension = "tgz",
+)
+
+# the zip archive also is the same structure as the
+# tarball one
+pkg_zip(
+    name = "zip",
+    srcs = [
+        "//distribution:binary",
+        "//distribution/src/common:LICENSE",
+        "//distribution/src/common:README.txt",
+        "//distribution/src/config",
+        "//distribution/src/systemd",
+    ],
+)
