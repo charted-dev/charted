@@ -15,10 +15,18 @@
 
 use charted_common::VERSION;
 use charted_config::Config;
+use once_cell::sync::Lazy;
 use utoipa::openapi::{
-    external_docs::ExternalDocsBuilder, ContactBuilder, InfoBuilder, LicenseBuilder, OpenApi, OpenApiBuilder,
-    ServerBuilder,
+    external_docs::ExternalDocsBuilder,
+    security::{ApiKey, ApiKeyValue, Http, HttpAuthScheme, SecurityScheme},
+    ContactBuilder, InfoBuilder, LicenseBuilder, OpenApi, OpenApiBuilder, ServerBuilder,
 };
+
+pub static API_KEY_SCHEME: Lazy<SecurityScheme> =
+    Lazy::new(|| SecurityScheme::ApiKey(ApiKey::Header(ApiKeyValue::new("ApiKey"))));
+
+pub static BEARER_SCHEME: Lazy<SecurityScheme> = Lazy::new(|| SecurityScheme::Http(Http::new(HttpAuthScheme::Bearer)));
+pub static BASIC_SCHEME: Lazy<SecurityScheme> = Lazy::new(|| SecurityScheme::Http(Http::new(HttpAuthScheme::Basic)));
 
 /// Creates a new [`OpenAPI`] object.
 pub fn openapi() -> OpenApi {

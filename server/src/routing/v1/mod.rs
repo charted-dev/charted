@@ -43,12 +43,12 @@ pub mod organizations;
 pub mod repositories;
 pub mod users;
 
-pub fn create_router() -> Router<Server> {
+pub fn create_router(server: Server) -> Router<Server> {
     let mut router = Router::new()
         .nest("/organizations", organizations::create_router())
         .nest("/repositories", repositories::create_router())
         .nest("/apikeys", apikeys::create_router())
-        .nest("/users", users::create_router())
+        .nest("/users", users::create_router(server.clone()))
         .route("/heartbeat", get(heartbeat))
         .route("/_openapi", get(openapi))
         .route("/features", get(features))

@@ -13,17 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::{Collector, Registry};
 use prometheus_client::{
     encoding::text,
     registry::{Descriptor, LocalMetric},
     MaybeOwned,
 };
-
-use crate::{Collector, Registry};
 use std::{
     borrow::Cow,
     fmt::{Debug, Display, Write},
-    sync::{Arc, Mutex},
+    sync::{Arc, Mutex, TryLockError},
 };
 
 /// Represents an error that can occur when [`PrometheusRegistry::write_metrics`] is called.
@@ -72,6 +71,15 @@ impl From<std::fmt::Error> for WriteError {
 pub struct PrometheusRegistry {
     registry: Arc<Mutex<prometheus_client::registry::Registry>>,
     inner: Box<dyn Registry>,
+}
+
+unsafe impl Send for PrometheusRegistry {}
+unsafe impl Sync for PrometheusRegistry {}
+
+impl Debug for PrometheusRegistry {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_tuple("PrometheusRegistry").field(&self.inner).finish()
+    }
 }
 
 impl PrometheusRegistry {
@@ -123,12 +131,13 @@ impl PrometheusRegistry {
     /// a [`WriteError`] can occur. This can happen when the [`text::encode`] method
     /// fails or if the registry couldn't be unlocked.
     pub fn write_metrics<W: Write>(&self, buf: &mut W) -> Result<(), WriteError> {
-        if let Ok(prometheus) = self.registry.lock() {
-            text::encode(buf, &prometheus)?;
-            return Ok(());
+        match self.registry.try_lock() {
+            Ok(prom) => text::encode(buf, &prom).map_err(WriteError::Format),
+            Err(e) => match e {
+                TryLockError::Poisoned(_) => panic!("mutex was poisoned somewhere"),
+                _ => Err(WriteError::RegistryCannotBeUnlocked),
+            },
         }
-
-        Err(WriteError::RegistryCannotBeUnlocked)
     }
 }
 
@@ -211,7 +220,7 @@ mod tests {
         registry::{Descriptor, LocalMetric},
         MaybeOwned,
     };
-    use std::borrow::Cow;
+    use std::{any::Any, borrow::Cow};
 
     #[derive(Debug, Clone, Copy)]
     pub struct MyCollector(u64);
@@ -221,7 +230,11 @@ mod tests {
             "collector"
         }
 
-        fn collect(&self) -> Box<dyn erased_serde::Serialize> {
+        fn collect(&self) -> Box<dyn Any> {
+            Box::new(self.0)
+        }
+
+        fn collect_serialized(&self) -> Box<dyn erased_serde::Serialize> {
             Box::new(self.0)
         }
     }

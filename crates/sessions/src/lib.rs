@@ -20,12 +20,13 @@ pub use manager::*;
 pub use provider::*;
 
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Session {
     pub refresh_token: Option<String>,
     pub access_token: Option<String>,
-    pub session_id: u64,
+    pub session_id: Uuid,
     pub user_id: u64,
 }
 

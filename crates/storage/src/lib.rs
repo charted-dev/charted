@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use charted_config::StorageConfig;
 use remi_core::StorageService;
 use remi_fs::FilesystemStorageService;
 use remi_s3::S3StorageService;
@@ -24,6 +25,15 @@ type Result<T> = std::result::Result<T, std::io::Error>;
 pub enum MultiStorageService {
     Filesystem(FilesystemStorageService),
     S3(S3StorageService),
+}
+
+impl From<StorageConfig> for MultiStorageService {
+    fn from(config: StorageConfig) -> MultiStorageService {
+        match config {
+            StorageConfig::Filesystem(fs) => MultiStorageService::Filesystem(FilesystemStorageService::with_config(fs)),
+            StorageConfig::S3(s3) => MultiStorageService::S3(S3StorageService::new(s3)),
+        }
+    }
 }
 
 macro_rules! gen_methods {

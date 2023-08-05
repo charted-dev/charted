@@ -68,7 +68,19 @@ impl RedisClient {
             });
         }
 
-        if config.redis.hosts.len() == 1 {
+        // is this bad? probably
+        // will it work? probably not
+        let mut dont_use = vec![];
+        let hosts = config.redis.hosts.iter().fold(&mut dont_use, |list, curr| {
+            if list.contains(curr) {
+                return list;
+            }
+
+            list.push(curr.clone());
+            list
+        });
+
+        if hosts.len() == 1 {
             let first = config.redis.hosts.first().unwrap();
             let client =
                 Client::open(first.clone()).context(format!("used connection info [{first}] from configuration"))?;
@@ -86,10 +98,7 @@ impl RedisClient {
             });
         }
 
-        info!(
-            "received {} hosts, using sentinel as the connection type!",
-            config.redis.hosts.len()
-        );
+        info!("received {} hosts, using sentinel as the connection type!", hosts.len());
 
         let master_name = config.redis.master_name().context("unable to parse secure setting")?;
         if master_name.is_none() {
@@ -98,7 +107,7 @@ impl RedisClient {
             ));
         }
 
-        let sentinel = Sentinel::build(config.redis.hosts.clone())?;
+        let sentinel = Sentinel::build(hosts.clone())?;
         Ok(RedisClient {
             sentinel: Some(Arc::new(Mutex::new(sentinel))),
             client: None,
@@ -152,7 +161,7 @@ impl RedisClient {
             .sentinel
             .as_mut()
             .unwrap()
-            .lock()
+            .try_lock()
             .expect("unable to acquire mutex lock");
 
         Ok(sentinel.master_for(&master_name, None)?)
@@ -162,5 +171,10 @@ impl RedisClient {
     /// to bring in the `redis` dependency.
     pub fn cmd(arg: &str) -> redis::Cmd {
         redis::cmd(arg)
+    }
+
+    /// Utility to create a [`Pipeline`][redis::Pipeline].
+    pub fn pipeline() -> redis::Pipeline {
+        redis::pipe()
     }
 }

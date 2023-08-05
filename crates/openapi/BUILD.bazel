@@ -21,6 +21,7 @@ rust_project(
     deps = [
         "//crates/common:charted_common",
         "//crates/config:charted_config",
+        "@crate_index//:once_cell",
         "@crate_index//:utoipa",
     ],
 )

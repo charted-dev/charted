@@ -31,6 +31,7 @@ rust_project(
         "@crate_index//:color-eyre",
         "@crate_index//:dotenv",
         "@crate_index//:eyre",
+        "@crate_index//:num_cpus",
         "@crate_index//:promptly",
         "@crate_index//:serde_json",
         "@crate_index//:serde_yaml",

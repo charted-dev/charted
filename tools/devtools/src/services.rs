@@ -16,5 +16,28 @@
 mod emails;
 mod search_indexer;
 
+use eyre::Result;
+use std::path::PathBuf;
+
 pub use emails::*;
 pub use search_indexer::*;
+
+use crate::utils::{build_or_run, BuildCliArgs};
+
+pub trait Service {
+    /// Tuple of targets to use. The order should be:
+    ///
+    /// * release target (when `--release` is passed (and probably `--run`))
+    /// * dev target     (when `--run` is specified, but not `--release`)
+    fn targets(&self) -> (&'static str, &'static str);
+
+    /// Builds a target and returns the result of it.
+    fn build(&self, bazel: PathBuf, args: BuildCliArgs) -> Result<()> {
+        build_or_run(bazel, self.targets(), args)
+    }
+
+    /// Builds and runs a target that was from the tuple.
+    fn run(&self, bazel: PathBuf, args: BuildCliArgs) -> Result<()> {
+        build_or_run(bazel, self.targets(), BuildCliArgs { run: true, ..args })
+    }
+}

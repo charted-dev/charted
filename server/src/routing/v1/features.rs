@@ -78,6 +78,7 @@ pub fn paths() -> PathItem {
         .operation(
             PathItemType::Get,
             OperationBuilder::new()
+                .operation_id(Some("features"))
                 .description(Some("REST handler to retrieve this server's features that were enabled or disabled by the server administrators"))
                 .response("200", ResponseBuilder::new()
                     .description("Successful response.")

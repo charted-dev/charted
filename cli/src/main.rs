@@ -15,15 +15,22 @@
 
 use charted_cli::{commands::Commands, execute, Cli};
 use charted_common::{is_debug_enabled, os, COMMIT_HASH, RUSTC_VERSION, VERSION};
+use charted_config::var;
 use charted_logging::generic::GenericLayer;
 use clap::Parser;
 use color_eyre::config::HookBuilder;
 use eyre::{eyre, Result};
+use num_cpus::get as cpus;
 use std::env::{set_var, var};
+use tokio::runtime::Builder;
+use tracing::{metadata::LevelFilter, Level};
 use tracing_subscriber::prelude::*;
 
-#[tokio::main]
-async fn main() -> Result<()> {
+// When `charted server` is invoked, you can specify a `RUNTIME_WORKERS` environment
+// variable for Tokio to use a multi-threaded scheduler.
+//
+// Otherwise, this will be use Tokio's single thread schdeduler.
+fn main() -> Result<()> {
     if os::os_name() == "unknown" {
         return Err(eyre!("charted-server is not supported on any other operating systems. Windows, macOS, or Linux is only supported."));
     }
@@ -38,18 +45,47 @@ async fn main() -> Result<()> {
         set_var("RUST_BACKTRACE", "full");
     }
 
-    HookBuilder::new()
-        .issue_url("https://github.com/charted-dev/charted/issues/new")
-        .add_issue_metadata("version", format!("v{VERSION}+{COMMIT_HASH}"))
-        .add_issue_metadata("rustc", RUSTC_VERSION)
-        .install()?;
-
     let cli = Cli::parse();
-    if !matches!(cli.command, Commands::Server(_)) {
-        tracing::subscriber::set_global_default(
-            tracing_subscriber::registry().with(GenericLayer { verbose: cli.verbose }),
-        )?;
+
+    if matches!(cli.command, Commands::Server(_)) && var!("TOKIO_WORKER_THREADS").is_ok() {
+        eprintln!("WARN: Using `TOKIO_WORKER_THREADS` won't do anything. Use `CHARTED_RUNTIME_WORKERS` instead.");
+        std::env::remove_var("TOKIO_WORKER_THREADS");
     }
 
-    execute(&cli.command).await
+    let runtime = match cli.command {
+        Commands::Server(ref server) => {
+            let workers = var!("CHARTED_RUNTIME_WORKERS", to: usize, or_else: server.workers.unwrap_or(cpus()));
+            color_eyre::install()?;
+
+            Builder::new_multi_thread()
+                .worker_threads(workers)
+                .thread_name("charted-worker-pool")
+                .enable_all()
+                .build()
+        }
+
+        _ => {
+            HookBuilder::new()
+                .issue_url("https://github.com/charted-dev/charted/issues/new")
+                .add_issue_metadata("version", format!("v{VERSION}+{COMMIT_HASH}"))
+                .add_issue_metadata("rustc", RUSTC_VERSION)
+                .install()?;
+
+            tracing_subscriber::registry()
+                .with(
+                    GenericLayer { verbose: cli.verbose }.with_filter(LevelFilter::from_level(match cli.verbose {
+                        false => Level::INFO,
+                        true => Level::DEBUG,
+                    })),
+                )
+                .init();
+
+            Builder::new_current_thread()
+                .worker_threads(1)
+                .thread_name("cli-worker-pool")
+                .build()
+        }
+    }?;
+
+    runtime.block_on(async { execute(&cli.command).await })
 }

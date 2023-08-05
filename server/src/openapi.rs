@@ -48,16 +48,13 @@ use utoipa::{
     crate::routing::v1::features::FeaturesResponse,
     crate::routing::v1::main::MainResponse,
     crate::routing::v1::info::InfoResponse,
-
-    // Payloads
-    charted_database::controllers::users::CreateUserPayload
 ), responses(
     crate::routing::v1::features::FeaturesResponse,
     crate::routing::v1::main::MainResponse,
     crate::routing::v1::info::InfoResponse,
     EmptyApiResponse
 )))]
-pub(crate) struct ChartedOpenAPI;
+pub(crate) struct MainOpenAPI;
 
 macro_rules! add_paths {
     ($($path:literal: $fn:expr;)*) => {{
@@ -68,6 +65,41 @@ macro_rules! add_paths {
 macro_rules! gen_response_schema_priv {
     ($ty:ty) => {
         $crate::openapi::gen_response_schema!($ty, content: "application/json");
+    };
+
+    ($ty:ty, schema: $schema:literal) => {
+         impl<'r> ::utoipa::ToResponse<'r> for $ty {
+            fn response() -> (&'r str, ::utoipa::openapi::RefOr<::utoipa::openapi::Response>) {
+                (
+                    concat!("Api", stringify!($ty)),
+                    ::utoipa::openapi::RefOr::T(
+                        ::utoipa::openapi::ResponseBuilder::new()
+                            .description(concat!("Response object for ", stringify!($ty)).to_string())
+                            .content("application/json", ::utoipa::openapi::ContentBuilder::new()
+                                .schema(::utoipa::openapi::RefOr::T(::utoipa::openapi::Schema::Object({
+                                    ::utoipa::openapi::ObjectBuilder::new()
+                                        .property(
+                                            "success",
+                                            ::utoipa::openapi::ObjectBuilder::new()
+                                                .schema_type(::utoipa::openapi::SchemaType::Boolean)
+                                                .description(Some("Indicates whether if this response was a success or not"))
+                                                .build()
+                                        )
+                                        .required("success")
+                                        .property(
+                                            "data",
+                                            ::utoipa::openapi::Ref::from_schema_name($schema)
+                                        )
+                                        .required("data")
+                                        .build()
+                                })))
+                                .build()
+                            )
+                            .build(),
+                    ),
+                )
+            }
+        }
     };
 
     ($ty:ty, content: $content:literal) => {
@@ -108,6 +140,8 @@ macro_rules! gen_response_schema_priv {
 
 pub(crate) use gen_response_schema_priv as gen_response_schema;
 
+use crate::routing::v1::users::UsersOpenAPI;
+
 #[derive(serde::Serialize, serde::Deserialize)]
 pub(crate) struct EmptyApiResponse;
 
@@ -145,13 +179,23 @@ impl<'r> ToResponse<'r> for EmptyApiResponse {
 
 pub fn document() -> utoipa::openapi::OpenApi {
     let mut openapi = charted_openapi::openapi();
-    let charted = ChartedOpenAPI::openapi();
-    openapi.merge(charted);
+    openapi.merge(UsersOpenAPI::openapi());
+    openapi.merge(MainOpenAPI::openapi());
 
     // now, let's merge our paths
     openapi.merge(
         OpenApiBuilder::new()
             .paths(add_paths! {
+                // repositories
+
+                // organizations
+
+                // api keys
+
+                // users
+                "/users": crate::routing::v1::users::crud::get::paths();
+
+                // main
                 "/heartbeat": crate::routing::v1::heartbeat::paths();
                 "/features": crate::routing::v1::features::paths();
                 "/info": crate::routing::v1::info::paths();

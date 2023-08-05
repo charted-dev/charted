@@ -17,51 +17,29 @@ use crate::routing::create_router;
 use axum::http::Uri;
 use axum::response::IntoResponse;
 use axum::Router;
-use charted_common::{Snowflake, COMMIT_HASH, VERSION};
-use charted_config::{Config, ConfigExt, StorageConfig};
-use charted_database::controllers::users::UserDatabaseController;
+use charted_common::Snowflake;
+use charted_config::Config;
 use charted_database::controllers::DatabaseController;
-use charted_database::MIGRATIONS;
-use charted_metrics::{
-    collectors::{os::*, process::*},
-    default::*,
-    disabled::*,
-    prometheus::*,
-    Registry,
-};
+use charted_metrics::SingleRegistry;
 use charted_redis::RedisClient;
+use charted_sessions::SessionManager;
 use charted_storage::MultiStorageService;
 use charted_web::WebUI;
-use eyre::Result;
-use remi_core::StorageService;
-use remi_fs::FilesystemStorageService;
-use remi_s3::S3StorageService;
-use sentry::types::Dsn;
-use sentry::{ClientInitGuard, ClientOptions};
-use sqlx::ConnectOptions;
-use sqlx::{
-    postgres::{PgConnectOptions, PgPoolOptions},
-    PgPool,
-};
-use std::time::Duration;
-use std::{any::Any, borrow::Cow, str::FromStr, sync::Arc};
+use eyre::{Context, Result};
+use sqlx::PgPool;
+use std::{any::Any, cell::RefCell, sync::Arc};
+use tokio::{select, signal};
 
 /// A default implemention of a [`Server`].
 #[derive(Clone)]
 pub struct Server {
-    _sentry_guard: Option<Arc<ClientInitGuard>>,
-
-    // a hacky solution to beat associated types
-    //
-    // is it wrong? probably.
-    // does it work? most likely.
-    controllers: Vec<Arc<(dyn Any + Send + Sync)>>,
-    snowflake: Snowflake,
-    redis: RedisClient,
-
-    pub registry: Box<dyn Registry>,
+    pub controllers: Vec<Arc<(dyn Any + Send + Sync)>>,
+    pub snowflake: RefCell<Snowflake>,
+    pub sessions: RefCell<SessionManager>,
+    pub registry: SingleRegistry,
     pub storage: MultiStorageService,
     pub config: Config,
+    pub redis: RefCell<RedisClient>,
     pub pool: PgPool,
 }
 
@@ -69,108 +47,6 @@ unsafe impl Send for Server {}
 unsafe impl Sync for Server {}
 
 impl Server {
-    pub async fn new(config: Config) -> Result<Server> {
-        let sentry_guard = match config.sentry_dsn() {
-            Ok(Some(dsn)) => Some(Arc::new(sentry::init(ClientOptions {
-                dsn: Some(Dsn::from_str(dsn.as_str())?),
-                release: Some(Cow::Owned(format!("charted-server v{VERSION}+{COMMIT_HASH}"))),
-                debug: charted_common::is_debug_enabled(),
-                attach_stacktrace: true,
-                ..Default::default()
-            }))),
-
-            Err(e) => {
-                error!("unable to get Sentry DSN: {e}");
-                None
-            }
-
-            _ => None,
-        };
-
-        let storage = match config.storage.clone() {
-            StorageConfig::Filesystem(fs) => MultiStorageService::Filesystem(FilesystemStorageService::with_config(fs)),
-            StorageConfig::S3(s3) => MultiStorageService::S3(S3StorageService::new(s3)),
-        };
-
-        storage.init().await?;
-        info!(
-            "storage service '{}' has been initialized, now connecting to PostgreSQL",
-            storage.clone().name()
-        );
-
-        let pool = PgPoolOptions::new()
-            .max_connections(config.database.max_connections)
-            .connect_with(
-                PgConnectOptions::from_str(config.database.to_string().as_str())?
-                    .log_statements(tracing::log::LevelFilter::Trace)
-                    .log_slow_statements(tracing::log::LevelFilter::Warn, Duration::from_secs(5)),
-            )
-            .await?;
-
-        info!("initialized PostgreSQL connection!");
-
-        {
-            let pool = pool.clone();
-            let _guard = info_span!("database.migrate.run");
-
-            info!("running migrations");
-            MIGRATIONS.run(&pool).await?;
-
-            info!("done!");
-        }
-
-        info!("Connecting to Redis");
-        let redis = RedisClient::new()?;
-
-        // TODO(@auguwu): create cluster of snowflakes with 1023 nodes per
-        // server instance?
-        let snowflake = Snowflake::new(0);
-        let users = UserDatabaseController::new(pool.clone(), snowflake.clone());
-        let mut registry: Box<dyn Registry> = match (config.metrics.enabled, config.metrics.prometheus) {
-            (true, true) => {
-                let prom = new(Box::<DefaultRegistry>::default(), None);
-                let registry = prom.registry();
-                {
-                    let mut registry = registry.lock().unwrap();
-                    registry.register_collector(Box::<OperatingSystemCollector>::default());
-                    registry.register_collector(Box::<ProcessCollector>::default());
-                }
-
-                Box::new(prom)
-            }
-            (false, true) => {
-                warn!("Unable to disable the default metrics pipeline with `config.metrics.prometheus` being true! The default pipeline will be enabled.");
-
-                let prom = new(Box::<DefaultRegistry>::default(), None);
-                let registry = prom.registry();
-                {
-                    let mut registry = registry.lock().unwrap();
-                    registry.register_collector(Box::<OperatingSystemCollector>::default());
-                    registry.register_collector(Box::<ProcessCollector>::default());
-                }
-
-                Box::new(prom)
-            }
-
-            (true, false) => Box::<DefaultRegistry>::default(),
-            (false, false) => Box::<DisabledRegistry>::default(),
-        };
-
-        registry.insert(Box::<OperatingSystemCollector>::default());
-        registry.insert(Box::<ProcessCollector>::default());
-
-        Ok(Server {
-            _sentry_guard: sentry_guard,
-            controllers: vec![Arc::new(users)],
-            snowflake,
-            redis,
-            registry,
-            storage,
-            config,
-            pool,
-        })
-    }
-
     pub fn controller<D: DatabaseController + 'static>(&self) -> &D {
         self.controllers
             .iter()
@@ -178,14 +54,6 @@ impl Server {
             .expect("unable to find any db controller references with specified type")
             .downcast_ref()
             .expect("unable to downcast to &D")
-    }
-
-    pub fn snowflake(&mut self) -> &mut Snowflake {
-        &mut self.snowflake
-    }
-
-    pub fn redis(&mut self) -> &mut RedisClient {
-        &mut self.redis
     }
 
     pub async fn run(&self) -> Result<()> {
@@ -197,14 +65,17 @@ impl Server {
                 info!("web ui is enabled, all api endpoints will be mounted on /api");
                 Router::new()
                     .fallback(static_handler)
-                    .nest("/api", create_router().with_state(self.clone()))
+                    .nest("/api", create_router(self.clone()).with_state(self.clone()))
             }
 
-            false => create_router().with_state(self.clone()),
+            false => create_router(self.clone()).with_state(self.clone()),
         };
 
-        axum::Server::bind(&addr).serve(router.into_make_service()).await?;
-        Ok(())
+        axum::Server::bind(&addr)
+            .serve(router.into_make_service())
+            .with_graceful_shutdown(shutdown())
+            .await
+            .context("server failed to serve")
     }
 }
 
@@ -213,4 +84,28 @@ const INDEX_HTML: &str = "index.html";
 
 async fn static_handler(_uri: Uri) -> impl IntoResponse {
     /* TODO: this */
+}
+
+async fn shutdown() {
+    let ctrl_c = async {
+        signal::ctrl_c().await.expect("unable to install Ctrl+C handler");
+    };
+
+    #[cfg(unix)]
+    let terminate = async {
+        signal::unix::signal(signal::unix::SignalKind::terminate())
+            .expect("unable to install signal handler")
+            .recv()
+            .await;
+    };
+
+    #[cfg(not(unix))]
+    let terminate = std::future::pending::<()>();
+
+    select! {
+        _ = ctrl_c => {}
+        _ = terminate => {}
+    }
+
+    warn!("received signal, terminating API server");
 }

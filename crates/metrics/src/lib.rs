@@ -16,10 +16,12 @@
 pub mod collectors;
 mod registry;
 
-pub use registry::*;
+pub use registry::Registry as SingleRegistry;
+pub use registry::{default, disabled, prometheus};
 
 use dyn_clone::{clone_trait_object, DynClone};
 use erased_serde::Serialize;
+use std::any::Any;
 use std::fmt::Debug;
 
 /// The [`Collector`] abstraction allows you to wrap `Serialize`-impl structs
@@ -33,8 +35,11 @@ pub trait Collector: DynClone + Send + Sync {
     /// The name for this Collector.
     fn name(&self) -> &'static str;
 
-    /// Collects all the data and returns a `Serialize`-trait bound thing.
-    fn collect(&self) -> Box<dyn Serialize>;
+    /// Collects all the data and returns anything.
+    fn collect(&self) -> Box<dyn Any>;
+
+    /// Collects all the data and returns a `Serialize`-trait bound object.
+    fn collect_serialized(&self) -> Box<dyn Serialize>;
 }
 
 impl Debug for dyn Collector {
@@ -46,7 +51,7 @@ impl Debug for dyn Collector {
 clone_trait_object!(Collector);
 
 /// Represents a registry of [`Collector`]s that can be easily queried.
-pub trait Registry: DynClone {
+pub trait Registry: DynClone + Debug {
     /// Inserts a new [`Collector`] into this registry.
     fn insert(&mut self, collector: Box<dyn Collector>);
 

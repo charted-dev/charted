@@ -32,6 +32,13 @@ pub struct Server {
         help = "Prints out the loaded configuration, but doesn't run the server"
     )]
     print_config: bool,
+
+    #[arg(
+        long,
+        short = 'w',
+        help = "Specifies the amount of workers to use when spawning the Tokio runtime. You can use the `CHARTED_RUNTIME_WORKERS` environment variable to specify it also. This will default to use the amount of CPUs the host machine has."
+    )]
+    pub workers: Option<usize>,
 }
 
 #[async_trait]

@@ -56,6 +56,6 @@ impl Execute for Web {
             run: self.common.run,
         };
 
-        utils::build_or_run(bazel.clone(), ("//web:build", "//web:vite", "//web:vite"), args)
+        utils::build_or_run(bazel.clone(), ("//web:build", "//web:vite"), args)
     }
 }

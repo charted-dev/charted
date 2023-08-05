@@ -42,11 +42,7 @@ impl Execute for HelmPlugin {
 
         utils::build_or_run(
             bazel.clone(),
-            (
-                "//tools/helm-plugin:release_binary",
-                "//tools/helm-plugin:binary",
-                "//tools/helm-plugin:release_binary",
-            ),
+            ("//tools/helm-plugin:release_binary", "//tools/helm-plugin:binary"),
             args,
         )
     }

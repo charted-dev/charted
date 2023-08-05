@@ -15,6 +15,8 @@
 
 mod log;
 mod request_id;
+mod session;
 
 pub use log::*;
 pub use request_id::*;
+pub use session::*;

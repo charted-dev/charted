@@ -12,3 +12,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+use super::Service;
+
+#[derive(Debug, Clone, Copy)]
+pub struct SearchIndexer;
+
+impl Service for SearchIndexer {
+    fn targets(&self) -> (&'static str, &'static str) {
+        ("//services/search-indexer:binary", "//services/search-indexer:binary")
+    }
+}

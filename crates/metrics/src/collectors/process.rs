@@ -14,14 +14,13 @@
 // limitations under the License.
 
 use crate::{registry::prometheus::create_metric_descriptor, Collector};
-use charted_common::rust::Cast;
 use erased_serde::Serialize;
 use prometheus_client::{
     metrics::counter::ConstCounter,
     registry::{Descriptor, LocalMetric, Prefix},
     MaybeOwned,
 };
-use std::borrow::Cow;
+use std::{any::Any, borrow::Cow};
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct ProcessCollector;
@@ -36,7 +35,11 @@ impl Collector for ProcessCollector {
         "process"
     }
 
-    fn collect(&self) -> Box<dyn Serialize> {
+    fn collect(&self) -> Box<dyn Any> {
+        Box::new(ProcessMetrics { id: std::process::id() })
+    }
+
+    fn collect_serialized(&self) -> Box<dyn Serialize> {
         Box::new(ProcessMetrics { id: std::process::id() })
     }
 }
@@ -46,7 +49,7 @@ impl prometheus_client::collector::Collector for ProcessCollector {
         &'a self,
     ) -> Box<dyn Iterator<Item = (Cow<'a, Descriptor>, MaybeOwned<'a, Box<dyn LocalMetric>>)> + 'a> {
         let original_metrics = <Self as Collector>::collect(self);
-        let metrics = original_metrics.cast::<ProcessMetrics>().unwrap();
+        let metrics = original_metrics.downcast_ref::<ProcessMetrics>().unwrap();
 
         Box::new(
             [create_metric_descriptor(

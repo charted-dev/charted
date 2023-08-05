@@ -17,7 +17,7 @@ use std::any::Any;
 
 /// Generic trait to implement `as_any` to help aid using [`Any`]
 /// easier.
-pub trait AsAny: Any {
+pub trait AsAny: private::Sealed + Any {
     /// Transforms a reference of `self` into a reference of `dyn Any`.
     fn as_any(&self) -> &dyn Any;
 }
@@ -29,10 +29,18 @@ impl<T: Any> AsAny for T {
 }
 
 /// Trait to support downcasting, which you can transform
-pub trait Cast: AsAny {
+pub trait Cast: private::Sealed + AsAny {
     fn cast<T: AsAny>(&self) -> Option<&T> {
         self.as_any().downcast_ref()
     }
 }
 
 impl<T: ?Sized + AsAny> Cast for T {}
+
+mod private {
+    use super::AsAny;
+
+    pub trait Sealed {}
+
+    impl<T: ?Sized + AsAny> Sealed for T {}
+}

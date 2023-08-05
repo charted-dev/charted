@@ -68,6 +68,7 @@ pub fn paths() -> PathItem {
         .operation(
             PathItemType::Get,
             OperationBuilder::new()
+                .operation_id(Some("info"))
                 .description(Some(
                     "REST handler for getting more information about this instance that can be publically be visible.",
                 ))

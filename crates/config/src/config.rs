@@ -17,7 +17,7 @@
 
 use crate::{
     cdn::CdnConfig, make_config, var, DatabaseConfig, FromEnv, LoggingConfig, MetricsConfig, RedisConfig, SearchConfig,
-    SecureSetting, SecureSettingError, ServerConfig, StorageConfig,
+    SecureSetting, SecureSettingError, ServerConfig, SessionConfig, StorageConfig,
 };
 use charted_common::{panic_message, rand_string};
 use eyre::{eyre, Result};
@@ -83,6 +83,12 @@ make_config! {
         pub logging: LoggingConfig {
             default: LoggingConfig::default();
             env_value: LoggingConfig::from_env();
+        };
+
+        #[serde(default)]
+        pub sessions: SessionConfig {
+            default: SessionConfig::default();
+            env_value: SessionConfig::from_env();
         };
 
         #[serde(default, with = "serde_yaml::with::singleton_map")]

@@ -85,8 +85,8 @@ pub struct PatchUserPayload {
 /// Represents a [`DatabaseController`] for interacting with users.
 #[derive(Debug, Clone)]
 pub struct UserDatabaseController {
+    pub(crate) pool: PgPool,
     snowflake: Snowflake,
-    pool: PgPool,
 }
 
 impl UserDatabaseController {
@@ -97,7 +97,7 @@ impl UserDatabaseController {
 
 #[async_trait]
 impl DatabaseController for UserDatabaseController {
-    type Patched = ();
+    type Patched = PatchUserPayload;
     type Created = CreateUserPayload;
     type Entity = User;
 

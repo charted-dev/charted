@@ -60,6 +60,7 @@ pub fn paths() -> PathItem {
         .operation(
             PathItemType::Get,
             OperationBuilder::new()
+                .operation_id(Some("main"))
                 .description(Some("Generic main entrypoint to charted-server's API server"))
                 .response(
                     "200",

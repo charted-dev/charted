@@ -18,10 +18,11 @@ mod setup_logging;
 mod start_server;
 
 use self::{preinit::PreinitPhase, setup_logging::SetupLoggingPhase, start_server::StartServerPhase};
+use async_trait::async_trait;
 use charted_config::Config;
 use eyre::Result;
 use once_cell::sync::Lazy;
-use std::{fmt::Debug, future::Future, pin::Pin};
+use std::fmt::Debug;
 
 pub static PHASES: Lazy<Vec<Box<dyn BootstrapPhase + 'static>>> = Lazy::new(|| {
     vec![
@@ -38,15 +39,10 @@ pub static PHASES: Lazy<Vec<Box<dyn BootstrapPhase + 'static>>> = Lazy::new(|| {
 /// - SetupLogging
 /// - Preinit
 /// - StartServer
+#[async_trait]
 pub trait BootstrapPhase: Debug + Send + Sync {
     /// Method to actually run this bootstrap phase.
-    fn bootstrap<'l0, 'async_method>(
-        &'l0 self,
-        config: &'async_method Config,
-    ) -> Pin<Box<dyn Future<Output = Result<()>> + Send + 'async_method>>
-    where
-        'l0: 'async_method,
-        Self: 'async_method;
+    async fn bootstrap(&self, config: &Config) -> Result<()>;
 
     // We can't implement Clone into BootstrapPhase, so we will have to do this
     // "try_clone" method to do so.

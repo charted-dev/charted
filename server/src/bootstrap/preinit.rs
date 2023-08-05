@@ -14,35 +14,27 @@
 // limitations under the License.
 
 use super::BootstrapPhase;
+use async_trait::async_trait;
 use charted_common::{BUILD_DATE, COMMIT_HASH, RUSTC_VERSION, VERSION};
 use charted_config::Config;
 use chrono::DateTime;
 use eyre::Result;
-use std::{future::Future, pin::Pin};
 
 #[derive(Debug, Clone)]
 pub struct PreinitPhase;
 
+#[async_trait]
 impl BootstrapPhase for PreinitPhase {
-    fn bootstrap<'l0, 'async_method>(
-        &'l0 self,
-        _config: &'async_method Config,
-    ) -> Pin<Box<dyn Future<Output = Result<()>> + Send + 'async_method>>
-    where
-        'l0: 'async_method,
-        Self: 'async_method,
-    {
-        Box::pin(async move {
-            let date = DateTime::parse_from_rfc3339(BUILD_DATE)
-                .unwrap()
-                .format("%a, %h %d, %Y at %H:%M:%S %Z")
-                .to_string();
+    async fn bootstrap(&self, _config: &Config) -> Result<()> {
+        let date = DateTime::parse_from_rfc3339(BUILD_DATE)
+            .unwrap()
+            .format("%a, %h %d, %Y at %H:%M:%S %Z")
+            .to_string();
 
-            info!("Starting up charted-server v{VERSION}+{COMMIT_HASH} ({date})");
-            info!("~> Compiled with Rust v{RUSTC_VERSION}");
+        info!("Starting up charted-server v{VERSION}+{COMMIT_HASH} ({date})");
+        info!("Compiled with Rust v{RUSTC_VERSION}");
 
-            Ok(())
-        })
+        Ok(())
     }
 
     fn try_clone(&self) -> eyre::Result<Box<dyn BootstrapPhase>> {

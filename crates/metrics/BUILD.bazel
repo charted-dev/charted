@@ -20,9 +20,11 @@ rust_project(
     include_tests = True,
     deps = [
         "//crates/common:charted_common",
+        "//crates/config:charted_config",
         "@crate_index//:dyn-clone",
         "@crate_index//:erased-serde",
         "@crate_index//:prometheus-client",
         "@crate_index//:serde",
+        "@crate_index//:tokio",
     ],
 )

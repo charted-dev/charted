@@ -26,7 +26,7 @@ use sqlx::{Error, PgPool, Row};
 #[async_trait]
 pub trait SessionProvider: Send + Sync {
     /// Authorizes a user and returns a [`Session`] object, if it succeeded.
-    async fn authorize(&self, password: String, user: &dyn UserWithPassword) -> Result<Session>;
+    async fn authorize(&mut self, password: String, user: &dyn UserWithPassword) -> Result<Session>;
 }
 
 impl Debug for Box<dyn SessionProvider> {
@@ -44,7 +44,7 @@ impl Debug for Box<dyn SessionProvider> {
 #[async_trait]
 pub trait UserWithPassword: private::Sealed + Send + Sync {
     /// Returns the [`User`] that this trait impl is holding.
-    fn user(self) -> User;
+    fn user(&self) -> User;
 
     /// Retrieve a user's password. Can return `None` if it is not stored in the
     /// database.
@@ -53,8 +53,8 @@ pub trait UserWithPassword: private::Sealed + Send + Sync {
 
 #[async_trait]
 impl UserWithPassword for User {
-    fn user(self) -> User {
-        self
+    fn user(&self) -> User {
+        self.clone()
     }
 
     async fn password(&self, pool: PgPool, id: u64) -> Result<Option<String>> {

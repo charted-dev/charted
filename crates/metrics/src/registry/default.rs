@@ -14,10 +14,19 @@
 // limitations under the License.
 
 use crate::{Collector, Registry};
+use std::fmt::Debug;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Clone, Default)]
 pub struct DefaultRegistry {
     collectors: Vec<Box<dyn Collector>>,
+}
+
+impl Debug for DefaultRegistry {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("DefaultRegistry")
+            .field("collectors", &self.collectors.len())
+            .finish()
+    }
 }
 
 impl Registry for DefaultRegistry {

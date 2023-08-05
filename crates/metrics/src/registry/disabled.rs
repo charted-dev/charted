@@ -15,7 +15,7 @@
 
 use crate::Registry;
 
-#[derive(Clone, Default)]
+#[derive(Debug, Clone, Copy, Default)]
 pub struct DisabledRegistry;
 
 impl Registry for DisabledRegistry {

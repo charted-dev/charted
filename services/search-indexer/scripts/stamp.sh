@@ -13,6 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-echo BuiltAt $(date --iso-8601=second)
+echo BuiltAt $(date -Iseconds)
 echo GitCommit $(git rev-parse --short=8 HEAD)
 echo Version $(cat ./.charted-version)

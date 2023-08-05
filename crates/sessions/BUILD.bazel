@@ -30,5 +30,6 @@ rust_project(
         "@crate_index//:sqlx",
         "@crate_index//:tokio",
         "@crate_index//:tokio-util",
+        "@crate_index//:uuid",
     ],
 )

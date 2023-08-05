@@ -16,29 +16,32 @@
 use crate::{Session, SessionProvider, UserWithPassword};
 use charted_common::hashmap;
 use charted_redis::RedisClient;
-use eyre::{Context, Result};
+use eyre::{eyre, Context, Result};
 use std::{
     collections::HashMap,
     sync::{Arc, Mutex},
     time::Duration,
 };
 use tokio::task::JoinHandle;
+use uuid::Uuid;
 
 /// An abstraction over handling sessions.
 #[derive(Debug, Clone)]
 pub struct SessionManager {
     initialized: bool,
-    provider: Arc<Box<dyn SessionProvider>>,
-    handles: HashMap<u64, Arc<Mutex<JoinHandle<Result<()>>>>>,
+    provider: Arc<tokio::sync::Mutex<Box<dyn SessionProvider>>>,
+    handles: HashMap<Uuid, Arc<Mutex<JoinHandle<Result<()>>>>>,
     redis: RedisClient,
 }
+
+unsafe impl Send for SessionManager {}
 
 impl SessionManager {
     /// Creates a new [`SessionManager`].
     pub fn new(redis: RedisClient, provider: Box<dyn SessionProvider>) -> SessionManager {
         SessionManager {
             initialized: false,
-            provider: Arc::new(provider),
+            provider: Arc::new(tokio::sync::Mutex::new(provider)),
             handles: hashmap!(),
             redis,
         }
@@ -65,10 +68,12 @@ impl SessionManager {
             ),
         };
 
-        let mapping: HashMap<u64, String> = RedisClient::cmd("HGETALL").arg("charted:sessions").query(&mut client)?;
-        let mut handles = hashmap!();
+        let mapping: HashMap<String, String> =
+            RedisClient::cmd("HGETALL").arg("charted:sessions").query(&mut client)?;
 
+        let mut handles = hashmap!();
         for (id, payload) in mapping.into_iter() {
+            let uuid = Uuid::parse_str(id.as_str())?;
             let Ok(_) = serde_json::from_str::<Session>(&payload) else {
                 RedisClient::cmd("HDEL")
                     .arg("charted:sessions")
@@ -108,12 +113,12 @@ impl SessionManager {
 
                         RedisClient::cmd("HDEL")
                             .arg("charted:sessions")
-                            .arg(id)
+                            .arg(uuid.clone().to_string())
                             .query(&mut client)
                             .context("unable to delete session {id} from Redis")
                     });
 
-                    handles.insert(id, Arc::new(Mutex::new(handle)));
+                    handles.insert(uuid, Arc::new(Mutex::new(handle)));
                 }
             }
         }
@@ -122,6 +127,30 @@ impl SessionManager {
         self.handles = handles;
 
         Ok(())
+    }
+
+    pub fn create_task(&mut self, session_id: Uuid, duration: Duration) {
+        let mut redis = self.redis.clone();
+        self.handles.insert(
+            session_id,
+            Arc::new(Mutex::new(tokio::spawn(async move {
+                tokio::time::sleep(duration).await;
+
+                // We will need to create a connection to Redis once
+                // the task is completed since it'll be dropped after
+                // we are done initializing.
+                let mut client = redis
+                    .client()
+                    .unwrap_or(redis.master()?)
+                    .get_connection_with_timeout(Duration::from_millis(150))?;
+
+                RedisClient::cmd("HDEL")
+                    .arg("charted:sessions")
+                    .arg(session_id.to_string())
+                    .query(&mut client)
+                    .context("unable to delete session {id} from Redis")
+            }))),
+        );
     }
 
     pub fn destroy(&mut self) -> Result<usize> {
@@ -146,11 +175,41 @@ impl SessionManager {
 
         Ok(failed)
     }
+
+    pub async fn from_user(&mut self, id: u64) -> Result<Option<Session>> {
+        let mut client = self
+            .redis
+            .client()
+            .unwrap_or(self.redis.replica()?)
+            .get_async_connection()
+            .await?;
+
+        let all: HashMap<String, String> = RedisClient::cmd("HGETALL")
+            .arg("charted:sessions")
+            .query_async(&mut client)
+            .await?;
+
+        for json in all.values() {
+            let Ok(session) = serde_json::from_str::<Session>(json) else {
+                continue;
+            };
+
+            if session.user_id == id {
+                return Ok(Some(session));
+            }
+        }
+
+        Ok(None)
+    }
 }
 
 #[async_trait::async_trait]
 impl SessionProvider for SessionManager {
-    async fn authorize(&self, password: String, user: &dyn UserWithPassword) -> Result<Session> {
-        self.provider.authorize(password, user).await
+    async fn authorize(&mut self, password: String, user: &dyn UserWithPassword) -> Result<Session> {
+        if let Ok(mut provider) = self.provider.try_lock() {
+            return provider.authorize(password, user).await;
+        }
+
+        Err(eyre!("unable to authenticate"))
     }
 }

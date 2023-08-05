@@ -18,4 +18,16 @@ load("//:build/rust_project.bzl", "rust_project")
 rust_project(
     name = "helm_charts",
     include_tests = True,
+    proc_macro_deps = ["@crate_index//:async-recursion"],
+    deps = [
+        "//crates/config:charted_config",
+        "//crates/storage:charted_storage",
+        "@crate_index//:bytes",
+        "@crate_index//:eyre",
+        "@crate_index//:flate2",
+        "@crate_index//:semver",
+        "@crate_index//:serde_yaml",
+        "@crate_index//:tar",
+        "@crate_index//:tracing",
+    ],
 )

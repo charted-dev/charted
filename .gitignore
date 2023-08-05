@@ -763,4 +763,5 @@ FodyWeavers.xsd
 config.yml
 .cache/
 .data/
+docs/
 .env

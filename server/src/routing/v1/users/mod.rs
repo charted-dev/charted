@@ -13,9 +13,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::Server;
-use axum::Router;
+pub mod avatars;
+pub mod crud;
+pub mod repositories;
+pub mod sessions;
 
-pub fn create_router() -> Router<Server> {
+use crate::{openapi::gen_response_schema, Server};
+use axum::Router;
+use charted_common::models::entities::User;
+use serde::{Deserialize, Serialize};
+use utoipa::OpenApi;
+
+#[derive(Debug, Clone, OpenApi)]
+#[openapi(components(responses(UserResponse)))]
+pub struct UsersOpenAPI;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UserResponse {
+    #[serde(flatten)]
+    user: User,
+}
+
+gen_response_schema!(UserResponse, schema: "User");
+
+pub fn create_router(server: Server) -> Router<Server> {
     Router::new()
+        .merge(crud::create_router(server))
+        .nest("/avatars", avatars::create_router())
+        .nest("/sessions", sessions::create_router())
+        .nest("/repositories", repositories::create_router())
 }

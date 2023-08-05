@@ -25,7 +25,7 @@ use serde_json::Value;
 use utoipa::ToSchema;
 
 #[derive(Serialize, Deserialize, Debug, ToSchema)]
-pub struct ApiResponse<T>
+pub struct ApiResponse<T = Empty>
 where
     T: Serialize + Debug,
 {
@@ -70,6 +70,8 @@ impl<T: Serialize + Debug> Into<Response> for ApiResponse<T> {
 pub struct Error {
     code: String,
     message: String,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     details: Option<Value>,
 }
 

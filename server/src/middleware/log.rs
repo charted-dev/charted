@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use axum::{
-    http::{Method, Request, Uri, Version},
+    http::{HeaderMap, Method, Request, Uri, Version},
     middleware::Next,
     response::IntoResponse,
 };
@@ -25,6 +25,7 @@ pub struct Metadata {
     pub(crate) uri: Uri,
     pub(crate) method: Method,
     pub(crate) version: Version,
+    pub(crate) headers: HeaderMap,
 }
 
 pub async fn log<B>(metadata: Metadata, req: Request<B>, next: Next<B>) -> impl IntoResponse {

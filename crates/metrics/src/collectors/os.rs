@@ -13,16 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::borrow::Cow;
-
 use crate::{prometheus::create_metric_descriptor, Collector};
-use charted_common::rust::Cast;
 use erased_serde::Serialize;
 use prometheus_client::{
     metrics::gauge::ConstGauge,
     registry::{Descriptor, Prefix},
     MaybeOwned,
 };
+use std::{any::Any, borrow::Cow};
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct OperatingSystemCollector;
@@ -38,7 +36,14 @@ impl Collector for OperatingSystemCollector {
         "os"
     }
 
-    fn collect(&self) -> Box<dyn Serialize> {
+    fn collect(&self) -> Box<dyn Any> {
+        Box::new(OperatingSystemMetrics {
+            arch: charted_common::os::architecture(),
+            name: charted_common::os::os_name(),
+        })
+    }
+
+    fn collect_serialized(&self) -> Box<dyn Serialize> {
         Box::new(OperatingSystemMetrics {
             arch: charted_common::os::architecture(),
             name: charted_common::os::os_name(),
@@ -60,7 +65,7 @@ impl prometheus_client::collector::Collector for OperatingSystemCollector {
         // SAFETY: We know that OperatingSystemCollector::collect(self) implements
         // OperatingSystemMetrics.
         let original_metrics = <Self as Collector>::collect(self);
-        let metrics = original_metrics.cast::<OperatingSystemMetrics<'_>>().unwrap();
+        let metrics = original_metrics.downcast_ref::<OperatingSystemMetrics<'_>>().unwrap();
 
         Box::new(
             [

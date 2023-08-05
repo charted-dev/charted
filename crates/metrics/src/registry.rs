@@ -16,3 +16,96 @@
 pub mod default;
 pub mod disabled;
 pub mod prometheus;
+
+use charted_config::Config;
+
+/// Represents a registry of [`Collector`]s that can be easily queried.
+#[derive(Debug, Clone)]
+pub enum Registry {
+    Prometheus(prometheus::PrometheusRegistry),
+    Disabled(disabled::DisabledRegistry),
+    Default(default::DefaultRegistry),
+}
+
+impl Registry {
+    pub fn configure(config: Config, extra: Vec<Box<dyn crate::Collector>>) -> Registry {
+        match (config.metrics.enabled, config.metrics.prometheus) {
+            (b, true) => {
+                let mut registry = prometheus_client::registry::Registry::default();
+                registry.register_collector(Box::<crate::collectors::os::OperatingSystemCollector>::default());
+                registry.register_collector(Box::<crate::collectors::process::ProcessCollector>::default());
+
+                #[cfg(tokio_unstable)]
+                registry.register_collector(Box::<crate::collectors::tokio::TokioCollector>::default());
+
+                let mut prom = prometheus::new(
+                    match b {
+                        true => Box::<default::DefaultRegistry>::default(),
+                        false => Box::<disabled::DisabledRegistry>::default(),
+                    },
+                    Some(registry),
+                );
+
+                #[cfg(tokio_unstable)]
+                register_metrics(&mut prom, {
+                    let mut collectors: Vec<Box<dyn crate::Collector>> = vec![
+                        Box::<crate::collectors::os::OperatingSystemCollector>::default(),
+                        Box::<crate::collectors::process::ProcessCollector>::default(),
+                        Box::<crate::collectors::tokio::TokioCollector>::default(),
+                    ];
+
+                    collectors.extend(extra);
+                    collectors
+                });
+
+                #[cfg(not(tokio_unstable))]
+                register_metrics(&mut prom, {
+                    let mut collectors: Vec<Box<dyn crate::Collector>> = vec![
+                        Box::<crate::collectors::os::OperatingSystemCollector>::default(),
+                        Box::<crate::collectors::process::ProcessCollector>::default(),
+                    ];
+
+                    collectors.extend(extra);
+                    collectors
+                });
+
+                Registry::Prometheus(prom)
+            }
+
+            (true, false) => {
+                let mut registry = default::DefaultRegistry::default();
+                #[cfg(tokio_unstable)]
+                register_metrics(&mut registry, {
+                    let mut collectors: Vec<Box<dyn crate::Collector>> = vec![
+                        Box::<crate::collectors::os::OperatingSystemCollector>::default(),
+                        Box::<crate::collectors::process::ProcessCollector>::default(),
+                        Box::<crate::collectors::tokio::TokioCollector>::default(),
+                    ];
+
+                    collectors.extend(extra);
+                    collectors
+                });
+
+                #[cfg(not(tokio_unstable))]
+                register_metrics(&mut registry, {
+                    let mut collectors: Vec<Box<dyn crate::Collector>> = vec![
+                        Box::<crate::collectors::os::OperatingSystemCollector>::default(),
+                        Box::<crate::collectors::process::ProcessCollector>::default(),
+                    ];
+
+                    collectors.extend(extra);
+                    collectors
+                });
+
+                Registry::Default(registry)
+            }
+            (false, false) => Registry::Disabled(disabled::DisabledRegistry),
+        }
+    }
+}
+
+fn register_metrics(registry: &mut dyn crate::Registry, collectors: Vec<Box<dyn crate::Collector>>) {
+    for collector in collectors.clone().into_iter() {
+        registry.insert(collector);
+    }
+}

@@ -16,7 +16,7 @@
 use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::env::var;
+use std::{env::var, fmt::Display};
 use utoipa::{
     openapi::{
         schema::{ObjectBuilder, OneOfBuilder, Schema},
@@ -46,6 +46,15 @@ pub enum NameOrSnowflake {
     ///
     /// Names are validated with the following regex: `^([A-z]|-|_|\d{0,9}){0,32}`
     Name(String),
+}
+
+impl Display for NameOrSnowflake {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            NameOrSnowflake::Snowflake(id) => Display::fmt(id, f),
+            NameOrSnowflake::Name(name) => Display::fmt(name, f),
+        }
+    }
 }
 
 impl<'s> ToSchema<'s> for NameOrSnowflake {
@@ -187,15 +196,15 @@ impl Name {
     pub fn is_valid<I: AsRef<str>>(input: I) -> Result<(), &'static str> {
         let s = input.as_ref();
         if s.is_empty() {
-            return Err("was empty");
+            return Err("name was empty");
         }
 
         if s.len() > 32 {
-            return Err("exceeded over 32 characters");
+            return Err("name exceeded over 32 characters");
         }
 
         if !NAME_REGEX.is_match(s) {
-            return Err("did not match to a valid Name");
+            return Err("name did not match to a valid Name");
         }
 
         Ok(())
@@ -204,13 +213,15 @@ impl Name {
 
 pub mod helm {
     use super::DateTime;
+    use crate::hashmap;
+    use chrono::Local;
     use semver::{Version, VersionReq};
     use serde::{Deserialize, Serialize};
     use std::{collections::HashMap, str::FromStr};
     use utoipa::{
         openapi::{
-            schema::{ObjectBuilder, Schema},
-            RefOr, SchemaType,
+            schema::{AdditionalProperties, ObjectBuilder, Schema},
+            ArrayBuilder, KnownFormat, Ref, RefOr, SchemaFormat, SchemaType,
         },
         ToSchema,
     };
@@ -461,6 +472,82 @@ pub mod helm {
 
         #[serde(default)]
         pub digest: Option<String>,
+    }
+
+    /// Schema skeleton for a `index.yaml` file, that represents
+    /// a [`Chart`] index.
+    #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+    #[serde(rename_all = "camelCase")]
+    pub struct ChartIndex {
+        pub api_version: String,
+        pub generated_at: DateTime,
+        pub entries: HashMap<String, Vec<ChartIndexSpec>>,
+    }
+
+    impl Default for ChartIndex {
+        fn default() -> ChartIndex {
+            ChartIndex {
+                api_version: "v1".into(),
+                generated_at: Local::now(),
+                entries: hashmap!(),
+            }
+        }
+    }
+
+    impl<'s> ToSchema<'s> for ChartIndex {
+        fn schema() -> (&'s str, RefOr<Schema>) {
+            (
+                "ChartIndex",
+                RefOr::T(Schema::Object(
+                    ObjectBuilder::new()
+                        .description(Some(
+                            "Schema skeleton for a `index.yml` file that represents a Chart index.",
+                        ))
+                        .property(
+                            "api_version",
+                            RefOr::T(
+                                Schema::Object(
+                                    ObjectBuilder::new()
+                                        .description(Some("API version for the `index.yaml` file. Will be a constant as `v1`."))
+                                        .schema_type(SchemaType::String)
+                                        .build()
+                                )
+                            )
+                        )
+                        .required("api_version")
+                        .property(
+                            "generated_at",
+                            RefOr::T(Schema::Object(
+                                ObjectBuilder::new()
+                                    .description(Some("DateTime of when this `index.yaml` was last generated. In charted-server, this is relative on when a new chart release was last published."))
+                                    .schema_type(SchemaType::String)
+                                    .format(Some(SchemaFormat::KnownFormat(KnownFormat::DateTime)))
+                                    .build()
+                            ))
+                        )
+                        .required("generated_at")
+                        .property(
+                            "entries",
+                            RefOr::T(Schema::Object(
+                                ObjectBuilder::new()
+                                    .description(Some("List of all possible entries for this user/organization."))
+                                    .schema_type(SchemaType::Object)
+                                    .additional_properties(Some(AdditionalProperties::<Schema>::RefOr(
+                                        RefOr::T(Schema::Array(
+                                            ArrayBuilder::new()
+                                                .description(Some("Index contents of a repository"))
+                                                .unique_items(true)
+                                                .items(RefOr::Ref(Ref::from_schema_name("ChartIndexSpec")))
+                                                .build()
+                                        ))
+                                    )))
+                                    .build()
+                            ))
+                        )
+                        .build(),
+                )),
+            )
+        }
     }
 
     pub(crate) fn falsy() -> bool {

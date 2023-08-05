@@ -44,7 +44,7 @@ pub mod docker {
             let stderr = String::from_utf8(cmd.stderr).unwrap_or_else(|_| "<invalid utf8 output>".into());
 
             return Err(eyre!(
-                "command '{} {}' has failed:\n--- stdout ---\n\n{}\n\n--- stderr ---\n{}",
+                "command '{} {}' has failed:\n--- stdout ---\n{}\n\n--- stderr ---\n{}",
                 docker.display(),
                 args.join(" "),
                 stdout.trim(),
@@ -78,7 +78,7 @@ pub struct BuildCliArgs {
     pub run: bool,
 }
 
-pub fn build_or_run(bazel: PathBuf, (release, dev, build): (&str, &str, &str), args: BuildCliArgs) -> Result<()> {
+pub fn build_or_run(bazel: PathBuf, (release, dev): (&str, &str), args: BuildCliArgs) -> Result<()> {
     let mut cmd = Command::new(bazel.clone());
     cmd.args(args.bazelrc.as_slice());
 
@@ -94,7 +94,7 @@ pub fn build_or_run(bazel: PathBuf, (release, dev, build): (&str, &str, &str), a
         }
 
         _ => {
-            cmd.args(["build", build]);
+            cmd.args(["build", release]);
             true
         }
     };
@@ -133,11 +133,7 @@ pub fn build_or_run(bazel: PathBuf, (release, dev, build): (&str, &str, &str), a
 }
 
 pub fn build_or_run_cli(bazel: PathBuf, args: BuildCliArgs) -> Result<()> {
-    build_or_run(
-        bazel,
-        ("//cli:release_binary", "//cli:binary", "//cli:release_binary"),
-        args,
-    )
+    build_or_run(bazel, ("//cli:release_binary", "//cli:binary"), args)
 }
 
 fn validate(bazel: PathBuf) -> Result<PathBuf> {

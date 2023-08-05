@@ -28,6 +28,7 @@ pub fn paths() -> PathItem {
         .operation(
             PathItemType::Get,
             OperationBuilder::new()
+                .operation_id(Some("heartbeat"))
                 .description(Some("Health endpoint to use to check if the server is available to receive requests. Useful for Docker's healthcheck or Kubernetes' readiness/liveness/startup probes."))
                 .response(
                     "200",

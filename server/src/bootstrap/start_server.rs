@@ -15,31 +15,152 @@
 
 use super::BootstrapPhase;
 use crate::Server;
-use charted_config::Config;
+use charted_common::{is_debug_enabled, Snowflake, COMMIT_HASH, VERSION};
+use charted_config::{Config, ConfigExt, SessionBackend};
+use charted_database::{controllers::users::UserDatabaseController, MIGRATIONS};
+use charted_metrics::SingleRegistry;
+use charted_redis::RedisClient;
+use charted_sessions::SessionManager;
+use charted_sessions_local::LocalSessionProvider;
+use charted_storage::MultiStorageService;
 use eyre::Result;
-use std::{future::Future, pin::Pin};
+use sentry::{types::Dsn, ClientOptions};
+use sqlx::{
+    postgres::{PgConnectOptions, PgPoolOptions},
+    ConnectOptions,
+};
+use std::{
+    any::Any,
+    borrow::Cow,
+    cell::RefCell,
+    str::FromStr,
+    sync::Arc,
+    time::{Duration, Instant},
+};
 
 #[derive(Debug, Clone)]
 pub struct StartServerPhase;
 
+#[async_trait::async_trait]
 impl BootstrapPhase for StartServerPhase {
-    fn bootstrap<'l0, 'async_method>(
-        &'l0 self,
-        config: &'async_method Config,
-    ) -> Pin<Box<dyn Future<Output = Result<()>> + Send + 'async_method>>
-    where
-        'l0: 'async_method,
-        Self: 'async_method,
-    {
-        Box::pin(async move {
-            let server = Server::new(config.clone()).await?;
-            server.run().await?;
+    async fn bootstrap(&self, config: &Config) -> Result<()> {
+        let guard = if let Ok(Some(dsn)) = config.sentry_dsn() {
+            Some(sentry::init(ClientOptions {
+                attach_stacktrace: true,
+                release: Some(Cow::Owned(format!("v{VERSION}+{COMMIT_HASH}"))),
+                debug: is_debug_enabled(),
+                dsn: Some(Dsn::from_str(dsn.as_str())?),
 
-            Ok(())
-        })
+                ..Default::default()
+            }))
+        } else {
+            None
+        };
+
+        let server = ConfigureModulesPhase::configure_modules(config).await?;
+
+        info!("Server is now starting...");
+        server.run().await?;
+
+        // drop it once the server is done
+        if let Some(guard) = guard {
+            drop(guard);
+        }
+
+        Ok(())
     }
 
-    fn try_clone(&self) -> eyre::Result<Box<dyn BootstrapPhase>> {
+    fn try_clone(&self) -> Result<Box<dyn BootstrapPhase>> {
         Ok(Box::new(self.clone()))
+    }
+}
+
+#[derive(Debug, Clone)]
+struct ConfigureModulesPhase {}
+
+impl ConfigureModulesPhase {
+    pub(crate) async fn configure_modules(config: &Config) -> Result<Server> {
+        let mut now = Instant::now();
+        info!("Connecting to PostgreSQL...");
+
+        let pool = PgPoolOptions::new()
+            .max_connections(config.database.max_connections)
+            .connect_with(
+                PgConnectOptions::from_str(config.database.to_string().as_str())?
+                    .log_statements(tracing::log::LevelFilter::Trace)
+                    .log_slow_statements(tracing::log::LevelFilter::Warn, Duration::from_secs(5)),
+            )
+            .await?;
+
+        info!(
+            took = format!("{:?}", Instant::now().duration_since(now)),
+            "Connected to PostgreSQL successfully"
+        );
+
+        now = Instant::now();
+        {
+            let pool = pool.clone();
+            let guard = info_span!("database.migrate.run");
+            let _entered = guard.enter();
+
+            info!("Running database migrations...");
+            MIGRATIONS.run(&pool).await?;
+
+            info!(
+                took = format!("{:?}", Instant::now().duration_since(now)),
+                "Ran all database migrations!"
+            );
+        }
+
+        now = Instant::now();
+        info!("Connecting to Redis...");
+        let redis = RedisClient::new()?;
+
+        info!(
+            took = format!("{:?}", Instant::now().duration_since(now)),
+            "Connected to Redis successfully, now initializing session manager"
+        );
+
+        now = Instant::now();
+        let mut sessions = SessionManager::new(
+            redis.clone(),
+            match config.sessions.backend.clone() {
+                SessionBackend::Local => Box::new(LocalSessionProvider::new(redis.clone(), pool.clone())?),
+                backend => {
+                    warn!("Backend {backend:?} is not supported at this time! Using local as a default");
+                    Box::new(LocalSessionProvider::new(redis.clone(), pool.clone())?)
+                }
+            },
+        );
+
+        sessions.init()?;
+
+        info!(
+            took = format!("{:?}", Instant::now().duration_since(now)),
+            "Initialized session manager and all remaining sessions, now configuring misc. dependencies..."
+        );
+
+        now = Instant::now();
+        let snowflake = Snowflake::new(0);
+        let registry = SingleRegistry::configure(config.clone(), vec![]);
+        let controllers: Vec<Arc<dyn Any + Send + Sync>> =
+            vec![Arc::new(UserDatabaseController::new(pool.clone(), snowflake.clone()))];
+
+        let storage = MultiStorageService::from(config.storage.clone());
+        info!(
+            took = format!("{:?}", Instant::now().duration_since(now)),
+            "Initialized all misc dependencies!"
+        );
+
+        Ok(Server {
+            controllers,
+            snowflake: RefCell::new(snowflake),
+            sessions: RefCell::new(sessions),
+            registry,
+            storage,
+            config: config.clone(),
+            redis: RefCell::new(redis),
+            pool,
+        })
     }
 }

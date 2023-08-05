@@ -14,47 +14,39 @@
 // limitations under the License.
 
 use crate::{
-    models::res::{err, ApiResponse, Empty},
+    models::res::{err, ApiResponse},
     Server,
 };
-use axum::{extract::State, http::StatusCode, response::IntoResponse};
-use charted_common::rust::Cast;
-use charted_metrics::prometheus::PrometheusRegistry;
+use axum::{
+    extract::State,
+    http::{header, StatusCode},
+    response::IntoResponse,
+};
+use charted_metrics::SingleRegistry;
 use serde_json::json;
 
-pub async fn metrics(State(server): State<Server>) -> Result<impl IntoResponse, ApiResponse<Empty>> {
-    let registry = server.registry.clone();
-    match registry.cast::<PrometheusRegistry>() {
-        Some(registry) => {
-            let prom_registry = registry.registry();
-            let response = match prom_registry.lock() {
-                Ok(_guard) => {
-                    let mut buf = String::new();
-                    registry.write_metrics(&mut buf).map_err(|e| {
-                        sentry::capture_error(&e);
-                        error!("unable to get prometheus metrics: {e}");
+pub async fn metrics(State(server): State<Server>) -> Result<impl IntoResponse, ApiResponse> {
+    match server.registry {
+        SingleRegistry::Prometheus(registry) => {
+            let mut buf = String::new();
+            registry.write_metrics(&mut buf).map_err(|e| {
+                sentry::capture_error(&e);
+                error!("unable to collect prometheus metrics: {e}");
 
-                        err(
-                            StatusCode::UNPROCESSABLE_ENTITY,
-                            ("UNABLE_TO_PROCESS", "Unable to process Prometheus registry metrics.").into(),
-                        )
-                    })?;
+                err(
+                    StatusCode::UNPROCESSABLE_ENTITY,
+                    ("UNABLE_TO_PROCESS", "Unable to process Prometheus registry metrics").into(),
+                )
+            })?;
 
-                    Ok((StatusCode::OK, buf).into_response())
-                }
-                Err(_) => Err(err(
-                    StatusCode::SERVICE_UNAVAILABLE,
-                    (
-                        "UNABLE_TO_PROCESS",
-                        "Unable to process this request. Try again later! :(",
-                    )
-                        .into(),
-                )),
-            };
-
-            response
+            Ok((
+                StatusCode::OK,
+                [(header::CONTENT_TYPE, "text/plain; version=0.0.4")],
+                buf,
+            )
+                .into_response())
         }
-        None => Ok((
+        _ => Ok((
             StatusCode::NOT_FOUND,
             err(
                 StatusCode::NOT_FOUND,

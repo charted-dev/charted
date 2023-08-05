@@ -16,6 +16,7 @@
 use sqlx::{migrate, migrate::Migrator};
 
 pub mod controllers;
+pub mod extensions;
 
 /// A static [`Migrator`] instance for migrations that are embedded
 /// in this crate.

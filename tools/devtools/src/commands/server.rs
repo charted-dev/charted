@@ -13,7 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::utils::{self, BuildCliArgs};
+use crate::{
+    args::{CommonBazelArgs, CommonBuildRunArgs},
+    utils::{self, BuildCliArgs},
+};
 use charted_common::cli::Execute;
 use eyre::Result;
 use std::{ffi::OsString, path::PathBuf};
@@ -29,23 +32,16 @@ pub struct Server {
     #[arg(short = 'c', long, env = "CHARTED_CONFIG_FILE")]
     config: Option<PathBuf>,
 
-    /// Whether if the release binary should be built instead of the development binary.
-    #[arg(long)]
-    release: bool,
+    #[command(flatten)]
+    bazel: CommonBazelArgs,
 
-    /// List of `.bazelrc` files to include. If `/dev/null` is passed, Bazel will
-    /// skip looking for other .bazelrc files.
-    #[arg(long)]
-    bazelrc: Vec<PathBuf>,
-
-    /// Location to a `bazel` binary
-    #[arg(long)]
-    bazel: Option<PathBuf>,
+    #[command(flatten)]
+    common: CommonBuildRunArgs,
 }
 
 impl Execute for Server {
     fn execute(&self) -> Result<()> {
-        let bazel = utils::find_bazel(self.bazel.clone())?;
+        let bazel = utils::find_bazel(self.bazel.bazel.clone())?;
         let mut args = vec![OsString::from("server")];
         match self.config.clone() {
             Some(path) => {
@@ -78,9 +74,10 @@ impl Execute for Server {
             args.push(OsString::from("--print-config"));
         }
 
+        args.extend(self.common.args.clone());
         let args = BuildCliArgs {
-            release: self.release,
-            bazelrc: self.bazelrc.clone(),
+            release: self.common.release,
+            bazelrc: self.bazel.bazelrc.clone(),
             args,
             run: true,
         };

@@ -26,7 +26,7 @@ use std::{
 /// Represents a [`Duration`][std::time::Duration] that can be used with
 /// serde's Serializer and Deserializer traits.
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
-pub struct Duration(std::time::Duration);
+pub struct Duration(pub std::time::Duration);
 
 impl Debug for Duration {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
