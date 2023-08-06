@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use axum::{
-    http::{HeaderMap, Method, Request, Uri, Version},
+    http::{header::USER_AGENT, HeaderMap, Method, Request, Uri, Version},
     middleware::Next,
     response::IntoResponse,
 };
@@ -41,15 +41,20 @@ pub async fn log<B>(metadata: Metadata, req: Request<B>, next: Next<B>) -> impl 
         _ => "http/???",
     };
 
+    let ua = metadata
+        .headers
+        .get(USER_AGENT)
+        .map(|f| String::from_utf8_lossy(f.as_bytes()).to_string());
+
     let http_span = info_span!(
         "http.request",
+        req.ua = ua,
         http.uri = uri,
         http.method = method,
         http.version = version
     );
 
     let _guard = http_span.enter();
-
     if !uri.contains("/heartbeat") {
         info!(
             http.uri = uri,
@@ -64,7 +69,6 @@ pub async fn log<B>(metadata: Metadata, req: Request<B>, next: Next<B>) -> impl 
 
     if !uri.contains("/heartbeat") {
         let status = res.status().as_u16();
-
         info!(
             http.uri = uri,
             http.method = method,

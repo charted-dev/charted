@@ -27,15 +27,15 @@ use charted_storage::MultiStorageService;
 use charted_web::WebUI;
 use eyre::{Context, Result};
 use sqlx::PgPool;
-use std::{any::Any, cell::RefCell, sync::Arc};
-use tokio::{select, signal};
+use std::{any::Any, cell::RefCell, fmt::Debug, sync::Arc};
+use tokio::{select, signal, sync::Mutex};
 
 /// A default implemention of a [`Server`].
 #[derive(Clone)]
 pub struct Server {
     pub controllers: Vec<Arc<(dyn Any + Send + Sync)>>,
     pub snowflake: RefCell<Snowflake>,
-    pub sessions: RefCell<SessionManager>,
+    pub sessions: Arc<Mutex<SessionManager>>,
     pub registry: SingleRegistry,
     pub storage: MultiStorageService,
     pub config: Config,
@@ -45,6 +45,11 @@ pub struct Server {
 
 unsafe impl Send for Server {}
 unsafe impl Sync for Server {}
+impl Debug for Server {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Server").finish()
+    }
+}
 
 impl Server {
     pub fn controller<D: DatabaseController + 'static>(&self) -> &D {

@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
 # Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
 #
@@ -15,5 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Wrapper for publishing `charted-sdk`, `charted-types`, and `charted-common`
-# crates as charted-sdk and charted-types depends on charted-common!
+[package]
+name = "charted-emails-client"
+description = "🐻‍❄️📦 gRPC client to connect to charted-emails"
+version = "0.0.0-devel.0"
+edition = "2021"
+homepage = "https://charts.noelware.org"
+authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]

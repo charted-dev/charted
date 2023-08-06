@@ -16,8 +16,11 @@
 use crate::Server;
 use axum::{routing, Router};
 
-pub fn create_router(_server: Server) -> Router<Server> {
-    Router::<Server, _>::new().route("/:idOrName", routing::get(get::user))
+pub fn create_router() -> Router<Server> {
+    Router::new()
+        .route("/", routing::put(|| async {}).patch(|| async {}).delete(|| async {}))
+        .route("/@me", routing::get(get::me::route))
+        .route("/:idOrName", routing::get(get::user))
 }
 
 pub mod get {
@@ -79,5 +82,16 @@ pub mod get {
                         ),
                 ),
         )
+    }
+
+    pub mod me {
+        use axum::response::IntoResponse;
+        use utoipa::openapi::{path::OperationBuilder, PathItem, PathItemType};
+
+        pub async fn route() -> impl IntoResponse {}
+
+        pub fn paths() -> PathItem {
+            PathItem::new(PathItemType::Get, OperationBuilder::new())
+        }
     }
 }

@@ -13,11 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::{
-    fmt::Debug,
-    time::{Duration, Instant},
-};
-
 use argon2::{
     password_hash::{rand_core::OsRng, SaltString},
     Algorithm, Argon2, Params, PasswordHash, PasswordHasher, PasswordVerifier, Version,
@@ -31,6 +26,10 @@ use eyre::{eyre, Result};
 use jsonwebtoken::{encode, EncodingKey, Header};
 use once_cell::sync::Lazy;
 use sqlx::PgPool;
+use std::{
+    fmt::Debug,
+    time::{Duration, Instant},
+};
 use tracing::info_span;
 use uuid::Uuid;
 

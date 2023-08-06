@@ -63,13 +63,11 @@ pub fn create_router(server: Server) -> Router<Server> {
                     Method::DELETE,
                 ])
                 .allow_origin(tower_http::cors::Any),
-        );
-
-    Router::new()
-        .merge(create_router_internal(server))
-        .layer(stack)
-        .layer(axum::middleware::from_fn(crate::middleware::request_id))
+        )
         .layer(axum::middleware::from_fn(crate::middleware::log))
+        .layer(axum::middleware::from_fn(crate::middleware::request_id));
+
+    Router::new().merge(create_router_internal(server)).layer(stack)
 }
 
 fn catch_panic(error: Box<dyn Any + Send + 'static>) -> Response<Body> {

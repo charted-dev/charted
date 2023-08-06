@@ -20,6 +20,7 @@ members = [
     "crates/common",
     "crates/config",
     "crates/database",
+    "crates/emails",
     "crates/helm-charts",
     "crates/logging",
     "crates/metrics",

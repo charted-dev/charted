@@ -18,4 +18,14 @@ load("//:build/rust_project.bzl", "rust_project")
 rust_project(
     name = "search_elasticsearch",
     include_tests = True,
+    proc_macro_deps = ["@crate_index//:async-trait"],
+    deps = [
+        "//crates/common:charted_common",
+        "//crates/config:charted_config",
+        "//crates/search:charted_search",
+        "@crate_index//:elasticsearch",
+        "@crate_index//:serde_json",
+        "@crate_index//:tokio",
+        "@crate_index//:tracing",
+    ],
 )

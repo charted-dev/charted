@@ -90,7 +90,7 @@ where
 
                     spans.push(json!({
                         "target": span.metadata().target(),
-                        "level": format!("{:?}", span.metadata().level()),
+                        "level": metadata.level().as_str().to_lowercase(),
                         "name": span.metadata().name(),
                         "fields": data,
                         "meta": json!({
@@ -140,8 +140,7 @@ where
         } else {
             let mut stdout = io::stdout();
             let time = GRAY.paint(format!("{}", Local::now().format("[%B %d, %G - %H:%M:%S %p]")));
-            let thread_name_color =
-                Colour::RGB(255, 105, 189).paint(format!("{:>20}", thread.name().unwrap_or("main")));
+            let thread_name_color = Colour::RGB(255, 105, 189).paint(format!("{:>7}", thread.name().unwrap_or("main")));
 
             let target =
                 Colour::RGB(120, 231, 255).paint(format!("{:<40}", metadata.module_path().unwrap_or("unknown")));

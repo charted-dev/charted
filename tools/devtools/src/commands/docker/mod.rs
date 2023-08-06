@@ -22,6 +22,7 @@ use eyre::Result;
 use up::*;
 
 #[derive(Debug, Clone, clap::Subcommand)]
+#[clap(about = "Utilities for starting or tearing down the development Docker compose project")]
 pub enum Docker {
     Down(Down),
     Up(Up),

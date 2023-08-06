@@ -12,3 +12,22 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+mod version;
+
+use charted_common::cli::{AsyncExecute, Execute};
+use eyre::Result;
+
+#[derive(Debug, Clone, clap::Subcommand)]
+pub enum Commands {
+    Version(version::Version),
+}
+
+#[async_trait]
+impl AsyncExecute for Commands {
+    async fn execute(&self) -> Result<()> {
+        match self {
+            Commands::Version(version) => version.execute(),
+        }
+    }
+}

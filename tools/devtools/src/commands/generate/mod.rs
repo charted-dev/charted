@@ -21,6 +21,7 @@ use charted_common::cli::Execute;
 use eyre::Result;
 
 #[derive(Debug, Clone, clap::Subcommand)]
+#[clap(about = "Utilities for code-generation")]
 pub enum Generate {
     RustModule(RustModule),
 }

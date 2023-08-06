@@ -23,6 +23,7 @@ use std::{
     time::Duration,
 };
 use tokio::task::JoinHandle;
+use tracing::{debug, error, info, info_span, warn};
 use uuid::Uuid;
 
 /// An abstraction over handling sessions.
@@ -35,6 +36,7 @@ pub struct SessionManager {
 }
 
 unsafe impl Send for SessionManager {}
+unsafe impl Sync for SessionManager {}
 
 impl SessionManager {
     /// Creates a new [`SessionManager`].
@@ -50,6 +52,7 @@ impl SessionManager {
     /// Initializes this [`SessionManager`].
     pub fn init(&mut self) -> Result<()> {
         if self.initialized {
+            warn!("SessionManager::init has been called more than once");
             return Ok(());
         }
 
@@ -71,10 +74,17 @@ impl SessionManager {
         let mapping: HashMap<String, String> =
             RedisClient::cmd("HGETALL").arg("charted:sessions").query(&mut client)?;
 
+        info!(sessions = mapping.len(), "processing all sessions from Redis");
         let mut handles = hashmap!();
+
         for (id, payload) in mapping.into_iter() {
             let uuid = Uuid::parse_str(id.as_str())?;
-            let Ok(_) = serde_json::from_str::<Session>(&payload) else {
+            let Ok(session) = serde_json::from_str::<Session>(&payload) else {
+                error!(
+                    session.id = uuid.to_string(),
+                    "unable to process session! deleting session..."
+                );
+
                 RedisClient::cmd("HDEL")
                     .arg("charted:sessions")
                     .arg(id)
@@ -83,13 +93,28 @@ impl SessionManager {
                 continue;
             };
 
+            let span = info_span!(
+                "charted.sessions.process",
+                session.user = session.user_id,
+                session.id = uuid.to_string()
+            );
+
+            let _guard = span.enter();
             let ttl: i32 = RedisClient::cmd("TTL")
                 .arg(format!("charted:sessions:{id}"))
                 .query(&mut client)?;
 
+            debug!(
+                "session {uuid} {}",
+                match ttl {
+                    -2 => "is invalid, deleting session",
+                    -1 => "has expired!",
+                    _ => "has {ttl} seconds",
+                }
+            );
+
             match ttl {
-                -2 => { /* do nothing */ }
-                -1 => {
+                -2 | -1 => {
                     RedisClient::cmd("HDEL")
                         .arg("charted:sessions")
                         .arg(id)
@@ -118,6 +143,12 @@ impl SessionManager {
                             .context("unable to delete session {id} from Redis")
                     });
 
+                    debug!(
+                        session.id = uuid.to_string(),
+                        session.user = session.user_id,
+                        "tokio task has been spawned"
+                    );
+
                     handles.insert(uuid, Arc::new(Mutex::new(handle)));
                 }
             }
@@ -130,6 +161,11 @@ impl SessionManager {
     }
 
     pub fn create_task(&mut self, session_id: Uuid, duration: Duration) {
+        debug!(
+            session.id = session_id.to_string(),
+            "spawning task for session with a duration of {:?}", duration
+        );
+
         let mut redis = self.redis.clone();
         self.handles.insert(
             session_id,
@@ -154,8 +190,10 @@ impl SessionManager {
     }
 
     pub fn destroy(&mut self) -> Result<usize> {
+        warn!("destroying all sessions");
+
         let mut failed = 0usize;
-        for handle in self.handles.values() {
+        for (session, handle) in self.handles.clone().into_iter() {
             match handle.try_lock() {
                 Ok(handle) => {
                     handle.abort();
@@ -168,11 +206,17 @@ impl SessionManager {
                 }
 
                 Err(_) => {
+                    error!(
+                        session.id = session.to_string(),
+                        "unable to abort task, things might go sour real quick..."
+                    );
+
                     failed += 1;
                 }
             }
         }
 
+        warn!(amount = failed, "received failed attempts");
         Ok(failed)
     }
 

@@ -112,14 +112,22 @@ pub fn build_or_run(bazel: PathBuf, (release, dev): (&str, &str), args: BuildCli
     let cmd_args = cmd.get_args().filter_map(|f| f.to_str()).join(" ");
     info!("$ {} {}", bazel.display(), cmd_args);
 
-    let mut child = cmd.spawn()?;
-    child.wait()?;
+    let result = if args.release {
+        cmd.output()?.status
+    } else {
+        cmd.spawn()?.wait()?
+    };
+
+    // exit immediately if the process failed
+    if !result.success() {
+        exit(result.code().unwrap_or(1));
+    }
 
     if is_build {
         info!("--release was passed in but not --run, printing output location in stderr");
         let cquery = Command::new(bazel.clone())
             .args(args.bazelrc.clone())
-            .args(["cquery", "//tools/devtools:release_binary", "--output=files"])
+            .args(["cquery", release, "--output=files"])
             .stdin(Stdio::null())
             .output()?;
 
@@ -188,6 +196,6 @@ fn validate(bazel: PathBuf) -> Result<PathBuf> {
         exit(1);
     };
 
-    info!("using product {product}, version {}", version.trim());
+    debug!("using product {product}, version {}", version.trim());
     Ok(bazel)
 }

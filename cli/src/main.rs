@@ -26,7 +26,7 @@ use tokio::runtime::Builder;
 use tracing::{metadata::LevelFilter, Level};
 use tracing_subscriber::prelude::*;
 
-// When `charted server` is invoked, you can specify a `RUNTIME_WORKERS` environment
+// When `charted server` is invoked, you can specify a `CHARTED_RUNTIME_WORKERS` environment
 // variable for Tokio to use a multi-threaded scheduler.
 //
 // Otherwise, this will be use Tokio's single thread schdeduler.

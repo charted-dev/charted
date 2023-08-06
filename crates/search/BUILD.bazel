@@ -17,5 +17,6 @@ load("//:build/rust_project.bzl", "rust_project")
 
 rust_project(
     name = "search",
-    include_tests = True,
+    proc_macro_deps = ["@crate_index//:async-trait"],
+    deps = ["//crates/common:charted_common"],
 )

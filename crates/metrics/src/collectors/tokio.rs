@@ -20,6 +20,8 @@ use prometheus_client::{
     MaybeOwned,
 };
 use std::{any::Any, borrow::Cow, collections::HashMap};
+
+#[cfg(tokio_unstable)]
 use tokio::runtime::Handle;
 
 #[derive(Debug, Clone, Copy, Default)]

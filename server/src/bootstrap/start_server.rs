@@ -37,6 +37,7 @@ use std::{
     sync::Arc,
     time::{Duration, Instant},
 };
+use tokio::sync::Mutex;
 
 #[derive(Debug, Clone)]
 pub struct StartServerPhase;
@@ -155,7 +156,7 @@ impl ConfigureModulesPhase {
         Ok(Server {
             controllers,
             snowflake: RefCell::new(snowflake),
-            sessions: RefCell::new(sessions),
+            sessions: Arc::new(Mutex::new(sessions)),
             registry,
             storage,
             config: config.clone(),

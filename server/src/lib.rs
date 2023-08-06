@@ -20,6 +20,7 @@ mod bootstrap;
 mod server;
 mod version;
 
+pub(crate) mod extract;
 pub(crate) mod middleware;
 pub(crate) mod models;
 pub mod openapi;

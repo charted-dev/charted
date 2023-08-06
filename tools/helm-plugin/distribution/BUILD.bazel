@@ -12,3 +12,33 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+load("@rules_pkg//pkg:mappings.bzl", "pkg_files")
+load("@rules_pkg//pkg:zip.bzl", "pkg_zip")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+
+pkg_files(
+    name = "binary",
+    srcs = ["//tools/helm-plugin:release_binary"],
+    prefix = "bin",
+    renames = {
+        "//tools/helm-plugin:release_binary": "charted-helm-plugin",
+    },
+)
+
+pkg_tar(
+    name = "tarball",
+    srcs = [
+        "//tools/helm-plugin:plugin.yaml",
+        "//tools/helm-plugin/distribution:binary",
+    ],
+    extension = "tgz",
+)
+
+pkg_zip(
+    name = "zip",
+    srcs = [
+        "//tools/helm-plugin:plugin.yaml",
+        "//tools/helm-plugin/distribution:binary",
+    ],
+)
