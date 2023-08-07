@@ -13,15 +13,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#![allow(dead_code)]
-
-use crate::models::res::err;
+use crate::{models::res::err, Server};
+use argon2::{PasswordHash, PasswordVerifier};
+use async_trait::async_trait;
 use axum::{
-    http::StatusCode,
+    extract::{rejection::TypedHeaderRejectionReason, FromRequestParts},
+    headers::Header,
+    http::{header::AUTHORIZATION, request::Parts, HeaderName, HeaderValue, StatusCode},
     response::{IntoResponse, Response},
+    TypedHeader,
 };
-use charted_common::models::entities::User;
-use std::fmt::{Debug, Display};
+use charted_common::models::{entities::User, NameOrSnowflake};
+use charted_config::ConfigExt;
+use charted_database::{
+    controllers::{users::UserDatabaseController, DatabaseController},
+    extensions::snowflake::SnowflakeExt,
+};
+use charted_sessions_local::{LocalSessionProvider, ARGON2};
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
+use std::{
+    collections::HashMap,
+    fmt::{Debug, Display},
+};
 
 #[derive(Clone)]
 pub enum SessionError {
@@ -133,22 +146,93 @@ pub struct Session {
     pub user: User,
 }
 
-/*
+/// Wrapper over [`axum::headers::Authorization`] that doesn't know
+/// which type of authentication to use.
+///
+/// This was implemented since charted-server supports more than 3 authentication
+/// types, and http's Authorization struct is not helpful to us.
+#[derive(Clone)]
+pub struct Authorization(HeaderValue);
+
+impl Authorization {
+    pub fn to_string(&self) -> Result<String, Response> {
+        let inner = self.0.clone();
+        inner.to_str().map(|s| s.to_string()).map_err(|e| {
+            error!(%e, "received invalid utf-8 characters when trying to parse `Authorization` header");
+            sentry::capture_error(&e);
+
+            SessionError::InvalidUtf8.into_response()
+        })
+    }
+
+    pub fn values(&self) -> Result<(String, String), Response> {
+        let value = self.to_string()?;
+        match value.split_once(' ') {
+            Some((_, token)) if token.contains(' ') => {
+                return Err(SessionError::InvalidParts(
+                    "received more than once space, needs to be one space (i.e: [Bearer|Basic|ApiKey] 'token')",
+                )
+                .into_response())
+            }
+
+            Some((ty, token)) => match ty.to_lowercase().as_str() {
+                "bearer" | "basic" | "apikey" => Ok((ty.to_string(), token.to_string())),
+                _ => {
+                    return Err(SessionError::InvalidParts(
+                        "received invalid header type, expected 'Basic', 'Bearer', or 'ApiKey'",
+                    )
+                    .into_response())
+                }
+            },
+
+            None => return Err(SessionError::InvalidParts("missing authorization type").into_response()),
+        }
+    }
+}
+
+impl Header for Authorization {
+    fn name() -> &'static HeaderName {
+        &AUTHORIZATION
+    }
+
+    fn decode<'i, I: Iterator<Item = &'i HeaderValue>>(values: &mut I) -> Result<Self, axum::headers::Error> {
+        values
+            .next()
+            .map(|val| Authorization(val.clone()))
+            .ok_or_else(axum::headers::Error::invalid)
+    }
+
+    fn encode<E: Extend<HeaderValue>>(&self, values: &mut E) {
+        values.extend(std::iter::once(self.0.clone()));
+    }
+}
+
 #[async_trait]
 impl FromRequestParts<Server> for Session {
     type Rejection = Response;
 
     async fn from_request_parts(parts: &mut Parts, server: &Server) -> Result<Self, Self::Rejection> {
-        let auth = get_auth(&parts.headers).map_err(|e| e.into_response())?;
-        // let auth = auth
-        //     .ok_or_else(|| SessionError::MissingAuthorizationHeader.into_response())?
-        //     .to_str()
-        //     .map_err(|e| {
-        //         error!(%e, "received invalid utf-8 characters when trying to parse `Authorization` header");
-        //         sentry::capture_error(&e);
+        let auth = TypedHeader::<Authorization>::from_request_parts(parts, &server)
+            .await
+            .map_err(|e| match e.reason() {
+                TypedHeaderRejectionReason::Missing => SessionError::MissingAuthorizationHeader.into_response(),
+                TypedHeaderRejectionReason::Error(e) => {
+                    error!(%e, "unable to decode `Authorization` header");
+                    sentry::capture_error(&e);
 
-        //         SessionError::InvalidUtf8.into_response()
-        //     })?;
+                    err(
+                        StatusCode::NOT_ACCEPTABLE,
+                        ("INVALID_HTTP_HEADER", "Received invalid `Authorization` header.").into(),
+                    )
+                    .into_response()
+                }
+
+                _ => unreachable!(),
+            })?;
+
+        let (ty, token) = auth.0.values()?;
+        let ty = ty.as_str();
+        let token = token.clone();
 
         let mut sessions = server.sessions.lock().await;
         let config = server.config.clone();
@@ -162,30 +246,11 @@ impl FromRequestParts<Server> for Session {
         })?;
 
         let users = server.controller::<UserDatabaseController>();
-        let (ty, token) = match auth.split_once(' ') {
-            Some((_, token)) if token.contains(' ') => {
-                return Err(SessionError::InvalidParts(
-                    "received more than once space, needs to be one space (i.e: [Bearer|Basic|ApiKey] 'token')",
-                )
-                .into_response())
-            }
-            Some((ty, token)) => match ty.to_lowercase().as_str() {
-                "bearer" | "basic" | "apikey" => (ty, token),
-                _ => {
-                    return Err(SessionError::InvalidParts(
-                        "received invalid header type, expected 'Basic', 'Bearer', or 'ApiKey'",
-                    )
-                    .into_response())
-                }
-            },
-            None => return Err(SessionError::InvalidParts("missing authorization type").into_response()),
-        };
-
         match ty {
             "ApiKey" => Err(SessionError::UnknownSession.into_response()),
             "Bearer" => {
                 let decoded = decode::<HashMap<String, String>>(
-                    token,
+                    token.as_str(),
                     &DecodingKey::from_secret(jwt_secret_key.as_ref()),
                     &Validation::new(Algorithm::HS512),
                 )
@@ -283,8 +348,7 @@ impl FromRequestParts<Server> for Session {
                     Err(_) => return Err(SessionError::InvalidPassword.into_response()),
                 }
             }
-            _ => Err(SessionError::UnknownAuthType(ty).into_response()),
+            ty => Err(SessionError::UnknownAuthType(ty).into_response()),
         }
     }
 }
-*/

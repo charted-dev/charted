@@ -1044,6 +1044,7 @@ dependencies = [
  "clap",
  "clap_complete",
  "color-eyre",
+ "dirs",
  "dotenv",
  "eyre",
  "reqwest",

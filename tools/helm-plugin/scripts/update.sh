@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
 # Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
 #
@@ -13,13 +15,41 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: charted
-version: 0.1.0-beta
-description: 🐻‍❄️🌺 Helm plugin to help you push your Helm charts into charted-server easily!~
-command: "$HELM_PLUGIN_DIR/bin/charted-helm-plugin"
-useTunnel: false
-downloaders:
-- command: bin/charted-helm-plugin repo download
-  protocols: [charted]
-hooks:
-  update: "cd $HELM_PLUGIN_DIR; ./scripts/update.sh"
+charted::utils::fatal() {
+    echo "===> FATAL: $@"
+    exit 1
+}
+
+charted::utils::log() {
+    echo "===> $@"
+}
+
+charted::download::url() {
+    # get arch
+    local arch=""
+    local os=""
+
+    case $(uname -a) in
+        x86_64|amd64)
+            arch="amd64"
+            ;;
+        arm64|aarch64)
+            arch="arm64"
+            ;;
+        *)
+            charted::utils::fatal "unable to detect architecture from \`uname -a\`."
+            ;;
+    esac
+
+    case $(uname) in
+        Darwin)
+            os="darwin"
+            ;;
+        Linux)
+            os="linux"
+            ;;
+        *)
+            os="windows"
+            ;;
+    esac
+}

@@ -17,10 +17,9 @@ use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, ops::Deref, sync::Arc};
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-#[serde(rename = "lowercase")]
+#[serde(rename_all = "camelCase")]
 pub enum AuthType {
     EnvironmentVariable(String),
-    Fallback(Box<AuthType>),
     ApiKey(String),
     Basic(String),
 
@@ -34,9 +33,8 @@ pub enum AuthType {
 }
 
 impl AuthType {
-    /// This only validates the [`AuthType::FromEnvironmentVariable`] and [`AuthType::Fallback`]
-    /// authentication types as others might require asynchronous work to be used with.
-    #[must_use = "AuthType::fallback can be deeply nested, and we do not want that."]
+    /// This only validates the [`AuthType::FromEnvironmentVariable`] authentication types as
+    /// others might require asynchronous work to be used with.
     pub fn validate(&self) -> Result<(), String> {
         match self {
             AuthType::EnvironmentVariable(var) => {
@@ -47,11 +45,6 @@ impl AuthType {
                 Ok(())
             }
 
-            AuthType::Fallback(fallback) => match fallback.deref() {
-                AuthType::Fallback(_) => Err("fallback cannot be nested".into()),
-                _ => fallback.validate(),
-            },
-
             _ => Ok(()),
         }
     }
@@ -60,7 +53,6 @@ impl AuthType {
     pub fn header(&self) -> Option<&'static str> {
         match self {
             AuthType::EnvironmentVariable(_) | AuthType::ApiKey(_) => Some("ApiKey"),
-            AuthType::Fallback(fallback) => fallback.header(),
             AuthType::SessionToken { .. } => Some("Bearer"),
             AuthType::Basic(_) => Some("Basic"),
             _ => None,
@@ -81,7 +73,6 @@ impl ToString for AuthType {
             }
 
             AuthType::SessionToken { access, .. } => format!("{header} {access}"),
-            AuthType::Fallback(fallback) => fallback.to_string(),
             AuthType::ApiKey(key) => format!("{header} {key}"),
             AuthType::Basic(b64) => format!("{header} {b64}"),
             _ => unreachable!(),
@@ -141,4 +132,8 @@ pub struct RegistryConfig {
     pub auth: AuthType,
 }
 
-pub type Auth = BTreeMap<Context, Vec<RegistryConfig>>;
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Auth {
+    pub current: Context,
+    pub context: BTreeMap<Context, Vec<RegistryConfig>>,
+}

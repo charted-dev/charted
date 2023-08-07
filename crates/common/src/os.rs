@@ -33,7 +33,7 @@ pub fn os_name() -> &'static str {
     if cfg!(target_os = "linux") {
         "linux"
     } else if cfg!(target_os = "macos") {
-        "macOS"
+        "macos"
     } else if cfg!(windows) {
         "windows"
     } else {

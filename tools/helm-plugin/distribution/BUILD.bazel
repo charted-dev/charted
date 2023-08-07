@@ -26,11 +26,18 @@ pkg_files(
     },
 )
 
+pkg_files(
+    name = "scripts",
+    srcs = ["//tools/helm-plugin/scripts:update.sh"],
+    prefix = "scripts",
+)
+
 pkg_tar(
     name = "tarball",
     srcs = [
         "//tools/helm-plugin:plugin.yaml",
         "//tools/helm-plugin/distribution:binary",
+        "//tools/helm-plugin/distribution:scripts",
     ],
     extension = "tgz",
 )
@@ -40,5 +47,6 @@ pkg_zip(
     srcs = [
         "//tools/helm-plugin:plugin.yaml",
         "//tools/helm-plugin/distribution:binary",
+        "//tools/helm-plugin/distribution:scripts",
     ],
 )

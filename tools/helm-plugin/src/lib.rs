@@ -22,9 +22,13 @@ extern crate async_trait;
 #[macro_use]
 extern crate tracing;
 
+mod args;
 pub mod auth;
 pub mod commands;
+pub mod config;
 pub mod util;
+
+pub use args::*;
 
 #[derive(Debug, Clone, Parser)]
 #[clap(

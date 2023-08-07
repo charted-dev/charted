@@ -19,7 +19,8 @@ rust_project(
     name = "sessions",
     proc_macro_deps = ["@crate_index//:async-trait"],
 
-    # needed since `tracing` feature is unstable
+    # we can't do `--cfg=tokio_unstable` anyway
+    # https://github.com/bazelbuild/rules_rust/issues/1950
     rustc_flags = ["--cfg=tokio_unstable"],
     deps = [
         "//crates/common:charted_common",
@@ -30,6 +31,7 @@ rust_project(
         "@crate_index//:sqlx",
         "@crate_index//:tokio",
         "@crate_index//:tokio-util",
+        "@crate_index//:tracing",
         "@crate_index//:uuid",
     ],
 )

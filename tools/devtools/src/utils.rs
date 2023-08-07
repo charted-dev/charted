@@ -109,6 +109,13 @@ pub fn build_or_run(bazel: PathBuf, (release, dev): (&str, &str), args: BuildCli
 
     cmd.stdin(Stdio::null());
 
+    // we still want to see bazel stdout/stderr when --release
+    // is passed in
+    if args.release {
+        cmd.stdout(Stdio::inherit());
+        cmd.stderr(Stdio::inherit());
+    }
+
     let cmd_args = cmd.get_args().filter_map(|f| f.to_str()).join(" ");
     info!("$ {} {}", bazel.display(), cmd_args);
 
