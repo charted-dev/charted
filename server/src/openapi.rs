@@ -140,8 +140,6 @@ macro_rules! gen_response_schema_priv {
 
 pub(crate) use gen_response_schema_priv as gen_response_schema;
 
-use crate::routing::v1::users::UsersOpenAPI;
-
 #[derive(serde::Serialize, serde::Deserialize)]
 pub(crate) struct EmptyApiResponse;
 
@@ -179,7 +177,7 @@ impl<'r> ToResponse<'r> for EmptyApiResponse {
 
 pub fn document() -> utoipa::openapi::OpenApi {
     let mut openapi = charted_openapi::openapi();
-    openapi.merge(UsersOpenAPI::openapi());
+    openapi.merge(crate::routing::v1::users::UsersOpenAPI::openapi());
     openapi.merge(MainOpenAPI::openapi());
 
     // now, let's merge our paths
@@ -193,7 +191,9 @@ pub fn document() -> utoipa::openapi::OpenApi {
                 // api keys
 
                 // users
-                "/users": crate::routing::v1::users::crud::get::paths();
+                "/users/{idOrName}": crate::routing::v1::users::crud::get::paths();
+                "/users/@me": crate::routing::v1::users::crud::get::me::paths();
+                "/users": crate::routing::v1::users::crud::paths();
 
                 // main
                 "/heartbeat": crate::routing::v1::heartbeat::paths();

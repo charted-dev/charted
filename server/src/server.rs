@@ -14,9 +14,7 @@
 // limitations under the License.
 
 use crate::routing::create_router;
-use axum::http::Uri;
-use axum::response::IntoResponse;
-use axum::Router;
+use axum::extract::FromRef;
 use charted_common::Snowflake;
 use charted_config::Config;
 use charted_database::controllers::DatabaseController;
@@ -24,11 +22,13 @@ use charted_metrics::SingleRegistry;
 use charted_redis::RedisClient;
 use charted_sessions::SessionManager;
 use charted_storage::MultiStorageService;
-use charted_web::WebUI;
 use eyre::{Context, Result};
+use once_cell::sync::OnceCell;
 use sqlx::PgPool;
 use std::{any::Any, cell::RefCell, fmt::Debug, sync::Arc};
 use tokio::{select, signal, sync::Mutex};
+
+pub(crate) static SERVER: OnceCell<Server> = OnceCell::new();
 
 /// A default implemention of a [`Server`].
 #[derive(Clone)]
@@ -41,6 +41,12 @@ pub struct Server {
     pub config: Config,
     pub redis: RefCell<RedisClient>,
     pub pool: PgPool,
+}
+
+impl FromRef<()> for Server {
+    fn from_ref(_: &()) -> Self {
+        SERVER.get().expect("unable to grab SERVER instance").clone()
+    }
 }
 
 unsafe impl Send for Server {}
@@ -65,17 +71,7 @@ impl Server {
         let addr = self.config.server.addr();
         info!(%addr, "now listening on");
 
-        let router = match WebUI::enabled() {
-            true => {
-                info!("web ui is enabled, all api endpoints will be mounted on /api");
-                Router::new()
-                    .fallback(static_handler)
-                    .nest("/api", create_router(self.clone()).with_state(self.clone()))
-            }
-
-            false => create_router(self.clone()).with_state(self.clone()),
-        };
-
+        let router = create_router(self.clone()).with_state(self.clone());
         axum::Server::bind(&addr)
             .serve(router.into_make_service())
             .with_graceful_shutdown(shutdown())
@@ -84,12 +80,12 @@ impl Server {
     }
 }
 
-#[allow(dead_code)]
-const INDEX_HTML: &str = "index.html";
+// #[allow(dead_code)]
+// const INDEX_HTML: &str = "index.html";
 
-async fn static_handler(_uri: Uri) -> impl IntoResponse {
-    /* TODO: this */
-}
+// async fn static_handler(_uri: Uri) -> impl IntoResponse {
+//     /* TODO: this */
+// }
 
 async fn shutdown() {
     let ctrl_c = async {

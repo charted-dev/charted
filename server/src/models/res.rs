@@ -24,13 +24,13 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use utoipa::ToSchema;
 
-#[derive(Serialize, Deserialize, Debug, ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct ApiResponse<T = Empty>
 where
     T: Serialize + Debug,
 {
     #[serde(skip)]
-    status: StatusCode,
+    pub(crate) status: StatusCode,
 
     /// Indicates whether if this response was a success or not.
     pub success: bool,
@@ -66,7 +66,7 @@ impl<T: Serialize + Debug> Into<Response> for ApiResponse<T> {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct Error {
     code: String,
     message: String,
@@ -75,7 +75,7 @@ pub struct Error {
     details: Option<Value>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Empty {}
 
 impl Error {

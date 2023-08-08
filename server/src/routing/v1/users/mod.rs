@@ -36,10 +36,10 @@ pub struct UserResponse {
 
 gen_response_schema!(UserResponse, schema: "User");
 
-pub fn create_router(_server: Server) -> Router<Server> {
+pub fn create_router(server: Server) -> Router<Server> {
     Router::new()
-        .merge(crud::create_router())
-        .nest("/avatars", avatars::create_router())
-        .nest("/sessions", sessions::create_router())
         .nest("/repositories", repositories::create_router())
+        .nest("/sessions", sessions::create_router())
+        .nest("/avatars", avatars::create_router())
+        .merge(crud::create_router(server.clone()))
 }

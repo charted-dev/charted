@@ -15,9 +15,10 @@
 
 use super::BootstrapPhase;
 use async_trait::async_trait;
-use charted_config::Config;
+use charted_config::{Config, ConfigExt};
 use charted_logging::server::ServerLayer;
 use eyre::Result;
+use sentry_tracing::SentryLayer;
 use tracing::metadata::LevelFilter;
 use tracing_subscriber::{prelude::*, registry};
 
@@ -29,6 +30,7 @@ impl BootstrapPhase for SetupLoggingPhase {
     async fn bootstrap(&self, config: &Config) -> Result<()> {
         registry()
             .with(ServerLayer::default().with_filter(LevelFilter::from_level(config.logging.level)))
+            .with(config.sentry_dsn().ok().and_then(|x| x.map(|_| SentryLayer::default())))
             .try_init()?;
 
         Ok(())

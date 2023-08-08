@@ -16,7 +16,7 @@
 load("@aspect_bazel_lib//lib:copy_to_bin.bzl", "copy_to_bin")
 
 copy_to_bin(
-    name = "source",
+    name = "src",
     srcs = glob([
         "**/*.css",
         "**/*.ts",
@@ -24,10 +24,4 @@ copy_to_bin(
         "**/*.d.ts",
     ]),
     visibility = ["//web:__pkg__"],
-)
-
-copy_to_bin(
-    name = "rust",
-    srcs = ["lib.rs"],
-    visibility = ["//visibility:public"],
 )

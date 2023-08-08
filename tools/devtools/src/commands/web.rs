@@ -19,7 +19,6 @@ use crate::{
 };
 use charted_common::cli::Execute;
 use eyre::Result;
-use std::ffi::OsString;
 
 #[derive(Debug, Clone, clap::Parser)]
 #[clap(about = "Spawns the development server for the web UI")]
@@ -38,22 +37,8 @@ impl Execute for Web {
         let args = utils::BuildCliArgs {
             bazelrc: self.bazel.bazelrc.clone(),
             release: self.common.release,
-            args: match self.common.release {
-                true => vec![],
-                false => {
-                    let mut args = vec![];
-
-                    args.push(OsString::from("--"));
-                    args.push(OsString::from("--clearScreen=false"));
-
-                    for arg in self.common.args.clone().into_iter() {
-                        args.push(arg);
-                    }
-
-                    args
-                }
-            },
-            run: self.common.run,
+            args: self.common.args.clone(),
+            run: true,
         };
 
         utils::build_or_run(bazel.clone(), ("//web:build", "//web:vite"), args)

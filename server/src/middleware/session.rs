@@ -15,14 +15,15 @@
 
 use crate::{models::res::err, Server};
 use argon2::{PasswordHash, PasswordVerifier};
-use async_trait::async_trait;
 use axum::{
-    extract::{rejection::TypedHeaderRejectionReason, FromRequestParts},
+    body::BoxBody,
+    extract::{rejection::TypedHeaderRejectionReason, State},
     headers::Header,
-    http::{header::AUTHORIZATION, request::Parts, HeaderName, HeaderValue, StatusCode},
-    response::{IntoResponse, Response},
-    TypedHeader,
+    http::{header::AUTHORIZATION, HeaderName, HeaderValue, Request, Response, StatusCode},
+    response::IntoResponse,
+    RequestExt, TypedHeader,
 };
+use base64::{engine::general_purpose::STANDARD, Engine as _};
 use charted_common::models::{entities::User, NameOrSnowflake};
 use charted_config::ConfigExt;
 use charted_database::{
@@ -30,19 +31,21 @@ use charted_database::{
     extensions::snowflake::SnowflakeExt,
 };
 use charted_sessions_local::{LocalSessionProvider, ARGON2};
+use futures_util::future::BoxFuture;
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use std::{
     collections::HashMap,
     fmt::{Debug, Display},
 };
+use tower_http::auth::AsyncAuthorizeRequest;
 
 #[derive(Clone)]
 pub enum SessionError {
     JsonWebToken(jsonwebtoken::errors::Error),
-    InvalidParts(&'static str),
+    Base64(base64::DecodeError),
     MissingAuthorizationHeader,
-    Argon2(argon2::Error),
-    UnknownAuthType(&'static str),
+    UnknownAuthType(String),
+    InvalidParts(String),
     InvalidPassword,
     UnknownSession,
     InvalidUtf8,
@@ -53,15 +56,14 @@ impl Debug for SessionError {
         match self {
             SessionError::MissingAuthorizationHeader => f.write_str("missing `Authorization` header"),
             SessionError::UnknownAuthType(t) => f.write_fmt(format_args!(
-                "unknown authentication type received: {t}; expected [{:?}]",
-                vec!["Bearer", "Basic", "ApiKey"]
+                "unknown authentication type received: '{t}'; expected [Bearer, ApiKey, Basic]"
             )),
             SessionError::UnknownSession => f.write_str("unknown session"),
             SessionError::InvalidParts(why) => {
                 f.write_fmt(format_args!("received invalid parts in `Authorization` header: {why}"))
             }
             SessionError::JsonWebToken(err) => Debug::fmt(err, f),
-            SessionError::Argon2(_) => f.write_str("Internal Server Error"),
+            SessionError::Base64(err) => Debug::fmt(err, f),
             SessionError::InvalidPassword => f.write_str("invalid password specified"),
             SessionError::InvalidUtf8 => f.write_str("invalid utf-8 from header"),
         }
@@ -73,15 +75,14 @@ impl Display for SessionError {
         match self {
             SessionError::MissingAuthorizationHeader => f.write_str("missing `Authorization` header"),
             SessionError::UnknownAuthType(t) => f.write_fmt(format_args!(
-                "unknown authentication type received: {t}; expected [{:?}]",
-                vec!["Bearer", "Basic", "ApiKey"]
+                "unknown authentication type received: '{t}'; expected [Bearer, ApiKey, Basic]"
             )),
             SessionError::UnknownSession => f.write_str("unknown session"),
             SessionError::InvalidParts(why) => {
                 f.write_fmt(format_args!("received invalid parts in `Authorization` header: {why}"))
             }
-            SessionError::JsonWebToken(err) => Debug::fmt(err, f),
-            SessionError::Argon2(_) => f.write_str("Internal Server Error"),
+            SessionError::Base64(err) => Display::fmt(err, f),
+            SessionError::JsonWebToken(err) => Display::fmt(err, f),
             SessionError::InvalidPassword => f.write_str("invalid password specified"),
             SessionError::InvalidUtf8 => f.write_str("invalid utf-8 from header"),
         }
@@ -103,8 +104,8 @@ impl SessionError {
             SessionError::MissingAuthorizationHeader
             | SessionError::InvalidUtf8
             | SessionError::UnknownAuthType(_)
-            | SessionError::InvalidParts(_) => StatusCode::NOT_ACCEPTABLE,
-            SessionError::Argon2(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            | SessionError::InvalidParts(_)
+            | SessionError::Base64(_) => StatusCode::NOT_ACCEPTABLE,
             SessionError::InvalidPassword => StatusCode::UNAUTHORIZED,
             SessionError::UnknownSession => StatusCode::NOT_FOUND,
             SessionError::JsonWebToken(err) => match err.kind() {
@@ -117,10 +118,10 @@ impl SessionError {
 
     pub fn code(&self) -> &'static str {
         match self {
+            SessionError::Base64(_) => "UNABLE_TO_DECODE_BASE64",
             SessionError::MissingAuthorizationHeader => "MISSING_AUTHORIZATION_HEADER",
             SessionError::InvalidPassword => "INVALID_PASSWORD",
             SessionError::InvalidUtf8 => "INVALID_UTF8_IN_HEADER",
-            SessionError::Argon2(_) => "INTERNAL_SERVER_ERROR",
             SessionError::UnknownAuthType(_) => "INVALID_AUTHENTICATION_TYPE",
             SessionError::UnknownSession => "UNKNOWN_SESSION",
             SessionError::InvalidParts(_) => "INVALID_AUTHORIZATION_PARTS",
@@ -134,10 +135,13 @@ impl SessionError {
 }
 
 impl IntoResponse for SessionError {
-    fn into_response(self) -> Response {
+    fn into_response(self) -> axum::response::Response {
         err(self.status_code(), (self.code(), format!("{self}").as_str()).into()).into_response()
     }
 }
+
+#[derive(Clone)]
+pub struct SessionAuth;
 
 /// Represents an extractor that extracts a user session, if there is one available.
 #[derive(Debug, Clone)]
@@ -153,39 +157,28 @@ pub struct Session {
 /// types, and http's Authorization struct is not helpful to us.
 #[derive(Clone)]
 pub struct Authorization(HeaderValue);
-
 impl Authorization {
-    pub fn to_string(&self) -> Result<String, Response> {
-        let inner = self.0.clone();
-        inner.to_str().map(|s| s.to_string()).map_err(|e| {
-            error!(%e, "received invalid utf-8 characters when trying to parse `Authorization` header");
+    pub fn to_tuple(&self) -> Result<(String, String), SessionError> {
+        let header = self.0.to_owned();
+        let value = String::from_utf8(header.as_ref().to_vec()).map_err(|e| {
+            error!(%e, "received invalid utf-8 chars when trying to parse header value");
             sentry::capture_error(&e);
 
-            SessionError::InvalidUtf8.into_response()
-        })
-    }
+            SessionError::InvalidUtf8
+        })?;
 
-    pub fn values(&self) -> Result<(String, String), Response> {
-        let value = self.to_string()?;
-        match value.split_once(' ') {
-            Some((_, token)) if token.contains(' ') => {
-                return Err(SessionError::InvalidParts(
-                    "received more than once space, needs to be one space (i.e: [Bearer|Basic|ApiKey] 'token')",
-                )
-                .into_response())
-            }
+        let mut iter = value.split(' ');
+        let Some(ty) = iter.next() else {
+            return Err(SessionError::MissingAuthorizationHeader);
+        };
 
-            Some((ty, token)) => match ty.to_lowercase().as_str() {
-                "bearer" | "basic" | "apikey" => Ok((ty.to_string(), token.to_string())),
-                _ => {
-                    return Err(SessionError::InvalidParts(
-                        "received invalid header type, expected 'Basic', 'Bearer', or 'ApiKey'",
-                    )
-                    .into_response())
-                }
-            },
+        let Some(token) = iter.next() else {
+            return Err(SessionError::InvalidParts("missing the token itself?!".into()));
+        };
 
-            None => return Err(SessionError::InvalidParts("missing authorization type").into_response()),
+        match ty {
+            "Basic" | "Bearer" | "ApiKey" => Ok((ty.to_string(), token.to_string())),
+            _ => Err(SessionError::UnknownAuthType(ty.to_string())),
         }
     }
 }
@@ -207,148 +200,206 @@ impl Header for Authorization {
     }
 }
 
-#[async_trait]
-impl FromRequestParts<Server> for Session {
-    type Rejection = Response;
+impl<B> AsyncAuthorizeRequest<B> for SessionAuth
+where
+    B: Send + Sync + 'static,
+{
+    type RequestBody = B;
+    type ResponseBody = BoxBody;
+    type Future = BoxFuture<'static, Result<Request<B>, Response<Self::ResponseBody>>>;
 
-    async fn from_request_parts(parts: &mut Parts, server: &Server) -> Result<Self, Self::Rejection> {
-        let auth = TypedHeader::<Authorization>::from_request_parts(parts, &server)
-            .await
-            .map_err(|e| match e.reason() {
-                TypedHeaderRejectionReason::Missing => SessionError::MissingAuthorizationHeader.into_response(),
-                TypedHeaderRejectionReason::Error(e) => {
-                    error!(%e, "unable to decode `Authorization` header");
-                    sentry::capture_error(&e);
+    fn authorize(&mut self, mut req: Request<B>) -> Self::Future {
+        Box::pin(async move {
+            let header = req
+                .extract_parts::<TypedHeader<Authorization>>()
+                .await
+                .map_err(|e| match e.reason() {
+                    TypedHeaderRejectionReason::Missing => SessionError::MissingAuthorizationHeader.into_response(),
+                    TypedHeaderRejectionReason::Error(e) => {
+                        error!(%e, "unable to decode `Authorization` header");
+                        sentry::capture_error(&e);
 
-                    err(
-                        StatusCode::NOT_ACCEPTABLE,
-                        ("INVALID_HTTP_HEADER", "Received invalid `Authorization` header.").into(),
-                    )
-                    .into_response()
-                }
+                        err(
+                            StatusCode::NOT_ACCEPTABLE,
+                            ("INVALID_HTTP_HEADER", "Received invalid `Authorization` header.").into(),
+                        )
+                        .into_response()
+                    }
 
-                _ => unreachable!(),
+                    _ => unreachable!(),
+                })?;
+
+            let (ty, token) = header.0.to_tuple().map_err(|e| e.into_response())?;
+            let State(server) = req
+                .extract_parts::<State<Server>>()
+                .await
+                .expect("unable to grab server state");
+
+            let mut sessions = server.sessions.lock().await;
+            let config = server.config.clone();
+            let jwt_secret_key = config.jwt_secret_key().map_err(|e| {
+                error!(setting = "config.jwt_secret_key", %e, "unable to parse secure setting");
+                err(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+                )
+                .into_response()
             })?;
 
-        let (ty, token) = auth.0.values()?;
-        let ty = ty.as_str();
-        let token = token.clone();
+            let users = server.controller::<UserDatabaseController>();
+            let span = info_span!(
+                "charted.http.authentication",
+                req.uri = req.uri().path(),
+                req.method = req.method().as_str(),
+                auth.ty = ty,
+            );
 
-        let mut sessions = server.sessions.lock().await;
-        let config = server.config.clone();
-        let jwt_secret_key = config.jwt_secret_key().map_err(|e| {
-            error!(setting = "config.jwt_secret_key", %e, "unable to parse secure setting");
-            err(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-            )
-            .into_response()
-        })?;
+            let _guard = span.enter();
+            match ty.as_str() {
+                "Basic" => {
+                    let span = info_span!(parent: &span, "charted.http.auth.basic");
+                    let _guard = span.enter();
+                    let decoded = STANDARD.decode(&token).map_err(|e| {
+                        error!(%e, "unable to decode base64 from Authorization header");
+                        sentry::capture_error(&e);
 
-        let users = server.controller::<UserDatabaseController>();
-        match ty {
-            "ApiKey" => Err(SessionError::UnknownSession.into_response()),
-            "Bearer" => {
-                let decoded = decode::<HashMap<String, String>>(
-                    token.as_str(),
-                    &DecodingKey::from_secret(jwt_secret_key.as_ref()),
-                    &Validation::new(Algorithm::HS512),
-                )
-                .map_err(|e| {
-                    error!(%e, "unable to decode jwt token");
-                    sentry::capture_error(&e);
+                        SessionError::Base64(e).into_response()
+                    })?;
 
-                    SessionError::JsonWebToken(e).into_response()
-                })?;
+                    let decoded = String::from_utf8(decoded).map_err(|e| {
+                        error!(%e, "received invalid utf-8 chars when trying to parse header value");
+                        sentry::capture_error(&e);
 
-                let Some(user_id) = decoded.claims.get("user_id") else {
-                    return Err(SessionError::UnknownSession.into_response());
-                };
+                        SessionError::InvalidUtf8.into_response()
+                    })?;
 
-                let id = user_id.parse::<u64>().map_err(|_| {
-                    err(
-                        StatusCode::UNPROCESSABLE_ENTITY,
-                        ("UNABLE_TO_PROCESS", "Unable to process session due to invalid data").into(),
-                    )
-                    .into_response()
-                })?;
+                    let (username, password) = match decoded.split_once(':') {
+                        Some((_, password)) if password.contains(':') => {
+                            let idx = password.chars().position(|c| c == ':').unwrap();
+                            return Err(SessionError::InvalidParts(format!(
+                                "received more than once ':' [index {idx}]"
+                            ))
+                            .into_response());
+                        }
 
-                let user = users
-                    .get(id)
-                    .await
-                    .map_err(|_| SessionError::UnknownSession.into_response())?
-                    .ok_or_else(|| SessionError::UnknownSession.into_response())?;
+                        Some(tuple) => tuple,
+                        None => {
+                            return Err(SessionError::InvalidParts(
+                                "missing ':' in header value while decoding b64 header value".into(),
+                            )
+                            .into_response())
+                        }
+                    };
 
-                let session = sessions
-                    .from_user(id)
-                    .await
-                    .map_err(|_| SessionError::UnknownSession.into_response())?
-                    .ok_or_else(|| SessionError::UnknownSession.into_response())?;
-
-                Ok(Session {
-                    session: Some(session),
-                    user,
-                })
-            }
-            "Basic" => {
-                let (username, password) = match token.split_once(':') {
-                    Some((_, password)) if password.contains(':') => {
-                        return Err(
-                            SessionError::InvalidParts("received more than one ':' in header value").into_response()
-                        )
+                    let name = NameOrSnowflake::Name(username.to_string());
+                    match name.is_valid() {
+                        Ok(()) => {}
+                        Err(why) => {
+                            error!(reason = why, "received invalid Name parameter");
+                            return Err(SessionError::InvalidParts(why.to_string()).into_response());
+                        }
                     }
-                    Some(tuple) => tuple,
-                    None => return Err(SessionError::InvalidParts("missing `:` in header value").into_response()),
-                };
 
-                let user = match users
-                    .get_with_id_or_name(NameOrSnowflake::Name(username.to_string()))
-                    .await
-                {
-                    Ok(Some(user)) => user,
-                    Ok(None) => {
-                        return Err(err(
-                            StatusCode::NOT_FOUND,
-                            ("UNKNOWN_USER", format!("Unable to find user {username}").as_str()).into(),
-                        )
-                        .into_response())
-                    }
-                    Err(e) => {
-                        error!(%e, "unable to locate user");
-                        //sentry::capture_error(&e);
+                    let user = match users
+                        .get_with_id_or_name(NameOrSnowflake::Name(username.to_string()))
+                        .await
+                    {
+                        Ok(Some(user)) => user,
+                        Ok(None) => {
+                            return Err(err(
+                                StatusCode::NOT_FOUND,
+                                ("UNKNOWN_USER", format!("unknown user with name '{username}'").as_str()).into(),
+                            )
+                            .into_response())
+                        }
 
-                        return Err(err(
+                        Err(e) => {
+                            error!(%e, "unable to grab user from database");
+                            return Err(err(
+                                StatusCode::INTERNAL_SERVER_ERROR,
+                                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+                            )
+                            .into_response());
+                        }
+                    };
+
+                    let hashed = LocalSessionProvider::hash_password(password.into()).map_err(|e| {
+                        error!(%e, "unable to hash password");
+                        err(
                             StatusCode::INTERNAL_SERVER_ERROR,
                             ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
                         )
-                        .into_response());
+                        .into_response()
+                    })?;
+
+                    let hash = PasswordHash::new(&hashed).map_err(|e| {
+                        error!(%e, "unable to create password hasher");
+                        err(
+                            StatusCode::INTERNAL_SERVER_ERROR,
+                            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+                        )
+                        .into_response()
+                    })?;
+
+                    match ARGON2.verify_password(password.as_bytes(), &hash) {
+                        Ok(()) => {
+                            req.extensions_mut().insert(Session { session: None, user });
+                        }
+
+                        Err(_) => return Err(SessionError::InvalidPassword.into_response()),
                     }
-                };
-
-                let hashed = LocalSessionProvider::hash_password(password.into()).map_err(|e| {
-                    error!(%e, "unable to hash password");
-                    err(
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-                    )
-                    .into_response()
-                })?;
-
-                let hash = PasswordHash::new(&hashed).map_err(|e| {
-                    error!(%e, "unable to verify password");
-                    err(
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-                    )
-                    .into_response()
-                })?;
-
-                match ARGON2.verify_password(password.as_bytes(), &hash) {
-                    Ok(()) => Ok(Session { session: None, user }),
-                    Err(_) => return Err(SessionError::InvalidPassword.into_response()),
                 }
+
+                "Bearer" => {
+                    let span = info_span!(parent: &span, "charted.http.auth.bearer");
+                    let _guard = span.enter();
+                    let decoded = decode::<HashMap<String, String>>(
+                        &token,
+                        &DecodingKey::from_secret(jwt_secret_key.as_ref()),
+                        &Validation::new(Algorithm::HS512),
+                    )
+                    .map_err(|e| {
+                        error!(%e, "unable to decode jwt token");
+                        sentry::capture_error(&e);
+
+                        SessionError::JsonWebToken(e).into_response()
+                    })?;
+
+                    let Some(uid) = decoded.claims.get("user_id") else {
+                        debug!("missing `user_id` in jwt token, not doing anything...");
+                        return Err(SessionError::UnknownSession.into_response());
+                    };
+
+                    let id = uid.parse::<u64>().map_err(|_| {
+                        err(
+                            StatusCode::UNPROCESSABLE_ENTITY,
+                            ("INVALID_JWT_CLAIM", "Expected JWT claim [user_id] to be a u64").into(),
+                        )
+                        .into_response()
+                    })?;
+
+                    let user = users
+                        .get(id)
+                        .await
+                        .map_err(|_| SessionError::UnknownSession.into_response())?
+                        .ok_or_else(|| SessionError::UnknownSession.into_response())?;
+
+                    let session = sessions
+                        .from_user(id)
+                        .await
+                        .map_err(|_| SessionError::UnknownSession.into_response())?
+                        .ok_or_else(|| SessionError::UnknownSession.into_response())?;
+
+                    req.extensions_mut().insert(Session {
+                        session: Some(session),
+                        user,
+                    });
+                }
+
+                _ => unreachable!(),
             }
-            ty => Err(SessionError::UnknownAuthType(ty).into_response()),
-        }
+
+            Ok(req)
+        })
     }
 }

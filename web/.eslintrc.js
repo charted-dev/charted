@@ -23,6 +23,7 @@ module.exports = {
         project: ['tsconfig.eslint.json']
     },
     rules: {
+        'vue/multi-word-component-names': 'off',
         'vue/html-indent': ['error', 4]
     }
 };

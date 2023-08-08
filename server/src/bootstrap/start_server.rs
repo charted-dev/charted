@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use super::BootstrapPhase;
-use crate::Server;
+use crate::{Server, SERVER};
 use charted_common::{is_debug_enabled, Snowflake, COMMIT_HASH, VERSION};
 use charted_config::{Config, ConfigExt, SessionBackend};
 use charted_database::{controllers::users::UserDatabaseController, MIGRATIONS};
@@ -59,6 +59,7 @@ impl BootstrapPhase for StartServerPhase {
         };
 
         let server = ConfigureModulesPhase::configure_modules(config).await?;
+        SERVER.set(server.clone()).unwrap();
 
         info!("Server is now starting...");
         server.run().await?;

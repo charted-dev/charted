@@ -15,23 +15,6 @@
 ~ limitations under the License.
 -->
 
-<script setup lang="ts">
-useHead({
-    title: 'charted',
-    meta: [
-        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { charset: 'utf-8' },
-        { name: 'theme-color', content: '#58548E' },
-        { name: 'language', content: 'English (US)' },
-        { name: 'keywords', content: 'noelware, charted, charted-server' }
-    ],
-    link: [
-        // TODO(@auguwu): switch to charted branding
-        { rel: 'shortcut icon', href: 'https://cdn.floofy.dev/images/trans.png' }
-    ]
-});
-</script>
-
 <template>
-    <RouterView />
+    <h1>checkmate</h1>
 </template>

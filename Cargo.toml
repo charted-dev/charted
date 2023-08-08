@@ -39,5 +39,4 @@ members = [
     "services/emails",
     "tools/devtools",
     "tools/helm-plugin",
-    "web",
 ]

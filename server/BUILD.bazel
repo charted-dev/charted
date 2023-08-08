@@ -32,7 +32,6 @@ local_crates = ["//{path}:charted_{name}".format(
     ("crates/search", "search"),
     ("crates/search/elasticsearch", "search_elasticsearch"),
     ("crates/search/meilisearch", "search_meilisearch"),
-    ("web", "web"),
 ]]
 
 rust_project(
@@ -43,8 +42,10 @@ rust_project(
         "@crate_index//:ansi_term",
         "@crate_index//:argon2",
         "@crate_index//:axum",
+        "@crate_index//:base64",
         "@crate_index//:chrono",
         "@crate_index//:eyre",
+        "@crate_index//:futures-util",
         "@crate_index//:jsonwebtoken",
         "@crate_index//:once_cell",
         "@crate_index//:remi-core",

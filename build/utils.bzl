@@ -39,6 +39,5 @@ CARGO_MANIFESTS = ["//{}:Cargo.toml".format(f) for f in [
     "tools/devtools",
     "server",
     "cli",
-    "web",
     "",
 ]]

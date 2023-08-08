@@ -39,7 +39,12 @@ export default defineConfig(({ command }) => {
               };
 
     const plugins: PluginOption[] = [
-        autoImports(),
+        autoImports({
+            vueTemplate: true,
+            imports: ['@vueuse/core', '@vueuse/head', 'pinia', 'vue', 'vue-router'],
+            dirs: ['src/components', 'src/composables', 'src/stores'],
+            dts: 'src/auto-imports.d.ts'
+        }),
         vueRouter({
             dts: true,
             routesFolder: resolve(fileURLToPath(new URL('./src/views', import.meta.url)))
@@ -53,6 +58,7 @@ export default defineConfig(({ command }) => {
     }
 
     return {
+        clearScreen: false,
         resolve: {
             alias: {
                 '~/': resolve(fileURLToPath(new URL('./src/', import.meta.url)))
