@@ -90,7 +90,7 @@ vue_tsc.vue_tsc_test(
         ":node_modules/unplugin-vue-router",
         ":node_modules/vite",
         ":node_modules/vite-plugin-vue-devtools",
-        "//web/src:source",
+        "//web/src",
     ] + DEPS,
     include_declarations = True,
     tags = [
@@ -122,7 +122,7 @@ eslint.eslint_test(
         "tsconfig.eslint.json",
         "tsconfig.json",
         ":node_modules",
-        "//web/src:source",
+        "//web/src",
     ],
     tags = [
         "noclippy",
@@ -149,7 +149,7 @@ prettier.prettier_test(
         "tsconfig.json",
         "vite.config.ts",
         ":node_modules",
-        "//web/src:source",
+        "//web/src",
     ],
     tags = [
         "noclippy",

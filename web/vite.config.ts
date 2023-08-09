@@ -43,7 +43,7 @@ export default defineConfig(({ command }) => {
             vueTemplate: true,
             imports: ['@vueuse/core', '@vueuse/head', 'pinia', 'vue', 'vue-router'],
             dirs: ['src/components', 'src/composables', 'src/stores'],
-            dts: 'src/auto-imports.d.ts'
+            dts: './auto-imports.d.ts'
         }),
         vueRouter({
             dts: true,

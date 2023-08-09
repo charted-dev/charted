@@ -29,6 +29,7 @@ rust_project(
         "@crate_index//:clap",
         "@crate_index//:clap_complete",
         "@crate_index//:color-eyre",
+        "@crate_index//:dirs",
         "@crate_index//:dotenv",
         "@crate_index//:eyre",
         "@crate_index//:reqwest",
