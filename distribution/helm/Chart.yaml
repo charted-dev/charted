@@ -40,7 +40,7 @@ dependencies:
 
     - name: redis
       repository: https://charts.bitnami.com/bitnami
-      version: ~17.14.0
+      version: ~17.15.0
       condition: redis.enabled
 
     # used for common Helm utilities
