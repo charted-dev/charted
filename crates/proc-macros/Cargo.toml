@@ -13,32 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" bazel is mean """
+[package]
+name = "charted-proc-macros"
+description = "🐻‍❄️📦 Procedural macros for charted-server"
+version = "0.0.0-devel.0"
+edition = "2021"
+homepage = "https://charts.noelware.org"
+authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
-CARGO_MANIFESTS = ["//{}:Cargo.toml".format(f) for f in [
-    "crates/common",
-    "crates/config",
-    "crates/database",
-    "crates/emails",
-    "crates/helm-charts",
-    "crates/logging",
-    "crates/metrics",
-    "crates/openapi",
-    "crates/proc-macros",
-    "crates/redis",
-    "crates/search",
-    "crates/search/elasticsearch",
-    "crates/search/meilisearch",
-    "crates/sessions/integrations/github",
-    "crates/sessions/integrations",
-    "crates/sessions/local",
-    "crates/sessions/ldap",
-    "crates/sessions",
-    "crates/storage",
-    "services/emails",
-    "tools/helm-plugin",
-    "tools/devtools",
-    "server",
-    "cli",
-    "",
-]]
+[lib]
+proc-macro = true
+
+[dependencies]
+axum = "0.6.20"
+indexmap = "2.0.0"
+paste = "1.0.14"
+proc-macro2 = "1.0.66"
+quote = "1.0.32"
+serde_json = "1.0.104"
+syn = "2.0.28"
+utoipa = { version = "3.4.4", features = ["chrono"] }

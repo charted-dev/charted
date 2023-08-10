@@ -16,15 +16,10 @@
 use crate::{models::res::ok, openapi::gen_response_schema, Server};
 use axum::{extract::State, http::StatusCode, response::IntoResponse};
 use charted_common::hashmap;
+use charted_proc_macros::paths;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use utoipa::{
-    openapi::{
-        path::{OperationBuilder, PathItemBuilder},
-        ContentBuilder, PathItem, PathItemType, Ref, RefOr, ResponseBuilder,
-    },
-    ToSchema,
-};
+use utoipa::ToSchema;
 
 /// Represents the response from the `GET /features` REST handler
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema)]
@@ -83,10 +78,23 @@ pub fn paths() -> PathItem {
                 .response("200", ResponseBuilder::new()
                     .description("Successful response.")
                     .content("application/json", ContentBuilder::new()
-                        .schema(RefOr::Ref(Ref::from_response_name("ApiFeaturesResponse")))
+                        .schema(response!("ApiFeaturesResponse"))
                         .build()
                     ).build())
                 .build(),
         )
         .build()
 }
+
+// paths! {
+//     Get {
+//         description("Hello, world?");
+//         operationId("features");
+//         tags(["Main"]);
+
+//         requestBody("application/json", {
+//             description("Payload for the `GET /features` REST endpoint.");
+//             schema(crate::routing::v1::features::FeaturesResponse);
+//         });
+//     }
+// }

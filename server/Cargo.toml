@@ -34,6 +34,7 @@ charted-helm-charts = { version = "0.0.0-devel.0", path = "../crates/helm-charts
 charted-logging = { version = "0.0.0-devel.0", path = "../crates/logging" }
 charted-metrics = { version = "0.0.0-devel.0", path = "../crates/metrics" }
 charted-openapi = { version = "0.0.0-devel.0", path = "../crates/openapi" }
+charted-proc-macros = { version = "0.0.0-devel.0", path = "../crates/proc-macros" }
 charted-redis = { version = "0.0.0-devel.0", path = "../crates/redis" }
 charted-search = { version = "0.0.0-devel.0", path = "../crates/search" }
 charted-search-elasticsearch = { version = "0.0.0-devel.0", path = "../crates/search/elasticsearch" }

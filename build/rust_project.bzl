@@ -15,7 +15,7 @@
 
 """ Common macro through-out all Rust crates. """
 
-load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_doc_test", "rust_library", "rust_test")
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_doc_test", "rust_library", "rust_proc_macro", "rust_test")
 load("@rules_rust//cargo:defs.bzl", "cargo_build_script")
 load("@crate_index//:defs.bzl", "aliases")
 
@@ -24,6 +24,7 @@ def rust_project(
         srcs = [],
         deps = [],
         external_data = [],
+        proc_macro = False,
         proc_macro_deps = [],
         include_tests = False,
         include_doctests = False,
@@ -40,6 +41,7 @@ def rust_project(
         srcs: Extra sources to include in `rust_library`
         deps: A list of dependencies to use in the `rust_library`, `rust_binary` (if enabled), and `rust_test` (if enabled) macro(s).
         external_data: List of targets to use to embed data into `rust_library`.
+        proc_macro: Builds this project as a proc-macro.
         proc_macro_deps: A list of proc-macro related dependencies to use.
         include_tests: If the `rust_test` macro should be included. This will always be `{name}_test` when used with
             the `bazel test` command.
@@ -56,18 +58,28 @@ def rust_project(
         **kwargs: Extra arguments to append in `rust_library`
     """
 
-    rust_library(
-        # We need it as charted_<name> so it can be referenced with Bazel
-        # without using 'extern crate {name}'!
-        name = "charted_{name}".format(name = name),
-        aliases = aliases(),
-        data = external_data,
-        srcs = native.glob(["src/**/*.rs"], exclude = ["src/main.rs"]) + srcs,
-        deps = deps,
-        proc_macro_deps = proc_macro_deps,
-        visibility = ["//visibility:public"],
-        **kwargs
-    )
+    if proc_macro:
+        rust_proc_macro(
+            name = "charted_%s" % name,
+            aliases = aliases(),
+            srcs = native.glob(["src/**/*.rs"], exclude = ["src/main.rs"]) + srcs,
+            deps = deps,
+            visibility = ["//visibility:public"],
+            **kwargs
+        )
+    else:
+        rust_library(
+            # We need it as charted_<name> so it can be referenced with Bazel
+            # without using 'extern crate {name}'!
+            name = "charted_{name}".format(name = name),
+            aliases = aliases(),
+            data = external_data,
+            srcs = native.glob(["src/**/*.rs"], exclude = ["src/main.rs"]) + srcs,
+            deps = deps,
+            proc_macro_deps = proc_macro_deps,
+            visibility = ["//visibility:public"],
+            **kwargs
+        )
 
     if include_tests:
         rust_test(

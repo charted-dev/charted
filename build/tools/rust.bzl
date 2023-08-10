@@ -17,8 +17,8 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")  # buildifi
 
 RUST_EDITION = "2021"
 RUST_VERSIONS = [
-    "1.71.0",
-    "nightly/2023-08-01",
+    "1.71.1",
+    "nightly/2023-08-10",
 ]
 
 def charted_rust_repositories():

@@ -25,6 +25,7 @@ members = [
     "crates/logging",
     "crates/metrics",
     "crates/openapi",
+    "crates/proc-macros",
     "crates/redis",
     "crates/search",
     "crates/search/elasticsearch",

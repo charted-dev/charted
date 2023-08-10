@@ -1090,6 +1090,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "charted-proc-macros"
+version = "0.0.0-devel.0"
+dependencies = [
+ "axum",
+ "indexmap 2.0.0",
+ "paste",
+ "proc-macro2",
+ "quote",
+ "serde_json",
+ "syn 2.0.28",
+ "utoipa",
+]
+
+[[package]]
 name = "charted-redis"
 version = "0.0.0-devel.0"
 dependencies = [
@@ -1151,6 +1165,7 @@ dependencies = [
  "charted-logging",
  "charted-metrics",
  "charted-openapi",
+ "charted-proc-macros",
  "charted-redis",
  "charted-search",
  "charted-search-elasticsearch",
