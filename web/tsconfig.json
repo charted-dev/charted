@@ -19,6 +19,6 @@
             "~/*": ["src/*"]
         }
     },
-    "include": ["**/*.ts", "**/*.vue", "**/*.tsx", "typed-router.d.ts"],
+    "include": ["**/*.ts", "**/*.vue", "**/*.tsx", "**/*.d.ts"],
     "exclude": ["node_modules"]
 }

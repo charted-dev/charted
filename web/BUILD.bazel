@@ -91,7 +91,7 @@ vue_tsc.vue_tsc_test(
         ":node_modules/vite",
         ":node_modules/vite-plugin-vue-devtools",
         "//web/src",
-    ] + DEPS,
+    ] + DEPS + glob(["**/*.d.ts"]),
     include_declarations = True,
     tags = [
         "noclippy",
