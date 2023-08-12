@@ -16,7 +16,7 @@
 load("//:build/rust_project.bzl", "rust_project")
 
 rust_project(
-    name = "proc-macros",
+    name = "proc_macros",
     proc_macro = True,
     deps = [
         "@crate_index//:axum",

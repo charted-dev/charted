@@ -20,10 +20,6 @@ exports_files([
     # Allows the `//services/search-indexer:golangci` target to access
     # this file.
     ".golangci.yml",
-
-    # Allows `bazel build //cmd/search-indexer:bin` to read this file
-    # and uses it as the version of the binary.
-    ".indexer-version",
 ])
 
 # gazelle:prefix charts.noelware.org/search-indexer

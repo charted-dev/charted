@@ -17,8 +17,81 @@ name: Release CI (Stable)
 on:
     release:
         types: [published]
+env:
+    BAZEL_ARGS: --bazelrc=./.bazelrc --bazelrc=./.github/.ci.bazelrc --host_jvm_args=-Xmx500m --host_jvm_args=-Xms500m
 jobs:
     binary:
-        runs-on: ubuntu-latest
+        name: Build Binary
+        runs-on: ${{matrix.runner}}
+        strategy:
+            fail-fast: true
+            matrix:
+                runner: [macos-latest, ubuntu-latest, self-hosted]
+                include:
+                    - runner: ubuntu-latest
+                      bazel-cache-dir: ~/.cache/bazel
+                      bazelisk-cache-dir: ~/.cache/bazelisk
+                    - runner: self-hosted
+                      bazel-cache-dir: ~/.cache/bazel
+                      bazelisk-cache-dir: ~/.cache/bazelisk
+                    - runner: macos-latest
+                      bazel-cache-dir: /private/var/tmp/_bazel_runner/
+                      bazelisk-cache-dir: ~/Library/Caches/bazelisk
         steps:
-            - run: echo woof
+            - name: Checkout source code
+              uses: actions/checkout@v3
+
+            - name: Get current release tag
+              uses: auguwu/git-tag-action@master
+              id: tag
+
+            - name: Setup Bazel cache
+              uses: actions/cache@v3
+              with:
+                path: |
+                    ${{matrix.bazelisk-cache-dir}}
+                    ${{matrix.bazel-cache-dir}}
+                key: bazel-cache-${{matrix.runner}}
+
+            - name: Synchronize dependencies
+              run: ./dev sync-deps
+
+            - name: Build release binary
+              id: binary
+              run: |
+                echo "===> Building release binary..."
+                bazel ${BAZEL_ARGS} build //cli:release_binary
+
+                echo "===> Marking location as an output"
+                location=$(bazel cquery //cli:release_binary --output=files >/dev/null 2>&1 | grep bazel-out)
+                echo "location=$(location)" >> "${GITHUB_OUTPUT}"
+
+            - name: Create and update binary location
+              run: |
+                echo "===> Copying ${{steps.binary.outputs.location}} -> ./bin/charted"
+                mkdir -p ./bin && cp ${{steps.binary.outputs.location}} ./bin
+                mv ./bin/release_binary ./bin/charted
+
+            - name: Upload to S3 bucket (/charted/server/${{steps.tag.outputs.version}})
+              uses: Noelware/s3-action@2.2.1
+              with:
+                enforce-path-access-style: true
+                access-key-id: ${{secrets.S3_ACCESS_KEY}}
+                path-format: $(prefix)/charted/server/${{steps.tag.outputs.version}}/binaries/charted-$(os)-$(arch)
+                secret-key: ${{secrets.S3_SECRET_KEY}}
+                endpoint: ${{secrets.S3_ENDPOINT}}
+                region: us-east-1
+                prefix: /noelware/artifacts
+                bucket: august
+
+            - name: Upload to S3 bucket (/charted/server/latest)
+              uses: Noelware/s3-action@2.2.1
+              with:
+                enforce-path-access-style: true
+                access-key-id: ${{secrets.S3_ACCESS_KEY}}
+                path-format: $(prefix)/charted/server/latest/binaries/charted-$(os)-$(arch)
+                secret-key: ${{secrets.S3_SECRET_KEY}}
+                endpoint: ${{secrets.S3_ENDPOINT}}
+                region: us-east-1
+                prefix: /noelware/artifacts
+                bucket: august

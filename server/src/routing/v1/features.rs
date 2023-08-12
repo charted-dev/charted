@@ -16,10 +16,10 @@
 use crate::{models::res::ok, openapi::gen_response_schema, Server};
 use axum::{extract::State, http::StatusCode, response::IntoResponse};
 use charted_common::hashmap;
-use charted_proc_macros::paths;
+use charted_proc_macros::response;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use utoipa::ToSchema;
+use utoipa::{ToSchema, openapi::{*, path::*}};
 
 /// Represents the response from the `GET /features` REST handler
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema)]

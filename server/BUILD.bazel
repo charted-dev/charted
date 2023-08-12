@@ -15,10 +15,7 @@
 
 load("//:build/rust_project.bzl", "rust_project")
 
-local_crates = ["//{path}:charted_{name}".format(
-    name = name,
-    path = path,
-) for (path, name) in [
+local_crates = ["//%s:charted_%s" % (path, name) for (path, name) in [
     ("crates/common", "common"),
     ("crates/config", "config"),
     ("crates/database", "database"),
@@ -37,7 +34,10 @@ local_crates = ["//{path}:charted_{name}".format(
 rust_project(
     name = "server",
     include_tests = True,
-    proc_macro_deps = ["@crate_index//:async-trait"],
+    proc_macro_deps = [
+        "//crates/proc-macros:charted_proc_macros",
+        "@crate_index//:async-trait",
+    ],
     deps = [
         "@crate_index//:ansi_term",
         "@crate_index//:argon2",
