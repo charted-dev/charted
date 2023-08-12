@@ -12,3 +12,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+terraform {
+  required_providers {
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "2.22.0"
+    }
+
+    helm = {
+      source  = "hashicorp/helm"
+      version = "2.10.1"
+    }
+  }
+}
+
+provider "kubernetes" {
+  config_context = var.context != "" ? var.context : null
+  config_path    = var.kubeconfig
+}
