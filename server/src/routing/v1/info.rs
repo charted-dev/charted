@@ -14,19 +14,14 @@
 // limitations under the License.
 
 use crate::{models::res::ok, openapi::gen_response_schema};
-use axum::{http::StatusCode, response::IntoResponse};
+use axum::http::StatusCode;
 use charted_common::{models::Distribution, BUILD_DATE, COMMIT_HASH, VERSION};
+use charted_proc_macros::controller;
 use serde::{Deserialize, Serialize};
-use utoipa::{
-    openapi::{
-        path::{OperationBuilder, PathItemBuilder},
-        ContentBuilder, PathItem, PathItemType, Ref, RefOr, ResponseBuilder,
-    },
-    ToSchema,
-};
+use utoipa::ToSchema;
 
 /// Represents the response for the `GET /info` REST handler.
-#[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct InfoResponse {
     /// The distribution the server is running off from
     pub distribution: Distribution,
@@ -49,9 +44,8 @@ pub struct InfoResponse {
 
 gen_response_schema!(InfoResponse);
 
-pub async fn info() -> impl IntoResponse {
-    ok(
-        StatusCode::OK,
+impl Default for InfoResponse {
+    fn default() -> InfoResponse {
         InfoResponse {
             distribution: Distribution::default(),
             commit_sha: COMMIT_HASH.to_string(),
@@ -59,34 +53,12 @@ pub async fn info() -> impl IntoResponse {
             product: "charted-server".into(),
             version: VERSION.to_string(),
             vendor: "Noelware, LLC.".into(),
-        },
-    )
+        }
+    }
 }
 
-pub fn paths() -> PathItem {
-    PathItemBuilder::new()
-        .operation(
-            PathItemType::Get,
-            OperationBuilder::new()
-                .operation_id(Some("info"))
-                .description(Some(
-                    "REST handler for getting more information about this instance that can be publically be visible.",
-                ))
-                .response(
-                    "200",
-                    RefOr::T(
-                        ResponseBuilder::new()
-                            .description("Successful response")
-                            .content(
-                                "application/json",
-                                ContentBuilder::new()
-                                    .schema(RefOr::Ref(Ref::from_schema_name("InfoResponse")))
-                                    .build(),
-                            )
-                            .build(),
-                    ),
-                )
-                .build(),
-        )
-        .build()
+/// REST handler for getting more information about this instance that can be visible for API consumers.
+#[controller(tags("Main"), response(200, "Successful response", ("application/json", response!("ApiInfoResponse"))))]
+pub async fn info() {
+    ok(StatusCode::OK, InfoResponse::default())
 }

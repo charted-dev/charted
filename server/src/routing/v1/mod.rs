@@ -31,7 +31,6 @@ use metrics::*;
 use openapi::*;
 use serde_json::json;
 
-pub mod apikeys;
 pub mod cdn;
 pub mod features;
 pub mod heartbeat;
@@ -39,20 +38,13 @@ pub mod info;
 pub mod main;
 pub mod metrics;
 pub mod openapi;
-pub mod organizations;
-pub mod repositories;
-pub mod users;
 
-pub fn create_router(server: Server) -> Router<Server> {
+pub fn create_router(_server: Server) -> Router<Server> {
     let mut router = Router::new()
-        .nest("/organizations", organizations::create_router())
-        .nest("/repositories", repositories::create_router())
-        .nest("/apikeys", apikeys::create_router())
-        .nest("/users", users::create_router(server.clone()))
-        .route("/heartbeat", get(heartbeat))
-        .route("/_openapi", get(openapi))
-        .route("/features", get(features))
-        .route("/info", get(info))
+        .route("/openapi.json", get(openapi))
+        .route("/heartbeat", get(HeartbeatRestController::run))
+        .route("/features", get(FeaturesRestController::run))
+        .route("/info", get(InfoRestController::run))
         .route("/", get(MainRestController::run))
         .fallback(fallback);
 

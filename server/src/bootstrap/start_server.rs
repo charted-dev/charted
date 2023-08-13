@@ -18,6 +18,7 @@ use crate::{Server, SERVER};
 use charted_common::{is_debug_enabled, Snowflake, COMMIT_HASH, VERSION};
 use charted_config::{Config, ConfigExt, SessionBackend};
 use charted_database::{controllers::users::UserDatabaseController, MIGRATIONS};
+use charted_helm_charts::HelmCharts;
 use charted_metrics::SingleRegistry;
 use charted_redis::RedisClient;
 use charted_sessions::SessionManager;
@@ -143,12 +144,16 @@ impl ConfigureModulesPhase {
         );
 
         now = Instant::now();
+
+        let storage = MultiStorageService::from(config.storage.clone());
         let snowflake = Snowflake::new(0);
         let registry = SingleRegistry::configure(config.clone(), vec![]);
+        let helm_charts = HelmCharts::new(storage.clone());
+        helm_charts.init().await?;
+
         let controllers: Vec<Arc<dyn Any + Send + Sync>> =
             vec![Arc::new(UserDatabaseController::new(pool.clone(), snowflake.clone()))];
 
-        let storage = MultiStorageService::from(config.storage.clone());
         info!(
             took = format!("{:?}", Instant::now().duration_since(now)),
             "Initialized all misc dependencies!"
@@ -156,6 +161,7 @@ impl ConfigureModulesPhase {
 
         Ok(Server {
             controllers,
+            helm_charts,
             snowflake: RefCell::new(snowflake),
             sessions: Arc::new(Mutex::new(sessions)),
             registry,

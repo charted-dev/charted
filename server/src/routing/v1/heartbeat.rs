@@ -13,45 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use serde_json::Value;
-use utoipa::openapi::{
-    path::{OperationBuilder, PathItemBuilder},
-    ContentBuilder, ObjectBuilder, PathItem, PathItemType, RefOr, ResponseBuilder, Schema, SchemaType,
-};
+use charted_proc_macros::controller;
 
+/// Generic healthcheck endpoint to use for Docker and Kubernetes usage.
+#[controller(tags("Main"), response(200, "Successful response", ("text/plain", string)))]
 pub async fn heartbeat() -> &'static str {
     "Ok."
-}
-
-pub fn paths() -> PathItem {
-    PathItemBuilder::new()
-        .operation(
-            PathItemType::Get,
-            OperationBuilder::new()
-                .operation_id(Some("heartbeat"))
-                .description(Some("Health endpoint to use to check if the server is available to receive requests. Useful for Docker's healthcheck or Kubernetes' readiness/liveness/startup probes."))
-                .response(
-                    "200",
-                    RefOr::T(
-                        ResponseBuilder::new()
-                            .description("Successful response.")
-                            .content(
-                                "application/json",
-                                ContentBuilder::new()
-                                    .schema(RefOr::T(
-                                        Schema::Object(
-                                            ObjectBuilder::new()
-                                                .schema_type(SchemaType::String)
-                                                .example(Some(Value::String("Ok.".into())))
-                                                .build()
-                                            )
-                                        )
-                                    ).build()
-                            )
-                            .build()
-                    )
-                )
-                .build()
-        )
-        .build()
 }

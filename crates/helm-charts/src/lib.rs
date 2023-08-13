@@ -239,7 +239,7 @@ impl HelmCharts {
         if let MultiStorageService::Filesystem(fs) = self.storage.clone() {
             let paths = vec![
                 fs.normalize("./metadata")?.unwrap(),
-                fs.normalize("./tarballs")?.unwrap(),
+                fs.normalize("./repositories")?.unwrap(),
             ];
 
             for path in paths.clone().iter() {
@@ -248,8 +248,6 @@ impl HelmCharts {
                     create_dir_all(path)?;
                 }
             }
-
-            info!("initializes Helm Chart storage module");
         }
 
         Ok(())

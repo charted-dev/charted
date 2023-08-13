@@ -13,13 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![allow(deprecated)]
+
 use crate::{models::res::ok, openapi::gen_response_schema, Server};
-use axum::{extract::State, http::StatusCode, response::IntoResponse};
+use axum::{extract::State, http::StatusCode};
 use charted_common::hashmap;
-use charted_proc_macros::response;
+use charted_proc_macros::controller;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use utoipa::{ToSchema, openapi::{*, path::*}};
+use utoipa::ToSchema;
 
 /// Represents the response from the `GET /features` REST handler
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema)]
@@ -52,8 +54,9 @@ pub struct FeaturesResponse {
 
 gen_response_schema!(FeaturesResponse);
 
-#[allow(deprecated)]
-pub async fn features(State(server): State<Server>) -> impl IntoResponse {
+/// Retrieve this server's features. This is only for enabling or disabling features for API consumers.
+#[controller(tags("Main"), response(200, "Successful response", ("application/json", response!("ApiFeaturesResponse"))))]
+pub async fn features(State(server): State<Server>) {
     ok(
         StatusCode::OK,
         FeaturesResponse {
@@ -67,34 +70,3 @@ pub async fn features(State(server): State<Server>) -> impl IntoResponse {
         },
     )
 }
-
-pub fn paths() -> PathItem {
-    PathItemBuilder::new()
-        .operation(
-            PathItemType::Get,
-            OperationBuilder::new()
-                .operation_id(Some("features"))
-                .description(Some("REST handler to retrieve this server's features that were enabled or disabled by the server administrators"))
-                .response("200", ResponseBuilder::new()
-                    .description("Successful response.")
-                    .content("application/json", ContentBuilder::new()
-                        .schema(response!("ApiFeaturesResponse"))
-                        .build()
-                    ).build())
-                .build(),
-        )
-        .build()
-}
-
-// paths! {
-//     Get {
-//         description("Hello, world?");
-//         operationId("features");
-//         tags(["Main"]);
-
-//         requestBody("application/json", {
-//             description("Payload for the `GET /features` REST endpoint.");
-//             schema(crate::routing::v1::features::FeaturesResponse);
-//         });
-//     }
-// }

@@ -19,6 +19,7 @@ local_crates = ["//%s:charted_%s" % (path, name) for (path, name) in [
     ("crates/common", "common"),
     ("crates/config", "config"),
     ("crates/database", "database"),
+    ("crates/helm-charts", "helm_charts"),
     ("crates/logging", "logging"),
     ("crates/metrics", "metrics"),
     ("crates/redis", "redis"),
