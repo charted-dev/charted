@@ -15,8 +15,101 @@
 
 use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
+use syn::{spanned::Spanned, Attribute, Error, Expr, ExprLit, Lit, Meta};
+
+pub fn extract_doc_comments<'a, I: Iterator<Item = &'a Attribute>>(attrs: I) -> Result<Vec<String>, syn::Error> {
+    let literals = attrs
+        .into_iter()
+        .filter_map(|attr| match &attr.meta {
+            Meta::NameValue(nv) if nv.path.is_ident("doc") => Some(nv.value.clone()),
+            _ => None,
+        })
+        .map(|expr| match expr {
+            Expr::Lit(ExprLit { lit: Lit::Str(s), .. }) => Ok(s.value()),
+            e => Err(e),
+        })
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|expr| Error::new(expr.span(), "Doc comment was not a string literal"))?;
+
+    Ok(literals
+        .iter()
+        .flat_map(|f| f.split('\n').collect::<Vec<_>>())
+        .map(|line| line.to_string())
+        .collect())
+}
+
+/// Helper struct for [`Option`][std::option::Option] to implement [`ToTokens`]
+#[derive(Clone)]
+pub struct OptionHelper<T: ToTokens + Clone>(pub std::option::Option<T>);
+
+impl<T: ToTokens + Clone> ToTokens for OptionHelper<T> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        match self.0.clone() {
+            Some(tok) => tokens.extend(quote!(Some(#tok))),
+            None => tokens.extend(quote!(None)),
+        }
+    }
+}
+
+impl<U, T: ToTokens + Clone + From<U>> From<std::option::Option<U>> for OptionHelper<T> {
+    fn from(value: std::option::Option<U>) -> Self {
+        match value {
+            Some(tok) => OptionHelper(Some(T::from(tok))),
+            None => OptionHelper(None),
+        }
+    }
+}
+
+/// Helper struct for [`Vec`][std::vec::Vec] that implements [`ToTokens`]. This was
+/// implemented due to inconsistences when repeatition were used with `vec![...];`
+#[derive(Clone)]
+pub struct VecHelper<T: ToTokens + Clone>(pub std::vec::Vec<T>);
+
+impl<T: ToTokens + Clone> ToTokens for VecHelper<T> {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let mut variants = vec![];
+        for me in self.0.iter() {
+            variants.push(quote! { vec.push(::core::convert::Into::into(#me)); });
+        }
+
+        tokens.extend(quote! {
+            let mut vec = ::std::vec::Vec::new();
+            #(#variants)*
+
+            vec
+        });
+    }
+}
+
+impl<U: Clone, T: From<U> + ToTokens + Clone> From<std::vec::Vec<U>> for VecHelper<T> {
+    fn from(value: std::vec::Vec<U>) -> Self {
+        let mut handles: Vec<T> = vec![];
+        for handle in value.iter() {
+            handles.push(T::from(handle.clone()));
+        }
+
+        Self(handles)
+    }
+}
+
+#[derive(Clone, Hash, PartialEq, Eq)]
+pub struct StringHelper(std::string::String);
+
+impl ToTokens for StringHelper {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let s = self.0.clone();
+        tokens.extend(quote!(::std::string::String::from(#s)));
+    }
+}
+
+impl From<std::string::String> for StringHelper {
+    fn from(value: std::string::String) -> Self {
+        Self(value)
+    }
+}
 
 /// Helper struct for [`RefOr`][utoipa::openapi::RefOr] to implement [`ToTokens`].
+#[derive(Clone)]
 pub enum RefOr<T: ToTokens> {
     Ref(Ref),
     T(T),
@@ -41,6 +134,7 @@ impl<U, T: ToTokens + From<U>> From<utoipa::openapi::RefOr<U>> for RefOr<T> {
 }
 
 /// Helper struct for [`Ref`][utoipa::openapi::Ref], but implements [`ToTokens`].
+#[derive(Clone)]
 pub struct Ref(utoipa::openapi::Ref);
 
 impl ToTokens for Ref {
@@ -64,6 +158,7 @@ impl From<utoipa::openapi::Ref> for Ref {
 /// implements [`ToTokens`].
 ///
 /// This enum only supports the HTTP verbs that charted-server uses.
+#[derive(Clone)]
 pub enum PathItemType {
     Delete,
     Patch,
@@ -99,6 +194,7 @@ impl From<utoipa::openapi::path::PathItemType> for PathItemType {
 
 /// Helper struct for [`Response`][utoipa::openapi::Response], that implements
 /// [`ToTokens`].
+#[derive(Clone)]
 pub struct Response(utoipa::openapi::Response);
 
 impl ToTokens for Response {
@@ -126,6 +222,7 @@ impl From<utoipa::openapi::Response> for Response {
 }
 
 /// Helper struct for [`Operation`][utoipa::openapi::path::Operation], but implements [`ToTokens`].
+#[derive(Clone)]
 pub struct Operation(utoipa::openapi::path::Operation);
 
 impl ToTokens for Operation {
@@ -186,6 +283,7 @@ impl From<utoipa::openapi::path::Operation> for Operation {
 /// Helper enum for [`ParameterIn`][utoipa::openapi::path::ParameterIn] to implement
 /// [`ToTokens`]. This enum is only meant for what charted-server will usually fill
 /// in.
+#[derive(Clone)]
 pub enum ParameterIn {
     Path,
     Query,
@@ -213,6 +311,7 @@ impl From<utoipa::openapi::path::ParameterIn> for ParameterIn {
 /// Helper enum for [`ParameterStyle`][utoipa::openapi::path::ParameterStyle] to implement
 /// [`ToTokens`]. This enum is only meant for what charted-server will usually fill
 /// in.
+#[derive(Clone)]
 pub enum ParameterStyle {
     /// Default for [`ParameterType::Query`][utoipa::openapi::path::ParameterIn::Query]
     Form,
@@ -251,6 +350,7 @@ impl From<utoipa::openapi::path::ParameterStyle> for ParameterStyle {
 }
 
 /// Helper enum for [`Deprecated`][utoipa::openapi::Deprecated], but implements [`ToTokens`].
+#[derive(Clone)]
 pub enum Deprecated {
     True,
     False,
@@ -275,6 +375,7 @@ impl From<utoipa::openapi::Deprecated> for Deprecated {
 }
 
 /// Helper enum for [`Required`][utoipa::openapi::Deprecated], but implements [`ToTokens`].
+#[derive(Clone)]
 pub enum Required {
     True,
     False,
@@ -300,7 +401,8 @@ impl From<utoipa::openapi::Required> for Required {
 
 /// Helper struct for [`Parameter`][utoipa::openapi::path::Parameter], which implements
 /// [`ToTokens`].
-pub struct Parameter(utoipa::openapi::path::Parameter);
+#[derive(Clone)]
+pub struct Parameter(pub(crate) utoipa::openapi::path::Parameter);
 
 impl ToTokens for Parameter {
     fn to_tokens(&self, tokens: &mut TokenStream) {
@@ -334,12 +436,12 @@ impl ToTokens for Parameter {
             });
         }
 
-        // if let Some(schema) = self.0.schema.clone() {
-        //     let schema: RefOr<Schema> = schema.into();
-        //     variants.push(quote! {
-        //         .schema(Some(#schema))
-        //     });
-        // }
+        if let Some(schema) = self.0.schema.clone() {
+            let schema: RefOr<Schema> = schema.into();
+            variants.push(quote! {
+                .schema(Some(#schema))
+            });
+        }
 
         tokens.extend(quote! {
             ::utoipa::openapi::path::ParameterBuilder::new()#(#variants)*.build()
@@ -355,6 +457,7 @@ impl From<utoipa::openapi::path::Parameter> for Parameter {
 
 /// Helper struct for [`RequestBody`][utoipa::openapi::request_body::RequestBody], that
 /// implements [`ToTokens`].
+#[derive(Clone)]
 pub struct RequestBody(utoipa::openapi::request_body::RequestBody);
 
 impl ToTokens for RequestBody {
@@ -387,6 +490,7 @@ impl From<utoipa::openapi::request_body::RequestBody> for RequestBody {
 }
 
 /// Helper struct for [`Content`][utoipa::openapi::Content], that implements [`ToTokens`].
+#[derive(Clone)]
 pub struct Content(utoipa::openapi::Content);
 
 impl ToTokens for Content {
@@ -405,6 +509,7 @@ impl From<utoipa::openapi::Content> for Content {
 }
 
 /// Helper struct for [`Schema`][utoipa::openapi::Schema], that implements [`ToTokens`].
+#[derive(Clone)]
 pub enum Schema {
     Array(schema::Array),
     Object(schema::Object),
@@ -413,8 +518,8 @@ pub enum Schema {
 impl ToTokens for Schema {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match self {
-            Self::Object(obj) => tokens.extend(quote!(#obj)),
-            Self::Array(arr) => tokens.extend(quote!(#arr)),
+            Self::Object(obj) => tokens.extend(quote!(::utoipa::openapi::Schema::Object(#obj))),
+            Self::Array(arr) => tokens.extend(quote!(::utoipa::openapi::Schema::Array(#arr))),
         }
     }
 }
@@ -431,10 +536,12 @@ impl From<utoipa::openapi::Schema> for Schema {
 
 /// External helpers for the [`Schema`] helper struct.
 pub mod schema {
+    use super::StringHelper;
     use proc_macro2::TokenStream;
     use quote::{quote, ToTokens};
 
     /// Helper struct for [`Array`][utoipa::openapi::Array], that implements [`ToTokens`].
+    #[derive(Clone)]
     pub struct Array(utoipa::openapi::Array);
 
     impl ToTokens for Array {
@@ -453,8 +560,10 @@ pub mod schema {
                 variants.push(quote!(.deprecated(#deprecated)));
             }
 
-            let nullable = self.0.nullable;
-            variants.push(quote!(.nullable(#nullable)));
+            if self.0.nullable {
+                let nullable = self.0.nullable;
+                variants.push(quote!(.nullable(#nullable)));
+            }
 
             tokens.extend(quote! {
                 ::utoipa::openapi::ArrayBuilder::new()#(#variants)*.build()
@@ -469,6 +578,7 @@ pub mod schema {
     }
 
     /// Helper struct for [`Object`][utoipa::openapi::Object], that implements [`ToTokens`].
+    #[derive(Clone)]
     pub struct Object(utoipa::openapi::Object);
 
     impl ToTokens for Object {
@@ -487,8 +597,57 @@ pub mod schema {
                 variants.push(quote!(.deprecated(#deprecated)));
             }
 
-            let nullable = self.0.nullable;
-            variants.push(quote!(.nullable(#nullable)));
+            if self.0.nullable {
+                let nullable = self.0.nullable;
+                variants.push(quote!(.nullable(#nullable)));
+            }
+
+            if let Some(format) = self.0.format.clone() {
+                let format: super::schema::SchemaFormat = format.into();
+                variants.push(quote!(.format(Some(#format))));
+            }
+
+            for elem in self.0.required.clone() {
+                let elem: super::StringHelper = elem.into();
+                variants.push(quote!(.required(#elem)));
+            }
+
+            for (prop, r) in self.0.properties.iter() {
+                let prop: super::StringHelper = <std::string::String as Into<StringHelper>>::into(prop.clone());
+                let r: super::RefOr<super::Schema> = <utoipa::openapi::RefOr<utoipa::openapi::Schema> as Into<
+                    super::RefOr<super::Schema>,
+                >>::into(r.clone());
+
+                variants.push(quote!(.property(#prop, #r)));
+            }
+
+            if let Some(maximum) = self.0.maximum {
+                variants.push(quote!(.maximum(#maximum)));
+            }
+
+            if let Some(minimum) = self.0.minimum {
+                variants.push(quote!(.minimum(#minimum)));
+            }
+
+            if let Some(maximum) = self.0.exclusive_maximum {
+                variants.push(quote!(.exclusive_maximum(#maximum)));
+            }
+
+            if let Some(minimum) = self.0.exclusive_minimum {
+                variants.push(quote!(.exclusive_minimum(#minimum)));
+            }
+
+            if let Some(max_len) = self.0.max_length {
+                variants.push(quote!(.max_length(#max_len)));
+            }
+
+            if let Some(min_len) = self.0.min_length {
+                variants.push(quote!(.min_length(#min_len)));
+            }
+
+            if let Some(pattern) = self.0.pattern.clone() {
+                variants.push(quote!(.pattern(#pattern)));
+            }
 
             tokens.extend(quote! {
                 ::utoipa::openapi::ObjectBuilder::new()#(#variants)*.build()
@@ -503,6 +662,7 @@ pub mod schema {
     }
 
     /// Helper enum for [`SchemaType`][utoipa::openapi::SchemaType], that implements [`ToTokens`].
+    #[derive(Clone)]
     pub enum SchemaType {
         Object,
         Value,
@@ -542,6 +702,7 @@ pub mod schema {
     }
 
     /// Helper enum for [`SchemaFormat`][utoipa::openapi::SchemaFormat], that implements [`ToTokens`].
+    #[derive(Clone)]
     pub enum SchemaFormat {
         KnownFormat(KnownFormat),
         Custom(String),
@@ -566,6 +727,7 @@ pub mod schema {
     }
 
     /// Helper enum for [`KnownFormat`][utoipa::openapi::KnownFormat], that implements [`ToTokens`].
+    #[derive(Clone)]
     pub enum KnownFormat {
         Float,
         Double,
@@ -619,6 +781,7 @@ pub mod collections {
 
     /// Helper struct for [`BTreeMap`][std::collections::BTreeMap], but implements
     /// [`ToTokens`].
+    #[derive(Clone)]
     pub struct BTreeMap<K: ToTokens + Hash + Eq, V: ToTokens>(std::collections::BTreeMap<K, V>);
     impl<K: ToTokens + Hash + Eq, V: ToTokens> ToTokens for BTreeMap<K, V> {
         fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
@@ -644,6 +807,40 @@ pub mod collections {
 
     impl<K: ToTokens + Hash + Eq, V: ToTokens> std::ops::Deref for BTreeMap<K, V> {
         type Target = std::collections::BTreeMap<K, V>;
+
+        fn deref(&self) -> &Self::Target {
+            &self.0
+        }
+    }
+
+    /// Helper struct for [`HashMap`][std::collections::HashMap], but implements
+    /// [`ToTokens`].
+    #[derive(Clone)]
+    pub struct HashMap<K: ToTokens + Hash + Eq, V: ToTokens>(pub(crate) std::collections::HashMap<K, V>);
+    impl<K: ToTokens + Hash + Eq, V: ToTokens> ToTokens for HashMap<K, V> {
+        fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
+            let mut variants: Vec<proc_macro2::TokenStream> = vec![];
+            for (key, value) in self.0.iter() {
+                variants.push(quote! { map.insert(#key, #value); });
+            }
+
+            tokens.extend(quote! {
+                let mut map = ::std::collections::HashMap::new();
+                #(#variants)*
+
+                map
+            });
+        }
+    }
+
+    impl<K: ToTokens + Hash + Eq, V: ToTokens> From<std::collections::HashMap<K, V>> for HashMap<K, V> {
+        fn from(value: std::collections::HashMap<K, V>) -> Self {
+            Self(value)
+        }
+    }
+
+    impl<K: ToTokens + Hash + Eq, V: ToTokens> std::ops::Deref for HashMap<K, V> {
+        type Target = std::collections::HashMap<K, V>;
 
         fn deref(&self) -> &Self::Target {
             &self.0

@@ -13,12 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod controller;
 mod helpers;
-mod paths;
 
+use heck::ToPascalCase;
+use helpers::StringHelper;
 use proc_macro::TokenStream;
+use proc_macro2::Ident;
 use quote::quote;
-use syn::{parse_macro_input, Expr, Lit};
+use syn::{parse_macro_input, spanned::Spanned, Error, Expr, FnArg, ItemFn, Lit, ReturnType, Type};
 
 /// Simple macro to return a reference to a [`Schema`][utoipa::openapi::Schema].
 #[proc_macro]
@@ -50,49 +53,175 @@ pub fn response(body: TokenStream) -> TokenStream {
     .into()
 }
 
-/// Functional procedural macro to implement a method that returns
-/// a [`PathItem`], with some custom syntax.
+/// Proc-macro to register a charted-server REST endpoint. This was made in attempt to
+/// build out a hieroitical layer between routes.
 ///
-/// ## Examples
+/// ## How does it work?
+/// It works by grouping APIs together into a single module with a function that points to
+/// a path and a method. This is used by the `#[handler]` attribute macro:
+///
 /// ```no_run
-/// # use charted_proc_macros::{paths, response};
+/// # use charted_proc_macros::{response, handler};
+/// # use charted_openapi::security::*;
 /// #
-/// paths! {
-///    Get {
-///       operation_id("features");
-///       description("REST handler to retrieve this server's features that were enabled or disabled by the server administrators");
-///
-///       responses(StatusCode::OK, "application/json") {
-///          description("Successful response!");
-///          schema(response!("ApiFeaturesResponse"));
-///       }
-///    }
-/// }
+/// #[controller(
+///     id = "features",
+///     description = "REST endpoint to retrieve this instance's features.",
+///     responses(200, {
+///         description("Successful response.");
+///         contentType("application/json", response!("ApiFeaturesResponse"));
+///     })
+/// )]
+/// pub async fn features() -> impl IntoResponse {}
 /// ```
-#[proc_macro]
-pub fn paths(body: TokenStream) -> TokenStream {
-    let args = parse_macro_input!(body as paths::Args);
-    let operations = args
-        .operations
-        .iter()
-        .map(|(ty, op)| {
-            (
-                helpers::PathItemType::from(ty.clone()),
-                helpers::Operation::from(op.clone()),
-            )
-        })
-        .map(|(ty, op)| quote! { .operation(#ty, #op) })
-        .collect::<Vec<_>>();
+///
+/// This will generate a [Handler][axum::handler::Handler] with the arguments that
+/// implement [`FromRequestParts`][axum::extract::FromRequestParts] or [`FromRequest`][axum::extract::FromRequest]. Even
+/// though that implementing our own handlers, the arguments and return type are validated to check
+/// if it is a valid element.
+///
+/// The struct name will always be the ID with `RestController` at the end, i.e, `FeaturesRestController`.
+#[proc_macro_attribute]
+pub fn controller(attr: TokenStream, body: TokenStream) -> TokenStream {
+    let mut args = parse_macro_input!(attr as controller::Args);
+    let func = parse_macro_input!(body as ItemFn);
 
-    let pathitem = quote! {
-        ::utoipa::openapi::path::PathItemBuilder::new()
-            #(#operations)*
-            .build()
+    if func.sig.unsafety.is_some() {
+        return syn::Error::new(func.span(), "`unsafe` is not allowed")
+            .into_compile_error()
+            .into();
+    }
+
+    if func.sig.constness.is_some() {
+        return syn::Error::new(func.span(), "`const` is not allowed")
+            .into_compile_error()
+            .into();
+    }
+
+    if func.sig.abi.is_some() {
+        return syn::Error::new(func.span(), "ABI signatures is not allowed")
+            .into_compile_error()
+            .into();
+    }
+
+    if func.sig.asyncness.is_none() {
+        return syn::Error::new(func.span(), "`async` is required")
+            .into_compile_error()
+            .into();
+    }
+
+    if args.description.is_none() {
+        args.description = Some(match helpers::extract_doc_comments(func.attrs.clone().iter()) {
+            Ok(comments) => comments.join("\n"),
+            Err(e) => return e.to_compile_error().into(),
+        });
+    }
+
+    if args.id.is_empty() {
+        args.id = func.sig.ident.to_string();
+    }
+
+    let return_ty = match func.sig.output.clone() {
+        ReturnType::Default => quote!(-> impl ::axum::response::IntoResponse),
+        ReturnType::Type(_, ty) => quote!(-> #ty),
+    };
+
+    let body = func.block.clone();
+    let controller::Args {
+        id,
+        tags,
+        responses,
+        parameters,
+        description,
+        request_body,
+        is_deprecated,
+    } = args.clone();
+
+    let responses: helpers::collections::HashMap<u16, helpers::Response> = responses.into();
+    let parameters: helpers::collections::HashMap<StringHelper, helpers::Parameter> = {
+        let params = parameters.clone();
+        let mut h = std::collections::HashMap::<StringHelper, helpers::Parameter>::new();
+
+        for (key, value) in params.iter() {
+            h.insert(helpers::StringHelper::from(key.clone()), value.clone());
+        }
+
+        helpers::collections::HashMap(h)
+    };
+
+    let tags: helpers::VecHelper<String> = tags.into();
+    let is_deprecated_tt = match is_deprecated.clone().flatten() {
+        Some(_) => quote!(Some(::utoipa::openapi::Deprecated::True)),
+        None => quote!(None),
+    };
+
+    let request_body = match request_body.clone() {
+        Some(req) => quote!(Some(#req)),
+        None => quote!(None),
+    };
+
+    let ident_name = format!("{}RestController", func.sig.ident.clone()).to_pascal_case();
+    let struct_name = Ident::new(&ident_name, func.sig.ident.span());
+    let desc_doc_comments = match args.description.clone() {
+        Some(desc) => desc.split('\n').map(|f| quote!(#[doc = #f])).collect::<Vec<_>>(),
+        None => vec![],
+    };
+
+    let deprecated_attr = match is_deprecated.as_ref() {
+        Some(Some(desc)) => quote!(#[deprecated = #desc]),
+        Some(None) => quote!(#[deprecated]),
+        None => quote!(),
     };
 
     quote! {
-        pub fn paths() -> ::utoipa::openapi::PathItem {
-            #pathitem
+        #(#desc_doc_comments)*
+        #deprecated_attr
+        pub struct #struct_name;
+
+        impl ::std::fmt::Debug for #struct_name {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+                f.debug_struct(#ident_name).finish()
+            }
+        }
+
+        impl ::core::marker::Copy for #struct_name {}
+        impl ::core::clone::Clone for #struct_name {
+            fn clone(&self) -> #struct_name {
+                *self
+            }
+        }
+
+        impl ::core::default::Default for #struct_name {
+            fn default() -> #struct_name {
+                #struct_name
+            }
+        }
+
+        impl #struct_name {
+            #[doc = " Generates a new [PathItem][utoipa::openapi::path::PathItem] for this rest controller."]
+            pub fn paths() -> ::utoipa::openapi::path::PathItem {
+                let mut builder = ::utoipa::openapi::path::PathItemBuilder::new().description(Some(#description.trim()));
+
+                let responses: ::std::collections::HashMap<u16, ::utoipa::openapi::Response> = { #responses };
+                let parameters: ::std::collections::HashMap<::std::string::String, ::utoipa::openapi::path::Parameter> = { #parameters };
+                let request_body: ::core::option::Option<::utoipa::openapi::request_body::RequestBody> = #request_body;
+
+                let mut op = ::utoipa::openapi::path::OperationBuilder::new()
+                    .description(Some(#description.trim()))
+                    .operation_id(Some(#id))
+                    .tags(Some({ #tags }))
+                    .deprecated(#is_deprecated_tt);
+
+                for (status, resp) in responses.clone().into_iter() {
+                    let status_str = status.to_string();
+                    op = op.response(status_str, resp);
+                }
+
+                builder.build()
+            }
+
+            #[doc = " Runs this REST controller"]
+            pub async fn run(#args) #return_ty #body
         }
     }
     .into()
