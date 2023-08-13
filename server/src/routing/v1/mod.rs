@@ -53,7 +53,7 @@ pub fn create_router(server: Server) -> Router<Server> {
         .route("/_openapi", get(openapi))
         .route("/features", get(features))
         .route("/info", get(info))
-        .route("/", get(main))
+        .route("/", get(MainRestController::run))
         .fallback(fallback);
 
     let config = Config::get();

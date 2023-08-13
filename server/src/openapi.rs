@@ -199,7 +199,7 @@ pub fn document() -> utoipa::openapi::OpenApi {
                 "/heartbeat": crate::routing::v1::heartbeat::paths();
                 "/features": crate::routing::v1::features::paths();
                 "/info": crate::routing::v1::info::paths();
-                "/": crate::routing::v1::main::paths();
+                "/": crate::routing::v1::main::MainRestController::paths();
             })
             .build(),
     );

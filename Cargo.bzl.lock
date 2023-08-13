@@ -1,5 +1,5 @@
 {
-  "checksum": "7b52c082ef686165adf590a1ce2f79e999d4f1b8d1e874e33d186aef4f7af80d",
+  "checksum": "d53c435a167f4f5bd738954fb7f2f9ad5d563f61aa8c0056b5574b3a93121180",
   "crates": {
     "addr2line 0.20.0": {
       "name": "addr2line",
@@ -5213,10 +5213,6 @@
               "target": "heck"
             },
             {
-              "id": "indexmap 2.0.0",
-              "target": "indexmap"
-            },
-            {
               "id": "proc-macro2 1.0.66",
               "target": "proc_macro2"
             },
@@ -5240,15 +5236,6 @@
           "selects": {}
         },
         "edition": "2021",
-        "proc_macro_deps": {
-          "common": [
-            {
-              "id": "paste 1.0.14",
-              "target": "paste"
-            }
-          ],
-          "selects": {}
-        },
         "version": "0.0.0-devel.0"
       },
       "license": null

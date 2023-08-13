@@ -52,10 +52,45 @@ impl Visit for DefaultVisitor {
             return;
         }
 
-        if field.name() == "message" {
-            self.result = write!(self.writer, "{value:?}");
-        } else {
-            self.result = write!(self.writer, " {}", GRAY.paint(format!("{}={value:?}", field.name())));
+        match field.name() {
+            "message" => {
+                self.result = write!(self.writer, "{value:?}");
+            }
+
+            "summary" => {
+                let formatted = format!("{value:?}").replacen('"', "", 2);
+                self.result = write!(self.writer, "{formatted}");
+            }
+
+            "db.statement" => {
+                // trims the first \n\n and "
+                let value = format!("{value:?}").replace('\n', "").replace("\\n", " ");
+                if value.as_str() != "\"\"" {
+                    self.result = write!(
+                        self.writer,
+                        " ({})",
+                        trim_excess_whitspace(&value).replacen('"', "", 2).trim()
+                    );
+                }
+            }
+
+            field => {
+                self.result = write!(self.writer, " {}", GRAY.paint(format!("{}={value:?}", field)));
+            }
         }
     }
+}
+
+// https://stackoverflow.com/a/71864249
+fn trim_excess_whitspace(value: &str) -> String {
+    let mut result = String::with_capacity(value.len());
+    for ch in value.split_whitespace() {
+        if !result.is_empty() {
+            result.push(' ');
+        }
+
+        result.push_str(ch);
+    }
+
+    result
 }

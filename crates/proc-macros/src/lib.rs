@@ -21,7 +21,7 @@ use helpers::StringHelper;
 use proc_macro::TokenStream;
 use proc_macro2::Ident;
 use quote::quote;
-use syn::{parse_macro_input, spanned::Spanned, Error, Expr, FnArg, ItemFn, Lit, ReturnType, Type};
+use syn::{parse_macro_input, spanned::Spanned, Error, Expr, ItemFn, Lit, ReturnType};
 
 /// Simple macro to return a reference to a [`Schema`][utoipa::openapi::Schema].
 #[proc_macro]
@@ -87,25 +87,25 @@ pub fn controller(attr: TokenStream, body: TokenStream) -> TokenStream {
     let func = parse_macro_input!(body as ItemFn);
 
     if func.sig.unsafety.is_some() {
-        return syn::Error::new(func.span(), "`unsafe` is not allowed")
+        return Error::new(func.span(), "`unsafe` is not allowed")
             .into_compile_error()
             .into();
     }
 
     if func.sig.constness.is_some() {
-        return syn::Error::new(func.span(), "`const` is not allowed")
+        return Error::new(func.span(), "`const` is not allowed")
             .into_compile_error()
             .into();
     }
 
     if func.sig.abi.is_some() {
-        return syn::Error::new(func.span(), "ABI signatures is not allowed")
+        return Error::new(func.span(), "ABI signatures is not allowed")
             .into_compile_error()
             .into();
     }
 
     if func.sig.asyncness.is_none() {
-        return syn::Error::new(func.span(), "`async` is required")
+        return Error::new(func.span(), "`async` is required")
             .into_compile_error()
             .into();
     }
@@ -132,7 +132,7 @@ pub fn controller(attr: TokenStream, body: TokenStream) -> TokenStream {
         tags,
         responses,
         parameters,
-        description,
+        description: _,
         request_body,
         is_deprecated,
     } = args.clone();
@@ -167,12 +167,14 @@ pub fn controller(attr: TokenStream, body: TokenStream) -> TokenStream {
         None => vec![],
     };
 
+    let desc = args.description.clone();
     let deprecated_attr = match is_deprecated.as_ref() {
         Some(Some(desc)) => quote!(#[deprecated = #desc]),
         Some(None) => quote!(#[deprecated]),
         None => quote!(),
     };
 
+    let args = func.sig.inputs.clone();
     quote! {
         #(#desc_doc_comments)*
         #deprecated_attr
@@ -200,14 +202,13 @@ pub fn controller(attr: TokenStream, body: TokenStream) -> TokenStream {
         impl #struct_name {
             #[doc = " Generates a new [PathItem][utoipa::openapi::path::PathItem] for this rest controller."]
             pub fn paths() -> ::utoipa::openapi::path::PathItem {
-                let mut builder = ::utoipa::openapi::path::PathItemBuilder::new().description(Some(#description.trim()));
+                let mut builder = ::utoipa::openapi::path::PathItemBuilder::new().description(Some(#desc));
 
                 let responses: ::std::collections::HashMap<u16, ::utoipa::openapi::Response> = { #responses };
                 let parameters: ::std::collections::HashMap<::std::string::String, ::utoipa::openapi::path::Parameter> = { #parameters };
                 let request_body: ::core::option::Option<::utoipa::openapi::request_body::RequestBody> = #request_body;
-
                 let mut op = ::utoipa::openapi::path::OperationBuilder::new()
-                    .description(Some(#description.trim()))
+                    .description(Some(#desc))
                     .operation_id(Some(#id))
                     .tags(Some({ #tags }))
                     .deprecated(#is_deprecated_tt);

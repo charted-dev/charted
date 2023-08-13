@@ -14,18 +14,13 @@
 // limitations under the License.
 
 use crate::{models::res::ok, openapi::gen_response_schema};
-use axum::{http::StatusCode, response::IntoResponse};
+use axum::http::StatusCode;
 use charted_common::VERSION;
+use charted_proc_macros::controller;
 use serde::{Deserialize, Serialize};
-use utoipa::{
-    openapi::{
-        path::{OperationBuilder, PathItemBuilder},
-        ContentBuilder, PathItem, PathItemType, Ref, RefOr, ResponseBuilder,
-    },
-    ToSchema,
-};
+use utoipa::ToSchema;
 
-/// Response object for `GET /`.
+/// Response object for the `GET /` REST controller.
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct MainResponse {
     /// The message, which will always be "Hello, world!"
@@ -34,8 +29,7 @@ pub struct MainResponse {
     /// You know, for Helm charts?
     tagline: String,
 
-    /// Documentation URL for this generic entrypoint
-    /// response.
+    /// Documentation URL for this generic entrypoint response.
     docs: String,
 }
 
@@ -51,32 +45,8 @@ impl Default for MainResponse {
     }
 }
 
-pub async fn main() -> impl IntoResponse {
+/// Main entrypoint to charted-server. This is just a generic "hello world" response.
+#[controller(response(200, "Successful response", ("application/json", response!("ApiMainResponse"))))]
+pub async fn main() {
     ok(StatusCode::OK, MainResponse::default())
-}
-
-pub fn paths() -> PathItem {
-    PathItemBuilder::new()
-        .operation(
-            PathItemType::Get,
-            OperationBuilder::new()
-                .operation_id(Some("main"))
-                .description(Some("Generic main entrypoint to charted-server's API server"))
-                .response(
-                    "200",
-                    RefOr::T(
-                        ResponseBuilder::new()
-                            .description("Successful response.")
-                            .content(
-                                "application/json",
-                                ContentBuilder::new()
-                                    .schema(RefOr::Ref(Ref::from_schema_name("MainResponse")))
-                                    .build(),
-                            )
-                            .build(),
-                    ),
-                )
-                .build(),
-        )
-        .build()
 }
