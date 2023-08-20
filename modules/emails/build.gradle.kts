@@ -116,13 +116,13 @@ protobuf {
 
         if (path == null) {
             logger.lifecycle("Using `protoc` binary from Maven artifact [com.google.protobuf:protoc]. Releases from this are very un-deterministic and might not be available on Maven, so please install `protoc` on the host machine.")
-            artifact = "com.google.protobuf:protoc:3.23.4"
+            artifact = "com.google.protobuf:protoc:3.24.1"
         }
     }
 
     plugins {
         id("grpc") {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.57.1"
+            artifact = "io.grpc:protoc-gen-grpc-java:1.57.2"
         }
 
         id("grpc-kotlin") {
