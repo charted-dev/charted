@@ -68,7 +68,7 @@ jobs:
                   files: ./cli/build/distributions/charted-server.${{matrix.tasks.ext}}
 
             - name: Upload artifacts to Noelware's Artifact Registry (/charted/server/${{steps.tag.outputs.version}})
-              uses: Noelware/s3-action@2.2.0
+              uses: Noelware/s3-action@2.2.1
               with:
                   enforce-path-access-style: true
                   files: ./cli/build/distributions/charted-server.${{matrix.tasks.ext}}
@@ -81,7 +81,7 @@ jobs:
                   bucket: august
 
             - name: Upload artifacts to Noelware's Artifact Registry (/charted/server/unstable)
-              uses: Noelware/s3-action@2.2.0
+              uses: Noelware/s3-action@2.2.1
               with:
                   enforce-path-access-style: true
                   files: ./cli/build/distributions/charted-server.${{matrix.tasks.ext}}
