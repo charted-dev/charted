@@ -32,6 +32,7 @@ rust_project(
         "@crate_index//:regex",
         "@crate_index//:remi-core",
         "@crate_index//:semver",
+        "@crate_index//:sentry",
         "@crate_index//:serde_yaml",
         "@crate_index//:tar",
         "@crate_index//:tracing",

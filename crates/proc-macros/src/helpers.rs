@@ -464,7 +464,7 @@ impl ToTokens for RequestBody {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let mut variants: Vec<TokenStream> = vec![];
         if let Some(desc) = self.0.description.clone() {
-            variants.push(quote!(.description(#desc)));
+            variants.push(quote!(.description(Some(#desc))));
         }
 
         if let Some(required) = self.0.required.clone() {

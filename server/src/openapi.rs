@@ -13,47 +13,57 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::models::res::Error;
 use charted_common::{
     models::{entities::*, helm::*, Distribution, Name, NameOrSnowflake},
     ID,
 };
 use utoipa::{
-    openapi::{ContentBuilder, ObjectBuilder, OpenApiBuilder, RefOr, Response, ResponseBuilder, Schema, SchemaType},
+    openapi::{
+        ArrayBuilder, ContentBuilder, ObjectBuilder, OpenApiBuilder, Ref, RefOr, Response, ResponseBuilder, Schema,
+        SchemaType,
+    },
     OpenApi, ToResponse,
 };
 
 #[derive(OpenApi)]
-#[openapi(components(schemas(
-    // Entities
-    NameOrSnowflake,
-    Name,
-    ID,
-    Distribution,
-    ChartSpecVersion,
-    ChartType,
-    ImportValue,
-    StringOrImportValue,
-    ChartDependency,
-    ChartMaintainer,
-    Chart,
-    ChartIndexSpec,
-    User,
-    Repository,
-    Organization,
-    ApiKey,
-    Member,
-    RepositoryRelease,
-
-    // Responses
-    crate::routing::v1::features::FeaturesResponse,
-    crate::routing::v1::main::MainResponse,
-    crate::routing::v1::info::InfoResponse,
-), responses(
-    crate::routing::v1::features::FeaturesResponse,
-    crate::routing::v1::main::MainResponse,
-    crate::routing::v1::info::InfoResponse,
-    EmptyApiResponse
-)))]
+#[openapi(components(
+    schemas(
+        Error,
+        NameOrSnowflake,
+        Name,
+        ID,
+        Distribution,
+        ChartSpecVersion,
+        ChartType,
+        ImportValue,
+        StringOrImportValue,
+        ChartDependency,
+        ChartMaintainer,
+        Chart,
+        ChartIndexSpec,
+        User,
+        Repository,
+        Organization,
+        ApiKey,
+        Member,
+        RepositoryRelease,
+        crate::routing::v1::features::FeaturesResponse,
+        crate::routing::v1::users::UserResponse,
+        crate::routing::v1::main::MainResponse,
+        crate::routing::v1::info::InfoResponse,
+        crate::routing::v1::EntrypointResponse,
+    ),
+    responses(
+        crate::routing::v1::features::FeaturesResponse,
+        crate::routing::v1::users::UserResponse,
+        crate::routing::v1::main::MainResponse,
+        crate::routing::v1::info::InfoResponse,
+        crate::routing::v1::EntrypointResponse,
+        ApiErrorResponse,
+        EmptyApiResponse
+    )
+))]
 pub(crate) struct MainOpenAPI;
 
 macro_rules! add_paths {
@@ -143,6 +153,9 @@ pub(crate) use gen_response_schema_priv as gen_response_schema;
 #[derive(serde::Serialize, serde::Deserialize)]
 pub(crate) struct EmptyApiResponse;
 
+// not meant to be used directly
+pub(crate) struct ApiErrorResponse;
+
 impl<'r> ToResponse<'r> for EmptyApiResponse {
     fn response() -> (&'r str, RefOr<Response>) {
         (
@@ -175,6 +188,51 @@ impl<'r> ToResponse<'r> for EmptyApiResponse {
     }
 }
 
+impl<'r> ToResponse<'r> for ApiErrorResponse {
+    fn response() -> (&'r str, utoipa::openapi::RefOr<utoipa::openapi::response::Response>) {
+        (
+            "ApiErrorResponse",
+            RefOr::T(
+                ResponseBuilder::new()
+                    .description("Response of when something went wrong. Used in all non 200 status codes.")
+                    .content(
+                        "application/json",
+                        ContentBuilder::new()
+                            .schema(RefOr::T(Schema::Object(
+                                ObjectBuilder::new()
+                                    .description(Some("Schema definition for ApiErrorResponse"))
+                                    .property(
+                                        "success",
+                                        RefOr::T(Schema::Object(
+                                            ObjectBuilder::new()
+                                                .schema_type(SchemaType::Boolean)
+                                                .description(Some(
+                                                    "Whether if the request succeeded. This will always be `false`",
+                                                ))
+                                                .build(),
+                                        )),
+                                    )
+                                    .required("success")
+                                    .property(
+                                        "errors",
+                                        RefOr::T(Schema::Array(
+                                            ArrayBuilder::new()
+                                                .description(Some("List of errors on why the request failed."))
+                                                .items(RefOr::Ref(Ref::from_schema_name("Error")))
+                                                .build(),
+                                        )),
+                                    )
+                                    .required("errors")
+                                    .build(),
+                            )))
+                            .build(),
+                    )
+                    .build(),
+            ),
+        )
+    }
+}
+
 pub fn document() -> utoipa::openapi::OpenApi {
     let mut openapi = charted_openapi::openapi();
     openapi.merge(MainOpenAPI::openapi());
@@ -190,6 +248,8 @@ pub fn document() -> utoipa::openapi::OpenApi {
                 // api keys
 
                 // users
+                "/users/{idOrName}": crate::routing::v1::users::GetUserRestController::paths();
+                "/users": crate::routing::v1::users::paths();
 
                 // main
                 "/heartbeat": crate::routing::v1::heartbeat::HeartbeatRestController::paths();

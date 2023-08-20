@@ -68,9 +68,14 @@ impl<T: Serialize + Debug> Into<Response> for ApiResponse<T> {
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct Error {
+    /// A code that can be looked up on why a request failed. You can view
+    /// all available codes in [the documentation](https://charts.noelware.org/docs/server/latest/api#errors).
     code: String,
+
+    /// Detailed message on why this request failed.
     message: String,
 
+    /// Any JSON value on any details that might help you on why it failed.
     #[serde(skip_serializing_if = "Option::is_none")]
     details: Option<Value>,
 }

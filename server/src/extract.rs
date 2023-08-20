@@ -17,8 +17,14 @@ use std::ops::Deref;
 
 use crate::models::res::{err, ApiResponse};
 use async_trait::async_trait;
-use axum::{extract::FromRequest, http::Request, BoxError};
+use axum::{
+    body::Bytes,
+    extract::FromRequest,
+    http::{header, HeaderMap, Request, StatusCode},
+    BoxError,
+};
 use serde::de::DeserializeOwned;
+use serde_json::{error::Category, json};
 
 /// Wrapper for [`axum::Json`] that uses charted-server's [API response][ApiResponse]
 /// for the details on why it failed to parse JSON from the request
@@ -48,9 +54,102 @@ where
     type Rejection = ApiResponse;
 
     async fn from_request(req: Request<B>, state: &S) -> Result<Self, Self::Rejection> {
-        match axum::Json::<T>::from_request(req, state).await {
-            Ok(payload) => Ok(Json(payload.0)),
-            Err(e) => Err(err(e.status(), ("UNABLE_TO_PARSE_BODY", e.to_string().as_str()).into())),
+        if !has_content_type(req.headers()) {
+            return Err(err(
+                StatusCode::BAD_REQUEST,
+                (
+                    "MISSING_CONTENT_TYPE",
+                    "Expected request to have a Content-Type with [application/json]",
+                )
+                    .into(),
+            ));
+        }
+
+        let bytes = Bytes::from_request(req, state).await.map_err(|e| {
+            error!(%e, "received invalid bytes");
+            err(e.status(), ("INVALID_BODY", e.body_text().as_str()).into())
+        })?;
+
+        let deserializer = &mut serde_json::Deserializer::from_slice(&bytes);
+        match serde_path_to_error::deserialize(deserializer) {
+            Ok(value) => Ok(Json(value)),
+            Err(e) => {
+                let path = match e.path().to_string().as_str() {
+                    "." => "body".to_string(),
+                    path => format!("body.{path}"),
+                };
+
+                let inner = e.inner();
+                match inner.classify() {
+                    Category::Syntax => Err(err(
+                        StatusCode::BAD_REQUEST,
+                        (
+                            "INVALID_JSON",
+                            format!("received invalid JSON: {inner}").as_str(),
+                            json!({
+                                "col": inner.column(),
+                                "line": inner.line(),
+                                "path": path,
+                            }),
+                        )
+                            .into(),
+                    )),
+
+                    Category::Data => Err(err(
+                        StatusCode::NOT_ACCEPTABLE,
+                        (
+                            "SEMANTIC_ERRORS",
+                            format!("data in path was semantically incorrect: {inner}").as_str(),
+                            json!({
+                                "col": inner.column(),
+                                "line": inner.line(),
+                                "path": path,
+                            }),
+                        )
+                            .into(),
+                    )),
+
+                    Category::Eof => Err(err(
+                        StatusCode::BAD_REQUEST,
+                        (
+                            "REACHED_UNEXPECTED_EOF",
+                            "reached unexpected eof",
+                            json!({
+                                "path": path,
+                            }),
+                        )
+                            .into(),
+                    )),
+
+                    Category::Io => Err(err(
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        (
+                            "IO",
+                            "received invalid I/O when parsing body",
+                            json!({
+                                "path": path,
+                            }),
+                        )
+                            .into(),
+                    )),
+                }
+            }
         }
     }
+}
+
+fn has_content_type(headers: &HeaderMap) -> bool {
+    let Some(value) = headers.get(header::CONTENT_TYPE) else {
+        return false;
+    };
+
+    let Ok(value) = value.to_str() else {
+        return false;
+    };
+
+    let Ok(mime) = value.parse::<mime::Mime>() else {
+        return false;
+    };
+
+    mime.type_() == "application" && (mime.subtype() == "json" || mime.suffix().map_or(false, |name| name == "json"))
 }

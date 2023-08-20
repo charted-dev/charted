@@ -17,7 +17,7 @@ use super::BootstrapPhase;
 use crate::{Server, SERVER};
 use charted_common::{is_debug_enabled, Snowflake, COMMIT_HASH, VERSION};
 use charted_config::{Config, ConfigExt, SessionBackend};
-use charted_database::{controllers::users::UserDatabaseController, MIGRATIONS};
+use charted_database::MIGRATIONS;
 use charted_helm_charts::HelmCharts;
 use charted_metrics::SingleRegistry;
 use charted_redis::RedisClient;
@@ -31,14 +31,13 @@ use sqlx::{
     ConnectOptions,
 };
 use std::{
-    any::Any,
     borrow::Cow,
     cell::RefCell,
     str::FromStr,
     sync::Arc,
     time::{Duration, Instant},
 };
-use tokio::sync::Mutex;
+use tokio::sync::RwLock;
 
 #[derive(Debug, Clone)]
 pub struct StartServerPhase;
@@ -151,19 +150,15 @@ impl ConfigureModulesPhase {
         let helm_charts = HelmCharts::new(storage.clone());
         helm_charts.init().await?;
 
-        let controllers: Vec<Arc<dyn Any + Send + Sync>> =
-            vec![Arc::new(UserDatabaseController::new(pool.clone(), snowflake.clone()))];
-
         info!(
             took = format!("{:?}", Instant::now().duration_since(now)),
             "Initialized all misc dependencies!"
         );
 
         Ok(Server {
-            controllers,
             helm_charts,
-            snowflake: RefCell::new(snowflake),
-            sessions: Arc::new(Mutex::new(sessions)),
+            snowflake,
+            sessions: Arc::new(RwLock::new(sessions)),
             registry,
             storage,
             config: config.clone(),

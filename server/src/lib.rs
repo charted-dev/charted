@@ -25,6 +25,7 @@ pub(crate) mod middleware;
 pub(crate) mod models;
 pub mod openapi;
 pub mod routing;
+pub mod validation;
 
 use charted_config::Config;
 use eyre::Result;

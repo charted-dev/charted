@@ -305,6 +305,8 @@ impl HelmCharts {
             Ok(None) => Ok(None),
             Err(e) => {
                 error!(%e, "received error when trying to read [./metadata/{owner}/index.yaml]");
+                sentry::capture_error(&e);
+
                 Err(e.into())
             }
         }
@@ -326,6 +328,7 @@ impl HelmCharts {
 
         let spec = ChartIndex::default();
         let serialized = serde_yaml::to_string(&spec).unwrap();
+
         self.storage
             .upload(
                 format!("./metadata/{owner}/index.yaml"),

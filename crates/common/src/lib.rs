@@ -21,7 +21,9 @@ pub mod models;
 pub mod os;
 pub mod rust;
 pub mod serde;
+pub mod server;
 mod snowflake;
+pub mod validator;
 
 use std::any::Any;
 
@@ -102,6 +104,7 @@ pub mod macros {
     #[macro_export]
     macro_rules! hashmap {
         () => {{ ::std::collections::HashMap::new() }};
+        ($K:ty, $V:ty) => {{ ::std::collections::HashMap::<$K, $V>::new() }};
         ($($key:expr => $value:expr),*) => {{
             let mut h = ::std::collections::HashMap::new();
             $(

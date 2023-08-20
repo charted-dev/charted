@@ -28,8 +28,8 @@ use std::{
 #[derive(Clone)]
 pub enum NameOrSnowflakeError {
     PathParamsRejection(Arc<RawPathParamsRejection>),
-    InvalidSnowflake(String, &'static str),
-    InvalidName(String, &'static str),
+    InvalidSnowflake(String, String),
+    InvalidName(String, String),
     MissingParameter,
 }
 
@@ -91,7 +91,7 @@ impl IntoResponse for NameOrSnowflakeError {
 /// Axum extractor to extract `idOrName` path parameters and transform
 /// them into [`NameOrSnowflake`][crate::models::NameOrSnowflake].
 #[derive(Debug, Clone)]
-pub struct NameOrSnowflake(NameOrSnowflakeModel);
+pub struct NameOrSnowflake(pub NameOrSnowflakeModel);
 
 #[async_trait]
 impl<S> FromRequestParts<S> for NameOrSnowflake
@@ -112,7 +112,7 @@ where
                     Ok(id) => NameOrSnowflakeModel::Snowflake(id),
                     Err(_) => {
                         is_snowflake = false;
-                        NameOrSnowflakeModel::Name(value.to_string())
+                        NameOrSnowflakeModel::Name(value.to_string().into())
                     }
                 };
 

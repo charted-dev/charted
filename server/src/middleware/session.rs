@@ -24,13 +24,11 @@ use axum::{
     RequestExt, TypedHeader,
 };
 use base64::{engine::general_purpose::STANDARD, Engine as _};
-use charted_common::models::{entities::User, NameOrSnowflake};
-use charted_config::ConfigExt;
-use charted_database::{
-    controllers::{users::UserDatabaseController, DatabaseController},
-    extensions::snowflake::SnowflakeExt,
+use charted_common::{
+    models::{entities::User, NameOrSnowflake},
+    server::{hash_password, ARGON2},
 };
-use charted_sessions_local::{LocalSessionProvider, ARGON2};
+use charted_config::ConfigExt;
 use futures_util::future::BoxFuture;
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use std::{
@@ -235,10 +233,12 @@ where
                 .await
                 .expect("unable to grab server state");
 
-            let mut sessions = server.sessions.lock().await;
+            let mut sessions = server.sessions.write().await;
             let config = server.config.clone();
+            let pool = server.pool.clone();
             let jwt_secret_key = config.jwt_secret_key().map_err(|e| {
                 error!(setting = "config.jwt_secret_key", %e, "unable to parse secure setting");
+
                 err(
                     StatusCode::INTERNAL_SERVER_ERROR,
                     ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
@@ -246,7 +246,6 @@ where
                 .into_response()
             })?;
 
-            let users = server.controller::<UserDatabaseController>();
             let span = info_span!(
                 "charted.http.authentication",
                 req.uri = req.uri().path(),
@@ -291,7 +290,7 @@ where
                         }
                     };
 
-                    let name = NameOrSnowflake::Name(username.to_string());
+                    let name = NameOrSnowflake::Name(username.into());
                     match name.is_valid() {
                         Ok(()) => {}
                         Err(why) => {
@@ -300,30 +299,29 @@ where
                         }
                     }
 
-                    let user = match users
-                        .get_with_id_or_name(NameOrSnowflake::Name(username.to_string()))
+                    let Some(user) = sqlx::query_as::<_, User>("select * from users where name = ?")
+                        .bind(username.to_string())
+                        .fetch_optional(&pool)
                         .await
-                    {
-                        Ok(Some(user)) => user,
-                        Ok(None) => {
-                            return Err(err(
-                                StatusCode::NOT_FOUND,
-                                ("UNKNOWN_USER", format!("unknown user with name '{username}'").as_str()).into(),
-                            )
-                            .into_response())
-                        }
+                        .map_err(|e| {
+                            error!(user = username, %e, "failed to fetch user");
+                            sentry::capture_error(&e);
 
-                        Err(e) => {
-                            error!(%e, "unable to grab user from database");
-                            return Err(err(
+                            err(
                                 StatusCode::INTERNAL_SERVER_ERROR,
                                 ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
                             )
-                            .into_response());
-                        }
+                            .into_response()
+                        })?
+                    else {
+                        return Err(err(
+                            StatusCode::NOT_FOUND,
+                            ("UNKNOWN_USER", format!("unknown user with name '{username}'").as_str()).into(),
+                        )
+                        .into_response());
                     };
 
-                    let hashed = LocalSessionProvider::hash_password(password.into()).map_err(|e| {
+                    let hashed = hash_password(password.into()).map_err(|e| {
                         error!(%e, "unable to hash password");
                         err(
                             StatusCode::INTERNAL_SERVER_ERROR,
@@ -378,11 +376,27 @@ where
                         .into_response()
                     })?;
 
-                    let user = users
-                        .get(id)
+                    let Some(user) = sqlx::query_as::<_, User>("select * from users where id = ?")
+                        .bind(id as i64)
+                        .fetch_optional(&pool)
                         .await
-                        .map_err(|_| SessionError::UnknownSession.into_response())?
-                        .ok_or_else(|| SessionError::UnknownSession.into_response())?;
+                        .map_err(|e| {
+                            error!(id, %e, "failed to fetch user with");
+                            sentry::capture_error(&e);
+
+                            err(
+                                StatusCode::INTERNAL_SERVER_ERROR,
+                                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+                            )
+                            .into_response()
+                        })?
+                    else {
+                        return Err(err(
+                            StatusCode::NOT_FOUND,
+                            ("UNKNOWN_USER", format!("unknown user with ID [{id}]").as_str()).into(),
+                        )
+                        .into_response());
+                    };
 
                     let session = sessions
                         .from_user(id)

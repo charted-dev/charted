@@ -65,7 +65,7 @@ make_config! {
         };
 
         /// Whether if registrations should be enabled on the server or not.
-        #[serde(default)]
+        #[serde(default = "truthy")]
         pub registrations: bool {
             default: false;
             env_value: var!("CHARTED_ENABLE_REGISTRATIONS", to: bool, or_else: false);
@@ -127,6 +127,10 @@ make_config! {
             env_value: CdnConfig::from_env();
         };
     }
+}
+
+fn truthy() -> bool {
+    true
 }
 
 static CONFIG: OnceCell<Config> = OnceCell::new();
@@ -240,7 +244,7 @@ pub trait ConfigExt: private::Sealed {
 
 impl ConfigExt for Config {
     fn sentry_dsn(&self) -> Result<Option<String>, SecureSettingError> {
-        let secure_setting = SecureSetting::new("sentry_dsn".into());
+        let secure_setting = SecureSetting::new("sentry_dsn");
         match self.sentry_dsn.clone() {
             Some(res) => secure_setting.load_optional(res),
             None => Ok(None),
@@ -248,7 +252,7 @@ impl ConfigExt for Config {
     }
 
     fn jwt_secret_key(&self) -> Result<String, SecureSettingError> {
-        let secure_setting = SecureSetting::new("jwt_secret_key".into());
+        let secure_setting = SecureSetting::new("jwt_secret_key");
         secure_setting.load(self.jwt_secret_key.clone())
     }
 }

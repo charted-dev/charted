@@ -34,6 +34,8 @@ charted-server = { path = "../server", version = "0.0.0-devel.0" }
 color-eyre = { version = "0.6.2", features = ["issue-url", "track-caller"] }
 dotenv = "0.15.0"
 eyre = "0.6.8"
+mimalloc = { version = "0.1.37", default-features = false }
+num_cpus = "1.16.0"
 promptly = "0.3.1"
 serde_json = "1.0.104"
 serde_yaml = "0.9.22"
@@ -43,4 +45,3 @@ sysinfo = "0.29.4"
 tokio = { version = "1.29.1", features = ["full"] }
 tracing = "0.1.37"
 tracing-subscriber = "0.3.17"
-num_cpus = "1.16.0"

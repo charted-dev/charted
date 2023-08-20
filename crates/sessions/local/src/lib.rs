@@ -13,18 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use argon2::{
-    password_hash::{rand_core::OsRng, SaltString},
-    Algorithm, Argon2, Params, PasswordHash, PasswordHasher, PasswordVerifier, Version,
-};
+use argon2::{PasswordHash, PasswordVerifier};
 use async_trait::async_trait;
-use charted_common::hashmap;
+use charted_common::{hashmap, server::ARGON2};
 use charted_config::{Config, ConfigExt};
 use charted_redis::RedisClient;
 use charted_sessions::{Session, SessionProvider, UserWithPassword};
 use eyre::{eyre, Result};
 use jsonwebtoken::{encode, EncodingKey, Header};
-use once_cell::sync::Lazy;
 use sqlx::PgPool;
 use std::{
     fmt::Debug,
@@ -32,10 +28,6 @@ use std::{
 };
 use tracing::info_span;
 use uuid::Uuid;
-
-/// Global [`Argon2`] instance that is used through-out the whole API server.
-pub static ARGON2: Lazy<Argon2<'static>> =
-    Lazy::new(|| Argon2::new(Algorithm::Argon2id, Version::V0x13, Params::default()));
 
 #[derive(Clone)]
 pub struct LocalSessionProvider {
@@ -63,21 +55,18 @@ impl LocalSessionProvider {
             pool,
         })
     }
-
-    pub fn hash_password(password: String) -> Result<String> {
-        let salt = SaltString::generate(&mut OsRng);
-        match ARGON2.hash_password(password.as_ref(), &salt) {
-            Ok(hash) => Ok(hash.to_string()),
-            Err(e) => Err(eyre!("unable to compute password: {e}")),
-        }
-    }
 }
 
 #[async_trait]
 impl SessionProvider for LocalSessionProvider {
     async fn authorize(&mut self, password: String, user: &dyn UserWithPassword) -> Result<Session> {
         let user = user.user();
-        let span = info_span!("sessions.local.authorize", user.id, user.username);
+        let span = info_span!(
+            "sessions.local.authorize",
+            user.id,
+            user.username = tracing::field::display(user.username.clone())
+        );
+
         let _guard = span.enter();
 
         match user.password(self.pool.clone(), user.id as u64).await {

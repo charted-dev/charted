@@ -13,4 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub mod snowflake;
+use crate::{hashmap, models::NameOrSnowflake};
+use std::borrow::Cow;
+use validator::ValidationError;
+
+/// Validates a [`Snowflake`](crate::ID) and return the result of the validation.
+pub fn snowflake(id: u64) -> Result<(), ValidationError> {
+    match NameOrSnowflake::Snowflake(id).is_valid() {
+        Ok(()) => Ok(()),
+        Err(why) => Err(ValidationError {
+            code: Cow::Borrowed("invalid_snowflake"),
+            message: Some(Cow::Owned(why)),
+            params: hashmap!(),
+        }),
+    }
+}

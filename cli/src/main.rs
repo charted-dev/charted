@@ -20,11 +20,15 @@ use charted_logging::generic::GenericLayer;
 use clap::Parser;
 use color_eyre::config::HookBuilder;
 use eyre::{eyre, Result};
+use mimalloc::MiMalloc;
 use num_cpus::get as cpus;
 use std::env::{set_var, var};
 use tokio::runtime::Builder;
 use tracing::{metadata::LevelFilter, Level};
 use tracing_subscriber::prelude::*;
+
+#[global_allocator]
+static GLOBAL: MiMalloc = MiMalloc;
 
 // When `charted server` is invoked, you can specify a `CHARTED_RUNTIME_WORKERS` environment
 // variable for Tokio to use a multi-threaded scheduler.

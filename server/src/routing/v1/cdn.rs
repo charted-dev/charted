@@ -37,8 +37,8 @@ pub async fn cdn(
 
     info!("performing cdn query [{}] ~> {query}", paths.join("/"));
     let blob = server.storage.clone().blob(query.clone()).await.map_err(|e| {
-        sentry::capture_error(&e);
         error!(%e, "unable to perform cdn query [{query}]");
+        sentry::capture_error(&e);
 
         err(
             StatusCode::INTERNAL_SERVER_ERROR,
@@ -69,7 +69,7 @@ pub async fn cdn(
             let octet_str = &"application/octet-stream".into();
             let headers = [(header::CONTENT_TYPE, file.content_type().unwrap_or(octet_str).as_str())];
 
-            Ok((headers, contents).into_response())
+            Ok((headers, contents.clone()).into_response())
         }
     }
 }

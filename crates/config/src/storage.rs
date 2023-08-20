@@ -13,8 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::{borrow::Cow, str::FromStr};
-
 use crate::{var, FromEnv};
 use aws_sdk_s3::{
     config::Region,
@@ -24,6 +22,7 @@ use charted_common::TRUTHY_REGEX;
 use remi_fs::FilesystemStorageConfig;
 use remi_s3::S3StorageConfig;
 use serde::{Deserialize, Serialize};
+use std::{borrow::Cow, str::FromStr};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]

@@ -30,7 +30,7 @@ impl Config {
             Ok(uid) => Ok(NameOrSnowflake::Snowflake(uid)),
             Err(_) => match self.repository.split_once('/') {
                 Some((_, repo)) if repo.contains('/') => Err("received more than one slash"),
-                Some((owner, repo)) => Ok(NameOrSnowflake::Name(format!("{owner}/{repo}"))),
+                Some((owner, repo)) => Ok(NameOrSnowflake::Name(format!("{owner}/{repo}").into())),
                 _ => Err("missing slash in repository name; expected 'owner/repo' syntax"),
             },
         }

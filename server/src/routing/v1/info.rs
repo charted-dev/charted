@@ -47,7 +47,7 @@ gen_response_schema!(InfoResponse);
 impl Default for InfoResponse {
     fn default() -> InfoResponse {
         InfoResponse {
-            distribution: Distribution::default(),
+            distribution: Distribution::detect(),
             commit_sha: COMMIT_HASH.to_string(),
             build_date: BUILD_DATE.to_string(),
             product: "charted-server".into(),

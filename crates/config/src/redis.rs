@@ -60,14 +60,14 @@ make_config! {
 impl RedisConfig {
     pub fn password(&self) -> Result<Option<String>, SecureSettingError> {
         match self.password.clone() {
-            Some(password) => SecureSetting::new("redis.password".into()).load_optional(password.as_str()),
+            Some(password) => SecureSetting::new("redis.password").load_optional(password.as_str()),
             None => Ok(None),
         }
     }
 
     pub fn master_name(&self) -> Result<Option<String>, SecureSettingError> {
         match self.password.clone() {
-            Some(password) => SecureSetting::new("redis.master_name".into()).load_optional(password.as_str()),
+            Some(password) => SecureSetting::new("redis.master_name").load_optional(password.as_str()),
             None => Ok(None),
         }
     }

@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{models::res::err, Server};
+use crate::{models::res::err, openapi::gen_response_schema, Server};
 use axum::{
     body::Body,
     http::{Request, StatusCode},
@@ -29,7 +29,9 @@ use info::*;
 use main::*;
 use metrics::*;
 use openapi::*;
+use serde::{Deserialize, Serialize};
 use serde_json::json;
+use utoipa::ToSchema;
 
 pub mod cdn;
 pub mod features;
@@ -38,9 +40,24 @@ pub mod info;
 pub mod main;
 pub mod metrics;
 pub mod openapi;
+pub mod users;
+
+/// Generic entrypoint message for any API routes like `/users`.
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+pub struct EntrypointResponse {
+    /// A cute message to greet you with
+    pub message: String,
+
+    /// URL to the documentation to where you can explore more routes for
+    /// this specific API.
+    pub docs: String,
+}
+
+gen_response_schema!(EntrypointResponse);
 
 pub fn create_router(_server: Server) -> Router<Server> {
     let mut router = Router::new()
+        .nest("/users", users::create_router())
         .route("/openapi.json", get(openapi))
         .route("/heartbeat", get(HeartbeatRestController::run))
         .route("/features", get(FeaturesRestController::run))

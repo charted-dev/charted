@@ -25,6 +25,9 @@ pub enum SecureSettingError {
     #[error("Environment variable '{0}' doesn't exist.")]
     MissingVariable(String),
 
+    #[error("Input [{0}] was not a valid secure setting to be set as.")]
+    NotAMatch(String),
+
     #[error("Unable to get capture groups of configuration key [{key}] from input: {input}")]
     UnableToGetCaptureGroups { key: String, input: String },
 }
@@ -38,8 +41,8 @@ pub struct SecureSetting(String);
 impl SecureSetting {
     /// Creates a new [`SecureSetting`] with config key name to use
     /// for diagnostics
-    pub fn new(name: String) -> SecureSetting {
-        SecureSetting(name)
+    pub fn new<S: Into<String>>(name: S) -> SecureSetting {
+        SecureSetting(name.into())
     }
 
     /// Loads in the environment variable and returns the value, or returns nothing
@@ -92,14 +95,36 @@ impl SecureSetting {
 
         let env_name = match groups.get(0) {
             Some(r#match) => r#match,
-            None => return Err(SecureSettingError::MissingVariable(input.as_ref().to_string())),
+            None => {
+                let mut s = input.as_ref();
+                if s.starts_with("${") {
+                    s = s.strip_prefix("${").unwrap();
+                }
+
+                if s.ends_with('}') {
+                    s = s.strip_suffix('}').unwrap();
+                }
+
+                return Err(SecureSettingError::MissingVariable(s.to_owned()));
+            }
         };
 
         match std::env::var(env_name.as_str()) {
             Ok(value) => Ok(Some(value)),
             Err(_) => match groups.get(2) {
-                Some(value) => Ok(Some(value.as_str().to_owned())),
-                None => Err(SecureSettingError::MissingVariable(env_name.as_str().to_string())),
+                Some(value) => Ok(Some(String::from(value.as_str().strip_prefix(":-").unwrap()))),
+                None => {
+                    let mut s = input.as_ref();
+                    if s.starts_with("${") {
+                        s = s.strip_prefix("${").unwrap();
+                    }
+
+                    if s.ends_with('}') {
+                        s = s.strip_suffix('}').unwrap();
+                    }
+
+                    Err(SecureSettingError::MissingVariable(s.to_owned()))
+                }
             },
         }
     }
@@ -124,5 +149,46 @@ impl SecureSetting {
             Ok(None) => Ok(None),
             Err(e) => Err(e),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::env::{remove_var, set_var};
+
+    #[test]
+    fn load_successful_optional() {
+        let setting = SecureSetting::new("sentry_dsn");
+        set_var("SENTRY_DSN", "deeznuts");
+
+        let loaded = setting.load_optional("${SENTRY_DSN:-what}");
+        assert!(loaded.is_ok());
+
+        let loaded = loaded.unwrap();
+        assert_eq!(&loaded.unwrap(), "what");
+
+        // don't let it be persisted in other tests
+        remove_var("SENTRY_DSN");
+    }
+
+    #[test]
+    fn load_fail_required() {
+        let setting = SecureSetting::new("sentry_dsn");
+        let loaded = setting.load("${SENTRY_DSN}");
+        assert!(loaded.is_err());
+
+        let err = loaded.err().unwrap();
+        assert!(matches!(err, SecureSettingError::MissingVariable(_)));
+
+        // set the env var
+        set_var("SENTRY_DSN", "a valid dsn, somehow...");
+
+        let loaded = setting.load("${SENTRY_DSN}");
+        assert!(loaded.is_ok());
+        assert_eq!(&loaded.unwrap(), "a valid dsn, somehow...");
+
+        // don't let it be persisted in other tests
+        remove_var("SENTRY_DSN");
     }
 }

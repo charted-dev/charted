@@ -13,13 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use serde::Serialize;
 use std::{
-    fmt::{Debug, Formatter},
+    fmt::{Debug, Display, Formatter},
     ops::Deref,
+    sync::{
+        atomic::{AtomicU16, AtomicU64, Ordering},
+        Arc,
+    },
     time::{SystemTime, UNIX_EPOCH},
 };
-
-use serde::Serialize;
 use utoipa::{
     openapi::{KnownFormat, ObjectBuilder, RefOr, Schema, SchemaFormat, SchemaType},
     ToSchema,
@@ -33,13 +36,17 @@ const MAX_SEQUENCE_BITS: usize = (1 << SEQUENCE_BITS) - 1;
 
 #[derive(Debug, Clone)]
 pub struct Snowflake {
-    exhausted_at_time: u64,
-    last_timestamp: u64,
-    sequence: u16,
+    exhausted_at_time: Arc<AtomicU64>,
+    last_timestamp: Arc<AtomicU64>,
+    sequence: Arc<AtomicU16>,
     node_id: u16,
 }
 
+unsafe impl Send for Snowflake {}
+unsafe impl Sync for Snowflake {}
+
 impl Snowflake {
+    #[inline(never)]
     fn current_timestamp() -> u64 {
         (SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -50,34 +57,38 @@ impl Snowflake {
 
     pub fn new(node_id: u16) -> Snowflake {
         Snowflake {
-            exhausted_at_time: 0,
-            last_timestamp: 0,
-            sequence: 0,
+            exhausted_at_time: Arc::new(AtomicU64::new(0)),
+            last_timestamp: Arc::new(AtomicU64::new(0)),
+            sequence: Arc::new(AtomicU16::new(0)),
             node_id,
         }
     }
 
     #[inline]
-    pub fn generate(&mut self) -> ID {
+    pub fn generate(&self) -> ID {
         let now = Snowflake::current_timestamp();
-        if self.sequence == 4095 && now == self.exhausted_at_time {
+        let seq = self.sequence.load(Ordering::Relaxed);
+        let exhaused = self.exhausted_at_time.load(Ordering::Relaxed);
+
+        if seq == 4095 && now == exhaused {
             while Snowflake::current_timestamp() - now < 1 {
                 continue;
             }
         }
 
-        self.sequence = match self.sequence {
-            4095 => 0,
-            _ => self.sequence + 1,
-        };
+        self.sequence.store(
+            match seq {
+                4095 => 0,
+                _ => seq + 1,
+            },
+            Ordering::Relaxed,
+        );
 
-        if self.sequence >= 4095 {
-            self.last_timestamp = now;
+        if self.sequence.load(Ordering::Relaxed) >= 4095 {
+            self.last_timestamp.store(now, Ordering::Relaxed);
         }
 
-        ID((now << (NODE_BITS + SEQUENCE_BITS))
-            | ((self.node_id as u64) << (SEQUENCE_BITS as u64))
-            | self.sequence as u64)
+        ID((now << (NODE_BITS + SEQUENCE_BITS)) | ((self.node_id as u64) << (SEQUENCE_BITS as u64)) | seq as u64)
     }
 }
 
@@ -92,6 +103,12 @@ impl Debug for ID {
             .field("node_id", &self.node_id())
             .field("seq", &self.sequence())
             .finish()
+    }
+}
+
+impl Display for ID {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_fmt(format_args!("{}", self.0))
     }
 }
 

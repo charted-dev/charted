@@ -107,7 +107,7 @@ impl Config {
     }
 
     pub fn sentry_dsn(&self) -> Result<Option<String>, SecureSettingError> {
-        let secure_setting = SecureSetting::new("sentry_dsn".into());
+        let secure_setting = SecureSetting::new("sentry_dsn");
         match self.sentry_dsn.clone() {
             Some(dsn) => secure_setting.load_optional(dsn),
             None => Ok(None),
@@ -284,7 +284,7 @@ mod smtp {
 
     impl SmtpConfig {
         pub fn password(&self) -> Result<Option<String>, SecureSettingError> {
-            let secure_setting = SecureSetting::new("smtp.password".into());
+            let secure_setting = SecureSetting::new("smtp.password");
             match self.password.clone() {
                 Some(passwd) => secure_setting.load_optional(passwd),
                 None => Ok(None),

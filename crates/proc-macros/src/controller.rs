@@ -26,19 +26,39 @@ use syn::{
 use utoipa::{
     openapi::{
         path::{ParameterBuilder, ParameterIn},
-        ContentBuilder, KnownFormat, ObjectBuilder, Ref, RefOr, ResponseBuilder, Schema, SchemaFormat, SchemaType,
+        request_body::RequestBodyBuilder,
+        ContentBuilder, KnownFormat, ObjectBuilder, PathItemType, Ref, RefOr, ResponseBuilder, Schema, SchemaFormat,
+        SchemaType,
     },
     ToSchema,
 };
 
 #[derive(Clone, Default)]
+pub enum Availability<T> {
+    Available(T),
+
+    #[default]
+    Unavailable,
+}
+
+impl<T> Availability<T> {
+    pub fn unwrap_or(self, else_: T) -> T {
+        match self {
+            Self::Available(item) => item,
+            Self::Unavailable => else_,
+        }
+    }
+}
+
+#[derive(Clone, Default)]
 pub struct Args {
     pub id: String,
     pub tags: Vec<String>,
-    pub description: Option<String>,
+    pub item_type: Availability<PathItemType>,
     pub responses: HashMap<u16, Response>,
-    pub request_body: Option<RequestBody>,
     pub parameters: HashMap<String, Parameter>,
+    pub description: Option<String>,
+    pub request_body: Option<RequestBody>,
     pub is_deprecated: Option<Option<String>>,
 }
 
@@ -51,6 +71,7 @@ mod kw {
     syn::custom_keyword!(deprecated);
     syn::custom_keyword!(response);
     syn::custom_keyword!(content);
+    syn::custom_keyword!(method);
     syn::custom_keyword!(tags);
     syn::custom_keyword!(id);
 }
@@ -59,53 +80,90 @@ impl Parse for Args {
     fn parse(input: ParseStream) -> Result<Self> {
         let mut args = Args::default();
 
-        if input.peek(kw::id) {
+        if input.peek(kw::method) {
+            input.parse::<kw::method>()?;
+            input.parse::<Token![=]>()?;
+
+            let ident = input.parse::<Ident>()?;
+            args.item_type = match ident.to_string().as_str() {
+                "get" => Availability::Available(PathItemType::Get),
+                "put" => Availability::Available(PathItemType::Put),
+                "post" => Availability::Available(PathItemType::Post),
+                "patch" => Availability::Available(PathItemType::Patch),
+                "delete" => Availability::Available(PathItemType::Delete),
+                _ => Availability::Unavailable,
+            };
+
+            if input.peek(Token![,]) {
+                input.parse::<Token![,]>()?;
+            }
+        }
+
+        if input.peek(kw::id) && args.id.is_empty() {
             args.parse_operation_id(input)?;
         }
 
-        if input.peek(kw::tags) {
+        if input.peek(kw::tags) && args.tags.is_empty() {
             args.parse_tags(input)?;
         }
 
-        if input.peek(kw::description) {
+        if input.peek(kw::description) && args.description.is_none() {
             args.parse_description(input)?;
         }
 
-        if input.peek(kw::response) {
-            let (status, res) = Args::parse_response(input)?;
-            args.responses.insert(status, res);
-        }
-
-        if input.peek(kw::deprecated) {
+        if input.peek(kw::deprecated) && args.is_deprecated.is_none() {
             args.parse_deprecation(input)?;
         }
 
-        if input.peek(kw::pathParameter) {
-            let param = Args::parse_path_parameter(input)?;
-            let inner = param.0.clone(); // we only want the name that we populated here :Nod:
-
-            if args.parameters.contains_key(&inner.name) {
-                return Err(Error::new(
-                    Span::call_site(),
-                    format!("parameter {} is already registered", inner.name.clone()),
-                ));
+        if input.peek(kw::requestBody) {
+            let request_body = Args::parse_request_body(input)?;
+            if args.request_body.is_none() {
+                args.request_body = Some(request_body);
             }
-
-            args.parameters.insert(inner.name, param);
         }
 
-        if input.peek(kw::queryParameter) {
-            let param = Args::parse_query_parameter(input)?;
-            let inner = param.0.clone(); // we only want the name that we populated here :Nod:
+        // since multiple pathParameter, queryParameter, and response
+        // can be collected, we will do a while loop for each
+        while input.peek(kw::response) || input.peek(kw::pathParameter) || input.peek(kw::queryParameter) {
+            if input.peek(kw::response) {
+                let (status, res) = Args::parse_response(input)?;
+                if args.responses.contains_key(&status) {
+                    return Err(Error::new(
+                        Span::call_site(),
+                        format!("status code [{status}] is already available"),
+                    ));
+                }
 
-            if args.parameters.contains_key(&inner.name) {
-                return Err(Error::new(
-                    Span::call_site(),
-                    format!("parameter {} is already registered", inner.name.clone()),
-                ));
+                args.responses.insert(status, res);
             }
 
-            args.parameters.insert(inner.name, param);
+            if input.peek(kw::pathParameter) {
+                let param = Args::parse_path_parameter(input)?;
+                let inner = param.0.clone(); // we only want the name that we populated here :Nod:
+
+                if args.parameters.contains_key(&inner.name) {
+                    return Err(Error::new(
+                        Span::call_site(),
+                        format!("parameter {} is already registered", inner.name.clone()),
+                    ));
+                }
+
+                args.parameters.insert(inner.name, param);
+            }
+
+            if input.peek(kw::queryParameter) {
+                let param = Args::parse_query_parameter(input)?;
+                let inner = param.0.clone(); // we only want the name that we populated here :Nod:
+
+                if args.parameters.contains_key(&inner.name) {
+                    return Err(Error::new(
+                        Span::call_site(),
+                        format!("parameter {} is already registered", inner.name.clone()),
+                    ));
+                }
+
+                args.parameters.insert(inner.name, param);
+            }
         }
 
         Ok(args)
@@ -663,6 +721,161 @@ impl Args {
 
         if stream.peek(Token![,]) {
             stream.parse::<Token![,]>()?;
+        }
+
+        Ok(builder.build().into())
+    }
+
+    pub(crate) fn parse_request_body(input: ParseStream) -> Result<RequestBody> {
+        input.parse::<kw::requestBody>()?;
+
+        let mut builder = RequestBodyBuilder::new();
+        let buf;
+        parenthesized!(buf in input);
+
+        let params = buf.parse_terminated(Expr::parse, Token![,])?;
+        let mut args = params.iter();
+
+        let (desc_expr, content_tuple_expr) = (args.next(), args.next());
+        if desc_expr.is_none() {
+            return Err(Error::new(params.span(), "missing description argument"));
+        }
+
+        let desc_expr = desc_expr.unwrap();
+        let Expr::Lit(ExprLit { lit: Lit::Str(s), .. }) = desc_expr else {
+            return Err(Error::new(desc_expr.span(), "expected literal string for description"));
+        };
+
+        if content_tuple_expr.is_none() {
+            return Err(Error::new(params.span(), "missing content type tuple argument"));
+        }
+
+        builder = builder.description(Some(s.value()));
+
+        let content_tuple_expr = content_tuple_expr.unwrap();
+        let Expr::Tuple(ExprTuple { elems, .. }) = content_tuple_expr else {
+            return Err(Error::new(content_tuple_expr.span(), "expected tuple argument"));
+        };
+
+        if elems.len() != 2 {
+            return Err(Error::new(
+                elems.span(),
+                format!("expected 2 arguments, received {} arguments", elems.len()),
+            ));
+        }
+
+        let mut items = elems.iter();
+        let (ty, arg) = (items.next(), items.next());
+        if ty.is_none() {
+            return Err(Error::new(elems.span(), "missing content type to use"));
+        }
+
+        if arg.is_none() {
+            return Err(Error::new(elems.span(), "missing response/schema type to use"));
+        }
+
+        let Expr::Lit(ExprLit { lit: Lit::Str(s), .. }) = ty.unwrap() else {
+            return Err(Error::new(elems.span(), "expected literal str for content type"));
+        };
+
+        let content_type = s.value();
+        let mut content = ContentBuilder::new();
+        match arg.unwrap() {
+            Expr::Path(ExprPath { path, .. }) => {
+                let Some(ident) = path.get_ident() else {
+                    return Err(Error::new(path.span(), "expected single identifier for Path"));
+                };
+
+                let Some(schema) = ident_to_type(ident) else {
+                    return Err(Error::new(ident.span(), format!("expected 'string', 'datetime', 'int32', 'int64', 'binary', 'snowflake', or 'name' as the identifier, received {ident}")));
+                };
+
+                content = content.schema(RefOr::T(schema));
+            }
+
+            Expr::Macro(ExprMacro {
+                mac: Macro { tokens, path, .. },
+                ..
+            }) => {
+                let Some(ident) = path.get_ident() else {
+                    return Err(Error::new(
+                        path.span(),
+                        "expected single identifier in macro invocation",
+                    ));
+                };
+
+                match ident.to_string().as_str() {
+                    "response" => {
+                        let tt = tokens.clone();
+                        let s = match syn::parse::<Lit>(tt.into()) {
+                            Ok(Lit::Str(s)) => s,
+                            Ok(lit) => {
+                                return Err(Error::new(
+                                    lit.span(),
+                                    "failed to parse literal string from macro invocation",
+                                ))
+                            }
+
+                            Err(e) => {
+                                return Err(Error::new(
+                                    e.span(),
+                                    "failed to parse literal string from macro invocation",
+                                ))
+                            }
+                        };
+
+                        content = content.schema(RefOr::Ref(Ref::from_response_name(s.value())));
+                    }
+
+                    "schema" => {
+                        let tt = tokens.clone();
+                        let s = match syn::parse::<Lit>(tt.into()) {
+                            Ok(Lit::Str(s)) => s,
+                            Ok(lit) => {
+                                return Err(Error::new(
+                                    lit.span(),
+                                    "failed to parse literal string from macro invocation",
+                                ))
+                            }
+
+                            Err(e) => {
+                                return Err(Error::new(
+                                    e.span(),
+                                    "failed to parse literal string from macro invocation",
+                                ))
+                            }
+                        };
+
+                        content = content.schema(RefOr::Ref(Ref::from_schema_name(s.value())));
+                    }
+
+                    i => {
+                        return Err(Error::new(
+                            ident.span(),
+                            format!("unexpected macro {i}, only wanted [response or schema]"),
+                        ))
+                    }
+                }
+            }
+
+            expr => {
+                return Err(Error::new(
+                    expr.span(),
+                    "expected Path or Macro expressions, received {expr}",
+                ))
+            }
+        }
+
+        builder = builder.content(content_type, content.build());
+        if args.next().is_some() {
+            return Err(Error::new(
+                params.span(),
+                "unexpected nth argument after parsing both description and content type tuple.",
+            ));
+        }
+
+        if input.peek(Token![,]) {
+            input.parse::<Token![,]>()?;
         }
 
         Ok(builder.build().into())

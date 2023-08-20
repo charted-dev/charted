@@ -189,7 +189,7 @@ pub mod meilisearch {
 
     impl Config {
         pub fn master_key(&self) -> Result<Option<String>, SecureSettingError> {
-            let secure_setting = SecureSetting::new("search.meilisearch.master_key".into());
+            let secure_setting = SecureSetting::new("search.meilisearch.master_key");
             match self.master_key.clone() {
                 Some(key) => secure_setting.load_optional(key.as_str()),
                 None => Ok(None),

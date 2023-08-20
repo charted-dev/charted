@@ -29,8 +29,12 @@ pub struct Metadata {
 }
 
 pub async fn log<B>(metadata: Metadata, req: Request<B>, next: Next<B>) -> impl IntoResponse {
-    let start = Instant::now();
     let uri = metadata.uri.path();
+    if uri.contains("/heartbeat") {
+        return next.run(req).await;
+    }
+
+    let start = Instant::now();
     let method = metadata.method.as_str();
     let version = match metadata.version {
         Version::HTTP_09 => "http/0.9",
@@ -55,29 +59,25 @@ pub async fn log<B>(metadata: Metadata, req: Request<B>, next: Next<B>) -> impl 
     );
 
     let _guard = http_span.enter();
-    if !uri.contains("/heartbeat") {
-        info!(
-            http.uri = uri,
-            http.method = method,
-            http.version = version,
-            "processing request"
-        );
-    }
+    info!(
+        http.uri = uri,
+        http.method = method,
+        http.version = version,
+        "processing request"
+    );
 
     let res = next.run(req).await;
     let now = start.elapsed();
+    let status = res.status().as_u16();
 
-    if !uri.contains("/heartbeat") {
-        let status = res.status().as_u16();
-        info!(
-            http.uri = uri,
-            http.method = method,
-            http.version = version,
-            http.status = status,
-            http.latency = format!("{now:?}").as_str(),
-            "processed request"
-        );
-    }
+    info!(
+        http.uri = uri,
+        http.method = method,
+        http.version = version,
+        http.status = status,
+        http.latency = format!("{now:?}").as_str(),
+        "processed request"
+    );
 
     res
 }

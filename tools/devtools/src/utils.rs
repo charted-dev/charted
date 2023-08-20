@@ -108,6 +108,7 @@ pub fn build_or_run(bazel: PathBuf, (release, dev): (&str, &str), args: BuildCli
     }
 
     cmd.stdin(Stdio::null());
+    cmd.env("CHARTED_DISTRIBUTION_KIND", "git");
 
     // we still want to see bazel stdout/stderr when --release
     // is passed in

@@ -49,6 +49,10 @@ impl SessionManager {
         }
     }
 
+    pub fn provider(&self) -> Arc<tokio::sync::Mutex<Box<dyn SessionProvider>>> {
+        self.provider.clone()
+    }
+
     /// Initializes this [`SessionManager`].
     pub fn init(&mut self) -> Result<()> {
         if self.initialized {

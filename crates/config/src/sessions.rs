@@ -93,19 +93,6 @@ pub mod ldap {
     }
 }
 
-/*
-pub fn new() -> LdapConnSettings
-Create an instance of the structure with default settings.
-
-source
-pub fn set_conn_timeout(self, timeout: Duration) -> Self
-Set the connection timeout. If a connetion to the server can’t be established before the timeout expires, an error will be returned to the user. Defaults to None, meaning an infinite timeout.
-
-source
-pub fn set_no_tls_verify(self, no_tls_verify: bool) -> Self
-If true, try to establish a TLS connection without certificate verification. Defaults to false.
-*/
-
 pub mod integrations {
     #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
     #[serde(tag = "type")]
@@ -140,7 +127,7 @@ pub mod integrations {
 
         impl Config {
             pub fn client_secret(&self) -> Result<String, SecureSettingError> {
-                let secure_setting = SecureSetting::new("sessions.integrations.github.client_secret".into());
+                let secure_setting = SecureSetting::new("sessions.integrations.github.client_secret");
                 secure_setting.load(self.client_secret.clone())
             }
         }

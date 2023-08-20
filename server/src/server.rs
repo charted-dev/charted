@@ -17,7 +17,6 @@ use crate::routing::create_router;
 use axum::extract::FromRef;
 use charted_common::Snowflake;
 use charted_config::Config;
-use charted_database::controllers::DatabaseController;
 use charted_helm_charts::HelmCharts;
 use charted_metrics::SingleRegistry;
 use charted_redis::RedisClient;
@@ -26,18 +25,17 @@ use charted_storage::MultiStorageService;
 use eyre::{Context, Result};
 use once_cell::sync::OnceCell;
 use sqlx::PgPool;
-use std::{any::Any, cell::RefCell, fmt::Debug, sync::Arc};
-use tokio::{select, signal, sync::Mutex};
+use std::{cell::RefCell, fmt::Debug, sync::Arc};
+use tokio::{select, signal, sync::RwLock};
 
 pub(crate) static SERVER: OnceCell<Server> = OnceCell::new();
 
 /// A default implemention of a [`Server`].
 #[derive(Clone)]
 pub struct Server {
-    pub controllers: Vec<Arc<(dyn Any + Send + Sync)>>,
     pub helm_charts: HelmCharts,
-    pub snowflake: RefCell<Snowflake>,
-    pub sessions: Arc<Mutex<SessionManager>>,
+    pub snowflake: Snowflake,
+    pub sessions: Arc<RwLock<SessionManager>>,
     pub registry: SingleRegistry,
     pub storage: MultiStorageService,
     pub config: Config,
@@ -60,15 +58,6 @@ impl Debug for Server {
 }
 
 impl Server {
-    pub fn controller<D: DatabaseController + 'static>(&self) -> &D {
-        self.controllers
-            .iter()
-            .find(move |f| f.is::<D>())
-            .expect("unable to find any db controller references with specified type")
-            .downcast_ref()
-            .expect("unable to downcast to &D")
-    }
-
     pub async fn run(&self) -> Result<()> {
         let addr = self.config.server.addr();
         info!(%addr, "now listening on");

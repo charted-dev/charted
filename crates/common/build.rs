@@ -54,7 +54,7 @@ fn main() {
         .to_string();
 
     println!("cargo:rustc-env=CHARTED_RUSTC_VERSION={rustc_compiler}");
-    println!("cargo:rustc-env=CHARTED_COMMIT_HASH={commit_hash}");
+    println!("cargo:rustc-env=CHARTED_COMMIT_HASH={}", commit_hash.trim());
     println!("cargo:rustc-env=CHARTED_BUILD_DATE={build_date}");
     println!("cargo:rustc-env=CHARTED_VERSION={version}");
 }

@@ -17,7 +17,11 @@ use charted_common::cli::Execute;
 use charted_config::Config;
 use charted_server::openapi::document;
 use eyre::Result;
-use std::{fs::File, io::Write as _, path::PathBuf};
+use std::{
+    fs::{File, OpenOptions},
+    io::Write as _,
+    path::PathBuf,
+};
 
 #[derive(Debug, Clone, clap::Parser)]
 #[command(about = "Generates the OpenAPI document without running the API server")]
@@ -44,12 +48,21 @@ impl Execute for OpenAPI {
 
         match self.output.clone() {
             Some(file) => {
-                println!("Writing document in {file:?}...");
+                info!("Writing OpenAPI specification in {}", file.display());
 
-                let mut fd = File::options().write(true).create(true).open(file.clone())?;
-                write!(fd, "{serialized}")?;
+                let path = file.clone();
+                let mut file = match file.try_exists() {
+                    Ok(true) => File::create(file)?,
+                    Ok(false) => OpenOptions::new().read(true).write(true).create_new(true).open(file)?,
+                    Err(e) => {
+                        error!(error = %e, "unable to create file {}", file.display());
+                        return Ok(());
+                    }
+                };
 
-                println!("Written OpenAPI document in {file:?}");
+                write!(file, "{serialized}")?;
+                info!("Successfully wrote OpenAPI specification in {}", path.display());
+
                 Ok(())
             }
 
