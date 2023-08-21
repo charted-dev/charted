@@ -47,7 +47,7 @@ services:
     postgres:
         <<: *defaults
         container_name: postgres
-        image: bitnami/postgresql:15.3.0
+        image: bitnami/postgresql:15.4.0
         ports: ['5432:5432']
         environment:
             - POSTGRESQL_LOG_TIMEZONE=America/Los_Angeles
