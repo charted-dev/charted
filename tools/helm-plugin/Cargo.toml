@@ -33,7 +33,7 @@ color-eyre = { version = "0.6.2", features = ["issue-url", "track-caller"] }
 dotenv = "0.15.0"
 eyre = "0.6.8"
 reqwest = "0.11.18"
-serde = { version = "=1.0.171", features = ["rc", "derive"] }
+serde = { version = "1.0.185", features = ["rc", "derive"] }
 serde_json = "1.0.104"
 serde_yaml = "0.9.25"
 tokio = { version = "1.29.1", features = ["full"] }

@@ -337,6 +337,7 @@ pub async fn get_user(
 /// Returns a [User] from an authenticated request.
 #[controller(
     tags("Users"),
+    securityRequirements(("ApiKey", ["users:access"]), ("Bearer", []), ("Basic", [])),
     response(200, "Returns the current authenticated user's metadata", ("application/json", response!("ApiUserResponse"))),
     response(400, "If the request body was invalid (i.e, validation errors)", ("application/json", response!("ApiErrorResponse"))),
     response(401, "If the session couldn't be validated", ("application/json", response!("ApiErrorResponse"))),
@@ -352,6 +353,7 @@ pub async fn get_self(Extension(Session { user, .. }): Extension<Session>) -> Ap
 #[controller(
     method = patch,
     tags("Users"),
+    securityRequirements(("ApiKey", ["users:update"]), ("Bearer", []), ("Basic", [])),
     response(204, "Successful response", ("application/json", response!("ApiEmptyResponse"))),
     response(400, "If the request body was invalid (i.e, validation errors)", ("application/json", response!("ApiErrorResponse"))),
     response(401, "If the session couldn't be validated", ("application/json", response!("ApiErrorResponse"))),
@@ -473,6 +475,7 @@ pub async fn patch_user(
 #[controller(
     method = delete,
     tags("Users"),
+    securityRequirements(("ApiKey", ["users:delete"]), ("Bearer", []), ("Basic", [])),
     response(204, "Successful response", ("application/json", response!("ApiEmptyResponse"))),
     response(401, "If the session couldn't be validated", ("application/json", response!("ApiErrorResponse"))),
     response(403, "(Bearer token only) - if the JWT was invalid or expired", ("application/json", response!("ApiErrorResponse"))),

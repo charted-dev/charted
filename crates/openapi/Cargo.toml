@@ -25,4 +25,4 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 charted-common = { version = "0.0.0-devel.0", path = "../common" }
 charted-config = { version = "0.0.0-devel.0", path = "../config" }
 once_cell = "1.18.0"
-utoipa = "3.3.0"
+utoipa = "3.5.0"

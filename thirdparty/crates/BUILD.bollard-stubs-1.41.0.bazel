@@ -41,7 +41,7 @@ rust_library(
     version = "1.41.0",
     deps = [
         "@crate_index__chrono-0.4.26//:chrono",
-        "@crate_index__serde-1.0.171//:serde",
+        "@crate_index__serde-1.0.185//:serde",
         "@crate_index__serde_with-1.14.0//:serde_with",
     ],
 )

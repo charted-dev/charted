@@ -534,6 +534,19 @@ impl From<utoipa::openapi::Schema> for Schema {
     }
 }
 
+#[derive(Clone)]
+pub struct SecurityRequirement(pub(crate) (String, Vec<String>));
+
+impl ToTokens for SecurityRequirement {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let (name, scopes) = self.0.clone();
+        let name = StringHelper::from(name);
+        let scopes: VecHelper<StringHelper> = VecHelper::from(scopes);
+
+        tokens.extend(quote!(::utoipa::openapi::SecurityRequirement::new(#name, #scopes.iter())));
+    }
+}
+
 /// External helpers for the [`Schema`] helper struct.
 pub mod schema {
     use super::StringHelper;

@@ -54,7 +54,7 @@ rust_library(
     version = "0.4.26",
     deps = [
         "@crate_index__num-traits-0.2.16//:num_traits",
-        "@crate_index__serde-1.0.171//:serde",
+        "@crate_index__serde-1.0.185//:serde",
         "@crate_index__time-0.1.45//:time",
     ] + select({
         "@rules_rust//rust/platform:aarch64-apple-darwin": [

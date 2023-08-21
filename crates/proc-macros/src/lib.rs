@@ -193,6 +193,7 @@ pub fn controller(attr: TokenStream, body: TokenStream) -> TokenStream {
                 let responses: ::std::collections::HashMap<u16, ::utoipa::openapi::Response> = { #responses };
                 let parameters: ::std::collections::HashMap<::std::string::String, ::utoipa::openapi::path::Parameter> = { #parameters };
                 let request_body: ::core::option::Option<::utoipa::openapi::request_body::RequestBody> = #request_body;
+
                 let mut op = ::utoipa::openapi::path::OperationBuilder::new()
                     .description(Some(#desc))
                     .operation_id(Some(#id))

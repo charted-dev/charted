@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::helpers::{Parameter, RequestBody, Response};
+use crate::helpers::{Parameter, RequestBody, Response, SecurityRequirement};
 use charted_common::{models::Name, ID};
 use proc_macro2::{Ident, Span};
 use std::collections::HashMap;
@@ -21,7 +21,7 @@ use syn::{
     parenthesized,
     parse::{Parse, ParseStream},
     spanned::Spanned,
-    Error, Expr, ExprAssign, ExprLit, ExprMacro, ExprPath, ExprTuple, Lit, Macro, Result, Token,
+    Error, Expr, ExprArray, ExprAssign, ExprLit, ExprMacro, ExprPath, ExprTuple, Lit, Macro, Result, Token,
 };
 use utoipa::{
     openapi::{
@@ -60,10 +60,11 @@ pub struct Args {
     pub description: Option<String>,
     pub request_body: Option<RequestBody>,
     pub is_deprecated: Option<Option<String>>,
+    pub security_requirements: Vec<SecurityRequirement>,
 }
 
 mod kw {
-    syn::custom_keyword!(securityScheme);
+    syn::custom_keyword!(securityRequirements);
     syn::custom_keyword!(queryParameter);
     syn::custom_keyword!(pathParameter);
     syn::custom_keyword!(description);
@@ -120,6 +121,10 @@ impl Parse for Args {
             if args.request_body.is_none() {
                 args.request_body = Some(request_body);
             }
+        }
+
+        if input.peek(kw::securityRequirements) {
+            args.parse_security_requirements(input)?;
         }
 
         // since multiple pathParameter, queryParameter, and response
@@ -880,8 +885,66 @@ impl Args {
 
         Ok(builder.build().into())
     }
-}
 
+    /// Parses the security requirements for this controller.
+    ///
+    /// Syntax:
+    ///
+    ///     #[controller(securityRequirements(("name", [<scopes>]), ...))
+    pub(crate) fn parse_security_requirements(&mut self, input: ParseStream) -> Result<()> {
+        input.parse::<kw::securityRequirements>()?; // parse out "securityRequirements"
+
+        let buf;
+        parenthesized!(buf in input); // => convert `buf` to a ParseStream so we can parse out expressions by `,`
+
+        let params = buf.parse_terminated(Expr::parse, Token![,])?;
+        let args = params.iter();
+        for expr in args {
+            let Expr::Tuple(ExprTuple { elems, .. }) = expr else {
+                return Err(Error::new(expr.span(), "expected tuple of elements"));
+            };
+
+            let mut args = elems.iter();
+
+            // check if first argument is a literal, which we want!
+            let Some(Expr::Lit(ExprLit { lit: Lit::Str(s), .. })) = args.next() else {
+                return Err(Error::new(expr.span(), "expected literal string to be first argument"));
+            };
+
+            let value = s.value();
+
+            // next, we want a slice of string literals.
+            //
+            // This is mainly for the ApiKey security requirement, which will
+            // validate over scopes that are present in an API key.
+            let Some(Expr::Array(ExprArray { elems, .. })) = args.next() else {
+                return Err(Error::new(expr.span(), "expected second expression to a slice"));
+            };
+
+            // now try to parse out Expr::Lit
+            let literals = elems
+                .iter()
+                .filter_map(|s| {
+                    if let Expr::Lit(ExprLit { lit: Lit::Str(s), .. }) = s.clone() {
+                        Some(s)
+                    } else {
+                        None
+                    }
+                })
+                .map(|s| s.value())
+                .collect::<Vec<_>>();
+
+            let requirement = SecurityRequirement((value, literals));
+            self.security_requirements.push(requirement);
+        }
+
+        if input.peek(Token![,]) {
+            input.parse::<Token![,]>()?;
+        }
+
+        Ok(())
+    }
+}
 #[allow(dead_code)] // it is used, but clippy is being mean :Nod:
 fn ident_to_type(ident: &Ident) -> Option<Schema> {
     match ident.to_string().as_str() {

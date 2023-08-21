@@ -332,11 +332,10 @@ impl HelmCharts {
         self.storage
             .upload(
                 format!("./metadata/{owner}/index.yaml"),
-                UploadRequest::builder()
-                    .content_type("text/yaml; charset=utf-8".into())
-                    .content(Bytes::from(serialized))
-                    .build()
-                    .unwrap(),
+                UploadRequest::default()
+                    .with_content_type(Some("text/yaml; charset=utf-8".into()))
+                    .with_data(Bytes::from(serialized))
+                    .seal(),
             )
             .await
             .context(format!("unable to update user {owner}'s chart index"))

@@ -35,7 +35,7 @@ pub enum StorageConfig {
 impl Default for StorageConfig {
     fn default() -> StorageConfig {
         let datadir = var!("CHARTED_STORAGE_FILESYSTEM_DIRECTORY", or_else: "./data".into());
-        StorageConfig::Filesystem(FilesystemStorageConfig::builder().directory(datadir).build().unwrap())
+        StorageConfig::Filesystem(FilesystemStorageConfig::new(datadir))
     }
 }
 
@@ -76,17 +76,16 @@ impl FromEnv<StorageConfig> for StorageConfig {
                     });
 
                     let bucket = var!("CHARTED_STORAGE_S3_BUCKET", or_else_do: |_| panic!("Missing required environment variable: `CHARTED_STORAGE_S3_BUCKET`."));
-                    let config = S3StorageConfig::builder()
-                        .enable_signer_v4_requests(enable_signer_v4_requests)
-                        .enforce_path_access_style(enforce_path_access_style)
-                        .default_bucket_acl(Some(default_bucket_acl))
-                        .default_object_acl(Some(default_object_acl))
-                        .secret_access_key(secret_access_key)
-                        .access_key_id(access_key_id)
-                        .region(Some(region))
-                        .bucket(bucket)
-                        .build()
-                        .unwrap();
+                    let config = S3StorageConfig::default()
+                        .with_enable_signer_v4_requests(enable_signer_v4_requests)
+                        .with_enforce_path_access_style(enforce_path_access_style)
+                        .with_default_bucket_acl(Some(default_bucket_acl))
+                        .with_default_object_acl(Some(default_object_acl))
+                        .with_secret_access_key(secret_access_key)
+                        .with_access_key_id(access_key_id)
+                        .with_region(Some(region))
+                        .with_bucket(bucket)
+                        .seal();
 
                     StorageConfig::S3(config)
                 }

@@ -152,12 +152,6 @@ alias(
 )
 
 alias(
-    name = "false",
-    actual = "@crate_index__false-0.0.0//:false",
-    tags = ["manual"],
-)
-
-alias(
     name = "flate2",
     actual = "@crate_index__flate2-1.0.27//:flate2",
     tags = ["manual"],
@@ -321,19 +315,19 @@ alias(
 
 alias(
     name = "remi-core",
-    actual = "@crate_index__remi-core-0.2.1//:remi_core",
+    actual = "@crate_index__remi-core-0.4.0//:remi_core",
     tags = ["manual"],
 )
 
 alias(
     name = "remi-fs",
-    actual = "@crate_index__remi-fs-0.2.1//:remi_fs",
+    actual = "@crate_index__remi-fs-0.4.0//:remi_fs",
     tags = ["manual"],
 )
 
 alias(
     name = "remi-s3",
-    actual = "@crate_index__remi-s3-0.2.1//:remi_s3",
+    actual = "@crate_index__remi-s3-0.4.0//:remi_s3",
     tags = ["manual"],
 )
 
@@ -375,7 +369,7 @@ alias(
 
 alias(
     name = "serde",
-    actual = "@crate_index__serde-1.0.171//:serde",
+    actual = "@crate_index__serde-1.0.185//:serde",
     tags = ["manual"],
 )
 
