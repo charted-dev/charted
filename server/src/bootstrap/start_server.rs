@@ -58,7 +58,7 @@ impl BootstrapPhase for StartServerPhase {
             None
         };
 
-        let server = ConfigureModulesPhase::configure_modules(config).await?;
+        let server = configure_modules(config).await?;
         SERVER.set(server.clone()).unwrap();
 
         info!("Server is now starting...");
@@ -77,93 +77,88 @@ impl BootstrapPhase for StartServerPhase {
     }
 }
 
-#[derive(Debug, Clone)]
-struct ConfigureModulesPhase {}
+pub(crate) async fn configure_modules(config: &Config) -> Result<Server> {
+    let mut now = Instant::now();
+    info!("Connecting to PostgreSQL...");
 
-impl ConfigureModulesPhase {
-    pub(crate) async fn configure_modules(config: &Config) -> Result<Server> {
-        let mut now = Instant::now();
-        info!("Connecting to PostgreSQL...");
+    let pool = PgPoolOptions::new()
+        .max_connections(config.database.max_connections)
+        .connect_with(
+            PgConnectOptions::from_str(config.database.to_string().as_str())?
+                .log_statements(tracing::log::LevelFilter::Trace)
+                .log_slow_statements(tracing::log::LevelFilter::Warn, Duration::from_secs(5)),
+        )
+        .await?;
 
-        let pool = PgPoolOptions::new()
-            .max_connections(config.database.max_connections)
-            .connect_with(
-                PgConnectOptions::from_str(config.database.to_string().as_str())?
-                    .log_statements(tracing::log::LevelFilter::Trace)
-                    .log_slow_statements(tracing::log::LevelFilter::Warn, Duration::from_secs(5)),
-            )
-            .await?;
+    info!(
+        took = format!("{:?}", Instant::now().duration_since(now)),
+        "Connected to PostgreSQL successfully"
+    );
 
-        info!(
-            took = format!("{:?}", Instant::now().duration_since(now)),
-            "Connected to PostgreSQL successfully"
-        );
+    now = Instant::now();
+    {
+        let pool = pool.clone();
+        let guard = info_span!("database.migrate.run");
+        let _entered = guard.enter();
 
-        now = Instant::now();
-        {
-            let pool = pool.clone();
-            let guard = info_span!("database.migrate.run");
-            let _entered = guard.enter();
-
-            info!("Running database migrations...");
-            MIGRATIONS.run(&pool).await?;
-
-            info!(
-                took = format!("{:?}", Instant::now().duration_since(now)),
-                "Ran all database migrations!"
-            );
-        }
-
-        now = Instant::now();
-        info!("Connecting to Redis...");
-        let redis = RedisClient::new()?;
+        info!("Running database migrations...");
+        MIGRATIONS.run(&pool).await?;
 
         info!(
             took = format!("{:?}", Instant::now().duration_since(now)),
-            "Connected to Redis successfully, now initializing session manager"
+            "Ran all database migrations!"
         );
-
-        now = Instant::now();
-        let mut sessions = SessionManager::new(
-            redis.clone(),
-            match config.sessions.backend.clone() {
-                SessionBackend::Local => Box::new(LocalSessionProvider::new(redis.clone(), pool.clone())?),
-                backend => {
-                    warn!("Backend {backend:?} is not supported at this time! Using local as a default");
-                    Box::new(LocalSessionProvider::new(redis.clone(), pool.clone())?)
-                }
-            },
-        );
-
-        sessions.init()?;
-
-        info!(
-            took = format!("{:?}", Instant::now().duration_since(now)),
-            "Initialized session manager and all remaining sessions, now configuring misc. dependencies..."
-        );
-
-        now = Instant::now();
-
-        let storage = MultiStorageService::from(config.storage.clone());
-        let snowflake = Snowflake::new(0);
-        let registry = SingleRegistry::configure(config.clone(), vec![]);
-        let helm_charts = HelmCharts::new(storage.clone());
-        helm_charts.init().await?;
-
-        info!(
-            took = format!("{:?}", Instant::now().duration_since(now)),
-            "Initialized all misc dependencies!"
-        );
-
-        Ok(Server {
-            helm_charts,
-            snowflake,
-            sessions: Arc::new(RwLock::new(sessions)),
-            registry,
-            storage,
-            config: config.clone(),
-            redis: RefCell::new(redis),
-            pool,
-        })
     }
+
+    now = Instant::now();
+    info!("Connecting to Redis...");
+    let redis = RedisClient::new()?;
+
+    info!(
+        took = format!("{:?}", Instant::now().duration_since(now)),
+        "Connected to Redis successfully, now initializing session manager"
+    );
+
+    now = Instant::now();
+    let mut sessions = SessionManager::new(
+        redis.clone(),
+        match config.sessions.backend.clone() {
+            SessionBackend::Local => Box::new(LocalSessionProvider::new(redis.clone(), pool.clone())?),
+            backend => {
+                warn!("Backend {backend:?} is not supported at this time! Using local as a default");
+                Box::new(LocalSessionProvider::new(redis.clone(), pool.clone())?)
+            }
+        },
+    );
+
+    sessions.init()?;
+
+    info!(
+        took = format!("{:?}", Instant::now().duration_since(now)),
+        "Initialized session manager and all remaining sessions, now configuring misc. dependencies..."
+    );
+
+    now = Instant::now();
+
+    let storage = MultiStorageService::from(config.storage.clone());
+    let snowflake = Snowflake::new(0);
+    let registry = SingleRegistry::configure(config.clone(), vec![]);
+    let helm_charts = HelmCharts::new(storage.clone());
+    helm_charts.init().await?;
+
+    info!(
+        took = format!("{:?}", Instant::now().duration_since(now)),
+        "Initialized all misc dependencies!"
+    );
+
+    Ok(Server {
+        helm_charts,
+        snowflake,
+        sessions: Arc::new(RwLock::new(sessions)),
+        registry,
+        storage,
+        config: config.clone(),
+        redis: RefCell::new(redis),
+        pool,
+    })
 }

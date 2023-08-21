@@ -258,6 +258,7 @@ where
                 "Basic" => {
                     let span = info_span!(parent: &span, "charted.http.auth.basic");
                     let _guard = span.enter();
+
                     let decoded = STANDARD.decode(&token).map_err(|e| {
                         error!(%e, "unable to decode base64 from Authorization header");
                         sentry::capture_error(&e);
@@ -299,7 +300,7 @@ where
                         }
                     }
 
-                    let Some(user) = sqlx::query_as::<_, User>("select * from users where name = ?")
+                    let Some(user) = sqlx::query_as::<_, User>("select users.* from users where username = $1;")
                         .bind(username.to_string())
                         .fetch_optional(&pool)
                         .await
@@ -351,6 +352,7 @@ where
                 "Bearer" => {
                     let span = info_span!(parent: &span, "charted.http.auth.bearer");
                     let _guard = span.enter();
+
                     let decoded = decode::<HashMap<String, String>>(
                         &token,
                         &DecodingKey::from_secret(jwt_secret_key.as_ref()),
@@ -376,7 +378,7 @@ where
                         .into_response()
                     })?;
 
-                    let Some(user) = sqlx::query_as::<_, User>("select * from users where id = ?")
+                    let Some(user) = sqlx::query_as::<_, User>("select users.* from users where id = $1;")
                         .bind(id as i64)
                         .fetch_optional(&pool)
                         .await
