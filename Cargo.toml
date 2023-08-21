@@ -17,6 +17,7 @@
 resolver = "2"
 members = [
     "cli",
+    "crates/avatars",
     "crates/common",
     "crates/config",
     "crates/database",

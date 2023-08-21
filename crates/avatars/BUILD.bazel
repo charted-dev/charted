@@ -13,33 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" bazel is mean """
+load("//:build/rust_project.bzl", "rust_project")
 
-CARGO_MANIFESTS = ["//{}:Cargo.toml".format(f) for f in [
-    "crates/avatars",
-    "crates/common",
-    "crates/config",
-    "crates/database",
-    "crates/emails",
-    "crates/helm-charts",
-    "crates/logging",
-    "crates/metrics",
-    "crates/openapi",
-    "crates/proc-macros",
-    "crates/redis",
-    "crates/search",
-    "crates/search/elasticsearch",
-    "crates/search/meilisearch",
-    "crates/sessions/integrations/github",
-    "crates/sessions/integrations",
-    "crates/sessions/local",
-    "crates/sessions/ldap",
-    "crates/sessions",
-    "crates/storage",
-    "services/emails",
-    "tools/helm-plugin",
-    "tools/devtools",
-    "server",
-    "cli",
-    "",
-]]
+rust_project(
+    name = "avatars",
+)

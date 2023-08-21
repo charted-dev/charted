@@ -1,5 +1,5 @@
 {
-  "checksum": "d1fdb5eb6997abbc195eda9e53df324b0859a56585670393b827513b869967f4",
+  "checksum": "f6f93429587ab30911e7296111dde5226c10218e3b80838077b49db40332a3cb",
   "crates": {
     "addr2line 0.20.0": {
       "name": "addr2line",
@@ -3228,7 +3228,7 @@
         "deps": {
           "common": [
             {
-              "id": "cc 1.0.82",
+              "id": "cc 1.0.83",
               "target": "cc"
             }
           ],
@@ -4042,13 +4042,13 @@
       },
       "license": "MIT"
     },
-    "cc 1.0.82": {
+    "cc 1.0.83": {
       "name": "cc",
-      "version": "1.0.82",
+      "version": "1.0.83",
       "repository": {
         "Http": {
-          "url": "https://crates.io/api/v1/crates/cc/1.0.82/download",
-          "sha256": "305fe645edc1442a0fa8b6726ba61d422798d37a52e12eaecf4b022ebbb88f01"
+          "url": "https://crates.io/api/v1/crates/cc/1.0.83/download",
+          "sha256": "f1174fb0b6ec23863f8b971027804a42614e347eafb0a95bf0b12cdae21fc4d0"
         }
       },
       "targets": [
@@ -4079,7 +4079,7 @@
           }
         },
         "edition": "2018",
-        "version": "1.0.82"
+        "version": "1.0.83"
       },
       "license": "MIT OR Apache-2.0"
     },
@@ -4142,6 +4142,48 @@
         "version": "1.0.0"
       },
       "license": "MIT/Apache-2.0"
+    },
+    "charted-avatars 0.0.0-devel.0": {
+      "name": "charted-avatars",
+      "version": "0.0.0-devel.0",
+      "repository": null,
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "charted_avatars",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "charted_avatars",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "remi-core 0.2.1",
+              "target": "remi_core"
+            },
+            {
+              "id": "reqwest 0.11.18",
+              "target": "reqwest"
+            },
+            {
+              "id": "tracing 0.1.37",
+              "target": "tracing"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.0.0-devel.0"
+      },
+      "license": null
     },
     "charted-cli 0.0.0-devel.0": {
       "name": "charted-cli",
@@ -4354,7 +4396,7 @@
               "target": "tracing"
             },
             {
-              "id": "utoipa 3.4.4",
+              "id": "utoipa 3.5.0",
               "target": "utoipa"
             },
             {
@@ -4559,7 +4601,7 @@
               "target": "tracing"
             },
             {
-              "id": "utoipa 3.4.4",
+              "id": "utoipa 3.5.0",
               "target": "utoipa"
             },
             {
@@ -5191,7 +5233,7 @@
               "target": "once_cell"
             },
             {
-              "id": "utoipa 3.4.4",
+              "id": "utoipa 3.5.0",
               "target": "utoipa"
             }
           ],
@@ -5249,7 +5291,7 @@
               "target": "syn"
             },
             {
-              "id": "utoipa 3.4.4",
+              "id": "utoipa 3.5.0",
               "target": "utoipa"
             }
           ],
@@ -5581,7 +5623,7 @@
               "target": "tracing_subscriber"
             },
             {
-              "id": "utoipa 3.4.4",
+              "id": "utoipa 3.5.0",
               "target": "utoipa"
             },
             {
@@ -7524,7 +7566,7 @@
         "deps": {
           "common": [
             {
-              "id": "cc 1.0.82",
+              "id": "cc 1.0.83",
               "target": "cc"
             },
             {
@@ -7997,13 +8039,13 @@
       },
       "license": "Apache-2.0 OR MIT"
     },
-    "deranged 0.3.7": {
+    "deranged 0.3.8": {
       "name": "deranged",
-      "version": "0.3.7",
+      "version": "0.3.8",
       "repository": {
         "Http": {
-          "url": "https://crates.io/api/v1/crates/deranged/0.3.7/download",
-          "sha256": "7684a49fb1af197853ef7b2ee694bc1f5b4179556f1e5710e1760c5db6f5e929"
+          "url": "https://crates.io/api/v1/crates/deranged/0.3.8/download",
+          "sha256": "f2696e8a945f658fd14dc3b87242e6b80cd0f36ff04ea560fa39082368847946"
         }
       },
       "targets": [
@@ -8040,7 +8082,7 @@
           "selects": {}
         },
         "edition": "2021",
-        "version": "0.3.7"
+        "version": "0.3.8"
       },
       "license": "MIT OR Apache-2.0"
     },
@@ -9085,7 +9127,7 @@
         "deps": {
           "common": [
             {
-              "id": "cc 1.0.82",
+              "id": "cc 1.0.83",
               "target": "cc"
             }
           ],
@@ -9575,7 +9617,7 @@
         "deps": {
           "common": [
             {
-              "id": "cc 1.0.82",
+              "id": "cc 1.0.83",
               "target": "cc"
             }
           ],
@@ -12259,7 +12301,7 @@
         "deps": {
           "common": [
             {
-              "id": "cc 1.0.82",
+              "id": "cc 1.0.83",
               "target": "cc"
             }
           ],
@@ -13606,7 +13648,7 @@
         "deps": {
           "common": [
             {
-              "id": "cc 1.0.82",
+              "id": "cc 1.0.83",
               "target": "cc"
             }
           ],
@@ -13673,7 +13715,7 @@
         "deps": {
           "common": [
             {
-              "id": "cc 1.0.82",
+              "id": "cc 1.0.83",
               "target": "cc"
             }
           ],
@@ -13736,7 +13778,7 @@
         "deps": {
           "common": [
             {
-              "id": "cc 1.0.82",
+              "id": "cc 1.0.83",
               "target": "cc"
             },
             {
@@ -13817,7 +13859,7 @@
         "deps": {
           "common": [
             {
-              "id": "cc 1.0.82",
+              "id": "cc 1.0.83",
               "target": "cc"
             },
             {
@@ -15267,7 +15309,7 @@
           "selects": {
             "cfg(target_os = \"dragonfly\")": [
               {
-                "id": "cc 1.0.82",
+                "id": "cc 1.0.83",
                 "target": "cc"
               }
             ]
@@ -16339,7 +16381,7 @@
         "deps": {
           "common": [
             {
-              "id": "cc 1.0.82",
+              "id": "cc 1.0.83",
               "target": "cc"
             },
             {
@@ -19703,7 +19745,7 @@
         "deps": {
           "common": [
             {
-              "id": "cc 1.0.82",
+              "id": "cc 1.0.83",
               "target": "cc"
             }
           ],
@@ -24544,7 +24586,7 @@
         "deps": {
           "common": [
             {
-              "id": "cc 1.0.82",
+              "id": "cc 1.0.83",
               "target": "cc"
             }
           ],
@@ -25085,7 +25127,7 @@
         "deps": {
           "common": [
             {
-              "id": "deranged 0.3.7",
+              "id": "deranged 0.3.8",
               "target": "deranged"
             },
             {
@@ -27547,13 +27589,13 @@
       },
       "license": "Apache-2.0 OR MIT"
     },
-    "utoipa 3.4.4": {
+    "utoipa 3.5.0": {
       "name": "utoipa",
-      "version": "3.4.4",
+      "version": "3.5.0",
       "repository": {
         "Http": {
-          "url": "https://crates.io/api/v1/crates/utoipa/3.4.4/download",
-          "sha256": "de634b7f8178c9c246c88ea251f3a0215c9a4d80778db2d7bd4423a78b5170ec"
+          "url": "https://crates.io/api/v1/crates/utoipa/3.5.0/download",
+          "sha256": "d82b1bc5417102a73e8464c686eef947bdfb99fcdfc0a4f228e81afa9526470a"
         }
       },
       "targets": [
@@ -27607,23 +27649,23 @@
         "proc_macro_deps": {
           "common": [
             {
-              "id": "utoipa-gen 3.4.5",
+              "id": "utoipa-gen 3.5.0",
               "target": "utoipa_gen"
             }
           ],
           "selects": {}
         },
-        "version": "3.4.4"
+        "version": "3.5.0"
       },
       "license": "MIT OR Apache-2.0"
     },
-    "utoipa-gen 3.4.5": {
+    "utoipa-gen 3.5.0": {
       "name": "utoipa-gen",
-      "version": "3.4.5",
+      "version": "3.5.0",
       "repository": {
         "Http": {
-          "url": "https://crates.io/api/v1/crates/utoipa-gen/3.4.5/download",
-          "sha256": "0fcba79cb3e5020d9bcc8313cd5aadaf51d6d54a6b3fd08c3d0360ae6b3c83d0"
+          "url": "https://crates.io/api/v1/crates/utoipa-gen/3.5.0/download",
+          "sha256": "05d96dcd6fc96f3df9b3280ef480770af1b7c5d14bc55192baa9b067976d920c"
         }
       },
       "targets": [
@@ -27681,7 +27723,7 @@
           "selects": {}
         },
         "edition": "2021",
-        "version": "3.4.5"
+        "version": "3.5.0"
       },
       "license": "MIT OR Apache-2.0"
     },
@@ -29914,6 +29956,7 @@
   },
   "binary_crates": [],
   "workspace_members": {
+    "charted-avatars 0.0.0-devel.0": "crates/avatars",
     "charted-cli 0.0.0-devel.0": "cli",
     "charted-common 0.0.0-devel.0": "crates/common",
     "charted-config 0.0.0-devel.0": "crates/config",

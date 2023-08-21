@@ -13,33 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" bazel is mean """
+[package]
+name = "charted-avatars"
+description = "🐻‍❄️📦 Library to handle user avatars from Gravatar, Dicebear, and more!"
+version = "0.0.0-devel.0"
+edition = "2021"
+homepage = "https://charts.noelware.org"
+authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
-CARGO_MANIFESTS = ["//{}:Cargo.toml".format(f) for f in [
-    "crates/avatars",
-    "crates/common",
-    "crates/config",
-    "crates/database",
-    "crates/emails",
-    "crates/helm-charts",
-    "crates/logging",
-    "crates/metrics",
-    "crates/openapi",
-    "crates/proc-macros",
-    "crates/redis",
-    "crates/search",
-    "crates/search/elasticsearch",
-    "crates/search/meilisearch",
-    "crates/sessions/integrations/github",
-    "crates/sessions/integrations",
-    "crates/sessions/local",
-    "crates/sessions/ldap",
-    "crates/sessions",
-    "crates/storage",
-    "services/emails",
-    "tools/helm-plugin",
-    "tools/devtools",
-    "server",
-    "cli",
-    "",
-]]
+[dependencies]
+bytes = "1.4.0"
+charted-common = { version = "0.0.0-devel.0", path = "../common" }
+charted-storage = { version = "0.0.0-devel.0", path = "../storage" }
+eyre = "0.6.8"
+remi-core = "=0.2.1"
+reqwest = { version = "0.11.18", features = ["async-compression", "gzip"] }
+tracing = "0.1.37"
