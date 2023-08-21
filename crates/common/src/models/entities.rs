@@ -252,7 +252,8 @@ pub struct Repository {
     pub private: bool,
 
     /// Unique identifier that points to a User or Organization resource that owns this repository
-    pub owner_id: u64,
+    #[schema(schema_with = snowflake_schema)]
+    pub owner_id: i64,
 
     /// Unique [Name] to locate this repository from the API
     pub name: String,

@@ -44,7 +44,7 @@ impl<'s> ToSchema<'s> for ChartSpecVersion {
 /// Represents what type this chart is. Do note that [`ChartType::Operator`] is not supported
 /// by Helm, but specific to the API server, this will be switched to [`ChartType::Application`]
 /// when serializing to valid Helm objects
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd, Ord, sqlx::Type)]
 #[serde(rename_all = "lowercase")]
 pub enum ChartType {
     #[default]

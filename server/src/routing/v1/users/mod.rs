@@ -16,30 +16,93 @@
 use super::EntrypointResponse;
 use crate::{
     extract::Json,
-    models::res::{err, ok, ApiResponse},
+    middleware::{Session, SessionAuth},
+    models::res::{err, no_content, ok, ApiResponse},
     openapi::gen_response_schema,
     validation::{validate, validate_email},
     Server,
 };
-use axum::extract::State;
-use axum::http::StatusCode;
-use axum::{routing, Router};
-use charted_common::models::payloads::CreateUserPayload;
-use charted_common::models::Name;
-use charted_common::VERSION;
-use charted_common::{extract::NameOrSnowflake, models::entities::User};
+use axum::{extract::State, handler::Handler, http::StatusCode, routing, Extension, Router};
+use charted_common::{
+    extract::NameOrSnowflake,
+    models::{
+        entities::User,
+        payloads::{CreateUserPayload, PatchUserPayload},
+        Name,
+    },
+    server::hash_password,
+    VERSION,
+};
 use charted_proc_macros::controller;
 use chrono::Local;
 use sqlx::QueryBuilder;
-use utoipa::openapi::path::{PathItem, PathItemBuilder};
-use utoipa::ToSchema;
+use tower_http::auth::AsyncRequireAuthorizationLayer;
+use utoipa::{
+    openapi::path::{PathItem, PathItemBuilder},
+    ToSchema,
+};
 use validator::Validate;
+
+macro_rules! impl_patch_for {
+    ($txn:expr, $entry:literal, $id:expr, $payload:expr => $value:expr) => {
+        if let Some(val) = $payload {
+            match sqlx::query(concat!("update users set ", $entry, " = $1 where id = $2;"))
+                .bind($value)
+                .bind($id)
+                .execute(&mut *$txn)
+                .await
+            {
+                Ok(_) => {}
+                Err(e) => {
+                    ::tracing::error!(user.id = $id, error = %e, concat!("unable to update [", $entry, "] to [{}] for user"), val);
+                    ::sentry::capture_error(&e);
+
+                    drop($txn);
+                    return Err($crate::models::res::err(
+                        ::axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+                        ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+                    ));
+                }
+            }
+        }
+    };
+
+    ($txn:expr, $entry:literal, $id:expr, $value:expr) => {
+        if let Some(val) = $value {
+            match sqlx::query(concat!("update users set ", $entry, " = $1 where id = $2;"))
+                .bind(val.clone())
+                .bind($id)
+                .execute(&mut *$txn)
+                .await
+            {
+                Ok(_) => {}
+                Err(e) => {
+                    ::tracing::error!(user.id = $id, error = %e, concat!("unable to update [", $entry, "] to [{}] for user"), val);
+                    ::sentry::capture_error(&e);
+
+                    drop($txn);
+                    return Err($crate::models::res::err(
+                        ::axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+                        ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+                    ));
+                }
+            }
+        }
+    };
+}
 
 pub fn create_router() -> Router<Server> {
     Router::new()
         .route(
             "/",
-            routing::get(MainRestController::run).put(CreateUserRestController::run),
+            routing::get(MainRestController::run)
+                .put(CreateUserRestController::run)
+                .patch(PatchUserRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth)))
+                .delete(DeleteUserRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth))),
+        )
+        .route(
+            "/@me",
+            routing::get(GetSelfRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth))),
         )
         .route("/:idOrName", routing::get(GetUserRestController::run))
 }
@@ -49,6 +112,7 @@ pub fn paths() -> PathItem {
     let operations = vec![
         MainRestController::paths().operations.pop_first().unwrap(),
         CreateUserRestController::paths().operations.pop_first().unwrap(),
+        PatchUserRestController::paths().operations.pop_first().unwrap(),
     ];
 
     for (item, op) in operations.iter() {
@@ -82,6 +146,7 @@ gen_response_schema!(UserResponse, schema: "User");
     requestBody("Payload for creating a new user. `password` can be empty if the server's session manager is not Local", ("application/json", schema!("CreateUserPayload"))),
     response(200, "Successful response", ("application/json", response!("ApiUserResponse"))),
     response(403, "Whether if this server doesn't allow registrations", ("application/json", response!("ApiErrorResponse"))),
+    response(406, "If the `username` or `email` was taken.", ("application/json", response!("ApiErrorResponse")))
 )]
 async fn create_user(
     State(server): State<Server>,
@@ -135,7 +200,7 @@ async fn create_user(
     }
 
     let email = validate_email(payload.email)?;
-    match sqlx::query("select username, created_at, updated_at, email from users where email = $1;")
+    match sqlx::query("select users.* from users where email = $1;")
         .bind(email.clone())
         .fetch_optional(&server.pool)
         .await
@@ -267,4 +332,183 @@ pub async fn get_user(
             ))
         }
     }
+}
+
+/// Returns a [User] from an authenticated request.
+#[controller(
+    tags("Users"),
+    response(200, "Returns the current authenticated user's metadata", ("application/json", response!("ApiUserResponse"))),
+    response(400, "If the request body was invalid (i.e, validation errors)", ("application/json", response!("ApiErrorResponse"))),
+    response(401, "If the session couldn't be validated", ("application/json", response!("ApiErrorResponse"))),
+    response(403, "(Bearer token only) - if the JWT was invalid.", ("application/json", response!("ApiErrorResponse"))),
+    response(406, "If the request body contained invalid data, or if the session header contained invalid data", ("application/json", response!("ApiErrorResponse"))),
+    response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
+)]
+pub async fn get_self(Extension(Session { user, .. }): Extension<Session>) -> ApiResponse<User> {
+    ok(StatusCode::OK, user)
+}
+
+/// Patches the current authenticated user's metadata.
+#[controller(
+    method = patch,
+    tags("Users"),
+    response(204, "Successful response", ("application/json", response!("ApiEmptyResponse"))),
+    response(400, "If the request body was invalid (i.e, validation errors)", ("application/json", response!("ApiErrorResponse"))),
+    response(401, "If the session couldn't be validated", ("application/json", response!("ApiErrorResponse"))),
+    response(403, "(Bearer token only) - if the JWT was invalid.", ("application/json", response!("ApiErrorResponse"))),
+    response(406, "If the request body contained invalid data, or if the session header contained invalid data", ("application/json", response!("ApiErrorResponse"))),
+    response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
+)]
+pub async fn patch_user(
+    State(server): State<Server>,
+    Extension(Session { user, .. }): Extension<Session>,
+    payload: Json<PatchUserPayload>,
+) -> Result<ApiResponse, ApiResponse> {
+    validate(payload.clone(), PatchUserPayload::validate)?;
+
+    // validate username (since it doesn't validate it D:)
+    if let Some(username) = payload.username.clone() {
+        validate(username.clone(), Name::validate)?;
+
+        // check if username exists
+        match sqlx::query("SELECT users.* FROM users WHERE username = $1;")
+            .bind(username.as_str())
+            .fetch_optional(&server.pool)
+            .await
+        {
+            Ok(None) => {}
+            Ok(Some(_)) => {
+                return Err(err(
+                    StatusCode::CONFLICT,
+                    (
+                        "USER_EXISTS",
+                        format!("unable to patch: user with username {username} already exists").as_str(),
+                    )
+                        .into(),
+                ))
+            }
+
+            Err(e) => {
+                error!(username = tracing::field::display(username.clone()), %e, "failed to query user {username}");
+                sentry::capture_error(&e);
+
+                return Err(err(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+                ));
+            }
+        }
+    }
+
+    // check if an email already exists by an another user
+    if let Some(email) = payload.email.clone() {
+        match sqlx::query("select users.* from users where email = $1;")
+            .bind(email.clone())
+            .fetch_optional(&server.pool)
+            .await
+        {
+            Ok(None) => {}
+            Ok(Some(_)) => {
+                return Err(err(
+                    StatusCode::CONFLICT,
+                    ("USER_EXISTS", "user with email received already exists").into(),
+                ))
+            }
+
+            Err(e) => {
+                error!(email, %e, "failed to query user with");
+                sentry::capture_error(&e);
+
+                return Err(err(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+                ));
+            }
+        }
+    }
+
+    let span = info_span!("charted.rest.patch", entity = "user", user.id);
+    let _guard = span.enter();
+    let mut txn = server.pool.begin().await.map_err(|e| {
+        error!(user.id, error = %e, "unable to create database transaction for user");
+        sentry::capture_error(&e);
+
+        err(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+        )
+    })?;
+
+    impl_patch_for!(txn, "gravatar_email", user.id, payload.gravatar_email.clone());
+    impl_patch_for!(txn, "description", user.id, payload.description.clone());
+    impl_patch_for!(txn, "username", user.id, payload.username.clone());
+    impl_patch_for!(txn, "password", user.id, payload.password.clone() => {
+        hash_password(payload.password.clone().unwrap()).map_err(|e| {
+            error!(user.id, error = %e, "unable to hash password for user ");
+            sentry_eyre::capture_report(&e);
+
+            err(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+            )
+        })?
+    });
+
+    impl_patch_for!(txn, "email", user.id, payload.email.clone());
+    impl_patch_for!(txn, "name", user.id, payload.name.clone());
+
+    txn.commit().await.map_err(|e| {
+        error!(user.id, error = %e, "unable to commit transaction for user");
+        sentry::capture_error(&e);
+
+        err(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+        )
+    })?;
+
+    Ok(no_content())
+}
+
+#[controller(
+    method = delete,
+    tags("Users"),
+    response(204, "Successful response", ("application/json", response!("ApiEmptyResponse"))),
+    response(401, "If the session couldn't be validated", ("application/json", response!("ApiErrorResponse"))),
+    response(403, "(Bearer token only) - if the JWT was invalid or expired", ("application/json", response!("ApiErrorResponse"))),
+    response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
+)]
+pub async fn delete_user(
+    State(server): State<Server>,
+    Extension(Session {
+        user,
+        session: _session,
+    }): Extension<Session>,
+) -> Result<ApiResponse, ApiResponse> {
+    match sqlx::query("delete from users where id = $1;")
+        .bind(user.id)
+        .execute(&server.pool)
+        .await
+    {
+        Ok(_) => {}
+        Err(e) => {
+            error!(user.id, error = %e, "unable to delete user");
+            sentry::capture_error(&e);
+
+            return Err(err(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+            ));
+        }
+    }
+
+    // in a background task, delete all entities and helm charts
+    // that existed with that user.
+    tokio::spawn(async move {
+        let _helm_charts = server.helm_charts.clone();
+        let _pool = server.pool.clone();
+        let _user = user.clone();
+    });
+
+    Ok(no_content())
 }

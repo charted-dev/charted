@@ -49,7 +49,6 @@ use utoipa::{
         Member,
         RepositoryRelease,
         crate::routing::v1::features::FeaturesResponse,
-        crate::routing::v1::users::UserResponse,
         crate::routing::v1::main::MainResponse,
         crate::routing::v1::info::InfoResponse,
         crate::routing::v1::EntrypointResponse,
@@ -159,7 +158,7 @@ pub(crate) struct ApiErrorResponse;
 impl<'r> ToResponse<'r> for EmptyApiResponse {
     fn response() -> (&'r str, RefOr<Response>) {
         (
-            "EmptyApiResponse",
+            "ApiEmptyResponse",
             RefOr::T(
                 ResponseBuilder::new()
                     .description("Empty response object")

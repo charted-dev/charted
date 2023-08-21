@@ -139,6 +139,83 @@
                                 }
                             }
                         }
+                    },
+                    "406": {
+                        "description": "If the `username` or `email` was taken.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": ["Users"],
+                "description": "Patches the current authenticated user's metadata.",
+                "operationId": "patch_user",
+                "responses": {
+                    "204": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiEmptyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "If the request body was invalid (i.e, validation errors)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "If the session couldn't be validated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "(Bearer token only) - if the JWT was invalid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "If the request body contained invalid data, or if the session header contained invalid data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -709,7 +786,7 @@
             },
             "Repository": {
                 "type": "object",
-                "required": ["created_at", "updated_at", "owner_id", "name", "type"],
+                "required": ["created_at", "updated_at", "name", "type"],
                 "properties": {
                     "created_at": {
                         "type": "string",
@@ -743,8 +820,8 @@
                     "owner_id": {
                         "type": "integer",
                         "format": "int64",
-                        "description": "Unique identifier that points to a User or Organization resource that owns this repository",
-                        "minimum": 0
+                        "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
+                        "minLength": 15
                     },
                     "private": {
                         "type": "boolean",
@@ -868,13 +945,26 @@
                         "description": "Whether if this User is a Verified Publisher or not."
                     }
                 }
-            },
-            "UserResponse": {
-                "default": null,
-                "nullable": true
             }
         },
         "responses": {
+            "ApiEmptyResponse": {
+                "description": "Empty response object",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success"],
+                            "properties": {
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "Indicates whether if this response was a success or not"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             "ApiEntrypointResponse": {
                 "description": "Response object for EntrypointResponse",
                 "content": {
@@ -999,28 +1089,29 @@
                         }
                     }
                 }
+            }
+        },
+        "securitySchemes": {
+            "ApiKey": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "ApiKey"
             },
-            "EmptyApiResponse": {
-                "description": "Empty response object",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "required": ["success"],
-                            "properties": {
-                                "success": {
-                                    "type": "boolean",
-                                    "description": "Indicates whether if this response was a success or not"
-                                }
-                            }
-                        }
-                    }
-                }
+            "Basic": {
+                "type": "http",
+                "scheme": "basic",
+                "description": "Basic is only meant for testing the API, do not use this for anything else."
+            },
+            "Bearer": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "Bearer",
+                "description": "JWT-signed session key that is used to safely identify someone for 2 days with a refresh token"
             }
         }
     },
     "externalDocs": {
         "url": "https://charts.noelware.org/docs/server/0.1.0-beta",
-        "description": null
+        "description": "Main documentation for charted-server"
     }
 }

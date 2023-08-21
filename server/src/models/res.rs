@@ -130,3 +130,12 @@ pub fn err(status: StatusCode, error: Error) -> ApiResponse<Empty> {
         data: None,
     }
 }
+
+pub fn no_content() -> ApiResponse<Empty> {
+    ApiResponse {
+        status: StatusCode::NO_CONTENT,
+        success: true,
+        data: None,
+        errors: None,
+    }
+}

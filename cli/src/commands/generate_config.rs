@@ -16,7 +16,7 @@
 use charted_common::cli::AsyncExecute;
 use charted_config::Config;
 use eyre::Result;
-use std::{io::Write, path::PathBuf};
+use std::{io::Write, path::PathBuf, process::exit};
 use tokio::{
     fs::{File, OpenOptions},
     io::AsyncWriteExt,
@@ -33,12 +33,15 @@ pub struct GenerateConfig {
 #[async_trait]
 impl AsyncExecute for GenerateConfig {
     async fn execute(&self) -> Result<()> {
-        println!("Writing configuration in {:?}...", self.path);
-        if self.path.exists() {
-            eprintln!("fatal: path already exists, bailing");
-            return Ok(());
+        match self.path.try_exists()? {
+            false => {}
+            true => {
+                error!("FATAL: path {} already exists", self.path.display());
+                exit(1);
+            }
         }
 
+        info!("writing configuration in [{}]", self.path.display());
         let mut file = OpenOptions::new()
             .create(true)
             .read(true)
@@ -51,7 +54,7 @@ impl AsyncExecute for GenerateConfig {
         let serialized = serde_yaml::to_string(&config)?;
         file.write_all(serialized.as_ref()).await?;
 
-        println!("Wrote configuration in {:?}", self.path);
+        info!("successfully configuration in {:?}", self.path);
         Ok(())
     }
 }
