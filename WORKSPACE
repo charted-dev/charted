@@ -16,7 +16,6 @@
 workspace(name = "org_noelware_charted_server")
 
 load("//:build/tools/rust.bzl", "RUST_EDITION", "RUST_VERSIONS", "charted_rust_repositories")
-load("//:build/utils.bzl", "CARGO_MANIFESTS")
 
 charted_rust_repositories()
 
@@ -41,16 +40,7 @@ cargo_bootstrap_repository(
     cargo_toml = "//:Cargo.toml",
 )
 
-load("@rules_rust//crate_universe:defs.bzl", "crates_repository")
-
-crates_repository(
-    name = "crate_index",
-    cargo_lockfile = "//:Cargo.lock",
-    lockfile = "//:Cargo.bzl.lock",
-    manifests = CARGO_MANIFESTS,
-)
-
-load("@crate_index//:defs.bzl", "crate_repositories")
+load("//thirdparty/crates:crates.bzl", "crate_repositories")
 
 crate_repositories()
 

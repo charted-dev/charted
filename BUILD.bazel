@@ -32,6 +32,7 @@ exports_files([
 
     # for vendoring crates
     "Cargo.toml",
+    "Cargo.lock",
 
     # Used also in crates/common/build.rs -- which uses the commit hash to
     # determine where this build was compiled from.

@@ -1,5 +1,5 @@
 {
-  "checksum": "f6f93429587ab30911e7296111dde5226c10218e3b80838077b49db40332a3cb",
+  "checksum": "1f5f855fe392110f9e8941eb609caf7607a3cc93eef916e1626a535637df2769",
   "crates": {
     "addr2line 0.20.0": {
       "name": "addr2line",
@@ -4165,6 +4165,14 @@
         ],
         "deps": {
           "common": [
+            {
+              "id": "bytes 1.4.0",
+              "target": "bytes"
+            },
+            {
+              "id": "eyre 0.6.8",
+              "target": "eyre"
+            },
             {
               "id": "remi-core 0.2.1",
               "target": "remi_core"
