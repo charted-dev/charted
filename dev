@@ -18,6 +18,10 @@
 set -o errexit
 set -o pipefail
 
+function devtools::log {
+    echo "[dev] $*"
+}
+
 function devtools::fatal {
     echo "[dev][failure] $*"
     exit 1
@@ -37,9 +41,12 @@ done
 SCRIPT_DIR=$(cd -P "$(dirname $BASH_SRC)" >/dev/null 2>&1 && pwd)
 ! [ -d "$SCRIPT_DIR/.cache" ] && mkdir "$SCRIPT_DIR/.cache"
 
+BAZEL=${BAZEL:-bazel}
+
 # Check if we have Bazel installed
-if ! command -v bazel >/dev/null; then
-    devtools::fatal "unable to locate 'bazel' binary"
+# TODO(@auguwu): allow the option to download it.
+if [[ "x$BAZEL" == "xbazel" ]] && ! command -v bazel >/dev/null; then
+    devtools::failure "unable to find \`bazel\` binary!"
 fi
 
 if [[ "$1" == "sync-deps" ]]; then
@@ -52,9 +59,9 @@ if [[ ! -f "$SCRIPT_DIR/.cache/dev" || "x${DEV_REBUILD:-}" != "x" ]]; then
     [[ "x${DEV_REBUILD:-}" != "x" && -f "$SCRIPT_DIR/.cache/dev" ]] && rm -f "$SCRIPT_DIR/.cache/dev"
 
     echo "===> Compiling devtools binary!"
-    bazel build //:devtools
+    $BAZEL build //:devtools
 
-    output=$(bazel cquery //tools/devtools:release_binary --output=files 2>&1 | grep --color=never bazel-out)
+    output=$($BAZEL cquery //tools/devtools:release_binary --output=files 2>&1 | grep --color=never bazel-out)
     cp "$SCRIPT_DIR/$output" "$SCRIPT_DIR/.cache"
     mv "$SCRIPT_DIR/.cache/release_binary" "$SCRIPT_DIR/.cache/dev"
 fi
