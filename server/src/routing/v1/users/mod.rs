@@ -14,6 +14,9 @@
 // limitations under the License.
 
 pub mod avatars;
+pub mod sessions;
+
+use self::sessions::LoginRestController;
 
 use super::EntrypointResponse;
 use crate::{
@@ -97,6 +100,7 @@ pub fn create_router() -> Router<Server> {
     Router::new()
         .nest("/@me/avatar", avatars::create_me_router())
         .nest("/:idOrName/avatar", avatars::create_router())
+        .nest("/sessions", sessions::create_router())
         .route(
             "/",
             routing::get(MainRestController::run)
@@ -108,6 +112,7 @@ pub fn create_router() -> Router<Server> {
             "/@me",
             routing::get(GetSelfRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth))),
         )
+        .route("/login", routing::post(LoginRestController::run))
         .route("/:idOrName", routing::get(GetUserRestController::run))
 }
 

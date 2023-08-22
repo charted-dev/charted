@@ -31,6 +31,7 @@ use charted_common::{
 use charted_config::ConfigExt;
 use futures_util::future::BoxFuture;
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
+use serde_json::Value;
 use std::{
     collections::HashMap,
     fmt::{Debug, Display},
@@ -352,8 +353,7 @@ where
                 "Bearer" => {
                     let span = info_span!(parent: &span, "charted.http.auth.bearer");
                     let _guard = span.enter();
-
-                    let decoded = decode::<HashMap<String, String>>(
+                    let decoded = decode::<HashMap<String, Value>>(
                         &token,
                         &DecodingKey::from_secret(jwt_secret_key.as_ref()),
                         &Validation::new(Algorithm::HS512),
@@ -365,12 +365,12 @@ where
                         SessionError::JsonWebToken(e).into_response()
                     })?;
 
-                    let Some(uid) = decoded.claims.get("user_id") else {
+                    let Some(Value::Number(uid)) = decoded.claims.get("user_id") else {
                         debug!("missing `user_id` in jwt token, not doing anything...");
                         return Err(SessionError::UnknownSession.into_response());
                     };
 
-                    let id = uid.parse::<u64>().map_err(|_| {
+                    let id = uid.as_u64().ok_or_else(|| {
                         err(
                             StatusCode::UNPROCESSABLE_ENTITY,
                             ("INVALID_JWT_CLAIM", "Expected JWT claim [user_id] to be a u64").into(),

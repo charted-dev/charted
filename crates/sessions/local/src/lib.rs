@@ -19,14 +19,13 @@ use charted_common::{hashmap, server::ARGON2};
 use charted_config::{Config, ConfigExt};
 use charted_redis::RedisClient;
 use charted_sessions::{Session, SessionProvider, UserWithPassword};
-use eyre::{eyre, Result};
+use chrono::{Duration, Local};
+use eyre::{eyre, Context, Result};
 use jsonwebtoken::{encode, EncodingKey, Header};
+use serde_json::Value;
 use sqlx::PgPool;
-use std::{
-    fmt::Debug,
-    time::{Duration, Instant},
-};
-use tracing::info_span;
+use std::{collections::HashMap, fmt::Debug};
+use tracing::{error, info_span, trace};
 use uuid::Uuid;
 
 #[derive(Clone)]
@@ -74,52 +73,55 @@ impl SessionProvider for LocalSessionProvider {
                 let hash = PasswordHash::new(&pass).map_err(|e| eyre!("unable to compute hash: {e}"))?;
                 match ARGON2.verify_password(password.as_ref(), &hash) {
                     Ok(()) => {
-                        let mut client = self
-                            .redis
-                            .client()
-                            .unwrap_or(self.redis.master()?)
-                            .get_connection_with_timeout(Duration::from_millis(150))?;
-
                         let session_id = Uuid::new_v4();
-                        let session_id_str = session_id.to_string();
-                        let two_days = (Instant::now() + Duration::from_secs(172800))
-                            .elapsed()
-                            .as_secs()
-                            .to_string();
+                        let now = Local::now();
 
-                        let uid_str = user.id.to_string();
-                        let access_token = encode(
-                            &Header {
-                                alg: jsonwebtoken::Algorithm::HS512,
-                                ..Default::default()
-                            },
+                        let two_days = now
+                            + Duration::from_std(std::time::Duration::from_secs(172800))
+                                .context("clock went backwards?!")?;
+
+                        let one_week = now
+                            + Duration::from_std(std::time::Duration::from_secs(604800))
+                                .context("clock went backwards?!")?;
+
+                        let header = Header {
+                            alg: jsonwebtoken::Algorithm::HS512,
+                            ..Default::default()
+                        };
+
+                        let access_token = encode::<HashMap<&str, Value>>(
+                            &header,
                             &hashmap! {
-                                "iss" => "Noelware/charted-server",
-                                "exp" => two_days.as_str(),
-                                "session_id" => session_id_str.as_str(),
-                                "user_id" => uid_str.as_str()
+                                "session_id" => Value::String(session_id.to_string()),
+                                "user_id" => Value::Number(user.id.into()),
+                                "iss" => Value::String("Noelware/charted-server".into()),
+                                "exp" => Value::Number(two_days.timestamp().into())
                             },
                             &self.jwt_encoding_key,
-                        )?;
+                        )
+                        .map_err(|e| {
+                            error!(user.id, error = %e, "unable to create access token");
+                            sentry::capture_error(&e);
 
-                        let one_week = (Instant::now() + Duration::from_secs(604800))
-                            .elapsed()
-                            .as_secs()
-                            .to_string();
+                            eyre::Report::from(e)
+                        })?;
 
-                        let refresh_token = encode(
-                            &Header {
-                                alg: jsonwebtoken::Algorithm::HS512,
-                                ..Default::default()
-                            },
+                        let refresh_token = encode::<HashMap<&str, Value>>(
+                            &header,
                             &hashmap! {
-                                "iss" => "Noelware/charted-server",
-                                "exp" => one_week.as_str(),
-                                "session_id" => session_id_str.as_str(),
-                                "user_id" => uid_str.as_str()
+                                "session_id" => Value::String(session_id.to_string()),
+                                "user_id" => Value::Number(user.id.into()),
+                                "iss" => Value::String("Noelware/charted-server".into()),
+                                "exp" => Value::Number(one_week.timestamp().into())
                             },
                             &self.jwt_encoding_key,
-                        )?;
+                        )
+                        .map_err(|e| {
+                            error!(user.id, error = %e, "unable to create access token");
+                            sentry::capture_error(&e);
+
+                            eyre::Report::from(e)
+                        })?;
 
                         let session = Session {
                             refresh_token: Some(refresh_token),
@@ -129,20 +131,38 @@ impl SessionProvider for LocalSessionProvider {
                         };
 
                         let session_json = serde_json::to_string(&session)?;
-                        RedisClient::pipeline()
-                            .cmd("HSET")
+                        let mut client = self
+                            .redis
+                            .client()
+                            .unwrap_or(self.redis.master()?)
+                            .get_connection_with_timeout(std::time::Duration::from_millis(150))?;
+
+                        trace!("<- HSET charted:sessions {session_id} {session_json}");
+                        RedisClient::cmd("HSET")
                             .arg("charted:sessions")
-                            .arg(session_id_str.as_str())
+                            .arg(session_id.to_string())
                             .arg(session_json)
-                            .ignore()
-                            .cmd("SET")
-                            .arg(format!("charted:sessions:{session_id_str}"))
-                            .ignore()
-                            .cmd("EXPIRE")
-                            .arg(format!("charted:sessions:{session_id_str}"))
-                            .arg("XX")
-                            .ignore()
-                            .query(&mut client)?;
+                            .query::<()>(&mut client)?;
+
+                        trace!(
+                            "<- SET charted:sessions:{session_id} \"this is just some dummy payload (for now >:3)\""
+                        );
+
+                        RedisClient::cmd("SET")
+                            .arg(format!("charted:sessions:{session_id}"))
+                            .arg("this is just some dummy payload (for now >:3)")
+                            .query::<()>(&mut client)?;
+
+                        trace!(
+                            "<- EXPIRE charted:sessions:{session_id} {:?} XX",
+                            std::time::Duration::from_secs(604800)
+                        );
+
+                        RedisClient::cmd("EXPIRE")
+                            .arg(format!("charted:sessions:{session_id}"))
+                            .arg(std::time::Duration::from_secs(604800).as_secs())
+                            .arg("NX")
+                            .query::<()>(&mut client)?;
 
                         Ok(session)
                     }

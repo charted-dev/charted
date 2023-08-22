@@ -73,3 +73,21 @@ pub struct PatchUserPayload {
     #[validate(length(min = 1, max = 64))]
     pub name: Option<String>,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema, Validate)]
+pub struct UserLoginPayload {
+    /// Password to authenticate as.
+    #[schema(
+        value_type = password,
+        pattern = "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$"
+    )]
+    #[validate(length(min = 8))]
+    pub password: String,
+
+    /// Username to authenticate as. This is mutually exclusive with `email`.
+    pub username: Option<Name>,
+
+    /// Email to authenticate as. This is mutually exclusive with `username`.
+    #[validate(email)]
+    pub email: Option<String>,
+}

@@ -54,6 +54,7 @@ use utoipa::{
         crate::routing::v1::EntrypointResponse,
     ),
     responses(
+        crate::routing::v1::users::sessions::SessionResponse,
         crate::routing::v1::features::FeaturesResponse,
         crate::routing::v1::users::UserResponse,
         crate::routing::v1::main::MainResponse,
@@ -250,6 +251,7 @@ pub fn document() -> utoipa::openapi::OpenApi {
                 "/users/{idOrName}/avatar": crate::routing::v1::users::avatars::GetCurrentUserAvatarRestController::paths();
                 "/users/@me/avatar": crate::routing::v1::users::avatars::me::GetMyAvatarRestController::paths();
                 "/users/{idOrName}": crate::routing::v1::users::GetUserRestController::paths();
+                "/users/login": crate::routing::v1::users::sessions::LoginRestController::paths();
                 "/users/@me": crate::routing::v1::users::GetSelfRestController::paths();
                 "/users": crate::routing::v1::users::paths();
 

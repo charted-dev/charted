@@ -1143,9 +1143,12 @@ dependencies = [
  "charted-search",
  "elasticsearch",
  "eyre",
+ "once_cell",
+ "serde",
  "serde_json",
  "tokio",
  "tracing",
+ "url",
 ]
 
 [[package]]
@@ -1243,9 +1246,11 @@ dependencies = [
  "charted-config",
  "charted-redis",
  "charted-sessions",
+ "chrono",
  "eyre",
  "jsonwebtoken",
  "once_cell",
+ "sentry",
  "serde_json",
  "sqlx",
  "tracing",

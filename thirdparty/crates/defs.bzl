@@ -444,9 +444,12 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "elasticsearch": "@crate_index__elasticsearch-8.5.0-alpha.1//:elasticsearch",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
+            "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
+            "serde": "@crate_index__serde-1.0.185//:serde",
             "serde_json": "@crate_index__serde_json-1.0.105//:serde_json",
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
+            "url": "@crate_index__url-2.4.0//:url",
         },
     },
     "crates/search/meilisearch": {

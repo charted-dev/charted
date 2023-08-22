@@ -104,16 +104,18 @@ impl SessionManager {
             );
 
             let _guard = span.enter();
+
+            debug!("<- TTL charted:sessions:{id}");
             let ttl: i32 = RedisClient::cmd("TTL")
                 .arg(format!("charted:sessions:{id}"))
                 .query(&mut client)?;
 
             debug!(
-                "session {uuid} {}",
+                "-> TTL charted:sessions:{id} :: session {uuid} {}",
                 match ttl {
-                    -2 => "is invalid, deleting session",
-                    -1 => "has expired!",
-                    _ => "has {ttl} seconds",
+                    -2 => "is invalid, deleting session".into(),
+                    -1 => "has expired!".into(),
+                    _ => format!("has {ttl} seconds left"),
                 }
             );
 
@@ -123,6 +125,11 @@ impl SessionManager {
                         .arg("charted:sessions")
                         .arg(id)
                         .query(&mut master.as_mut().unwrap_or(&mut client))?;
+
+                    // we shouldn't care if it errors (since it could've expired already, so shrug)
+                    let _ = RedisClient::cmd("DEL")
+                        .arg("charted:sessions:{id}")
+                        .query::<()>(&mut master.as_mut().unwrap_or(&mut client));
 
                     continue;
                 }
@@ -220,7 +227,10 @@ impl SessionManager {
             }
         }
 
-        warn!(amount = failed, "received failed attempts");
+        if failed > 0 {
+            warn!("received [{failed}] failed attempts");
+        }
+
         Ok(failed)
     }
 

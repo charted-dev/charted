@@ -319,6 +319,65 @@
                 }
             }
         },
+        "/users/login": {
+            "post": {
+                "tags": ["Users", "Sessions"],
+                "description": "Creates a new session and returns details about the newly created session.",
+                "operationId": "login",
+                "responses": {
+                    "201": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiSessionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid payload received.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Invalid password received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown User",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/users/{idOrName}": {
             "get": {
                 "tags": ["Users"],
@@ -1200,6 +1259,26 @@
                             "properties": {
                                 "data": {
                                     "$ref": "#/components/schemas/MainResponse"
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "Indicates whether if this response was a success or not"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "ApiSessionResponse": {
+                "description": "Response object for SessionResponse",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/components/schemas/Session"
                                 },
                                 "success": {
                                     "type": "boolean",

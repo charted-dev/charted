@@ -16,7 +16,7 @@
 use bytes::Bytes;
 use charted_common::{crypto::md5, COMMIT_HASH, VERSION};
 use charted_storage::MultiStorageService;
-use eyre::{Context, ContextCompat, Result};
+use eyre::{Context, Result};
 use remi_core::StorageService;
 use reqwest::{Client, StatusCode};
 use std::{fmt::Debug, fs::create_dir_all};
@@ -56,10 +56,17 @@ impl AvatarsModule {
     /// * Creating the `./avatars` (where `./` relates to `config.storage.filesystem.directory`)
     pub async fn init(&self) -> Result<()> {
         if let MultiStorageService::Filesystem(fs) = self.storage.clone() {
-            let avatars_path = fs.normalize("./avatars")?.context("unable to normalize [./avatars]")?;
-            if !fs.exists(avatars_path.clone()).await? {
-                warn!("directory [{}] doesn't exist! creating...", avatars_path.display());
-                create_dir_all(avatars_path)?;
+            let others = vec![
+                fs.normalize("./avatars/organizations")?.unwrap(),
+                fs.normalize("./avatars/repositories")?.unwrap(),
+                fs.normalize("./avatars/users")?.unwrap(),
+            ];
+
+            for p in others.iter() {
+                if !p.exists() {
+                    warn!("directory [{}] doesn't exist! creating...", p.display());
+                    create_dir_all(p)?;
+                }
             }
         }
 
@@ -108,8 +115,36 @@ impl AvatarsModule {
         };
 
         self.storage
-            .open(format!("./avatars/{uid}/{hash}"))
+            .open(format!("./avatars/users/{uid}/{hash}"))
             .await
             .context("unable to open [./avatars/{uid}/{hash}]")
+    }
+
+    #[instrument(name = "charted.avatars.repository", skip(self))]
+    pub async fn repository(&self, id: u64, hash: Option<String>) -> Result<Option<Bytes>> {
+        debug!("calling storage server fn [open] with [id = {id}]");
+        let hash = match hash {
+            Some(hash) => format!("{hash}.png"),
+            None => "current.png".into(),
+        };
+
+        self.storage
+            .open(format!("./avatars/repositories/{id}/{hash}"))
+            .await
+            .context("unable to open [./avatars/repositories/{id}/{hash}]")
+    }
+
+    #[instrument(name = "charted.avatars.organization", skip(self))]
+    pub async fn organization(&self, id: u64, hash: Option<String>) -> Result<Option<Bytes>> {
+        debug!("calling storage server fn [open] with [id = {id}]");
+        let hash = match hash {
+            Some(hash) => format!("{hash}.png"),
+            None => "current.png".into(),
+        };
+
+        self.storage
+            .open(format!("./avatars/organizations/{id}/{hash}"))
+            .await
+            .context("unable to open [./avatars/organizations/{id}/{hash}]")
     }
 }

@@ -70,6 +70,10 @@ impl BootstrapPhase for StartServerPhase {
             drop(guard);
         }
 
+        // close out sessions
+        let mut sessions = server.sessions.write().await;
+        sessions.destroy()?;
+
         Ok(())
     }
 

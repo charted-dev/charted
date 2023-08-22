@@ -500,6 +500,12 @@ alias(
 )
 
 alias(
+    name = "url",
+    actual = "@crate_index__url-2.4.0//:url",
+    tags = ["manual"],
+)
+
+alias(
     name = "utoipa",
     actual = "@crate_index__utoipa-3.5.0//:utoipa",
     tags = ["manual"],
