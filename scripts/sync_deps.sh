@@ -15,5 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+BAZEL=${BAZEL:-bazel}
+
+# Check if we have Bazel installed
+# TODO(@auguwu): allow the option to download it.
+if [[ "x$BAZEL" == "xbazel" ]] && ! command -v bazel >/dev/null; then
+    echo "[sync-deps] ==> unable to find \`bazel\` binary!"
+fi
+
 echo "===> Syncing dependencies..."
-CARGO_BAZEL_REPIN=all bazel run //thirdparty:crate_index -- --repin
+CARGO_BAZEL_REPIN=all $BAZEL run //thirdparty:crate_index -- --repin

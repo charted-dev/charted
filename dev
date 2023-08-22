@@ -46,7 +46,7 @@ BAZEL=${BAZEL:-bazel}
 # Check if we have Bazel installed
 # TODO(@auguwu): allow the option to download it.
 if [[ "x$BAZEL" == "xbazel" ]] && ! command -v bazel >/dev/null; then
-    devtools::failure "unable to find \`bazel\` binary!"
+    devtools::fatal "unable to find \`bazel\` binary!"
 fi
 
 if [[ "$1" == "sync-deps" ]]; then

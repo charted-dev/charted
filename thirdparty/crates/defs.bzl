@@ -482,9 +482,11 @@ _NORMAL_DEPENDENCIES = {
     "crates/sessions/local": {
         _COMMON_CONDITION: {
             "argon2": "@crate_index__argon2-0.5.1//:argon2",
+            "chrono": "@crate_index__chrono-0.4.26//:chrono",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "jsonwebtoken": "@crate_index__jsonwebtoken-8.3.0//:jsonwebtoken",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
+            "sentry": "@crate_index__sentry-0.31.5//:sentry",
             "serde_json": "@crate_index__serde_json-1.0.105//:serde_json",
             "sqlx": "@crate_index__sqlx-0.7.1//:sqlx",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
