@@ -64,9 +64,14 @@ jobs:
                     - runner: macos-latest
                       bazel-cache-dir: /private/var/tmp/_bazel_runner/
                       bazelisk-cache-dir: ~/Library/Caches/bazelisk
-                    - runner: windows-latest
-                      bazel-cache-dir: ~\bazel
-                      bazelisk-cache-dir: ~\AppData\Local\bazelisk
+
+                    # Windows fails with:
+                    #
+                    #   = note: LINK : fatal error LNK1181: cannot open input file 'bazel-out\x64_windows-opt-exec-2B5CBBC6\bin\external\rules_rust\cargo\cargo_build_script_runner\cargo_build_script_runner.cargo_build_script_runner.f5dd707fc85c7e4-cgu.0.rcgu.o'
+                    #
+                    # - runner: windows-latest
+                    #   bazel-cache-dir: ~\bazel
+                    #   bazelisk-cache-dir: ~\AppData\Local\bazelisk
         steps:
             - name: Checkout repository
               uses: actions/checkout@v3
