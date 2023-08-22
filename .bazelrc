@@ -6,6 +6,9 @@ build --@rules_rust//:clippy.toml=//:clippy.toml
 build --aspects=@rules_rust//rust:defs.bzl%rust_clippy_aspect
 build --output_groups=+clippy_checks
 
+# Use mold linker on Linux
+build:linux --linkopt=-fuse-ld=mold
+
 # Required on windows
 common --enable_platform_specific_config
 startup --windows_enable_symlinks

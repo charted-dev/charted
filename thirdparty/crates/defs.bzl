@@ -349,6 +349,7 @@ _NORMAL_DEPENDENCIES = {
     "crates/config": {
         _COMMON_CONDITION: {
             "aws-sdk-s3": "@crate_index__aws-sdk-s3-0.28.0//:aws_sdk_s3",
+            "base64": "@crate_index__base64-0.21.2//:base64",
             "clap": "@crate_index__clap-4.3.23//:clap",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "lazy_static": "@crate_index__lazy_static-1.4.0//:lazy_static",
@@ -433,6 +434,11 @@ _NORMAL_DEPENDENCIES = {
         },
     },
     "crates/search": {
+        _COMMON_CONDITION: {
+            "eyre": "@crate_index__eyre-0.6.8//:eyre",
+            "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
+            "serde": "@crate_index__serde-1.0.185//:serde",
+        },
     },
     "crates/search/elasticsearch": {
         _COMMON_CONDITION: {
@@ -445,7 +451,9 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/search/meilisearch": {
         _COMMON_CONDITION: {
+            "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "meilisearch-sdk": "@crate_index__meilisearch-sdk-0.24.1//:meilisearch_sdk",
+            "serde": "@crate_index__serde-1.0.185//:serde",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
         },
     },
@@ -637,6 +645,8 @@ _NORMAL_ALIASES = {
         },
     },
     "crates/search": {
+        _COMMON_CONDITION: {
+        },
     },
     "crates/search/elasticsearch": {
         _COMMON_CONDITION: {
@@ -839,6 +849,9 @@ _PROC_MACRO_DEPENDENCIES = {
         },
     },
     "crates/search/meilisearch": {
+        _COMMON_CONDITION: {
+            "async-trait": "@crate_index__async-trait-0.1.73//:async_trait",
+        },
     },
     "crates/sessions": {
         _COMMON_CONDITION: {

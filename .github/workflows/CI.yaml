@@ -64,9 +64,9 @@ jobs:
                     - runner: macos-latest
                       bazel-cache-dir: /private/var/tmp/_bazel_runner/
                       bazelisk-cache-dir: ~/Library/Caches/bazelisk
-                    # - runner: windows-latest
-                    #   bazel-cache-dir: ~\bazel
-                    #   bazelisk-cache-dir: ~\AppData\Local\bazelisk
+                    - runner: windows-latest
+                      bazel-cache-dir: ~\bazel
+                      bazelisk-cache-dir: ~\AppData\Local\bazelisk
         steps:
             - name: Checkout repository
               uses: actions/checkout@v3
@@ -77,7 +77,13 @@ jobs:
                 path: |
                     ${{matrix.bazelisk-cache-dir}}
                     ${{matrix.bazel-cache-dir}}
+                restore-keys: bazel-cache-${{matrix.runner}}
                 key: bazel-cache-${{matrix.runner}}
+
+            # Use the `mold` linker for Linux
+            - name: Setup `mold` linker
+              uses: rui314/setup-mold@v1
+              if: ${{matrix.runner == 'ubuntu-latest' || matrix.runner == 'self-hosted'}}
 
             - name: Sync dependencies
               run: ./dev sync-deps
