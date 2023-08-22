@@ -15,6 +15,7 @@
 
 use super::BootstrapPhase;
 use crate::{Server, SERVER};
+use charted_avatars::AvatarsModule;
 use charted_common::{is_debug_enabled, Snowflake, COMMIT_HASH, VERSION};
 use charted_config::{Config, ConfigExt, SessionBackend};
 use charted_database::MIGRATIONS;
@@ -146,6 +147,9 @@ pub(crate) async fn configure_modules(config: &Config) -> Result<Server> {
     let helm_charts = HelmCharts::new(storage.clone());
     helm_charts.init().await?;
 
+    let avatars = AvatarsModule::new(storage.clone());
+    avatars.init().await?;
+
     info!(
         took = format!("{:?}", Instant::now().duration_since(now)),
         "Initialized all misc dependencies!"
@@ -156,6 +160,7 @@ pub(crate) async fn configure_modules(config: &Config) -> Result<Server> {
         snowflake,
         sessions: Arc::new(RwLock::new(sessions)),
         registry,
+        avatars,
         storage,
         config: config.clone(),
         redis: RefCell::new(redis),

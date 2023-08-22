@@ -13,8 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::ops::Deref;
-
 use crate::models::res::{err, ApiResponse};
 use async_trait::async_trait;
 use axum::{
@@ -25,6 +23,7 @@ use axum::{
 };
 use serde::de::DeserializeOwned;
 use serde_json::{error::Category, json};
+use std::ops::Deref;
 
 /// Wrapper for [`axum::Json`] that uses charted-server's [API response][ApiResponse]
 /// for the details on why it failed to parse JSON from the request

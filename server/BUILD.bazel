@@ -18,6 +18,7 @@ load("//:build/rust_project.bzl", "rust_project")
 exports_files(["Cargo.toml"])
 
 local_crates = ["//%s:charted_%s" % (path, name) for (path, name) in [
+    ("crates/avatars", "avatars"),
     ("crates/common", "common"),
     ("crates/config", "config"),
     ("crates/database", "database"),

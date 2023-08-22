@@ -25,7 +25,9 @@ rust_project(
         "//crates/common:charted_common",
         "//crates/config:charted_config",
         "//crates/search:charted_search",
+        "@crate_index//:eyre",
         "@crate_index//:meilisearch-sdk",
+        "@crate_index//:serde",
         "@crate_index//:tracing",
     ],
 )

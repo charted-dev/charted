@@ -220,6 +220,105 @@
                 }
             }
         },
+        "/users/@me": {
+            "get": {
+                "tags": ["Users"],
+                "description": "Returns a [User] from an authenticated request.",
+                "operationId": "get_self",
+                "responses": {
+                    "200": {
+                        "description": "Returns the current authenticated user's metadata",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiUserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "If the request body was invalid (i.e, validation errors)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "If the session couldn't be validated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "(Bearer token only) - if the JWT was invalid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "If the request body contained invalid data, or if the session header contained invalid data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/@me/avatar": {
+            "get": {
+                "tags": ["Users", "Avatars"],
+                "description": "Returns the current authenticated user's current avatar. Use the [`GET /users/@me/avatar/{hash}.png`] REST handler\n to grab by a specific hash.\n\n [`GET /users/@me/avatar/{hash}.png`]: https://charts.noelware.org/docs/server/latest/api/reference/users#GET-/users/@me/avatar/{hash}.png",
+                "operationId": "get_my_avatar",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/users/{idOrName}": {
             "get": {
                 "tags": ["Users"],
@@ -259,6 +358,47 @@
                     },
                     "404": {
                         "description": "Unknown User",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{idOrName}/avatar": {
+            "get": {
+                "tags": ["Users", "Avatars"],
+                "description": "Returns the user's current avatar. Use the [`GET /users/{idOrName}/avatar/{hash}.png`] REST handler\n to grab by a specific hash.\n\n [`GET /users/{idOrName}/avatar/{hash}.png`]: https://charts.noelware.org/docs/server/latest/api/reference/users#GET-/users/{idOrName}/avatar/{hash}.png",
+                "operationId": "get_current_user_avatar",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "content": {
                             "application/json": {
                                 "schema": {

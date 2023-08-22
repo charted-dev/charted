@@ -19,4 +19,14 @@ exports_files(["Cargo.toml"])
 
 rust_project(
     name = "avatars",
+    include_tests = True,
+    deps = [
+        "//crates/common:charted_common",
+        "//crates/storage:charted_storage",
+        "@crate_index//:bytes",
+        "@crate_index//:eyre",
+        "@crate_index//:remi-core",
+        "@crate_index//:reqwest",
+        "@crate_index//:tracing",
+    ],
 )

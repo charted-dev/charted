@@ -13,6 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+pub mod avatars;
+
 use super::EntrypointResponse;
 use crate::{
     extract::Json,
@@ -93,6 +95,8 @@ macro_rules! impl_patch_for {
 
 pub fn create_router() -> Router<Server> {
     Router::new()
+        .nest("/@me/avatar", avatars::create_me_router())
+        .nest("/:idOrName/avatar", avatars::create_router())
         .route(
             "/",
             routing::get(MainRestController::run)

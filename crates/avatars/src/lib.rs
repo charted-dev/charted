@@ -18,12 +18,12 @@ use charted_common::{crypto::md5, COMMIT_HASH, VERSION};
 use charted_storage::MultiStorageService;
 use eyre::{Context, ContextCompat, Result};
 use remi_core::StorageService;
-use reqwest::Client;
-use std::{fmt::Debug, fs::create_dir_all, path::Path};
+use reqwest::{Client, StatusCode};
+use std::{fmt::Debug, fs::create_dir_all};
 use tracing::{debug, instrument, warn};
 
-const DICEBEAR_IDENTICONS_URI: &str = "https://avatars.dicebear.com/api/identicon/";
-const GRAVATAR_URI: &str = "https://secure.gravatar.com/avatar/";
+const DICEBEAR_IDENTICONS_URI: &str = "https://avatars.dicebear.com/api/identicon";
+const GRAVATAR_URI: &str = "https://secure.gravatar.com/avatar";
 
 /// Represents a module to implement user avatars that can be queried. charted-server
 /// allows using Gravatar (with `users.gravatar_email`), or they can upload their own.
@@ -70,8 +70,8 @@ impl AvatarsModule {
     /// a [`Bytes`] container of the avatar.
     #[instrument(name = "charted.avatars.identicons", skip(self))]
     pub async fn identicons(&self, id: u64) -> Result<Bytes> {
-        let url = format!("{DICEBEAR_IDENTICONS_URI}/{id}.svg");
-        debug!("now requesting to [{url}]",);
+        let url = format!("{DICEBEAR_IDENTICONS_URI}/{id}.png");
+        debug!("now requesting to [{url}]");
 
         self.client
             .get(url)
@@ -85,31 +85,31 @@ impl AvatarsModule {
 
     /// Sends a request to Gravatar with the specified `email` to return
     /// a [`Bytes`] container of the avatar.
-    #[instrument(name = "charted.avatars.identicons", skip(self))]
-    pub async fn gravatar(&self, email: String) -> Result<Bytes> {
+    #[instrument(name = "charted.avatars.gravatar", skip(self))]
+    pub async fn gravatar(&self, email: String) -> Result<Option<Bytes>> {
         let hash = md5(email);
         let url = format!("{GRAVATAR_URI}/{hash}.png");
         debug!("requesting to [{url}]");
 
-        self.client
-            .get(url)
-            .send()
-            .await
-            .context("unable to fulfill request")?
-            .bytes()
-            .await
-            .context("unable to get raw bytes from request")
+        let res = self.client.get(url).send().await.context("unable to fulfill request")?;
+        if res.status() == StatusCode::NOT_FOUND {
+            return Ok(None);
+        }
+
+        res.bytes().await.context("unable to get bytes from request").map(Some)
     }
 
-    #[instrument(name = "charted.avatars.query", skip(self, _failed))]
-    async fn query<I: AsRef<Path> + Debug + Send, F>(&self, path: I, _failed: F) -> Result<Option<Bytes>>
-    where
-        F: FnOnce(),
-    {
-        let Some(_bytes) = self.storage.open(path).await? else {
-            return Ok(None);
+    #[instrument(name = "charted.avatars.user", skip(self))]
+    pub async fn user(&self, uid: u64, hash: Option<String>) -> Result<Option<Bytes>> {
+        debug!("calling storage server fn [open] with [id = {uid}]");
+        let hash = match hash {
+            Some(hash) => format!("{hash}.png"),
+            None => "current.png".into(),
         };
 
-        Ok(None)
+        self.storage
+            .open(format!("./avatars/{uid}/{hash}"))
+            .await
+            .context("unable to open [./avatars/{uid}/{hash}]")
     }
 }

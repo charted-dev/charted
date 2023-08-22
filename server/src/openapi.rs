@@ -247,7 +247,10 @@ pub fn document() -> utoipa::openapi::OpenApi {
                 // api keys
 
                 // users
+                "/users/{idOrName}/avatar": crate::routing::v1::users::avatars::GetCurrentUserAvatarRestController::paths();
+                "/users/@me/avatar": crate::routing::v1::users::avatars::me::GetMyAvatarRestController::paths();
                 "/users/{idOrName}": crate::routing::v1::users::GetUserRestController::paths();
+                "/users/@me": crate::routing::v1::users::GetSelfRestController::paths();
                 "/users": crate::routing::v1::users::paths();
 
                 // main

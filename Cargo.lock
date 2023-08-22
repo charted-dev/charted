@@ -1128,6 +1128,9 @@ version = "0.0.0-devel.0"
 dependencies = [
  "async-trait",
  "charted-common",
+ "eyre",
+ "once_cell",
+ "serde",
 ]
 
 [[package]]
@@ -1149,10 +1152,13 @@ dependencies = [
 name = "charted-search-meilisearch"
 version = "0.0.0-devel.0"
 dependencies = [
+ "async-trait",
  "charted-common",
  "charted-config",
  "charted-search",
+ "eyre",
  "meilisearch-sdk",
+ "serde",
  "tracing",
 ]
 
@@ -1165,6 +1171,7 @@ dependencies = [
  "async-trait",
  "axum",
  "base64 0.21.2",
+ "charted-avatars",
  "charted-common",
  "charted-config",
  "charted-database",

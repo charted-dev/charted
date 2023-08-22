@@ -724,7 +724,10 @@ pub mod schema {
     impl ToTokens for SchemaFormat {
         fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
             match self {
-                Self::KnownFormat(format) => tokens.extend(quote!(#format)),
+                Self::KnownFormat(format) => {
+                    tokens.extend(quote! { ::utoipa::openapi::SchemaFormat::KnownFormat(#format) })
+                }
+
                 Self::Custom(custom) => tokens.extend(quote! { ::utoipa::openapi::SchemaFormat::Custom(#custom) }),
             }
         }

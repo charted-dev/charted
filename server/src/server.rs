@@ -15,6 +15,7 @@
 
 use crate::routing::create_router;
 use axum::extract::FromRef;
+use charted_avatars::AvatarsModule;
 use charted_common::Snowflake;
 use charted_config::Config;
 use charted_helm_charts::HelmCharts;
@@ -37,6 +38,7 @@ pub struct Server {
     pub snowflake: Snowflake,
     pub sessions: Arc<RwLock<SessionManager>>,
     pub registry: SingleRegistry,
+    pub avatars: AvatarsModule,
     pub storage: MultiStorageService,
     pub config: Config,
     pub redis: RefCell<RedisClient>,

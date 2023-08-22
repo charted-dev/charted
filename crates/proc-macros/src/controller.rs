@@ -543,7 +543,7 @@ impl Args {
             }
         }
 
-        self.tags = tags;
+        self.tags.extend(tags);
         if input.peek(Token![,]) {
             input.parse::<Token![,]>()?;
         }
@@ -950,6 +950,13 @@ fn ident_to_type(ident: &Ident) -> Option<Schema> {
     match ident.to_string().as_str() {
         "string" => Some(Schema::Object(
             ObjectBuilder::new().schema_type(SchemaType::String).build(),
+        )),
+
+        "binary" => Some(Schema::Object(
+            ObjectBuilder::new()
+                .schema_type(SchemaType::String)
+                .format(Some(SchemaFormat::KnownFormat(KnownFormat::Binary)))
+                .build(),
         )),
 
         "datetime" => Some(Schema::Object(
