@@ -27,6 +27,9 @@ use sqlx::{Error, PgPool, Row};
 pub trait SessionProvider: Send + Sync {
     /// Authorizes a user and returns a [`Session`] object, if it succeeded.
     async fn authorize(&mut self, password: String, user: &dyn UserWithPassword) -> Result<Session>;
+
+    /// Creates a new session for the user.
+    async fn create_session(&mut self, user: User) -> Result<Session>;
 }
 
 impl Debug for Box<dyn SessionProvider> {

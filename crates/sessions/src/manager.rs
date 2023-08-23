@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use crate::{Session, SessionProvider, UserWithPassword};
-use charted_common::hashmap;
+use charted_common::{hashmap, models::entities::User};
 use charted_redis::RedisClient;
 use eyre::{eyre, Context, Result};
 use std::{
@@ -301,6 +301,14 @@ impl SessionProvider for SessionManager {
             return provider.authorize(password, user).await;
         }
 
-        Err(eyre!("unable to authenticate"))
+        Err(eyre!("unable to authenticate (mutex is poisioned)"))
+    }
+
+    async fn create_session(&mut self, user: User) -> Result<Session> {
+        if let Ok(mut provider) = self.provider.try_lock() {
+            return provider.create_session(user).await;
+        }
+
+        Err(eyre!("unable to create session (mutex is poisioned)"))
     }
 }

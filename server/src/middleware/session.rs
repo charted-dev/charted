@@ -149,6 +149,18 @@ pub struct Session {
     pub user: User,
 }
 
+/// Extension to grab the raw `Authorization` header.
+#[derive(Debug, Clone)]
+pub struct RawAuthHeader(pub String);
+
+impl std::ops::Deref for RawAuthHeader {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 /// Wrapper over [`axum::headers::Authorization`] that doesn't know
 /// which type of authentication to use.
 ///
@@ -344,6 +356,7 @@ where
                     match ARGON2.verify_password(password.as_bytes(), &hash) {
                         Ok(()) => {
                             req.extensions_mut().insert(Session { session: None, user });
+                            req.extensions_mut().insert(RawAuthHeader(token));
                         }
 
                         Err(_) => return Err(SessionError::InvalidPassword.into_response()),
@@ -406,6 +419,7 @@ where
                         .map_err(|_| SessionError::UnknownSession.into_response())?
                         .ok_or_else(|| SessionError::UnknownSession.into_response())?;
 
+                    req.extensions_mut().insert(RawAuthHeader(token));
                     req.extensions_mut().insert(Session {
                         session: Some(session),
                         user,

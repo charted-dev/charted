@@ -13,11 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::time::Duration;
-
 use crate::{
     extract::Json,
-    middleware::SessionAuth,
+    middleware::{RawAuthHeader, SessionAuth},
     models::res::{err, ok, ApiResponse, Empty},
     openapi::gen_response_schema,
     validation::validate,
@@ -29,14 +27,22 @@ use charted_proc_macros::controller;
 use charted_sessions::{Session, SessionProvider};
 use serde_json::json;
 use sqlx::{query_as, Postgres};
+use std::time::Duration;
 use tower_http::auth::AsyncRequireAuthorizationLayer;
 use validator::Validate;
 
 pub fn create_router() -> Router<Server> {
-    Router::new().route(
-        "/logout",
-        routing::delete(LogoutRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth))),
-    )
+    Router::new()
+        .route(
+            "/logout",
+            routing::delete(LogoutRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth))),
+        )
+        .route(
+            "/refresh-token",
+            routing::post(
+                RefreshSessionTokenRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth)),
+            ),
+        )
 }
 
 // this shouldn't be used directly
@@ -149,7 +155,7 @@ pub async fn logout(
                 "REST handler only allows session tokens to be used.",
                 json!({
                     "method": "delete",
-                    "uri": "/users/sessions"
+                    "uri": "/users/sessions/logout"
                 }),
             )
                 .into(),
@@ -169,4 +175,65 @@ pub async fn logout(
     })?;
 
     Ok(ok(StatusCode::ACCEPTED, Empty))
+}
+
+#[controller(
+    method = post,
+    tags("Users", "Sessions"),
+    response(201, "Session was fully restored with a new one", ("application/json", response!("ApiSessionResponse"))),
+    response(403, "If the authenticated user didn't provide a refresh token", ("application/json", response!("ApiErrorResponse"))),
+    response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
+)]
+pub async fn refresh_session_token(
+    State(Server { sessions, .. }): State<Server>,
+    Extension(crate::middleware::Session { session, user }): Extension<crate::middleware::Session>,
+    Extension(RawAuthHeader(header)): Extension<RawAuthHeader>,
+) -> Result<ApiResponse<Session>, ApiResponse> {
+    if session.is_none() {
+        return Err(err(
+            StatusCode::FORBIDDEN,
+            (
+                "SESSION_ONLY_ROUTE",
+                "REST handler only allows session tokens to be used.",
+                json!({
+                    "method": "delete",
+                    "uri": "/users/sessions/refresh-token"
+                }),
+            )
+                .into(),
+        ));
+    }
+
+    let session = session.unwrap();
+    let refresh_token = session.refresh_token.unwrap();
+    if refresh_token.as_str() != header {
+        return Err(err(
+            StatusCode::FORBIDDEN,
+            ("INVALID_REFRESH_TOKEN", "Expected the refresh token for this session.").into(),
+        ));
+    }
+
+    let mut sessions = sessions.write().await;
+    sessions.kill_session(session.session_id).map_err(|e| {
+        error!(session.id = tracing::field::display(session.session_id), user.id, error = %e, "unable to kill session");
+        sentry_eyre::capture_report(&e);
+
+        err(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+        )
+    })?;
+
+    // now create a new one
+    let new_session = sessions.create_session(user.clone()).await.map_err(|e| {
+        error!(session.id = tracing::field::display(session.session_id), user.id, error = %e, "unable to kill session");
+        sentry_eyre::capture_report(&e);
+
+        err(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+        )
+    })?;
+
+    Ok(ok(StatusCode::CREATED, new_session))
 }

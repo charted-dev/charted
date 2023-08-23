@@ -249,7 +249,9 @@ pub fn document() -> utoipa::openapi::OpenApi {
                 // api keys
 
                 // users
+                "/users/sessions/refresh-token": crate::routing::v1::users::sessions::RefreshSessionTokenRestController::paths();
                 "/users/{idOrName}/avatar": crate::routing::v1::users::avatars::GetCurrentUserAvatarRestController::paths();
+                "/users/sessions/logout": crate::routing::v1::users::sessions::LogoutRestController::paths();
                 "/users/@me/avatar": crate::routing::v1::users::avatars::me::GetMyAvatarRestController::paths();
                 "/users/{idOrName}": crate::routing::v1::users::GetUserRestController::paths();
                 "/users/login": crate::routing::v1::users::sessions::LoginRestController::paths();

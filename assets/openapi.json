@@ -378,6 +378,84 @@
                 }
             }
         },
+        "/users/sessions/logout": {
+            "delete": {
+                "tags": ["Users", "Sessions"],
+                "description": "Attempts to destroy the current authenticated session.",
+                "operationId": "logout",
+                "responses": {
+                    "201": {
+                        "description": "Session was deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiEmptyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "If the authenticated user didn't provide a session token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/sessions/refresh-token": {
+            "post": {
+                "tags": ["Users", "Sessions"],
+                "description": "",
+                "operationId": "refresh_session_token",
+                "responses": {
+                    "201": {
+                        "description": "Session was fully restored with a new one",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiSessionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "If the authenticated user didn't provide a refresh token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/users/{idOrName}": {
             "get": {
                 "tags": ["Users"],
