@@ -41,7 +41,6 @@ on:
             - '.devcontainer/**'
             - '.vscode/**'
             - 'docs/**'
-            - 'scripts/**'
             - '.*ignore'
             - '**.md'
             - renovate.json
