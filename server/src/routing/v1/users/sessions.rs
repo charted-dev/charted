@@ -17,20 +17,26 @@ use std::time::Duration;
 
 use crate::{
     extract::Json,
-    models::res::{err, ok, ApiResponse},
+    middleware::SessionAuth,
+    models::res::{err, ok, ApiResponse, Empty},
     openapi::gen_response_schema,
     validation::validate,
     Server,
 };
-use axum::{extract::State, http::StatusCode, Router};
+use axum::{extract::State, handler::Handler, http::StatusCode, routing, Extension, Router};
 use charted_common::models::{entities::User, payloads::UserLoginPayload, Name};
 use charted_proc_macros::controller;
 use charted_sessions::{Session, SessionProvider};
+use serde_json::json;
 use sqlx::{query_as, Postgres};
+use tower_http::auth::AsyncRequireAuthorizationLayer;
 use validator::Validate;
 
 pub fn create_router() -> Router<Server> {
-    Router::new()
+    Router::new().route(
+        "/logout",
+        routing::delete(LogoutRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth))),
+    )
 }
 
 // this shouldn't be used directly
@@ -121,4 +127,46 @@ pub async fn login(
     // spawn task
     sessions.create_task(session.session_id, Duration::from_secs(604800));
     Ok(ok(StatusCode::OK, session))
+}
+
+/// Attempts to destroy the current authenticated session.
+#[controller(
+    method = delete,
+    tags("Users", "Sessions"),
+    response(201, "Session was deleted successfully", ("application/json", response!("ApiEmptyResponse"))),
+    response(403, "If the authenticated user didn't provide a session token", ("application/json", response!("ApiErrorResponse"))),
+    response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
+)]
+pub async fn logout(
+    State(Server { sessions, .. }): State<Server>,
+    Extension(crate::middleware::Session { user, session }): Extension<crate::middleware::Session>,
+) -> Result<ApiResponse, ApiResponse> {
+    if session.is_none() {
+        return Err(err(
+            StatusCode::FORBIDDEN,
+            (
+                "SESSION_ONLY_ROUTE",
+                "REST handler only allows session tokens to be used.",
+                json!({
+                    "method": "delete",
+                    "uri": "/users/sessions"
+                }),
+            )
+                .into(),
+        ));
+    }
+
+    let session = session.unwrap();
+    let mut sessions = sessions.write().await;
+    sessions.kill_session(session.session_id).map_err(|e| {
+        error!(session.id = tracing::field::display(session.session_id), user.id, error = %e, "unable to kill session");
+        sentry_eyre::capture_report(&e);
+
+        err(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+        )
+    })?;
+
+    Ok(ok(StatusCode::ACCEPTED, Empty))
 }

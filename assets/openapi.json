@@ -1071,6 +1071,33 @@
                     }
                 }
             },
+            "Session": {
+                "type": "object",
+                "required": ["session_id", "user_id"],
+                "properties": {
+                    "access_token": {
+                        "type": "string",
+                        "description": "Access token. This will always be `null` if queried, but always will\nbe present if you successfully logged in.",
+                        "nullable": true
+                    },
+                    "refresh_token": {
+                        "type": "string",
+                        "description": "Refresh token. This will always be `null` if queried, but always will\nbe present if you successfully logged in.",
+                        "nullable": true
+                    },
+                    "session_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "UUID of the session."
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "ID of the user that created this session.",
+                        "minimum": 0
+                    }
+                }
+            },
             "Snowflake": {
                 "type": "integer",
                 "format": "int64",

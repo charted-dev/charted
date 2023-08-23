@@ -55,11 +55,6 @@ jobs:
                 key: bazel-cache-ubuntu-latest-${{ hashFiles('WORKSPACE', 'BUILD.bazel') }}
                 restore-keys: bazel-cache-ubuntu-latest-
 
-            - name: Sync dependencies
-              run: bazel sync --only=crate_index
-              env:
-                CARGO_BAZEL_REPIN: all
-
             - name: Generate document and format
               run: |
                 rm ${GITHUB_WORKSPACE}/assets/openapi.json

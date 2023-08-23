@@ -48,6 +48,7 @@ use utoipa::{
         ApiKey,
         Member,
         RepositoryRelease,
+        charted_sessions::Session,
         crate::routing::v1::features::FeaturesResponse,
         crate::routing::v1::main::MainResponse,
         crate::routing::v1::info::InfoResponse,

@@ -82,16 +82,13 @@ jobs:
                 path: |
                     ${{matrix.bazelisk-cache-dir}}
                     ${{matrix.bazel-cache-dir}}
-                restore-keys: bazel-cache-${{matrix.runner}}
-                key: bazel-cache-${{matrix.runner}}
+                restore-keys: bazel-cache-${{matrix.runner}}-
+                key: bazel-cache-${{matrix.runner}}-${{ hashFiles('WORKSPACE', 'BUILD.bazel', '.bazelversion') }}
 
             # Use the `mold` linker for Linux
             - name: Setup `mold` linker
               uses: rui314/setup-mold@v1
               if: ${{matrix.runner == 'ubuntu-latest' || matrix.runner == 'self-hosted'}}
-
-            - name: Sync dependencies
-              run: ./dev sync-deps
 
             - name: Build CLI
               run: bazel ${BAZEL_ARGS} build //:cli

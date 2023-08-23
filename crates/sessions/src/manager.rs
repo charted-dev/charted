@@ -200,6 +200,39 @@ impl SessionManager {
         );
     }
 
+    pub fn kill_session(&mut self, session_id: Uuid) -> Result<()> {
+        let mut handles = self.handles.clone();
+        if let Some((_, handle)) = handles.clone().iter().find(|(key, _)| key == &&session_id) {
+            match handle.try_lock() {
+                Ok(handle) => {
+                    handle.abort();
+                    let _ = handles.remove(&session_id);
+                }
+
+                Err(_) => {
+                    error!(session.id = session_id.to_string(), "unable to abort session handle");
+                }
+            }
+        }
+
+        let mut client = self
+            .redis
+            .client()
+            .unwrap_or(self.redis.master()?)
+            .get_connection_with_timeout(Duration::from_millis(150))?;
+
+        RedisClient::cmd("HDEL")
+            .arg("charted:sessions")
+            .arg(session_id.to_string())
+            .query(&mut client)
+            .context("unable to delete session {id} from Redis")?;
+
+        RedisClient::cmd("DEL")
+            .arg("charted:sessions:{session_id}")
+            .query(&mut client)
+            .context("unable to delete session {id} from Redis")
+    }
+
     pub fn destroy(&mut self) -> Result<usize> {
         warn!("destroying all sessions");
 

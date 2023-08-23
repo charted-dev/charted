@@ -81,7 +81,7 @@ pub struct Error {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Empty {}
+pub struct Empty;
 
 impl Error {
     pub(crate) fn new(code: &str, message: &str) -> Error {

@@ -34,6 +34,7 @@ rust_project(
         "@crate_index//:tokio",
         "@crate_index//:tokio-util",
         "@crate_index//:tracing",
+        "@crate_index//:utoipa",
         "@crate_index//:uuid",
     ],
 )

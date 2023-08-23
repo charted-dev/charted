@@ -470,6 +470,7 @@ _NORMAL_DEPENDENCIES = {
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
             "tokio-util": "@crate_index__tokio-util-0.7.8//:tokio_util",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
+            "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
             "uuid": "@crate_index__uuid-1.4.1//:uuid",
         },
     },
