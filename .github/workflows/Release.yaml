@@ -49,9 +49,10 @@ jobs:
               uses: actions/cache@v3
               with:
                 path: |
-                    ${{matrix.bazelisk-cache-dir}}
-                    ${{matrix.bazel-cache-dir}}
-                key: bazel-cache-${{matrix.runner}}
+                    ${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}}
+                    ${{matrix.runner}}
+                restore-keys: bazel-cache-${{matrix.runner}}-
+                key: bazel-cache-${{matrix.runner}}-${{ hashFiles('WORKSPACE', 'BUILD.bazel', '.bazelversion') }}
 
             - name: Synchronize dependencies
               run: ./dev sync-deps

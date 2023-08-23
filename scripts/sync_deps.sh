@@ -16,6 +16,7 @@
 # limitations under the License.
 
 BAZEL=${BAZEL:-bazel}
+BAZEL_ARGS=${BAZEL_ARGS:-}
 
 # Check if we have Bazel installed
 # TODO(@auguwu): allow the option to download it.
@@ -24,4 +25,4 @@ if [[ "x$BAZEL" == "xbazel" ]] && ! command -v bazel >/dev/null; then
 fi
 
 echo "===> Syncing dependencies..."
-CARGO_BAZEL_REPIN=all $BAZEL run //thirdparty:crate_index -- --repin
+CARGO_BAZEL_REPIN=all $BAZEL $BAZEL_ARGS run //thirdparty:crate_index -- --repin

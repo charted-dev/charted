@@ -56,13 +56,10 @@ jobs:
                 runner: [macos-latest, ubuntu-latest, self-hosted]
                 include:
                     - runner: ubuntu-latest
-                      bazel-cache-dir: ~/.cache/bazel
                       bazelisk-cache-dir: ~/.cache/bazelisk
                     - runner: self-hosted
-                      bazel-cache-dir: ~/.cache/bazel
                       bazelisk-cache-dir: ~/.cache/bazelisk
                     - runner: macos-latest
-                      bazel-cache-dir: /private/var/tmp/_bazel_runner/
                       bazelisk-cache-dir: ~/Library/Caches/bazelisk
 
                     # Windows fails with:
@@ -80,24 +77,29 @@ jobs:
               uses: actions/cache@v3
               with:
                 path: |
+                    ${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}}
                     ${{matrix.bazelisk-cache-dir}}
-                    ${{matrix.bazel-cache-dir}}
                 restore-keys: bazel-cache-${{matrix.runner}}-
                 key: bazel-cache-${{matrix.runner}}-${{ hashFiles('WORKSPACE', 'BUILD.bazel', '.bazelversion') }}
 
+            - name: Synchronize dependencies
+              run: ./dev sync-deps
+              env:
+                BAZEL_ARGS: ${BAZEL_ARGS} --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}}
+
             - name: Build CLI
-              run: bazel ${BAZEL_ARGS} build //:cli
+              run: bazel ${BAZEL_ARGS} --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} build //:cli
 
             - name: Build Helm plugin
-              run: bazel ${BAZEL_ARGS} build //:helm-plugin
+              run: bazel ${BAZEL_ARGS} --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} build //:helm-plugin
 
             - name: Build search indexer
-              run: bazel ${BAZEL_ARGS} build //:search-indexer
+              run: bazel ${BAZEL_ARGS} --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} build //:search-indexer
 
             - name: Build emails microservice
-              run: bazel ${BAZEL_ARGS} build //:emails
+              run: bazel ${BAZEL_ARGS} --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} build //:emails
 
             # TODO: include clippy, rustfmt, golangci-lint, and testing ci tailoured
             #       to GitHub Actions.
             - name: Run tests
-              run: bazel ${BAZEL_ARGS} test //...
+              run: bazel ${BAZEL_ARGS} --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} test //...
