@@ -83,9 +83,6 @@ jobs:
                 restore-keys: bazel-cache-${{matrix.runner}}-
                 key: bazel-cache-${{matrix.runner}}-${{ hashFiles('WORKSPACE', 'BUILD.bazel', '.bazelversion') }}
 
-            - name: Synchronize dependencies
-              run: ./dev sync-deps
-
             - name: Build CLI
               run: bazel ${BAZEL_ARGS} --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} build //:cli
 
