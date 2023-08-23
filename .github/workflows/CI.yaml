@@ -85,7 +85,7 @@ jobs:
             - name: Synchronize dependencies
               run: ./dev sync-deps
               env:
-                BAZEL_ARGS: ${BAZEL_ARGS} --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}}
+                BAZEL_ARGS: ${{env.BAZEL_ARGS}} --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}}
 
             - name: Build CLI
               run: bazel ${BAZEL_ARGS} --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} build //:cli

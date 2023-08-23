@@ -30,6 +30,8 @@ on:
             - '**.md'
             - renovate.json
             - LICENSE
+env:
+    BAZEL_ARGS: --bazelrc=./.bazelrc --bazelrc=./.github/.ci.bazelrc --host_jvm_args=-Xmx500m --host_jvm_args=-Xms500m
 jobs:
     openapi:
         name: Generate
@@ -55,10 +57,14 @@ jobs:
                 restore-keys: bazel-cache-ubuntu-latest-
                 key: bazel-cache-ubuntu-latest-${{ hashFiles('WORKSPACE', 'BUILD.bazel', '.bazelversion') }}
 
+            - name: Synchronize dependencies
+              run: ./dev sync-deps
+              env:
+                BAZEL_ARGS: ${{env.BAZEL_ARGS}} --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}}
+
             - name: Generate document and format
               run: |
-                rm ${GITHUB_WORKSPACE}/assets/openapi.json
-                bazel run //:cli -- openapi ${GITHUB_WORKSPACE}/assets/openapi.json
+                bazel ${{env.BAZEL_ARGS}} run //:cli -- openapi ${GITHUB_WORKSPACE}/assets/openapi.json
                 prettier --write --config ${GITHUB_WORKSPACE}/web/.prettierrc.json ./assets/openapi.json
 
             - name: Commit changes (if we can)
