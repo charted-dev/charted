@@ -19,7 +19,7 @@ services:
         user: noel
         command: sleep infinity
         depends_on: [postgres, redis]
-        image: ghcr.io/charted-dev/devcontainer:latest
+        image: ghcr.io/auguwu/coder-images/rust
         volumes:
             - ..:/workspaces/charted:cached
     redis:
