@@ -14,10 +14,10 @@
 // limitations under the License.
 
 pub mod avatars;
+pub mod repositories;
 pub mod sessions;
 
-use self::sessions::LoginRestController;
-
+use self::{repositories::ListUserRepositoriesRestController, sessions::LoginRestController};
 use super::EntrypointResponse;
 use crate::{
     extract::Json,
@@ -35,12 +35,11 @@ use charted_common::{
         payloads::{CreateUserPayload, PatchUserPayload},
         Name,
     },
-    server::hash_password,
     VERSION,
 };
+use charted_database::controller::{users::UserDatabaseController, DbController};
 use charted_proc_macros::controller;
 use chrono::Local;
-use sqlx::QueryBuilder;
 use tower_http::auth::AsyncRequireAuthorizationLayer;
 use utoipa::{
     openapi::path::{PathItem, PathItemBuilder},
@@ -48,58 +47,11 @@ use utoipa::{
 };
 use validator::Validate;
 
-macro_rules! impl_patch_for {
-    ($txn:expr, $entry:literal, $id:expr, $payload:expr => $value:expr) => {
-        if let Some(val) = $payload {
-            match sqlx::query(concat!("update users set ", $entry, " = $1 where id = $2;"))
-                .bind($value)
-                .bind($id)
-                .execute(&mut *$txn)
-                .await
-            {
-                Ok(_) => {}
-                Err(e) => {
-                    ::tracing::error!(user.id = $id, error = %e, concat!("unable to update [", $entry, "] to [{}] for user"), val);
-                    ::sentry::capture_error(&e);
-
-                    drop($txn);
-                    return Err($crate::models::res::err(
-                        ::axum::http::StatusCode::INTERNAL_SERVER_ERROR,
-                        ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-                    ));
-                }
-            }
-        }
-    };
-
-    ($txn:expr, $entry:literal, $id:expr, $value:expr) => {
-        if let Some(val) = $value {
-            match sqlx::query(concat!("update users set ", $entry, " = $1 where id = $2;"))
-                .bind(val.clone())
-                .bind($id)
-                .execute(&mut *$txn)
-                .await
-            {
-                Ok(_) => {}
-                Err(e) => {
-                    ::tracing::error!(user.id = $id, error = %e, concat!("unable to update [", $entry, "] to [{}] for user"), val);
-                    ::sentry::capture_error(&e);
-
-                    drop($txn);
-                    return Err($crate::models::res::err(
-                        ::axum::http::StatusCode::INTERNAL_SERVER_ERROR,
-                        ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-                    ));
-                }
-            }
-        }
-    };
-}
-
 pub fn create_router() -> Router<Server> {
     Router::new()
         .nest("/@me/avatar", avatars::create_me_router())
         .nest("/:idOrName/avatar", avatars::create_router())
+        .nest("/:idOrName/repositories", repositories::create_router())
         .nest("/sessions", sessions::create_router())
         .route(
             "/",
@@ -114,6 +66,10 @@ pub fn create_router() -> Router<Server> {
         )
         .route("/login", routing::post(LoginRestController::run))
         .route("/:idOrName", routing::get(GetUserRestController::run))
+        .route(
+            "/:idOrName/repositories",
+            routing::get(ListUserRepositoriesRestController::run),
+        )
 }
 
 pub fn paths() -> PathItem {
@@ -179,7 +135,7 @@ async fn create_user(
         ));
     }
 
-    let username = validate(payload.username, Name::validate)?;
+    let username = validate(payload.username.clone(), Name::validate)?;
     match sqlx::query("SELECT users.* FROM users WHERE username = $1;")
         .bind(username.as_str())
         .fetch_optional(&server.pool)
@@ -208,7 +164,7 @@ async fn create_user(
         }
     }
 
-    let email = validate_email(payload.email)?;
+    let email = validate_email(payload.email.clone())?;
     match sqlx::query("select users.* from users where email = $1;")
         .bind(email.clone())
         .fetch_optional(&server.pool)
@@ -233,7 +189,7 @@ async fn create_user(
         }
     }
 
-    let password = payload.password.unwrap();
+    let password = payload.password.as_ref().unwrap();
     if password.len() < 8 {
         return Err(err(
             StatusCode::NOT_ACCEPTABLE,
@@ -246,7 +202,7 @@ async fn create_user(
     }
 
     let id = server.snowflake.generate();
-    let password = charted_common::server::hash_password(password).map_err(|_| {
+    let password = charted_common::server::hash_password(password.clone()).map_err(|_| {
         err(
             StatusCode::INTERNAL_SERVER_ERROR,
             ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
@@ -264,29 +220,17 @@ async fn create_user(
         ..Default::default()
     };
 
-    match sqlx::query(
-        "insert into users(created_at, updated_at, password, username, email, id) values($1, $2, $3, $4, $5, $6);",
-    )
-    .bind(user.created_at)
-    .bind(user.updated_at)
-    .bind(user.password.clone())
-    .bind(user.username.clone())
-    .bind(user.email.clone())
-    .bind(user.id)
-    .execute(&server.pool)
-    .await
-    {
-        Ok(_) => Ok(ok(StatusCode::OK, user)),
-        Err(e) => {
-            error!(error = %e, "unable to insert user @{} ({}):", user.username, user.id);
-            sentry::capture_error(&e);
-
-            Err(err(
+    let users = server.controllers.get::<UserDatabaseController>();
+    users
+        .create(payload, user)
+        .await
+        .map(|user| ok(StatusCode::CREATED, user))
+        .map_err(|_| {
+            err(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-            ))
-        }
-    }
+            )
+        })
 }
 
 /// Retrieve a [`User`] object.
@@ -298,29 +242,11 @@ async fn create_user(
     pathParameter("idOrName", schema!("NameOrSnowflake"), description = "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.")
 )]
 pub async fn get_user(
-    State(server): State<Server>,
+    State(Server { controllers, .. }): State<Server>,
     NameOrSnowflake(id_or_name): NameOrSnowflake,
 ) -> Result<ApiResponse<User>, ApiResponse> {
-    let mut query = QueryBuilder::<sqlx::Postgres>::new("select users.* from users where");
-    match id_or_name {
-        charted_common::models::NameOrSnowflake::Snowflake(_) => {
-            query.push(" id = ");
-        }
-
-        charted_common::models::NameOrSnowflake::Name(_) => {
-            query.push(" username = ");
-        }
-    }
-
-    query.push("$1;");
-
-    let mut query = sqlx::query_as::<sqlx::Postgres, User>(query.sql());
-    match id_or_name.clone() {
-        charted_common::models::NameOrSnowflake::Snowflake(id) => query = query.bind(id as i64),
-        charted_common::models::NameOrSnowflake::Name(name) => query = query.bind(name.to_string()),
-    };
-
-    match query.fetch_optional(&server.pool).await {
+    let users = controllers.get::<UserDatabaseController>();
+    match users.get_by_nos(id_or_name.clone()).await {
         Ok(Some(user)) => Ok(ok(StatusCode::OK, user)),
         Ok(None) => Err(err(
             StatusCode::NOT_FOUND,
@@ -331,15 +257,10 @@ pub async fn get_user(
                 .into(),
         )),
 
-        Err(e) => {
-            error!(idOrName = tracing::field::display(id_or_name), error = %e, "unable to query user with");
-            sentry::capture_error(&e);
-
-            Err(err(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-            ))
-        }
+        Err(_) => Err(err(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+        )),
     }
 }
 
@@ -438,40 +359,8 @@ pub async fn patch_user(
         }
     }
 
-    let span = info_span!("charted.rest.patch", entity = "user", user.id);
-    let _guard = span.enter();
-    let mut txn = server.pool.begin().await.map_err(|e| {
-        error!(user.id, error = %e, "unable to create database transaction for user");
-        sentry::capture_error(&e);
-
-        err(
-            StatusCode::INTERNAL_SERVER_ERROR,
-            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-        )
-    })?;
-
-    impl_patch_for!(txn, "gravatar_email", user.id, payload.gravatar_email.clone());
-    impl_patch_for!(txn, "description", user.id, payload.description.clone());
-    impl_patch_for!(txn, "username", user.id, payload.username.clone());
-    impl_patch_for!(txn, "password", user.id, payload.password.clone() => {
-        hash_password(payload.password.clone().unwrap()).map_err(|e| {
-            error!(user.id, error = %e, "unable to hash password for user ");
-            sentry_eyre::capture_report(&e);
-
-            err(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-            )
-        })?
-    });
-
-    impl_patch_for!(txn, "email", user.id, payload.email.clone());
-    impl_patch_for!(txn, "name", user.id, payload.name.clone());
-
-    txn.commit().await.map_err(|e| {
-        error!(user.id, error = %e, "unable to commit transaction for user");
-        sentry::capture_error(&e);
-
+    let users = server.controllers.get::<UserDatabaseController>();
+    users.patch(user.id as u64, payload.clone()).await.map_err(|_| {
         err(
             StatusCode::INTERNAL_SERVER_ERROR,
             ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
@@ -497,22 +386,13 @@ pub async fn delete_user(
         session: _session,
     }): Extension<Session>,
 ) -> Result<ApiResponse, ApiResponse> {
-    match sqlx::query("delete from users where id = $1;")
-        .bind(user.id)
-        .execute(&server.pool)
-        .await
-    {
-        Ok(_) => {}
-        Err(e) => {
-            error!(user.id, error = %e, "unable to delete user");
-            sentry::capture_error(&e);
-
-            return Err(err(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-            ));
-        }
-    }
+    let users = server.controllers.get::<UserDatabaseController>();
+    users.delete(user.id as u64).await.map_err(|_| {
+        err(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+        )
+    })?;
 
     // in a background task, delete all entities and helm charts
     // that existed with that user.

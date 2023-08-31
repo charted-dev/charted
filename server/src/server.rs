@@ -18,6 +18,7 @@ use axum::extract::FromRef;
 use charted_avatars::AvatarsModule;
 use charted_common::Snowflake;
 use charted_config::Config;
+use charted_database::controller::DbControllerRegistry;
 use charted_helm_charts::HelmCharts;
 use charted_metrics::SingleRegistry;
 use charted_redis::RedisClient;
@@ -34,6 +35,7 @@ pub(crate) static SERVER: OnceCell<Server> = OnceCell::new();
 /// A default implemention of a [`Server`].
 #[derive(Clone)]
 pub struct Server {
+    pub controllers: DbControllerRegistry,
     pub helm_charts: HelmCharts,
     pub snowflake: Snowflake,
     pub sessions: Arc<RwLock<SessionManager>>,

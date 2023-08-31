@@ -378,6 +378,25 @@
                 }
             }
         },
+        "/users/repositories": {
+            "put": {
+                "tags": ["Repositories"],
+                "description": "Creates a [`Repository`] with the current authenticated user as the owner of the repository.",
+                "operationId": "create_user_repository",
+                "responses": {
+                    "201": {
+                        "description": "Repository created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiRepositoryResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/users/sessions/logout": {
             "delete": {
                 "tags": ["Users", "Sessions"],
@@ -540,6 +559,67 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{idOrName}/repositories": {
+            "get": {
+                "tags": ["Users", "Repositories"],
+                "description": "Retrieve a list of all a user's repositories.",
+                "operationId": "list_user_repositories",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "How many elements should be present in a page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "Order to sort the entries by.",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/OrderBy"
+                        }
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Cursor to passthrough to proceed into the next or previous page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
+                            "minLength": 15
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of all the user's repositories",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiRepositoryPaginatedResponse"
                                 }
                             }
                         }
@@ -1003,6 +1083,11 @@
                 ],
                 "description": "Represents a union enum that can hold a Snowflake and a Name, which is a String that is validated with the Name regex."
             },
+            "OrderBy": {
+                "type": "string",
+                "description": "The ordering to use when querying paginated REST calls.",
+                "enum": ["ASC", "DES"]
+            },
             "Organization": {
                 "type": "object",
                 "description": "Represents a unified entity that can manage and own repositories outside\na User. Organizations to the server is used for business-related Helm charts\nthat aren't tied to a specific User.",
@@ -1058,6 +1143,79 @@
                     "verified_publisher": {
                         "type": "boolean",
                         "description": "Whether if this Organization is a Verified Publisher or not."
+                    }
+                }
+            },
+            "PageInfo": {
+                "type": "object",
+                "description": "Information about a [pagination][Pagination] page.",
+                "required": ["next_cursor", "prev_cursor"],
+                "properties": {
+                    "next_cursor": {
+                        "$ref": "#/components/schemas/Snowflake"
+                    },
+                    "prev_cursor": {
+                        "$ref": "#/components/schemas/Snowflake"
+                    }
+                }
+            },
+            "PaginatedOrganization": {
+                "type": "object",
+                "required": ["data", "page_info"],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Organization"
+                        }
+                    },
+                    "page_info": {
+                        "$ref": "#/components/schemas/PageInfo"
+                    }
+                }
+            },
+            "PaginatedOrganizationMember": {
+                "type": "object",
+                "required": ["data", "page_info"],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OrganizationMember"
+                        }
+                    },
+                    "page_info": {
+                        "$ref": "#/components/schemas/PageInfo"
+                    }
+                }
+            },
+            "PaginatedRepository": {
+                "type": "object",
+                "required": ["data", "page_info"],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Repository"
+                        }
+                    },
+                    "page_info": {
+                        "$ref": "#/components/schemas/PageInfo"
+                    }
+                }
+            },
+            "PaginatedRepositoryMember": {
+                "type": "object",
+                "required": ["data", "page_info"],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RepositoryMember"
+                        }
+                    },
+                    "page_info": {
+                        "$ref": "#/components/schemas/PageInfo"
                     }
                 }
             },
@@ -1364,6 +1522,86 @@
                             "properties": {
                                 "data": {
                                     "$ref": "#/components/schemas/MainResponse"
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "Indicates whether if this response was a success or not"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "ApiOrganizationMemberPaginatedResponse": {
+                "description": "Response object for OrganizationMemberPaginatedResponse",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/components/schemas/ApiPaginatedOrganizationMember"
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "Indicates whether if this response was a success or not"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "ApiOrganizationPaginatedResponse": {
+                "description": "Response object for OrganizationPaginatedResponse",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/components/schemas/ApiPaginatedOrganization"
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "Indicates whether if this response was a success or not"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "ApiRepositoryMemberPaginatedResponse": {
+                "description": "Response object for RepositoryMemberPaginatedResponse",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/components/schemas/ApiPaginatedRepositoryMember"
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "Indicates whether if this response was a success or not"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "ApiRepositoryPaginatedResponse": {
+                "description": "Response object for RepositoryPaginatedResponse",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/components/schemas/ApiPaginatedRepository"
                                 },
                                 "success": {
                                     "type": "boolean",

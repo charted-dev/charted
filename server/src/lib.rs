@@ -24,6 +24,7 @@ pub(crate) mod extract;
 pub(crate) mod middleware;
 pub(crate) mod models;
 pub mod openapi;
+pub(crate) mod pagination;
 pub mod routing;
 pub mod validation;
 

@@ -19,7 +19,7 @@ use std::{ffi::OsString, path::PathBuf};
 #[derive(Debug, Clone, clap::Args)]
 pub struct CommonBazelArgs {
     /// Location to a `bazel` binary.
-    #[arg(long)]
+    #[arg(long, env = "BAZEL")]
     pub bazel: Option<PathBuf>,
 
     /// List of external .bazelrc files to include. If `/dev/null` is passed, then
@@ -39,6 +39,10 @@ pub struct CommonBuildRunArgs {
     /// Additional arguments to pass to the built binary.
     #[arg(value_parser = value_parser!(OsString), num_args = 0.., last = true, allow_hyphen_values = true)]
     pub args: Vec<OsString>,
+
+    /// Additional Bazel arguments to append to. This is inserted before `build`/`test`/`run`/...etc
+    #[arg(long = "bazel-arg", value_parser = value_parser!(OsString), env = "BAZEL_ARGS")]
+    pub bazel_args: Vec<OsString>,
 
     /// Whether if the binary being invoked should be ran or not. This is determined by:
     ///

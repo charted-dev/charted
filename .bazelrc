@@ -6,7 +6,7 @@ build --@rules_rust//:clippy.toml=//:clippy.toml
 build --aspects=@rules_rust//rust:defs.bzl%rust_clippy_aspect
 build --output_groups=+clippy_checks
 
-# Required on windows
+# Required for Windows
 common --enable_platform_specific_config
 startup --windows_enable_symlinks
 build:windows --enable_runfiles
@@ -17,9 +17,6 @@ common --experimental_allow_tags_propagation
 
 # Always show test output.
 test --test_output=all
-
-# Include ./services/search-indexer/scripts/stamp.sh when building
-build --stamp --workspace_status_command=./services/search-indexer/scripts/stamp.sh
 
 # Allows importing from user-defined .bazelrc files; this is ignored
 # by Git by default.

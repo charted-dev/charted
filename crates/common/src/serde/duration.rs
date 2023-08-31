@@ -13,13 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use humantime::{format_duration, parse_duration};
+use humantime::parse_duration;
 use serde::{
     de::{self, Deserialize, Visitor},
     ser::Serialize,
 };
 use std::{
     fmt::{Debug, Display},
+    ops::Deref,
     str::FromStr,
 };
 
@@ -53,7 +54,7 @@ impl Serialize for Duration {
     where
         S: serde::Serializer,
     {
-        serializer.serialize_str(format_duration(self.0).to_string().as_str())
+        serializer.serialize_u128(self.0.as_millis())
     }
 }
 
@@ -97,6 +98,20 @@ impl<'de> Deserialize<'de> for Duration {
     }
 }
 
+impl From<std::time::Duration> for Duration {
+    fn from(value: std::time::Duration) -> Self {
+        Self(value)
+    }
+}
+
+impl Deref for Duration {
+    type Target = std::time::Duration;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -115,7 +130,7 @@ mod tests {
         };
 
         let serialized = to_string(&d).unwrap();
-        let expected = r#"{"dur":"200ms"}"#.to_string();
+        let expected = r#"{"dur":200}"#.to_string();
 
         assert_eq!(expected, serialized);
     }
@@ -126,7 +141,7 @@ mod tests {
         let stru = SomeStruct { dur: d };
 
         let serialized = to_string(&stru).unwrap();
-        let expected = r#"{"dur":"2s"}"#.to_string();
+        let expected = r#"{"dur":2000}"#.to_string();
 
         assert_eq!(expected, serialized);
     }

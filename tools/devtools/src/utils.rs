@@ -84,7 +84,7 @@ pub fn build_or_run(bazel: PathBuf, (release, dev): (&str, &str), args: BuildCli
 
     let is_build = match (args.release, args.run) {
         (true, true) => {
-            cmd.args(["run", release]);
+            cmd.args(["--compilation_mode=opt", "run", release]);
             false
         }
 
@@ -94,7 +94,7 @@ pub fn build_or_run(bazel: PathBuf, (release, dev): (&str, &str), args: BuildCli
         }
 
         _ => {
-            cmd.args(["build", release]);
+            cmd.args(["--compilation_mode=opt", "build", release]);
             true
         }
     };

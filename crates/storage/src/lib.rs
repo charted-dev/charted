@@ -13,8 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// expose `StorageService` so we don't have to keep declaring `remi_core`, expose `Bytes`
+// so we don't have to declare more transitive dependencies to `bytes`.
+pub use bytes::Bytes;
+pub use remi_core::{Blob, DirectoryBlob, FileBlob, ListBlobsRequest, StorageService, UploadRequest};
+
 use charted_config::StorageConfig;
-use remi_core::StorageService;
 use remi_fs::FilesystemStorageService;
 use remi_s3::S3StorageService;
 

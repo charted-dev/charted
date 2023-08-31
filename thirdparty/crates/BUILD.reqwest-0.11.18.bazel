@@ -78,7 +78,7 @@ rust_library(
         "@crate_index__futures-core-0.3.28//:futures_core",
         "@crate_index__futures-util-0.3.28//:futures_util",
         "@crate_index__http-0.2.9//:http",
-        "@crate_index__serde-1.0.185//:serde",
+        "@crate_index__serde-1.0.186//:serde",
         "@crate_index__serde_json-1.0.105//:serde_json",
         "@crate_index__serde_urlencoded-0.7.1//:serde_urlencoded",
         "@crate_index__tower-service-0.3.2//:tower_service",

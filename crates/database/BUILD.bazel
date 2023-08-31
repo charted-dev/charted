@@ -30,14 +30,11 @@ rust_project(
     deps = [
         ":buildscript",
         "//crates/common:charted_common",
-        "@crate_index//:argon2",
+        "//crates/storage:charted_storage",
         "@crate_index//:eyre",
-        "@crate_index//:once_cell",
-        "@crate_index//:regex",
+        "@crate_index//:sentry",
         "@crate_index//:serde",
         "@crate_index//:sqlx",
         "@crate_index//:tracing",
-        "@crate_index//:utoipa",
-        "@crate_index//:validator",
     ],
 )

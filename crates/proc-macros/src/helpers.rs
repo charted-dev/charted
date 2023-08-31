@@ -635,27 +635,27 @@ pub mod schema {
             }
 
             if let Some(maximum) = self.0.maximum {
-                variants.push(quote!(.maximum(#maximum)));
+                variants.push(quote!(.maximum(Some(#maximum))));
             }
 
             if let Some(minimum) = self.0.minimum {
-                variants.push(quote!(.minimum(#minimum)));
+                variants.push(quote!(.minimum(Some(#minimum))));
             }
 
             if let Some(maximum) = self.0.exclusive_maximum {
-                variants.push(quote!(.exclusive_maximum(#maximum)));
+                variants.push(quote!(.exclusive_maximum(Some(#maximum))));
             }
 
             if let Some(minimum) = self.0.exclusive_minimum {
-                variants.push(quote!(.exclusive_minimum(#minimum)));
+                variants.push(quote!(.exclusive_minimum(Some(#minimum))));
             }
 
             if let Some(max_len) = self.0.max_length {
-                variants.push(quote!(.max_length(#max_len)));
+                variants.push(quote!(.max_length(Some(#max_len))));
             }
 
             if let Some(min_len) = self.0.min_length {
-                variants.push(quote!(.min_length(#min_len)));
+                variants.push(quote!(.min_length(Some(#min_len))));
             }
 
             if let Some(pattern) = self.0.pattern.clone() {

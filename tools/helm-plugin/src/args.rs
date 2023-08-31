@@ -21,11 +21,11 @@ use charted_common::os;
 use eyre::{Context as _, ContextCompat, Result};
 use std::{collections::BTreeMap, path::PathBuf};
 use tokio::{
-    fs::OpenOptions,
+    fs::{create_dir_all, OpenOptions},
     io::{AsyncReadExt, AsyncWriteExt},
 };
 
-/// Common config arguments to resolve a `.charted.yaml file.
+/// Common config arguments to resolve a `.charted.yaml` file.
 #[derive(Debug, Clone, clap::Args)]
 pub struct CommonConfigArgs {
     /// Location to an `.charted.yaml` file for pushing repositories
@@ -82,31 +82,42 @@ pub struct CommonHelmArgs {
 }
 
 impl CommonHelmArgs {
+    pub fn locate(file: Option<PathBuf>) -> Result<PathBuf> {
+        match file {
+            Some(file) => Ok(file),
+            None => match os::os_name() {
+                "linux" | "macos" => Ok(dirs::config_dir()
+                    .context("unable to find config dir")?
+                    .join("Noelware/charted-server/auth.yaml")),
+
+                "windows" => Ok(dirs::cache_dir()
+                    .context("unable to find cache dir")?
+                    .join("Noelware/charted-server/auth.yaml")),
+
+                _ => unreachable!(),
+            },
+        }
+    }
+
     pub async fn current_context(&self) -> Result<Context> {
-        let auth = self.auth().await?;
+        let auth = CommonHelmArgs::auth(self.context_file.clone()).await?;
         Ok(auth.current)
     }
 
-    pub async fn auth(&self) -> Result<Auth> {
-        let context_file = self.context_file.clone().unwrap_or(match os::os_name() {
-            "linux" | "macos" => {
-                let config_dir = dirs::config_dir().context("unable to find config dir")?;
-                config_dir.join("Noelware/charted-server/auth.yaml")
-            }
-
-            "windows" => {
-                let cache_dir = dirs::cache_dir().context("unable to find cache dir")?;
-                cache_dir.join("Noelware/charted-server/auth.yaml")
-            }
-            _ => unreachable!(),
-        });
-
+    pub async fn auth(context_file: Option<PathBuf>) -> Result<Auth> {
+        let context_file = CommonHelmArgs::locate(context_file.clone())?;
         debug!("locating authentication file in {}", context_file.display());
+
         if !context_file.exists() {
             warn!(
                 "authentication file [{}] didn't exist, creating...",
                 context_file.display()
             );
+
+            // only attempt to create from the parent dir
+            if let Some(parent) = context_file.parent() {
+                create_dir_all(parent).await?;
+            }
 
             // If it doesn't exist, then we will create an empty one
             let auth = Auth {

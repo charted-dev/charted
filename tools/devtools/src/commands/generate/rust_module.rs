@@ -92,7 +92,7 @@ impl Execute for RustModule {
         };
 
         let final_path = workspace.join(location);
-        info!("creating rust crate charted_{name} in {}", final_path.display());
+        info!("creating rust crate charted-{name} in {}", final_path.display());
 
         if !final_path.exists() {
             create_dir_all(final_path.clone())?;
@@ -141,6 +141,8 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]"
         let build_file_content = format!(
             r#"load("//:build/rust_project.bzl", "rust_project")
 
+exports_files(["Cargo.toml"])
+
 rust_project(
     name = "{}",
 )"#,
@@ -148,7 +150,6 @@ rust_project(
         );
 
         write!(crate_bazel_file, "{LICENSE}\n\n{build_file_content}")?;
-
         let mut lib_rs_file = File::options()
             .create_new(true)
             .write(true)
@@ -173,7 +174,7 @@ rust_project(
 "#
         )?;
 
-        info!("finished! please update builds/utils.bzl to include your new crate!");
+        info!("finished! please update build/utils.bzl to include your new crate!");
 
         Ok(())
     }

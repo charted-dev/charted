@@ -18,7 +18,7 @@ use crate::{Server, SERVER};
 use charted_avatars::AvatarsModule;
 use charted_common::{is_debug_enabled, Snowflake, COMMIT_HASH, VERSION};
 use charted_config::{Config, ConfigExt, SessionBackend};
-use charted_database::MIGRATIONS;
+use charted_database::{controller::DbControllerRegistry, MIGRATIONS};
 use charted_helm_charts::HelmCharts;
 use charted_metrics::SingleRegistry;
 use charted_redis::RedisClient;
@@ -160,6 +160,7 @@ pub(crate) async fn configure_modules(config: &Config) -> Result<Server> {
     );
 
     Ok(Server {
+        controllers: DbControllerRegistry::new(storage.clone(), pool.clone()),
         helm_charts,
         snowflake,
         sessions: Arc::new(RwLock::new(sessions)),

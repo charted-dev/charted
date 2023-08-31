@@ -14,10 +14,11 @@
 // limitations under the License.
 
 use serde::{Deserialize, Serialize};
-use std::{collections::BTreeMap, ops::Deref, sync::Arc};
+use std::{collections::BTreeMap, fmt::Display, ops::Deref, sync::Arc};
+use url::Url;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(tag = "type", rename_all = "camelCase")]
 pub enum AuthType {
     EnvironmentVariable(String),
     ApiKey(String),
@@ -124,16 +125,29 @@ impl From<&str> for Context {
     }
 }
 
+impl Display for Context {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        Display::fmt(&self.0, f)
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RegistryConfig {
-    pub registry: String,
+    pub registry: Url,
 
-    #[serde(default, with = "serde_yaml::with::singleton_map")]
+    #[serde(default)]
     pub auth: AuthType,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Auth {
+    #[serde(default = "default_context")]
     pub current: Context,
+
+    #[serde(default)]
     pub context: BTreeMap<Context, Vec<RegistryConfig>>,
+}
+
+fn default_context() -> Context {
+    "default".into()
 }

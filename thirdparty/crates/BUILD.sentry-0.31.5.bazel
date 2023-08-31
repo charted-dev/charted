@@ -37,7 +37,6 @@ rust_library(
         "httpdate",
         "native-tls",
         "panic",
-        "profiling",
         "reqwest",
         "sentry-backtrace",
         "sentry-contexts",

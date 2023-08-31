@@ -31,7 +31,6 @@ rust_library(
     crate_features = [
         "client",
         "default",
-        "full",
         "h2",
         "http1",
         "http2",

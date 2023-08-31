@@ -53,9 +53,19 @@ use utoipa::{
         crate::routing::v1::main::MainResponse,
         crate::routing::v1::info::InfoResponse,
         crate::routing::v1::EntrypointResponse,
+        crate::pagination::PaginatedOrganizationMember,
+        crate::pagination::PaginatedRepositoryMember,
+        crate::pagination::PaginatedOrganization,
+        crate::pagination::PaginatedRepository,
+        charted_common::server::pagination::PageInfo,
+        charted_common::server::pagination::OrderBy
     ),
     responses(
+        crate::pagination::OrganizationMemberPaginatedResponse,
+        crate::pagination::RepositoryMemberPaginatedResponse,
         crate::routing::v1::users::sessions::SessionResponse,
+        crate::pagination::OrganizationPaginatedResponse,
+        crate::pagination::RepositoryPaginatedResponse,
         crate::routing::v1::features::FeaturesResponse,
         crate::routing::v1::users::UserResponse,
         crate::routing::v1::main::MainResponse,
@@ -76,6 +86,41 @@ macro_rules! add_paths {
 macro_rules! gen_response_schema_priv {
     ($ty:ty) => {
         $crate::openapi::gen_response_schema!($ty, content: "application/json");
+    };
+
+    ($ty:ty, schema: $schema:ty) => {
+         impl<'r> ::utoipa::ToResponse<'r> for $ty {
+            fn response() -> (&'r str, ::utoipa::openapi::RefOr<::utoipa::openapi::Response>) {
+                (
+                    concat!("Api", stringify!($ty)),
+                    ::utoipa::openapi::RefOr::T(
+                        ::utoipa::openapi::ResponseBuilder::new()
+                            .description(concat!("Response object for ", stringify!($ty)).to_string())
+                            .content("application/json", ::utoipa::openapi::ContentBuilder::new()
+                                .schema(::utoipa::openapi::RefOr::T(::utoipa::openapi::Schema::Object({
+                                    ::utoipa::openapi::ObjectBuilder::new()
+                                        .property(
+                                            "success",
+                                            ::utoipa::openapi::ObjectBuilder::new()
+                                                .schema_type(::utoipa::openapi::SchemaType::Boolean)
+                                                .description(Some("Indicates whether if this response was a success or not"))
+                                                .build()
+                                        )
+                                        .required("success")
+                                        .property(
+                                            "data",
+                                            ::utoipa::openapi::Ref::from_schema_name(stringify!($schema))
+                                        )
+                                        .required("data")
+                                        .build()
+                                })))
+                                .build()
+                            )
+                            .build(),
+                    ),
+                )
+            }
+        }
     };
 
     ($ty:ty, schema: $schema:literal) => {
@@ -249,9 +294,11 @@ pub fn document() -> utoipa::openapi::OpenApi {
                 // api keys
 
                 // users
+                "/users/{idOrName}/repositories": crate::routing::v1::users::repositories::ListUserRepositoriesRestController::paths();
                 "/users/sessions/refresh-token": crate::routing::v1::users::sessions::RefreshSessionTokenRestController::paths();
                 "/users/{idOrName}/avatar": crate::routing::v1::users::avatars::GetCurrentUserAvatarRestController::paths();
                 "/users/sessions/logout": crate::routing::v1::users::sessions::LogoutRestController::paths();
+                "/users/repositories": crate::routing::v1::users::repositories::CreateUserRepositoryRestController::paths();
                 "/users/@me/avatar": crate::routing::v1::users::avatars::me::GetMyAvatarRestController::paths();
                 "/users/{idOrName}": crate::routing::v1::users::GetUserRestController::paths();
                 "/users/login": crate::routing::v1::users::sessions::LoginRestController::paths();

@@ -45,7 +45,7 @@ rust_library(
     version = "3.7.0",
     deps = [
         "@crate_index__log-0.4.20//:log",
-        "@crate_index__serde-1.0.185//:serde",
+        "@crate_index__serde-1.0.186//:serde",
     ] + select({
         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [
             "@crate_index__winapi-0.3.9//:winapi",  # cfg(windows)

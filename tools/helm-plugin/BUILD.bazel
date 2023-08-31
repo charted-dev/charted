@@ -35,6 +35,7 @@ rust_project(
         "@crate_index//:dirs",
         "@crate_index//:dotenv",
         "@crate_index//:eyre",
+        "@crate_index//:once_cell",
         "@crate_index//:reqwest",
         "@crate_index//:serde",
         "@crate_index//:serde_json",
@@ -43,6 +44,7 @@ rust_project(
         "@crate_index//:tokio",
         "@crate_index//:tracing",
         "@crate_index//:tracing-subscriber",
+        "@crate_index//:url",
         "@crate_index//:which",
     ],
 )

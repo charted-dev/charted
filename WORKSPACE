@@ -120,29 +120,6 @@ load("@npm//:repositories.bzl", "npm_repositories")
 
 npm_repositories()
 
-load("//:build/tools/golang.bzl", "GOLANG_VERSION", "charted_golang_repositories")
-
-charted_golang_repositories()
-
-load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
-
-go_rules_dependencies()
-
-go_register_toolchains(version = GOLANG_VERSION)
-
-load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
-
-gazelle_dependencies()
-
-load("@ash2k_bazel_tools//golangcilint:deps.bzl", "golangcilint_dependencies")
-
-golangcilint_dependencies()
-
-load("//services/search-indexer:deps.bzl", "go_dependencies")
-
-# gazelle:repository_macro services/search-indexer/deps.bzl%go_dependencies
-go_dependencies()
-
 load("//:build/tools/pkg.bzl", "charted_pkg_repositories")
 
 charted_pkg_repositories()

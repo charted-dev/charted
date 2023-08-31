@@ -43,6 +43,7 @@ make_config! {
 ///
 /// * [`LDAP`][SessionBackend::LDAP] will connect and authenticate users from an established LDAP server.
 #[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum SessionBackend {
     LDAP(ldap::Config),
     Passwordless,
@@ -95,7 +96,7 @@ pub mod ldap {
 
 pub mod integrations {
     #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-    #[serde(tag = "type")]
+    #[serde(tag = "type", rename_all = "lowercase")]
     pub enum Config {
         GitHub(github::Config),
     }

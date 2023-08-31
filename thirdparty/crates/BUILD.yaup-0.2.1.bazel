@@ -40,7 +40,7 @@ rust_library(
     ],
     version = "0.2.1",
     deps = [
-        "@crate_index__serde-1.0.185//:serde",
+        "@crate_index__serde-1.0.186//:serde",
         "@crate_index__url-2.4.0//:url",
     ],
 )

@@ -12,3 +12,25 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+use charted_common::cli::AsyncExecute;
+use eyre::Result;
+
+mod download;
+mod publish;
+mod query;
+
+/// Allows to query, download, or publish repositories.
+#[derive(Debug, Clone, clap::Subcommand)]
+pub enum Repo {
+    Download(download::Download),
+}
+
+#[async_trait]
+impl AsyncExecute for Repo {
+    async fn execute(&self) -> Result<()> {
+        match self {
+            Repo::Download(dl) => dl.execute().await,
+        }
+    }
+}

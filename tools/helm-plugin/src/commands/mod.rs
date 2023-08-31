@@ -22,14 +22,21 @@ use eyre::Result;
 
 #[derive(Debug, Clone, clap::Subcommand)]
 pub enum Commands {
+    #[command(subcommand)]
+    Context(context::Context),
     Version(version::Version),
+
+    #[command(subcommand)]
+    Repo(repo::Repo),
 }
 
 #[async_trait]
 impl AsyncExecute for Commands {
     async fn execute(&self) -> Result<()> {
         match self {
+            Commands::Context(context) => context.execute().await,
             Commands::Version(version) => version.execute(),
+            Commands::Repo(repo) => repo.execute().await,
         }
     }
 }

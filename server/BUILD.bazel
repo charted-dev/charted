@@ -41,6 +41,7 @@ rust_project(
     proc_macro_deps = [
         "//crates/proc-macros:charted_proc_macros",
         "@crate_index//:async-trait",
+        "@crate_index//:paste",
     ],
     deps = [
         "@crate_index//:ansi_term",
