@@ -816,6 +816,7 @@ dependencies = [
  "async-trait",
  "charted-common",
  "charted-config",
+ "charted-database",
  "charted-logging",
  "charted-server",
  "chrono",

@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("//:build/rust_project.bzl", "rust_project")
+load("//:build/rust.bzl", "rust_project")
 
 exports_files(["Cargo.toml"])
 
@@ -24,6 +24,7 @@ rust_project(
     deps = [
         "//crates/common:charted_common",
         "//crates/config:charted_config",
+        "//crates/database:charted_database",
         "//crates/logging:charted_logging",
         "//server:charted_server",
         "@crate_index//:ansi_term",

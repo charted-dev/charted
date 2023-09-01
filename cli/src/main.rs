@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_cli::{commands::Commands, execute, Cli};
-use charted_common::{is_debug_enabled, os, COMMIT_HASH, RUSTC_VERSION, VERSION};
+use charted_cli::{Cli, Commands};
+use charted_common::{cli::AsyncExecute, is_debug_enabled, os, COMMIT_HASH, RUSTC_VERSION, VERSION};
 use charted_config::var;
 use charted_logging::generic::GenericLayer;
 use clap::Parser;
@@ -87,9 +87,10 @@ fn main() -> Result<()> {
             Builder::new_current_thread()
                 .worker_threads(1)
                 .thread_name("cli-worker-pool")
+                .enable_io()
                 .build()
         }
     }?;
 
-    runtime.block_on(async { execute(&cli.command).await })
+    runtime.block_on(async { cli.command.execute().await })
 }

@@ -15,9 +15,9 @@
 
 """ Common macro through-out all Rust crates. """
 
-load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_doc_test", "rust_library", "rust_proc_macro", "rust_test")
-load("@rules_rust//cargo:defs.bzl", "cargo_build_script")
 load("@crate_index//:defs.bzl", "aliases")
+load("@rules_rust//cargo:defs.bzl", "cargo_build_script")
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_doc_test", "rust_library", "rust_proc_macro", "rust_test", "rust_test_suite")
 
 def rust_project(
         name,
@@ -71,7 +71,7 @@ def rust_project(
         rust_library(
             # We need it as charted_<name> so it can be referenced with Bazel
             # without using 'extern crate {name}'!
-            name = "charted_{name}".format(name = name),
+            name = "charted_%s" % name,
             aliases = aliases(),
             data = external_data,
             srcs = native.glob(["src/**/*.rs"], exclude = ["src/main.rs"]) + srcs,
@@ -84,7 +84,15 @@ def rust_project(
     if include_tests:
         rust_test(
             name = "tests",
-            srcs = native.glob(["src/**/*.rs", "tests/**/*.rs"], exclude = ["src/main.rs"]),
+            srcs = native.glob(["src/**/*.rs"], exclude = ["src/main.rs"]),
+            deps = [":charted_{name}".format(name = name)] + deps + test_deps,
+            compile_data = external_data,
+            proc_macro_deps = proc_macro_deps,
+        )
+
+        rust_test_suite(
+            name = "integ_tests",
+            srcs = native.glob(["tests/**/*.rs"]),
             deps = [":charted_{name}".format(name = name)] + deps + test_deps,
             compile_data = external_data,
             proc_macro_deps = proc_macro_deps,
@@ -98,28 +106,10 @@ def rust_project(
 
     if is_binary:
         rust_binary(
-            name = "binary",
+            name = name,
             srcs = ["src/main.rs"],
             deps = [":charted_{name}".format(name = name)] + deps,
             rustc_flags = ["-C", "incremental=true"],
-            visibility = ["//visibility:public"],
-        )
-
-        rust_binary(
-            name = "release_binary",
-            srcs = ["src/main.rs"],
-            deps = [":charted_{name}".format(name = name)] + deps,
-            rustc_flags = [
-                "-C",
-                "debug-assertions=off",
-                "-C",
-                "opt-level=s",
-                "-C",
-                "lto=fat",
-                "-C",
-                "incremental=true",
-                "-Dwarnings",
-            ],
             visibility = ["//visibility:public"],
         )
 

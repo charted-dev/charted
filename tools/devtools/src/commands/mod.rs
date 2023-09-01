@@ -18,7 +18,6 @@ mod docker;
 mod generate;
 mod helm_plugin;
 mod server;
-mod services;
 mod web;
 
 use charted_common::cli::*;

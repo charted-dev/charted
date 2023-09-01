@@ -122,42 +122,55 @@ impl DbController for UserDatabaseController {
             })
             .context("unable to create db transaction")?;
 
-        let id = id as i64;
-        impl_patch_for!(txn, payload.gravatar_email.clone(), id => {
-            table -> "users";
-            entry -> "gravatar_email";
+        impl_patch_for!(txn, {
+            payload: payload.gravatar_email.clone();
+            column:  "gravatar_email";
+            table:   "users";
+            id:      id as i64;
         });
 
-        impl_patch_for!(txn, payload.description.clone(), id => {
-            table -> "users";
-            entry -> "description";
+        impl_patch_for!(txn, {
+            payload: payload.description.clone();
+            column:  "description";
+            table:   "users";
+            id:      id as i64;
         });
 
-        impl_patch_for!(txn, payload.username.clone(), id => {
-            table -> "users";
-            entry -> "username";
-            value -> payload.username.unwrap().to_string();
+        impl_patch_for!(txn, {
+            payload: payload.username.clone();
+            column:  "username";
+            table:   "users";
+            id:      id as i64;
         });
 
-        impl_patch_for!(txn, payload.password.clone(), id => {
-            table -> "users";
-            entry -> "password";
-            value -> hash_password(payload.password.unwrap()).map_err(|e| {
-                error!(user.id = id, error = %e, "unable to hash password");
-                sentry::capture_error(&*e);
+        impl_patch_for!(txn, {
+            payload: payload.password.clone();
+            column:  "password";
+            table:   "users";
+            id:      id as i64;
 
-                e
-            })?;
+            {
+                hash_password(payload.password.unwrap()).map_err(|e| {
+                    error!(user.id = id, error = %e, "unable to hash password");
+                    sentry::capture_error(&*e);
+
+                    e
+                })?
+            };
         });
 
-        impl_patch_for!(txn, payload.email.clone(), id => {
-            table -> "users";
-            entry -> "email";
+        impl_patch_for!(txn, {
+            payload: payload.email.clone();
+            column:  "email";
+            table:   "users";
+            id:      id as i64;
         });
 
-        impl_patch_for!(txn, payload.name.clone(), id => {
-            table -> "users";
-            entry -> "name";
+        impl_patch_for!(txn, {
+            payload: payload.name.clone();
+            column:  "name";
+            table:   "users";
+            id:      id as i64;
         });
 
         txn.commit()

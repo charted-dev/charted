@@ -13,13 +13,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::Service;
+use charted_common::cli::AsyncExecute;
+use eyre::Result;
 
-#[derive(Debug, Clone, Copy)]
-pub struct SearchIndexer;
+mod admin;
+mod verified_publisher;
 
-impl Service for SearchIndexer {
-    fn targets(&self) -> (&'static str, &'static str) {
-        ("//services/search-indexer:binary", "//services/search-indexer:binary")
+/// Allows to grant a user the `verified_publisher` or `admin` flags.
+#[derive(Debug, Clone, clap::Subcommand)]
+pub enum Grant {
+    VerifiedPublisher(verified_publisher::VerifiedPublisher),
+    Admin(admin::Admin),
+}
+
+#[async_trait]
+impl AsyncExecute for Grant {
+    async fn execute(&self) -> Result<()> {
+        match self {
+            Self::Admin(admin) => admin.execute().await,
+            Self::VerifiedPublisher(vp) => vp.execute().await,
+        }
     }
 }

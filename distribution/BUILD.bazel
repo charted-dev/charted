@@ -14,15 +14,15 @@
 # limitations under the License.
 
 load("@rules_pkg//pkg:mappings.bzl", "pkg_files")
-load("@rules_pkg//pkg:zip.bzl", "pkg_zip")
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+load("@rules_pkg//pkg:zip.bzl", "pkg_zip")
 
 pkg_files(
     name = "binary",
-    srcs = ["//cli:release_binary"],
+    srcs = ["//cli"],
     prefix = "bin",
     renames = {
-        "//cli:release_binary": "charted",
+        "//cli": "charted",
     },
 )
 

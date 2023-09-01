@@ -61,10 +61,7 @@ if [[ ! -f "$SCRIPT_DIR/.cache/dev" || "x${DEV_REBUILD:-}" != "x" ]]; then
 
     echo "===> Compiling devtools binary!"
     $BAZEL $BAZEL_ARGS build --compilation_mode=opt //:devtools
-
-    output=$($BAZEL cquery //tools/devtools:release_binary --output=files 2>&1 | grep --color=never bazel-out)
-    cp "$SCRIPT_DIR/$output" "$SCRIPT_DIR/.cache"
-    mv "$SCRIPT_DIR/.cache/release_binary" "$SCRIPT_DIR/.cache/dev"
+    cp "$SCRIPT_DIR/bazel-bin/tools/devtools/devtools" "$SCRIPT_DIR/.cache/dev"
 fi
 
 echo "$ ./dev $@"

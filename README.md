@@ -19,8 +19,8 @@ To build charted-server from the canonical Git repository, you are required to h
 
 * [Bazel](https://bazel.build)
 * [Git](https://git-scm.com)
+* 10GB of storage
 * 2GB of system RAM
-* 4GB of storage
 
 To clone the repository, you can use the `git pull` command:
 
@@ -32,33 +32,38 @@ $ git pull https://github.com/charted-dev/charted
 $ git pull git@github.com:charted-dev/charted
 ```
 
-Once you cloned the repository, you can `cd` into it and run `bazel build //cli:release_binary`:
+Once you cloned the repository, you can `cd` into it and run `bazel build //cli`:
 
 ```shell
-$ bazel build //cli:release_binary
+$ bazel build //cli
 ```
 
 This will build the charted CLI in release mode, to run it, you can use `run` instead of `build`:
 
 ```shell
-$ bazel run //cli:release_binary
+$ bazel run //cli
 ```
 
 This will run the actual CLI, to run the server, you will need to append `-- server --config=$PWD/config.yml`:
 
 ```shell
-$ bazel run //cli:release_binary -- server --config=$PWD/config.yml
+$ bazel run //cli -- server --config=$PWD/config.yml
 ```
 
 > **Note**: The `--config=$PWD/config.yml` is required when you invoke Bazel by itself since it'll run it in
 > the sandbox if you're on Linux or macOS.
 
 ## FAQ
-### :question: Why Bazel? Couldn't you done this with `node`, `cargo`, and `go` together?
-**Bazel** is a build tool by Google to provide fast and correct builds, and can handle multiple languages in the same workspace. While it is possible to use `node` (Node.js), `cargo` (Rust), and `go` (Golang) together, we don't recommend it as we are tailouring the workflow to Bazel only.
+### :question: Why Bazel? Couldn't you done this with `node` and `cargo` together?
+**Bazel** is a build tool by Google to provide fast and correct builds, and can handle multiple languages in the same workspace. While it is possible to use `node` (Node.js) and `cargo` (Rust) together, we don't recommend it as we are tailouring the workflow to Bazel only.
 
 ### :question: Can I use `cargo install` from the Git repository?
-Yes, but soon we plan to drop Cargo support since Cargo is only available for [rust-analyzer](https://github.com/rust-lang/rust-analyzer) and IDE support.
+Yes! We will try to keep Cargo as a second alternative for people who use `cargo install` and for IDE support like Visual Studio Code. Since the repository has multiple binaries, here is what binary to pass in what you want:
+
+* [charted CLI](https://charts.noelware.org/docs/cli/latest): `cargo install https://github.com/charted-dev/charted charted-cli`
+* [charted Helm plugin](https://charts.noelware.org/docs/helm-plugin/latest): `cargo install https://github.com/charted-dev/charted charted-helm-plugin`
+
+We don't recommend installing `charted-devtools` as it will require a Bazel installation.
 
 ## License
 **charted-server** is released under the **Apache 2.0** License with love by Noelware, LLC.! If you wish to know more,

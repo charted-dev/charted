@@ -13,34 +13,41 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod gc;
 mod generate_config;
+mod migrations;
 mod openapi;
+mod organizations;
+mod repositories;
+mod search;
 mod server;
+mod users;
 mod version;
 
-use crate::commands::generate_config::*;
-use crate::commands::openapi::*;
-use crate::commands::server::*;
-use crate::commands::version::*;
 use charted_common::cli::*;
 use clap::Subcommand;
 use eyre::Result;
 
 #[derive(Debug, Clone, Subcommand)]
 pub enum Commands {
-    GenerateConfig(GenerateConfig),
+    GenerateConfig(generate_config::GenerateConfig),
+    OpenAPI(openapi::OpenAPI),
+    Version(version::Version),
+    Server(server::Server),
 
-    #[command(name = "openapi")]
-    OpenAPI(OpenAPI),
-    Server(Box<Server>),
-    Version(Version),
+    #[command(subcommand)]
+    Users(users::Users),
 }
 
-pub async fn execute(command: &Commands) -> Result<()> {
-    match command {
-        Commands::Server(server) => server.execute().await,
-        Commands::Version(version) => version.execute(),
-        Commands::OpenAPI(openapi) => openapi.execute(),
-        Commands::GenerateConfig(generate) => generate.execute().await,
+#[async_trait]
+impl AsyncExecute for Commands {
+    async fn execute(&self) -> Result<()> {
+        match self {
+            Commands::Server(server) => server.execute().await,
+            Commands::Users(users) => users.execute().await,
+            Commands::Version(version) => version.execute(),
+            Commands::OpenAPI(openapi) => openapi.execute(),
+            Commands::GenerateConfig(generate) => generate.execute().await,
+        }
     }
 }

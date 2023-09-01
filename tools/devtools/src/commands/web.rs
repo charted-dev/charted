@@ -38,9 +38,13 @@ impl Execute for Web {
             bazelrc: self.bazel.bazelrc.clone(),
             release: self.common.release,
             args: self.common.args.clone(),
-            run: true,
+            run: self.common.run,
         };
 
-        utils::build_or_run(bazel.clone(), ("//web:build", "//web:vite"), args)
+        match (self.common.release, self.common.run) {
+            (true, true) => utils::build_or_run(bazel.clone(), "//web:build", args),
+            (false, true) => utils::build_or_run(bazel.clone(), "//web:vite", args),
+            _ => utils::build_or_run(bazel.clone(), "//web:build", args),
+        }
     }
 }

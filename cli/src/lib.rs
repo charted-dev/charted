@@ -21,12 +21,10 @@ extern crate async_trait;
 #[macro_use]
 extern crate tracing;
 
-pub mod commands;
+mod commands;
 
-use crate::commands::Commands;
 use clap::Parser;
-
-pub use commands::execute;
+pub use commands::Commands;
 
 #[derive(Debug, Clone, Parser)]
 #[clap(

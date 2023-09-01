@@ -206,53 +206,58 @@ macro_rules! impl_paginate_priv {
 
 pub(crate) use impl_paginate_priv as impl_paginate;
 
+/// Generic macro to implement patching an entry in the database and in return,
+/// will append the query to the current transaction.
 macro_rules! impl_patch_for_priv {
-    ($txn:expr, $payload:expr, $id:expr => {
-        table -> $table:literal;
-        entry -> $entry:literal;
+    ($txn:expr, {
+        payload: $payload:expr;
+        column: $column:literal;
+        table: $table:literal;
+        id: $id:expr;
     }) => {
         if let Some(val) = $payload {
-            match sqlx::query(concat!("update ", $table, " set ", $entry, " = $1 where id = $2"))
+            match sqlx::query(concat!("update ", $table, " set ", $column, " = $1 where id = $2;"))
                 .bind(val)
                 .bind($id)
                 .execute(&mut *$txn)
                 .await
-                .context(concat!("unable to update [", $entry, "] for table [", $table, "]"))
             {
                 Ok(_) => {}
                 Err(e) => {
-                    ::tracing::error!(id = $id, error = %e, concat!("unable to update [", $entry, "] for table [", $table, "]"));
-                    ::sentry::capture_error(&*e);
+                    ::tracing::error!(id = $id, error = %e, concat!("unable to update [", $column, "] for table [", $table, "]"));
+                    ::sentry::capture_error(&e);
 
                     // drop it so it can be rolled back.
                     ::std::mem::drop($txn);
-                    return Err(e);
+                    return Err(e.into());
                 }
             }
         }
     };
 
-    ($txn:expr, $payload:expr, $id:expr => {
-        table -> $table:literal;
-        entry -> $entry:literal;
-        value -> $value:expr;
+    ($txn:expr, {
+        payload: $payload:expr;
+        column: $column:literal;
+        table: $table:literal;
+        id: $id:expr;
+
+        { $value:expr };
     }) => {
         if let Some(_) = $payload {
-            match sqlx::query(concat!("update ", $table, " set ", $entry, " = $1 where id = $2"))
+            match sqlx::query(concat!("update ", $table, " set ", $column, " = $1 where id = $2;"))
                 .bind($value)
                 .bind($id)
                 .execute(&mut *$txn)
                 .await
-                .context(concat!("unable to update [", $entry, "] for table [", $table, "]"))
             {
                 Ok(_) => {}
                 Err(e) => {
-                    ::tracing::error!(id = $id, error = %e, concat!("unable to update [", $entry, "] for table [", $table, "]"));
-                    ::sentry::capture_error(&*e);
+                    ::tracing::error!(id = $id, error = %e, concat!("unable to update [", $column, "] for table [", $table, "]"));
+                    ::sentry::capture_error(&e);
 
                     // drop it so it can be rolled back.
                     ::std::mem::drop($txn);
-                    return Err(e);
+                    return Err(e.into());
                 }
             }
         }

@@ -14,7 +14,7 @@
 # limitations under the License.
 
 load("@crate_index//:defs.bzl", "all_crate_deps")
-load("//:build/rust_project.bzl", "rust_project")
+load("//:build/rust.bzl", "rust_project")
 
 exports_files(["Cargo.toml"])
 

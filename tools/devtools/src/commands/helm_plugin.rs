@@ -40,10 +40,6 @@ impl Execute for HelmPlugin {
             run: self.common.run,
         };
 
-        utils::build_or_run(
-            bazel.clone(),
-            ("//tools/helm-plugin:release_binary", "//tools/helm-plugin:binary"),
-            args,
-        )
+        utils::build_or_run(bazel.clone(), "//tools/helm-plugin", args)
     }
 }

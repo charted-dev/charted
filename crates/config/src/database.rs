@@ -91,58 +91,6 @@ impl ToString for DatabaseConfig {
     }
 }
 
-/*
-        /// Set the maxmium number of connections that the database connection
-        /// pool should maintain.
-        #[serde(default = "max_connections")]
-        pub max_connections: u32 {
-            default: 10;
-            env_value: var!("CHARTED_DATABASE_MAX_CONNECTIONS", to: u32, or_else: 10);
-        };
-
-        /// The password to use for authentication.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        password: Option<String> {
-            default: None;
-            env_value: var!("CHARTED_DATABASE_PASSWORD", is_optional: true);
-        };
-
-        /// The username to use for authentication
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        username: Option<String> {
-            default: None;
-            env_value: var!("CHARTED_DATABASE_USERNAME", is_optional: true);
-        };
-
-        /// Database name to use when connecting.
-        #[serde(default = "database")]
-        pub database: String {
-            default: "charted".into();
-            env_value: var!("CHARTED_DATABASE_NAME", or_else: "charted".into());
-        };
-
-        /// Database schema to select when querying objects.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub schema: Option<String> {
-            default: None;
-            env_value: var!("CHARTED_DATABASE_SCHEMA", is_optional: true);
-        };
-
-        /// Database host to connect to.
-        #[serde(default = "host")]
-        pub host: String {
-            default: host();
-            env_value: var!("CHARTED_DATABASE_HOST", or_else: host());
-        };
-
-        /// Database port to connect to.
-        #[serde(default = "port")]
-        pub port: u16 {
-            default: port();
-            env_value: var!("CHARTED_DATABASE_PORT", to: u16, or_else: port());
-        };
-*/
-
 fn host() -> String {
     String::from("127.0.0.1")
 }

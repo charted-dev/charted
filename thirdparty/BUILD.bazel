@@ -14,7 +14,7 @@
 # limitations under the License.
 
 load("@rules_rust//crate_universe:defs.bzl", "crates_vendor")
-load("//:build/utils.bzl", "CARGO_MANIFESTS")
+load("//:build/manifests.bzl", "CARGO_MANIFESTS")
 
 crates_vendor(
     name = "crate_index",

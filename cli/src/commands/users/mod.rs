@@ -13,13 +13,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::Service;
+use charted_common::cli::AsyncExecute;
+use eyre::Result;
 
-#[derive(Debug, Clone, Copy)]
-pub struct Emails;
+mod create;
+mod delete;
+mod grant;
+mod list;
 
-impl Service for Emails {
-    fn targets(&self) -> (&'static str, &'static str) {
-        ("//services/emails:release_binary", "//services/emails:binary")
+/// Subcommands to allow creating, listing, deleting users and to grant
+/// flags that can't be edited via the REST API.
+#[derive(Debug, Clone, clap::Subcommand)]
+pub enum Users {
+    #[command(subcommand)]
+    Grant(grant::Grant),
+}
+
+#[async_trait]
+impl AsyncExecute for Users {
+    async fn execute(&self) -> Result<()> {
+        match self {
+            Self::Grant(grant) => grant.execute().await,
+        }
     }
 }

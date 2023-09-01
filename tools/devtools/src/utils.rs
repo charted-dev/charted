@@ -14,7 +14,6 @@
 // limitations under the License.
 
 use eyre::{Context, Result};
-use itertools::Itertools;
 use std::{
     ffi::OsString,
     path::{Path, PathBuf},
@@ -78,23 +77,35 @@ pub struct BuildCliArgs {
     pub run: bool,
 }
 
-pub fn build_or_run(bazel: PathBuf, (release, dev): (&str, &str), args: BuildCliArgs) -> Result<()> {
+pub fn build_or_run(bazel: PathBuf, target: &str, args: BuildCliArgs) -> Result<()> {
     let mut cmd = Command::new(bazel.clone());
     cmd.args(args.bazelrc.as_slice());
 
     let is_build = match (args.release, args.run) {
         (true, true) => {
-            cmd.args(["--compilation_mode=opt", "run", release]);
+            cmd.args([
+                "--compilation_mode=opt",
+                "run",
+                "--@rules_rust//:extra_rustc_flags=\"-C lto=fat -C opt-level=s\"",
+                target,
+            ]);
+
             false
         }
 
         (false, true) => {
-            cmd.args(["run", dev]);
+            cmd.args(["run", target]);
             false
         }
 
         _ => {
-            cmd.args(["--compilation_mode=opt", "build", release]);
+            cmd.args([
+                "--compilation_mode=opt",
+                "build",
+                "--@rules_rust//:extra_rustc_flags=\"-C lto=fat -C opt-level=s\"",
+                target,
+            ]);
+
             true
         }
     };
@@ -117,8 +128,12 @@ pub fn build_or_run(bazel: PathBuf, (release, dev): (&str, &str), args: BuildCli
         cmd.stderr(Stdio::inherit());
     }
 
-    let cmd_args = cmd.get_args().filter_map(|f| f.to_str()).join(" ");
-    info!("$ {} {}", bazel.display(), cmd_args);
+    let cmd_args = cmd
+        .get_args()
+        .map(|arg| arg.to_string_lossy().to_string())
+        .collect::<Vec<_>>();
+
+    info!("$ {} {}", bazel.display(), cmd_args.join(" "));
 
     let result = if args.release {
         cmd.output()?.status
@@ -135,7 +150,7 @@ pub fn build_or_run(bazel: PathBuf, (release, dev): (&str, &str), args: BuildCli
         info!("--release was passed in but not --run, printing output location in stderr");
         let cquery = Command::new(bazel.clone())
             .args(args.bazelrc.clone())
-            .args(["cquery", release, "--output=files"])
+            .args(["cquery", target, "--output=files"])
             .stdin(Stdio::null())
             .output()?;
 
@@ -149,7 +164,7 @@ pub fn build_or_run(bazel: PathBuf, (release, dev): (&str, &str), args: BuildCli
 }
 
 pub fn build_or_run_cli(bazel: PathBuf, args: BuildCliArgs) -> Result<()> {
-    build_or_run(bazel, ("//cli:release_binary", "//cli:binary"), args)
+    build_or_run(bazel, "//cli", args)
 }
 
 fn validate(bazel: PathBuf) -> Result<PathBuf> {

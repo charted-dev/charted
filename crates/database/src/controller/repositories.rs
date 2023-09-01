@@ -58,8 +58,7 @@ impl DbController for RepositoryDatabaseController {
                 error!(repository.id = id, error = %e, "unable to query repository");
                 sentry::capture_error(&e);
 
-                // transform it to eyre::Report via eyre::Context.
-                Err(e).context("unable to query repository")
+                Err(e.into())
             }
         }
     }
@@ -80,8 +79,7 @@ impl DbController for RepositoryDatabaseController {
                         error!(repository.name = name.to_string(), error = %e, "unable to query repository");
                         sentry::capture_error(&e);
 
-                        // transform it to eyre::Report via eyre::Context.
-                        Err(e).context("unable to query repository")
+                        Err(e.into())
                     }
                 }
             }
@@ -119,93 +117,86 @@ impl DbController for RepositoryDatabaseController {
                     error!(repository.id = skeleton.id, error = %e, "unable to create repository");
                     sentry::capture_error(&e);
 
-                    Err(e).context("was unable to create repository")
+                    Err(e.into())
                 }
             }
     }
 
     #[instrument(name = "charted.db.repositories.patch", skip(self, payload))]
     async fn patch(&self, id: u64, payload: Self::Patched) -> Result<()> {
-        Ok(())
+        let mut txn = self.pool.begin().await.map_err(|e| {
+            error!(repository.id = id, error = %e, "unable to create db transaction");
+            sentry::capture_error(&e);
+
+            e
+        })?;
+
+        impl_patch_for!(txn, {
+            payload: payload.description.clone();
+            column:  "description";
+            table:   "repositories";
+            id:      id as i64;
+        });
+
+        impl_patch_for!(txn, {
+            payload: payload.private;
+            column:  "description";
+            table:   "repositories";
+            id:      id as i64;
+        });
+
+        // update the README immediately, or just delete it if it is a empty
+        // string.
+        if let Some(readme) = &payload.readme {
+            match readme.is_empty() {
+                false => {
+                    self.storage
+                        .upload(
+                            format!("./repositories/{}/README.md", id),
+                            UploadRequest::default()
+                                .with_content_type(Some("text/markdown; charset=utf-8".into()))
+                                .with_data(Bytes::from(readme.clone()))
+                                .seal(),
+                        )
+                        .await?
+                }
+
+                true => self.storage.delete(format!("./repositories/{}/README.md", id)).await?,
+            }
+        };
+
+        impl_patch_for!(txn, {
+            payload: payload.name.clone();
+            column:  "name";
+            table:   "repositories";
+            id:      id as i64;
+        });
+
+        impl_patch_for!(txn, {
+            payload: payload.r#type;
+            column:  "type";
+            table:   "repositories";
+            id:      id as i64;
+        });
+
+        match txn.commit().await {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                error!(repository.id = id, error = %e, "unable to commit transaction for repository");
+                sentry::capture_error(&e);
+
+                Err(e.into())
+            }
+        }
     }
 
     #[instrument(name = "charted.db.repositories.delete", skip(self))]
     async fn delete(&self, id: u64) -> Result<()> {
-        Ok(())
+        sqlx::query("delete from repositories where id = $1;")
+            .bind(id as i64)
+            .execute(&self.pool)
+            .await
+            .map(|_| ())
+            .context("unable to delete user")
     }
-
-    // #[instrument(name = "charted.db.users.patch", skip(self, payload))]
-    // async fn patch(&self, id: u64, payload: Self::Patched) -> Result<()> {
-    //     let mut txn = self
-    //         .pool
-    //         .begin()
-    //         .await
-    //         .map_err(|e| {
-    //             error!(user.id = id, error = %e, "unable to create db transaction");
-    //             sentry::capture_error(&e);
-
-    //             e
-    //         })
-    //         .context("unable to create db transaction")?;
-
-    //     let id = id as i64;
-    //     impl_patch_for!(txn, payload.gravatar_email.clone(), id => {
-    //         table -> "users";
-    //         entry -> "gravatar_email";
-    //     });
-
-    //     impl_patch_for!(txn, payload.description.clone(), id => {
-    //         table -> "users";
-    //         entry -> "description";
-    //     });
-
-    //     impl_patch_for!(txn, payload.username.clone(), id => {
-    //         table -> "users";
-    //         entry -> "username";
-    //         value -> payload.username.unwrap().to_string();
-    //     });
-
-    //     impl_patch_for!(txn, payload.password.clone(), id => {
-    //         table -> "users";
-    //         entry -> "password";
-    //         value -> hash_password(payload.password.unwrap()).map_err(|e| {
-    //             error!(user.id = id, error = %e, "unable to hash password");
-    //             sentry::capture_error(&*e);
-
-    //             e
-    //         })?;
-    //     });
-
-    //     impl_patch_for!(txn, payload.email.clone(), id => {
-    //         table -> "users";
-    //         entry -> "email";
-    //     });
-
-    //     impl_patch_for!(txn, payload.name.clone(), id => {
-    //         table -> "users";
-    //         entry -> "name";
-    //     });
-
-    //     txn.commit()
-    //         .await
-    //         .map_err(|e| {
-    //             error!(error = %e, "unable to commit transaction for user");
-    //             sentry::capture_error(&e);
-
-    //             e
-    //         })
-    //         .context("unable to commit transaction")?;
-
-    //     Ok(())
-    // }
-
-    // #[instrument(name = "charted.db.users.delete", skip(self))]
-    // async fn delete(&self, id: u64) -> Result<()> {
-    //     sqlx::query("delete from users where id = $1;")
-    //         .bind(id as i64)
-    //         .execute(&self.pool)
-    //         .await
-    //         .map(|_| ())
-    //         .context("unable to delete user")
-    // }
 }

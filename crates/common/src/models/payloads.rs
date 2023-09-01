@@ -144,7 +144,7 @@ pub struct PatchRepositoryPayload {
     /// Whether if this repository is private. This cannot be set to the actual value
     /// that it was previously.
     #[serde(default)]
-    pub private: bool,
+    pub private: Option<bool>,
 
     /// The contents of the README that will be displayed on the repository. If you're
     /// using charted's official Helm plugin, new releases can update its README and it'll
@@ -162,10 +162,10 @@ pub struct PatchRepositoryPayload {
     /// [`Name`] to update towards, this will not update if it is
     /// the same.
     #[schema(value_type = Name)]
-    pub name: Name,
+    pub name: Option<Name>,
 
     /// Type of chart this represents. When serializing to valid Helm objects,
     /// `operator` will be replaced with `application`.
     #[serde(default, rename = "type")]
-    pub r#type: ChartType,
+    pub r#type: Option<ChartType>,
 }

@@ -12,31 +12,3 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#[macro_use]
-extern crate async_trait;
-
-#[macro_use]
-extern crate tracing;
-
-pub mod args;
-mod commands;
-pub mod utils;
-
-#[derive(Debug, Clone, clap::Parser)]
-#[clap(
-    bin_name = "./dev",
-    about = "🐻‍❄️📦 Development Tool to help develop charted-server",
-    author = "Noelware, LLC.",
-    override_usage = "dev <COMMAND> [...ARGS]",
-    arg_required_else_help = true
-)]
-pub struct Cli {
-    /// If verbose-mode should be enabled or not. This will enable
-    /// all logs to be in the `DEBUG` level.
-    #[arg(global = true, short = 'v', long = "verbose")]
-    pub verbose: bool,
-
-    #[command(subcommand)]
-    pub command: commands::Commands,
-}

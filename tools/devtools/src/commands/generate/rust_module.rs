@@ -139,7 +139,7 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]"
             .open(final_path.clone().join("BUILD.bazel"))?;
 
         let build_file_content = format!(
-            r#"load("//:build/rust_project.bzl", "rust_project")
+            r#"load("//:build/rust.bzl", "rust_project")
 
 exports_files(["Cargo.toml"])
 

@@ -89,12 +89,6 @@ jobs:
             - name: Build Helm plugin
               run: bazel ${{env.BAZEL_ARGS}} build --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //:helm-plugin
 
-            - name: Build search indexer
-              run: bazel ${{env.BAZEL_ARGS}} build --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //:search-indexer
-
-            - name: Build emails microservice
-              run: bazel ${{env.BAZEL_ARGS}} build --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //:emails
-
             # TODO: include clippy, rustfmt, golangci-lint, and testing ci tailoured
             #       to GitHub Actions.
             - name: Run tests

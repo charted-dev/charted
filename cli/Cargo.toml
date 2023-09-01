@@ -45,3 +45,4 @@ sysinfo = "0.29.4"
 tokio = { version = "1.29.1", features = ["full"] }
 tracing = "0.1.37"
 tracing-subscriber = "0.3.17"
+charted-database = { version = "0.0.0-devel.0", path = "../crates/database" }
