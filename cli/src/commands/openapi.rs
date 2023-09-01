@@ -24,10 +24,7 @@ use std::{
 };
 
 #[derive(Debug, Clone, clap::Parser)]
-#[command(
-    name = "openapi",
-    about = "Generates the OpenAPI document without running the API server"
-)]
+#[clap(about = "Generates the OpenAPI document without running the API server")]
 pub struct OpenAPI {
     #[arg(help = "Output file to use. If this is not specified, then it will be written to stdout.")]
     output: Option<PathBuf>,

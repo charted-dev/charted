@@ -31,6 +31,8 @@ use eyre::Result;
 #[derive(Debug, Clone, Subcommand)]
 pub enum Commands {
     GenerateConfig(generate_config::GenerateConfig),
+
+    #[command(name = "openapi")]
     OpenAPI(openapi::OpenAPI),
     Version(version::Version),
     Server(server::Server),

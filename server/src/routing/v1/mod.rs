@@ -33,9 +33,12 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use utoipa::ToSchema;
 
+use self::indexes::GetIndexRestController;
+
 pub mod cdn;
 pub mod features;
 pub mod heartbeat;
+pub mod indexes;
 pub mod info;
 pub mod main;
 pub mod metrics;
@@ -57,12 +60,13 @@ gen_response_schema!(EntrypointResponse);
 
 pub fn create_router(_server: Server) -> Router<Server> {
     let mut router = Router::new()
-        .nest("/users", users::create_router())
+        .route("/indexes/:idOrName", get(GetIndexRestController::run))
         .route("/openapi.json", get(openapi))
         .route("/heartbeat", get(HeartbeatRestController::run))
         .route("/features", get(FeaturesRestController::run))
         .route("/info", get(InfoRestController::run))
         .route("/", get(MainRestController::run))
+        .nest("/users", users::create_router())
         .fallback(fallback);
 
     let config = Config::get();

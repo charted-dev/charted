@@ -23,10 +23,10 @@ use axum::{
     extract::{Path, Query, State},
     handler::Handler,
     http::StatusCode,
-    routing, Extension, Router,
+    routing, Extension, Json, Router,
 };
 use charted_common::{
-    models::{entities::Repository, NameOrSnowflake},
+    models::{entities::Repository, payloads::CreateRepositoryPayload, NameOrSnowflake},
     server::pagination::{Pagination, PaginationQuery},
 };
 use charted_database::controller::{
@@ -121,8 +121,11 @@ pub async fn list_user_repositories(
     response(201, "Repository created", ("application/json", response!("ApiRepositoryResponse")))
 )]
 pub async fn create_user_repository(
-    State(Server { .. }): State<Server>,
+    State(Server { controllers, .. }): State<Server>,
     Extension(Session { .. }): Extension<Session>,
+    Json(_): Json<CreateRepositoryPayload>,
 ) -> Result<ApiResponse<Repository>, ApiResponse> {
+    let _repos = controllers.get::<RepositoryDatabaseController>();
+
     Ok(ok(StatusCode::CREATED, Repository::default()))
 }

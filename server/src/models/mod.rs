@@ -22,7 +22,7 @@ pub mod yaml {
     use serde::{de::DeserializeOwned, ser::Serialize};
 
     #[derive(Debug, Clone)]
-    pub struct Yaml<T: Serialize + DeserializeOwned>(StatusCode, T);
+    pub struct Yaml<T: Serialize + DeserializeOwned>(pub StatusCode, pub T);
 
     impl<T> IntoResponse for Yaml<T>
     where

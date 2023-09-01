@@ -67,6 +67,7 @@ use utoipa::{
         crate::pagination::OrganizationPaginatedResponse,
         crate::pagination::RepositoryPaginatedResponse,
         crate::routing::v1::features::FeaturesResponse,
+        crate::routing::v1::indexes::ChartIndexResponse,
         crate::routing::v1::users::UserResponse,
         crate::routing::v1::main::MainResponse,
         crate::routing::v1::info::InfoResponse,
@@ -297,8 +298,8 @@ pub fn document() -> utoipa::openapi::OpenApi {
                 "/users/{idOrName}/repositories": crate::routing::v1::users::repositories::ListUserRepositoriesRestController::paths();
                 "/users/sessions/refresh-token": crate::routing::v1::users::sessions::RefreshSessionTokenRestController::paths();
                 "/users/{idOrName}/avatar": crate::routing::v1::users::avatars::GetCurrentUserAvatarRestController::paths();
+                "/users/@me/repositories": crate::routing::v1::users::repositories::CreateUserRepositoryRestController::paths();
                 "/users/sessions/logout": crate::routing::v1::users::sessions::LogoutRestController::paths();
-                "/users/repositories": crate::routing::v1::users::repositories::CreateUserRepositoryRestController::paths();
                 "/users/@me/avatar": crate::routing::v1::users::avatars::me::GetMyAvatarRestController::paths();
                 "/users/{idOrName}": crate::routing::v1::users::GetUserRestController::paths();
                 "/users/login": crate::routing::v1::users::sessions::LoginRestController::paths();
@@ -306,6 +307,7 @@ pub fn document() -> utoipa::openapi::OpenApi {
                 "/users": crate::routing::v1::users::paths();
 
                 // main
+                "/indexes/{idOrName}": crate::routing::v1::indexes::GetIndexRestController::paths();
                 "/heartbeat": crate::routing::v1::heartbeat::HeartbeatRestController::paths();
                 "/features": crate::routing::v1::features::FeaturesRestController::paths();
                 "/info": crate::routing::v1::info::InfoRestController::paths();

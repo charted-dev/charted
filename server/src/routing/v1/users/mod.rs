@@ -17,12 +17,15 @@ pub mod avatars;
 pub mod repositories;
 pub mod sessions;
 
-use self::{repositories::ListUserRepositoriesRestController, sessions::LoginRestController};
+use self::{
+    repositories::{CreateUserRepositoryRestController, ListUserRepositoriesRestController},
+    sessions::LoginRestController,
+};
 use super::EntrypointResponse;
 use crate::{
     extract::Json,
     middleware::{Session, SessionAuth},
-    models::res::{err, no_content, ok, ApiResponse},
+    models::res::{err, no_content, ok, ApiResponse, Empty},
     openapi::gen_response_schema,
     validation::{validate, validate_email},
     Server,
@@ -32,6 +35,7 @@ use charted_common::{
     extract::NameOrSnowflake,
     models::{
         entities::User,
+        helm::ChartIndex,
         payloads::{CreateUserPayload, PatchUserPayload},
         Name,
     },
@@ -39,7 +43,9 @@ use charted_common::{
 };
 use charted_database::controller::{users::UserDatabaseController, DbController};
 use charted_proc_macros::controller;
+use charted_storage::Bytes;
 use chrono::Local;
+use remi_core::{StorageService, UploadRequest};
 use tower_http::auth::AsyncRequireAuthorizationLayer;
 use utoipa::{
     openapi::path::{PathItem, PathItemBuilder},
@@ -66,6 +72,12 @@ pub fn create_router() -> Router<Server> {
         )
         .route("/login", routing::post(LoginRestController::run))
         .route("/:idOrName", routing::get(GetUserRestController::run))
+        .route(
+            "/@me/repositories",
+            routing::put(
+                CreateUserRepositoryRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth)),
+            ),
+        )
         .route(
             "/:idOrName/repositories",
             routing::get(ListUserRepositoriesRestController::run),
@@ -221,16 +233,36 @@ async fn create_user(
     };
 
     let users = server.controllers.get::<UserDatabaseController>();
-    users
-        .create(payload, user)
+    let user = users.create(payload, user).await.map_err(|_| {
+        err(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+        )
+    })?;
+
+    let index = ChartIndex::default();
+    let serialized = serde_yaml::to_string(&index).unwrap();
+    server
+        .storage
+        .upload(
+            format!("./metadata/{}/index.yaml", user.id),
+            UploadRequest::default()
+                .with_content_type(Some("text/yaml; charset=utf-8".into()))
+                .with_data(Bytes::from(serialized))
+                .seal(),
+        )
         .await
-        .map(|user| ok(StatusCode::CREATED, user))
-        .map_err(|_| {
+        .map_err(|e| {
+            error!(user.id, error = %e, "unable to upload [./metadata/{}/index.yaml] to storage service", user.id);
+            sentry::capture_error(&e);
+
             err(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
             )
-        })
+        })?;
+
+    Ok(ok(StatusCode::CREATED, user))
 }
 
 /// Retrieve a [`User`] object.
@@ -374,7 +406,7 @@ pub async fn patch_user(
     method = delete,
     tags("Users"),
     securityRequirements(("ApiKey", ["users:delete"]), ("Bearer", []), ("Basic", [])),
-    response(204, "Successful response", ("application/json", response!("ApiEmptyResponse"))),
+    response(201, "Successful response", ("application/json", response!("ApiEmptyResponse"))),
     response(401, "If the session couldn't be validated", ("application/json", response!("ApiErrorResponse"))),
     response(403, "(Bearer token only) - if the JWT was invalid or expired", ("application/json", response!("ApiErrorResponse"))),
     response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
@@ -402,5 +434,5 @@ pub async fn delete_user(
         let _user = user.clone();
     });
 
-    Ok(no_content())
+    Ok(ok(StatusCode::ACCEPTED, Empty))
 }

@@ -63,6 +63,7 @@ pub async fn log<B>(metadata: Metadata, req: Request<B>, next: Next<B>) -> impl 
         http.uri = uri,
         http.method = method,
         http.version = version,
+        req.ua = ua,
         "processing request"
     );
 
@@ -76,6 +77,7 @@ pub async fn log<B>(metadata: Metadata, req: Request<B>, next: Next<B>) -> impl 
         http.version = version,
         http.status = status,
         http.latency = format!("{now:?}").as_str(),
+        req.ua = ua,
         "processed request"
     );
 
