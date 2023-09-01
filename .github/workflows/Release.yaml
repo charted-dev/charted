@@ -22,7 +22,9 @@ env:
 jobs:
     woof:
         runs-on: ubuntu-latest
-        steps: []
+        steps:
+            - run: echo woof
+
     # binary:
     #     name: Build Binary
     #     runs-on: ${{matrix.data.runner}}
