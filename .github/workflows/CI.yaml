@@ -87,7 +87,7 @@ jobs:
               run: bazel ${{env.BAZEL_ARGS}} build --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //:cli
 
             - name: Build Helm plugin
-              run: bazel ${{env.BAZEL_ARGS}} build --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //:helm-plugin
+              run: bazel ${{env.BAZEL_ARGS}} build --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //:helm_plugin
 
             # TODO: include clippy, rustfmt, golangci-lint, and testing ci tailoured
             #       to GitHub Actions.
