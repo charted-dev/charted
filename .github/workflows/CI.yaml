@@ -46,8 +46,8 @@ on:
             - renovate.json
             - LICENSE
 env:
-    BAZEL_STARTUP_ARGS: --bazelrc=./.bazelrc --verbose_failures --noshow_progress --host_jvm_args=-Xmx500m --host_jvm_args=-Xms500m
-    BAZEL_ARGS: --test_output=errors
+    BAZEL_STARTUP_ARGS: --bazelrc=./.bazelrc --host_jvm_args=-Xmx500m --host_jvm_args=-Xms500m
+    BAZEL_ARGS: --test_output=errors --verbose_failures --noshow_progress
 jobs:
     ci:
         name: Rust CI (${{matrix.runner == 'ubuntu-latest' && 'Linux (x86_64)' || matrix.runner == 'self-hosted' && 'Linux (arm64)' || matrix.runner == 'macos-latest' && 'macOS (x86_64)' || matrix.runner == 'windows-latest' && 'Windows' || 'Unknown'}})
