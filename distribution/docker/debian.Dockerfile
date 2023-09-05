@@ -13,50 +13,46 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM cr.floofy.dev/noel/bazel:6 AS web
+FROM cr.floofy.dev/bazelbuild/bazel:6.3 AS web
 
-RUN apt update && apt install -y git ca-certificates
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt update && apt install -y git ca-certificates build-essential
 WORKDIR /build
 
 COPY . .
-RUN bazel build //web:build
-RUN cp -R $(bazel cquery //web:build --output=files &>/dev/null | grep --color=never bazel-out) /build/web
-RUN bazel shutdown
+RUN bazel build --compilation_mode=opt //web:build
 
-FROM cr.floofy.dev/noel/bazel:6 AS build
+FROM cr.floofy.dev/bazelbuild/bazel:6.3 AS build
 
-RUN apt update && apt install -y git ca-certificates
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt update && apt install -y git ca-certificates build-essential libssl-dev pkg-config
 WORKDIR /build
 
 COPY . .
-RUN bazel build //cli:release_bin --compilation_mode=fastbuild
-RUN mkdir -p /build/output && cp $(bazel cquery //cli:release_bin --output=files &>/dev/null | grep --color=never bazel-out) /build/output/charted
-RUN bazel shutdown
+COPY --from=web /build/bazel-bin/web/dist /build/server/dist
+RUN bazel build --compilation_mode=opt --@rules_rust//:extra_rustc_flags="-C lto=fat -C opt-level=s -C bundle-web" //cli
 
-FROM debian:bullseye-slim
+FROM debian:bulleye-slim
 
-RUN apt update && apt install -y bash tini curl
-WORKDIR /app/noelware/charted/server
+RUN DEBIAN_FRONTEND=noninteractive apt update && apt install -y bash tini curl libssl-dev pkg-config
 
-COPY --from=build /build/output/charted /app/noelware/charted/server/bin/charted
-COPY distribution/docker/scripts        /app/noelware/charted/server/scripts
-COPY distribution/config                /app/noelware/charted/server/config
+COPY --from=build /build/bazel-bin/cli/cli /app/noelware/charted/server/bin/charted
+COPY distribution/docker/scripts           /app/noelware/charted/server/scripts
+COPY distribution/docker/config            /app/noelware/charted/server/config
 
-ENV CHARTED_DISTRIBUTION_TYPE=docker
 EXPOSE 3651
 VOLUME /var/lib/noelware/charted/data
 
 RUN mkdir -p /var/lib/noelware/charted/data
 RUN groupadd -g 1001 noelware && \
-  useradd -rm -s /bin/bash -g noelware -u 1001 noelware && \
-  chown 1001:1001 /app/noelware/charted/server && \
-  chown 1001:1001 /var/lib/noelware/charted/data && \
-  chmod +x /app/noelware/charted/server/bin/charted /app/noelware/charted/server/scripts/docker-entrypoint.sh
+    useradd -rm -s /bin/bash -g noelware -u 1001 noelware &&  \
+    chown noelware:noelware /app/noelware/charted/server &&   \
+    chown noelware:noelware /var/lib/noelware/charted/data && \
+    chmod +x /app/noelware/charted/server/scripts/docker-entrypoint.sh
 
-# Create a symbolic link so you can just run `charted` without specifying
-# the full path.
+# Create a symlink to `charted`
 RUN ln -s /app/noelware/charted/server/bin/charted /usr/bin/charted
 
 USER noelware
 ENTRYPOINT ["/app/noelware/charted/server/scripts/docker-entrypoint.sh"]
-CMD ["/app/noelware/charted/server/bin/charted", "server"]
+CMD ["charted", "server"]

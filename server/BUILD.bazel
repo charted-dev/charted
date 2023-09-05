@@ -57,6 +57,7 @@ rust_project(
         "@crate_index//:once_cell",
         "@crate_index//:prometheus-client",
         "@crate_index//:remi-core",
+        "@crate_index//:rust-embed",
         "@crate_index//:sentry",
         "@crate_index//:sentry-eyre",
         "@crate_index//:sentry-tower",

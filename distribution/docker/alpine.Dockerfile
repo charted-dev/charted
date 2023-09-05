@@ -15,7 +15,7 @@
 
 FROM cr.floofy.dev/noel/bazel:6-alpine AS web
 
-RUN apk update && apk add --no-cache git ca-certificates
+RUN apk update && apk add --no-cache git ca-certificates libstdc++ gcompat musl-dev libgcc
 WORKDIR /build
 
 COPY . .

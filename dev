@@ -43,6 +43,7 @@ SCRIPT_DIR=$(cd -P "$(dirname $BASH_SRC)" >/dev/null 2>&1 && pwd)
 
 BAZEL=${BAZEL:-bazel}
 BAZEL_ARGS=${BAZEL_ARGS:-}
+BAZEL_STARTUP_ARGS=${BAZEL_STARTUP_ARGS:-}
 
 # Check if we have Bazel installed
 # TODO(@auguwu): allow the option to download it.
@@ -60,7 +61,7 @@ if [[ ! -f "$SCRIPT_DIR/.cache/dev" || "x${DEV_REBUILD:-}" != "x" ]]; then
     [[ "x${DEV_REBUILD:-}" != "x" && -f "$SCRIPT_DIR/.cache/dev" ]] && rm -f "$SCRIPT_DIR/.cache/dev"
 
     echo "===> Compiling devtools binary!"
-    $BAZEL $BAZEL_ARGS build --compilation_mode=opt //:devtools
+    $BAZEL $BAZEL_STARTUP_ARGS build $BAZEL_ARGS --compilation_mode=opt //:devtools
     cp "$SCRIPT_DIR/bazel-bin/tools/devtools/devtools" "$SCRIPT_DIR/.cache/dev"
 fi
 
