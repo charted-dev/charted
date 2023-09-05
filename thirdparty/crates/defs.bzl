@@ -522,6 +522,7 @@ _NORMAL_DEPENDENCIES = {
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
             "prometheus-client": "@crate_index__prometheus-client-0.21.2//:prometheus_client",
             "remi-core": "@crate_index__remi-core-0.4.0//:remi_core",
+            "rust-embed": "@crate_index__rust-embed-8.0.0//:rust_embed",
             "sentry": "@crate_index__sentry-0.31.5//:sentry",
             "sentry-eyre": "@crate_index__sentry-eyre-0.1.0//:sentry_eyre",
             "sentry-tower": "@crate_index__sentry-tower-0.31.5//:sentry_tower",
@@ -1237,8 +1238,10 @@ _BUILD_PROC_MACRO_ALIASES = {
 }
 
 _CONDITIONS = {
+    "aarch64-apple-darwin": ["@rules_rust//rust/platform:aarch64-apple-darwin"],
     "aarch64-linux-android": [],
     "aarch64-pc-windows-gnullvm": [],
+    "aarch64-unknown-linux-gnu": ["@rules_rust//rust/platform:aarch64-unknown-linux-gnu"],
     "cfg(all(any(target_os = \"android\", target_os = \"linux\"), any(rustix_use_libc, miri, not(all(target_os = \"linux\", target_endian = \"little\", any(target_arch = \"arm\", all(target_arch = \"aarch64\", target_pointer_width = \"64\"), target_arch = \"riscv64\", all(rustix_use_experimental_asm, target_arch = \"powerpc64\"), all(rustix_use_experimental_asm, target_arch = \"mips\"), all(rustix_use_experimental_asm, target_arch = \"mips32r6\"), all(rustix_use_experimental_asm, target_arch = \"mips64\"), all(rustix_use_experimental_asm, target_arch = \"mips64r6\"), target_arch = \"x86\", all(target_arch = \"x86_64\", target_pointer_width = \"64\")))))))": [],
     "cfg(all(not(rustix_use_libc), not(miri), target_os = \"linux\", target_endian = \"little\", any(target_arch = \"arm\", all(target_arch = \"aarch64\", target_pointer_width = \"64\"), target_arch = \"riscv64\", all(rustix_use_experimental_asm, target_arch = \"powerpc64\"), all(rustix_use_experimental_asm, target_arch = \"mips\"), all(rustix_use_experimental_asm, target_arch = \"mips32r6\"), all(rustix_use_experimental_asm, target_arch = \"mips64\"), all(rustix_use_experimental_asm, target_arch = \"mips64r6\"), target_arch = \"x86\", all(target_arch = \"x86_64\", target_pointer_width = \"64\"))))": ["@rules_rust//rust/platform:aarch64-unknown-linux-gnu", "@rules_rust//rust/platform:x86_64-unknown-linux-gnu"],
     "cfg(all(not(windows), any(rustix_use_libc, miri, not(all(target_os = \"linux\", target_endian = \"little\", any(target_arch = \"arm\", all(target_arch = \"aarch64\", target_pointer_width = \"64\"), target_arch = \"riscv64\", all(rustix_use_experimental_asm, target_arch = \"powerpc64\"), all(rustix_use_experimental_asm, target_arch = \"mips\"), all(rustix_use_experimental_asm, target_arch = \"mips32r6\"), all(rustix_use_experimental_asm, target_arch = \"mips64\"), all(rustix_use_experimental_asm, target_arch = \"mips64r6\"), target_arch = \"x86\", all(target_arch = \"x86_64\", target_pointer_width = \"64\")))))))": ["@rules_rust//rust/platform:aarch64-apple-darwin", "@rules_rust//rust/platform:x86_64-apple-darwin"],
@@ -1289,8 +1292,11 @@ _CONDITIONS = {
     "cfg(unix)": ["@rules_rust//rust/platform:aarch64-apple-darwin", "@rules_rust//rust/platform:aarch64-unknown-linux-gnu", "@rules_rust//rust/platform:x86_64-apple-darwin", "@rules_rust//rust/platform:x86_64-unknown-linux-gnu"],
     "cfg(windows)": ["@rules_rust//rust/platform:x86_64-pc-windows-msvc"],
     "i686-pc-windows-gnu": [],
+    "x86_64-apple-darwin": ["@rules_rust//rust/platform:x86_64-apple-darwin"],
     "x86_64-pc-windows-gnu": [],
     "x86_64-pc-windows-gnullvm": [],
+    "x86_64-pc-windows-msvc": ["@rules_rust//rust/platform:x86_64-pc-windows-msvc"],
+    "x86_64-unknown-linux-gnu": ["@rules_rust//rust/platform:x86_64-unknown-linux-gnu"],
 }
 
 ###############################################################################
@@ -4139,6 +4145,36 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crate_index__rust-embed-8.0.0",
+        sha256 = "b1e7d90385b59f0a6bf3d3b757f3ca4ece2048265d70db20a2016043d4509a40",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/rust-embed/8.0.0/download"],
+        strip_prefix = "rust-embed-8.0.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.rust-embed-8.0.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__rust-embed-impl-8.0.0",
+        sha256 = "3c3d8c6fd84090ae348e63a84336b112b5c3918b3bf0493a581f7bd8ee623c29",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/rust-embed-impl/8.0.0/download"],
+        strip_prefix = "rust-embed-impl-8.0.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.rust-embed-impl-8.0.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__rust-embed-utils-8.0.0",
+        sha256 = "873feff8cb7bf86fdf0a71bb21c95159f4e4a37dd7a4bd1855a940909b583ada",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/rust-embed-utils/8.0.0/download"],
+        strip_prefix = "rust-embed-utils-8.0.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.rust-embed-utils-8.0.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crate_index__rustc-demangle-0.1.23",
         sha256 = "d626bb9dae77e28219937af045c257c28bfd3f69333c512553507f5f9798cb76",
         type = "tar.gz",
@@ -4235,6 +4271,16 @@ def crate_repositories():
         urls = ["https://crates.io/api/v1/crates/ryu/1.0.15/download"],
         strip_prefix = "ryu-1.0.15",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.ryu-1.0.15.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__same-file-1.0.6",
+        sha256 = "93fc1dc3aaa9bfed95e02e6eadabb4baf7e3078b0bd1b4d7b6b0b68378900502",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/same-file/1.0.6/download"],
+        strip_prefix = "same-file-1.0.6",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.same-file-1.0.6.bazel"),
     )
 
     maybe(
@@ -5459,6 +5505,16 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crate_index__walkdir-2.4.0",
+        sha256 = "d71d857dc86794ca4c280d616f7da00d2dbfd8cd788846559a6813e6aa4b54ee",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/walkdir/2.4.0/download"],
+        strip_prefix = "walkdir-2.4.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.walkdir-2.4.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crate_index__want-0.3.1",
         sha256 = "bfa7760aed19e106de2c7c0b581b509f2f25d3dacaf737cb82ac61bc6d760b0e",
         type = "tar.gz",
@@ -5605,6 +5661,16 @@ def crate_repositories():
         urls = ["https://crates.io/api/v1/crates/winapi-i686-pc-windows-gnu/0.4.0/download"],
         strip_prefix = "winapi-i686-pc-windows-gnu-0.4.0",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.winapi-i686-pc-windows-gnu-0.4.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__winapi-util-0.1.5",
+        sha256 = "70ec6ce85bb158151cae5e5c87f95a8e97d2c0c4b001223f33a334e3ce5de178",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/winapi-util/0.1.5/download"],
+        strip_prefix = "winapi-util-0.1.5",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.winapi-util-0.1.5.bazel"),
     )
 
     maybe(
