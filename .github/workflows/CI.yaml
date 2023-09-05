@@ -62,14 +62,8 @@ jobs:
                       bazelisk-cache-dir: ~/.cache/bazelisk
                     - runner: macos-latest
                       bazelisk-cache-dir: ~/Library/Caches/bazelisk
-
-                    # Windows fails with:
-                    #
-                    #   = note: LINK : fatal error LNK1181: cannot open input file 'bazel-out\x64_windows-opt-exec-2B5CBBC6\bin\external\rules_rust\cargo\cargo_build_script_runner\cargo_build_script_runner.cargo_build_script_runner.f5dd707fc85c7e4-cgu.0.rcgu.o'
-                    #
-                    # - runner: windows-latest
-                    #   bazel-cache-dir: ~\bazel
-                    #   bazelisk-cache-dir: ~\AppData\Local\bazelisk
+                    - runner: windows-latest
+                      bazelisk-cache-dir: ~\AppData\Local\bazelisk
         steps:
             - name: Checkout repository
               uses: actions/checkout@v3
@@ -87,9 +81,7 @@ jobs:
               run: bazel ${{env.BAZEL_ARGS}} build --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //:cli
 
             - name: Build Helm plugin
-              run: bazel ${{env.BAZEL_ARGS}} build --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //:helm_plugin
+              run: bazel ${{env.BAZEL_ARGS}} build --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //:helm-plugin
 
-            # TODO: include clippy, rustfmt, golangci-lint, and testing ci tailoured
-            #       to GitHub Actions.
             - name: Run tests
               run: bazel ${{env.BAZEL_ARGS}} test --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //...

@@ -14,11 +14,14 @@
 // limitations under the License.
 
 use axum::{
+    extract::State,
     http::{header::USER_AGENT, HeaderMap, Method, Request, Uri, Version},
     middleware::Next,
     response::IntoResponse,
 };
-use std::time::Instant;
+use std::{sync::atomic::Ordering, time::Instant};
+
+use crate::Server;
 
 #[derive(axum::extract::FromRequestParts)]
 pub struct Metadata {
@@ -28,7 +31,14 @@ pub struct Metadata {
     pub(crate) headers: HeaderMap,
 }
 
-pub async fn log<B>(metadata: Metadata, req: Request<B>, next: Next<B>) -> impl IntoResponse {
+pub async fn log<B>(
+    metadata: Metadata,
+    State(server): State<Server>,
+    req: Request<B>,
+    next: Next<B>,
+) -> impl IntoResponse {
+    server.requests.fetch_add(1, Ordering::SeqCst);
+
     let uri = metadata.uri.path();
     if uri.contains("/heartbeat") {
         return next.run(req).await;

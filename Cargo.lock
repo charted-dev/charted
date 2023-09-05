@@ -1110,12 +1110,14 @@ dependencies = [
  "charted-sessions-local",
  "charted-storage",
  "chrono",
+ "erased-serde",
  "eyre",
  "futures-util",
  "jsonwebtoken",
  "mime",
  "once_cell",
  "paste",
+ "prometheus-client",
  "remi-core",
  "sentry",
  "sentry-eyre",
@@ -1764,9 +1766,9 @@ checksum = "5443807d6dff69373d433ab9ef5378ad8df50ca6298caf15de6e52e24aaf54d5"
 
 [[package]]
 name = "erased-serde"
-version = "0.3.29"
+version = "0.3.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fc978899517288e3ebbd1a3bfc1d9537dbb87eeab149e53ea490e63bcdff561a"
+checksum = "6c138974f9d5e7fe373eb04df7cae98833802ae4b11c24ac7039a21d5af4b26c"
 dependencies = [
  "serde",
 ]

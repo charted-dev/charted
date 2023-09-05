@@ -16,5 +16,6 @@
 -->
 
 <template>
-    <h1>checkmate</h1>
+    <!-- TODO: this -->
+    <div />
 </template>

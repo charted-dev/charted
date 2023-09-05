@@ -4,7 +4,7 @@
     "editor.formatOnPaste": true,
     "rust-analyzer.check.command": "clippy",
     "rust-analyzer.showUnlinkedFileNotification": false,
-    "tailwindCSS.experimental.configFile": "web/tailwind.config.ts",
+    "tailwindCSS.experimental.configFile": "web/tailwind.config.js",
     "rust-analyzer.cargo.extraEnv": {
         // Enable --cfg tokio_unstable with rust-analyzer so we can
         // use Tokio unstable features.
@@ -42,6 +42,20 @@
         "editor.defaultFormatter": "BazelBuild.vscode-bazel"
     },
     "[terraform]": {
-        "editor.defaultFormatter": "hashicorp.terraform"
+        "editor.defaultFormatter": "hashicorp.terraform",
+        "editor.tabSize": 2
+    },
+    "[terraform-vars]": {
+        "editor.defaultFormatter": "hashicorp.terraform",
+        "editor.tabSize": 2
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[vue]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
     }
 }

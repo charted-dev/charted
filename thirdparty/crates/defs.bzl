@@ -406,7 +406,7 @@ _NORMAL_DEPENDENCIES = {
     "crates/metrics": {
         _COMMON_CONDITION: {
             "dyn-clone": "@crate_index__dyn-clone-1.0.13//:dyn_clone",
-            "erased-serde": "@crate_index__erased-serde-0.3.29//:erased_serde",
+            "erased-serde": "@crate_index__erased-serde-0.3.31//:erased_serde",
             "prometheus-client": "@crate_index__prometheus-client-0.21.2//:prometheus_client",
             "serde": "@crate_index__serde-1.0.186//:serde",
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
@@ -514,11 +514,13 @@ _NORMAL_DEPENDENCIES = {
             "axum": "@crate_index__axum-0.6.20//:axum",
             "base64": "@crate_index__base64-0.21.2//:base64",
             "chrono": "@crate_index__chrono-0.4.26//:chrono",
+            "erased-serde": "@crate_index__erased-serde-0.3.31//:erased_serde",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "futures-util": "@crate_index__futures-util-0.3.28//:futures_util",
             "jsonwebtoken": "@crate_index__jsonwebtoken-8.3.0//:jsonwebtoken",
             "mime": "@crate_index__mime-0.3.17//:mime",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
+            "prometheus-client": "@crate_index__prometheus-client-0.21.2//:prometheus_client",
             "remi-core": "@crate_index__remi-core-0.4.0//:remi_core",
             "sentry": "@crate_index__sentry-0.31.5//:sentry",
             "sentry-eyre": "@crate_index__sentry-eyre-0.1.0//:sentry_eyre",
@@ -2477,12 +2479,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__erased-serde-0.3.29",
-        sha256 = "fc978899517288e3ebbd1a3bfc1d9537dbb87eeab149e53ea490e63bcdff561a",
+        name = "crate_index__erased-serde-0.3.31",
+        sha256 = "6c138974f9d5e7fe373eb04df7cae98833802ae4b11c24ac7039a21d5af4b26c",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/erased-serde/0.3.29/download"],
-        strip_prefix = "erased-serde-0.3.29",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.erased-serde-0.3.29.bazel"),
+        urls = ["https://crates.io/api/v1/crates/erased-serde/0.3.31/download"],
+        strip_prefix = "erased-serde-0.3.31",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.erased-serde-0.3.31.bazel"),
     )
 
     maybe(

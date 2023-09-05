@@ -214,7 +214,7 @@ impl Validate for Name {
                     "name",
                     ValidationError {
                         code: Cow::Borrowed(e.code()),
-                        message: Some(Cow::Owned(format!("{e}"))),
+                        message: Some(Cow::Owned(e.to_string())),
                         params,
                     },
                 );

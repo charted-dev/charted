@@ -40,7 +40,7 @@ static MAPPINGS: Lazy<HashMap<&str, &str>> = Lazy::new(|| {
     }
 });
 
-/// Represents the search options ofr Meilisearch.
+/// Represents the search options of Elasticsearch.
 #[derive(Debug, Clone)]
 pub struct SearchOptions {
     allow_partial_data: bool,
@@ -104,11 +104,7 @@ pub struct ElasticsearchService {
 }
 
 impl ElasticsearchService {
-    pub fn new(config: Config) -> Result<ElasticsearchService> {
-        if let Some(SearchConfig::Elasticsearch(_)) = config.search.clone() {
-            //return ElasticsearchService::build(elastic);
-        }
-
-        Err(eyre!("configured search service was not the Elasticsearch service"))
+    pub fn new(_config: charted_config::elasticsearch::Config) -> Result<ElasticsearchService> {
+        Err(eyre!("not implemented yet"))
     }
 }

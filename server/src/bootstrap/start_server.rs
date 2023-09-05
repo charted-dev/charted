@@ -14,13 +14,13 @@
 // limitations under the License.
 
 use super::BootstrapPhase;
-use crate::{Server, SERVER};
+use crate::{metrics::ServerMetricsCollector, Server, SERVER};
 use charted_avatars::AvatarsModule;
 use charted_common::{is_debug_enabled, Snowflake, COMMIT_HASH, VERSION};
 use charted_config::{Config, ConfigExt, SessionBackend};
 use charted_database::{controller::DbControllerRegistry, MIGRATIONS};
 use charted_helm_charts::HelmCharts;
-use charted_metrics::SingleRegistry;
+use charted_metrics::{Registry, SingleRegistry};
 use charted_redis::RedisClient;
 use charted_sessions::SessionManager;
 use charted_sessions_local::LocalSessionProvider;
@@ -35,7 +35,7 @@ use std::{
     borrow::Cow,
     cell::RefCell,
     str::FromStr,
-    sync::Arc,
+    sync::{atomic::AtomicUsize, Arc},
     time::{Duration, Instant},
 };
 use tokio::sync::RwLock;
@@ -84,6 +84,7 @@ impl BootstrapPhase for StartServerPhase {
 
 pub(crate) async fn configure_modules(config: &Config) -> Result<Server> {
     let mut now = Instant::now();
+    let original = now;
     info!("Connecting to PostgreSQL...");
 
     let pool = PgPoolOptions::new()
@@ -146,8 +147,13 @@ pub(crate) async fn configure_modules(config: &Config) -> Result<Server> {
     now = Instant::now();
 
     let storage = MultiStorageService::from(config.storage.clone());
+
+    // TODO(@auguwu): what is the best way of doing node IDs?
     let snowflake = Snowflake::new(0);
-    let registry = SingleRegistry::configure(config.clone(), vec![]);
+
+    let mut registry = SingleRegistry::configure(config.clone(), vec![]);
+    registry.insert(Box::new(ServerMetricsCollector));
+
     let helm_charts = HelmCharts::new(storage.clone());
     helm_charts.init().await?;
 
@@ -156,7 +162,8 @@ pub(crate) async fn configure_modules(config: &Config) -> Result<Server> {
 
     info!(
         took = format!("{:?}", Instant::now().duration_since(now)),
-        "Initialized all misc dependencies!"
+        "Initialized all misc dependencies! [~{:?}]",
+        Instant::now().duration_since(original),
     );
 
     Ok(Server {
@@ -165,6 +172,7 @@ pub(crate) async fn configure_modules(config: &Config) -> Result<Server> {
         snowflake,
         sessions: Arc::new(RwLock::new(sessions)),
         registry,
+        requests: AtomicUsize::new(0),
         avatars,
         storage,
         config: config.clone(),

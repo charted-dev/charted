@@ -13,12 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")  # buildifier: disable=module-docstring
+# buildifier: disable=module-docstring
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 RUST_EDITION = "2021"
 RUST_VERSIONS = [
-    "1.71.1",
-    "nightly/2023-08-10",
+    "1.72.0",
+    "nightly/2023-09-03",
 ]
 
 def charted_rust_repositories():

@@ -21,6 +21,7 @@ mod server;
 mod version;
 
 pub(crate) mod extract;
+pub mod metrics;
 pub(crate) mod middleware;
 pub(crate) mod models;
 pub mod openapi;

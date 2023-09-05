@@ -27,6 +27,24 @@ pub enum Registry {
     Default(default::DefaultRegistry),
 }
 
+impl crate::Registry for Registry {
+    fn collectors(&self) -> Vec<Box<dyn crate::Collector>> {
+        match self {
+            Self::Prometheus(prom) => prom.collectors(),
+            Self::Default(def) => def.collectors(),
+            Self::Disabled(_) => vec![],
+        }
+    }
+
+    fn insert(&mut self, collector: Box<dyn crate::Collector>) {
+        match self {
+            Self::Prometheus(prom) => prom.insert(collector),
+            Self::Default(def) => def.insert(collector),
+            Self::Disabled(_) => {}
+        }
+    }
+}
+
 impl Registry {
     pub fn configure(config: Config, extra: Vec<Box<dyn crate::Collector>>) -> Registry {
         match (config.metrics.enabled, config.metrics.prometheus) {

@@ -13,8 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" bazel is mean """
-
+# buildifier: disable=module-docstring
 CARGO_MANIFESTS = ["//{}:Cargo.toml".format(f) for f in [
     "crates/avatars",
     "crates/common",

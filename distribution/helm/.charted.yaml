@@ -15,3 +15,4 @@
 
 repository: charted/server
 registry: https://charts.noelware.org/api
+readme: ./README.md

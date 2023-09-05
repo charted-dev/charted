@@ -84,8 +84,8 @@ pub fn build_or_run(bazel: PathBuf, target: &str, args: BuildCliArgs) -> Result<
     let is_build = match (args.release, args.run) {
         (true, true) => {
             cmd.args([
-                "--compilation_mode=opt",
                 "run",
+                "--compilation_mode=opt",
                 "--@rules_rust//:extra_rustc_flags=\"-C lto=fat -C opt-level=s\"",
                 target,
             ]);
@@ -100,8 +100,8 @@ pub fn build_or_run(bazel: PathBuf, target: &str, args: BuildCliArgs) -> Result<
 
         _ => {
             cmd.args([
-                "--compilation_mode=opt",
                 "build",
+                "--compilation_mode=opt",
                 "--@rules_rust//:extra_rustc_flags=\"-C lto=fat -C opt-level=s\"",
                 target,
             ]);

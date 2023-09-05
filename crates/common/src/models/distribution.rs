@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use serde::{Deserialize, Serialize};
-use std::{env::var, fs, path::PathBuf};
+use std::{env::var, fmt::Display, fs, path::PathBuf};
 use tracing::error;
 use utoipa::{
     openapi::{ObjectBuilder, RefOr, Schema, SchemaType},
@@ -126,6 +126,7 @@ impl Distribution {
         has_dockerenv || has_docker_cgroup
     }
 
+    // TODO(@auguwu): should we cache this information?
     pub fn detect() -> Distribution {
         if Distribution::is_kubernetes() {
             return Distribution::Kubernetes;
@@ -168,5 +169,18 @@ impl<'s> ToSchema<'s> for Distribution {
                     .build(),
             )),
         )
+    }
+}
+
+impl Display for Distribution {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Distribution::Kubernetes => f.write_str("kubernetes"),
+            Distribution::Docker => f.write_str("docker"),
+            Distribution::Git => f.write_str("git"),
+            Distribution::Deb => f.write_str("debian"),
+            Distribution::RPM => f.write_str("rpm"),
+            _ => f.write_str("<unknown>"),
+        }
     }
 }

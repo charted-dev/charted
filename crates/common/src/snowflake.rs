@@ -13,14 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::SNOWFLAKE_EPOCH;
 use serde::Serialize;
 use std::{
     fmt::{Debug, Display, Formatter},
     ops::Deref,
-    sync::{
-        atomic::{AtomicU16, AtomicU64, Ordering},
-        Arc,
-    },
+    sync::atomic::{AtomicU16, AtomicU64, Ordering},
     time::{SystemTime, UNIX_EPOCH},
 };
 use utoipa::{
@@ -28,18 +26,27 @@ use utoipa::{
     ToSchema,
 };
 
-use crate::SNOWFLAKE_EPOCH;
-
 const SEQUENCE_BITS: usize = 12;
 const NODE_BITS: usize = 10;
 const MAX_SEQUENCE_BITS: usize = (1 << SEQUENCE_BITS) - 1;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Snowflake {
-    exhausted_at_time: Arc<AtomicU64>,
-    last_timestamp: Arc<AtomicU64>,
-    sequence: Arc<AtomicU16>,
+    exhausted_at_time: AtomicU64,
+    last_timestamp: AtomicU64,
+    sequence: AtomicU16,
     node_id: u16,
+}
+
+impl Clone for Snowflake {
+    fn clone(&self) -> Snowflake {
+        Snowflake {
+            exhausted_at_time: AtomicU64::new(self.exhausted_at_time.load(Ordering::SeqCst)),
+            last_timestamp: AtomicU64::new(self.last_timestamp.load(Ordering::SeqCst)),
+            sequence: AtomicU16::new(self.sequence.load(Ordering::SeqCst)),
+            node_id: self.node_id,
+        }
+    }
 }
 
 unsafe impl Send for Snowflake {}
@@ -57,9 +64,9 @@ impl Snowflake {
 
     pub fn new(node_id: u16) -> Snowflake {
         Snowflake {
-            exhausted_at_time: Arc::new(AtomicU64::new(0)),
-            last_timestamp: Arc::new(AtomicU64::new(0)),
-            sequence: Arc::new(AtomicU16::new(0)),
+            exhausted_at_time: AtomicU64::new(0),
+            last_timestamp: AtomicU64::new(0),
+            sequence: AtomicU16::new(0),
             node_id,
         }
     }
@@ -67,8 +74,8 @@ impl Snowflake {
     #[inline]
     pub fn generate(&self) -> ID {
         let now = Snowflake::current_timestamp();
-        let seq = self.sequence.load(Ordering::Relaxed);
-        let exhaused = self.exhausted_at_time.load(Ordering::Relaxed);
+        let seq = self.sequence.load(Ordering::SeqCst);
+        let exhaused = self.exhausted_at_time.load(Ordering::SeqCst);
 
         if seq == 4095 && now == exhaused {
             while Snowflake::current_timestamp() - now < 1 {
@@ -81,11 +88,11 @@ impl Snowflake {
                 4095 => 0,
                 _ => seq + 1,
             },
-            Ordering::Relaxed,
+            Ordering::SeqCst,
         );
 
-        if self.sequence.load(Ordering::Relaxed) >= 4095 {
-            self.last_timestamp.store(now, Ordering::Relaxed);
+        if self.sequence.load(Ordering::SeqCst) >= 4095 {
+            self.last_timestamp.store(now, Ordering::SeqCst);
         }
 
         ID((now << (NODE_BITS + SEQUENCE_BITS)) | ((self.node_id as u64) << (SEQUENCE_BITS as u64)) | seq as u64)

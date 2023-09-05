@@ -135,7 +135,7 @@ alias(
 
 alias(
     name = "erased-serde",
-    actual = "@crate_index__erased-serde-0.3.29//:erased_serde",
+    actual = "@crate_index__erased-serde-0.3.31//:erased_serde",
     tags = ["manual"],
 )
 

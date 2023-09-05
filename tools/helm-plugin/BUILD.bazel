@@ -21,7 +21,7 @@ exports_files([
 ])
 
 rust_project(
-    name = "helm_plugin",
+    name = "helm-plugin",
     is_binary = True,
     proc_macro_deps = ["@crate_index//:async-trait"],
     deps = [

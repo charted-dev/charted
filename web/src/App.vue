@@ -16,22 +16,26 @@
 -->
 
 <script setup lang="ts">
-useHead({
-    title: 'charted',
-    meta: [
-        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { charset: 'utf-8' },
-        { name: 'theme-color', content: '#58548E' },
-        { name: 'language', content: 'English (US)' },
-        { name: 'keywords', content: 'noelware, charted, charted-server' }
-    ],
-    link: [
-        // TODO(@auguwu): switch to charted branding
-        { rel: 'shortcut icon', href: 'https://cdn.floofy.dev/images/trans.png' }
-    ]
+import Navbar from './components/ui/Navbar.vue';
+
+const router = useRouter();
+const route = router.currentRoute.value.fullPath;
+
+useSeoMeta({
+    applicationName: 'Hoshi',
+    ogDescription: '🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust',
+    description: '🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust',
+    colorScheme: 'dark light',
+    themeColor: '#58548E',
+    viewport: 'width=device-width, initial-scale=1',
+    ogLocale: 'en_GB',
+    ogTitle: 'Hoshi',
+    ogUrl: `${import.meta.env.BASE_URL}${route}`
 });
 </script>
 
 <template>
-    <RouterView />
+    <Suspense>
+        <Navbar />
+    </Suspense>
 </template>

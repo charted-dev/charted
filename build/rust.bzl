@@ -13,8 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" Common macro through-out all Rust crates. """
-
+# buildifier: disable=module-docstring
 load("@crate_index//:defs.bzl", "aliases")
 load("@rules_rust//cargo:defs.bzl", "cargo_build_script")
 load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_doc_test", "rust_library", "rust_proc_macro", "rust_test", "rust_test_suite")

@@ -16,6 +16,7 @@
  */
 
 import { createPinia } from 'pinia';
+import { createHead } from '@vueuse/head';
 import { createApp } from 'vue';
 import router from './router';
 import App from './App.vue';
@@ -25,6 +26,17 @@ import './styles/global.css';
 const pinia = createPinia();
 const app = createApp(App);
 
+app.use(
+    createHead({
+        title: 'Hoshi',
+        link: [
+            // TODO(@auguwu): switch to charted branding
+            { rel: 'shortcut icon', href: 'https://cdn.floofy.dev/images/trans.png' }
+        ]
+    })
+);
+
 app.use(pinia);
 app.use(router);
+
 app.mount('#app');

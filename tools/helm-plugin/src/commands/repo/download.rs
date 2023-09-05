@@ -38,7 +38,6 @@ pub struct Download {
     /// this will default to `<registry url>/repositories/{id}/download/latest.tar.gz`.
     ///
     /// * `charted://some.registry/charted/server` ~ Downloads from `https://some.registry`.
-    #[arg()]
     repo: Url,
 
     /// Location to a `auth.yaml` file that can be used to look up

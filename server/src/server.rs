@@ -27,24 +27,49 @@ use charted_storage::MultiStorageService;
 use eyre::{Context, Result};
 use once_cell::sync::OnceCell;
 use sqlx::PgPool;
-use std::{cell::RefCell, fmt::Debug, sync::Arc};
+use std::{
+    cell::RefCell,
+    fmt::Debug,
+    sync::{
+        atomic::{AtomicUsize, Ordering},
+        Arc,
+    },
+};
 use tokio::{select, signal, sync::RwLock};
 
 pub(crate) static SERVER: OnceCell<Server> = OnceCell::new();
 
 /// A default implemention of a [`Server`].
-#[derive(Clone)]
 pub struct Server {
     pub controllers: DbControllerRegistry,
     pub helm_charts: HelmCharts,
     pub snowflake: Snowflake,
     pub sessions: Arc<RwLock<SessionManager>>,
     pub registry: SingleRegistry,
+    pub requests: AtomicUsize,
     pub avatars: AvatarsModule,
     pub storage: MultiStorageService,
     pub config: Config,
     pub redis: RefCell<RedisClient>,
     pub pool: PgPool,
+}
+
+impl Clone for Server {
+    fn clone(&self) -> Server {
+        Server {
+            controllers: self.controllers.clone(),
+            helm_charts: self.helm_charts.clone(),
+            snowflake: self.snowflake.clone(),
+            sessions: self.sessions.clone(),
+            registry: self.registry.clone(),
+            requests: AtomicUsize::new(self.requests.load(Ordering::SeqCst)),
+            avatars: self.avatars.clone(),
+            storage: self.storage.clone(),
+            config: self.config.clone(),
+            redis: self.redis.clone(),
+            pool: self.pool.clone(),
+        }
+    }
 }
 
 impl FromRef<()> for Server {

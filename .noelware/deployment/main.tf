@@ -15,11 +15,6 @@
 
 terraform {
   required_providers {
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = "2.23.0"
-    }
-
     helm = {
       source  = "hashicorp/helm"
       version = "2.11.0"
@@ -27,7 +22,107 @@ terraform {
   }
 }
 
-provider "kubernetes" {
-  config_context = var.context != "" ? var.context : null
-  config_path    = var.kubeconfig
+provider "helm" {
+  kubernetes {
+    config_context = var.context
+    config_path    = var.kubeconfig
+  }
+}
+
+resource "kubernetes_namespace" "charted" {
+  metadata {
+    name = "charted"
+    annotations = {
+      "k8s.noelware.cloud/managed-by" = "Terraform"
+      "k8s.noelware.cloud/product"    = "charted"
+    }
+  }
+}
+
+resource "helm_release" "postgresql" {
+  repository = "oci://registry-1.docker.io/bitnamicharts"
+  namespace  = "charted"
+  depends_on = [kubernetes_namespace.charted]
+  version    = "11.9.2"
+  values     = ["./charts/postgresql.yaml"]
+  atomic     = true
+  chart      = "postgresql-ha"
+  name       = "postgresql-ha"
+  wait       = true
+}
+
+resource "helm_release" "redis" {
+  repository = "oci://registry-1.docker.io/bitnamicharts"
+  depends_on = [kubernetes_namespace.charted]
+  namespace  = "charted"
+  version    = "18.0.1"
+  values     = ["./charts/redis.yaml"]
+  atomic     = true
+  chart      = "redis"
+  name       = "redis"
+  wait       = true
+}
+
+resource "helm_release" "logstash" {
+  repository = "https://charts.noelware.org/~/noelware"
+  depends_on = [kubernetes_namespace.charted]
+  namespace  = "charted"
+  values     = ["./charts/logstash.yaml"]
+  version    = "8.9.1"
+  atomic     = true
+  chart      = "logstash"
+  name       = "logstash"
+  wait       = true
+}
+
+# Petal is Noelware's load balancing service to throttle logs to Logstash
+# via Redpanda clusters, so in a structure of:
+#
+#   charted ~> petal ~> redpanda ~> logstash
+resource "helm_release" "petal" {
+  repository = "https://charts.noelware.org/~/noelware"
+  depends_on = [helm_release.logstash, helm_release.redpanda, kubernetes_namespace.charted]
+  namespace  = "charted"
+  version    = "0.1.0-beta"
+  values     = ["./charts/petal.yaml"]
+  atomic     = true
+  chart      = "petal"
+  name       = "petal"
+  wait       = true
+}
+
+resource "helm_release" "redpanda" {
+  repository = "https://charts.noelware.org/~/noelware"
+  depends_on = [kubernetes_namespace.charted]
+  namespace  = "charted"
+  version    = "23.2.8"
+  values     = ["./charts/redpanda.yaml"]
+  atomic     = true
+  chart      = "redpanda"
+  name       = "redpanda"
+  wait       = true
+}
+
+resource "helm_release" "charted-emails" {
+  repository = "https://charts.noelware.org/~/charted"
+  depends_on = [kubernetes_namespace.charted]
+  namespace  = "charted"
+  version    = "0.2.0-beta"
+  atomic     = true
+  values     = ["./charts/emails.yaml"]
+  chart      = "emails"
+  name       = "emails"
+  wait       = true
+}
+
+resource "helm_release" "charted-server" {
+  repository = "https://charts.noelware.org/~/charted"
+  depends_on = [kubernetes_namespace.charted, helm_release.logstash, helm_release.helm_release.petal, helm_release.postgresql-ha, helm_release.redis-sentinel, helm_release.redpanda]
+  namespace  = "charted"
+  values     = ["./charts/charted.yaml"]
+  version    = "0.1.0-beta"
+  atomic     = true
+  chart      = "server"
+  wait       = true
+  name       = "charted"
 }

@@ -19,14 +19,31 @@ load("//:build/tools/rust.bzl", "RUST_EDITION", "RUST_VERSIONS", "charted_rust_r
 
 charted_rust_repositories()
 
-load("@rules_rust//rust:repositories.bzl", "rules_rust_dependencies", "rust_register_toolchains")
+load("@rules_rust//rust:repositories.bzl", "rules_rust_dependencies", "rust_repository_set")
 
 rules_rust_dependencies()
 
-rust_register_toolchains(
-    edition = RUST_EDITION,
-    versions = RUST_VERSIONS,
-)
+[
+    rust_repository_set(
+        name = "rust-%s-%s%s" % (
+            os,
+            arch,
+            ("-%s" % component) if component != None else "",
+        ),
+        edition = RUST_EDITION,
+        exec_triple = exec_triple,
+        versions = RUST_VERSIONS,
+    )
+    for (os, arch, exec_triple, component) in [
+        ("linux", "x86_64", "x86_64-unknown-linux-gnu", None),
+        ("linux", "x86_64", "x86_64-unknown-linux-musl", "musl"),
+        ("linux", "aarch64", "aarch64-unknown-linux-musl", "musl"),
+        ("linux", "aarch64", "aarch64-unknown-linux-gnu", None),
+        ("darwin", "x86_64", "x86_64-apple-darwin", None),
+        ("darwin", "aarch64", "aarch64-apple-darwin", None),
+        ("windows", "x86_64", "x86_64-pc-windows-msvc", None),
+    ]
+]
 
 load("@rules_rust//crate_universe:repositories.bzl", "crate_universe_dependencies")
 

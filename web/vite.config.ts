@@ -58,11 +58,13 @@ export default defineConfig(({ command }) => {
     }
 
     return {
-        clearScreen: false,
         resolve: {
-            alias: {
-                '~/': resolve(fileURLToPath(new URL('./src/', import.meta.url)))
-            }
+            alias: [
+                {
+                    find: '~/',
+                    replacement: resolve(fileURLToPath(new URL('./src/', import.meta.url)))
+                }
+            ]
         },
         plugins,
         server: {

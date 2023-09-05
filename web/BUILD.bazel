@@ -13,11 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@npm//web:prettier/package_json.bzl", prettier = "bin")
-load("@npm//web:vue-tsc/package_json.bzl", vue_tsc = "bin")
-load("@npm//web:eslint/package_json.bzl", eslint = "bin")
-load("@npm//web:vite/package_json.bzl", vite = "bin")
 load("@npm//:defs.bzl", "npm_link_all_packages")
+load("@npm//web:eslint/package_json.bzl", eslint = "bin")
+load("@npm//web:prettier/package_json.bzl", prettier = "bin")
+load("@npm//web:vite/package_json.bzl", vite = "bin")
+load("@npm//web:vue-tsc/package_json.bzl", vue_tsc = "bin")
 
 npm_link_all_packages(name = "node_modules")
 
@@ -41,12 +41,12 @@ DEPS = [
     ":node_modules/@tailwindcss/typography",
     ":node_modules/@tanstack/vue-query",
     ":node_modules/@vueuse/core",
-    ":node_modules/highlight.js",
     ":node_modules/luxon",
     ":node_modules/markdown-it",
     ":node_modules/markdown-it-emoji",
-    ":node_modules/markdown-it-highlightjs",
+    ":node_modules/markdown-it-shikiji",
     ":node_modules/pinia",
+    ":node_modules/shikiji",
     ":node_modules/tailwindcss",
     ":node_modules/vue",
     ":node_modules/vue-router",
@@ -91,7 +91,7 @@ vue_tsc.vue_tsc_test(
         ":node_modules/vite",
         ":node_modules/vite-plugin-vue-devtools",
         "//web/src",
-    ] + DEPS + glob(["**/*.d.ts"]),
+    ] + DEPS,
     include_declarations = True,
     tags = [
         "noclippy",

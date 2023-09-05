@@ -6,7 +6,6 @@
 #     bazel run @//thirdparty:crate_index
 ###############################################################################
 
-load("@rules_rust//cargo:defs.bzl", "cargo_build_script")
 load("@rules_rust//rust:defs.bzl", "rust_library")
 
 package(default_visibility = ["//visibility:public"])
@@ -43,50 +42,8 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.3.29",
+    version = "0.3.31",
     deps = [
-        "@crate_index__erased-serde-0.3.29//:build_script_build",
         "@crate_index__serde-1.0.186//:serde",
     ],
-)
-
-cargo_build_script(
-    name = "erased-serde_build_script",
-    srcs = glob(["**/*.rs"]),
-    crate_features = [
-        "default",
-        "std",
-    ],
-    crate_name = "build_script_build",
-    crate_root = "build.rs",
-    data = glob(
-        include = ["**"],
-        exclude = [
-            "**/* *",
-            ".tmp_git_root/**/*",
-            "BUILD",
-            "BUILD.bazel",
-            "WORKSPACE",
-            "WORKSPACE.bazel",
-        ],
-    ),
-    edition = "2021",
-    rustc_flags = [
-        "--cap-lints=allow",
-    ],
-    tags = [
-        "cargo-bazel",
-        "crate-name=erased-serde",
-        "manual",
-        "noclippy",
-        "norustfmt",
-    ],
-    version = "0.3.29",
-    visibility = ["//visibility:private"],
-)
-
-alias(
-    name = "build_script_build",
-    actual = "erased-serde_build_script",
-    tags = ["manual"],
 )
