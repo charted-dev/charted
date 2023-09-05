@@ -46,7 +46,8 @@ on:
             - renovate.json
             - LICENSE
 env:
-    BAZEL_ARGS: --bazelrc=./.bazelrc --bazelrc=./.github/.ci.bazelrc --host_jvm_args=-Xmx500m --host_jvm_args=-Xms500m
+    BAZEL_STARTUP_ARGS: --bazelrc=./.bazelrc --verbose_failures --noshow_progress --host_jvm_args=-Xmx500m --host_jvm_args=-Xms500m
+    BAZEL_ARGS: --test_output=errors
 jobs:
     ci:
         name: Rust CI (${{matrix.runner == 'ubuntu-latest' && 'Linux (x86_64)' || matrix.runner == 'self-hosted' && 'Linux (arm64)' || matrix.runner == 'macos-latest' && 'macOS (x86_64)' || matrix.runner == 'windows-latest' && 'Windows' || 'Unknown'}})
@@ -78,10 +79,10 @@ jobs:
                 key: bazel-cache-${{matrix.runner}}-${{ hashFiles('WORKSPACE', 'BUILD.bazel', '.bazelversion') }}
 
             - name: Build CLI
-              run: bazel ${{env.BAZEL_ARGS}} build --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //:cli
+              run: bazel ${{env.BAZEL_STARTUP_ARGS}} build ${{env.BAZEL_ARGS}} --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //:cli
 
             - name: Build Helm plugin
-              run: bazel ${{env.BAZEL_ARGS}} build --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //:helm-plugin
+              run: bazel ${{env.BAZEL_STARTUP_ARGS}} build ${{env.BAZEL_ARGS}} --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //:helm-plugin
 
             - name: Run tests
-              run: bazel ${{env.BAZEL_ARGS}} test --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //...
+              run: bazel ${{env.BAZEL_STARTUP_ARGS}} test ${{env.BAZEL_ARGS}} --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //...
