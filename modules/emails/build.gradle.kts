@@ -122,7 +122,7 @@ protobuf {
 
     plugins {
         id("grpc") {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.57.2"
+            artifact = "io.grpc:protoc-gen-grpc-java:1.58.0"
         }
 
         id("grpc-kotlin") {
