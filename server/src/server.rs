@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::routing::create_router;
+use crate::{routing::create_router, WebDist};
 use axum::extract::FromRef;
 use charted_avatars::AvatarsModule;
 use charted_common::Snowflake;
@@ -91,7 +91,15 @@ impl Server {
         let addr = self.config.server.addr();
         info!(%addr, "now listening on");
 
-        let router = create_router(self.clone()).with_state(self.clone());
+        let router = create_router().with_state(self.clone());
+        let router = match WebDist::available() {
+            false => router,
+
+            #[cfg(bundle_web)]
+            true => axum::Router::new().nest("/api", router).fallback(static_handler),
+            true => unreachable!(),
+        };
+
         axum::Server::bind(&addr)
             .serve(router.into_make_service())
             .with_graceful_shutdown(shutdown())
@@ -100,12 +108,45 @@ impl Server {
     }
 }
 
-// #[allow(dead_code)]
-// const INDEX_HTML: &str = "index.html";
+#[cfg(bundle_web)]
+const INDEX_HTML: &str = "index.html";
 
-// async fn static_handler(_uri: Uri) -> impl IntoResponse {
-//     /* TODO: this */
-// }
+#[cfg(bundle_web)]
+async fn static_handler(uri: axum::http::Uri) -> impl axum::response::IntoResponse {
+    let path = uri.path().trim_start_matches('/');
+    if path.is_empty() || path == INDEX_HTML {
+        let asset = crate::WebDist::get("index.html").expect("missing 'index.html' file?!");
+        let content = charted_storage::Bytes::from(asset.data.into_owned());
+        let headers = [(axum::http::header::CONTENT_TYPE, "text/html; charset=utf-8")];
+
+        return (headers, content).into_response();
+    }
+
+    match WebDist::get(path) {
+        Some(file) => (
+            [(axum::header::CONTENT_TYPE, file.metadata.mimetype())],
+            Bytes::from(file.data.into_owned()),
+        )
+            .into_response(),
+
+        None if path.contains('.') => (
+            axum::http::StatusCode::NOT_FOUND,
+            crate::models::res::err(
+                axum::http::StatusCode::NOT_FOUND,
+                ("ROUTE_NOT_FOUND", "Route was not found.").into(),
+            ),
+        )
+            .into_response(),
+
+        None => {
+            let asset = crate::WebDist::get("index.html").expect("missing 'index.html' file?!");
+            let content = charted_storage::Bytes::from(asset.data.into_owned());
+            let headers = [(axum::http::header::CONTENT_TYPE, "text/html; charset=utf-8")];
+
+            (headers, content).into_response()
+        }
+    }
+}
 
 async fn shutdown() {
     let ctrl_c = async {

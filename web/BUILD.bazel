@@ -32,29 +32,32 @@ SRCS = [
     "//web/src",
 ]
 
-DEPS = [
-    ":node_modules/@fontsource/cantarell",
-    ":node_modules/@fontsource/inter",
-    ":node_modules/@fontsource/jetbrains-mono",
-    ":node_modules/@ncharts/types",
-    ":node_modules/@tailwindcss/forms",
-    ":node_modules/@tailwindcss/typography",
-    ":node_modules/@tanstack/vue-query",
-    ":node_modules/@vueuse/core",
-    ":node_modules/luxon",
-    ":node_modules/markdown-it",
-    ":node_modules/markdown-it-emoji",
-    ":node_modules/markdown-it-shikiji",
-    ":node_modules/pinia",
-    ":node_modules/shikiji",
-    ":node_modules/tailwindcss",
-    ":node_modules/vue",
-    ":node_modules/vue-router",
-]
+DEPS = [":node_modules/%s" % pkg for pkg in [
+    "@fontsource/cantarell",
+    "@fontsource/inter",
+    "@fontsource/jetbrains-mono",
+    "@ncharts/types",
+    "@noelware/utils",
+    "@tailwindcss/forms",
+    "@tailwindcss/typography",
+    "@vue/compiler-sfc",
+    "@vueuse/core",
+    "@vueuse/head",
+    "luxon",
+    "markdown-it",
+    "markdown-it-emoji",
+    "markdown-it-shikiji",
+    "ofetch",
+    "pinia",
+    "shikiji",
+    "vue",
+    "vue-router",
+]]
 
 POSTCSS_DEPS = [
     ":node_modules/autoprefixer",
     ":node_modules/postcss-import",
+    ":node_modules/tailwindcss",
 ]
 
 vite.vite_binary(
@@ -79,8 +82,10 @@ vue_tsc.vue_tsc_test(
     ],
     chdir = package_name(),
     data = [
+        "auto-imports.d.ts",
         "package.json",
         "tsconfig.json",
+        "typed-router.d.ts",
         "vite.config.ts",
         ":node_modules/@augu/tsconfig",
         ":node_modules/@types/node",

@@ -49,8 +49,7 @@ impl AsyncExecute for Delete {
 
         let _ = auth.context.remove(&ctx);
         let mut file = File::create(CommonHelmArgs::locate(self.context_file.clone())?).await?;
-        file.write_all(format!("{}", serde_yaml::to_string(&auth).unwrap()).as_bytes())
-            .await?;
+        file.write_all(serde_yaml::to_string(&auth).unwrap().as_bytes()).await?;
 
         info!("✔️ deleted context {ctx} successfully");
         Ok(())

@@ -28,6 +28,10 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
+    crate_features = [
+        "mime-guess",
+        "mime_guess",
+    ],
     crate_root = "src/lib.rs",
     edition = "2018",
     rustc_flags = ["--cap-lints=allow"],
@@ -40,6 +44,7 @@ rust_library(
     ],
     version = "8.0.0",
     deps = [
+        "@crate_index__mime_guess-2.0.4//:mime_guess",
         "@crate_index__sha2-0.10.7//:sha2",
         "@crate_index__walkdir-2.4.0//:walkdir",
     ],

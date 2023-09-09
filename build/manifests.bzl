@@ -14,7 +14,7 @@
 # limitations under the License.
 
 # buildifier: disable=module-docstring
-CARGO_MANIFESTS = ["//{}:Cargo.toml".format(f) for f in [
+CARGO_MANIFESTS = ["//%s:Cargo.toml" % f for f in [
     "crates/avatars",
     "crates/common",
     "crates/config",

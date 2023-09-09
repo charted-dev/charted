@@ -25,6 +25,7 @@ use cdn::*;
 use charted_config::Config;
 use features::*;
 use heartbeat::*;
+use indexes::*;
 use info::*;
 use main::*;
 use metrics::*;
@@ -32,8 +33,6 @@ use openapi::*;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use utoipa::ToSchema;
-
-use self::indexes::GetIndexRestController;
 
 pub mod cdn;
 pub mod features;
@@ -58,7 +57,7 @@ pub struct EntrypointResponse {
 
 gen_response_schema!(EntrypointResponse);
 
-pub fn create_router(_server: Server) -> Router<Server> {
+pub fn create_router() -> Router<Server> {
     let mut router = Router::new()
         .route("/indexes/:idOrName", get(GetIndexRestController::run))
         .route("/openapi.json", get(openapi))

@@ -187,7 +187,7 @@ pub fn new(
 
 /// Method to properly cast `descriptor` and `metric` into a tuple that Prometheus'
 /// collector abstraction can support. Doing this when using `Box::new([...].into_iter())`
-/// will lose the lifetime reference (`'a`), and will be `'_`.
+/// will lose the lifetime reference (`'a`), and will be an elided lifetime.
 ///
 /// ## Why?
 /// For collectors to be implemented, we want to create Prometheus supported

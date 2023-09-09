@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use crate::{
-    models::res::{err, ApiResponse, Empty},
+    models::res::{err, ApiResponse},
     Server,
 };
 use axum::{
@@ -24,11 +24,9 @@ use axum::{
 };
 use charted_storage::MultiStorageService;
 use remi_core::{Blob, StorageService};
+use serde_json::json;
 
-pub async fn cdn(
-    Path(path): Path<String>,
-    State(server): State<Server>,
-) -> Result<impl IntoResponse, ApiResponse<Empty>> {
+pub async fn cdn(Path(path): Path<String>, State(server): State<Server>) -> Result<impl IntoResponse, ApiResponse> {
     let paths = path.trim_start_matches('/').split('/').collect::<Vec<_>>();
     let query = match server.storage {
         MultiStorageService::Filesystem(_) => format!("./{}", paths.join("/")),
@@ -44,24 +42,41 @@ pub async fn cdn(
             StatusCode::INTERNAL_SERVER_ERROR,
             (
                 "INTERNAL_SERVER_ERROR",
-                format!("Unable to perform CDN query [{query}] at the moment, try again later.").as_str(),
+                "Unable to perform CDN query at the moment, try again later!",
+                json!({
+                    "query": query,
+                }),
             )
                 .into(),
         )
     })?;
 
     if blob.is_none() {
-        return Err::<Response<_>, ApiResponse<Empty>>(err(
+        return Err::<Response<_>, ApiResponse>(err(
             StatusCode::NOT_FOUND,
-            ("UNKNOWN_QUERY", format!("Route 'GET {query}' was not found.").as_str()).into(),
+            (
+                "UNKNOWN_CDN_QUERY",
+                "CDN query was not found",
+                json!({
+                    "query": query,
+                }),
+            )
+                .into(),
         ));
     }
 
     let blob = blob.unwrap();
     match blob {
-        Blob::Directory(_) => Err::<Response<_>, ApiResponse<Empty>>(err(
+        Blob::Directory(_) => Err::<Response<_>, ApiResponse>(err(
             StatusCode::NOT_FOUND,
-            ("UNKNOWN_QUERY", format!("Route 'GET {query}' was not found.").as_str()).into(),
+            (
+                "UNKNOWN_QUERY",
+                "CDN query was not found",
+                json!({
+                    "query": query,
+                }),
+            )
+                .into(),
         )),
 
         Blob::File(file) => {

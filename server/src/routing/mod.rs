@@ -28,15 +28,14 @@ use tower::ServiceBuilder;
 pub mod v1;
 
 #[allow(non_upper_case_globals)]
-static default_router: Lazy<Box<dyn Fn(Server) -> Router<Server> + Send + Sync>> =
-    Lazy::new(|| Box::new(v1::create_router));
+static default_router: Lazy<Box<dyn Fn() -> Router<Server> + Send + Sync>> = Lazy::new(|| Box::new(v1::create_router));
 
 macro_rules! create_router_internal {
     ($($cr:ident),*) => {
-        fn create_router_internal(server: $crate::Server) -> ::axum::Router<$crate::Server> {
-            let mut router = ::axum::Router::new().merge(default_router(server.clone()));
+        fn create_router_internal() -> ::axum::Router<$crate::Server> {
+            let mut router = ::axum::Router::new().merge(default_router());
             $(
-                router = router.clone().nest(concat!("/", stringify!($cr)), $crate::routing::$cr::create_router(server.clone()));
+                router = router.clone().nest(concat!("/", stringify!($cr)), $crate::routing::$cr::create_router());
             )*
 
             router
@@ -46,7 +45,7 @@ macro_rules! create_router_internal {
 
 create_router_internal!(v1);
 
-pub fn create_router(server: Server) -> Router<Server> {
+pub fn create_router() -> Router<Server> {
     let stack = ServiceBuilder::new()
         .layer(sentry_tower::NewSentryLayer::new_from_top())
         .layer(sentry_tower::SentryHttpLayer::new())
@@ -67,7 +66,7 @@ pub fn create_router(server: Server) -> Router<Server> {
         .layer(axum::middleware::from_fn(crate::middleware::log))
         .layer(axum::middleware::from_fn(crate::middleware::request_id));
 
-    Router::new().merge(create_router_internal(server)).layer(stack)
+    Router::new().merge(create_router_internal()).layer(stack)
 }
 
 fn catch_panic(error: Box<dyn Any + Send + 'static>) -> Response<Body> {

@@ -381,7 +381,7 @@ alias(
 
 alias(
     name = "syn",
-    actual = "@crate_index__syn-2.0.29//:syn",
+    actual = "@crate_index__syn-2.0.31//:syn",
     tags = ["manual"],
 )
 
@@ -394,12 +394,6 @@ alias(
 alias(
     name = "tar",
     actual = "@crate_index__tar-0.4.40//:tar",
-    tags = ["manual"],
-)
-
-alias(
-    name = "testcontainers",
-    actual = "@crate_index__testcontainers-0.14.0//:testcontainers",
     tags = ["manual"],
 )
 
@@ -489,6 +483,6 @@ alias(
 
 alias(
     name = "which",
-    actual = "@crate_index__which-4.4.0//:which",
+    actual = "@crate_index__which-4.4.2//:which",
     tags = ["manual"],
 )

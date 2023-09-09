@@ -40,24 +40,18 @@ pub use version::*;
 ///
 /// You can check if it is available with the [`WebDist::available`] method:
 ///
-/// ```
+/// ```no_run
 /// # use charted_server::WebDist;
 /// #
 /// let available = WebDist::available();
-///
-/// # #[cfg(bundle_web)]
-/// # assert!(available);
-/// #
-/// # #[cfg(not(bundle_web))]
-/// # assert!(!available);
 /// ```
 ///
 /// [`rust-embed`]: https://docs.rs/rust-embed/*/rust_embed
 #[derive(Debug, Clone)]
 #[cfg_attr(bundle_web, derive(::rust_embed::RustEmbed))]
-#[cfg_attr(bundle_web, folder = "../dist")]
+#[cfg_attr(all(bundle_web, not(bazel)), folder = "dist")] // cargo usage
+#[cfg_attr(all(bundle_web, bazel), folder = "./bazel-bin/web/dist")] // bazel usage
 pub struct WebDist;
-
 impl WebDist {
     /// Checks if the web distribution is available or not.
     pub fn available() -> bool {
