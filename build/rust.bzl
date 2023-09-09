@@ -84,17 +84,17 @@ def rust_project(
         rust_test(
             name = "tests",
             srcs = native.glob(["src/**/*.rs"], exclude = ["src/main.rs"]),
-            deps = [":charted_{name}".format(name = name)] if not proc_macro else [] + deps + test_deps,
+            deps = [":charted_{name}".format(name = name)] + deps + test_deps,
             compile_data = external_data,
-            proc_macro_deps = proc_macro_deps + [":charted_{name}".format(name = name)] if proc_macro else [],
+            proc_macro_deps = proc_macro_deps,
         )
 
         rust_test_suite(
             name = "integ_tests",
             srcs = native.glob(["tests/**/*.rs"]),
-            deps = [":charted_{name}".format(name = name)] if not proc_macro else [] + deps + test_deps,
+            deps = [":charted_{name}".format(name = name)] + deps + test_deps,
             compile_data = external_data + [":Cargo.toml"],
-            proc_macro_deps = proc_macro_deps + [":charted_{name}".format(name = name)] if proc_macro else [],
+            proc_macro_deps = proc_macro_deps,
         )
 
     if include_doctests:
