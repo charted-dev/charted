@@ -4,7 +4,7 @@ dependencies:
   version: 2.9.2
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
-  version: 12.10.0
+  version: 12.11.0
 - name: redis
   repository: https://charts.bitnami.com/bitnami
   version: 18.0.2
