@@ -15,23 +15,14 @@
 
 use argon2::{PasswordHash, PasswordVerifier};
 use async_trait::async_trait;
-use charted_common::{hashmap, models::entities::User, server::ARGON2};
-use charted_config::{Config, ConfigExt};
-use charted_redis::RedisClient;
-use charted_sessions::{Session, SessionProvider, UserWithPassword};
-use chrono::{Duration, Local};
-use eyre::{eyre, Context, Result};
-use jsonwebtoken::{encode, EncodingKey, Header};
-use serde_json::Value;
+use charted_common::server::ARGON2;
+use charted_sessions::{SessionProvider, UserWithPassword};
+use eyre::{eyre, Result};
 use sqlx::PgPool;
-use std::{collections::HashMap, fmt::Debug};
-use tracing::{error, info_span, trace};
-use uuid::Uuid;
+use std::fmt::Debug;
 
 #[derive(Clone)]
 pub struct LocalSessionProvider {
-    jwt_encoding_key: EncodingKey,
-    redis: RedisClient,
     pool: PgPool,
 }
 
@@ -44,34 +35,21 @@ impl Debug for LocalSessionProvider {
 }
 
 impl LocalSessionProvider {
-    pub fn new(redis: RedisClient, pool: PgPool) -> Result<LocalSessionProvider> {
-        let config = Config::get();
-        let jwt_secret_key = config.jwt_secret_key()?;
-
-        Ok(LocalSessionProvider {
-            jwt_encoding_key: EncodingKey::from_secret(jwt_secret_key.as_ref()),
-            redis,
-            pool,
-        })
+    pub fn new(pool: PgPool) -> LocalSessionProvider {
+        LocalSessionProvider { pool }
     }
 }
 
 #[async_trait]
 impl SessionProvider for LocalSessionProvider {
-    async fn authorize(&mut self, password: String, user: &dyn UserWithPassword) -> Result<Session> {
+    #[tracing::instrument(name = "charted.sessions.local.authorize", skip_all, user.id = user.user().id, user.username = tracing::field::display(user.user().username))]
+    async fn authorize(&mut self, password: String, user: &dyn UserWithPassword) -> Result<()> {
         let user = user.user();
-        let span = info_span!(
-            "charted.sessions.local.authorize",
-            user.id,
-            user.username = tracing::field::display(user.username.clone())
-        );
-
-        let _guard = span.enter();
         match user.password(self.pool.clone(), user.id as u64).await {
             Ok(Some(pass)) => {
                 let hash = PasswordHash::new(&pass).map_err(|e| eyre!("unable to compute hash: {e}"))?;
                 match ARGON2.verify_password(password.as_ref(), &hash) {
-                    Ok(()) => self.create_session(user).await,
+                    Ok(()) => Ok(()),
                     Err(e) => Err(eyre!("unable to verify password: {e}")),
                 }
             }
@@ -84,96 +62,5 @@ impl SessionProvider for LocalSessionProvider {
 
             Err(e) => Err(eyre!("unable to retrieve password from database: {e}")),
         }
-    }
-
-    #[tracing::instrument(name = "charted.sessions.local.create", skip(self, user))]
-    async fn create_session(&mut self, user: User) -> Result<Session> {
-        let session_id = Uuid::new_v4();
-        let now = Local::now();
-        let two_days =
-            now + Duration::from_std(std::time::Duration::from_secs(172800)).context("clock went backwards?!")?;
-
-        let one_week =
-            now + Duration::from_std(std::time::Duration::from_secs(604800)).context("clock went backwards?!")?;
-
-        let header = Header {
-            alg: jsonwebtoken::Algorithm::HS512,
-            ..Default::default()
-        };
-
-        let access_token = encode::<HashMap<&str, Value>>(
-            &header,
-            &hashmap! {
-                "session_id" => Value::String(session_id.to_string()),
-                "user_id" => Value::Number(user.id.into()),
-                "iss" => Value::String("Noelware/charted-server".into()),
-                "exp" => Value::Number(two_days.timestamp().into())
-            },
-            &self.jwt_encoding_key,
-        )
-        .map_err(|e| {
-            error!(user.id, error = %e, "unable to create access token");
-            sentry::capture_error(&e);
-
-            eyre::Report::from(e)
-        })?;
-
-        let refresh_token = encode::<HashMap<&str, Value>>(
-            &header,
-            &hashmap! {
-                "session_id" => Value::String(session_id.to_string()),
-                "user_id" => Value::Number(user.id.into()),
-                "iss" => Value::String("Noelware/charted-server".into()),
-                "exp" => Value::Number(one_week.timestamp().into())
-            },
-            &self.jwt_encoding_key,
-        )
-        .map_err(|e| {
-            error!(user.id, error = %e, "unable to create access token");
-            sentry::capture_error(&e);
-
-            eyre::Report::from(e)
-        })?;
-
-        let session = Session {
-            refresh_token: Some(refresh_token),
-            access_token: Some(access_token),
-            session_id,
-            user_id: user.id as u64,
-        };
-
-        let session_json = serde_json::to_string(&session)?;
-        let mut client = self
-            .redis
-            .client()
-            .unwrap_or(self.redis.master()?)
-            .get_connection_with_timeout(std::time::Duration::from_millis(150))?;
-
-        trace!("<- HSET charted:sessions {session_id} {session_json}");
-        RedisClient::cmd("HSET")
-            .arg("charted:sessions")
-            .arg(session_id.to_string())
-            .arg(session_json)
-            .query::<()>(&mut client)?;
-
-        trace!("<- SET charted:sessions:{session_id} \"this is just some dummy payload (for now >:3)\"");
-
-        RedisClient::cmd("SET")
-            .arg(format!("charted:sessions:{session_id}"))
-            .arg("this is just some dummy payload (for now >:3)")
-            .query::<()>(&mut client)?;
-
-        trace!(
-            "<- EXPIRE charted:sessions:{session_id} {:?} XX",
-            std::time::Duration::from_secs(604800)
-        );
-
-        RedisClient::cmd("EXPIRE")
-            .arg(format!("charted:sessions:{session_id}"))
-            .arg(std::time::Duration::from_secs(604800).as_secs())
-            .arg("NX")
-            .query::<()>(&mut client)?;
-
-        Ok(session)
     }
 }

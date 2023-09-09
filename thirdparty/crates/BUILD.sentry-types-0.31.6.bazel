@@ -15,7 +15,7 @@ package(default_visibility = ["//visibility:public"])
 # ])
 
 rust_library(
-    name = "sentry_tracing",
+    name = "sentry_types",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -29,24 +29,29 @@ rust_library(
         ],
     ),
     crate_features = [
-        "backtrace",
         "default",
+        "protocol",
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=sentry-tracing",
+        "crate-name=sentry-types",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.31.5",
+    version = "0.31.6",
     deps = [
-        "@crate_index__sentry-backtrace-0.31.5//:sentry_backtrace",
-        "@crate_index__sentry-core-0.31.5//:sentry_core",
-        "@crate_index__tracing-core-0.1.31//:tracing_core",
-        "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
+        "@crate_index__debugid-0.8.0//:debugid",
+        "@crate_index__getrandom-0.2.10//:getrandom",
+        "@crate_index__hex-0.4.3//:hex",
+        "@crate_index__serde-1.0.186//:serde",
+        "@crate_index__serde_json-1.0.105//:serde_json",
+        "@crate_index__thiserror-1.0.47//:thiserror",
+        "@crate_index__time-0.3.25//:time",
+        "@crate_index__url-2.4.0//:url",
+        "@crate_index__uuid-1.4.1//:uuid",
     ],
 )

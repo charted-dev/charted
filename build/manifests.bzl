@@ -33,6 +33,7 @@ CARGO_MANIFESTS = ["//%s:Cargo.toml" % f for f in [
     "crates/sessions/integrations",
     "crates/sessions/local",
     "crates/sessions/ldap",
+    "crates/sessions/passwordless",
     "crates/sessions",
     "crates/storage",
     "tools/helm-plugin",

@@ -36,6 +36,7 @@ members = [
     "crates/sessions/integrations/github",
     "crates/sessions/ldap",
     "crates/sessions/local",
+    "crates/sessions/passwordless",
     "crates/storage",
     "server",
     "tools/devtools",

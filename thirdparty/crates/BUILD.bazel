@@ -86,8 +86,14 @@ alias(
 )
 
 alias(
+    name = "charted-emails-client",
+    actual = "@crate_index__charted-emails-client-0.0.0-devel.0//:charted_emails_client",
+    tags = ["manual"],
+)
+
+alias(
     name = "chrono",
-    actual = "@crate_index__chrono-0.4.26//:chrono",
+    actual = "@crate_index__chrono-0.4.30//:chrono",
     tags = ["manual"],
 )
 
@@ -260,6 +266,12 @@ alias(
 )
 
 alias(
+    name = "prost",
+    actual = "@crate_index__prost-0.12.0//:prost",
+    tags = ["manual"],
+)
+
+alias(
     name = "quote",
     actual = "@crate_index__quote-1.0.33//:quote",
     tags = ["manual"],
@@ -321,7 +333,7 @@ alias(
 
 alias(
     name = "sentry",
-    actual = "@crate_index__sentry-0.31.5//:sentry",
+    actual = "@crate_index__sentry-0.31.6//:sentry",
     tags = ["manual"],
 )
 
@@ -333,13 +345,13 @@ alias(
 
 alias(
     name = "sentry-tower",
-    actual = "@crate_index__sentry-tower-0.31.5//:sentry_tower",
+    actual = "@crate_index__sentry-tower-0.31.6//:sentry_tower",
     tags = ["manual"],
 )
 
 alias(
     name = "sentry-tracing",
-    actual = "@crate_index__sentry-tracing-0.31.5//:sentry_tracing",
+    actual = "@crate_index__sentry-tracing-0.31.6//:sentry_tracing",
     tags = ["manual"],
 )
 
@@ -418,6 +430,12 @@ alias(
 alias(
     name = "toml",
     actual = "@crate_index__toml-0.7.6//:toml",
+    tags = ["manual"],
+)
+
+alias(
+    name = "tonic",
+    actual = "@crate_index__tonic-0.10.0//:tonic",
     tags = ["manual"],
 )
 

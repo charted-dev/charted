@@ -49,6 +49,13 @@ use tracing::warn;
 /// ```
 make_config! {
     Config {
+        /// Valid gRPC endpoint to connect to when using the [emails microservice](https://charts.noelware.org/docs/services/emails/latest).
+        #[serde(default)]
+        pub emails_grpc_endpoint: Option<String> {
+            default: None;
+            env_value: var!("CHARTED_EMAILS_GRPC_ENDPOINT", is_optional: true);
+        };
+
         /// Secret key to use for encoding JWT values for sessions.
         #[serde(default)]
         jwt_secret_key: String {

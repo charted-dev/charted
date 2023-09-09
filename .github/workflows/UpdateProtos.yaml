@@ -1,0 +1,44 @@
+# 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
+# Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Update Protocol Buffers
+on:
+    workflow_dispatch: {}
+    schedule:
+        - cron: '0 0 * * *'
+env:
+    GOOGLE_PROTOBUF_STRUCT_PROTO: https://raw.githubusercontent.com/protocolbuffers/protobuf/main/src/google/protobuf/struct.proto
+    CHARTED_EMAILS_PROTO: https://raw.githubusercontent.com/charted-dev/email-service/main/protos/emails.proto
+jobs:
+    update:
+        name: Update
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout source code
+              uses: actions/checkout@v4
+
+            - name: Update protos
+              run: |
+                curl -fsSL -o ./crates/emails/protos/google/protobuf/struct.proto ${{env.GOOGLE_PROTOBUF_STRUCT_PROTO}}
+                curl -fsSL -o ./crates/emails/protos/emails.proto ${{env.CHARTED_EMAILS_PROTO}}
+
+            - name: Commit!
+              uses: EndBug/add-and-commit@v9
+              with:
+                author_name: Noel[bot]
+                default_author: user_info
+                author_email: noelbot@users.noreply.github.com
+                message: '[skip ci] :sparkles: Update Protobufs in repository'
+                push: true

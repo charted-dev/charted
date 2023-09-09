@@ -6,16 +6,16 @@
 #     bazel run @//thirdparty:crate_index
 ###############################################################################
 
-load("@rules_rust//rust:defs.bzl", "rust_library")
+load("@rules_rust//rust:defs.bzl", "rust_proc_macro")
 
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT
+#     "TODO",  # Apache-2.0
 # ])
 
-rust_library(
-    name = "wasi",
+rust_proc_macro(
+    name = "prost_derive",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -29,14 +29,21 @@ rust_library(
         ],
     ),
     crate_root = "src/lib.rs",
-    edition = "2018",
+    edition = "2021",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=wasi",
+        "crate-name=prost-derive",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.10.0+wasi-snapshot-preview1",
+    version = "0.12.0",
+    deps = [
+        "@crate_index__anyhow-1.0.75//:anyhow",
+        "@crate_index__itertools-0.11.0//:itertools",
+        "@crate_index__proc-macro2-1.0.66//:proc_macro2",
+        "@crate_index__quote-1.0.33//:quote",
+        "@crate_index__syn-2.0.31//:syn",
+    ],
 )

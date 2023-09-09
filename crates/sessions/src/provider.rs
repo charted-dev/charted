@@ -13,23 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::fmt::Debug;
-
-use crate::Session;
 use async_trait::async_trait;
 use charted_common::models::entities::User;
 use eyre::Result;
 use sqlx::{Error, PgPool, Row};
+use std::fmt::Debug;
 
-/// The [`SessionProvider`] abstraction allows you to provide a session with
-/// the current authenticated user's details that was passed in.
 #[async_trait]
 pub trait SessionProvider: Send + Sync {
-    /// Authorizes a user and returns a [`Session`] object, if it succeeded.
-    async fn authorize(&mut self, password: String, user: &dyn UserWithPassword) -> Result<Session>;
-
-    /// Creates a new session for the user.
-    async fn create_session(&mut self, user: User) -> Result<Session>;
+    async fn authorize(&mut self, password: String, user: &dyn UserWithPassword) -> Result<()>;
 }
 
 impl Debug for Box<dyn SessionProvider> {

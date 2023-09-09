@@ -23,6 +23,7 @@ use crate::{
 };
 use axum::{extract::State, handler::Handler, http::StatusCode, routing, Extension, Router};
 use charted_common::models::{entities::User, payloads::UserLoginPayload, Name};
+use charted_config::SessionBackend;
 use charted_proc_macros::controller;
 use charted_sessions::{Session, SessionProvider};
 use serde_json::json;
@@ -60,9 +61,29 @@ gen_response_schema!(SessionResponse, schema: "Session");
     response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
 )]
 pub async fn login(
-    State(Server { sessions, pool, .. }): State<Server>,
+    State(Server {
+        sessions, pool, config, ..
+    }): State<Server>,
     Json(payload): Json<UserLoginPayload>,
 ) -> Result<ApiResponse<Session>, ApiResponse> {
+    // if passwordless is the session backend, then /users/login is no longer
+    // available, and you will need to use the /users/passwordless/authenticate
+    // REST endpoint instead.
+    if let SessionBackend::Passwordless = config.sessions.backend {
+        return Err(err(
+            StatusCode::NOT_FOUND,
+            (
+                "HANDLER_NOT_FOUND",
+                "Route was not found",
+                json!({
+                    "method": "post",
+                    "url": "/users/login"
+                }),
+            )
+                .into(),
+        ));
+    }
+
     let UserLoginPayload {
         password,
         username,
@@ -120,7 +141,17 @@ pub async fn login(
     };
 
     let mut sessions = sessions.write().await;
-    let session = sessions.authorize(password, &user).await.map_err(|e| {
+    sessions.authorize(password, &user).await.map_err(|e| {
+        error!(user.id, error = %e, "unable to create session for user");
+        sentry_eyre::capture_report(&e);
+
+        err(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+        )
+    })?;
+
+    let session = sessions.create_session(user.clone()).await.map_err(|e| {
         error!(user.id, error = %e, "unable to create session for user");
         sentry_eyre::capture_report(&e);
 

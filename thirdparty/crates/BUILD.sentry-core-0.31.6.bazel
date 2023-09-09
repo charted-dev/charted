@@ -11,11 +11,11 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # MIT OR Apache-2.0
+#     "TODO",  # Apache-2.0
 # ])
 
 rust_library(
-    name = "rand",
+    name = "sentry_core",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -29,42 +29,28 @@ rust_library(
         ],
     ),
     crate_features = [
-        "alloc",
+        "client",
+        "debug-logs",
         "default",
-        "getrandom",
-        "libc",
-        "rand_chacha",
-        "small_rng",
-        "std",
-        "std_rng",
+        "rand",
     ],
     crate_root = "src/lib.rs",
-    edition = "2018",
+    edition = "2021",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=rand",
+        "crate-name=sentry-core",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.8.5",
+    version = "0.31.6",
     deps = [
-        "@crate_index__rand_chacha-0.3.1//:rand_chacha",
-        "@crate_index__rand_core-0.6.4//:rand_core",
-    ] + select({
-        "@rules_rust//rust/platform:aarch64-apple-darwin": [
-            "@crate_index__libc-0.2.147//:libc",  # cfg(unix)
-        ],
-        "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
-            "@crate_index__libc-0.2.147//:libc",  # cfg(unix)
-        ],
-        "@rules_rust//rust/platform:x86_64-apple-darwin": [
-            "@crate_index__libc-0.2.147//:libc",  # cfg(unix)
-        ],
-        "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
-            "@crate_index__libc-0.2.147//:libc",  # cfg(unix)
-        ],
-        "//conditions:default": [],
-    }),
+        "@crate_index__log-0.4.20//:log",
+        "@crate_index__once_cell-1.18.0//:once_cell",
+        "@crate_index__rand-0.8.5//:rand",
+        "@crate_index__sentry-types-0.31.6//:sentry_types",
+        "@crate_index__serde-1.0.186//:serde",
+        "@crate_index__serde_json-1.0.105//:serde_json",
+    ],
 )

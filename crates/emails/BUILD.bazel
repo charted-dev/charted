@@ -13,10 +13,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@crate_index//:defs.bzl", "all_crate_deps")
+load("@rules_rust//cargo:defs.bzl", "cargo_build_script")
 load("//:build/rust.bzl", "rust_project")
 
-exports_files(["Cargo.toml"])
+exports_files([
+    "Cargo.toml",
+    "protos/emails.proto",
+    "protos/google/protobuf/struct.proto",
+])
 
 rust_project(
     name = "emails",
+    deps = [
+        ":buildscript",
+        "@crate_index//:prost",
+        "@crate_index//:tonic",
+        "@crate_index//:tracing",
+    ],
+)
+
+cargo_build_script(
+    name = "buildscript",
+    srcs = ["build.rs"],
+    build_script_env = {
+        "PROTOS": "$(location //crates/emails:protos/emails.proto)",
+        "PROTOC": "$(execpath @com_google_protobuf//:protoc)",
+    },
+    data = [
+        "//crates/emails:protos/emails.proto",
+        "//crates/emails:protos/google/protobuf/struct.proto",
+        "@com_google_protobuf//:protoc",
+    ],
+    rustc_flags = [
+        "--cfg",
+        "bazel",
+    ],
+    visibility = [":__pkg__"],
+    deps = all_crate_deps(build = True),
 )

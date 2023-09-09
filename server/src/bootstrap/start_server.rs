@@ -129,10 +129,10 @@ pub(crate) async fn configure_modules(config: &Config) -> Result<Server> {
     let mut sessions = SessionManager::new(
         redis.clone(),
         match config.sessions.backend.clone() {
-            SessionBackend::Local => Box::new(LocalSessionProvider::new(redis.clone(), pool.clone())?),
+            SessionBackend::Local => Box::new(LocalSessionProvider::new(pool.clone())),
             backend => {
                 warn!("Backend {backend:?} is not supported at this time! Using local as a default");
-                Box::new(LocalSessionProvider::new(redis.clone(), pool.clone())?)
+                Box::new(LocalSessionProvider::new(pool.clone()))
             }
         },
     );

@@ -12,25 +12,3 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-/// Generated protobuf definitions.
-pub mod protos {
-    pub mod google {
-        pub mod protobuf {
-            tonic::include_proto!("google.protobuf");
-        }
-    }
-
-    pub mod noelware {
-        pub mod charted {
-            pub mod emails {
-                tonic::include_proto!("noelware.charted.emails");
-            }
-        }
-    }
-}
-
-use protos::noelware::charted::emails::emails_client::EmailsClient;
-use tonic::transport::Channel;
-
-pub type Client = EmailsClient<Channel>;

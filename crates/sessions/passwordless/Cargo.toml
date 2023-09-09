@@ -14,18 +14,14 @@
 # limitations under the License.
 
 [package]
-name = "charted-emails-client"
-description = "🐻‍❄️📦 gRPC client to connect to charted-emails"
+name = "charted-sessions-passwordless"
+description = "🐻‍❄️📦 Session provider using the Passwordless approach"
 version = "0.0.0-devel.0"
 edition = "2021"
 homepage = "https://charts.noelware.org"
 authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
 [dependencies]
-prost = "0.12.0"
-tonic = "0.10.0"
+charted-emails-client = { version = "0.0.0-devel.0", path = "../../emails" }
+sentry = "0.31.6"
 tracing = "0.1.37"
-
-[build-dependencies]
-tonic-build = "0.10.0"
-which = "4.4.2"

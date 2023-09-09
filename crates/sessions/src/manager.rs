@@ -15,8 +15,12 @@
 
 use crate::{Session, SessionProvider, UserWithPassword};
 use charted_common::{hashmap, models::entities::User};
+use charted_config::{Config, ConfigExt};
 use charted_redis::RedisClient;
-use eyre::{eyre, Context, Result};
+use chrono::Local;
+use eyre::{eyre, Context, Report, Result};
+use jsonwebtoken::{encode, Algorithm, EncodingKey, Header};
+use serde_json::Value;
 use std::{
     collections::HashMap,
     sync::{Arc, Mutex},
@@ -292,23 +296,92 @@ impl SessionManager {
 
         Ok(None)
     }
+
+    /// Creates a new [`Session`] for a given user.
+    #[tracing::instrument(name = "charted.sessions.create", skip_all)]
+    pub async fn create_session(&mut self, user: User) -> Result<Session> {
+        let session_id = Uuid::new_v4();
+        let now = Local::now();
+        let two_days = now + Duration::from_secs(172800);
+        let one_week = now + Duration::from_secs(604800);
+        let header = Header {
+            alg: Algorithm::HS512,
+            ..Default::default()
+        };
+
+        // create the access token
+        let config = Config::get();
+        let jwt_secret_key = EncodingKey::from_secret(config.jwt_secret_key().unwrap().as_bytes());
+        let access_token = encode::<HashMap<&str, Value>>(
+            &header,
+            &hashmap! {
+                "session_id" => Value::String(session_id.to_string()),
+                "user_id"    => Value::Number(user.id.into()),
+                "iat"        => Value::Number(now.timestamp().into()),
+                "nbf"        => Value::Number(now.timestamp().into()),
+                "exp"        => Value::Number(two_days.timestamp().into()),
+                "iss"        => Value::String("Noelware/charted-server".into())
+            },
+            &jwt_secret_key,
+        )
+        .map_err(|e| {
+            error!(user.id, error = %e, "unable to create access token");
+            sentry::capture_error(&e);
+
+            Report::from(e)
+        })?;
+
+        let refresh_token = encode::<HashMap<&str, Value>>(
+            &header,
+            &hashmap! {
+                "session_id" => Value::String(session_id.to_string()),
+                "user_id"    => Value::Number(user.id.into()),
+                "iat"        => Value::Number(now.timestamp().into()),
+                "nbf"        => Value::Number(now.timestamp().into()),
+                "exp"        => Value::Number(one_week.timestamp().into()),
+                "iss"        => Value::String("Noelware/charted-server".into())
+            },
+            &jwt_secret_key,
+        )
+        .map_err(|e| {
+            error!(user.id, error = %e, "unable to create access token");
+            sentry::capture_error(&e);
+
+            Report::from(e)
+        })?;
+
+        let session = Session {
+            refresh_token: Some(refresh_token),
+            access_token: Some(access_token),
+            session_id,
+            user_id: user.id as u64,
+        };
+
+        let as_json = serde_json::to_string(&session).unwrap();
+        let mut client = self
+            .redis
+            .master()?
+            .get_connection_with_timeout(Duration::from_millis(150))?;
+
+        RedisClient::pipeline()
+            .hset("charted:sessions", session_id.to_string(), as_json)
+            .set(format!("charted:sessions:{session_id}"), "dummy payload for now")
+            .arg("EXPIRE")
+            .arg(Duration::from_secs(604800).as_secs())
+            .arg("NX")
+            .query(&mut client)?;
+
+        Err(eyre::eyre!("damn"))
+    }
 }
 
 #[async_trait::async_trait]
 impl SessionProvider for SessionManager {
-    async fn authorize(&mut self, password: String, user: &dyn UserWithPassword) -> Result<Session> {
+    async fn authorize(&mut self, password: String, user: &dyn UserWithPassword) -> Result<()> {
         if let Ok(mut provider) = self.provider.try_lock() {
             return provider.authorize(password, user).await;
         }
 
         Err(eyre!("unable to authenticate (mutex is poisioned)"))
-    }
-
-    async fn create_session(&mut self, user: User) -> Result<Session> {
-        if let Ok(mut provider) = self.provider.try_lock() {
-            return provider.create_session(user).await;
-        }
-
-        Err(eyre!("unable to create session (mutex is poisioned)"))
     }
 }
