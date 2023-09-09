@@ -26,8 +26,12 @@ rust_project(
     rustc_flags = ["--cfg=tokio_unstable"],
     deps = [
         "//crates/common:charted_common",
+        "//crates/config:charted_config",
         "//crates/redis:charted_redis",
+        "@crate_index//:chrono",
         "@crate_index//:eyre",
+        "@crate_index//:jsonwebtoken",
+        "@crate_index//:sentry",
         "@crate_index//:serde",
         "@crate_index//:serde_json",
         "@crate_index//:sqlx",
