@@ -92,7 +92,7 @@ impl Execute for RustModule {
         };
 
         let final_path = workspace.join(location);
-        info!("creating rust crate charted-{name} in {}", final_path.display());
+        info!("creating rust crate charted_{name} in {}", final_path.display());
 
         if !final_path.exists() {
             create_dir_all(final_path.clone())?;
@@ -174,7 +174,7 @@ rust_project(
 "#
         )?;
 
-        info!("finished! please update build/utils.bzl to include your new crate!");
+        info!("finished! please update build/manifests.bzl to include your new crate!");
 
         Ok(())
     }

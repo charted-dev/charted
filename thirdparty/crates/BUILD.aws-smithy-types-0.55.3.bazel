@@ -44,6 +44,6 @@ rust_library(
         "@crate_index__itoa-1.0.9//:itoa",
         "@crate_index__num-integer-0.1.45//:num_integer",
         "@crate_index__ryu-1.0.15//:ryu",
-        "@crate_index__time-0.3.25//:time",
+        "@crate_index__time-0.3.28//:time",
     ],
 )

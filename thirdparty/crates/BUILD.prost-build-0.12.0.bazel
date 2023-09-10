@@ -46,7 +46,7 @@ rust_library(
     ],
     version = "0.12.0",
     deps = [
-        "@crate_index__bytes-1.4.0//:bytes",
+        "@crate_index__bytes-1.5.0//:bytes",
         "@crate_index__heck-0.4.1//:heck",
         "@crate_index__itertools-0.11.0//:itertools",
         "@crate_index__log-0.4.20//:log",
@@ -56,7 +56,7 @@ rust_library(
         "@crate_index__prettyplease-0.2.15//:prettyplease",
         "@crate_index__prost-0.12.0//:prost",
         "@crate_index__prost-types-0.12.0//:prost_types",
-        "@crate_index__regex-1.9.3//:regex",
+        "@crate_index__regex-1.9.5//:regex",
         "@crate_index__syn-2.0.31//:syn",
         "@crate_index__tempfile-3.8.0//:tempfile",
         "@crate_index__which-4.4.2//:which",

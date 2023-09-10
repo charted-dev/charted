@@ -54,10 +54,10 @@ rust_library(
     ],
     version = "4.6.6",
     deps = [
-        "@crate_index__bytes-1.4.0//:bytes",
+        "@crate_index__bytes-1.5.0//:bytes",
         "@crate_index__futures-core-0.3.28//:futures_core",
-        "@crate_index__memchr-2.5.0//:memchr",
-        "@crate_index__pin-project-lite-0.2.12//:pin_project_lite",
+        "@crate_index__memchr-2.6.3//:memchr",
+        "@crate_index__pin-project-lite-0.2.13//:pin_project_lite",
         "@crate_index__tokio-1.32.0//:tokio",
         "@crate_index__tokio-util-0.7.8//:tokio_util",
     ],

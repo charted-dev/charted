@@ -33,13 +33,13 @@ alias(
 
 alias(
     name = "argon2",
-    actual = "@crate_index__argon2-0.5.1//:argon2",
+    actual = "@crate_index__argon2-0.5.2//:argon2",
     tags = ["manual"],
 )
 
 alias(
     name = "async-recursion",
-    actual = "@crate_index__async-recursion-1.0.4//:async_recursion",
+    actual = "@crate_index__async-recursion-1.0.5//:async_recursion",
     tags = ["manual"],
 )
 
@@ -63,13 +63,13 @@ alias(
 
 alias(
     name = "base64",
-    actual = "@crate_index__base64-0.21.2//:base64",
+    actual = "@crate_index__base64-0.21.4//:base64",
     tags = ["manual"],
 )
 
 alias(
     name = "bytes",
-    actual = "@crate_index__bytes-1.4.0//:bytes",
+    actual = "@crate_index__bytes-1.5.0//:bytes",
     tags = ["manual"],
 )
 
@@ -99,13 +99,13 @@ alias(
 
 alias(
     name = "clap",
-    actual = "@crate_index__clap-4.3.23//:clap",
+    actual = "@crate_index__clap-4.4.2//:clap",
     tags = ["manual"],
 )
 
 alias(
     name = "clap_complete",
-    actual = "@crate_index__clap_complete-4.3.2//:clap_complete",
+    actual = "@crate_index__clap_complete-4.4.1//:clap_complete",
     tags = ["manual"],
 )
 
@@ -200,6 +200,12 @@ alias(
 )
 
 alias(
+    name = "logos",
+    actual = "@crate_index__logos-0.13.0//:logos",
+    tags = ["manual"],
+)
+
+alias(
     name = "md-5",
     actual = "@crate_index__md-5-0.10.5//:md5",
     tags = ["manual"],
@@ -219,7 +225,7 @@ alias(
 
 alias(
     name = "mimalloc",
-    actual = "@crate_index__mimalloc-0.1.37//:mimalloc",
+    actual = "@crate_index__mimalloc-0.1.38//:mimalloc",
     tags = ["manual"],
 )
 
@@ -285,13 +291,13 @@ alias(
 
 alias(
     name = "redis",
-    actual = "@crate_index__redis-0.23.2//:redis",
+    actual = "@crate_index__redis-0.23.3//:redis",
     tags = ["manual"],
 )
 
 alias(
     name = "regex",
-    actual = "@crate_index__regex-1.9.3//:regex",
+    actual = "@crate_index__regex-1.9.5//:regex",
     tags = ["manual"],
 )
 
@@ -315,7 +321,7 @@ alias(
 
 alias(
     name = "reqwest",
-    actual = "@crate_index__reqwest-0.11.18//:reqwest",
+    actual = "@crate_index__reqwest-0.11.20//:reqwest",
     tags = ["manual"],
 )
 
@@ -357,13 +363,13 @@ alias(
 
 alias(
     name = "serde",
-    actual = "@crate_index__serde-1.0.186//:serde",
+    actual = "@crate_index__serde-1.0.188//:serde",
     tags = ["manual"],
 )
 
 alias(
     name = "serde_json",
-    actual = "@crate_index__serde_json-1.0.105//:serde_json",
+    actual = "@crate_index__serde_json-1.0.106//:serde_json",
     tags = ["manual"],
 )
 
@@ -399,7 +405,7 @@ alias(
 
 alias(
     name = "sysinfo",
-    actual = "@crate_index__sysinfo-0.29.8//:sysinfo",
+    actual = "@crate_index__sysinfo-0.29.10//:sysinfo",
     tags = ["manual"],
 )
 
@@ -411,7 +417,7 @@ alias(
 
 alias(
     name = "thiserror",
-    actual = "@crate_index__thiserror-1.0.47//:thiserror",
+    actual = "@crate_index__thiserror-1.0.48//:thiserror",
     tags = ["manual"],
 )
 
@@ -429,7 +435,7 @@ alias(
 
 alias(
     name = "toml",
-    actual = "@crate_index__toml-0.7.6//:toml",
+    actual = "@crate_index__toml-0.7.8//:toml",
     tags = ["manual"],
 )
 
@@ -447,7 +453,7 @@ alias(
 
 alias(
     name = "tower-http",
-    actual = "@crate_index__tower-http-0.4.3//:tower_http",
+    actual = "@crate_index__tower-http-0.4.4//:tower_http",
     tags = ["manual"],
 )
 
@@ -477,7 +483,7 @@ alias(
 
 alias(
     name = "url",
-    actual = "@crate_index__url-2.4.0//:url",
+    actual = "@crate_index__url-2.4.1//:url",
     tags = ["manual"],
 )
 

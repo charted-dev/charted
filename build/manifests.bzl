@@ -15,6 +15,7 @@
 
 # buildifier: disable=module-docstring
 CARGO_MANIFESTS = ["//%s:Cargo.toml" % f for f in [
+    "cli",
     "crates/avatars",
     "crates/common",
     "crates/config",
@@ -36,9 +37,9 @@ CARGO_MANIFESTS = ["//%s:Cargo.toml" % f for f in [
     "crates/sessions/passwordless",
     "crates/sessions",
     "crates/storage",
+    "features/gc",
+    "server",
     "tools/helm-plugin",
     "tools/devtools",
-    "server",
-    "cli",
     "",
 ]]

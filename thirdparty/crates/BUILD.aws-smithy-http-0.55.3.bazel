@@ -47,7 +47,7 @@ rust_library(
     deps = [
         "@crate_index__aws-smithy-eventstream-0.55.3//:aws_smithy_eventstream",
         "@crate_index__aws-smithy-types-0.55.3//:aws_smithy_types",
-        "@crate_index__bytes-1.4.0//:bytes",
+        "@crate_index__bytes-1.5.0//:bytes",
         "@crate_index__bytes-utils-0.1.3//:bytes_utils",
         "@crate_index__futures-core-0.3.28//:futures_core",
         "@crate_index__http-0.2.9//:http",
@@ -55,7 +55,7 @@ rust_library(
         "@crate_index__hyper-0.14.27//:hyper",
         "@crate_index__once_cell-1.18.0//:once_cell",
         "@crate_index__percent-encoding-2.3.0//:percent_encoding",
-        "@crate_index__pin-project-lite-0.2.12//:pin_project_lite",
+        "@crate_index__pin-project-lite-0.2.13//:pin_project_lite",
         "@crate_index__pin-utils-0.1.0//:pin_utils",
         "@crate_index__tokio-1.32.0//:tokio",
         "@crate_index__tokio-util-0.7.8//:tokio_util",

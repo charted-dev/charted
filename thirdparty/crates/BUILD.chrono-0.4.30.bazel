@@ -55,7 +55,7 @@ rust_library(
     version = "0.4.30",
     deps = [
         "@crate_index__num-traits-0.2.16//:num_traits",
-        "@crate_index__serde-1.0.186//:serde",
+        "@crate_index__serde-1.0.188//:serde",
     ] + select({
         "@rules_rust//rust/platform:aarch64-apple-darwin": [
             "@crate_index__iana-time-zone-0.1.57//:iana_time_zone",  # cfg(unix)

@@ -43,7 +43,7 @@ rust_library(
         "@crate_index__indexmap-2.0.0//:indexmap",
         "@crate_index__itoa-1.0.9//:itoa",
         "@crate_index__ryu-1.0.15//:ryu",
-        "@crate_index__serde-1.0.186//:serde",
+        "@crate_index__serde-1.0.188//:serde",
         "@crate_index__unsafe-libyaml-0.2.9//:unsafe_libyaml",
     ],
 )

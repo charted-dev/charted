@@ -44,8 +44,8 @@ rust_library(
     ],
     version = "0.23.4",
     deps = [
-        "@crate_index__rustls-0.20.8//:rustls",
+        "@crate_index__rustls-0.20.9//:rustls",
         "@crate_index__tokio-1.32.0//:tokio",
-        "@crate_index__webpki-0.22.0//:webpki",
+        "@crate_index__webpki-0.22.1//:webpki",
     ],
 )

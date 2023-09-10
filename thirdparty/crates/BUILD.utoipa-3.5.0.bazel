@@ -51,8 +51,8 @@ rust_library(
     version = "3.5.0",
     deps = [
         "@crate_index__indexmap-2.0.0//:indexmap",
-        "@crate_index__serde-1.0.186//:serde",
-        "@crate_index__serde_json-1.0.105//:serde_json",
+        "@crate_index__serde-1.0.188//:serde",
+        "@crate_index__serde_json-1.0.106//:serde_json",
         "@crate_index__serde_yaml-0.9.25//:serde_yaml",
     ],
 )

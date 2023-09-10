@@ -65,7 +65,7 @@ rust_library(
         "@crate_index__httpdate-1.0.3//:httpdate",
         "@crate_index__log-0.4.20//:log",
         "@crate_index__native-tls-0.2.11//:native_tls",
-        "@crate_index__reqwest-0.11.18//:reqwest",
+        "@crate_index__reqwest-0.11.20//:reqwest",
         "@crate_index__sentry-backtrace-0.31.6//:sentry_backtrace",
         "@crate_index__sentry-contexts-0.31.6//:sentry_contexts",
         "@crate_index__sentry-core-0.31.6//:sentry_core",

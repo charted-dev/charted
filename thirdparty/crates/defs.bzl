@@ -297,19 +297,19 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "ansi_term": "@crate_index__ansi_term-0.12.1//:ansi_term",
             "chrono": "@crate_index__chrono-0.4.30//:chrono",
-            "clap": "@crate_index__clap-4.3.23//:clap",
-            "clap_complete": "@crate_index__clap_complete-4.3.2//:clap_complete",
+            "clap": "@crate_index__clap-4.4.2//:clap",
+            "clap_complete": "@crate_index__clap_complete-4.4.1//:clap_complete",
             "color-eyre": "@crate_index__color-eyre-0.6.2//:color_eyre",
             "dotenv": "@crate_index__dotenv-0.15.0//:dotenv",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
-            "mimalloc": "@crate_index__mimalloc-0.1.37//:mimalloc",
+            "mimalloc": "@crate_index__mimalloc-0.1.38//:mimalloc",
             "num_cpus": "@crate_index__num_cpus-1.16.0//:num_cpus",
             "promptly": "@crate_index__promptly-0.3.1//:promptly",
-            "serde_json": "@crate_index__serde_json-1.0.105//:serde_json",
+            "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
             "serde_yaml": "@crate_index__serde_yaml-0.9.25//:serde_yaml",
             "simple_tables": "@crate_index__simple_tables-0.3.0//:simple_tables",
             "sqlx": "@crate_index__sqlx-0.7.1//:sqlx",
-            "sysinfo": "@crate_index__sysinfo-0.29.8//:sysinfo",
+            "sysinfo": "@crate_index__sysinfo-0.29.10//:sysinfo",
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
@@ -317,16 +317,16 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/avatars": {
         _COMMON_CONDITION: {
-            "bytes": "@crate_index__bytes-1.4.0//:bytes",
+            "bytes": "@crate_index__bytes-1.5.0//:bytes",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "remi-core": "@crate_index__remi-core-0.4.0//:remi_core",
-            "reqwest": "@crate_index__reqwest-0.11.18//:reqwest",
+            "reqwest": "@crate_index__reqwest-0.11.20//:reqwest",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
         },
     },
     "crates/common": {
         _COMMON_CONDITION: {
-            "argon2": "@crate_index__argon2-0.5.1//:argon2",
+            "argon2": "@crate_index__argon2-0.5.2//:argon2",
             "axum": "@crate_index__axum-0.6.20//:axum",
             "chrono": "@crate_index__chrono-0.4.30//:chrono",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
@@ -335,12 +335,12 @@ _NORMAL_DEPENDENCIES = {
             "md-5": "@crate_index__md-5-0.10.5//:md5",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
             "rand": "@crate_index__rand-0.8.5//:rand",
-            "regex": "@crate_index__regex-1.9.3//:regex",
+            "regex": "@crate_index__regex-1.9.5//:regex",
             "semver": "@crate_index__semver-1.0.18//:semver",
-            "serde": "@crate_index__serde-1.0.186//:serde",
-            "serde_json": "@crate_index__serde_json-1.0.105//:serde_json",
+            "serde": "@crate_index__serde-1.0.188//:serde",
+            "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
             "sqlx": "@crate_index__sqlx-0.7.1//:sqlx",
-            "thiserror": "@crate_index__thiserror-1.0.47//:thiserror",
+            "thiserror": "@crate_index__thiserror-1.0.48//:thiserror",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
             "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
             "validator": "@crate_index__validator-0.16.1//:validator",
@@ -349,18 +349,18 @@ _NORMAL_DEPENDENCIES = {
     "crates/config": {
         _COMMON_CONDITION: {
             "aws-sdk-s3": "@crate_index__aws-sdk-s3-0.28.0//:aws_sdk_s3",
-            "base64": "@crate_index__base64-0.21.2//:base64",
-            "clap": "@crate_index__clap-4.3.23//:clap",
+            "base64": "@crate_index__base64-0.21.4//:base64",
+            "clap": "@crate_index__clap-4.4.2//:clap",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "lazy_static": "@crate_index__lazy_static-1.4.0//:lazy_static",
             "merge-struct": "@crate_index__merge-struct-0.1.0//:merge_struct",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
-            "regex": "@crate_index__regex-1.9.3//:regex",
+            "regex": "@crate_index__regex-1.9.5//:regex",
             "remi-fs": "@crate_index__remi-fs-0.4.0//:remi_fs",
             "remi-s3": "@crate_index__remi-s3-0.4.0//:remi_s3",
-            "serde": "@crate_index__serde-1.0.186//:serde",
+            "serde": "@crate_index__serde-1.0.188//:serde",
             "serde_yaml": "@crate_index__serde_yaml-0.9.25//:serde_yaml",
-            "thiserror": "@crate_index__thiserror-1.0.47//:thiserror",
+            "thiserror": "@crate_index__thiserror-1.0.48//:thiserror",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
         },
     },
@@ -368,7 +368,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "sentry": "@crate_index__sentry-0.31.6//:sentry",
-            "serde": "@crate_index__serde-1.0.186//:serde",
+            "serde": "@crate_index__serde-1.0.188//:serde",
             "sqlx": "@crate_index__sqlx-0.7.1//:sqlx",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
         },
@@ -383,12 +383,12 @@ _NORMAL_DEPENDENCIES = {
     "crates/helm-charts": {
         _COMMON_CONDITION: {
             "axum": "@crate_index__axum-0.6.20//:axum",
-            "bytes": "@crate_index__bytes-1.4.0//:bytes",
+            "bytes": "@crate_index__bytes-1.5.0//:bytes",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "flate2": "@crate_index__flate2-1.0.27//:flate2",
             "itertools": "@crate_index__itertools-0.11.0//:itertools",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
-            "regex": "@crate_index__regex-1.9.3//:regex",
+            "regex": "@crate_index__regex-1.9.5//:regex",
             "remi-core": "@crate_index__remi-core-0.4.0//:remi_core",
             "semver": "@crate_index__semver-1.0.18//:semver",
             "sentry": "@crate_index__sentry-0.31.6//:sentry",
@@ -402,7 +402,7 @@ _NORMAL_DEPENDENCIES = {
             "ansi_term": "@crate_index__ansi_term-0.12.1//:ansi_term",
             "chrono": "@crate_index__chrono-0.4.30//:chrono",
             "sentry-tracing": "@crate_index__sentry-tracing-0.31.6//:sentry_tracing",
-            "serde_json": "@crate_index__serde_json-1.0.105//:serde_json",
+            "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
             "tracing-log": "@crate_index__tracing-log-0.1.3//:tracing_log",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
@@ -413,7 +413,7 @@ _NORMAL_DEPENDENCIES = {
             "dyn-clone": "@crate_index__dyn-clone-1.0.13//:dyn_clone",
             "erased-serde": "@crate_index__erased-serde-0.3.31//:erased_serde",
             "prometheus-client": "@crate_index__prometheus-client-0.21.2//:prometheus_client",
-            "serde": "@crate_index__serde-1.0.186//:serde",
+            "serde": "@crate_index__serde-1.0.188//:serde",
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
         },
     },
@@ -429,7 +429,7 @@ _NORMAL_DEPENDENCIES = {
             "heck": "@crate_index__heck-0.4.1//:heck",
             "proc-macro2": "@crate_index__proc-macro2-1.0.66//:proc_macro2",
             "quote": "@crate_index__quote-1.0.33//:quote",
-            "serde_json": "@crate_index__serde_json-1.0.105//:serde_json",
+            "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
             "syn": "@crate_index__syn-2.0.31//:syn",
             "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
         },
@@ -437,7 +437,7 @@ _NORMAL_DEPENDENCIES = {
     "crates/redis": {
         _COMMON_CONDITION: {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
-            "redis": "@crate_index__redis-0.23.2//:redis",
+            "redis": "@crate_index__redis-0.23.3//:redis",
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
         },
@@ -446,7 +446,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
-            "serde": "@crate_index__serde-1.0.186//:serde",
+            "serde": "@crate_index__serde-1.0.188//:serde",
         },
     },
     "crates/search/elasticsearch": {
@@ -454,18 +454,18 @@ _NORMAL_DEPENDENCIES = {
             "elasticsearch": "@crate_index__elasticsearch-8.5.0-alpha.1//:elasticsearch",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
-            "serde": "@crate_index__serde-1.0.186//:serde",
-            "serde_json": "@crate_index__serde_json-1.0.105//:serde_json",
+            "serde": "@crate_index__serde-1.0.188//:serde",
+            "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
-            "url": "@crate_index__url-2.4.0//:url",
+            "url": "@crate_index__url-2.4.1//:url",
         },
     },
     "crates/search/meilisearch": {
         _COMMON_CONDITION: {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "meilisearch-sdk": "@crate_index__meilisearch-sdk-0.24.1//:meilisearch_sdk",
-            "serde": "@crate_index__serde-1.0.186//:serde",
+            "serde": "@crate_index__serde-1.0.188//:serde",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
         },
     },
@@ -474,10 +474,10 @@ _NORMAL_DEPENDENCIES = {
             "chrono": "@crate_index__chrono-0.4.30//:chrono",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "jsonwebtoken": "@crate_index__jsonwebtoken-8.3.0//:jsonwebtoken",
-            "redis": "@crate_index__redis-0.23.2//:redis",
+            "redis": "@crate_index__redis-0.23.3//:redis",
             "sentry": "@crate_index__sentry-0.31.6//:sentry",
-            "serde": "@crate_index__serde-1.0.186//:serde",
-            "serde_json": "@crate_index__serde_json-1.0.105//:serde_json",
+            "serde": "@crate_index__serde-1.0.188//:serde",
+            "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
             "sqlx": "@crate_index__sqlx-0.7.1//:sqlx",
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
             "tokio-util": "@crate_index__tokio-util-0.7.8//:tokio_util",
@@ -494,13 +494,13 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/sessions/local": {
         _COMMON_CONDITION: {
-            "argon2": "@crate_index__argon2-0.5.1//:argon2",
+            "argon2": "@crate_index__argon2-0.5.2//:argon2",
             "chrono": "@crate_index__chrono-0.4.30//:chrono",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "jsonwebtoken": "@crate_index__jsonwebtoken-8.3.0//:jsonwebtoken",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
             "sentry": "@crate_index__sentry-0.31.6//:sentry",
-            "serde_json": "@crate_index__serde_json-1.0.105//:serde_json",
+            "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
             "sqlx": "@crate_index__sqlx-0.7.1//:sqlx",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
             "uuid": "@crate_index__uuid-1.4.1//:uuid",
@@ -514,19 +514,26 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/storage": {
         _COMMON_CONDITION: {
-            "bytes": "@crate_index__bytes-1.4.0//:bytes",
+            "bytes": "@crate_index__bytes-1.5.0//:bytes",
             "remi-core": "@crate_index__remi-core-0.4.0//:remi_core",
             "remi-fs": "@crate_index__remi-fs-0.4.0//:remi_fs",
             "remi-s3": "@crate_index__remi-s3-0.4.0//:remi_s3",
-            "serde": "@crate_index__serde-1.0.186//:serde",
+            "serde": "@crate_index__serde-1.0.188//:serde",
+        },
+    },
+    "features/gc": {
+        _COMMON_CONDITION: {
+            "logos": "@crate_index__logos-0.13.0//:logos",
+            "sentry": "@crate_index__sentry-0.31.6//:sentry",
+            "tracing": "@crate_index__tracing-0.1.37//:tracing",
         },
     },
     "server": {
         _COMMON_CONDITION: {
             "ansi_term": "@crate_index__ansi_term-0.12.1//:ansi_term",
-            "argon2": "@crate_index__argon2-0.5.1//:argon2",
+            "argon2": "@crate_index__argon2-0.5.2//:argon2",
             "axum": "@crate_index__axum-0.6.20//:axum",
-            "base64": "@crate_index__base64-0.21.2//:base64",
+            "base64": "@crate_index__base64-0.21.4//:base64",
             "chrono": "@crate_index__chrono-0.4.30//:chrono",
             "erased-serde": "@crate_index__erased-serde-0.3.31//:erased_serde",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
@@ -541,14 +548,14 @@ _NORMAL_DEPENDENCIES = {
             "sentry-eyre": "@crate_index__sentry-eyre-0.1.0//:sentry_eyre",
             "sentry-tower": "@crate_index__sentry-tower-0.31.6//:sentry_tower",
             "sentry-tracing": "@crate_index__sentry-tracing-0.31.6//:sentry_tracing",
-            "serde": "@crate_index__serde-1.0.186//:serde",
-            "serde_json": "@crate_index__serde_json-1.0.105//:serde_json",
+            "serde": "@crate_index__serde-1.0.188//:serde",
+            "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
             "serde_path_to_error": "@crate_index__serde_path_to_error-0.1.14//:serde_path_to_error",
             "serde_yaml": "@crate_index__serde_yaml-0.9.25//:serde_yaml",
             "sqlx": "@crate_index__sqlx-0.7.1//:sqlx",
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
             "tower": "@crate_index__tower-0.4.13//:tower",
-            "tower-http": "@crate_index__tower-http-0.4.3//:tower_http",
+            "tower-http": "@crate_index__tower-http-0.4.4//:tower_http",
             "tower-layer": "@crate_index__tower-layer-0.3.2//:tower_layer",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
             "tracing-log": "@crate_index__tracing-log-0.1.3//:tracing_log",
@@ -559,16 +566,16 @@ _NORMAL_DEPENDENCIES = {
     },
     "tools/devtools": {
         _COMMON_CONDITION: {
-            "clap": "@crate_index__clap-4.3.23//:clap",
-            "clap_complete": "@crate_index__clap_complete-4.3.2//:clap_complete",
+            "clap": "@crate_index__clap-4.4.2//:clap",
+            "clap_complete": "@crate_index__clap_complete-4.4.1//:clap_complete",
             "color-eyre": "@crate_index__color-eyre-0.6.2//:color_eyre",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "itertools": "@crate_index__itertools-0.11.0//:itertools",
             "promptly": "@crate_index__promptly-0.3.1//:promptly",
-            "serde": "@crate_index__serde-1.0.186//:serde",
+            "serde": "@crate_index__serde-1.0.188//:serde",
             "simple_tables": "@crate_index__simple_tables-0.3.0//:simple_tables",
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
-            "toml": "@crate_index__toml-0.7.6//:toml",
+            "toml": "@crate_index__toml-0.7.8//:toml",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
             "which": "@crate_index__which-4.4.2//:which",
@@ -578,22 +585,22 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "ansi_term": "@crate_index__ansi_term-0.12.1//:ansi_term",
             "chrono": "@crate_index__chrono-0.4.30//:chrono",
-            "clap": "@crate_index__clap-4.3.23//:clap",
-            "clap_complete": "@crate_index__clap_complete-4.3.2//:clap_complete",
+            "clap": "@crate_index__clap-4.4.2//:clap",
+            "clap_complete": "@crate_index__clap_complete-4.4.1//:clap_complete",
             "color-eyre": "@crate_index__color-eyre-0.6.2//:color_eyre",
             "dirs": "@crate_index__dirs-5.0.1//:dirs",
             "dotenv": "@crate_index__dotenv-0.15.0//:dotenv",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
-            "reqwest": "@crate_index__reqwest-0.11.18//:reqwest",
-            "serde": "@crate_index__serde-1.0.186//:serde",
-            "serde_json": "@crate_index__serde_json-1.0.105//:serde_json",
+            "reqwest": "@crate_index__reqwest-0.11.20//:reqwest",
+            "serde": "@crate_index__serde-1.0.188//:serde",
+            "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
             "serde_yaml": "@crate_index__serde_yaml-0.9.25//:serde_yaml",
-            "sysinfo": "@crate_index__sysinfo-0.29.8//:sysinfo",
+            "sysinfo": "@crate_index__sysinfo-0.29.10//:sysinfo",
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
-            "url": "@crate_index__url-2.4.0//:url",
+            "url": "@crate_index__url-2.4.1//:url",
             "which": "@crate_index__which-4.4.2//:which",
         },
     },
@@ -682,6 +689,10 @@ _NORMAL_ALIASES = {
         _COMMON_CONDITION: {
         },
     },
+    "features/gc": {
+        _COMMON_CONDITION: {
+        },
+    },
     "server": {
         _COMMON_CONDITION: {
         },
@@ -741,6 +752,8 @@ _NORMAL_DEV_DEPENDENCIES = {
     },
     "crates/storage": {
     },
+    "features/gc": {
+    },
     "server": {
     },
     "tools/devtools": {
@@ -794,6 +807,8 @@ _NORMAL_DEV_ALIASES = {
     },
     "crates/storage": {
     },
+    "features/gc": {
+    },
     "server": {
     },
     "tools/devtools": {
@@ -830,7 +845,7 @@ _PROC_MACRO_DEPENDENCIES = {
     },
     "crates/helm-charts": {
         _COMMON_CONDITION: {
-            "async-recursion": "@crate_index__async-recursion-1.0.4//:async_recursion",
+            "async-recursion": "@crate_index__async-recursion-1.0.5//:async_recursion",
         },
     },
     "crates/logging": {
@@ -843,7 +858,7 @@ _PROC_MACRO_DEPENDENCIES = {
     },
     "crates/redis": {
         _COMMON_CONDITION: {
-            "async-recursion": "@crate_index__async-recursion-1.0.4//:async_recursion",
+            "async-recursion": "@crate_index__async-recursion-1.0.5//:async_recursion",
         },
     },
     "crates/search": {
@@ -880,6 +895,8 @@ _PROC_MACRO_DEPENDENCIES = {
     "crates/sessions/passwordless": {
     },
     "crates/storage": {
+    },
+    "features/gc": {
     },
     "server": {
         _COMMON_CONDITION: {
@@ -944,6 +961,8 @@ _PROC_MACRO_ALIASES = {
     },
     "crates/storage": {
     },
+    "features/gc": {
+    },
     "server": {
     },
     "tools/devtools": {
@@ -997,6 +1016,8 @@ _PROC_MACRO_DEV_DEPENDENCIES = {
     },
     "crates/storage": {
     },
+    "features/gc": {
+    },
     "server": {
     },
     "tools/devtools": {
@@ -1049,6 +1070,8 @@ _PROC_MACRO_DEV_ALIASES = {
     "crates/sessions/passwordless": {
     },
     "crates/storage": {
+    },
+    "features/gc": {
     },
     "server": {
     },
@@ -1111,6 +1134,8 @@ _BUILD_DEPENDENCIES = {
     },
     "crates/storage": {
     },
+    "features/gc": {
+    },
     "server": {
     },
     "tools/devtools": {
@@ -1168,6 +1193,8 @@ _BUILD_ALIASES = {
     },
     "crates/storage": {
     },
+    "features/gc": {
+    },
     "server": {
     },
     "tools/devtools": {
@@ -1220,6 +1247,8 @@ _BUILD_PROC_MACRO_DEPENDENCIES = {
     "crates/sessions/passwordless": {
     },
     "crates/storage": {
+    },
+    "features/gc": {
     },
     "server": {
     },
@@ -1274,6 +1303,8 @@ _BUILD_PROC_MACRO_ALIASES = {
     },
     "crates/storage": {
     },
+    "features/gc": {
+    },
     "server": {
     },
     "tools/devtools": {
@@ -1314,9 +1345,9 @@ _CONDITIONS = {
     "cfg(any(windows, target_os = \"linux\", target_os = \"android\"))": ["@rules_rust//rust/platform:aarch64-unknown-linux-gnu", "@rules_rust//rust/platform:x86_64-pc-windows-msvc", "@rules_rust//rust/platform:x86_64-unknown-linux-gnu"],
     "cfg(any(windows, unix, target_os = \"redox\"))": ["@rules_rust//rust/platform:aarch64-apple-darwin", "@rules_rust//rust/platform:aarch64-unknown-linux-gnu", "@rules_rust//rust/platform:x86_64-apple-darwin", "@rules_rust//rust/platform:x86_64-pc-windows-msvc", "@rules_rust//rust/platform:x86_64-unknown-linux-gnu"],
     "cfg(not(all(target_arch = \"arm\", target_os = \"none\")))": ["@rules_rust//rust/platform:aarch64-apple-darwin", "@rules_rust//rust/platform:aarch64-unknown-linux-gnu", "@rules_rust//rust/platform:x86_64-apple-darwin", "@rules_rust//rust/platform:x86_64-pc-windows-msvc", "@rules_rust//rust/platform:x86_64-unknown-linux-gnu"],
+    "cfg(not(all(windows, target_env = \"msvc\", not(target_vendor = \"uwp\"))))": ["@rules_rust//rust/platform:aarch64-apple-darwin", "@rules_rust//rust/platform:aarch64-unknown-linux-gnu", "@rules_rust//rust/platform:x86_64-apple-darwin", "@rules_rust//rust/platform:x86_64-unknown-linux-gnu"],
     "cfg(not(any(target_os = \"unknown\", target_arch = \"wasm32\")))": ["@rules_rust//rust/platform:aarch64-apple-darwin", "@rules_rust//rust/platform:aarch64-unknown-linux-gnu", "@rules_rust//rust/platform:x86_64-apple-darwin", "@rules_rust//rust/platform:x86_64-pc-windows-msvc", "@rules_rust//rust/platform:x86_64-unknown-linux-gnu"],
     "cfg(not(any(target_os = \"windows\", target_os = \"macos\", target_os = \"ios\")))": ["@rules_rust//rust/platform:aarch64-unknown-linux-gnu", "@rules_rust//rust/platform:x86_64-unknown-linux-gnu"],
-    "cfg(not(any(windows, target_os = \"hermit\", target_os = \"unknown\")))": ["@rules_rust//rust/platform:aarch64-apple-darwin", "@rules_rust//rust/platform:aarch64-unknown-linux-gnu", "@rules_rust//rust/platform:x86_64-apple-darwin", "@rules_rust//rust/platform:x86_64-unknown-linux-gnu"],
     "cfg(not(target_arch = \"wasm32\"))": ["@rules_rust//rust/platform:aarch64-apple-darwin", "@rules_rust//rust/platform:aarch64-unknown-linux-gnu", "@rules_rust//rust/platform:x86_64-apple-darwin", "@rules_rust//rust/platform:x86_64-pc-windows-msvc", "@rules_rust//rust/platform:x86_64-unknown-linux-gnu"],
     "cfg(not(target_family = \"wasm\"))": ["@rules_rust//rust/platform:aarch64-apple-darwin", "@rules_rust//rust/platform:aarch64-unknown-linux-gnu", "@rules_rust//rust/platform:x86_64-apple-darwin", "@rules_rust//rust/platform:x86_64-pc-windows-msvc", "@rules_rust//rust/platform:x86_64-unknown-linux-gnu"],
     "cfg(not(target_os = \"redox\"))": ["@rules_rust//rust/platform:aarch64-apple-darwin", "@rules_rust//rust/platform:aarch64-unknown-linux-gnu", "@rules_rust//rust/platform:x86_64-apple-darwin", "@rules_rust//rust/platform:x86_64-pc-windows-msvc", "@rules_rust//rust/platform:x86_64-unknown-linux-gnu"],
@@ -1351,12 +1382,12 @@ def crate_repositories():
     """A macro for defining repositories for all generated crates"""
     maybe(
         http_archive,
-        name = "crate_index__addr2line-0.20.0",
-        sha256 = "f4fa78e18c64fce05e902adecd7a5eed15a5e0a3439f7b0e169f0252214865e3",
+        name = "crate_index__addr2line-0.21.0",
+        sha256 = "8a30b2e23b9e17a9f90641c7ab1549cd9b44f296d3ccbf309d2863cfe398a0cb",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/addr2line/0.20.0/download"],
-        strip_prefix = "addr2line-0.20.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.addr2line-0.20.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/addr2line/0.21.0/download"],
+        strip_prefix = "addr2line-0.21.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.addr2line-0.21.0.bazel"),
     )
 
     maybe(
@@ -1381,12 +1412,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__aho-corasick-1.0.4",
-        sha256 = "6748e8def348ed4d14996fa801f4122cd763fff530258cdc03f64b25f89d3a5a",
+        name = "crate_index__aho-corasick-1.0.5",
+        sha256 = "0c378d78423fdad8089616f827526ee33c19f2fddbd5de1629152c9593ba4783",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/aho-corasick/1.0.4/download"],
-        strip_prefix = "aho-corasick-1.0.4",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aho-corasick-1.0.4.bazel"),
+        urls = ["https://crates.io/api/v1/crates/aho-corasick/1.0.5/download"],
+        strip_prefix = "aho-corasick-1.0.5",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aho-corasick-1.0.5.bazel"),
     )
 
     maybe(
@@ -1431,22 +1462,22 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__anstream-0.3.2",
-        sha256 = "0ca84f3628370c59db74ee214b3263d58f9aadd9b4fe7e711fd87dc452b7f163",
+        name = "crate_index__anstream-0.5.0",
+        sha256 = "b1f58811cfac344940f1a400b6e6231ce35171f614f26439e80f8c1465c5cc0c",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/anstream/0.3.2/download"],
-        strip_prefix = "anstream-0.3.2",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.anstream-0.3.2.bazel"),
+        urls = ["https://crates.io/api/v1/crates/anstream/0.5.0/download"],
+        strip_prefix = "anstream-0.5.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.anstream-0.5.0.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__anstyle-1.0.1",
-        sha256 = "3a30da5c5f2d5e72842e00bcb57657162cdabef0931f40e2deb9b4140440cecd",
+        name = "crate_index__anstyle-1.0.2",
+        sha256 = "15c4c2c83f81532e5845a733998b6971faca23490340a418e9b72a3ec9de12ea",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/anstyle/1.0.1/download"],
-        strip_prefix = "anstyle-1.0.1",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.anstyle-1.0.1.bazel"),
+        urls = ["https://crates.io/api/v1/crates/anstyle/1.0.2/download"],
+        strip_prefix = "anstyle-1.0.2",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.anstyle-1.0.2.bazel"),
     )
 
     maybe(
@@ -1471,12 +1502,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__anstyle-wincon-1.0.2",
-        sha256 = "c677ab05e09154296dd37acecd46420c17b9713e8366facafa8fc0885167cf4c",
+        name = "crate_index__anstyle-wincon-2.1.0",
+        sha256 = "58f54d10c6dfa51283a066ceab3ec1ab78d13fae00aa49243a45e4571fb79dfd",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/anstyle-wincon/1.0.2/download"],
-        strip_prefix = "anstyle-wincon-1.0.2",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.anstyle-wincon-1.0.2.bazel"),
+        urls = ["https://crates.io/api/v1/crates/anstyle-wincon/2.1.0/download"],
+        strip_prefix = "anstyle-wincon-2.1.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.anstyle-wincon-2.1.0.bazel"),
     )
 
     maybe(
@@ -1501,12 +1532,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__argon2-0.5.1",
-        sha256 = "b2e554a8638bdc1e4eae9984845306cc95f8a9208ba8d49c3859fd958b46774d",
+        name = "crate_index__argon2-0.5.2",
+        sha256 = "17ba4cac0a46bc1d2912652a751c47f2a9f3a7fe89bcae2275d418f5270402f9",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/argon2/0.5.1/download"],
-        strip_prefix = "argon2-0.5.1",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.argon2-0.5.1.bazel"),
+        urls = ["https://crates.io/api/v1/crates/argon2/0.5.2/download"],
+        strip_prefix = "argon2-0.5.2",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.argon2-0.5.2.bazel"),
     )
 
     maybe(
@@ -1521,22 +1552,22 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__async-compression-0.4.1",
-        sha256 = "62b74f44609f0f91493e3082d3734d98497e094777144380ea4db9f9905dd5b6",
+        name = "crate_index__async-compression-0.4.2",
+        sha256 = "d495b6dc0184693324491a5ac05f559acc97bf937ab31d7a1c33dd0016be6d2b",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/async-compression/0.4.1/download"],
-        strip_prefix = "async-compression-0.4.1",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.async-compression-0.4.1.bazel"),
+        urls = ["https://crates.io/api/v1/crates/async-compression/0.4.2/download"],
+        strip_prefix = "async-compression-0.4.2",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.async-compression-0.4.2.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__async-recursion-1.0.4",
-        sha256 = "0e97ce7de6cf12de5d7226c73f5ba9811622f4db3a5b91b55c53e987e5f91cba",
+        name = "crate_index__async-recursion-1.0.5",
+        sha256 = "5fd55a5ba1179988837d24ab4c7cc8ed6efdeff578ede0416b4225a5fca35bd0",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/async-recursion/1.0.4/download"],
-        strip_prefix = "async-recursion-1.0.4",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.async-recursion-1.0.4.bazel"),
+        urls = ["https://crates.io/api/v1/crates/async-recursion/1.0.5/download"],
+        strip_prefix = "async-recursion-1.0.5",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.async-recursion-1.0.5.bazel"),
     )
 
     maybe(
@@ -1821,12 +1852,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__backtrace-0.3.68",
-        sha256 = "4319208da049c43661739c5fade2ba182f09d1dc2299b32298d3a31692b17e12",
+        name = "crate_index__backtrace-0.3.69",
+        sha256 = "2089b7e3f35b9dd2d0ed921ead4f6d318c27680d4a5bd167b3ee120edb105837",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/backtrace/0.3.68/download"],
-        strip_prefix = "backtrace-0.3.68",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.backtrace-0.3.68.bazel"),
+        urls = ["https://crates.io/api/v1/crates/backtrace/0.3.69/download"],
+        strip_prefix = "backtrace-0.3.69",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.backtrace-0.3.69.bazel"),
     )
 
     maybe(
@@ -1851,12 +1882,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__base64-0.21.2",
-        sha256 = "604178f6c5c21f02dc555784810edfb88d34ac2c73b2eae109655649ee73ce3d",
+        name = "crate_index__base64-0.21.4",
+        sha256 = "9ba43ea6f343b788c8764558649e08df62f86c6ef251fdaeb1ffd010a9ae50a2",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/base64/0.21.2/download"],
-        strip_prefix = "base64-0.21.2",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.base64-0.21.2.bazel"),
+        urls = ["https://crates.io/api/v1/crates/base64/0.21.4/download"],
+        strip_prefix = "base64-0.21.4",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.base64-0.21.4.bazel"),
     )
 
     maybe(
@@ -1877,6 +1908,16 @@ def crate_repositories():
         urls = ["https://crates.io/api/v1/crates/base64ct/1.6.0/download"],
         strip_prefix = "base64ct-1.6.0",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.base64ct-1.6.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__beef-0.5.2",
+        sha256 = "3a8241f3ebb85c056b509d4327ad0358fbbba6ffb340bf388f26350aeda225b1",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/beef/0.5.2/download"],
+        strip_prefix = "beef-0.5.2",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.beef-0.5.2.bazel"),
     )
 
     maybe(
@@ -1941,12 +1982,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__bytes-1.4.0",
-        sha256 = "89b2fd2a0dcf38d7971e2194b6b6eebab45ae01067456a7fd93d5547a61b70be",
+        name = "crate_index__bytes-1.5.0",
+        sha256 = "a2bd12c1caf447e69cd4528f47f94d203fd2582878ecb9e9465484c4148a8223",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/bytes/1.4.0/download"],
-        strip_prefix = "bytes-1.4.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.bytes-1.4.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/bytes/1.5.0/download"],
+        strip_prefix = "bytes-1.5.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.bytes-1.5.0.bazel"),
     )
 
     maybe(
@@ -2001,52 +2042,52 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__clap-4.3.23",
-        sha256 = "03aef18ddf7d879c15ce20f04826ef8418101c7e528014c3eeea13321047dca3",
+        name = "crate_index__clap-4.4.2",
+        sha256 = "6a13b88d2c62ff462f88e4a121f17a82c1af05693a2f192b5c38d14de73c19f6",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/clap/4.3.23/download"],
-        strip_prefix = "clap-4.3.23",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap-4.3.23.bazel"),
+        urls = ["https://crates.io/api/v1/crates/clap/4.4.2/download"],
+        strip_prefix = "clap-4.4.2",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap-4.4.2.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__clap_builder-4.3.23",
-        sha256 = "f8ce6fffb678c9b80a70b6b6de0aad31df727623a70fd9a842c30cd573e2fa98",
+        name = "crate_index__clap_builder-4.4.2",
+        sha256 = "2bb9faaa7c2ef94b2743a21f5a29e6f0010dff4caa69ac8e9d6cf8b6fa74da08",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/clap_builder/4.3.23/download"],
-        strip_prefix = "clap_builder-4.3.23",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap_builder-4.3.23.bazel"),
+        urls = ["https://crates.io/api/v1/crates/clap_builder/4.4.2/download"],
+        strip_prefix = "clap_builder-4.4.2",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap_builder-4.4.2.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__clap_complete-4.3.2",
-        sha256 = "5fc443334c81a804575546c5a8a79b4913b50e28d69232903604cada1de817ce",
+        name = "crate_index__clap_complete-4.4.1",
+        sha256 = "4110a1e6af615a9e6d0a36f805d5c99099f8bab9b8042f5bc1fa220a4a89e36f",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/clap_complete/4.3.2/download"],
-        strip_prefix = "clap_complete-4.3.2",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap_complete-4.3.2.bazel"),
+        urls = ["https://crates.io/api/v1/crates/clap_complete/4.4.1/download"],
+        strip_prefix = "clap_complete-4.4.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap_complete-4.4.1.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__clap_derive-4.3.12",
-        sha256 = "54a9bb5758fc5dfe728d1019941681eccaf0cf8a4189b692a0ee2f2ecf90a050",
+        name = "crate_index__clap_derive-4.4.2",
+        sha256 = "0862016ff20d69b84ef8247369fabf5c008a7417002411897d40ee1f4532b873",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/clap_derive/4.3.12/download"],
-        strip_prefix = "clap_derive-4.3.12",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap_derive-4.3.12.bazel"),
+        urls = ["https://crates.io/api/v1/crates/clap_derive/4.4.2/download"],
+        strip_prefix = "clap_derive-4.4.2",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap_derive-4.4.2.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__clap_lex-0.5.0",
-        sha256 = "2da6da31387c7e4ef160ffab6d5e7f00c42626fe39aea70a7b0f1773f7dd6c1b",
+        name = "crate_index__clap_lex-0.5.1",
+        sha256 = "cd7cc57abe963c6d3b9d8be5b06ba7c8957a930305ca90304f24ef040aa6f961",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/clap_lex/0.5.0/download"],
-        strip_prefix = "clap_lex-0.5.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap_lex-0.5.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/clap_lex/0.5.1/download"],
+        strip_prefix = "clap_lex-0.5.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap_lex-0.5.1.bazel"),
     )
 
     maybe(
@@ -2511,12 +2552,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__encoding_rs-0.8.32",
-        sha256 = "071a31f4ee85403370b58aca746f01041ede6f0da2730960ad001edc2b71b394",
+        name = "crate_index__encoding_rs-0.8.33",
+        sha256 = "7268b386296a025e474d5140678f75d6de9493ae55a5d709eeb9dd08149945e1",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/encoding_rs/0.8.32/download"],
-        strip_prefix = "encoding_rs-0.8.32",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.encoding_rs-0.8.32.bazel"),
+        urls = ["https://crates.io/api/v1/crates/encoding_rs/0.8.33/download"],
+        strip_prefix = "encoding_rs-0.8.33",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.encoding_rs-0.8.33.bazel"),
     )
 
     maybe(
@@ -2551,12 +2592,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__errno-0.3.2",
-        sha256 = "6b30f669a7961ef1631673d2766cc92f52d64f7ef354d4fe0ddfd30ed52f0f4f",
+        name = "crate_index__errno-0.3.3",
+        sha256 = "136526188508e25c6fef639d7927dfb3e0e3084488bf202267829cf7fc23dbdd",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/errno/0.3.2/download"],
-        strip_prefix = "errno-0.3.2",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.errno-0.3.2.bazel"),
+        urls = ["https://crates.io/api/v1/crates/errno/0.3.3/download"],
+        strip_prefix = "errno-0.3.3",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.errno-0.3.3.bazel"),
     )
 
     maybe(
@@ -2667,6 +2708,16 @@ def crate_repositories():
         urls = ["https://crates.io/api/v1/crates/findshlibs/0.10.2/download"],
         strip_prefix = "findshlibs-0.10.2",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.findshlibs-0.10.2.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__finl_unicode-1.2.0",
+        sha256 = "8fcfdc7a0362c9f4444381a9e697c79d435fe65b52a37466fc2c1184cee9edc6",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/finl_unicode/1.2.0/download"],
+        strip_prefix = "finl_unicode-1.2.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.finl_unicode-1.2.0.bazel"),
     )
 
     maybe(
@@ -2871,22 +2922,22 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__gimli-0.27.3",
-        sha256 = "b6c80984affa11d98d1b88b66ac8853f143217b399d3c74116778ff8fdb4ed2e",
+        name = "crate_index__gimli-0.28.0",
+        sha256 = "6fb8d784f27acf97159b40fc4db5ecd8aa23b9ad5ef69cdd136d3bc80665f0c0",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/gimli/0.27.3/download"],
-        strip_prefix = "gimli-0.27.3",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.gimli-0.27.3.bazel"),
+        urls = ["https://crates.io/api/v1/crates/gimli/0.28.0/download"],
+        strip_prefix = "gimli-0.28.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.gimli-0.28.0.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__h2-0.3.20",
-        sha256 = "97ec8491ebaf99c8eaa73058b045fe58073cd6be7f596ac993ced0b0a0c01049",
+        name = "crate_index__h2-0.3.21",
+        sha256 = "91fc23aa11be92976ef4729127f1a74adf36d8436f7816b185d18df956790833",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/h2/0.3.20/download"],
-        strip_prefix = "h2-0.3.20",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.h2-0.3.20.bazel"),
+        urls = ["https://crates.io/api/v1/crates/h2/0.3.21/download"],
+        strip_prefix = "h2-0.3.21",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.h2-0.3.21.bazel"),
     )
 
     maybe(
@@ -2911,22 +2962,22 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__hashlink-0.8.3",
-        sha256 = "312f66718a2d7789ffef4f4b7b213138ed9f1eb3aa1d0d82fc99f88fb3ffd26f",
+        name = "crate_index__hashlink-0.8.4",
+        sha256 = "e8094feaf31ff591f651a2664fb9cfd92bba7a60ce3197265e9482ebe753c8f7",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/hashlink/0.8.3/download"],
-        strip_prefix = "hashlink-0.8.3",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.hashlink-0.8.3.bazel"),
+        urls = ["https://crates.io/api/v1/crates/hashlink/0.8.4/download"],
+        strip_prefix = "hashlink-0.8.4",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.hashlink-0.8.4.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__headers-0.3.8",
-        sha256 = "f3e372db8e5c0d213e0cd0b9be18be2aca3d44cf2fe30a9d46a65581cd454584",
+        name = "crate_index__headers-0.3.9",
+        sha256 = "06683b93020a07e3dbcf5f8c0f6d40080d725bea7936fc01ad345c01b97dc270",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/headers/0.3.8/download"],
-        strip_prefix = "headers-0.3.8",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.headers-0.3.8.bazel"),
+        urls = ["https://crates.io/api/v1/crates/headers/0.3.9/download"],
+        strip_prefix = "headers-0.3.9",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.headers-0.3.9.bazel"),
     )
 
     maybe(
@@ -3221,16 +3272,6 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__is-terminal-0.4.9",
-        sha256 = "cb0889898416213fab133e1d33a0e5858a48177452750691bde3666d0fdbaf8b",
-        type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/is-terminal/0.4.9/download"],
-        strip_prefix = "is-terminal-0.4.9",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.is-terminal-0.4.9.bazel"),
-    )
-
-    maybe(
-        http_archive,
         name = "crate_index__isahc-1.7.2",
         sha256 = "334e04b4d781f436dc315cb1e7515bd96826426345d498149e4bde36b67f8ee9",
         type = "tar.gz",
@@ -3247,16 +3288,6 @@ def crate_repositories():
         urls = ["https://crates.io/api/v1/crates/iso8601/0.6.1/download"],
         strip_prefix = "iso8601-0.6.1",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.iso8601-0.6.1.bazel"),
-    )
-
-    maybe(
-        http_archive,
-        name = "crate_index__itertools-0.10.5",
-        sha256 = "b0fd2260e829bddf4cb6ea802289de2f86d6a7a690192fbe91b3f46e0f2c8473",
-        type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/itertools/0.10.5/download"],
-        strip_prefix = "itertools-0.10.5",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.itertools-0.10.5.bazel"),
     )
 
     maybe(
@@ -3331,12 +3362,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__libmimalloc-sys-0.1.33",
-        sha256 = "f4ac0e912c8ef1b735e92369695618dc5b1819f5a7bf3f167301a3ba1cea515e",
+        name = "crate_index__libmimalloc-sys-0.1.34",
+        sha256 = "25d058a81af0d1c22d7a1c948576bee6d673f7af3c0f35564abd6c81122f513d",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/libmimalloc-sys/0.1.33/download"],
-        strip_prefix = "libmimalloc-sys-0.1.33",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.libmimalloc-sys-0.1.33.bazel"),
+        urls = ["https://crates.io/api/v1/crates/libmimalloc-sys/0.1.34/download"],
+        strip_prefix = "libmimalloc-sys-0.1.34",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.libmimalloc-sys-0.1.34.bazel"),
     )
 
     maybe(
@@ -3371,12 +3402,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__linux-raw-sys-0.4.5",
-        sha256 = "57bcfdad1b858c2db7c38303a6d2ad4dfaf5eb53dfeb0910128b2c26d6158503",
+        name = "crate_index__linux-raw-sys-0.4.7",
+        sha256 = "1a9bad9f94746442c783ca431b22403b519cd7fbeed0533fdd6328b2f2212128",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/linux-raw-sys/0.4.5/download"],
-        strip_prefix = "linux-raw-sys-0.4.5",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.linux-raw-sys-0.4.5.bazel"),
+        urls = ["https://crates.io/api/v1/crates/linux-raw-sys/0.4.7/download"],
+        strip_prefix = "linux-raw-sys-0.4.7",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.linux-raw-sys-0.4.7.bazel"),
     )
 
     maybe(
@@ -3397,6 +3428,36 @@ def crate_repositories():
         urls = ["https://crates.io/api/v1/crates/log/0.4.20/download"],
         strip_prefix = "log-0.4.20",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.log-0.4.20.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__logos-0.13.0",
+        sha256 = "c000ca4d908ff18ac99b93a062cb8958d331c3220719c52e77cb19cc6ac5d2c1",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/logos/0.13.0/download"],
+        strip_prefix = "logos-0.13.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.logos-0.13.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__logos-codegen-0.13.0",
+        sha256 = "dc487311295e0002e452025d6b580b77bb17286de87b57138f3b5db711cded68",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/logos-codegen/0.13.0/download"],
+        strip_prefix = "logos-codegen-0.13.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.logos-codegen-0.13.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__logos-derive-0.13.0",
+        sha256 = "dbfc0d229f1f42d790440136d941afd806bc9e949e2bcb8faa813b0f00d1267e",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/logos-derive/0.13.0/download"],
+        strip_prefix = "logos-derive-0.13.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.logos-derive-0.13.0.bazel"),
     )
 
     maybe(
@@ -3451,12 +3512,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__memchr-2.5.0",
-        sha256 = "2dffe52ecf27772e601905b7522cb4ef790d2cc203488bbd0e2fe85fcb74566d",
+        name = "crate_index__memchr-2.6.3",
+        sha256 = "8f232d6ef707e1956a43342693d2a31e72989554d58299d7a88738cc95b0d35c",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/memchr/2.5.0/download"],
-        strip_prefix = "memchr-2.5.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.memchr-2.5.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/memchr/2.6.3/download"],
+        strip_prefix = "memchr-2.6.3",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.memchr-2.6.3.bazel"),
     )
 
     maybe(
@@ -3491,12 +3552,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__mimalloc-0.1.37",
-        sha256 = "4e2894987a3459f3ffb755608bd82188f8ed00d0ae077f1edea29c068d639d98",
+        name = "crate_index__mimalloc-0.1.38",
+        sha256 = "972e5f23f6716f62665760b0f4cbf592576a80c7b879ba9beaafc0e558894127",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/mimalloc/0.1.37/download"],
-        strip_prefix = "mimalloc-0.1.37",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.mimalloc-0.1.37.bazel"),
+        urls = ["https://crates.io/api/v1/crates/mimalloc/0.1.38/download"],
+        strip_prefix = "mimalloc-0.1.38",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.mimalloc-0.1.38.bazel"),
     )
 
     maybe(
@@ -3631,12 +3692,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__num-bigint-0.4.3",
-        sha256 = "f93ab6289c7b344a8a9f60f88d80aa20032336fe78da341afc91c8a2341fc75f",
+        name = "crate_index__num-bigint-0.4.4",
+        sha256 = "608e7659b5c3d7cba262d894801b9ec9d00de989e8a82bd4bef91d08da45cdc0",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/num-bigint/0.4.3/download"],
-        strip_prefix = "num-bigint-0.4.3",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.num-bigint-0.4.3.bazel"),
+        urls = ["https://crates.io/api/v1/crates/num-bigint/0.4.4/download"],
+        strip_prefix = "num-bigint-0.4.4",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.num-bigint-0.4.4.bazel"),
     )
 
     maybe(
@@ -3691,12 +3752,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__object-0.31.1",
-        sha256 = "8bda667d9f2b5051b8833f59f3bf748b28ef54f850f4fcb389a252aa383866d1",
+        name = "crate_index__object-0.32.1",
+        sha256 = "9cf5f9dd3933bd50a9e1f149ec995f39ae2c496d31fd772c1fd45ebc27e902b0",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/object/0.31.1/download"],
-        strip_prefix = "object-0.31.1",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.object-0.31.1.bazel"),
+        urls = ["https://crates.io/api/v1/crates/object/0.32.1/download"],
+        strip_prefix = "object-0.32.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.object-0.32.1.bazel"),
     )
 
     maybe(
@@ -3711,12 +3772,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__openssl-0.10.56",
-        sha256 = "729b745ad4a5575dd06a3e1af1414bd330ee561c01b3899eb584baeaa8def17e",
+        name = "crate_index__openssl-0.10.57",
+        sha256 = "bac25ee399abb46215765b1cb35bc0212377e58a061560d8b29b024fd0430e7c",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/openssl/0.10.56/download"],
-        strip_prefix = "openssl-0.10.56",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.openssl-0.10.56.bazel"),
+        urls = ["https://crates.io/api/v1/crates/openssl/0.10.57/download"],
+        strip_prefix = "openssl-0.10.57",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.openssl-0.10.57.bazel"),
     )
 
     maybe(
@@ -3741,12 +3802,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__openssl-sys-0.9.91",
-        sha256 = "866b5f16f90776b9bb8dc1e1802ac6f0513de3a7a7465867bfbc563dc737faac",
+        name = "crate_index__openssl-sys-0.9.93",
+        sha256 = "db4d56a4c0478783083cfafcc42493dd4a981d41669da64b4572a2a089b51b1d",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/openssl-sys/0.9.91/download"],
-        strip_prefix = "openssl-sys-0.9.91",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.openssl-sys-0.9.91.bazel"),
+        urls = ["https://crates.io/api/v1/crates/openssl-sys/0.9.93/download"],
+        strip_prefix = "openssl-sys-0.9.93",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.openssl-sys-0.9.93.bazel"),
     )
 
     maybe(
@@ -3911,12 +3972,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__pin-project-lite-0.2.12",
-        sha256 = "12cc1b0bf1727a77a54b6654e7b5f1af8604923edc8b81885f8ec92f9e3f0a05",
+        name = "crate_index__pin-project-lite-0.2.13",
+        sha256 = "8afb450f006bf6385ca15ef45d71d2288452bc3683ce2e2cacc0d18e4be60b58",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/pin-project-lite/0.2.12/download"],
-        strip_prefix = "pin-project-lite-0.2.12",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.pin-project-lite-0.2.12.bazel"),
+        urls = ["https://crates.io/api/v1/crates/pin-project-lite/0.2.13/download"],
+        strip_prefix = "pin-project-lite-0.2.13",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.pin-project-lite-0.2.13.bazel"),
     )
 
     maybe(
@@ -4161,12 +4222,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__redis-0.23.2",
-        sha256 = "ffd6543a7bc6428396845f6854ccf3d1ae8823816592e2cbe74f20f50f209d02",
+        name = "crate_index__redis-0.23.3",
+        sha256 = "4f49cdc0bb3f412bf8e7d1bd90fe1d9eb10bc5c399ba90973c14662a27b3f8ba",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/redis/0.23.2/download"],
-        strip_prefix = "redis-0.23.2",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.redis-0.23.2.bazel"),
+        urls = ["https://crates.io/api/v1/crates/redis/0.23.3/download"],
+        strip_prefix = "redis-0.23.3",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.redis-0.23.3.bazel"),
     )
 
     maybe(
@@ -4201,32 +4262,42 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__regex-1.9.3",
-        sha256 = "81bc1d4caf89fac26a70747fe603c130093b53c773888797a6329091246d651a",
+        name = "crate_index__regex-1.9.5",
+        sha256 = "697061221ea1b4a94a624f67d0ae2bfe4e22b8a17b6a192afb11046542cc8c47",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/regex/1.9.3/download"],
-        strip_prefix = "regex-1.9.3",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.regex-1.9.3.bazel"),
+        urls = ["https://crates.io/api/v1/crates/regex/1.9.5/download"],
+        strip_prefix = "regex-1.9.5",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.regex-1.9.5.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__regex-automata-0.3.6",
-        sha256 = "fed1ceff11a1dddaee50c9dc8e4938bd106e9d89ae372f192311e7da498e3b69",
+        name = "crate_index__regex-automata-0.3.8",
+        sha256 = "c2f401f4955220693b56f8ec66ee9c78abffd8d1c4f23dc41a23839eb88f0795",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/regex-automata/0.3.6/download"],
-        strip_prefix = "regex-automata-0.3.6",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.regex-automata-0.3.6.bazel"),
+        urls = ["https://crates.io/api/v1/crates/regex-automata/0.3.8/download"],
+        strip_prefix = "regex-automata-0.3.8",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.regex-automata-0.3.8.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__regex-syntax-0.7.4",
-        sha256 = "e5ea92a5b6195c6ef2a0295ea818b312502c6fc94dde986c5553242e18fd4ce2",
+        name = "crate_index__regex-syntax-0.6.29",
+        sha256 = "f162c6dd7b008981e4d40210aca20b4bd0f9b60ca9271061b07f78537722f2e1",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/regex-syntax/0.7.4/download"],
-        strip_prefix = "regex-syntax-0.7.4",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.regex-syntax-0.7.4.bazel"),
+        urls = ["https://crates.io/api/v1/crates/regex-syntax/0.6.29/download"],
+        strip_prefix = "regex-syntax-0.6.29",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.regex-syntax-0.6.29.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__regex-syntax-0.7.5",
+        sha256 = "dbb5fb1acd8a1a18b3dd5be62d25485eb770e05afb408a9627d14d451bae12da",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/regex-syntax/0.7.5/download"],
+        strip_prefix = "regex-syntax-0.7.5",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.regex-syntax-0.7.5.bazel"),
     )
 
     maybe(
@@ -4261,12 +4332,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__reqwest-0.11.18",
-        sha256 = "cde824a14b7c14f85caff81225f411faacc04a2013f41670f41443742b1c1c55",
+        name = "crate_index__reqwest-0.11.20",
+        sha256 = "3e9ad3fe7488d7e34558a2033d45a0c90b72d97b4f80705666fea71472e2e6a1",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/reqwest/0.11.18/download"],
-        strip_prefix = "reqwest-0.11.18",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.reqwest-0.11.18.bazel"),
+        urls = ["https://crates.io/api/v1/crates/reqwest/0.11.20/download"],
+        strip_prefix = "reqwest-0.11.20",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.reqwest-0.11.20.bazel"),
     )
 
     maybe(
@@ -4351,22 +4422,22 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__rustix-0.38.11",
-        sha256 = "c0c3dde1fc030af041adc40e79c0e7fbcf431dd24870053d187d7c66e4b87453",
+        name = "crate_index__rustix-0.38.12",
+        sha256 = "bdf14a7a466ce88b5eac3da815b53aefc208ce7e74d1c263aabb04d88c4abeb1",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/rustix/0.38.11/download"],
-        strip_prefix = "rustix-0.38.11",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.rustix-0.38.11.bazel"),
+        urls = ["https://crates.io/api/v1/crates/rustix/0.38.12/download"],
+        strip_prefix = "rustix-0.38.12",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.rustix-0.38.12.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__rustls-0.20.8",
-        sha256 = "fff78fc74d175294f4e83b28343315ffcfb114b156f0185e9741cb5570f50e2f",
+        name = "crate_index__rustls-0.20.9",
+        sha256 = "1b80e3dec595989ea8510028f30c408a4630db12c9cbb8de34203b89d6577e99",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/rustls/0.20.8/download"],
-        strip_prefix = "rustls-0.20.8",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.rustls-0.20.8.bazel"),
+        urls = ["https://crates.io/api/v1/crates/rustls/0.20.9/download"],
+        strip_prefix = "rustls-0.20.9",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.rustls-0.20.9.bazel"),
     )
 
     maybe(
@@ -4611,32 +4682,32 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__serde-1.0.186",
-        sha256 = "9f5db24220c009de9bd45e69fb2938f4b6d2df856aa9304ce377b3180f83b7c1",
+        name = "crate_index__serde-1.0.188",
+        sha256 = "cf9e0fcba69a370eed61bcf2b728575f726b50b55cba78064753d708ddc7549e",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/serde/1.0.186/download"],
-        strip_prefix = "serde-1.0.186",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.serde-1.0.186.bazel"),
+        urls = ["https://crates.io/api/v1/crates/serde/1.0.188/download"],
+        strip_prefix = "serde-1.0.188",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.serde-1.0.188.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__serde_derive-1.0.186",
-        sha256 = "5ad697f7e0b65af4983a4ce8f56ed5b357e8d3c36651bf6a7e13639c17b8e670",
+        name = "crate_index__serde_derive-1.0.188",
+        sha256 = "4eca7ac642d82aa35b60049a6eccb4be6be75e599bd2e9adb5f875a737654af2",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/serde_derive/1.0.186/download"],
-        strip_prefix = "serde_derive-1.0.186",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.serde_derive-1.0.186.bazel"),
+        urls = ["https://crates.io/api/v1/crates/serde_derive/1.0.188/download"],
+        strip_prefix = "serde_derive-1.0.188",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.serde_derive-1.0.188.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__serde_json-1.0.105",
-        sha256 = "693151e1ac27563d6dbcec9dee9fbd5da8539b20fa14ad3752b2e6d363ace360",
+        name = "crate_index__serde_json-1.0.106",
+        sha256 = "2cc66a619ed80bf7a0f6b17dd063a84b88f6dea1813737cf469aef1d081142c2",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/serde_json/1.0.105/download"],
-        strip_prefix = "serde_json-1.0.105",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.serde_json-1.0.105.bazel"),
+        urls = ["https://crates.io/api/v1/crates/serde_json/1.0.106/download"],
+        strip_prefix = "serde_json-1.0.106",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.serde_json-1.0.106.bazel"),
     )
 
     maybe(
@@ -4801,12 +4872,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__slab-0.4.8",
-        sha256 = "6528351c9bc8ab22353f9d776db39a20288e8d6c37ef8cfe3317cf875eecfc2d",
+        name = "crate_index__slab-0.4.9",
+        sha256 = "8f92a496fb766b417c996b9c5e57daf2f7ad3b0bebe1ccfca4856390e3d3bb67",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/slab/0.4.8/download"],
-        strip_prefix = "slab-0.4.8",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.slab-0.4.8.bazel"),
+        urls = ["https://crates.io/api/v1/crates/slab/0.4.9/download"],
+        strip_prefix = "slab-0.4.9",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.slab-0.4.9.bazel"),
     )
 
     maybe(
@@ -4881,12 +4952,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__sqlformat-0.2.1",
-        sha256 = "0c12bc9199d1db8234678b7051747c07f517cdcf019262d1847b94ec8b1aee3e",
+        name = "crate_index__sqlformat-0.2.2",
+        sha256 = "6b7b278788e7be4d0d29c0f39497a0eef3fba6bbc8e70d8bf7fde46edeaa9e85",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sqlformat/0.2.1/download"],
-        strip_prefix = "sqlformat-0.2.1",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sqlformat-0.2.1.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sqlformat/0.2.2/download"],
+        strip_prefix = "sqlformat-0.2.2",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sqlformat-0.2.2.bazel"),
     )
 
     maybe(
@@ -4971,12 +5042,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__stringprep-0.1.3",
-        sha256 = "db3737bde7edce97102e0e2b15365bf7a20bfdb5f60f4f9e8d7004258a51a8da",
+        name = "crate_index__stringprep-0.1.4",
+        sha256 = "bb41d74e231a107a1b4ee36bd1214b11285b77768d2e3824aedafa988fd36ee6",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/stringprep/0.1.3/download"],
-        strip_prefix = "stringprep-0.1.3",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.stringprep-0.1.3.bazel"),
+        urls = ["https://crates.io/api/v1/crates/stringprep/0.1.4/download"],
+        strip_prefix = "stringprep-0.1.4",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.stringprep-0.1.4.bazel"),
     )
 
     maybe(
@@ -5031,12 +5102,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__sysinfo-0.29.8",
-        sha256 = "d10ed79c22663a35a255d289a7fdcb43559fc77ff15df5ce6c341809e7867528",
+        name = "crate_index__sysinfo-0.29.10",
+        sha256 = "0a18d114d420ada3a891e6bc8e96a2023402203296a47cdd65083377dad18ba5",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sysinfo/0.29.8/download"],
-        strip_prefix = "sysinfo-0.29.8",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sysinfo-0.29.8.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sysinfo/0.29.10/download"],
+        strip_prefix = "sysinfo-0.29.10",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sysinfo-0.29.10.bazel"),
     )
 
     maybe(
@@ -5061,22 +5132,22 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__thiserror-1.0.47",
-        sha256 = "97a802ec30afc17eee47b2855fc72e0c4cd62be9b4efe6591edde0ec5bd68d8f",
+        name = "crate_index__thiserror-1.0.48",
+        sha256 = "9d6d7a740b8a666a7e828dd00da9c0dc290dff53154ea77ac109281de90589b7",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/thiserror/1.0.47/download"],
-        strip_prefix = "thiserror-1.0.47",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.thiserror-1.0.47.bazel"),
+        urls = ["https://crates.io/api/v1/crates/thiserror/1.0.48/download"],
+        strip_prefix = "thiserror-1.0.48",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.thiserror-1.0.48.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__thiserror-impl-1.0.47",
-        sha256 = "6bb623b56e39ab7dcd4b1b98bb6c8f8d907ed255b18de254088016b27a8ee19b",
+        name = "crate_index__thiserror-impl-1.0.48",
+        sha256 = "49922ecae66cc8a249b77e68d1d0623c1b2c514f0060c27cdc68bd62a1219d35",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/thiserror-impl/1.0.47/download"],
-        strip_prefix = "thiserror-impl-1.0.47",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.thiserror-impl-1.0.47.bazel"),
+        urls = ["https://crates.io/api/v1/crates/thiserror-impl/1.0.48/download"],
+        strip_prefix = "thiserror-impl-1.0.48",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.thiserror-impl-1.0.48.bazel"),
     )
 
     maybe(
@@ -5091,12 +5162,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__time-0.3.25",
-        sha256 = "b0fdd63d58b18d663fbdf70e049f00a22c8e42be082203be7f26589213cd75ea",
+        name = "crate_index__time-0.3.28",
+        sha256 = "17f6bb557fd245c28e6411aa56b6403c689ad95061f50e4be16c274e70a17e48",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/time/0.3.25/download"],
-        strip_prefix = "time-0.3.25",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.time-0.3.25.bazel"),
+        urls = ["https://crates.io/api/v1/crates/time/0.3.28/download"],
+        strip_prefix = "time-0.3.28",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.time-0.3.28.bazel"),
     )
 
     maybe(
@@ -5111,12 +5182,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__time-macros-0.2.11",
-        sha256 = "eb71511c991639bb078fd5bf97757e03914361c48100d52878b8e52b46fb92cd",
+        name = "crate_index__time-macros-0.2.14",
+        sha256 = "1a942f44339478ef67935ab2bbaec2fb0322496cf3cbe84b261e06ac3814c572",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/time-macros/0.2.11/download"],
-        strip_prefix = "time-macros-0.2.11",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.time-macros-0.2.11.bazel"),
+        urls = ["https://crates.io/api/v1/crates/time-macros/0.2.14/download"],
+        strip_prefix = "time-macros-0.2.14",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.time-macros-0.2.14.bazel"),
     )
 
     maybe(
@@ -5221,12 +5292,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__toml-0.7.6",
-        sha256 = "c17e963a819c331dcacd7ab957d80bc2b9a9c1e71c804826d2f283dd65306542",
+        name = "crate_index__toml-0.7.8",
+        sha256 = "dd79e69d3b627db300ff956027cc6c3798cef26d22526befdfcd12feeb6d2257",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/toml/0.7.6/download"],
-        strip_prefix = "toml-0.7.6",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.toml-0.7.6.bazel"),
+        urls = ["https://crates.io/api/v1/crates/toml/0.7.8/download"],
+        strip_prefix = "toml-0.7.8",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.toml-0.7.8.bazel"),
     )
 
     maybe(
@@ -5241,12 +5312,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__toml_edit-0.19.14",
-        sha256 = "f8123f27e969974a3dfba720fdb560be359f57b44302d280ba72e76a74480e8a",
+        name = "crate_index__toml_edit-0.19.15",
+        sha256 = "1b5bb770da30e5cbfde35a2d7b9b8a2c4b8ef89548a7a6aeab5c9a576e3e7421",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/toml_edit/0.19.14/download"],
-        strip_prefix = "toml_edit-0.19.14",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.toml_edit-0.19.14.bazel"),
+        urls = ["https://crates.io/api/v1/crates/toml_edit/0.19.15/download"],
+        strip_prefix = "toml_edit-0.19.15",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.toml_edit-0.19.15.bazel"),
     )
 
     maybe(
@@ -5281,12 +5352,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__tower-http-0.4.3",
-        sha256 = "55ae70283aba8d2a8b411c695c437fe25b8b5e44e23e780662002fc72fb47a82",
+        name = "crate_index__tower-http-0.4.4",
+        sha256 = "61c5bb1d698276a2443e5ecfabc1008bf15a36c12e6a7176e7bf089ea9131140",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/tower-http/0.4.3/download"],
-        strip_prefix = "tower-http-0.4.3",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tower-http-0.4.3.bazel"),
+        urls = ["https://crates.io/api/v1/crates/tower-http/0.4.4/download"],
+        strip_prefix = "tower-http-0.4.4",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tower-http-0.4.4.bazel"),
     )
 
     maybe(
@@ -5511,12 +5582,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__url-2.4.0",
-        sha256 = "50bff7831e19200a85b17131d085c25d7811bc4e186efdaf54bbd132994a88cb",
+        name = "crate_index__url-2.4.1",
+        sha256 = "143b538f18257fac9cad154828a57c6bf5157e1aa604d4816b5995bf6de87ae5",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/url/2.4.0/download"],
-        strip_prefix = "url-2.4.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.url-2.4.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/url/2.4.1/download"],
+        strip_prefix = "url-2.4.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.url-2.4.1.bazel"),
     )
 
     maybe(
@@ -5761,12 +5832,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__webpki-0.22.0",
-        sha256 = "f095d78192e208183081cc07bc5515ef55216397af48b873e5edcd72637fa1bd",
+        name = "crate_index__webpki-0.22.1",
+        sha256 = "f0e74f82d49d545ad128049b7e88f6576df2da6b02e9ce565c6f533be576957e",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/webpki/0.22.0/download"],
-        strip_prefix = "webpki-0.22.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.webpki-0.22.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/webpki/0.22.1/download"],
+        strip_prefix = "webpki-0.22.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.webpki-0.22.1.bazel"),
     )
 
     maybe(
@@ -5931,22 +6002,22 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__winnow-0.5.14",
-        sha256 = "d09770118a7eb1ccaf4a594a221334119a44a814fcb0d31c5b85e83e97227a97",
+        name = "crate_index__winnow-0.5.15",
+        sha256 = "7c2e3184b9c4e92ad5167ca73039d0c42476302ab603e2fec4487511f38ccefc",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/winnow/0.5.14/download"],
-        strip_prefix = "winnow-0.5.14",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.winnow-0.5.14.bazel"),
+        urls = ["https://crates.io/api/v1/crates/winnow/0.5.15/download"],
+        strip_prefix = "winnow-0.5.15",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.winnow-0.5.15.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__winreg-0.10.1",
-        sha256 = "80d0f4e272c85def139476380b12f9ac60926689dd2e01d4923222f40580869d",
+        name = "crate_index__winreg-0.50.0",
+        sha256 = "524e57b2c537c0f9b1e69f1965311ec12182b4122e45035b1508cd24d2adadb1",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/winreg/0.10.1/download"],
-        strip_prefix = "winreg-0.10.1",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.winreg-0.10.1.bazel"),
+        urls = ["https://crates.io/api/v1/crates/winreg/0.50.0/download"],
+        strip_prefix = "winreg-0.50.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.winreg-0.50.0.bazel"),
     )
 
     maybe(

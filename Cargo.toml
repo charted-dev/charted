@@ -38,6 +38,7 @@ members = [
     "crates/sessions/local",
     "crates/sessions/passwordless",
     "crates/storage",
+    "features/gc",
     "server",
     "tools/devtools",
     "tools/helm-plugin",

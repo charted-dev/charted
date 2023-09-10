@@ -46,7 +46,7 @@ rust_library(
     version = "0.1.14",
     deps = [
         "@crate_index__futures-core-0.3.28//:futures_core",
-        "@crate_index__pin-project-lite-0.2.12//:pin_project_lite",
+        "@crate_index__pin-project-lite-0.2.13//:pin_project_lite",
         "@crate_index__tokio-1.32.0//:tokio",
     ],
 )

@@ -48,14 +48,14 @@ rust_library(
     ],
     version = "0.4.0",
     deps = [
-        "@crate_index__bytes-1.4.0//:bytes",
+        "@crate_index__bytes-1.5.0//:bytes",
         "@crate_index__derive_builder-0.12.0//:derive_builder",
         "@crate_index__dirs-5.0.1//:dirs",
         "@crate_index__file-format-0.18.0//:file_format",
         "@crate_index__futures-0.3.28//:futures",
         "@crate_index__infer-0.15.0//:infer",
         "@crate_index__remi-core-0.4.0//:remi_core",
-        "@crate_index__serde-1.0.186//:serde",
+        "@crate_index__serde-1.0.188//:serde",
         "@crate_index__tokio-1.32.0//:tokio",
     ],
 )

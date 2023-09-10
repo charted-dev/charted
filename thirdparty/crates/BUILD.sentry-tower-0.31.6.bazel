@@ -50,6 +50,6 @@ rust_library(
         "@crate_index__sentry-core-0.31.6//:sentry_core",
         "@crate_index__tower-layer-0.3.2//:tower_layer",
         "@crate_index__tower-service-0.3.2//:tower_service",
-        "@crate_index__url-2.4.0//:url",
+        "@crate_index__url-2.4.1//:url",
     ],
 )

@@ -49,7 +49,7 @@ rust_proc_macro(
         "@crate_index__proc-macro-error-1.0.4//:proc_macro_error",
         "@crate_index__proc-macro2-1.0.66//:proc_macro2",
         "@crate_index__quote-1.0.33//:quote",
-        "@crate_index__regex-1.9.3//:regex",
+        "@crate_index__regex-1.9.5//:regex",
         "@crate_index__syn-2.0.31//:syn",
         "@crate_index__uuid-1.4.1//:uuid",
     ],
