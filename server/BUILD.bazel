@@ -54,6 +54,7 @@ rust_project(
         "@crate_index//:futures-util",
         "@crate_index//:jsonwebtoken",
         "@crate_index//:mime",
+        "@crate_index//:multer",
         "@crate_index//:once_cell",
         "@crate_index//:prometheus-client",
         "@crate_index//:remi-core",

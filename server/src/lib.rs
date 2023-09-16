@@ -17,6 +17,7 @@
 extern crate tracing;
 
 mod bootstrap;
+mod multipart;
 mod server;
 mod version;
 
@@ -31,6 +32,7 @@ pub mod validation;
 
 use charted_config::Config;
 use eyre::Result;
+pub use multipart::*;
 pub use server::*;
 pub use version::*;
 
@@ -49,8 +51,7 @@ pub use version::*;
 /// [`rust-embed`]: https://docs.rs/rust-embed/*/rust_embed
 #[derive(Debug, Clone)]
 #[cfg_attr(bundle_web, derive(::rust_embed::RustEmbed))]
-#[cfg_attr(all(bundle_web, not(bazel)), folder = "dist")] // cargo usage
-#[cfg_attr(all(bundle_web, bazel), folder = "./bazel-bin/web/dist")] // bazel usage
+#[cfg_attr(bundle_web, folder = "dist")]
 pub struct WebDist;
 impl WebDist {
     /// Checks if the web distribution is available or not.

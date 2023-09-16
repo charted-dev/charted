@@ -213,11 +213,12 @@ macro_rules! impl_patch_for_priv {
         payload: $payload:expr;
         column: $column:literal;
         table: $table:literal;
+        $(as_: $as_:ty;)?
         id: $id:expr;
     }) => {
         if let Some(val) = $payload {
             match sqlx::query(concat!("update ", $table, " set ", $column, " = $1 where id = $2;"))
-                .bind(val)
+                .bind(val$( as $as_)?)
                 .bind($id)
                 .execute(&mut *$txn)
                 .await
@@ -239,13 +240,14 @@ macro_rules! impl_patch_for_priv {
         payload: $payload:expr;
         column: $column:literal;
         table: $table:literal;
+        $(as_: $as_:ty;)?
         id: $id:expr;
 
         { $value:expr };
     }) => {
         if let Some(_) = $payload {
             match sqlx::query(concat!("update ", $table, " set ", $column, " = $1 where id = $2;"))
-                .bind($value)
+                .bind($value$( as $as_)?)
                 .bind($id)
                 .execute(&mut *$txn)
                 .await

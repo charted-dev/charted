@@ -34,6 +34,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use utoipa::ToSchema;
 
+pub mod apikeys;
 pub mod cdn;
 pub mod features;
 pub mod heartbeat;
@@ -42,6 +43,8 @@ pub mod info;
 pub mod main;
 pub mod metrics;
 pub mod openapi;
+pub mod organizations;
+pub mod repository;
 pub mod users;
 
 /// Generic entrypoint message for any API routes like `/users`.
@@ -65,6 +68,7 @@ pub fn create_router() -> Router<Server> {
         .route("/features", get(FeaturesRestController::run))
         .route("/info", get(InfoRestController::run))
         .route("/", get(MainRestController::run))
+        .nest("/apikeys", apikeys::create_router())
         .nest("/users", users::create_router())
         .fallback(fallback);
 

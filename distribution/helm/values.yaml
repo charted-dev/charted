@@ -12,3 +12,111 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+# This file is meant to configure the installation of the chart itself,
+# to learn more about Helm templating: https://helm.sh/docs/chart_template_guide/values_files
+
+# ~> Global Parameters
+# Parameters that are global to this installation and its dependencies.
+global:
+  # @param [string] global.fullNameOverride Fully overrides the Helm installation name for all
+  # managed objects by this installation and dependencies configured.
+  fullNameOverride: ""
+
+  # @param [string] global.nameOverride Override the Helm installation name for all objects
+  # that are exclusive to this installation, but not dependencies configured.
+  nameOverride: ""
+
+  # @param [int] global.replicas Amount of replica nodes to spawn in the [Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/). At the moment,
+  # charted-server doesn't implement High Avaibility, so this should be set at 1.
+  replicas: 1
+
+  # @param [bool] global.debug Whether if the `CHARTED_DEBUG` environment variable is enabled, which
+  # will emit debug information on all pods.
+  debug: false
+
+  # @param [custom: Node Selector](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector) global.nodeSelector
+  # constrainted node selectors for all pods.
+  nodeSelector: {}
+
+  # @param [custom: Tolerations](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/) global.tolerations
+  # tolerations for the node policy for all pods that are exclusive to this installation.
+  tolerations: []
+
+  # @param [object] global.affinity Pod affinity to apply for all pods managed by this installation.
+  affinity: {}
+
+  # @param [map: string ~> string] global.annotations Global installation annotations to append to all managed
+  # objects by this installation.
+  annotations: {}
+
+  # @param [array<[env vars](https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/)>] global.envVars
+  # additional environment variables to append to the pod.
+  envVars: []
+
+  # @param [array<[init containers](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)>] global.initContainers
+  # list of init containers to append to the pod.
+  initContainers: []
+
+  # @param [custom: Pod Security Context](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/) global.podSecurityContext
+  # security context for the server pods.
+  podSecurityContext: {}
+
+  # @param [custom: Container Security Context](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/) global.containerSecurityContext
+  # security context for the server container.
+  containerSecurityContext: {}
+
+  # @param [string] global.clusterDomain Default Kubernetes cluster domain.
+  clusterDomain: "cluster.local"
+
+# ~> Service
+# Configures the [Service](https://kubernetes.io/docs/concepts/services-networking/service/) to expose for external communication.
+service:
+  # @param [oneof: ClusterIP | NodePort | LoadBalancer | ExternalName] service.type the service type to use.
+  type: ClusterIP
+
+  # @param [int16] service.port The port that is exposed for this service. This is the port that the server
+  # will bind to, and if this is something else, then it'll add the `CHARTED_SERVER_PORT` environment variable
+  # to the container and make it the port that is specified in `service.port`
+  port: 3651
+
+  # @param [string] service.clusterIP Sets the `spec.clusterIP` to the cluster IP specified.
+  clusterIP: ""
+
+  # @param [custom: Load Balancer Status](https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) service.loadBalancerIP If the `service.type` is set to LoadBalancer, this
+  # will inline the `spec.status.loadBalancer` property.
+  #
+  # ## Example
+  # ```yaml filename=values.yaml
+  # service:
+  #   loadBalancer:
+  #     ingress:
+  #     - ip: 10.0.2.25
+  # ```
+  loadBalancer: {}
+
+  # @param [map: string ~> string] service.annotations Any annotations to append to this service.
+  annotations: {}
+
+# ~> Image Parameters
+# Configures the [Docker image](https://cr.noelware.cloud/~/charted/server) to use. The only container
+# image that is supported is `cr.noelware.cloud/charted/server`.
+image:
+  # @param [string] image.registry Registry host to use.
+  registry: cr.noelware.cloud
+
+  # @param [string] image.image Image itself to run.
+  image: charted/server
+
+  # @param [array<[image pull secrets](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)>] image.pullSecrets
+  # list of pull secrets to use.
+  pullSecrets: []
+
+  # @param [oneof Always | IfNotPresent | Never](https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy) image.pullPolicy
+  # pull policy to use when pulling the Docker image to the pod.
+  pullPolicy: IfNotPresent
+
+# ~> Feature Parameters
+# Allows to configure what features should be enabled. At the moment,
+# this is a nop.
+features: {}

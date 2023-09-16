@@ -13,12 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+pub mod apikeys;
+pub mod connections;
+pub mod organizations;
 pub mod repositories;
 pub mod users;
 
-use std::{any::Any, sync::Arc};
-
-use self::{repositories::RepositoryDatabaseController, users::UserDatabaseController};
+use self::{
+    connections::UserConnectionsDatabaseController, organizations::OrganizationDatabaseController,
+    repositories::RepositoryDatabaseController, users::UserDatabaseController,
+};
 use async_trait::async_trait;
 use charted_common::{
     models::NameOrSnowflake,
@@ -28,6 +32,7 @@ use charted_storage::MultiStorageService;
 use eyre::{eyre, Result};
 use serde::{de::DeserializeOwned, ser::Serialize};
 use sqlx::PgPool;
+use std::{any::Any, sync::Arc};
 
 /// Represents a request object to determine how to paginate
 /// queries.
@@ -99,9 +104,14 @@ pub struct DbControllerRegistry(Vec<Arc<dyn Any + Send + Sync>>);
 
 impl DbControllerRegistry {
     pub fn new(storage: MultiStorageService, pool: PgPool) -> DbControllerRegistry {
+        let users = UserDatabaseController::new(pool.clone());
+        let connections = UserConnectionsDatabaseController::new(pool.clone(), users.clone());
+
         DbControllerRegistry(vec![
-            Arc::new(UserDatabaseController::new(pool.clone())),
+            Arc::new(users),
+            Arc::new(connections),
             Arc::new(RepositoryDatabaseController::new(storage.clone(), pool.clone())),
+            Arc::new(OrganizationDatabaseController::new(pool.clone())),
         ])
     }
 

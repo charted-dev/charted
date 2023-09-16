@@ -940,7 +940,6 @@ name = "charted-helm-charts"
 version = "0.0.0-devel.0"
 dependencies = [
  "async-recursion",
- "axum",
  "bytes",
  "charted-common",
  "charted-config",
@@ -948,13 +947,17 @@ dependencies = [
  "eyre",
  "flate2",
  "itertools",
+ "multer",
  "once_cell",
  "regex",
  "remi-core",
+ "remi-fs",
  "semver 1.0.18",
  "sentry",
  "serde_yaml",
  "tar",
+ "tempfile",
+ "tokio",
  "tracing",
 ]
 
@@ -1123,6 +1126,7 @@ dependencies = [
  "futures-util",
  "jsonwebtoken",
  "mime",
+ "multer",
  "once_cell",
  "paste",
  "prometheus-client",
@@ -2794,6 +2798,8 @@ dependencies = [
  "memchr",
  "mime",
  "spin 0.9.8",
+ "tokio",
+ "tokio-util",
  "version_check",
 ]
 

@@ -13,8 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::fmt::Debug;
-
 use axum::{
     headers::HeaderValue,
     http::{header, StatusCode},
@@ -22,6 +20,7 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use std::fmt::Debug;
 use utoipa::ToSchema;
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
@@ -110,6 +109,15 @@ impl From<(&str, &str)> for Error {
 impl From<(&str, &str, Value)> for Error {
     fn from((code, message, details): (&str, &str, Value)) -> Self {
         Error::new_with_details(code, message, details)
+    }
+}
+
+impl From<(&str, &str, Option<Value>)> for Error {
+    fn from((code, message, details): (&str, &str, Option<Value>)) -> Self {
+        match details {
+            Some(value) => (code, message, value).into(),
+            None => (code, message).into(),
+        }
     }
 }
 

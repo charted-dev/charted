@@ -18,6 +18,7 @@ pub mod repositories;
 pub mod sessions;
 
 use self::{
+    avatars::GetCurrentUserAvatarRestController,
     repositories::{CreateUserRepositoryRestController, ListUserRepositoriesRestController},
     sessions::LoginRestController,
 };
@@ -54,34 +55,41 @@ use utoipa::{
 use validator::Validate;
 
 pub fn create_router() -> Router<Server> {
-    Router::new()
-        .nest("/@me/avatar", avatars::create_me_router())
-        .nest("/:idOrName/avatar", avatars::create_router())
-        .nest("/:idOrName/repositories", repositories::create_router())
-        .nest("/sessions", sessions::create_router())
+    let main_route = routing::get(MainRestController::run)
+        .put(CreateUserRestController::run)
+        .patch(PatchUserRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth)))
+        .delete(DeleteUserRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth)));
+
+    let id_or_name_router = Router::new()
+        .route("/", routing::get(GetUserRestController::run))
+        .route("/avatar", routing::get(GetCurrentUserAvatarRestController::run))
+        .route("/repositories", routing::get(ListUserRepositoriesRestController::run));
+
+    let me_router = Router::new()
         .route(
             "/",
-            routing::get(MainRestController::run)
-                .put(CreateUserRestController::run)
-                .patch(PatchUserRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth)))
-                .delete(DeleteUserRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth))),
-        )
-        .route(
-            "/@me",
             routing::get(GetSelfRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth))),
         )
-        .route("/login", routing::post(LoginRestController::run))
-        .route("/:idOrName", routing::get(GetUserRestController::run))
         .route(
-            "/@me/repositories",
-            routing::put(
-                CreateUserRepositoryRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth)),
+            "/avatar",
+            routing::get(
+                avatars::me::GetMyCurrentAvatarRestController::run
+                    .layer(AsyncRequireAuthorizationLayer::new(SessionAuth)),
             ),
         )
         .route(
-            "/:idOrName/repositories",
-            routing::get(ListUserRepositoriesRestController::run),
-        )
+            "/repositories",
+            routing::get(routing::put(
+                CreateUserRepositoryRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth)),
+            )),
+        );
+
+    Router::new()
+        .nest("/sessions", sessions::create_router())
+        .route("/login", routing::post(LoginRestController::run))
+        .nest("/:idOrName", id_or_name_router)
+        .nest("/@me", me_router)
+        .route("/", main_route)
 }
 
 pub fn paths() -> PathItem {
@@ -106,7 +114,7 @@ async fn main() {
         StatusCode::OK,
         EntrypointResponse {
             message: "Welcome to the Users API".into(),
-            docs: format!("https://charts.noelware.org/docs/server/{VERSION}/api/reference/users"),
+            docs: format!("https://charts.noelware.org/docs/server/{VERSION}/api/users"),
         },
     )
 }

@@ -382,11 +382,11 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/helm-charts": {
         _COMMON_CONDITION: {
-            "axum": "@crate_index__axum-0.6.20//:axum",
             "bytes": "@crate_index__bytes-1.5.0//:bytes",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "flate2": "@crate_index__flate2-1.0.27//:flate2",
             "itertools": "@crate_index__itertools-0.11.0//:itertools",
+            "multer": "@crate_index__multer-2.1.0//:multer",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
             "regex": "@crate_index__regex-1.9.5//:regex",
             "remi-core": "@crate_index__remi-core-0.4.0//:remi_core",
@@ -540,6 +540,7 @@ _NORMAL_DEPENDENCIES = {
             "futures-util": "@crate_index__futures-util-0.3.28//:futures_util",
             "jsonwebtoken": "@crate_index__jsonwebtoken-8.3.0//:jsonwebtoken",
             "mime": "@crate_index__mime-0.3.17//:mime",
+            "multer": "@crate_index__multer-2.1.0//:multer",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
             "prometheus-client": "@crate_index__prometheus-client-0.21.2//:prometheus_client",
             "remi-core": "@crate_index__remi-core-0.4.0//:remi_core",
@@ -721,6 +722,11 @@ _NORMAL_DEV_DEPENDENCIES = {
     "crates/emails": {
     },
     "crates/helm-charts": {
+        _COMMON_CONDITION: {
+            "remi-fs": "@crate_index__remi-fs-0.4.0//:remi_fs",
+            "tempfile": "@crate_index__tempfile-3.8.0//:tempfile",
+            "tokio": "@crate_index__tokio-1.32.0//:tokio",
+        },
     },
     "crates/logging": {
     },
@@ -776,6 +782,8 @@ _NORMAL_DEV_ALIASES = {
     "crates/emails": {
     },
     "crates/helm-charts": {
+        _COMMON_CONDITION: {
+        },
     },
     "crates/logging": {
     },
@@ -1040,6 +1048,8 @@ _PROC_MACRO_DEV_ALIASES = {
     "crates/emails": {
     },
     "crates/helm-charts": {
+        _COMMON_CONDITION: {
+        },
     },
     "crates/logging": {
     },

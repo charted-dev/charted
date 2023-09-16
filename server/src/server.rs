@@ -37,6 +37,9 @@ use std::{
 };
 use tokio::{select, signal, sync::RwLock};
 
+#[cfg(bundle_web)]
+use axum::response::IntoResponse;
+
 pub(crate) static SERVER: OnceCell<Server> = OnceCell::new();
 
 /// A default implemention of a [`Server`].
@@ -96,7 +99,11 @@ impl Server {
             false => router,
 
             #[cfg(bundle_web)]
-            true => axum::Router::new().nest("/api", router).fallback(static_handler),
+            true => {
+                info!("web ui is enabled! all api endpoints will be mounted on /api!");
+                axum::Router::new().nest("/api", router).fallback(static_handler)
+            }
+
             true => unreachable!(),
         };
 
@@ -124,8 +131,8 @@ async fn static_handler(uri: axum::http::Uri) -> impl axum::response::IntoRespon
 
     match WebDist::get(path) {
         Some(file) => (
-            [(axum::header::CONTENT_TYPE, file.metadata.mimetype())],
-            Bytes::from(file.data.into_owned()),
+            [(axum::http::header::CONTENT_TYPE, file.metadata.mimetype())],
+            charted_storage::Bytes::from(file.data.into_owned()),
         )
             .into_response(),
 

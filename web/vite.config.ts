@@ -17,6 +17,8 @@
 
 import { type CommonServerOptions, type PluginOption, defineConfig } from 'vite';
 import { fileURLToPath } from 'url';
+import { readFile } from 'fs/promises';
+import { execSync } from 'child_process';
 import { resolve } from 'path';
 import autoImports from 'unplugin-auto-import/vite';
 import vueDevtools from 'vite-plugin-vue-devtools';
@@ -24,7 +26,7 @@ import vueRouter from 'unplugin-vue-router/vite';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import vue from '@vitejs/plugin-vue';
 
-export default defineConfig(({ command }) => {
+export default defineConfig(async ({ command }) => {
     const proxy: CommonServerOptions['proxy'] =
         command === 'build'
             ? {}
@@ -58,6 +60,21 @@ export default defineConfig(({ command }) => {
     }
 
     return {
+        define: {
+            __RUNTIME_CONFIG: JSON.stringify({
+                buildDate: new Date().toISOString(),
+                gitCommit: (() => {
+                    try {
+                        return execSync('git rev-parse --short=8 HEAD', { encoding: 'utf-8' }).trim();
+                    } catch {
+                        return 'unknown';
+                    }
+                })(),
+                version: await readFile(resolve(__dirname, '../.charted-version'), 'utf-8')
+                    .then((v) => v.trim())
+                    .catch((_) => '0.0.0-devel.0')
+            })
+        },
         resolve: {
             alias: [
                 {

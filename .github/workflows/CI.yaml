@@ -47,7 +47,7 @@ on:
             - LICENSE
 env:
     BAZEL_STARTUP_ARGS: --bazelrc=./.bazelrc --host_jvm_args=-Xmx500m --host_jvm_args=-Xms500m
-    BAZEL_ARGS: --test_output=errors --verbose_failures --noshow_progress
+    BAZEL_ARGS: --aspects=@rules_rust//rust:defs.bzl%rust_clippy_aspect --output_groups=+clippy_checks --test_output=errors --verbose_failures --noshow_progress
 jobs:
     ci:
         name: Rust CI (${{matrix.runner == 'ubuntu-latest' && 'Linux (x86_64)' || matrix.runner == 'self-hosted' && 'Linux (arm64)' || matrix.runner == 'macos-latest' && 'macOS (x86_64)' || matrix.runner == 'windows-latest' && 'Windows' || 'Unknown'}})
@@ -86,3 +86,29 @@ jobs:
 
             - name: Run tests
               run: bazel ${{env.BAZEL_STARTUP_ARGS}} test ${{env.BAZEL_ARGS}} --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //...
+    clippy:
+        name: Clippy!
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: true
+            matrix:
+                directory: [./cli, ./tools/helm-plugin]
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+
+            - name: Setup Rust toolchain
+              uses: dtolnay/rust-toolchain@master
+              with:
+                toolchain: stable
+                components: clippy, rustfmt
+
+            - name: Setup Rust cache
+              uses: Swatinem/rust-cache@v2
+
+            - name: Clippy!
+              uses: auguwu/clippy-action@1.2.2
+              with:
+                working-directory: ${{matrix.directory}}
+                all-features: true
+                token: ${{secrets.GITHUB_TOKEN}}

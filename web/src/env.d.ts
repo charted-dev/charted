@@ -16,3 +16,17 @@
  */
 
 /// <reference types="vite/client" />
+
+/**
+ * Runtime configuration that was generated at build-time.
+ */
+interface RuntimeConfig {
+    /** Commit hash from the [canonical Git repository](https://github.com/charted-dev/charted) */
+    gitCommit: string;
+
+    /** ISO-8601, RFC3339 formatted date of when the UI was last built */
+    buildDate: string;
+
+    /** Version of the web UI and the API server */
+    version: string;
+}

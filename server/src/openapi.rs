@@ -293,6 +293,7 @@ pub fn document() -> utoipa::openapi::OpenApi {
                 // organizations
 
                 // api keys
+                "/apikeys": crate::routing::v1::apikeys::EntrypointRestController::paths();
 
                 // users
                 "/users/{idOrName}/repositories": crate::routing::v1::users::repositories::ListUserRepositoriesRestController::paths();
@@ -300,7 +301,7 @@ pub fn document() -> utoipa::openapi::OpenApi {
                 "/users/{idOrName}/avatar": crate::routing::v1::users::avatars::GetCurrentUserAvatarRestController::paths();
                 "/users/@me/repositories": crate::routing::v1::users::repositories::CreateUserRepositoryRestController::paths();
                 "/users/sessions/logout": crate::routing::v1::users::sessions::LogoutRestController::paths();
-                "/users/@me/avatar": crate::routing::v1::users::avatars::me::GetMyAvatarRestController::paths();
+                "/users/@me/avatar": crate::routing::v1::users::avatars::me::GetMyCurrentAvatarRestController::paths();
                 "/users/{idOrName}": crate::routing::v1::users::GetUserRestController::paths();
                 "/users/login": crate::routing::v1::users::sessions::LoginRestController::paths();
                 "/users/@me": crate::routing::v1::users::GetSelfRestController::paths();

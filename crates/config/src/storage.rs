@@ -59,12 +59,12 @@ impl FromEnv<StorageConfig> for StorageConfig {
                     });
 
                     let default_object_acl = var!("CHARTED_STORAGE_S3_DEFAULT_OBJECT_ACL", {
-                        or_else: ObjectCannedAcl::PublicRead;
+                        or_else: ObjectCannedAcl::BucketOwnerFullControl;
                         mapper: |p| ObjectCannedAcl::from_str(p.as_str()).unwrap();
                     });
 
                     let default_bucket_acl = var!("CHARTED_STORAGE_S3_DEFAULT_BUCKET_ACL", {
-                        or_else: BucketCannedAcl::PublicRead;
+                        or_else: BucketCannedAcl::Private;
                         mapper: |p| BucketCannedAcl::from_str(p.as_str()).unwrap();
                     });
 

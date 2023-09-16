@@ -50,7 +50,7 @@ use tracing::warn;
 make_config! {
     Config {
         /// Valid gRPC endpoint to connect to when using the [emails microservice](https://charts.noelware.org/docs/services/emails/latest).
-        #[serde(default)]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
         pub emails_grpc_endpoint: Option<String> {
             default: None;
             env_value: var!("CHARTED_EMAILS_GRPC_ENDPOINT", is_optional: true);
@@ -74,8 +74,8 @@ make_config! {
         /// Whether if registrations should be enabled on the server or not.
         #[serde(default = "truthy")]
         pub registrations: bool {
-            default: false;
-            env_value: var!("CHARTED_ENABLE_REGISTRATIONS", to: bool, or_else: false);
+            default: true;
+            env_value: var!("CHARTED_ENABLE_REGISTRATIONS", to: bool, or_else: true);
         };
 
         /// Database configuration details.

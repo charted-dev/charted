@@ -55,7 +55,8 @@ impl RedisClient {
     /// Creates a new [`RedisClient`].
     pub fn new() -> Result<RedisClient> {
         let config = Config::get();
-        if config.redis.hosts.is_empty() {
+        let redis = config.redis;
+        if redis.hosts.is_empty() {
             warn!("no redis hosts were configured, using default connection info");
             let client = Client::open("redis://localhost:6379").context(
                 "used default redis connection info (redis://localhost:6379) due to no hosts being configured",
@@ -64,24 +65,13 @@ impl RedisClient {
             return Ok(RedisClient {
                 sentinel: None,
                 client: Some(client),
-                config: config.redis.clone(),
+                config: redis.clone(),
             });
         }
 
-        // is this bad? probably
-        // will it work? probably not
-        let mut dont_use = vec![];
-        let hosts = config.redis.hosts.iter().fold(&mut dont_use, |list, curr| {
-            if list.contains(curr) {
-                return list;
-            }
-
-            list.push(curr.clone());
-            list
-        });
-
+        let hosts = Vec::from_iter(redis.hosts.clone());
         if hosts.len() == 1 {
-            let first = config.redis.hosts.first().unwrap();
+            let first = hosts.first().unwrap();
             let client =
                 Client::open(first.clone()).context(format!("used connection info [{first}] from configuration"))?;
 
@@ -94,24 +84,24 @@ impl RedisClient {
             return Ok(RedisClient {
                 sentinel: None,
                 client: Some(client),
-                config: config.redis.clone(),
+                config: redis.clone(),
             });
         }
 
         info!("received {} hosts, using sentinel as the connection type!", hosts.len());
 
-        let master_name = config.redis.master_name().context("unable to parse secure setting")?;
+        let master_name = redis.master_name().context("unable to parse secure setting")?;
         if master_name.is_none() {
             return Err(eyre!(
                 "Missing `config.redis.master_name` configuration key. Required for Sentinel connections"
             ));
         }
 
-        let sentinel = Sentinel::build(hosts.clone())?;
+        let sentinel = Sentinel::build(hosts)?;
         Ok(RedisClient {
             sentinel: Some(Arc::new(Mutex::new(sentinel))),
             client: None,
-            config: config.redis.clone(),
+            config: redis,
         })
     }
 

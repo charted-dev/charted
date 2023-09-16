@@ -33,7 +33,6 @@ maintainers:
     url: https://noelware.org
 annotations:
   charts.noelware.org/maintainers: user/noel,org/noelware
-  charts.noelware.org/type: application
 dependencies:
   - name: common
     version: ~2.9.2

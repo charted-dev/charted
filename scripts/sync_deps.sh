@@ -26,4 +26,6 @@ if [[ "x$BAZEL" == "xbazel" ]] && ! command -v bazel >/dev/null; then
 fi
 
 echo "===> Syncing dependencies..."
+echo "===> $ $BAZEL $BAZEL_STARTUP_ARGS run $BAZEL_ARGS //thirdparty:crate_index -- --repin"
+
 CARGO_BAZEL_REPIN=all $BAZEL $BAZEL_STARTUP_ARGS run $BAZEL_ARGS //thirdparty:crate_index -- --repin

@@ -169,3 +169,71 @@ pub struct PatchRepositoryPayload {
     #[serde(default, rename = "type")]
     pub r#type: Option<ChartType>,
 }
+
+#[derive(Debug, Clone, Default, Validate, Serialize, Deserialize)]
+pub struct PatchUserConnectionsPayload {
+    /// Snowflake ID that was sourced from [Noelware's Accounts System](https://accounts.noelware.org)
+    pub noelware_account_id: Option<u64>,
+
+    /// Account ID that was sourced from Google OAuth2
+    pub google_account_id: Option<String>,
+
+    /// Account ID that was sourced from GitHub OAuth2. This can differ from
+    /// GitHub (https://github.com) and GitHub Enterprise usage.
+    pub github_account_id: Option<String>,
+}
+
+/// Request body payload for creating a new organization
+#[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema, Validate)]
+pub struct CreateOrganizationPayload {
+    /// Short description about this organization. If `description` was set to `null`, then
+    /// this will not be updated, if `description` was a empty string, the `description`
+    /// will be set to a empty string and will present as "*no description for this organization*"
+    /// in Hoshi.
+    #[serde(default)]
+    #[validate(length(max = 140))]
+    pub description: Option<String>,
+
+    /// Display name for this organization.
+    #[serde(default)]
+    #[validate(length(max = 64))]
+    pub display_name: Option<String>,
+
+    /// Whether if the organization is private or not.
+    #[serde(default)]
+    pub private: bool,
+
+    /// Organization name.
+    pub name: Name,
+}
+
+/// Request body payload for patching an organization's metadata.
+#[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema, Validate)]
+pub struct PatchOrganizationPayload {
+    /// Adds or removes a Twitter handle from this organization's metadata.
+    ///
+    /// * If this is `null`, this will not do any patching
+    /// * If this is a empty string, this will act as "removing" it from the metadata
+    /// * If the comparsion (`old.twitter_handle == twitter_handle`) is false, then this will update it.
+    #[serde(default)]
+    pub twitter_handle: Option<String>,
+
+    /// Optional field to update this organization's gravatar email. If this organization doesn't
+    /// have an avatar that is used or prefers not to use their previously uploaded
+    /// avatars and they set their Gravatar email, their Gravatar will be used.
+    #[validate(email)]
+    pub gravatar_email: Option<String>,
+
+    /// Display name for this organization.
+    #[serde(default)]
+    #[validate(length(max = 64))]
+    pub display_name: Option<String>,
+
+    /// Whether if the organization is private or not.
+    #[serde(default)]
+    pub private: Option<bool>,
+
+    /// Organization name to rename to.
+    #[serde(default)]
+    pub name: Option<Name>,
+}

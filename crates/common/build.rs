@@ -29,6 +29,7 @@ fn execute<T: AsRef<OsStr>>(command: T, args: &[&str]) -> String {
 }
 
 fn main() {
+    println!("cargo:rerun-if-changed=../../.charted-version");
     println!("cargo:rerun-if-changed=build.rs");
     let version =
         fs::read_to_string("../../.charted-version").expect("missing '.charted-version' in root project src?!");

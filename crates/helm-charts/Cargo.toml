@@ -23,7 +23,6 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
 [dependencies]
 async-recursion = "1.0.4"
-axum = { version = "0.6.20", default-features = false, features = ["multipart"] }
 bytes = "1.4.0"
 charted-common = { version = "0.0.0-devel.0", path = "../common" }
 charted-config = { version = "0.0.0-devel.0", path = "../config" }
@@ -31,6 +30,7 @@ charted-storage = { version = "0.0.0-devel.0", path = "../storage" }
 eyre = "0.6.8"
 flate2 = "1.0.26"
 itertools = "0.11.0"
+multer = { version = "2.1.0", features = ["tokio-io"] }
 once_cell = "1.18.0"
 regex = "1.9.1"
 remi-core = "0.4.0"
@@ -39,3 +39,8 @@ sentry = "0.31.5"
 serde_yaml = "0.9.25"
 tar = "0.4.39"
 tracing = "0.1.37"
+
+[dev-dependencies]
+remi-fs = "0.4.0"
+tempfile = "3.8.0"
+tokio = { version = "1.32.0", features = ["rt", "macros"] }

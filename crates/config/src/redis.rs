@@ -13,6 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use std::collections::HashSet;
+
 use crate::{make_config, var, SecureSetting, SecureSettingError};
 use charted_common::TRUTHY_REGEX;
 
@@ -31,12 +33,12 @@ make_config! {
             env_value: var!("CHARTED_REDIS_PASSWORDS", is_optional: true);
         };
 
-        #[serde(default, skip_serializing_if = "Vec::is_empty")]
-        pub hosts: Vec<String> {
+        #[serde(default, skip_serializing_if = "HashSet::is_empty")]
+        pub hosts: HashSet<String> {
             default: default_redis_hosts();
             env_value: var!("CHARTED_REDIS_HOSTS", {
                 or_else: default_redis_hosts();
-                mapper: |val| val.split(',').map(|f| f.to_string()).collect::<Vec<_>>();
+                mapper: |val| val.split(',').map(|f| f.to_string()).collect::<HashSet<_>>();
             });
         };
 
@@ -73,8 +75,11 @@ impl RedisConfig {
     }
 }
 
-fn default_redis_hosts() -> Vec<String> {
-    vec!["redis://localhost:6379".into()]
+fn default_redis_hosts() -> HashSet<String> {
+    let mut hs = HashSet::new();
+    hs.insert("redis://localhost:6379".into());
+
+    hs
 }
 
 fn default_tls() -> bool {

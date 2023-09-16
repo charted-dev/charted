@@ -2,14 +2,19 @@
 build --@rules_rust//:rustfmt.toml=//:rustfmt.toml
 build --@rules_rust//:clippy.toml=//:clippy.toml
 
-# Allow running clippy checks on build
-build --aspects=@rules_rust//rust:defs.bzl%rust_clippy_aspect
-build --output_groups=+clippy_checks
-
 # Required for Windows
 common --enable_platform_specific_config
 startup --windows_enable_symlinks
 build:windows --enable_runfiles
+
+# rustc optimization flags (for release binaries)
+#
+# lto: https://doc.rust-lang.org/rustc/codegen-options/index.html#lto
+# opt-level: https://doc.rust-lang.org/rustc/codegen-options/index.html#opt-level
+# strip: https://doc.rust-lang.org/rustc/codegen-options/index.html#strip
+build:opt --@rules_rust//:extra_rustc_flag="-C lto=true"
+build:opt --@rules_rust//:extra_rustc_flag="-C opt-level=s"
+build:opt --@rules_rust//:extra_rustc_flag="-C strip=symbols"
 
 # workaround for test cache
 # https://github.com/bazelbuild/bazel/issues/6038

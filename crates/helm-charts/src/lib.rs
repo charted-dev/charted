@@ -13,7 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use axum::extract::{multipart::MultipartError, Multipart};
+mod builder;
+pub use builder::*;
+
 use bytes::Bytes;
 use charted_common::models::helm::{ChartIndex, ChartIndexSpec};
 use charted_storage::MultiStorageService;
@@ -23,205 +25,202 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 use remi_core::{Blob, StorageService, UploadRequest};
 use semver::Version;
-use std::{
-    fmt::{Debug, Display},
-    fs::create_dir_all,
-    sync::Arc,
-};
+use std::{fmt::Debug, fs::create_dir_all};
 use tracing::{error, info, instrument, warn};
 
 /// Acceptable content types to use to send in a tarball.
 pub static ACCEPTABLE_CONTENT_TYPES: Lazy<Vec<&str>> =
     Lazy::new(|| vec!["application/gzip", "application/tar+gzip", "application/tar"]);
 
+/// Regular expression on all the allowed files to be in a Helm chart.
 #[allow(dead_code)]
 static ALLOWED_FILES_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new("(Chart.lock|Chart.ya?ml|values.ya?ml|[.]helmignore|templates/\\w+.*[.](txt|tpl|ya?ml)|charts/\\w+.*.(tgz|tar.gz))").unwrap()
 });
 
+/// List of files that are exempted in the [`ALLOWED_FILES_REGEX`].
 #[allow(dead_code)]
-static EXEMPTED_FILES: Lazy<Vec<&str>> = Lazy::new(|| vec!["values.schema.json"]);
+static EXEMPTED_FILES: Lazy<Vec<&str>> = Lazy::new(|| vec!["values.schema.json", "README.md"]);
 
-#[derive(Debug, Clone, Default)]
-pub struct UploadReleaseTarball {
-    pub provenance_file: Option<Bytes>,
-    pub tarball: Option<Bytes>,
-    pub version: String,
-    pub owner: u64,
-    pub repo: u64,
-}
+// #[derive(Debug, Clone, Default)]
+// pub struct UploadReleaseTarball {
+//     pub provenance_file: Option<Bytes>,
+//     pub tarball: Option<Bytes>,
+//     pub version: String,
+//     pub owner: u64,
+//     pub repo: u64,
+// }
 
-#[derive(Clone)]
-pub enum ModifyReleaseTarballError {
-    InvalidContentType(&'static str),
-    Multipart(Arc<MultipartError>),
-    MaxExceeded(usize),
-    MissingContentType,
-    NotValidTarball,
-    MissingFiles,
-}
+// #[derive(Clone)]
+// pub enum ModifyReleaseTarballError {
+//     InvalidContentType(&'static str),
+//     Multipart(Arc<MultipartError>),
+//     MaxExceeded(usize),
+//     MissingContentType,
+//     NotValidTarball,
+//     MissingFiles,
+// }
 
-impl Debug for ModifyReleaseTarballError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ModifyReleaseTarballError::NotValidTarball => {
-                f.write_str("given tarball was not in a valid .tar.gz format")
-            }
-            ModifyReleaseTarballError::InvalidContentType(received) => f.write_fmt(format_args!(
-                "invalid content type, expected one of [{}] but received {received}",
-                ACCEPTABLE_CONTENT_TYPES.join(", ")
-            )),
-            ModifyReleaseTarballError::MissingContentType => f.write_str("tarball didn't add a `Content-Type` to it"),
-            ModifyReleaseTarballError::MissingFiles => f.write_str("missing a required tarball"),
-            ModifyReleaseTarballError::Multipart(err) => Debug::fmt(err, f),
-            ModifyReleaseTarballError::MaxExceeded(size) => f.write_fmt(format_args!(
-                "expected 1 required file, and an optional tarball. received {size} files."
-            )),
-        }
-    }
-}
+// impl Debug for ModifyReleaseTarballError {
+//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//         match self {
+//             ModifyReleaseTarballError::NotValidTarball => {
+//                 f.write_str("given tarball was not in a valid .tar.gz format")
+//             }
+//             ModifyReleaseTarballError::InvalidContentType(received) => f.write_fmt(format_args!(
+//                 "invalid content type, expected one of [{}] but received {received}",
+//                 ACCEPTABLE_CONTENT_TYPES.join(", ")
+//             )),
+//             ModifyReleaseTarballError::MissingContentType => f.write_str("tarball didn't add a `Content-Type` to it"),
+//             ModifyReleaseTarballError::MissingFiles => f.write_str("missing a required tarball"),
+//             ModifyReleaseTarballError::Multipart(err) => Debug::fmt(err, f),
+//             ModifyReleaseTarballError::MaxExceeded(size) => f.write_fmt(format_args!(
+//                 "expected 1 required file, and an optional tarball. received {size} files."
+//             )),
+//         }
+//     }
+// }
 
-impl Display for ModifyReleaseTarballError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ModifyReleaseTarballError::NotValidTarball => {
-                f.write_str("given tarball was not in a valid .tar.gz format")
-            }
-            ModifyReleaseTarballError::InvalidContentType(received) => f.write_fmt(format_args!(
-                "invalid content type, expected one of [{}] but received {received}",
-                ACCEPTABLE_CONTENT_TYPES.join(", ")
-            )),
-            ModifyReleaseTarballError::MissingContentType => f.write_str("tarball didn't add a `Content-Type` to it"),
-            ModifyReleaseTarballError::MissingFiles => f.write_str("missing a required tarball"),
-            ModifyReleaseTarballError::Multipart(err) => Debug::fmt(err, f),
-            ModifyReleaseTarballError::MaxExceeded(size) => f.write_fmt(format_args!(
-                "expected 1 required file, and an optional tarball. received {size} files."
-            )),
-        }
-    }
-}
+// impl Display for ModifyReleaseTarballError {
+//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//         match self {
+//             ModifyReleaseTarballError::NotValidTarball => {
+//                 f.write_str("given tarball was not in a valid .tar.gz format")
+//             }
+//             ModifyReleaseTarballError::InvalidContentType(received) => f.write_fmt(format_args!(
+//                 "invalid content type, expected one of [{}] but received {received}",
+//                 ACCEPTABLE_CONTENT_TYPES.join(", ")
+//             )),
+//             ModifyReleaseTarballError::MissingContentType => f.write_str("tarball didn't add a `Content-Type` to it"),
+//             ModifyReleaseTarballError::MissingFiles => f.write_str("missing a required tarball"),
+//             ModifyReleaseTarballError::Multipart(err) => Debug::fmt(err, f),
+//             ModifyReleaseTarballError::MaxExceeded(size) => f.write_fmt(format_args!(
+//                 "expected 1 required file, and an optional tarball. received {size} files."
+//             )),
+//         }
+//     }
+// }
 
-impl std::error::Error for ModifyReleaseTarballError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        match self {
-            Self::Multipart(err) => Some(err),
-            _ => None,
-        }
-    }
-}
+// impl std::error::Error for ModifyReleaseTarballError {
+//     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+//         match self {
+//             Self::Multipart(err) => Some(err),
+//             _ => None,
+//         }
+//     }
+// }
 
-impl From<MultipartError> for ModifyReleaseTarballError {
-    fn from(value: MultipartError) -> Self {
-        ModifyReleaseTarballError::Multipart(Arc::new(value))
-    }
-}
+// impl From<MultipartError> for ModifyReleaseTarballError {
+//     fn from(value: MultipartError) -> Self {
+//         ModifyReleaseTarballError::Multipart(Arc::new(value))
+//     }
+// }
 
-impl UploadReleaseTarball {
-    pub fn version<I: Into<String>>(&mut self, version: I) -> &mut Self {
-        self.version = version.into();
-        self
-    }
+// impl UploadReleaseTarball {
+//     pub fn version<I: Into<String>>(&mut self, version: I) -> &mut Self {
+//         self.version = version.into();
+//         self
+//     }
 
-    pub fn owner(&mut self, owner: u64) -> &mut Self {
-        self.owner = owner;
-        self
-    }
+//     pub fn owner(&mut self, owner: u64) -> &mut Self {
+//         self.owner = owner;
+//         self
+//     }
 
-    pub fn repo(&mut self, repo: u64) -> &mut Self {
-        self.repo = repo;
-        self
-    }
+//     pub fn repo(&mut self, repo: u64) -> &mut Self {
+//         self.repo = repo;
+//         self
+//     }
 
-    /// Modifies the
-    pub async fn from_multipart(
-        &mut self,
-        mut multipart: Multipart,
-    ) -> Result<UploadReleaseTarball, ModifyReleaseTarballError> {
-        // step 1: release tarball, step 2: (optional) provenance, step 3: any other file
-        let mut provenance = false;
-        let mut processed = 0;
-        let mut step = 0;
+//     /// Modifies the
+//     pub async fn from_multipart(
+//         &mut self,
+//         mut multipart: Multipart,
+//     ) -> Result<UploadReleaseTarball, ModifyReleaseTarballError> {
+//         // step 1: release tarball, step 2: (optional) provenance, step 3: any other file
+//         let mut provenance = false;
+//         let mut processed = 0;
+//         let mut step = 0;
 
-        while let Some(_field) = multipart.next_field().await? {
-            processed += 1;
+//         while let Some(_field) = multipart.next_field().await? {
+//             processed += 1;
 
-            // break immediately if we are processing >16 files
-            if processed >= 16 {
-                break;
-            }
+//             // break immediately if we are processing >16 files
+//             if processed >= 16 {
+//                 break;
+//             }
 
-            // break out if we are over 2 steps, set `proveance` to true if
-            // we are 2 steps in
-            step += 1;
-            if step == 2 {
-                provenance = true;
-            }
+//             // break out if we are over 2 steps, set `proveance` to true if
+//             // we are 2 steps in
+//             step += 1;
+//             if step == 2 {
+//                 provenance = true;
+//             }
 
-            if step > 2 {
-                break;
-            }
+//             if step > 2 {
+//                 break;
+//             }
 
-            // get content type
-            // let Some(content_type) = field.content_type() else {
-            //     return Err(ModifyReleaseTarballError::MissingContentType);
-            // };
+//             // get content type
+//             // let Some(content_type) = field.content_type() else {
+//             //     return Err(ModifyReleaseTarballError::MissingContentType);
+//             // };
 
-            // if !ACCEPTABLE_CONTENT_TYPES.contains(&content_type) {
-            //     return Err(ModifyReleaseTarballError::InvalidContentType(content_type));
-            // }
+//             // if !ACCEPTABLE_CONTENT_TYPES.contains(&content_type) {
+//             //     return Err(ModifyReleaseTarballError::InvalidContentType(content_type));
+//             // }
 
-            // let bytes = field.bytes().await?;
-        }
+//             // let bytes = field.bytes().await?;
+//         }
 
-        if step <= 0 {
-            return Err(ModifyReleaseTarballError::MissingFiles);
-        }
+//         if step <= 0 {
+//             return Err(ModifyReleaseTarballError::MissingFiles);
+//         }
 
-        if provenance && step > 2 {
-            return Err(ModifyReleaseTarballError::MaxExceeded(processed - 2));
-        }
+//         if provenance && step > 2 {
+//             return Err(ModifyReleaseTarballError::MaxExceeded(processed - 2));
+//         }
 
-        if !provenance && step > 1 {
-            return Err(ModifyReleaseTarballError::MaxExceeded(processed - 1));
-        }
+//         if !provenance && step > 1 {
+//             return Err(ModifyReleaseTarballError::MaxExceeded(processed - 1));
+//         }
 
-        unreachable!()
-    }
-}
+//         unreachable!()
+//     }
+// }
 
-/*
-match multipart.next_field().await? {
-            Some(field) => {
-                let Some(content_type) = field.content_type() else {
-                    return Err(ModifyReleaseTarballError::MissingContentType);
-                };
+// /*
+// match multipart.next_field().await? {
+//             Some(field) => {
+//                 let Some(content_type) = field.content_type() else {
+//                     return Err(ModifyReleaseTarballError::MissingContentType);
+//                 };
 
-                if !ACCEPTABLE_CONTENT_TYPES.contains(&content_type) {
-                    return Err(ModifyReleaseTarballError::InvalidContentType(content_type));
-                }
+//                 if !ACCEPTABLE_CONTENT_TYPES.contains(&content_type) {
+//                     return Err(ModifyReleaseTarballError::InvalidContentType(content_type));
+//                 }
 
-                self.tarball = Some(field.bytes().await?);
+//                 self.tarball = Some(field.bytes().await?);
 
-                match multipart.next_field().await? {
-                    Some(prov) => {
-                        let Some(content_type) = prov.content_type() else {
-                            return Err(ModifyReleaseTarballError::MissingContentType);
-                        };
+//                 match multipart.next_field().await? {
+//                     Some(prov) => {
+//                         let Some(content_type) = prov.content_type() else {
+//                             return Err(ModifyReleaseTarballError::MissingContentType);
+//                         };
 
-                        if !ACCEPTABLE_CONTENT_TYPES.contains(&content_type) {
-                            return Err(ModifyReleaseTarballError::InvalidContentType(content_type));
-                        }
+//                         if !ACCEPTABLE_CONTENT_TYPES.contains(&content_type) {
+//                             return Err(ModifyReleaseTarballError::InvalidContentType(content_type));
+//                         }
 
-                        self.provenance_file = Some(prov.bytes().await?);
-                        Ok(*self)
-                    }
-                    None => Ok(*self),
-                }
-            }
-            None => Err(ModifyReleaseTarballError::MissingFiles),
-        }
- */
-
+//                         self.provenance_file = Some(prov.bytes().await?);
+//                         Ok(*self)
+//                     }
+//                     None => Ok(*self),
+//                 }
+//             }
+//             None => Err(ModifyReleaseTarballError::MissingFiles),
+//         }
+//  */
 #[derive(Debug, Clone)]
 pub struct HelmCharts {
     storage: MultiStorageService,

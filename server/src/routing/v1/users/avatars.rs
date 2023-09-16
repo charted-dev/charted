@@ -21,19 +21,10 @@ use axum::{
     extract::{Path, State},
     http::{header, StatusCode},
     response::IntoResponse,
-    routing, Router,
 };
 use charted_common::models::{entities::User, NameOrSnowflake};
 use charted_proc_macros::controller;
 use sqlx::{query_as, Postgres};
-
-pub fn create_router() -> Router<Server> {
-    Router::new().route("/", routing::get(GetCurrentUserAvatarRestController::run))
-}
-
-pub fn create_me_router() -> Router<Server> {
-    Router::new().route("/", routing::get(me::GetMyAvatarRestController::run))
-}
 
 /// Returns the user's current avatar. Use the [`GET /users/{idOrName}/avatar/{hash}.png`] REST handler
 /// to grab by a specific hash.
@@ -71,7 +62,6 @@ pub async fn get_current_user_avatar(
                     .into(),
             ))
         }
-
         Err(e) => {
             error!(idOrName = tracing::field::display(id_or_name), error = %e, "unable to query user with");
             sentry::capture_error(&e);
@@ -165,7 +155,7 @@ pub mod me {
         response(200, "Successful response", ("image/*", binary)),
         response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
     )]
-    pub async fn get_my_avatar(
+    pub async fn get_my_current_avatar(
         State(Server { avatars, .. }): State<Server>,
         Extension(Session { user, .. }): Extension<Session>,
     ) -> Result<impl IntoResponse, ApiResponse> {

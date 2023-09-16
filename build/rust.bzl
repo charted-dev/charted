@@ -57,6 +57,11 @@ def rust_project(
         **kwargs: Extra arguments to append in `rust_library`
     """
 
+    extra_flags = ["--cfg=bazel"]
+    if kwargs.get("rustc_flags") != None:
+        flags = kwargs.pop("rustc_flags")
+        extra_flags = extra_flags + flags
+
     if proc_macro:
         rust_proc_macro(
             name = "charted_%s" % name,
@@ -64,6 +69,7 @@ def rust_project(
             srcs = native.glob(["src/**/*.rs"], exclude = ["src/main.rs"]) + srcs,
             deps = deps,
             visibility = ["//visibility:public"],
+            rustc_flags = extra_flags,
             **kwargs
         )
     else:
@@ -77,6 +83,7 @@ def rust_project(
             deps = deps,
             proc_macro_deps = proc_macro_deps,
             visibility = ["//visibility:public"],
+            rustc_flags = extra_flags,
             **kwargs
         )
 
@@ -108,7 +115,7 @@ def rust_project(
             name = name,
             srcs = ["src/main.rs"],
             deps = [":charted_{name}".format(name = name)] + deps,
-            rustc_flags = ["-C", "incremental=true"],
+            rustc_flags = ["-C", "incremental=true"] + extra_flags,
             visibility = ["//visibility:public"],
         )
 

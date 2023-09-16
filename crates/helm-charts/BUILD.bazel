@@ -30,6 +30,7 @@ rust_project(
         "@crate_index//:eyre",
         "@crate_index//:flate2",
         "@crate_index//:itertools",
+        "@crate_index//:multer",
         "@crate_index//:once_cell",
         "@crate_index//:regex",
         "@crate_index//:remi-core",

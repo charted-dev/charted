@@ -236,6 +236,12 @@ alias(
 )
 
 alias(
+    name = "multer",
+    actual = "@crate_index__multer-2.1.0//:multer",
+    tags = ["manual"],
+)
+
+alias(
     name = "num_cpus",
     actual = "@crate_index__num_cpus-1.16.0//:num_cpus",
     tags = ["manual"],
@@ -412,6 +418,12 @@ alias(
 alias(
     name = "tar",
     actual = "@crate_index__tar-0.4.40//:tar",
+    tags = ["manual"],
+)
+
+alias(
+    name = "tempfile",
+    actual = "@crate_index__tempfile-3.8.0//:tempfile",
     tags = ["manual"],
 )
 

@@ -205,7 +205,7 @@ pub struct User {
 pub struct UserConnections {
     /// Snowflake ID that was sourced from [Noelware's Accounts System](https://accounts.noelware.org)
     #[serde(default)]
-    pub noelware_account_id: Option<u64>,
+    pub noelware_account_id: Option<i64>,
 
     /// Account ID that was sourced from Google OAuth2
     #[serde(default)]
@@ -301,8 +301,8 @@ pub struct RepositoryRelease {
 /// that can control the repository's metadata.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema, FromRow)]
 pub struct Member {
-    /// Display name for this member. This should be formatted as '{display_name} (@{username})' if this
-    /// is set, otherwise '@{username}' is used.
+    /// Display name for this member. This should be formatted as '[{display_name}][Member::display_name] (@[{username}][User::username])' if this
+    /// is set, otherwise '@[{username}][User::username]' is used.
     pub display_name: Option<String>,
 
     /// Bitfield value of this member's permissions.
@@ -355,8 +355,8 @@ pub struct Organization {
     #[serde(default)]
     pub gravatar_email: Option<String>,
 
-    /// Display name for this organization. It should be formatted as '{display_name} (@{name})'
-    /// or '@{name}'.
+    /// Display name for this organization. It should be formatted as '[{display_name}][Organization::display_name] (@[{name}][Organization::name])'
+    /// or '@[{name}][Organization::name]'.
     #[serde(default)]
     pub display_name: Option<String>,
 
