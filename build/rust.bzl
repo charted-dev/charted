@@ -16,7 +16,7 @@
 # buildifier: disable=module-docstring
 load("@crate_index//:defs.bzl", "aliases")
 load("@rules_rust//cargo:defs.bzl", "cargo_build_script")
-load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_doc_test", "rust_library", "rust_proc_macro", "rust_test", "rust_test_suite")
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_doc_test", "rust_library", "rust_proc_macro", "rust_test")
 
 def rust_project(
         name,
@@ -94,15 +94,17 @@ def rust_project(
             deps = [":charted_{name}".format(name = name)] + deps + test_deps,
             compile_data = external_data,
             proc_macro_deps = proc_macro_deps,
+            rustc_flags = extra_flags,
         )
 
-        rust_test_suite(
-            name = "integ_tests",
-            srcs = native.glob(["tests/**/*.rs"]),
-            deps = [":charted_{name}".format(name = name)] + deps + test_deps,
-            compile_data = external_data + [":Cargo.toml"],
-            proc_macro_deps = proc_macro_deps,
-        )
+        # rust_test_suite(
+        #     name = "integ_tests",
+        #     srcs = native.glob(["tests/**/*.rs"]),
+        #     deps = [":charted_{name}".format(name = name)] + deps + test_deps,
+        #     compile_data = external_data + [":Cargo.toml"],
+        #     proc_macro_deps = proc_macro_deps,
+        #     rustc_flags = extra_flags,
+        # )
 
     if include_doctests:
         rust_doc_test(

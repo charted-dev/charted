@@ -18,7 +18,7 @@ use charted_helm_charts::{HelmCharts, UploadReleaseTarball};
 use charted_storage::MultiStorageService;
 use remi_core::StorageService;
 use remi_fs::FilesystemStorageService;
-use std::path::PathBuf;
+use std::{env::current_dir, path::PathBuf};
 use tempfile::TempDir;
 use tokio::{fs::create_dir_all, test};
 
@@ -46,13 +46,24 @@ async fn test_upload() {
     let charts = HelmCharts::new(MultiStorageService::Filesystem(service));
     charts.init().await.unwrap();
 
-    let fixtures = &[
-        PathBuf::from("./tests/__fixtures__/elasticsearch-8.5.1.tgz"),
-        PathBuf::from("./tests/__fixtures__/hello-world-0.1.0.tgz"),
-        PathBuf::from("./tests/__fixtures__/zookeeper-9.2.1.tgz"),
-    ];
+    let fixtures = match cfg!(bazel) {
+        true => {
+            let dir = current_dir().unwrap();
+            [
+                dir.join("tests/__fixtures__/elasticsearch-8.5.1.tgz"),
+                dir.join("tests/__fixtures__/hello-world-0.1.0.tgz"),
+                dir.join("tests/__fixtures__/zookeeper-9.2.1.tgz"),
+            ]
+        }
+        false => [
+            PathBuf::from("./tests/__fixtures__/elasticsearch-8.5.1.tgz"),
+            PathBuf::from("./tests/__fixtures__/hello-world-0.1.0.tgz"),
+            PathBuf::from("./tests/__fixtures__/zookeeper-9.2.1.tgz"),
+        ],
+    };
 
     for fixture in fixtures.iter() {
+        dbg!(fixture);
         let canon = fixture.canonicalize().unwrap();
         eprintln!("[TEST] >> FIXTURE: {}", canon.display());
 
