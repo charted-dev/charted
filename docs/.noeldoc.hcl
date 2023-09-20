@@ -13,40 +13,52 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+noeldoc {
+    version = "~> 0.1-beta"
+}
+
 registry "default" {
     version = 1
     url     = "https://registry.noeldoc.dev"
 }
 
-noeldoc {
-    version = ">=0.1-beta"
-    experimental {
-        # Enables sandboxing where modules and renderers can be permitted
-        # from doing anything else, unless explicitly told to.
-        sandboxing = true
-
-        # Enables modules and renderers to read files from the filesystem.
-        permissions = ["+filesystem:read"]
-    }
-}
-
 project "charted-server" {
-    description = "🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust"
-    version     = "${noeldoc.filesystem.read("../.charted-version")}"
+    description = "🐻‍❄️📦 Free, open source, and reliable Helm chart registry in Rust"
+    homepage    = "https://charts.noelware.org/docs/server"
+    base_url    = "https://charts.noelware.org/docs/server"
+    version     = "${readfile("${cwd}/.charted-version")}"
 
-    module {
+    github {
+        repo = "charted-dev/charted"
+    }
+
+    versioning {
+        master = ingitbranch("main")
+    }
+
+    extension "markdown" {
         registry = "default"
-        id       = "dev.noeldoc.modules/markdown"
-        opts     = {
-            "validate" = true,
-            "tree"     = noeldoc.glob(["src/**/*.md"]),
-            "mdx"      = false
+        id = "extensions/markdown"
+        options {
+            validate = true
+            srcs = glob(["${cwd}/docs/src/**/*.md"])
+            mdx = false
         }
     }
 
-    renderer {
+    extension "openapi" {
         registry = "default"
-        modules  = ["dev.noeldoc.modules/markdown"]
-        id       = "dev.noeldoc.renderers/markdown"
+        id = "openapi"
+        options {
+            json_file = "${cwd}/assets/openapi.json"
+        }
+    }
+
+    renderer "markdown" {
+        registry = "default"
+        extensions = [extension.markdown, extension.openapi]
+        options {
+            validate = true
+        }
     }
 }

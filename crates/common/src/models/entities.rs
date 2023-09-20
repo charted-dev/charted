@@ -253,10 +253,10 @@ pub struct Repository {
 
     /// Unique identifier that points to a User or Organization resource that owns this repository
     #[schema(schema_with = snowflake_schema)]
-    pub owner_id: i64,
+    pub owner: i64,
 
     /// Unique [Name] to locate this repository from the API
-    pub name: String,
+    pub name: Name,
 
     /// The chart type that this repository is
     pub r#type: ChartType,

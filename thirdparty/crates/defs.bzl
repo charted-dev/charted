@@ -299,6 +299,7 @@ _NORMAL_DEPENDENCIES = {
             "chrono": "@crate_index__chrono-0.4.30//:chrono",
             "clap": "@crate_index__clap-4.4.2//:clap",
             "clap_complete": "@crate_index__clap_complete-4.4.1//:clap_complete",
+            "cli-table": "@crate_index__cli-table-0.4.7//:cli_table",
             "color-eyre": "@crate_index__color-eyre-0.6.2//:color_eyre",
             "dotenv": "@crate_index__dotenv-0.15.0//:dotenv",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
@@ -307,7 +308,6 @@ _NORMAL_DEPENDENCIES = {
             "promptly": "@crate_index__promptly-0.3.1//:promptly",
             "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
             "serde_yaml": "@crate_index__serde_yaml-0.9.25//:serde_yaml",
-            "simple_tables": "@crate_index__simple_tables-0.3.0//:simple_tables",
             "sqlx": "@crate_index__sqlx-0.7.1//:sqlx",
             "sysinfo": "@crate_index__sysinfo-0.29.10//:sysinfo",
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
@@ -2098,6 +2098,26 @@ def crate_repositories():
         urls = ["https://crates.io/api/v1/crates/clap_lex/0.5.1/download"],
         strip_prefix = "clap_lex-0.5.1",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap_lex-0.5.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__cli-table-0.4.7",
+        sha256 = "adfbb116d9e2c4be7011360d0c0bee565712c11e969c9609b25b619366dc379d",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/cli-table/0.4.7/download"],
+        strip_prefix = "cli-table-0.4.7",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.cli-table-0.4.7.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__cli-table-derive-0.4.5",
+        sha256 = "2af3bfb9da627b0a6c467624fb7963921433774ed435493b5c08a3053e829ad4",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/cli-table-derive/0.4.5/download"],
+        strip_prefix = "cli-table-derive-0.4.5",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.cli-table-derive-0.4.5.bazel"),
     )
 
     maybe(
@@ -5138,6 +5158,16 @@ def crate_repositories():
         urls = ["https://crates.io/api/v1/crates/tempfile/3.8.0/download"],
         strip_prefix = "tempfile-3.8.0",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tempfile-3.8.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__termcolor-1.3.0",
+        sha256 = "6093bad37da69aab9d123a8091e4be0aa4a03e4d601ec641c327398315f62b64",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/termcolor/1.3.0/download"],
+        strip_prefix = "termcolor-1.3.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.termcolor-1.3.0.bazel"),
     )
 
     maybe(

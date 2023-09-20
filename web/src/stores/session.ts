@@ -63,6 +63,10 @@ export const useSessionStore = defineStore(STORE, () => {
 
     return {
         session: sessionRef,
-        available: isAvailable
+        isAvailable
     };
 });
+
+if (import.meta.hot) {
+    import.meta.hot.accept(acceptHMRUpdate(useSessionStore, import.meta.hot));
+}

@@ -46,6 +46,7 @@ pub enum NameError {
         at: usize,
         ch: char,
     },
+
     ExceededMax(usize),
 
     /// Variant that the given input was not valid UTF-8.

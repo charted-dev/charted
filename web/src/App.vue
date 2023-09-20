@@ -16,11 +16,8 @@
 -->
 
 <script setup lang="ts">
-import Navbar from './components/ui/Navbar.vue';
-
 const router = useRouter();
 const route = router.currentRoute.value.fullPath;
-
 useSeoMeta({
     applicationName: 'Hoshi',
     ogDescription: '🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust',
@@ -32,10 +29,28 @@ useSeoMeta({
     ogTitle: 'Hoshi',
     ogUrl: `${import.meta.env.BASE_URL}${route}`
 });
+
+// catching errors
+const error$ = ref<Error | null>(null);
+onErrorCaptured((error, instance, info) => {
+    console.log(instance);
+    error$.value = error;
+
+    console.error('[hoshi:ui] received error on component');
+    console.error(error);
+    console.error('---');
+    console.error(info);
+});
 </script>
 
 <template>
-    <Suspense>
-        <Navbar />
-    </Suspense>
+    <RouterView v-slot="{ Component }">
+        <Suspense timeout="0">
+            <component :is="Component" />
+
+            <template #fallback>
+                <div>Loading...</div>
+            </template>
+        </Suspense>
+    </RouterView>
 </template>

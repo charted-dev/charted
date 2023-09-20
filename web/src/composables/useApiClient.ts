@@ -17,6 +17,7 @@
 
 import { ofetch, FetchOptions } from 'ofetch';
 import { useSessionStore } from '../stores/session';
+import { hasOwnProperty } from '@noelware/utils';
 
 const _clientRef = ref<ReturnType<(typeof ofetch)['create']>>(
     ofetch.create({
@@ -35,16 +36,18 @@ const _clientRef = ref<ReturnType<(typeof ofetch)['create']>>(
  * options that Hoshi needs.
  */
 export const useFetch = () => _clientRef.value;
-export const createAuthRequest = <T = any, RT extends NonNullable<FetchOptions['responseType']> = 'json'>(
+export const newRequest = <T = any, RT extends NonNullable<FetchOptions['responseType']> = 'json'>(
     ...args: Parameters<typeof ofetch>
 ) => {
     const fetch = useFetch();
     const options = args.length === 1 ? {} : args[1]!;
     const headers = new Headers(options.headers || {});
     const store = useSessionStore();
-    const [available, token] = store.available;
 
-    available && headers.append('Authorization', `Bearer ${token}`);
+    if (store.isAvailable[0]) {
+        headers.append('Authorization', `Bearer ${store.isAvailable[1]}`);
+    }
+
     return fetch<T, RT>(args[0], {
         headers,
         ...options

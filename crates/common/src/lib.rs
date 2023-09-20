@@ -114,4 +114,16 @@ pub mod macros {
             h
         }};
     }
+
+    /// General macro to implement `Lazy::new` from the `once_cell` library.
+    #[macro_export]
+    macro_rules! lazy {
+        ($init:expr) => {{
+            ::once_cell::sync::Lazy::new(|| $init)
+        }};
+
+        ($ty:ty) => {{
+            ::once_cell::sync::Lazy::<$ty>::default()
+        }};
+    }
 }

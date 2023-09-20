@@ -13,17 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::Server;
 use axum::{
-    extract::State,
+    extract::{FromRequestParts, State},
     http::{header::USER_AGENT, HeaderMap, Method, Request, Uri, Version},
     middleware::Next,
     response::IntoResponse,
 };
 use std::{sync::atomic::Ordering, time::Instant};
 
-use crate::Server;
-
-#[derive(axum::extract::FromRequestParts)]
+#[derive(FromRequestParts)]
 pub struct Metadata {
     pub(crate) uri: Uri,
     pub(crate) method: Method,

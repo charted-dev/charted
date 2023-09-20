@@ -71,11 +71,17 @@ macro_rules! impl_paginate_priv {
 
                 let query = query.build();
                 match query.fetch_all(&self.pool).await {
-                    Ok(mut entries) => {
-                        let cursor = entries
-                            .pop()
-                            .map(|entry| entry.get::<i64, _>("id"))
-                            .map(|e| e as u64);
+                    Ok(entries) => {
+                        // if the cursor is less than the actual entries, we can't iterate
+                        // over more pages.
+                        let cursor = if entries.len() < request.per_page {
+                            None
+                        } else {
+                            entries
+                                .last()
+                                .map(|entry| entry.get::<i64, _>("id"))
+                                .map(|e| e as u64)
+                        };
 
                         let page_info = ::charted_common::server::pagination::PageInfo { cursor };
                         let data = entries.iter().filter_map(|row| <$ty>::from_row(row).ok()).collect::<::std::vec::Vec::<_>>();
@@ -108,7 +114,7 @@ macro_rules! impl_paginate_priv {
             Box::pin(async move {
                 let mut query = ::sqlx::QueryBuilder::<::sqlx::Postgres>::new("select organizations.* from organizations ");
                 if let Some(cursor) = request.cursor {
-                    query.push("where id <= ");
+                    query.push("where organizations.id <= ");
                     query.push_bind(cursor as i64);
                     query.push(" and ");
                 } else {
@@ -116,7 +122,7 @@ macro_rules! impl_paginate_priv {
                 }
 
                 let owner_id = request.owner_id.unwrap_or_else(|| panic!("INTERNAL BUG: missing `owner_id`"));
-                query.push("owner_id = ");
+                query.push("organizations.owner_id = ");
                 query.push_bind(owner_id as i64);
                 query.push(" ");
 
@@ -129,11 +135,17 @@ macro_rules! impl_paginate_priv {
 
                 let query = query.build();
                 match query.fetch_all(&self.pool).await {
-                    Ok(mut entries) => {
-                        let cursor = entries
-                            .pop()
-                            .map(|entry| entry.get::<i64, _>("id"))
-                            .map(|e| e as u64);
+                    Ok(entries) => {
+                        // if the cursor is less than the actual entries, we can't iterate
+                        // over more pages.
+                        let cursor = if entries.len() < request.per_page {
+                            None
+                        } else {
+                            entries
+                                .last()
+                                .map(|entry| entry.get::<i64, _>("id"))
+                                .map(|e| e as u64)
+                        };
 
                         let page_info = ::charted_common::server::pagination::PageInfo { cursor };
                         let data = entries.iter().filter_map(|row| <$ty>::from_row(row).ok()).collect::<::std::vec::Vec::<_>>();
@@ -180,11 +192,17 @@ macro_rules! impl_paginate_priv {
 
                 let query = query.build();
                 match query.fetch_all(&self.pool).await {
-                    Ok(mut entries) => {
-                        let cursor = entries
-                            .pop()
-                            .map(|entry| entry.get::<i64, _>("id"))
-                            .map(|e| e as u64);
+                    Ok(entries) => {
+                        // if the cursor is less than the actual entries, we can't iterate
+                        // over more pages.
+                        let cursor = if entries.len() < request.per_page {
+                            None
+                        } else {
+                            entries
+                                .last()
+                                .map(|entry| entry.get::<i64, _>("id"))
+                                .map(|e| e as u64)
+                        };
 
                         let page_info = ::charted_common::server::pagination::PageInfo { cursor };
                         let data = entries.iter().filter_map(|row| <$ty>::from_row(row).ok()).collect::<::std::vec::Vec::<_>>();

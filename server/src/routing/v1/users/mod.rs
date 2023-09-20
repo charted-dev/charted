@@ -75,20 +75,21 @@ pub fn create_router() -> Router<Server> {
             routing::get(
                 avatars::me::GetMyCurrentAvatarRestController::run
                     .layer(AsyncRequireAuthorizationLayer::new(SessionAuth)),
-            ),
+            )
+            .post(avatars::UploadUserAvatarRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth))),
         )
         .route(
             "/repositories",
-            routing::get(routing::put(
+            routing::put(
                 CreateUserRepositoryRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth)),
-            )),
+            ),
         );
 
     Router::new()
         .nest("/sessions", sessions::create_router())
         .route("/login", routing::post(LoginRestController::run))
-        .nest("/:idOrName", id_or_name_router)
         .nest("/@me", me_router)
+        .nest("/:idOrName", id_or_name_router)
         .route("/", main_route)
 }
 

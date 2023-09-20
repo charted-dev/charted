@@ -66,7 +66,7 @@ where
 
         let bytes = Bytes::from_request(req, state).await.map_err(|e| {
             error!(%e, "received invalid bytes");
-            err(e.status(), ("INVALID_BODY", e.body_text().as_str()).into())
+            err(e.status(), ("INVALID_BODY", e.body_text()).into())
         })?;
 
         let deserializer = &mut serde_json::Deserializer::from_slice(&bytes);
@@ -79,12 +79,15 @@ where
                 };
 
                 let inner = e.inner();
+                error!(error = %inner, "unable to deserialize body from JSON");
+                sentry::capture_error(&inner);
+
                 match inner.classify() {
                     Category::Syntax => Err(err(
                         StatusCode::BAD_REQUEST,
                         (
-                            "INVALID_JSON",
-                            format!("received invalid JSON: {inner}").as_str(),
+                            "INVALID_JSON_PAYLOAD",
+                            format!("received invalid JSON: {inner}"),
                             json!({
                                 "col": inner.column(),
                                 "line": inner.line(),
@@ -97,8 +100,8 @@ where
                     Category::Data => Err(err(
                         StatusCode::NOT_ACCEPTABLE,
                         (
-                            "SEMANTIC_ERRORS",
-                            format!("data in path was semantically incorrect: {inner}").as_str(),
+                            "INVALID_JSON_PAYLOAD",
+                            inner.to_string(),
                             json!({
                                 "col": inner.column(),
                                 "line": inner.line(),

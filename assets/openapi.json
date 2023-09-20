@@ -40,6 +40,25 @@
                 }
             }
         },
+        "/apikeys": {
+            "get": {
+                "tags": ["ApiKeys"],
+                "description": "",
+                "operationId": "entrypoint",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiEntrypointResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/features": {
             "get": {
                 "tags": ["Main"],
@@ -343,7 +362,7 @@
             "get": {
                 "tags": ["Users", "Avatars"],
                 "description": "Returns the current authenticated user's current avatar. Use the [`GET /users/@me/avatar/{hash}.png`] REST handler\n to grab by a specific hash.\n\n [`GET /users/@me/avatar/{hash}.png`]: https://charts.noelware.org/docs/server/latest/api/reference/users#GET-/users/@me/avatar/{hash}.png",
-                "operationId": "get_my_avatar",
+                "operationId": "get_my_current_avatar",
                 "responses": {
                     "200": {
                         "description": "Successful response",
@@ -352,6 +371,53 @@
                                 "schema": {
                                     "type": "string",
                                     "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Users", "Avatars"],
+                "description": "Uploads a user avatar.",
+                "operationId": "upload_user_avatar",
+                "responses": {
+                    "201": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiEmptyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "Not Acceptable",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
                                 }
                             }
                         }
@@ -381,6 +447,36 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/responses/ApiRepositoryResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict: repository with that name already exists on the user's account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
                                 }
                             }
                         }
@@ -623,6 +719,18 @@
                 "operationId": "list_user_repositories",
                 "parameters": [
                     {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Cursor to passthrough to proceed into the next or previous page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
+                            "minLength": 15
+                        }
+                    },
+                    {
                         "name": "per_page",
                         "in": "query",
                         "description": "How many elements should be present in a page.",
@@ -630,15 +738,6 @@
                         "schema": {
                             "type": "integer",
                             "format": "int32"
-                        }
-                    },
-                    {
-                        "name": "order",
-                        "in": "query",
-                        "description": "Order to sort the entries by.",
-                        "required": false,
-                        "schema": {
-                            "$ref": "#/components/schemas/OrderBy"
                         }
                     },
                     {
@@ -651,15 +750,12 @@
                         }
                     },
                     {
-                        "name": "cursor",
+                        "name": "order",
                         "in": "query",
-                        "description": "Cursor to passthrough to proceed into the next or previous page.",
+                        "description": "Order to sort the entries by.",
                         "required": false,
                         "schema": {
-                            "type": "integer",
-                            "format": "int64",
-                            "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
-                            "minLength": 15
+                            "$ref": "#/components/schemas/OrderBy"
                         }
                     }
                 ],
@@ -729,7 +825,7 @@
                 "properties": {
                     "annotations": {
                         "type": "object",
-                        "description": "A list of annotations keyed by name and value.",
+                        "description": "Mapping of custom metadata that can be used for custom attributes.\n\n### standardized for charted-server\n* `charts.noelware.org/maintainers` ~ a comma-delimited list of all the maintainers\nthat are mapped by their `Name` or snowflake ID",
                         "additionalProperties": {
                             "type": "string"
                         }
@@ -1078,7 +1174,7 @@
                 "properties": {
                     "display_name": {
                         "type": "string",
-                        "description": "Display name for this member. This should be formatted as '{display_name} (@{username})' if this\nis set, otherwise '@{username}' is used.",
+                        "description": "Display name for this member. This should be formatted as '[{display_name}][Member::display_name] (@[{username}][User::username])' if this\nis set, otherwise '@[{username}][User::username]' is used.",
                         "nullable": true
                     },
                     "id": {
@@ -1150,7 +1246,7 @@
                     },
                     "display_name": {
                         "type": "string",
-                        "description": "Display name for this organization. It should be formatted as '{display_name} (@{name})'\nor '@{name}'.",
+                        "description": "Display name for this organization. It should be formatted as '[{display_name}][Organization::display_name] (@[{name}][Organization::name])'\nor '@[{name}][Organization::name]'.",
                         "nullable": true
                     },
                     "gravatar_email": {
@@ -1296,10 +1392,9 @@
                         "minLength": 15
                     },
                     "name": {
-                        "type": "string",
-                        "description": "Unique [Name] to locate this repository from the API"
+                        "$ref": "#/components/schemas/Name"
                     },
-                    "owner_id": {
+                    "owner": {
                         "type": "integer",
                         "format": "int64",
                         "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",

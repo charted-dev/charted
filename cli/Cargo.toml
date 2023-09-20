@@ -29,8 +29,10 @@ clap = { version = "4.3.10", features = ["derive", "env"] }
 clap_complete = "4.3.1"
 charted-common = { path = "../crates/common", version = "0.0.0-devel.0" }
 charted-config = { path = "../crates/config", version = "0.0.0-devel.0" }
+charted-database = { version = "0.0.0-devel.0", path = "../crates/database" }
 charted-logging = { version = "0.0.0-devel.0", path = "../crates/logging" }
 charted-server = { path = "../server", version = "0.0.0-devel.0" }
+cli-table = { version = "0.4.7", default-features = false, features = ["derive", "title"] }
 color-eyre = { version = "0.6.2", features = ["issue-url", "track-caller"] }
 dotenv = "0.15.0"
 eyre = "0.6.8"
@@ -39,10 +41,8 @@ num_cpus = "1.16.0"
 promptly = "0.3.1"
 serde_json = "1.0.104"
 serde_yaml = "0.9.22"
-simple_tables = "0.3.0"
 sqlx = { version = "0.7.1", features = ["postgres", "runtime-tokio", "tls-native-tls"] }
 sysinfo = "0.29.4"
 tokio = { version = "1.29.1", features = ["full"] }
 tracing = "0.1.37"
 tracing-subscriber = "0.3.17"
-charted-database = { version = "0.0.0-devel.0", path = "../crates/database" }

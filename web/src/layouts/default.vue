@@ -15,12 +15,6 @@
 ~ limitations under the License.
 -->
 
-<route lang="yaml">
-meta:
-    layout: full
-</route>
-
 <template>
-    <!-- TODO: this -->
-    <div />
+    <RouterView />
 </template>

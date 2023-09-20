@@ -107,12 +107,12 @@ impl DbController for RepositoryDatabaseController {
                 .await?;
         };
 
-        match sqlx::query("insert into repositories(created_at, deprecated, description, id, name, owner_id, private, type, updated_at) values($1, false, $2, $3, $4, $5, $6, $7, $8);")
+        match sqlx::query("insert into repositories(created_at, deprecated, description, id, name, owner, private, type, updated_at) values($1, false, $2, $3, $4, $5, $6, $7, $8);")
             .bind(skeleton.created_at)
             .bind(skeleton.description.clone())
             .bind(skeleton.id)
             .bind(skeleton.name.to_string())
-            .bind(skeleton.owner_id)
+            .bind(skeleton.owner)
             .bind(skeleton.private)
             .bind(skeleton.r#type)
             .bind(skeleton.updated_at)

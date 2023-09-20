@@ -27,6 +27,7 @@ mod list;
 pub enum Users {
     #[command(subcommand)]
     Grant(grant::Grant),
+    List(list::List),
 }
 
 #[async_trait]
@@ -34,6 +35,7 @@ impl AsyncExecute for Users {
     async fn execute(&self) -> Result<()> {
         match self {
             Self::Grant(grant) => grant.execute().await,
+            Self::List(list) => list.execute().await,
         }
     }
 }

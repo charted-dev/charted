@@ -15,12 +15,13 @@
 ~ limitations under the License.
 -->
 
-<route lang="yaml">
-meta:
-    layout: full
-</route>
+<script setup lang="ts">
+import Navbar from '~/components/ui/Navbar.vue';
+</script>
 
 <template>
-    <!-- TODO: this -->
-    <div />
+    <main>
+        <Navbar />
+        <RouterView />
+    </main>
 </template>

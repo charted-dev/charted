@@ -68,6 +68,12 @@ impl std::ops::Deref for Multipart {
     }
 }
 
+impl std::ops::DerefMut for Multipart {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
+    }
+}
+
 fn boundary(headers: &HeaderMap) -> Result<String, MultipartRejection> {
     let Some(val) = headers.get(header::CONTENT_TYPE) else {
         return Err(multer::Error::NoBoundary.into());

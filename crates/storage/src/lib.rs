@@ -17,6 +17,7 @@
 // so we don't have to declare more transitive dependencies to `bytes`.
 pub use bytes::Bytes;
 pub use remi_core::{Blob, DirectoryBlob, FileBlob, ListBlobsRequest, StorageService, UploadRequest};
+pub use remi_fs::{ContentTypeResolver, DefaultContentTypeResolver};
 
 use charted_config::StorageConfig;
 use remi_fs::FilesystemStorageService;

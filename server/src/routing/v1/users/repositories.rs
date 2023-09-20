@@ -14,26 +14,30 @@
 // limitations under the License.
 
 use crate::{
+    extract::Json,
     middleware::{Session, SessionAuth},
     models::res::{err, ok, ApiResponse},
     openapi::gen_response_schema,
+    validation::validate,
     Server,
 };
 use axum::{
     extract::{Path, Query, State},
     handler::Handler,
     http::StatusCode,
-    routing, Extension, Json, Router,
+    routing, Extension, Router,
 };
 use charted_common::{
-    models::{entities::Repository, payloads::CreateRepositoryPayload, NameOrSnowflake},
+    models::{entities::Repository, payloads::CreateRepositoryPayload, Name, NameOrSnowflake},
     server::pagination::{Pagination, PaginationQuery},
 };
 use charted_database::controller::{
     repositories::RepositoryDatabaseController, users::UserDatabaseController, DbController, PaginationRequest,
 };
 use charted_proc_macros::controller;
+use chrono::Local;
 use tower_http::auth::AsyncRequireAuthorizationLayer;
+use validator::Validate;
 
 pub(crate) struct RepositoryResponse;
 gen_response_schema!(RepositoryResponse, schema: "Repository");
@@ -118,14 +122,74 @@ pub async fn list_user_repositories(
 #[controller(
     method = put,
     tags("Repositories"),
-    response(201, "Repository created", ("application/json", response!("ApiRepositoryResponse")))
+    response(201, "Repository created", ("application/json", response!("ApiRepositoryResponse"))),
+    response(400, "Bad Request", ("application/json", response!("ApiErrorResponse"))),
+    response(409, "Conflict: repository with that name already exists on the user's account", ("application/json", response!("ApiErrorResponse"))),
+    response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
 )]
 pub async fn create_user_repository(
-    State(Server { controllers, .. }): State<Server>,
-    Extension(Session { .. }): Extension<Session>,
-    Json(_): Json<CreateRepositoryPayload>,
+    State(Server {
+        controllers, snowflake, ..
+    }): State<Server>,
+    Extension(Session { user, .. }): Extension<Session>,
+    Json(payload): Json<CreateRepositoryPayload>,
 ) -> Result<ApiResponse<Repository>, ApiResponse> {
-    let _repos = controllers.get::<RepositoryDatabaseController>();
+    let repos = controllers.get::<RepositoryDatabaseController>();
+    validate(payload.clone(), CreateRepositoryPayload::validate)?;
 
-    Ok(ok(StatusCode::CREATED, Repository::default()))
+    // validate the name (since the first one won't go through)
+    let name = validate(payload.name.clone(), Name::validate)?;
+
+    // check if the owner has a repo with the same name
+    match repos.get_by_nos(NameOrSnowflake::Name(name.clone())).await {
+        Ok(None) => {}
+        Ok(Some(_)) => {
+            return Err(err(
+                StatusCode::CONFLICT,
+                (
+                    "REPO_ALREADY_EXISTS",
+                    format!(
+                        "repository with name {} already exists under your account",
+                        payload.name.clone()
+                    ),
+                )
+                    .into(),
+            ));
+        }
+
+        Err(_) => {
+            return Err(err(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+            ));
+        }
+    }
+
+    let id = snowflake.generate();
+    let now = Local::now();
+    let repo = repos
+        .create(
+            payload.clone(),
+            Repository {
+                description: payload.description.clone(),
+                created_at: now,
+                updated_at: now,
+                private: payload.private,
+                r#type: payload.r#type,
+                owner: user.id,
+                name,
+                id: id.value() as i64,
+
+                ..Default::default()
+            },
+        )
+        .await
+        .map_err(|_| {
+            err(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+            )
+        })?;
+
+    Ok(ok(StatusCode::CREATED, repo))
 }

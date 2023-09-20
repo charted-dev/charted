@@ -50,6 +50,7 @@ DEPS = [":node_modules/%s" % pkg for pkg in [
     "ofetch",
     "pinia",
     "shikiji",
+    "vite-plugin-vue-layouts",
     "vue",
     "vue-router",
 ]]

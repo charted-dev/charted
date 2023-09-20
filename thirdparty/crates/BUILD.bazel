@@ -110,6 +110,12 @@ alias(
 )
 
 alias(
+    name = "cli-table",
+    actual = "@crate_index__cli-table-0.4.7//:cli_table",
+    tags = ["manual"],
+)
+
+alias(
     name = "color-eyre",
     actual = "@crate_index__color-eyre-0.6.2//:color_eyre",
     tags = ["manual"],

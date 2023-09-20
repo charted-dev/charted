@@ -26,6 +26,7 @@ use charted_sessions::SessionManager;
 use charted_sessions_local::LocalSessionProvider;
 use charted_storage::MultiStorageService;
 use eyre::Result;
+use remi_core::StorageService;
 use sentry::{types::Dsn, ClientOptions};
 use sqlx::{
     postgres::{PgConnectOptions, PgPoolOptions},
@@ -147,6 +148,7 @@ pub(crate) async fn configure_modules(config: &Config) -> Result<Server> {
     now = Instant::now();
 
     let storage = MultiStorageService::from(config.storage.clone());
+    storage.init().await?;
 
     // TODO(@auguwu): what is the best way of doing node IDs?
     let snowflake = Snowflake::new(0);

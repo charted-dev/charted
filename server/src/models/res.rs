@@ -40,8 +40,8 @@ where
 
     /// List of errors that might've occurred when this request
     /// was being processed.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub errors: Option<Vec<Error>>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub errors: Vec<Error>,
 }
 
 impl<T: Serialize + Debug> IntoResponse for ApiResponse<T> {
@@ -121,10 +121,22 @@ impl From<(&str, &str, Option<Value>)> for Error {
     }
 }
 
+impl From<(&str, String)> for Error {
+    fn from((code, message): (&str, String)) -> Self {
+        (code, message.as_str()).into()
+    }
+}
+
+impl From<(&str, String, Value)> for Error {
+    fn from((code, message, details): (&str, String, Value)) -> Self {
+        (code, message.as_str(), details).into()
+    }
+}
+
 pub fn ok<T: Serialize + Debug>(status: StatusCode, data: T) -> ApiResponse<T> {
     ApiResponse {
         success: true,
-        errors: None,
+        errors: vec![],
         status,
         data: Some(data),
     }
@@ -133,7 +145,7 @@ pub fn ok<T: Serialize + Debug>(status: StatusCode, data: T) -> ApiResponse<T> {
 pub fn err(status: StatusCode, error: Error) -> ApiResponse<Empty> {
     ApiResponse {
         success: false,
-        errors: Some(vec![error]),
+        errors: vec![error],
         status,
         data: None,
     }
@@ -141,9 +153,9 @@ pub fn err(status: StatusCode, error: Error) -> ApiResponse<Empty> {
 
 pub fn no_content() -> ApiResponse<Empty> {
     ApiResponse {
-        status: StatusCode::NO_CONTENT,
         success: true,
+        status: StatusCode::NO_CONTENT,
+        errors: vec![],
         data: None,
-        errors: None,
     }
 }

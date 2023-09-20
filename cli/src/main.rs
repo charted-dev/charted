@@ -59,8 +59,11 @@ fn main() -> Result<()> {
     let runtime = match cli.command {
         Commands::Server(ref server) => {
             let workers = var!("CHARTED_RUNTIME_WORKERS", to: usize, or_else: server.workers.unwrap_or(cpus()));
-            color_eyre::install()?;
+            if cli.verbose {
+                eprintln!("[VERBOSE] using {workers} workers for Tokio");
+            }
 
+            color_eyre::install()?;
             Builder::new_multi_thread()
                 .worker_threads(workers)
                 .thread_name("charted-worker-pool")

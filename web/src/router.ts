@@ -16,7 +16,18 @@
  */
 
 import { createRouter, createWebHistory } from 'vue-router/auto';
+import { setupLayouts } from 'virtual:generated-layouts';
 
-export default createRouter({
-    history: createWebHistory()
+const router = createRouter({
+    history: createWebHistory(),
+    extendRoutes(routes) {
+        return setupLayouts(routes);
+    }
 });
+
+router.onError((error, to, from) => {
+    console.error(`[hoshi:router] received error while navigation [from ${from.fullPath}] ~> [to ${to.fullPath}]`);
+    console.error(error);
+});
+
+export default router;

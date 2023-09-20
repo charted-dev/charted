@@ -16,21 +16,20 @@
 -->
 
 <script setup lang="ts">
-import { User } from '@ncharts/types';
+import type { User, responses, ApiResponse } from '@ncharts/types';
 
-const router = useRouter();
 const session = useSessionStore();
 const user = ref<User | null>(null);
 
-if (session.available[0]) {
-    user.value = await createAuthRequest('/api/users/@me');
+if (session.isAvailable[0]) {
+    user.value = await newRequest('/api/users/@me');
 }
 </script>
 
 <template>
     <nav class="relative">
         <header
-            class="flex-row items-center justify-center bg-[#0e0c0e] py-3 lg:pl-2 lg:shadow-md lg:mx-auto lg:flex lg:justify-between"
+            class="flex-row items-center justify-center bg-slate-900 py-3 lg:pl-2 lg:shadow-md lg:mx-auto lg:flex lg:justify-between"
         >
             <div v-once class="flex mx-auto my-auto">
                 <img

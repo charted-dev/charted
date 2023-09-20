@@ -15,21 +15,4 @@
  * limitations under the License.
  */
 
-/** @type {import('eslint').ESLint.ConfigData} */
-module.exports = {
-    extends: ['prettier', '@augu/eslint-config/vue-ts.js'],
-    ignorePatterns: ['index.html'],
-    parserOptions: {
-        extraFileExtensions: ['.vue'],
-        tsconfigRootDir: __dirname,
-        project: ['tsconfig.eslint.json']
-    },
-    rules: {
-        'vue/singleline-html-element-content-newline': 'off',
-        'vue/multi-word-component-names': 'off',
-        'vue/no-multiple-template-root': 'off', // we're using vue 3, so this doesn't matter
-        'vue/max-attributes-per-line': 'off',
-        'vue/html-self-closing': 'off',
-        'vue/html-indent': ['error', 4]
-    }
-};
+DROP INDEX idx_repositories_owner_id;

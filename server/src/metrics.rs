@@ -13,18 +13,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_common::{models::Distribution, COMMIT_HASH, VERSION};
+use crate::SERVER;
+use charted_common::{lazy, models::Distribution, COMMIT_HASH, VERSION};
 use charted_metrics::{prometheus::create_metric_descriptor, Collector};
 use erased_serde::Serialize as ErasedSerialize;
+use once_cell::sync::Lazy;
 use prometheus_client::{
-    metrics::gauge::ConstGauge,
+    metrics::{gauge::ConstGauge, histogram::Histogram},
     registry::{Descriptor, LocalMetric, Prefix},
     MaybeOwned,
 };
 use serde::{Deserialize, Serialize};
 use std::{any::Any, borrow::Cow, sync::atomic::Ordering};
 
-use crate::SERVER;
+/// [`Histogram`] to track request latencies.
+pub static REQUEST_LATENCY_HISTOGRAM: Lazy<Histogram> = lazy!(Histogram::new(
+    [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0].into_iter()
+));
 
 /// VENDOR is the current vendor of charted-server. If you're making a fork,
 /// you can set this to whatever you want. We don't mind! :)

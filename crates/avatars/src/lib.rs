@@ -14,10 +14,10 @@
 // limitations under the License.
 
 use bytes::Bytes;
-use charted_common::{crypto::md5, COMMIT_HASH, VERSION};
+use charted_common::{crypto::md5, rand_string, COMMIT_HASH, VERSION};
 use charted_storage::MultiStorageService;
 use eyre::{Context, Result};
-use remi_core::StorageService;
+use remi_core::{StorageService, UploadRequest};
 use reqwest::{Client, StatusCode};
 use std::{fmt::Debug, fs::create_dir_all};
 use tracing::{debug, instrument, warn};
@@ -106,14 +106,9 @@ impl AvatarsModule {
         res.bytes().await.context("unable to get bytes from request").map(Some)
     }
 
+    /// Retrieve a user's avatar and returns the [`Bytes`] of it.
     #[instrument(name = "charted.avatars.user", skip(self))]
-    pub async fn user(&self, uid: u64, hash: Option<String>) -> Result<Option<Bytes>> {
-        debug!("calling storage server fn [open] with [id = {uid}]");
-        let hash = match hash {
-            Some(hash) => format!("{hash}.png"),
-            None => "current.png".into(),
-        };
-
+    pub async fn user(&self, uid: u64, hash: String) -> Result<Option<Bytes>> {
         self.storage
             .open(format!("./avatars/users/{uid}/{hash}"))
             .await
@@ -121,13 +116,7 @@ impl AvatarsModule {
     }
 
     #[instrument(name = "charted.avatars.repository", skip(self))]
-    pub async fn repository(&self, id: u64, hash: Option<String>) -> Result<Option<Bytes>> {
-        debug!("calling storage server fn [open] with [id = {id}]");
-        let hash = match hash {
-            Some(hash) => format!("{hash}.png"),
-            None => "current.png".into(),
-        };
-
+    pub async fn repository(&self, id: u64, hash: String) -> Result<Option<Bytes>> {
         self.storage
             .open(format!("./avatars/repositories/{id}/{hash}"))
             .await
@@ -135,16 +124,55 @@ impl AvatarsModule {
     }
 
     #[instrument(name = "charted.avatars.organization", skip(self))]
-    pub async fn organization(&self, id: u64, hash: Option<String>) -> Result<Option<Bytes>> {
-        debug!("calling storage server fn [open] with [id = {id}]");
-        let hash = match hash {
-            Some(hash) => format!("{hash}.png"),
-            None => "current.png".into(),
-        };
-
+    pub async fn organization(&self, id: u64, hash: String) -> Result<Option<Bytes>> {
         self.storage
             .open(format!("./avatars/organizations/{id}/{hash}"))
             .await
             .context("unable to open [./avatars/organizations/{id}/{hash}]")
+    }
+
+    #[instrument(name = "charted.avatars.user.upload", skip(self, data))]
+    pub async fn upload_user_avatar(&self, id: u64, data: Bytes, ct: String, ext: &str) -> Result<String> {
+        let hash = format!("{}.{ext}", rand_string(4));
+        let request = UploadRequest::default()
+            .with_content_type(Some(ct))
+            .with_data(data)
+            .seal();
+
+        self.storage
+            .upload(format!("./avatars/users/{id}/{hash}"), request)
+            .await
+            .map(|_| hash)
+            .context("unable to upload user avatar")
+    }
+
+    #[instrument(name = "charted.avatars.organization.upload", skip(self, data))]
+    pub async fn upload_org_avatar(&self, id: u64, data: Bytes, ct: String, ext: &str) -> Result<String> {
+        let hash = format!("{}.{ext}", rand_string(4));
+        let request = UploadRequest::default()
+            .with_content_type(Some(ct))
+            .with_data(data)
+            .seal();
+
+        self.storage
+            .upload(format!("./avatars/users/{id}/{hash}"), request)
+            .await
+            .map(|_| hash)
+            .context("unable to upload organization avatar")
+    }
+
+    #[instrument(name = "charted.avatars.repository.upload", skip(self, data))]
+    pub async fn upload_repo_icon(&self, id: u64, data: Bytes, ct: String, ext: &str) -> Result<String> {
+        let hash = format!("{}.{ext}", rand_string(4));
+        let request = UploadRequest::default()
+            .with_content_type(Some(ct))
+            .with_data(data)
+            .seal();
+
+        self.storage
+            .upload(format!("./avatars/repositories/{id}/{hash}"), request)
+            .await
+            .map(|_| hash)
+            .context("unable to upload repository icon")
     }
 }

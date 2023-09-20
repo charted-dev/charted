@@ -29,14 +29,14 @@
         <script>
             (function () {
                 const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)')?.matches ?? false;
-                const setting = localStorage.getItem('charted:color-scheme') || 'auto';
-                if (setting === 'dark' && prefersDark && setting !== 'light') {
+                const setting = localStorage.getItem('charted:color-scheme') || 'light'; // default to light
+                if (prefersDark && setting !== 'light') {
                     document.documentElement.classList.add('dark', true);
                 }
             })();
         </script>
     </head>
-    <body>
+    <body class="dark:text-white font-sans">
         <div id="app"></div>
         <script type="module" src="/src/main.ts"></script>
         <noscript>Web UI requires JavaScript to function properly! Please enable JavaScript to continue. </noscript>

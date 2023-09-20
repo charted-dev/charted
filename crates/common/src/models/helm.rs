@@ -45,11 +45,25 @@ impl<'s> ToSchema<'s> for ChartSpecVersion {
 /// by Helm, but specific to the API server, this will be switched to [`ChartType::Application`]
 /// when serializing to valid Helm objects
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd, Ord, sqlx::Type)]
+#[sqlx(type_name = "chart_type", rename_all = "lowercase")]
 #[serde(rename_all = "lowercase")]
 pub enum ChartType {
+    /// Default chart type and represents a standard chart which can operate on a Kubernetes
+    /// cluster and spawn in Kubernetes objects.
+    ///
+    /// **Note**: Application charts can also act as library charts, just set this to [`Library`][ChartType::Library],
+    /// and it'll act like a library chart instead.
     #[default]
     Application,
+
+    /// Library charts provide utilities or functions for building Helm charts, it differs
+    /// from an [`Application`][ChartType::Application] chart because it cannot create Kubernetes
+    /// objects from `helm install`.
     Library,
+
+    /// Operator is a "non standard" Chart type, and is replaced by [`Application`][ChartType::Application]
+    /// in releases. This can also be set with the `charts.noelware.org/type` annotation to be `operator` to have
+    /// the same affect.
     Operator,
 }
 
@@ -231,7 +245,11 @@ pub struct Chart {
     #[serde(default = "falsy")]
     pub deprecated: bool,
 
-    /// A list of annotations keyed by name and value.
+    /// Mapping of custom metadata that can be used for custom attributes.
+    ///
+    /// ### standardized for charted-server
+    /// * `charts.noelware.org/maintainers` ~ a comma-delimited list of all the maintainers
+    /// that are mapped by their `Name` or snowflake ID
     #[serde(default, skip_serializing_if = "HashMap::is_empty")]
     pub annotations: HashMap<String, String>,
 }

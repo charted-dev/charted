@@ -141,7 +141,6 @@ fn truthy() -> bool {
 }
 
 static CONFIG: OnceCell<Config> = OnceCell::new();
-
 impl Config {
     fn find_default_conf_location() -> Option<PathBuf> {
         let mut config_dir = Path::new("./config").to_path_buf();
@@ -213,12 +212,13 @@ impl Config {
             },
         };
 
-        let mut serialized = &mut serde_yaml::from_reader::<_, Config>(File::open(path)?)?;
+        let mut serialized = serde_yaml::from_reader::<_, Config>(File::open(path)?)?;
         if serialized.jwt_secret_key.as_str() == "" {
-            serialized = {
-                serialized.jwt_secret_key = rand_string(32);
-                serialized
-            };
+            let key = rand_string(64);
+            eprintln!("[charted::preinit ~ WARN] JWT secret key was not found, so I generated one for you: {key}");
+            eprintln!("[charted::preinit ~ WARN] Set this from the `CHARTED_JWT_SECRET_KEY` environment variable, or in `jwt_secret_key` in the configuration.");
+
+            serialized.jwt_secret_key = key;
         }
 
         CONFIG.set(merge(&env, &serialized.clone())?).unwrap();

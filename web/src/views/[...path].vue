@@ -15,12 +15,24 @@
 ~ limitations under the License.
 -->
 
-<route lang="yaml">
-meta:
-    layout: full
-</route>
+<script setup lang="ts">
+const route = useRoute();
+</script>
 
 <template>
-    <!-- TODO: this -->
-    <div />
+    <div class="relative">
+        <div class="h-screen flex flex-col mx-auto container justify-center items-center space-y-3">
+            <img
+                src="https://cdn.floofy.dev/images/trans.png"
+                draggable="false"
+                class="w-[145px] h-[146px] rounded-lg"
+                alt="noelware"
+            />
+
+            <h1 class="font-semibold font-serif text-4xl">Page Not Found</h1>
+            <h2 class="text-2xl">
+                Page <code>{{ route.fullPath }}</code> was not found.
+            </h2>
+        </div>
+    </div>
 </template>

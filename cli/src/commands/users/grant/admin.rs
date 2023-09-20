@@ -56,7 +56,7 @@ impl AsyncExecute for Admin {
         Config::load(self.config.clone())?;
         let config = Config::get();
 
-        info!("🛰️   contacting & connecting -> PostgreSQL...");
+        info!("🛰️   contacting & connecting to PostgreSQL...");
         let mut conn = PgConnection::connect_with(
             &PgConnectOptions::from_str(config.database.to_string().as_str())?
                 .log_slow_statements(LevelFilter::Warn, Duration::from_secs(10))

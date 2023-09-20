@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+/// <reference types="vite-plugin-vue-layouts/client" />
 /// <reference types="vite/client" />
 
 /**

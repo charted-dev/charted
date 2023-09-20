@@ -26,6 +26,15 @@ import './styles/global.css';
 const pinia = createPinia();
 const app = createApp(App);
 
+// TODO(@auguwu): allow sending it to Sentry from `sentry_dsn` in server
+// configuration
+app.config.errorHandler = (error, _vm, info) => {
+    console.error('[hoshi:ui] received error');
+    console.error(error);
+    console.error('~~~');
+    console.error(info);
+};
+
 app.use(
     createHead({
         title: 'Hoshi',
@@ -39,4 +48,6 @@ app.use(
 app.use(pinia);
 app.use(router);
 
-app.mount('#app');
+router.isReady().then(() => {
+    app.mount('#app');
+});
