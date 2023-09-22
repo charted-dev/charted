@@ -46,7 +46,7 @@ dependencies:
     # used for common Helm utilities
     - name: common
       repository: https://charts.bitnami.com/bitnami
-      version: ~2.11.0
+      version: ~2.12.0
 
     # used for the Audit Logs and Webhooks features
     # - name: clickhouse
