@@ -36,6 +36,8 @@ DEPS = [":node_modules/%s" % pkg for pkg in [
     "@fontsource/cantarell",
     "@fontsource/inter",
     "@fontsource/jetbrains-mono",
+    "@formkit/vue",
+    "@formkit/zod",
     "@ncharts/types",
     "@noelware/utils",
     "@tailwindcss/forms",
@@ -50,9 +52,11 @@ DEPS = [":node_modules/%s" % pkg for pkg in [
     "ofetch",
     "pinia",
     "shikiji",
+    "unplugin-vue-components",
     "vite-plugin-vue-layouts",
     "vue",
     "vue-router",
+    "zod",
 ]]
 
 POSTCSS_DEPS = [
@@ -84,6 +88,7 @@ vue_tsc.vue_tsc_test(
     chdir = package_name(),
     data = [
         "auto-imports.d.ts",
+        "components.d.ts",
         "package.json",
         "tsconfig.json",
         "typed-router.d.ts",
