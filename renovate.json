@@ -1,0 +1,18 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "enabled": false,
+    "automerge": true,
+    "extends": ["config:base", "default:timezone(America/Los_Angeles)", "docker:disableMajor"],
+    "enabledManagers": ["bazel", "docker", "helm", "js", "node", "rust", "terraform"],
+    "vulnerabilityAlerts": {
+        "labels": ["security"]
+    },
+    "packageRules": [
+        {
+            "matchPackagePatterns": ["*"],
+            "postUpgradeTasks": {
+                "commands": ["./dev sync-deps"]
+            }
+        }
+    ]
+}
