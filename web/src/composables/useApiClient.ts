@@ -15,14 +15,12 @@
  * limitations under the License.
  */
 
-import { ofetch, FetchOptions } from 'ofetch';
-import { useSessionStore } from '../stores/session';
-import { hasOwnProperty } from '@noelware/utils';
+import { ofetch, type FetchOptions } from 'ofetch';
 
 const _clientRef = ref<ReturnType<(typeof ofetch)['create']>>(
     ofetch.create({
         ignoreResponseError: true, // we will handle it on our own
-        retry: 3,
+        mode: 'same-origin',
         timeout: 5000, // timeout after 5 seconds
         responseType: 'json',
         headers: {
@@ -36,20 +34,28 @@ const _clientRef = ref<ReturnType<(typeof ofetch)['create']>>(
  * options that Hoshi needs.
  */
 export const useFetch = () => _clientRef.value;
-export const newRequest = <T = any, RT extends NonNullable<FetchOptions['responseType']> = 'json'>(
-    ...args: Parameters<typeof ofetch>
-) => {
+
+export function newRequest<T = any, RT extends NonNullable<FetchOptions['responseType']> = 'json'>(
+    request: RequestInfo,
+    options?: FetchOptions<RT>
+) {
     const fetch = useFetch();
-    const options = args.length === 1 ? {} : args[1]!;
-    const headers = new Headers(options.headers || {});
+    const opts = options || {};
+    const headers = new Headers(hasOwnProperty(opts, 'headers') ? opts.headers! : {});
     const store = useSessionStore();
 
     if (store.isAvailable[0]) {
         headers.append('Authorization', `Bearer ${store.isAvailable[1]}`);
     }
 
-    return fetch<T, RT>(args[0], {
+    let retries = hasOwnProperty(opts, 'retry') ? opts.retry! : 5;
+    if (typeof request === 'string' && request.startsWith('/api/users/login')) {
+        retries = false; // disable retries
+    }
+
+    return fetch<T, RT>(request, {
         headers,
+        retry: retries,
         ...options
     } as unknown as FetchOptions<RT>);
-};
+}

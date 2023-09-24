@@ -17,6 +17,7 @@
 
 import { type CommonServerOptions, type PluginOption, defineConfig } from 'vite';
 import { fileURLToPath } from 'url';
+import vueComponents from 'unplugin-vue-components/vite';
 import { readFile } from 'fs/promises';
 import { execSync } from 'child_process';
 import { resolve } from 'path';
@@ -26,6 +27,24 @@ import vueLayouts from 'vite-plugin-vue-layouts';
 import vueRouter from 'unplugin-vue-router/vite';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import vue from '@vitejs/plugin-vue';
+
+const DROPDOWN_COMPONENTS = [
+    'Arrow',
+    'CheckboxItem',
+    'Content',
+    'Item',
+    'ItemIndicator',
+    'Label',
+    'Portal',
+    'RadioGroup',
+    'RadioItem',
+    'Root',
+    'Separator',
+    'Sub',
+    'SubContent',
+    'SubTrigger',
+    'Trigger'
+].map((sub) => `DropdownMenu${sub}`);
 
 export default defineConfig(async ({ command }) => {
     const proxy: CommonServerOptions['proxy'] =
@@ -44,7 +63,17 @@ export default defineConfig(async ({ command }) => {
     const plugins: PluginOption[] = [
         autoImports({
             vueTemplate: true,
-            imports: ['@vueuse/core', '@vueuse/head', 'pinia', 'vue', 'vue-router'],
+            imports: [
+                '@vueuse/core',
+                '@vueuse/head',
+                'pinia',
+                'vue',
+                'vue-router',
+                {
+                    '@noelware/utils': ['Lazy', 'assertIsError', 'hasOwnProperty', 'lazy', 'titleCase'],
+                    zod: ['z']
+                }
+            ],
             dirs: ['src/components', 'src/composables', 'src/stores'],
             dts: './auto-imports.d.ts'
         }),
@@ -52,6 +81,27 @@ export default defineConfig(async ({ command }) => {
         vueRouter({
             dts: true,
             routesFolder: resolve(fileURLToPath(new URL('./src/views', import.meta.url)))
+        }),
+        vueComponents({
+            dts: './components.d.ts',
+            resolvers: [
+                {
+                    type: 'component',
+                    resolve(name) {
+                        if (name === 'Icon') {
+                            return { name, from: '@iconify/vue' };
+                        }
+                    }
+                },
+                {
+                    type: 'component',
+                    resolve(name) {
+                        if (name.startsWith('DropdownMenu') && DROPDOWN_COMPONENTS.includes(name)) {
+                            return { name, from: 'radix-vue' };
+                        }
+                    }
+                }
+            ]
         }),
         vue(),
         vueJsx()

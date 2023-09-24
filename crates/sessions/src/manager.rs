@@ -366,22 +366,22 @@ impl SessionManager {
         RedisClient::pipeline()
             .hset("charted:sessions", session_id.to_string(), as_json)
             .set(format!("charted:sessions:{session_id}"), "dummy payload for now")
-            .arg("EXPIRE")
-            .arg(Duration::from_secs(604800).as_secs())
-            .arg("NX")
+            .expire_at(
+                format!("charted:sessions:{session_id}"),
+                one_week.timestamp_millis().try_into().unwrap(),
+            )
             .query(&mut client)?;
 
-        Err(eyre::eyre!("damn"))
+        Ok(session)
     }
 }
 
 #[async_trait::async_trait]
 impl SessionProvider for SessionManager {
     async fn authorize(&mut self, password: String, user: &dyn UserWithPassword) -> Result<()> {
-        if let Ok(mut provider) = self.provider.try_lock() {
-            return provider.authorize(password, user).await;
+        match self.provider.try_lock() {
+            Ok(mut provider) => provider.authorize(password, user).await,
+            Err(_) => Err(eyre!("unable to authenticate (mutex is poisioned)")),
         }
-
-        Err(eyre!("unable to authenticate (mutex is poisioned)"))
     }
 }

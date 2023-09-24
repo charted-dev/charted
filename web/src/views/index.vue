@@ -15,12 +15,17 @@
 ~ limitations under the License.
 -->
 
+<script setup lang="ts">
+const store = useSessionStore();
+const user = store.session.user!;
+</script>
+
 <route lang="yaml">
 meta:
+    auth: true
     layout: full
 </route>
 
 <template>
-    <!-- TODO: this -->
-    <div />
+    <span>Hello, world!</span>
 </template>

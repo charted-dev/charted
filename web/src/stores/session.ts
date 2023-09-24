@@ -42,8 +42,6 @@ export const useSessionStore = defineStore(STORE, () => {
     );
 
     const isAvailable = computed<[available: boolean, token: string | undefined]>(() => {
-        // if there is no session available, then it
-        // is not available.
         if (sessionRef.value.access_token === undefined && sessionRef.value.refresh_token === undefined) {
             return [false, undefined];
         }

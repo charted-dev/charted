@@ -16,7 +16,7 @@
 -->
 
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-full">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -28,17 +28,41 @@
 
         <script>
             (function () {
-                const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)')?.matches ?? false;
-                const setting = localStorage.getItem('charted:color-scheme') || 'light'; // default to light
-                if (prefersDark && setting !== 'light') {
-                    document.documentElement.classList.add('dark', true);
+                const theme = localStorage.getItem('charted:color-scheme') || 'system';
+                if (window.matchMedia !== undefined) {
+                    const darkMode = window.matchMedia('(prefers-color-scheme: dark)');
+                    if (theme === 'system' && darkMode.matches) {
+                        document.documentElement.classList.add('dark');
+                    } else if (theme === 'dark') {
+                        document.documentElement.classList.add('dark');
+                    }
+
+                    darkMode.addEventListener('change', (query) => {
+                        if (document.documentElement.classList.contains('dark') && !query.matches) {
+                            document.documentElement.classList.remove('dark');
+                        }
+
+                        if (query.matches && !document.documentElement.classList.contains('dark')) {
+                            document.documentElement.classList.add('dark');
+                        }
+                    });
+                } else {
+                    console.warn(
+                        '[hoshi:ui] `window.matchMedia` is not available opting to use theme {',
+                        theme,
+                        '} instead'
+                    );
+
+                    if (theme === 'dark' && !document.documentElement.classList.contains('dark')) {
+                        document.documentElement.classList.add('dark');
+                    }
                 }
             })();
         </script>
     </head>
-    <body class="dark:text-white font-sans">
+    <body class="min-h-full bg-white antialiased text-[#15151A] dark:text-white dark:bg-[#15151A] overflow-y-hidden">
         <div id="app"></div>
         <script type="module" src="/src/main.ts"></script>
-        <noscript>Web UI requires JavaScript to function properly! Please enable JavaScript to continue. </noscript>
+        <noscript>Web UI requires JavaScript to function properly! Please enable JavaScript to continue.</noscript>
     </body>
 </html>

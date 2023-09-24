@@ -17,6 +17,7 @@
 
 import { createRouter, createWebHistory } from 'vue-router/auto';
 import { setupLayouts } from 'virtual:generated-layouts';
+import { hasOwnProperty } from '@noelware/utils';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -28,6 +29,22 @@ const router = createRouter({
 router.onError((error, to, from) => {
     console.error(`[hoshi:router] received error while navigation [from ${from.fullPath}] ~> [to ${to.fullPath}]`);
     console.error(error);
+});
+
+router.beforeEach((to, _, next) => {
+    const needsAuth = to.meta.auth || false;
+    const session = useSessionStore();
+
+    if (needsAuth && !session.isAvailable[0]) {
+        return next({
+            path: '/login',
+            query: {
+                next: to.fullPath
+            }
+        });
+    }
+
+    return next();
 });
 
 export default router;

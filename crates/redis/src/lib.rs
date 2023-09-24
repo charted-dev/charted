@@ -154,7 +154,7 @@ impl RedisClient {
             .try_lock()
             .expect("unable to acquire mutex lock");
 
-        Ok(sentinel.master_for(&master_name, None)?)
+        Ok(sentinel.replica_for(&master_name, None)?)
     }
 
     /// Utility to create a single [command][redis::Cmd] without requiring

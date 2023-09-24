@@ -16,7 +16,13 @@
 -->
 
 <template>
-    <AppShell>
-        <RouterView />
-    </AppShell>
+    <div>
+        <Sidebar />
+        <div class="lg:hidden py-4 px-4 dark:bg-zinc-800"></div>
+        <main class="py-5 lg:py-10 lg:pl-72">
+            <div class="px-4 md:px-6 lg:px-8">
+                <slot />
+            </div>
+        </main>
+    </div>
 </template>

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+import { plugin, defaultConfig } from '@formkit/vue';
 import { createPinia } from 'pinia';
 import { createHead } from '@vueuse/head';
 import { createApp } from 'vue';
@@ -26,15 +27,6 @@ import './styles/global.css';
 const pinia = createPinia();
 const app = createApp(App);
 
-// TODO(@auguwu): allow sending it to Sentry from `sentry_dsn` in server
-// configuration
-app.config.errorHandler = (error, _vm, info) => {
-    console.error('[hoshi:ui] received error');
-    console.error(error);
-    console.error('~~~');
-    console.error(info);
-};
-
 app.use(
     createHead({
         title: 'Hoshi',
@@ -42,6 +34,23 @@ app.use(
             // TODO(@auguwu): switch to charted branding
             { rel: 'shortcut icon', href: 'https://cdn.floofy.dev/images/trans.png' }
         ]
+    })
+);
+
+app.use(
+    plugin,
+    defaultConfig({
+        config: {
+            classes: {
+                input: 'block w-full rounded-md border-0 py-1.5 dark:text-white text-gray-900 shadow-sm dark:bg-zinc-700 placeholder:dark:text-gray-400 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-zinc-800/20 sm:text-sm sm:leading-6',
+                label: 'block text-sm font-medium leading-6 text-gray-900 dark:text-white',
+                form: 'space-y-6',
+                message: 'text-red-500 mb-1 text-xs',
+                messages: 'list-none p-0 mt-1 mb-0 mt-0.5',
+                outer: 'mb-4 formkit-disabled:opacity-50',
+                loaderIcon: 'inline-flex items-center w-4 text-gray-600 animate-spin'
+            }
+        }
     })
 );
 

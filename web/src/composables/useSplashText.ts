@@ -15,39 +15,12 @@
  * limitations under the License.
  */
 
-@import '@fontsource/jetbrains-mono';
-@import '@fontsource/cantarell';
-@import '@fontsource/inter';
+const SPLASHES = [
+    'Things are computing...',
+    'is a hotdog a sandwich...?',
+    'ERROR 404 - polar bears were not found!',
+    'oOoOOOoooOOOo spoopy!!!!',
+    'Did you know that we almost went with `helm-server` as the name for charted back in 2022? weird huh...'
+] as const;
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-@tailwind variants;
-
-::-moz-selection {
-    background: #d961a3;
-    color: white;
-}
-
-::selection {
-    background: #d961a3;
-    color: white;
-}
-
-* {
-    box-sizing: border-box;
-}
-
-body {
-    -webkit-tap-highlight-color: transparent;
-}
-
-main.md {
-    @apply prose max-w-4xl lg:max-w-7xl
-
-    /* <p> elements */
-    prose-p:break-words prose-p:text-zinc-700 prose-p:font-sans prose-p:dark:text-white prose-p:text-lg
-
-    /* heading elements */
-    prose-headings:text-zinc-700 prose-headings:font-serif prose-headings:dark:text-white;
-}
+export const useRandomSplash = () => SPLASHES[Math.floor(Math.random() * SPLASHES.length)];

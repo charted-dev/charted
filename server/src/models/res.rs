@@ -142,7 +142,7 @@ pub fn ok<T: Serialize + Debug>(status: StatusCode, data: T) -> ApiResponse<T> {
     }
 }
 
-pub fn err(status: StatusCode, error: Error) -> ApiResponse<Empty> {
+pub fn err(status: StatusCode, error: Error) -> ApiResponse {
     ApiResponse {
         success: false,
         errors: vec![error],
@@ -151,7 +151,7 @@ pub fn err(status: StatusCode, error: Error) -> ApiResponse<Empty> {
     }
 }
 
-pub fn no_content() -> ApiResponse<Empty> {
+pub fn no_content() -> ApiResponse {
     ApiResponse {
         success: true,
         status: StatusCode::NO_CONTENT,

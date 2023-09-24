@@ -16,6 +16,8 @@
 -->
 
 <script setup lang="ts">
+import ErrorBoundary from './components/ErrorBoundary.vue';
+
 const router = useRouter();
 const route = router.currentRoute.value.fullPath;
 useSeoMeta({
@@ -29,28 +31,26 @@ useSeoMeta({
     ogTitle: 'Hoshi',
     ogUrl: `${import.meta.env.BASE_URL}${route}`
 });
-
-// catching errors
-const error$ = ref<Error | null>(null);
-onErrorCaptured((error, instance, info) => {
-    console.log(instance);
-    error$.value = error;
-
-    console.error('[hoshi:ui] received error on component');
-    console.error(error);
-    console.error('---');
-    console.error(info);
-});
 </script>
 
 <template>
     <RouterView v-slot="{ Component }">
-        <Suspense timeout="0">
-            <component :is="Component" />
+        <ErrorBoundary>
+            <Suspense timeout="0">
+                <component :is="Component" />
+                <template #fallback>
+                    <div class="h-screen justify-center items-center flex flex-col space-y-1.5 container mx-auto">
+                        <img
+                            alt="Noelware"
+                            src="https://cdn.floofy.dev/images/trans.png"
+                            draggable="false"
+                            class="rounded-lg w-[96px] h-[96px] motion-safe:animate-bounce motion-safe:delay-300"
+                        />
 
-            <template #fallback>
-                <div>Loading...</div>
-            </template>
-        </Suspense>
+                        <span class="font-medium text-lg break-words">{{ useRandomSplash() }}</span>
+                    </div>
+                </template>
+            </Suspense>
+        </ErrorBoundary>
     </RouterView>
 </template>
