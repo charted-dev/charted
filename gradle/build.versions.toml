@@ -15,7 +15,7 @@
 
 [versions]
 otel-instrumentation-alpha = "1.28.0-alpha" # why does opentelemetry have inconsistent versions WAAAAAA
-netflix-nebula-ospackage = "11.4.0"
+netflix-nebula-ospackage = "11.5.0"
 apache-commons-validator = "1.7"
 exposed-powergamer-tools = "1.3.0"
 apache-commons-compress = "1.24.0"
