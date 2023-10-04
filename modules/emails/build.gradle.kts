@@ -116,7 +116,7 @@ protobuf {
 
         if (path == null) {
             logger.lifecycle("Using `protoc` binary from Maven artifact [com.google.protobuf:protoc]. Releases from this are very un-deterministic and might not be available on Maven, so please install `protoc` on the host machine.")
-            artifact = "com.google.protobuf:protoc:3.24.3"
+            artifact = "com.google.protobuf:protoc:3.24.4"
         }
     }
 
