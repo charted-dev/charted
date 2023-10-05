@@ -57,7 +57,7 @@ DEPS = [":node_modules/%s" % pkg for pkg in [
     "vue",
     "vue-router",
     "zod",
-]]
+]] + ["//types/js:types"]
 
 POSTCSS_DEPS = [
     ":node_modules/autoprefixer",

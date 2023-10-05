@@ -15,13 +15,14 @@
 
 use charted_common::cli::Execute;
 use charted_config::Config;
-use charted_server::openapi::document;
+use charted_server::openapi::Document;
 use eyre::Result;
 use std::{
     fs::{File, OpenOptions},
     io::Write as _,
     path::PathBuf,
 };
+use utoipa::OpenApi;
 
 #[derive(Debug, Clone, clap::Parser)]
 #[clap(about = "Generates the OpenAPI document without running the API server")]
@@ -39,7 +40,7 @@ impl Execute for OpenAPI {
         // panics.
         Config::temporary();
 
-        let doc = document();
+        let doc = Document::openapi();
         let serialized = if self.yaml {
             serde_yaml::to_string(&doc)?
         } else {

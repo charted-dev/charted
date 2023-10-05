@@ -78,7 +78,7 @@ rules_proto_dependencies()
 
 rules_proto_toolchains()
 
-load("//:build/tools/nodejs.bzl", "CHECKSUMS", "NODE_VERSION", "charted_nodejs_repositories", "create_tuple", "format_key")
+load("//:build/tools/nodejs.bzl", "CHECKSUMS", "NODE_VERSION", "TYPESCRIPT_INTEGRITY", "TYPESCRIPT_VERSION", "charted_nodejs_repositories", "create_tuple", "format_key")
 
 charted_nodejs_repositories()
 
@@ -88,7 +88,10 @@ rules_js_dependencies()
 
 load("@aspect_rules_ts//ts:repositories.bzl", "rules_ts_dependencies")
 
-rules_ts_dependencies(ts_version = "5.1.6")
+rules_ts_dependencies(
+    ts_integrity = TYPESCRIPT_INTEGRITY,
+    ts_version = TYPESCRIPT_VERSION,
+)
 
 load("@rules_nodejs//nodejs:repositories.bzl", "nodejs_register_toolchains")
 
@@ -134,8 +137,17 @@ load("@aspect_rules_js//npm:npm_import.bzl", "npm_translate_lock")
 npm_translate_lock(
     name = "npm",
     data = ["//web:package.json"],
-    npmrc = "//web:.npmrc",
+    npmrc = "//:.npmrc",
     pnpm_lock = "//web:pnpm-lock.yaml",
+    update_pnpm_lock = True,
+    verify_node_modules_ignored = "//:.bazelignore",
+)
+
+npm_translate_lock(
+    name = "types_npm",
+    data = ["//types/js:package.json"],
+    npmrc = "//:.npmrc",
+    pnpm_lock = "//types/js:pnpm-lock.yaml",
     update_pnpm_lock = True,
     verify_node_modules_ignored = "//:.bazelignore",
 )
@@ -143,6 +155,10 @@ npm_translate_lock(
 load("@npm//:repositories.bzl", "npm_repositories")
 
 npm_repositories()
+
+load("@types_npm//:repositories.bzl", types_repositories = "npm_repositories")
+
+types_repositories()
 
 load("//:build/tools/pkg.bzl", "charted_pkg_repositories")
 

@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_proc_macros::controller;
+use crate::macros::controller;
 
 /// Generic healthcheck endpoint to use for Docker and Kubernetes usage.
 #[controller(tags("Main"), response(200, "Successful response", ("text/plain", string)))]

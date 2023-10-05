@@ -12,3 +12,35 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+use charted_config::ldap::Config;
+use eyre::{Context, Result};
+use ldap3::{Ldap, LdapConnAsync};
+use std::sync::Arc;
+use tokio::task::JoinHandle;
+
+#[derive(Debug, Clone)]
+pub struct LDAPSessionProvider {
+    ldap: Ldap,
+    _handle: Arc<JoinHandle<()>>,
+}
+
+impl LDAPSessionProvider {
+    pub async fn new(config: Config) -> Result<LDAPSessionProvider> {
+        let (conn, ldap) = LdapConnAsync::new(&config.host)
+            .await
+            .context("unable to connect to ldap server")?;
+
+        Ok(LDAPSessionProvider {
+            _handle: Arc::new(ldap3::drive!(conn)),
+            ldap,
+        })
+    }
+
+    pub async fn terminate(mut self) -> Result<()> {
+        self.ldap
+            .unbind()
+            .await
+            .context("unable to terminate connection to ldap server")
+    }
+}

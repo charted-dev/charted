@@ -14,9 +14,15 @@
 # limitations under the License.
 
 [package]
-name = "charted_sessions_integrations"
+name = "charted-sessions-integrations"
 description = "🐻‍❄️📦 Abstraction for creating session integrations with popular OAuth2 providers"
 version = "0.0.0-devel.0"
 edition = "2021"
 homepage = "https://charts.noelware.org"
 authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
+
+[dependencies]
+async-trait = "0.1.73"
+charted-sessions = { version = "0.0.0-devel.0", path = ".." }
+eyre = "0.6.8"
+serde = "1.0.188"

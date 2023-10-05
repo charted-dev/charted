@@ -15,16 +15,16 @@
 
 use crate::{
     extract::Json,
+    macros::controller,
     middleware::{RawAuthHeader, SessionAuth},
     models::res::{err, ok, ApiResponse, Empty},
-    openapi::gen_response_schema,
     validation::validate,
     Server,
 };
 use axum::{extract::State, handler::Handler, http::StatusCode, routing, Extension, Router};
 use charted_common::models::{entities::User, payloads::UserLoginPayload, Name};
 use charted_config::SessionBackend;
-use charted_proc_macros::controller;
+use charted_openapi::generate_response_schema;
 use charted_sessions::{Session, SessionProvider};
 use serde_json::json;
 use sqlx::{query_as, Postgres};
@@ -48,7 +48,7 @@ pub fn create_router() -> Router<Server> {
 
 // this shouldn't be used directly
 pub(crate) struct SessionResponse;
-gen_response_schema!(SessionResponse, schema: "Session");
+generate_response_schema!(SessionResponse, schema = "Session");
 
 /// Creates a new session and returns details about the newly created session.
 #[controller(

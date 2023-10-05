@@ -14,11 +14,11 @@
 // limitations under the License.
 
 use crate::{
+    macros::controller,
     models::{
         res::{err, ApiResponse},
         yaml::Yaml,
     },
-    openapi::gen_response_schema,
     Server,
 };
 use axum::{
@@ -27,17 +27,13 @@ use axum::{
 };
 use charted_common::models::{helm::ChartIndex, NameOrSnowflake};
 use charted_database::controller::{users::UserDatabaseController, DbController};
-use charted_proc_macros::controller;
 use remi_core::StorageService;
-
-pub(crate) struct ChartIndexResponse;
-gen_response_schema!(ChartIndexResponse, schema: "ChartIndex");
 
 /// Returns a `ChartIndex` for a specific user or organization.
 #[controller(
     tags("Main", "Users", "Organizations"),
     pathParameter("idOrName", schema!("NameOrSnowflake"), description = "Path parameter that can take a [`Name`] or [`Snowflake`] identifier."),
-    response(200, "Helm index for the user or organization", ("application/json", response!("ApiChartIndexResponse"))),
+    response(200, "Helm index for the user or organization", ("text/yaml", response!("ChartIndex"))),
     response(404, "User or Organization was not found", ("application/json", response!("ApiErrorResponse"))),
     response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
 )]

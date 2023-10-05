@@ -39,7 +39,7 @@ rust_project(
     name = "server",
     include_tests = True,
     proc_macro_deps = [
-        "//crates/proc-macros:charted_proc_macros",
+        "//server/proc-macro:charted_server_proc_macro",
         "@crate_index//:async-trait",
         "@crate_index//:paste",
     ],
@@ -59,6 +59,7 @@ rust_project(
         "@crate_index//:prometheus-client",
         "@crate_index//:remi-core",
         "@crate_index//:rust-embed",
+        "@crate_index//:semver",
         "@crate_index//:sentry",
         "@crate_index//:sentry-eyre",
         "@crate_index//:sentry-tower",

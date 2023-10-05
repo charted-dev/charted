@@ -7,6 +7,9 @@ common --enable_platform_specific_config
 startup --windows_enable_symlinks
 build:windows --enable_runfiles
 
+# Reuse sandbox directories on Linux
+build:linux --reuse_sandbox_directories
+
 # rustc optimization flags (for release binaries)
 #
 # lto: https://doc.rust-lang.org/rustc/codegen-options/index.html#lto
@@ -22,6 +25,16 @@ common --experimental_allow_tags_propagation
 
 # Always show test output.
 test --test_output=all
+
+# honor the setting of `skipLibCheck` in the tsconfig.json file
+build --@aspect_rules_ts//ts:skipLibCheck=honor_tsconfig
+fetch --@aspect_rules_ts//ts:skipLibCheck=honor_tsconfig
+query --@aspect_rules_ts//ts:skipLibCheck=honor_tsconfig
+
+# Use "tsc" as the transpiler when ts_project has no `transpiler` set.
+build --@aspect_rules_ts//ts:default_to_tsc_transpiler
+fetch --@aspect_rules_ts//ts:default_to_tsc_transpiler
+query --@aspect_rules_ts//ts:default_to_tsc_transpiler
 
 # Allows importing from user-defined .bazelrc files; this is ignored
 # by Git by default.

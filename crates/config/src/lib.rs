@@ -94,8 +94,10 @@ macro_rules! make_config {
             }
         }
 
-        impl $crate::FromEnv<$name> for $name {
-            fn from_env() -> $name {
+        impl $crate::FromEnv for $name {
+            type Output = $name;
+
+            fn from_env() -> Self::Output {
                 $name {
                     $(
                         $key: $env,

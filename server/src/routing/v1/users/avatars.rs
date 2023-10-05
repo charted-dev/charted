@@ -14,6 +14,7 @@
 // limitations under the License.
 
 use crate::{
+    macros::controller,
     middleware::Session,
     models::res::{err, ApiResponse},
     Multipart, Server,
@@ -26,7 +27,6 @@ use axum::{
 };
 use charted_common::models::NameOrSnowflake;
 use charted_database::controller::{users::UserDatabaseController, DbController};
-use charted_proc_macros::controller;
 use charted_storage::{ContentTypeResolver, DefaultContentTypeResolver};
 
 /// Returns the user's current avatar. Use the [`GET /users/{idOrName}/avatar/{hash}.png`] REST handler
@@ -266,6 +266,7 @@ pub async fn upload_user_avatar(
 pub mod me {
     use super::UploadUserAvatarRestController;
     use crate::{
+        macros::controller,
         middleware::Session,
         models::res::{err, ApiResponse},
         Server,
@@ -276,7 +277,6 @@ pub mod me {
         response::IntoResponse,
         Extension,
     };
-    use charted_proc_macros::controller;
     use utoipa::openapi::{path::PathItemBuilder, PathItem};
 
     pub fn paths() -> PathItem {

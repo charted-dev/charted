@@ -19,4 +19,10 @@ exports_files(["Cargo.toml"])
 
 rust_project(
     name = "sessions_integrations",
+    proc_macro_deps = ["@crate_index//:async-traut"],
+    deps = [
+        "//crates/sessions:charted_sessions",
+        "@crate_index//:eyre",
+        "@crate_index//:serde",
+    ],
 )

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
 # Copyright 2022-2023 Noelware, LLC. <team@noelware.org>

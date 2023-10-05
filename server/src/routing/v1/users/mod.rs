@@ -25,9 +25,9 @@ use self::{
 use super::EntrypointResponse;
 use crate::{
     extract::Json,
+    macros::controller,
     middleware::{Session, SessionAuth},
     models::res::{err, no_content, ok, ApiResponse, Empty},
-    openapi::gen_response_schema,
     validation::{validate, validate_email},
     Server,
 };
@@ -43,15 +43,12 @@ use charted_common::{
     VERSION,
 };
 use charted_database::controller::{users::UserDatabaseController, DbController};
-use charted_proc_macros::controller;
+use charted_openapi::generate_response_schema;
 use charted_storage::Bytes;
 use chrono::Local;
 use remi_core::{StorageService, UploadRequest};
 use tower_http::auth::AsyncRequireAuthorizationLayer;
-use utoipa::{
-    openapi::path::{PathItem, PathItemBuilder},
-    ToSchema,
-};
+use utoipa::openapi::path::{PathItem, PathItemBuilder};
 use validator::Validate;
 
 pub fn create_router() -> Router<Server> {
@@ -120,10 +117,8 @@ async fn main() {
     )
 }
 
-// please do not use this directly
-#[derive(ToSchema)]
 pub struct UserResponse;
-gen_response_schema!(UserResponse, schema: "User");
+generate_response_schema!(UserResponse, schema = "User");
 
 /// Creates a new user if the server allows registrations.
 #[controller(

@@ -15,7 +15,9 @@
 
 /// Represents a [`From`]-style trait to locate this impl
 /// from the system environment variables.
-pub trait FromEnv<T> {
+pub trait FromEnv {
+    type Output;
+
     /// Converts into the received type.
-    fn from_env() -> T;
+    fn from_env() -> Self::Output;
 }

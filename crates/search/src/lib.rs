@@ -13,13 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::fmt::Debug;
-
 use async_trait::async_trait;
 use charted_common::models::entities::{Organization, Repository, User};
 use eyre::Result;
 use once_cell::sync::Lazy;
 use serde::{de::DeserializeOwned, Serialize};
+use std::fmt::Debug;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct SearchResult<T: serde::ser::Serialize + Clone> {

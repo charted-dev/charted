@@ -24,8 +24,10 @@ pub enum SearchConfig {
     Meilisearch(meilisearch::Config),
 }
 
-impl FromEnv<Option<SearchConfig>> for SearchConfig {
-    fn from_env() -> Option<SearchConfig> {
+impl FromEnv for SearchConfig {
+    type Output = Option<SearchConfig>;
+
+    fn from_env() -> Self::Output {
         match var!("CHARTED_SEARCH_BACKEND", is_optional: true) {
             Some(backend) => match backend.as_str() {
                 "es" | "elasticsearch" => Some(SearchConfig::Elasticsearch(elasticsearch::Config::from_env())),
@@ -62,8 +64,10 @@ pub mod elasticsearch {
         None,
     }
 
-    impl FromEnv<Option<AuthType>> for AuthType {
-        fn from_env() -> Option<AuthType> {
+    impl FromEnv for AuthType {
+        type Output = Option<AuthType>;
+
+        fn from_env() -> Self::Output {
             if let Some(key) = var!("CHARTED_ELASTICSEARCH_AUTH_API_KEY", is_optional: true) {
                 return Some(AuthType::ApiKey(key));
             }

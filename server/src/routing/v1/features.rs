@@ -15,10 +15,10 @@
 
 #![allow(deprecated)]
 
-use crate::{models::res::ok, openapi::gen_response_schema, Server};
+use crate::{macros::controller, models::res::ok, Server};
 use axum::{extract::State, http::StatusCode};
 use charted_common::hashmap;
-use charted_proc_macros::controller;
+use charted_openapi::generate_response_schema;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use utoipa::ToSchema;
@@ -52,7 +52,7 @@ pub struct FeaturesResponse {
     pub search: bool,
 }
 
-gen_response_schema!(FeaturesResponse);
+generate_response_schema!(FeaturesResponse);
 
 /// Retrieve this server's features. This is only for enabling or disabling features for API consumers.
 #[controller(tags("Main"), response(200, "Successful response", ("application/json", response!("ApiFeaturesResponse"))))]

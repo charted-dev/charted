@@ -15,21 +15,17 @@
 
 [package]
 name = "charted-proc-macros"
-description = "🐻‍❄️📦 Procedural macros for charted-server"
+description = "🐻‍❄️📦 Utilities for helping build out the various procedural macros for charted-server"
 version = "0.0.0-devel.0"
 edition = "2021"
 homepage = "https://charts.noelware.org"
 authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
-[lib]
-proc-macro = true
-
 [dependencies]
 axum = "0.6.20"
 charted-common = { version = "0.0.0-devel.0", path = "../common" }
-heck = "0.4.1"
-proc-macro2 = "1.0.66"
-quote = "1.0.32"
+proc-macro2 = "1.0.67"
+quote = "1.0.33"
 serde_json = "1.0.104"
-syn = "2.0.28"
+syn = "2.0.37"
 utoipa = { version = "3.5.0", features = ["chrono"] }

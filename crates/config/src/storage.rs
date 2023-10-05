@@ -39,7 +39,9 @@ impl Default for StorageConfig {
     }
 }
 
-impl FromEnv<StorageConfig> for StorageConfig {
+impl FromEnv for StorageConfig {
+    type Output = StorageConfig;
+
     fn from_env() -> StorageConfig {
         match std::env::var("CHARTED_STORAGE_SERVICE") {
             Err(_) => StorageConfig::default(),

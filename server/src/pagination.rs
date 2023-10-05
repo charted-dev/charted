@@ -44,12 +44,11 @@ macro_rules! gen_response_schemas_for_types {
             }
 
             pub(crate) struct [<$ty PaginatedResponse>];
-            $crate::openapi::gen_response_schema!([<$ty PaginatedResponse>], schema: [<ApiPaginated $ty>]);
+            ::charted_openapi::generate_response_schema!([<$ty PaginatedResponse>], schema = stringify!([<ApiPaginated $ty>]));
         }
     };
 }
 
-gen_response_schemas_for_types!(OrganizationMember);
-gen_response_schemas_for_types!(RepositoryMember);
 gen_response_schemas_for_types!(Organization);
 gen_response_schemas_for_types!(Repository);
+gen_response_schemas_for_types!(Member);

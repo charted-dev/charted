@@ -402,7 +402,7 @@ impl From<utoipa::openapi::Required> for Required {
 /// Helper struct for [`Parameter`][utoipa::openapi::path::Parameter], which implements
 /// [`ToTokens`].
 #[derive(Clone)]
-pub struct Parameter(pub(crate) utoipa::openapi::path::Parameter);
+pub struct Parameter(pub utoipa::openapi::path::Parameter);
 
 impl ToTokens for Parameter {
     fn to_tokens(&self, tokens: &mut TokenStream) {
@@ -535,7 +535,7 @@ impl From<utoipa::openapi::Schema> for Schema {
 }
 
 #[derive(Clone)]
-pub struct SecurityRequirement(pub(crate) (String, Vec<String>));
+pub struct SecurityRequirement(pub (String, Vec<String>));
 
 impl ToTokens for SecurityRequirement {
     fn to_tokens(&self, tokens: &mut TokenStream) {
@@ -832,7 +832,7 @@ pub mod collections {
     /// Helper struct for [`HashMap`][std::collections::HashMap], but implements
     /// [`ToTokens`].
     #[derive(Clone)]
-    pub struct HashMap<K: ToTokens + Hash + Eq, V: ToTokens>(pub(crate) std::collections::HashMap<K, V>);
+    pub struct HashMap<K: ToTokens + Hash + Eq, V: ToTokens>(pub std::collections::HashMap<K, V>);
     impl<K: ToTokens + Hash + Eq, V: ToTokens> ToTokens for HashMap<K, V> {
         fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
             let mut variants: Vec<proc_macro2::TokenStream> = vec![];

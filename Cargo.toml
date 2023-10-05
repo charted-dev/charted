@@ -26,6 +26,7 @@ members = [
     "crates/logging",
     "crates/metrics",
     "crates/openapi",
+    "crates/openapi/proc-macro",
     "crates/proc-macros",
     "crates/redis",
     "crates/search",
@@ -40,6 +41,7 @@ members = [
     "crates/storage",
     "features/gc",
     "server",
+    "server/proc-macro",
     "tools/devtools",
     "tools/helm-plugin",
 ]

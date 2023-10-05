@@ -16,6 +16,8 @@
 #[macro_use]
 extern crate tracing;
 
+pub use charted_server_proc_macro as macros;
+
 mod bootstrap;
 mod multipart;
 mod server;

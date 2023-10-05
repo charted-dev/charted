@@ -20,6 +20,7 @@ exports_files(["Cargo.toml"])
 rust_project(
     name = "openapi",
     include_tests = True,
+    proc_macro_deps = ["//crates/openapi/proc-macro:charted_openapi_proc_macro"],
     deps = [
         "//crates/common:charted_common",
         "//crates/config:charted_config",

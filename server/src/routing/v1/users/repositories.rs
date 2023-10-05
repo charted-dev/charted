@@ -15,9 +15,9 @@
 
 use crate::{
     extract::Json,
+    macros::controller,
     middleware::{Session, SessionAuth},
     models::res::{err, ok, ApiResponse},
-    openapi::gen_response_schema,
     validation::validate,
     Server,
 };
@@ -34,13 +34,13 @@ use charted_common::{
 use charted_database::controller::{
     repositories::RepositoryDatabaseController, users::UserDatabaseController, DbController, PaginationRequest,
 };
-use charted_proc_macros::controller;
+use charted_openapi::generate_response_schema;
 use chrono::Local;
 use tower_http::auth::AsyncRequireAuthorizationLayer;
 use validator::Validate;
 
 pub(crate) struct RepositoryResponse;
-gen_response_schema!(RepositoryResponse, schema: "Repository");
+generate_response_schema!(RepositoryResponse, schema = "Repository");
 
 pub fn create_router() -> Router<Server> {
     Router::new().route(

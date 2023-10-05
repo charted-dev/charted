@@ -45,5 +45,6 @@ rust_project(
         "@crate_index//:tokio",
         "@crate_index//:tracing",
         "@crate_index//:tracing-subscriber",
+        "@crate_index//:utoipa",
     ],
 )

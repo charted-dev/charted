@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::helpers::{Parameter, RequestBody, Response, SecurityRequirement};
 use charted_common::{models::Name, ID};
+use charted_proc_macros::helpers::*;
 use proc_macro2::{Ident, Span};
 use std::collections::HashMap;
 use syn::{

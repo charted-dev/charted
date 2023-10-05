@@ -13,13 +13,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+pub use charted_openapi_proc_macro as macros;
+
 use charted_common::VERSION;
 use charted_config::Config;
 use once_cell::sync::Lazy;
-use utoipa::openapi::{
-    external_docs::ExternalDocsBuilder,
-    security::{ApiKey, ApiKeyValue, HttpAuthScheme, HttpBuilder, SecurityScheme},
-    ComponentsBuilder, ContactBuilder, InfoBuilder, LicenseBuilder, OpenApi, OpenApiBuilder, ServerBuilder,
+use utoipa::{
+    openapi::{
+        external_docs::ExternalDocsBuilder,
+        security::{ApiKey, ApiKeyValue, HttpAuthScheme, HttpBuilder, SecurityScheme},
+        ArrayBuilder, ComponentsBuilder, ContactBuilder, ContentBuilder, InfoBuilder, LicenseBuilder, ObjectBuilder,
+        OpenApi, OpenApiBuilder, Ref, RefOr, Response, ResponseBuilder, Schema, SchemaType, ServerBuilder,
+    },
+    ToResponse,
 };
 
 pub static API_KEY_SCHEME: Lazy<SecurityScheme> =
@@ -67,10 +73,6 @@ pub fn openapi() -> OpenApi {
         .description(Some("Main documentation for charted-server"))
         .build();
 
-    let servers = &[ServerBuilder::new()
-        .url(format!("http://{}", config.server.addr()))
-        .build()];
-
     let info = InfoBuilder::new()
         .title("charted-server")
         .description(Some(
@@ -94,7 +96,174 @@ pub fn openapi() -> OpenApi {
     OpenApiBuilder::new()
         .info(info)
         .external_docs(Some(docs))
-        .servers(Some(servers.clone()))
+        .servers(Some([ServerBuilder::new()
+            .url(format!("http://{}", config.server.addr()))
+            .build()]))
         .components(Some(components))
         .build()
+}
+
+/// Re-usuable functional macro to create a [Paths][utoipa::openapi::Paths] object easily.
+///
+/// ## Example
+/// ```no_run
+/// # use charted_openapi::add_paths;
+/// #
+/// add_paths! {
+///     "/" => index();
+/// }
+///
+/// fn index() -> utoipa::openapi::Paths {
+///     // ....
+///     # ::utoipa::openapi::PathsBuilder::new().build()
+/// }
+/// ```
+#[macro_export]
+macro_rules! add_paths {
+    ($($path:expr => $fn:expr;)*) => {{
+        ::utoipa::openapi::PathsBuilder::new()$(.path($path, $fn))*.build()
+    }};
+}
+
+pub use charted_openapi_proc_macro::generate_response_schema;
+
+// #[macro_export]
+// macro_rules! generate_response_schema {
+//     ($ty:ty, content: $content:literal, schema: $schema:expr) => {
+//         impl<'r> ::utoipa::ToResponse<'r> for $ty {
+//             fn response() -> (
+//                 &'r str,
+//                 ::utoipa::openapi::RefOr<::utoipa::openapi::Response>
+//             ) {
+//                 let __response = ::utoipa::openapi::ResponseBuilder::new()
+//                     .description(concat!("Response object for ", stringify!(schema)))
+//                     .content(
+//                         "application/json",
+//                         ::utoipa::openapi::ContentBuilder::new()
+//                             .schema(
+//                                 ::utoipa::openapi::RefOr::T(
+//                                     ::utoipa::openapi::Schema::Object({
+//                                         let __obj = ::utoipa::openapi::ObjectBuilder::new()
+//                                             .property(
+//                                                 "success",
+//                                                 ::utoipa::openapi::ObjectBuilder::new()
+//                                                     .schema_type(::utoipa::openapi::SchemaType::Boolean)
+//                                                     .description(Some(concat!("whether if this response [", concat!("Api", stringify!($schema)), "] was successful or not")))
+//                                                     .build()
+//                                             )
+//                                             .required("success")
+//                                             .property(
+//                                                 "data",
+//                                                 ::utoipa::openapi::Ref::from_schema_name(stringify!($schema))
+//                                             )
+//                                             .required("data")
+//                                             .build();
+
+//                                         __obj
+//                                     })
+//                                 )
+//                             )
+//                             .build()
+//                     )
+//                     .build();
+
+//                 (
+//                     concat!("Api", stringify!($schema)),
+//                     ::utoipa::openapi::RefOr::T(__response)
+//                 )
+//             }
+//         }
+//     };
+
+//     ($ty:ty, content: $content:literal) => {
+//         $crate::generate_response_schema!($ty, content: $content, schema: stringify!($ty));
+//     };
+
+//     ($ty:ty, schema: $schema:expr) => {
+//         $crate::generate_response_schema!($ty, content: "application/json", schema: $schema);
+//     };
+
+//     ($ty:ty) => {
+//         $crate::generate_response_schema!($ty, content: "application/json", schema: stringify!($ty));
+//     }
+// }
+
+/// Represents a generic empty API response, please do not use this in actual code,
+/// it is only meant for utoipa for OpenAPI code generation.
+pub struct EmptyApiResponse;
+impl<'r> ToResponse<'r> for EmptyApiResponse {
+    fn response() -> (&'r str, RefOr<Response>) {
+        let response = ResponseBuilder::new()
+            .description("API response that doesn't contain any data")
+            .content(
+                "application/json",
+                ContentBuilder::new()
+                    .schema(RefOr::T(Schema::Object({
+                        let builder = ObjectBuilder::new()
+                            .property(
+                                "success",
+                                RefOr::T(Schema::Object(
+                                    ObjectBuilder::new()
+                                        .schema_type(SchemaType::Boolean)
+                                        .description(Some(
+                                            "whether if this response [EmptyApiResponse] was a success or not",
+                                        ))
+                                        .build(),
+                                )),
+                            )
+                            .required("success");
+
+                        builder.build()
+                    })))
+                    .build(),
+            )
+            .build();
+
+        ("EmptyApiResponse", RefOr::T(response))
+    }
+}
+
+/// Represents a generic API error response object. Please do not use this in actual code,
+/// it is only meant for OpenAPI code generation.
+pub struct ApiErrorResponse;
+impl<'r> ToResponse<'r> for ApiErrorResponse {
+    fn response() -> (&'r str, RefOr<Response>) {
+        let response = ResponseBuilder::new()
+            .description("API response that doesn't contain any data")
+            .content(
+                "application/json",
+                ContentBuilder::new()
+                    .schema(RefOr::T(Schema::Object({
+                        let builder = ObjectBuilder::new()
+                            .property(
+                                "success",
+                                RefOr::T(Schema::Object(
+                                    ObjectBuilder::new()
+                                        .schema_type(SchemaType::Boolean)
+                                        .description(Some(
+                                            "whether if this response [ApiErrorResponse] was a success or not",
+                                        ))
+                                        .build(),
+                                )),
+                            )
+                            .required("success")
+                            .property(
+                                "errors",
+                                RefOr::T(Schema::Array(
+                                    ArrayBuilder::new()
+                                        .description(Some("List of errors on why the request failed."))
+                                        .items(RefOr::Ref(Ref::from_schema_name("Error")))
+                                        .build(),
+                                )),
+                            )
+                            .required("errors");
+
+                        builder.build()
+                    })))
+                    .build(),
+            )
+            .build();
+
+        ("ApiErrorResponse", RefOr::T(response))
+    }
 }

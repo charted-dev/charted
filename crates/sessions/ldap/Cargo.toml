@@ -14,9 +14,18 @@
 # limitations under the License.
 
 [package]
-name = "charted_sessions_ldap"
+name = "charted-sessions-ldap"
 description = "🐻‍❄️📦 Sessions provider for using LDAP for session management"
 version = "0.0.0-devel.0"
 edition = "2021"
 homepage = "https://charts.noelware.org"
 authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
+
+[dependencies]
+charted-config = { version = "0.0.0-devel.0", path = "../../config" }
+charted-sessions = { version = "0.0.0-devel.0", path = ".." }
+eyre = "0.6.8"
+ldap3 = "0.11.3"
+sentry = "0.31.7"
+tokio = "1.32.0"
+tracing = "0.1.37"

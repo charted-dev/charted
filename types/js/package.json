@@ -1,0 +1,42 @@
+{
+    "name": "@ncharts/types",
+    "description": "🐻‍❄️📦 Generated OpenAPI typings from charted-server's OpenAPI document",
+    "version": "0.0.0-devel.0",
+    "main": "./dist/index.js",
+    "module": "./dist/index.mjs",
+    "typings": "./dist/index.d.ts",
+    "author": "Noelware, LLC. <team@noelware.org>",
+    "maintainers": [
+        "Noelware, LLC. <team@noelware.org>",
+        "Noel Towa <cutie@floofy.dev>"
+    ],
+    "files": [
+        "dist/"
+    ],
+    "scripts": {
+        "generate": "tsx --tsconfig ./scripts/tsconfig.json scripts/openapi && pnpm run fmt && pnpm run lint",
+        "build": "pnpm run fmt && pnpm run lint && tsx --tsconfig ./scripts/tsconfig.json scripts/build",
+        "lint": "eslint src --ext .d.ts --format=codeframe --fix && eslint scripts --ext .ts,.js --format=codeframe --fix",
+        "fmt": "prettier --config ./.prettierrc.json --write **/*.{js,ts,json}"
+    },
+    "exports": {
+        ".": {
+            "require": "./index.js",
+            "import": "./index.mjs",
+            "types": "./index.d.ts"
+        }
+    },
+    "devDependencies": {
+        "@augu/eslint-config": "4.0.1",
+        "@augu/tsconfig": "1.1.1",
+        "@noelware/utils": "2.4.0",
+        "@types/node": "20.7.0",
+        "eslint": "8.50.0",
+        "eslint-config-prettier": "9.0.0",
+        "eslint-formatter-codeframe": "7.32.1",
+        "openapi-typescript": "6.6.2",
+        "prettier": "3.0.3",
+        "tsx": "3.13.0",
+        "typescript": "5.2.2"
+    }
+}

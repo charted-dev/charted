@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{models::res::err, openapi::gen_response_schema, Server};
+use crate::{models::res::err, Server};
 use axum::{
     body::Body,
     http::{Request, StatusCode},
@@ -23,6 +23,7 @@ use axum::{
 };
 use cdn::*;
 use charted_config::Config;
+use charted_openapi::generate_response_schema;
 use features::*;
 use heartbeat::*;
 use indexes::*;
@@ -58,7 +59,7 @@ pub struct EntrypointResponse {
     pub docs: String,
 }
 
-gen_response_schema!(EntrypointResponse);
+generate_response_schema!(EntrypointResponse);
 
 pub fn create_router() -> Router<Server> {
     let mut router = Router::new()

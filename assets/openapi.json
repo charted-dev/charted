@@ -21,7 +21,7 @@
         }
     ],
     "paths": {
-        "/": {
+        "/v1/": {
             "get": {
                 "tags": ["Main"],
                 "description": "Main entrypoint to charted-server. This is just a generic \"hello world\" response.",
@@ -40,7 +40,7 @@
                 }
             }
         },
-        "/apikeys": {
+        "/v1/apikeys": {
             "get": {
                 "tags": ["ApiKeys"],
                 "description": "",
@@ -59,7 +59,7 @@
                 }
             }
         },
-        "/features": {
+        "/v1/features": {
             "get": {
                 "tags": ["Main"],
                 "description": "Retrieve this server's features. This is only for enabling or disabling features for API consumers.",
@@ -78,7 +78,7 @@
                 }
             }
         },
-        "/heartbeat": {
+        "/v1/heartbeat": {
             "get": {
                 "tags": ["Main"],
                 "description": "Generic healthcheck endpoint to use for Docker and Kubernetes usage.",
@@ -97,7 +97,7 @@
                 }
             }
         },
-        "/indexes/{idOrName}": {
+        "/v1/indexes/{idOrName}": {
             "get": {
                 "tags": ["Main", "Users", "Organizations"],
                 "description": "Returns a `ChartIndex` for a specific user or organization.",
@@ -117,9 +117,9 @@
                     "200": {
                         "description": "Helm index for the user or organization",
                         "content": {
-                            "application/json": {
+                            "text/yaml": {
                                 "schema": {
-                                    "$ref": "#/components/responses/ApiChartIndexResponse"
+                                    "$ref": "#/components/responses/ChartIndex"
                                 }
                             }
                         }
@@ -147,7 +147,7 @@
                 }
             }
         },
-        "/info": {
+        "/v1/info": {
             "get": {
                 "tags": ["Main"],
                 "description": "REST handler for getting more information about this instance that can be visible for API consumers.",
@@ -166,7 +166,7 @@
                 }
             }
         },
-        "/users": {
+        "/v1/users": {
             "get": {
                 "tags": ["Users"],
                 "description": "Generic entrypoint route for the Users API.",
@@ -289,7 +289,7 @@
                 }
             }
         },
-        "/users/@me": {
+        "/v1/users/@me": {
             "get": {
                 "tags": ["Users"],
                 "description": "Returns a [User] from an authenticated request.",
@@ -358,7 +358,7 @@
                 }
             }
         },
-        "/users/@me/avatar": {
+        "/v1/users/@me/avatar": {
             "get": {
                 "tags": ["Users", "Avatars"],
                 "description": "Returns the current authenticated user's current avatar. Use the [`GET /users/@me/avatar/{hash}.png`] REST handler\n to grab by a specific hash.\n\n [`GET /users/@me/avatar/{hash}.png`]: https://charts.noelware.org/docs/server/latest/api/reference/users#GET-/users/@me/avatar/{hash}.png",
@@ -435,7 +435,7 @@
                 }
             }
         },
-        "/users/@me/repositories": {
+        "/v1/users/@me/repositories": {
             "put": {
                 "tags": ["Repositories"],
                 "description": "Creates a [`Repository`] with the current authenticated user as the owner of the repository.",
@@ -484,7 +484,7 @@
                 }
             }
         },
-        "/users/login": {
+        "/v1/users/login": {
             "post": {
                 "tags": ["Users", "Sessions"],
                 "description": "Creates a new session and returns details about the newly created session.",
@@ -543,7 +543,7 @@
                 }
             }
         },
-        "/users/sessions/logout": {
+        "/v1/users/sessions/logout": {
             "delete": {
                 "tags": ["Users", "Sessions"],
                 "description": "Attempts to destroy the current authenticated session.",
@@ -582,7 +582,7 @@
                 }
             }
         },
-        "/users/sessions/refresh-token": {
+        "/v1/users/sessions/refresh-token": {
             "post": {
                 "tags": ["Users", "Sessions"],
                 "description": "",
@@ -621,7 +621,7 @@
                 }
             }
         },
-        "/users/{idOrName}": {
+        "/v1/users/{idOrName}": {
             "get": {
                 "tags": ["Users"],
                 "description": "Retrieve a [`User`] object.",
@@ -671,7 +671,7 @@
                 }
             }
         },
-        "/users/{idOrName}/avatar": {
+        "/v1/users/{idOrName}/avatar": {
             "get": {
                 "tags": ["Users", "Avatars"],
                 "description": "Returns the user's current avatar. Use the [`GET /users/{idOrName}/avatar/{hash}.png`] REST handler\n to grab by a specific hash.\n\n [`GET /users/{idOrName}/avatar/{hash}.png`]: https://charts.noelware.org/docs/server/latest/api/reference/users#GET-/users/{idOrName}/avatar/{hash}.png",
@@ -712,12 +712,31 @@
                 }
             }
         },
-        "/users/{idOrName}/repositories": {
+        "/v1/users/{idOrName}/repositories": {
             "get": {
                 "tags": ["Users", "Repositories"],
                 "description": "Retrieve a list of all a user's repositories.",
                 "operationId": "list_user_repositories",
                 "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "How many elements should be present in a page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "Order to sort the entries by.",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/OrderBy"
+                        }
+                    },
                     {
                         "name": "cursor",
                         "in": "query",
@@ -731,31 +750,12 @@
                         }
                     },
                     {
-                        "name": "per_page",
-                        "in": "query",
-                        "description": "How many elements should be present in a page.",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int32"
-                        }
-                    },
-                    {
                         "name": "idOrName",
                         "in": "path",
                         "description": "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.",
                         "required": true,
                         "schema": {
                             "$ref": "#/components/schemas/NameOrSnowflake"
-                        }
-                    },
-                    {
-                        "name": "order",
-                        "in": "query",
-                        "description": "Order to sort the entries by.",
-                        "required": false,
-                        "schema": {
-                            "$ref": "#/components/schemas/OrderBy"
                         }
                     }
                 ],
@@ -952,37 +952,6 @@
                         "nullable": true
                     }
                 }
-            },
-            "ChartIndexSpec": {
-                "allOf": [
-                    {
-                        "$ref": "#/components/schemas/Chart"
-                    },
-                    {
-                        "type": "object",
-                        "properties": {
-                            "created": {
-                                "type": "string",
-                                "format": "date-time",
-                                "nullable": true
-                            },
-                            "digest": {
-                                "type": "string",
-                                "nullable": true
-                            },
-                            "removed": {
-                                "type": "boolean"
-                            },
-                            "urls": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    }
-                ],
-                "description": "Represents the specification for a Chart.yaml-schema from a `index.yaml` reference."
             },
             "ChartMaintainer": {
                 "type": "object",
@@ -1302,6 +1271,21 @@
                     }
                 }
             },
+            "PaginatedMember": {
+                "type": "object",
+                "required": ["data", "page_info"],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Member"
+                        }
+                    },
+                    "page_info": {
+                        "$ref": "#/components/schemas/PageInfo"
+                    }
+                }
+            },
             "PaginatedOrganization": {
                 "type": "object",
                 "required": ["data", "page_info"],
@@ -1317,21 +1301,6 @@
                     }
                 }
             },
-            "PaginatedOrganizationMember": {
-                "type": "object",
-                "required": ["data", "page_info"],
-                "properties": {
-                    "data": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/OrganizationMember"
-                        }
-                    },
-                    "page_info": {
-                        "$ref": "#/components/schemas/PageInfo"
-                    }
-                }
-            },
             "PaginatedRepository": {
                 "type": "object",
                 "required": ["data", "page_info"],
@@ -1340,21 +1309,6 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/Repository"
-                        }
-                    },
-                    "page_info": {
-                        "$ref": "#/components/schemas/PageInfo"
-                    }
-                }
-            },
-            "PaginatedRepositoryMember": {
-                "type": "object",
-                "required": ["data", "page_info"],
-                "properties": {
-                    "data": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/RepositoryMember"
                         }
                     },
                     "page_info": {
@@ -1549,73 +1503,24 @@
                         "description": "Whether if this User is a Verified Publisher or not."
                     }
                 }
+            },
+            "Version": {
+                "type": "string",
+                "description": "Represents a semantic version (https://semver.org) that Helm and charted-server will only accept",
+                "pattern": "^(?P<major>0|[1-9]\\d*)\\.(?P<minor>0|[1-9]\\d*)\\.(?P<patch>0|[1-9]\\d*)(?:-(?P<prerelease>(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+            },
+            "VersionReq": {
+                "type": "string",
+                "description": "Represents a semantic version (https://semver.org) requirement (i.e, `>=1.2.0`) that Helm and charted-server will only accept"
             }
         },
         "responses": {
-            "ApiChartIndexResponse": {
-                "description": "Response object for ChartIndexResponse",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "required": ["success", "data"],
-                            "properties": {
-                                "data": {
-                                    "$ref": "#/components/schemas/ChartIndex"
-                                },
-                                "success": {
-                                    "type": "boolean",
-                                    "description": "Indicates whether if this response was a success or not"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "ApiEmptyResponse": {
-                "description": "Empty response object",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "required": ["success"],
-                            "properties": {
-                                "success": {
-                                    "type": "boolean",
-                                    "description": "Indicates whether if this response was a success or not"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "ApiEntrypointResponse": {
-                "description": "Response object for EntrypointResponse",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "required": ["success", "data"],
-                            "properties": {
-                                "data": {
-                                    "$ref": "#/components/schemas/EntrypointResponse"
-                                },
-                                "success": {
-                                    "type": "boolean",
-                                    "description": "Indicates whether if this response was a success or not"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
             "ApiErrorResponse": {
-                "description": "Response of when something went wrong. Used in all non 200 status codes.",
+                "description": "API response that doesn't contain any data",
                 "content": {
                     "application/json": {
                         "schema": {
                             "type": "object",
-                            "description": "Schema definition for ApiErrorResponse",
                             "required": ["success", "errors"],
                             "properties": {
                                 "errors": {
@@ -1627,14 +1532,111 @@
                                 },
                                 "success": {
                                     "type": "boolean",
-                                    "description": "Whether if the request succeeded. This will always be `false`"
+                                    "description": "whether if this response [ApiErrorResponse] was a success or not"
                                 }
                             }
                         }
                     }
                 }
             },
-            "ApiFeaturesResponse": {
+            "ApiPaginatedMember": {
+                "description": "Response object for ApiPaginatedMember",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/components/schemas/$schema"
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "whether if this response [Api$schema] was successful or not"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "ApiPaginatedOrganization": {
+                "description": "Response object for ApiPaginatedOrganization",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/components/schemas/$schema"
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "whether if this response [Api$schema] was successful or not"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "ApiPaginatedRepository": {
+                "description": "Response object for ApiPaginatedRepository",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/components/schemas/$schema"
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "whether if this response [Api$schema] was successful or not"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "EmptyApiResponse": {
+                "description": "API response that doesn't contain any data",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success"],
+                            "properties": {
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "whether if this response [EmptyApiResponse] was a success or not"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "EntrypointResponse": {
+                "description": "Response object for EntrypointResponse",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/components/schemas/$schema"
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "whether if this response [Api$schema] was successful or not"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "FeaturesResponse": {
                 "description": "Response object for FeaturesResponse",
                 "content": {
                     "application/json": {
@@ -1643,18 +1645,18 @@
                             "required": ["success", "data"],
                             "properties": {
                                 "data": {
-                                    "$ref": "#/components/schemas/FeaturesResponse"
+                                    "$ref": "#/components/schemas/$schema"
                                 },
                                 "success": {
                                     "type": "boolean",
-                                    "description": "Indicates whether if this response was a success or not"
+                                    "description": "whether if this response [Api$schema] was successful or not"
                                 }
                             }
                         }
                     }
                 }
             },
-            "ApiInfoResponse": {
+            "InfoResponse": {
                 "description": "Response object for InfoResponse",
                 "content": {
                     "application/json": {
@@ -1663,18 +1665,18 @@
                             "required": ["success", "data"],
                             "properties": {
                                 "data": {
-                                    "$ref": "#/components/schemas/InfoResponse"
+                                    "$ref": "#/components/schemas/$schema"
                                 },
                                 "success": {
                                     "type": "boolean",
-                                    "description": "Indicates whether if this response was a success or not"
+                                    "description": "whether if this response [Api$schema] was successful or not"
                                 }
                             }
                         }
                     }
                 }
             },
-            "ApiMainResponse": {
+            "MainResponse": {
                 "description": "Response object for MainResponse",
                 "content": {
                     "application/json": {
@@ -1683,19 +1685,19 @@
                             "required": ["success", "data"],
                             "properties": {
                                 "data": {
-                                    "$ref": "#/components/schemas/MainResponse"
+                                    "$ref": "#/components/schemas/$schema"
                                 },
                                 "success": {
                                     "type": "boolean",
-                                    "description": "Indicates whether if this response was a success or not"
+                                    "description": "whether if this response [Api$schema] was successful or not"
                                 }
                             }
                         }
                     }
                 }
             },
-            "ApiOrganizationMemberPaginatedResponse": {
-                "description": "Response object for OrganizationMemberPaginatedResponse",
+            "Session": {
+                "description": "Response object for Session",
                 "content": {
                     "application/json": {
                         "schema": {
@@ -1703,19 +1705,19 @@
                             "required": ["success", "data"],
                             "properties": {
                                 "data": {
-                                    "$ref": "#/components/schemas/ApiPaginatedOrganizationMember"
+                                    "$ref": "#/components/schemas/$schema"
                                 },
                                 "success": {
                                     "type": "boolean",
-                                    "description": "Indicates whether if this response was a success or not"
+                                    "description": "whether if this response [Api$schema] was successful or not"
                                 }
                             }
                         }
                     }
                 }
             },
-            "ApiOrganizationPaginatedResponse": {
-                "description": "Response object for OrganizationPaginatedResponse",
+            "User": {
+                "description": "Response object for User",
                 "content": {
                     "application/json": {
                         "schema": {
@@ -1723,91 +1725,11 @@
                             "required": ["success", "data"],
                             "properties": {
                                 "data": {
-                                    "$ref": "#/components/schemas/ApiPaginatedOrganization"
+                                    "$ref": "#/components/schemas/$schema"
                                 },
                                 "success": {
                                     "type": "boolean",
-                                    "description": "Indicates whether if this response was a success or not"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "ApiRepositoryMemberPaginatedResponse": {
-                "description": "Response object for RepositoryMemberPaginatedResponse",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "required": ["success", "data"],
-                            "properties": {
-                                "data": {
-                                    "$ref": "#/components/schemas/ApiPaginatedRepositoryMember"
-                                },
-                                "success": {
-                                    "type": "boolean",
-                                    "description": "Indicates whether if this response was a success or not"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "ApiRepositoryPaginatedResponse": {
-                "description": "Response object for RepositoryPaginatedResponse",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "required": ["success", "data"],
-                            "properties": {
-                                "data": {
-                                    "$ref": "#/components/schemas/ApiPaginatedRepository"
-                                },
-                                "success": {
-                                    "type": "boolean",
-                                    "description": "Indicates whether if this response was a success or not"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "ApiSessionResponse": {
-                "description": "Response object for SessionResponse",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "required": ["success", "data"],
-                            "properties": {
-                                "data": {
-                                    "$ref": "#/components/schemas/Session"
-                                },
-                                "success": {
-                                    "type": "boolean",
-                                    "description": "Indicates whether if this response was a success or not"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "ApiUserResponse": {
-                "description": "Response object for UserResponse",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "required": ["success", "data"],
-                            "properties": {
-                                "data": {
-                                    "$ref": "#/components/schemas/User"
-                                },
-                                "success": {
-                                    "type": "boolean",
-                                    "description": "Indicates whether if this response was a success or not"
+                                    "description": "whether if this response [Api$schema] was successful or not"
                                 }
                             }
                         }

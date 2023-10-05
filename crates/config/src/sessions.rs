@@ -17,12 +17,21 @@ use crate::{make_config, var, FromEnv};
 
 make_config! {
     SessionConfig {
+        /// Whether or not if Basic authentication should be enabled.
+        #[serde(default)]
+        pub enable_basic_auth: bool {
+            default: false;
+            env_value: var!("CHARTED_SESSIONS_ENABLE_BASIC_AUTH", to: bool, or_else: false);
+        };
+
+        /// List of integrations to enable.
         #[serde(default, skip_serializing_if = "Vec::is_empty")]
         pub integrations: Vec<integrations::Config> {
             default: vec![];
             env_value: vec![];
         };
 
+        /// The backend to use.
         #[serde(default, with = "serde_yaml::with::singleton_map")]
         pub backend: SessionBackend {
             default: SessionBackend::default();
@@ -52,8 +61,10 @@ pub enum SessionBackend {
     Local,
 }
 
-impl FromEnv<SessionBackend> for SessionBackend {
-    fn from_env() -> SessionBackend {
+impl FromEnv for SessionBackend {
+    type Output = SessionBackend;
+
+    fn from_env() -> Self::Output {
         match var!("CHARTED_SESSIONS_BACKEND", is_optional: true) {
             Some(backend) => match backend.as_str() {
                 "local" => SessionBackend::Local,
@@ -71,8 +82,6 @@ pub mod ldap {
 
     make_config! {
         Config {
-            //pub conn_timeout: Duration {};
-
             #[serde(default)]
             pub no_tls_verify: bool {
                 default: false;
@@ -90,7 +99,17 @@ pub mod ldap {
                     mapper: |val| TRUTHY_REGEX.is_match(val.as_str());
                 });
             };
+
+            #[serde(default = "default_ldap_host")]
+            pub host: String {
+                default: default_ldap_host();
+                env_value: var!("CHARTED_SESSIONS_LDAP_HOST", or_else: default_ldap_host());
+            };
         }
+    }
+
+    fn default_ldap_host() -> String {
+        String::from("ldap://localhost:389")
     }
 }
 

@@ -15,18 +15,24 @@
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")  # buildifier: disable=module-docstring
 
-NODE_VERSION = "20.5.0"
+# to update this, run:
+#
+#     $ curl https://registry.npmjs.org/typescript | jq '.versions.["<version>"].dist.integrity' | tr -d '"'
+#
+TYPESCRIPT_INTEGRITY = "sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w=="
+TYPESCRIPT_VERSION = "5.2.2"
+NODE_VERSION = "20.7.0"
 CHECKSUMS = {
     "linux": {
-        "amd64": "c12ee9efe21f3ff9909fbf5d7d3780f16c86fad411f13d715016646c766e8213",
-        "arm64": "afddd830662bdc71f37d39d6cd74104acc663ecd6bbe0fd9264c581ee4f2559b",
+        "amd64": "a4251c24c6bf6d3bdee4521ca294bc0897a6c466137e02caa2521af5d456f55e",
+        "arm64": "c97b51decb0f4a3e8e5bd8cbc6ff43ae4782f2b8b6e3c2b513b77b8f97fffcc5",
     },
     "darwin": {
-        "amd64": "3da7e64ac76309cbbb25524bae75cd335fed2795fcbd4f55e3162bcbcec18176",
-        "arm64": "56d29a7c620415164e6226804cc1eb8eb7b05ea3123b60c86393fabb551bd5ea",
+        "amd64": "ceeba829f44e7573949f2ce2ad5def27f1d6daa55f2860bea82964851fae01bc",
+        "arm64": "08aa09792f30a86e8904e334ba6d348ad73e926b5e441ed9abcdcbea651dc926",
     },
     "windows": {
-        "amd64": "604e7308bb314fb8c27979929db2877940ce27a489ccafc6367f439943730b32",
+        "amd64": "2b1a117e63f0602bad1e9e31679932b64e9b130a96dc2feb0c367ca816c5a5cb",
     },
 }
 
@@ -43,14 +49,14 @@ def create_tuple(os, arch, ext, checksum):
 def charted_nodejs_repositories():
     http_archive(
         name = "aspect_rules_js",
-        sha256 = "71895e99936ab4cdb2c2ed6f076134cf5799c478c33ae3fa934f279b585a9b38",
-        strip_prefix = "rules_js-1.29.0",
-        url = "https://github.com/aspect-build/rules_js/releases/download/v1.29.0/rules_js-v1.29.0.tar.gz",
+        sha256 = "77c4ea46c27f96e4aadcc580cd608369208422cf774988594ae8a01df6642c82",
+        strip_prefix = "rules_js-1.32.2",
+        url = "https://github.com/aspect-build/rules_js/releases/download/v1.32.2/rules_js-v1.32.2.tar.gz",
     )
 
     http_archive(
         name = "aspect_rules_ts",
-        sha256 = "2bf5e2398713561ddaaaed8385dd6cee1bb21fe7856a5aac57b9e99ebf0291e2",
-        strip_prefix = "rules_ts-1.4.4",
-        url = "https://github.com/aspect-build/rules_ts/releases/download/v1.4.4/rules_ts-v1.4.4.tar.gz",
+        sha256 = "8aabb2055629a7becae2e77ae828950d3581d7fc3602fe0276e6e039b65092cb",
+        strip_prefix = "rules_ts-2.0.0",
+        url = "https://github.com/aspect-build/rules_ts/releases/download/v2.0.0/rules_ts-v2.0.0.tar.gz",
     )

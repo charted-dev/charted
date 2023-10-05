@@ -17,7 +17,6 @@
 
 import { createRouter, createWebHistory } from 'vue-router/auto';
 import { setupLayouts } from 'virtual:generated-layouts';
-import { hasOwnProperty } from '@noelware/utils';
 
 const router = createRouter({
     history: createWebHistory(),

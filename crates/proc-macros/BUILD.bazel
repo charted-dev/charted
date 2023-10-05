@@ -19,7 +19,6 @@ exports_files(["Cargo.toml"])
 
 rust_project(
     name = "proc_macros",
-    proc_macro = True,
     deps = [
         "//crates/common:charted_common",
         "@crate_index//:axum",

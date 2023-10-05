@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
 # Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
 #
@@ -15,7 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Simple wrapper to execute the vendored rustfmt binary that Bazel uses.
+[package]
+name = "charted-openapi-proc-macro"
+description = "🐻‍❄️📦 Prodecural macros to help generating OpenAPI schemas and responses"
+version = "0.0.0-devel.0"
+edition = "2021"
+homepage = "https://charts.noelware.org"
+authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
-echo "===> Running rustfmt..."
-bazel run @rules_rust//:rustfmt
+[lib]
+proc-macro = true
+
+[dependencies]
+charted-proc-macros = { version = "0.0.0-devel.0", path = "../../proc-macros" }
+proc-macro2 = "1.0.67"
+quote = "1.0.33"
+syn = "2.0.37"
+
+[dev-dependencies]
+utoipa = "3.5.0"

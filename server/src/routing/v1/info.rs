@@ -13,10 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{models::res::ok, openapi::gen_response_schema};
+use crate::{macros::controller, models::res::ok};
 use axum::http::StatusCode;
 use charted_common::{models::Distribution, BUILD_DATE, COMMIT_HASH, VERSION};
-use charted_proc_macros::controller;
+use charted_openapi::generate_response_schema;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
@@ -42,7 +42,7 @@ pub struct InfoResponse {
     pub vendor: String,
 }
 
-gen_response_schema!(InfoResponse);
+generate_response_schema!(InfoResponse);
 
 impl Default for InfoResponse {
     fn default() -> InfoResponse {

@@ -15,20 +15,20 @@
 
 use super::EntrypointResponse;
 use crate::{
+    macros::controller,
     models::res::{ok, ApiResponse},
-    openapi::gen_response_schema,
     Server,
 };
 use axum::{http::StatusCode, routing, Router};
 use charted_common::VERSION;
-use charted_proc_macros::controller;
+use charted_openapi::generate_response_schema;
 
 pub fn create_router() -> Router<Server> {
     Router::new().route("/", routing::get(EntrypointRestController::run))
 }
 
 pub(crate) struct ApiKeyResponse;
-gen_response_schema!(ApiKeyResponse, schema: "ApiKey");
+generate_response_schema!(ApiKeyResponse, schema = "ApiKey");
 
 #[controller(
     tags("ApiKeys"),

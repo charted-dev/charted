@@ -14,6 +14,9 @@
 # limitations under the License.
 
 exports_files([
+    # used for codegen
+    "assets/openapi.json",
+
     # used for the NPM lock translation for Bazel.
     ".bazelignore",
 
@@ -33,6 +36,9 @@ exports_files([
     # for vendoring crates
     "Cargo.toml",
     "Cargo.lock",
+
+    # for translating NPM stuff
+    ".npmrc",
 
     # Used also in crates/common/build.rs -- which uses the commit hash to
     # determine where this build was compiled from.
