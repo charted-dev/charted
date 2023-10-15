@@ -13,35 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@rules_rust//crate_universe:defs.bzl", "crate", "crates_vendor")
+load("@rules_rust//crate_universe:defs.bzl", "crates_vendor")
 load("//:build/manifests.bzl", "CARGO_MANIFESTS")
-
-_NIX_ANNOTATIONS = [
-    crate.annotation(
-        build_script_data = [
-            "@openssl-static//:include",
-            "@openssl-static//:lib",
-        ],
-        build_script_env = {
-            "OPENSSL_INCLUDE_DIR": "../openssl-static/include",
-            "OPENSSL_LIB_DIR": "../openssl-static/lib",
-            "OPENSSL_STATIC": "1",
-        },
-        data = ["@openssl-static//:lib"],
-        rustc_flags = [
-            "-Lexternal/openssl-static/lib",
-        ],
-    ),
-]
 
 crates_vendor(
     name = "crate_index",
-    annotations = select({
-        "//build/settings:nixos": {
-            "openssl-sys": _NIX_ANNOTATIONS,
-        },
-        "//conditions:default": {},
-    }),
     cargo_lockfile = "//:Cargo.lock",
 
     # we only want to target what we support so far:

@@ -58,7 +58,7 @@ COPY . .
 COPY --from=web /build/bazel-bin/web/dist /build/server/dist
 
 RUN rm /build/.bazelversion
-RUN patch server/BUILD.bazel < /build/build/patches/include-web-dist.patch
+RUN patch server/BUILD.bazel < /build/build/patches/0001-include-web-dist.patch
 RUN bazel build --compilation_mode=opt --@rules_rust//:extra_rustc_flag="--cfg=bundle_web" //cli
 RUN bazel shutdown
 
