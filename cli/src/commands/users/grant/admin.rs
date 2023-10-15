@@ -101,7 +101,7 @@ impl AsyncExecute for Admin {
 
                     ReadlineError::Interrupted => {
                         warn!("received interrupt during prompt");
-                        exit(1);
+                        return Ok(());
                     }
 
                     e => return Err(e.into()),
@@ -119,7 +119,12 @@ impl AsyncExecute for Admin {
             .await
         {
             Ok(_) => {
-                info!("persisted state!");
+                let msg = match admin {
+                    true => "now an admin",
+                    false => "no longer an administrator of this instance",
+                };
+
+                info!("persisted state! @{username} ({}) is {msg}", user.id);
                 let _ = conn.close().await;
 
                 Ok(())

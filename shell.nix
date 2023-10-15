@@ -1,37 +1,21 @@
-{
-  pkgs ?
-    import <nixpkgs> {
-      overlays = [(import (builtins.fetchTarball "https://github.com/oxalica/rust-overlay/archive/master.tar.gz"))];
-    },
-}: let
-  rust = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
-  # bazel = pkgs.bazel.overrideAttrs (_: rec {
-  #   version = "6.3.0";
-  #   src = builtins.fetchurl {
-  #     url = "https://github.com/bazelbuild/bazel/releases/download/6.3.0/bazel-6.3.0-dist.zip";
-  #     sha256 = "sha256:1q7d0sx43l0ravwcm52mz71p55ry3fgyf4srq0pi29hx3fc9h8ch";
-  #   };
-  # });
+# 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
+# Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+let
+  compat = builtins.fetchTarball {
+    url = "https://github.com/edolstra/flake-compat/archive/b4a34015c698c7793d592d66adbab377907a2be8.tar.gz";
+    sha256 = "sha256:1qc703yg0babixi6wshn5wm2kgl5y1drcswgszh4xxzbrwkk9sv7";
+  };
 in
-  (pkgs.buildFHSUserEnv {
-    name = "charted-server";
-    targetPkgs = pkgs:
-      with pkgs; [
-        # ~ node ~
-        nodePackages.pnpm
-        nodejs_20
-
-        cargo-expand
-        pkg-config
-        clang_16
-        openssl
-        bazel_6
-        lld_16
-        glibc
-        zlib
-        rust
-        mold
-        gcc
-      ];
-  })
-  .env
+  (import compat {src = ./.;}).shellNix.default

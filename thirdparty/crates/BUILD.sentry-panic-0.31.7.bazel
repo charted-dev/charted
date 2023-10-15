@@ -15,7 +15,7 @@ package(default_visibility = ["//visibility:public"])
 # ])
 
 rust_library(
-    name = "sentry_types",
+    name = "sentry_panic",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -28,30 +28,19 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "default",
-        "protocol",
-    ],
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=sentry-types",
+        "crate-name=sentry-panic",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.31.6",
+    version = "0.31.7",
     deps = [
-        "@crate_index__debugid-0.8.0//:debugid",
-        "@crate_index__getrandom-0.2.10//:getrandom",
-        "@crate_index__hex-0.4.3//:hex",
-        "@crate_index__serde-1.0.188//:serde",
-        "@crate_index__serde_json-1.0.106//:serde_json",
-        "@crate_index__thiserror-1.0.48//:thiserror",
-        "@crate_index__time-0.3.28//:time",
-        "@crate_index__url-2.4.1//:url",
-        "@crate_index__uuid-1.4.1//:uuid",
+        "@crate_index__sentry-backtrace-0.31.7//:sentry_backtrace",
+        "@crate_index__sentry-core-0.31.7//:sentry_core",
     ],
 )

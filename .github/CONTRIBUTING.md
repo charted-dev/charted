@@ -58,3 +58,26 @@ The project is a monorepo that is structured into multiple folders:
 * `web/` is the actual web interface that is packaged with the server!
 
 Originally, **charted-server** was written in Kotlin, which made it impossible to include both the `web/` and `server/` together without magic with Gradle, Rust and Bazel helps us build a monorepo that brings in what **charted-server** brings to the table without trying to separate it between repositories and make it harder on the team.
+
+## FAQ
+### :question: How can I use a different Rust channel?
+You can use the `--@rules_rust//rust/toolchain/channel` setting when you run `bazel build`, or you can add it in your .user.bazelrc to persist on builds:
+
+```shell
+# we only support stable and nightly
+build --@rules_rust//rust/toolchain/channel=nightly
+```
+
+### :question: How can I contribute on NixOS?
+Since Rust toolchains are resolved with a remote source and are unpatched, you can add this to your .user.bazelrc file:
+
+```shell
+# signalify that OpenSSL is compiled statically and will use the nixpkgs version, which is patched.
+build --//build/settings:nixos
+
+# recommended by rules_nixpkgs
+build --host_platform=@rules_nixpkgs_core//platforms:host
+
+# use the nixpkgs_config_cc toolchain
+build --crosstool_top=@nixpkgs_config_cc//:toolchain
+```

@@ -739,6 +739,7 @@ FodyWeavers.xsd
 .user.bazelrc
 !Cargo.lock
 config.yml
+.direnv/
 .cache/
 .data/
 docs/

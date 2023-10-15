@@ -32,38 +32,53 @@
     flake-utils,
     rust-overlay,
   }:
-    flake-utils.lib.eachDefaultSystem (
-      system: let
-        pkgs = import nixpkgs {
-          inherit system;
-          overlays = [(import rust-overlay)];
-        };
+    flake-utils.lib.eachDefaultSystem (system: let
+      pkgs = import nixpkgs {
+        inherit system;
 
-        rust = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
-      in {
-        devShells.default =
-          (pkgs.buildFHSUserEnv {
-            name = "charted-server";
-            targetPkgs = pkgs:
-              with pkgs; [
-                # ~ node ~
-                nodePackages.pnpm
-                nodejs_20
+        overlays = [(import rust-overlay)];
+        config.allowUnfree = true; # im so sorry stallman senpai :(
+      };
 
-                cargo-expand
-                pkg-config
-                clang_16
-                openssl
-                bazel_6
-                lld_16
-                glibc
-                zlib
-                rust
-                mold
-                gcc
-              ];
-          })
-          .env;
-      }
-    );
+      stdenv =
+        if pkgs.stdenv.isLinux
+        then pkgs.stdenv
+        else pkgs.clangStdenv;
+
+      terraform = pkgs.terraform.withPlugins (plugins:
+        with plugins; [
+          kubernetes
+          helm
+        ]);
+
+      rust = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
+      bazel = pkgs.bazel_6;
+    in {
+      devShells.default = pkgs.mkShell {
+        NIX_LD = "${stdenv.cc}/nix-support/dynamic-linker";
+        # NIX_LD_LIBRARY_PATH = lib.makeLibraryPath (with pkgs; [
+        #   stdenv.cc.cc
+        #   openssl
+        # ]);
+
+        nativeBuildInputs = with pkgs;
+          [pkg-config git]
+          ++ (lib.optional stdenv.isLinux [mold lldb])
+          ++ (lib.optional stdenv.isDarwin [darwin.apple_sdk.frameworks.CoreFoundation]);
+
+        buildInputs = with pkgs; [
+          nodePackages.pnpm
+
+          cargo-expand
+          terraform
+          nodejs_20
+          openssl
+          bazel
+          cargo
+          mold
+          rust
+          git
+        ];
+      };
+    });
 }

@@ -856,6 +856,7 @@ dependencies = [
  "tracing",
  "utoipa",
  "validator",
+ "which",
 ]
 
 [[package]]

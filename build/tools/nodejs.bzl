@@ -13,27 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")  # buildifier: disable=module-docstring
+# buildifier: disable=module-docstring
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-# to update this, run:
-#
-#     $ curl https://registry.npmjs.org/typescript | jq '.versions.["<version>"].dist.integrity' | tr -d '"'
-#
 TYPESCRIPT_INTEGRITY = "sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w=="
 TYPESCRIPT_VERSION = "5.2.2"
-NODE_VERSION = "20.7.0"
+NODE_VERSION = "20.8.0"
 CHECKSUMS = {
-    "linux": {
-        "amd64": "a4251c24c6bf6d3bdee4521ca294bc0897a6c466137e02caa2521af5d456f55e",
-        "arm64": "c97b51decb0f4a3e8e5bd8cbc6ff43ae4782f2b8b6e3c2b513b77b8f97fffcc5",
-    },
-    "darwin": {
-        "amd64": "ceeba829f44e7573949f2ce2ad5def27f1d6daa55f2860bea82964851fae01bc",
-        "arm64": "08aa09792f30a86e8904e334ba6d348ad73e926b5e441ed9abcdcbea651dc926",
-    },
-    "windows": {
-        "amd64": "2b1a117e63f0602bad1e9e31679932b64e9b130a96dc2feb0c367ca816c5a5cb",
-    },
+    "linux:amd64": "66056a2acc368db142b8a9258d0539e18538ae832b3ccb316671b0d35cb7c72c",
+    "linux:arm64": "ec2d98894d58d07260e61e6a70b88cabea98292f0b2801cbeebd864d242e1087",
+    "darwin:amd64": "a6f6b573ea656c149956f69f35e04ebb242b945d59972bea2e96a944bbf50ad1",
+    "darwin:arm64": "cbcb7fdbcd9341662256df5e4488a0045242f87382879242093e0f0699511abc",
+    "windows:amd64": "6afd5a7aa126f4e255f041de66c4a608f594190d34dcaba72f7b348d2410ca66",
 }
 
 def format_key(os, arch):

@@ -36,6 +36,30 @@ build --@aspect_rules_ts//ts:default_to_tsc_transpiler
 fetch --@aspect_rules_ts//ts:default_to_tsc_transpiler
 query --@aspect_rules_ts//ts:default_to_tsc_transpiler
 
+# TODO: migrate all dependencies from WORKSPACE to MODULE.bazel
+# https://github.com/bazelbuild/rules_rust/issues/2181
+common --noenable_bzlmod
+
 # Allows importing from user-defined .bazelrc files; this is ignored
 # by Git by default.
 try-import %workspace%/.user.bazelrc
+
+# This can be enabled via `--config ci`.
+## ~ Always show verbose failures
+build:ci --verbose_failures
+
+## ~ Don't show the progress bar
+build:ci --noshow_progress
+
+## ~ For tests, only show the error output
+test:ci --test_output=errors
+
+## ~ Don't show colours
+common:ci --color=no
+
+## TODO(@auguwu): deploy Bazel Buildfarm
+# build:ci --bes_results_url=
+# build:ci --bes_backend=grcps://bazel-buildfarm.noelware.dev
+# build:ci --remote_cache=grpcs://bazel-buildfarm.noelware.dev/cache
+# build:ci --experimental_remote_cache_compression
+# build:ci --experimental_remote_cache_async

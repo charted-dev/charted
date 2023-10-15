@@ -15,7 +15,78 @@
 
 workspace(name = "org_noelware_charted_server")
 
-load("//:build/tools/rust.bzl", "RUST_EDITION", "RUST_VERSIONS", "charted_rust_repositories")
+load("//:build/tools/nixpkgs.bzl", "charted_nixpkgs_repositories")
+
+charted_nixpkgs_repositories()
+
+load("@io_tweag_rules_nixpkgs//nixpkgs:repositories.bzl", "rules_nixpkgs_dependencies")
+
+rules_nixpkgs_dependencies()
+
+load(
+    "@io_tweag_rules_nixpkgs//nixpkgs:nixpkgs.bzl",
+    "nixpkgs_cc_configure",
+    "nixpkgs_flake_package",
+    "nixpkgs_git_repository",
+    "nixpkgs_package",
+    "nixpkgs_rust_configure",
+)
+
+nixpkgs_git_repository(
+    name = "nixpkgs",
+
+    # TODO(@auguwu): should we use nixpkgs-unstable? do we pin to a tag?
+    #                also, we should also keep this the same as the one
+    #                in the Nix flake.
+    revision = "nixpkgs-unstable",
+)
+
+# makes our nix flake available in the Bazel workspace
+nixpkgs_flake_package(
+    name = "flake",
+    nix_flake_file = "//:flake.nix",
+    nix_flake_lock_file = "//:flake.lock",
+)
+
+# configures the CC toolchain we will use, we opt to use Clang with
+# the mold linker.
+nixpkgs_cc_configure(
+    name = "nixpkgs_config_cc",
+    nix_file_content = "(import <nixpkgs> {}).clang_16",
+    repository = "@nixpkgs",
+)
+
+# configures the Rust toolchain, which will reflect what the rust-toolchain.toml file
+# uses, which is stable Rust.
+nixpkgs_rust_configure(
+    name = "nix_rust",
+    repository = "@nixpkgs",
+)
+
+# This will configure the OpenSSL static library that NixOS can link `charted-cli`
+# and `charted-helm-plugin` with.
+nixpkgs_package(
+    name = "openssl-static",
+    nix_file = "//:nixos/openssl.nix",
+    repository = "@nixpkgs",
+)
+
+load("//:build/tools/cc.bzl", "charted_cc_repositories")
+
+charted_cc_repositories()
+
+load("@rules_cc//cc:repositories.bzl", "rules_cc_dependencies", "rules_cc_toolchains")
+
+rules_cc_dependencies()
+
+rules_cc_toolchains()
+
+load(
+    "//:build/tools/rust.bzl",
+    "RUST_EDITION",
+    "RUST_VERSIONS",
+    "charted_rust_repositories",
+)
 
 charted_rust_repositories()
 
@@ -24,6 +95,10 @@ charted_rust_repositories()
 load("@rules_rust//rust:repositories.bzl", "rules_rust_dependencies", "rust_register_toolchains")
 
 rules_rust_dependencies()
+
+load("//build/platforms:rust/host_toolchain.bzl", "rust_configure_host_toolchain")
+
+rust_configure_host_toolchain(name = "rust_host_toolchain")
 
 rust_register_toolchains(
     edition = RUST_EDITION,
@@ -78,7 +153,16 @@ rules_proto_dependencies()
 
 rules_proto_toolchains()
 
-load("//:build/tools/nodejs.bzl", "CHECKSUMS", "NODE_VERSION", "TYPESCRIPT_INTEGRITY", "TYPESCRIPT_VERSION", "charted_nodejs_repositories", "create_tuple", "format_key")
+load(
+    "//:build/tools/nodejs.bzl",
+    "CHECKSUMS",
+    "NODE_VERSION",
+    "TYPESCRIPT_INTEGRITY",
+    "TYPESCRIPT_VERSION",
+    "charted_nodejs_repositories",
+    "create_tuple",
+    "format_key",
+)
 
 charted_nodejs_repositories()
 
@@ -102,31 +186,31 @@ nodejs_register_toolchains(
             "linux",
             "x64",
             "tar.xz",
-            CHECKSUMS["linux"]["amd64"],
+            CHECKSUMS["linux:amd64"],
         ),
         format_key("linux", "arm64"): create_tuple(
             "linux",
             "arm64",
             "tar.xz",
-            CHECKSUMS["linux"]["arm64"],
+            CHECKSUMS["linux:arm64"],
         ),
         format_key("darwin", "amd64"): create_tuple(
             "darwin",
             "x64",
             "tar.gz",
-            CHECKSUMS["darwin"]["amd64"],
+            CHECKSUMS["darwin:amd64"],
         ),
         format_key("darwin", "arm64"): create_tuple(
             "darwin",
             "arm64",
             "tar.gz",
-            CHECKSUMS["darwin"]["arm64"],
+            CHECKSUMS["darwin:arm64"],
         ),
         format_key("windows", "amd64"): create_tuple(
             "windows",
             "x64",
             "zip",
-            CHECKSUMS["windows"]["amd64"],
+            CHECKSUMS["windows:amd64"],
         ),
     },
     node_version = NODE_VERSION,

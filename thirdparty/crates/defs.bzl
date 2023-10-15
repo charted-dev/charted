@@ -313,6 +313,7 @@ _NORMAL_DEPENDENCIES = {
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
+            "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
         },
     },
     "crates/avatars": {
@@ -336,7 +337,7 @@ _NORMAL_DEPENDENCIES = {
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
             "rand": "@crate_index__rand-0.8.5//:rand",
             "regex": "@crate_index__regex-1.9.5//:regex",
-            "semver": "@crate_index__semver-1.0.18//:semver",
+            "semver": "@crate_index__semver-1.0.19//:semver",
             "serde": "@crate_index__serde-1.0.188//:serde",
             "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
             "sqlx": "@crate_index__sqlx-0.7.1//:sqlx",
@@ -367,7 +368,7 @@ _NORMAL_DEPENDENCIES = {
     "crates/database": {
         _COMMON_CONDITION: {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
-            "sentry": "@crate_index__sentry-0.31.6//:sentry",
+            "sentry": "@crate_index__sentry-0.31.7//:sentry",
             "serde": "@crate_index__serde-1.0.188//:serde",
             "sqlx": "@crate_index__sqlx-0.7.1//:sqlx",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
@@ -390,8 +391,8 @@ _NORMAL_DEPENDENCIES = {
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
             "regex": "@crate_index__regex-1.9.5//:regex",
             "remi-core": "@crate_index__remi-core-0.4.0//:remi_core",
-            "semver": "@crate_index__semver-1.0.18//:semver",
-            "sentry": "@crate_index__sentry-0.31.6//:sentry",
+            "semver": "@crate_index__semver-1.0.19//:semver",
+            "sentry": "@crate_index__sentry-0.31.7//:sentry",
             "serde_yaml": "@crate_index__serde_yaml-0.9.25//:serde_yaml",
             "tar": "@crate_index__tar-0.4.40//:tar",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
@@ -401,7 +402,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "ansi_term": "@crate_index__ansi_term-0.12.1//:ansi_term",
             "chrono": "@crate_index__chrono-0.4.30//:chrono",
-            "sentry-tracing": "@crate_index__sentry-tracing-0.31.6//:sentry_tracing",
+            "sentry-tracing": "@crate_index__sentry-tracing-0.31.7//:sentry_tracing",
             "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
             "tracing-log": "@crate_index__tracing-log-0.1.3//:tracing_log",
@@ -423,14 +424,20 @@ _NORMAL_DEPENDENCIES = {
             "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
         },
     },
+    "crates/openapi/proc-macro": {
+        _COMMON_CONDITION: {
+            "proc-macro2": "@crate_index__proc-macro2-1.0.67//:proc_macro2",
+            "quote": "@crate_index__quote-1.0.33//:quote",
+            "syn": "@crate_index__syn-2.0.37//:syn",
+        },
+    },
     "crates/proc-macros": {
         _COMMON_CONDITION: {
             "axum": "@crate_index__axum-0.6.20//:axum",
-            "heck": "@crate_index__heck-0.4.1//:heck",
-            "proc-macro2": "@crate_index__proc-macro2-1.0.66//:proc_macro2",
+            "proc-macro2": "@crate_index__proc-macro2-1.0.67//:proc_macro2",
             "quote": "@crate_index__quote-1.0.33//:quote",
             "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
-            "syn": "@crate_index__syn-2.0.31//:syn",
+            "syn": "@crate_index__syn-2.0.37//:syn",
             "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
         },
     },
@@ -475,7 +482,7 @@ _NORMAL_DEPENDENCIES = {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "jsonwebtoken": "@crate_index__jsonwebtoken-8.3.0//:jsonwebtoken",
             "redis": "@crate_index__redis-0.23.3//:redis",
-            "sentry": "@crate_index__sentry-0.31.6//:sentry",
+            "sentry": "@crate_index__sentry-0.31.7//:sentry",
             "serde": "@crate_index__serde-1.0.188//:serde",
             "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
             "sqlx": "@crate_index__sqlx-0.7.1//:sqlx",
@@ -487,10 +494,27 @@ _NORMAL_DEPENDENCIES = {
         },
     },
     "crates/sessions/integrations": {
+        _COMMON_CONDITION: {
+            "eyre": "@crate_index__eyre-0.6.8//:eyre",
+            "serde": "@crate_index__serde-1.0.188//:serde",
+        },
     },
     "crates/sessions/integrations/github": {
+        _COMMON_CONDITION: {
+            "reqwest": "@crate_index__reqwest-0.11.20//:reqwest",
+            "sentry": "@crate_index__sentry-0.31.7//:sentry",
+            "serde": "@crate_index__serde-1.0.188//:serde",
+            "tracing": "@crate_index__tracing-0.1.37//:tracing",
+        },
     },
     "crates/sessions/ldap": {
+        _COMMON_CONDITION: {
+            "eyre": "@crate_index__eyre-0.6.8//:eyre",
+            "ldap3": "@crate_index__ldap3-0.11.3//:ldap3",
+            "sentry": "@crate_index__sentry-0.31.7//:sentry",
+            "tokio": "@crate_index__tokio-1.32.0//:tokio",
+            "tracing": "@crate_index__tracing-0.1.37//:tracing",
+        },
     },
     "crates/sessions/local": {
         _COMMON_CONDITION: {
@@ -499,7 +523,7 @@ _NORMAL_DEPENDENCIES = {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "jsonwebtoken": "@crate_index__jsonwebtoken-8.3.0//:jsonwebtoken",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
-            "sentry": "@crate_index__sentry-0.31.6//:sentry",
+            "sentry": "@crate_index__sentry-0.31.7//:sentry",
             "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
             "sqlx": "@crate_index__sqlx-0.7.1//:sqlx",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
@@ -508,7 +532,7 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/sessions/passwordless": {
         _COMMON_CONDITION: {
-            "sentry": "@crate_index__sentry-0.31.6//:sentry",
+            "sentry": "@crate_index__sentry-0.31.7//:sentry",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
         },
     },
@@ -524,7 +548,7 @@ _NORMAL_DEPENDENCIES = {
     "features/gc": {
         _COMMON_CONDITION: {
             "logos": "@crate_index__logos-0.13.0//:logos",
-            "sentry": "@crate_index__sentry-0.31.6//:sentry",
+            "sentry": "@crate_index__sentry-0.31.7//:sentry",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
         },
     },
@@ -545,10 +569,11 @@ _NORMAL_DEPENDENCIES = {
             "prometheus-client": "@crate_index__prometheus-client-0.21.2//:prometheus_client",
             "remi-core": "@crate_index__remi-core-0.4.0//:remi_core",
             "rust-embed": "@crate_index__rust-embed-8.0.0//:rust_embed",
-            "sentry": "@crate_index__sentry-0.31.6//:sentry",
+            "semver": "@crate_index__semver-1.0.19//:semver",
+            "sentry": "@crate_index__sentry-0.31.7//:sentry",
             "sentry-eyre": "@crate_index__sentry-eyre-0.1.0//:sentry_eyre",
-            "sentry-tower": "@crate_index__sentry-tower-0.31.6//:sentry_tower",
-            "sentry-tracing": "@crate_index__sentry-tracing-0.31.6//:sentry_tracing",
+            "sentry-tower": "@crate_index__sentry-tower-0.31.7//:sentry_tower",
+            "sentry-tracing": "@crate_index__sentry-tracing-0.31.7//:sentry_tracing",
             "serde": "@crate_index__serde-1.0.188//:serde",
             "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
             "serde_path_to_error": "@crate_index__serde_path_to_error-0.1.14//:serde_path_to_error",
@@ -563,6 +588,15 @@ _NORMAL_DEPENDENCIES = {
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
             "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
             "validator": "@crate_index__validator-0.16.1//:validator",
+        },
+    },
+    "server/proc-macro": {
+        _COMMON_CONDITION: {
+            "heck": "@crate_index__heck-0.4.1//:heck",
+            "proc-macro2": "@crate_index__proc-macro2-1.0.67//:proc_macro2",
+            "quote": "@crate_index__quote-1.0.33//:quote",
+            "syn": "@crate_index__syn-2.0.37//:syn",
+            "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
         },
     },
     "tools/devtools": {
@@ -648,6 +682,10 @@ _NORMAL_ALIASES = {
         _COMMON_CONDITION: {
         },
     },
+    "crates/openapi/proc-macro": {
+        _COMMON_CONDITION: {
+        },
+    },
     "crates/proc-macros": {
         _COMMON_CONDITION: {
         },
@@ -673,10 +711,16 @@ _NORMAL_ALIASES = {
         },
     },
     "crates/sessions/integrations": {
+        _COMMON_CONDITION: {
+        },
     },
     "crates/sessions/integrations/github": {
+        _COMMON_CONDITION: {
+        },
     },
     "crates/sessions/ldap": {
+        _COMMON_CONDITION: {
+        },
     },
     "crates/sessions/local": {
         _COMMON_CONDITION: {
@@ -695,6 +739,10 @@ _NORMAL_ALIASES = {
         },
     },
     "server": {
+        _COMMON_CONDITION: {
+        },
+    },
+    "server/proc-macro": {
         _COMMON_CONDITION: {
         },
     },
@@ -734,6 +782,11 @@ _NORMAL_DEV_DEPENDENCIES = {
     },
     "crates/openapi": {
     },
+    "crates/openapi/proc-macro": {
+        _COMMON_CONDITION: {
+            "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
+        },
+    },
     "crates/proc-macros": {
     },
     "crates/redis": {
@@ -761,6 +814,8 @@ _NORMAL_DEV_DEPENDENCIES = {
     "features/gc": {
     },
     "server": {
+    },
+    "server/proc-macro": {
     },
     "tools/devtools": {
     },
@@ -791,6 +846,10 @@ _NORMAL_DEV_ALIASES = {
     },
     "crates/openapi": {
     },
+    "crates/openapi/proc-macro": {
+        _COMMON_CONDITION: {
+        },
+    },
     "crates/proc-macros": {
     },
     "crates/redis": {
@@ -818,6 +877,8 @@ _NORMAL_DEV_ALIASES = {
     "features/gc": {
     },
     "server": {
+    },
+    "server/proc-macro": {
     },
     "tools/devtools": {
     },
@@ -862,6 +923,8 @@ _PROC_MACRO_DEPENDENCIES = {
     },
     "crates/openapi": {
     },
+    "crates/openapi/proc-macro": {
+    },
     "crates/proc-macros": {
     },
     "crates/redis": {
@@ -890,6 +953,9 @@ _PROC_MACRO_DEPENDENCIES = {
         },
     },
     "crates/sessions/integrations": {
+        _COMMON_CONDITION: {
+            "async-trait": "@crate_index__async-trait-0.1.73//:async_trait",
+        },
     },
     "crates/sessions/integrations/github": {
     },
@@ -911,6 +977,8 @@ _PROC_MACRO_DEPENDENCIES = {
             "async-trait": "@crate_index__async-trait-0.1.73//:async_trait",
             "paste": "@crate_index__paste-1.0.14//:paste",
         },
+    },
+    "server/proc-macro": {
     },
     "tools/devtools": {
         _COMMON_CONDITION: {
@@ -945,6 +1013,8 @@ _PROC_MACRO_ALIASES = {
     },
     "crates/openapi": {
     },
+    "crates/openapi/proc-macro": {
+    },
     "crates/proc-macros": {
     },
     "crates/redis": {
@@ -972,6 +1042,8 @@ _PROC_MACRO_ALIASES = {
     "features/gc": {
     },
     "server": {
+    },
+    "server/proc-macro": {
     },
     "tools/devtools": {
     },
@@ -1000,6 +1072,8 @@ _PROC_MACRO_DEV_DEPENDENCIES = {
     },
     "crates/openapi": {
     },
+    "crates/openapi/proc-macro": {
+    },
     "crates/proc-macros": {
     },
     "crates/redis": {
@@ -1027,6 +1101,8 @@ _PROC_MACRO_DEV_DEPENDENCIES = {
     "features/gc": {
     },
     "server": {
+    },
+    "server/proc-macro": {
     },
     "tools/devtools": {
     },
@@ -1057,6 +1133,10 @@ _PROC_MACRO_DEV_ALIASES = {
     },
     "crates/openapi": {
     },
+    "crates/openapi/proc-macro": {
+        _COMMON_CONDITION: {
+        },
+    },
     "crates/proc-macros": {
     },
     "crates/redis": {
@@ -1085,6 +1165,8 @@ _PROC_MACRO_DEV_ALIASES = {
     },
     "server": {
     },
+    "server/proc-macro": {
+    },
     "tools/devtools": {
     },
     "tools/helm-plugin": {
@@ -1100,6 +1182,7 @@ _BUILD_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "chrono": "@crate_index__chrono-0.4.30//:chrono",
             "rustc_version": "@crate_index__rustc_version-0.4.0//:rustc_version",
+            "which": "@crate_index__which-4.4.2//:which",
         },
     },
     "crates/config": {
@@ -1120,6 +1203,8 @@ _BUILD_DEPENDENCIES = {
     },
     "crates/openapi": {
     },
+    "crates/openapi/proc-macro": {
+    },
     "crates/proc-macros": {
     },
     "crates/redis": {
@@ -1147,6 +1232,8 @@ _BUILD_DEPENDENCIES = {
     "features/gc": {
     },
     "server": {
+    },
+    "server/proc-macro": {
     },
     "tools/devtools": {
     },
@@ -1179,6 +1266,8 @@ _BUILD_ALIASES = {
     },
     "crates/openapi": {
     },
+    "crates/openapi/proc-macro": {
+    },
     "crates/proc-macros": {
     },
     "crates/redis": {
@@ -1206,6 +1295,8 @@ _BUILD_ALIASES = {
     "features/gc": {
     },
     "server": {
+    },
+    "server/proc-macro": {
     },
     "tools/devtools": {
     },
@@ -1234,6 +1325,8 @@ _BUILD_PROC_MACRO_DEPENDENCIES = {
     },
     "crates/openapi": {
     },
+    "crates/openapi/proc-macro": {
+    },
     "crates/proc-macros": {
     },
     "crates/redis": {
@@ -1261,6 +1354,8 @@ _BUILD_PROC_MACRO_DEPENDENCIES = {
     "features/gc": {
     },
     "server": {
+    },
+    "server/proc-macro": {
     },
     "tools/devtools": {
     },
@@ -1289,6 +1384,8 @@ _BUILD_PROC_MACRO_ALIASES = {
     },
     "crates/openapi": {
     },
+    "crates/openapi/proc-macro": {
+    },
     "crates/proc-macros": {
     },
     "crates/redis": {
@@ -1316,6 +1413,8 @@ _BUILD_PROC_MACRO_ALIASES = {
     "features/gc": {
     },
     "server": {
+    },
+    "server/proc-macro": {
     },
     "tools/devtools": {
     },
@@ -3372,6 +3471,26 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crate_index__lber-0.4.2",
+        sha256 = "2df7f9fd9f64cf8f59e1a4a0753fe7d575a5b38d3d7ac5758dcee9357d83ef0a",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/lber/0.4.2/download"],
+        strip_prefix = "lber-0.4.2",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.lber-0.4.2.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__ldap3-0.11.3",
+        sha256 = "6dceb52eac140c8679326f619b963577ccf5a4ab025fe5e6db424d2fd3e4f400",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/ldap3/0.11.3/download"],
+        strip_prefix = "ldap3-0.11.3",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.ldap3-0.11.3.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crate_index__libc-0.2.147",
         sha256 = "b4668fb0ea861c1df094127ac5f1da3409a82116a4ba74fca2e58ef927159bb3",
         type = "tar.gz",
@@ -4102,12 +4221,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__proc-macro2-1.0.66",
-        sha256 = "18fb31db3f9bddb2ea821cde30a9f70117e3f119938b5ee630b7403aa6e2ead9",
+        name = "crate_index__proc-macro2-1.0.67",
+        sha256 = "3d433d9f1a3e8c1263d9456598b16fec66f4acc9a74dacffd35c7bb09b3a1328",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/proc-macro2/1.0.66/download"],
-        strip_prefix = "proc-macro2-1.0.66",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.proc-macro2-1.0.66.bazel"),
+        urls = ["https://crates.io/api/v1/crates/proc-macro2/1.0.67/download"],
+        strip_prefix = "proc-macro2-1.0.67",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.proc-macro2-1.0.67.bazel"),
     )
 
     maybe(
@@ -4592,12 +4711,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__semver-1.0.18",
-        sha256 = "b0293b4b29daaf487284529cc2f5675b8e57c61f70167ba415a463651fd6a918",
+        name = "crate_index__semver-1.0.19",
+        sha256 = "ad977052201c6de01a8ef2aa3378c4bd23217a056337d1d6da40468d267a4fb0",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/semver/1.0.18/download"],
-        strip_prefix = "semver-1.0.18",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.semver-1.0.18.bazel"),
+        urls = ["https://crates.io/api/v1/crates/semver/1.0.19/download"],
+        strip_prefix = "semver-1.0.19",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.semver-1.0.19.bazel"),
     )
 
     maybe(
@@ -4612,52 +4731,52 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__sentry-0.31.6",
-        sha256 = "2e95efd0cefa32028cdb9766c96de71d96671072f9fb494dc9fb84c0ef93e52b",
+        name = "crate_index__sentry-0.31.7",
+        sha256 = "0097a48cd1999d983909f07cb03b15241c5af29e5e679379efac1c06296abecc",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sentry/0.31.6/download"],
-        strip_prefix = "sentry-0.31.6",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-0.31.6.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sentry/0.31.7/download"],
+        strip_prefix = "sentry-0.31.7",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-0.31.7.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__sentry-backtrace-0.31.6",
-        sha256 = "6ac2bac6f310c4c4c4bb094d1541d32ae497f8c5c23405e85492cefdfe0971a9",
+        name = "crate_index__sentry-backtrace-0.31.7",
+        sha256 = "18a7b80fa1dd6830a348d38a8d3a9761179047757b7dca29aef82db0118b9670",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sentry-backtrace/0.31.6/download"],
-        strip_prefix = "sentry-backtrace-0.31.6",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-backtrace-0.31.6.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sentry-backtrace/0.31.7/download"],
+        strip_prefix = "sentry-backtrace-0.31.7",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-backtrace-0.31.7.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__sentry-contexts-0.31.6",
-        sha256 = "6c3e17295cecdbacf66c5bd38d6e1147e09e1e9d824d2d5341f76638eda02a3a",
+        name = "crate_index__sentry-contexts-0.31.7",
+        sha256 = "7615dc588930f1fd2e721774f25844ae93add2dbe2d3c2f995ce5049af898147",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sentry-contexts/0.31.6/download"],
-        strip_prefix = "sentry-contexts-0.31.6",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-contexts-0.31.6.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sentry-contexts/0.31.7/download"],
+        strip_prefix = "sentry-contexts-0.31.7",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-contexts-0.31.7.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__sentry-core-0.31.6",
-        sha256 = "8339474f587f36cb110fa1ed1b64229eea6d47b0b886375579297b7e47aeb055",
+        name = "crate_index__sentry-core-0.31.7",
+        sha256 = "8f51264e4013ed9b16558cce43917b983fa38170de2ca480349ceb57d71d6053",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sentry-core/0.31.6/download"],
-        strip_prefix = "sentry-core-0.31.6",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-core-0.31.6.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sentry-core/0.31.7/download"],
+        strip_prefix = "sentry-core-0.31.7",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-core-0.31.7.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__sentry-debug-images-0.31.6",
-        sha256 = "1c11e7d2b809b06497a18a2e60f513206462ae2db27081dfb7be9ade1f329cc8",
+        name = "crate_index__sentry-debug-images-0.31.7",
+        sha256 = "2fe6180fa564d40bb942c9f0084ffb5de691c7357ead6a2b7a3154fae9e401dd",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sentry-debug-images/0.31.6/download"],
-        strip_prefix = "sentry-debug-images-0.31.6",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-debug-images-0.31.6.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sentry-debug-images/0.31.7/download"],
+        strip_prefix = "sentry-debug-images-0.31.7",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-debug-images-0.31.7.bazel"),
     )
 
     maybe(
@@ -4672,42 +4791,42 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__sentry-panic-0.31.6",
-        sha256 = "875b69f506da75bd664029eafb05f8934297d2990192896d17325f066bd665b7",
+        name = "crate_index__sentry-panic-0.31.7",
+        sha256 = "323160213bba549f9737317b152af116af35c0410f4468772ee9b606d3d6e0fa",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sentry-panic/0.31.6/download"],
-        strip_prefix = "sentry-panic-0.31.6",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-panic-0.31.6.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sentry-panic/0.31.7/download"],
+        strip_prefix = "sentry-panic-0.31.7",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-panic-0.31.7.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__sentry-tower-0.31.6",
-        sha256 = "741d92bd16765986e0cc58faa66abd24a94e6c84e4b550837173c5b3087a6e1c",
+        name = "crate_index__sentry-tower-0.31.7",
+        sha256 = "0ffe3ab7bf7f65c9f8ccd20aa136ce5b2140aa6d6a11339e823cd43a7d694a9e",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sentry-tower/0.31.6/download"],
-        strip_prefix = "sentry-tower-0.31.6",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-tower-0.31.6.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sentry-tower/0.31.7/download"],
+        strip_prefix = "sentry-tower-0.31.7",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-tower-0.31.7.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__sentry-tracing-0.31.6",
-        sha256 = "89feead9bdd116f8035e89567651340fc382db29240b6c55ef412078b08d1aa3",
+        name = "crate_index__sentry-tracing-0.31.7",
+        sha256 = "38033822128e73f7b6ca74c1631cef8868890c6cb4008a291cf73530f87b4eac",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sentry-tracing/0.31.6/download"],
-        strip_prefix = "sentry-tracing-0.31.6",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-tracing-0.31.6.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sentry-tracing/0.31.7/download"],
+        strip_prefix = "sentry-tracing-0.31.7",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-tracing-0.31.7.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__sentry-types-0.31.6",
-        sha256 = "99dc599bd6646884fc403d593cdcb9816dd67c50cff3271c01ff123617908dcd",
+        name = "crate_index__sentry-types-0.31.7",
+        sha256 = "0e663b3eb62ddfc023c9cf5432daf5f1a4f6acb1df4d78dd80b740b32dd1a740",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sentry-types/0.31.6/download"],
-        strip_prefix = "sentry-types-0.31.6",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-types-0.31.6.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sentry-types/0.31.7/download"],
+        strip_prefix = "sentry-types-0.31.7",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-types-0.31.7.bazel"),
     )
 
     maybe(
@@ -5112,12 +5231,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__syn-2.0.31",
-        sha256 = "718fa2415bcb8d8bd775917a1bf12a7931b6dfa890753378538118181e0cb398",
+        name = "crate_index__syn-2.0.37",
+        sha256 = "7303ef2c05cd654186cb250d29049a24840ca25d2747c25c0381c8d9e2f582e8",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/syn/2.0.31/download"],
-        strip_prefix = "syn-2.0.31",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.syn-2.0.31.bazel"),
+        urls = ["https://crates.io/api/v1/crates/syn/2.0.37/download"],
+        strip_prefix = "syn-2.0.37",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.syn-2.0.37.bazel"),
     )
 
     maybe(

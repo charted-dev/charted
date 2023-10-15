@@ -14,6 +14,10 @@
 # limitations under the License.
 
 exports_files([
+    # allows to run the ./scripts/update-node.sh script with Bazel
+    # (bazel run //scripts:update_nodejs)
+    "build/tools/nodejs.bzl",
+
     # used for codegen
     "assets/openapi.json",
 
