@@ -60,9 +60,18 @@ message SendEmailResponse {
     // will be available, and to see if you can retry with the `should_retry` property.
     bool success = 1;
 
-    // If the email should be retried due to an error.
-    bool should_retry = 2;
+    // Any errors that might've occured.
+    repeated Error errors = 2;
+}
 
-    // Optional error message of the reason why it was not successful.
-    optional string error_message = 3;
+message Error {
+    // A machine-readable error code that you can look up for more information
+    // A list of codes can be found in the [documentation](https://charts.noelware.org/docs/services/emails/latest/api#error-codes).
+    string code = 1;
+
+    // Human-readable message to indicate on why it failed.
+    string message = 2;
+
+    // Any extra details that might help on why it failed.
+    optional google.protobuf.Struct details = 3;
 }
