@@ -55,7 +55,7 @@ dependencies {
     //    config/dsl/src/main/kotlin/CdnConfig.kt:40:9 Visibility must be specified in explicit API mode
     //    config/dsl/src/main/kotlin/Config.kt:22:29 Unresolved reference: MultiValidationException
     //
-    implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.20.2")
+    implementation("org.jetbrains.kotlinx:atomicfu-gradle-plugin:0.22.0")
     implementation(kotlin("serialization", versionFor("kotlin")))
     implementation(kotlin("gradle-plugin", versionFor("kotlin")))
     implementation(library("noel-commons-gradle-utils"))
