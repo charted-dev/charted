@@ -47,12 +47,12 @@ on:
             - renovate.json
 jobs:
     spotless:
-        name: Spotless [${{matrix.runner}}, Java ${{matrix.java-version}}]
+        name: CI ~ ${{matrix.runner == 'ubuntu-latest' && "Linux (x86_64)" || matrix.runner == 'self-hosted' && "Linux (ARM64)" || matrix.runner == 'macos-latest' && "macOS (x86_64)" || matrix.runner == 'windows-latest' && "Windows (x86_64)" || "Unknown" }} with Java ${{matrix.java-version}}
         runs-on: ${{matrix.runner}}
         strategy:
             matrix:
-                java-version: [17, 20]
-                runner: [windows-latest, ubuntu-latest, macos-latest, self-hosted]
+                java-version: [17, 21]
+                runner: [windows-latest, ubuntulatest, macos-latest]
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -67,10 +67,10 @@ jobs:
                   architecture: ${{matrix.runner == 'self-hosted' && 'aarch64' || 'amd64'}}
 
             # Node.js is required for Spotless to install Prettier
-            - name: Setup Node.js v19.x
+            - name: Setup Node.js v20.x
               uses: actions/setup-node@v3
               with:
-                  node-version: 19.x
+                  node-version: 20.x
                   architecture: ${{matrix.runner == 'self-hosted' && 'arm64' || 'x64'}}
 
             # Maven artifact for the `protoc` binary is undeterministic,
