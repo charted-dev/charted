@@ -13,11 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::str::FromStr;
-
 use crate::{make_config, var};
 use charted_common::TRUTHY_REGEX;
 use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 use tracing::Level;
 
 /// Represents the output that the Logstash pipeline will be executed from. By default,

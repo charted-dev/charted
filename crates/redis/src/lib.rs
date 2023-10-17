@@ -18,6 +18,7 @@ use eyre::{eyre, Context, Result};
 use redis::{sentinel::Sentinel, Client};
 use std::{
     fmt::Debug,
+    iter::FromIterator,
     sync::{Arc, Mutex},
 };
 use tracing::{info, warn};

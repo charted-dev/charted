@@ -61,7 +61,7 @@ if [[ ! -f "$SCRIPT_DIR/.cache/dev" || "x${DEV_REBUILD:-}" != "x" ]]; then
     [[ "x${DEV_REBUILD:-}" != "x" && -f "$SCRIPT_DIR/.cache/dev" ]] && rm -f "$SCRIPT_DIR/.cache/dev"
 
     echo "===> Compiling devtools binary!"
-    echo "===> $ $BAZEL $BAZEL_STARTUP_ARGS build $BAZEL_ARGS --compilation_mode=opt //:devtools"
+    echo "===> $ $BAZEL $BAZEL_STARTUP_ARGS build $BAZEL_ARGS --compilation_mode=opt //:devtools" | xargs
 
     $BAZEL $BAZEL_STARTUP_ARGS build $BAZEL_ARGS --compilation_mode=opt //:devtools
     cp "$SCRIPT_DIR/bazel-bin/tools/devtools/devtools" "$SCRIPT_DIR/.cache/dev"

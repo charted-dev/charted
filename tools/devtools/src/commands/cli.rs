@@ -42,7 +42,10 @@ impl Execute for Cli {
                 release: self.common.release,
                 bazelrc: self.bazel.bazelrc.clone(),
                 args: self.common.args.clone(),
-                run: self.common.run,
+                run: match self.common.args.len() {
+                    0 => self.common.run,
+                    _ => true,
+                },
             },
         )
     }

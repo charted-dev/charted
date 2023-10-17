@@ -17,6 +17,7 @@ use chrono::{DateTime, Utc};
 use std::{
     ffi::{OsStr, OsString},
     fs,
+    panic::catch_unwind,
     process::Command,
     time::{Instant, SystemTime},
 };
@@ -73,16 +74,11 @@ fn main() {
         .expect("missing version to embed?!")
         .trim();
 
-    // used for debugging
-    eprintln!(concat!("env: ", env!("PATH")));
-
     let git = which("git")
         .map(|os| os.into_os_string())
         .unwrap_or(OsString::from("git")); // let the os find the 'git' command
 
-    // TODO(@auguwu): NixOS doesn't allow us to use the `git` supplied (it doesn't exist apparently?!):
-    //                ~ after a day of realising, we need to allow rules_nixpkgs to include git in the $PATH.
-    let commit_hash = execute(git, &["rev-parse", "--short=8", "HEAD"]);
+    let commit_hash = catch_unwind(|| execute(git, &["rev-parse", "--short=8", "HEAD"])).unwrap_or_default();
     let build_date = {
         let now = SystemTime::now();
         let date: DateTime<Utc> = now.into();

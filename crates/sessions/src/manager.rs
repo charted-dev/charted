@@ -23,6 +23,7 @@ use jsonwebtoken::{encode, Algorithm, EncodingKey, Header};
 use serde_json::Value;
 use std::{
     collections::HashMap,
+    convert::TryInto,
     sync::{Arc, Mutex},
     time::Duration,
 };

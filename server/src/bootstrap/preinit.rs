@@ -15,7 +15,7 @@
 
 use super::BootstrapPhase;
 use async_trait::async_trait;
-use charted_common::{BUILD_DATE, COMMIT_HASH, RUSTC_VERSION, VERSION};
+use charted_common::{version, BUILD_DATE, RUSTC_VERSION};
 use charted_config::Config;
 use chrono::DateTime;
 use eyre::Result;
@@ -31,7 +31,7 @@ impl BootstrapPhase for PreinitPhase {
             .format("%a, %h %d, %Y at %H:%M:%S %Z")
             .to_string();
 
-        info!("Starting up charted-server v{VERSION}+{COMMIT_HASH} ({date})");
+        info!("Starting up charted-server v{} ({date})", version());
         info!("Compiled with Rust v{RUSTC_VERSION}");
 
         Ok(())

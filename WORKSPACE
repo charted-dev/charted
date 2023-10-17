@@ -71,6 +71,14 @@ nixpkgs_package(
     repository = "@nixpkgs",
 )
 
+# allows Nix users to build crates/common as Git is required for the full
+# build version.
+nixpkgs_package(
+    name = "git-nixos",
+    nix_file_content = "(import <nixpkgs> {}).git",
+    repository = "@nixpkgs",
+)
+
 load("//:build/tools/cc.bzl", "charted_cc_repositories")
 
 charted_cc_repositories()

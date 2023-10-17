@@ -15,7 +15,7 @@
 
 use ansi_term::Style;
 use charted_common::cli::Execute;
-use charted_common::{os, BUILD_DATE, COMMIT_HASH, RUSTC_VERSION, VERSION};
+use charted_common::{os, version, BUILD_DATE, COMMIT_HASH, RUSTC_VERSION, VERSION};
 use chrono::DateTime;
 use eyre::Result;
 use sysinfo::{System, SystemExt};
@@ -38,7 +38,7 @@ impl Execute for Version {
             .to_string();
 
         let name = sys.name().unwrap();
-        let version = sys.os_version().unwrap();
+        let os_version = sys.os_version().unwrap();
         let os_name = os::os_name();
         let arch = os::architecture();
 
@@ -53,20 +53,20 @@ impl Execute for Version {
                     "name": name,
                     "arch": arch,
                     "os_name": os_name,
-                    "version": version
+                    "version": os_version
                 })
             });
 
             println!("{}", serde_json::to_string_pretty(&value).unwrap());
         } else {
             let bold = Style::new().bold();
-            println!(
-                "charted-server {} ({date})",
-                bold.paint(format!("v{VERSION}+{COMMIT_HASH}"))
-            );
 
+            println!("charted-server {} ({date})", bold.paint(format!("v{}", version())));
             println!("» OS: {os_name}/{arch} ~ compiled with Rust {RUSTC_VERSION}");
-            println!("» GitHub: https://github.com/charted-dev/charted/commit/{COMMIT_HASH}");
+
+            if !COMMIT_HASH.is_empty() {
+                println!("» GitHub: https://github.com/charted-dev/charted/commit/{COMMIT_HASH}");
+            }
         }
 
         Ok(())

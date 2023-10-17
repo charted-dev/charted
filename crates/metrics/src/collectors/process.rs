@@ -51,18 +51,15 @@ impl prometheus_client::collector::Collector for ProcessCollector {
         let original_metrics = <Self as Collector>::collect(self);
         let metrics = original_metrics.downcast_ref::<ProcessMetrics>().unwrap();
 
-        Box::new(
-            [create_metric_descriptor(
-                Cow::Owned(Descriptor::new(
-                    "process_id",
-                    "Returns the current process ID",
-                    None,
-                    Some(&Prefix::from(String::from("charted"))),
-                    vec![],
-                )),
-                MaybeOwned::Owned(Box::new(ConstCounter::new(metrics.id as u64))),
-            )]
-            .into_iter(),
-        )
+        Box::new(IntoIterator::into_iter([create_metric_descriptor(
+            Cow::Owned(Descriptor::new(
+                "process_id",
+                "Returns the current process ID",
+                None,
+                Some(&Prefix::from(String::from("charted"))),
+                vec![],
+            )),
+            MaybeOwned::Owned(Box::new(ConstCounter::new(metrics.id as u64))),
+        )]))
     }
 }

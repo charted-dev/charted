@@ -27,9 +27,9 @@ use serde::{Deserialize, Serialize};
 use std::{any::Any, borrow::Cow, sync::atomic::Ordering};
 
 /// [`Histogram`] to track request latencies.
-pub static REQUEST_LATENCY_HISTOGRAM: Lazy<Histogram> = lazy!(Histogram::new(
-    [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0].into_iter()
-));
+pub static REQUEST_LATENCY_HISTOGRAM: Lazy<Histogram> = lazy!(Histogram::new(IntoIterator::into_iter([
+    0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0
+])));
 
 /// VENDOR is the current vendor of charted-server. If you're making a fork,
 /// you can set this to whatever you want. We don't mind! :)
@@ -84,63 +84,60 @@ impl prometheus_client::collector::Collector for ServerMetricsCollector {
         let original = <Self as Collector>::collect(self);
         let metrics = original.downcast_ref::<ServerMetrics>().unwrap();
 
-        Box::new(
-            [
-                create_metric_descriptor(
-                    Cow::Owned(Descriptor::new(
-                        "distribution",
-                        "Distribution kind",
-                        None,
-                        Some(&Prefix::from(String::from("charted"))),
-                        vec![(
-                            Cow::Borrowed("distribution"),
-                            Cow::Owned(metrics.distribution.to_string()),
-                        )],
-                    )),
-                    MaybeOwned::Owned(Box::new(ConstGauge::new(1))),
-                ),
-                create_metric_descriptor(
-                    Cow::Owned(Descriptor::new(
-                        "commit_hash",
-                        "Git commit hash",
-                        None,
-                        Some(&Prefix::from(String::from("charted"))),
-                        vec![(Cow::Borrowed("commit"), Cow::Borrowed(metrics.commit_hash))],
-                    )),
-                    MaybeOwned::Owned(Box::new(ConstGauge::new(1))),
-                ),
-                create_metric_descriptor(
-                    Cow::Owned(Descriptor::new(
-                        "requests",
-                        "How many requests were collected",
-                        None,
-                        Some(&Prefix::from(String::from("charted"))),
-                        vec![],
-                    )),
-                    MaybeOwned::Owned(Box::new(ConstGauge::new(metrics.requests as i64))),
-                ),
-                create_metric_descriptor(
-                    Cow::Owned(Descriptor::new(
-                        "version",
-                        "Version of the API server",
-                        None,
-                        Some(&Prefix::from(String::from("charted"))),
-                        vec![(Cow::Borrowed("version"), Cow::Borrowed(metrics.version))],
-                    )),
-                    MaybeOwned::Owned(Box::new(ConstGauge::new(1))),
-                ),
-                create_metric_descriptor(
-                    Cow::Owned(Descriptor::new(
-                        "vendor",
-                        "Vendor for this software",
-                        None,
-                        Some(&Prefix::from(String::from("charted"))),
-                        vec![(Cow::Borrowed("vendor"), Cow::Borrowed(metrics.vendor))],
-                    )),
-                    MaybeOwned::Owned(Box::new(ConstGauge::new(1))),
-                ),
-            ]
-            .into_iter(),
-        )
+        Box::new(IntoIterator::into_iter([
+            create_metric_descriptor(
+                Cow::Owned(Descriptor::new(
+                    "distribution",
+                    "Distribution kind",
+                    None,
+                    Some(&Prefix::from(String::from("charted"))),
+                    vec![(
+                        Cow::Borrowed("distribution"),
+                        Cow::Owned(metrics.distribution.to_string()),
+                    )],
+                )),
+                MaybeOwned::Owned(Box::new(ConstGauge::new(1))),
+            ),
+            create_metric_descriptor(
+                Cow::Owned(Descriptor::new(
+                    "commit_hash",
+                    "Git commit hash",
+                    None,
+                    Some(&Prefix::from(String::from("charted"))),
+                    vec![(Cow::Borrowed("commit"), Cow::Borrowed(metrics.commit_hash))],
+                )),
+                MaybeOwned::Owned(Box::new(ConstGauge::new(1))),
+            ),
+            create_metric_descriptor(
+                Cow::Owned(Descriptor::new(
+                    "requests",
+                    "How many requests were collected",
+                    None,
+                    Some(&Prefix::from(String::from("charted"))),
+                    vec![],
+                )),
+                MaybeOwned::Owned(Box::new(ConstGauge::new(metrics.requests as i64))),
+            ),
+            create_metric_descriptor(
+                Cow::Owned(Descriptor::new(
+                    "version",
+                    "Version of the API server",
+                    None,
+                    Some(&Prefix::from(String::from("charted"))),
+                    vec![(Cow::Borrowed("version"), Cow::Borrowed(metrics.version))],
+                )),
+                MaybeOwned::Owned(Box::new(ConstGauge::new(1))),
+            ),
+            create_metric_descriptor(
+                Cow::Owned(Descriptor::new(
+                    "vendor",
+                    "Vendor for this software",
+                    None,
+                    Some(&Prefix::from(String::from("charted"))),
+                    vec![(Cow::Borrowed("vendor"), Cow::Borrowed(metrics.vendor))],
+                )),
+                MaybeOwned::Owned(Box::new(ConstGauge::new(1))),
+            ),
+        ]))
     }
 }

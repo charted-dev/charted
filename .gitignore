@@ -742,5 +742,6 @@ config.yml
 .direnv/
 .cache/
 .data/
+data/
 docs/
 .env

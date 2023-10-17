@@ -67,33 +67,30 @@ impl prometheus_client::collector::Collector for OperatingSystemCollector {
         let original_metrics = <Self as Collector>::collect(self);
         let metrics = original_metrics.downcast_ref::<OperatingSystemMetrics<'_>>().unwrap();
 
-        Box::new(
-            [
-                create_metric_descriptor(
-                    Cow::Owned(Descriptor::new(
-                        "os_name",
-                        "Returns the OS name for this system",
-                        None,
-                        Some(&Prefix::from(String::from("charted"))),
-                        vec![(Cow::Owned("name".to_owned()), Cow::Owned(metrics.name.to_owned()))],
-                    )),
-                    MaybeOwned::Owned(Box::new(ConstGauge::new(1))),
-                ),
-                create_metric_descriptor(
-                    Cow::Owned(Descriptor::new(
-                        "os_arch",
-                        "Returns the OS architecture for this system",
-                        None,
-                        Some(&Prefix::from(String::from("charted"))),
-                        vec![(
-                            Cow::Owned("distribution".to_owned()),
-                            Cow::Owned(metrics.arch.to_owned()),
-                        )],
-                    )),
-                    MaybeOwned::Owned(Box::new(ConstGauge::new(1))),
-                ),
-            ]
-            .into_iter(),
-        )
+        Box::new(IntoIterator::into_iter([
+            create_metric_descriptor(
+                Cow::Owned(Descriptor::new(
+                    "os_name",
+                    "Returns the OS name for this system",
+                    None,
+                    Some(&Prefix::from(String::from("charted"))),
+                    vec![(Cow::Owned("name".to_owned()), Cow::Owned(metrics.name.to_owned()))],
+                )),
+                MaybeOwned::Owned(Box::new(ConstGauge::new(1))),
+            ),
+            create_metric_descriptor(
+                Cow::Owned(Descriptor::new(
+                    "os_arch",
+                    "Returns the OS architecture for this system",
+                    None,
+                    Some(&Prefix::from(String::from("charted"))),
+                    vec![(
+                        Cow::Owned("distribution".to_owned()),
+                        Cow::Owned(metrics.arch.to_owned()),
+                    )],
+                )),
+                MaybeOwned::Owned(Box::new(ConstGauge::new(1))),
+            ),
+        ]))
     }
 }

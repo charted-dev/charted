@@ -236,7 +236,7 @@ pub async fn refresh_session_token(
     }
 
     let session = session.unwrap();
-    let refresh_token = session.refresh_token.unwrap();
+    let refresh_token = session.refresh_token.as_ref().unwrap();
     if refresh_token.as_str() != header {
         return Err(err(
             StatusCode::FORBIDDEN,

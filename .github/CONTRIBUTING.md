@@ -59,6 +59,12 @@ The project is a monorepo that is structured into multiple folders:
 
 Originally, **charted-server** was written in Kotlin, which made it impossible to include both the `web/` and `server/` together without magic with Gradle, Rust and Bazel helps us build a monorepo that brings in what **charted-server** brings to the table without trying to separate it between repositories and make it harder on the team.
 
+We don't do any specification for Git commit messages, like [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0), but all Git commits that are pushed to `main` should be helpful with an optional body payload.
+
+> Note
+>
+> In a pull request, you can add meaningless Git commit messages since we merge `main` branches with the PR title (#id) with the README from that PR as the optional body.
+
 ## FAQ
 ### :question: How can I use a different Rust channel?
 You can use the `--@rules_rust//rust/toolchain/channel` setting when you run `bazel build`, or you can add it in your .user.bazelrc to persist on builds:
@@ -68,16 +74,59 @@ You can use the `--@rules_rust//rust/toolchain/channel` setting when you run `ba
 build --@rules_rust//rust/toolchain/channel=nightly
 ```
 
+If you don't want it persisted, you can include it when you run `bazel build`, or use the `BAZEL_ARGS` environment variable if you use the `./dev` script:
+
+```shell
+BAZEL_ARGS="--@rules_rust//rust/toolchain/channel=nightly" ./dev server
+```
+
 ### :question: How can I contribute on NixOS?
 Since Rust toolchains are resolved with a remote source and are unpatched, you can add this to your .user.bazelrc file:
 
-```shell
+```shell filename=".user.bazelrc"
 # signalify that OpenSSL is compiled statically and will use the nixpkgs version, which is patched.
-build --//build/settings:nixos
+build --//build/settings:is-nixos
 
 # recommended by rules_nixpkgs
 build --host_platform=@rules_nixpkgs_core//platforms:host
 
 # use the nixpkgs_config_cc toolchain
 build --crosstool_top=@nixpkgs_config_cc//:toolchain
+```
+
+### :question: Why do I get a `container unhealthy` error when I run `./dev docker up`?
+Because Bitnami's PostgreSQL and Redis containers expect the filesystem path of `./.cache/docker/postgresql` and `./.cache/docker/redis` be with uid and gid `1001`.
+
+To fix it, just run the `down` subcommand of the `docker` subcommand of `./dev` and then `chown`:
+
+```shell
+$ ./dev docker down
+$ sudo chown -R 1001:1001 ./.cache/docker/postgresql ./.cache/docker/redis
+```
+
+Once you do that, you can run `./dev docker up` and it should run as usual:
+
+```shell filename="$ docker logs -f charted_redis"
+# » docker logs -f charted_redis
+redis 01:37:57.63
+redis 01:37:57.63 Welcome to the Bitnami redis container
+redis 01:37:57.63 Subscribe to project updates by watching https://github.com/bitnami/containers
+redis 01:37:57.63 Submit issues and feature requests at https://github.com/bitnami/containers/issues
+redis 01:37:57.63
+redis 01:37:57.64 INFO  ==> ** Starting Redis setup **
+redis 01:37:57.64 WARN  ==> You set the environment variable ALLOW_EMPTY_PASSWORD=yes. For safety reasons, do not use this flag in a production environment.
+redis 01:37:57.65 INFO  ==> Initializing Redis
+redis 01:37:57.65 INFO  ==> Setting Redis config file
+redis 01:37:57.67 INFO  ==> ** Redis setup finished! **
+redis 01:37:57.68 INFO  ==> ** Starting Redis **
+1:C 17 Oct 2023 01:37:57.687 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+1:C 17 Oct 2023 01:37:57.687 # Redis version=7.0.11, bits=64, commit=00000000, modified=0, pid=1, just started
+1:C 17 Oct 2023 01:37:57.687 # Configuration loaded
+1:M 17 Oct 2023 01:37:57.688 * monotonic clock: POSIX clock_gettime
+1:M 17 Oct 2023 01:37:57.688 * Running mode=standalone, port=6379.
+1:M 17 Oct 2023 01:37:57.688 # Server initialized
+1:M 17 Oct 2023 01:37:57.688 # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. Being disabled, it can can also cause failures without low memory condition, see https://github.com/jemalloc/jemalloc/issues/1328. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+1:M 17 Oct 2023 01:37:57.691 * Creating AOF base file appendonly.aof.1.base.rdb on server start
+1:M 17 Oct 2023 01:37:57.693 * Creating AOF incr file appendonly.aof.1.incr.aof on server start
+1:M 17 Oct 2023 01:37:57.693 * Ready to accept connections
 ```

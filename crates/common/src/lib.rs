@@ -63,10 +63,12 @@ pub fn is_debug_enabled() -> bool {
     matches!(std::env::var("CHARTED_DEBUG"), Ok(val) if TRUTHY_REGEX.is_match(val.as_str()))
 }
 
+/// Returns a randomized alphanumeric string with a specified length.
 pub fn rand_string(len: usize) -> String {
     Alphanumeric.sample_string(&mut rand::thread_rng(), len)
 }
 
+/// Returns a [`String`] buffer that represents a panic message from methods like [`catch_unwind`](std::panic::catch_unwind).
 pub fn panic_message(error: Box<dyn Any + Send + 'static>) -> String {
     if let Some(s) = error.downcast_ref::<String>() {
         s.clone()
@@ -75,6 +77,20 @@ pub fn panic_message(error: Box<dyn Any + Send + 'static>) -> String {
     } else {
         "unknown panic message received".into()
     }
+}
+
+/// Returns a version that includes the Git commit hash in the version string.
+pub fn version() -> String {
+    use std::fmt::Write;
+
+    let mut buf = String::new();
+    write!(buf, "{VERSION}").unwrap();
+
+    if !COMMIT_HASH.is_empty() {
+        write!(buf, "+{COMMIT_HASH}").unwrap();
+    }
+
+    buf
 }
 
 pub mod macros {

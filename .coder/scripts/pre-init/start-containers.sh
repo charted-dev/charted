@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
 # Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
 #
@@ -13,24 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[toolchain]
-channel = "1.73.0" # this should match from ./build/tools/rust.bzl
-profile = "minimal"
-targets = [
-    "x86_64-unknown-linux-gnu",
-    "x86_64-unknown-linux-musl",
-    "x86_64-apple-darwin",
-    "aarch64-unknown-linux-gnu",
-    "aarch64-apple-darwin",
-    "x86_64-pc-windows-msvc"
-]
-
-components = [
-    "rustc",
-    "cargo",
-    "rust-analyzer",
-    "rustfmt",
-    "rust-std",
-    "clippy",
-    "rust-src"
-]
+if ! [ -f "../.cache/docker-compose.yml" ]; then
+    ../dev docker up
+    exit $?
+fi
