@@ -1,125 +1,132 @@
-# 📦 Contributing to charted-server
+# 🐻‍❄️📦 Contributing to charted-server
+Thanks for considering to help build and make **charted-server** even better! We full heartily accept contributions from the community — you! We will accept any contributing from any major feature to small, grammatical bugs.
 
-**charted-server** is a free and open source Helm Chart registry made in [Kotlin](https://kotlinlang.org) developed by
-[JetBrains](https://www.jetbrains.com). We full heartily accept contributions from the community — you! We accept
-any contribution from major features that might be cool to implement to small, grammatical bugs.
+## Bug Reporting
+Think you found an issue that you ran into? To submit a bug report, please use the latest release of the server because it might've been fixed by us, but if it hasn't then, you can surf through the [issue board](https://github.com/charted-dev/charted/issues) if the issue was already been reported, it'll be tagged with the `bug` label and be added onto Noelware's internal issue board.
 
-## Bug reports
+- Be clear and concise with the title and description of the bug, it will help others link their issues & solutions to yours!
+- Specify any way to reproduce the bug, so we know what to fix.
 
-If you think you found any bugs when running **charted-server**, please test it on the latest installation of [charted-server](https://github.com/charted-dev/charted/releases)
-because it might be fixed! If it wasn't fixed (and it was present in future releases), you can surf through the [issue board](https://github.com/charted-dev/charted/issues)
-and search for the issue.
+To test REST API-related issues, we recommend using `cURL` so it can be easier to reproduce on the latest version.
 
-If the issue is not present in the issue board, you can submit a **Bug Reports** issue. Please make sure to do the following:
+- Use number-formatted prefixes (i.e, `1. {step}`) to determine a step.
+- Prefix the expected result with `#>`, and the actual result with `#?>`
 
--   Label the issue with the `bug` label.
--   Be clear and concise with the title, it will help others link their issues and solutions to yours.
--   Specify the ways to reproduce the bug, so we know how to fix it.
-
-We recommend using the terminal (if possible) to check for issues, i.e (simple example to show how it can be reproduced):
+Example:
 
 ```shell
-$ curl -XDELETE -H "Authorization: ApiKey <api key here>" http://localhost:3651/repositories/1/members/2
-{"success": true}
+# 1. Create a repository
+$ curl -XPUT -H "Content-Type: application/json" -d '{"name":"repo1"}' http://localhost:3651/users/@me/repositories
+#> {"success": true}
 
-$ curl -XGET http://localhost:3651/repositories/1/members
-{"success":true,"data":[{"display_name":"Noel","joined_at":"2022-07-30T16:09:30.440Z","updated_at":"2022-07-30T16:09:30.440Z","user":{}}]}
+# 2. Invite a member.
+$ curl -XPOST -H "Content-Type: application/json" -d '{"user_id":1234}' http://localhost:3651/repositories/1/members/invite
+#> {"success": true}
+
+# 3. Once they were invited, check if they can be queried.
+$ curl http://localhost:3651/repositories/1/members
+#> {"success": true,"data":[{...}]}
+
+# 4. Kick them!
+$ curl -XDELETE -H "Content-Type: application/json" http://localhost:3651/repositories/1/members/1234/kick
+#> {"success":true}
+#?> {"success":false,"errors":[{...}]}
 ```
 
 ## Security Vulnerabilities
-
 If you found any security vulnerabilities when using **charted-server**, please refer to our [Security Policy](https://github.com/charted-dev/charted/blob/master/SECURITY.md).
 
-<!-- If you found any security vulnerabilities when using **charted-server**, please refer to our [Security Policy](https://noelware.org/security/policy). -->
-
 ## Code Contributions
+We alweays accept code contributions since your contributions to anything related to the project makes it more powerful and secure than our team can if we just kept this closed sourced, since it is based off community feedback!
 
-We always accept code contributions since your contributions make **charted-server** more powerful than our team can,
-since it's based off of community feedback and how we should make our product better.
+This repository is a monorepo, so the codebase might be intimidating, but this guide is here to help you aid in how we structured the project and such.
 
-This repository only holds the backend server code for the **charted** project, the web interface's repository is located in
-[charted-dev/hoshi](https://github.com/charted-dev/hoshi).
+> **Note**: We do support using [GitHub Codespaces](https://github.com/codespaces) or [Coder](https://coder.com) (with [Noel's Coder templates](https://github.com/auguwu/coder-images) -- it is recommended since it'll run all preinit scripts and the Docker compose project in `.coder/docker-compose.yml`)
+>
+> Both Codespaces and Coder have the necessary tooling to help you build and run charted-server easily from a remote environment!
 
-**charted-server** has support for [GitHub Codespaces](https://github.com/codespaces) and [Coder](https://coder.com) via [Noel's Coder templates](https://github.com/auguwu/coder-images).
-Both Coder and Codespaces have the necessary tools you would need to develop and run **charted-server**.
+### How is the project structured?
+The project is a monorepo that is structured into multiple folders:
 
-### Coder
+* `build/` is meant to add [Bazel macros](https://bazel.build/extending/macros).
+* `cli/` is the actual CLI source code.
+* `crates/` is the different crates that is used through-out the `cli` and `server` folders.
+* `distribution/` is related to how **charted-server** is distributed once a release is settled.
+* `scripts/` is any script that helps to not write long commands, or anything really.
+* `server/` is the actual REST API.
+* `tools/` is tools and services that help aid the `server/` folder.
+* `web/` is the actual web interface that is packaged with the server!
 
-You can develop **charted-server** on your own managed hardware with [Coder](https://coder.com), which what **Noel** uses to
-develop his own projects outside his home.
+Originally, **charted-server** was written in Kotlin, which made it impossible to include both the `web/` and `server/` together without magic with Gradle, Rust and Bazel helps us build a monorepo that brings in what **charted-server** brings to the table without trying to separate it between repositories and make it harder on the team.
 
-**Noel** has own template that he would recommend to develop **charted-server** on since the default image that is
-used can be run on **ARM64** or **x86_64** environments.
+We don't do any specification for Git commit messages, like [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0), but all Git commits that are pushed to `main` should be helpful with an optional body payload.
 
-First, you will need to clone the [coder-images](https://github.com/auguwu/coder-images) repository in your
-current directory with `git clone https://github.com/auguwu/coder-images`, now you can
-change the directory to **coder-images**:
+> Note
+>
+> In a pull request, you can add meaningless Git commit messages since we merge `main` branches with the PR title (#id) with the README from that PR as the optional body.
 
-![](https://noel-is.gay/images/5245ea46.png)
+## FAQ
+### :question: How can I use a different Rust channel?
+You can use the `--@rules_rust//rust/toolchain/channel` setting when you run `bazel build`, or you can add it in your .user.bazelrc to persist on builds:
 
-Now, we need to switch to the **template** directory and create the template into the Coder instance you want in. Well first, we need
-to log in to import the template, or we will get an error, but if you're already logged in, you should be set. Run the command
-`coder login <url>` and you should be prompted to log in.
+```shell
+# we only support stable and nightly
+build --@rules_rust//rust/toolchain/channel=nightly
+```
 
-Now, we can import the Coder template with the `coder template create` command as shown below:
+If you don't want it persisted, you can include it when you run `bazel build`, or use the `BAZEL_ARGS` environment variable if you use the `./dev` script:
 
-### GitHub Codespaces
+```shell
+BAZEL_ARGS="--@rules_rust//rust/toolchain/channel=nightly" ./dev server
+```
 
-> **Note** - The screenshots might say "Codespaces usage is paid for by auguwu" in the screenshots, please do
-> note that **Noel** is not paying for your usage of Codespaces, it's tied to your own account, and in the screenshots,
-> **Noel** is logged in as his user on GitHub.
+### :question: How can I contribute on NixOS?
+Since Rust toolchains are resolved with a remote source and are unpatched, you can add this to your .user.bazelrc file:
 
-To develop on GitHub Codespaces, you will need access to it which can view the [documentation on how to enable it](). Once it is enabled or
-you already had it enabled, you can click the "<> Code" button that is in the repository home page:
+```shell filename=".user.bazelrc"
+# signalify that OpenSSL is compiled statically and will use the nixpkgs version, which is patched.
+build --//build/settings:is-nixos
 
-![repo homepage](https://noel-is.gay/images/9b44aca1.png)
+# recommended by rules_nixpkgs
+build --host_platform=@rules_nixpkgs_core//platforms:host
 
-Next, you will need to click the three dots on the above screenshot and click "+ New with options"
+# use the nixpkgs_config_cc toolchain
+build --crosstool_top=@nixpkgs_config_cc//:toolchain
+```
 
-![+ new with options](https://noel-is.gay/images/989813a0.png)
+### :question: Why do I get a `container unhealthy` error when I run `./dev docker up`?
+Because Bitnami's PostgreSQL and Redis containers expect the filesystem path of `./.cache/docker/postgresql` and `./.cache/docker/redis` be with uid and gid `1001`.
 
-Once you have clicked the button, you will be greeted to this page, but you will need
-to edit the options that are suited for the development of **charted-server**, which
-is shown below:
+To fix it, just run the `down` subcommand of the `docker` subcommand of `./dev` and then `chown`:
 
-![devcontainer config](https://noel-is.gay/images/5e83afe6.png)
+```shell
+$ ./dev docker down
+$ sudo chown -R 1001:1001 ./.cache/docker/postgresql ./.cache/docker/redis
+```
 
-Now that you clicked the **Create codespace** button, you should be in Visual Studio Code, but we do not
-recommend developing **charted-server** on Visual Studio Code, but if you do wish, we do include a list of
-extensions that might be helpful to do so.
+Once you do that, you can run `./dev docker up` and it should run as usual:
 
-You should be in this section (the README might change depending on what day you're reading this)
-in Visual Studio Code:
-
-![](https://noel-is.gay/images/a39b8694.png)
-
-Now, you can connect with JetBrains Gateway with the **GitHub Codespaces** plugin in the JetBrains Marketplace. When you do
-open it up, and you don't have the plugin installed, it will be under the "Install More Providers" section:
-
-![install more providers section](https://noel-is.gay/images/6b18beda.png)
-
-After that, you can click on using the Codespaces plugin and do the usual stuff that you would need to do
-if you haven't installed it with JetBrains Gateway yet. Now, you can click on the Codespace with **IntelliJ IDEA**
-as the remote IDE to run on and click the **Connect** button to connect to the codespace.
-
-![](https://noel-is.gay/images/8d5a155e.png)
-
-Once finished, you might get a warning like this:
-
-![](https://noel-is.gay/images/0f4e8887.png)
-
-It is recommended to update the heap size since **charted-server** does take a chunk when developing
-on Codespaces, that's why we chose the 16GB one!
-
-Now you're ready to develop **charted-server** in GitHub codespaces! You have access to `psql` and `redis-cli` since
-the development container includes those utilities while Postgres and Redis are accessible.
-
-It is recommended to add a `config.yml` file in the root directory and put the contents below in that file:
-
-```yaml
-jwt_secret_key: <THIS IS WHERE YOU GENERATE A RANDOM KEY>
-database:
-    host: postgres
-redis:
-    host: redis
+```shell filename="$ docker logs -f charted_redis"
+# » docker logs -f charted_redis
+redis 01:37:57.63
+redis 01:37:57.63 Welcome to the Bitnami redis container
+redis 01:37:57.63 Subscribe to project updates by watching https://github.com/bitnami/containers
+redis 01:37:57.63 Submit issues and feature requests at https://github.com/bitnami/containers/issues
+redis 01:37:57.63
+redis 01:37:57.64 INFO  ==> ** Starting Redis setup **
+redis 01:37:57.64 WARN  ==> You set the environment variable ALLOW_EMPTY_PASSWORD=yes. For safety reasons, do not use this flag in a production environment.
+redis 01:37:57.65 INFO  ==> Initializing Redis
+redis 01:37:57.65 INFO  ==> Setting Redis config file
+redis 01:37:57.67 INFO  ==> ** Redis setup finished! **
+redis 01:37:57.68 INFO  ==> ** Starting Redis **
+1:C 17 Oct 2023 01:37:57.687 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+1:C 17 Oct 2023 01:37:57.687 # Redis version=7.0.11, bits=64, commit=00000000, modified=0, pid=1, just started
+1:C 17 Oct 2023 01:37:57.687 # Configuration loaded
+1:M 17 Oct 2023 01:37:57.688 * monotonic clock: POSIX clock_gettime
+1:M 17 Oct 2023 01:37:57.688 * Running mode=standalone, port=6379.
+1:M 17 Oct 2023 01:37:57.688 # Server initialized
+1:M 17 Oct 2023 01:37:57.688 # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. Being disabled, it can can also cause failures without low memory condition, see https://github.com/jemalloc/jemalloc/issues/1328. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+1:M 17 Oct 2023 01:37:57.691 * Creating AOF base file appendonly.aof.1.base.rdb on server start
+1:M 17 Oct 2023 01:37:57.693 * Creating AOF incr file appendonly.aof.1.incr.aof on server start
+1:M 17 Oct 2023 01:37:57.693 * Ready to accept connections
 ```

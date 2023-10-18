@@ -1,0 +1,49 @@
+# 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
+# Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[package]
+name = "charted-cli"
+description = "🐻‍❄️📦 Command-line executor for running charted's API server or administration tools via terminal"
+version = "0.0.0-devel.0"
+edition = "2021"
+homepage = "https://charts.noelware.org"
+authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
+
+[dependencies]
+ansi_term = "0.12.1"
+async-trait = "0.1.70"
+chrono = "0.4.26"
+clap = { version = "4.3.10", features = ["derive", "env"] }
+clap_complete = "4.3.1"
+charted-common = { path = "../crates/common", version = "0.0.0-devel.0" }
+charted-config = { path = "../crates/config", version = "0.0.0-devel.0" }
+charted-database = { version = "0.0.0-devel.0", path = "../crates/database" }
+charted-logging = { version = "0.0.0-devel.0", path = "../crates/logging" }
+charted-server = { path = "../server", version = "0.0.0-devel.0" }
+cli-table = { version = "0.4.7", default-features = false, features = ["derive", "title"] }
+color-eyre = { version = "0.6.2", features = ["issue-url", "track-caller"] }
+dotenv = "0.15.0"
+eyre = "0.6.8"
+mimalloc = { version = "0.1.37", default-features = false }
+num_cpus = "1.16.0"
+promptly = "0.3.1"
+serde_json = "1.0.104"
+serde_yaml = "0.9.22"
+sqlx = { version = "0.7.1", features = ["postgres", "runtime-tokio", "tls-native-tls"] }
+sysinfo = "0.29.4"
+tokio = { version = "1.29.1", features = ["full"] }
+tracing = "0.1.37"
+tracing-subscriber = "0.3.17"
+utoipa = "3.5.0"

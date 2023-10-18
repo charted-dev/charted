@@ -1,4 +1,4 @@
-# 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Kotlin.
+# 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
 # Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,48 +14,34 @@
 # limitations under the License.
 
 apiVersion: v2
-appVersion: 0.4.0-unstable.2
-kubeVersion: '>=1.24'
-version: 0.4.0-unstable.2
+appVersion: 0.1.0-beta
+kubeVersion: ">=1.23"
+version: 0.1.0-beta
 name: charted
 home: https://charts.noelware.org
 icon: https://cdn.noelware.cloud/branding/charted.png
 sources:
-    - https://github.com/charted-dev/charted/tree/main/distribution/helm
-    - https://github.com/charted-dev/charted
-    - https://charts.noelware.org
+  - https://github.com/charted-dev/charted/tree/main/distribution/helm
+  - https://github.com/charted-dev/charted
+  - https://charts.noelware.org
 maintainers:
-    - name: Noel Towa
-      email: cutie@floofy.dev
-      url: https://floofy.dev
-
-    - name: Noelware Team
-      email: team@noelware.org
-      url: https://noelware.org
+  - name: Noel Towa
+    email: cutie@floofy.dev
+    url: https://floofy.dev
+  - name: Noelware, LLC.
+    email: team@noelware.org
+    url: https://noelware.org
+annotations:
+  charts.noelware.org/maintainers: user/noel,org/noelware
 dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: ~2.13.0
     - name: postgresql
       repository: https://charts.bitnami.com/bitnami
       version: ~13.1.0
       condition: postgresql.enabled
-
     - name: redis
       repository: https://charts.bitnami.com/bitnami
       version: ~18.1.0
       condition: redis.enabled
-
-    # used for common Helm utilities
-    - name: common
-      repository: https://charts.bitnami.com/bitnami
-      version: ~2.13.0
-
-    # used for the Audit Logs and Webhooks features
-    # - name: clickhouse
-    #   repository: https://charts.bitnami.com/bitnami
-    #   version: ~3.2.1
-    #   condition: features.auditLogs
-
-    # used to enable Hoshi, the web UI for charted
-    # - name: hoshi
-    #   repository: https://charts.noelware.org/~/charted
-    #   version: ~0.4.0-nightly
-    #   condition: web.enabled

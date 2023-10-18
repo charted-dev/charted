@@ -1,0 +1,24 @@
+{
+    "extends": "@augu/tsconfig/dom.json",
+    "compilerOptions": {
+        "jsx": "preserve",
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "Node",
+        "skipLibCheck": true,
+        "strict": true,
+        "allowJs": true,
+        "noEmit": true,
+        "resolveJsonModule": true,
+        "allowSyntheticDefaultImports": true,
+        "baseUrl": ".",
+        "incremental": true,
+        "isolatedModules": true,
+        "typeRoots": ["./node_modules/@types", "./src/@types"],
+        "paths": {
+            "~/*": ["src/*"]
+        }
+    },
+    "include": ["**/*.ts", "**/*.vue", "**/*.tsx", "**/*.d.ts"],
+    "exclude": ["node_modules"]
+}

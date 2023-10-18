@@ -1,9 +1,0 @@
-* text eol=lf
-*.png binary
-*.jpg binary
-*.dat binary
-*.pdf binary
-*.dll binary
-*.exe binary
-*.bin binary
-*.jar binary

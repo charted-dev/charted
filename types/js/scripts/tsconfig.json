@@ -1,0 +1,13 @@
+{
+    "extends": "@augu/tsconfig",
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "removeComments": true,
+        "types": ["node"],
+        "baseUrl": ".",
+        "outDir": "build",
+        "skipLibCheck": true
+    },
+    "exclude": ["node_modules"],
+    "include": ["**/*.ts", ".eslintrc.js"]
+}

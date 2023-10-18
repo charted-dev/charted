@@ -1,0 +1,17 @@
+{
+    "extends": "./tsconfig.json",
+    "include": [
+        "./**/*.vue",
+        "./**/*.ts",
+        "./**/*.tsx",
+        "./vite.config.ts",
+        "./tailwind.config.js",
+        "./postcss.config.js",
+        "./.eslintrc.js"
+    ],
+    "compilerOptions": {
+        "types": ["node"],
+        "noEmit": true,
+        "allowJs": true
+    }
+}

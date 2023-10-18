@@ -1,0 +1,169 @@
+# 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
+# Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+load("@npm//:defs.bzl", "npm_link_all_packages")
+load("@npm//web:eslint/package_json.bzl", eslint = "bin")
+load("@npm//web:prettier/package_json.bzl", prettier = "bin")
+load("@npm//web:vite/package_json.bzl", vite = "bin")
+load("@npm//web:vue-tsc/package_json.bzl", vue_tsc = "bin")
+
+npm_link_all_packages(name = "node_modules")
+
+SRCS = [
+    "index.html",
+    "package.json",
+    "tsconfig.json",
+    "vite.config.ts",
+    "tailwind.config.js",
+    "postcss.config.js",
+    ":node_modules",
+    "//web/src",
+]
+
+DEPS = [":node_modules/%s" % pkg for pkg in [
+    "@fontsource/cantarell",
+    "@fontsource/inter",
+    "@fontsource/jetbrains-mono",
+    "@formkit/vue",
+    "@formkit/zod",
+    "@ncharts/types",
+    "@noelware/utils",
+    "@tailwindcss/forms",
+    "@tailwindcss/typography",
+    "@vue/compiler-sfc",
+    "@vueuse/core",
+    "@vueuse/head",
+    "luxon",
+    "markdown-it",
+    "markdown-it-emoji",
+    "markdown-it-shikiji",
+    "ofetch",
+    "pinia",
+    "shikiji",
+    "unplugin-vue-components",
+    "vite-plugin-vue-layouts",
+    "vue",
+    "vue-router",
+    "zod",
+]] + ["//types/js"]
+
+POSTCSS_DEPS = [
+    ":node_modules/autoprefixer",
+    ":node_modules/postcss-import",
+    ":node_modules/tailwindcss",
+]
+
+vite.vite_binary(
+    name = "vite",
+    chdir = package_name(),
+    data = SRCS + DEPS + POSTCSS_DEPS,
+)
+
+vite.vite(
+    name = "build",
+    srcs = SRCS + DEPS + POSTCSS_DEPS,
+    args = ["build"],
+    chdir = package_name(),
+    out_dirs = ["dist"],
+)
+
+vue_tsc.vue_tsc_test(
+    name = "typecheck",
+    args = [
+        "--noEmit",
+        "--pretty",
+    ],
+    chdir = package_name(),
+    data = [
+        "auto-imports.d.ts",
+        "components.d.ts",
+        "package.json",
+        "tsconfig.json",
+        "typed-router.d.ts",
+        "vite.config.ts",
+        ":node_modules/@augu/tsconfig",
+        ":node_modules/@types/node",
+        ":node_modules/@vitejs/plugin-vue",
+        ":node_modules/@vitejs/plugin-vue-jsx",
+        ":node_modules/unplugin-auto-import",
+        ":node_modules/unplugin-vue-router",
+        ":node_modules/vite",
+        ":node_modules/vite-plugin-vue-devtools",
+        "//web/src",
+    ] + DEPS,
+    include_declarations = True,
+    tags = [
+        "noclippy",
+        "norustfmt",
+    ],
+)
+
+eslint.eslint_test(
+    name = "eslint",
+    args = [
+        "--ext .ts",
+        "--ext .js",
+        "--ext .tsx",
+        "--ext .vue",
+        "--ignore-path",
+        ".eslintignore",
+        "-c",
+        ".eslintrc.js",
+        "--format=codeframe",
+        "src",
+    ],
+    chdir = package_name(),
+    data = [
+        ".eslintignore",
+        ".eslintrc.js",
+        ".prettierignore",
+        ".prettierrc.json",
+        "tsconfig.eslint.json",
+        "tsconfig.json",
+        ":node_modules",
+        "//web/src",
+    ],
+    tags = [
+        "noclippy",
+        "norustfmt",
+    ],
+)
+
+prettier.prettier_test(
+    name = "prettier",
+    args = [
+        "--check",
+        "--config",
+        ".prettierrc.json",
+        "**/*.{ts,js,vue,tsx,json,yaml,yml,html}",
+    ],
+    chdir = package_name(),
+    data = [
+        ".prettierignore",
+        ".prettierrc.json",
+        "index.html",
+        "package.json",
+        "postcss.config.js",
+        "tailwind.config.js",
+        "tsconfig.json",
+        "vite.config.ts",
+        ":node_modules",
+        "//web/src",
+    ],
+    tags = [
+        "noclippy",
+        "norustfmt",
+    ],
+)

@@ -1,0 +1,111 @@
+# 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
+# Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: CI
+on:
+    workflow_dispatch: {}
+    push:
+        branches:
+            - 'issues/gh-**'
+            - 'feat/**'
+            - main
+        paths-ignore:
+            - '.github/**'
+            - '.coder/**'
+            - '.devcontainer/**'
+            - '.vscode/**'
+            - 'docs/**'
+            - 'scripts/**'
+            - '.*ignore'
+            - '**.md'
+            - renovate.json
+            - LICENSE
+    pull_request:
+        types: [synchronize]
+        branches:
+            - main
+        paths-ignore:
+            - '.coder/**'
+            - '.devcontainer/**'
+            - '.vscode/**'
+            - 'docs/**'
+            - '.*ignore'
+            - '**.md'
+            - renovate.json
+            - LICENSE
+env:
+    BAZEL_STARTUP_ARGS: --bazelrc=./.bazelrc --host_jvm_args=-Xmx500m --host_jvm_args=-Xms500m
+jobs:
+    ci:
+        name: Rust CI (${{matrix.runner == 'ubuntu-latest' && 'Linux (x86_64)' || matrix.runner == 'self-hosted' && 'Linux (arm64)' || matrix.runner == 'macos-latest' && 'macOS (x86_64)' || matrix.runner == 'windows-latest' && 'Windows' || 'Unknown'}})
+        runs-on: ${{matrix.runner}}
+        strategy:
+            fail-fast: true
+            matrix:
+                runner: [macos-latest, ubuntu-latest]
+                include:
+                    - runner: ubuntu-latest
+                      bazelisk-cache-dir: ~/.cache/bazelisk
+                    - runner: macos-latest
+                      bazelisk-cache-dir: ~/Library/Caches/bazelisk
+                    # - runner: windows-latest
+                    #   bazelisk-cache-dir: ~\AppData\Local\bazelisk
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+
+            - name: Setup Bazel cache
+              uses: actions/cache@v3
+              with:
+                path: |
+                    ${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}}
+                    ${{matrix.bazelisk-cache-dir}}
+                restore-keys: bazel-cache-${{matrix.runner}}-
+                key: bazel-cache-${{matrix.runner}}-${{ hashFiles('WORKSPACE', 'BUILD.bazel', '.bazelversion') }}
+
+            - name: Build CLI
+              run: bazel ${{env.BAZEL_STARTUP_ARGS}} build --config=ci --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //:cli
+
+            - name: Build Helm plugin
+              run: bazel ${{env.BAZEL_STARTUP_ARGS}} build --config=ci --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //:helm-plugin
+
+            - name: Run tests
+              run: bazel ${{env.BAZEL_STARTUP_ARGS}} test --config=ci --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //...
+    clippy:
+        name: Clippy!
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: true
+            matrix:
+                directory: [./cli, ./tools/helm-plugin]
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+
+            - name: Setup Rust toolchain
+              uses: dtolnay/rust-toolchain@master
+              with:
+                toolchain: stable
+                components: clippy, rustfmt
+
+            - name: Setup Rust cache
+              uses: Swatinem/rust-cache@v2
+
+            - name: Clippy!
+              uses: auguwu/clippy-action@1.3.0
+              with:
+                working-directory: ${{matrix.directory}}
+                all-features: true
+                token: ${{secrets.GITHUB_TOKEN}}

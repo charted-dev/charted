@@ -1,0 +1,61 @@
+{
+    "editor.tabSize": 4,
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "rust-analyzer.check.command": "clippy",
+    "rust-analyzer.showUnlinkedFileNotification": false,
+    "tailwindCSS.experimental.configFile": "web/tailwind.config.js",
+    "rust-analyzer.cargo.extraEnv": {
+        // Enable --cfg tokio_unstable with rust-analyzer so we can
+        // use Tokio unstable features.
+        //
+        // This is really only meant for crates/metrics/src/collectors/tokio.rs to
+        // access the Handle::metrics method.
+        "RUSTFLAGS": "--cfg tokio_unstable"
+    },
+    "files.associations": {
+        ".*-version": "plaintext",
+        ".bazelrc": "ignore",
+        "*.css": "tailwindcss"
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/bazel-*": true
+    },
+    "[go]": {
+        "editor.defaultFormatter": "golang.go",
+        "editor.insertSpaces": false,
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    "[rust]": {
+        "editor.defaultFormatter": "rust-lang.rust-analyzer",
+    },
+    "[starlark]": {
+        "editor.defaultFormatter": "BazelBuild.vscode-bazel"
+    },
+    "[terraform]": {
+        "editor.defaultFormatter": "hashicorp.terraform",
+        "editor.tabSize": 2
+    },
+    "[terraform-vars]": {
+        "editor.defaultFormatter": "hashicorp.terraform",
+        "editor.tabSize": 2
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[vue]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
+}

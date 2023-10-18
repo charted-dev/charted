@@ -1,0 +1,20 @@
+{
+    "recommendations": [
+        "me-dutour-mathieu.vscode-github-actions",
+        "Vue.vscode-typescript-vue-plugin",
+        "ms-azuretools.vscode-docker",
+        "bradlc.vscode-tailwindcss",
+        "yoavbls.pretty-ts-errors",
+        "tamasfe.even-better-toml",
+        "rust-lang.rust-analyzer",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "BazelBuild.vscode-bazel",
+        "hashicorp.terraform",
+        "redhat.vscode-yaml",
+        "antfu.iconify",
+        "hashicorp.hcl",
+        "golang.go",
+        "Vue.volar"
+    ]
+}

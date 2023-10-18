@@ -1,0 +1,53 @@
+/*
+ * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
+ * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@import '@fontsource/jetbrains-mono';
+@import '@fontsource/cantarell';
+@import '@fontsource/inter';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@tailwind variants;
+
+::-moz-selection {
+    background: #d961a3;
+    color: white;
+}
+
+::selection {
+    background: #d961a3;
+    color: white;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    -webkit-tap-highlight-color: transparent;
+}
+
+main.md {
+    @apply prose max-w-4xl lg:max-w-7xl
+
+    /* <p> elements */
+    prose-p:break-words prose-p:text-zinc-700 prose-p:font-sans prose-p:dark:text-white prose-p:text-lg
+
+    /* heading elements */
+    prose-headings:text-zinc-700 prose-headings:font-serif prose-headings:dark:text-white;
+}

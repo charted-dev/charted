@@ -1,0 +1,68 @@
+<!--
+~ 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
+~ Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
+~
+~ Licensed under the Apache License, Version 2.0 (the "License");
+~ you may not use this file except in compliance with the License.
+~ You may obtain a copy of the License at
+~
+~    http://www.apache.org/licenses/LICENSE-2.0
+~
+~ Unless required by applicable law or agreed to in writing, software
+~ distributed under the License is distributed on an "AS IS" BASIS,
+~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~ See the License for the specific language governing permissions and
+~ limitations under the License.
+-->
+
+<!doctype html>
+<html lang="en" class="h-full">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="theme-color" content="#58548E" />
+        <meta name="msapplication-TileColor" content="#58548E" />
+        <meta name="language" content="English (US)" />
+        <meta name="keywords" content="noelware, charted, charted-server" />
+        <link rel="shortcut icon" href="https://cdn.floofy.dev/images/trans.png" />
+
+        <script>
+            (function () {
+                const theme = localStorage.getItem('charted:color-scheme') || 'system';
+                if (window.matchMedia !== undefined) {
+                    const darkMode = window.matchMedia('(prefers-color-scheme: dark)');
+                    if (theme === 'system' && darkMode.matches) {
+                        document.documentElement.classList.add('dark');
+                    } else if (theme === 'dark') {
+                        document.documentElement.classList.add('dark');
+                    }
+
+                    darkMode.addEventListener('change', (query) => {
+                        if (document.documentElement.classList.contains('dark') && !query.matches) {
+                            document.documentElement.classList.remove('dark');
+                        }
+
+                        if (query.matches && !document.documentElement.classList.contains('dark')) {
+                            document.documentElement.classList.add('dark');
+                        }
+                    });
+                } else {
+                    console.warn(
+                        '[hoshi:ui] `window.matchMedia` is not available opting to use theme {',
+                        theme,
+                        '} instead'
+                    );
+
+                    if (theme === 'dark' && !document.documentElement.classList.contains('dark')) {
+                        document.documentElement.classList.add('dark');
+                    }
+                }
+            })();
+        </script>
+    </head>
+    <body class="min-h-full bg-white antialiased text-[#15151A] dark:text-white dark:bg-[#15151A] overflow-y-hidden">
+        <div id="app"></div>
+        <script type="module" src="/src/main.ts"></script>
+        <noscript>Web UI requires JavaScript to function properly! Please enable JavaScript to continue.</noscript>
+    </body>
+</html>

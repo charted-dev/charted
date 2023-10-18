@@ -1,0 +1,33 @@
+diff --git a/thirdparty/crates/BUILD.curl-sys-0.4.64+curl-8.2.1.bazel b/thirdparty/crates/BUILD.curl-sys-0.4.64+curl-8.2.1.bazel
+index 40f7702..e6f3efe 100644
+--- a/thirdparty/crates/BUILD.curl-sys-0.4.64+curl-8.2.1.bazel
++++ b/thirdparty/crates/BUILD.curl-sys-0.4.64+curl-8.2.1.bazel
+@@ -70,6 +70,12 @@ rust_library(
+ cargo_build_script(
+     name = "curl-sys_build_script",
+     srcs = glob(["**/*.rs"]),
++    build_script_env = select({
++        "@org_noelware_charted_server//build/settings:nixos": {
++            "DEP_OPENSSL_INCLUDE": "../openssl-static/include"
++        },
++        "//conditions:default": {},
++    }),
+     crate_features = [
+         "default",
+         "http2",
+@@ -90,7 +96,14 @@ cargo_build_script(
+             "WORKSPACE",
+             "WORKSPACE.bazel",
+         ],
+-    ),
++    ) + select({
++        # uses the nix/openssl.nix version of OpenSSL so that it can compile
++        # on NixOS.
++        "@org_noelware_charted_server//build/settings:nixos": [
++            "@openssl-static//:include",
++        ],
++        "//conditions:default": [],
++    }),
+     edition = "2018",
+     link_deps = [
+         "@crate_index__libnghttp2-sys-0.1.8-1.55.1//:libnghttp2_sys",
