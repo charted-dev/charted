@@ -78,23 +78,24 @@ impl<'a> Bitfield<'a> {
     /// Adds all of the bits that were registered by the flags into
     /// the bitfield.
     pub fn add_all(&mut self) {
-        let mut total = 0u64;
-        for val in self.flags.clone().into_values() {
-            total |= val;
-        }
-
-        self.bits |= total;
+        self.bits |= self.flags.clone().into_values().fold(0, |mut acc, curr| {
+            acc |= curr;
+            acc
+        });
     }
 
     /// Adds multiple bits into one bit in this bitfield.
-    pub fn add(&mut self, bits: &[u64]) -> Result<(), BitfieldError> {
+    pub fn add<'i, I: Iterator<Item = &'i u64>>(&mut self, mut bits: I) -> Result<(), BitfieldError> {
         // Don't do anything if it is empty
-        if bits.is_empty() {
+        let next = bits.next();
+        if next.is_none() {
             return Ok(());
         }
 
         let mut add_up_to = 0u64;
-        for bit in bits.iter() {
+        add_up_to |= next.unwrap();
+
+        for bit in bits {
             if *bit > self.max_bits() {
                 return Err(BitfieldError::BitOverflow);
             }
@@ -112,30 +113,30 @@ impl<'a> Bitfield<'a> {
 
     /// Adds multiple bits by referencing flags instead of arbitary bits.
     pub fn add_from_flags(&mut self, bits: &[String]) -> Result<(), BitfieldError> {
-        self.add(
-            bits.iter()
-                .map(|x| self.flags.get(&*x.to_string()))
-                .filter(Option::is_some)
-                .map(|x| *x.unwrap())
-                .collect::<Vec<_>>()
-                .as_slice(),
-        )
+        let flags = self.flags.clone();
+
+        self.add(bits.iter().filter_map(|x| flags.get(&*x.to_string())))
+    }
+
+    /// Checks if a given bit is in the bitfield or not.
+    pub fn contains(&self, bit: u64) -> bool {
+        (self.bits & bit) != 0
     }
 
     /// Checks if the given flag was a valid flag and if the bit
     /// itself by the flag is contained in the bitfield or not.
-    pub fn contains_flag<I: AsRef<str>>(&mut self, flag: I) -> bool {
+    pub fn contains_flag<I: AsRef<str>>(&self, flag: I) -> bool {
         match self.flags.get(flag.as_ref()) {
-            Some(bit) => (self.bits & *bit) != 0,
+            Some(bit) => self.contains(*bit),
             None => false,
         }
     }
 
     /// Removes a subset of bits from the bitfield itself. This will
     /// use [std::cmp::min] if it flows into the negatives.
-    pub fn remove(&mut self, bits: &[u64]) {
+    pub fn remove<'i, I: Iterator<Item = &'i u64>>(&mut self, bits: I) {
         let mut to_remove = 0u64;
-        for bit in bits.iter() {
+        for bit in bits {
             to_remove |= *bit;
         }
 
@@ -144,14 +145,9 @@ impl<'a> Bitfield<'a> {
 
     /// Removes a subset of bits from the bitfield via the flags specified.
     pub fn remove_from_flags(&mut self, bits: &[String]) {
-        self.remove(
-            bits.iter()
-                .map(|x| self.flags.get(&*x.to_string()))
-                .filter(Option::is_some)
-                .map(|x| *x.unwrap())
-                .collect::<Vec<_>>()
-                .as_slice(),
-        )
+        let flags = self.flags.clone();
+
+        self.remove(bits.iter().filter_map(|x| flags.get(&*x.to_string())))
     }
 }
 
@@ -165,7 +161,7 @@ mod tests {
         let mut b = Bitfield::new(0, hashmap!("hello" => 1 << 0));
 
         // add bits
-        assert!(b.add(&[1 << 0]).is_ok());
+        assert!(b.add([1 << 0].iter()).is_ok());
         assert_eq!(b.bits(), 1);
 
         let res = b.add_from_flags(&["world".into()]);
@@ -173,7 +169,11 @@ mod tests {
         assert_eq!(b.bits(), 1);
 
         // remove bits
-        b.remove(&[1 << 0]);
+        b.remove([1 << 0].iter());
         assert_eq!(b.bits(), 0);
+
+        // add all bits
+        b.add_all();
+        assert_eq!(b.bits(), 1);
     }
 }

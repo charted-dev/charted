@@ -36,12 +36,16 @@ pub fn create_router() -> Router<Server> {
     Router::new()
         .route(
             "/logout",
-            routing::delete(LogoutRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth))),
+            routing::delete(
+                LogoutRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth::default())),
+            ),
         )
         .route(
             "/refresh-token",
             routing::post(
-                RefreshSessionTokenRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth)),
+                RefreshSessionTokenRestController::run.layer(AsyncRequireAuthorizationLayer::new(
+                    SessionAuth::default().require_refresh_token(),
+                )),
             ),
         )
 }

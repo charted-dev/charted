@@ -131,13 +131,13 @@ impl UploadReleaseTarball {
         self
     }
 
-    /// Does the actual upload itself.
     #[allow(clippy::needless_lifetimes)]
     pub async fn upload<'m>(
         self,
         _charts: HelmCharts,
         mut multipart: Multipart<'m>,
     ) -> Result<(), ReleaseTarballError> {
+        // first, we parse the version and check if it is a valid SemVer string
         let _version = Version::parse(&self.version)?;
         let Some(field) = multipart.next_field().await? else {
             return Err(ReleaseTarballError::MissingFiles);
@@ -152,6 +152,16 @@ impl UploadReleaseTarball {
             return Err(ReleaseTarballError::InvalidContentType(received));
         }
 
+        // next is validation over the tarball itself, to see if it has the available
+        // structure we need:
+        //
+        //    >> charted-0.1.0-beta.tgz
+        //    --> templates/
+        //    --> Chart.lock
+        //    --> Chart.yaml
+        //    --> README.md or LICENSE
+        //    --> values.yaml
+        //    --> values.schema.json
         let bytes = field.bytes().await?;
         let mut bytes_ref = bytes.as_ref();
         let decoder = MultiGzDecoder::new(&mut bytes_ref);

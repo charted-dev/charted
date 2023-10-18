@@ -28,7 +28,11 @@ use axum::{
     routing, Extension, Router,
 };
 use charted_common::{
-    models::{entities::Repository, payloads::CreateRepositoryPayload, Name, NameOrSnowflake},
+    models::{
+        entities::{ApiKeyScope, Repository},
+        payloads::CreateRepositoryPayload,
+        Name, NameOrSnowflake,
+    },
     server::pagination::{Pagination, PaginationQuery},
 };
 use charted_database::controller::{
@@ -45,7 +49,11 @@ generate_response_schema!(RepositoryResponse, schema = "Repository");
 pub fn create_router() -> Router<Server> {
     Router::new().route(
         "/",
-        routing::put(CreateUserRepositoryRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth))),
+        routing::put(
+            CreateUserRepositoryRestController::run.layer(AsyncRequireAuthorizationLayer::new(
+                SessionAuth::default().scope(ApiKeyScope::RepoCreate),
+            )),
+        ),
     )
 }
 

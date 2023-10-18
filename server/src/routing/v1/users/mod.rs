@@ -35,7 +35,7 @@ use axum::{extract::State, handler::Handler, http::StatusCode, routing, Extensio
 use charted_common::{
     extract::NameOrSnowflake,
     models::{
-        entities::User,
+        entities::{ApiKeyScope, User},
         helm::ChartIndex,
         payloads::{CreateUserPayload, PatchUserPayload},
         Name,
@@ -54,33 +54,44 @@ use validator::Validate;
 pub fn create_router() -> Router<Server> {
     let main_route = routing::get(MainRestController::run)
         .put(CreateUserRestController::run)
-        .patch(PatchUserRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth)))
-        .delete(DeleteUserRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth)));
+        .patch(PatchUserRestController::run.layer(AsyncRequireAuthorizationLayer::new(
+            SessionAuth::default().scope(ApiKeyScope::UserUpdate),
+        )))
+        .delete(DeleteUserRestController::run.layer(AsyncRequireAuthorizationLayer::new(
+            SessionAuth::default().scope(ApiKeyScope::UserDelete),
+        )));
 
     let id_or_name_router = Router::new()
         .route("/", routing::get(GetUserRestController::run))
         .route("/avatar", routing::get(GetCurrentUserAvatarRestController::run))
         .route("/repositories", routing::get(ListUserRepositoriesRestController::run));
 
-    let me_router = Router::new()
-        .route(
-            "/",
-            routing::get(GetSelfRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth))),
-        )
-        .route(
-            "/avatar",
-            routing::get(
-                avatars::me::GetMyCurrentAvatarRestController::run
-                    .layer(AsyncRequireAuthorizationLayer::new(SessionAuth)),
+    let me_router =
+        Router::new()
+            .route(
+                "/",
+                routing::get(GetSelfRestController::run.layer(AsyncRequireAuthorizationLayer::new(
+                    SessionAuth::default().scope(ApiKeyScope::UserAccess),
+                ))),
             )
-            .post(avatars::UploadUserAvatarRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth))),
-        )
-        .route(
-            "/repositories",
-            routing::put(
-                CreateUserRepositoryRestController::run.layer(AsyncRequireAuthorizationLayer::new(SessionAuth)),
-            ),
-        );
+            .route(
+                "/avatar",
+                routing::get(
+                    avatars::me::GetMyCurrentAvatarRestController::run
+                        .layer(AsyncRequireAuthorizationLayer::new(SessionAuth::default())),
+                )
+                .post(avatars::UploadUserAvatarRestController::run.layer(
+                    AsyncRequireAuthorizationLayer::new(SessionAuth::default().scope(ApiKeyScope::UserAvatarUpdate)),
+                )),
+            )
+            .route(
+                "/repositories",
+                routing::put(
+                    CreateUserRepositoryRestController::run.layer(AsyncRequireAuthorizationLayer::new(
+                        SessionAuth::default().scope(ApiKeyScope::RepoCreate),
+                    )),
+                ),
+            );
 
     Router::new()
         .nest("/sessions", sessions::create_router())

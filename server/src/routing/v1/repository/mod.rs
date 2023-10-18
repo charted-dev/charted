@@ -16,27 +16,36 @@
 use crate::{
     extract::Json,
     macros::controller,
-    middleware::Session,
+    middleware::{Session, SessionAuth},
     models::res::{no_content, ApiResponse},
     validation::validate,
     Server,
 };
 use axum::{
     extract::{Path, State},
-    Extension, Router,
+    handler::Handler,
+    routing, Extension, Router,
 };
-use charted_common::models::payloads::PatchRepositoryPayload;
+use charted_common::models::{entities::ApiKeyScope, payloads::PatchRepositoryPayload};
+use tower_http::auth::AsyncRequireAuthorizationLayer;
 use validator::Validate;
 
 pub fn create_router() -> Router<Server> {
-    Router::new()
+    Router::new().route(
+        "/",
+        routing::patch(
+            PatchRepositoryRestController::run.layer(AsyncRequireAuthorizationLayer::new(
+                SessionAuth::default().scope(ApiKeyScope::RepoUpdate),
+            )),
+        ),
+    )
 }
 
 /// Patch a repository's metadata
 #[controller(
     method = patch,
     tags("Repositories"),
-    securityRequirements(("ApiKey", ["repositories:update"]), ("Bearer", []), ("Basic", [])),
+    securityRequirements(("ApiKey", ["repo:update"]), ("Bearer", []), ("Basic", [])),
     response(204, "Successful response", ("application/json", response!("ApiEmptyResponse"))),
     response(400, "If the request body was invalid (i.e, validation errors)", ("application/json", response!("ApiErrorResponse"))),
     response(401, "If the session couldn't be validated", ("application/json", response!("ApiErrorResponse"))),

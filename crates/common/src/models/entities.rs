@@ -13,6 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod apikeyscope;
+mod member_permissions;
+
+pub use apikeyscope::*;
+pub use member_permissions::*;
+
 use super::{helm::ChartType, DateTime, Name};
 use crate::{hashmap, Bitfield, ID};
 use once_cell::sync::Lazy;
@@ -23,84 +29,6 @@ use utoipa::{
     openapi::{RefOr, Schema},
     ToSchema,
 };
-
-/// Returns an empty [Bitfield] with the available flags needed.
-#[allow(non_upper_case_globals)]
-pub static ApiKeyScopes: Lazy<Bitfield> = Lazy::new(|| {
-    Bitfield::with_flags(hashmap! {
-        // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
-        //           User Scopes
-        // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
-        "user:access" => 1 << 0,
-        "user:update" => 1 << 1,
-        "user:delete" => 1 << 2,
-        "user:connections" => 1 << 3,
-        "user:notifications" => 1 << 4,
-        "user:avatar:update" => 1 << 5,
-        "user:sessions:list" => 1 << 6,
-
-        // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
-        //        Repository Scopes
-        // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
-        "repo:access" => 1 << 7,
-        "repo:create" => 1 << 8,
-        "repo:delete" => 1 << 9,
-        "repo:update" => 1 << 10,
-        "repo:write" => 1 << 11,
-        "repo:icon:update" => 1 << 12,
-        "repo:releases:create" => 1 << 13,
-        "repo:releases:update" => 1 << 14,
-        "repo:releases:delete" => 1 << 15,
-        "repo:members:list" => 1 << 16,
-        "repo:members:update" => 1 << 17,
-        "repo:members:kick" => 1 << 18,
-        "repo:members:invites:access" => 1 << 19,
-        "repo:members:invites:create" => 1 << 20,
-        "repo:members:invites:delete" => 1 << 21,
-        "repo:webhooks:list" => 1 << 22,
-        "repo:webhooks:create" => 1 << 23,
-        "repo:webhooks:update" => 1 << 24,
-        "repo:webhooks:delete" => 1 << 25,
-        "repo:webhooks:events:access" => 1 << 26,
-        "repo:webhooks:events:delete" => 1 << 27,
-
-        // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
-        //        API Key Scopes
-        // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
-        "apikeys:view" => 1 << 28,
-        "apikeys:create" => 1 << 29,
-        "apikeys:delete" => 1 << 30,
-        "apikeys:update" => 1 << 31,
-
-        // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
-        //      Organization Scopes
-        // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
-        "org:access" => 1 << 32,
-        "org:create" => 1 << 33,
-        "org:update" => 1 << 34,
-        "org:delete" => 1 << 35,
-        "org:members:invites" => 1 << 36,
-        "org:members:list" => 1 << 37,
-        "org:members:kick" => 1 << 38,
-        "org:members:update" => 1 << 39,
-        "org:webhooks:list" => 1 << 40,
-        "org:webhooks:create" => 1 << 41,
-        "org:webhooks:update" => 1 << 42,
-        "org:webhooks:delete" => 1 << 43,
-        "org:webhooks:events:list" => 1 << 44,
-        "org:webhooks:events:delete" => 1 << 45,
-
-        // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
-        //    Administration Scopes
-        // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
-        "admin:stats" => 1 << 46,
-        "admin:users:create" => 1 << 47,
-        "admin:users:delete" => 1 << 48,
-        "admin:users:update" => 1 << 49,
-        "admin:orgs:delete" => 1 << 50,
-        "admin:orgs:update" => 1 << 51
-    })
-});
 
 #[allow(non_upper_case_globals)]
 pub static MemberPermissions: Lazy<Bitfield> = Lazy::new(|| {
@@ -429,7 +357,7 @@ impl ApiKey {
     /// let resource = ApiKey::default();
     /// assert_eq!(resource.bitfield().bits(), 0);
     /// ```
-    pub fn bitfield<'a>(&self) -> Bitfield<'a> {
-        ApiKeyScopes.init(self.scopes)
+    pub fn bitfield<'a>(&self) -> ApiKeyScopes<'a> {
+        ApiKeyScopes::init(self.scopes)
     }
 }

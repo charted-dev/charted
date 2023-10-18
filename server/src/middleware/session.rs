@@ -25,10 +25,13 @@ use axum::{
 };
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use charted_common::{
-    models::{entities::User, NameOrSnowflake},
+    models::{
+        entities::{ApiKeyScope, ApiKeyScopes, User},
+        NameOrSnowflake,
+    },
     server::{hash_password, ARGON2},
 };
-use charted_config::ConfigExt;
+use charted_config::{Config, ConfigExt};
 use futures_util::future::BoxFuture;
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use serde_json::Value;
@@ -38,35 +41,19 @@ use std::{
 };
 use tower_http::auth::AsyncAuthorizeRequest;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub enum SessionError {
     JsonWebToken(jsonwebtoken::errors::Error),
     Base64(base64::DecodeError),
     MissingAuthorizationHeader,
     UnknownAuthType(String),
     InvalidParts(String),
+
+    #[allow(unused)]
+    RefreshTokenRequired,
     InvalidPassword,
     UnknownSession,
     InvalidUtf8,
-}
-
-impl Debug for SessionError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            SessionError::MissingAuthorizationHeader => f.write_str("missing `Authorization` header"),
-            SessionError::UnknownAuthType(t) => f.write_fmt(format_args!(
-                "unknown authentication type received: '{t}'; expected [Bearer, ApiKey, Basic]"
-            )),
-            SessionError::UnknownSession => f.write_str("unknown session"),
-            SessionError::InvalidParts(why) => {
-                f.write_fmt(format_args!("received invalid parts in `Authorization` header: {why}"))
-            }
-            SessionError::JsonWebToken(err) => Debug::fmt(err, f),
-            SessionError::Base64(err) => Debug::fmt(err, f),
-            SessionError::InvalidPassword => f.write_str("invalid password specified"),
-            SessionError::InvalidUtf8 => f.write_str("invalid utf-8 from header"),
-        }
-    }
 }
 
 impl Display for SessionError {
@@ -80,6 +67,8 @@ impl Display for SessionError {
             SessionError::InvalidParts(why) => {
                 f.write_fmt(format_args!("received invalid parts in `Authorization` header: {why}"))
             }
+
+            SessionError::RefreshTokenRequired => f.write_str("refresh token is required for this route"),
             SessionError::Base64(err) => Display::fmt(err, f),
             SessionError::JsonWebToken(err) => Display::fmt(err, f),
             SessionError::InvalidPassword => f.write_str("invalid password specified"),
@@ -104,7 +93,8 @@ impl SessionError {
             | SessionError::InvalidUtf8
             | SessionError::UnknownAuthType(_)
             | SessionError::InvalidParts(_)
-            | SessionError::Base64(_) => StatusCode::NOT_ACCEPTABLE,
+            | SessionError::Base64(_)
+            | SessionError::RefreshTokenRequired => StatusCode::NOT_ACCEPTABLE,
             SessionError::InvalidPassword => StatusCode::UNAUTHORIZED,
             SessionError::UnknownSession => StatusCode::NOT_FOUND,
             SessionError::JsonWebToken(err) => match err.kind() {
@@ -124,6 +114,7 @@ impl SessionError {
             SessionError::UnknownAuthType(_) => "INVALID_AUTHENTICATION_TYPE",
             SessionError::UnknownSession => "UNKNOWN_SESSION",
             SessionError::InvalidParts(_) => "INVALID_AUTHORIZATION_PARTS",
+            | SessionError::RefreshTokenRequired => "REFRESH_TOKEN_REQUIRED",
             SessionError::JsonWebToken(err) => match err.kind() {
                 jsonwebtoken::errors::ErrorKind::InvalidToken => "INVALID_SESSION_TOKEN",
                 jsonwebtoken::errors::ErrorKind::ExpiredSignature => "SESSION_EXPIRED",
@@ -139,20 +130,54 @@ impl IntoResponse for SessionError {
     }
 }
 
-#[derive(Clone)]
-pub struct SessionAuth;
+/// Represents a [`AsyncAuthorizeRequest`] that does all the session handling
+/// with a Tower layer.
+#[derive(Clone, Default)]
+pub struct SessionAuth {
+    #[allow(unused)]
+    allow_unauthenticated_requests: bool,
+    require_refresh_token: bool,
+    scopes: ApiKeyScopes<'static>,
+}
+
+impl SessionAuth {
+    /// Sets the `allow_unauthenticated_requests` flag to determine if there is no Authorization
+    /// header present, requests can still flow in or not.
+    #[allow(unused)]
+    pub fn allow_unauthenticated_requests(mut self) -> Self {
+        self.allow_unauthenticated_requests = true;
+        self
+    }
+
+    /// Sets the `require_refresh_token` flag to determine if the token used with the `Bearer`
+    /// prefix is the refresh token or disallow any requests that are unauthenticated,
+    /// or if they have the `ApiKey` or `Basic` token prefixes (if `config.sessions.allow_basic_auth` is
+    /// set to `true`).
+    pub fn require_refresh_token(mut self) -> Self {
+        self.require_refresh_token = true;
+        self
+    }
+
+    /// Adds a single [`ApiKeyScope`] to this session middleware.
+    pub fn scope(mut self, scope: ApiKeyScope) -> Self {
+        self.scopes.add([u64::from(scope)].iter()).unwrap();
+        self
+    }
+}
 
 /// Represents an extractor that extracts a user session, if there is one available.
 #[derive(Debug, Clone)]
 pub struct Session {
+    /// The available [`Session`], if the authentication type was `Bearer`
     pub session: Option<charted_sessions::Session>,
+
+    /// [`User`] that is authenticated.
     pub user: User,
 }
 
 /// Extension to grab the raw `Authorization` header.
 #[derive(Debug, Clone)]
 pub struct RawAuthHeader(pub String);
-
 impl std::ops::Deref for RawAuthHeader {
     type Target = str;
 
@@ -169,6 +194,7 @@ impl std::ops::Deref for RawAuthHeader {
 #[derive(Clone)]
 pub struct Authorization(HeaderValue);
 impl Authorization {
+    /// Returns a tuple of the structure: `(type, token)`.
     pub fn to_tuple(&self) -> Result<(String, String), SessionError> {
         let header = self.0.to_owned();
         let value = String::from_utf8(header.as_ref().to_vec()).map_err(|e| {
@@ -187,8 +213,10 @@ impl Authorization {
             return Err(SessionError::InvalidParts("missing the token itself?!".into()));
         };
 
+        let config = Config::get();
         match ty {
-            "Basic" | "Bearer" | "ApiKey" => Ok((ty.to_string(), token.to_string())),
+            "Bearer" | "ApiKey" => Ok((ty.to_string(), token.to_string())),
+            "Basic" if config.sessions.enable_basic_auth => Ok((ty.to_string(), token.to_string())),
             _ => Err(SessionError::UnknownAuthType(ty.to_string())),
         }
     }
@@ -240,7 +268,12 @@ where
                     _ => unreachable!(),
                 })?;
 
-            let (ty, token) = header.0.to_tuple().map_err(|e| e.into_response())?;
+            // TODO(@auguwu): this breaks the 'static lifetime for some reason?
+            // if header.is_empty() && self.allow_unauthenticated_requests {
+            //     return Ok(req);
+            // }
+
+            let (ty, token) = header.to_tuple().map_err(|e| e.into_response())?;
             let State(server) = req
                 .extract_parts::<State<Server>>()
                 .await
@@ -267,11 +300,11 @@ where
             );
 
             let _guard = span.enter();
+            let config = Config::get();
             match ty.as_str() {
-                "Basic" => {
+                "Basic" if config.sessions.enable_basic_auth => {
                     let span = info_span!(parent: &span, "charted.http.auth.basic");
                     let _guard = span.enter();
-
                     let decoded = STANDARD.decode(&token).map_err(|e| {
                         error!(%e, "unable to decode base64 from Authorization header");
                         sentry::capture_error(&e);
@@ -420,6 +453,13 @@ where
                         .ok_or_else(|| SessionError::UnknownSession.into_response())?;
 
                     req.extensions_mut().insert(RawAuthHeader(token));
+
+                    // TODO(@auguwu): this breaks the 'static lifetime for some reason?
+                    // let refresh_token = session.clone().refresh_token.clone();
+                    // if self.require_refresh_token && token != refresh_token.unwrap() {
+                    //     return Err(SessionError::RefreshTokenRequired.into_response());
+                    // }
+
                     req.extensions_mut().insert(Session {
                         session: Some(session),
                         user,
