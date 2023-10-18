@@ -22,7 +22,7 @@ homepage = "https://charts.noelware.org"
 authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
 [dependencies]
-async-trait = "0.1.72"
+async-trait = "0.1.74"
 charted-common = { path = "../../crates/common", version = "0.0.0-devel.0" }
 charted-logging = { path = "../../crates/logging", version = "0.0.0-devel.0" }
 clap = { version = "4.3.19", features = ["derive", "env"] }
