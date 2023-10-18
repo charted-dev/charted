@@ -33,7 +33,7 @@ on:
             - renovate.json
             - LICENSE
     pull_request:
-        types: [synchronize]
+        types: [opened, synchronize]
         branches:
             - main
         paths-ignore:
