@@ -1,6 +1,6 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    "enabled": false,
+    "enabled": true,
     "automerge": true,
     "extends": ["config:base", "default:timezone(America/Los_Angeles)", "docker:disableMajor"],
     "vulnerabilityAlerts": {
