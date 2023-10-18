@@ -15,7 +15,7 @@
 
 use ansi_term::Style;
 use charted_common::cli::Execute;
-use charted_common::{os, BUILD_DATE, COMMIT_HASH, RUSTC_VERSION, VERSION};
+use charted_common::{os, version, BUILD_DATE, COMMIT_HASH, RUSTC_VERSION, VERSION};
 use chrono::DateTime;
 use eyre::Result;
 use sysinfo::{System, SystemExt};
@@ -39,7 +39,8 @@ impl Execute for Version {
             .to_string();
 
         let name = sys.name().unwrap();
-        let version = sys.os_version().unwrap();
+        let version = version();
+        let os_version = sys.os_version().unwrap();
         let os_name = os::os_name();
         let arch = os::architecture();
 
@@ -49,25 +50,32 @@ impl Execute for Version {
                 "build_date": date,
                 "commit_hash": COMMIT_HASH,
                 "rust_version": RUSTC_VERSION,
-                "github_url": format!("https://github.com/charted-dev/charted/commit/{COMMIT_HASH}"),
+                "github_url": match COMMIT_HASH.is_empty() {
+                    true => format!("https://github.com/charted-dev/charted/commit/{COMMIT_HASH}"),
+                    false => "https://github.com/charted-dev/charted".to_owned()
+                },
                 "os": serde_json::json!({
                     "name": name,
                     "arch": arch,
                     "os_name": os_name,
-                    "version": version
+                    "version": os_version
                 })
             });
 
             println!("{}", serde_json::to_string_pretty(&value).unwrap());
         } else {
             let bold = Style::new().bold();
-            println!(
-                "charted-helm-plugin {} ({date})",
-                bold.paint(format!("v{VERSION}+{COMMIT_HASH}"))
-            );
+            println!("charted-helm-plugin {} ({date})", bold.paint(format!("v{version}")));
 
-            println!("» OS: {os_name}/{arch} ~ compiled with Rust {RUSTC_VERSION}");
-            println!("» GitHub: https://github.com/charted-dev/charted/commit/{COMMIT_HASH}");
+            if os_name == "linux" {
+                println!("» {os_name}/{arch} on {name} {os_version} ~ compiled with Rust {RUSTC_VERSION}");
+            } else {
+                println!("» {os_name}/{arch} {os_version} ~ compiled with Rust {RUSTC_VERSION}");
+            }
+
+            if !COMMIT_HASH.is_empty() {
+                println!("» GitHub: https://github.com/charted-dev/charted/commit/{COMMIT_HASH}");
+            }
         }
 
         Ok(())

@@ -31,7 +31,7 @@ on:
             - renovate.json
             - LICENSE
 env:
-    BAZEL_ARGS: --bazelrc=./.bazelrc --bazelrc=./.github/.ci.bazelrc --host_jvm_args=-Xmx500m --host_jvm_args=-Xms500m
+    BAZEL_STARTUP_ARGS: --bazelrc=./.bazelrc --host_jvm_args=-Xmx500m --host_jvm_args=-Xms500m
 jobs:
     openapi:
         name: Generate
@@ -61,7 +61,7 @@ jobs:
 
             - name: Generate document and format
               run: |
-                bazel ${{env.BAZEL_ARGS}} run --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //:cli -- openapi ${GITHUB_WORKSPACE}/assets/openapi.json
+                bazel ${{env.BAZEL_STARTUP_ARGS}} run --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //:cli -- openapi ${GITHUB_WORKSPACE}/assets/openapi.json
                 prettier --write --config ${GITHUB_WORKSPACE}/web/.prettierrc.json ./assets/openapi.json
 
             - name: Commit changes (if we can)

@@ -48,7 +48,10 @@ impl Execute for Version {
                 "build_date": date,
                 "commit_hash": COMMIT_HASH,
                 "rust_version": RUSTC_VERSION,
-                "github_url": format!("https://github.com/charted-dev/charted/commit/{COMMIT_HASH}"),
+                "github_url": match COMMIT_HASH.is_empty() {
+                    true => format!("https://github.com/charted-dev/charted/commit/{COMMIT_HASH}"),
+                    false => "https://github.com/charted-dev/charted".to_owned()
+                },
                 "os": serde_json::json!({
                     "name": name,
                     "arch": arch,
@@ -60,9 +63,13 @@ impl Execute for Version {
             println!("{}", serde_json::to_string_pretty(&value).unwrap());
         } else {
             let bold = Style::new().bold();
-
             println!("charted-server {} ({date})", bold.paint(format!("v{}", version())));
-            println!("» OS: {os_name}/{arch} ~ compiled with Rust {RUSTC_VERSION}");
+
+            if os_name == "linux" {
+                println!("» {os_name}/{arch} on {name} {os_version} ~ compiled with Rust {RUSTC_VERSION}");
+            } else {
+                println!("» {os_name}/{arch} {os_version} ~ compiled with Rust {RUSTC_VERSION}");
+            }
 
             if !COMMIT_HASH.is_empty() {
                 println!("» GitHub: https://github.com/charted-dev/charted/commit/{COMMIT_HASH}");
