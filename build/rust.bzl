@@ -22,7 +22,6 @@ _DEFAULT_RUST_EDITION = "2021"
 
 def rust_project(
         name,
-        srcs = [],
         deps = [],
         external_data = [],
         proc_macro = False,
@@ -39,7 +38,6 @@ def rust_project(
 
     Args:
         name: The name of the project.
-        srcs: Extra sources to include in `rust_library`
         deps: A list of dependencies to use in the `rust_library`, `rust_binary` (if enabled), and `rust_test` (if enabled) macro(s).
         external_data: List of targets to use to embed data into `rust_library`.
         proc_macro: Builds this project as a proc-macro.
@@ -59,6 +57,8 @@ def rust_project(
         **kwargs: Extra arguments to append in `rust_library`
     """
 
+    # allows tests, library, binary, or doctests code to indicate
+    # that we are running in Bazel, not in Cargo.
     extra_flags = ["--cfg=bazel"]
     if kwargs.get("rustc_flags") != None:
         flags = kwargs.pop("rustc_flags")
@@ -68,7 +68,7 @@ def rust_project(
         rust_proc_macro(
             name = "charted_%s" % name,
             aliases = aliases(),
-            srcs = native.glob(["src/**/*.rs"], exclude = ["src/main.rs"]) + srcs,
+            srcs = native.glob(["src/**/*.rs"], exclude = ["src/main.rs"]),
             deps = deps,
             visibility = ["//visibility:public"],
             rustc_flags = extra_flags,
@@ -82,7 +82,7 @@ def rust_project(
             name = "charted_%s" % name,
             aliases = aliases(),
             data = external_data,
-            srcs = native.glob(["src/**/*.rs"], exclude = ["src/main.rs"]) + srcs,
+            srcs = native.glob(["src/**/*.rs"], exclude = ["src/main.rs"]),
             deps = deps,
             proc_macro_deps = proc_macro_deps,
             visibility = ["//visibility:public"],
