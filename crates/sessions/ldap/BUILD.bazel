@@ -19,4 +19,13 @@ exports_files(["Cargo.toml"])
 
 rust_project(
     name = "sessions_ldap",
+    deps = [
+        "//crates/config:charted_config",
+        "//crates/sessions:charted_sessions",
+        "@crate_index//:eyre",
+        "@crate_index//:ldap3",
+        "@crate_index//:sentry",
+        "@crate_index//:tokio",
+        "@crate_index//:tracing",
+    ],
 )

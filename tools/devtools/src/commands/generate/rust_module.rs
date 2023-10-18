@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::utils;
+use crate::{updaters, utils};
 use charted_common::cli::Execute;
 use eyre::Result;
 use promptly::prompt;
@@ -92,7 +92,7 @@ impl Execute for RustModule {
         };
 
         let final_path = workspace.join(location);
-        info!("creating rust crate charted_{name} in {}", final_path.display());
+        info!("creating rust crate charted-{name} in {}", final_path.display());
 
         if !final_path.exists() {
             create_dir_all(final_path.clone())?;
@@ -127,7 +127,8 @@ description = "🐻‍❄️📦 TODO: fill this out"
 version = "0.0.0-devel.0"
 edition = "2021"
 homepage = "https://charts.noelware.org"
-authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]"#,
+authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
+"#,
             name.clone()
         );
 
@@ -174,7 +175,8 @@ rust_project(
 "#
         )?;
 
-        info!("finished! please update build/manifests.bzl to include your new crate!");
+        updaters::bazel_cargo_manifest_updater(format!("//{stripped}:Cargo.toml"))?;
+        info!("updated ./build/manifests.bzl that includes Cargo manifest target [//{stripped}:Cargo.toml]");
 
         Ok(())
     }

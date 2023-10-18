@@ -18,6 +18,8 @@ load("@crate_index//:defs.bzl", "aliases")
 load("@rules_rust//cargo:defs.bzl", "cargo_build_script")
 load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_doc_test", "rust_library", "rust_proc_macro", "rust_test")
 
+_DEFAULT_RUST_EDITION = "2021"
+
 def rust_project(
         name,
         srcs = [],
@@ -70,6 +72,7 @@ def rust_project(
             deps = deps,
             visibility = ["//visibility:public"],
             rustc_flags = extra_flags,
+            edition = _DEFAULT_RUST_EDITION,
             **kwargs
         )
     else:
@@ -84,6 +87,7 @@ def rust_project(
             proc_macro_deps = proc_macro_deps,
             visibility = ["//visibility:public"],
             rustc_flags = extra_flags,
+            edition = _DEFAULT_RUST_EDITION,
             **kwargs
         )
 
@@ -119,6 +123,7 @@ def rust_project(
             deps = [":charted_{name}".format(name = name)] + deps,
             rustc_flags = ["-C", "incremental=true"] + extra_flags,
             visibility = ["//visibility:public"],
+            edition = _DEFAULT_RUST_EDITION,
         )
 
     if build_script:

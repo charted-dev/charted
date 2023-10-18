@@ -21,6 +21,10 @@ exports_files([
     # used for codegen
     "assets/openapi.json",
 
+    # for nixpkgs_rust_configure to use the toolchain
+    # we provided.
+    "rust-toolchain.toml",
+
     # used for the NPM lock translation for Bazel.
     ".bazelignore",
 

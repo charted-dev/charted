@@ -56,6 +56,12 @@ if [[ "$1" == "sync-deps" ]]; then
     exit 0
 fi
 
+if [[ "$1" == "update-node" ]]; then
+    . "$SCRIPT_DIR/scripts/update-node.sh"
+
+    exit 0
+fi
+
 if [[ ! -f "$SCRIPT_DIR/.cache/dev" || "x${DEV_REBUILD:-}" != "x" ]]; then
     # if DEV_REBUILD was set and .cache/dev exists, then remove the old binary
     [[ "x${DEV_REBUILD:-}" != "x" && -f "$SCRIPT_DIR/.cache/dev" ]] && rm -f "$SCRIPT_DIR/.cache/dev"

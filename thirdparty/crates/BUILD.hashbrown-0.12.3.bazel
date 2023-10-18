@@ -29,6 +29,9 @@ rust_library(
         ],
     ),
     crate_features = [
+        "ahash",
+        "default",
+        "inline-more",
         "raw",
     ],
     crate_root = "src/lib.rs",
@@ -42,4 +45,7 @@ rust_library(
         "norustfmt",
     ],
     version = "0.12.3",
+    deps = [
+        "@crate_index__ahash-0.7.6//:ahash",
+    ],
 )

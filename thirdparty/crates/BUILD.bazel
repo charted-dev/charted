@@ -398,6 +398,12 @@ alias(
 )
 
 alias(
+    name = "serde_starlark",
+    actual = "@crate_index__serde_starlark-0.1.14//:serde_starlark",
+    tags = ["manual"],
+)
+
+alias(
     name = "serde_yaml",
     actual = "@crate_index__serde_yaml-0.9.25//:serde_yaml",
     tags = ["manual"],
@@ -412,6 +418,12 @@ alias(
 alias(
     name = "sqlx",
     actual = "@crate_index__sqlx-0.7.1//:sqlx",
+    tags = ["manual"],
+)
+
+alias(
+    name = "starlark",
+    actual = "@crate_index__starlark-0.10.0//:starlark",
     tags = ["manual"],
 )
 

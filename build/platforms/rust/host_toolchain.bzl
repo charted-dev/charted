@@ -81,7 +81,7 @@ def _rust_configure_host_toolchain(ctx):
     # do a empty BUILD.bazel file
     rustc = ctx.which("rustc")
     if rustc == None:
-        print("unable to find `rustc`! use the default toolchain that Bazel uses.")  # buildifier: disable=print
+        print("unable to find `rustc`! use the default toolchain that Bazel uses instead")  # buildifier: disable=print
         ctx.write("BUILD.bazel", "")
 
         return
@@ -109,10 +109,36 @@ package(default_visibility = ["//visibility:public"])
 
 exports_files(glob(["bin/**"]))
 
+filegroup(
+    name = "rustc_lib",
+    srcs = glob(
+        [
+            "bin/*.so",
+            "lib/*.so",
+            "lib/rustlib/*/codegen-backends/*.so",
+            "lib/rustlib/*/codegen-backends/*.dylib",
+            "lib/rustlib/*/bin/rust-lld",
+            "lib/rustlib/*/lib/*.so",
+            "lib/rustlib/*/lib/*.dylib",
+        ],
+        allow_empty = True
+    ),
+)
+
 rust_stdlib_filegroup(
     name = "rust_std",
-    srcs = glob(["lib/**"]),
-    visibility = ["//:__pkg__"],
+    srcs = glob(
+        [
+            "lib/rustlib/*/lib/*.rlib",
+            "lib/rustlib/*/lib/*.so",
+            "lib/rustlib/*/lib/*.dylib",
+            "lib/rustlib/*/lib/*.a",
+            "lib/rustlib/*/lib/self-contained/**",
+        ],
+
+        # Some patterns (e.g. `lib/*.a`) don't match anything, see https://github.com/bazelbuild/rules_rust/pull/245
+        allow_empty = True,
+    )
 )
 
 rust_toolchain(

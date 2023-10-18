@@ -21,13 +21,14 @@ extern crate tracing;
 
 pub mod args;
 mod commands;
+pub mod updaters;
 pub mod utils;
 
 #[derive(Debug, Clone, clap::Parser)]
 #[clap(
     bin_name = "./dev",
-    about = "🐻‍❄️📦 Development Tool to help develop charted-server",
-    author = "Noelware, LLC.",
+    about = "🐻‍❄️📦 Development tool to help develop charted-server",
+    author = "Noelware, LLC. <team@noelware.org>",
     override_usage = "dev <COMMAND> [...ARGS]",
     arg_required_else_help = true
 )]

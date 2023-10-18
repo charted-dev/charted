@@ -28,6 +28,7 @@ load(
     "nixpkgs_cc_configure",
     "nixpkgs_flake_package",
     "nixpkgs_git_repository",
+    "nixpkgs_nodejs_configure",
     "nixpkgs_package",
     "nixpkgs_rust_configure",
 )
@@ -46,13 +47,13 @@ nixpkgs_flake_package(
     name = "flake",
     nix_flake_file = "//:flake.nix",
     nix_flake_lock_file = "//:flake.lock",
+    nixopts = ["--show-trace"],
 )
 
-# configures the CC toolchain we will use, we opt to use Clang with
-# the mold linker.
+# configures the CC toolchain we will use on NixOS
 nixpkgs_cc_configure(
     name = "nixpkgs_config_cc",
-    nix_file_content = "(import <nixpkgs> {}).clang_16",
+    nixopts = ["--show-trace"],
     repository = "@nixpkgs",
 )
 
@@ -60,6 +61,22 @@ nixpkgs_cc_configure(
 # uses, which is stable Rust.
 nixpkgs_rust_configure(
     name = "nix_rust",
+    # TODO(@auguwu): this breaks because 'gnu_get_libc_version' symbol is missing,
+    #
+    # nix_file = "//:nix/rust-toolchain.nix",
+    # nix_file_deps = [
+    #     "//:flake.lock",
+    #     "//:rust-toolchain.toml",
+    # ],
+    nixopts = ["--show-trace"],
+    repository = "@nixpkgs",
+)
+
+# Configures the Node.js tooling that allows rules_nodejs to work
+nixpkgs_nodejs_configure(
+    name = "nix_nodejs",
+    nix_file = "//:nix/nodejs.nix",
+    nixopts = ["--show-trace"],
     repository = "@nixpkgs",
 )
 
@@ -67,15 +84,8 @@ nixpkgs_rust_configure(
 # and `charted-helm-plugin` with.
 nixpkgs_package(
     name = "openssl-static",
-    nix_file = "//:nixos/openssl.nix",
-    repository = "@nixpkgs",
-)
-
-# allows Nix users to build crates/common as Git is required for the full
-# build version.
-nixpkgs_package(
-    name = "git-nixos",
-    nix_file_content = "(import <nixpkgs> {}).git",
+    nix_file = "//:nix/openssl.nix",
+    nixopts = ["--show-trace"],
     repository = "@nixpkgs",
 )
 
@@ -240,7 +250,6 @@ npm_translate_lock(
     data = ["//types/js:package.json"],
     npmrc = "//:.npmrc",
     pnpm_lock = "//types/js:pnpm-lock.yaml",
-    update_pnpm_lock = True,
     verify_node_modules_ignored = "//:.bazelignore",
 )
 

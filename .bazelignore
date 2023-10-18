@@ -2,3 +2,4 @@
 .cache/docker/postgresql/data
 types/js/node_modules
 web/node_modules
+.direnv

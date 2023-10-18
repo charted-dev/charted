@@ -30,6 +30,7 @@ rust_library(
         ],
     ),
     crate_features = [
+        "default",
         "i128",
         "std",
     ],
@@ -54,6 +55,7 @@ cargo_build_script(
     name = "num-traits_build_script",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "default",
         "i128",
         "std",
     ],

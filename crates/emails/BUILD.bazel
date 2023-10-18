@@ -33,18 +33,41 @@ rust_project(
     ],
 )
 
+_DEFAULT_BUILD_SCRIPT_ENV = {
+    "PROTOS": "$(location //crates/emails:protos/emails.proto)",
+    "PROTOC": "$(execpath @com_google_protobuf//:protoc)",
+}
+
+_DEFAULT_BUILD_SCRIPT_DATA = [
+    "//crates/emails:protos/emails.proto",
+    "//crates/emails:protos/google/protobuf/struct.proto",
+    "@com_google_protobuf//:protoc",
+]
+
+# For NixOS, we have to compile `protoc` that it can be auto-patched, we could've
+# done it with a patch on the `rules_proto` itself, but ambiguitious `select`s are
+# not allowed.
+#
+# So, we do it here and do a bunch of `select` hacks. Do I like this? No not really,
+# but does it work? Yeah!
 cargo_build_script(
     name = "buildscript",
     srcs = ["build.rs"],
-    build_script_env = {
-        "PROTOS": "$(location //crates/emails:protos/emails.proto)",
-        "PROTOC": "$(execpath @com_google_protobuf//:protoc)",
-    },
-    data = [
-        "//crates/emails:protos/emails.proto",
-        "//crates/emails:protos/google/protobuf/struct.proto",
-        "@com_google_protobuf//:protoc",
-    ],
+    build_script_env = select({
+        "//build/settings:nixos": {
+            "PROTOS": _DEFAULT_BUILD_SCRIPT_ENV["PROTOS"],
+            "PROTOC": "$(execpath @com_github_protocolbuffers_protobuf//:protoc)",
+        },
+        "//conditions:default": _DEFAULT_BUILD_SCRIPT_ENV,
+    }),
+    data = select({
+        "//build/settings:nixos": [
+            _DEFAULT_BUILD_SCRIPT_DATA[0],
+            _DEFAULT_BUILD_SCRIPT_DATA[1],
+            "@com_github_protocolbuffers_protobuf//:protoc",
+        ],
+        "//conditions:default": _DEFAULT_BUILD_SCRIPT_DATA,
+    }),
     rustc_flags = [
         "--cfg",
         "bazel",
