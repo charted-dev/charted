@@ -719,6 +719,27 @@
                 "operationId": "list_user_repositories",
                 "parameters": [
                     {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Cursor to passthrough to proceed into the next or previous page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
+                            "minLength": 15
+                        }
+                    },
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
+                    },
+                    {
                         "name": "order",
                         "in": "query",
                         "description": "Order to sort the entries by.",
@@ -735,27 +756,6 @@
                         "schema": {
                             "type": "integer",
                             "format": "int32"
-                        }
-                    },
-                    {
-                        "name": "idOrName",
-                        "in": "path",
-                        "description": "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/components/schemas/NameOrSnowflake"
-                        }
-                    },
-                    {
-                        "name": "cursor",
-                        "in": "query",
-                        "description": "Cursor to passthrough to proceed into the next or previous page.",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64",
-                            "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
-                            "minLength": 15
                         }
                     }
                 ],
