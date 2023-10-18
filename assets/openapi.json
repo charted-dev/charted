@@ -719,6 +719,15 @@
                 "operationId": "list_user_repositories",
                 "parameters": [
                     {
+                        "name": "order",
+                        "in": "query",
+                        "description": "Order to sort the entries by.",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/OrderBy"
+                        }
+                    },
+                    {
                         "name": "per_page",
                         "in": "query",
                         "description": "How many elements should be present in a page.",
@@ -729,12 +738,12 @@
                         }
                     },
                     {
-                        "name": "order",
-                        "in": "query",
-                        "description": "Order to sort the entries by.",
-                        "required": false,
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.",
+                        "required": true,
                         "schema": {
-                            "$ref": "#/components/schemas/OrderBy"
+                            "$ref": "#/components/schemas/NameOrSnowflake"
                         }
                     },
                     {
@@ -747,15 +756,6 @@
                             "format": "int64",
                             "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
                             "minLength": 15
-                        }
-                    },
-                    {
-                        "name": "idOrName",
-                        "in": "path",
-                        "description": "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/components/schemas/NameOrSnowflake"
                         }
                     }
                 ],
