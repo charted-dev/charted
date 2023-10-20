@@ -23,7 +23,7 @@ macro_rules! gen_apikeyscopes {
         $key:ident[$s:literal] => $value:expr;
     )*) => {
         /// Represents a single API key scope.
-        #[derive(Clone, Copy)]
+        #[derive(Clone, Copy, PartialEq)]
         #[repr(u64)]
         #[allow(clippy::enum_clike_unportable_variant)] // we don't provide support for 32bit systems
         pub enum ApiKeyScope {
@@ -59,8 +59,58 @@ macro_rules! gen_apikeyscopes {
             }
         }
 
+        impl ::serde::ser::Serialize for ApiKeyScope {
+            fn serialize<S: ::serde::ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+                serializer.serialize_u64((*self).into())
+            }
+        }
+
+        impl<'de> ::serde::de::Deserialize<'de> for ApiKeyScope {
+            fn deserialize<D: ::serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+                struct ApiKeyScopeVisitor;
+                impl<'de> ::serde::de::Visitor<'de> for ApiKeyScopeVisitor {
+                    type Value = ApiKeyScope;
+
+                    fn expecting(&self, formatter: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+                        formatter.write_str("string containing the scope id or a u64 of the raw value")
+                    }
+
+                    fn visit_u64<E: ::serde::de::Error>(self, value: u64) -> Result<Self::Value, E> {
+                        if value >= u64::MAX {
+                            return Err(::serde::de::Error::custom(format!("value is greater or equal to u64::MAX")));
+                        }
+
+                        let max = ApiKeyScope::max();
+                        if value > max {
+                            return Err(::serde::de::Error::custom(format!("value is greater than the max element ({max})")));
+                        }
+
+                        let map = ApiKeyScope::as_map();
+                        let element = map.values().find(|x| ((**x) as u64) == value);
+                        if element.is_none() {
+                            return Err(::serde::de::Error::custom(format!("unable to find value by {value}")));
+                        }
+
+                        Ok(*element.unwrap())
+                    }
+
+                    fn visit_str<E: ::serde::de::Error>(self, value: &str) -> Result<Self::Value, E> {
+                        let map = ApiKeyScope::as_map();
+                        if !map.contains_key(value) {
+                            return Err(::serde::de::Error::custom(format!("scope id [{value}] was not found")));
+                        }
+
+                        Ok(*map.get(value).unwrap())
+                    }
+                }
+
+                deserializer.deserialize_any(ApiKeyScopeVisitor)
+            }
+        }
+
         impl ApiKeyScope {
             /// Returns the API key scope as its code.
+            #[inline]
             pub const fn as_str(&self) -> &str {
                 match self {
                     $(
@@ -69,12 +119,20 @@ macro_rules! gen_apikeyscopes {
                 }
             }
 
+            /// Returns the max element available
+            #[inline]
+            pub fn max() -> u64 {
+                let elems = vec![$($value,)*];
+                *elems.iter().max().unwrap()
+            }
+
             /// Returns an allocated [`HashMap`](std::collections::HashMap) of all the
             /// API key scopes together.
-            pub fn hashmap<'a>() -> ::std::collections::HashMap<&'a str, u64> {
+            #[inline]
+            pub fn as_map<'a>() -> ::std::collections::HashMap<&'a str, ApiKeyScope> {
                 let mut h = ::std::collections::HashMap::new();
                 $(
-                    h.insert($s, $value);
+                    h.insert($s, ApiKeyScope::$key);
                 )*
 
                 h
@@ -216,18 +274,24 @@ gen_apikeyscopes!(
     AdminOrgUpdate["admin:orgs:update"] => 1 << 51;
 );
 
+/// Represents a [`Bitfield`] for managing [`ApiKeyScope`]s.
 #[derive(Debug, Clone)]
 pub struct ApiKeyScopes<'a>(Bitfield<'a>);
-
 impl<'a> Default for ApiKeyScopes<'a> {
     fn default() -> Self {
-        ApiKeyScopes(Bitfield::new(0, ApiKeyScope::hashmap()))
+        Self::init(0)
     }
 }
 
 impl<'a> ApiKeyScopes<'a> {
+    /// Initializes a possible empty [`ApiKeyScopes`] bitfield with the given bits.
     pub fn init(bits: u64) -> ApiKeyScopes<'a> {
-        ApiKeyScopes(Bitfield::new(bits, ApiKeyScope::hashmap()))
+        let map = ApiKeyScope::as_map();
+
+        ApiKeyScopes(Bitfield::new(
+            bits,
+            map.iter().map(|(k, v)| (*k, (*v) as u64)).collect(),
+        ))
     }
 }
 
@@ -241,5 +305,72 @@ impl<'a> std::ops::Deref for ApiKeyScopes<'a> {
 impl<'a> std::ops::DerefMut for ApiKeyScopes<'a> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Debug, Serialize, Deserialize, PartialEq)]
+    struct Weow {
+        scope: ApiKeyScope,
+    }
+
+    #[test]
+    fn apikeyscope_serialize() {
+        let scope = Weow {
+            scope: ApiKeyScope::UserAccess,
+        };
+
+        let serialized = serde_json::to_string(&scope).unwrap();
+        assert_eq!("{\"scope\":1}", serialized);
+    }
+
+    #[test]
+    fn apikeyscope_deserialize_u64() {
+        let deserialized: Weow = serde_json::from_str(r#"{"scope":274877906944}"#).unwrap();
+        let expected = Weow {
+            scope: ApiKeyScope::OrgMemberKick,
+        };
+
+        assert_eq!(expected, deserialized);
+    }
+
+    #[test]
+    #[should_panic(expected = "unable to find value by 7")]
+    fn apikeyscope_deserialize_nonexisting_u64() {
+        serde_json::from_str::<Weow>(r#"{"scope":7}"#).unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "value is greater or equal to u64::MAX")]
+    fn apikeyscope_deserialize_max_u64() {
+        let weow = u64::MAX;
+        serde_json::from_str::<Weow>(format!("{{\"scope\":{weow}}}").as_str()).unwrap();
+    }
+
+    #[test]
+    #[should_panic] // we can't do "expected =" as new scopes can be added and it'll be nondeterministic (unlike the rest of should_panic for u64 variants)
+    fn apikeyscope_deserialize_max_scope() {
+        let max = ApiKeyScope::max() + 1;
+        serde_json::from_str::<Weow>(format!("{{\"scope\":{max}}}").as_str()).unwrap();
+    }
+
+    #[test]
+    fn apikeyscope_deserialize_str() {
+        let deserialized: Weow = serde_json::from_str(r#"{"scope":"user:access"}"#).unwrap();
+        let expected = Weow {
+            scope: ApiKeyScope::UserAccess,
+        };
+
+        assert_eq!(expected, deserialized);
+    }
+
+    #[test]
+    #[should_panic(expected = "scope id [weow fluff] was not found")]
+    fn apikeyscope_deserialize_nonexisting_str() {
+        serde_json::from_str::<Weow>("{\"scope\":\"weow fluff\"}").unwrap();
     }
 }

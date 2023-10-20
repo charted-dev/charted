@@ -127,16 +127,16 @@ pub fn controller(attr: TokenStream, body: TokenStream) -> TokenStream {
     let body = func.block.clone();
     let tags: helpers::VecHelper<String> = args.tags.into();
     let item_type: helpers::PathItemType = args.item_type.unwrap_or(PathItemType::Get).into();
-    let responses: helpers::collections::HashMap<u16, helpers::Response> = args.responses.into();
-    let parameters: helpers::collections::HashMap<StringHelper, helpers::Parameter> = {
+    let responses: helpers::collections::BTreeMap<u16, helpers::Response> = args.responses.into();
+    let parameters: helpers::collections::BTreeMap<StringHelper, helpers::Parameter> = {
         let params = args.parameters.clone();
-        let mut h = std::collections::HashMap::<StringHelper, helpers::Parameter>::new();
+        let mut h = std::collections::BTreeMap::<StringHelper, helpers::Parameter>::new();
 
         for (key, value) in params.iter() {
             h.insert(helpers::StringHelper::from(key.clone()), value.clone());
         }
 
-        helpers::collections::HashMap(h)
+        helpers::collections::BTreeMap(h)
     };
 
     let is_deprecated_tt = match args.is_deprecated.clone().flatten() {
@@ -193,8 +193,8 @@ pub fn controller(attr: TokenStream, body: TokenStream) -> TokenStream {
             #[doc = " Generates a new [PathItem][utoipa::openapi::path::PathItem] for this rest controller."]
             pub fn paths() -> ::utoipa::openapi::path::PathItem {
                 let mut builder = ::utoipa::openapi::path::PathItemBuilder::new();
-                let responses: ::std::collections::HashMap<u16, ::utoipa::openapi::Response> = { #responses };
-                let parameters: ::std::collections::HashMap<::std::string::String, ::utoipa::openapi::path::Parameter> = { #parameters };
+                let responses: ::std::collections::BTreeMap<u16, ::utoipa::openapi::Response> = { #responses };
+                let parameters: ::std::collections::BTreeMap<::std::string::String, ::utoipa::openapi::path::Parameter> = { #parameters };
                 let request_body: ::core::option::Option<::utoipa::openapi::request_body::RequestBody> = #request_body;
 
                 let mut op = ::utoipa::openapi::path::OperationBuilder::new()

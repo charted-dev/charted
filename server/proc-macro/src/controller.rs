@@ -16,7 +16,7 @@
 use charted_common::{models::Name, ID};
 use charted_proc_macros::helpers::*;
 use proc_macro2::{Ident, Span};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use syn::{
     parenthesized,
     parse::{Parse, ParseStream},
@@ -55,8 +55,8 @@ pub struct Args {
     pub id: String,
     pub tags: Vec<String>,
     pub item_type: Availability<PathItemType>,
-    pub responses: HashMap<u16, Response>,
-    pub parameters: HashMap<String, Parameter>,
+    pub responses: BTreeMap<u16, Response>,
+    pub parameters: BTreeMap<String, Parameter>,
     pub description: Option<String>,
     pub request_body: Option<RequestBody>,
     pub is_deprecated: Option<Option<String>>,

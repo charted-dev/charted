@@ -92,9 +92,8 @@ impl<U: Clone, T: From<U> + ToTokens + Clone> From<std::vec::Vec<U>> for VecHelp
     }
 }
 
-#[derive(Clone, Hash, PartialEq, Eq)]
+#[derive(Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct StringHelper(std::string::String);
-
 impl ToTokens for StringHelper {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let s = self.0.clone();
@@ -798,7 +797,7 @@ pub mod collections {
     /// Helper struct for [`BTreeMap`][std::collections::BTreeMap], but implements
     /// [`ToTokens`].
     #[derive(Clone)]
-    pub struct BTreeMap<K: ToTokens + Hash + Eq, V: ToTokens>(std::collections::BTreeMap<K, V>);
+    pub struct BTreeMap<K: ToTokens + Hash + Eq, V: ToTokens>(pub std::collections::BTreeMap<K, V>);
     impl<K: ToTokens + Hash + Eq, V: ToTokens> ToTokens for BTreeMap<K, V> {
         fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
             let mut variants: Vec<proc_macro2::TokenStream> = vec![];
