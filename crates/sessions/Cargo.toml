@@ -30,7 +30,7 @@ chrono = "0.4.30"
 eyre = "0.6.8"
 jsonwebtoken = "8.3.0"
 redis = "0.23.3"
-sentry = "0.31.6"
+sentry = "0.31.7"
 serde = "1.0.185"
 serde_json = "1.0.104"
 sqlx = { version = "0.7.1", features = ["postgres"] }
