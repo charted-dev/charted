@@ -22,7 +22,7 @@ homepage = "https://charts.noelware.org"
 authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
 [dependencies]
-argon2 = "0.5.1"
+argon2 = "0.5.2"
 async-trait = "0.1.74"
 charted-common = { version = "0.0.0-devel.0", path = "../../common" }
 charted-config = { version = "0.0.0-devel.0", path = "../../config" }
