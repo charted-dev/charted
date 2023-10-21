@@ -900,14 +900,14 @@ _NORMAL_DEV_ALIASES = {
 _PROC_MACRO_DEPENDENCIES = {
     "cli": {
         _COMMON_CONDITION: {
-            "async-trait": "@crate_index__async-trait-0.1.73//:async_trait",
+            "async-trait": "@crate_index__async-trait-0.1.74//:async_trait",
         },
     },
     "crates/avatars": {
     },
     "crates/common": {
         _COMMON_CONDITION: {
-            "async-trait": "@crate_index__async-trait-0.1.73//:async_trait",
+            "async-trait": "@crate_index__async-trait-0.1.74//:async_trait",
             "paste": "@crate_index__paste-1.0.14//:paste",
         },
     },
@@ -918,7 +918,7 @@ _PROC_MACRO_DEPENDENCIES = {
     },
     "crates/database": {
         _COMMON_CONDITION: {
-            "async-trait": "@crate_index__async-trait-0.1.73//:async_trait",
+            "async-trait": "@crate_index__async-trait-0.1.74//:async_trait",
         },
     },
     "crates/emails": {
@@ -945,27 +945,27 @@ _PROC_MACRO_DEPENDENCIES = {
     },
     "crates/search": {
         _COMMON_CONDITION: {
-            "async-trait": "@crate_index__async-trait-0.1.73//:async_trait",
+            "async-trait": "@crate_index__async-trait-0.1.74//:async_trait",
         },
     },
     "crates/search/elasticsearch": {
         _COMMON_CONDITION: {
-            "async-trait": "@crate_index__async-trait-0.1.73//:async_trait",
+            "async-trait": "@crate_index__async-trait-0.1.74//:async_trait",
         },
     },
     "crates/search/meilisearch": {
         _COMMON_CONDITION: {
-            "async-trait": "@crate_index__async-trait-0.1.73//:async_trait",
+            "async-trait": "@crate_index__async-trait-0.1.74//:async_trait",
         },
     },
     "crates/sessions": {
         _COMMON_CONDITION: {
-            "async-trait": "@crate_index__async-trait-0.1.73//:async_trait",
+            "async-trait": "@crate_index__async-trait-0.1.74//:async_trait",
         },
     },
     "crates/sessions/integrations": {
         _COMMON_CONDITION: {
-            "async-trait": "@crate_index__async-trait-0.1.73//:async_trait",
+            "async-trait": "@crate_index__async-trait-0.1.74//:async_trait",
         },
     },
     "crates/sessions/integrations/github": {
@@ -974,7 +974,7 @@ _PROC_MACRO_DEPENDENCIES = {
     },
     "crates/sessions/local": {
         _COMMON_CONDITION: {
-            "async-trait": "@crate_index__async-trait-0.1.73//:async_trait",
+            "async-trait": "@crate_index__async-trait-0.1.74//:async_trait",
         },
     },
     "crates/sessions/passwordless": {
@@ -987,7 +987,7 @@ _PROC_MACRO_DEPENDENCIES = {
     },
     "server": {
         _COMMON_CONDITION: {
-            "async-trait": "@crate_index__async-trait-0.1.73//:async_trait",
+            "async-trait": "@crate_index__async-trait-0.1.74//:async_trait",
             "paste": "@crate_index__paste-1.0.14//:paste",
         },
     },
@@ -995,12 +995,12 @@ _PROC_MACRO_DEPENDENCIES = {
     },
     "tools/devtools": {
         _COMMON_CONDITION: {
-            "async-trait": "@crate_index__async-trait-0.1.73//:async_trait",
+            "async-trait": "@crate_index__async-trait-0.1.74//:async_trait",
         },
     },
     "tools/helm-plugin": {
         _COMMON_CONDITION: {
-            "async-trait": "@crate_index__async-trait-0.1.73//:async_trait",
+            "async-trait": "@crate_index__async-trait-0.1.74//:async_trait",
         },
     },
 }
@@ -1792,12 +1792,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__async-trait-0.1.73",
-        sha256 = "bc00ceb34980c03614e35a3a4e218276a0a824e911d07651cd0d858a51e8c0f0",
+        name = "crate_index__async-trait-0.1.74",
+        sha256 = "a66537f1bb974b254c98ed142ff995236e81b9d0fe4db0575f46612cb15eb0f9",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/async-trait/0.1.73/download"],
-        strip_prefix = "async-trait-0.1.73",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.async-trait-0.1.73.bazel"),
+        urls = ["https://crates.io/api/v1/crates/async-trait/0.1.74/download"],
+        strip_prefix = "async-trait-0.1.74",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.async-trait-0.1.74.bazel"),
     )
 
     maybe(
