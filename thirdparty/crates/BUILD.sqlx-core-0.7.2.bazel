@@ -58,7 +58,7 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.7.1",
+    version = "0.7.2",
     deps = [
         "@crate_index__ahash-0.8.3//:ahash",
         "@crate_index__atoi-2.0.0//:atoi",

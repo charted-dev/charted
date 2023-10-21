@@ -417,7 +417,7 @@ alias(
 
 alias(
     name = "sqlx",
-    actual = "@crate_index__sqlx-0.7.1//:sqlx",
+    actual = "@crate_index__sqlx-0.7.2//:sqlx",
     tags = ["manual"],
 )
 

@@ -33,7 +33,7 @@ redis = "0.23.3"
 sentry = "0.31.7"
 serde = "1.0.189"
 serde_json = "1.0.107"
-sqlx = { version = "0.7.1", features = ["postgres"] }
+sqlx = { version = "0.7.2", features = ["postgres"] }
 tokio = { version = "1.29.1", default-features = false, features = ["rt", "sync", "tracing"] }
 tokio-util = "0.7.8"
 tracing = "0.1.37"
