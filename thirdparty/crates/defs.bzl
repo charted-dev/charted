@@ -386,7 +386,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "bytes": "@crate_index__bytes-1.5.0//:bytes",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
-            "flate2": "@crate_index__flate2-1.0.27//:flate2",
+            "flate2": "@crate_index__flate2-1.0.28//:flate2",
             "itertools": "@crate_index__itertools-0.11.0//:itertools",
             "multer": "@crate_index__multer-2.1.0//:multer",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
@@ -472,7 +472,7 @@ _NORMAL_DEPENDENCIES = {
     "crates/search/meilisearch": {
         _COMMON_CONDITION: {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
-            "meilisearch-sdk": "@crate_index__meilisearch-sdk-0.24.1//:meilisearch_sdk",
+            "meilisearch-sdk": "@crate_index__meilisearch-sdk-0.24.2//:meilisearch_sdk",
             "serde": "@crate_index__serde-1.0.188//:serde",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
         },
@@ -3102,12 +3102,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__flate2-1.0.27",
-        sha256 = "c6c98ee8095e9d1dcbf2fcc6d95acccb90d1c81db1e44725c6a984b1dbdfb010",
+        name = "crate_index__flate2-1.0.28",
+        sha256 = "46303f565772937ffe1d394a4fac6f411c6013172fadde9dcdb1e147a086940e",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/flate2/1.0.27/download"],
-        strip_prefix = "flate2-1.0.27",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.flate2-1.0.27.bazel"),
+        urls = ["https://crates.io/api/v1/crates/flate2/1.0.28/download"],
+        strip_prefix = "flate2-1.0.28",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.flate2-1.0.28.bazel"),
     )
 
     maybe(
@@ -3972,22 +3972,22 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__meilisearch-index-setting-macro-0.24.1",
-        sha256 = "923bb7380030676cfd6563bc09cf88f7150fab55fc881c44e86f4a10c9b7ae2a",
+        name = "crate_index__meilisearch-index-setting-macro-0.24.2",
+        sha256 = "b6e019768c1720f9820e94e8ec527e492be150eb0a5deeec28d85af7a5bbbe6a",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/meilisearch-index-setting-macro/0.24.1/download"],
-        strip_prefix = "meilisearch-index-setting-macro-0.24.1",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.meilisearch-index-setting-macro-0.24.1.bazel"),
+        urls = ["https://crates.io/api/v1/crates/meilisearch-index-setting-macro/0.24.2/download"],
+        strip_prefix = "meilisearch-index-setting-macro-0.24.2",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.meilisearch-index-setting-macro-0.24.2.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__meilisearch-sdk-0.24.1",
-        sha256 = "ff38036cb0ce16609896d1fd90fbce9432a173c744abd3a0d8daf2e4cdbb0d65",
+        name = "crate_index__meilisearch-sdk-0.24.2",
+        sha256 = "639a940bc77db5398000cb184c543106a823677f474f2f195251d2bdd373b6de",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/meilisearch-sdk/0.24.1/download"],
-        strip_prefix = "meilisearch-sdk-0.24.1",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.meilisearch-sdk-0.24.1.bazel"),
+        urls = ["https://crates.io/api/v1/crates/meilisearch-sdk/0.24.2/download"],
+        strip_prefix = "meilisearch-sdk-0.24.2",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.meilisearch-sdk-0.24.2.bazel"),
     )
 
     maybe(
