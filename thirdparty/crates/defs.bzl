@@ -427,7 +427,7 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/openapi/proc-macro": {
         _COMMON_CONDITION: {
-            "proc-macro2": "@crate_index__proc-macro2-1.0.67//:proc_macro2",
+            "proc-macro2": "@crate_index__proc-macro2-1.0.69//:proc_macro2",
             "quote": "@crate_index__quote-1.0.33//:quote",
             "syn": "@crate_index__syn-2.0.37//:syn",
         },
@@ -435,7 +435,7 @@ _NORMAL_DEPENDENCIES = {
     "crates/proc-macros": {
         _COMMON_CONDITION: {
             "axum": "@crate_index__axum-0.6.20//:axum",
-            "proc-macro2": "@crate_index__proc-macro2-1.0.67//:proc_macro2",
+            "proc-macro2": "@crate_index__proc-macro2-1.0.69//:proc_macro2",
             "quote": "@crate_index__quote-1.0.33//:quote",
             "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
             "syn": "@crate_index__syn-2.0.37//:syn",
@@ -596,7 +596,7 @@ _NORMAL_DEPENDENCIES = {
     "server/proc-macro": {
         _COMMON_CONDITION: {
             "heck": "@crate_index__heck-0.4.1//:heck",
-            "proc-macro2": "@crate_index__proc-macro2-1.0.67//:proc_macro2",
+            "proc-macro2": "@crate_index__proc-macro2-1.0.69//:proc_macro2",
             "quote": "@crate_index__quote-1.0.33//:quote",
             "syn": "@crate_index__syn-2.0.37//:syn",
             "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
@@ -4592,12 +4592,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__proc-macro2-1.0.67",
-        sha256 = "3d433d9f1a3e8c1263d9456598b16fec66f4acc9a74dacffd35c7bb09b3a1328",
+        name = "crate_index__proc-macro2-1.0.69",
+        sha256 = "134c189feb4956b20f6f547d2cf727d4c0fe06722b20a0eec87ed445a97f92da",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/proc-macro2/1.0.67/download"],
-        strip_prefix = "proc-macro2-1.0.67",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.proc-macro2-1.0.67.bazel"),
+        urls = ["https://crates.io/api/v1/crates/proc-macro2/1.0.69/download"],
+        strip_prefix = "proc-macro2-1.0.69",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.proc-macro2-1.0.69.bazel"),
     )
 
     maybe(
