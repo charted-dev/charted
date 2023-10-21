@@ -28,5 +28,5 @@ charted-config = { version = "0.0.0-devel.0", path = "../../config" }
 charted-search = { version = "0.0.0-devel.0", path = ".." }
 eyre = "0.6.8"
 meilisearch-sdk = "0.24.1"
-serde = "1.0.185"
+serde = "1.0.189"
 tracing = "0.1.37"

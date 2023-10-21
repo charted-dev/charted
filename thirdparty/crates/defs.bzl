@@ -339,7 +339,7 @@ _NORMAL_DEPENDENCIES = {
             "rand": "@crate_index__rand-0.8.5//:rand",
             "regex": "@crate_index__regex-1.9.5//:regex",
             "semver": "@crate_index__semver-1.0.20//:semver",
-            "serde": "@crate_index__serde-1.0.188//:serde",
+            "serde": "@crate_index__serde-1.0.189//:serde",
             "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
             "sqlx": "@crate_index__sqlx-0.7.1//:sqlx",
             "thiserror": "@crate_index__thiserror-1.0.48//:thiserror",
@@ -360,7 +360,7 @@ _NORMAL_DEPENDENCIES = {
             "regex": "@crate_index__regex-1.9.5//:regex",
             "remi-fs": "@crate_index__remi-fs-0.4.0//:remi_fs",
             "remi-s3": "@crate_index__remi-s3-0.4.0//:remi_s3",
-            "serde": "@crate_index__serde-1.0.188//:serde",
+            "serde": "@crate_index__serde-1.0.189//:serde",
             "serde_yaml": "@crate_index__serde_yaml-0.9.25//:serde_yaml",
             "thiserror": "@crate_index__thiserror-1.0.48//:thiserror",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
@@ -370,7 +370,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "sentry": "@crate_index__sentry-0.31.7//:sentry",
-            "serde": "@crate_index__serde-1.0.188//:serde",
+            "serde": "@crate_index__serde-1.0.189//:serde",
             "sqlx": "@crate_index__sqlx-0.7.1//:sqlx",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
         },
@@ -415,7 +415,7 @@ _NORMAL_DEPENDENCIES = {
             "dyn-clone": "@crate_index__dyn-clone-1.0.13//:dyn_clone",
             "erased-serde": "@crate_index__erased-serde-0.3.31//:erased_serde",
             "prometheus-client": "@crate_index__prometheus-client-0.21.2//:prometheus_client",
-            "serde": "@crate_index__serde-1.0.188//:serde",
+            "serde": "@crate_index__serde-1.0.189//:serde",
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
         },
     },
@@ -454,7 +454,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
-            "serde": "@crate_index__serde-1.0.188//:serde",
+            "serde": "@crate_index__serde-1.0.189//:serde",
         },
     },
     "crates/search/elasticsearch": {
@@ -462,7 +462,7 @@ _NORMAL_DEPENDENCIES = {
             "elasticsearch": "@crate_index__elasticsearch-8.5.0-alpha.1//:elasticsearch",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
-            "serde": "@crate_index__serde-1.0.188//:serde",
+            "serde": "@crate_index__serde-1.0.189//:serde",
             "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
@@ -473,7 +473,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "meilisearch-sdk": "@crate_index__meilisearch-sdk-0.24.1//:meilisearch_sdk",
-            "serde": "@crate_index__serde-1.0.188//:serde",
+            "serde": "@crate_index__serde-1.0.189//:serde",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
         },
     },
@@ -484,7 +484,7 @@ _NORMAL_DEPENDENCIES = {
             "jsonwebtoken": "@crate_index__jsonwebtoken-8.3.0//:jsonwebtoken",
             "redis": "@crate_index__redis-0.23.3//:redis",
             "sentry": "@crate_index__sentry-0.31.7//:sentry",
-            "serde": "@crate_index__serde-1.0.188//:serde",
+            "serde": "@crate_index__serde-1.0.189//:serde",
             "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
             "sqlx": "@crate_index__sqlx-0.7.1//:sqlx",
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
@@ -497,14 +497,14 @@ _NORMAL_DEPENDENCIES = {
     "crates/sessions/integrations": {
         _COMMON_CONDITION: {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
-            "serde": "@crate_index__serde-1.0.188//:serde",
+            "serde": "@crate_index__serde-1.0.189//:serde",
         },
     },
     "crates/sessions/integrations/github": {
         _COMMON_CONDITION: {
             "reqwest": "@crate_index__reqwest-0.11.22//:reqwest",
             "sentry": "@crate_index__sentry-0.31.7//:sentry",
-            "serde": "@crate_index__serde-1.0.188//:serde",
+            "serde": "@crate_index__serde-1.0.189//:serde",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
         },
     },
@@ -545,7 +545,7 @@ _NORMAL_DEPENDENCIES = {
             "remi-core": "@crate_index__remi-core-0.4.0//:remi_core",
             "remi-fs": "@crate_index__remi-fs-0.4.0//:remi_fs",
             "remi-s3": "@crate_index__remi-s3-0.4.0//:remi_s3",
-            "serde": "@crate_index__serde-1.0.188//:serde",
+            "serde": "@crate_index__serde-1.0.189//:serde",
         },
     },
     "features/gc": {
@@ -577,7 +577,7 @@ _NORMAL_DEPENDENCIES = {
             "sentry-eyre": "@crate_index__sentry-eyre-0.1.0//:sentry_eyre",
             "sentry-tower": "@crate_index__sentry-tower-0.31.7//:sentry_tower",
             "sentry-tracing": "@crate_index__sentry-tracing-0.31.7//:sentry_tracing",
-            "serde": "@crate_index__serde-1.0.188//:serde",
+            "serde": "@crate_index__serde-1.0.189//:serde",
             "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
             "serde_path_to_error": "@crate_index__serde_path_to_error-0.1.14//:serde_path_to_error",
             "serde_yaml": "@crate_index__serde_yaml-0.9.25//:serde_yaml",
@@ -610,7 +610,7 @@ _NORMAL_DEPENDENCIES = {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "itertools": "@crate_index__itertools-0.11.0//:itertools",
             "promptly": "@crate_index__promptly-0.3.1//:promptly",
-            "serde": "@crate_index__serde-1.0.188//:serde",
+            "serde": "@crate_index__serde-1.0.189//:serde",
             "serde_starlark": "@crate_index__serde_starlark-0.1.14//:serde_starlark",
             "simple_tables": "@crate_index__simple_tables-0.3.0//:simple_tables",
             "starlark": "@crate_index__starlark-0.10.0//:starlark",
@@ -633,7 +633,7 @@ _NORMAL_DEPENDENCIES = {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
             "reqwest": "@crate_index__reqwest-0.11.22//:reqwest",
-            "serde": "@crate_index__serde-1.0.188//:serde",
+            "serde": "@crate_index__serde-1.0.189//:serde",
             "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
             "serde_yaml": "@crate_index__serde_yaml-0.9.25//:serde_yaml",
             "sysinfo": "@crate_index__sysinfo-0.29.10//:sysinfo",
@@ -5252,22 +5252,22 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__serde-1.0.188",
-        sha256 = "cf9e0fcba69a370eed61bcf2b728575f726b50b55cba78064753d708ddc7549e",
+        name = "crate_index__serde-1.0.189",
+        sha256 = "8e422a44e74ad4001bdc8eede9a4570ab52f71190e9c076d14369f38b9200537",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/serde/1.0.188/download"],
-        strip_prefix = "serde-1.0.188",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.serde-1.0.188.bazel"),
+        urls = ["https://crates.io/api/v1/crates/serde/1.0.189/download"],
+        strip_prefix = "serde-1.0.189",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.serde-1.0.189.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__serde_derive-1.0.188",
-        sha256 = "4eca7ac642d82aa35b60049a6eccb4be6be75e599bd2e9adb5f875a737654af2",
+        name = "crate_index__serde_derive-1.0.189",
+        sha256 = "1e48d1f918009ce3145511378cf68d613e3b3d9137d67272562080d68a2b32d5",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/serde_derive/1.0.188/download"],
-        strip_prefix = "serde_derive-1.0.188",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.serde_derive-1.0.188.bazel"),
+        urls = ["https://crates.io/api/v1/crates/serde_derive/1.0.189/download"],
+        strip_prefix = "serde_derive-1.0.189",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.serde_derive-1.0.189.bazel"),
     )
 
     maybe(
