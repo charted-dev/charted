@@ -304,7 +304,7 @@ _NORMAL_DEPENDENCIES = {
             "color-eyre": "@crate_index__color-eyre-0.6.2//:color_eyre",
             "dotenv": "@crate_index__dotenv-0.15.0//:dotenv",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
-            "mimalloc": "@crate_index__mimalloc-0.1.38//:mimalloc",
+            "mimalloc": "@crate_index__mimalloc-0.1.39//:mimalloc",
             "num_cpus": "@crate_index__num_cpus-1.16.0//:num_cpus",
             "promptly": "@crate_index__promptly-0.3.1//:promptly",
             "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
@@ -386,7 +386,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "bytes": "@crate_index__bytes-1.5.0//:bytes",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
-            "flate2": "@crate_index__flate2-1.0.27//:flate2",
+            "flate2": "@crate_index__flate2-1.0.28//:flate2",
             "itertools": "@crate_index__itertools-0.11.0//:itertools",
             "multer": "@crate_index__multer-2.1.0//:multer",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
@@ -3102,12 +3102,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__flate2-1.0.27",
-        sha256 = "c6c98ee8095e9d1dcbf2fcc6d95acccb90d1c81db1e44725c6a984b1dbdfb010",
+        name = "crate_index__flate2-1.0.28",
+        sha256 = "46303f565772937ffe1d394a4fac6f411c6013172fadde9dcdb1e147a086940e",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/flate2/1.0.27/download"],
-        strip_prefix = "flate2-1.0.27",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.flate2-1.0.27.bazel"),
+        urls = ["https://crates.io/api/v1/crates/flate2/1.0.28/download"],
+        strip_prefix = "flate2-1.0.28",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.flate2-1.0.28.bazel"),
     )
 
     maybe(
@@ -3802,12 +3802,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__libmimalloc-sys-0.1.34",
-        sha256 = "25d058a81af0d1c22d7a1c948576bee6d673f7af3c0f35564abd6c81122f513d",
+        name = "crate_index__libmimalloc-sys-0.1.35",
+        sha256 = "3979b5c37ece694f1f5e51e7ecc871fdb0f517ed04ee45f88d15d6d553cb9664",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/libmimalloc-sys/0.1.34/download"],
-        strip_prefix = "libmimalloc-sys-0.1.34",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.libmimalloc-sys-0.1.34.bazel"),
+        urls = ["https://crates.io/api/v1/crates/libmimalloc-sys/0.1.35/download"],
+        strip_prefix = "libmimalloc-sys-0.1.35",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.libmimalloc-sys-0.1.35.bazel"),
     )
 
     maybe(
@@ -4032,12 +4032,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__mimalloc-0.1.38",
-        sha256 = "972e5f23f6716f62665760b0f4cbf592576a80c7b879ba9beaafc0e558894127",
+        name = "crate_index__mimalloc-0.1.39",
+        sha256 = "fa01922b5ea280a911e323e4d2fd24b7fe5cc4042e0d2cda3c40775cdc4bdc9c",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/mimalloc/0.1.38/download"],
-        strip_prefix = "mimalloc-0.1.38",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.mimalloc-0.1.38.bazel"),
+        urls = ["https://crates.io/api/v1/crates/mimalloc/0.1.39/download"],
+        strip_prefix = "mimalloc-0.1.39",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.mimalloc-0.1.39.bazel"),
     )
 
     maybe(
