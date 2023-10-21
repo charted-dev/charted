@@ -51,7 +51,7 @@ rust_library(
         "@crate_index__ring-0.16.20//:ring",
         "@crate_index__rustls-0.20.9//:build_script_build",
         "@crate_index__sct-0.7.0//:sct",
-        "@crate_index__webpki-0.22.1//:webpki",
+        "@crate_index__webpki-0.22.4//:webpki",
     ],
 )
 

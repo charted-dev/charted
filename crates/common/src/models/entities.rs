@@ -328,7 +328,7 @@ pub struct ApiKey {
     pub expires_in: Option<DateTime>,
 
     /// The scopes that are attached to this API key resource.
-    pub scopes: u64,
+    pub scopes: i64,
 
     /// The token itself. This is never revealed when querying, but only revealed
     /// when you create the token.
@@ -358,6 +358,6 @@ impl ApiKey {
     /// assert_eq!(resource.bitfield().bits(), 0);
     /// ```
     pub fn bitfield<'a>(&self) -> ApiKeyScopes<'a> {
-        ApiKeyScopes::init(self.scopes)
+        ApiKeyScopes::init(self.scopes.try_into().unwrap())
     }
 }

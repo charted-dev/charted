@@ -5,5 +5,13 @@
     "extends": ["config:base", "default:timezone(America/Los_Angeles)", "docker:disableMajor"],
     "vulnerabilityAlerts": {
         "labels": ["security"]
-    }
+    },
+    "packageRules": [
+        {
+            "matchPackagePatterns": ["*"],
+            "postUpgradeTasks": {
+                "commands": ["./dev sync-deps"]
+            }
+        }
+    ]
 }
