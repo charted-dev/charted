@@ -41,7 +41,7 @@ rust_library(
     version = "0.12.0",
     deps = [
         "@crate_index__darling-0.14.4//:darling",
-        "@crate_index__proc-macro2-1.0.67//:proc_macro2",
+        "@crate_index__proc-macro2-1.0.69//:proc_macro2",
         "@crate_index__quote-1.0.33//:quote",
         "@crate_index__syn-1.0.109//:syn",
     ],

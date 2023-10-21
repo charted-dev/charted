@@ -11,11 +11,11 @@ load("@rules_rust//rust:defs.bzl", "rust_proc_macro")
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # MIT
+#     "TODO",  # Apache-2.0
 # ])
 
 rust_proc_macro(
-    name = "meilisearch_index_setting_macro",
+    name = "prost_derive",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -33,16 +33,17 @@ rust_proc_macro(
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=meilisearch-index-setting-macro",
+        "crate-name=prost-derive",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.24.1",
+    version = "0.12.1",
     deps = [
-        "@crate_index__convert_case-0.6.0//:convert_case",
+        "@crate_index__anyhow-1.0.75//:anyhow",
+        "@crate_index__itertools-0.11.0//:itertools",
         "@crate_index__proc-macro2-1.0.69//:proc_macro2",
         "@crate_index__quote-1.0.33//:quote",
-        "@crate_index__syn-1.0.109//:syn",
+        "@crate_index__syn-2.0.37//:syn",
     ],
 )

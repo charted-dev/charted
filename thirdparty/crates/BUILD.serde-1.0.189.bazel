@@ -16,7 +16,7 @@ package(default_visibility = ["//visibility:public"])
 # ])
 
 rust_library(
-    name = "syn",
+    name = "serde",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -30,50 +30,42 @@ rust_library(
         ],
     ),
     crate_features = [
-        "clone-impls",
+        "alloc",
         "default",
         "derive",
-        "extra-traits",
-        "full",
-        "parsing",
-        "printing",
-        "proc-macro",
-        "quote",
-        "visit",
+        "rc",
+        "serde_derive",
+        "std",
     ],
     crate_root = "src/lib.rs",
     edition = "2018",
+    proc_macro_deps = [
+        "@crate_index__serde_derive-1.0.189//:serde_derive",
+    ],
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=syn",
+        "crate-name=serde",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "1.0.109",
+    version = "1.0.189",
     deps = [
-        "@crate_index__proc-macro2-1.0.69//:proc_macro2",
-        "@crate_index__quote-1.0.33//:quote",
-        "@crate_index__syn-1.0.109//:build_script_build",
-        "@crate_index__unicode-ident-1.0.11//:unicode_ident",
+        "@crate_index__serde-1.0.189//:build_script_build",
     ],
 )
 
 cargo_build_script(
-    name = "syn_build_script",
+    name = "serde_build_script",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "clone-impls",
+        "alloc",
         "default",
         "derive",
-        "extra-traits",
-        "full",
-        "parsing",
-        "printing",
-        "proc-macro",
-        "quote",
-        "visit",
+        "rc",
+        "serde_derive",
+        "std",
     ],
     crate_name = "build_script_build",
     crate_root = "build.rs",
@@ -94,17 +86,17 @@ cargo_build_script(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=syn",
+        "crate-name=serde",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "1.0.109",
+    version = "1.0.189",
     visibility = ["//visibility:private"],
 )
 
 alias(
     name = "build_script_build",
-    actual = "syn_build_script",
+    actual = "serde_build_script",
     tags = ["manual"],
 )
