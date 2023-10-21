@@ -45,7 +45,7 @@ rust_library(
     ],
     version = "0.4.2",
     deps = [
-        "@crate_index__flate2-1.0.27//:flate2",
+        "@crate_index__flate2-1.0.28//:flate2",
         "@crate_index__futures-core-0.3.28//:futures_core",
         "@crate_index__memchr-2.6.3//:memchr",
         "@crate_index__pin-project-lite-0.2.13//:pin_project_lite",
