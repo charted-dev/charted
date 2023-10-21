@@ -291,7 +291,7 @@ alias(
 
 alias(
     name = "prost",
-    actual = "@crate_index__prost-0.12.0//:prost",
+    actual = "@crate_index__prost-0.12.1//:prost",
     tags = ["manual"],
 )
 
