@@ -44,7 +44,7 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "1.0.27",
+    version = "1.0.28",
     deps = [
         "@crate_index__crc32fast-1.3.2//:crc32fast",
         "@crate_index__miniz_oxide-0.7.1//:miniz_oxide",
