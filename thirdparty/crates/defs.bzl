@@ -386,7 +386,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "bytes": "@crate_index__bytes-1.5.0//:bytes",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
-            "flate2": "@crate_index__flate2-1.0.27//:flate2",
+            "flate2": "@crate_index__flate2-1.0.28//:flate2",
             "itertools": "@crate_index__itertools-0.11.0//:itertools",
             "multer": "@crate_index__multer-2.1.0//:multer",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
@@ -412,7 +412,7 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/metrics": {
         _COMMON_CONDITION: {
-            "dyn-clone": "@crate_index__dyn-clone-1.0.13//:dyn_clone",
+            "dyn-clone": "@crate_index__dyn-clone-1.0.14//:dyn_clone",
             "erased-serde": "@crate_index__erased-serde-0.3.31//:erased_serde",
             "prometheus-client": "@crate_index__prometheus-client-0.21.2//:prometheus_client",
             "serde": "@crate_index__serde-1.0.188//:serde",
@@ -2872,12 +2872,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__dyn-clone-1.0.13",
-        sha256 = "bbfc4744c1b8f2a09adc0e55242f60b1af195d88596bd8700be74418c056c555",
+        name = "crate_index__dyn-clone-1.0.14",
+        sha256 = "23d2f3407d9a573d666de4b5bdf10569d73ca9478087346697dcbae6244bfbcd",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/dyn-clone/1.0.13/download"],
-        strip_prefix = "dyn-clone-1.0.13",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.dyn-clone-1.0.13.bazel"),
+        urls = ["https://crates.io/api/v1/crates/dyn-clone/1.0.14/download"],
+        strip_prefix = "dyn-clone-1.0.14",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.dyn-clone-1.0.14.bazel"),
     )
 
     maybe(
@@ -3102,12 +3102,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__flate2-1.0.27",
-        sha256 = "c6c98ee8095e9d1dcbf2fcc6d95acccb90d1c81db1e44725c6a984b1dbdfb010",
+        name = "crate_index__flate2-1.0.28",
+        sha256 = "46303f565772937ffe1d394a4fac6f411c6013172fadde9dcdb1e147a086940e",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/flate2/1.0.27/download"],
-        strip_prefix = "flate2-1.0.27",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.flate2-1.0.27.bazel"),
+        urls = ["https://crates.io/api/v1/crates/flate2/1.0.28/download"],
+        strip_prefix = "flate2-1.0.28",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.flate2-1.0.28.bazel"),
     )
 
     maybe(

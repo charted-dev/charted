@@ -135,7 +135,7 @@ alias(
 
 alias(
     name = "dyn-clone",
-    actual = "@crate_index__dyn-clone-1.0.13//:dyn_clone",
+    actual = "@crate_index__dyn-clone-1.0.14//:dyn_clone",
     tags = ["manual"],
 )
 
@@ -159,7 +159,7 @@ alias(
 
 alias(
     name = "flate2",
-    actual = "@crate_index__flate2-1.0.27//:flate2",
+    actual = "@crate_index__flate2-1.0.28//:flate2",
     tags = ["manual"],
 )
 
