@@ -13,8 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-external:
-  # Disable the chart from spawning a new Redpanda cluster,
-  # as we build our own from the Terraform module.
-  redpanda:
-    enabled: false
+apiVersion: logstash.k8s.elastic.co/v1alpha1
+kind: Logstash
+metadata:
+  namespace: charted
+  name: charted-logstash
+spec:
+  # renovate: datasource=github-tags repo=elastic/logstash
+  version: "8.10.1"

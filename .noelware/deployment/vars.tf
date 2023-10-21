@@ -26,3 +26,21 @@ variable "context" {
   sensitive   = true
   type        = string
 }
+
+variable "insecure" {
+  description = "whether or not if the connection towards the Kubernetes server should not be secured, this shouldn't be used!"
+  default     = false
+  type        = bool
+}
+
+variable "elastic" {
+  description = "whether or not if Elastic products (like Elasticsearch) should be deployed as well"
+  default     = true
+  type        = bool
+}
+
+variable "redpanda" {
+  description = "whether or not if a Redpanda cluster should be deployed"
+  default     = true
+  type        = bool
+}

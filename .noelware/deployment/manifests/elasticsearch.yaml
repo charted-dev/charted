@@ -13,8 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-external:
-  # Disable the chart to spawn an Elasticsearch cluster
-  # as we have our own somewhere...
-  elasticsearch:
-    enabled: false
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  namespace: charted
+  name: charted-es
+spec:
+  # renovate: datasource=github-tags repo=elastic/elasticsearch
+  version: "8.10.4"
+  nodeSets:
+    - name: charted-node
+      count: 2 # 1 master, 1 data
+      config:
+        node.store.allow_mmap: false
