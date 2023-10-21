@@ -338,7 +338,7 @@ _NORMAL_DEPENDENCIES = {
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
             "rand": "@crate_index__rand-0.8.5//:rand",
             "regex": "@crate_index__regex-1.9.5//:regex",
-            "semver": "@crate_index__semver-1.0.19//:semver",
+            "semver": "@crate_index__semver-1.0.20//:semver",
             "serde": "@crate_index__serde-1.0.188//:serde",
             "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
             "sqlx": "@crate_index__sqlx-0.7.1//:sqlx",
@@ -392,7 +392,7 @@ _NORMAL_DEPENDENCIES = {
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
             "regex": "@crate_index__regex-1.9.5//:regex",
             "remi-core": "@crate_index__remi-core-0.4.0//:remi_core",
-            "semver": "@crate_index__semver-1.0.19//:semver",
+            "semver": "@crate_index__semver-1.0.20//:semver",
             "sentry": "@crate_index__sentry-0.31.7//:sentry",
             "serde_yaml": "@crate_index__serde_yaml-0.9.25//:serde_yaml",
             "tar": "@crate_index__tar-0.4.40//:tar",
@@ -572,7 +572,7 @@ _NORMAL_DEPENDENCIES = {
             "prometheus-client": "@crate_index__prometheus-client-0.21.2//:prometheus_client",
             "remi-core": "@crate_index__remi-core-0.4.0//:remi_core",
             "rust-embed": "@crate_index__rust-embed-8.0.0//:rust_embed",
-            "semver": "@crate_index__semver-1.0.19//:semver",
+            "semver": "@crate_index__semver-1.0.20//:semver",
             "sentry": "@crate_index__sentry-0.31.7//:sentry",
             "sentry-eyre": "@crate_index__sentry-eyre-0.1.0//:sentry_eyre",
             "sentry-tower": "@crate_index__sentry-tower-0.31.7//:sentry_tower",
@@ -5132,12 +5132,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__semver-1.0.19",
-        sha256 = "ad977052201c6de01a8ef2aa3378c4bd23217a056337d1d6da40468d267a4fb0",
+        name = "crate_index__semver-1.0.20",
+        sha256 = "836fa6a3e1e547f9a2c4040802ec865b5d85f4014efe00555d7090a3dcaa1090",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/semver/1.0.19/download"],
-        strip_prefix = "semver-1.0.19",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.semver-1.0.19.bazel"),
+        urls = ["https://crates.io/api/v1/crates/semver/1.0.20/download"],
+        strip_prefix = "semver-1.0.20",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.semver-1.0.20.bazel"),
     )
 
     maybe(
