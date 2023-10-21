@@ -18,13 +18,13 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 TYPESCRIPT_INTEGRITY = "sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w=="
 TYPESCRIPT_VERSION = "5.2.2"
-NODE_VERSION = "20.8.0"
+NODE_VERSION = "20.8.1"
 CHECKSUMS = {
-    "linux:amd64": "66056a2acc368db142b8a9258d0539e18538ae832b3ccb316671b0d35cb7c72c",
-    "linux:arm64": "ec2d98894d58d07260e61e6a70b88cabea98292f0b2801cbeebd864d242e1087",
-    "darwin:amd64": "a6f6b573ea656c149956f69f35e04ebb242b945d59972bea2e96a944bbf50ad1",
-    "darwin:arm64": "cbcb7fdbcd9341662256df5e4488a0045242f87382879242093e0f0699511abc",
-    "windows:amd64": "6afd5a7aa126f4e255f041de66c4a608f594190d34dcaba72f7b348d2410ca66",
+    "linux:amd64": "44096f6276cf735f3b25f47ffaaa1629b0abad4d9932c3a77d9dcdc743a3ff92",
+    "linux:arm64": "fec6edefa7ff959b29c7887735582ff2a2211b36a65a539da0f37db6797b7cff",
+    "darwin:amd64": "92b00b357c311eb45dd86516b032d80c63894aa069821c3ae3c8b3bbd00fdb9a",
+    "darwin:arm64": "5451f3651c89cd8f224e74961c84e68f4c8d63fe288431a3223b0465cc8b961e",
+    "windows:amd64": "90b27dab351a582edd3a8de2e8aaa80d95c41f19fe92ebbef83b9a45bac95d00",
 }
 
 def format_key(os, arch):
