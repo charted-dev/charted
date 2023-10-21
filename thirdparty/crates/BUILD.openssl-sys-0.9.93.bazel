@@ -30,20 +30,8 @@ rust_library(
         ],
     ),
     crate_root = "src/lib.rs",
-    data = select({
-        "@org_noelware_charted_server//build/settings:nixos": [
-            "@openssl-static//:lib",
-        ],
-        "//conditions:default": [],
-    }),
     edition = "2018",
-    rustc_flags = select({
-        "@org_noelware_charted_server//build/settings:nixos": [
-            "-Lexternal/openssl-static/lib",
-            "--cap-lints=allow",
-        ],
-        "//conditions:default": ["--cap-lints=allow"],
-    }),
+    rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
         "crate-name=openssl-sys",
@@ -61,14 +49,6 @@ rust_library(
 cargo_build_script(
     name = "openssl-sys_build_script",
     srcs = glob(["**/*.rs"]),
-    build_script_env = select({
-        "@org_noelware_charted_server//build/settings:nixos": {
-            "OPENSSL_INCLUDE_DIR": "../openssl-static/include",
-            "OPENSSL_LIB_DIR": "../openssl-static/lib",
-            "OPENSSL_STATIC": "1",
-        },
-        "//conditions:default": {},
-    }),
     crate_name = "build_script_main",
     crate_root = "build/main.rs",
     data = glob(
@@ -81,13 +61,7 @@ cargo_build_script(
             "WORKSPACE",
             "WORKSPACE.bazel",
         ],
-    ) + select({
-        "@org_noelware_charted_server//build/settings:nixos": [
-            "@openssl-static//:include",
-            "@openssl-static//:lib",
-        ],
-        "//conditions:default": [],
-    }),
+    ),
     edition = "2018",
     links = "openssl",
     rustc_flags = [
