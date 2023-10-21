@@ -386,7 +386,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "bytes": "@crate_index__bytes-1.5.0//:bytes",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
-            "flate2": "@crate_index__flate2-1.0.27//:flate2",
+            "flate2": "@crate_index__flate2-1.0.28//:flate2",
             "itertools": "@crate_index__itertools-0.11.0//:itertools",
             "multer": "@crate_index__multer-2.1.0//:multer",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
@@ -3102,12 +3102,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__flate2-1.0.27",
-        sha256 = "c6c98ee8095e9d1dcbf2fcc6d95acccb90d1c81db1e44725c6a984b1dbdfb010",
+        name = "crate_index__flate2-1.0.28",
+        sha256 = "46303f565772937ffe1d394a4fac6f411c6013172fadde9dcdb1e147a086940e",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/flate2/1.0.27/download"],
-        strip_prefix = "flate2-1.0.27",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.flate2-1.0.27.bazel"),
+        urls = ["https://crates.io/api/v1/crates/flate2/1.0.28/download"],
+        strip_prefix = "flate2-1.0.28",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.flate2-1.0.28.bazel"),
     )
 
     maybe(
