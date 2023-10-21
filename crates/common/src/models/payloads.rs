@@ -13,7 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::{helm::ChartType, Name};
+use super::{entities::ApiKeyScope, helm::ChartType, Name};
+use crate::serde::duration::Duration;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use validator::Validate;
@@ -237,3 +238,88 @@ pub struct PatchOrganizationPayload {
     #[serde(default)]
     pub name: Option<Name>,
 }
+
+/// Request body payload for creating a API key.
+#[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]
+pub struct CreateApiKeyPayload {
+    /// Description of the API key
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[validate(length(max = 140))]
+    pub description: Option<String>,
+
+    /// Duration of when the API key should expire at
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub expires_in: Option<Duration>,
+
+    /// the list of scopes to apply to this API key
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub scopes: Vec<ApiKeyScope>,
+
+    /// key name to use to identify the key
+    #[validate]
+    pub name: Name,
+}
+
+/// Request body payload to patch a API key's metadata.
+#[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]
+pub struct PatchApiKeyPayload {
+    /// Updates or removes the description of the API key.
+    ///
+    /// * If this is `null`, this will not do any patching
+    /// * If this is a empty string, this will act as "removing" it from the metadata
+    /// * If the comparsion (`old.description == this.description`) is false, then this will update it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[validate(length(max = 140))]
+    pub description: Option<String>,
+
+    /// key name to use to identify the key
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[validate]
+    pub name: Option<Name>,
+}
+
+/*
+@Schema(description = "Represents a resource for creating API keys")
+@Serializable
+data class CreateApiKeyPayload(
+    val description: String? = null,
+
+    @JsonProperty("expires_in")
+    @SerialName("expires_in")
+    val expiresIn: TimeSpan? = null,
+    val scopes: List<String> = listOf(),
+    val name: String
+) {
+    init {
+        if (description != null && description.length > 140) {
+            throw StringOverflowException("body.description", 140, description.length)
+        }
+
+        if (expiresIn != null) {
+            if (expiresIn.value < 30.seconds.inWholeMilliseconds) {
+                throw ValidationException("body.expires_in", "Expiration time can't be under 30 seconds")
+            }
+
+            if (scopes.isNotEmpty()) {
+                val isAddAll = scopes.size == 1 && scopes.first() == "*"
+                if (!isAddAll && !scopes.every { SCOPES.containsKey(it) }) {
+                    val invalidScopes = scopes.filter { !SCOPES.containsKey(it) }
+                    throw ValidationException("body.scopes", "Invalid scopes: [${invalidScopes.joinToString(", ")}]")
+                }
+            }
+        }
+
+        if (name.isBlank()) {
+            throw ValidationException("body.name", "API key name can't be blank")
+        }
+
+        if (!name.matchesNameAndIdRegex()) {
+            throw ValidationException("body.name", "API key name can only contain letters, digits, dashes, or underscores.")
+        }
+
+        if (name.length > 64) {
+            throw StringOverflowException("body.name", 64, name.length)
+        }
+    }
+}
+*/

@@ -40,14 +40,6 @@ macro_rules! path {
             )*
         }
     };
-
-    ($($key:literal => $fn:expr;)*) => {
-        ::charted_openapi::add_paths! {
-            $(
-                $key => $fn;
-            )*
-        }
-    };
 }
 
 static COMPONENTS: Lazy<Components> = lazy!(ComponentsBuilder::new()
@@ -140,7 +132,7 @@ impl Document {
 
     /// Returns a [`Paths`] object for the latest API version.
     pub fn paths() -> Paths {
-        path! {
+        charted_openapi::add_paths! {
             // organizations
 
             // repositories
@@ -172,11 +164,9 @@ impl Document {
 
 impl OpenApi for Document {
     fn openapi() -> utoipa::openapi::OpenApi {
-        let builder = OpenApiBuilder::new()
-            .components(Some(COMPONENTS.clone()))
-            .paths(Document::paths())
-            .paths(Document::v1())
-            .build();
+        let mut builder = OpenApiBuilder::new().components(Some(COMPONENTS.clone())).build();
+        builder.paths.paths.extend(Document::paths().paths);
+        builder.paths.paths.extend(Document::v1().paths);
 
         let mut us = openapi();
         us.merge(builder);

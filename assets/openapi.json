@@ -21,6 +21,758 @@
         }
     ],
     "paths": {
+        "/": {
+            "get": {
+                "tags": ["Main"],
+                "description": "Main entrypoint to charted-server. This is just a generic \"hello world\" response.",
+                "operationId": "main",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiMainResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/apikeys": {
+            "get": {
+                "tags": ["ApiKeys"],
+                "description": "",
+                "operationId": "entrypoint",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiEntrypointResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/features": {
+            "get": {
+                "tags": ["Main"],
+                "description": "Retrieve this server's features. This is only for enabling or disabling features for API consumers.",
+                "operationId": "features",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiFeaturesResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/heartbeat": {
+            "get": {
+                "tags": ["Main"],
+                "description": "Generic healthcheck endpoint to use for Docker and Kubernetes usage.",
+                "operationId": "heartbeat",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/indexes/{idOrName}": {
+            "get": {
+                "tags": ["Main", "Users", "Organizations"],
+                "description": "Returns a `ChartIndex` for a specific user or organization.",
+                "operationId": "get_index",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Helm index for the user or organization",
+                        "content": {
+                            "text/yaml": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ChartIndex"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User or Organization was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/info": {
+            "get": {
+                "tags": ["Main"],
+                "description": "REST handler for getting more information about this instance that can be visible for API consumers.",
+                "operationId": "info",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiInfoResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "get": {
+                "tags": ["Users"],
+                "description": "Generic entrypoint route for the Users API.",
+                "operationId": "users",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiEntrypointResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": ["Users"],
+                "description": "Creates a new user if the server allows registrations.",
+                "operationId": "create_user",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiUserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Whether if this server doesn't allow registrations",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "If the `username` or `email` was taken.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": ["Users"],
+                "description": "Patches the current authenticated user's metadata.",
+                "operationId": "patch_user",
+                "responses": {
+                    "204": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiEmptyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "If the request body was invalid (i.e, validation errors)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "If the session couldn't be validated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "(Bearer token only) - if the JWT was invalid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "If the request body contained invalid data, or if the session header contained invalid data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/@me": {
+            "get": {
+                "tags": ["Users"],
+                "description": "Returns a [User] from an authenticated request.",
+                "operationId": "get_self",
+                "responses": {
+                    "200": {
+                        "description": "Returns the current authenticated user's metadata",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiUserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "If the request body was invalid (i.e, validation errors)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "If the session couldn't be validated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "(Bearer token only) - if the JWT was invalid.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "If the request body contained invalid data, or if the session header contained invalid data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/@me/avatar": {
+            "get": {
+                "tags": ["Users", "Avatars"],
+                "description": "Returns the current authenticated user's current avatar. Use the [`GET /users/@me/avatar/{hash}.png`] REST handler\n to grab by a specific hash.\n\n [`GET /users/@me/avatar/{hash}.png`]: https://charts.noelware.org/docs/server/latest/api/reference/users#GET-/users/@me/avatar/{hash}.png",
+                "operationId": "get_my_current_avatar",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Users", "Avatars"],
+                "description": "Uploads a user avatar.",
+                "operationId": "upload_user_avatar",
+                "responses": {
+                    "201": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiEmptyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "Not Acceptable",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/@me/repositories": {
+            "put": {
+                "tags": ["Repositories"],
+                "description": "Creates a [`Repository`] with the current authenticated user as the owner of the repository.",
+                "operationId": "create_user_repository",
+                "responses": {
+                    "201": {
+                        "description": "Repository created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiRepositoryResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict: repository with that name already exists on the user's account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/login": {
+            "post": {
+                "tags": ["Users", "Sessions"],
+                "description": "Creates a new session and returns details about the newly created session.",
+                "operationId": "login",
+                "responses": {
+                    "201": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiSessionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid payload received.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Invalid password received",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown User",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/sessions/logout": {
+            "delete": {
+                "tags": ["Users", "Sessions"],
+                "description": "Attempts to destroy the current authenticated session.",
+                "operationId": "logout",
+                "responses": {
+                    "201": {
+                        "description": "Session was deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiEmptyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "If the authenticated user didn't provide a session token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/sessions/refresh-token": {
+            "post": {
+                "tags": ["Users", "Sessions"],
+                "description": "",
+                "operationId": "refresh_session_token",
+                "responses": {
+                    "201": {
+                        "description": "Session was fully restored with a new one",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiSessionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "If the authenticated user didn't provide a refresh token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{idOrName}": {
+            "get": {
+                "tags": ["Users"],
+                "description": "Retrieve a [`User`] object.",
+                "operationId": "get_user",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiUserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid `idOrName` specified",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Unknown User",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{idOrName}/avatar": {
+            "get": {
+                "tags": ["Users", "Avatars"],
+                "description": "Returns the user's current avatar. Use the [`GET /users/{idOrName}/avatar/{hash}.png`] REST handler\n to grab by a specific hash.\n\n [`GET /users/{idOrName}/avatar/{hash}.png`]: https://charts.noelware.org/docs/server/latest/api/reference/users#GET-/users/{idOrName}/avatar/{hash}.png",
+                "operationId": "get_current_user_avatar",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{idOrName}/repositories": {
+            "get": {
+                "tags": ["Users", "Repositories"],
+                "description": "Retrieve a list of all a user's repositories.",
+                "operationId": "list_user_repositories",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Cursor to passthrough to proceed into the next or previous page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
+                            "minLength": 15
+                        }
+                    },
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "Order to sort the entries by.",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/components/schemas/OrderBy"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "How many elements should be present in a page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of all the user's repositories",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiRepositoryPaginatedResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/": {
             "get": {
                 "tags": ["Main"],
@@ -719,6 +1471,27 @@
                 "operationId": "list_user_repositories",
                 "parameters": [
                     {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Cursor to passthrough to proceed into the next or previous page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
+                            "minLength": 15
+                        }
+                    },
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
+                    },
+                    {
                         "name": "order",
                         "in": "query",
                         "description": "Order to sort the entries by.",
@@ -735,27 +1508,6 @@
                         "schema": {
                             "type": "integer",
                             "format": "int32"
-                        }
-                    },
-                    {
-                        "name": "idOrName",
-                        "in": "path",
-                        "description": "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/components/schemas/NameOrSnowflake"
-                        }
-                    },
-                    {
-                        "name": "cursor",
-                        "in": "query",
-                        "description": "Cursor to passthrough to proceed into the next or previous page.",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64",
-                            "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
-                            "minLength": 15
                         }
                     }
                 ],
@@ -808,8 +1560,7 @@
                     "scopes": {
                         "type": "integer",
                         "format": "int64",
-                        "description": "The scopes that are attached to this API key resource.",
-                        "minimum": 0
+                        "description": "The scopes that are attached to this API key resource."
                     },
                     "token": {
                         "type": "string",

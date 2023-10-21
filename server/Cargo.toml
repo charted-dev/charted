@@ -23,10 +23,10 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
 [dependencies]
 ansi_term = "0.12.1"
-argon2 = "0.5.1"
+argon2 = "0.5.2"
 async-trait = "0.1.71"
-axum = { version = "0.6.18", features = ["headers", "macros", "http2", "tracing", "multipart"] }
-base64 = "0.21.2"
+axum = { version = "0.6.20", features = ["headers", "macros", "http2", "tracing", "multipart"] }
+base64 = "0.21.4"
 charted-avatars = { version = "0.0.0-devel.0", path = "../crates/avatars" }
 charted-common = { version = "0.0.0-devel.0", path = "../crates/common" }
 charted-config = { version = "0.0.0-devel.0", path = "../crates/config" }
