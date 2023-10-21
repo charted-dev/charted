@@ -23,7 +23,7 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
 [dependencies]
 charted-sessions = { version = "0.0.0-devel.0", path = "../.." }
-reqwest = "0.11.20"
+reqwest = "0.11.22"
 sentry = "0.31.7"
 serde = "1.0.188"
 tracing = "0.1.37"

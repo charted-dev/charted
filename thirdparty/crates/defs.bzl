@@ -322,7 +322,7 @@ _NORMAL_DEPENDENCIES = {
             "bytes": "@crate_index__bytes-1.5.0//:bytes",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "remi-core": "@crate_index__remi-core-0.4.0//:remi_core",
-            "reqwest": "@crate_index__reqwest-0.11.20//:reqwest",
+            "reqwest": "@crate_index__reqwest-0.11.22//:reqwest",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
         },
     },
@@ -502,7 +502,7 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/sessions/integrations/github": {
         _COMMON_CONDITION: {
-            "reqwest": "@crate_index__reqwest-0.11.20//:reqwest",
+            "reqwest": "@crate_index__reqwest-0.11.22//:reqwest",
             "sentry": "@crate_index__sentry-0.31.7//:sentry",
             "serde": "@crate_index__serde-1.0.188//:serde",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
@@ -632,7 +632,7 @@ _NORMAL_DEPENDENCIES = {
             "dotenv": "@crate_index__dotenv-0.15.0//:dotenv",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
-            "reqwest": "@crate_index__reqwest-0.11.20//:reqwest",
+            "reqwest": "@crate_index__reqwest-0.11.22//:reqwest",
             "serde": "@crate_index__serde-1.0.188//:serde",
             "serde_json": "@crate_index__serde_json-1.0.106//:serde_json",
             "serde_yaml": "@crate_index__serde_yaml-0.9.25//:serde_yaml",
@@ -4852,12 +4852,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__reqwest-0.11.20",
-        sha256 = "3e9ad3fe7488d7e34558a2033d45a0c90b72d97b4f80705666fea71472e2e6a1",
+        name = "crate_index__reqwest-0.11.22",
+        sha256 = "046cd98826c46c2ac8ddecae268eb5c2e58628688a5fc7a2643704a73faba95b",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/reqwest/0.11.20/download"],
-        strip_prefix = "reqwest-0.11.20",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.reqwest-0.11.20.bazel"),
+        urls = ["https://crates.io/api/v1/crates/reqwest/0.11.22/download"],
+        strip_prefix = "reqwest-0.11.22",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.reqwest-0.11.22.bazel"),
     )
 
     maybe(
@@ -5768,6 +5768,26 @@ def crate_repositories():
         urls = ["https://crates.io/api/v1/crates/sysinfo/0.29.10/download"],
         strip_prefix = "sysinfo-0.29.10",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sysinfo-0.29.10.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__system-configuration-0.5.1",
+        sha256 = "ba3a3adc5c275d719af8cb4272ea1c4a6d668a777f37e115f6d11ddbc1c8e0e7",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/system-configuration/0.5.1/download"],
+        strip_prefix = "system-configuration-0.5.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.system-configuration-0.5.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__system-configuration-sys-0.5.0",
+        sha256 = "a75fb188eb626b924683e3b95e3a48e63551fcfb51949de2f06a9d91dbee93c9",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/system-configuration-sys/0.5.0/download"],
+        strip_prefix = "system-configuration-sys-0.5.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.system-configuration-sys-0.5.0.bazel"),
     )
 
     maybe(
