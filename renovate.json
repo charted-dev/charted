@@ -6,11 +6,12 @@
     "vulnerabilityAlerts": {
         "labels": ["security"]
     },
-    "postUpgradeTasks": {
-        "executionMode": "update",
-        "fileFilters": ["**/Cargo.toml"],
-        "commands": [
-            "./dev sync-deps"
-        ]
-    }
+    "packageRules": [
+        {
+            "matchPackagePatterns": ["*"],
+            "postUpgradeTasks": {
+                "commands": ["./dev sync-deps"]
+            }
+        }
+    ]
 }
