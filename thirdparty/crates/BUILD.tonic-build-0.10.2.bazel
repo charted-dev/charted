@@ -44,7 +44,7 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.10.0",
+    version = "0.10.2",
     deps = [
         "@crate_index__prettyplease-0.2.15//:prettyplease",
         "@crate_index__proc-macro2-1.0.69//:proc_macro2",
