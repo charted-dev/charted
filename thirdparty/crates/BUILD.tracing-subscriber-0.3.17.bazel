@@ -57,7 +57,7 @@ rust_library(
         "@crate_index__sharded-slab-0.1.4//:sharded_slab",
         "@crate_index__smallvec-1.11.0//:smallvec",
         "@crate_index__thread_local-1.1.7//:thread_local",
-        "@crate_index__tracing-core-0.1.31//:tracing_core",
+        "@crate_index__tracing-core-0.1.32//:tracing_core",
         "@crate_index__tracing-log-0.1.3//:tracing_log",
     ],
 )

@@ -66,6 +66,6 @@ rust_library(
         "@crate_index__pin-project-lite-0.2.13//:pin_project_lite",
         "@crate_index__tower-layer-0.3.2//:tower_layer",
         "@crate_index__tower-service-0.3.2//:tower_service",
-        "@crate_index__tracing-0.1.37//:tracing",
+        "@crate_index__tracing-0.1.40//:tracing",
     ],
 )

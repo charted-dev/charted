@@ -312,7 +312,7 @@ _NORMAL_DEPENDENCIES = {
             "sqlx": "@crate_index__sqlx-0.7.2//:sqlx",
             "sysinfo": "@crate_index__sysinfo-0.29.10//:sysinfo",
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
-            "tracing": "@crate_index__tracing-0.1.37//:tracing",
+            "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
             "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
         },
@@ -323,7 +323,7 @@ _NORMAL_DEPENDENCIES = {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "remi-core": "@crate_index__remi-core-0.4.0//:remi_core",
             "reqwest": "@crate_index__reqwest-0.11.22//:reqwest",
-            "tracing": "@crate_index__tracing-0.1.37//:tracing",
+            "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
     },
     "crates/common": {
@@ -343,7 +343,7 @@ _NORMAL_DEPENDENCIES = {
             "serde_json": "@crate_index__serde_json-1.0.107//:serde_json",
             "sqlx": "@crate_index__sqlx-0.7.2//:sqlx",
             "thiserror": "@crate_index__thiserror-1.0.50//:thiserror",
-            "tracing": "@crate_index__tracing-0.1.37//:tracing",
+            "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
             "validator": "@crate_index__validator-0.16.1//:validator",
         },
@@ -363,7 +363,7 @@ _NORMAL_DEPENDENCIES = {
             "serde": "@crate_index__serde-1.0.189//:serde",
             "serde_yaml": "@crate_index__serde_yaml-0.9.25//:serde_yaml",
             "thiserror": "@crate_index__thiserror-1.0.50//:thiserror",
-            "tracing": "@crate_index__tracing-0.1.37//:tracing",
+            "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
     },
     "crates/database": {
@@ -372,14 +372,14 @@ _NORMAL_DEPENDENCIES = {
             "sentry": "@crate_index__sentry-0.31.7//:sentry",
             "serde": "@crate_index__serde-1.0.189//:serde",
             "sqlx": "@crate_index__sqlx-0.7.2//:sqlx",
-            "tracing": "@crate_index__tracing-0.1.37//:tracing",
+            "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
     },
     "crates/emails": {
         _COMMON_CONDITION: {
             "prost": "@crate_index__prost-0.12.1//:prost",
             "tonic": "@crate_index__tonic-0.10.2//:tonic",
-            "tracing": "@crate_index__tracing-0.1.37//:tracing",
+            "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
     },
     "crates/helm-charts": {
@@ -396,7 +396,7 @@ _NORMAL_DEPENDENCIES = {
             "sentry": "@crate_index__sentry-0.31.7//:sentry",
             "serde_yaml": "@crate_index__serde_yaml-0.9.25//:serde_yaml",
             "tar": "@crate_index__tar-0.4.40//:tar",
-            "tracing": "@crate_index__tracing-0.1.37//:tracing",
+            "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
     },
     "crates/logging": {
@@ -405,7 +405,7 @@ _NORMAL_DEPENDENCIES = {
             "chrono": "@crate_index__chrono-0.4.31//:chrono",
             "sentry-tracing": "@crate_index__sentry-tracing-0.31.7//:sentry_tracing",
             "serde_json": "@crate_index__serde_json-1.0.107//:serde_json",
-            "tracing": "@crate_index__tracing-0.1.37//:tracing",
+            "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "tracing-log": "@crate_index__tracing-log-0.1.3//:tracing_log",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
         },
@@ -447,7 +447,7 @@ _NORMAL_DEPENDENCIES = {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "redis": "@crate_index__redis-0.23.3//:redis",
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
-            "tracing": "@crate_index__tracing-0.1.37//:tracing",
+            "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
     },
     "crates/search": {
@@ -465,7 +465,7 @@ _NORMAL_DEPENDENCIES = {
             "serde": "@crate_index__serde-1.0.189//:serde",
             "serde_json": "@crate_index__serde_json-1.0.107//:serde_json",
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
-            "tracing": "@crate_index__tracing-0.1.37//:tracing",
+            "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "url": "@crate_index__url-2.4.1//:url",
         },
     },
@@ -474,7 +474,7 @@ _NORMAL_DEPENDENCIES = {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "meilisearch-sdk": "@crate_index__meilisearch-sdk-0.24.2//:meilisearch_sdk",
             "serde": "@crate_index__serde-1.0.189//:serde",
-            "tracing": "@crate_index__tracing-0.1.37//:tracing",
+            "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
     },
     "crates/sessions": {
@@ -489,7 +489,7 @@ _NORMAL_DEPENDENCIES = {
             "sqlx": "@crate_index__sqlx-0.7.2//:sqlx",
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
             "tokio-util": "@crate_index__tokio-util-0.7.9//:tokio_util",
-            "tracing": "@crate_index__tracing-0.1.37//:tracing",
+            "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
             "uuid": "@crate_index__uuid-1.4.1//:uuid",
         },
@@ -505,7 +505,7 @@ _NORMAL_DEPENDENCIES = {
             "reqwest": "@crate_index__reqwest-0.11.22//:reqwest",
             "sentry": "@crate_index__sentry-0.31.7//:sentry",
             "serde": "@crate_index__serde-1.0.189//:serde",
-            "tracing": "@crate_index__tracing-0.1.37//:tracing",
+            "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
     },
     "crates/sessions/ldap": {
@@ -514,7 +514,7 @@ _NORMAL_DEPENDENCIES = {
             "ldap3": "@crate_index__ldap3-0.11.3//:ldap3",
             "sentry": "@crate_index__sentry-0.31.7//:sentry",
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
-            "tracing": "@crate_index__tracing-0.1.37//:tracing",
+            "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
     },
     "crates/sessions/local": {
@@ -527,14 +527,14 @@ _NORMAL_DEPENDENCIES = {
             "sentry": "@crate_index__sentry-0.31.7//:sentry",
             "serde_json": "@crate_index__serde_json-1.0.107//:serde_json",
             "sqlx": "@crate_index__sqlx-0.7.2//:sqlx",
-            "tracing": "@crate_index__tracing-0.1.37//:tracing",
+            "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "uuid": "@crate_index__uuid-1.4.1//:uuid",
         },
     },
     "crates/sessions/passwordless": {
         _COMMON_CONDITION: {
             "sentry": "@crate_index__sentry-0.31.7//:sentry",
-            "tracing": "@crate_index__tracing-0.1.37//:tracing",
+            "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
     },
     "crates/sessions/zitadel": {
@@ -552,7 +552,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "logos": "@crate_index__logos-0.13.0//:logos",
             "sentry": "@crate_index__sentry-0.31.7//:sentry",
-            "tracing": "@crate_index__tracing-0.1.37//:tracing",
+            "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
     },
     "server": {
@@ -586,7 +586,7 @@ _NORMAL_DEPENDENCIES = {
             "tower": "@crate_index__tower-0.4.13//:tower",
             "tower-http": "@crate_index__tower-http-0.4.4//:tower_http",
             "tower-layer": "@crate_index__tower-layer-0.3.2//:tower_layer",
-            "tracing": "@crate_index__tracing-0.1.37//:tracing",
+            "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "tracing-log": "@crate_index__tracing-log-0.1.3//:tracing_log",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
             "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
@@ -616,7 +616,7 @@ _NORMAL_DEPENDENCIES = {
             "starlark": "@crate_index__starlark-0.10.0//:starlark",
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
             "toml": "@crate_index__toml-0.7.8//:toml",
-            "tracing": "@crate_index__tracing-0.1.37//:tracing",
+            "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
             "which": "@crate_index__which-4.4.2//:which",
         },
@@ -638,7 +638,7 @@ _NORMAL_DEPENDENCIES = {
             "serde_yaml": "@crate_index__serde_yaml-0.9.25//:serde_yaml",
             "sysinfo": "@crate_index__sysinfo-0.29.10//:sysinfo",
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
-            "tracing": "@crate_index__tracing-0.1.37//:tracing",
+            "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
             "url": "@crate_index__url-2.4.1//:url",
             "which": "@crate_index__which-4.4.2//:which",
@@ -6102,32 +6102,32 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__tracing-0.1.37",
-        sha256 = "8ce8c33a8d48bd45d624a6e523445fd21ec13d3653cd51f681abf67418f54eb8",
+        name = "crate_index__tracing-0.1.40",
+        sha256 = "c3523ab5a71916ccf420eebdf5521fcef02141234bbc0b8a49f2fdc4544364ef",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/tracing/0.1.37/download"],
-        strip_prefix = "tracing-0.1.37",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tracing-0.1.37.bazel"),
+        urls = ["https://crates.io/api/v1/crates/tracing/0.1.40/download"],
+        strip_prefix = "tracing-0.1.40",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tracing-0.1.40.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__tracing-attributes-0.1.26",
-        sha256 = "5f4f31f56159e98206da9efd823404b79b6ef3143b4a7ab76e67b1751b25a4ab",
+        name = "crate_index__tracing-attributes-0.1.27",
+        sha256 = "34704c8d6ebcbc939824180af020566b01a7c01f80641264eba0999f6c2b6be7",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/tracing-attributes/0.1.26/download"],
-        strip_prefix = "tracing-attributes-0.1.26",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tracing-attributes-0.1.26.bazel"),
+        urls = ["https://crates.io/api/v1/crates/tracing-attributes/0.1.27/download"],
+        strip_prefix = "tracing-attributes-0.1.27",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tracing-attributes-0.1.27.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__tracing-core-0.1.31",
-        sha256 = "0955b8137a1df6f1a2e9a37d8a6656291ff0297c1a97c24e0d8425fe2312f79a",
+        name = "crate_index__tracing-core-0.1.32",
+        sha256 = "c06d3da6113f116aaee68e4d601191614c9053067f9ab7f6edbcb161237daa54",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/tracing-core/0.1.31/download"],
-        strip_prefix = "tracing-core-0.1.31",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tracing-core-0.1.31.bazel"),
+        urls = ["https://crates.io/api/v1/crates/tracing-core/0.1.32/download"],
+        strip_prefix = "tracing-core-0.1.32",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tracing-core-0.1.32.bazel"),
     )
 
     maybe(
