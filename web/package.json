@@ -15,9 +15,9 @@
         "dev": "vite"
     },
     "dependencies": {
-        "@fontsource/cantarell": "5.0.5",
-        "@fontsource/inter": "5.0.5",
-        "@fontsource/jetbrains-mono": "5.0.5",
+        "@fontsource/cantarell": "5.0.8",
+        "@fontsource/inter": "5.0.15",
+        "@fontsource/jetbrains-mono": "5.0.17",
         "@formkit/vue": "1.1.0",
         "@formkit/zod": "1.1.0",
         "@iconify/vue": "4.1.1",
@@ -26,7 +26,7 @@
         "@tailwindcss/forms": "0.5.6",
         "@tailwindcss/typography": "0.5.10",
         "@tanstack/vue-query": "4.29.25",
-        "@vue/compiler-sfc": "3.3.4",
+        "@vue/compiler-sfc": "3.3.6",
         "@vueuse/core": "10.2.1",
         "@vueuse/head": "1.1.26",
         "autoprefixer": "10.4.16",
@@ -41,9 +41,9 @@
         "radix-vue": "0.2.3",
         "shikiji": "0.6.10",
         "tailwindcss": "3.3.3",
-        "vue": "3.3.4",
-        "vue-router": "4.2.4",
-        "zod": "3.22.3"
+        "vue": "3.3.6",
+        "vue-router": "4.2.5",
+        "zod": "3.22.4"
     },
     "devDependencies": {
         "@augu/eslint-config": "4.0.1",
@@ -65,13 +65,13 @@
         "typescript": "5.1.6",
         "unplugin-auto-import": "0.16.6",
         "unplugin-fluent-vue": "1.1.4",
-        "unplugin-vue-components": "0.25.1",
+        "unplugin-vue-components": "0.25.2",
         "unplugin-vue-router": "0.6.4",
         "vite": "4.4.4",
-        "vite-plugin-vue-devtools": "1.0.0-alpha.2",
+        "vite-plugin-vue-devtools": "1.0.0-rc.5",
         "vite-plugin-vue-layouts": "0.8.0",
         "vitest": "0.33.0",
-        "vue-eslint-parser": "9.3.1",
-        "vue-tsc": "1.8.5"
+        "vue-eslint-parser": "9.3.2",
+        "vue-tsc": "1.8.19"
     }
 }
