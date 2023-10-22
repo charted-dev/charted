@@ -59,7 +59,7 @@ rust_library(
         "@crate_index__http-0.2.9//:http",
         "@crate_index__once_cell-1.18.0//:once_cell",
         "@crate_index__percent-encoding-2.3.0//:percent_encoding",
-        "@crate_index__regex-1.9.5//:regex",
+        "@crate_index__regex-1.10.2//:regex",
         "@crate_index__sha2-0.10.7//:sha2",
         "@crate_index__time-0.3.28//:time",
         "@crate_index__tracing-0.1.40//:tracing",

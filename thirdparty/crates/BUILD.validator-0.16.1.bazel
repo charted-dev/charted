@@ -50,7 +50,7 @@ rust_library(
     deps = [
         "@crate_index__idna-0.4.0//:idna",
         "@crate_index__lazy_static-1.4.0//:lazy_static",
-        "@crate_index__regex-1.9.5//:regex",
+        "@crate_index__regex-1.10.2//:regex",
         "@crate_index__serde-1.0.189//:serde",
         "@crate_index__serde_json-1.0.107//:serde_json",
         "@crate_index__url-2.4.1//:url",
