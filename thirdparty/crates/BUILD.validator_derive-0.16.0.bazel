@@ -45,7 +45,7 @@ rust_proc_macro(
         "@crate_index__proc-macro-error-1.0.4//:proc_macro_error",
         "@crate_index__proc-macro2-1.0.69//:proc_macro2",
         "@crate_index__quote-1.0.33//:quote",
-        "@crate_index__regex-1.9.5//:regex",
+        "@crate_index__regex-1.10.2//:regex",
         "@crate_index__syn-1.0.109//:syn",
         "@crate_index__validator_types-0.16.0//:validator_types",
     ],

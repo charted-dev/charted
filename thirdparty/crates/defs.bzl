@@ -337,7 +337,7 @@ _NORMAL_DEPENDENCIES = {
             "md-5": "@crate_index__md-5-0.10.6//:md5",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
             "rand": "@crate_index__rand-0.8.5//:rand",
-            "regex": "@crate_index__regex-1.9.5//:regex",
+            "regex": "@crate_index__regex-1.10.2//:regex",
             "semver": "@crate_index__semver-1.0.20//:semver",
             "serde": "@crate_index__serde-1.0.189//:serde",
             "serde_json": "@crate_index__serde_json-1.0.107//:serde_json",
@@ -357,7 +357,7 @@ _NORMAL_DEPENDENCIES = {
             "lazy_static": "@crate_index__lazy_static-1.4.0//:lazy_static",
             "merge-struct": "@crate_index__merge-struct-0.1.0//:merge_struct",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
-            "regex": "@crate_index__regex-1.9.5//:regex",
+            "regex": "@crate_index__regex-1.10.2//:regex",
             "remi-fs": "@crate_index__remi-fs-0.4.0//:remi_fs",
             "remi-s3": "@crate_index__remi-s3-0.4.0//:remi_s3",
             "serde": "@crate_index__serde-1.0.189//:serde",
@@ -390,7 +390,7 @@ _NORMAL_DEPENDENCIES = {
             "itertools": "@crate_index__itertools-0.11.0//:itertools",
             "multer": "@crate_index__multer-2.1.0//:multer",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
-            "regex": "@crate_index__regex-1.9.5//:regex",
+            "regex": "@crate_index__regex-1.10.2//:regex",
             "remi-core": "@crate_index__remi-core-0.4.0//:remi_core",
             "semver": "@crate_index__semver-1.0.20//:semver",
             "sentry": "@crate_index__sentry-0.31.7//:sentry",
@@ -4782,22 +4782,22 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__regex-1.9.5",
-        sha256 = "697061221ea1b4a94a624f67d0ae2bfe4e22b8a17b6a192afb11046542cc8c47",
+        name = "crate_index__regex-1.10.2",
+        sha256 = "380b951a9c5e80ddfd6136919eef32310721aa4aacd4889a8d39124b026ab343",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/regex/1.9.5/download"],
-        strip_prefix = "regex-1.9.5",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.regex-1.9.5.bazel"),
+        urls = ["https://crates.io/api/v1/crates/regex/1.10.2/download"],
+        strip_prefix = "regex-1.10.2",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.regex-1.10.2.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__regex-automata-0.3.8",
-        sha256 = "c2f401f4955220693b56f8ec66ee9c78abffd8d1c4f23dc41a23839eb88f0795",
+        name = "crate_index__regex-automata-0.4.3",
+        sha256 = "5f804c7828047e88b2d32e2d7fe5a105da8ee3264f01902f796c8e067dc2483f",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/regex-automata/0.3.8/download"],
-        strip_prefix = "regex-automata-0.3.8",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.regex-automata-0.3.8.bazel"),
+        urls = ["https://crates.io/api/v1/crates/regex-automata/0.4.3/download"],
+        strip_prefix = "regex-automata-0.4.3",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.regex-automata-0.4.3.bazel"),
     )
 
     maybe(
@@ -4812,12 +4812,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__regex-syntax-0.7.5",
-        sha256 = "dbb5fb1acd8a1a18b3dd5be62d25485eb770e05afb408a9627d14d451bae12da",
+        name = "crate_index__regex-syntax-0.8.2",
+        sha256 = "c08c74e62047bb2de4ff487b251e4a92e24f48745648451635cec7d591162d9f",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/regex-syntax/0.7.5/download"],
-        strip_prefix = "regex-syntax-0.7.5",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.regex-syntax-0.7.5.bazel"),
+        urls = ["https://crates.io/api/v1/crates/regex-syntax/0.8.2/download"],
+        strip_prefix = "regex-syntax-0.8.2",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.regex-syntax-0.8.2.bazel"),
     )
 
     maybe(

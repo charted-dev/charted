@@ -15,7 +15,7 @@ package(default_visibility = ["//visibility:public"])
 # ])
 
 rust_library(
-    name = "regex_syntax",
+    name = "regex",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -30,6 +30,13 @@ rust_library(
     ),
     crate_features = [
         "default",
+        "perf",
+        "perf-backtrack",
+        "perf-cache",
+        "perf-dfa",
+        "perf-inline",
+        "perf-literal",
+        "perf-onepass",
         "std",
         "unicode",
         "unicode-age",
@@ -45,10 +52,16 @@ rust_library(
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=regex-syntax",
+        "crate-name=regex",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.7.5",
+    version = "1.10.2",
+    deps = [
+        "@crate_index__aho-corasick-1.0.5//:aho_corasick",
+        "@crate_index__memchr-2.6.3//:memchr",
+        "@crate_index__regex-automata-0.4.3//:regex_automata",
+        "@crate_index__regex-syntax-0.8.2//:regex_syntax",
+    ],
 )

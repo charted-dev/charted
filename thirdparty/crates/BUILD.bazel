@@ -315,7 +315,7 @@ alias(
 
 alias(
     name = "regex",
-    actual = "@crate_index__regex-1.9.5//:regex",
+    actual = "@crate_index__regex-1.10.2//:regex",
     tags = ["manual"],
 )
 

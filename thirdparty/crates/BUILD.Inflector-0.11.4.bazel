@@ -47,6 +47,6 @@ rust_library(
     version = "0.11.4",
     deps = [
         "@crate_index__lazy_static-1.4.0//:lazy_static",
-        "@crate_index__regex-1.9.5//:regex",
+        "@crate_index__regex-1.10.2//:regex",
     ],
 )
