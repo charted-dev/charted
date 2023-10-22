@@ -65,7 +65,7 @@
         "typescript": "5.1.6",
         "unplugin-auto-import": "0.16.6",
         "unplugin-fluent-vue": "1.1.4",
-        "unplugin-vue-components": "0.25.1",
+        "unplugin-vue-components": "0.25.2",
         "unplugin-vue-router": "0.6.4",
         "vite": "4.4.4",
         "vite-plugin-vue-devtools": "1.0.0-alpha.2",
