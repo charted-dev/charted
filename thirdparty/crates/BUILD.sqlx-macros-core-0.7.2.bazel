@@ -65,7 +65,7 @@ rust_library(
         "@crate_index__sqlx-postgres-0.7.2//:sqlx_postgres",
         "@crate_index__syn-1.0.109//:syn",
         "@crate_index__tempfile-3.8.0//:tempfile",
-        "@crate_index__tokio-1.32.0//:tokio",
+        "@crate_index__tokio-1.33.0//:tokio",
         "@crate_index__url-2.4.1//:url",
     ],
 )

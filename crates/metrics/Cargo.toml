@@ -28,4 +28,4 @@ dyn-clone = "1.0.14"
 erased-serde = "0.3.31"
 prometheus-client = "0.21.2"
 serde = { version = "1.0.189", features = ["derive"] }
-tokio = { version = "1.29.1", features = ["rt"] }
+tokio = { version = "1.33.0", features = ["rt"] }

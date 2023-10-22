@@ -56,7 +56,7 @@ rust_library(
         "@crate_index__log-0.4.20//:log",
         "@crate_index__rustls-0.20.9//:rustls",
         "@crate_index__rustls-native-certs-0.6.3//:rustls_native_certs",
-        "@crate_index__tokio-1.32.0//:tokio",
+        "@crate_index__tokio-1.33.0//:tokio",
         "@crate_index__tokio-rustls-0.23.4//:tokio_rustls",
     ],
 )
