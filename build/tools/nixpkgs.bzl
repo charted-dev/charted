@@ -16,12 +16,10 @@
 # buildifier: disable=module-docstring
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-__TWEAG_NIXPKGS_COMMIT = "effff479b3ef228c1b998670c73193741b61024d"
-
 def charted_nixpkgs_repositories():
     http_archive(
         name = "io_tweag_rules_nixpkgs",
         sha256 = "638b2ede9381fdb38431a4c2ed4aaae9cac10bea94e901dcc1530ed8911b3e33",
-        strip_prefix = "rules_nixpkgs-%s" % __TWEAG_NIXPKGS_COMMIT,
-        urls = ["https://github.com/tweag/rules_nixpkgs/archive/%s.tar.gz" % __TWEAG_NIXPKGS_COMMIT],
+        strip_prefix = "rules_nixpkgs-effff479b3ef228c1b998670c73193741b61024d",
+        urls = ["https://github.com/tweag/rules_nixpkgs/archive/effff479b3ef228c1b998670c73193741b61024d.tar.gz"],
     )
