@@ -378,7 +378,7 @@ _NORMAL_DEPENDENCIES = {
     "crates/emails": {
         _COMMON_CONDITION: {
             "prost": "@crate_index__prost-0.12.1//:prost",
-            "tonic": "@crate_index__tonic-0.10.0//:tonic",
+            "tonic": "@crate_index__tonic-0.10.2//:tonic",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
         },
     },
@@ -6042,12 +6042,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__tonic-0.10.0",
-        sha256 = "5469afaf78a11265c343a88969045c1568aa8ecc6c787dbf756e92e70f199861",
+        name = "crate_index__tonic-0.10.2",
+        sha256 = "d560933a0de61cf715926b9cac824d4c883c2c43142f787595e48280c40a1d0e",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/tonic/0.10.0/download"],
-        strip_prefix = "tonic-0.10.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tonic-0.10.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/tonic/0.10.2/download"],
+        strip_prefix = "tonic-0.10.2",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tonic-0.10.2.bazel"),
     )
 
     maybe(

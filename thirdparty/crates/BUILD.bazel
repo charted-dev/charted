@@ -477,7 +477,7 @@ alias(
 
 alias(
     name = "tonic",
-    actual = "@crate_index__tonic-0.10.0//:tonic",
+    actual = "@crate_index__tonic-0.10.2//:tonic",
     tags = ["manual"],
 )
 
