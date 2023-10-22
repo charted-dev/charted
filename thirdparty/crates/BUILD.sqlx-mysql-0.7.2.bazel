@@ -72,7 +72,7 @@ rust_library(
         "@crate_index__smallvec-1.11.0//:smallvec",
         "@crate_index__sqlx-core-0.7.2//:sqlx_core",
         "@crate_index__stringprep-0.1.4//:stringprep",
-        "@crate_index__thiserror-1.0.48//:thiserror",
+        "@crate_index__thiserror-1.0.50//:thiserror",
         "@crate_index__tracing-0.1.37//:tracing",
         "@crate_index__whoami-1.4.1//:whoami",
     ],
