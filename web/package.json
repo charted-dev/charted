@@ -15,9 +15,9 @@
         "dev": "vite"
     },
     "dependencies": {
-        "@fontsource/cantarell": "5.0.5",
-        "@fontsource/inter": "5.0.5",
-        "@fontsource/jetbrains-mono": "5.0.5",
+        "@fontsource/cantarell": "5.0.8",
+        "@fontsource/inter": "5.0.15",
+        "@fontsource/jetbrains-mono": "5.0.17",
         "@formkit/vue": "1.1.0",
         "@formkit/zod": "1.1.0",
         "@iconify/vue": "4.1.1",

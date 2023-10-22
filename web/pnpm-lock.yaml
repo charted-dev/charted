@@ -6,14 +6,14 @@ settings:
 
 dependencies:
   '@fontsource/cantarell':
-    specifier: 5.0.5
-    version: 5.0.5
+    specifier: 5.0.8
+    version: 5.0.8
   '@fontsource/inter':
-    specifier: 5.0.5
-    version: 5.0.5
+    specifier: 5.0.15
+    version: 5.0.15
   '@fontsource/jetbrains-mono':
-    specifier: 5.0.5
-    version: 5.0.5
+    specifier: 5.0.17
+    version: 5.0.17
   '@formkit/vue':
     specifier: 1.1.0
     version: 1.1.0(tailwindcss@3.3.3)
@@ -1178,16 +1178,16 @@ packages:
     engines: {node: '>=14.0.0', npm: '>=7.0.0'}
     dev: true
 
-  /@fontsource/cantarell@5.0.5:
-    resolution: {integrity: sha512-BGhN4UrfJFYHtdF5+PVHLzhW6Co3otDxEP2uZJyDErcj9n6Q3ff3eMvAAFe+Hw7VdKOBoxaOF0YkCjwZ3d/90A==}
+  /@fontsource/cantarell@5.0.8:
+    resolution: {integrity: sha512-9vVu1vH2BtzbXi+GikEVY4+/BUNb7GD1/onxc6iLPQtgfUZg4DJhEkyuWYuzInagmL7k/9DBNb7pp//7VSIBOQ==}
     dev: false
 
-  /@fontsource/inter@5.0.5:
-    resolution: {integrity: sha512-RE1JmWRB6Kxo+1nXUnORSSH5uKgUZ2QEQE+h/nsNt758C+17G9y26E9QiAsIqsG13NpKhwn22EeECfyC+da5ew==}
+  /@fontsource/inter@5.0.15:
+    resolution: {integrity: sha512-/IoWYEXl8lqJEx50JqNPT+bI4VNwxb/bg2oOfvG8PiEsDsmHRFvWBVHlohBNn1+QdBf+KbAjU/gb4vlGOSsVWw==}
     dev: false
 
-  /@fontsource/jetbrains-mono@5.0.5:
-    resolution: {integrity: sha512-Smuppiu7QzNCatnccTXdUYbxUmEVywklM/hntWKhig0Q+hm7SYzQpNpxCR1Gm8npE8jpaKslhIsBPGuTBGZgdA==}
+  /@fontsource/jetbrains-mono@5.0.17:
+    resolution: {integrity: sha512-Y/EtdbwKwNQTGpnMrexX8SVW6Jqlh0nX2bNHI9Z9m6FsyjbocZIFNJqwSY9bDUoi7irGtz8nuidAN7FF8wYuJA==}
     dev: false
 
   /@formkit/core@1.1.0:
