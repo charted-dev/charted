@@ -24,7 +24,7 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 [dependencies]
 prost = "0.12.1"
 tonic = "0.10.2"
-tracing = "0.1.37"
+tracing = "0.1.40"
 
 [build-dependencies]
 tonic-build = "0.10.2"

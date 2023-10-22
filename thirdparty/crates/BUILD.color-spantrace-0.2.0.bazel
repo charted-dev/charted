@@ -42,7 +42,7 @@ rust_library(
     deps = [
         "@crate_index__once_cell-1.18.0//:once_cell",
         "@crate_index__owo-colors-3.5.0//:owo_colors",
-        "@crate_index__tracing-core-0.1.31//:tracing_core",
+        "@crate_index__tracing-core-0.1.32//:tracing_core",
         "@crate_index__tracing-error-0.2.0//:tracing_error",
     ],
 )

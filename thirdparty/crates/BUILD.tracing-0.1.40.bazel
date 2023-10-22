@@ -15,7 +15,7 @@ package(default_visibility = ["//visibility:public"])
 # ])
 
 rust_library(
-    name = "tracing_core",
+    name = "tracing",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -29,22 +29,29 @@ rust_library(
         ],
     ),
     crate_features = [
+        "attributes",
         "default",
-        "once_cell",
+        "log",
         "std",
+        "tracing-attributes",
     ],
     crate_root = "src/lib.rs",
     edition = "2018",
+    proc_macro_deps = [
+        "@crate_index__tracing-attributes-0.1.27//:tracing_attributes",
+    ],
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=tracing-core",
+        "crate-name=tracing",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.1.31",
+    version = "0.1.40",
     deps = [
-        "@crate_index__once_cell-1.18.0//:once_cell",
+        "@crate_index__log-0.4.20//:log",
+        "@crate_index__pin-project-lite-0.2.13//:pin_project_lite",
+        "@crate_index__tracing-core-0.1.32//:tracing_core",
     ],
 )

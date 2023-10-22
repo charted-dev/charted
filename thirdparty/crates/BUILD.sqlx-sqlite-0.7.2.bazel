@@ -53,7 +53,7 @@ rust_library(
         "@crate_index__percent-encoding-2.3.0//:percent_encoding",
         "@crate_index__serde-1.0.189//:serde",
         "@crate_index__sqlx-core-0.7.2//:sqlx_core",
-        "@crate_index__tracing-0.1.37//:tracing",
+        "@crate_index__tracing-0.1.40//:tracing",
         "@crate_index__url-2.4.1//:url",
     ],
 )
