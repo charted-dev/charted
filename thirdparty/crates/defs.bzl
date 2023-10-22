@@ -429,7 +429,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "proc-macro2": "@crate_index__proc-macro2-1.0.69//:proc_macro2",
             "quote": "@crate_index__quote-1.0.33//:quote",
-            "syn": "@crate_index__syn-2.0.37//:syn",
+            "syn": "@crate_index__syn-2.0.38//:syn",
         },
     },
     "crates/proc-macros": {
@@ -438,7 +438,7 @@ _NORMAL_DEPENDENCIES = {
             "proc-macro2": "@crate_index__proc-macro2-1.0.69//:proc_macro2",
             "quote": "@crate_index__quote-1.0.33//:quote",
             "serde_json": "@crate_index__serde_json-1.0.107//:serde_json",
-            "syn": "@crate_index__syn-2.0.37//:syn",
+            "syn": "@crate_index__syn-2.0.38//:syn",
             "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
         },
     },
@@ -598,7 +598,7 @@ _NORMAL_DEPENDENCIES = {
             "heck": "@crate_index__heck-0.4.1//:heck",
             "proc-macro2": "@crate_index__proc-macro2-1.0.69//:proc_macro2",
             "quote": "@crate_index__quote-1.0.33//:quote",
-            "syn": "@crate_index__syn-2.0.37//:syn",
+            "syn": "@crate_index__syn-2.0.38//:syn",
             "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
         },
     },
@@ -5742,12 +5742,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__syn-2.0.37",
-        sha256 = "7303ef2c05cd654186cb250d29049a24840ca25d2747c25c0381c8d9e2f582e8",
+        name = "crate_index__syn-2.0.38",
+        sha256 = "e96b79aaa137db8f61e26363a0c9b47d8b4ec75da28b7d1d614c2303e232408b",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/syn/2.0.37/download"],
-        strip_prefix = "syn-2.0.37",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.syn-2.0.37.bazel"),
+        urls = ["https://crates.io/api/v1/crates/syn/2.0.38/download"],
+        strip_prefix = "syn-2.0.38",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.syn-2.0.38.bazel"),
     )
 
     maybe(
