@@ -36,7 +36,7 @@ rust_library(
     crate_root = "src/lib.rs",
     edition = "2021",
     proc_macro_deps = [
-        "@crate_index__async-trait-0.1.73//:async_trait",
+        "@crate_index__async-trait-0.1.74//:async_trait",
     ],
     rustc_flags = ["--cap-lints=allow"],
     tags = [
@@ -55,7 +55,7 @@ rust_library(
         "@crate_index__futures-0.3.28//:futures",
         "@crate_index__infer-0.15.0//:infer",
         "@crate_index__remi-core-0.4.0//:remi_core",
-        "@crate_index__serde-1.0.188//:serde",
+        "@crate_index__serde-1.0.189//:serde",
         "@crate_index__tokio-1.32.0//:tokio",
     ],
 )

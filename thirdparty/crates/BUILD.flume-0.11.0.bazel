@@ -11,12 +11,15 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # MIT OR Apache-2.0
+#     "TODO",  # Apache-2.0/MIT
 # ])
 
 rust_library(
-    name = "sqlx",
+    name = "flume",
     srcs = glob(["**/*.rs"]),
+    aliases = {
+        "@crate_index__spin-0.9.8//:spin": "spin1",
+    },
     compile_data = glob(
         include = ["**"],
         exclude = [
@@ -28,36 +31,20 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "_rt-tokio",
-        "any",
-        "chrono",
-        "default",
-        "json",
-        "macros",
-        "migrate",
-        "postgres",
-        "runtime-tokio",
-        "sqlx-macros",
-        "sqlx-postgres",
-        "tls-native-tls",
-    ],
     crate_root = "src/lib.rs",
-    edition = "2021",
-    proc_macro_deps = [
-        "@crate_index__sqlx-macros-0.7.1//:sqlx_macros",
-    ],
+    edition = "2018",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=sqlx",
+        "crate-name=flume",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.7.1",
+    version = "0.11.0",
     deps = [
-        "@crate_index__sqlx-core-0.7.1//:sqlx_core",
-        "@crate_index__sqlx-postgres-0.7.1//:sqlx_postgres",
+        "@crate_index__futures-core-0.3.28//:futures_core",
+        "@crate_index__futures-sink-0.3.28//:futures_sink",
+        "@crate_index__spin-0.9.8//:spin",
     ],
 )

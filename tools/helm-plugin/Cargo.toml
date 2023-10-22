@@ -23,7 +23,7 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
 [dependencies]
 ansi_term = "0.12.1"
-async-trait = "0.1.70"
+async-trait = "0.1.74"
 chrono = "0.4.26"
 clap = { version = "4.3.10", features = ["derive", "env"] }
 clap_complete = "4.3.1"
@@ -33,9 +33,9 @@ color-eyre = { version = "0.6.2", features = ["issue-url", "track-caller"] }
 dirs = "5.0.1"
 dotenv = "0.15.0"
 eyre = "0.6.8"
-reqwest = "0.11.18"
-serde = { version = "1.0.185", features = ["rc", "derive"] }
-serde_json = "1.0.104"
+reqwest = "0.11.22"
+serde = { version = "1.0.189", features = ["rc", "derive"] }
+serde_json = "1.0.107"
 serde_yaml = "0.9.25"
 sysinfo = "0.29.7"
 tokio = { version = "1.29.1", features = ["full"] }

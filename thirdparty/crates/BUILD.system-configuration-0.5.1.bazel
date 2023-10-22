@@ -15,7 +15,7 @@ package(default_visibility = ["//visibility:public"])
 # ])
 
 rust_library(
-    name = "sqlx_sqlite",
+    name = "system_configuration",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -33,27 +33,15 @@ rust_library(
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=sqlx-sqlite",
+        "crate-name=system-configuration",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.7.1",
+    version = "0.5.1",
     deps = [
-        "@crate_index__atoi-2.0.0//:atoi",
-        "@crate_index__chrono-0.4.30//:chrono",
-        "@crate_index__flume-0.10.14//:flume",
-        "@crate_index__futures-channel-0.3.28//:futures_channel",
-        "@crate_index__futures-core-0.3.28//:futures_core",
-        "@crate_index__futures-executor-0.3.28//:futures_executor",
-        "@crate_index__futures-intrusive-0.5.0//:futures_intrusive",
-        "@crate_index__futures-util-0.3.28//:futures_util",
-        "@crate_index__libsqlite3-sys-0.26.0//:libsqlite3_sys",
-        "@crate_index__log-0.4.20//:log",
-        "@crate_index__percent-encoding-2.3.0//:percent_encoding",
-        "@crate_index__serde-1.0.188//:serde",
-        "@crate_index__sqlx-core-0.7.1//:sqlx_core",
-        "@crate_index__tracing-0.1.37//:tracing",
-        "@crate_index__url-2.4.1//:url",
+        "@crate_index__bitflags-1.3.2//:bitflags",
+        "@crate_index__core-foundation-0.9.3//:core_foundation",
+        "@crate_index__system-configuration-sys-0.5.0//:system_configuration_sys",
     ],
 )

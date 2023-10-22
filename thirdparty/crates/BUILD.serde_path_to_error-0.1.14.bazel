@@ -41,6 +41,6 @@ rust_library(
     version = "0.1.14",
     deps = [
         "@crate_index__itoa-1.0.9//:itoa",
-        "@crate_index__serde-1.0.188//:serde",
+        "@crate_index__serde-1.0.189//:serde",
     ],
 )

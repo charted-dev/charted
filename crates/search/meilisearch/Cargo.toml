@@ -22,11 +22,11 @@ homepage = "https://charts.noelware.org"
 authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
 [dependencies]
-async-trait = "0.1.73"
+async-trait = "0.1.74"
 charted-common = { version = "0.0.0-devel.0", path = "../../common" }
 charted-config = { version = "0.0.0-devel.0", path = "../../config" }
 charted-search = { version = "0.0.0-devel.0", path = ".." }
 eyre = "0.6.8"
 meilisearch-sdk = "0.24.1"
-serde = "1.0.185"
+serde = "1.0.189"
 tracing = "0.1.37"
