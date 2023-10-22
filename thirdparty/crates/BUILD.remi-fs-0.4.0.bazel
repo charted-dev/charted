@@ -56,6 +56,6 @@ rust_library(
         "@crate_index__infer-0.15.0//:infer",
         "@crate_index__remi-core-0.4.0//:remi_core",
         "@crate_index__serde-1.0.189//:serde",
-        "@crate_index__tokio-1.32.0//:tokio",
+        "@crate_index__tokio-1.33.0//:tokio",
     ],
 )

@@ -79,7 +79,7 @@ rust_library(
         "@crate_index__ryu-1.0.15//:ryu",
         "@crate_index__sha1_smol-1.0.0//:sha1_smol",
         "@crate_index__socket2-0.4.9//:socket2",
-        "@crate_index__tokio-1.32.0//:tokio",
+        "@crate_index__tokio-1.33.0//:tokio",
         "@crate_index__tokio-retry-0.3.0//:tokio_retry",
         "@crate_index__tokio-util-0.7.9//:tokio_util",
         "@crate_index__url-2.4.1//:url",

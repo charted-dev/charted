@@ -48,7 +48,7 @@ rust_library(
         "@crate_index__http-0.2.9//:http",
         "@crate_index__indexmap-1.9.3//:indexmap",
         "@crate_index__slab-0.4.9//:slab",
-        "@crate_index__tokio-1.32.0//:tokio",
+        "@crate_index__tokio-1.33.0//:tokio",
         "@crate_index__tokio-util-0.7.9//:tokio_util",
         "@crate_index__tracing-0.1.40//:tracing",
     ],

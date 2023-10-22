@@ -43,7 +43,7 @@ serde_json = "1.0.107"
 serde_yaml = "0.9.25"
 sqlx = { version = "0.7.2", features = ["postgres", "runtime-tokio", "tls-native-tls"] }
 sysinfo = "0.29.10"
-tokio = { version = "1.29.1", features = ["full"] }
+tokio = { version = "1.33.0", features = ["full"] }
 tracing = "0.1.40"
 tracing-subscriber = "0.3.17"
 utoipa = "3.5.0"

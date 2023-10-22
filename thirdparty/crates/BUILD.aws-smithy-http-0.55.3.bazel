@@ -57,7 +57,7 @@ rust_library(
         "@crate_index__percent-encoding-2.3.0//:percent_encoding",
         "@crate_index__pin-project-lite-0.2.13//:pin_project_lite",
         "@crate_index__pin-utils-0.1.0//:pin_utils",
-        "@crate_index__tokio-1.32.0//:tokio",
+        "@crate_index__tokio-1.33.0//:tokio",
         "@crate_index__tokio-util-0.7.9//:tokio_util",
         "@crate_index__tracing-0.1.40//:tracing",
     ],

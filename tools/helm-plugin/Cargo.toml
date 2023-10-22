@@ -38,7 +38,7 @@ serde = { version = "1.0.189", features = ["rc", "derive"] }
 serde_json = "1.0.107"
 serde_yaml = "0.9.25"
 sysinfo = "0.29.10"
-tokio = { version = "1.29.1", features = ["full"] }
+tokio = { version = "1.33.0", features = ["full"] }
 tracing-subscriber = "0.3.17"
 tracing = "0.1.40"
 which = "4.4.2"
