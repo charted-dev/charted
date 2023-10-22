@@ -54,8 +54,8 @@ dependencies:
     specifier: 3.3.0
     version: 3.3.0
   markdown-it:
-    specifier: 13.0.1
-    version: 13.0.1
+    specifier: 13.0.2
+    version: 13.0.2
   markdown-it-emoji:
     specifier: 2.0.2
     version: 2.0.2
@@ -4050,12 +4050,12 @@ packages:
   /markdown-it-shikiji@0.6.6:
     resolution: {integrity: sha512-XQNPZ1Ef8P3uZ6sHQOo5P0YByC6JnAkDj0uxovaOC3hBpAsDFDJ6WCEXvmklcLsjH+13CUniA1SbGjx7TRQOdw==}
     dependencies:
-      markdown-it: 13.0.1
+      markdown-it: 13.0.2
       shikiji: 0.6.6
     dev: false
 
-  /markdown-it@13.0.1:
-    resolution: {integrity: sha512-lTlxriVoy2criHP0JKRhO2VDG9c2ypWCsT237eDiLqi09rmbKoUetyGHq2uOIRoRS//kfoJckS0eUzzkDR+k2Q==}
+  /markdown-it@13.0.2:
+    resolution: {integrity: sha512-FtwnEuuK+2yVU7goGn/MJ0WBZMM9ZPgU9spqlFs7/A/pDIUNSOQZhUgOqYCficIuR2QaFnrt8LHqBWsbTAoI5w==}
     hasBin: true
     dependencies:
       argparse: 2.0.1
