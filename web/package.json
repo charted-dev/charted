@@ -33,7 +33,7 @@
         "luxon": "3.3.0",
         "markdown-it": "13.0.2",
         "markdown-it-emoji": "2.0.2",
-        "markdown-it-shikiji": "0.6.6",
+        "markdown-it-shikiji": "0.6.10",
         "ofetch": "1.3.3",
         "pinia": "2.1.4",
         "postcss": "8.4.31",
