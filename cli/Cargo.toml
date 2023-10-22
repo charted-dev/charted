@@ -25,7 +25,7 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 ansi_term = "0.12.1"
 async-trait = "0.1.74"
 chrono = "0.4.31"
-clap = { version = "4.3.10", features = ["derive", "env"] }
+clap = { version = "4.4.6", features = ["derive", "env"] }
 clap_complete = "4.3.1"
 charted-common = { path = "../crates/common", version = "0.0.0-devel.0" }
 charted-config = { path = "../crates/config", version = "0.0.0-devel.0" }
