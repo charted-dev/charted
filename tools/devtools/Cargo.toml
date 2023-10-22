@@ -36,7 +36,7 @@ starlark = { git = "https://github.com/facebookexperimental/starlark-rust", rev 
 tokio = { version = "1.29.1", features = ["full"] }
 tracing = "0.1.40"
 tracing-subscriber = "0.3.17"
-which = "4.4.0"
+which = "4.4.2"
 promptly = "0.3.1"
 toml = "0.7.6"
 serde_starlark = "0.1.14"
