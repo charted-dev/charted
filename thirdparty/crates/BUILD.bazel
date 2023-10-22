@@ -219,13 +219,13 @@ alias(
 
 alias(
     name = "md-5",
-    actual = "@crate_index__md-5-0.10.5//:md5",
+    actual = "@crate_index__md-5-0.10.6//:md5",
     tags = ["manual"],
 )
 
 alias(
     name = "meilisearch-sdk",
-    actual = "@crate_index__meilisearch-sdk-0.24.1//:meilisearch_sdk",
+    actual = "@crate_index__meilisearch-sdk-0.24.2//:meilisearch_sdk",
     tags = ["manual"],
 )
 
@@ -237,7 +237,7 @@ alias(
 
 alias(
     name = "mimalloc",
-    actual = "@crate_index__mimalloc-0.1.38//:mimalloc",
+    actual = "@crate_index__mimalloc-0.1.39//:mimalloc",
     tags = ["manual"],
 )
 
@@ -429,7 +429,7 @@ alias(
 
 alias(
     name = "syn",
-    actual = "@crate_index__syn-2.0.37//:syn",
+    actual = "@crate_index__syn-2.0.38//:syn",
     tags = ["manual"],
 )
 

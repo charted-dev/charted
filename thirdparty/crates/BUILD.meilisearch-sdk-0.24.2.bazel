@@ -36,7 +36,7 @@ rust_library(
     edition = "2018",
     proc_macro_deps = [
         "@crate_index__async-trait-0.1.74//:async_trait",
-        "@crate_index__meilisearch-index-setting-macro-0.24.1//:meilisearch_index_setting_macro",
+        "@crate_index__meilisearch-index-setting-macro-0.24.2//:meilisearch_index_setting_macro",
     ],
     rustc_flags = ["--cap-lints=allow"],
     tags = [
@@ -46,7 +46,7 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.24.1",
+    version = "0.24.2",
     deps = [
         "@crate_index__either-1.9.0//:either",
         "@crate_index__iso8601-0.6.1//:iso8601",

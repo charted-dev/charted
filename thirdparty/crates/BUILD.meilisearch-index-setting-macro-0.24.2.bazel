@@ -6,16 +6,16 @@
 #     bazel run @//thirdparty:crate_index
 ###############################################################################
 
-load("@rules_rust//rust:defs.bzl", "rust_library")
+load("@rules_rust//rust:defs.bzl", "rust_proc_macro")
 
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # MIT OR Apache-2.0
+#     "TODO",  # MIT
 # ])
 
-rust_library(
-    name = "syn",
+rust_proc_macro(
+    name = "meilisearch_index_setting_macro",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -28,33 +28,21 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "clone-impls",
-        "default",
-        "derive",
-        "extra-traits",
-        "full",
-        "parsing",
-        "printing",
-        "proc-macro",
-        "quote",
-        "visit",
-        "visit-mut",
-    ],
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=syn",
+        "crate-name=meilisearch-index-setting-macro",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "2.0.37",
+    version = "0.24.2",
     deps = [
+        "@crate_index__convert_case-0.6.0//:convert_case",
         "@crate_index__proc-macro2-1.0.69//:proc_macro2",
         "@crate_index__quote-1.0.33//:quote",
-        "@crate_index__unicode-ident-1.0.11//:unicode_ident",
+        "@crate_index__syn-1.0.109//:syn",
     ],
 )

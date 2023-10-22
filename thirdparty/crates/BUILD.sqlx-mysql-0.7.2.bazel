@@ -60,7 +60,7 @@ rust_library(
         "@crate_index__hmac-0.12.1//:hmac",
         "@crate_index__itoa-1.0.9//:itoa",
         "@crate_index__log-0.4.20//:log",
-        "@crate_index__md-5-0.10.5//:md5",
+        "@crate_index__md-5-0.10.6//:md5",
         "@crate_index__memchr-2.6.3//:memchr",
         "@crate_index__once_cell-1.18.0//:once_cell",
         "@crate_index__percent-encoding-2.3.0//:percent_encoding",

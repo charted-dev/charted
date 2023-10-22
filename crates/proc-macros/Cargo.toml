@@ -27,5 +27,5 @@ charted-common = { version = "0.0.0-devel.0", path = "../common" }
 proc-macro2 = "1.0.69"
 quote = "1.0.33"
 serde_json = "1.0.107"
-syn = "2.0.37"
+syn = "2.0.38"
 utoipa = { version = "3.5.0", features = ["chrono"] }
