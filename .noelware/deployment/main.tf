@@ -53,7 +53,7 @@ resource "helm_release" "postgresql" {
   repository = "oci://registry-1.docker.io/bitnamicharts"
   namespace  = "charted"
   depends_on = [kubernetes_namespace.charted]
-  version    = "11.9.2"
+  version    = "11.9.8"
   values     = ["./values/postgresql.yaml"]
   atomic     = true
   chart      = "postgresql-ha"
