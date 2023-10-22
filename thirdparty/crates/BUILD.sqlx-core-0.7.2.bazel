@@ -64,7 +64,7 @@ rust_library(
         "@crate_index__atoi-2.0.0//:atoi",
         "@crate_index__byteorder-1.4.3//:byteorder",
         "@crate_index__bytes-1.5.0//:bytes",
-        "@crate_index__chrono-0.4.30//:chrono",
+        "@crate_index__chrono-0.4.31//:chrono",
         "@crate_index__crc-3.0.1//:crc",
         "@crate_index__crossbeam-queue-0.3.8//:crossbeam_queue",
         "@crate_index__dotenvy-0.15.7//:dotenvy",

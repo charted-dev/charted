@@ -297,7 +297,7 @@ _NORMAL_DEPENDENCIES = {
     "cli": {
         _COMMON_CONDITION: {
             "ansi_term": "@crate_index__ansi_term-0.12.1//:ansi_term",
-            "chrono": "@crate_index__chrono-0.4.30//:chrono",
+            "chrono": "@crate_index__chrono-0.4.31//:chrono",
             "clap": "@crate_index__clap-4.4.2//:clap",
             "clap_complete": "@crate_index__clap_complete-4.4.1//:clap_complete",
             "cli-table": "@crate_index__cli-table-0.4.7//:cli_table",
@@ -330,7 +330,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "argon2": "@crate_index__argon2-0.5.2//:argon2",
             "axum": "@crate_index__axum-0.6.20//:axum",
-            "chrono": "@crate_index__chrono-0.4.30//:chrono",
+            "chrono": "@crate_index__chrono-0.4.31//:chrono",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "hex": "@crate_index__hex-0.4.3//:hex",
             "humantime": "@crate_index__humantime-2.1.0//:humantime",
@@ -402,7 +402,7 @@ _NORMAL_DEPENDENCIES = {
     "crates/logging": {
         _COMMON_CONDITION: {
             "ansi_term": "@crate_index__ansi_term-0.12.1//:ansi_term",
-            "chrono": "@crate_index__chrono-0.4.30//:chrono",
+            "chrono": "@crate_index__chrono-0.4.31//:chrono",
             "sentry-tracing": "@crate_index__sentry-tracing-0.31.7//:sentry_tracing",
             "serde_json": "@crate_index__serde_json-1.0.107//:serde_json",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
@@ -479,7 +479,7 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/sessions": {
         _COMMON_CONDITION: {
-            "chrono": "@crate_index__chrono-0.4.30//:chrono",
+            "chrono": "@crate_index__chrono-0.4.31//:chrono",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "jsonwebtoken": "@crate_index__jsonwebtoken-8.3.0//:jsonwebtoken",
             "redis": "@crate_index__redis-0.23.3//:redis",
@@ -520,7 +520,7 @@ _NORMAL_DEPENDENCIES = {
     "crates/sessions/local": {
         _COMMON_CONDITION: {
             "argon2": "@crate_index__argon2-0.5.2//:argon2",
-            "chrono": "@crate_index__chrono-0.4.30//:chrono",
+            "chrono": "@crate_index__chrono-0.4.31//:chrono",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "jsonwebtoken": "@crate_index__jsonwebtoken-8.3.0//:jsonwebtoken",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
@@ -561,7 +561,7 @@ _NORMAL_DEPENDENCIES = {
             "argon2": "@crate_index__argon2-0.5.2//:argon2",
             "axum": "@crate_index__axum-0.6.20//:axum",
             "base64": "@crate_index__base64-0.21.4//:base64",
-            "chrono": "@crate_index__chrono-0.4.30//:chrono",
+            "chrono": "@crate_index__chrono-0.4.31//:chrono",
             "erased-serde": "@crate_index__erased-serde-0.3.31//:erased_serde",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "futures-util": "@crate_index__futures-util-0.3.28//:futures_util",
@@ -624,7 +624,7 @@ _NORMAL_DEPENDENCIES = {
     "tools/helm-plugin": {
         _COMMON_CONDITION: {
             "ansi_term": "@crate_index__ansi_term-0.12.1//:ansi_term",
-            "chrono": "@crate_index__chrono-0.4.30//:chrono",
+            "chrono": "@crate_index__chrono-0.4.31//:chrono",
             "clap": "@crate_index__clap-4.4.2//:clap",
             "clap_complete": "@crate_index__clap_complete-4.4.1//:clap_complete",
             "color-eyre": "@crate_index__color-eyre-0.6.2//:color_eyre",
@@ -1199,7 +1199,7 @@ _BUILD_DEPENDENCIES = {
     },
     "crates/common": {
         _COMMON_CONDITION: {
-            "chrono": "@crate_index__chrono-0.4.30//:chrono",
+            "chrono": "@crate_index__chrono-0.4.31//:chrono",
             "rustc_version": "@crate_index__rustc_version-0.4.0//:rustc_version",
             "which": "@crate_index__which-4.4.2//:which",
         },
@@ -2252,12 +2252,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__chrono-0.4.30",
-        sha256 = "defd4e7873dbddba6c7c91e199c7fcb946abc4a6a4ac3195400bcfb01b5de877",
+        name = "crate_index__chrono-0.4.31",
+        sha256 = "7f2c685bad3eb3d45a01354cedb7d5faa66194d1d58ba6e267a8de788f79db38",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/chrono/0.4.30/download"],
-        strip_prefix = "chrono-0.4.30",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.chrono-0.4.30.bazel"),
+        urls = ["https://crates.io/api/v1/crates/chrono/0.4.31/download"],
+        strip_prefix = "chrono-0.4.31",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.chrono-0.4.31.bazel"),
     )
 
     maybe(

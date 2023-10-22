@@ -45,7 +45,7 @@ rust_library(
         "@crate_index__bitflags-2.4.0//:bitflags",
         "@crate_index__byteorder-1.4.3//:byteorder",
         "@crate_index__bytes-1.5.0//:bytes",
-        "@crate_index__chrono-0.4.30//:chrono",
+        "@crate_index__chrono-0.4.31//:chrono",
         "@crate_index__crc-3.0.1//:crc",
         "@crate_index__digest-0.10.7//:digest",
         "@crate_index__dotenvy-0.15.7//:dotenvy",

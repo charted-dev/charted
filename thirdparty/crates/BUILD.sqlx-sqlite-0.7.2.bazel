@@ -41,7 +41,7 @@ rust_library(
     version = "0.7.2",
     deps = [
         "@crate_index__atoi-2.0.0//:atoi",
-        "@crate_index__chrono-0.4.30//:chrono",
+        "@crate_index__chrono-0.4.31//:chrono",
         "@crate_index__flume-0.11.0//:flume",
         "@crate_index__futures-channel-0.3.28//:futures_channel",
         "@crate_index__futures-core-0.3.28//:futures_core",
