@@ -48,7 +48,7 @@ impl DbController for UserDatabaseController {
     #[instrument(name = "charted.db.users.get", skip(self))]
     async fn get(&self, id: u64) -> Result<Option<Self::Entity>> {
         match sqlx::query_as::<sqlx::Postgres, User>("select users.* from users where id = $1;")
-            .bind(id as i64)
+            .bind(i64::try_from(id).unwrap())
             .fetch_optional(&self.pool)
             .await
         {
@@ -126,28 +126,28 @@ impl DbController for UserDatabaseController {
             payload: payload.gravatar_email.clone();
             column:  "gravatar_email";
             table:   "users";
-            id:      id as i64;
+            id:      i64::try_from(id).unwrap();
         });
 
         impl_patch_for!(txn, {
             payload: payload.description.clone();
             column:  "description";
             table:   "users";
-            id:      id as i64;
+            id:      i64::try_from(id).unwrap();
         });
 
         impl_patch_for!(txn, {
             payload: payload.username.clone();
             column:  "username";
             table:   "users";
-            id:      id as i64;
+            id:      i64::try_from(id).unwrap();
         });
 
         impl_patch_for!(txn, {
             payload: payload.password.clone();
             column:  "password";
             table:   "users";
-            id:      id as i64;
+            id:      i64::try_from(id).unwrap();
 
             {
                 hash_password(payload.password.unwrap()).map_err(|e| {
@@ -163,14 +163,14 @@ impl DbController for UserDatabaseController {
             payload: payload.email.clone();
             column:  "email";
             table:   "users";
-            id:      id as i64;
+            id:      i64::try_from(id).unwrap();
         });
 
         impl_patch_for!(txn, {
             payload: payload.name.clone();
             column:  "name";
             table:   "users";
-            id:      id as i64;
+            id:      i64::try_from(id).unwrap();
         });
 
         txn.commit()
@@ -189,7 +189,7 @@ impl DbController for UserDatabaseController {
     #[instrument(name = "charted.db.users.delete", skip(self))]
     async fn delete(&self, id: u64) -> Result<()> {
         sqlx::query("delete from users where id = $1;")
-            .bind(id as i64)
+            .bind(i64::try_from(id).unwrap())
             .execute(&self.pool)
             .await
             .map(|_| ())

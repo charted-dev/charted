@@ -16,7 +16,7 @@
 use crate::{
     extract::Json,
     macros::controller,
-    middleware::{RawAuthHeader, SessionAuth},
+    middleware::SessionAuth,
     models::res::{err, ok, ApiResponse, Empty},
     validation::validate,
     Server,
@@ -222,7 +222,6 @@ pub async fn logout(
 pub async fn refresh_session_token(
     State(Server { sessions, .. }): State<Server>,
     Extension(crate::middleware::Session { session, user }): Extension<crate::middleware::Session>,
-    Extension(RawAuthHeader(header)): Extension<RawAuthHeader>,
 ) -> Result<ApiResponse<Session>, ApiResponse> {
     if session.is_none() {
         return Err(err(
@@ -240,14 +239,6 @@ pub async fn refresh_session_token(
     }
 
     let session = session.unwrap();
-    let refresh_token = session.refresh_token.as_ref().unwrap();
-    if refresh_token.as_str() != header {
-        return Err(err(
-            StatusCode::FORBIDDEN,
-            ("INVALID_REFRESH_TOKEN", "Expected the refresh token for this session.").into(),
-        ));
-    }
-
     let mut sessions = sessions.write().await;
     sessions.kill_session(session.session_id).map_err(|e| {
         error!(session.id = tracing::field::display(session.session_id), user.id, error = %e, "unable to kill session");

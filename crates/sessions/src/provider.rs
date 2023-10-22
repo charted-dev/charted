@@ -54,7 +54,7 @@ impl UserWithPassword for User {
 
     async fn password(&self, pool: PgPool, id: u64) -> Result<Option<String>> {
         let Some(row) = sqlx::query("SELECT password FROM users WHERE id = $1;")
-            .bind(id as i64)
+            .bind(i64::try_from(id).unwrap())
             .fetch_optional(&pool)
             .await?
         else {

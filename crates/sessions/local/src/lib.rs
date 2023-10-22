@@ -45,7 +45,7 @@ impl SessionProvider for LocalSessionProvider {
     #[tracing::instrument(name = "charted.sessions.local.authorize", skip_all, user.id = user.user().id, user.username = tracing::field::display(user.user().username))]
     async fn authorize(&mut self, password: String, user: &dyn UserWithPassword) -> Result<()> {
         let user = user.user();
-        match user.password(self.pool.clone(), user.id as u64).await {
+        match user.password(self.pool.clone(), u64::try_from(user.id).unwrap()).await {
             Ok(Some(pass)) => {
                 let hash = PasswordHash::new(&pass).map_err(|e| eyre!("unable to compute hash: {e}"))?;
                 match ARGON2.verify_password(password.as_ref(), &hash) {

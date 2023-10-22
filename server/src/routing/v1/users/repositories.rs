@@ -113,7 +113,7 @@ pub async fn list_user_repositories(
             cursor,
             per_page,
             order_by: order,
-            owner_id: Some(owner.id as u64),
+            owner_id: Some(u64::try_from(owner.id).unwrap()),
         })
         .await
         .map_err(|_| {
@@ -186,7 +186,7 @@ pub async fn create_user_repository(
                 r#type: payload.r#type,
                 owner: user.id,
                 name,
-                id: id.value() as i64,
+                id: i64::try_from(id.value()).unwrap(),
 
                 ..Default::default()
             },

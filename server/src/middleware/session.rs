@@ -194,6 +194,10 @@ impl std::ops::Deref for RawAuthHeader {
 #[derive(Clone)]
 pub struct Authorization(HeaderValue);
 impl Authorization {
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
     /// Returns a tuple of the structure: `(type, token)`.
     pub fn to_tuple(&self) -> Result<(String, String), SessionError> {
         let header = self.0.to_owned();
@@ -248,6 +252,18 @@ where
     type Future = BoxFuture<'static, Result<Request<B>, Response<Self::ResponseBody>>>;
 
     fn authorize(&mut self, mut req: Request<B>) -> Self::Future {
+        // using `self` in the async move block is fragile. which i mean by "fragile" is: it breaks
+        // the 'static lifetime.
+        //
+        // do i know why? no
+        // do i want to? no
+        //
+        // * since bools can be copied, we copy them
+        // * since ApiKeyScopes cannot be copied BUT we can clone it, so we do that
+        let allow_unauth_requests = self.allow_unauthenticated_requests;
+        let require_refresh_token = self.require_refresh_token;
+        let _scopes = self.scopes.clone();
+
         Box::pin(async move {
             let header = req
                 .extract_parts::<TypedHeader<Authorization>>()
@@ -268,10 +284,9 @@ where
                     _ => unreachable!(),
                 })?;
 
-            // TODO(@auguwu): this breaks the 'static lifetime for some reason?
-            // if header.is_empty() && self.allow_unauthenticated_requests {
-            //     return Ok(req);
-            // }
+            if header.is_empty() && allow_unauth_requests {
+                return Ok(req);
+            }
 
             let (ty, token) = header.to_tuple().map_err(|e| e.into_response())?;
             let State(server) = req
@@ -425,7 +440,7 @@ where
                     })?;
 
                     let Some(user) = sqlx::query_as::<_, User>("select users.* from users where id = $1;")
-                        .bind(id as i64)
+                        .bind(i64::try_from(id).unwrap())
                         .fetch_optional(&pool)
                         .await
                         .map_err(|e| {
@@ -452,13 +467,10 @@ where
                         .map_err(|_| SessionError::UnknownSession.into_response())?
                         .ok_or_else(|| SessionError::UnknownSession.into_response())?;
 
-                    req.extensions_mut().insert(RawAuthHeader(token));
-
-                    // TODO(@auguwu): this breaks the 'static lifetime for some reason?
-                    // let refresh_token = session.clone().refresh_token.clone();
-                    // if self.require_refresh_token && token != refresh_token.unwrap() {
-                    //     return Err(SessionError::RefreshTokenRequired.into_response());
-                    // }
+                    let refresh_token = session.refresh_token.as_ref().unwrap();
+                    if require_refresh_token && token.as_str() != refresh_token.as_str() {
+                        return Err(SessionError::RefreshTokenRequired.into_response());
+                    }
 
                     req.extensions_mut().insert(Session {
                         session: Some(session),

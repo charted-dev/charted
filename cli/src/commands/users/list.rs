@@ -46,7 +46,7 @@ impl From<User> for UserTable {
                 None => format!("@{}", value.username),
             },
 
-            id: value.id as u64,
+            id: u64::try_from(value.id).unwrap(),
         }
     }
 }
@@ -85,7 +85,7 @@ impl AsyncExecute for List {
         .await?;
 
         let users = sqlx::query_as::<Postgres, User>("select users.* from users offset $1 limit 10")
-            .bind(self.page.map(|x| x as i64).unwrap_or(0))
+            .bind(self.page.map(|x| i64::try_from(x).unwrap()).unwrap_or(0))
             .fetch_all(&mut conn)
             .await?;
 

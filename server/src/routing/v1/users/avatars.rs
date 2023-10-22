@@ -72,7 +72,7 @@ pub async fn get_current_user_avatar(
 
     // 1. Check if they have an avatar already.
     if let Some(hash) = user.avatar_hash.clone() {
-        match avatars.user(user.id as u64, hash).await {
+        match avatars.user(u64::try_from(user.id).unwrap(), hash).await {
             Ok(Some(bytes)) => {
                 let ct = DefaultContentTypeResolver::resolve(&DefaultContentTypeResolver, bytes.as_ref());
                 let mime = ct.parse::<mime::Mime>().expect("valid content-type");
@@ -125,7 +125,7 @@ pub async fn get_current_user_avatar(
     }
 
     // 3. Revert to Dicebear
-    match avatars.identicons(user.id as u64).await {
+    match avatars.identicons(u64::try_from(user.id).unwrap()).await {
         Ok(bytes) => {
             let headers = [(header::CONTENT_TYPE, "image/png")];
             Ok((headers, bytes).into_response())
@@ -223,7 +223,7 @@ pub async fn upload_user_avatar(
 
     info!(user.id, "now performing avatar update...");
     let hash = avatars
-        .upload_user_avatar(user.id as u64, data, actual_ct, ext)
+        .upload_user_avatar(u64::try_from(user.id).unwrap(), data, actual_ct, ext)
         .await
         .map_err(|e| {
             error!(user.id, error = %e, "unable to upload user avatar");
@@ -311,7 +311,7 @@ pub mod me {
     ) -> Result<impl IntoResponse, ApiResponse> {
         // 1. Check if they have an avatar already.
         if let Some(hash) = user.avatar_hash.clone() {
-            match avatars.user(user.id as u64, hash).await {
+            match avatars.user(u64::try_from(user.id).unwrap(), hash).await {
                 Ok(Some(bytes)) => {
                     let headers = [(header::CONTENT_TYPE, "image/*")];
                     return Ok((headers, bytes).into_response());
@@ -352,7 +352,7 @@ pub mod me {
         }
 
         // 3. Revert to Dicebear
-        match avatars.identicons(user.id as u64).await {
+        match avatars.identicons(u64::try_from(user.id).unwrap()).await {
             Ok(bytes) => {
                 let headers = [(header::CONTENT_TYPE, "image/png")];
                 Ok((headers, bytes).into_response())

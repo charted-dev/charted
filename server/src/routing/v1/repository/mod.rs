@@ -33,6 +33,9 @@ use serde_json::json;
 use tower_http::auth::AsyncRequireAuthorizationLayer;
 use validator::Validate;
 
+pub(crate) struct RepositoryResponse;
+charted_openapi::generate_response_schema!(RepositoryResponse, schema = "Repository");
+
 pub fn create_router() -> Router<Server> {
     Router::new().route(
         "/:id",
@@ -40,9 +43,22 @@ pub fn create_router() -> Router<Server> {
             PatchRepositoryRestController::run.layer(AsyncRequireAuthorizationLayer::new(
                 SessionAuth::default().scope(ApiKeyScope::RepoUpdate),
             )),
-        ),
+        )
+        .get(GetRepositoryRestController::run),
     )
 }
+
+/// Retrieve a repository by the repo ID.
+#[controller(
+    tags("Repositories"),
+    securityRequirements(
+        ("ApiKey", ["repo:access"]),
+        ("Bearer", []),
+        ("Basic", [])
+    ),
+    response(200, "Successful response", ("application/json", response!("ApiRepositoryResponse")))
+)]
+pub async fn get_repository() {}
 
 /// Patch a repository's metadata
 #[controller(

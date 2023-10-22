@@ -51,7 +51,7 @@ macro_rules! impl_paginate_priv {
                 let mut query = ::sqlx::QueryBuilder::<::sqlx::Postgres>::new("select repositories.* from repositories ");
                 if let Some(cursor) = request.cursor {
                     query.push("where repositories.id <= ");
-                    query.push_bind(cursor as i64);
+                    query.push_bind(i64::try_from(cursor).unwrap());
                     query.push(" and ");
                 } else {
                     query.push("where ");
@@ -59,7 +59,7 @@ macro_rules! impl_paginate_priv {
 
                 let owner_id = request.owner_id.unwrap_or_else(|| panic!("INTERNAL BUG: missing `owner_id`"));
                 query.push("repositories.owner = ");
-                query.push_bind(owner_id as i64);
+                query.push_bind(i64::try_from(owner_id).unwrap());
                 query.push(" ");
 
                 match request.order_by {
@@ -115,7 +115,7 @@ macro_rules! impl_paginate_priv {
                 let mut query = ::sqlx::QueryBuilder::<::sqlx::Postgres>::new("select organizations.* from organizations ");
                 if let Some(cursor) = request.cursor {
                     query.push("where organizations.id <= ");
-                    query.push_bind(cursor as i64);
+                    query.push_bind(i64::try_from(cursor).unwrap());
                     query.push(" and ");
                 } else {
                     query.push("where ");
@@ -123,7 +123,7 @@ macro_rules! impl_paginate_priv {
 
                 let owner_id = request.owner_id.unwrap_or_else(|| panic!("INTERNAL BUG: missing `owner_id`"));
                 query.push("organizations.owner_id = ");
-                query.push_bind(owner_id as i64);
+                query.push_bind(i64::try_from(owner_id).unwrap());
                 query.push(" ");
 
                 match request.order_by {
@@ -179,7 +179,7 @@ macro_rules! impl_paginate_priv {
                 let mut query = ::sqlx::QueryBuilder::<::sqlx::Postgres>::new(concat!("select ", $table, ".* from ", $table, " "));
                 if let Some(cursor) = request.cursor {
                     query.push("where id <= ");
-                    query.push_bind(cursor as i64);
+                    query.push_bind(i64::try_from(cursor).unwrap());
                     query.push(" ");
                 }
 

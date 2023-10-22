@@ -55,7 +55,7 @@ impl DbController for RepositoryDatabaseController {
     #[instrument(name = "charted.db.repositories.get", skip(self))]
     async fn get(&self, id: u64) -> Result<Option<Self::Entity>> {
         match sqlx::query_as::<Postgres, Repository>("select repositories.* from repositories where id = $1;")
-            .bind(id as i64)
+            .bind(i64::try_from(id).unwrap())
             .fetch_optional(&self.pool)
             .await
         {
@@ -141,14 +141,14 @@ impl DbController for RepositoryDatabaseController {
             payload: payload.description.clone();
             column:  "description";
             table:   "repositories";
-            id:      id as i64;
+            id:      i64::try_from(id).unwrap();
         });
 
         impl_patch_for!(txn, {
             payload: payload.private;
             column:  "description";
             table:   "repositories";
-            id:      id as i64;
+            id:      i64::try_from(id).unwrap();
         });
 
         // update the README immediately, or just delete it if it is a empty
@@ -175,14 +175,14 @@ impl DbController for RepositoryDatabaseController {
             payload: payload.name.clone();
             column:  "name";
             table:   "repositories";
-            id:      id as i64;
+            id:      i64::try_from(id).unwrap();
         });
 
         impl_patch_for!(txn, {
             payload: payload.r#type;
             column:  "type";
             table:   "repositories";
-            id:      id as i64;
+            id:      i64::try_from(id).unwrap();
         });
 
         match txn.commit().await {
@@ -199,7 +199,7 @@ impl DbController for RepositoryDatabaseController {
     #[instrument(name = "charted.db.repositories.delete", skip(self))]
     async fn delete(&self, id: u64) -> Result<()> {
         sqlx::query("delete from repositories where id = $1;")
-            .bind(id as i64)
+            .bind(i64::try_from(id).unwrap())
             .execute(&self.pool)
             .await
             .map(|_| ())

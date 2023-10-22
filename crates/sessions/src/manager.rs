@@ -355,7 +355,7 @@ impl SessionManager {
             refresh_token: Some(refresh_token),
             access_token: Some(access_token),
             session_id,
-            user_id: user.id as u64,
+            user_id: u64::try_from(user.id).unwrap(),
         };
 
         let as_json = serde_json::to_string(&session).unwrap();

@@ -43,7 +43,7 @@ impl DbController for UserConnectionsDatabaseController {
         match sqlx::query_as::<Postgres, UserConnections>(
             "select user_connections.* from user_connections where id = $1;",
         )
-        .bind(id as i64)
+        .bind(i64::try_from(id).unwrap())
         .fetch_optional(&self.pool)
         .await
         {
@@ -64,7 +64,7 @@ impl DbController for UserConnectionsDatabaseController {
             NameOrSnowflake::Name(ref name) => {
                 let user = self.users.get_by_nos(NameOrSnowflake::Name(name.clone())).await?;
                 match user {
-                    Some(user) => self.get(user.id as u64).await,
+                    Some(user) => self.get(u64::try_from(user.id).unwrap()).await,
                     None => Ok(None),
                 }
             }
@@ -104,21 +104,21 @@ impl DbController for UserConnectionsDatabaseController {
             column:  "noelware_account_id";
             table:   "user_connections";
             as_:     i64;
-            id:      id as i64;
+            id:      i64::try_from(id).unwrap();
         });
 
         impl_patch_for!(txn, {
             payload: payload.google_account_id.clone();
             column:  "google_account_id";
             table:   "user_connections";
-            id:      id as i64;
+            id:      i64::try_from(id).unwrap();
         });
 
         impl_patch_for!(txn, {
             payload: payload.github_account_id.clone();
             column:  "github_account_id";
             table:   "user_connections";
-            id:      id as i64;
+            id:      i64::try_from(id).unwrap();
         });
 
         txn.commit().await.map(|_| ()).map_err(|e| {
@@ -132,7 +132,7 @@ impl DbController for UserConnectionsDatabaseController {
     #[instrument(name = "charted.db.users.connections.delete", skip(self))]
     async fn delete(&self, id: u64) -> Result<()> {
         sqlx::query("delete from user_connections where id = $1;")
-            .bind(id as i64)
+            .bind(i64::try_from(id).unwrap())
             .execute(&self.pool)
             .await
             .map(|_| ())

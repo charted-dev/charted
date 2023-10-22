@@ -242,7 +242,7 @@ async fn create_user(
         password: Some(password),
         username,
         email,
-        id: id.value() as i64,
+        id: i64::try_from(id.value()).unwrap(),
 
         ..Default::default()
     };
@@ -407,12 +407,15 @@ pub async fn patch_user(
     }
 
     let users = server.controllers.get::<UserDatabaseController>();
-    users.patch(user.id as u64, payload.clone()).await.map_err(|_| {
-        err(
-            StatusCode::INTERNAL_SERVER_ERROR,
-            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-        )
-    })?;
+    users
+        .patch(u64::try_from(user.id).unwrap(), payload.clone())
+        .await
+        .map_err(|_| {
+            err(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+            )
+        })?;
 
     Ok(no_content())
 }
@@ -434,7 +437,7 @@ pub async fn delete_user(
     }): Extension<Session>,
 ) -> Result<ApiResponse, ApiResponse> {
     let users = server.controllers.get::<UserDatabaseController>();
-    users.delete(user.id as u64).await.map_err(|_| {
+    users.delete(u64::try_from(user.id).unwrap()).await.map_err(|_| {
         err(
             StatusCode::INTERNAL_SERVER_ERROR,
             ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
