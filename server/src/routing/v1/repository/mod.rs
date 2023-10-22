@@ -17,22 +17,25 @@ use crate::{
     extract::Json,
     macros::controller,
     middleware::{Session, SessionAuth},
-    models::res::{no_content, ApiResponse},
+    models::res::{err, no_content, ApiResponse},
     validation::validate,
     Server,
 };
 use axum::{
     extract::{Path, State},
     handler::Handler,
+    http::StatusCode,
     routing, Extension, Router,
 };
-use charted_common::models::{entities::ApiKeyScope, payloads::PatchRepositoryPayload};
+use charted_common::models::{entities::ApiKeyScope, payloads::PatchRepositoryPayload, Name};
+use charted_database::controller::{repositories::RepositoryDatabaseController, DbController};
+use serde_json::json;
 use tower_http::auth::AsyncRequireAuthorizationLayer;
 use validator::Validate;
 
 pub fn create_router() -> Router<Server> {
     Router::new().route(
-        "/",
+        "/:id",
         routing::patch(
             PatchRepositoryRestController::run.layer(AsyncRequireAuthorizationLayer::new(
                 SessionAuth::default().scope(ApiKeyScope::RepoUpdate),
@@ -54,13 +57,63 @@ pub fn create_router() -> Router<Server> {
     response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
 )]
 pub async fn patch_repository(
-    State(Server { .. }): State<Server>,
-    Extension(Session { .. }): Extension<Session>,
-    Path(_): Path<u64>,
+    State(Server { controllers, .. }): State<Server>,
+    Extension(Session { user, .. }): Extension<Session>,
+    Path(id): Path<i64>,
     payload: Json<PatchRepositoryPayload>,
 ) -> Result<ApiResponse, ApiResponse> {
-    //let repos = controllers.get::<RepositoryDatabaseController>();
+    let repos = controllers.get::<RepositoryDatabaseController>();
     validate(payload.clone(), PatchRepositoryPayload::validate)?;
+
+    if let Some(name) = payload.name.clone() {
+        validate(name, Name::validate)?;
+    }
+
+    // get repository and check if the user owns it
+    let repo = match repos.get(id.try_into().unwrap()).await {
+        // if the user owns it, then they're allowed to edit it
+        Ok(Some(repo)) if repo.owner == user.id => repo,
+        Ok(Some(_)) => {
+            return Err(err(
+                StatusCode::NOT_ACCEPTABLE,
+                ("UNABLE_TO_PATCH", "you do not own this repository").into(),
+            ))
+        }
+
+        Ok(None) => {
+            return Err(err(
+                StatusCode::NOT_FOUND,
+                (
+                    "REPO_NOT_FOUND",
+                    "repository with id was not found",
+                    json!({
+                        "id": id,
+                    }),
+                )
+                    .into(),
+            ))
+        }
+
+        Err(e) => {
+            error!(%id, error = %e, "unable to find repository");
+            sentry_eyre::capture_report(&e);
+
+            return Err(err(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+            ));
+        }
+    };
+
+    repos.patch(repo.id.try_into().unwrap(), payload.0).await.map_err(|e| {
+        error!(%id, error = %e, "unable to patch repository metadata");
+        sentry_eyre::capture_report(&e);
+
+        err(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+        )
+    })?;
 
     Ok(no_content())
 }

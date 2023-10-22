@@ -25,22 +25,12 @@ use charted_common::{
     },
     ID,
 };
-use charted_openapi::{openapi, ApiErrorResponse, EmptyApiResponse};
+use charted_openapi::{add_paths, openapi, ApiErrorResponse, EmptyApiResponse};
 use once_cell::sync::Lazy;
 use utoipa::{
     openapi::{Components, ComponentsBuilder, OpenApiBuilder, Paths},
     OpenApi, ToResponse, ToSchema,
 };
-
-macro_rules! path {
-    ($version:expr, { $($key:literal => $fn:expr;)* }) => {
-        ::charted_openapi::add_paths! {
-            $(
-                Document::format($version, $key) => $fn;
-            )*
-        }
-    };
-}
 
 static COMPONENTS: Lazy<Components> = lazy!(ComponentsBuilder::new()
     .schemas_from_iter([
@@ -101,33 +91,38 @@ impl Document {
 
     /// Returns a [`Paths`] object for API version v1.
     pub fn v1() -> Paths {
-        path!(APIVersion::V1, {
-            // organizations
+        add_paths! {
+            Document::format(APIVersion::V1, "/repositories/{id}") => crate::routing::v1::repository::PatchRepositoryRestController::paths();
+        }
 
-            // repositories
+        // path!(APIVersion::V1, {
+        //     // organizations
 
-            // api keys
-            "/apikeys" => crate::routing::v1::apikeys::EntrypointRestController::paths();
+        //     // repositories
+        //     "/repositories/{id}" => crate::routing::v1::repository::PatchRepositoryRestController::paths();
 
-            // users
-            "/users/{idOrName}/repositories" => crate::routing::v1::users::repositories::ListUserRepositoriesRestController::paths();
-            "/users/sessions/refresh-token" => crate::routing::v1::users::sessions::RefreshSessionTokenRestController::paths();
-            "/users/{idOrName}/avatar" => crate::routing::v1::users::avatars::GetCurrentUserAvatarRestController::paths();
-            "/users/@me/repositories" => crate::routing::v1::users::repositories::CreateUserRepositoryRestController::paths();
-            "/users/sessions/logout" => crate::routing::v1::users::sessions::LogoutRestController::paths();
-            "/users/@me/avatar" => crate::routing::v1::users::avatars::me::paths();
-            "/users/{idOrName}" => crate::routing::v1::users::GetUserRestController::paths();
-            "/users/login" => crate::routing::v1::users::sessions::LoginRestController::paths();
-            "/users/@me" => crate::routing::v1::users::GetSelfRestController::paths();
-            "/users" => crate::routing::v1::users::paths();
+        //     // api keys
+        //     "/apikeys" => crate::routing::v1::apikeys::EntrypointRestController::paths();
 
-            // main
-            "/indexes/{idOrName}" => crate::routing::v1::indexes::GetIndexRestController::paths();
-            "/heartbeat" => crate::routing::v1::heartbeat::HeartbeatRestController::paths();
-            "/features" => crate::routing::v1::features::FeaturesRestController::paths();
-            "/info" => crate::routing::v1::info::InfoRestController::paths();
-            "/" => crate::routing::v1::main::MainRestController::paths();
-        })
+        //     // users
+        //     "/users/{idOrName}/repositories" => crate::routing::v1::users::repositories::ListUserRepositoriesRestController::paths();
+        //     "/users/sessions/refresh-token" => crate::routing::v1::users::sessions::RefreshSessionTokenRestController::paths();
+        //     "/users/{idOrName}/avatar" => crate::routing::v1::users::avatars::GetCurrentUserAvatarRestController::paths();
+        //     "/users/@me/repositories" => crate::routing::v1::users::repositories::CreateUserRepositoryRestController::paths();
+        //     "/users/sessions/logout" => crate::routing::v1::users::sessions::LogoutRestController::paths();
+        //     "/users/@me/avatar" => crate::routing::v1::users::avatars::me::paths();
+        //     "/users/{idOrName}" => crate::routing::v1::users::GetUserRestController::paths();
+        //     "/users/login" => crate::routing::v1::users::sessions::LoginRestController::paths();
+        //     "/users/@me" => crate::routing::v1::users::GetSelfRestController::paths();
+        //     "/users" => crate::routing::v1::users::paths();
+
+        //     // main
+        //     "/indexes/{idOrName}" => crate::routing::v1::indexes::GetIndexRestController::paths();
+        //     "/heartbeat" => crate::routing::v1::heartbeat::HeartbeatRestController::paths();
+        //     "/features" => crate::routing::v1::features::FeaturesRestController::paths();
+        //     "/info" => crate::routing::v1::info::InfoRestController::paths();
+        //     "/" => crate::routing::v1::main::MainRestController::paths();
+        // })
     }
 
     /// Returns a [`Paths`] object for the latest API version.
@@ -136,6 +131,7 @@ impl Document {
             // organizations
 
             // repositories
+            "/repositories/{id}" => [crate::routing::v1::repository::PatchRepositoryRestController::paths()];
 
             // api keys
             "/apikeys" => crate::routing::v1::apikeys::EntrypointRestController::paths();
@@ -150,7 +146,11 @@ impl Document {
             "/users/{idOrName}" => crate::routing::v1::users::GetUserRestController::paths();
             "/users/login" => crate::routing::v1::users::sessions::LoginRestController::paths();
             "/users/@me" => crate::routing::v1::users::GetSelfRestController::paths();
-            "/users" => crate::routing::v1::users::paths();
+            "/users" => [
+                crate::routing::v1::users::CreateUserRestController::paths(),
+                crate::routing::v1::users::PatchUserRestController::paths(),
+                crate::routing::v1::users::MainRestController::paths()
+            ];
 
             // main
             "/indexes/{idOrName}" => crate::routing::v1::indexes::GetIndexRestController::paths();

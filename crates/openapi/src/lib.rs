@@ -14,6 +14,7 @@
 // limitations under the License.
 
 pub use charted_openapi_proc_macro as macros;
+pub use charted_openapi_proc_macro::add_paths;
 
 use charted_common::VERSION;
 use charted_config::Config;
@@ -103,27 +104,42 @@ pub fn openapi() -> OpenApi {
         .build()
 }
 
-/// Re-usuable functional macro to create a [Paths][utoipa::openapi::Paths] object easily.
-///
-/// ## Example
-/// ```no_run
-/// # use charted_openapi::add_paths;
-/// #
-/// add_paths! {
-///     "/" => index();
-/// }
-///
-/// fn index() -> utoipa::openapi::Paths {
-///     // ....
-///     # ::utoipa::openapi::PathsBuilder::new().build()
-/// }
-/// ```
-#[macro_export]
-macro_rules! add_paths {
-    ($($path:expr => $fn:expr;)*) => {{
-        ::utoipa::openapi::PathsBuilder::new()$(.path($path, $fn))*.build()
-    }};
-}
+// /// Re-usuable functional macro to create a [Paths][utoipa::openapi::Paths] object easily.
+// ///
+// /// ## Example
+// /// ```no_run
+// /// # use charted_openapi::add_paths;
+// /// #
+// /// add_paths! {
+// ///     "/" => index();
+// /// }
+// ///
+// /// fn index() -> utoipa::openapi::Paths {
+// ///     // ....
+// ///     # ::utoipa::openapi::PathsBuilder::new().build()
+// /// }
+// /// ```
+// #[macro_export]
+// macro_rules! add_paths {
+//     ($($path:expr => $fn:expr;)*) => {{
+//         ::utoipa::openapi::PathsBuilder::new()$(.path($path, $fn))*.build()
+//     }};
+// }
+
+/*
+    let mut paths = PathItemBuilder::new();
+    let operations = vec![
+        MainRestController::paths().operations.pop_first().unwrap(),
+        CreateUserRestController::paths().operations.pop_first().unwrap(),
+        PatchUserRestController::paths().operations.pop_first().unwrap(),
+    ];
+
+    for (item, op) in operations.iter() {
+        paths = paths.operation(item.clone(), op.clone());
+    }
+
+    paths.build()
+*/
 
 pub use charted_openapi_proc_macro::generate_response_schema;
 

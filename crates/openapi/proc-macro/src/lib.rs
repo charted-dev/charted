@@ -13,14 +13,105 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod paths;
+
 use charted_proc_macros::error;
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{
-    parse_macro_input, punctuated::Punctuated, spanned::Spanned, Expr, ExprAssign, ExprLit, ExprMacro, ExprPath, Lit,
-    Token,
+    parse_macro_input, punctuated::Punctuated, spanned::Spanned, Expr, ExprArray, ExprAssign, ExprLit, ExprMacro,
+    ExprPath, Lit, Token,
 };
 
+/// Dynamically creates a [`Paths`](utoipa::openapi::Paths) object from any amount
+/// of paths.
+///
+/// ## Example
+/// ```no_run
+/// # use charted_openapi::add_paths;
+/// #
+/// add_paths! {
+///     "/" => index();
+/// }
+///
+/// fn index() -> utoipa::openapi::Paths {
+///     // ....
+///     # ::utoipa::openapi::PathsBuilder::new().build()
+/// }
+/// ```
+#[proc_macro]
+pub fn add_paths(body: TokenStream) -> TokenStream {
+    let args = parse_macro_input!(body as paths::AddPathArgs);
+    let mut tt = proc_macro2::TokenStream::new();
+
+    tt.extend(quote! {
+        ::utoipa::openapi::PathsBuilder::new()
+    });
+
+    for (lhs, rhs) in args.elements.iter() {
+        match rhs {
+            Expr::Array(ExprArray { elems, .. }) => {
+                let mut new_tt = proc_macro2::TokenStream::new();
+                new_tt.extend(quote! {
+                    let mut __paths = ::utoipa::openapi::path::PathItemBuilder::new();
+                });
+
+                for elem in elems.iter() {
+                    if let Expr::Call(_) = elem.clone() {
+                        new_tt.extend(quote! {
+                            {
+                                let (__item, __op) = #elem.operations.pop_first().unwrap();
+                                __paths = __paths.operation(__item, __op);
+                            }
+                        });
+                    }
+                }
+
+                new_tt.extend(quote! {
+                    __paths.build()
+                });
+
+                tt.extend(quote! {
+                    .path(#lhs, {
+                        #new_tt
+                    })
+                });
+            }
+
+            Expr::Call(rhs) => {
+                tt.extend(quote! {
+                    .path(#lhs, #rhs)
+                });
+            }
+
+            _ => unreachable!(),
+        }
+    }
+
+    /*
+    let mut paths = PathItemBuilder::new();
+    let operations = vec![
+        MainRestController::paths().operations.pop_first().unwrap(),
+        CreateUserRestController::paths().operations.pop_first().unwrap(),
+        PatchUserRestController::paths().operations.pop_first().unwrap(),
+    ];
+
+    for (item, op) in operations.iter() {
+        paths = paths.operation(item.clone(), op.clone());
+    }
+
+    paths.build()
+        */
+
+    tt.extend(quote! {
+        .build()
+    });
+
+    tt.into()
+}
+
+/// Functional prodecural macro to implement a `ToResponse` trait from a schema that should
+/// represent an API response.
 #[proc_macro]
 pub fn generate_response_schema(body: TokenStream) -> TokenStream {
     let exprs = parse_macro_input!(body with Punctuated::<Expr, Token![,]>::parse_terminated);

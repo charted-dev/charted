@@ -20,8 +20,7 @@ pub use apikeyscope::*;
 pub use member_permissions::*;
 
 use super::{helm::ChartType, DateTime, Name};
-use crate::{hashmap, Bitfield, ID};
-use once_cell::sync::Lazy;
+use crate::ID;
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
@@ -29,46 +28,6 @@ use utoipa::{
     openapi::{RefOr, Schema},
     ToSchema,
 };
-
-#[allow(non_upper_case_globals)]
-pub static MemberPermissions: Lazy<Bitfield> = Lazy::new(|| {
-    Bitfield::with_flags(hashmap! {
-        // This member has permission to invite new members into the repository or organization, and
-        // they can view all the other invites that are pending
-        "member:invite" => 1 << 0,
-
-        // This member has permission to update any member's permissions
-        "member:update" => 1 << 1,
-
-        // This member has permission to kick any members off the repository
-        "member:kick" => 1 << 2,
-
-        // Whether if this member has permission to update the repository or organization metadata.
-        "metadata:update" => 1 << 3,
-
-        // Whether if this member has permission to create a repository in this organization. As a repository
-        // member, this does nothing.
-        "repo:create" => 1 << 4,
-
-        // Whether if this member has permission to delete the repository or not.
-        "repo:delete" => 1 << 5,
-
-        // Whether if this member has permission to create additional webhooks in the given
-        // repository or organization.
-        "webhooks:create" => 1 << 6,
-
-        // Whether if this member has permission to update webhooks in the given
-        // repository or organization.
-        "webhooks:update" => 1 << 7,
-
-        // Whether if this member has permission to delete webhooks in the given
-        // repository or organization.
-        "webhooks:delete" => 1 << 8,
-
-        // Whether if this member has permission to delete any repository/organization metadata (i.e. repo releases)
-        "metadata:delete" => 1 << 9
-    })
-});
 
 // only used for Utoipa to use the `ID` schema from snowflake.rs
 fn snowflake_schema() -> RefOr<Schema> {
@@ -261,8 +220,8 @@ impl Member {
     /// let member = Member::default();
     /// assert_eq!(member.bitfield().bits(), 0);
     /// ```
-    pub fn bitfield<'a>(&self) -> Bitfield<'a> {
-        MemberPermissions.init(self.permissions)
+    pub fn bitfield<'a>(&self) -> MemberPermissions<'a> {
+        MemberPermissions::init(self.permissions)
     }
 }
 
