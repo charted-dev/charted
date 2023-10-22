@@ -1210,7 +1210,7 @@ _BUILD_DEPENDENCIES = {
     },
     "crates/emails": {
         _COMMON_CONDITION: {
-            "tonic-build": "@crate_index__tonic-build-0.10.0//:tonic_build",
+            "tonic-build": "@crate_index__tonic-build-0.10.2//:tonic_build",
             "which": "@crate_index__which-4.4.2//:which",
         },
     },
@@ -6052,12 +6052,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__tonic-build-0.10.0",
-        sha256 = "8b477abbe1d18c0b08f56cd01d1bc288668c5b5cfd19b2ae1886bbf599c546f1",
+        name = "crate_index__tonic-build-0.10.2",
+        sha256 = "9d021fc044c18582b9a2408cd0dd05b1596e3ecdb5c4df822bb0183545683889",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/tonic-build/0.10.0/download"],
-        strip_prefix = "tonic-build-0.10.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tonic-build-0.10.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/tonic-build/0.10.2/download"],
+        strip_prefix = "tonic-build-0.10.2",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tonic-build-0.10.2.bazel"),
     )
 
     maybe(
