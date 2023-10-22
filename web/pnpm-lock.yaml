@@ -78,8 +78,8 @@ dependencies:
     specifier: 0.2.3
     version: 0.2.3(vue@3.3.4)
   shikiji:
-    specifier: 0.6.6
-    version: 0.6.6
+    specifier: 0.6.10
+    version: 0.6.10
   tailwindcss:
     specifier: 3.3.3
     version: 3.3.3
@@ -4913,12 +4913,6 @@ packages:
 
   /shikiji@0.6.10:
     resolution: {integrity: sha512-WE+A5Y2ntM5hL3iJQujk97qr5Uj7PSIRXpQfrZ6h+JWPXZ8KBEDhFXc4lqNriaRq1WGOVPUT83XMOzmHiH3W8A==}
-    dependencies:
-      hast-util-to-html: 9.0.0
-    dev: false
-
-  /shikiji@0.6.6:
-    resolution: {integrity: sha512-l9/mbXakfVl85gNd4wdQyvpiZN6qZiWVffGc8M2WpPeByS8aCJPAKZu38m89acosxQMbWvcFEKUMF8KvswYKGw==}
     dependencies:
       hast-util-to-html: 9.0.0
     dev: false
