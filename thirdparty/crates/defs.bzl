@@ -412,7 +412,7 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/metrics": {
         _COMMON_CONDITION: {
-            "dyn-clone": "@crate_index__dyn-clone-1.0.13//:dyn_clone",
+            "dyn-clone": "@crate_index__dyn-clone-1.0.14//:dyn_clone",
             "erased-serde": "@crate_index__erased-serde-0.3.31//:erased_serde",
             "prometheus-client": "@crate_index__prometheus-client-0.21.2//:prometheus_client",
             "serde": "@crate_index__serde-1.0.189//:serde",
@@ -2872,12 +2872,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__dyn-clone-1.0.13",
-        sha256 = "bbfc4744c1b8f2a09adc0e55242f60b1af195d88596bd8700be74418c056c555",
+        name = "crate_index__dyn-clone-1.0.14",
+        sha256 = "23d2f3407d9a573d666de4b5bdf10569d73ca9478087346697dcbae6244bfbcd",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/dyn-clone/1.0.13/download"],
-        strip_prefix = "dyn-clone-1.0.13",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.dyn-clone-1.0.13.bazel"),
+        urls = ["https://crates.io/api/v1/crates/dyn-clone/1.0.14/download"],
+        strip_prefix = "dyn-clone-1.0.14",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.dyn-clone-1.0.14.bazel"),
     )
 
     maybe(
