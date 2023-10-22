@@ -38,7 +38,7 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.7.1",
+    version = "0.7.2",
     deps = [
         "@crate_index__atoi-2.0.0//:atoi",
         "@crate_index__base64-0.21.4//:base64",
@@ -70,7 +70,7 @@ rust_library(
         "@crate_index__sha1-0.10.5//:sha1",
         "@crate_index__sha2-0.10.7//:sha2",
         "@crate_index__smallvec-1.11.0//:smallvec",
-        "@crate_index__sqlx-core-0.7.1//:sqlx_core",
+        "@crate_index__sqlx-core-0.7.2//:sqlx_core",
         "@crate_index__stringprep-0.1.4//:stringprep",
         "@crate_index__thiserror-1.0.48//:thiserror",
         "@crate_index__tracing-0.1.37//:tracing",

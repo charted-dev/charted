@@ -39,9 +39,9 @@ eyre = "0.6.8"
 mimalloc = { version = "0.1.37", default-features = false }
 num_cpus = "1.16.0"
 promptly = "0.3.1"
-serde_json = "1.0.104"
-serde_yaml = "0.9.22"
-sqlx = { version = "0.7.1", features = ["postgres", "runtime-tokio", "tls-native-tls"] }
+serde_json = "1.0.107"
+serde_yaml = "0.9.25"
+sqlx = { version = "0.7.2", features = ["postgres", "runtime-tokio", "tls-native-tls"] }
 sysinfo = "0.29.4"
 tokio = { version = "1.29.1", features = ["full"] }
 tracing = "0.1.37"

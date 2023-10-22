@@ -24,8 +24,8 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 [dependencies]
 charted-common = { version = "0.0.0-devel.0", path = "../common" }
 charted-config = { version = "0.0.0-devel.0", path = "../config" }
-dyn-clone = "1.0.12"
-erased-serde = "0.3.28"
+dyn-clone = "1.0.14"
+erased-serde = "0.3.31"
 prometheus-client = "0.21.2"
 serde = { version = "1.0.189", features = ["derive"] }
 tokio = { version = "1.29.1", features = ["rt"] }
