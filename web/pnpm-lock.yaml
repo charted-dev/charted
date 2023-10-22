@@ -19,7 +19,7 @@ dependencies:
     version: 1.1.0(tailwindcss@3.3.3)
   '@formkit/zod':
     specifier: 1.1.0
-    version: 1.1.0(zod@3.22.3)
+    version: 1.1.0(zod@3.22.4)
   '@iconify/vue':
     specifier: 4.1.1
     version: 4.1.1(vue@3.3.4)
@@ -90,8 +90,8 @@ dependencies:
     specifier: 4.2.4
     version: 4.2.4(vue@3.3.4)
   zod:
-    specifier: 3.22.3
-    version: 3.22.3
+    specifier: 3.22.4
+    version: 3.22.4
 
 devDependencies:
   '@augu/eslint-config':
@@ -1282,13 +1282,13 @@ packages:
       - windicss
     dev: false
 
-  /@formkit/zod@1.1.0(zod@3.22.3):
+  /@formkit/zod@1.1.0(zod@3.22.4):
     resolution: {integrity: sha512-0TMBzwSwu5jjAqTXidclHWxNAjF0cOZVSwnYFRJjeiEsRzNQyMsbDElGefL9BVm/EBIEyOpMKohwpxg5bfWo6A==}
     peerDependencies:
       zod: ^3.0.0
     dependencies:
       '@formkit/core': 1.1.0
-      zod: 3.22.3
+      zod: 3.22.4
     dev: false
 
   /@humanwhocodes/config-array@0.11.10:
@@ -6013,8 +6013,8 @@ packages:
     resolution: {integrity: sha512-Y3g6EegQc6PVrYXPq2OS7/s27UGVS5Y6NY6SY3XGH4Hg+yQWbQTtWsjCgmpR8kZnYrv8auB54sz+x5FEDrvqzQ==}
     dev: false
 
-  /zod@3.22.3:
-    resolution: {integrity: sha512-EjIevzuJRiRPbVH4mGc8nApb/lVLKVpmUhAaR5R5doKGfAnGJ6Gr3CViAVjP+4FWSxCsybeWQdcgCtbX+7oZug==}
+  /zod@3.22.4:
+    resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
     dev: false
 
   /zwitch@2.0.4:
