@@ -58,7 +58,7 @@ rust_library(
         "@crate_index__multer-2.1.0//:build_script_build",
         "@crate_index__spin-0.9.8//:spin",
         "@crate_index__tokio-1.32.0//:tokio",
-        "@crate_index__tokio-util-0.7.8//:tokio_util",
+        "@crate_index__tokio-util-0.7.9//:tokio_util",
     ],
 )
 

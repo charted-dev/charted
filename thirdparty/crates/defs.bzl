@@ -488,7 +488,7 @@ _NORMAL_DEPENDENCIES = {
             "serde_json": "@crate_index__serde_json-1.0.107//:serde_json",
             "sqlx": "@crate_index__sqlx-0.7.2//:sqlx",
             "tokio": "@crate_index__tokio-1.32.0//:tokio",
-            "tokio-util": "@crate_index__tokio-util-0.7.8//:tokio_util",
+            "tokio-util": "@crate_index__tokio-util-0.7.9//:tokio_util",
             "tracing": "@crate_index__tracing-0.1.37//:tracing",
             "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
             "uuid": "@crate_index__uuid-1.4.1//:uuid",
@@ -6002,12 +6002,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__tokio-util-0.7.8",
-        sha256 = "806fe8c2c87eccc8b3267cbae29ed3ab2d0bd37fca70ab622e46aaa9375ddb7d",
+        name = "crate_index__tokio-util-0.7.9",
+        sha256 = "1d68074620f57a0b21594d9735eb2e98ab38b17f80d3fcb189fca266771ca60d",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/tokio-util/0.7.8/download"],
-        strip_prefix = "tokio-util-0.7.8",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tokio-util-0.7.8.bazel"),
+        urls = ["https://crates.io/api/v1/crates/tokio-util/0.7.9/download"],
+        strip_prefix = "tokio-util-0.7.9",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tokio-util-0.7.9.bazel"),
     )
 
     maybe(
