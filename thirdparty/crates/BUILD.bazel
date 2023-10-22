@@ -453,7 +453,7 @@ alias(
 
 alias(
     name = "thiserror",
-    actual = "@crate_index__thiserror-1.0.48//:thiserror",
+    actual = "@crate_index__thiserror-1.0.50//:thiserror",
     tags = ["manual"],
 )
 

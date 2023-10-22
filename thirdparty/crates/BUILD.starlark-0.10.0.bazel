@@ -74,7 +74,7 @@ rust_library(
         "@crate_index__static_assertions-1.1.0//:static_assertions",
         "@crate_index__strsim-0.10.0//:strsim",
         "@crate_index__textwrap-0.11.0//:textwrap",
-        "@crate_index__thiserror-1.0.48//:thiserror",
+        "@crate_index__thiserror-1.0.50//:thiserror",
     ] + select({
         "@rules_rust//rust/platform:aarch64-apple-darwin": [
             "@crate_index__rustyline-11.0.0//:rustyline",  # cfg(not(target_arch = "wasm32"))
