@@ -28,8 +28,12 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
+    crate_features = [
+        "default",
+        "std",
+    ],
     crate_root = "src/lib.rs",
-    edition = "2018",
+    edition = "2021",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
@@ -38,8 +42,8 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "1.1.1",
+    version = "3.0.2",
     deps = [
-        "@crate_index__base64-0.13.1//:base64",
+        "@crate_index__base64-0.21.5//:base64",
     ],
 )

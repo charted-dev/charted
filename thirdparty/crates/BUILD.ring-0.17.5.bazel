@@ -27,6 +27,9 @@ rust_library(
     ),
     crate_features = [
         "alloc",
+        "default",
+        "dev_urandom_fallback",
+        "std",
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
@@ -38,14 +41,14 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.17.3",
+    version = "0.17.5",
     deps = [
         "@crate_index__getrandom-0.2.10//:getrandom",
-        "@crate_index__ring-0.17.3//:build_script_build",
+        "@crate_index__ring-0.17.5//:build_script_build",
         "@crate_index__untrusted-0.9.0//:untrusted",
     ] + select({
         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
-            "@crate_index__libc-0.2.147//:libc",  # cfg(any(target_os = "android", target_os = "linux"))
+            "@crate_index__libc-0.2.149//:libc",  # cfg(any(target_os = "android", target_os = "linux"))
             "@crate_index__spin-0.9.8//:spin",  # cfg(any(target_arch = "x86", target_arch = "x86_64", all(any(target_arch = "aarch64", target_arch = "arm"), any(target_os = "android", target_os = "fuchsia", target_os = "linux", target_os = "windows"))))
         ],
         "@rules_rust//rust/platform:x86_64-apple-darwin": [
@@ -55,7 +58,7 @@ rust_library(
             "@crate_index__spin-0.9.8//:spin",  # cfg(any(target_arch = "x86", target_arch = "x86_64", all(any(target_arch = "aarch64", target_arch = "arm"), any(target_os = "android", target_os = "fuchsia", target_os = "linux", target_os = "windows"))))
         ],
         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
-            "@crate_index__libc-0.2.147//:libc",  # cfg(any(target_os = "android", target_os = "linux"))
+            "@crate_index__libc-0.2.149//:libc",  # cfg(any(target_os = "android", target_os = "linux"))
             "@crate_index__spin-0.9.8//:spin",  # cfg(any(target_arch = "x86", target_arch = "x86_64", all(any(target_arch = "aarch64", target_arch = "arm"), any(target_os = "android", target_os = "fuchsia", target_os = "linux", target_os = "windows"))))
         ],
         "//conditions:default": [],
@@ -67,6 +70,9 @@ cargo_build_script(
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "alloc",
+        "default",
+        "dev_urandom_fallback",
+        "std",
     ],
     crate_name = "build_script_build",
     crate_root = "build.rs",
@@ -82,7 +88,7 @@ cargo_build_script(
         ],
     ),
     edition = "2021",
-    links = "ring_core_0_17_3",
+    links = "ring_core_0_17_5",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -93,7 +99,7 @@ cargo_build_script(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.17.3",
+    version = "0.17.5",
     visibility = ["//visibility:private"],
     deps = [
         "@crate_index__cc-1.0.83//:cc",
