@@ -629,7 +629,7 @@ _NORMAL_DEPENDENCIES = {
             "simple_tables": "@crate_index__simple_tables-0.3.0//:simple_tables",
             "starlark": "@crate_index__starlark-0.10.0//:starlark",
             "tokio": "@crate_index__tokio-1.33.0//:tokio",
-            "toml": "@crate_index__toml-0.7.8//:toml",
+            "toml": "@crate_index__toml-0.8.2//:toml",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
             "which": "@crate_index__which-4.4.2//:which",
