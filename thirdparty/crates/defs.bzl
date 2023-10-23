@@ -315,7 +315,7 @@ _NORMAL_DEPENDENCIES = {
             "tokio": "@crate_index__tokio-1.33.0//:tokio",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
-            "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
+            "utoipa": "@crate_index__utoipa-4.0.0//:utoipa",
         },
     },
     "crates/avatars": {
@@ -345,7 +345,7 @@ _NORMAL_DEPENDENCIES = {
             "sqlx": "@crate_index__sqlx-0.7.2//:sqlx",
             "thiserror": "@crate_index__thiserror-1.0.50//:thiserror",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
-            "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
+            "utoipa": "@crate_index__utoipa-4.0.0//:utoipa",
             "validator": "@crate_index__validator-0.16.1//:validator",
         },
     },
@@ -423,7 +423,7 @@ _NORMAL_DEPENDENCIES = {
     "crates/openapi": {
         _COMMON_CONDITION: {
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
-            "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
+            "utoipa": "@crate_index__utoipa-4.0.0//:utoipa",
         },
     },
     "crates/openapi/proc-macro": {
@@ -440,7 +440,7 @@ _NORMAL_DEPENDENCIES = {
             "quote": "@crate_index__quote-1.0.33//:quote",
             "serde_json": "@crate_index__serde_json-1.0.107//:serde_json",
             "syn": "@crate_index__syn-2.0.38//:syn",
-            "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
+            "utoipa": "@crate_index__utoipa-4.0.0//:utoipa",
         },
     },
     "crates/redis": {
@@ -491,7 +491,7 @@ _NORMAL_DEPENDENCIES = {
             "tokio": "@crate_index__tokio-1.33.0//:tokio",
             "tokio-util": "@crate_index__tokio-util-0.7.9//:tokio_util",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
-            "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
+            "utoipa": "@crate_index__utoipa-4.0.0//:utoipa",
             "uuid": "@crate_index__uuid-1.5.0//:uuid",
         },
     },
@@ -590,7 +590,7 @@ _NORMAL_DEPENDENCIES = {
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "tracing-log": "@crate_index__tracing-log-0.1.4//:tracing_log",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
-            "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
+            "utoipa": "@crate_index__utoipa-4.0.0//:utoipa",
             "validator": "@crate_index__validator-0.16.1//:validator",
         },
     },
@@ -600,7 +600,7 @@ _NORMAL_DEPENDENCIES = {
             "proc-macro2": "@crate_index__proc-macro2-1.0.69//:proc_macro2",
             "quote": "@crate_index__quote-1.0.33//:quote",
             "syn": "@crate_index__syn-2.0.38//:syn",
-            "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
+            "utoipa": "@crate_index__utoipa-4.0.0//:utoipa",
         },
     },
     "testing": {
@@ -809,7 +809,7 @@ _NORMAL_DEV_DEPENDENCIES = {
     },
     "crates/openapi/proc-macro": {
         _COMMON_CONDITION: {
-            "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
+            "utoipa": "@crate_index__utoipa-4.0.0//:utoipa",
         },
     },
     "crates/proc-macros": {
@@ -6393,22 +6393,22 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__utoipa-3.5.0",
-        sha256 = "d82b1bc5417102a73e8464c686eef947bdfb99fcdfc0a4f228e81afa9526470a",
+        name = "crate_index__utoipa-4.0.0",
+        sha256 = "6b208a50ff438dcdc887ea3f2db59530bd2f4bc3d2c70630e4d7ee7a281a1d1b",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/utoipa/3.5.0/download"],
-        strip_prefix = "utoipa-3.5.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.utoipa-3.5.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/utoipa/4.0.0/download"],
+        strip_prefix = "utoipa-4.0.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.utoipa-4.0.0.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__utoipa-gen-3.5.0",
-        sha256 = "05d96dcd6fc96f3df9b3280ef480770af1b7c5d14bc55192baa9b067976d920c",
+        name = "crate_index__utoipa-gen-4.0.0",
+        sha256 = "0bd516d8879043e081537690bc96c8f17b5a4602c336aecb8f1de89d9d9c7e72",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/utoipa-gen/3.5.0/download"],
-        strip_prefix = "utoipa-gen-3.5.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.utoipa-gen-3.5.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/utoipa-gen/4.0.0/download"],
+        strip_prefix = "utoipa-gen-4.0.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.utoipa-gen-4.0.0.bazel"),
     )
 
     maybe(

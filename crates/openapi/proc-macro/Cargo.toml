@@ -31,4 +31,4 @@ quote = "1.0.33"
 syn = "2.0.38"
 
 [dev-dependencies]
-utoipa = "3.5.0"
+utoipa = "4.0.0"
