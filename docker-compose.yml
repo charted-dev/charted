@@ -71,7 +71,7 @@ services:
       test: ['CMD-SHELL', "pg_isready -U charted"]
   redis:
     container_name: charted-redis
-    image: bitnami/redis:7.2.1
+    image: bitnami/redis:7.2.2
     restart: always
     ports:
       - '6379:6379'
