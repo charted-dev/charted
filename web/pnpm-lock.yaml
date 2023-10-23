@@ -18,8 +18,8 @@ dependencies:
     specifier: 1.2.2
     version: 1.2.2(tailwindcss@3.3.3)(typescript@5.1.6)
   '@formkit/zod':
-    specifier: 1.1.0
-    version: 1.1.0(zod@3.22.4)
+    specifier: 1.2.2
+    version: 1.2.2(zod@3.22.4)
   '@iconify/vue':
     specifier: 4.1.1
     version: 4.1.1(vue@3.3.6)
@@ -830,12 +830,6 @@ packages:
     resolution: {integrity: sha512-Y/EtdbwKwNQTGpnMrexX8SVW6Jqlh0nX2bNHI9Z9m6FsyjbocZIFNJqwSY9bDUoi7irGtz8nuidAN7FF8wYuJA==}
     dev: false
 
-  /@formkit/core@1.1.0:
-    resolution: {integrity: sha512-p3fbSVYI/93mndlIKU+Rc/ZqR9mzQ55B8HLvDAj53Aooo5GVDGeRYI78+rbB0Uy4nuu/Drivr8+x1+uiWTuOdw==}
-    dependencies:
-      '@formkit/utils': 1.1.0
-    dev: false
-
   /@formkit/core@1.2.2:
     resolution: {integrity: sha512-aJoZW7ZWXdwVBdw2acv62aPaecZ44PnK9eyp/hdMrMxT9xW3I84MytCdII8DYpxLmloaE+NoUANZIvlkTRGlHg==}
     dependencies:
@@ -897,10 +891,6 @@ packages:
       tailwindcss: 3.3.3
     dev: false
 
-  /@formkit/utils@1.1.0:
-    resolution: {integrity: sha512-pxYqS+50yGj2NuUZtuayRP8CFKslzd+fbM/PaS5I3UmhQ8oJcj651KNLN2k5XGXSLYIll+VlaCCr4ny0HOd2Mw==}
-    dev: false
-
   /@formkit/utils@1.2.2:
     resolution: {integrity: sha512-4EGm4nfZGSJik0QRAEybxO52F3QhbOfX/KgtWfB3/dDUEOCx5RWDxIs/CU2yI4bceDl2aK8l/yDYwCYK9SO5MA==}
     dev: false
@@ -933,12 +923,12 @@ packages:
       - windicss
     dev: false
 
-  /@formkit/zod@1.1.0(zod@3.22.4):
-    resolution: {integrity: sha512-0TMBzwSwu5jjAqTXidclHWxNAjF0cOZVSwnYFRJjeiEsRzNQyMsbDElGefL9BVm/EBIEyOpMKohwpxg5bfWo6A==}
+  /@formkit/zod@1.2.2(zod@3.22.4):
+    resolution: {integrity: sha512-xa+dwcI8x/Q6D9U2Hvw2jX2ysUsM2eCif5/ISg+92HK30rZEgZV/vAVRfNECRmDe/zPkX+naIkoUXHa5JPQqQg==}
     peerDependencies:
       zod: ^3.0.0
     dependencies:
-      '@formkit/core': 1.1.0
+      '@formkit/core': 1.2.2
       zod: 3.22.4
     dev: false
 
