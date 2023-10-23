@@ -19,4 +19,16 @@ exports_files(["Cargo.toml"])
 
 rust_project(
     name = "integ_rest",
+    proc_macro_deps = ["@crate_index//:async-trait"],
+    deps = [
+        "@crate_index//:axum",
+        "@crate_index//:bytes",
+        "@crate_index//:eyre",
+        "@crate_index//:hyper",
+        "@crate_index//:serde",
+        "@crate_index//:serde_json",
+        "@crate_index//:tokio",
+        "@crate_index//:tower",
+        "@crate_index//:tower-service",
+    ],
 )
