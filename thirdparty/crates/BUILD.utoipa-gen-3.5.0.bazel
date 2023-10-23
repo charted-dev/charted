@@ -51,6 +51,6 @@ rust_proc_macro(
         "@crate_index__quote-1.0.33//:quote",
         "@crate_index__regex-1.10.2//:regex",
         "@crate_index__syn-2.0.38//:syn",
-        "@crate_index__uuid-1.4.1//:uuid",
+        "@crate_index__uuid-1.5.0//:uuid",
     ],
 )
