@@ -407,7 +407,7 @@ _NORMAL_DEPENDENCIES = {
             "sentry-tracing": "@crate_index__sentry-tracing-0.31.7//:sentry_tracing",
             "serde_json": "@crate_index__serde_json-1.0.107//:serde_json",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
-            "tracing-log": "@crate_index__tracing-log-0.1.3//:tracing_log",
+            "tracing-log": "@crate_index__tracing-log-0.1.4//:tracing_log",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
         },
     },
@@ -588,7 +588,7 @@ _NORMAL_DEPENDENCIES = {
             "tower-http": "@crate_index__tower-http-0.4.4//:tower_http",
             "tower-layer": "@crate_index__tower-layer-0.3.2//:tower_layer",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
-            "tracing-log": "@crate_index__tracing-log-0.1.3//:tracing_log",
+            "tracing-log": "@crate_index__tracing-log-0.1.4//:tracing_log",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
             "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
             "validator": "@crate_index__validator-0.16.1//:validator",
@@ -6193,12 +6193,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__tracing-log-0.1.3",
-        sha256 = "78ddad33d2d10b1ed7eb9d1f518a5674713876e97e5bb9b7345a7984fbb4f922",
+        name = "crate_index__tracing-log-0.1.4",
+        sha256 = "f751112709b4e791d8ce53e32c4ed2d353565a795ce84da2285393f41557bdf2",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/tracing-log/0.1.3/download"],
-        strip_prefix = "tracing-log-0.1.3",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tracing-log-0.1.3.bazel"),
+        urls = ["https://crates.io/api/v1/crates/tracing-log/0.1.4/download"],
+        strip_prefix = "tracing-log-0.1.4",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tracing-log-0.1.4.bazel"),
     )
 
     maybe(
