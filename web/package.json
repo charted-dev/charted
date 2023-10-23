@@ -67,7 +67,7 @@
         "unplugin-fluent-vue": "1.1.4",
         "unplugin-vue-components": "0.25.2",
         "unplugin-vue-router": "0.6.4",
-        "vite": "4.4.4",
+        "vite": "4.5.0",
         "vite-plugin-vue-devtools": "1.0.0-rc.5",
         "vite-plugin-vue-layouts": "0.8.0",
         "vitest": "0.33.0",
