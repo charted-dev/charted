@@ -629,7 +629,7 @@ _NORMAL_DEPENDENCIES = {
             "simple_tables": "@crate_index__simple_tables-0.3.0//:simple_tables",
             "starlark": "@crate_index__starlark-0.10.0//:starlark",
             "tokio": "@crate_index__tokio-1.33.0//:tokio",
-            "toml": "@crate_index__toml-0.8.2//:toml",
+            "toml": "@crate_index__toml-0.8.4//:toml",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
             "which": "@crate_index__which-4.4.2//:which",
@@ -5343,12 +5343,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__serde_spanned-0.6.3",
-        sha256 = "96426c9936fd7a0124915f9185ea1d20aa9445cc9821142f0a73bc9207a2e186",
+        name = "crate_index__serde_spanned-0.6.4",
+        sha256 = "12022b835073e5b11e90a14f86838ceb1c8fb0325b72416845c487ac0fa95e80",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/serde_spanned/0.6.3/download"],
-        strip_prefix = "serde_spanned-0.6.3",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.serde_spanned-0.6.3.bazel"),
+        urls = ["https://crates.io/api/v1/crates/serde_spanned/0.6.4/download"],
+        strip_prefix = "serde_spanned-0.6.4",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.serde_spanned-0.6.4.bazel"),
     )
 
     maybe(
@@ -6053,32 +6053,32 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__toml-0.8.2",
-        sha256 = "185d8ab0dfbb35cf1399a6344d8484209c088f75f8f68230da55d48d95d43e3d",
+        name = "crate_index__toml-0.8.4",
+        sha256 = "2ef75d881185fd2df4a040793927c153d863651108a93c7e17a9e591baa95cc6",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/toml/0.8.2/download"],
-        strip_prefix = "toml-0.8.2",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.toml-0.8.2.bazel"),
+        urls = ["https://crates.io/api/v1/crates/toml/0.8.4/download"],
+        strip_prefix = "toml-0.8.4",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.toml-0.8.4.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__toml_datetime-0.6.3",
-        sha256 = "7cda73e2f1397b1262d6dfdcef8aafae14d1de7748d66822d3bfeeb6d03e5e4b",
+        name = "crate_index__toml_datetime-0.6.5",
+        sha256 = "3550f4e9685620ac18a50ed434eb3aec30db8ba93b0287467bca5826ea25baf1",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/toml_datetime/0.6.3/download"],
-        strip_prefix = "toml_datetime-0.6.3",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.toml_datetime-0.6.3.bazel"),
+        urls = ["https://crates.io/api/v1/crates/toml_datetime/0.6.5/download"],
+        strip_prefix = "toml_datetime-0.6.5",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.toml_datetime-0.6.5.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__toml_edit-0.20.2",
-        sha256 = "396e4d48bbb2b7554c944bde63101b5ae446cff6ec4a24227428f15eb72ef338",
+        name = "crate_index__toml_edit-0.20.4",
+        sha256 = "380f9e8120405471f7c9ad1860a713ef5ece6a670c7eae39225e477340f32fc4",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/toml_edit/0.20.2/download"],
-        strip_prefix = "toml_edit-0.20.2",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.toml_edit-0.20.2.bazel"),
+        urls = ["https://crates.io/api/v1/crates/toml_edit/0.20.4/download"],
+        strip_prefix = "toml_edit-0.20.4",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.toml_edit-0.20.4.bazel"),
     )
 
     maybe(
