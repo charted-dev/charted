@@ -491,7 +491,7 @@ _NORMAL_DEPENDENCIES = {
             "tokio-util": "@crate_index__tokio-util-0.7.9//:tokio_util",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
-            "uuid": "@crate_index__uuid-1.4.1//:uuid",
+            "uuid": "@crate_index__uuid-1.5.0//:uuid",
         },
     },
     "crates/sessions/integrations": {
@@ -528,7 +528,7 @@ _NORMAL_DEPENDENCIES = {
             "serde_json": "@crate_index__serde_json-1.0.107//:serde_json",
             "sqlx": "@crate_index__sqlx-0.7.2//:sqlx",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
-            "uuid": "@crate_index__uuid-1.4.1//:uuid",
+            "uuid": "@crate_index__uuid-1.5.0//:uuid",
         },
     },
     "crates/sessions/passwordless": {
@@ -6372,12 +6372,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__uuid-1.4.1",
-        sha256 = "79daa5ed5740825c40b389c5e50312b9c86df53fccd33f281df655642b43869d",
+        name = "crate_index__uuid-1.5.0",
+        sha256 = "88ad59a7560b41a70d191093a945f0b87bc1deeda46fb237479708a1d6b6cdfc",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/uuid/1.4.1/download"],
-        strip_prefix = "uuid-1.4.1",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.uuid-1.4.1.bazel"),
+        urls = ["https://crates.io/api/v1/crates/uuid/1.5.0/download"],
+        strip_prefix = "uuid-1.5.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.uuid-1.5.0.bazel"),
     )
 
     maybe(
