@@ -27,7 +27,7 @@
         "@tailwindcss/typography": "0.5.10",
         "@tanstack/vue-query": "4.37.0",
         "@vue/compiler-sfc": "3.3.6",
-        "@vueuse/core": "10.2.1",
+        "@vueuse/core": "10.5.0",
         "@vueuse/head": "1.1.26",
         "autoprefixer": "10.4.16",
         "luxon": "3.3.0",
