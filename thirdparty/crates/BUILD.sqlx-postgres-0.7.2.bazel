@@ -48,7 +48,7 @@ rust_library(
     version = "0.7.2",
     deps = [
         "@crate_index__atoi-2.0.0//:atoi",
-        "@crate_index__base64-0.21.4//:base64",
+        "@crate_index__base64-0.21.5//:base64",
         "@crate_index__bitflags-2.4.0//:bitflags",
         "@crate_index__byteorder-1.4.3//:byteorder",
         "@crate_index__chrono-0.4.31//:chrono",

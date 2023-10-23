@@ -352,7 +352,7 @@ _NORMAL_DEPENDENCIES = {
     "crates/config": {
         _COMMON_CONDITION: {
             "aws-sdk-s3": "@crate_index__aws-sdk-s3-0.28.0//:aws_sdk_s3",
-            "base64": "@crate_index__base64-0.21.4//:base64",
+            "base64": "@crate_index__base64-0.21.5//:base64",
             "clap": "@crate_index__clap-4.4.6//:clap",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "lazy_static": "@crate_index__lazy_static-1.4.0//:lazy_static",
@@ -561,7 +561,7 @@ _NORMAL_DEPENDENCIES = {
             "ansi_term": "@crate_index__ansi_term-0.12.1//:ansi_term",
             "argon2": "@crate_index__argon2-0.5.2//:argon2",
             "axum": "@crate_index__axum-0.6.20//:axum",
-            "base64": "@crate_index__base64-0.21.4//:base64",
+            "base64": "@crate_index__base64-0.21.5//:base64",
             "chrono": "@crate_index__chrono-0.4.31//:chrono",
             "erased-serde": "@crate_index__erased-serde-0.3.31//:erased_serde",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
@@ -2123,12 +2123,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__base64-0.21.4",
-        sha256 = "9ba43ea6f343b788c8764558649e08df62f86c6ef251fdaeb1ffd010a9ae50a2",
+        name = "crate_index__base64-0.21.5",
+        sha256 = "35636a1494ede3b646cc98f74f8e62c773a38a659ebc777a2cf26b9b74171df9",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/base64/0.21.4/download"],
-        strip_prefix = "base64-0.21.4",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.base64-0.21.4.bazel"),
+        urls = ["https://crates.io/api/v1/crates/base64/0.21.5/download"],
+        strip_prefix = "base64-0.21.5",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.base64-0.21.5.bazel"),
     )
 
     maybe(
