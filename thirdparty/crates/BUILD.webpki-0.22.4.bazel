@@ -40,7 +40,7 @@ rust_library(
     ],
     version = "0.22.4",
     deps = [
-        "@crate_index__ring-0.17.3//:ring",
+        "@crate_index__ring-0.17.5//:ring",
         "@crate_index__untrusted-0.9.0//:untrusted",
     ],
 )

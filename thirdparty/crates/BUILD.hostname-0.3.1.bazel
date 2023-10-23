@@ -46,19 +46,19 @@ rust_library(
         "@crate_index__match_cfg-0.1.0//:match_cfg",
     ] + select({
         "@rules_rust//rust/platform:aarch64-apple-darwin": [
-            "@crate_index__libc-0.2.147//:libc",  # cfg(any(unix, target_os = "redox"))
+            "@crate_index__libc-0.2.149//:libc",  # cfg(any(unix, target_os = "redox"))
         ],
         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
-            "@crate_index__libc-0.2.147//:libc",  # cfg(any(unix, target_os = "redox"))
+            "@crate_index__libc-0.2.149//:libc",  # cfg(any(unix, target_os = "redox"))
         ],
         "@rules_rust//rust/platform:x86_64-apple-darwin": [
-            "@crate_index__libc-0.2.147//:libc",  # cfg(any(unix, target_os = "redox"))
+            "@crate_index__libc-0.2.149//:libc",  # cfg(any(unix, target_os = "redox"))
         ],
         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [
             "@crate_index__winapi-0.3.9//:winapi",  # cfg(target_os = "windows")
         ],
         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
-            "@crate_index__libc-0.2.147//:libc",  # cfg(any(unix, target_os = "redox"))
+            "@crate_index__libc-0.2.149//:libc",  # cfg(any(unix, target_os = "redox"))
         ],
         "//conditions:default": [],
     }),

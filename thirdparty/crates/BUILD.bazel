@@ -201,7 +201,7 @@ alias(
 
 alias(
     name = "jsonwebtoken",
-    actual = "@crate_index__jsonwebtoken-8.3.0//:jsonwebtoken",
+    actual = "@crate_index__jsonwebtoken-9.1.0//:jsonwebtoken",
     tags = ["manual"],
 )
 

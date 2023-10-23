@@ -45,7 +45,7 @@ rust_library(
     ] + select({
         "@rules_rust//rust/platform:aarch64-apple-darwin": [
             "@crate_index__lazy_static-1.4.0//:lazy_static",  # cfg(any(target_os = "macos", target_os = "ios"))
-            "@crate_index__libc-0.2.147//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
+            "@crate_index__libc-0.2.149//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
             "@crate_index__security-framework-2.9.2//:security_framework",  # cfg(any(target_os = "macos", target_os = "ios"))
             "@crate_index__security-framework-sys-2.9.1//:security_framework_sys",  # cfg(any(target_os = "macos", target_os = "ios"))
             "@crate_index__tempfile-3.8.0//:tempfile",  # cfg(any(target_os = "macos", target_os = "ios"))
@@ -58,7 +58,7 @@ rust_library(
         ],
         "@rules_rust//rust/platform:x86_64-apple-darwin": [
             "@crate_index__lazy_static-1.4.0//:lazy_static",  # cfg(any(target_os = "macos", target_os = "ios"))
-            "@crate_index__libc-0.2.147//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
+            "@crate_index__libc-0.2.149//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
             "@crate_index__security-framework-2.9.2//:security_framework",  # cfg(any(target_os = "macos", target_os = "ios"))
             "@crate_index__security-framework-sys-2.9.1//:security_framework_sys",  # cfg(any(target_os = "macos", target_os = "ios"))
             "@crate_index__tempfile-3.8.0//:tempfile",  # cfg(any(target_os = "macos", target_os = "ios"))
