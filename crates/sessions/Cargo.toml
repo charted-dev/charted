@@ -37,5 +37,5 @@ sqlx = { version = "0.7.2", features = ["postgres"] }
 tokio = { version = "1.33.0", default-features = false, features = ["rt", "sync", "tracing"] }
 tokio-util = "0.7.9"
 tracing = "0.1.40"
-utoipa = "3.5.0"
+utoipa = "4.0.0"
 uuid = { version = "1.5.0", features = ["serde", "v4"] }

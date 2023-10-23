@@ -38,7 +38,7 @@ rust_library(
     crate_root = "src/lib.rs",
     edition = "2021",
     proc_macro_deps = [
-        "@crate_index__utoipa-gen-3.5.0//:utoipa_gen",
+        "@crate_index__utoipa-gen-4.0.0//:utoipa_gen",
     ],
     rustc_flags = ["--cap-lints=allow"],
     tags = [
@@ -48,7 +48,7 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "3.5.0",
+    version = "4.0.0",
     deps = [
         "@crate_index__indexmap-2.0.0//:indexmap",
         "@crate_index__serde-1.0.189//:serde",
