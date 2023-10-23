@@ -74,7 +74,7 @@ services:
   meilisearch:
     <<: *container
     container_name: charted_meilisearch
-    image: getmeili/meilisearch:v1.2
+    image: getmeili/meilisearch:v1.4
     profiles: [meilisearch]
     ports:
       - "7700:7700"
