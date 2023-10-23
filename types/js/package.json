@@ -17,7 +17,8 @@
         "generate": "tsx --tsconfig ./scripts/tsconfig.json scripts/openapi && pnpm run fmt && pnpm run lint",
         "build": "pnpm run fmt && pnpm run lint && tsx --tsconfig ./scripts/tsconfig.json scripts/build",
         "lint": "eslint src --ext .d.ts --format=codeframe --fix && eslint scripts --ext .ts,.js --format=codeframe --fix",
-        "fmt": "prettier --config ./.prettierrc.json --write **/*.{js,ts,json}"
+        "fmt": "prettier --config ./.prettierrc.json --write **/*.{js,ts,json}",
+        "test": "vitest --run"
     },
     "exports": {
         ".": {
@@ -39,6 +40,7 @@
         "openapi-typescript": "6.6.2",
         "prettier": "3.0.3",
         "tsx": "3.13.0",
-        "typescript": "5.2.2"
+        "typescript": "5.2.2",
+        "vitest": "0.34.6"
     }
 }

@@ -46,7 +46,7 @@ impl Default for MainResponse {
 }
 
 /// Main entrypoint to charted-server. This is just a generic "hello world" response.
-#[controller(tags("Main"), response(200, "Successful response", ("application/json", response!("ApiMainResponse"))))]
+#[controller(tags("Main"), response(200, "Successful response", ("application/json", response!("MainResponse"))))]
 pub async fn main() {
     ok(StatusCode::OK, MainResponse::default())
 }

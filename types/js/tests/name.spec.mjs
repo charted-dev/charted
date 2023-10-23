@@ -15,4 +15,13 @@
  * limitations under the License.
  */
 
-export { Name, NameError, NameErrorKind } from './index.js';
+// @ts-check
+
+import { Name, NameError } from '../src/index.mjs';
+import { expect, test } from 'vitest';
+
+test('Name#validate', () => {
+    expect(new Name('noel').validate()).not.toThrowError(NameError);
+    expect(() => new Name().validate()).toThrowError(NameError);
+    expect(() => new Name('@@@@@').validate()).toThrowError(NameError);
+});

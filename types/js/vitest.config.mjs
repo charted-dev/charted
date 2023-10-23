@@ -15,4 +15,10 @@
  * limitations under the License.
  */
 
-export { Name, NameError, NameErrorKind } from './index.js';
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+    test: {
+        dir: './tests'
+    }
+});

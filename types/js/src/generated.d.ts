@@ -9,7 +9,7 @@ export interface paths {
         get: operations['main'];
     };
     '/apikeys': {
-        get: operations['entrypoint'];
+        get: operations['apikeys'];
     };
     '/features': {
         /** @description Retrieve this server's features. This is only for enabling or disabling features for API consumers. */
@@ -26,6 +26,12 @@ export interface paths {
     '/info': {
         /** @description REST handler for getting more information about this instance that can be visible for API consumers. */
         get: operations['info'];
+    };
+    '/repositories/{id}': {
+        /** @description Retrieve a repository by the repo ID. */
+        get: operations['get_repository'];
+        /** @description Patch a repository's metadata */
+        patch: operations['patch_repository'];
     };
     '/users': {
         /** @description Generic entrypoint route for the Users API. */
@@ -79,6 +85,90 @@ export interface paths {
         get: operations['get_current_user_avatar'];
     };
     '/users/{idOrName}/repositories': {
+        /** @description Retrieve a list of all a user's repositories. */
+        get: operations['list_user_repositories'];
+    };
+    '/v1': {
+        /** @description Main entrypoint to charted-server. This is just a generic "hello world" response. */
+        get: operations['main'];
+    };
+    '/v1/apikeys': {
+        get: operations['apikeys'];
+    };
+    '/v1/features': {
+        /** @description Retrieve this server's features. This is only for enabling or disabling features for API consumers. */
+        get: operations['features'];
+    };
+    '/v1/heartbeat': {
+        /** @description Generic healthcheck endpoint to use for Docker and Kubernetes usage. */
+        get: operations['heartbeat'];
+    };
+    '/v1/indexes/{idOrName}': {
+        /** @description Returns a `ChartIndex` for a specific user or organization. */
+        get: operations['get_index'];
+    };
+    '/v1/info': {
+        /** @description REST handler for getting more information about this instance that can be visible for API consumers. */
+        get: operations['info'];
+    };
+    '/v1/repositories/{id}': {
+        /** @description Retrieve a repository by the repo ID. */
+        get: operations['get_repository'];
+        /** @description Patch a repository's metadata */
+        patch: operations['patch_repository'];
+    };
+    '/v1/users': {
+        /** @description Generic entrypoint route for the Users API. */
+        get: operations['users'];
+        /** @description Creates a new user if the server allows registrations. */
+        put: operations['create_user'];
+        /** @description Patches the current authenticated user's metadata. */
+        patch: operations['patch_user'];
+    };
+    '/v1/users/@me': {
+        /** @description Returns a [User] from an authenticated request. */
+        get: operations['get_self'];
+    };
+    '/v1/users/@me/avatar': {
+        /**
+         * @description Returns the current authenticated user's current avatar. Use the [`GET /users/@me/avatar/{hash}.png`] REST handler
+         *  to grab by a specific hash.
+         *
+         *  [`GET /users/@me/avatar/{hash}.png`]: https://charts.noelware.org/docs/server/latest/api/reference/users#GET-/users/@me/avatar/{hash}.png
+         */
+        get: operations['get_my_current_avatar'];
+        /** @description Uploads a user avatar. */
+        post: operations['upload_user_avatar'];
+    };
+    '/v1/users/@me/repositories': {
+        /** @description Creates a [`Repository`] with the current authenticated user as the owner of the repository. */
+        put: operations['create_user_repository'];
+    };
+    '/v1/users/login': {
+        /** @description Creates a new session and returns details about the newly created session. */
+        post: operations['login'];
+    };
+    '/v1/users/sessions/logout': {
+        /** @description Attempts to destroy the current authenticated session. */
+        delete: operations['logout'];
+    };
+    '/v1/users/sessions/refresh-token': {
+        post: operations['refresh_session_token'];
+    };
+    '/v1/users/{idOrName}': {
+        /** @description Retrieve a [`User`] object. */
+        get: operations['get_user'];
+    };
+    '/v1/users/{idOrName}/avatar': {
+        /**
+         * @description Returns the user's current avatar. Use the [`GET /users/{idOrName}/avatar/{hash}.png`] REST handler
+         *  to grab by a specific hash.
+         *
+         *  [`GET /users/{idOrName}/avatar/{hash}.png`]: https://charts.noelware.org/docs/server/latest/api/reference/users#GET-/users/{idOrName}/avatar/{hash}.png
+         */
+        get: operations['get_current_user_avatar'];
+    };
+    '/v1/users/{idOrName}/repositories': {
         /** @description Retrieve a list of all a user's repositories. */
         get: operations['list_user_repositories'];
     };
@@ -210,6 +300,20 @@ export interface components {
             /** @description List of tags that can be used to group charts to enable/disable together. */
             readonly tags?: readonly string[];
             readonly version?: components['schemas']['Version'] | null;
+        };
+        /** @description Schema skeleton for a `index.yml` file that represents a Chart index. */
+        readonly ChartIndex: {
+            /** @description API version for the `index.yaml` file. Will be a constant as `v1`. */
+            readonly api_version: string;
+            /** @description List of all possible entries for this user/organization. */
+            readonly entries?: {
+                [key: string]: readonly components['schemas']['ChartIndexSpec'][];
+            };
+            /**
+             * Format: date-time
+             * @description DateTime of when this `index.yaml` was last generated. In charted-server, this is relative on when a new chart release was last published.
+             */
+            readonly generated_at: string;
         };
         /** @description Represents the specification for a Chart.yaml-schema from a `index.yaml` reference. */
         readonly ChartIndexSpec: components['schemas']['Chart'] & {
@@ -410,20 +514,16 @@ export interface components {
         readonly PageInfo: {
             readonly cursor: components['schemas']['Snowflake'];
         };
+        readonly PaginatedMember: {
+            readonly data: readonly components['schemas']['Member'][];
+            readonly page_info: components['schemas']['PageInfo'];
+        };
         readonly PaginatedOrganization: {
             readonly data: readonly components['schemas']['Organization'][];
             readonly page_info: components['schemas']['PageInfo'];
         };
-        readonly PaginatedOrganizationMember: {
-            readonly data: readonly components['schemas']['OrganizationMember'][];
-            readonly page_info: components['schemas']['PageInfo'];
-        };
         readonly PaginatedRepository: {
             readonly data: readonly components['schemas']['Repository'][];
-            readonly page_info: components['schemas']['PageInfo'];
-        };
-        readonly PaginatedRepositoryMember: {
-            readonly data: readonly components['schemas']['RepositoryMember'][];
             readonly page_info: components['schemas']['PageInfo'];
         };
         readonly Repository: {
@@ -552,134 +652,138 @@ export interface components {
             /** @description Whether if this User is a Verified Publisher or not. */
             readonly verified_publisher?: boolean;
         };
+        /** @description Represents a semantic version (https://semver.org) that Helm and charted-server will only accept */
+        readonly Version: string;
+        /** @description Represents a semantic version (https://semver.org) requirement (i.e, `>=1.2.0`) that Helm and charted-server will only accept */
+        readonly VersionReq: string;
     };
     responses: {
-        /** @description Response object for ChartIndexResponse */
-        readonly ApiChartIndexResponse: {
-            content: {
-                readonly 'application/json': {
-                    readonly data: components['schemas']['ChartIndex'];
-                    /** @description Indicates whether if this response was a success or not */
-                    readonly success: boolean;
-                };
-            };
-        };
-        /** @description Empty response object */
-        readonly ApiEmptyResponse: {
-            content: {
-                readonly 'application/json': {
-                    /** @description Indicates whether if this response was a success or not */
-                    readonly success: boolean;
-                };
-            };
-        };
-        /** @description Response object for EntrypointResponse */
-        readonly ApiEntrypointResponse: {
-            content: {
-                readonly 'application/json': {
-                    readonly data: components['schemas']['EntrypointResponse'];
-                    /** @description Indicates whether if this response was a success or not */
-                    readonly success: boolean;
-                };
-            };
-        };
-        /** @description Response of when something went wrong. Used in all non 200 status codes. */
+        /** @description API response that doesn't contain any data */
         readonly ApiErrorResponse: {
             content: {
                 readonly 'application/json': {
                     /** @description List of errors on why the request failed. */
                     readonly errors: readonly components['schemas']['Error'][];
-                    /** @description Whether if the request succeeded. This will always be `false` */
+                    /** @description whether if this response [ApiErrorResponse] was a success or not */
                     readonly success: boolean;
                 };
             };
         };
-        /** @description Response object for FeaturesResponse */
-        readonly ApiFeaturesResponse: {
+        /** @description Response object for "ChartIndex" */
+        readonly ChartIndexResponse: {
+            content: {
+                readonly 'application/json': {
+                    readonly data: components['schemas']['ChartIndex'];
+                    /** @description whether if this response [ChartIndexResponse] was successful or not */
+                    readonly success: boolean;
+                };
+            };
+        };
+        /** @description API response that doesn't contain any data */
+        readonly EmptyApiResponse: {
+            content: {
+                readonly 'application/json': {
+                    /** @description whether if this response [EmptyApiResponse] was a success or not */
+                    readonly success: boolean;
+                };
+            };
+        };
+        /** @description Response object for "EntrypointResponse" */
+        readonly EntrypointResponse: {
+            content: {
+                readonly 'application/json': {
+                    readonly data: components['schemas']['EntrypointResponse'];
+                    /** @description whether if this response [EntrypointResponse] was successful or not */
+                    readonly success: boolean;
+                };
+            };
+        };
+        /** @description Response object for "FeaturesResponse" */
+        readonly FeaturesResponse: {
             content: {
                 readonly 'application/json': {
                     readonly data: components['schemas']['FeaturesResponse'];
-                    /** @description Indicates whether if this response was a success or not */
+                    /** @description whether if this response [FeaturesResponse] was successful or not */
                     readonly success: boolean;
                 };
             };
         };
-        /** @description Response object for InfoResponse */
-        readonly ApiInfoResponse: {
+        /** @description Response object for "InfoResponse" */
+        readonly InfoResponse: {
             content: {
                 readonly 'application/json': {
                     readonly data: components['schemas']['InfoResponse'];
-                    /** @description Indicates whether if this response was a success or not */
+                    /** @description whether if this response [InfoResponse] was successful or not */
                     readonly success: boolean;
                 };
             };
         };
-        /** @description Response object for MainResponse */
-        readonly ApiMainResponse: {
+        /** @description Response object for "MainResponse" */
+        readonly MainResponse: {
             content: {
                 readonly 'application/json': {
                     readonly data: components['schemas']['MainResponse'];
-                    /** @description Indicates whether if this response was a success or not */
+                    /** @description whether if this response [MainResponse] was successful or not */
                     readonly success: boolean;
                 };
             };
         };
-        /** @description Response object for OrganizationMemberPaginatedResponse */
-        readonly ApiOrganizationMemberPaginatedResponse: {
+        /** @description Response object for "PaginatedMember" */
+        readonly MemberPaginatedResponse: {
             content: {
                 readonly 'application/json': {
-                    readonly data: components['schemas']['ApiPaginatedOrganizationMember'];
-                    /** @description Indicates whether if this response was a success or not */
+                    readonly data: components['schemas']['PaginatedMember'];
+                    /** @description whether if this response [MemberPaginatedResponse] was successful or not */
                     readonly success: boolean;
                 };
             };
         };
-        /** @description Response object for OrganizationPaginatedResponse */
-        readonly ApiOrganizationPaginatedResponse: {
+        /** @description Response object for "PaginatedOrganization" */
+        readonly OrganizationPaginatedResponse: {
             content: {
                 readonly 'application/json': {
-                    readonly data: components['schemas']['ApiPaginatedOrganization'];
-                    /** @description Indicates whether if this response was a success or not */
+                    readonly data: components['schemas']['PaginatedOrganization'];
+                    /** @description whether if this response [OrganizationPaginatedResponse] was successful or not */
                     readonly success: boolean;
                 };
             };
         };
-        /** @description Response object for RepositoryMemberPaginatedResponse */
-        readonly ApiRepositoryMemberPaginatedResponse: {
+        /** @description Response object for "PaginatedRepository" */
+        readonly RepositoryPaginatedResponse: {
             content: {
                 readonly 'application/json': {
-                    readonly data: components['schemas']['ApiPaginatedRepositoryMember'];
-                    /** @description Indicates whether if this response was a success or not */
+                    readonly data: components['schemas']['PaginatedRepository'];
+                    /** @description whether if this response [RepositoryPaginatedResponse] was successful or not */
                     readonly success: boolean;
                 };
             };
         };
-        /** @description Response object for RepositoryPaginatedResponse */
-        readonly ApiRepositoryPaginatedResponse: {
+        /** @description Response object for "Repository" */
+        readonly RepositoryResponse: {
             content: {
                 readonly 'application/json': {
-                    readonly data: components['schemas']['ApiPaginatedRepository'];
-                    /** @description Indicates whether if this response was a success or not */
+                    readonly data: components['schemas']['Repository'];
+                    /** @description whether if this response [RepositoryResponse] was successful or not */
                     readonly success: boolean;
                 };
             };
         };
-        /** @description Response object for SessionResponse */
-        readonly ApiSessionResponse: {
+        /** @description Response object for "Session" */
+        readonly SessionResponse: {
             content: {
                 readonly 'application/json': {
                     readonly data: components['schemas']['Session'];
-                    /** @description Indicates whether if this response was a success or not */
+                    /** @description whether if this response [SessionResponse] was successful or not */
                     readonly success: boolean;
                 };
             };
         };
-        /** @description Response object for UserResponse */
-        readonly ApiUserResponse: {
+        /** @description Response object for "User" */
+        readonly UserResponse: {
             content: {
                 readonly 'application/json': {
                     readonly data: components['schemas']['User'];
-                    /** @description Indicates whether if this response was a success or not */
+                    /** @description whether if this response [UserResponse] was successful or not */
                     readonly success: boolean;
                 };
             };
@@ -702,17 +806,17 @@ export interface operations {
             /** @description Successful response */
             200: {
                 content: {
-                    readonly 'application/json': components['responses']['ApiMainResponse'];
+                    readonly 'application/json': components['responses']['MainResponse'];
                 };
             };
         };
     };
-    entrypoint: {
+    apikeys: {
         responses: {
             /** @description Successful response */
             200: {
                 content: {
-                    readonly 'application/json': components['responses']['ApiEntrypointResponse'];
+                    readonly 'application/json': components['responses']['EntrypointResponse'];
                 };
             };
         };
@@ -723,7 +827,7 @@ export interface operations {
             /** @description Successful response */
             200: {
                 content: {
-                    readonly 'application/json': components['responses']['ApiFeaturesResponse'];
+                    readonly 'application/json': components['responses']['FeaturesResponse'];
                 };
             };
         };
@@ -751,7 +855,7 @@ export interface operations {
             /** @description Helm index for the user or organization */
             200: {
                 content: {
-                    readonly 'application/json': components['responses']['ApiChartIndexResponse'];
+                    readonly 'text/yaml': components['responses']['ChartIndexResponse'];
                 };
             };
             /** @description User or Organization was not found */
@@ -774,7 +878,59 @@ export interface operations {
             /** @description Successful response */
             200: {
                 content: {
-                    readonly 'application/json': components['responses']['ApiInfoResponse'];
+                    readonly 'application/json': components['responses']['InfoResponse'];
+                };
+            };
+        };
+    };
+    /** @description Retrieve a repository by the repo ID. */
+    get_repository: {
+        responses: {
+            /** @description Successful response */
+            200: {
+                content: {
+                    readonly 'application/json': components['responses']['RepositoryResponse'];
+                };
+            };
+        };
+    };
+    /** @description Patch a repository's metadata */
+    patch_repository: {
+        responses: {
+            /** @description Successful response */
+            204: {
+                content: {
+                    readonly 'application/json': components['responses']['EmptyApiResponse'];
+                };
+            };
+            /** @description If the request body was invalid (i.e, validation errors) */
+            400: {
+                content: {
+                    readonly 'application/json': components['responses']['ApiErrorResponse'];
+                };
+            };
+            /** @description If the session couldn't be validated */
+            401: {
+                content: {
+                    readonly 'application/json': components['responses']['ApiErrorResponse'];
+                };
+            };
+            /** @description (Bearer token only) - if the JWT was invalid. */
+            403: {
+                content: {
+                    readonly 'application/json': components['responses']['ApiErrorResponse'];
+                };
+            };
+            /** @description If the request body contained invalid data, or if the session header contained invalid data */
+            406: {
+                content: {
+                    readonly 'application/json': components['responses']['ApiErrorResponse'];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                content: {
+                    readonly 'application/json': components['responses']['ApiErrorResponse'];
                 };
             };
         };
@@ -785,7 +941,7 @@ export interface operations {
             /** @description Successful response */
             200: {
                 content: {
-                    readonly 'application/json': components['responses']['ApiEntrypointResponse'];
+                    readonly 'application/json': components['responses']['EntrypointResponse'];
                 };
             };
         };
@@ -796,7 +952,7 @@ export interface operations {
             /** @description Successful response */
             200: {
                 content: {
-                    readonly 'application/json': components['responses']['ApiUserResponse'];
+                    readonly 'application/json': components['responses']['UserResponse'];
                 };
             };
             /** @description Whether if this server doesn't allow registrations */
@@ -819,7 +975,7 @@ export interface operations {
             /** @description Successful response */
             204: {
                 content: {
-                    readonly 'application/json': components['responses']['ApiEmptyResponse'];
+                    readonly 'application/json': components['responses']['EmptyApiResponse'];
                 };
             };
             /** @description If the request body was invalid (i.e, validation errors) */
@@ -860,7 +1016,7 @@ export interface operations {
             /** @description Returns the current authenticated user's metadata */
             200: {
                 content: {
-                    readonly 'application/json': components['responses']['ApiUserResponse'];
+                    readonly 'application/json': components['responses']['UserResponse'];
                 };
             };
             /** @description If the request body was invalid (i.e, validation errors) */
@@ -923,7 +1079,7 @@ export interface operations {
             /** @description Successful response */
             201: {
                 content: {
-                    readonly 'application/json': components['responses']['ApiEmptyResponse'];
+                    readonly 'application/json': components['responses']['EmptyApiResponse'];
                 };
             };
             /** @description Bad Request */
@@ -952,7 +1108,7 @@ export interface operations {
             /** @description Repository created */
             201: {
                 content: {
-                    readonly 'application/json': components['responses']['ApiRepositoryResponse'];
+                    readonly 'application/json': components['responses']['RepositoryResponse'];
                 };
             };
             /** @description Bad Request */
@@ -981,7 +1137,7 @@ export interface operations {
             /** @description Successful response */
             201: {
                 content: {
-                    readonly 'application/json': components['responses']['ApiSessionResponse'];
+                    readonly 'application/json': components['responses']['SessionResponse'];
                 };
             };
             /** @description Invalid payload received. */
@@ -1016,7 +1172,7 @@ export interface operations {
             /** @description Session was deleted successfully */
             201: {
                 content: {
-                    readonly 'application/json': components['responses']['ApiEmptyResponse'];
+                    readonly 'application/json': components['responses']['EmptyApiResponse'];
                 };
             };
             /** @description If the authenticated user didn't provide a session token */
@@ -1038,7 +1194,7 @@ export interface operations {
             /** @description Session was fully restored with a new one */
             201: {
                 content: {
-                    readonly 'application/json': components['responses']['ApiSessionResponse'];
+                    readonly 'application/json': components['responses']['SessionResponse'];
                 };
             };
             /** @description If the authenticated user didn't provide a refresh token */
@@ -1067,7 +1223,7 @@ export interface operations {
             /** @description Successful response */
             200: {
                 content: {
-                    readonly 'application/json': components['responses']['ApiUserResponse'];
+                    readonly 'application/json': components['responses']['UserResponse'];
                 };
             };
             /** @description Invalid `idOrName` specified */
@@ -1118,10 +1274,10 @@ export interface operations {
             query?: {
                 /** @description Cursor to passthrough to proceed into the next or previous page. */
                 cursor?: number;
-                /** @description How many elements should be present in a page. */
-                per_page?: number;
                 /** @description Order to sort the entries by. */
                 order?: components['schemas']['OrderBy'];
+                /** @description How many elements should be present in a page. */
+                per_page?: number;
             };
             path: {
                 /** @description Path parameter that can take a [`Name`] or [`Snowflake`] identifier. */
@@ -1132,7 +1288,7 @@ export interface operations {
             /** @description List of all the user's repositories */
             200: {
                 content: {
-                    readonly 'application/json': components['responses']['ApiRepositoryPaginatedResponse'];
+                    readonly 'application/json': components['responses']['RepositoryPaginatedResponse'];
                 };
             };
         };

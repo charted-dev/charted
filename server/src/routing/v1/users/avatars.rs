@@ -147,7 +147,7 @@ pub async fn get_current_user_avatar(
 #[controller(
     method = post,
     tags("Users", "Avatars"),
-    response(201, "Successful response", ("application/json", response!("ApiEmptyResponse"))),
+    response(201, "Successful response", ("application/json", response!("EmptyApiResponse"))),
     response(400, "Bad Request", ("application/json", response!("ApiErrorResponse"))),
     response(406, "Not Acceptable", ("application/json", response!("ApiErrorResponse"))),
     response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))

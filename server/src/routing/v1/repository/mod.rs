@@ -56,7 +56,7 @@ pub fn create_router() -> Router<Server> {
         ("Bearer", []),
         ("Basic", [])
     ),
-    response(200, "Successful response", ("application/json", response!("ApiRepositoryResponse")))
+    response(200, "Successful response", ("application/json", response!("RepositoryResponse")))
 )]
 pub async fn get_repository() {}
 
@@ -65,7 +65,7 @@ pub async fn get_repository() {}
     method = patch,
     tags("Repositories"),
     securityRequirements(("ApiKey", ["repo:update"]), ("Bearer", []), ("Basic", [])),
-    response(204, "Successful response", ("application/json", response!("ApiEmptyResponse"))),
+    response(204, "Successful response", ("application/json", response!("EmptyApiResponse"))),
     response(400, "If the request body was invalid (i.e, validation errors)", ("application/json", response!("ApiErrorResponse"))),
     response(401, "If the session couldn't be validated", ("application/json", response!("ApiErrorResponse"))),
     response(403, "(Bearer token only) - if the JWT was invalid.", ("application/json", response!("ApiErrorResponse"))),

@@ -27,13 +27,17 @@ use axum::{
 };
 use charted_common::models::{helm::ChartIndex, NameOrSnowflake};
 use charted_database::controller::{users::UserDatabaseController, DbController};
+use charted_openapi::generate_response_schema;
 use remi_core::StorageService;
+
+pub(crate) struct ChartIndexResponse;
+generate_response_schema!(ChartIndexResponse, schema = "ChartIndex");
 
 /// Returns a `ChartIndex` for a specific user or organization.
 #[controller(
     tags("Main", "Users", "Organizations"),
     pathParameter("idOrName", schema!("NameOrSnowflake"), description = "Path parameter that can take a [`Name`] or [`Snowflake`] identifier."),
-    response(200, "Helm index for the user or organization", ("text/yaml", response!("ChartIndex"))),
+    response(200, "Helm index for the user or organization", ("text/yaml", response!("ChartIndexResponse"))),
     response(404, "User or Organization was not found", ("application/json", response!("ApiErrorResponse"))),
     response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
 )]

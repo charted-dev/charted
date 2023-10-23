@@ -896,6 +896,7 @@ dependencies = [
  "eyre",
  "mimalloc",
  "num_cpus",
+ "openssl",
  "promptly",
  "serde_json",
  "serde_yaml",
@@ -1067,6 +1068,22 @@ dependencies = [
  "tracing-subscriber",
  "url",
  "which",
+]
+
+[[package]]
+name = "charted-integ-rest"
+version = "0.0.0-devel.0"
+dependencies = [
+ "async-trait",
+ "axum",
+ "bytes",
+ "eyre",
+ "hyper",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tower",
+ "tower-service",
 ]
 
 [[package]]

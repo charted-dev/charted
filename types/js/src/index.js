@@ -167,32 +167,20 @@ class Name {
             throw new NameError(NameErrorKind.EMPTY, 'input was empty');
         }
 
-        const decoder = new TextDecoder('utf-8', { fatal: true });
-        try {
-            decoder.decode(Buffer.from(this.#input, 'utf-8'));
-        } catch (ex) {
-            utils.assertIsError(ex);
-            throw new NameError(NameErrorKind.INVALID_UTF8, 'received invalid utf-8 sequence', {
-                input: this.#input,
-                cause: ex
-            });
-        }
+        // TODO(@auguwu): check if string is non utf-8
+        // const decoder = new TextDecoder('utf-8', { fatal: true });
+        // try {
+        //     decoder.decode(Buffer.from(this.#input, 'utf-8'));
+        // } catch (ex) {
+        //     utils.assertIsError(ex);
+        //     throw new NameError(NameErrorKind.INVALID_UTF8, 'received invalid utf-8 sequence', {
+        //         input: this.#input,
+        //         cause: ex
+        //     });
+        // }
 
         for (let i = 0; i < this.#input.length; i++) {
-            const code = this.#input.charCodeAt(i);
-
-            // numeric
-            if (code >= 47 && code <= 58) {
-                continue;
-            }
-
-            // upper alpha
-            if (code >= 64 && code <= 91) {
-                continue;
-            }
-
-            // lower alpha
-            if (code >= 96 && code <= 123) {
+            if (/^[a-zA-Z0-9]$/i.test(this.#input[i])) {
                 continue;
             }
 
@@ -200,10 +188,11 @@ class Name {
                 continue;
             }
 
-            throw new NameError(
-                NameErrorKind.INVALID_CHARACTER,
-                `input '${this.#input}' is invalid at index ${i}, character '${this.#input[i]}'`
-            );
+            throw new NameError(NameErrorKind.INVALID_CHARACTER, 'received Name was invalid', {
+                input: this.#input,
+                ch: this.#input[i],
+                at: i
+            });
         }
     }
 

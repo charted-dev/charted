@@ -306,6 +306,7 @@ _NORMAL_DEPENDENCIES = {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "mimalloc": "@crate_index__mimalloc-0.1.39//:mimalloc",
             "num_cpus": "@crate_index__num_cpus-1.16.0//:num_cpus",
+            "openssl": "@crate_index__openssl-0.10.57//:openssl",
             "promptly": "@crate_index__promptly-0.3.1//:promptly",
             "serde_json": "@crate_index__serde_json-1.0.107//:serde_json",
             "serde_yaml": "@crate_index__serde_yaml-0.9.25//:serde_yaml",
@@ -602,6 +603,19 @@ _NORMAL_DEPENDENCIES = {
             "utoipa": "@crate_index__utoipa-3.5.0//:utoipa",
         },
     },
+    "testing": {
+        _COMMON_CONDITION: {
+            "axum": "@crate_index__axum-0.6.20//:axum",
+            "bytes": "@crate_index__bytes-1.5.0//:bytes",
+            "eyre": "@crate_index__eyre-0.6.8//:eyre",
+            "hyper": "@crate_index__hyper-0.14.27//:hyper",
+            "serde": "@crate_index__serde-1.0.189//:serde",
+            "serde_json": "@crate_index__serde_json-1.0.107//:serde_json",
+            "tokio": "@crate_index__tokio-1.33.0//:tokio",
+            "tower": "@crate_index__tower-0.4.13//:tower",
+            "tower-service": "@crate_index__tower-service-0.3.2//:tower_service",
+        },
+    },
     "tools/devtools": {
         _COMMON_CONDITION: {
             "clap": "@crate_index__clap-4.4.6//:clap",
@@ -615,7 +629,7 @@ _NORMAL_DEPENDENCIES = {
             "simple_tables": "@crate_index__simple_tables-0.3.0//:simple_tables",
             "starlark": "@crate_index__starlark-0.10.0//:starlark",
             "tokio": "@crate_index__tokio-1.33.0//:tokio",
-            "toml": "@crate_index__toml-0.8.2//:toml",
+            "toml": "@crate_index__toml-0.7.8//:toml",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
             "which": "@crate_index__which-4.4.2//:which",
@@ -753,6 +767,10 @@ _NORMAL_ALIASES = {
         _COMMON_CONDITION: {
         },
     },
+    "testing": {
+        _COMMON_CONDITION: {
+        },
+    },
     "tools/devtools": {
         _COMMON_CONDITION: {
         },
@@ -826,6 +844,8 @@ _NORMAL_DEV_DEPENDENCIES = {
     },
     "server/proc-macro": {
     },
+    "testing": {
+    },
     "tools/devtools": {
     },
     "tools/helm-plugin": {
@@ -890,6 +910,8 @@ _NORMAL_DEV_ALIASES = {
     "server": {
     },
     "server/proc-macro": {
+    },
+    "testing": {
     },
     "tools/devtools": {
     },
@@ -993,6 +1015,11 @@ _PROC_MACRO_DEPENDENCIES = {
     },
     "server/proc-macro": {
     },
+    "testing": {
+        _COMMON_CONDITION: {
+            "async-trait": "@crate_index__async-trait-0.1.74//:async_trait",
+        },
+    },
     "tools/devtools": {
         _COMMON_CONDITION: {
             "async-trait": "@crate_index__async-trait-0.1.74//:async_trait",
@@ -1060,6 +1087,8 @@ _PROC_MACRO_ALIASES = {
     },
     "server/proc-macro": {
     },
+    "testing": {
+    },
     "tools/devtools": {
     },
     "tools/helm-plugin": {
@@ -1120,6 +1149,8 @@ _PROC_MACRO_DEV_DEPENDENCIES = {
     "server": {
     },
     "server/proc-macro": {
+    },
+    "testing": {
     },
     "tools/devtools": {
     },
@@ -1185,6 +1216,8 @@ _PROC_MACRO_DEV_ALIASES = {
     "server": {
     },
     "server/proc-macro": {
+    },
+    "testing": {
     },
     "tools/devtools": {
     },
@@ -1256,6 +1289,8 @@ _BUILD_DEPENDENCIES = {
     },
     "server/proc-macro": {
     },
+    "testing": {
+    },
     "tools/devtools": {
     },
     "tools/helm-plugin": {
@@ -1321,6 +1356,8 @@ _BUILD_ALIASES = {
     },
     "server/proc-macro": {
     },
+    "testing": {
+    },
     "tools/devtools": {
     },
     "tools/helm-plugin": {
@@ -1382,6 +1419,8 @@ _BUILD_PROC_MACRO_DEPENDENCIES = {
     },
     "server/proc-macro": {
     },
+    "testing": {
+    },
     "tools/devtools": {
     },
     "tools/helm-plugin": {
@@ -1442,6 +1481,8 @@ _BUILD_PROC_MACRO_ALIASES = {
     "server": {
     },
     "server/proc-macro": {
+    },
+    "testing": {
     },
     "tools/devtools": {
     },

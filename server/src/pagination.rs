@@ -44,7 +44,7 @@ macro_rules! gen_response_schemas_for_types {
             }
 
             pub(crate) struct [<$ty PaginatedResponse>];
-            ::charted_openapi::generate_response_schema!([<$ty PaginatedResponse>], schema = stringify!([<ApiPaginated $ty>]));
+            ::charted_openapi::generate_response_schema!([<$ty PaginatedResponse>], schema = stringify!([<Paginated $ty>]));
         }
     };
 }

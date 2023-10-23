@@ -212,7 +212,7 @@ pub fn generate_response_schema(body: TokenStream) -> TokenStream {
                 ::utoipa::openapi::RefOr<::utoipa::openapi::Response>
             ) {
                 let __res = ::utoipa::openapi::ResponseBuilder::new()
-                    .description(concat!("Response object for ", #schema))
+                    .description(concat!("Response object for ", stringify!(#schema)))
                     .content(
                         #content_type,
                         ::utoipa::openapi::ContentBuilder::new()
@@ -224,13 +224,13 @@ pub fn generate_response_schema(body: TokenStream) -> TokenStream {
                                                 "success",
                                                 ::utoipa::openapi::ObjectBuilder::new()
                                                     .schema_type(::utoipa::openapi::SchemaType::Boolean)
-                                                    .description(Some(concat!("whether if this response [", concat!("Api", stringify!($schema)), "] was successful or not")))
+                                                    .description(Some(concat!("whether if this response [", stringify!(#ident), "] was successful or not")))
                                                     .build()
                                             )
                                             .required("success")
                                             .property(
                                                 "data",
-                                                ::utoipa::openapi::Ref::from_schema_name(stringify!($schema))
+                                                ::utoipa::openapi::Ref::from_schema_name(#schema)
                                             )
                                             .required("data")
                                             .build();
@@ -243,7 +243,8 @@ pub fn generate_response_schema(body: TokenStream) -> TokenStream {
                     )
                     .build();
 
-                (#schema, ::utoipa::openapi::RefOr::T(__res))
+                let __schema_name = stringify!(#ident);
+                (__schema_name, ::utoipa::openapi::RefOr::T(__res))
             }
         }
     }

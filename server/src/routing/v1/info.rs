@@ -58,7 +58,7 @@ impl Default for InfoResponse {
 }
 
 /// REST handler for getting more information about this instance that can be visible for API consumers.
-#[controller(tags("Main"), response(200, "Successful response", ("application/json", response!("ApiInfoResponse"))))]
+#[controller(tags("Main"), response(200, "Successful response", ("application/json", response!("InfoResponse"))))]
 pub async fn info() {
     ok(StatusCode::OK, InfoResponse::default())
 }

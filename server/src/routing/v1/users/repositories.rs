@@ -60,7 +60,7 @@ pub fn create_router() -> Router<Server> {
 /// Retrieve a list of all a user's repositories.
 #[controller(
     tags("Users", "Repositories"),
-    response(200, "List of all the user's repositories", ("application/json", response!("ApiRepositoryPaginatedResponse"))),
+    response(200, "List of all the user's repositories", ("application/json", response!("RepositoryPaginatedResponse"))),
     pathParameter("idOrName", schema!("NameOrSnowflake"), description = "Path parameter that can take a [`Name`] or [`Snowflake`] identifier."),
     queryParameter("cursor", snowflake, description = "Cursor to passthrough to proceed into the next or previous page."),
     queryParameter("per_page", int32, description = "How many elements should be present in a page."),
@@ -130,7 +130,7 @@ pub async fn list_user_repositories(
 #[controller(
     method = put,
     tags("Repositories"),
-    response(201, "Repository created", ("application/json", response!("ApiRepositoryResponse"))),
+    response(201, "Repository created", ("application/json", response!("RepositoryResponse"))),
     response(400, "Bad Request", ("application/json", response!("ApiErrorResponse"))),
     response(409, "Conflict: repository with that name already exists on the user's account", ("application/json", response!("ApiErrorResponse"))),
     response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))

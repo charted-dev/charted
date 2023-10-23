@@ -19,7 +19,8 @@ use charted_common::{
     models::{
         entities::{ApiKey, Member, Organization, Repository, RepositoryRelease, User},
         helm::{
-            Chart, ChartDependency, ChartMaintainer, ChartSpecVersion, ChartType, ImportValue, StringOrImportValue,
+            Chart, ChartDependency, ChartIndex, ChartIndexSpec, ChartMaintainer, ChartSpecVersion, ChartType,
+            ImportValue, StringOrImportValue,
         },
         Distribution, Name, NameOrSnowflake,
     },
@@ -53,10 +54,12 @@ static COMPONENTS: Lazy<Components> = lazy!(ComponentsBuilder::new()
         ChartDependency::schema(),
         NameOrSnowflake::schema(),
         ChartMaintainer::schema(),
+        ChartIndexSpec::schema(),
         Organization::schema(),
         Distribution::schema(),
         ImportValue::schema(),
         Repository::schema(),
+        ChartIndex::schema(),
         ChartType::schema(),
         Member::schema(),
         ApiKey::schema(),
@@ -67,8 +70,10 @@ static COMPONENTS: Lazy<Components> = lazy!(ComponentsBuilder::new()
     ])
     .responses_from_iter([
         crate::routing::v1::users::sessions::SessionResponse::response(),
+        crate::routing::v1::repository::RepositoryResponse::response(),
         crate::pagination::OrganizationPaginatedResponse::response(),
         crate::pagination::OrganizationPaginatedResponse::response(),
+        crate::routing::v1::indexes::ChartIndexResponse::response(),
         crate::pagination::RepositoryPaginatedResponse::response(),
         crate::routing::v1::features::FeaturesResponse::response(),
         crate::pagination::MemberPaginatedResponse::response(),
@@ -86,6 +91,10 @@ pub struct Document;
 
 impl Document {
     fn format(version: APIVersion, key: &'static str) -> String {
+        if key == "/" {
+            return format!("/{version}");
+        }
+
         format!("/{version}{key}")
     }
 

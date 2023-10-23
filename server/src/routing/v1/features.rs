@@ -55,7 +55,7 @@ pub struct FeaturesResponse {
 generate_response_schema!(FeaturesResponse);
 
 /// Retrieve this server's features. This is only for enabling or disabling features for API consumers.
-#[controller(tags("Main"), response(200, "Successful response", ("application/json", response!("ApiFeaturesResponse"))))]
+#[controller(tags("Main"), response(200, "Successful response", ("application/json", response!("FeaturesResponse"))))]
 pub async fn features(State(server): State<Server>) {
     ok(
         StatusCode::OK,

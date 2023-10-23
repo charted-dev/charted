@@ -8,5 +8,5 @@
         "noEmit": true // tsup does this for us
     },
     "exclude": ["node_modules"],
-    "include": ["src/*.d.ts", "src/index.js", "src/index.mjs", ".eslintrc.js"]
+    "include": ["src/*.d.ts", "src/index.js", "src/index.mjs", ".eslintrc.js", "vitest.config.mjs", "tests/*.spec.mjs"]
 }

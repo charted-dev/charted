@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod certificates;
 mod completions;
 mod gc;
 mod generate_config;
@@ -32,6 +33,9 @@ use eyre::Result;
 #[derive(Debug, Clone, Subcommand)]
 pub enum Commands {
     GenerateConfig(generate_config::GenerateConfig),
+
+    #[command(subcommand)]
+    Certificates(certificates::Certificate),
     Completions(completions::Completions),
 
     #[command(name = "openapi")]
@@ -50,6 +54,7 @@ impl AsyncExecute for Commands {
             Commands::Server(server) => server.execute().await,
             Commands::Users(users) => users.execute().await,
             Commands::Completions(completions) => completions.execute(),
+            Commands::Certificates(certs) => certs.execute(),
             Commands::Version(version) => version.execute(),
             Commands::OpenAPI(openapi) => openapi.execute(),
             Commands::GenerateConfig(generate) => generate.execute().await,

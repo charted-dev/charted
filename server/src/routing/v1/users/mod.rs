@@ -48,7 +48,6 @@ use charted_storage::Bytes;
 use chrono::Local;
 use remi_core::{StorageService, UploadRequest};
 use tower_http::auth::AsyncRequireAuthorizationLayer;
-use utoipa::openapi::path::{PathItem, PathItemBuilder};
 use validator::Validate;
 
 pub fn create_router() -> Router<Server> {
@@ -101,23 +100,8 @@ pub fn create_router() -> Router<Server> {
         .route("/", main_route)
 }
 
-pub fn paths() -> PathItem {
-    let mut paths = PathItemBuilder::new();
-    let operations = vec![
-        MainRestController::paths().operations.pop_first().unwrap(),
-        CreateUserRestController::paths().operations.pop_first().unwrap(),
-        PatchUserRestController::paths().operations.pop_first().unwrap(),
-    ];
-
-    for (item, op) in operations.iter() {
-        paths = paths.operation(item.clone(), op.clone());
-    }
-
-    paths.build()
-}
-
 /// Generic entrypoint route for the Users API.
-#[controller(id = "users", tags("Users"), response(200, "Successful response", ("application/json", response!("ApiEntrypointResponse"))))]
+#[controller(id = "users", tags("Users"), response(200, "Successful response", ("application/json", response!("EntrypointResponse"))))]
 async fn main() {
     ok(
         StatusCode::OK,
@@ -136,7 +120,7 @@ generate_response_schema!(UserResponse, schema = "User");
     method = put,
     tags("Users"),
     requestBody("Payload for creating a new user. `password` can be empty if the server's session manager is not Local", ("application/json", schema!("CreateUserPayload"))),
-    response(200, "Successful response", ("application/json", response!("ApiUserResponse"))),
+    response(200, "Successful response", ("application/json", response!("UserResponse"))),
     response(403, "Whether if this server doesn't allow registrations", ("application/json", response!("ApiErrorResponse"))),
     response(406, "If the `username` or `email` was taken.", ("application/json", response!("ApiErrorResponse")))
 )]
@@ -283,7 +267,7 @@ async fn create_user(
 /// Retrieve a [`User`] object.
 #[controller(
     tags("Users"),
-    response(200, "Successful response", ("application/json", response!("ApiUserResponse"))),
+    response(200, "Successful response", ("application/json", response!("UserResponse"))),
     response(400, "Invalid `idOrName` specified", ("application/json", response!("ApiErrorResponse"))),
     response(404, "Unknown User", ("application/json", response!("ApiErrorResponse"))),
     pathParameter("idOrName", schema!("NameOrSnowflake"), description = "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.")
@@ -315,7 +299,7 @@ pub async fn get_user(
 #[controller(
     tags("Users"),
     securityRequirements(("ApiKey", ["users:access"]), ("Bearer", []), ("Basic", [])),
-    response(200, "Returns the current authenticated user's metadata", ("application/json", response!("ApiUserResponse"))),
+    response(200, "Returns the current authenticated user's metadata", ("application/json", response!("UserResponse"))),
     response(400, "If the request body was invalid (i.e, validation errors)", ("application/json", response!("ApiErrorResponse"))),
     response(401, "If the session couldn't be validated", ("application/json", response!("ApiErrorResponse"))),
     response(403, "(Bearer token only) - if the JWT was invalid.", ("application/json", response!("ApiErrorResponse"))),
@@ -331,7 +315,7 @@ pub async fn get_self(Extension(Session { user, .. }): Extension<Session>) -> Ap
     method = patch,
     tags("Users"),
     securityRequirements(("ApiKey", ["users:update"]), ("Bearer", []), ("Basic", [])),
-    response(204, "Successful response", ("application/json", response!("ApiEmptyResponse"))),
+    response(204, "Successful response", ("application/json", response!("EmptyApiResponse"))),
     response(400, "If the request body was invalid (i.e, validation errors)", ("application/json", response!("ApiErrorResponse"))),
     response(401, "If the session couldn't be validated", ("application/json", response!("ApiErrorResponse"))),
     response(403, "(Bearer token only) - if the JWT was invalid.", ("application/json", response!("ApiErrorResponse"))),
@@ -424,7 +408,7 @@ pub async fn patch_user(
     method = delete,
     tags("Users"),
     securityRequirements(("ApiKey", ["users:delete"]), ("Bearer", []), ("Basic", [])),
-    response(201, "Successful response", ("application/json", response!("ApiEmptyResponse"))),
+    response(201, "Successful response", ("application/json", response!("EmptyApiResponse"))),
     response(401, "If the session couldn't be validated", ("application/json", response!("ApiErrorResponse"))),
     response(403, "(Bearer token only) - if the JWT was invalid or expired", ("application/json", response!("ApiErrorResponse"))),
     response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))

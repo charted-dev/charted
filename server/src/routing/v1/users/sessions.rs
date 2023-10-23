@@ -58,7 +58,7 @@ generate_response_schema!(SessionResponse, schema = "Session");
 #[controller(
     method = post,
     tags("Users", "Sessions"),
-    response(201, "Successful response", ("application/json", response!("ApiSessionResponse"))),
+    response(201, "Successful response", ("application/json", response!("SessionResponse"))),
     response(400, "Invalid payload received.", ("application/json", response!("ApiErrorResponse"))),
     response(403, "Invalid password received", ("application/json", response!("ApiErrorResponse"))),
     response(404, "Unknown User", ("application/json", response!("ApiErrorResponse"))),
@@ -174,7 +174,7 @@ pub async fn login(
 #[controller(
     method = delete,
     tags("Users", "Sessions"),
-    response(201, "Session was deleted successfully", ("application/json", response!("ApiEmptyResponse"))),
+    response(201, "Session was deleted successfully", ("application/json", response!("EmptyApiResponse"))),
     response(403, "If the authenticated user didn't provide a session token", ("application/json", response!("ApiErrorResponse"))),
     response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
 )]
@@ -215,7 +215,7 @@ pub async fn logout(
 #[controller(
     method = post,
     tags("Users", "Sessions"),
-    response(201, "Session was fully restored with a new one", ("application/json", response!("ApiSessionResponse"))),
+    response(201, "Session was fully restored with a new one", ("application/json", response!("SessionResponse"))),
     response(403, "If the authenticated user didn't provide a refresh token", ("application/json", response!("ApiErrorResponse"))),
     response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
 )]

@@ -215,16 +215,20 @@ declare namespace charted {
         /**
          * A valid UTF-8 string that is used to identify a resource from the REST API in a humane fashion.
          * This is meant to help identify a resource without trying to calculate the resource's Snowflake on the first try.
-         */
-        public constructor();
-
-        /**
-         * A valid UTF-8 string that is used to identify a resource from the REST API in a humane fashion.
-         * This is meant to help identify a resource without trying to calculate the resource's Snowflake on the first try.
          *
-         * @param input the name itself
+         * @param input The input of the name, or `undefined` to leave blank.
+         * @example
+         * ```ts
+         * import { Name } from '@ncharts/types';
+         *
+         * const name = new Name();
+         * name.validate(); // => NameError [empty]: input was empty.
+         *
+         * const weow = new Name('weow');
+         * console.log(weow.toString()); // => 'weow'
+         * ```
          */
-        public constructor(input: string);
+        public constructor(input?: string);
 
         /**
          * Returns the actual input that was received.

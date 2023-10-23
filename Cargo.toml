@@ -43,6 +43,7 @@ members = [
     "features/gc",
     "server",
     "server/proc-macro",
+    "testing",
     "tools/devtools",
     "tools/helm-plugin",
 ]

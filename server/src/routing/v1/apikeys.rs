@@ -31,8 +31,9 @@ pub(crate) struct ApiKeyResponse;
 generate_response_schema!(ApiKeyResponse, schema = "ApiKey");
 
 #[controller(
+    id = "apikeys",
     tags("ApiKeys"),
-    response(200, "Successful response", ("application/json", response!("ApiEntrypointResponse")))
+    response(200, "Successful response", ("application/json", response!("EntrypointResponse")))
 )]
 pub async fn entrypoint() -> ApiResponse<EntrypointResponse> {
     ok(
