@@ -99,7 +99,7 @@ alias(
 
 alias(
     name = "clap",
-    actual = "@crate_index__clap-4.4.6//:clap",
+    actual = "@crate_index__clap-4.4.7//:clap",
     tags = ["manual"],
 )
 
