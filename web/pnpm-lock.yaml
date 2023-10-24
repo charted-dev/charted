@@ -75,8 +75,8 @@ dependencies:
     specifier: 15.1.0
     version: 15.1.0(postcss@8.4.31)
   radix-vue:
-    specifier: 0.4.1
-    version: 0.4.1(vue@3.3.6)
+    specifier: 1.0.0
+    version: 1.0.0(vue@3.3.6)
   shikiji:
     specifier: 0.6.10
     version: 0.6.10
@@ -4454,8 +4454,8 @@ packages:
   /queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
-  /radix-vue@0.4.1(vue@3.3.6):
-    resolution: {integrity: sha512-uJLHSwCzvUzaXYdr3r5HkhQ7bATegpvo3pAscPM1TDVCuGrVtnD3/7DpLPvDRkrwibWcu855agoqHSPsukQL3g==}
+  /radix-vue@1.0.0(vue@3.3.6):
+    resolution: {integrity: sha512-93OXRmRXyBQXue286urMvXX9/sri3ODEjdJHca04aN0V/YLGpx9Muvu3f2FOlh6RlccoxvQ8EUtd2sl120XUSA==}
     dependencies:
       '@floating-ui/dom': 1.5.3
       '@floating-ui/vue': 1.0.2(vue@3.3.6)
