@@ -25,7 +25,7 @@
         "@noelware/utils": "2.4.0",
         "@tailwindcss/forms": "0.5.6",
         "@tailwindcss/typography": "0.5.10",
-        "@tanstack/vue-query": "4.37.0",
+        "@tanstack/vue-query": "5.0.5",
         "@vue/compiler-sfc": "3.3.6",
         "@vueuse/core": "10.5.0",
         "@vueuse/head": "1.3.1",
