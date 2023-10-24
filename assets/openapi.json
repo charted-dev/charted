@@ -1703,7 +1703,7 @@
             "ApiKey": {
                 "type": "object",
                 "description": "A resource for personal-managed API tokens that is created by a User. This is useful\nfor command line tools or scripts that need to interact with charted-server, but\nthe main use-case is for the [Helm plugin](https://charts.noelware.org/docs/helm-plugin/current).",
-                "required": ["scopes", "owner", "name"],
+                "required": ["scopes", "owner", "name", "id"],
                 "properties": {
                     "description": {
                         "type": "string",
@@ -2121,7 +2121,7 @@
             "Member": {
                 "type": "object",
                 "description": "Represents a resource that is correlated to a repository or organization member\nthat can control the repository's metadata.",
-                "required": ["permissions", "updated_at", "joined_at", "user"],
+                "required": ["permissions", "updated_at", "joined_at", "user", "id"],
                 "properties": {
                     "display_name": {
                         "type": "string",
@@ -2188,7 +2188,7 @@
             "Organization": {
                 "type": "object",
                 "description": "Represents a unified entity that can manage and own repositories outside\na User. Organizations to the server is used for business-related Helm charts\nthat aren't tied to a specific User.",
-                "required": ["created_at", "updated_at", "owner", "name"],
+                "required": ["created_at", "updated_at", "owner", "name", "id"],
                 "properties": {
                     "created_at": {
                         "type": "string",
@@ -2300,7 +2300,7 @@
             },
             "Repository": {
                 "type": "object",
-                "required": ["created_at", "updated_at", "name", "type"],
+                "required": ["created_at", "updated_at", "owner", "name", "type", "id"],
                 "properties": {
                     "created_at": {
                         "type": "string",
@@ -2353,7 +2353,7 @@
             "RepositoryRelease": {
                 "type": "object",
                 "description": "Represents a resource that contains a release from a [Repository] release. Releases\nare a way to group releases of new versions of Helm charts that can be easily\nfetched from the API server.\n\nAny repository can have an unlimited amount of releases, but tags cannot clash\ninto each other, so the API server will not accept it. Each tag should be\na SemVer 2 comformant string, parsing is related to how Cargo evaluates SemVer 2 tags.",
-                "required": ["created_at", "updated_at", "tag"],
+                "required": ["created_at", "updated_at", "tag", "id"],
                 "properties": {
                     "created_at": {
                         "type": "string",
@@ -2433,7 +2433,7 @@
             "User": {
                 "type": "object",
                 "description": "Represents an account that can own [repositories][Repository] and [organizations][Organizations]",
-                "required": ["created_at", "updated_at", "username"],
+                "required": ["created_at", "updated_at", "username", "id"],
                 "properties": {
                     "admin": {
                         "type": "boolean",
