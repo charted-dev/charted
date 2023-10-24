@@ -82,7 +82,7 @@ def _rust_configure_host_toolchain(ctx):
     rustc = ctx.which("rustc")
     if rustc == None:
         print("unable to find `rustc`! use the default toolchain that Bazel uses instead")  # buildifier: disable=print
-        ctx.write("BUILD.bazel", "")
+        ctx.file("BUILD.bazel", "")
 
         return
 

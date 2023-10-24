@@ -75,6 +75,7 @@
           openssl
           bazel
           cargo
+          llvm
           mold
           rust
           git
