@@ -6,7 +6,7 @@
 #     bazel run @//thirdparty:crate_index
 ###############################################################################
 
-load("@rules_rust//rust:defs.bzl", "rust_library")
+load("@rules_rust//rust:defs.bzl", "rust_proc_macro")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -14,8 +14,8 @@ package(default_visibility = ["//visibility:public"])
 #     "TODO",  # MIT OR Apache-2.0
 # ])
 
-rust_library(
-    name = "clap_builder",
+rust_proc_macro(
+    name = "clap_derive",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -29,29 +29,23 @@ rust_library(
         ],
     ),
     crate_features = [
-        "color",
-        "env",
-        "error-context",
-        "help",
-        "std",
-        "suggestions",
-        "usage",
+        "default",
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=clap_builder",
+        "crate-name=clap_derive",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "4.4.6",
+    version = "4.4.7",
     deps = [
-        "@crate_index__anstream-0.6.4//:anstream",
-        "@crate_index__anstyle-1.0.2//:anstyle",
-        "@crate_index__clap_lex-0.5.1//:clap_lex",
-        "@crate_index__strsim-0.10.0//:strsim",
+        "@crate_index__heck-0.4.1//:heck",
+        "@crate_index__proc-macro2-1.0.69//:proc_macro2",
+        "@crate_index__quote-1.0.33//:quote",
+        "@crate_index__syn-2.0.38//:syn",
     ],
 )
