@@ -351,7 +351,7 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/config": {
         _COMMON_CONDITION: {
-            "aws-sdk-s3": "@crate_index__aws-sdk-s3-0.28.0//:aws_sdk_s3",
+            "aws-sdk-s3": "@crate_index__aws-sdk-s3-0.33.0//:aws_sdk_s3",
             "base64": "@crate_index__base64-0.21.5//:base64",
             "clap": "@crate_index__clap-4.4.7//:clap",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
@@ -1524,6 +1524,7 @@ _CONDITIONS = {
     "cfg(any(unix, target_os = \"wasi\"))": ["@rules_rust//rust/platform:aarch64-apple-darwin", "@rules_rust//rust/platform:aarch64-unknown-linux-gnu", "@rules_rust//rust/platform:x86_64-apple-darwin", "@rules_rust//rust/platform:x86_64-unknown-linux-gnu"],
     "cfg(any(windows, target_os = \"linux\", target_os = \"android\"))": ["@rules_rust//rust/platform:aarch64-unknown-linux-gnu", "@rules_rust//rust/platform:x86_64-pc-windows-msvc", "@rules_rust//rust/platform:x86_64-unknown-linux-gnu"],
     "cfg(any(windows, unix, target_os = \"redox\"))": ["@rules_rust//rust/platform:aarch64-apple-darwin", "@rules_rust//rust/platform:aarch64-unknown-linux-gnu", "@rules_rust//rust/platform:x86_64-apple-darwin", "@rules_rust//rust/platform:x86_64-pc-windows-msvc", "@rules_rust//rust/platform:x86_64-unknown-linux-gnu"],
+    "cfg(aws_sdk_unstable)": [],
     "cfg(not(all(target_arch = \"arm\", target_os = \"none\")))": ["@rules_rust//rust/platform:aarch64-apple-darwin", "@rules_rust//rust/platform:aarch64-unknown-linux-gnu", "@rules_rust//rust/platform:x86_64-apple-darwin", "@rules_rust//rust/platform:x86_64-pc-windows-msvc", "@rules_rust//rust/platform:x86_64-unknown-linux-gnu"],
     "cfg(not(all(windows, target_env = \"msvc\", not(target_vendor = \"uwp\"))))": ["@rules_rust//rust/platform:aarch64-apple-darwin", "@rules_rust//rust/platform:aarch64-unknown-linux-gnu", "@rules_rust//rust/platform:x86_64-apple-darwin", "@rules_rust//rust/platform:x86_64-unknown-linux-gnu"],
     "cfg(not(any(target_os = \"unknown\", target_arch = \"wasm32\")))": ["@rules_rust//rust/platform:aarch64-apple-darwin", "@rules_rust//rust/platform:aarch64-unknown-linux-gnu", "@rules_rust//rust/platform:x86_64-apple-darwin", "@rules_rust//rust/platform:x86_64-pc-windows-msvc", "@rules_rust//rust/platform:x86_64-unknown-linux-gnu"],
@@ -1883,6 +1884,16 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crate_index__aws-credential-types-0.56.1",
+        sha256 = "70a66ac8ef5fa9cf01c2d999f39d16812e90ec1467bd382cbbb74ba23ea86201",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/aws-credential-types/0.56.1/download"],
+        strip_prefix = "aws-credential-types-0.56.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-credential-types-0.56.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crate_index__aws-endpoint-0.55.3",
         sha256 = "8cce1c41a6cfaa726adee9ebb9a56fcd2bbfd8be49fd8a04c5e20fd968330b04",
         type = "tar.gz",
@@ -1903,12 +1914,42 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crate_index__aws-http-0.56.1",
+        sha256 = "3e626370f9ba806ae4c439e49675fd871f5767b093075cdf4fef16cac42ba900",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/aws-http/0.56.1/download"],
+        strip_prefix = "aws-http-0.56.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-http-0.56.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__aws-runtime-0.56.1",
+        sha256 = "07ac5cf0ff19c1bca0cea7932e11b239d1025a45696a4f44f72ea86e2b8bdd07",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/aws-runtime/0.56.1/download"],
+        strip_prefix = "aws-runtime-0.56.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-runtime-0.56.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crate_index__aws-sdk-s3-0.28.0",
         sha256 = "fba197193cbb4bcb6aad8d99796b2291f36fa89562ded5d4501363055b0de89f",
         type = "tar.gz",
         urls = ["https://crates.io/api/v1/crates/aws-sdk-s3/0.28.0/download"],
         strip_prefix = "aws-sdk-s3-0.28.0",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-sdk-s3-0.28.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__aws-sdk-s3-0.33.0",
+        sha256 = "73018483d9cb78e1a0d4dcbc94327b01d532e7cb28f26c5bceff97f8f0e4c6eb",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/aws-sdk-s3/0.33.0/download"],
+        strip_prefix = "aws-sdk-s3-0.33.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-sdk-s3-0.33.0.bazel"),
     )
 
     maybe(
@@ -1953,12 +1994,32 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crate_index__aws-sigv4-0.56.1",
+        sha256 = "b7b28f4910bb956b7ab320b62e98096402354eca976c587d1eeccd523d9bac03",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/aws-sigv4/0.56.1/download"],
+        strip_prefix = "aws-sigv4-0.56.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-sigv4-0.56.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crate_index__aws-smithy-async-0.55.3",
         sha256 = "13bda3996044c202d75b91afeb11a9afae9db9a721c6a7a427410018e286b880",
         type = "tar.gz",
         urls = ["https://crates.io/api/v1/crates/aws-smithy-async/0.55.3/download"],
         strip_prefix = "aws-smithy-async-0.55.3",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-async-0.55.3.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__aws-smithy-async-0.56.1",
+        sha256 = "2cdb73f85528b9d19c23a496034ac53703955a59323d581c06aa27b4e4e247af",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/aws-smithy-async/0.56.1/download"],
+        strip_prefix = "aws-smithy-async-0.56.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-async-0.56.1.bazel"),
     )
 
     maybe(
@@ -1973,12 +2034,32 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crate_index__aws-smithy-checksums-0.56.1",
+        sha256 = "afb15946af1b8d3beeff53ad991d9bff68ac22426b6d40372b958a75fa61eaed",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/aws-smithy-checksums/0.56.1/download"],
+        strip_prefix = "aws-smithy-checksums-0.56.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-checksums-0.56.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crate_index__aws-smithy-client-0.55.3",
         sha256 = "0a86aa6e21e86c4252ad6a0e3e74da9617295d8d6e374d552be7d3059c41cedd",
         type = "tar.gz",
         urls = ["https://crates.io/api/v1/crates/aws-smithy-client/0.55.3/download"],
         strip_prefix = "aws-smithy-client-0.55.3",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-client-0.55.3.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__aws-smithy-client-0.56.1",
+        sha256 = "c27b2756264c82f830a91cb4d2d485b2d19ad5bea476d9a966e03d27f27ba59a",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/aws-smithy-client/0.56.1/download"],
+        strip_prefix = "aws-smithy-client-0.56.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-client-0.56.1.bazel"),
     )
 
     maybe(
@@ -1993,12 +2074,32 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crate_index__aws-smithy-eventstream-0.56.1",
+        sha256 = "850233feab37b591b7377fd52063aa37af615687f5896807abe7f49bd4e1d25b",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/aws-smithy-eventstream/0.56.1/download"],
+        strip_prefix = "aws-smithy-eventstream-0.56.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-eventstream-0.56.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crate_index__aws-smithy-http-0.55.3",
         sha256 = "2b3b693869133551f135e1f2c77cb0b8277d9e3e17feaf2213f735857c4f0d28",
         type = "tar.gz",
         urls = ["https://crates.io/api/v1/crates/aws-smithy-http/0.55.3/download"],
         strip_prefix = "aws-smithy-http-0.55.3",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-http-0.55.3.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__aws-smithy-http-0.56.1",
+        sha256 = "54cdcf365d8eee60686885f750a34c190e513677db58bbc466c44c588abf4199",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/aws-smithy-http/0.56.1/download"],
+        strip_prefix = "aws-smithy-http-0.56.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-http-0.56.1.bazel"),
     )
 
     maybe(
@@ -2013,12 +2114,32 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crate_index__aws-smithy-http-tower-0.56.1",
+        sha256 = "822de399d0ce62829a69dfa8c5cd08efdbe61a7426b953e2268f8b8b52a607bd",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/aws-smithy-http-tower/0.56.1/download"],
+        strip_prefix = "aws-smithy-http-tower-0.56.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-http-tower-0.56.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crate_index__aws-smithy-json-0.55.3",
         sha256 = "23f9f42fbfa96d095194a632fbac19f60077748eba536eb0b9fecc28659807f8",
         type = "tar.gz",
         urls = ["https://crates.io/api/v1/crates/aws-smithy-json/0.55.3/download"],
         strip_prefix = "aws-smithy-json-0.55.3",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-json-0.55.3.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__aws-smithy-json-0.56.1",
+        sha256 = "4fb1e7ab8fa7ad10c193af7ae56d2420989e9f4758bf03601a342573333ea34f",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/aws-smithy-json/0.56.1/download"],
+        strip_prefix = "aws-smithy-json-0.56.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-json-0.56.1.bazel"),
     )
 
     maybe(
@@ -2033,12 +2154,42 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crate_index__aws-smithy-runtime-0.56.1",
+        sha256 = "745e096b3553e7e0f40622aa04971ce52765af82bebdeeac53aa6fc82fe801e6",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/aws-smithy-runtime/0.56.1/download"],
+        strip_prefix = "aws-smithy-runtime-0.56.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-runtime-0.56.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__aws-smithy-runtime-api-0.56.1",
+        sha256 = "93d0ae0c9cfd57944e9711ea610b48a963fb174a53aabacc08c5794a594b1d02",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/aws-smithy-runtime-api/0.56.1/download"],
+        strip_prefix = "aws-smithy-runtime-api-0.56.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-runtime-api-0.56.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crate_index__aws-smithy-types-0.55.3",
         sha256 = "16a3d0bf4f324f4ef9793b86a1701d9700fbcdbd12a846da45eed104c634c6e8",
         type = "tar.gz",
         urls = ["https://crates.io/api/v1/crates/aws-smithy-types/0.55.3/download"],
         strip_prefix = "aws-smithy-types-0.55.3",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-types-0.55.3.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__aws-smithy-types-0.56.1",
+        sha256 = "d90dbc8da2f6be461fa3c1906b20af8f79d14968fe47f2b7d29d086f62a51728",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/aws-smithy-types/0.56.1/download"],
+        strip_prefix = "aws-smithy-types-0.56.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-types-0.56.1.bazel"),
     )
 
     maybe(
@@ -2053,12 +2204,32 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crate_index__aws-smithy-xml-0.56.1",
+        sha256 = "e01d2dedcdd8023043716cfeeb3c6c59f2d447fce365d8e194838891794b23b6",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/aws-smithy-xml/0.56.1/download"],
+        strip_prefix = "aws-smithy-xml-0.56.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-xml-0.56.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crate_index__aws-types-0.55.3",
         sha256 = "6dd209616cc8d7bfb82f87811a5c655dc97537f592689b18743bddf5dc5c4829",
         type = "tar.gz",
         urls = ["https://crates.io/api/v1/crates/aws-types/0.55.3/download"],
         strip_prefix = "aws-types-0.55.3",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-types-0.55.3.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__aws-types-0.56.1",
+        sha256 = "85aa0451bf8af1bf22a4f028d5d28054507a14be43cb8ac0597a8471fba9edfe",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/aws-types/0.56.1/download"],
+        strip_prefix = "aws-types-0.56.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-types-0.56.1.bazel"),
     )
 
     maybe(
@@ -3543,6 +3714,16 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crate_index__hyper-rustls-0.24.1",
+        sha256 = "8d78e1e73ec14cf7375674f74d7dde185c8206fd9dea6fb6295e8a98098aaa97",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/hyper-rustls/0.24.1/download"],
+        strip_prefix = "hyper-rustls-0.24.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.hyper-rustls-0.24.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crate_index__hyper-timeout-0.4.1",
         sha256 = "bbb958482e8c7be4bc3cf272a766a2b0bf1a6755e7a6ae777f017a31d11b13b1",
         type = "tar.gz",
@@ -5013,6 +5194,16 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crate_index__rustls-0.21.8",
+        sha256 = "446e14c5cda4f3f30fe71863c34ec70f5ac79d6087097ad0bb433e1be5edf04c",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/rustls/0.21.8/download"],
+        strip_prefix = "rustls-0.21.8",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.rustls-0.21.8.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crate_index__rustls-native-certs-0.6.3",
         sha256 = "a9aace74cb666635c918e9c12bc0d348266037aa8eb599b5cba565709a8dff00",
         type = "tar.gz",
@@ -5029,6 +5220,16 @@ def crate_repositories():
         urls = ["https://crates.io/api/v1/crates/rustls-pemfile/1.0.3/download"],
         strip_prefix = "rustls-pemfile-1.0.3",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.rustls-pemfile-1.0.3.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__rustls-webpki-0.101.7",
+        sha256 = "8b6275d1ee7a1cd780b64aca7726599a1dbc893b1e64144529e55c3c2f745765",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/rustls-webpki/0.101.7/download"],
+        strip_prefix = "rustls-webpki-0.101.7",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.rustls-webpki-0.101.7.bazel"),
     )
 
     maybe(
@@ -6029,6 +6230,16 @@ def crate_repositories():
         urls = ["https://crates.io/api/v1/crates/tokio-rustls/0.23.4/download"],
         strip_prefix = "tokio-rustls-0.23.4",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tokio-rustls-0.23.4.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__tokio-rustls-0.24.1",
+        sha256 = "c28327cf380ac148141087fbfb9de9d7bd4e84ab5d2c28fbc911d753de8a7081",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/tokio-rustls/0.24.1/download"],
+        strip_prefix = "tokio-rustls-0.24.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tokio-rustls-0.24.1.bazel"),
     )
 
     maybe(
