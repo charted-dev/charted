@@ -28,4 +28,4 @@ tracing = "0.1.40"
 
 [build-dependencies]
 tonic-build = "0.10.2"
-which = "4.4.2"
+which = "5.0.0"

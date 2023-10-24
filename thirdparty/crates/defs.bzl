@@ -632,7 +632,7 @@ _NORMAL_DEPENDENCIES = {
             "toml": "@crate_index__toml-0.8.4//:toml",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
-            "which": "@crate_index__which-4.4.2//:which",
+            "which": "@crate_index__which-5.0.0//:which",
         },
     },
     "tools/helm-plugin": {
@@ -655,7 +655,7 @@ _NORMAL_DEPENDENCIES = {
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
             "url": "@crate_index__url-2.4.1//:url",
-            "which": "@crate_index__which-4.4.2//:which",
+            "which": "@crate_index__which-5.0.0//:which",
         },
     },
 }
@@ -1234,7 +1234,7 @@ _BUILD_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "chrono": "@crate_index__chrono-0.4.31//:chrono",
             "rustc_version": "@crate_index__rustc_version-0.4.0//:rustc_version",
-            "which": "@crate_index__which-4.4.2//:which",
+            "which": "@crate_index__which-5.0.0//:which",
         },
     },
     "crates/config": {
@@ -1244,7 +1244,7 @@ _BUILD_DEPENDENCIES = {
     "crates/emails": {
         _COMMON_CONDITION: {
             "tonic-build": "@crate_index__tonic-build-0.10.2//:tonic_build",
-            "which": "@crate_index__which-4.4.2//:which",
+            "which": "@crate_index__which-5.0.0//:which",
         },
     },
     "crates/helm-charts": {
@@ -6629,6 +6629,16 @@ def crate_repositories():
         urls = ["https://crates.io/api/v1/crates/which/4.4.2/download"],
         strip_prefix = "which-4.4.2",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.which-4.4.2.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__which-5.0.0",
+        sha256 = "9bf3ea8596f3a0dd5980b46430f2058dfe2c36a27ccfbb1845d6fbfcd9ba6e14",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/which/5.0.0/download"],
+        strip_prefix = "which-5.0.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.which-5.0.0.bazel"),
     )
 
     maybe(
