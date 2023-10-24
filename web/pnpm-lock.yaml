@@ -45,8 +45,8 @@ dependencies:
     specifier: 10.5.0
     version: 10.5.0(vue@3.3.6)
   '@vueuse/head':
-    specifier: 1.3.1
-    version: 1.3.1(vue@3.3.6)
+    specifier: 2.0.0
+    version: 2.0.0(vue@3.3.6)
   autoprefixer:
     specifier: 10.4.16
     version: 10.4.16(postcss@8.4.31)
@@ -1671,8 +1671,8 @@ packages:
       - '@vue/composition-api'
       - vue
 
-  /@vueuse/head@1.3.1(vue@3.3.6):
-    resolution: {integrity: sha512-XCcHGfDzkGlHS7KIPJVYN//L7jpfASLsN7MUE19ndHVQLnPIDxqFLDl7IROsY81PKzawVAUe4OYVWcGixseWxA==}
+  /@vueuse/head@2.0.0(vue@3.3.6):
+    resolution: {integrity: sha512-ykdOxTGs95xjD4WXE4na/umxZea2Itl0GWBILas+O4oqS7eXIods38INvk3XkJKjqMdWPcpCyLX/DioLQxU1KA==}
     peerDependencies:
       vue: '>=2.7 || >=3'
     dependencies:
