@@ -64,7 +64,7 @@ jobs:
                     #   bazelisk-cache-dir: ~\AppData\Local\bazelisk
         steps:
             - name: Checkout repository
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: Setup Bazel cache
               uses: actions/cache@v3
@@ -92,7 +92,7 @@ jobs:
                 directory: [./cli, ./tools/helm-plugin]
         steps:
             - name: Checkout repository
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: Setup Rust toolchain
               uses: dtolnay/rust-toolchain@master
