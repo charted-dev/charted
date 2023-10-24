@@ -299,7 +299,7 @@ _NORMAL_DEPENDENCIES = {
             "ansi_term": "@crate_index__ansi_term-0.12.1//:ansi_term",
             "chrono": "@crate_index__chrono-0.4.31//:chrono",
             "clap": "@crate_index__clap-4.4.7//:clap",
-            "clap_complete": "@crate_index__clap_complete-4.4.3//:clap_complete",
+            "clap_complete": "@crate_index__clap_complete-4.4.4//:clap_complete",
             "cli-table": "@crate_index__cli-table-0.4.7//:cli_table",
             "color-eyre": "@crate_index__color-eyre-0.6.2//:color_eyre",
             "dotenv": "@crate_index__dotenv-0.15.0//:dotenv",
@@ -619,7 +619,7 @@ _NORMAL_DEPENDENCIES = {
     "tools/devtools": {
         _COMMON_CONDITION: {
             "clap": "@crate_index__clap-4.4.7//:clap",
-            "clap_complete": "@crate_index__clap_complete-4.4.3//:clap_complete",
+            "clap_complete": "@crate_index__clap_complete-4.4.4//:clap_complete",
             "color-eyre": "@crate_index__color-eyre-0.6.2//:color_eyre",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "itertools": "@crate_index__itertools-0.11.0//:itertools",
@@ -640,7 +640,7 @@ _NORMAL_DEPENDENCIES = {
             "ansi_term": "@crate_index__ansi_term-0.12.1//:ansi_term",
             "chrono": "@crate_index__chrono-0.4.31//:chrono",
             "clap": "@crate_index__clap-4.4.7//:clap",
-            "clap_complete": "@crate_index__clap_complete-4.4.3//:clap_complete",
+            "clap_complete": "@crate_index__clap_complete-4.4.4//:clap_complete",
             "color-eyre": "@crate_index__color-eyre-0.6.2//:color_eyre",
             "dirs": "@crate_index__dirs-5.0.1//:dirs",
             "dotenv": "@crate_index__dotenv-0.15.0//:dotenv",
@@ -2313,12 +2313,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__clap_complete-4.4.3",
-        sha256 = "e3ae8ba90b9d8b007efe66e55e48fb936272f5ca00349b5b0e89877520d35ea7",
+        name = "crate_index__clap_complete-4.4.4",
+        sha256 = "bffe91f06a11b4b9420f62103854e90867812cd5d01557f853c5ee8e791b12ae",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/clap_complete/4.4.3/download"],
-        strip_prefix = "clap_complete-4.4.3",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap_complete-4.4.3.bazel"),
+        urls = ["https://crates.io/api/v1/crates/clap_complete/4.4.4/download"],
+        strip_prefix = "clap_complete-4.4.4",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap_complete-4.4.4.bazel"),
     )
 
     maybe(
