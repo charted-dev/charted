@@ -561,6 +561,6 @@ alias(
 
 alias(
     name = "which",
-    actual = "@crate_index__which-4.4.2//:which",
+    actual = "@crate_index__which-5.0.0//:which",
     tags = ["manual"],
 )
