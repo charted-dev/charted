@@ -45,12 +45,12 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.21.2",
+    version = "0.22.0",
     deps = [
         "@crate_index__dtoa-1.0.9//:dtoa",
         "@crate_index__itoa-1.0.9//:itoa",
         "@crate_index__parking_lot-0.12.1//:parking_lot",
-        "@crate_index__prometheus-client-0.21.2//:build_script_build",
+        "@crate_index__prometheus-client-0.22.0//:build_script_build",
     ],
 )
 
@@ -84,7 +84,7 @@ cargo_build_script(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.21.2",
+    version = "0.22.0",
     visibility = ["//visibility:private"],
 )
 

@@ -291,7 +291,7 @@ alias(
 
 alias(
     name = "prometheus-client",
-    actual = "@crate_index__prometheus-client-0.21.2//:prometheus_client",
+    actual = "@crate_index__prometheus-client-0.22.0//:prometheus_client",
     tags = ["manual"],
 )
 
