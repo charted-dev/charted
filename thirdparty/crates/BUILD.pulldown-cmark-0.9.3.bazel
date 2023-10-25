@@ -12,11 +12,11 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # MIT OR Apache-2.0
+#     "TODO",  # MIT
 # ])
 
 rust_library(
-    name = "crossbeam_epoch",
+    name = "pulldown_cmark",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -29,39 +29,28 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "alloc",
-        "default",
-        "std",
-    ],
     crate_root = "src/lib.rs",
-    edition = "2018",
+    edition = "2021",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=crossbeam-epoch",
+        "crate-name=pulldown-cmark",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.9.15",
+    version = "0.9.3",
     deps = [
-        "@crate_index__cfg-if-1.0.0//:cfg_if",
-        "@crate_index__crossbeam-epoch-0.9.15//:build_script_build",
-        "@crate_index__crossbeam-utils-0.8.16//:crossbeam_utils",
-        "@crate_index__memoffset-0.9.0//:memoffset",
-        "@crate_index__scopeguard-1.2.0//:scopeguard",
+        "@crate_index__bitflags-1.3.2//:bitflags",
+        "@crate_index__memchr-2.6.3//:memchr",
+        "@crate_index__pulldown-cmark-0.9.3//:build_script_build",
+        "@crate_index__unicase-2.7.0//:unicase",
     ],
 )
 
 cargo_build_script(
-    name = "crossbeam-epoch_build_script",
+    name = "pulldown-cmark_build_script",
     srcs = glob(["**/*.rs"]),
-    crate_features = [
-        "alloc",
-        "default",
-        "std",
-    ],
     crate_name = "build_script_build",
     crate_root = "build.rs",
     data = glob(
@@ -75,26 +64,23 @@ cargo_build_script(
             "WORKSPACE.bazel",
         ],
     ),
-    edition = "2018",
+    edition = "2021",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=crossbeam-epoch",
+        "crate-name=pulldown-cmark",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.9.15",
+    version = "0.9.3",
     visibility = ["//visibility:private"],
-    deps = [
-        "@crate_index__autocfg-1.1.0//:autocfg",
-    ],
 )
 
 alias(
     name = "build_script_build",
-    actual = "crossbeam-epoch_build_script",
+    actual = "pulldown-cmark_build_script",
     tags = ["manual"],
 )

@@ -18,6 +18,7 @@ CARGO_MANIFESTS = [
     "//:Cargo.toml",
     "//cli:Cargo.toml",
     "//crates/avatars:Cargo.toml",
+    "//crates/caching:Cargo.toml",
     "//crates/common:Cargo.toml",
     "//crates/config:Cargo.toml",
     "//crates/database:Cargo.toml",

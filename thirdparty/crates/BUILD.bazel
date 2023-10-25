@@ -254,6 +254,12 @@ alias(
 )
 
 alias(
+    name = "moka",
+    actual = "@crate_index__moka-0.12.1//:moka",
+    tags = ["manual"],
+)
+
+alias(
     name = "multer",
     actual = "@crate_index__multer-2.1.0//:multer",
     tags = ["manual"],
