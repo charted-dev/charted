@@ -36,8 +36,8 @@ dependencies:
     specifier: 0.5.10
     version: 0.5.10(tailwindcss@3.3.4)
   '@tanstack/vue-query':
-    specifier: 5.0.5
-    version: 5.0.5(vue@3.3.7)
+    specifier: 5.4.0
+    version: 5.4.0(vue@3.3.7)
   '@vue/compiler-sfc':
     specifier: 3.3.7
     version: 3.3.7
@@ -1151,8 +1151,8 @@ packages:
     resolution: {integrity: sha512-MThCETMkHDHTnFZHp71L+SqTtD5d6XHftFCVR1xRJdWM3qGrlQ2VCXaj0SKVcyJej2e1Opa2c7iknu1llxCDNQ==}
     dev: false
 
-  /@tanstack/vue-query@5.0.5(vue@3.3.7):
-    resolution: {integrity: sha512-PFzHu2pOPoJ1yX/vDz60TzIUETmRyq2+1lu+nonIfED7qc62rQnwUvA7x/KCLtu7a6r8r/IvCaYMXUU28GNVOw==}
+  /@tanstack/vue-query@5.4.0(vue@3.3.7):
+    resolution: {integrity: sha512-dakWyJ0GNoRnd44pNJ5gtoMeKJRcwxLQjVRyVWRJKA1ZAbH7hf04HYNhqfO3SHhRl+YHGdgNKtjYP54xFJ5Ncg==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.6.0 || ^3.3.0
