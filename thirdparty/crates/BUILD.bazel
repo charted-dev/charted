@@ -477,7 +477,7 @@ alias(
 
 alias(
     name = "tokio-util",
-    actual = "@crate_index__tokio-util-0.7.9//:tokio_util",
+    actual = "@crate_index__tokio-util-0.7.10//:tokio_util",
     tags = ["manual"],
 )
 
