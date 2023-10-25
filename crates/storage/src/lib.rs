@@ -29,14 +29,14 @@ type Result<T> = std::result::Result<T, std::io::Error>;
 #[derive(Debug, Clone)]
 pub enum MultiStorageService {
     Filesystem(FilesystemStorageService),
-    S3(S3StorageService),
+    S3(Box<S3StorageService>),
 }
 
 impl From<StorageConfig> for MultiStorageService {
     fn from(config: StorageConfig) -> MultiStorageService {
         match config {
             StorageConfig::Filesystem(fs) => MultiStorageService::Filesystem(FilesystemStorageService::with_config(fs)),
-            StorageConfig::S3(s3) => MultiStorageService::S3(S3StorageService::new(s3)),
+            StorageConfig::S3(s3) => MultiStorageService::S3(Box::new(S3StorageService::new(s3))),
         }
     }
 }
