@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::Server;
+use crate::{metrics::REQUEST_LATENCY_HISTOGRAM, Server};
 use axum::{
     extract::{FromRequestParts, State},
     http::{header::USER_AGENT, HeaderMap, Method, Request, Uri, Version},
@@ -36,6 +36,7 @@ pub async fn log<B>(
     req: Request<B>,
     next: Next<B>,
 ) -> impl IntoResponse {
+    let histogram = &*REQUEST_LATENCY_HISTOGRAM;
     server.requests.fetch_add(1, Ordering::SeqCst);
 
     let uri = metadata.uri.path();
@@ -79,6 +80,7 @@ pub async fn log<B>(
     let res = next.run(req).await;
     let now = start.elapsed();
     let status = res.status().as_u16();
+    histogram.observe(now.as_secs_f64());
 
     info!(
         http.uri = uri,

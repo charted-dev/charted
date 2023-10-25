@@ -13,13 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{prometheus::create_metric_descriptor, Collector};
-use prometheus_client::{
-    metrics::counter::ConstCounter,
-    registry::{Descriptor, LocalMetric, Prefix},
-    MaybeOwned,
-};
-use std::{any::Any, borrow::Cow, collections::HashMap};
+use crate::Collector;
+use std::{any::Any, collections::HashMap};
 
 #[cfg(tokio_unstable)]
 use tokio::runtime::Handle;
@@ -117,70 +112,75 @@ impl Collector for TokioCollector {
 }
 
 impl prometheus_client::collector::Collector for TokioCollector {
-    #[allow(clippy::type_complexity)]
-    fn collect<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = (Cow<'a, Descriptor>, MaybeOwned<'a, Box<dyn LocalMetric>>)> + 'a> {
-        let original = <Self as Collector>::collect(self);
-        let metrics = original.downcast_ref::<TokioMetrics>().unwrap();
-
-        let mut descriptors: Vec<(Cow<'a, Descriptor>, MaybeOwned<'a, Box<dyn LocalMetric>>)> = vec![
-            create_metric_descriptor(
-                Cow::Owned(Descriptor::new(
-                    "tokio_io_file_descriptors",
-                    "Total file descriptors that the Tokio I/O driver has used",
-                    None,
-                    Some(&Prefix::from(String::from("charted"))),
-                    vec![],
-                )),
-                MaybeOwned::Owned(Box::new(ConstCounter::new(metrics.file_descriptors))),
-            ),
-            create_metric_descriptor(
-                Cow::Owned(Descriptor::new(
-                    "tokio_blocking_threads",
-                    "Total blocking threads in the current Tokio runtime",
-                    None,
-                    Some(&Prefix::from(String::from("charted"))),
-                    vec![],
-                )),
-                MaybeOwned::Owned(Box::new(ConstCounter::new(metrics.blocking_threads as u64))),
-            ),
-            create_metric_descriptor(
-                Cow::Owned(Descriptor::new(
-                    "tokio_active_threads",
-                    "Total amount of active tasks the runtime is holding onto",
-                    None,
-                    Some(&Prefix::from(String::from("charted"))),
-                    vec![],
-                )),
-                MaybeOwned::Owned(Box::new(ConstCounter::new(metrics.active_tasks as u64))),
-            ),
-            create_metric_descriptor(
-                Cow::Owned(Descriptor::new(
-                    "tokio_workers",
-                    "Total count of workers available",
-                    None,
-                    Some(&Prefix::from(String::from("charted"))),
-                    vec![],
-                )),
-                MaybeOwned::Owned(Box::new(ConstCounter::new(metrics.num_workers as u64))),
-            ),
-        ];
-
-        for (worker, metric) in metrics.workers.clone().iter() {
-            // TODO(@auguwu): implement TokioWorkerMetrics::total_busy_duration
-            descriptors.push(create_metric_descriptor(
-                Cow::Owned(Descriptor::new(
-                    "tokio_worker_poll_count",
-                    "Amount of poll events this specific Tokio worker has polled",
-                    None,
-                    Some(&Prefix::from(String::from("charted"))),
-                    vec![(Cow::Borrowed("worker"), Cow::Owned(worker.to_string()))],
-                )),
-                MaybeOwned::Owned(Box::new(ConstCounter::new(metric.poll_count))),
-            ));
-        }
-
-        Box::new(descriptors.into_iter())
+    // TODO: implement
+    fn encode(&self, _encoder: prometheus_client::encoding::DescriptorEncoder) -> Result<(), std::fmt::Error> {
+        Ok(())
     }
+
+    // #[allow(clippy::type_complexity)]
+    // fn collect<'a>(
+    //     &'a self,
+    // ) -> Box<dyn Iterator<Item = (Cow<'a, Descriptor>, MaybeOwned<'a, Box<dyn LocalMetric>>)> + 'a> {
+    //     let original = <Self as Collector>::collect(self);
+    //     let metrics = original.downcast_ref::<TokioMetrics>().unwrap();
+
+    //     let mut descriptors: Vec<(Cow<'a, Descriptor>, MaybeOwned<'a, Box<dyn LocalMetric>>)> = vec![
+    //         create_metric_descriptor(
+    //             Cow::Owned(Descriptor::new(
+    //                 "tokio_io_file_descriptors",
+    //                 "Total file descriptors that the Tokio I/O driver has used",
+    //                 None,
+    //                 Some(&Prefix::from(String::from("charted"))),
+    //                 vec![],
+    //             )),
+    //             MaybeOwned::Owned(Box::new(ConstCounter::new(metrics.file_descriptors))),
+    //         ),
+    //         create_metric_descriptor(
+    //             Cow::Owned(Descriptor::new(
+    //                 "tokio_blocking_threads",
+    //                 "Total blocking threads in the current Tokio runtime",
+    //                 None,
+    //                 Some(&Prefix::from(String::from("charted"))),
+    //                 vec![],
+    //             )),
+    //             MaybeOwned::Owned(Box::new(ConstCounter::new(metrics.blocking_threads as u64))),
+    //         ),
+    //         create_metric_descriptor(
+    //             Cow::Owned(Descriptor::new(
+    //                 "tokio_active_threads",
+    //                 "Total amount of active tasks the runtime is holding onto",
+    //                 None,
+    //                 Some(&Prefix::from(String::from("charted"))),
+    //                 vec![],
+    //             )),
+    //             MaybeOwned::Owned(Box::new(ConstCounter::new(metrics.active_tasks as u64))),
+    //         ),
+    //         create_metric_descriptor(
+    //             Cow::Owned(Descriptor::new(
+    //                 "tokio_workers",
+    //                 "Total count of workers available",
+    //                 None,
+    //                 Some(&Prefix::from(String::from("charted"))),
+    //                 vec![],
+    //             )),
+    //             MaybeOwned::Owned(Box::new(ConstCounter::new(metrics.num_workers as u64))),
+    //         ),
+    //     ];
+
+    //     for (worker, metric) in metrics.workers.clone().iter() {
+    //         // TODO(@auguwu): implement TokioWorkerMetrics::total_busy_duration
+    //         descriptors.push(create_metric_descriptor(
+    //             Cow::Owned(Descriptor::new(
+    //                 "tokio_worker_poll_count",
+    //                 "Amount of poll events this specific Tokio worker has polled",
+    //                 None,
+    //                 Some(&Prefix::from(String::from("charted"))),
+    //                 vec![(Cow::Borrowed("worker"), Cow::Owned(worker.to_string()))],
+    //             )),
+    //             MaybeOwned::Owned(Box::new(ConstCounter::new(metric.poll_count))),
+    //         ));
+    //     }
+
+    //     Box::new(descriptors.into_iter())
+    // }
 }

@@ -15,25 +15,20 @@
 
 use crate::SERVER;
 use charted_common::{lazy, models::Distribution, COMMIT_HASH, VERSION};
-use charted_metrics::{prometheus::create_metric_descriptor, Collector};
+use charted_metrics::Collector;
 use erased_serde::Serialize as ErasedSerialize;
 use once_cell::sync::Lazy;
 use prometheus_client::{
-    metrics::{gauge::ConstGauge, histogram::Histogram},
-    registry::{Descriptor, LocalMetric, Prefix},
-    MaybeOwned,
+    encoding::EncodeMetric,
+    metrics::{counter::ConstCounter, gauge::ConstGauge, histogram::Histogram, MetricType},
 };
 use serde::{Deserialize, Serialize};
-use std::{any::Any, borrow::Cow, sync::atomic::Ordering};
+use std::{any::Any, sync::atomic::Ordering};
 
 /// [`Histogram`] to track request latencies.
 pub static REQUEST_LATENCY_HISTOGRAM: Lazy<Histogram> = lazy!(Histogram::new(IntoIterator::into_iter([
     0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0
 ])));
-
-/// VENDOR is the current vendor of charted-server. If you're making a fork,
-/// you can set this to whatever you want. We don't mind! :)
-const VENDOR: &str = "Noelware, LLC.";
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct ServerMetricsCollector;
@@ -44,7 +39,6 @@ pub struct ServerMetrics {
     commit_hash: &'static str,
     requests: usize,
     version: &'static str,
-    vendor: &'static str,
 }
 
 impl Collector for ServerMetricsCollector {
@@ -60,7 +54,6 @@ impl Collector for ServerMetricsCollector {
             commit_hash: COMMIT_HASH,
             requests: server.requests.load(Ordering::SeqCst),
             version: VERSION,
-            vendor: VENDOR,
         })
     }
 
@@ -72,72 +65,61 @@ impl Collector for ServerMetricsCollector {
             commit_hash: COMMIT_HASH,
             requests: server.requests.load(Ordering::SeqCst),
             version: VERSION,
-            vendor: VENDOR,
         })
     }
 }
 
 impl prometheus_client::collector::Collector for ServerMetricsCollector {
-    fn collect<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = (Cow<'a, Descriptor>, MaybeOwned<'a, Box<dyn LocalMetric>>)> + 'a> {
+    fn encode(&self, mut encoder: prometheus_client::encoding::DescriptorEncoder) -> Result<(), std::fmt::Error> {
         let original = <Self as Collector>::collect(self);
         let metrics = original.downcast_ref::<ServerMetrics>().unwrap();
 
-        Box::new(IntoIterator::into_iter([
-            create_metric_descriptor(
-                Cow::Owned(Descriptor::new(
-                    "distribution",
-                    "Distribution kind",
-                    None,
-                    Some(&Prefix::from(String::from("charted"))),
-                    vec![(
-                        Cow::Borrowed("distribution"),
-                        Cow::Owned(metrics.distribution.to_string()),
-                    )],
-                )),
-                MaybeOwned::Owned(Box::new(ConstGauge::new(1))),
-            ),
-            create_metric_descriptor(
-                Cow::Owned(Descriptor::new(
-                    "commit_hash",
-                    "Git commit hash",
-                    None,
-                    Some(&Prefix::from(String::from("charted"))),
-                    vec![(Cow::Borrowed("commit"), Cow::Borrowed(metrics.commit_hash))],
-                )),
-                MaybeOwned::Owned(Box::new(ConstGauge::new(1))),
-            ),
-            create_metric_descriptor(
-                Cow::Owned(Descriptor::new(
-                    "requests",
-                    "How many requests were collected",
-                    None,
-                    Some(&Prefix::from(String::from("charted"))),
-                    vec![],
-                )),
-                MaybeOwned::Owned(Box::new(ConstGauge::new(metrics.requests as i64))),
-            ),
-            create_metric_descriptor(
-                Cow::Owned(Descriptor::new(
-                    "version",
-                    "Version of the API server",
-                    None,
-                    Some(&Prefix::from(String::from("charted"))),
-                    vec![(Cow::Borrowed("version"), Cow::Borrowed(metrics.version))],
-                )),
-                MaybeOwned::Owned(Box::new(ConstGauge::new(1))),
-            ),
-            create_metric_descriptor(
-                Cow::Owned(Descriptor::new(
-                    "vendor",
-                    "Vendor for this software",
-                    None,
-                    Some(&Prefix::from(String::from("charted"))),
-                    vec![(Cow::Borrowed("vendor"), Cow::Borrowed(metrics.vendor))],
-                )),
-                MaybeOwned::Owned(Box::new(ConstGauge::new(1))),
-            ),
-        ]))
+        {
+            let gauge = ConstGauge::new(1i64);
+            let mut encoder = encoder.encode_descriptor(
+                "charted_server_distribution",
+                "distribution kind",
+                None,
+                MetricType::Gauge,
+            )?;
+
+            gauge.encode(encoder.encode_family(&[("distribution", metrics.distribution.to_string())])?)?;
+        }
+
+        {
+            let gauge = ConstGauge::new(1i64);
+            let mut encoder =
+                encoder.encode_descriptor("charted_commit_hash", "git commit hash", None, MetricType::Gauge)?;
+
+            gauge.encode(encoder.encode_family(&[("commit", metrics.commit_hash)])?)?;
+        }
+
+        {
+            let gauge = ConstGauge::new(1i64);
+            let mut encoder =
+                encoder.encode_descriptor("charted_version", "charted version", None, MetricType::Gauge)?;
+
+            gauge.encode(encoder.encode_family(&[("version", metrics.version)])?)?;
+        }
+
+        ConstCounter::new(u64::try_from(metrics.requests).unwrap()).encode(encoder.encode_descriptor(
+            "charted_server_requests",
+            "amount of requests that were received",
+            None,
+            MetricType::Counter,
+        )?)?;
+
+        {
+            let encoder = encoder.encode_descriptor(
+                "charted_server_request_latency",
+                "latency between each request",
+                None,
+                MetricType::Histogram,
+            )?;
+
+            (*REQUEST_LATENCY_HISTOGRAM).encode(encoder)?;
+        }
+
+        Ok(())
     }
 }

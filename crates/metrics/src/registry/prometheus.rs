@@ -14,13 +14,8 @@
 // limitations under the License.
 
 use crate::{Collector, Registry};
-use prometheus_client::{
-    encoding::text,
-    registry::{Descriptor, LocalMetric},
-    MaybeOwned,
-};
+use prometheus_client::encoding::text;
 use std::{
-    borrow::Cow,
     fmt::{Debug, Display, Write},
     sync::{Arc, Mutex, TryLockError},
 };
@@ -185,42 +180,15 @@ pub fn new(
     }
 }
 
-/// Method to properly cast `descriptor` and `metric` into a tuple that Prometheus'
-/// collector abstraction can support. Doing this when using `Box::new([...].into_iter())`
-/// will lose the lifetime reference (`'a`), and will be an elided lifetime.
-///
-/// ## Why?
-/// For collectors to be implemented, we want to create Prometheus supported
-/// collectors, and writing something like:
-///
-/// ```no_run
-/// let _: (Cow<'a, Descriptor>, MaybeOwned<'a, Box<dyn LocalMetric>>) = (
-///     ...
-/// );
-/// ```
-///
-/// can be pretty daunting, so this is just a utility method to do so!
-///
-/// ### Arguments
-/// - `descriptor`: [Clone-on-write][std::borrow::Cow] variant.
-/// - `metric`:     [MaybeOwned] variant to a dynamic local metric.
-pub fn create_metric_descriptor<'a>(
-    descriptor: Cow<'a, Descriptor>,
-    metric: MaybeOwned<'a, Box<dyn LocalMetric>>,
-) -> (Cow<'a, Descriptor>, MaybeOwned<'a, Box<dyn LocalMetric>>) {
-    (descriptor, metric)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::disabled::DisabledRegistry;
     use prometheus_client::{
-        metrics::counter::ConstCounter,
-        registry::{Descriptor, LocalMetric},
-        MaybeOwned,
+        encoding::EncodeMetric,
+        metrics::{counter::ConstCounter, MetricType},
     };
-    use std::{any::Any, borrow::Cow};
+    use std::any::Any;
 
     #[derive(Debug, Clone, Copy)]
     pub struct MyCollector(u64);
@@ -240,20 +208,13 @@ mod tests {
     }
 
     impl prometheus_client::collector::Collector for MyCollector {
-        fn collect<'a>(
-            &'a self,
-        ) -> Box<
-            dyn Iterator<
-                    Item = (
-                        std::borrow::Cow<'a, prometheus_client::registry::Descriptor>,
-                        prometheus_client::MaybeOwned<'a, Box<dyn prometheus_client::registry::LocalMetric>>,
-                    ),
-                > + 'a,
-        > {
-            let c: Box<dyn LocalMetric> = Box::new(ConstCounter::new(self.0 + 1));
-            let descriptor = Descriptor::new("counter", "This is a counter", None, None, vec![]);
-
-            Box::new(std::iter::once((Cow::Owned(descriptor), MaybeOwned::Owned(c))))
+        fn encode(&self, mut encoder: prometheus_client::encoding::DescriptorEncoder) -> Result<(), std::fmt::Error> {
+            ConstCounter::new(self.0 + 1).encode(encoder.encode_descriptor(
+                "counter",
+                "This is a counter",
+                None,
+                MetricType::Counter,
+            )?)
         }
     }
 
@@ -275,7 +236,7 @@ mod tests {
         let mut buf = String::new();
         registry.write_metrics(&mut buf).unwrap();
 
-        let expected = "# HELP counter This is a counter.
+        let expected = "# HELP counter This is a counter
 # TYPE counter counter
 counter_total 1
 # EOF

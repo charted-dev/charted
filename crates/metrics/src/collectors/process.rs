@@ -13,14 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{registry::prometheus::create_metric_descriptor, Collector};
+use crate::Collector;
 use erased_serde::Serialize;
 use prometheus_client::{
-    metrics::counter::ConstCounter,
-    registry::{Descriptor, LocalMetric, Prefix},
-    MaybeOwned,
+    encoding::EncodeMetric,
+    metrics::{counter::ConstCounter, MetricType},
 };
-use std::{any::Any, borrow::Cow};
+use std::any::Any;
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct ProcessCollector;
@@ -45,21 +44,22 @@ impl Collector for ProcessCollector {
 }
 
 impl prometheus_client::collector::Collector for ProcessCollector {
-    fn collect<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = (Cow<'a, Descriptor>, MaybeOwned<'a, Box<dyn LocalMetric>>)> + 'a> {
-        let original_metrics = <Self as Collector>::collect(self);
-        let metrics = original_metrics.downcast_ref::<ProcessMetrics>().unwrap();
+    fn encode(&self, mut encoder: prometheus_client::encoding::DescriptorEncoder) -> Result<(), std::fmt::Error> {
+        // SAFETY: We know that ProcessCollector returns `ProcessMetrics`
+        // when called via `collect(&self)`
+        let original = <Self as Collector>::collect(self);
+        let metrics = original.downcast_ref::<ProcessMetrics>().unwrap();
 
-        Box::new(IntoIterator::into_iter([create_metric_descriptor(
-            Cow::Owned(Descriptor::new(
-                "process_id",
-                "Returns the current process ID",
+        {
+            let counter = ConstCounter::new(metrics.id as u64);
+            counter.encode(encoder.encode_descriptor(
+                "charted_process_pid",
+                "current process id",
                 None,
-                Some(&Prefix::from(String::from("charted"))),
-                vec![],
-            )),
-            MaybeOwned::Owned(Box::new(ConstCounter::new(metrics.id as u64))),
-        )]))
+                MetricType::Counter,
+            )?)?;
+        }
+
+        Ok(())
     }
 }

@@ -15,6 +15,8 @@
 
 use crate::Registry;
 
+/// Represents a disabled [`Registry`] where no collectors can be registered
+/// and collect metrics.
 #[derive(Debug, Clone, Copy, Default)]
 pub struct DisabledRegistry;
 

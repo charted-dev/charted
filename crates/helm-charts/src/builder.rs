@@ -131,12 +131,7 @@ impl UploadReleaseTarball {
         self
     }
 
-    #[allow(clippy::needless_lifetimes)]
-    pub async fn upload<'m>(
-        self,
-        _charts: HelmCharts,
-        mut multipart: Multipart<'m>,
-    ) -> Result<(), ReleaseTarballError> {
+    pub async fn upload(self, _charts: HelmCharts, mut multipart: Multipart<'_>) -> Result<(), ReleaseTarballError> {
         // first, we parse the version and check if it is a valid SemVer string
         let _version = Version::parse(&self.version)?;
         let Some(field) = multipart.next_field().await? else {

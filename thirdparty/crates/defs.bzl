@@ -415,7 +415,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "dyn-clone": "@crate_index__dyn-clone-1.0.14//:dyn_clone",
             "erased-serde": "@crate_index__erased-serde-0.3.31//:erased_serde",
-            "prometheus-client": "@crate_index__prometheus-client-0.21.2//:prometheus_client",
+            "prometheus-client": "@crate_index__prometheus-client-0.22.0//:prometheus_client",
             "serde": "@crate_index__serde-1.0.189//:serde",
             "tokio": "@crate_index__tokio-1.33.0//:tokio",
         },
@@ -570,7 +570,7 @@ _NORMAL_DEPENDENCIES = {
             "mime": "@crate_index__mime-0.3.17//:mime",
             "multer": "@crate_index__multer-2.1.0//:multer",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
-            "prometheus-client": "@crate_index__prometheus-client-0.21.2//:prometheus_client",
+            "prometheus-client": "@crate_index__prometheus-client-0.22.0//:prometheus_client",
             "remi-core": "@crate_index__remi-core-0.4.1//:remi_core",
             "rust-embed": "@crate_index__rust-embed-8.0.0//:rust_embed",
             "semver": "@crate_index__semver-1.0.20//:semver",
@@ -4654,12 +4654,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__prometheus-client-0.21.2",
-        sha256 = "3c99afa9a01501019ac3a14d71d9f94050346f55ca471ce90c799a15c58f61e2",
+        name = "crate_index__prometheus-client-0.22.0",
+        sha256 = "510c4f1c9d81d556458f94c98f857748130ea9737bbd6053da497503b26ea63c",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/prometheus-client/0.21.2/download"],
-        strip_prefix = "prometheus-client-0.21.2",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.prometheus-client-0.21.2.bazel"),
+        urls = ["https://crates.io/api/v1/crates/prometheus-client/0.22.0/download"],
+        strip_prefix = "prometheus-client-0.22.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.prometheus-client-0.22.0.bazel"),
     )
 
     maybe(

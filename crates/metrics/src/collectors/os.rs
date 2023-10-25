@@ -13,14 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{prometheus::create_metric_descriptor, Collector};
+use crate::Collector;
 use erased_serde::Serialize;
 use prometheus_client::{
-    metrics::gauge::ConstGauge,
-    registry::{Descriptor, Prefix},
-    MaybeOwned,
+    encoding::EncodeMetric,
+    metrics::{gauge::ConstGauge, MetricType},
 };
-use std::{any::Any, borrow::Cow};
+use std::any::Any;
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct OperatingSystemCollector;
@@ -52,45 +51,32 @@ impl Collector for OperatingSystemCollector {
 }
 
 impl prometheus_client::collector::Collector for OperatingSystemCollector {
-    fn collect<'a>(
-        &'a self,
-    ) -> Box<
-        dyn Iterator<
-                Item = (
-                    std::borrow::Cow<'a, prometheus_client::registry::Descriptor>,
-                    prometheus_client::MaybeOwned<'a, Box<dyn prometheus_client::registry::LocalMetric>>,
-                ),
-            > + 'a,
-    > {
-        // SAFETY: We know that OperatingSystemCollector::collect(self) implements
-        // OperatingSystemMetrics.
-        let original_metrics = <Self as Collector>::collect(self);
-        let metrics = original_metrics.downcast_ref::<OperatingSystemMetrics<'_>>().unwrap();
+    fn encode(&self, mut encoder: prometheus_client::encoding::DescriptorEncoder) -> Result<(), std::fmt::Error> {
+        // SAFETY: We know that OperatingSystemCollector returns `OperatingSystemMetrics`
+        // when called via `collect(&self)`
+        let original = <Self as Collector>::collect(self);
+        let metrics = original.downcast_ref::<OperatingSystemMetrics<'_>>().unwrap();
 
-        Box::new(IntoIterator::into_iter([
-            create_metric_descriptor(
-                Cow::Owned(Descriptor::new(
-                    "os_name",
-                    "Returns the OS name for this system",
-                    None,
-                    Some(&Prefix::from(String::from("charted"))),
-                    vec![(Cow::Owned("name".to_owned()), Cow::Owned(metrics.name.to_owned()))],
-                )),
-                MaybeOwned::Owned(Box::new(ConstGauge::new(1))),
-            ),
-            create_metric_descriptor(
-                Cow::Owned(Descriptor::new(
-                    "os_arch",
-                    "Returns the OS architecture for this system",
-                    None,
-                    Some(&Prefix::from(String::from("charted"))),
-                    vec![(
-                        Cow::Owned("distribution".to_owned()),
-                        Cow::Owned(metrics.arch.to_owned()),
-                    )],
-                )),
-                MaybeOwned::Owned(Box::new(ConstGauge::new(1))),
-            ),
-        ]))
+        {
+            let gauge = ConstGauge::new(1i64);
+            let mut encoder =
+                encoder.encode_descriptor("charted_os_name", "operating system name", None, MetricType::Gauge)?;
+
+            gauge.encode(encoder.encode_family(&[("name", metrics.name)])?)?;
+        }
+
+        {
+            let gauge = ConstGauge::new(1i64);
+            let mut encoder = encoder.encode_descriptor(
+                "charted_os_arch",
+                "operating system architecture",
+                None,
+                MetricType::Gauge,
+            )?;
+
+            gauge.encode(encoder.encode_family(&[("architecture", metrics.arch)])?)?;
+        }
+
+        Ok(())
     }
 }
