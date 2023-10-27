@@ -21,5 +21,5 @@ def charted_nixpkgs_repositories():
         name = "io_tweag_rules_nixpkgs",
         sha256 = "c269fa7f70069180e31aa5982313f5a26838db2a6e5f2e9ecbd5941c8c6ceed0",
         strip_prefix = "rules_nixpkgs-ff70910af286a19dbcc109fe36f2e3cb59da78ff",
-        urls = ["https://github.com/tweag/rules_nixpkgs/archive/ff70910af286a19dbcc109fe36f2e3cb59da78ff.tar.gz"],
+        url = "https://github.com/tweag/rules_nixpkgs/archive/ff70910af286a19dbcc109fe36f2e3cb59da78ff.tar.gz",
     )
