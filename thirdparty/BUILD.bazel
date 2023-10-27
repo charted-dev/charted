@@ -18,6 +18,15 @@ load("//:build/manifests.bzl", "CARGO_MANIFESTS")
 
 crates_vendor(
     name = "crate_index",
+    # TODO(@auguwu): currently broken with:
+    #
+    # ~> Error: unknown field `generate_target_compatible_with`, expected one of `generate_binaries`, `generate_build_scripts`, `annotations`, `rendering`, `cargo_config`, `supported_platform_triples` at line 6 column 37
+    #
+    # cargo_bazel = select({
+    #     "//build/settings:nixos": "@nix-cargo-bazel//:bin/cargo-bazel",
+    #     "//conditions:default": "@cargo_bazel_bootstrap//:binary",
+    # }),
+    cargo_config = "//:.cargo/config.toml",
     cargo_lockfile = "//:Cargo.lock",
 
     # we only want to target what we support so far:
