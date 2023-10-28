@@ -815,7 +815,7 @@ _NORMAL_DEV_DEPENDENCIES = {
     "crates/helm-charts": {
         _COMMON_CONDITION: {
             "remi-fs": "@crate_index__remi-fs-0.4.1//:remi_fs",
-            "tempfile": "@crate_index__tempfile-3.8.0//:tempfile",
+            "tempfile": "@crate_index__tempfile-3.8.1//:tempfile",
             "tokio": "@crate_index__tokio-1.33.0//:tokio",
         },
     },
@@ -4011,12 +4011,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__linux-raw-sys-0.4.7",
-        sha256 = "1a9bad9f94746442c783ca431b22403b519cd7fbeed0533fdd6328b2f2212128",
+        name = "crate_index__linux-raw-sys-0.4.10",
+        sha256 = "da2479e8c062e40bf0066ffa0bc823de0a9368974af99c9f6df941d2c231e03f",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/linux-raw-sys/0.4.7/download"],
-        strip_prefix = "linux-raw-sys-0.4.7",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.linux-raw-sys-0.4.7.bazel"),
+        urls = ["https://crates.io/api/v1/crates/linux-raw-sys/0.4.10/download"],
+        strip_prefix = "linux-raw-sys-0.4.10",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.linux-raw-sys-0.4.10.bazel"),
     )
 
     maybe(
@@ -4991,6 +4991,16 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crate_index__redox_syscall-0.4.1",
+        sha256 = "4722d768eff46b75989dd134e5c353f0d6296e5aaa3132e776cbdb56be7731aa",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/redox_syscall/0.4.1/download"],
+        strip_prefix = "redox_syscall-0.4.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.redox_syscall-0.4.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crate_index__redox_users-0.4.3",
         sha256 = "b033d837a7cf162d7993aded9304e30a83213c648b6e389db233191f891e5c2b",
         type = "tar.gz",
@@ -5171,12 +5181,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__rustix-0.38.12",
-        sha256 = "bdf14a7a466ce88b5eac3da815b53aefc208ce7e74d1c263aabb04d88c4abeb1",
+        name = "crate_index__rustix-0.38.21",
+        sha256 = "2b426b0506e5d50a7d8dafcf2e81471400deb602392c7dd110815afb4eaf02a3",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/rustix/0.38.12/download"],
-        strip_prefix = "rustix-0.38.12",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.rustix-0.38.12.bazel"),
+        urls = ["https://crates.io/api/v1/crates/rustix/0.38.21/download"],
+        strip_prefix = "rustix-0.38.21",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.rustix-0.38.21.bazel"),
     )
 
     maybe(
@@ -6051,12 +6061,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__tempfile-3.8.0",
-        sha256 = "cb94d2f3cc536af71caac6b6fcebf65860b347e7ce0cc9ebe8f70d3e521054ef",
+        name = "crate_index__tempfile-3.8.1",
+        sha256 = "7ef1adac450ad7f4b3c28589471ade84f25f731a7a0fe30d71dfa9f60fd808e5",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/tempfile/3.8.0/download"],
-        strip_prefix = "tempfile-3.8.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tempfile-3.8.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/tempfile/3.8.1/download"],
+        strip_prefix = "tempfile-3.8.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tempfile-3.8.1.bazel"),
     )
 
     maybe(
