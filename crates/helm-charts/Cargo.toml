@@ -36,7 +36,7 @@ regex = "1.10.2"
 remi-core = "0.4.1"
 semver = "1.0.20"
 sentry = "0.31.7"
-serde_yaml = "0.9.25"
+serde_yaml = "0.9.27"
 tar = "0.4.40"
 tracing = "0.1.40"
 

@@ -35,6 +35,6 @@ regex = "1.10.2"
 remi-fs = { version = "0.4.1", features = ["serde"] }
 remi-s3 = { version = "0.4.1", features = ["serde"] }
 serde = { version = "1.0.190", features = ["derive"] }
-serde_yaml = "0.9.25"
+serde_yaml = "0.9.27"
 tracing = "0.1.40"
 thiserror = "1.0.50"
