@@ -49,6 +49,6 @@ rust_library(
     version = "1.5.0",
     deps = [
         "@crate_index__getrandom-0.2.10//:getrandom",
-        "@crate_index__serde-1.0.189//:serde",
+        "@crate_index__serde-1.0.190//:serde",
     ],
 )

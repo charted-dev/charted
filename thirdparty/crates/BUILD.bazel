@@ -393,7 +393,7 @@ alias(
 
 alias(
     name = "serde",
-    actual = "@crate_index__serde-1.0.189//:serde",
+    actual = "@crate_index__serde-1.0.190//:serde",
     tags = ["manual"],
 )
 
