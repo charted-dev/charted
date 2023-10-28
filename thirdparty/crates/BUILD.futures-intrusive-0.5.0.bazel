@@ -46,7 +46,7 @@ rust_library(
     ],
     version = "0.5.0",
     deps = [
-        "@crate_index__futures-core-0.3.28//:futures_core",
+        "@crate_index__futures-core-0.3.29//:futures_core",
         "@crate_index__lock_api-0.4.10//:lock_api",
         "@crate_index__parking_lot-0.12.1//:parking_lot",
     ],

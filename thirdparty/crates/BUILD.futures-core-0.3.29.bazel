@@ -16,7 +16,7 @@ package(default_visibility = ["//visibility:public"])
 # ])
 
 rust_library(
-    name = "futures_util",
+    name = "futures_core",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -31,65 +31,31 @@ rust_library(
     ),
     crate_features = [
         "alloc",
-        "async-await",
-        "async-await-macro",
-        "channel",
         "default",
-        "futures-channel",
-        "futures-io",
-        "futures-macro",
-        "futures-sink",
-        "io",
-        "memchr",
-        "sink",
-        "slab",
         "std",
     ],
     crate_root = "src/lib.rs",
     edition = "2018",
-    proc_macro_deps = [
-        "@crate_index__futures-macro-0.3.28//:futures_macro",
-    ],
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=futures-util",
+        "crate-name=futures-core",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.3.28",
+    version = "0.3.29",
     deps = [
-        "@crate_index__futures-channel-0.3.28//:futures_channel",
-        "@crate_index__futures-core-0.3.28//:futures_core",
-        "@crate_index__futures-io-0.3.28//:futures_io",
-        "@crate_index__futures-sink-0.3.28//:futures_sink",
-        "@crate_index__futures-task-0.3.28//:futures_task",
-        "@crate_index__futures-util-0.3.28//:build_script_build",
-        "@crate_index__memchr-2.6.3//:memchr",
-        "@crate_index__pin-project-lite-0.2.13//:pin_project_lite",
-        "@crate_index__pin-utils-0.1.0//:pin_utils",
-        "@crate_index__slab-0.4.9//:slab",
+        "@crate_index__futures-core-0.3.29//:build_script_build",
     ],
 )
 
 cargo_build_script(
-    name = "futures-util_build_script",
+    name = "futures-core_build_script",
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "alloc",
-        "async-await",
-        "async-await-macro",
-        "channel",
         "default",
-        "futures-channel",
-        "futures-io",
-        "futures-macro",
-        "futures-sink",
-        "io",
-        "memchr",
-        "sink",
-        "slab",
         "std",
     ],
     crate_name = "build_script_build",
@@ -111,17 +77,17 @@ cargo_build_script(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=futures-util",
+        "crate-name=futures-core",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.3.28",
+    version = "0.3.29",
     visibility = ["//visibility:private"],
 )
 
 alias(
     name = "build_script_build",
-    actual = "futures-util_build_script",
+    actual = "futures-core_build_script",
     tags = ["manual"],
 )
