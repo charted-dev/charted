@@ -459,7 +459,7 @@ alias(
 
 alias(
     name = "tempfile",
-    actual = "@crate_index__tempfile-3.8.0//:tempfile",
+    actual = "@crate_index__tempfile-3.8.1//:tempfile",
     tags = ["manual"],
 )
 
