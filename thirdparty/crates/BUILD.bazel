@@ -531,7 +531,7 @@ alias(
 
 alias(
     name = "tracing-log",
-    actual = "@crate_index__tracing-log-0.1.4//:tracing_log",
+    actual = "@crate_index__tracing-log-0.2.0//:tracing_log",
     tags = ["manual"],
 )
 
