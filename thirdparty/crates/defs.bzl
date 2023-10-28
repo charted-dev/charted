@@ -407,7 +407,7 @@ _NORMAL_DEPENDENCIES = {
             "sentry-tracing": "@crate_index__sentry-tracing-0.31.7//:sentry_tracing",
             "serde_json": "@crate_index__serde_json-1.0.107//:serde_json",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
-            "tracing-log": "@crate_index__tracing-log-0.1.4//:tracing_log",
+            "tracing-log": "@crate_index__tracing-log-0.2.0//:tracing_log",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
         },
     },
@@ -588,7 +588,7 @@ _NORMAL_DEPENDENCIES = {
             "tower-http": "@crate_index__tower-http-0.4.4//:tower_http",
             "tower-layer": "@crate_index__tower-layer-0.3.2//:tower_layer",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
-            "tracing-log": "@crate_index__tracing-log-0.1.4//:tracing_log",
+            "tracing-log": "@crate_index__tracing-log-0.2.0//:tracing_log",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
             "utoipa": "@crate_index__utoipa-4.0.0//:utoipa",
             "validator": "@crate_index__validator-0.16.1//:validator",
@@ -6230,6 +6230,16 @@ def crate_repositories():
         urls = ["https://crates.io/api/v1/crates/tracing-log/0.1.4/download"],
         strip_prefix = "tracing-log-0.1.4",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tracing-log-0.1.4.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__tracing-log-0.2.0",
+        sha256 = "ee855f1f400bd0e5c02d150ae5de3840039a3f54b025156404e34c23c03f47c3",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/tracing-log/0.2.0/download"],
+        strip_prefix = "tracing-log-0.2.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tracing-log-0.2.0.bazel"),
     )
 
     maybe(
