@@ -43,8 +43,8 @@ rust_library(
     ],
     version = "0.11.0",
     deps = [
-        "@crate_index__futures-core-0.3.28//:futures_core",
-        "@crate_index__futures-sink-0.3.28//:futures_sink",
+        "@crate_index__futures-core-0.3.29//:futures_core",
+        "@crate_index__futures-sink-0.3.29//:futures_sink",
         "@crate_index__spin-0.9.8//:spin",
     ],
 )

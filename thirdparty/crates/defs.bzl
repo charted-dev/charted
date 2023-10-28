@@ -565,7 +565,7 @@ _NORMAL_DEPENDENCIES = {
             "chrono": "@crate_index__chrono-0.4.31//:chrono",
             "erased-serde": "@crate_index__erased-serde-0.3.31//:erased_serde",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
-            "futures-util": "@crate_index__futures-util-0.3.28//:futures_util",
+            "futures-util": "@crate_index__futures-util-0.3.29//:futures_util",
             "jsonwebtoken": "@crate_index__jsonwebtoken-9.1.0//:jsonwebtoken",
             "mime": "@crate_index__mime-0.3.17//:mime",
             "multer": "@crate_index__multer-2.1.0//:multer",
@@ -3214,22 +3214,22 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__futures-channel-0.3.28",
-        sha256 = "955518d47e09b25bbebc7a18df10b81f0c766eaf4c4f1cccef2fca5f2a4fb5f2",
+        name = "crate_index__futures-channel-0.3.29",
+        sha256 = "ff4dd66668b557604244583e3e1e1eada8c5c2e96a6d0d6653ede395b78bbacb",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/futures-channel/0.3.28/download"],
-        strip_prefix = "futures-channel-0.3.28",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.futures-channel-0.3.28.bazel"),
+        urls = ["https://crates.io/api/v1/crates/futures-channel/0.3.29/download"],
+        strip_prefix = "futures-channel-0.3.29",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.futures-channel-0.3.29.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__futures-core-0.3.28",
-        sha256 = "4bca583b7e26f571124fe5b7561d49cb2868d79116cfa0eefce955557c6fee8c",
+        name = "crate_index__futures-core-0.3.29",
+        sha256 = "eb1d22c66e66d9d72e1758f0bd7d4fd0bee04cad842ee34587d68c07e45d088c",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/futures-core/0.3.28/download"],
-        strip_prefix = "futures-core-0.3.28",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.futures-core-0.3.28.bazel"),
+        urls = ["https://crates.io/api/v1/crates/futures-core/0.3.29/download"],
+        strip_prefix = "futures-core-0.3.29",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.futures-core-0.3.29.bazel"),
     )
 
     maybe(
@@ -3254,12 +3254,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__futures-io-0.3.28",
-        sha256 = "4fff74096e71ed47f8e023204cfd0aa1289cd54ae5430a9523be060cdb849964",
+        name = "crate_index__futures-io-0.3.29",
+        sha256 = "8bf34a163b5c4c52d0478a4d757da8fb65cabef42ba90515efee0f6f9fa45aaa",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/futures-io/0.3.28/download"],
-        strip_prefix = "futures-io-0.3.28",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.futures-io-0.3.28.bazel"),
+        urls = ["https://crates.io/api/v1/crates/futures-io/0.3.29/download"],
+        strip_prefix = "futures-io-0.3.29",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.futures-io-0.3.29.bazel"),
     )
 
     maybe(
@@ -3274,42 +3274,42 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__futures-macro-0.3.28",
-        sha256 = "89ca545a94061b6365f2c7355b4b32bd20df3ff95f02da9329b34ccc3bd6ee72",
+        name = "crate_index__futures-macro-0.3.29",
+        sha256 = "53b153fd91e4b0147f4aced87be237c98248656bb01050b96bf3ee89220a8ddb",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/futures-macro/0.3.28/download"],
-        strip_prefix = "futures-macro-0.3.28",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.futures-macro-0.3.28.bazel"),
+        urls = ["https://crates.io/api/v1/crates/futures-macro/0.3.29/download"],
+        strip_prefix = "futures-macro-0.3.29",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.futures-macro-0.3.29.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__futures-sink-0.3.28",
-        sha256 = "f43be4fe21a13b9781a69afa4985b0f6ee0e1afab2c6f454a8cf30e2b2237b6e",
+        name = "crate_index__futures-sink-0.3.29",
+        sha256 = "e36d3378ee38c2a36ad710c5d30c2911d752cb941c00c72dbabfb786a7970817",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/futures-sink/0.3.28/download"],
-        strip_prefix = "futures-sink-0.3.28",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.futures-sink-0.3.28.bazel"),
+        urls = ["https://crates.io/api/v1/crates/futures-sink/0.3.29/download"],
+        strip_prefix = "futures-sink-0.3.29",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.futures-sink-0.3.29.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__futures-task-0.3.28",
-        sha256 = "76d3d132be6c0e6aa1534069c705a74a5997a356c0dc2f86a47765e5617c5b65",
+        name = "crate_index__futures-task-0.3.29",
+        sha256 = "efd193069b0ddadc69c46389b740bbccdd97203899b48d09c5f7969591d6bae2",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/futures-task/0.3.28/download"],
-        strip_prefix = "futures-task-0.3.28",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.futures-task-0.3.28.bazel"),
+        urls = ["https://crates.io/api/v1/crates/futures-task/0.3.29/download"],
+        strip_prefix = "futures-task-0.3.29",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.futures-task-0.3.29.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__futures-util-0.3.28",
-        sha256 = "26b01e40b772d54cf6c6d721c1d1abd0647a0106a12ecaa1c186273392a69533",
+        name = "crate_index__futures-util-0.3.29",
+        sha256 = "a19526d624e703a3179b3d322efec918b6246ea0fa51d41124525f00f1cc8104",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/futures-util/0.3.28/download"],
-        strip_prefix = "futures-util-0.3.28",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.futures-util-0.3.28.bazel"),
+        urls = ["https://crates.io/api/v1/crates/futures-util/0.3.29/download"],
+        strip_prefix = "futures-util-0.3.29",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.futures-util-0.3.29.bazel"),
     )
 
     maybe(

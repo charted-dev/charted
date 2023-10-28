@@ -71,7 +71,7 @@ rust_library(
         "@crate_index__bytes-1.5.0//:bytes",
         "@crate_index__combine-4.6.6//:combine",
         "@crate_index__futures-0.3.28//:futures",
-        "@crate_index__futures-util-0.3.28//:futures_util",
+        "@crate_index__futures-util-0.3.29//:futures_util",
         "@crate_index__itoa-1.0.9//:itoa",
         "@crate_index__percent-encoding-2.3.0//:percent_encoding",
         "@crate_index__pin-project-lite-0.2.13//:pin_project_lite",

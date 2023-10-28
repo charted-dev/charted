@@ -16,7 +16,7 @@ package(default_visibility = ["//visibility:public"])
 # ])
 
 rust_library(
-    name = "futures_task",
+    name = "futures_channel",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -31,6 +31,9 @@ rust_library(
     ),
     crate_features = [
         "alloc",
+        "default",
+        "futures-sink",
+        "sink",
         "std",
     ],
     crate_root = "src/lib.rs",
@@ -38,22 +41,27 @@ rust_library(
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=futures-task",
+        "crate-name=futures-channel",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.3.28",
+    version = "0.3.29",
     deps = [
-        "@crate_index__futures-task-0.3.28//:build_script_build",
+        "@crate_index__futures-channel-0.3.29//:build_script_build",
+        "@crate_index__futures-core-0.3.29//:futures_core",
+        "@crate_index__futures-sink-0.3.29//:futures_sink",
     ],
 )
 
 cargo_build_script(
-    name = "futures-task_build_script",
+    name = "futures-channel_build_script",
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "alloc",
+        "default",
+        "futures-sink",
+        "sink",
         "std",
     ],
     crate_name = "build_script_build",
@@ -75,17 +83,17 @@ cargo_build_script(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=futures-task",
+        "crate-name=futures-channel",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.3.28",
+    version = "0.3.29",
     visibility = ["//visibility:private"],
 )
 
 alias(
     name = "build_script_build",
-    actual = "futures-task_build_script",
+    actual = "futures-channel_build_script",
     tags = ["manual"],
 )

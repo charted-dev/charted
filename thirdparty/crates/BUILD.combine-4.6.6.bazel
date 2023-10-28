@@ -18,7 +18,7 @@ rust_library(
     name = "combine",
     srcs = glob(["**/*.rs"]),
     aliases = {
-        "@crate_index__futures-core-0.3.28//:futures_core": "futures_core_03",
+        "@crate_index__futures-core-0.3.29//:futures_core": "futures_core_03",
         "@crate_index__tokio-1.33.0//:tokio": "tokio_dep",
     },
     compile_data = glob(
@@ -55,7 +55,7 @@ rust_library(
     version = "4.6.6",
     deps = [
         "@crate_index__bytes-1.5.0//:bytes",
-        "@crate_index__futures-core-0.3.28//:futures_core",
+        "@crate_index__futures-core-0.3.29//:futures_core",
         "@crate_index__memchr-2.6.3//:memchr",
         "@crate_index__pin-project-lite-0.2.13//:pin_project_lite",
         "@crate_index__tokio-1.33.0//:tokio",

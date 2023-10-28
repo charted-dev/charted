@@ -41,7 +41,7 @@ rust_library(
     version = "0.5.5",
     deps = [
         "@crate_index__async-channel-1.9.0//:async_channel",
-        "@crate_index__futures-core-0.3.28//:futures_core",
-        "@crate_index__futures-io-0.3.28//:futures_io",
+        "@crate_index__futures-core-0.3.29//:futures_core",
+        "@crate_index__futures-io-0.3.29//:futures_io",
     ],
 )
