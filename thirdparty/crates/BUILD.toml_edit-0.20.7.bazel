@@ -42,7 +42,7 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.20.4",
+    version = "0.20.7",
     deps = [
         "@crate_index__indexmap-2.0.0//:indexmap",
         "@crate_index__serde-1.0.190//:serde",
