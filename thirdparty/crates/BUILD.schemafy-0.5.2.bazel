@@ -48,7 +48,7 @@ rust_proc_macro(
         "@crate_index__schemafy_core-0.5.2//:schemafy_core",
         "@crate_index__schemafy_lib-0.5.2//:schemafy_lib",
         "@crate_index__serde-1.0.190//:serde",
-        "@crate_index__serde_json-1.0.107//:serde_json",
+        "@crate_index__serde_json-1.0.108//:serde_json",
         "@crate_index__syn-1.0.109//:syn",
     ],
 )
