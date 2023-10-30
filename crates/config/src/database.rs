@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{make_config, var};
+use crate::{caching::CachingConfig, make_config, var};
 use std::fmt::Write as _;
 
 make_config! {
@@ -27,6 +27,13 @@ make_config! {
         pub max_connections: u32 {
             default: 10;
             env_value: var!("CHARTED_DATABASE_MAX_CONNECTIONS", to: u32, or_else: 10);
+        };
+
+        /// Caching strategy for caching database objects.
+        #[serde(default)]
+        pub caching: CachingConfig {
+            default: CachingConfig::default();
+            env_value: CachingConfig::from_env();
         };
 
         /// The password to use for authentication.

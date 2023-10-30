@@ -16,8 +16,8 @@
 #![allow(unused_doc_comments)]
 
 use crate::{
-    cdn::CdnConfig, make_config, var, DatabaseConfig, FromEnv, LoggingConfig, MetricsConfig, RedisConfig, SearchConfig,
-    SecureSetting, SecureSettingError, ServerConfig, SessionConfig, StorageConfig,
+    cdn::CdnConfig, make_config, search::SearchConfig, sessions::SessionConfig, var, DatabaseConfig, FromEnv,
+    LoggingConfig, MetricsConfig, RedisConfig, SecureSetting, SecureSettingError, ServerConfig, StorageConfig,
 };
 use charted_common::{panic_message, rand_string};
 use eyre::{eyre, Result};
@@ -30,24 +30,24 @@ use std::{
 };
 use tracing::warn;
 
-/// Represents the main configuration object that is used
-/// within the CLI arguments, environment variables, or with
-/// a YAML file.
-///
-/// ## Example
-/// ```no_run
-/// # use charted_config::Config;
-/// #
-/// let config = Config::from_env();
-/// // loads the config from the system environment variables
-///
-/// let config2 = Config::from_file("./file.yaml");
-/// // loads the config from ./file.yaml
-///
-/// let config3 = Config::load();
-/// // loads from ./config/charted.yaml or ./config.yml
-/// ```
 make_config! {
+    /// Represents the main configuration object that is used
+    /// within the CLI arguments, environment variables, or with
+    /// a YAML file.
+    ///
+    /// ## Example
+    /// ```no_run
+    /// # use charted_config::Config;
+    /// #
+    /// let config = Config::from_env();
+    /// // loads the config from the system environment variables
+    ///
+    /// let config2 = Config::from_file("./file.yaml");
+    /// // loads the config from ./file.yaml
+    ///
+    /// let config3 = Config::load();
+    /// // loads from ./config/charted.yaml or ./config.yml
+    /// ```
     Config {
         /// Valid gRPC endpoint to connect to when using the [emails microservice](https://charts.noelware.org/docs/services/emails/latest).
         #[serde(default, skip_serializing_if = "Option::is_none")]

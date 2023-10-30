@@ -17,7 +17,7 @@ use super::BootstrapPhase;
 use crate::{metrics::ServerMetricsCollector, Server, SERVER};
 use charted_avatars::AvatarsModule;
 use charted_common::{is_debug_enabled, Snowflake, COMMIT_HASH, VERSION};
-use charted_config::{Config, ConfigExt, SessionBackend};
+use charted_config::{sessions::SessionBackend, Config, ConfigExt};
 use charted_database::{controller::DbControllerRegistry, MIGRATIONS};
 use charted_helm_charts::HelmCharts;
 use charted_metrics::{Registry, SingleRegistry};

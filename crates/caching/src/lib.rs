@@ -16,17 +16,25 @@
 mod inmemory;
 mod redis;
 
-use std::fmt::Display;
-
 use async_trait::async_trait;
 use eyre::Result;
 use serde::{de::DeserializeOwned, ser::Serialize};
+use std::{fmt::Display, time::Duration};
 
 /// [`CacheKey`] namespace for fetching repositories.
 pub const REPOSITORIES: &str = "repositories";
 
+/// [`CacheKey`] namespace for server ratelimits.
+pub const RATELIMITS: &str = "ratelimits";
+
 /// [`CacheKey`] namespace for fetching users.
 pub const USERS: &str = "users";
+
+/// Default max object size (15mb)
+pub const DEFAULT_MAX_OBJECT_SIZE: u64 = 15 * 1024 * 1024; // 15mb
+
+/// Default [`Duration`] for cached objects.
+pub const DEFAULT_TTL_LIFESPAN: Duration = Duration::from_secs(15 * 60); // 15 minutes
 
 /// Represents a key that can be used to fetch from the cache.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -47,6 +55,11 @@ impl CacheKey {
     /// Creates a [`CacheKey`] instance for a user with their ID
     pub fn user(id: i64) -> CacheKey {
         CacheKey::new(USERS, id.to_string())
+    }
+
+    /// Creates a [`CacheKey`] instance for a ratelimit object
+    pub fn ratelimit(id: i64) -> CacheKey {
+        CacheKey::new(RATELIMITS, id.to_string())
     }
 
     /// Creates a [`CacheKey`] instance for a repository with their ID
@@ -85,4 +98,29 @@ pub trait CacheWorker {
     /// Reserve a cache object within a given [`CacheKey`], returns a error
     /// if the cache key was already inserted into the cache.
     async fn put<O: Serialize + Send + Sync>(&mut self, key: CacheKey, obj: O) -> Result<()>;
+}
+
+/// Represents a dynamic cache worker, where it can be one or the other.
+pub enum DynamicCacheWorker {
+    InMemory(inmemory::InMemoryCacheWorker),
+    Redis(redis::RedisCacheWorker),
+}
+
+#[async_trait]
+impl CacheWorker for DynamicCacheWorker {
+    const NAME: &'static str = "dynamic";
+
+    async fn get<O: DeserializeOwned + Send>(&mut self, key: CacheKey) -> Result<Option<O>> {
+        match self {
+            Self::InMemory(inmem) => inmem.get(key).await,
+            Self::Redis(redis) => redis.get(key).await,
+        }
+    }
+
+    async fn put<O: Serialize + Send + Sync>(&mut self, key: CacheKey, obj: O) -> Result<()> {
+        match self {
+            Self::InMemory(inmem) => inmem.put(key, obj).await,
+            Self::Redis(redis) => redis.put(key, obj).await,
+        }
+    }
 }

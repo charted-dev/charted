@@ -13,12 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{CacheKey, CacheWorker};
+use crate::{CacheKey, CacheWorker, DEFAULT_MAX_OBJECT_SIZE, DEFAULT_TTL_LIFESPAN};
 use async_trait::async_trait;
+use charted_config::caching::CachingConfig;
 use eyre::{Context, Result};
 use moka::future::Cache;
 use serde::{de::DeserializeOwned, Serialize};
-use std::time::Duration;
 use tracing::{instrument, trace};
 
 #[derive(Clone)]
@@ -26,13 +26,23 @@ pub struct InMemoryCacheWorker {
     pool: Cache<CacheKey, String>,
 }
 
-impl Default for InMemoryCacheWorker {
-    fn default() -> InMemoryCacheWorker {
+impl InMemoryCacheWorker {
+    /// Creates a new [`InMemoryCacheWorker`] instance.
+    pub fn new(config: CachingConfig) -> InMemoryCacheWorker {
+        let ttl = match config {
+            CachingConfig::InMemory(inmem) => inmem
+                .time_to_live
+                .unwrap_or(charted_common::serde::duration::Duration(DEFAULT_TTL_LIFESPAN)),
+
+            _ => unreachable!(),
+        };
+
+        let max_object_size = DEFAULT_MAX_OBJECT_SIZE; // we haven't implemented it yet
         InMemoryCacheWorker {
             pool: Cache::builder()
                 .weigher(|_, value: &String| -> u32 { value.len().try_into().unwrap_or(u32::MAX) })
-                .max_capacity(15 * 1024 * 1024)
-                .time_to_live(Duration::from_secs(15 * 60)) // ~15 minute ttl
+                .max_capacity(max_object_size)
+                .time_to_live(*ttl) // ~15 minute ttl
                 .eviction_listener(|key, _, cause| {
                     trace!(cache.key = %key, ?cause, was_evicted = cause.was_evicted(), "cached key was evicted");
                 })

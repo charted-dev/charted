@@ -13,17 +13,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{CacheKey, CacheWorker};
+use crate::{CacheKey, CacheWorker, DEFAULT_TTL_LIFESPAN};
 use async_trait::async_trait;
+use charted_common::serde::duration::Duration;
+use charted_config::caching::CachingConfig;
 use charted_redis::RedisClient;
 use eyre::{Context, Report, Result};
-use redis::AsyncCommands;
+use redis::{AsyncCommands, Commands};
 use serde::{de::DeserializeOwned, ser::Serialize};
 use tracing::instrument;
 
 #[derive(Debug, Clone)]
 pub struct RedisCacheWorker {
     client: RedisClient,
+    ttl: Duration,
+}
+
+impl RedisCacheWorker {
+    pub fn new(client: RedisClient, config: CachingConfig) -> RedisCacheWorker {
+        let ttl = match config {
+            CachingConfig::Redis(redis) => redis.time_to_live.unwrap_or(Duration(DEFAULT_TTL_LIFESPAN)),
+            _ => unreachable!(),
+        };
+
+        RedisCacheWorker { client, ttl }
+    }
 }
 
 #[async_trait]
@@ -47,15 +61,17 @@ impl CacheWorker for RedisCacheWorker {
     async fn put<O: Serialize + Send + Sync>(&mut self, key: CacheKey, obj: O) -> Result<()> {
         let redis_key = key.as_redis_key();
         let client = self.client.master()?;
-        let mut conn = client.get_async_connection().await?;
+        let mut conn = client.get_connection()?;
 
-        if conn.exists(redis_key.clone()).await? {
+        if conn.exists(redis_key.clone())? {
             return Ok(());
         }
 
-        conn.set::<_, _, ()>(redis_key.clone(), serde_json::to_string(&obj)?)
-            .await
-            .map(|_| ())
+        let mut pipeline = RedisClient::pipeline();
+        pipeline
+            .set(redis_key.clone(), serde_json::to_string(&obj)?)
+            .expire(redis_key.clone(), self.ttl.as_secs().try_into().unwrap())
+            .query::<()>(&mut conn)
             .context(format!("unable to run 'SET {redis_key}'"))
     }
 }

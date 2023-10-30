@@ -948,6 +948,8 @@ name = "charted-cache-worker"
 version = "0.0.0-devel.0"
 dependencies = [
  "async-trait",
+ "charted-common",
+ "charted-config",
  "charted-redis",
  "eyre",
  "moka",
