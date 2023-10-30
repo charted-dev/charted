@@ -32,7 +32,7 @@ jsonwebtoken = "9.1.0"
 redis = "0.23.3"
 sentry = "0.31.7"
 serde = "1.0.190"
-serde_json = "1.0.107"
+serde_json = "1.0.108"
 sqlx = { version = "0.7.2", features = ["postgres"] }
 tokio = { version = "1.33.0", default-features = false, features = ["rt", "sync", "tracing"] }
 tokio-util = "0.7.10"
