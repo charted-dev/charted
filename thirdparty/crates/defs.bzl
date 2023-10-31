@@ -322,7 +322,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "bytes": "@crate_index__bytes-1.5.0//:bytes",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
-            "remi-core": "@crate_index__remi-core-0.4.1//:remi_core",
+            "remi-core": "@crate_index__remi-core-0.4.2//:remi_core",
             "reqwest": "@crate_index__reqwest-0.11.22//:reqwest",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
@@ -370,7 +370,7 @@ _NORMAL_DEPENDENCIES = {
             "merge-struct": "@crate_index__merge-struct-0.1.0//:merge_struct",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
             "regex": "@crate_index__regex-1.10.2//:regex",
-            "remi-fs": "@crate_index__remi-fs-0.4.1//:remi_fs",
+            "remi-fs": "@crate_index__remi-fs-0.4.2//:remi_fs",
             "remi-s3": "@crate_index__remi-s3-0.4.1//:remi_s3",
             "serde": "@crate_index__serde-1.0.190//:serde",
             "serde_yaml": "@crate_index__serde_yaml-0.9.27//:serde_yaml",
@@ -404,7 +404,7 @@ _NORMAL_DEPENDENCIES = {
             "multer": "@crate_index__multer-2.1.0//:multer",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
             "regex": "@crate_index__regex-1.10.2//:regex",
-            "remi-core": "@crate_index__remi-core-0.4.1//:remi_core",
+            "remi-core": "@crate_index__remi-core-0.4.2//:remi_core",
             "semver": "@crate_index__semver-1.0.20//:semver",
             "sentry": "@crate_index__sentry-0.31.7//:sentry",
             "serde_yaml": "@crate_index__serde_yaml-0.9.27//:serde_yaml",
@@ -555,8 +555,8 @@ _NORMAL_DEPENDENCIES = {
     "crates/storage": {
         _COMMON_CONDITION: {
             "bytes": "@crate_index__bytes-1.5.0//:bytes",
-            "remi-core": "@crate_index__remi-core-0.4.1//:remi_core",
-            "remi-fs": "@crate_index__remi-fs-0.4.1//:remi_fs",
+            "remi-core": "@crate_index__remi-core-0.4.2//:remi_core",
+            "remi-fs": "@crate_index__remi-fs-0.4.2//:remi_fs",
             "remi-s3": "@crate_index__remi-s3-0.4.1//:remi_s3",
             "serde": "@crate_index__serde-1.0.190//:serde",
         },
@@ -583,7 +583,7 @@ _NORMAL_DEPENDENCIES = {
             "multer": "@crate_index__multer-2.1.0//:multer",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
             "prometheus-client": "@crate_index__prometheus-client-0.22.0//:prometheus_client",
-            "remi-core": "@crate_index__remi-core-0.4.1//:remi_core",
+            "remi-core": "@crate_index__remi-core-0.4.2//:remi_core",
             "rust-embed": "@crate_index__rust-embed-8.0.0//:rust_embed",
             "semver": "@crate_index__semver-1.0.20//:semver",
             "sentry": "@crate_index__sentry-0.31.7//:sentry",
@@ -814,7 +814,7 @@ _NORMAL_DEV_DEPENDENCIES = {
     },
     "crates/helm-charts": {
         _COMMON_CONDITION: {
-            "remi-fs": "@crate_index__remi-fs-0.4.1//:remi_fs",
+            "remi-fs": "@crate_index__remi-fs-0.4.2//:remi_fs",
             "tempfile": "@crate_index__tempfile-3.8.1//:tempfile",
             "tokio": "@crate_index__tokio-1.33.0//:tokio",
         },
@@ -3311,12 +3311,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__futures-0.3.28",
-        sha256 = "23342abe12aba583913b2e62f22225ff9c950774065e4bfb61a19cd9770fec40",
+        name = "crate_index__futures-0.3.29",
+        sha256 = "da0290714b38af9b4a7b094b8a37086d1b4e61f2df9122c3cad2577669145335",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/futures/0.3.28/download"],
-        strip_prefix = "futures-0.3.28",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.futures-0.3.28.bazel"),
+        urls = ["https://crates.io/api/v1/crates/futures/0.3.29/download"],
+        strip_prefix = "futures-0.3.29",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.futures-0.3.29.bazel"),
     )
 
     maybe(
@@ -3341,12 +3341,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__futures-executor-0.3.28",
-        sha256 = "ccecee823288125bd88b4d7f565c9e58e41858e47ab72e8ea2d64e93624386e0",
+        name = "crate_index__futures-executor-0.3.29",
+        sha256 = "0f4fb8693db0cf099eadcca0efe2a5a22e4550f98ed16aba6c48700da29597bc",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/futures-executor/0.3.28/download"],
-        strip_prefix = "futures-executor-0.3.28",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.futures-executor-0.3.28.bazel"),
+        urls = ["https://crates.io/api/v1/crates/futures-executor/0.3.29/download"],
+        strip_prefix = "futures-executor-0.3.29",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.futures-executor-0.3.29.bazel"),
     )
 
     maybe(
@@ -5051,22 +5051,22 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__remi-core-0.4.1",
-        sha256 = "e13cd7a80639c0aa0a4ed7ee0db29dc3ccf527941a5620a31f8dcb54c55f0d93",
+        name = "crate_index__remi-core-0.4.2",
+        sha256 = "53d550a558f95990a128875269113b4feec1b65b12344e9a78307a872dc3efdf",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/remi-core/0.4.1/download"],
-        strip_prefix = "remi-core-0.4.1",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.remi-core-0.4.1.bazel"),
+        urls = ["https://crates.io/api/v1/crates/remi-core/0.4.2/download"],
+        strip_prefix = "remi-core-0.4.2",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.remi-core-0.4.2.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__remi-fs-0.4.1",
-        sha256 = "68c9d2f7d5bbdfb85652514ab43498665fcb8e2edfa73c5b7327a0a238864922",
+        name = "crate_index__remi-fs-0.4.2",
+        sha256 = "de8c727d2aac68656c5540de2383e939d238342be49d80b7e96d35aa99e80126",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/remi-fs/0.4.1/download"],
-        strip_prefix = "remi-fs-0.4.1",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.remi-fs-0.4.1.bazel"),
+        urls = ["https://crates.io/api/v1/crates/remi-fs/0.4.2/download"],
+        strip_prefix = "remi-fs-0.4.2",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.remi-fs-0.4.2.bazel"),
     )
 
     maybe(

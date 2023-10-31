@@ -25,6 +25,6 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 bytes = "1.5.0"
 charted-config = { path = "../config", version = "0.0.0-devel.0" }
 remi-core = "0.4.1"
-remi-fs = { version = "0.4.1", features = ["serde"] }
+remi-fs = { version = "0.4.2", features = ["serde"] }
 remi-s3 = { version = "0.4.1", features = ["serde"] }
 serde = "1.0.190"
