@@ -333,13 +333,13 @@ alias(
 
 alias(
     name = "remi-core",
-    actual = "@crate_index__remi-core-0.4.1//:remi_core",
+    actual = "@crate_index__remi-core-0.4.2//:remi_core",
     tags = ["manual"],
 )
 
 alias(
     name = "remi-fs",
-    actual = "@crate_index__remi-fs-0.4.1//:remi_fs",
+    actual = "@crate_index__remi-fs-0.4.2//:remi_fs",
     tags = ["manual"],
 )
 
