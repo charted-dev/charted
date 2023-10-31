@@ -45,7 +45,7 @@ rust_library(
         "@crate_index__flume-0.11.0//:flume",
         "@crate_index__futures-channel-0.3.29//:futures_channel",
         "@crate_index__futures-core-0.3.29//:futures_core",
-        "@crate_index__futures-executor-0.3.28//:futures_executor",
+        "@crate_index__futures-executor-0.3.29//:futures_executor",
         "@crate_index__futures-intrusive-0.5.0//:futures_intrusive",
         "@crate_index__futures-util-0.3.29//:futures_util",
         "@crate_index__libsqlite3-sys-0.26.0//:libsqlite3_sys",
