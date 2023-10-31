@@ -51,7 +51,7 @@ alias(
 
 alias(
     name = "aws-sdk-s3",
-    actual = "@crate_index__aws-sdk-s3-0.33.0//:aws_sdk_s3",
+    actual = "@crate_index__aws-sdk-s3-0.34.0//:aws_sdk_s3",
     tags = ["manual"],
 )
 
@@ -345,7 +345,7 @@ alias(
 
 alias(
     name = "remi-s3",
-    actual = "@crate_index__remi-s3-0.4.1//:remi_s3",
+    actual = "@crate_index__remi-s3-0.4.2//:remi_s3",
     tags = ["manual"],
 )
 

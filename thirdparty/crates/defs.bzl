@@ -351,7 +351,7 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/config": {
         _COMMON_CONDITION: {
-            "aws-sdk-s3": "@crate_index__aws-sdk-s3-0.33.0//:aws_sdk_s3",
+            "aws-sdk-s3": "@crate_index__aws-sdk-s3-0.34.0//:aws_sdk_s3",
             "base64": "@crate_index__base64-0.21.5//:base64",
             "clap": "@crate_index__clap-4.4.7//:clap",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
@@ -360,7 +360,7 @@ _NORMAL_DEPENDENCIES = {
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
             "regex": "@crate_index__regex-1.10.2//:regex",
             "remi-fs": "@crate_index__remi-fs-0.4.2//:remi_fs",
-            "remi-s3": "@crate_index__remi-s3-0.4.1//:remi_s3",
+            "remi-s3": "@crate_index__remi-s3-0.4.2//:remi_s3",
             "serde": "@crate_index__serde-1.0.190//:serde",
             "serde_yaml": "@crate_index__serde_yaml-0.9.27//:serde_yaml",
             "thiserror": "@crate_index__thiserror-1.0.50//:thiserror",
@@ -545,7 +545,7 @@ _NORMAL_DEPENDENCIES = {
             "bytes": "@crate_index__bytes-1.5.0//:bytes",
             "remi-core": "@crate_index__remi-core-0.4.2//:remi_core",
             "remi-fs": "@crate_index__remi-fs-0.4.2//:remi_fs",
-            "remi-s3": "@crate_index__remi-s3-0.4.1//:remi_s3",
+            "remi-s3": "@crate_index__remi-s3-0.4.2//:remi_s3",
             "serde": "@crate_index__serde-1.0.190//:serde",
         },
     },
@@ -1904,12 +1904,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__aws-sdk-s3-0.33.0",
-        sha256 = "73018483d9cb78e1a0d4dcbc94327b01d532e7cb28f26c5bceff97f8f0e4c6eb",
+        name = "crate_index__aws-sdk-s3-0.34.0",
+        sha256 = "42f7a233b27af6e70094eafd43d9ee11da6e78eb2c1a31e5a7de737b782c627d",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/aws-sdk-s3/0.33.0/download"],
-        strip_prefix = "aws-sdk-s3-0.33.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-sdk-s3-0.33.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/aws-sdk-s3/0.34.0/download"],
+        strip_prefix = "aws-sdk-s3-0.34.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-sdk-s3-0.34.0.bazel"),
     )
 
     maybe(
@@ -4904,12 +4904,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__remi-s3-0.4.1",
-        sha256 = "fd90927edb4aa8ee761191eabc335ae3fee2ea44acf94f2acb47a6c3bf14a32e",
+        name = "crate_index__remi-s3-0.4.2",
+        sha256 = "96480a16c8f3cc597659e9704415b196a4df580ec5c13504b09c999127e13de5",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/remi-s3/0.4.1/download"],
-        strip_prefix = "remi-s3-0.4.1",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.remi-s3-0.4.1.bazel"),
+        urls = ["https://crates.io/api/v1/crates/remi-s3/0.4.2/download"],
+        strip_prefix = "remi-s3-0.4.2",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.remi-s3-0.4.2.bazel"),
     )
 
     maybe(
