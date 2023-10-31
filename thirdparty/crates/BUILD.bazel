@@ -345,7 +345,7 @@ alias(
 
 alias(
     name = "remi-s3",
-    actual = "@crate_index__remi-s3-0.4.1//:remi_s3",
+    actual = "@crate_index__remi-s3-0.4.2//:remi_s3",
     tags = ["manual"],
 )
 
