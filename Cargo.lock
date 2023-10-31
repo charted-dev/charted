@@ -380,9 +380,9 @@ dependencies = [
 
 [[package]]
 name = "aws-sdk-s3"
-version = "0.33.0"
+version = "0.34.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "73018483d9cb78e1a0d4dcbc94327b01d532e7cb28f26c5bceff97f8f0e4c6eb"
+checksum = "42f7a233b27af6e70094eafd43d9ee11da6e78eb2c1a31e5a7de737b782c627d"
 dependencies = [
  "aws-credential-types",
  "aws-http",
@@ -4171,9 +4171,9 @@ dependencies = [
 
 [[package]]
 name = "remi-s3"
-version = "0.4.1"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd90927edb4aa8ee761191eabc335ae3fee2ea44acf94f2acb47a6c3bf14a32e"
+checksum = "96480a16c8f3cc597659e9704415b196a4df580ec5c13504b09c999127e13de5"
 dependencies = [
  "async-trait",
  "aws-config",

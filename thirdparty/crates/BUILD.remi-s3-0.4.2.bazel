@@ -45,11 +45,11 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.4.1",
+    version = "0.4.2",
     deps = [
         "@crate_index__aws-config-0.56.1//:aws_config",
         "@crate_index__aws-credential-types-0.56.1//:aws_credential_types",
-        "@crate_index__aws-sdk-s3-0.33.0//:aws_sdk_s3",
+        "@crate_index__aws-sdk-s3-0.34.0//:aws_sdk_s3",
         "@crate_index__bytes-1.5.0//:bytes",
         "@crate_index__remi-core-0.4.2//:remi_core",
         "@crate_index__serde-1.0.190//:serde",
