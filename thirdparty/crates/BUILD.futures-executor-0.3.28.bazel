@@ -43,8 +43,8 @@ rust_library(
     ],
     version = "0.3.28",
     deps = [
-        "@crate_index__futures-core-0.3.28//:futures_core",
-        "@crate_index__futures-task-0.3.28//:futures_task",
-        "@crate_index__futures-util-0.3.28//:futures_util",
+        "@crate_index__futures-core-0.3.29//:futures_core",
+        "@crate_index__futures-task-0.3.29//:futures_task",
+        "@crate_index__futures-util-0.3.29//:futures_util",
     ],
 )

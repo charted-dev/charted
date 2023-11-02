@@ -165,7 +165,7 @@ alias(
 
 alias(
     name = "futures-util",
-    actual = "@crate_index__futures-util-0.3.28//:futures_util",
+    actual = "@crate_index__futures-util-0.3.29//:futures_util",
     tags = ["manual"],
 )
 

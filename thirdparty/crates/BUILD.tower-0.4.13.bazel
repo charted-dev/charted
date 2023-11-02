@@ -65,8 +65,8 @@ rust_library(
     ],
     version = "0.4.13",
     deps = [
-        "@crate_index__futures-core-0.3.28//:futures_core",
-        "@crate_index__futures-util-0.3.28//:futures_util",
+        "@crate_index__futures-core-0.3.29//:futures_core",
+        "@crate_index__futures-util-0.3.29//:futures_util",
         "@crate_index__indexmap-1.9.3//:indexmap",
         "@crate_index__pin-project-1.1.3//:pin_project",
         "@crate_index__pin-project-lite-0.2.13//:pin_project_lite",

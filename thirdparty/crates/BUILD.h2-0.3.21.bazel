@@ -42,9 +42,9 @@ rust_library(
     deps = [
         "@crate_index__bytes-1.5.0//:bytes",
         "@crate_index__fnv-1.0.7//:fnv",
-        "@crate_index__futures-core-0.3.28//:futures_core",
-        "@crate_index__futures-sink-0.3.28//:futures_sink",
-        "@crate_index__futures-util-0.3.28//:futures_util",
+        "@crate_index__futures-core-0.3.29//:futures_core",
+        "@crate_index__futures-sink-0.3.29//:futures_sink",
+        "@crate_index__futures-util-0.3.29//:futures_util",
         "@crate_index__http-0.2.9//:http",
         "@crate_index__indexmap-1.9.3//:indexmap",
         "@crate_index__slab-0.4.9//:slab",

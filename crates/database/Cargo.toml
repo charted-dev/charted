@@ -23,10 +23,12 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
 [dependencies]
 async-trait = "0.1.74"
+charted-cache-worker = { version = "0.0.0-devel.0", path = "../caching" }
 charted-common = { version = "0.0.0-devel.0", path = "../common" }
 charted-storage = { version = "0.0.0-devel.0", path = "../storage" }
 eyre = "0.6.8"
 sentry = "0.31.7"
 serde = { version = "1.0.189", features = ["derive"] }
 sqlx = { version = "0.7.2", features = ["chrono", "postgres", "runtime-tokio", "tls-native-tls", "migrate"] }
+tokio = "1.33.0"
 tracing = "0.1.40"

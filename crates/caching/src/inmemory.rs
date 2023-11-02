@@ -15,29 +15,46 @@
 
 use crate::{CacheKey, CacheWorker, DEFAULT_MAX_OBJECT_SIZE, DEFAULT_TTL_LIFESPAN};
 use async_trait::async_trait;
-use charted_config::caching::CachingConfig;
+use charted_config::caching::InMemoryCacheConfig;
 use eyre::{Context, Result};
 use moka::future::Cache;
 use serde::{de::DeserializeOwned, Serialize};
-use tracing::{instrument, trace};
+use std::fmt::Debug;
+use tracing::{info, instrument, trace};
 
 #[derive(Clone)]
 pub struct InMemoryCacheWorker {
     pool: Cache<CacheKey, String>,
 }
 
+impl Debug for InMemoryCacheWorker {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("InMemoryCacheWorker")
+            .field("pool", &format!("{} entries", self.pool.entry_count()))
+            .finish()
+    }
+}
+
 impl InMemoryCacheWorker {
     /// Creates a new [`InMemoryCacheWorker`] instance.
-    pub fn new(config: CachingConfig) -> InMemoryCacheWorker {
-        let ttl = match config {
-            CachingConfig::InMemory(inmem) => inmem
-                .time_to_live
-                .unwrap_or(charted_common::serde::duration::Duration(DEFAULT_TTL_LIFESPAN)),
+    pub fn new(config: InMemoryCacheConfig) -> InMemoryCacheWorker {
+        let ttl = config
+            .time_to_live
+            .unwrap_or(charted_common::serde::duration::Duration(DEFAULT_TTL_LIFESPAN));
 
-            _ => unreachable!(),
-        };
+        info!(
+            cache.worker = "inmemory",
+            config.ttl = tracing::field::display(ttl),
+            "using configured ttl"
+        );
 
         let max_object_size = DEFAULT_MAX_OBJECT_SIZE; // we haven't implemented it yet
+        info!(
+            cache.worker = "inmemory",
+            config.max_object_size = max_object_size,
+            "configured max object size"
+        );
+
         InMemoryCacheWorker {
             pool: Cache::builder()
                 .weigher(|_, value: &String| -> u32 { value.len().try_into().unwrap_or(u32::MAX) })
@@ -58,9 +75,13 @@ impl CacheWorker for InMemoryCacheWorker {
     #[instrument(name = "charted.caching.inmemory.get", skip(self))]
     async fn get<O: DeserializeOwned>(&mut self, key: CacheKey) -> Result<Option<O>> {
         match self.pool.get(&key).await {
-            Some(obj) => serde_json::from_str(&obj)
-                .map(|o| Some(o))
-                .context("unable to deserialize to type `O`"),
+            Some(obj) => {
+                info!(cache.worker = "inmemory", cache.key = %key, "cache hit success");
+
+                serde_json::from_str(&obj)
+                    .map(|o| Some(o))
+                    .context("unable to deserialize to type `O`")
+            }
 
             None => Ok(None),
         }
@@ -73,7 +94,21 @@ impl CacheWorker for InMemoryCacheWorker {
         }
 
         let serialized = serde_json::to_string(&obj)?;
-        self.pool.insert(key, serialized).await;
+        self.pool.insert(key.clone(), serialized).await;
+        trace!(cache.worker = "inmemory", cache.key = %key, "cache inserted");
+
+        Ok(())
+    }
+
+    #[instrument(name = "charted.caching.inmemory.delete", skip(self))]
+    async fn delete(&mut self, key: CacheKey) -> Result<()> {
+        // continue if no cache key exists
+        if !self.pool.contains_key(&key) {
+            return Ok(());
+        }
+
+        self.pool.remove(&key).await;
+        trace!(cache.worker = "inmemory", cache.key = %key, "cache deleted");
 
         Ok(())
     }

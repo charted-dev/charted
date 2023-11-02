@@ -16,12 +16,12 @@
 use crate::{CacheKey, CacheWorker, DEFAULT_TTL_LIFESPAN};
 use async_trait::async_trait;
 use charted_common::serde::duration::Duration;
-use charted_config::caching::CachingConfig;
+use charted_config::caching::RedisCacheConfig;
 use charted_redis::RedisClient;
 use eyre::{Context, Report, Result};
 use redis::{AsyncCommands, Commands};
 use serde::{de::DeserializeOwned, ser::Serialize};
-use tracing::instrument;
+use tracing::{info, instrument};
 
 #[derive(Debug, Clone)]
 pub struct RedisCacheWorker {
@@ -30,11 +30,13 @@ pub struct RedisCacheWorker {
 }
 
 impl RedisCacheWorker {
-    pub fn new(client: RedisClient, config: CachingConfig) -> RedisCacheWorker {
-        let ttl = match config {
-            CachingConfig::Redis(redis) => redis.time_to_live.unwrap_or(Duration(DEFAULT_TTL_LIFESPAN)),
-            _ => unreachable!(),
-        };
+    pub fn new(client: RedisClient, config: RedisCacheConfig) -> RedisCacheWorker {
+        let ttl = config.time_to_live.unwrap_or(Duration(DEFAULT_TTL_LIFESPAN));
+        info!(
+            cache.worker = "inmemory",
+            config.ttl = tracing::field::display(ttl),
+            "using configured ttl"
+        );
 
         RedisCacheWorker { client, ttl }
     }
@@ -73,5 +75,19 @@ impl CacheWorker for RedisCacheWorker {
             .expire(redis_key.clone(), self.ttl.as_secs().try_into().unwrap())
             .query::<()>(&mut conn)
             .context(format!("unable to run 'SET {redis_key}'"))
+    }
+
+    #[instrument(name = "charted.caching.redis.delete", skip(self))]
+    async fn delete(&mut self, key: CacheKey) -> Result<()> {
+        let client = self.client.master()?;
+        let mut conn = client.get_async_connection().await?;
+        let redis_key = key.as_redis_key();
+
+        if !conn.exists(&redis_key).await? {
+            return Ok(());
+        }
+
+        conn.del(&redis_key).await?;
+        Ok(())
     }
 }

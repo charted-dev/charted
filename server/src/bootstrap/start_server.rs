@@ -16,8 +16,9 @@
 use super::BootstrapPhase;
 use crate::{metrics::ServerMetricsCollector, Server, SERVER};
 use charted_avatars::AvatarsModule;
+use charted_cache_worker::{DynamicCacheWorker, InMemoryCacheWorker, RedisCacheWorker};
 use charted_common::{is_debug_enabled, Snowflake, COMMIT_HASH, VERSION};
-use charted_config::{sessions::SessionBackend, Config, ConfigExt};
+use charted_config::{caching::CachingConfig, sessions::SessionBackend, Config, ConfigExt};
 use charted_database::{controller::DbControllerRegistry, MIGRATIONS};
 use charted_helm_charts::HelmCharts;
 use charted_metrics::{Registry, SingleRegistry};
@@ -162,6 +163,11 @@ pub(crate) async fn configure_modules(config: &Config) -> Result<Server> {
     let avatars = AvatarsModule::new(storage.clone());
     avatars.init().await?;
 
+    let cache_worker = match config.database.caching.clone() {
+        CachingConfig::InMemory(inmem) => DynamicCacheWorker::InMemory(InMemoryCacheWorker::new(inmem)),
+        CachingConfig::Redis(config) => DynamicCacheWorker::Redis(RedisCacheWorker::new(redis.clone(), config)),
+    };
+
     info!(
         took = format!("{:?}", Instant::now().duration_since(now)),
         "Initialized all misc dependencies! [~{:?}]",
@@ -169,7 +175,7 @@ pub(crate) async fn configure_modules(config: &Config) -> Result<Server> {
     );
 
     Ok(Server {
-        controllers: DbControllerRegistry::new(storage.clone(), pool.clone()),
+        controllers: DbControllerRegistry::new(cache_worker, storage.clone(), pool.clone()),
         helm_charts,
         snowflake,
         sessions: Arc::new(RwLock::new(sessions)),

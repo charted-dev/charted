@@ -19,6 +19,7 @@ exports_files(["Cargo.toml"])
 
 local_crates = ["//%s:charted_%s" % (path, name) for (path, name) in [
     ("crates/avatars", "avatars"),
+    ("crates/caching", "cache_worker"),
     ("crates/common", "common"),
     ("crates/config", "config"),
     ("crates/database", "database"),

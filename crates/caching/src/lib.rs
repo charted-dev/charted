@@ -16,6 +16,9 @@
 mod inmemory;
 mod redis;
 
+pub use inmemory::*;
+pub use redis::*;
+
 use async_trait::async_trait;
 use eyre::Result;
 use serde::{de::DeserializeOwned, ser::Serialize};
@@ -87,7 +90,7 @@ impl Display for CacheKey {
 /// putting objects in cache, and [`Deserialize`](serde::de::Deserialize) for retrieving cache
 /// objects if they are found.
 #[async_trait]
-pub trait CacheWorker {
+pub trait CacheWorker: Send + Sync {
     /// The name of the cache worker. This is used primarily in metrics.
     const NAME: &'static str;
 
@@ -98,9 +101,13 @@ pub trait CacheWorker {
     /// Reserve a cache object within a given [`CacheKey`], returns a error
     /// if the cache key was already inserted into the cache.
     async fn put<O: Serialize + Send + Sync>(&mut self, key: CacheKey, obj: O) -> Result<()>;
+
+    /// Attempts to delete a cache key from the cache if it exists.
+    async fn delete(&mut self, key: CacheKey) -> Result<()>;
 }
 
 /// Represents a dynamic cache worker, where it can be one or the other.
+#[derive(Debug, Clone)]
 pub enum DynamicCacheWorker {
     InMemory(inmemory::InMemoryCacheWorker),
     Redis(redis::RedisCacheWorker),
@@ -121,6 +128,13 @@ impl CacheWorker for DynamicCacheWorker {
         match self {
             Self::InMemory(inmem) => inmem.put(key, obj).await,
             Self::Redis(redis) => redis.put(key, obj).await,
+        }
+    }
+
+    async fn delete(&mut self, key: CacheKey) -> Result<()> {
+        match self {
+            Self::InMemory(inmem) => inmem.delete(key).await,
+            Self::Redis(redis) => redis.delete(key).await,
         }
     }
 }

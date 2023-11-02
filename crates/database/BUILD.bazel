@@ -29,12 +29,14 @@ rust_project(
     proc_macro_deps = ["@crate_index//:async-trait"],
     deps = [
         ":buildscript",
+        "//crates/caching:charted_cache_worker",
         "//crates/common:charted_common",
         "//crates/storage:charted_storage",
         "@crate_index//:eyre",
         "@crate_index//:sentry",
         "@crate_index//:serde",
         "@crate_index//:sqlx",
+        "@crate_index//:tokio",
         "@crate_index//:tracing",
     ],
 )

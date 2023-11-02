@@ -49,7 +49,7 @@ rust_library(
     deps = [
         "@crate_index__axum-core-0.3.4//:build_script_build",
         "@crate_index__bytes-1.5.0//:bytes",
-        "@crate_index__futures-util-0.3.28//:futures_util",
+        "@crate_index__futures-util-0.3.29//:futures_util",
         "@crate_index__http-0.2.9//:http",
         "@crate_index__http-body-0.4.5//:http_body",
         "@crate_index__mime-0.3.17//:mime",
