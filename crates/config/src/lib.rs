@@ -13,18 +13,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod cdn;
-mod config;
-mod database;
+pub mod caching;
+pub mod cdn;
+pub mod config;
+pub mod database;
 mod from_env;
-mod logging;
-mod metrics;
-mod redis;
-mod search;
-mod secure_setting;
-mod server;
-mod sessions;
-mod storage;
+pub mod logging;
+pub mod metrics;
+pub mod redis;
+pub mod search;
+pub mod secure_setting;
+pub mod server;
+pub mod sessions;
+pub mod storage;
 
 pub use config::*;
 pub use database::*;
@@ -32,10 +33,8 @@ pub use from_env::*;
 pub use logging::*;
 pub use metrics::*;
 pub use redis::*;
-pub use search::*;
 pub use secure_setting::*;
 pub use server::*;
-pub use sessions::*;
 pub use storage::*;
 
 /// Generic Rust functional macro to implement a common-style configuration struct

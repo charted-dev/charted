@@ -24,6 +24,7 @@ use self::{
     repositories::RepositoryDatabaseController, users::UserDatabaseController,
 };
 use async_trait::async_trait;
+use charted_cache_worker::DynamicCacheWorker;
 use charted_common::{
     models::NameOrSnowflake,
     server::pagination::{OrderBy, Pagination, PaginationQuery},
@@ -103,8 +104,8 @@ pub trait DbController: Send + Sync {
 pub struct DbControllerRegistry(Vec<Arc<dyn Any + Send + Sync>>);
 
 impl DbControllerRegistry {
-    pub fn new(storage: MultiStorageService, pool: PgPool) -> DbControllerRegistry {
-        let users = UserDatabaseController::new(pool.clone());
+    pub fn new(worker: DynamicCacheWorker, storage: MultiStorageService, pool: PgPool) -> DbControllerRegistry {
+        let users = UserDatabaseController::new(worker.clone(), pool.clone());
         let connections = UserConnectionsDatabaseController::new(pool.clone(), users.clone());
 
         DbControllerRegistry(vec![

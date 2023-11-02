@@ -51,15 +51,21 @@
           helm
         ]);
 
+      rustflags =
+        if pkgs.stdenv.isLinux
+        then ''-C link-arg=-fuse-ld=mold -C target-cpu=native $RUSTFLAGS''
+        else ''$RUSTFLAGS'';
+
       rust = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
       bazel = pkgs.bazel_6;
     in {
       devShells.default = pkgs.mkShell {
         NIX_LD = "${stdenv.cc}/nix-support/dynamic-linker";
-        # NIX_LD_LIBRARY_PATH = lib.makeLibraryPath (with pkgs; [
-        #   stdenv.cc.cc
-        #   openssl
-        # ]);
+        NIX_LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath (with pkgs; [
+          stdenv.cc.cc
+          openssl
+          curl
+        ]);
 
         nativeBuildInputs = with pkgs;
           [pkg-config git]
@@ -72,14 +78,19 @@
           cargo-expand
           terraform
           nodejs_20
+          clang_16
           openssl
-          bazel
+          bazel_6
           cargo
           llvm
           mold
           rust
           git
         ];
+
+        shellHook = ''
+          export RUSTFLAGS="--cfg tokio_unstable ${rustflags}"
+        '';
       };
     });
 }

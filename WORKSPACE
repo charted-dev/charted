@@ -89,6 +89,15 @@ nixpkgs_package(
     repository = "@nixpkgs",
 )
 
+# Uses the nixpkgs version of `cargo-bazel`, at the moment (as of 26/10/23), `cargo-bazel` on nixpkgs
+# is stuck on v0.8.0, so we need to bump it to 0.9.0
+nixpkgs_package(
+    name = "nix-cargo-bazel",
+    attribute_path = "cargo-bazel",
+    nixopts = ["--show-trace"],
+    repository = "@nixpkgs",
+)
+
 load("//:build/tools/cc.bzl", "charted_cc_repositories")
 
 charted_cc_repositories()

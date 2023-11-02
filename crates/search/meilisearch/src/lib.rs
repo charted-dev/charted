@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use async_trait::async_trait;
-use charted_config::SearchConfig;
+use charted_config::search::SearchConfig;
 use charted_search::{SearchResult, SearchService, INDEXES};
 use eyre::{eyre, Result};
 use meilisearch_sdk::{search::SearchQuery, Client};
@@ -25,59 +25,8 @@ use tracing::{debug, info, warn};
 /// Represents the search options ofr Meilisearch.
 #[derive(Debug, Clone)]
 pub struct SearchOptions {
-    allow_partial_data: bool,
-    filter: Vec<String>,
-    sealed: bool,
     offset: usize,
     limit: usize,
-}
-
-impl charted_search::SearchOptions for SearchOptions {
-    fn allow_partial(&mut self, allow: bool) -> &mut Self {
-        if self.sealed {
-            panic!("INTERNAL BUG: cannot apply filter due to this SearchOptions being sealed");
-        }
-
-        self.allow_partial_data = allow;
-        self
-    }
-
-    fn filter<I: Into<String>>(&mut self, filter: I) -> &mut Self {
-        if self.sealed {
-            panic!("INTERNAL BUG: cannot apply filter due to this SearchOptions being sealed");
-        }
-
-        self.filter.push(filter.into());
-        self
-    }
-
-    fn limit(&mut self, limit: usize) -> &mut Self {
-        if self.sealed {
-            panic!("INTERNAL BUG: cannot apply filter due to this SearchOptions being sealed");
-        }
-
-        self.limit = limit;
-        self
-    }
-
-    fn offset(&mut self, offset: usize) -> &mut Self {
-        if self.sealed {
-            panic!("INTERNAL BUG: cannot apply filter due to this SearchOptions being sealed");
-        }
-
-        self.offset = offset;
-        self
-    }
-
-    fn seal(&mut self) -> Self {
-        Self {
-            allow_partial_data: self.allow_partial_data,
-            filter: self.filter.clone(),
-            offset: self.offset,
-            sealed: true,
-            limit: self.limit,
-        }
-    }
 }
 
 #[derive(Debug, Clone)]

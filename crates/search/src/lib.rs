@@ -47,38 +47,6 @@ pub static INDEXES: Lazy<Vec<String>> = Lazy::new(|| {
     ]
 });
 
-/// Generic options container for the [search service][SearchService].
-pub trait SearchOptions {
-    /// If the request allows partial data to be used instead of
-    /// all data.
-    ///
-    /// ### Safety
-    /// This method can panic if [`seal()`](SearchOptions::seal) was called.
-    fn allow_partial(&mut self, allow: bool) -> &mut Self;
-
-    /// Adds an additional filter.
-    ///
-    /// ### Safety
-    /// This method can panic if [`seal()`](SearchOptions::seal) was called.
-    fn filter<I: Into<String>>(&mut self, filter: I) -> &mut Self;
-
-    /// Offset to use when querying objects.
-    ///
-    /// ### Safety
-    /// This method can panic if [`seal()`](SearchOptions::seal) was called.
-    fn offset(&mut self, offset: usize) -> &mut Self;
-
-    /// Amount of hits to return.
-    ///
-    /// ### Safety
-    /// This method can panic if [`seal()`](SearchOptions::seal) was called.
-    fn limit(&mut self, limit: usize) -> &mut Self;
-
-    /// Seals this mutable [`SearchOptions`] and returns an immutable,
-    /// owned value to this [`SearchOptions`].
-    fn seal(&mut self) -> Self;
-}
-
 /// Abstraction on how we can do full-text search as easy as possible. You should
 /// probably use charted's [search indexer](https://charts.noelware.org/docs/services/search-indexer)
 /// to allow real-time indexing over objects as the API server will not perform indexing
@@ -86,7 +54,7 @@ pub trait SearchOptions {
 #[async_trait]
 pub trait SearchService {
     /// Options type for searching objects.
-    type Options: SearchOptions + Send;
+    type Options: Send;
 
     /// Performs any self-initialization and returns the result of the
     /// initialization, if necessary.

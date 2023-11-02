@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_config::ldap::Config;
+use charted_config::sessions::ldap::Config;
 use eyre::{Context, Result};
 use ldap3::{Ldap, LdapConnAsync};
 use std::sync::Arc;

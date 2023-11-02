@@ -17,7 +17,10 @@
 #![allow(dead_code, unused_imports)]
 
 use charted_common::hashmap;
-use charted_config::{elasticsearch::AuthType, Config, SearchConfig};
+use charted_config::search::{
+    elasticsearch::{AuthType, Config},
+    SearchConfig,
+};
 use elasticsearch::{
     auth::Credentials,
     http::{
@@ -50,53 +53,53 @@ pub struct SearchOptions {
     limit: usize,
 }
 
-impl charted_search::SearchOptions for SearchOptions {
-    fn allow_partial(&mut self, allow: bool) -> &mut Self {
-        if self.sealed {
-            panic!("INTERNAL BUG: cannot apply filter due to this SearchOptions being sealed");
-        }
+// impl charted_search::SearchOptions for SearchOptions {
+//     fn allow_partial(&mut self, allow: bool) -> &mut Self {
+//         if self.sealed {
+//             panic!("INTERNAL BUG: cannot apply filter due to this SearchOptions being sealed");
+//         }
 
-        self.allow_partial_data = allow;
-        self
-    }
+//         self.allow_partial_data = allow;
+//         self
+//     }
 
-    fn filter<I: Into<String>>(&mut self, filter: I) -> &mut Self {
-        if self.sealed {
-            panic!("INTERNAL BUG: cannot apply filter due to this SearchOptions being sealed");
-        }
+//     fn filter<I: Into<String>>(&mut self, filter: I) -> &mut Self {
+//         if self.sealed {
+//             panic!("INTERNAL BUG: cannot apply filter due to this SearchOptions being sealed");
+//         }
 
-        self.filter.push(filter.into());
-        self
-    }
+//         self.filter.push(filter.into());
+//         self
+//     }
 
-    fn limit(&mut self, limit: usize) -> &mut Self {
-        if self.sealed {
-            panic!("INTERNAL BUG: cannot apply filter due to this SearchOptions being sealed");
-        }
+//     fn limit(&mut self, limit: usize) -> &mut Self {
+//         if self.sealed {
+//             panic!("INTERNAL BUG: cannot apply filter due to this SearchOptions being sealed");
+//         }
 
-        self.limit = limit;
-        self
-    }
+//         self.limit = limit;
+//         self
+//     }
 
-    fn offset(&mut self, offset: usize) -> &mut Self {
-        if self.sealed {
-            panic!("INTERNAL BUG: cannot apply filter due to this SearchOptions being sealed");
-        }
+//     fn offset(&mut self, offset: usize) -> &mut Self {
+//         if self.sealed {
+//             panic!("INTERNAL BUG: cannot apply filter due to this SearchOptions being sealed");
+//         }
 
-        self.offset = offset;
-        self
-    }
+//         self.offset = offset;
+//         self
+//     }
 
-    fn seal(&mut self) -> Self {
-        Self {
-            allow_partial_data: self.allow_partial_data,
-            filter: self.filter.clone(),
-            offset: self.offset,
-            sealed: true,
-            limit: self.limit,
-        }
-    }
-}
+//     fn seal(&mut self) -> Self {
+//         Self {
+//             allow_partial_data: self.allow_partial_data,
+//             filter: self.filter.clone(),
+//             offset: self.offset,
+//             sealed: true,
+//             limit: self.limit,
+//         }
+//     }
+// }
 
 #[derive(Debug, Clone)]
 pub struct ElasticsearchService {
@@ -104,7 +107,7 @@ pub struct ElasticsearchService {
 }
 
 impl ElasticsearchService {
-    pub fn new(_config: charted_config::elasticsearch::Config) -> Result<ElasticsearchService> {
+    pub fn new(_config: Config) -> Result<ElasticsearchService> {
         Err(eyre!("not implemented yet"))
     }
 }

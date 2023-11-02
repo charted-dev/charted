@@ -13,21 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if ! has nix_direnv_version || ! nix_direnv_version 2.3.0; then
-  source_url "https://raw.githubusercontent.com/nix-community/nix-direnv/2.3.0/direnvrc" "sha256-Dmd+j63L84wuzgyjITIfSxSD57Tx7v51DMxVZOsiUD8="
-fi
+load("//:build/rust.bzl", "rust_project")
 
-# make .direnv if it doesn't exist
-mkdir -p "$(direnv_layout_dir)"
+exports_files(["Cargo.toml"])
 
-watch_file shell.nix
-watch_file flake.nix # as outputs can change at anytime
-watch_file flake.lock
-
-# we need to watch the rust-toolchain.toml file so if any edits occur,
-# then direnv can react to it and change the environment.
-watch_file rust-toolchain.toml
-
-# try to use flakes, if it fails use normal nix (ie. shell.nix)
-use flake || use nix
-eval "$shellHook"
+rust_project(
+    name = "cache_worker",
+    proc_macro_deps = ["@crate_index//:async-trait"],
+    deps = [
+        "//crates/common:charted_common",
+        "//crates/config:charted_config",
+        "//crates/redis:charted_redis",
+        "@crate_index//:eyre",
+        "@crate_index//:moka",
+        "@crate_index//:redis",
+        "@crate_index//:serde",
+        "@crate_index//:serde_json",
+        "@crate_index//:tracing",
+    ],
+)
