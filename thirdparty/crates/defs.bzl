@@ -473,7 +473,7 @@ _NORMAL_DEPENDENCIES = {
     "crates/search/meilisearch": {
         _COMMON_CONDITION: {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
-            "meilisearch-sdk": "@crate_index__meilisearch-sdk-0.24.2//:meilisearch_sdk",
+            "meilisearch-sdk": "@crate_index__meilisearch-sdk-0.24.3//:meilisearch_sdk",
             "serde": "@crate_index__serde-1.0.190//:serde",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
@@ -4024,22 +4024,22 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__meilisearch-index-setting-macro-0.24.2",
-        sha256 = "b6e019768c1720f9820e94e8ec527e492be150eb0a5deeec28d85af7a5bbbe6a",
+        name = "crate_index__meilisearch-index-setting-macro-0.24.3",
+        sha256 = "b1f2124b55b9cb28e6a08b28854f4e834a51333cbdc2f72935f401efa686c13c",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/meilisearch-index-setting-macro/0.24.2/download"],
-        strip_prefix = "meilisearch-index-setting-macro-0.24.2",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.meilisearch-index-setting-macro-0.24.2.bazel"),
+        urls = ["https://crates.io/api/v1/crates/meilisearch-index-setting-macro/0.24.3/download"],
+        strip_prefix = "meilisearch-index-setting-macro-0.24.3",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.meilisearch-index-setting-macro-0.24.3.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__meilisearch-sdk-0.24.2",
-        sha256 = "639a940bc77db5398000cb184c543106a823677f474f2f195251d2bdd373b6de",
+        name = "crate_index__meilisearch-sdk-0.24.3",
+        sha256 = "2257ea8ed24b079c21570f473e58cccc3de23b46cee331fc513fccdc3f1ae5a1",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/meilisearch-sdk/0.24.2/download"],
-        strip_prefix = "meilisearch-sdk-0.24.2",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.meilisearch-sdk-0.24.2.bazel"),
+        urls = ["https://crates.io/api/v1/crates/meilisearch-sdk/0.24.3/download"],
+        strip_prefix = "meilisearch-sdk-0.24.3",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.meilisearch-sdk-0.24.3.bazel"),
     )
 
     maybe(
