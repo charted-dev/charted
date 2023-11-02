@@ -231,7 +231,7 @@ alias(
 
 alias(
     name = "meilisearch-sdk",
-    actual = "@crate_index__meilisearch-sdk-0.24.2//:meilisearch_sdk",
+    actual = "@crate_index__meilisearch-sdk-0.24.3//:meilisearch_sdk",
     tags = ["manual"],
 )
 
