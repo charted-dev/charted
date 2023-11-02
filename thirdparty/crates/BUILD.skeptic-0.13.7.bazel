@@ -45,7 +45,7 @@ rust_library(
         "@crate_index__error-chain-0.12.4//:error_chain",
         "@crate_index__glob-0.3.1//:glob",
         "@crate_index__pulldown-cmark-0.9.3//:pulldown_cmark",
-        "@crate_index__tempfile-3.8.0//:tempfile",
+        "@crate_index__tempfile-3.8.1//:tempfile",
         "@crate_index__walkdir-2.4.0//:walkdir",
     ],
 )
