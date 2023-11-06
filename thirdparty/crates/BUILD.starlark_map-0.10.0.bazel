@@ -46,7 +46,7 @@ rust_library(
         "@crate_index__equivalent-1.0.1//:equivalent",
         "@crate_index__fnv-1.0.7//:fnv",
         "@crate_index__hashbrown-0.12.3//:hashbrown",
-        "@crate_index__serde-1.0.190//:serde",
+        "@crate_index__serde-1.0.191//:serde",
         "@crate_index__starlark_map-0.10.0//:build_script_build",
     ],
 )
