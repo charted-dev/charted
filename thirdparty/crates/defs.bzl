@@ -641,7 +641,7 @@ _NORMAL_DEPENDENCIES = {
             "simple_tables": "@crate_index__simple_tables-0.3.0//:simple_tables",
             "starlark": "@crate_index__starlark-0.10.0//:starlark",
             "tokio": "@crate_index__tokio-1.33.0//:tokio",
-            "toml": "@crate_index__toml-0.8.6//:toml",
+            "toml": "@crate_index__toml-0.8.8//:toml",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
             "which": "@crate_index__which-5.0.0//:which",
@@ -6271,12 +6271,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__toml-0.8.6",
-        sha256 = "8ff9e3abce27ee2c9a37f9ad37238c1bdd4e789c84ba37df76aa4d528f5072cc",
+        name = "crate_index__toml-0.8.8",
+        sha256 = "a1a195ec8c9da26928f773888e0742ca3ca1040c6cd859c919c9f59c1954ab35",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/toml/0.8.6/download"],
-        strip_prefix = "toml-0.8.6",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.toml-0.8.6.bazel"),
+        urls = ["https://crates.io/api/v1/crates/toml/0.8.8/download"],
+        strip_prefix = "toml-0.8.8",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.toml-0.8.8.bazel"),
     )
 
     maybe(
@@ -6291,12 +6291,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__toml_edit-0.20.7",
-        sha256 = "70f427fce4d84c72b5b732388bf4a9f4531b53f74e2887e3ecb2481f68f66d81",
+        name = "crate_index__toml_edit-0.21.0",
+        sha256 = "d34d383cd00a163b4a5b85053df514d45bc330f6de7737edfe0a93311d1eaa03",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/toml_edit/0.20.7/download"],
-        strip_prefix = "toml_edit-0.20.7",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.toml_edit-0.20.7.bazel"),
+        urls = ["https://crates.io/api/v1/crates/toml_edit/0.21.0/download"],
+        strip_prefix = "toml_edit-0.21.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.toml_edit-0.21.0.bazel"),
     )
 
     maybe(

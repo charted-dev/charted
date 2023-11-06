@@ -29,7 +29,8 @@ rust_library(
         ],
     ),
     crate_features = [
-        "default",
+        "display",
+        "parse",
         "serde",
     ],
     crate_root = "src/lib.rs",
@@ -42,7 +43,7 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.20.7",
+    version = "0.21.0",
     deps = [
         "@crate_index__indexmap-2.0.0//:indexmap",
         "@crate_index__serde-1.0.191//:serde",

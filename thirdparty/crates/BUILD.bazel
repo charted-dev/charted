@@ -489,7 +489,7 @@ alias(
 
 alias(
     name = "toml",
-    actual = "@crate_index__toml-0.8.6//:toml",
+    actual = "@crate_index__toml-0.8.8//:toml",
     tags = ["manual"],
 )
 
