@@ -52,7 +52,7 @@ rust_library(
         "@crate_index__aws-sdk-s3-0.34.0//:aws_sdk_s3",
         "@crate_index__bytes-1.5.0//:bytes",
         "@crate_index__remi-core-0.4.2//:remi_core",
-        "@crate_index__serde-1.0.190//:serde",
+        "@crate_index__serde-1.0.191//:serde",
         "@crate_index__tokio-1.33.0//:tokio",
     ],
 )

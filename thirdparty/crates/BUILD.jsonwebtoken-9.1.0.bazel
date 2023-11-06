@@ -49,7 +49,7 @@ rust_library(
         "@crate_index__base64-0.21.5//:base64",
         "@crate_index__pem-3.0.2//:pem",
         "@crate_index__ring-0.17.5//:ring",
-        "@crate_index__serde-1.0.190//:serde",
+        "@crate_index__serde-1.0.191//:serde",
         "@crate_index__serde_json-1.0.108//:serde_json",
         "@crate_index__simple_asn1-0.6.2//:simple_asn1",
     ],
