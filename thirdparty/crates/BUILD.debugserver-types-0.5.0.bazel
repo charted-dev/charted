@@ -43,7 +43,7 @@ rust_library(
     ],
     version = "0.5.0",
     deps = [
-        "@crate_index__serde-1.0.191//:serde",
+        "@crate_index__serde-1.0.192//:serde",
         "@crate_index__serde_json-1.0.108//:serde_json",
     ],
 )
