@@ -53,7 +53,7 @@
         "@augu/eslint-config": "4.0.1",
         "@augu/tsconfig": "1.1.1",
         "@intlify/unplugin-vue-i18n": "1.5.0",
-        "@types/luxon": "3.3.3",
+        "@types/luxon": "3.3.4",
         "@types/node": "20.8.10",
         "@typescript-eslint/eslint-plugin": "6.10.0",
         "@typescript-eslint/parser": "6.10.0",
