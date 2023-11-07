@@ -48,7 +48,7 @@ pub struct RedisClient {
 
 impl Debug for RedisClient {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("RedisClient").finish_non_exhaustive()
+        f.debug_struct("RedisClient").finish()
     }
 }
 
@@ -119,7 +119,7 @@ impl RedisClient {
     /// fast-path to using the main `client` instance. Otherwise, it will try to
     /// call the master of the sentinel.
     pub fn master(&mut self) -> Result<Client> {
-        if let Some(client) = self.client.clone() {
+        if let Some(client) = self.client() {
             return Ok(client);
         }
 
@@ -143,7 +143,7 @@ impl RedisClient {
     ///
     /// This will panic if grabbing the [`Sentinel`]'s mutex was poisoned.
     pub fn replica(&mut self) -> Result<Client> {
-        if let Some(client) = self.client.clone() {
+        if let Some(client) = self.client() {
             return Ok(client);
         }
 

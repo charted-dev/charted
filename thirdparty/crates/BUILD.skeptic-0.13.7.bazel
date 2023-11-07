@@ -6,16 +6,16 @@
 #     bazel run @//thirdparty:crate_index
 ###############################################################################
 
-load("@rules_rust//rust:defs.bzl", "rust_proc_macro")
+load("@rules_rust//rust:defs.bzl", "rust_library")
 
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # MIT
+#     "TODO",  # MIT/Apache-2.0
 # ])
 
-rust_proc_macro(
-    name = "meilisearch_index_setting_macro",
+rust_library(
+    name = "skeptic",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -29,20 +29,23 @@ rust_proc_macro(
         ],
     ),
     crate_root = "src/lib.rs",
-    edition = "2021",
+    edition = "2018",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=meilisearch-index-setting-macro",
+        "crate-name=skeptic",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.24.2",
+    version = "0.13.7",
     deps = [
-        "@crate_index__convert_case-0.6.0//:convert_case",
-        "@crate_index__proc-macro2-1.0.69//:proc_macro2",
-        "@crate_index__quote-1.0.33//:quote",
-        "@crate_index__syn-1.0.109//:syn",
+        "@crate_index__bytecount-0.6.7//:bytecount",
+        "@crate_index__cargo_metadata-0.14.2//:cargo_metadata",
+        "@crate_index__error-chain-0.12.4//:error_chain",
+        "@crate_index__glob-0.3.1//:glob",
+        "@crate_index__pulldown-cmark-0.9.3//:pulldown_cmark",
+        "@crate_index__tempfile-3.8.1//:tempfile",
+        "@crate_index__walkdir-2.4.0//:walkdir",
     ],
 )

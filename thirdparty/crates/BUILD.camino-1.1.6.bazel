@@ -16,7 +16,7 @@ package(default_visibility = ["//visibility:public"])
 # ])
 
 rust_library(
-    name = "serde",
+    name = "camino",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -29,44 +29,26 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "alloc",
-        "default",
-        "derive",
-        "rc",
-        "serde_derive",
-        "std",
-    ],
     crate_root = "src/lib.rs",
     edition = "2018",
-    proc_macro_deps = [
-        "@crate_index__serde_derive-1.0.190//:serde_derive",
-    ],
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=serde",
+        "crate-name=camino",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "1.0.190",
+    version = "1.1.6",
     deps = [
-        "@crate_index__serde-1.0.190//:build_script_build",
+        "@crate_index__camino-1.1.6//:build_script_build",
+        "@crate_index__serde-1.0.191//:serde",
     ],
 )
 
 cargo_build_script(
-    name = "serde_build_script",
+    name = "camino_build_script",
     srcs = glob(["**/*.rs"]),
-    crate_features = [
-        "alloc",
-        "default",
-        "derive",
-        "rc",
-        "serde_derive",
-        "std",
-    ],
     crate_name = "build_script_build",
     crate_root = "build.rs",
     data = glob(
@@ -86,17 +68,17 @@ cargo_build_script(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=serde",
+        "crate-name=camino",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "1.0.190",
+    version = "1.1.6",
     visibility = ["//visibility:private"],
 )
 
 alias(
     name = "build_script_build",
-    actual = "serde_build_script",
+    actual = "camino_build_script",
     tags = ["manual"],
 )

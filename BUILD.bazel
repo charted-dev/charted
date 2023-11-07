@@ -21,6 +21,9 @@ exports_files([
     # used for codegen
     "assets/openapi.json",
 
+    # used as the core Cargo configuration in crates_vendor
+    ".cargo/config.toml",
+
     # for nixpkgs_rust_configure to use the toolchain
     # we provided.
     "rust-toolchain.toml",

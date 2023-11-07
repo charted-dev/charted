@@ -23,7 +23,7 @@ use crate::{
 };
 use axum::{extract::State, handler::Handler, http::StatusCode, routing, Extension, Router};
 use charted_common::models::{entities::User, payloads::UserLoginPayload, Name};
-use charted_config::SessionBackend;
+use charted_config::sessions::SessionBackend;
 use charted_openapi::generate_response_schema;
 use charted_sessions::{Session, SessionProvider};
 use serde_json::json;

@@ -11,11 +11,11 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # MIT OR Apache-2.0
+#     "TODO",  # MIT
 # ])
 
 rust_library(
-    name = "toml_edit",
+    name = "cargo_metadata",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -28,26 +28,22 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "default",
-        "serde",
-    ],
     crate_root = "src/lib.rs",
-    edition = "2021",
+    edition = "2018",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=toml_edit",
+        "crate-name=cargo_metadata",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.20.7",
+    version = "0.14.2",
     deps = [
-        "@crate_index__indexmap-2.0.0//:indexmap",
-        "@crate_index__serde-1.0.190//:serde",
-        "@crate_index__serde_spanned-0.6.4//:serde_spanned",
-        "@crate_index__toml_datetime-0.6.5//:toml_datetime",
-        "@crate_index__winnow-0.5.15//:winnow",
+        "@crate_index__camino-1.1.6//:camino",
+        "@crate_index__cargo-platform-0.1.4//:cargo_platform",
+        "@crate_index__semver-1.0.20//:semver",
+        "@crate_index__serde-1.0.191//:serde",
+        "@crate_index__serde_json-1.0.108//:serde_json",
     ],
 )

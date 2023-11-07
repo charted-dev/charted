@@ -16,6 +16,7 @@
 use super::DbController;
 use crate::impl_patch_for;
 use async_trait::async_trait;
+use charted_cache_worker::{CacheKey, CacheWorker, DynamicCacheWorker};
 use charted_common::{
     models::{
         entities::User,
@@ -25,17 +26,23 @@ use charted_common::{
     server::hash_password,
 };
 use eyre::{Context, Result};
-use sqlx::PgPool;
-use tracing::{error, instrument};
+use sqlx::{query_as, PgPool, Postgres};
+use std::sync::Arc;
+use tokio::sync::Mutex;
+use tracing::{error, instrument, warn};
 
 #[derive(Debug, Clone)]
 pub struct UserDatabaseController {
+    worker: Arc<Mutex<DynamicCacheWorker>>,
     pool: PgPool,
 }
 
 impl UserDatabaseController {
-    pub fn new(pool: PgPool) -> UserDatabaseController {
-        UserDatabaseController { pool }
+    pub fn new(worker: DynamicCacheWorker, pool: PgPool) -> UserDatabaseController {
+        UserDatabaseController {
+            worker: Arc::new(Mutex::new(worker)),
+            pool,
+        }
     }
 }
 
@@ -47,12 +54,25 @@ impl DbController for UserDatabaseController {
 
     #[instrument(name = "charted.db.users.get", skip(self))]
     async fn get(&self, id: u64) -> Result<Option<Self::Entity>> {
-        match sqlx::query_as::<sqlx::Postgres, User>("select users.* from users where id = $1;")
-            .bind(i64::try_from(id).unwrap())
-            .fetch_optional(&self.pool)
-            .await
-        {
-            Ok(opt) => Ok(opt),
+        let mut cache = self.worker.lock().await;
+        let key = CacheKey::user(id.try_into().unwrap());
+
+        if let Some(cached) = cache.get(key.clone()).await? {
+            return Ok(Some(cached));
+        }
+
+        let query =
+            query_as::<Postgres, User>("select users.* from users where id = $1;").bind::<i64>(id.try_into().unwrap());
+
+        match query.fetch_optional(&self.pool).await {
+            Ok(Some(user)) => {
+                cache.put(key.clone(), user.clone()).await?;
+                warn!(user.id, cache.key = %key, "cache hit miss");
+
+                Ok(Some(user))
+            }
+
+            Ok(None) => Ok(None),
             Err(e) => {
                 error!(user.id = id, error = %e, "unable to query user");
                 sentry::capture_error(&e);
@@ -64,8 +84,22 @@ impl DbController for UserDatabaseController {
 
     #[instrument(name = "charted.db.users.get_nos", skip(self))]
     async fn get_by_nos(&self, nos: NameOrSnowflake) -> Result<Option<Self::Entity>> {
+        let mut cache = self.worker.lock().await;
+
         match nos {
-            NameOrSnowflake::Snowflake(uid) => self.get(uid).await,
+            NameOrSnowflake::Snowflake(uid) => {
+                let key = CacheKey::user(uid.try_into().unwrap());
+                if let Some(cached) = cache.get(key).await? {
+                    return Ok(Some(cached));
+                }
+
+                self.get(uid).await
+            }
+
+            // we can't do cache calucations on Names since we don't need
+            // duplication, but maybe a "pointer" to their ID?
+            //
+            // TODO(@auguwu): determine if pointers (point name -> id) to a resource is acceptable
             NameOrSnowflake::Name(ref name) => {
                 match sqlx::query_as::<sqlx::Postgres, User>("select users.* from users where username = $1;")
                     .bind(name.to_string())
@@ -188,6 +222,10 @@ impl DbController for UserDatabaseController {
 
     #[instrument(name = "charted.db.users.delete", skip(self))]
     async fn delete(&self, id: u64) -> Result<()> {
+        // drop the cached value from cache so we don't keep it around
+        let mut cache = self.worker.lock().await;
+        cache.delete(CacheKey::user(id.try_into().unwrap())).await?;
+
         sqlx::query("delete from users where id = $1;")
             .bind(i64::try_from(id).unwrap())
             .execute(&self.pool)

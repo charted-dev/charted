@@ -135,7 +135,7 @@ alias(
 
 alias(
     name = "dyn-clone",
-    actual = "@crate_index__dyn-clone-1.0.14//:dyn_clone",
+    actual = "@crate_index__dyn-clone-1.0.16//:dyn_clone",
     tags = ["manual"],
 )
 
@@ -231,7 +231,7 @@ alias(
 
 alias(
     name = "meilisearch-sdk",
-    actual = "@crate_index__meilisearch-sdk-0.24.2//:meilisearch_sdk",
+    actual = "@crate_index__meilisearch-sdk-0.24.3//:meilisearch_sdk",
     tags = ["manual"],
 )
 
@@ -250,6 +250,12 @@ alias(
 alias(
     name = "mime",
     actual = "@crate_index__mime-0.3.17//:mime",
+    tags = ["manual"],
+)
+
+alias(
+    name = "moka",
+    actual = "@crate_index__moka-0.12.1//:moka",
     tags = ["manual"],
 )
 
@@ -393,7 +399,7 @@ alias(
 
 alias(
     name = "serde",
-    actual = "@crate_index__serde-1.0.190//:serde",
+    actual = "@crate_index__serde-1.0.191//:serde",
     tags = ["manual"],
 )
 
@@ -441,7 +447,7 @@ alias(
 
 alias(
     name = "syn",
-    actual = "@crate_index__syn-2.0.38//:syn",
+    actual = "@crate_index__syn-2.0.39//:syn",
     tags = ["manual"],
 )
 
@@ -483,7 +489,7 @@ alias(
 
 alias(
     name = "toml",
-    actual = "@crate_index__toml-0.8.6//:toml",
+    actual = "@crate_index__toml-0.8.8//:toml",
     tags = ["manual"],
 )
 

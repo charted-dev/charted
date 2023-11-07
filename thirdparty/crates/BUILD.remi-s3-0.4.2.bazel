@@ -54,7 +54,7 @@ rust_library(
         "@crate_index__bytes-1.5.0//:bytes",
         "@crate_index__log-0.4.20//:log",
         "@crate_index__remi-core-0.4.2//:remi_core",
-        "@crate_index__serde-1.0.190//:serde",
+        "@crate_index__serde-1.0.191//:serde",
         "@crate_index__tokio-1.33.0//:tokio",
     ],
 )

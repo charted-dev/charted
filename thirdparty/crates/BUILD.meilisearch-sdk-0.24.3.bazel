@@ -36,7 +36,7 @@ rust_library(
     edition = "2018",
     proc_macro_deps = [
         "@crate_index__async-trait-0.1.74//:async_trait",
-        "@crate_index__meilisearch-index-setting-macro-0.24.2//:meilisearch_index_setting_macro",
+        "@crate_index__meilisearch-index-setting-macro-0.24.3//:meilisearch_index_setting_macro",
     ],
     rustc_flags = ["--cap-lints=allow"],
     tags = [
@@ -46,13 +46,13 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.24.2",
+    version = "0.24.3",
     deps = [
         "@crate_index__either-1.9.0//:either",
         "@crate_index__iso8601-0.6.1//:iso8601",
         "@crate_index__jsonwebtoken-8.3.0//:jsonwebtoken",
         "@crate_index__log-0.4.20//:log",
-        "@crate_index__serde-1.0.190//:serde",
+        "@crate_index__serde-1.0.191//:serde",
         "@crate_index__serde_json-1.0.108//:serde_json",
         "@crate_index__thiserror-1.0.50//:thiserror",
         "@crate_index__time-0.3.28//:time",

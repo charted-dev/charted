@@ -31,12 +31,12 @@ color-eyre = "0.6.2"
 eyre = "0.6.8"
 itertools = "0.11.0"
 simple_tables = "0.3.0"
-serde = { version = "1.0.190", features = ["derive"] }
+serde = { version = "1.0.191", features = ["derive"] }
 starlark = { git = "https://github.com/facebookexperimental/starlark-rust", rev = "a52808f034503bcee9c74354ce1e092cbf63841d" }
 tokio = { version = "1.33.0", features = ["full"] }
 tracing = "0.1.40"
 tracing-subscriber = "0.3.17"
 which = "5.0.0"
 promptly = "0.3.1"
-toml = "0.8.6"
+toml = "0.8.8"
 serde_starlark = "0.1.14"

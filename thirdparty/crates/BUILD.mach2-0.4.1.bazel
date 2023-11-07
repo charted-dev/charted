@@ -11,11 +11,11 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # MIT OR Apache-2.0
+#     "TODO",  # BSD-2-Clause OR MIT OR Apache-2.0
 # ])
 
 rust_library(
-    name = "toml",
+    name = "mach2",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -30,24 +30,25 @@ rust_library(
     ),
     crate_features = [
         "default",
-        "display",
-        "parse",
     ],
     crate_root = "src/lib.rs",
-    edition = "2021",
+    edition = "2015",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=toml",
+        "crate-name=mach2",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.8.6",
-    deps = [
-        "@crate_index__serde-1.0.190//:serde",
-        "@crate_index__serde_spanned-0.6.4//:serde_spanned",
-        "@crate_index__toml_datetime-0.6.5//:toml_datetime",
-        "@crate_index__toml_edit-0.20.7//:toml_edit",
-    ],
+    version = "0.4.1",
+    deps = select({
+        "@rules_rust//rust/platform:aarch64-apple-darwin": [
+            "@crate_index__libc-0.2.149//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
+        ],
+        "@rules_rust//rust/platform:x86_64-apple-darwin": [
+            "@crate_index__libc-0.2.149//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
+        ],
+        "//conditions:default": [],
+    }),
 )

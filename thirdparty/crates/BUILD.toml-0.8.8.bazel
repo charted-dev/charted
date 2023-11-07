@@ -15,7 +15,7 @@ package(default_visibility = ["//visibility:public"])
 # ])
 
 rust_library(
-    name = "dyn_clone",
+    name = "toml",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -28,15 +28,26 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
+    crate_features = [
+        "default",
+        "display",
+        "parse",
+    ],
     crate_root = "src/lib.rs",
-    edition = "2018",
+    edition = "2021",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=dyn-clone",
+        "crate-name=toml",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "1.0.14",
+    version = "0.8.8",
+    deps = [
+        "@crate_index__serde-1.0.191//:serde",
+        "@crate_index__serde_spanned-0.6.4//:serde_spanned",
+        "@crate_index__toml_datetime-0.6.5//:toml_datetime",
+        "@crate_index__toml_edit-0.21.0//:toml_edit",
+    ],
 )
