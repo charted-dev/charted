@@ -16,9 +16,10 @@
 use super::BootstrapPhase;
 use async_trait::async_trait;
 use charted_config::{Config, ConfigExt};
-use charted_logging::server::ServerLayer;
+use charted_logging::{logstash::LogstashLayer, server::ServerLayer};
 use eyre::Result;
 use sentry_tracing::SentryLayer;
+use std::net::TcpStream;
 use tracing::metadata::LevelFilter;
 use tracing_subscriber::{prelude::*, registry};
 
@@ -31,6 +32,12 @@ impl BootstrapPhase for SetupLoggingPhase {
         registry()
             .with(ServerLayer::default().with_filter(LevelFilter::from_level(config.logging.level)))
             .with(config.sentry_dsn().ok().and_then(|x| x.map(|_| SentryLayer::default())))
+            .with(config.logging.logstash_connect_uri.as_ref().map(|uri| {
+                let stream = TcpStream::connect(uri)
+                    .unwrap_or_else(|e| panic!("unable to connect to a TCP stream at address {uri}: {e}"));
+
+                LogstashLayer::new(stream)
+            }))
             .try_init()?;
 
         Ok(())
