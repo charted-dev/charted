@@ -16,17 +16,8 @@
 -->
 
 <script setup lang="ts">
-import type { responses, ApiResponse } from '@ncharts/types';
-import { ApiResponseError } from '~/utils/errors';
-import { useSessionStore } from '~/stores/session';
-import { createZodPlugin } from '@formkit/zod';
-import { hasOwnProperty } from '@noelware/utils';
-import { FormKit } from '@formkit/vue';
-import { name } from '~/utils/zod';
-import { z } from 'zod';
+import { ApiResponse, responses } from '@ncharts/types';
 
-// first -- we need to include stuff to check if we need to redirect
-// the user if we are logged in already
 const router = useRouter();
 const route = useRoute();
 const store = useSessionStore();
@@ -36,13 +27,22 @@ const next = hasOwnProperty(route.query, 'next')
         : route.query.next
     : '/';
 
+if (store.isAvailable[0]) {
+    await router.push(next as string);
+}
+
+const isSignupComputing = ref(false);
+const res = await newRequest<ApiResponse<responses.main.Features>>('/api/features', { cache: 'only-if-cached' });
+if (!res.success) throw new Error('should always succeed');
+</script>
+
+<!--
 // if a session is already available, then just go to `next`
 if (store.isAvailable[0]) {
     router.push(next as any);
 }
 
 const isFormComputing = ref(false);
-const toast = useToast();
 const res = await newRequest<ApiResponse<responses.main.Features>>('/api/features', {
     cache: 'only-if-cached'
 });
@@ -75,16 +75,15 @@ const [zodPlugin, submit] = createZodPlugin(
             if (
                 res.errors.length === 1 &&
                 res.errors[0].code === 'UNKNOWN_USER' &&
-                res.errors[0].message === 'User was not found'
+                res.errors[0].message.includes('User not found')
             ) {
-                toast.warning(`User @${username} was not found! Click the 'Sign Up' button to sign up.`);
-                return;
+                // TODO(@auguwu): replace with toast
+
+                console.log(`user @${username} was not found, redirecting to /signup`);
+                await router.push('/signup');
             }
 
-            toast.error('Unexpected API error occurred, look in console for more information');
-            console.log(res.errors);
-
-            return;
+            throw new ApiResponseError(res.errors);
         }
 
         const { access_token, refresh_token, user_id } = res.data;
@@ -101,7 +100,6 @@ const [zodPlugin, submit] = createZodPlugin(
             throw new ApiResponseError(res2.errors);
         }
 
-        toast.notice(`Hello, @${res2.data.username}! (${user_id})`, { duration: 2000 });
         store.$patch({
             session: {
                 refresh_token,
@@ -143,4 +141,27 @@ const [zodPlugin, submit] = createZodPlugin(
             </FormKit>
         </div>
     </div>
+</template>
+
+-->
+
+<template>
+    <div
+        v-if="!res.data.registrations"
+        class="h-screen justify-center items-center flex flex-col space-y-1.5 container mx-auto"
+    >
+        <img
+            alt="Noelware"
+            src="https://cdn.floofy.dev/images/trans.png"
+            draggable="false"
+            class="rounded-lg w-[72px] h-[72px]"
+        />
+
+        <h2 class="font-serif font-semibold text-xl">Registrations are disabled!</h2>
+        <h3 class="text-lg">
+            Please contact the server administrator to create your account as registrations are disabled
+        </h3>
+    </div>
+
+    <div v-else class="h-screen justify-center items-center flex flex-col space-y-1.5 container mx-auto"></div>
 </template>

@@ -18,6 +18,44 @@ load("//:build/manifests.bzl", "CARGO_MANIFESTS")
 
 crates_vendor(
     name = "crate_index",
+
+    # annotations = {
+    #     "curl-sys": [crate.annotation(
+    #         build_script_data = [
+    #             {
+    #                 "@org_noelware_charted_server//build/settings:nixos": "@openssl-static//:include",
+    #             },
+    #         ],
+    #         build_script_env = {
+    #             "DEP_OPENSSL_INCLUDE": {
+    #                 "@org_noelware_charted_server//build/settings:nixos": "../openssl-static/include",
+    #             },
+    #         },
+    #     )],
+    #     "openssl-sys": [crate.annotation(
+    #         build_script_env = {
+    #             "OPENSSL_INCLUDE_DIR": {
+    #                 "@org_noelware_charted_server//build/settings:nixos": "../openssl-static/include",
+    #             },
+    #             "OPENSSL_LIB_DIR": {
+    #                 "@org_noelware_charted_server//build/settings:nixos": "../openssl-static/lib",
+    #             },
+    #             "OPENSSL_STATIC": {
+    #                 "@org_noelware_charted_server//build/settings:nixos": "1",
+    #             }
+    #         },
+    #         data = [
+    #             {
+    #                 "@org_noelware_charted_server//build/settings:nixos": "@openssl-static//:lib",
+    #             },
+    #         ],
+    #         rustc_flags = [
+    #             {
+    #                 "@org_noelware_charted_server//build/settings:nixos": "-Lexternal/openssl-static/lib",
+    #             },
+    #         ],
+    #     )],
+    # },
     cargo_lockfile = "//:Cargo.lock",
 
     # we only want to target what we support so far:

@@ -15,6 +15,15 @@
  * limitations under the License.
  */
 
+import { isBrowser } from '@noelware/utils';
+
+const STORE = 'hoshi:user:prefs' as const;
+
+/**
+ * Type alias of a given Hoshi theme
+ */
+export type Theme = 'dark' | 'light' | 'system';
+
 /**
  * Represents the preferences that a user can set once they're logged in. This
  * is kept in the browser.
@@ -27,8 +36,67 @@ export interface Preferences {
     disableAnimations: boolean | 'auto';
 
     /**
+     * Controls all toast sensitivity, read more in the Radix Vue docs:
+     * https://www.radix-vue.com/components/toast.html#sensitivity
+     */
+    toastType: 'foreground' | 'background';
+
+    /**
      * Preferred theme. If `'system'` is used, then it'll use the
      * browser's preferred theme.
      */
-    theme: 'dark' | 'light' | 'system';
+    theme: Theme;
+}
+
+export const usePreferencesStore = defineStore(STORE, () => {
+    // the theme is always present in `charted:color-scheme` since index.html does the
+    // look-up automatically.
+    const theme = ref(useLocalStorage<Theme>('charted:color-scheme', 'system', { writeDefaults: true }));
+    const prefs = ref(
+        useLocalStorage<Omit<Preferences, 'theme'>>(
+            STORE,
+            {
+                disableAnimations: 'auto',
+                toastType: 'foreground'
+            },
+            { deep: true, writeDefaults: true }
+        )
+    );
+
+    const isAnimationDisabled = computed(() => {
+        // assume that if we're in SSR environment (which we never are),
+        // then disable animations anyway
+        if (!isBrowser) return false;
+
+        if (typeof prefs.value.disableAnimations === 'string' && prefs.value.disableAnimations === 'auto') {
+            // if there is no preference, just enable it by default
+            if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+                return false;
+            }
+
+            const mql = window.matchMedia('(prefers-reduced-motion: reduced)');
+            return mql.matches;
+        }
+
+        // if `disableAnimations` is a boolean, then rely on that instead
+        if (typeof prefs.value.disableAnimations === 'boolean') {
+            return prefs.value.disableAnimations;
+        }
+
+        throw new Error(
+            `Expected preference \`disableAnimations\` to be a boolean (true/false) or 'auto', received: ${JSON.stringify(
+                prefs.value.disableAnimations
+            )}`
+        );
+    });
+
+    return {
+        isAnimationDisabled,
+        preferences: prefs,
+        theme
+    };
+});
+
+if (import.meta.hot) {
+    import.meta.hot.accept(acceptHMRUpdate(usePreferencesStore, import.meta.hot));
 }

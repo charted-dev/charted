@@ -17,29 +17,26 @@
 
 import { ofetch, type FetchOptions } from 'ofetch';
 
-const _clientRef = ref<ReturnType<(typeof ofetch)['create']>>(
-    ofetch.create({
-        ignoreResponseError: true, // we will handle it on our own
-        mode: 'same-origin',
-        timeout: 5000, // timeout after 5 seconds
-        responseType: 'json',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-);
+const client: ReturnType<(typeof ofetch)['create']> = ofetch.create({
+    ignoreResponseError: true, // we will handle it on our own
+    mode: 'same-origin',
+    timeout: 5000, // timeout after 5 seconds
+    responseType: 'json',
+    headers: {
+        'Content-Type': 'application/json'
+    }
+});
 
 /**
- * Composable to return an ofetch instance that resolves to the
- * options that Hoshi needs.
+ * Sends a request to any HTTP service out there using `ofetch`
+ * @param request Request information
+ * @param options {@link FetchOptions} to use
+ * @returns A {@link Promise} that resolves to the given HTTP response
  */
-export const useFetch = () => _clientRef.value;
-
 export function newRequest<T = any, RT extends NonNullable<FetchOptions['responseType']> = 'json'>(
     request: RequestInfo,
     options?: FetchOptions<RT>
 ) {
-    const fetch = useFetch();
     const opts = options || {};
     const headers = new Headers(hasOwnProperty(opts, 'headers') ? opts.headers! : {});
     const store = useSessionStore();
@@ -53,7 +50,7 @@ export function newRequest<T = any, RT extends NonNullable<FetchOptions['respons
         retries = false; // disable retries
     }
 
-    return fetch<T, RT>(request, {
+    return client<T, RT>(request, {
         headers,
         retry: retries,
         ...options

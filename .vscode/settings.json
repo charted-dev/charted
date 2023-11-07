@@ -4,7 +4,11 @@
     "editor.formatOnPaste": true,
     "rust-analyzer.check.command": "clippy",
     "rust-analyzer.showUnlinkedFileNotification": false,
-    "tailwindCSS.experimental.configFile": "web/tailwind.config.js",
+    "tailwindCSS.experimental.configFile": "web/tailwind.config.ts",
+    "tailwindCSS.experimental.classRegex": [
+        ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+        ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+    ],
     "rust-analyzer.cargo.extraEnv": {
         // Enable --cfg tokio_unstable with rust-analyzer so we can
         // use Tokio unstable features.

@@ -30,6 +30,7 @@ make_config! {
 
         /// Host port to bind towards. This flag supports using the common `PORT` environment
         /// variable.
+        #[serde(default = "port")]
         pub port: u16 {
             default: port();
             env_value: var!("CHARTED_SERVER_PORT", to: u16, or_else: var!("PORT", to: u16, or_else: port()));

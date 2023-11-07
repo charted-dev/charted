@@ -16,7 +16,10 @@
 -->
 
 <script setup lang="ts">
+import { ToastDescription, ToastProvider, ToastRoot, ToastTitle, ToastViewport } from 'radix-vue';
+import { useRandomSplash } from '~/composables/useSplashText';
 import ErrorBoundary from './components/ErrorBoundary.vue';
+import { isVNode } from 'vue';
 
 const router = useRouter();
 const route = router.currentRoute.value.fullPath;
@@ -53,4 +56,5 @@ useSeoMeta({
             </Suspense>
         </ErrorBoundary>
     </RouterView>
+    <Toaster />
 </template>

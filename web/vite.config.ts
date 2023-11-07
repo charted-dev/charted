@@ -17,6 +17,9 @@
 
 import { type CommonServerOptions, type PluginOption, defineConfig } from 'vite';
 import { fileURLToPath } from 'url';
+
+// @ts-ignore
+import RadixVueResolver from 'radix-vue/resolver';
 import vueComponents from 'unplugin-vue-components/vite';
 import { readFile } from 'fs/promises';
 import { execSync } from 'child_process';
@@ -27,24 +30,6 @@ import vueLayouts from 'vite-plugin-vue-layouts';
 import vueRouter from 'unplugin-vue-router/vite';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import vue from '@vitejs/plugin-vue';
-
-const DROPDOWN_COMPONENTS = [
-    'Arrow',
-    'CheckboxItem',
-    'Content',
-    'Item',
-    'ItemIndicator',
-    'Label',
-    'Portal',
-    'RadioGroup',
-    'RadioItem',
-    'Root',
-    'Separator',
-    'Sub',
-    'SubContent',
-    'SubTrigger',
-    'Trigger'
-].map((sub) => `DropdownMenu${sub}`);
 
 export default defineConfig(async ({ command }) => {
     const proxy: CommonServerOptions['proxy'] =
@@ -85,19 +70,12 @@ export default defineConfig(async ({ command }) => {
         vueComponents({
             dts: './components.d.ts',
             resolvers: [
+                RadixVueResolver(),
                 {
                     type: 'component',
                     resolve(name) {
                         if (name === 'Icon') {
                             return { name, from: '@iconify/vue' };
-                        }
-                    }
-                },
-                {
-                    type: 'component',
-                    resolve(name) {
-                        if (name.startsWith('DropdownMenu') && DROPDOWN_COMPONENTS.includes(name)) {
-                            return { name, from: 'radix-vue' };
                         }
                     }
                 }

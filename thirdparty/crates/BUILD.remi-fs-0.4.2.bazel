@@ -31,6 +31,7 @@ rust_library(
     crate_features = [
         "default",
         "file-format",
+        "log",
         "serde",
     ],
     crate_root = "src/lib.rs",
@@ -54,6 +55,7 @@ rust_library(
         "@crate_index__file-format-0.21.0//:file_format",
         "@crate_index__futures-0.3.29//:futures",
         "@crate_index__infer-0.15.0//:infer",
+        "@crate_index__log-0.4.20//:log",
         "@crate_index__remi-core-0.4.2//:remi_core",
         "@crate_index__serde-1.0.190//:serde",
         "@crate_index__tokio-1.33.0//:tokio",

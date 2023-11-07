@@ -22,10 +22,10 @@ use std::{
 use which::which;
 
 pub mod docker {
-    use eyre::{eyre, Context, Result};
+    use eyre::{Context, Result};
     use std::{
         path::{Path, PathBuf},
-        process::Command,
+        process::{Command, Stdio},
     };
     use which::which;
 
@@ -36,22 +36,21 @@ pub mod docker {
         }
     }
 
-    pub fn exec(docker: PathBuf, wd: PathBuf, args: &[&str]) -> Result<String> {
-        let cmd = Command::new(docker.clone()).args(args).current_dir(wd).output()?;
-        if !cmd.status.success() {
-            let stdout = String::from_utf8(cmd.stdout).unwrap_or_else(|_| "<invalid utf-8 output>".into());
-            let stderr = String::from_utf8(cmd.stderr).unwrap_or_else(|_| "<invalid utf8 output>".into());
+    pub fn exec(docker: PathBuf, wd: PathBuf, args: &[&str]) -> Result<()> {
+        let mut cmd = Command::new(&docker);
+        cmd.args(args)
+            .current_dir(wd)
+            .stdin(Stdio::null())
+            .stderr(Stdio::inherit())
+            .stdout(Stdio::inherit());
 
-            return Err(eyre!(
-                "command '{} {}' has failed:\n--- stdout ---\n{}\n\n--- stderr ---\n{}",
-                docker.display(),
-                args.join(" "),
-                stdout.trim(),
-                stderr.trim(),
-            ));
-        }
+        let cmd_args = cmd
+            .get_args()
+            .map(|arg| arg.to_string_lossy().to_string())
+            .collect::<Vec<_>>();
 
-        String::from_utf8(cmd.stdout).context("unable to transform stdout to utf-8")
+        info!("$ {} {}", docker.display(), cmd_args.join(" "));
+        cmd.spawn()?.wait().map(|_| ()).context("unable to bark")
     }
 }
 

@@ -18,14 +18,15 @@
 // @ts-check
 
 import defaultConfig from 'tailwindcss/defaultConfig';
+import typography from '@tailwindcss/typography';
+import { Config } from 'tailwindcss';
+import forms from '@tailwindcss/forms';
 
-/** @param {import('tailwindcss').Config} config */
-const defineConfig = (config) => config;
-
+const defineConfig = (config: Config) => config;
 export default defineConfig({
     darkMode: 'class',
     content: ['./**/*.{js,ts,vue,html}'],
-    plugins: [require('@tailwindcss/typography'), require('@tailwindcss/forms')],
+    plugins: [typography, forms],
     theme: {
         extend: {
             fontFamily: {

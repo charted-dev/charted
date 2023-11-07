@@ -20,7 +20,7 @@ use std::{
     fs::{create_dir_all, File},
     io::Write,
     path::PathBuf,
-    process::exit,
+    process::{exit, Command, Stdio},
 };
 
 #[derive(Debug, Clone, clap::Parser)]
@@ -70,7 +70,7 @@ impl Execute for Up {
         }
 
         if let (true, true) = (self.elastic, self.meili) {
-            error!("--elastic and --meili are mutually exclusive.");
+            error!("--elastic and --meili are mutually exclusive");
             exit(1);
         }
 
@@ -151,6 +151,33 @@ impl Execute for Up {
             }
         }
 
+        let docker = utils::docker::find(self.docker.clone())?;
+        debug!("found 'docker' cli in [{}]", docker.display());
+
+        // create fluff network
+        {
+            let docker = docker.clone();
+            let mut cmd = Command::new(&docker);
+            cmd.args(["network", "create", "fluff", "--driver=bridge"]);
+            cmd.stdin(Stdio::null())
+                .stdout(Stdio::inherit())
+                .stderr(Stdio::inherit());
+
+            let cmd_args = cmd
+                .get_args()
+                .map(|arg| arg.to_string_lossy().to_string())
+                .collect::<Vec<_>>();
+
+            info!("$ {} {}", docker.display(), cmd_args.join(" "));
+
+            let mut child = cmd.spawn()?;
+            let exit = child.wait()?;
+
+            if !exit.success() {
+                std::process::exit(exit.code().unwrap_or(1));
+            }
+        }
+
         let dc_file = docker_compose_file.clone();
         let mut args = vec![
             "compose",
@@ -171,9 +198,6 @@ impl Execute for Up {
             args.push("meilisearch");
         }
 
-        let docker = utils::docker::find(self.docker.clone())?;
-        utils::docker::exec(docker.clone(), workspace, args.as_slice())?;
-
-        Ok(())
+        utils::docker::exec(docker.clone(), workspace, args.as_slice())
     }
 }

@@ -15,12 +15,7 @@
  * limitations under the License.
  */
 
-const SPLASHES = [
-    'It is hard to remember if we met before?',
-    'Hello... do you exist?',
-    'is a hotdog a sandwich?',
-    '`charted-server` was originally going to be called `helm-server`!',
-    '404 Polar Bears Not Found'
-] as const;
-
-export const useRandomSplash = () => SPLASHES[Math.floor(Math.random() * SPLASHES.length)];
+// export * from './Description.vue';
+// export * from './Toaster.vue';
+// export * from './Title.vue';
+// export * from './Toast.vue';
