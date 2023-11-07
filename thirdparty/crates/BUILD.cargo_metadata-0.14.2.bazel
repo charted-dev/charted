@@ -43,7 +43,7 @@ rust_library(
         "@crate_index__camino-1.1.6//:camino",
         "@crate_index__cargo-platform-0.1.4//:cargo_platform",
         "@crate_index__semver-1.0.20//:semver",
-        "@crate_index__serde-1.0.191//:serde",
+        "@crate_index__serde-1.0.192//:serde",
         "@crate_index__serde_json-1.0.108//:serde_json",
     ],
 )
