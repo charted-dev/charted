@@ -600,6 +600,7 @@ _NORMAL_DEPENDENCIES = {
             "tower-http": "@crate_index__tower-http-0.4.4//:tower_http",
             "tower-layer": "@crate_index__tower-layer-0.3.2//:tower_layer",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
+            "tracing-appender": "@crate_index__tracing-appender-0.2.2//:tracing_appender",
             "tracing-log": "@crate_index__tracing-log-0.2.0//:tracing_log",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
             "utoipa": "@crate_index__utoipa-4.0.0//:utoipa",
@@ -6367,6 +6368,16 @@ def crate_repositories():
         urls = ["https://crates.io/api/v1/crates/tracing/0.1.40/download"],
         strip_prefix = "tracing-0.1.40",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tracing-0.1.40.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__tracing-appender-0.2.2",
+        sha256 = "09d48f71a791638519505cefafe162606f706c25592e4bde4d97600c0195312e",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/tracing-appender/0.2.2/download"],
+        strip_prefix = "tracing-appender-0.2.2",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tracing-appender-0.2.2.bazel"),
     )
 
     maybe(
