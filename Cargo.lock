@@ -1343,6 +1343,7 @@ dependencies = [
  "tower-http",
  "tower-layer",
  "tracing",
+ "tracing-appender",
  "tracing-log 0.2.0",
  "tracing-subscriber",
  "utoipa",
@@ -5801,6 +5802,17 @@ dependencies = [
  "pin-project-lite",
  "tracing-attributes",
  "tracing-core",
+]
+
+[[package]]
+name = "tracing-appender"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "09d48f71a791638519505cefafe162606f706c25592e4bde4d97600c0195312e"
+dependencies = [
+ "crossbeam-channel",
+ "time",
+ "tracing-subscriber",
 ]
 
 [[package]]

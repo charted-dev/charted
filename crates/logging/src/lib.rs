@@ -22,6 +22,7 @@ use tracing::field::{Field, Visit};
 
 pub mod generic;
 mod json;
+pub mod logstash;
 pub mod server;
 
 static GRAY: ansi_term::Colour = RGB(134, 134, 134);
