@@ -36,8 +36,8 @@ dependencies:
     specifier: 0.5.10
     version: 0.5.10(tailwindcss@3.3.5)
   '@tanstack/vue-query':
-    specifier: 5.7.3
-    version: 5.7.3(vue@3.3.8)
+    specifier: 5.8.1
+    version: 5.8.1(vue@3.3.8)
   '@vue/compiler-sfc':
     specifier: 3.3.8
     version: 3.3.8
@@ -125,8 +125,8 @@ devDependencies:
     specifier: 6.10.0
     version: 6.10.0(eslint@8.53.0)(typescript@5.2.2)
   '@vitejs/plugin-vue':
-    specifier: 4.4.0
-    version: 4.4.0(vite@4.5.0)(vue@3.3.8)
+    specifier: 4.4.1
+    version: 4.4.1(vite@4.5.0)(vue@3.3.8)
   '@vitejs/plugin-vue-jsx':
     specifier: 3.0.2
     version: 3.0.2(vite@4.5.0)(vue@3.3.8)
@@ -1163,12 +1163,12 @@ packages:
       remove-accents: 0.4.2
     dev: false
 
-  /@tanstack/query-core@5.7.2:
-    resolution: {integrity: sha512-vPYoNCOI8W+jFLnyEAYQL7/qURE7XzVE/TvkmNSko8LU55jFshee342p4GNFOTsYFgJty7Da5bw4m2P3vaKWMw==}
+  /@tanstack/query-core@5.8.1:
+    resolution: {integrity: sha512-Y0enatz2zQXBAsd7XmajlCs+WaitdR7dIFkqz9Xd7HL4KV04JOigWVreYseTmNH7YFSBSC/BJ9uuNp1MAf+GfA==}
     dev: false
 
-  /@tanstack/vue-query@5.7.3(vue@3.3.8):
-    resolution: {integrity: sha512-jly+s82btmWpdZA5ifmA1qHvua4l6uKGV/tvUryTxNpW9g6hqtMyYcNinjZAZqhIYsVHmOhfAld3vgET/8hjqg==}
+  /@tanstack/vue-query@5.8.1(vue@3.3.8):
+    resolution: {integrity: sha512-gPgEp+9U8NWdX4ZFA25aQEUoAybrqAYmu1ZKg+5U44sZRAZSA+ShUV3N3LYX8Tixs6dTqIXTL/crIyMMSchCyg==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.6.0 || ^3.3.0
@@ -1177,7 +1177,7 @@ packages:
         optional: true
     dependencies:
       '@tanstack/match-sorter-utils': 8.8.4
-      '@tanstack/query-core': 5.7.2
+      '@tanstack/query-core': 5.8.1
       '@vue/devtools-api': 6.5.1
       vue: 3.3.8(typescript@5.2.2)
       vue-demi: 0.14.6(vue@3.3.8)
@@ -1448,8 +1448,8 @@ packages:
       - supports-color
     dev: true
 
-  /@vitejs/plugin-vue@4.4.0(vite@4.5.0)(vue@3.3.8):
-    resolution: {integrity: sha512-xdguqb+VUwiRpSg+nsc2HtbAUSGak25DXYvpQQi4RVU1Xq1uworyoH/md9Rfd8zMmPR/pSghr309QNcftUVseg==}
+  /@vitejs/plugin-vue@4.4.1(vite@4.5.0)(vue@3.3.8):
+    resolution: {integrity: sha512-HCQG8VDFDM7YDAdcj5QI5DvUi+r6xvo9LgvYdk7LSkUNwdpempdB5horkMSZsbdey9Ywsf5aaU8kEPw9M5kREA==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       vite: ^4.0.0
