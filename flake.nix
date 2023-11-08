@@ -60,12 +60,15 @@
       bazel = pkgs.bazel_6;
     in {
       devShells.default = pkgs.mkShell {
-        NIX_LD = "${stdenv.cc}/nix-support/dynamic-linker";
-        NIX_LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath (with pkgs; [
-          stdenv.cc.cc
-          openssl
-          curl
-        ]);
+        # TODO(@auguwu): uncomment once we are in a release of `rules_rust`, not
+        #                in a commit.
+        #
+        # NIX_LD = "${stdenv.cc}/nix-support/dynamic-linker";
+        # NIX_LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath (with pkgs; [
+        #   stdenv.cc.cc
+        #   openssl
+        #   curl
+        # ]);
 
         nativeBuildInputs = with pkgs;
           [pkg-config git]

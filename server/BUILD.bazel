@@ -38,6 +38,12 @@ local_crates = ["//%s:charted_%s" % (path, name) for (path, name) in [
 
 rust_project(
     name = "server",
+    external_data = select({
+        "//build/settings:include_web_dist": [
+            ":dist",
+        ],
+        "//conditions:default": [],
+    }),
     include_tests = True,
     proc_macro_deps = [
         "//server/proc-macro:charted_server_proc_macro",

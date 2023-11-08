@@ -26,3 +26,10 @@ config_setting(
         "//build/settings:is-nixos": "true",
     },
 )
+
+config_setting(
+    name = "include_web_dist",
+    flag_values = {
+        "@rules_rust//:extra_rustc_flag": "--cfg=bundle_web",
+    },
+)

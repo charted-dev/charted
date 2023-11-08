@@ -38,14 +38,13 @@ if [[ "x$BAZEL" == "xbazel" ]] && ! command -v bazel >/dev/null; then
 fi
 
 echo "===> Building web distribution..."
-echo "===> $ $BAZEL $BAZEL_STARTUP_ARGS build $BAZEL_ARGS //web:build"
+echo "===> $ $BAZEL $BAZEL_STARTUP_ARGS build $BAZEL_ARGS //web:build" | xargs
 
 $BAZEL $BAZEL_STARTUP_ARGS build $BAZEL_ARGS //web:build
 cp "$SCRIPT_DIR/bazel-bin/web/dist" "$SCRIPT_DIR/server/dist"
-patch "$SCRIPT_DIR/server/BUILD.bazel" < "$SCRIPT_DIR/build/patches/include-web-dist.patch"
 
 echo "===> Creating tar archive..."
-echo "===> $ $BAZEL $BAZEL_STARTUP_ARGS build --compilation_mode=opt $BAZEL_ARGS --@rules_rust//:extra_rustc_flag=\"--cfg=bundle_web\" //distribution:tarball"
+echo "===> $ $BAZEL $BAZEL_STARTUP_ARGS build --compilation_mode=opt $BAZEL_ARGS --@rules_rust//:extra_rustc_flag=\"--cfg=bundle_web\" //distribution:tarball" | xargs
 $BAZEL $BAZEL_STARTUP_ARGS build \
     --compilation_mode=opt \
     --@rules_rust//:extra_rustc_flag="--cfg=bundle_web" \
@@ -53,7 +52,7 @@ $BAZEL $BAZEL_STARTUP_ARGS build \
     //distribution:tarball
 
 echo "===> Creating zip archive..."
-echo "===> $ $BAZEL $BAZEL_STARTUP_ARGS build --compilation_mode=opt $BAZEL_ARGS --@rules_rust//:extra_rustc_flag=\"--cfg=bundle_web\" //distribution:zip"
+echo "===> $ $BAZEL $BAZEL_STARTUP_ARGS build --compilation_mode=opt $BAZEL_ARGS --@rules_rust//:extra_rustc_flag=\"--cfg=bundle_web\" //distribution:zip" | xargs
 $BAZEL $BAZEL_STARTUP_ARGS build \
     --compilation_mode=opt \
     --@rules_rust//:extra_rustc_flag="--cfg=bundle_web" \
