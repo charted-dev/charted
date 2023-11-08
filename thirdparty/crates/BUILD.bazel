@@ -530,12 +530,6 @@ alias(
 )
 
 alias(
-    name = "tracing-appender",
-    actual = "@crate_index__tracing-appender-0.2.2//:tracing_appender",
-    tags = ["manual"],
-)
-
-alias(
     name = "tracing-log",
     actual = "@crate_index__tracing-log-0.2.0//:tracing_log",
     tags = ["manual"],
