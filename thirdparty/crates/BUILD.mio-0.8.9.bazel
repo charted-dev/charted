@@ -43,7 +43,7 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.8.8",
+    version = "0.8.9",
     deps = select({
         "@rules_rust//rust/platform:aarch64-apple-darwin": [
             "@crate_index__libc-0.2.149//:libc",  # cfg(unix)

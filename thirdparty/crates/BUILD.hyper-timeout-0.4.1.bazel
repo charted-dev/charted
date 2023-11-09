@@ -42,7 +42,7 @@ rust_library(
     deps = [
         "@crate_index__hyper-0.14.27//:hyper",
         "@crate_index__pin-project-lite-0.2.13//:pin_project_lite",
-        "@crate_index__tokio-1.33.0//:tokio",
+        "@crate_index__tokio-1.34.0//:tokio",
         "@crate_index__tokio-io-timeout-1.2.0//:tokio_io_timeout",
     ],
 )
