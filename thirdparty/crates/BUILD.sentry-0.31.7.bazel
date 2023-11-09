@@ -73,6 +73,6 @@ rust_library(
         "@crate_index__sentry-panic-0.31.7//:sentry_panic",
         "@crate_index__sentry-tower-0.31.7//:sentry_tower",
         "@crate_index__sentry-tracing-0.31.7//:sentry_tracing",
-        "@crate_index__tokio-1.33.0//:tokio",
+        "@crate_index__tokio-1.34.0//:tokio",
     ],
 )
