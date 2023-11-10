@@ -47,7 +47,7 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "4.4.7",
+    version = "4.4.8",
     deps = [
         "@crate_index__anstream-0.6.4//:anstream",
         "@crate_index__anstyle-1.0.2//:anstyle",
