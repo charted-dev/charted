@@ -40,9 +40,9 @@ def create_tuple(os, arch, ext, checksum):
 def charted_nodejs_repositories():
     http_archive(
         name = "aspect_rules_js",
-        sha256 = "5af82fe13fecb467e9c2c19765a593de2e1976afd0a1e18a80d930a2465508fc",
-        strip_prefix = "rules_js-1.33.2",
-        url = "https://github.com/aspect-build/rules_js/releases/download/v1.33.2/rules_js-v1.33.2.tar.gz",
+        sha256 = "295a73d963bad4b04a3c488d60dc8a76a659ee64708be3a66be75726e6277c7e",
+        strip_prefix = "rules_js-1.33.3",
+        url = "https://github.com/aspect-build/rules_js/releases/download/v1.33.3/rules_js-v1.33.3.tar.gz",
     )
 
     http_archive(
