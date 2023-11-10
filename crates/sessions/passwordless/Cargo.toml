@@ -23,5 +23,5 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
 [dependencies]
 charted-emails-client = { version = "0.0.0-devel.0", path = "../../emails" }
-sentry = "0.31.7"
+sentry = "0.31.8"
 tracing = "0.1.40"

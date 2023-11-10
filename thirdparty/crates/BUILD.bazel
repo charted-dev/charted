@@ -375,7 +375,7 @@ alias(
 
 alias(
     name = "sentry",
-    actual = "@crate_index__sentry-0.31.7//:sentry",
+    actual = "@crate_index__sentry-0.31.8//:sentry",
     tags = ["manual"],
 )
 
@@ -387,13 +387,13 @@ alias(
 
 alias(
     name = "sentry-tower",
-    actual = "@crate_index__sentry-tower-0.31.7//:sentry_tower",
+    actual = "@crate_index__sentry-tower-0.31.8//:sentry_tower",
     tags = ["manual"],
 )
 
 alias(
     name = "sentry-tracing",
-    actual = "@crate_index__sentry-tracing-0.31.7//:sentry_tracing",
+    actual = "@crate_index__sentry-tracing-0.31.8//:sentry_tracing",
     tags = ["manual"],
 )
 
