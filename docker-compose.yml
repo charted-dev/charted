@@ -51,7 +51,7 @@ services:
       test: ['CMD-SHELL', "curl -fs http://localhost:3651/api/heartbeat | grep 'Ok.'"]
   postgres:
     container_name: charted-postgres
-    image: bitnami/postgresql:15.4.0
+    image: bitnami/postgresql:15.5.0
     restart: always
     ports:
       - '5432:5432'
