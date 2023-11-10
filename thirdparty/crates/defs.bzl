@@ -298,7 +298,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "ansi_term": "@crate_index__ansi_term-0.12.1//:ansi_term",
             "chrono": "@crate_index__chrono-0.4.31//:chrono",
-            "clap": "@crate_index__clap-4.4.7//:clap",
+            "clap": "@crate_index__clap-4.4.8//:clap",
             "clap_complete": "@crate_index__clap_complete-4.4.4//:clap_complete",
             "cli-table": "@crate_index__cli-table-0.4.7//:cli_table",
             "color-eyre": "@crate_index__color-eyre-0.6.2//:color_eyre",
@@ -364,7 +364,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "aws-sdk-s3": "@crate_index__aws-sdk-s3-0.34.0//:aws_sdk_s3",
             "base64": "@crate_index__base64-0.21.5//:base64",
-            "clap": "@crate_index__clap-4.4.7//:clap",
+            "clap": "@crate_index__clap-4.4.8//:clap",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "lazy_static": "@crate_index__lazy_static-1.4.0//:lazy_static",
             "merge-struct": "@crate_index__merge-struct-0.1.0//:merge_struct",
@@ -630,7 +630,7 @@ _NORMAL_DEPENDENCIES = {
     },
     "tools/devtools": {
         _COMMON_CONDITION: {
-            "clap": "@crate_index__clap-4.4.7//:clap",
+            "clap": "@crate_index__clap-4.4.8//:clap",
             "clap_complete": "@crate_index__clap_complete-4.4.4//:clap_complete",
             "color-eyre": "@crate_index__color-eyre-0.6.2//:color_eyre",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
@@ -651,7 +651,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "ansi_term": "@crate_index__ansi_term-0.12.1//:ansi_term",
             "chrono": "@crate_index__chrono-0.4.31//:chrono",
-            "clap": "@crate_index__clap-4.4.7//:clap",
+            "clap": "@crate_index__clap-4.4.8//:clap",
             "clap_complete": "@crate_index__clap_complete-4.4.4//:clap_complete",
             "color-eyre": "@crate_index__color-eyre-0.6.2//:color_eyre",
             "dirs": "@crate_index__dirs-5.0.1//:dirs",
@@ -2401,22 +2401,22 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__clap-4.4.7",
-        sha256 = "ac495e00dcec98c83465d5ad66c5c4fabd652fd6686e7c6269b117e729a6f17b",
+        name = "crate_index__clap-4.4.8",
+        sha256 = "2275f18819641850fa26c89acc84d465c1bf91ce57bc2748b28c420473352f64",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/clap/4.4.7/download"],
-        strip_prefix = "clap-4.4.7",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap-4.4.7.bazel"),
+        urls = ["https://crates.io/api/v1/crates/clap/4.4.8/download"],
+        strip_prefix = "clap-4.4.8",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap-4.4.8.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__clap_builder-4.4.7",
-        sha256 = "c77ed9a32a62e6ca27175d00d29d05ca32e396ea1eb5fb01d8256b669cec7663",
+        name = "crate_index__clap_builder-4.4.8",
+        sha256 = "07cdf1b148b25c1e1f7a42225e30a0d99a615cd4637eae7365548dd4529b95bc",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/clap_builder/4.4.7/download"],
-        strip_prefix = "clap_builder-4.4.7",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap_builder-4.4.7.bazel"),
+        urls = ["https://crates.io/api/v1/crates/clap_builder/4.4.8/download"],
+        strip_prefix = "clap_builder-4.4.8",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap_builder-4.4.8.bazel"),
     )
 
     maybe(

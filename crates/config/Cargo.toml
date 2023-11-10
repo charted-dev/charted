@@ -24,7 +24,7 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 [dependencies]
 aws-sdk-s3 = "0.34.0"
 base64 = "0.21.5"
-clap = { version = "4.4.7", features = ["derive"] }
+clap = { version = "4.4.8", features = ["derive"] }
 charted-common = { path = "../common", version = "0.0.0-devel.0" }
 eyre = "0.6.8"
 lazy_static = "1.4.0"
