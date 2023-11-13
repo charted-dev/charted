@@ -314,7 +314,7 @@ _NORMAL_DEPENDENCIES = {
             "sysinfo": "@crate_index__sysinfo-0.29.10//:sysinfo",
             "tokio": "@crate_index__tokio-1.34.0//:tokio",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
-            "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
+            "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.18//:tracing_subscriber",
             "utoipa": "@crate_index__utoipa-4.0.0//:utoipa",
         },
     },
@@ -420,7 +420,7 @@ _NORMAL_DEPENDENCIES = {
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "tracing-log": "@crate_index__tracing-log-0.2.0//:tracing_log",
-            "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
+            "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.18//:tracing_subscriber",
         },
     },
     "crates/metrics": {
@@ -601,7 +601,7 @@ _NORMAL_DEPENDENCIES = {
             "tower-layer": "@crate_index__tower-layer-0.3.2//:tower_layer",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "tracing-log": "@crate_index__tracing-log-0.2.0//:tracing_log",
-            "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
+            "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.18//:tracing_subscriber",
             "utoipa": "@crate_index__utoipa-4.0.0//:utoipa",
             "validator": "@crate_index__validator-0.16.1//:validator",
         },
@@ -644,7 +644,7 @@ _NORMAL_DEPENDENCIES = {
             "tokio": "@crate_index__tokio-1.34.0//:tokio",
             "toml": "@crate_index__toml-0.8.8//:toml",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
-            "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
+            "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.18//:tracing_subscriber",
             "which": "@crate_index__which-5.0.0//:which",
         },
     },
@@ -666,7 +666,7 @@ _NORMAL_DEPENDENCIES = {
             "sysinfo": "@crate_index__sysinfo-0.29.10//:sysinfo",
             "tokio": "@crate_index__tokio-1.34.0//:tokio",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
-            "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
+            "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.18//:tracing_subscriber",
             "url": "@crate_index__url-2.4.1//:url",
             "which": "@crate_index__which-5.0.0//:which",
         },
@@ -6412,16 +6412,6 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__tracing-log-0.1.4",
-        sha256 = "f751112709b4e791d8ce53e32c4ed2d353565a795ce84da2285393f41557bdf2",
-        type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/tracing-log/0.1.4/download"],
-        strip_prefix = "tracing-log-0.1.4",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tracing-log-0.1.4.bazel"),
-    )
-
-    maybe(
-        http_archive,
         name = "crate_index__tracing-log-0.2.0",
         sha256 = "ee855f1f400bd0e5c02d150ae5de3840039a3f54b025156404e34c23c03f47c3",
         type = "tar.gz",
@@ -6432,12 +6422,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__tracing-subscriber-0.3.17",
-        sha256 = "30a651bc37f915e81f087d86e62a18eec5f79550c7faff886f7090b4ea757c77",
+        name = "crate_index__tracing-subscriber-0.3.18",
+        sha256 = "ad0f048c97dbd9faa9b7df56362b8ebcaa52adb06b498c050d2f4e32f90a7a8b",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/tracing-subscriber/0.3.17/download"],
-        strip_prefix = "tracing-subscriber-0.3.17",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tracing-subscriber-0.3.17.bazel"),
+        urls = ["https://crates.io/api/v1/crates/tracing-subscriber/0.3.18/download"],
+        strip_prefix = "tracing-subscriber-0.3.18",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tracing-subscriber-0.3.18.bazel"),
     )
 
     maybe(
