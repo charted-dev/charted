@@ -11,11 +11,11 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # MIT
+#     "TODO",  # Apache-2.0
 # ])
 
 rust_library(
-    name = "mio",
+    name = "sentry_tracing",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -29,37 +29,24 @@ rust_library(
         ],
     ),
     crate_features = [
-        "net",
-        "os-ext",
-        "os-poll",
+        "backtrace",
+        "default",
     ],
     crate_root = "src/lib.rs",
-    edition = "2018",
+    edition = "2021",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=mio",
+        "crate-name=sentry-tracing",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.8.8",
-    deps = select({
-        "@rules_rust//rust/platform:aarch64-apple-darwin": [
-            "@crate_index__libc-0.2.149//:libc",  # cfg(unix)
-        ],
-        "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
-            "@crate_index__libc-0.2.149//:libc",  # cfg(unix)
-        ],
-        "@rules_rust//rust/platform:x86_64-apple-darwin": [
-            "@crate_index__libc-0.2.149//:libc",  # cfg(unix)
-        ],
-        "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [
-            "@crate_index__windows-sys-0.48.0//:windows_sys",  # cfg(windows)
-        ],
-        "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
-            "@crate_index__libc-0.2.149//:libc",  # cfg(unix)
-        ],
-        "//conditions:default": [],
-    }),
+    version = "0.31.8",
+    deps = [
+        "@crate_index__sentry-backtrace-0.31.8//:sentry_backtrace",
+        "@crate_index__sentry-core-0.31.8//:sentry_core",
+        "@crate_index__tracing-core-0.1.32//:tracing_core",
+        "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
+    ],
 )

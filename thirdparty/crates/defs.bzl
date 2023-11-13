@@ -298,7 +298,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "ansi_term": "@crate_index__ansi_term-0.12.1//:ansi_term",
             "chrono": "@crate_index__chrono-0.4.31//:chrono",
-            "clap": "@crate_index__clap-4.4.7//:clap",
+            "clap": "@crate_index__clap-4.4.8//:clap",
             "clap_complete": "@crate_index__clap_complete-4.4.4//:clap_complete",
             "cli-table": "@crate_index__cli-table-0.4.7//:cli_table",
             "color-eyre": "@crate_index__color-eyre-0.6.2//:color_eyre",
@@ -312,7 +312,7 @@ _NORMAL_DEPENDENCIES = {
             "serde_yaml": "@crate_index__serde_yaml-0.9.27//:serde_yaml",
             "sqlx": "@crate_index__sqlx-0.7.2//:sqlx",
             "sysinfo": "@crate_index__sysinfo-0.29.10//:sysinfo",
-            "tokio": "@crate_index__tokio-1.33.0//:tokio",
+            "tokio": "@crate_index__tokio-1.34.0//:tokio",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
             "utoipa": "@crate_index__utoipa-4.0.0//:utoipa",
@@ -364,7 +364,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "aws-sdk-s3": "@crate_index__aws-sdk-s3-0.34.0//:aws_sdk_s3",
             "base64": "@crate_index__base64-0.21.5//:base64",
-            "clap": "@crate_index__clap-4.4.7//:clap",
+            "clap": "@crate_index__clap-4.4.8//:clap",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "lazy_static": "@crate_index__lazy_static-1.4.0//:lazy_static",
             "merge-struct": "@crate_index__merge-struct-0.1.0//:merge_struct",
@@ -381,10 +381,10 @@ _NORMAL_DEPENDENCIES = {
     "crates/database": {
         _COMMON_CONDITION: {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
-            "sentry": "@crate_index__sentry-0.31.7//:sentry",
+            "sentry": "@crate_index__sentry-0.31.8//:sentry",
             "serde": "@crate_index__serde-1.0.192//:serde",
             "sqlx": "@crate_index__sqlx-0.7.2//:sqlx",
-            "tokio": "@crate_index__tokio-1.33.0//:tokio",
+            "tokio": "@crate_index__tokio-1.34.0//:tokio",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
     },
@@ -406,7 +406,7 @@ _NORMAL_DEPENDENCIES = {
             "regex": "@crate_index__regex-1.10.2//:regex",
             "remi-core": "@crate_index__remi-core-0.4.2//:remi_core",
             "semver": "@crate_index__semver-1.0.20//:semver",
-            "sentry": "@crate_index__sentry-0.31.7//:sentry",
+            "sentry": "@crate_index__sentry-0.31.8//:sentry",
             "serde_yaml": "@crate_index__serde_yaml-0.9.27//:serde_yaml",
             "tar": "@crate_index__tar-0.4.40//:tar",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
@@ -416,7 +416,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "ansi_term": "@crate_index__ansi_term-0.12.1//:ansi_term",
             "chrono": "@crate_index__chrono-0.4.31//:chrono",
-            "sentry-tracing": "@crate_index__sentry-tracing-0.31.7//:sentry_tracing",
+            "sentry-tracing": "@crate_index__sentry-tracing-0.31.8//:sentry_tracing",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "tracing-log": "@crate_index__tracing-log-0.2.0//:tracing_log",
@@ -429,7 +429,7 @@ _NORMAL_DEPENDENCIES = {
             "erased-serde": "@crate_index__erased-serde-0.3.31//:erased_serde",
             "prometheus-client": "@crate_index__prometheus-client-0.22.0//:prometheus_client",
             "serde": "@crate_index__serde-1.0.192//:serde",
-            "tokio": "@crate_index__tokio-1.33.0//:tokio",
+            "tokio": "@crate_index__tokio-1.34.0//:tokio",
         },
     },
     "crates/openapi": {
@@ -459,7 +459,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "redis": "@crate_index__redis-0.23.3//:redis",
-            "tokio": "@crate_index__tokio-1.33.0//:tokio",
+            "tokio": "@crate_index__tokio-1.34.0//:tokio",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
     },
@@ -477,7 +477,7 @@ _NORMAL_DEPENDENCIES = {
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
             "serde": "@crate_index__serde-1.0.192//:serde",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
-            "tokio": "@crate_index__tokio-1.33.0//:tokio",
+            "tokio": "@crate_index__tokio-1.34.0//:tokio",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "url": "@crate_index__url-2.4.1//:url",
         },
@@ -496,11 +496,11 @@ _NORMAL_DEPENDENCIES = {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "jsonwebtoken": "@crate_index__jsonwebtoken-9.1.0//:jsonwebtoken",
             "redis": "@crate_index__redis-0.23.3//:redis",
-            "sentry": "@crate_index__sentry-0.31.7//:sentry",
+            "sentry": "@crate_index__sentry-0.31.8//:sentry",
             "serde": "@crate_index__serde-1.0.192//:serde",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
             "sqlx": "@crate_index__sqlx-0.7.2//:sqlx",
-            "tokio": "@crate_index__tokio-1.33.0//:tokio",
+            "tokio": "@crate_index__tokio-1.34.0//:tokio",
             "tokio-util": "@crate_index__tokio-util-0.7.10//:tokio_util",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "utoipa": "@crate_index__utoipa-4.0.0//:utoipa",
@@ -516,7 +516,7 @@ _NORMAL_DEPENDENCIES = {
     "crates/sessions/integrations/github": {
         _COMMON_CONDITION: {
             "reqwest": "@crate_index__reqwest-0.11.22//:reqwest",
-            "sentry": "@crate_index__sentry-0.31.7//:sentry",
+            "sentry": "@crate_index__sentry-0.31.8//:sentry",
             "serde": "@crate_index__serde-1.0.192//:serde",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
@@ -525,8 +525,8 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "ldap3": "@crate_index__ldap3-0.11.3//:ldap3",
-            "sentry": "@crate_index__sentry-0.31.7//:sentry",
-            "tokio": "@crate_index__tokio-1.33.0//:tokio",
+            "sentry": "@crate_index__sentry-0.31.8//:sentry",
+            "tokio": "@crate_index__tokio-1.34.0//:tokio",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
     },
@@ -537,7 +537,7 @@ _NORMAL_DEPENDENCIES = {
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "jsonwebtoken": "@crate_index__jsonwebtoken-9.1.0//:jsonwebtoken",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
-            "sentry": "@crate_index__sentry-0.31.7//:sentry",
+            "sentry": "@crate_index__sentry-0.31.8//:sentry",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
             "sqlx": "@crate_index__sqlx-0.7.2//:sqlx",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
@@ -546,7 +546,7 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/sessions/passwordless": {
         _COMMON_CONDITION: {
-            "sentry": "@crate_index__sentry-0.31.7//:sentry",
+            "sentry": "@crate_index__sentry-0.31.8//:sentry",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
     },
@@ -564,7 +564,7 @@ _NORMAL_DEPENDENCIES = {
     "features/gc": {
         _COMMON_CONDITION: {
             "logos": "@crate_index__logos-0.13.0//:logos",
-            "sentry": "@crate_index__sentry-0.31.7//:sentry",
+            "sentry": "@crate_index__sentry-0.31.8//:sentry",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
     },
@@ -586,16 +586,16 @@ _NORMAL_DEPENDENCIES = {
             "remi-core": "@crate_index__remi-core-0.4.2//:remi_core",
             "rust-embed": "@crate_index__rust-embed-8.0.0//:rust_embed",
             "semver": "@crate_index__semver-1.0.20//:semver",
-            "sentry": "@crate_index__sentry-0.31.7//:sentry",
+            "sentry": "@crate_index__sentry-0.31.8//:sentry",
             "sentry-eyre": "@crate_index__sentry-eyre-0.1.0//:sentry_eyre",
-            "sentry-tower": "@crate_index__sentry-tower-0.31.7//:sentry_tower",
-            "sentry-tracing": "@crate_index__sentry-tracing-0.31.7//:sentry_tracing",
+            "sentry-tower": "@crate_index__sentry-tower-0.31.8//:sentry_tower",
+            "sentry-tracing": "@crate_index__sentry-tracing-0.31.8//:sentry_tracing",
             "serde": "@crate_index__serde-1.0.192//:serde",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
             "serde_path_to_error": "@crate_index__serde_path_to_error-0.1.14//:serde_path_to_error",
             "serde_yaml": "@crate_index__serde_yaml-0.9.27//:serde_yaml",
             "sqlx": "@crate_index__sqlx-0.7.2//:sqlx",
-            "tokio": "@crate_index__tokio-1.33.0//:tokio",
+            "tokio": "@crate_index__tokio-1.34.0//:tokio",
             "tower": "@crate_index__tower-0.4.13//:tower",
             "tower-http": "@crate_index__tower-http-0.4.4//:tower_http",
             "tower-layer": "@crate_index__tower-layer-0.3.2//:tower_layer",
@@ -623,14 +623,14 @@ _NORMAL_DEPENDENCIES = {
             "hyper": "@crate_index__hyper-0.14.27//:hyper",
             "serde": "@crate_index__serde-1.0.192//:serde",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
-            "tokio": "@crate_index__tokio-1.33.0//:tokio",
+            "tokio": "@crate_index__tokio-1.34.0//:tokio",
             "tower": "@crate_index__tower-0.4.13//:tower",
             "tower-service": "@crate_index__tower-service-0.3.2//:tower_service",
         },
     },
     "tools/devtools": {
         _COMMON_CONDITION: {
-            "clap": "@crate_index__clap-4.4.7//:clap",
+            "clap": "@crate_index__clap-4.4.8//:clap",
             "clap_complete": "@crate_index__clap_complete-4.4.4//:clap_complete",
             "color-eyre": "@crate_index__color-eyre-0.6.2//:color_eyre",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
@@ -640,7 +640,7 @@ _NORMAL_DEPENDENCIES = {
             "serde_starlark": "@crate_index__serde_starlark-0.1.14//:serde_starlark",
             "simple_tables": "@crate_index__simple_tables-0.3.0//:simple_tables",
             "starlark": "@crate_index__starlark-0.10.0//:starlark",
-            "tokio": "@crate_index__tokio-1.33.0//:tokio",
+            "tokio": "@crate_index__tokio-1.34.0//:tokio",
             "toml": "@crate_index__toml-0.8.8//:toml",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
@@ -651,7 +651,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "ansi_term": "@crate_index__ansi_term-0.12.1//:ansi_term",
             "chrono": "@crate_index__chrono-0.4.31//:chrono",
-            "clap": "@crate_index__clap-4.4.7//:clap",
+            "clap": "@crate_index__clap-4.4.8//:clap",
             "clap_complete": "@crate_index__clap_complete-4.4.4//:clap_complete",
             "color-eyre": "@crate_index__color-eyre-0.6.2//:color_eyre",
             "dirs": "@crate_index__dirs-5.0.1//:dirs",
@@ -663,7 +663,7 @@ _NORMAL_DEPENDENCIES = {
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
             "serde_yaml": "@crate_index__serde_yaml-0.9.27//:serde_yaml",
             "sysinfo": "@crate_index__sysinfo-0.29.10//:sysinfo",
-            "tokio": "@crate_index__tokio-1.33.0//:tokio",
+            "tokio": "@crate_index__tokio-1.34.0//:tokio",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
             "url": "@crate_index__url-2.4.1//:url",
@@ -816,7 +816,7 @@ _NORMAL_DEV_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "remi-fs": "@crate_index__remi-fs-0.4.2//:remi_fs",
             "tempfile": "@crate_index__tempfile-3.8.1//:tempfile",
-            "tokio": "@crate_index__tokio-1.33.0//:tokio",
+            "tokio": "@crate_index__tokio-1.34.0//:tokio",
         },
     },
     "crates/logging": {
@@ -2401,22 +2401,22 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__clap-4.4.7",
-        sha256 = "ac495e00dcec98c83465d5ad66c5c4fabd652fd6686e7c6269b117e729a6f17b",
+        name = "crate_index__clap-4.4.8",
+        sha256 = "2275f18819641850fa26c89acc84d465c1bf91ce57bc2748b28c420473352f64",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/clap/4.4.7/download"],
-        strip_prefix = "clap-4.4.7",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap-4.4.7.bazel"),
+        urls = ["https://crates.io/api/v1/crates/clap/4.4.8/download"],
+        strip_prefix = "clap-4.4.8",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap-4.4.8.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__clap_builder-4.4.7",
-        sha256 = "c77ed9a32a62e6ca27175d00d29d05ca32e396ea1eb5fb01d8256b669cec7663",
+        name = "crate_index__clap_builder-4.4.8",
+        sha256 = "07cdf1b148b25c1e1f7a42225e30a0d99a615cd4637eae7365548dd4529b95bc",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/clap_builder/4.4.7/download"],
-        strip_prefix = "clap_builder-4.4.7",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap_builder-4.4.7.bazel"),
+        urls = ["https://crates.io/api/v1/crates/clap_builder/4.4.8/download"],
+        strip_prefix = "clap_builder-4.4.8",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap_builder-4.4.8.bazel"),
     )
 
     maybe(
@@ -4261,12 +4261,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__mio-0.8.8",
-        sha256 = "927a765cd3fc26206e66b296465fa9d3e5ab003e651c1b3c060e7956d96b19d2",
+        name = "crate_index__mio-0.8.9",
+        sha256 = "3dce281c5e46beae905d4de1870d8b1509a9142b62eedf18b443b011ca8343d0",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/mio/0.8.8/download"],
-        strip_prefix = "mio-0.8.8",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.mio-0.8.8.bazel"),
+        urls = ["https://crates.io/api/v1/crates/mio/0.8.9/download"],
+        strip_prefix = "mio-0.8.9",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.mio-0.8.9.bazel"),
     )
 
     maybe(
@@ -5391,52 +5391,52 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__sentry-0.31.7",
-        sha256 = "0097a48cd1999d983909f07cb03b15241c5af29e5e679379efac1c06296abecc",
+        name = "crate_index__sentry-0.31.8",
+        sha256 = "6ce4b57f1b521f674df7a1d200be8ff5d74e3712020ee25b553146657b5377d5",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sentry/0.31.7/download"],
-        strip_prefix = "sentry-0.31.7",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-0.31.7.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sentry/0.31.8/download"],
+        strip_prefix = "sentry-0.31.8",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-0.31.8.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__sentry-backtrace-0.31.7",
-        sha256 = "18a7b80fa1dd6830a348d38a8d3a9761179047757b7dca29aef82db0118b9670",
+        name = "crate_index__sentry-backtrace-0.31.8",
+        sha256 = "58cc8d4e04a73de8f718dc703943666d03f25d3e9e4d0fb271ca0b8c76dfa00e",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sentry-backtrace/0.31.7/download"],
-        strip_prefix = "sentry-backtrace-0.31.7",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-backtrace-0.31.7.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sentry-backtrace/0.31.8/download"],
+        strip_prefix = "sentry-backtrace-0.31.8",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-backtrace-0.31.8.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__sentry-contexts-0.31.7",
-        sha256 = "7615dc588930f1fd2e721774f25844ae93add2dbe2d3c2f995ce5049af898147",
+        name = "crate_index__sentry-contexts-0.31.8",
+        sha256 = "6436c1bad22cdeb02179ea8ef116ffc217797c028927def303bc593d9320c0d1",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sentry-contexts/0.31.7/download"],
-        strip_prefix = "sentry-contexts-0.31.7",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-contexts-0.31.7.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sentry-contexts/0.31.8/download"],
+        strip_prefix = "sentry-contexts-0.31.8",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-contexts-0.31.8.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__sentry-core-0.31.7",
-        sha256 = "8f51264e4013ed9b16558cce43917b983fa38170de2ca480349ceb57d71d6053",
+        name = "crate_index__sentry-core-0.31.8",
+        sha256 = "901f761681f97db3db836ef9e094acdd8756c40215326c194201941947164ef1",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sentry-core/0.31.7/download"],
-        strip_prefix = "sentry-core-0.31.7",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-core-0.31.7.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sentry-core/0.31.8/download"],
+        strip_prefix = "sentry-core-0.31.8",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-core-0.31.8.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__sentry-debug-images-0.31.7",
-        sha256 = "2fe6180fa564d40bb942c9f0084ffb5de691c7357ead6a2b7a3154fae9e401dd",
+        name = "crate_index__sentry-debug-images-0.31.8",
+        sha256 = "afdb263e73d22f39946f6022ed455b7561b22ff5553aca9be3c6a047fa39c328",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sentry-debug-images/0.31.7/download"],
-        strip_prefix = "sentry-debug-images-0.31.7",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-debug-images-0.31.7.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sentry-debug-images/0.31.8/download"],
+        strip_prefix = "sentry-debug-images-0.31.8",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-debug-images-0.31.8.bazel"),
     )
 
     maybe(
@@ -5451,42 +5451,42 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__sentry-panic-0.31.7",
-        sha256 = "323160213bba549f9737317b152af116af35c0410f4468772ee9b606d3d6e0fa",
+        name = "crate_index__sentry-panic-0.31.8",
+        sha256 = "74fbf1c163f8b6a9d05912e1b272afa27c652e8b47ea60cb9a57ad5e481eea99",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sentry-panic/0.31.7/download"],
-        strip_prefix = "sentry-panic-0.31.7",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-panic-0.31.7.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sentry-panic/0.31.8/download"],
+        strip_prefix = "sentry-panic-0.31.8",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-panic-0.31.8.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__sentry-tower-0.31.7",
-        sha256 = "0ffe3ab7bf7f65c9f8ccd20aa136ce5b2140aa6d6a11339e823cd43a7d694a9e",
+        name = "crate_index__sentry-tower-0.31.8",
+        sha256 = "88e782e369edac4adfc5bf528b27577270bc3e7023c388ebad9db08e1d56b30b",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sentry-tower/0.31.7/download"],
-        strip_prefix = "sentry-tower-0.31.7",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-tower-0.31.7.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sentry-tower/0.31.8/download"],
+        strip_prefix = "sentry-tower-0.31.8",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-tower-0.31.8.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__sentry-tracing-0.31.7",
-        sha256 = "38033822128e73f7b6ca74c1631cef8868890c6cb4008a291cf73530f87b4eac",
+        name = "crate_index__sentry-tracing-0.31.8",
+        sha256 = "82eabcab0a047040befd44599a1da73d3adb228ff53b5ed9795ae04535577704",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sentry-tracing/0.31.7/download"],
-        strip_prefix = "sentry-tracing-0.31.7",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-tracing-0.31.7.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sentry-tracing/0.31.8/download"],
+        strip_prefix = "sentry-tracing-0.31.8",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-tracing-0.31.8.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__sentry-types-0.31.7",
-        sha256 = "0e663b3eb62ddfc023c9cf5432daf5f1a4f6acb1df4d78dd80b740b32dd1a740",
+        name = "crate_index__sentry-types-0.31.8",
+        sha256 = "da956cca56e0101998c8688bc65ce1a96f00673a0e58e663664023d4c7911e82",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sentry-types/0.31.7/download"],
-        strip_prefix = "sentry-types-0.31.7",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-types-0.31.7.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sentry-types/0.31.8/download"],
+        strip_prefix = "sentry-types-0.31.8",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-types-0.31.8.bazel"),
     )
 
     maybe(
@@ -5761,12 +5761,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__socket2-0.5.3",
-        sha256 = "2538b18701741680e0322a2302176d3253a35388e2e62f172f64f4f16605f877",
+        name = "crate_index__socket2-0.5.5",
+        sha256 = "7b5fac59a5cb5dd637972e5fca70daf0523c9067fcdc4842f053dae04a18f8e9",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/socket2/0.5.3/download"],
-        strip_prefix = "socket2-0.5.3",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.socket2-0.5.3.bazel"),
+        urls = ["https://crates.io/api/v1/crates/socket2/0.5.5/download"],
+        strip_prefix = "socket2-0.5.5",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.socket2-0.5.5.bazel"),
     )
 
     maybe(
@@ -6191,12 +6191,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__tokio-1.33.0",
-        sha256 = "4f38200e3ef7995e5ef13baec2f432a6da0aa9ac495b2c0e8f3b7eec2c92d653",
+        name = "crate_index__tokio-1.34.0",
+        sha256 = "d0c014766411e834f7af5b8f4cf46257aab4036ca95e9d2c144a10f59ad6f5b9",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/tokio/1.33.0/download"],
-        strip_prefix = "tokio-1.33.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tokio-1.33.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/tokio/1.34.0/download"],
+        strip_prefix = "tokio-1.34.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tokio-1.34.0.bazel"),
     )
 
     maybe(
@@ -6211,12 +6211,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__tokio-macros-2.1.0",
-        sha256 = "630bdcf245f78637c13ec01ffae6187cca34625e8c63150d424b59e55af2675e",
+        name = "crate_index__tokio-macros-2.2.0",
+        sha256 = "5b8a1e28f2deaa14e508979454cb3a223b10b938b45af148bc0986de36f1923b",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/tokio-macros/2.1.0/download"],
-        strip_prefix = "tokio-macros-2.1.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tokio-macros-2.1.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/tokio-macros/2.2.0/download"],
+        strip_prefix = "tokio-macros-2.2.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tokio-macros-2.2.0.bazel"),
     )
 
     maybe(

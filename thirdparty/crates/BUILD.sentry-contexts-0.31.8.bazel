@@ -39,12 +39,12 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.31.7",
+    version = "0.31.8",
     deps = [
         "@crate_index__hostname-0.3.1//:hostname",
         "@crate_index__libc-0.2.149//:libc",
-        "@crate_index__sentry-contexts-0.31.7//:build_script_build",
-        "@crate_index__sentry-core-0.31.7//:sentry_core",
+        "@crate_index__sentry-contexts-0.31.8//:build_script_build",
+        "@crate_index__sentry-core-0.31.8//:sentry_core",
     ] + select({
         "@rules_rust//rust/platform:aarch64-apple-darwin": [
             "@crate_index__uname-0.1.1//:uname",  # cfg(not(windows))
@@ -92,7 +92,7 @@ cargo_build_script(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.31.7",
+    version = "0.31.8",
     visibility = ["//visibility:private"],
     deps = [
         "@crate_index__rustc_version-0.4.0//:rustc_version",

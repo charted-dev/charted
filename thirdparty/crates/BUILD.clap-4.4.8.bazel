@@ -6,16 +6,16 @@
 #     bazel run @//thirdparty:crate_index
 ###############################################################################
 
-load("@rules_rust//rust:defs.bzl", "rust_proc_macro")
+load("@rules_rust//rust:defs.bzl", "rust_library")
 
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # MIT
+#     "TODO",  # MIT OR Apache-2.0
 # ])
 
-rust_proc_macro(
-    name = "tokio_macros",
+rust_library(
+    name = "clap",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -28,20 +28,32 @@ rust_proc_macro(
             "WORKSPACE.bazel",
         ],
     ),
+    crate_features = [
+        "color",
+        "default",
+        "derive",
+        "env",
+        "error-context",
+        "help",
+        "std",
+        "suggestions",
+        "usage",
+    ],
     crate_root = "src/lib.rs",
-    edition = "2018",
+    edition = "2021",
+    proc_macro_deps = [
+        "@crate_index__clap_derive-4.4.7//:clap_derive",
+    ],
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=tokio-macros",
+        "crate-name=clap",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "2.1.0",
+    version = "4.4.8",
     deps = [
-        "@crate_index__proc-macro2-1.0.69//:proc_macro2",
-        "@crate_index__quote-1.0.33//:quote",
-        "@crate_index__syn-2.0.39//:syn",
+        "@crate_index__clap_builder-4.4.8//:clap_builder",
     ],
 )

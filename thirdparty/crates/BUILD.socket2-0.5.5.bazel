@@ -11,11 +11,11 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # Apache-2.0
+#     "TODO",  # MIT OR Apache-2.0
 # ])
 
 rust_library(
-    name = "sentry_types",
+    name = "socket2",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -29,29 +29,35 @@ rust_library(
         ],
     ),
     crate_features = [
-        "default",
-        "protocol",
+        "all",
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=sentry-types",
+        "crate-name=socket2",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.31.7",
-    deps = [
-        "@crate_index__debugid-0.8.0//:debugid",
-        "@crate_index__hex-0.4.3//:hex",
-        "@crate_index__rand-0.8.5//:rand",
-        "@crate_index__serde-1.0.192//:serde",
-        "@crate_index__serde_json-1.0.108//:serde_json",
-        "@crate_index__thiserror-1.0.50//:thiserror",
-        "@crate_index__time-0.3.28//:time",
-        "@crate_index__url-2.4.1//:url",
-        "@crate_index__uuid-1.5.0//:uuid",
-    ],
+    version = "0.5.5",
+    deps = select({
+        "@rules_rust//rust/platform:aarch64-apple-darwin": [
+            "@crate_index__libc-0.2.149//:libc",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
+            "@crate_index__libc-0.2.149//:libc",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:x86_64-apple-darwin": [
+            "@crate_index__libc-0.2.149//:libc",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [
+            "@crate_index__windows-sys-0.48.0//:windows_sys",  # cfg(windows)
+        ],
+        "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
+            "@crate_index__libc-0.2.149//:libc",  # cfg(unix)
+        ],
+        "//conditions:default": [],
+    }),
 )

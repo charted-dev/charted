@@ -6,16 +6,16 @@
 #     bazel run @//thirdparty:crate_index
 ###############################################################################
 
-load("@rules_rust//rust:defs.bzl", "rust_library")
+load("@rules_rust//rust:defs.bzl", "rust_proc_macro")
 
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # Apache-2.0
+#     "TODO",  # MIT
 # ])
 
-rust_library(
-    name = "sentry_panic",
+rust_proc_macro(
+    name = "tokio_macros",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -33,14 +33,15 @@ rust_library(
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=sentry-panic",
+        "crate-name=tokio-macros",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.31.7",
+    version = "2.2.0",
     deps = [
-        "@crate_index__sentry-backtrace-0.31.7//:sentry_backtrace",
-        "@crate_index__sentry-core-0.31.7//:sentry_core",
+        "@crate_index__proc-macro2-1.0.69//:proc_macro2",
+        "@crate_index__quote-1.0.33//:quote",
+        "@crate_index__syn-2.0.39//:syn",
     ],
 )
