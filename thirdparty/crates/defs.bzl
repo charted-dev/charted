@@ -637,6 +637,7 @@ _NORMAL_DEPENDENCIES = {
             "itertools": "@crate_index__itertools-0.11.0//:itertools",
             "promptly": "@crate_index__promptly-0.3.1//:promptly",
             "serde": "@crate_index__serde-1.0.192//:serde",
+            "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
             "serde_starlark": "@crate_index__serde_starlark-0.1.14//:serde_starlark",
             "simple_tables": "@crate_index__simple_tables-0.3.0//:simple_tables",
             "starlark": "@crate_index__starlark-0.10.0//:starlark",
