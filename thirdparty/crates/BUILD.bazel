@@ -549,7 +549,7 @@ alias(
 
 alias(
     name = "utoipa",
-    actual = "@crate_index__utoipa-4.0.0//:utoipa",
+    actual = "@crate_index__utoipa-4.1.0//:utoipa",
     tags = ["manual"],
 )
 
