@@ -72,7 +72,7 @@ cargo_build_script(
     srcs = glob(["**/*.rs"]),
     build_script_env = select({
         "@org_noelware_charted_server//build/settings:nixos": {
-            "DEP_OPENSSL_INCLUDE": "../openssl-static/include"
+            "DEP_OPENSSL_INCLUDE": "../openssl-static/include",  # @org_noelware_charted_server//build/settings:nixos
         },
         "//conditions:default": {},
     }),
@@ -97,10 +97,8 @@ cargo_build_script(
             "WORKSPACE.bazel",
         ],
     ) + select({
-        # uses the nix/openssl.nix version of OpenSSL so that it can compile
-        # on NixOS.
         "@org_noelware_charted_server//build/settings:nixos": [
-            "@openssl-static//:include",
+            "@openssl-static//:include",  # @org_noelware_charted_server//build/settings:nixos
         ],
         "//conditions:default": [],
     }),
