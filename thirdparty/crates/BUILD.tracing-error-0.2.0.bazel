@@ -45,6 +45,6 @@ rust_library(
     version = "0.2.0",
     deps = [
         "@crate_index__tracing-0.1.40//:tracing",
-        "@crate_index__tracing-subscriber-0.3.17//:tracing_subscriber",
+        "@crate_index__tracing-subscriber-0.3.18//:tracing_subscriber",
     ],
 )
