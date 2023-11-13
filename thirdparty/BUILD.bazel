@@ -13,53 +13,68 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@rules_rust//crate_universe:defs.bzl", "crates_vendor")
+load("@rules_rust//crate_universe:defs.bzl", "crate", "crates_vendor")
 load("//:build/manifests.bzl", "CARGO_MANIFESTS")
 
 crates_vendor(
     name = "crate_index",
-    # annotations = {
-    #     "curl-sys": [crate.annotation(
-    #         build_script_data = [
-    #             {
-    #                 "@org_noelware_charted_server//build/settings:nixos": "@openssl-static//:include",
-    #             },
-    #         ],
-    #         build_script_env = {
-    #             "DEP_OPENSSL_INCLUDE": {
-    #                 "@org_noelware_charted_server//build/settings:nixos": "../openssl-static/include",
-    #             },
-    #         },
-    #     )],
-    #     "openssl-sys": [crate.annotation(
-    #         build_script_data = [
-    #             {
-    #                 "@org_noelware_charted_server//build/settings:nixos": "@openssl-static//:lib",
-    #             },
-    #         ],
-    #         build_script_env = {
-    #             "OPENSSL_INCLUDE_DIR": {
-    #                 "@org_noelware_charted_server//build/settings:nixos": "../openssl-static/include",
-    #             },
-    #             "OPENSSL_LIB_DIR": {
-    #                 "@org_noelware_charted_server//build/settings:nixos": "../openssl-static/lib",
-    #             },
-    #             "OPENSSL_STATIC": {
-    #                 "@org_noelware_charted_server//build/settings:nixos": "1",
-    #             },
-    #         },
-    #         data = [
-    #             {
-    #                 "@org_noelware_charted_server//build/settings:nixos": "@openssl-static//:lib",
-    #             },
-    #         ],
-    #         rustc_flags = [
-    #             {
-    #                 "@org_noelware_charted_server//build/settings:nixos": "-Lexternal/openssl-static/lib",
-    #             },
-    #         ],
-    #     )],
-    # },
+    annotations = {
+        # for NixOS / Nix users (like @auguwu and @spotlightishere at Noelware), it is important
+        # that we make sure Bazel includes the @openssl-static repository as it is the OpenSSL static
+        # library for Noel and Spotlight to compile the code on our systems.
+        #
+        # This is useful if `charted-server` is ever on Nixpkgs, maybe...
+        "curl-sys": [
+            crate.annotation(
+                build_script_data = [
+                    {
+                        "@org_noelware_charted_server//build/settings:nixos": "@openssl-static//:include",
+                    },
+                ],
+                build_script_env = {
+                    "DEP_OPENSSL_INCLUDE": {
+                        "@org_noelware_charted_server//build/settings:nixos": "../openssl-static/include",
+                    },
+                },
+            ),
+        ],
+        # "openssl-sys": [
+        #     crate.annotation(
+        #         build_script_data = [
+        #             {
+        #                 "@org_noelware_charted_server//build/settings:nixos": "@openssl-static//:lib",
+        #             },
+        #             {
+        #                 "@org_noelware_charted_server//build/settings:nixos": "@openssl-static//:include",
+        #             },
+        #         ],
+        #         build_script_env = {
+        #             "OPENSSL_INCLUDE_DIR": {
+        #                 "@org_noelware_charted_server//build/settings:nixos": "../openssl-static/include",
+        #             },
+        #             "OPENSSL_LIB_DIR": {
+        #                 "@org_noelware_charted_server//build/settings:nixos": "../openssl-static/lib",
+        #             },
+        #             "OPENSSL_STATIC": {
+        #                 "@org_noelware_charted_server//build/settings:nixos": "1",
+        #             },
+        #         },
+        #         data = [
+        #             {
+        #                 "@org_noelware_charted_server//build/settings:nixos": "@openssl-static//:lib",
+        #             },
+        #             {
+        #                 "@org_noelware_charted_server//build/settings:nixos": "@openssl-static//:include",
+        #             },
+        #         ],
+        #         rustc_flags = [
+        #             {
+        #                 "@org_noelware_charted_server//build/settings:nixos": "-Lexternal/openssl-static/lib",
+        #             },
+        #         ],
+        #     ),
+        # ],
+    },
 
     # TODO(@auguwu): currently broken with:
     #

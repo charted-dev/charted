@@ -16,12 +16,23 @@
 use crate::utils;
 use charted_common::cli::Execute;
 use eyre::Result;
+use itertools::Itertools;
+use serde::{Deserialize, Serialize};
 use std::{
     fs::{create_dir_all, File},
     io::Write,
     path::PathBuf,
     process::{exit, Command, Stdio},
 };
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Network {
+    #[serde(rename = "Name")]
+    pub name: String,
+
+    #[serde(rename = "ID")]
+    pub id: String,
+}
 
 #[derive(Debug, Clone, clap::Parser)]
 #[clap(about = "Starts the Docker Compose project for development use")]
@@ -157,18 +168,70 @@ impl Execute for Up {
         // create fluff network
         {
             let docker = docker.clone();
+            // let mut cmd = Command::new(&docker);
+            // cmd.args(["network", "ls", "--format", "'{{ json . }}'"]);
+
+            // info!(
+            //     "$ {} {}",
+            //     docker.display(),
+            //     cmd.get_args().map(|x| x.to_string_lossy()).join(" ")
+            // );
+
+            // let networks = cmd.output()?;
+            // if !networks.status.success() {
+            //     error!("unable to run '{} network ls':", docker.display());
+            //     error!("--- ~ stdout ~ ---");
+            //     error!("{}", String::from_utf8_lossy(&networks.stdout).trim());
+            //     error!("\n");
+            //     error!("--- ~ stderr ~ ---");
+            //     error!("{}", String::from_utf8_lossy(&networks.stderr).trim());
+
+            //     std::process::exit(networks.status.code().unwrap_or(1));
+            // }
+
+            // i don't know and don't want to know why this is problematic:
+            //
+            // DEBUG in tools/devtools/src/commands/docker/up.rs:199   deserializing '{"CreatedAt":"2023-11-12 20:31:20.59798998 -0800 PST","Driver":"bridge","ID":"a9638e5de194","IPv6":"false","Internal":"false","Labels":"","Name":"bridge","Scope":"local"}'
+            // ERROR in tools/devtools/src/commands/docker/up.rs:205   cannot deserialize output from Docker: expected value at line 1 column 1
+            // DEBUG in tools/devtools/src/commands/docker/up.rs:199   deserializing '{"CreatedAt":"2023-11-03 09:59:23.093086509 -0700 PDT","Driver":"bridge","ID":"1ec95190d710","IPv6":"false","Internal":"false","Labels":"","Name":"fluff","Scope":"local"}'
+            // ERROR in tools/devtools/src/commands/docker/up.rs:205   cannot deserialize output from Docker: expected value at line 1 column 1
+            // DEBUG in tools/devtools/src/commands/docker/up.rs:199   deserializing '{"CreatedAt":"2023-09-30 03:50:22.75905877 -0700 PDT","Driver":"host","ID":"ad5e434a9a18","IPv6":"false","Internal":"false","Labels":"","Name":"host","Scope":"local"}'
+            // ERROR in tools/devtools/src/commands/docker/up.rs:205   cannot deserialize output from Docker: expected value at line 1 column 1
+            // DEBUG in tools/devtools/src/commands/docker/up.rs:199   deserializing '{"CreatedAt":"2023-09-30 03:50:22.749711487 -0700 PDT","Driver":"null","ID":"fa8f144e6f3b","IPv6":"false","Internal":"false","Labels":"","Name":"none","Scope":"local"}'
+            // ERROR in tools/devtools/src/commands/docker/up.rs:205   cannot deserialize output from Docker: expected value at line 1 column 1
+            // let stdout = String::from_utf8(networks.stdout)?;
+            // debug!("stdout >> {stdout}");
+
+            // let network = stdout
+            //     .split('\n')
+            //     .filter(|x| !x.is_empty())
+            //     .map(|x| {
+            //         debug!("deserializing {x}");
+            //         serde_json::from_str::<Network>(x.trim())
+            //     })
+            //     .find(|net| match net {
+            //         Ok(net) => net.name == "fluff",
+            //         Err(e) => {
+            //             error!("cannot deserialize output from Docker: {e}");
+            //             false
+            //         }
+            //     });
+
+            // match network {
+            //     Some(_) => {}
+            //     None => {
+            info!("creating `fluff` network as it doesn't exist");
             let mut cmd = Command::new(&docker);
             cmd.args(["network", "create", "fluff", "--driver=bridge"]);
             cmd.stdin(Stdio::null())
                 .stdout(Stdio::inherit())
                 .stderr(Stdio::inherit());
 
-            let cmd_args = cmd
-                .get_args()
-                .map(|arg| arg.to_string_lossy().to_string())
-                .collect::<Vec<_>>();
-
-            info!("$ {} {}", docker.display(), cmd_args.join(" "));
+            info!(
+                "$ {} {}",
+                docker.display(),
+                cmd.get_args().map(|x| x.to_string_lossy()).join(" ")
+            );
 
             let mut child = cmd.spawn()?;
             let exit = child.wait()?;
@@ -176,6 +239,8 @@ impl Execute for Up {
             if !exit.success() {
                 std::process::exit(exit.code().unwrap_or(1));
             }
+            //    }
+            //}
         }
 
         let dc_file = docker_compose_file.clone();

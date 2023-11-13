@@ -30,7 +30,5 @@ echo "===> $ $BAZEL $BAZEL_STARTUP_ARGS run $BAZEL_ARGS //thirdparty:crate_index
 
 CARGO_BAZEL_REPIN=all $BAZEL $BAZEL_STARTUP_ARGS run $BAZEL_ARGS //thirdparty:crate_index -- --repin
 
-echo "===> Patching \`openssl-sys\` and \`curl-sys\`..."
-
+echo "===> Patching \`openssl-sys\`"
 patch -u thirdparty/crates/BUILD.openssl-sys-0.9.93.bazel -i ./build/patches/0002-patch-openssl-sys.patch
-patch -u thirdparty/crates/BUILD.curl-sys-0.4.65+curl-8.2.1.bazel -i ./build/patches/0003-curl-sys.patch
