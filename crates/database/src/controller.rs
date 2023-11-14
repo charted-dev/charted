@@ -111,7 +111,11 @@ impl DbControllerRegistry {
         DbControllerRegistry(vec![
             Arc::new(users),
             Arc::new(connections),
-            Arc::new(RepositoryDatabaseController::new(storage.clone(), pool.clone())),
+            Arc::new(RepositoryDatabaseController::new(
+                worker.clone(),
+                storage.clone(),
+                pool.clone(),
+            )),
             Arc::new(OrganizationDatabaseController::new(pool.clone())),
         ])
     }

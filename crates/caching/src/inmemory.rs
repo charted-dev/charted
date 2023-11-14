@@ -20,7 +20,7 @@ use eyre::{Context, Result};
 use moka::future::Cache;
 use serde::{de::DeserializeOwned, Serialize};
 use std::fmt::Debug;
-use tracing::{info, instrument, trace};
+use tracing::{info, instrument, trace, warn};
 
 #[derive(Clone)]
 pub struct InMemoryCacheWorker {
@@ -83,17 +83,20 @@ impl CacheWorker for InMemoryCacheWorker {
                     .context("unable to deserialize to type `O`")
             }
 
-            None => Ok(None),
+            None => {
+                warn!(cache.worker = "inmemory", cache.key = %key, "cache hit failed; returning `None`");
+                Ok(None)
+            }
         }
     }
 
     #[instrument(name = "charted.caching.inmemory.put", skip(self, obj))]
-    async fn put<O: Serialize + Send + Sync>(&mut self, key: CacheKey, obj: O) -> Result<()> {
+    async fn put<O: Serialize + Send + Sync>(&mut self, key: CacheKey, obj: &O) -> Result<()> {
         if self.pool.contains_key(&key) {
             return Ok(());
         }
 
-        let serialized = serde_json::to_string(&obj)?;
+        let serialized = serde_json::to_string(obj)?;
         self.pool.insert(key.clone(), serialized).await;
         trace!(cache.worker = "inmemory", cache.key = %key, "cache inserted");
 

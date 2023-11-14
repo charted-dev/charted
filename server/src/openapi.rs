@@ -109,6 +109,8 @@ impl Document {
                 crate::routing::v1::repository::GetRepositoryRestController::paths(),
             ];
 
+            Document::format(APIVersion::V1, "/repositories") => crate::routing::v1::repository::MainRestController::paths();
+
             // api keys
             Document::format(APIVersion::V1, "/apikeys") => crate::routing::v1::apikeys::EntrypointRestController::paths();
 
@@ -151,6 +153,8 @@ impl Document {
                 crate::routing::v1::repository::PatchRepositoryRestController::paths(),
                 crate::routing::v1::repository::GetRepositoryRestController::paths()
             ];
+
+            "/repositories" => crate::routing::v1::repository::MainRestController::paths();
 
             // api keys
             "/apikeys" => crate::routing::v1::apikeys::EntrypointRestController::paths();

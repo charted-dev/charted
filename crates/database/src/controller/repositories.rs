@@ -22,6 +22,7 @@ pub use releases::*;
 use super::DbController;
 use crate::{impl_paginate, impl_patch_for};
 use async_trait::async_trait;
+use charted_cache_worker::DynamicCacheWorker;
 use charted_common::models::{
     entities::Repository,
     payloads::{CreateRepositoryPayload, PatchRepositoryPayload},
@@ -30,17 +31,24 @@ use charted_common::models::{
 use charted_storage::{Bytes, MultiStorageService, StorageService, UploadRequest};
 use eyre::{Context, Result};
 use sqlx::{PgPool, Postgres};
+use std::sync::{Arc, Mutex};
 use tracing::{error, instrument};
 
 #[derive(Debug, Clone)]
 pub struct RepositoryDatabaseController {
     storage: MultiStorageService,
+    #[allow(dead_code)]
+    worker: Arc<Mutex<DynamicCacheWorker>>,
     pool: PgPool,
 }
 
 impl RepositoryDatabaseController {
-    pub fn new(storage: MultiStorageService, pool: PgPool) -> RepositoryDatabaseController {
-        RepositoryDatabaseController { storage, pool }
+    pub fn new(worker: DynamicCacheWorker, storage: MultiStorageService, pool: PgPool) -> RepositoryDatabaseController {
+        RepositoryDatabaseController {
+            worker: Arc::new(Mutex::new(worker)),
+            storage,
+            pool,
+        }
     }
 }
 

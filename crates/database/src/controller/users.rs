@@ -66,7 +66,7 @@ impl DbController for UserDatabaseController {
 
         match query.fetch_optional(&self.pool).await {
             Ok(Some(user)) => {
-                cache.put(key.clone(), user.clone()).await?;
+                cache.put(key.clone(), &user).await?;
                 warn!(user.id, cache.key = %key, "cache hit miss");
 
                 Ok(Some(user))
@@ -215,9 +215,7 @@ impl DbController for UserDatabaseController {
 
                 e
             })
-            .context("unable to commit transaction")?;
-
-        Ok(())
+            .context("unable to commit transaction")
     }
 
     #[instrument(name = "charted.db.users.delete", skip(self))]

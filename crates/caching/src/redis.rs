@@ -60,7 +60,7 @@ impl CacheWorker for RedisCacheWorker {
     }
 
     #[instrument(name = "charted.caching.redis.put", skip(self, obj))]
-    async fn put<O: Serialize + Send + Sync>(&mut self, key: CacheKey, obj: O) -> Result<()> {
+    async fn put<O: Serialize + Send + Sync>(&mut self, key: CacheKey, obj: &O) -> Result<()> {
         let redis_key = key.as_redis_key();
         let client = self.client.master()?;
         let mut conn = client.get_connection()?;
@@ -71,7 +71,7 @@ impl CacheWorker for RedisCacheWorker {
 
         let mut pipeline = RedisClient::pipeline();
         pipeline
-            .set(redis_key.clone(), serde_json::to_string(&obj)?)
+            .set(redis_key.clone(), serde_json::to_string(obj)?)
             .expire(redis_key.clone(), self.ttl.as_secs().try_into().unwrap())
             .query::<()>(&mut conn)
             .context(format!("unable to run 'SET {redis_key}'"))

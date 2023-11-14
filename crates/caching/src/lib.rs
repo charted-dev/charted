@@ -100,7 +100,7 @@ pub trait CacheWorker: Send + Sync {
 
     /// Reserve a cache object within a given [`CacheKey`], returns a error
     /// if the cache key was already inserted into the cache.
-    async fn put<O: Serialize + Send + Sync>(&mut self, key: CacheKey, obj: O) -> Result<()>;
+    async fn put<O: Serialize + Send + Sync>(&mut self, key: CacheKey, obj: &O) -> Result<()>;
 
     /// Attempts to delete a cache key from the cache if it exists.
     async fn delete(&mut self, key: CacheKey) -> Result<()>;
@@ -124,7 +124,7 @@ impl CacheWorker for DynamicCacheWorker {
         }
     }
 
-    async fn put<O: Serialize + Send + Sync>(&mut self, key: CacheKey, obj: O) -> Result<()> {
+    async fn put<O: Serialize + Send + Sync>(&mut self, key: CacheKey, obj: &O) -> Result<()> {
         match self {
             Self::InMemory(inmem) => inmem.put(key, obj).await,
             Self::Redis(redis) => redis.put(key, obj).await,

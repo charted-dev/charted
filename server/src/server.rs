@@ -16,6 +16,7 @@
 use crate::{routing::create_router, WebDist};
 use axum::{extract::FromRef, Router};
 use charted_avatars::AvatarsModule;
+use charted_cache_worker::DynamicCacheWorker;
 use charted_common::Snowflake;
 use charted_config::Config;
 use charted_database::controller::DbControllerRegistry;
@@ -35,7 +36,10 @@ use std::{
         Arc,
     },
 };
-use tokio::{select, signal, sync::RwLock};
+use tokio::{
+    select, signal,
+    sync::{Mutex, RwLock},
+};
 
 #[cfg(bundle_web)]
 use axum::response::IntoResponse;
@@ -50,6 +54,7 @@ pub struct Server {
     pub sessions: Arc<RwLock<SessionManager>>,
     pub registry: SingleRegistry,
     pub requests: AtomicUsize,
+    pub db_cache: Arc<Mutex<DynamicCacheWorker>>,
     pub avatars: AvatarsModule,
     pub storage: MultiStorageService,
     pub config: Config,
@@ -65,6 +70,7 @@ impl Clone for Server {
             snowflake: self.snowflake.clone(),
             sessions: self.sessions.clone(),
             registry: self.registry.clone(),
+            db_cache: self.db_cache.clone(),
             requests: AtomicUsize::new(self.requests.load(Ordering::SeqCst)),
             avatars: self.avatars.clone(),
             storage: self.storage.clone(),

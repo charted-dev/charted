@@ -243,7 +243,7 @@ macro_rules! impl_patch_for_priv {
             {
                 Ok(_) => {}
                 Err(e) => {
-                    ::tracing::error!(id = $id, error = %e, concat!("unable to update [", $column, "] for table [", $table, "]"));
+                    ::tracing::error!(id = $id, error = %e, concat!("unable to update column [", $column, "] for table [", $table, "]"));
                     ::sentry::capture_error(&e);
 
                     // drop it so it can be rolled back.
@@ -272,7 +272,7 @@ macro_rules! impl_patch_for_priv {
             {
                 Ok(_) => {}
                 Err(e) => {
-                    ::tracing::error!(id = $id, error = %e, concat!("unable to update [", $column, "] for table [", $table, "]"));
+                    ::tracing::error!(id = $id, error = %e, concat!("unable to update column [", $column, "] for table [", $table, "]"));
                     ::sentry::capture_error(&e);
 
                     // drop it so it can be rolled back.

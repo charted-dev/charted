@@ -48,4 +48,3 @@ CARGO_MANIFESTS = [
     "//tools/devtools:Cargo.toml",
     "//tools/helm-plugin:Cargo.toml",
 ]
-

@@ -63,6 +63,7 @@ generate_response_schema!(EntrypointResponse);
 
 pub fn create_router() -> Router<Server> {
     let mut router = Router::new()
+        .nest("/repositories", repository::create_router())
         .route("/indexes/:idOrName", get(GetIndexRestController::run))
         .route("/openapi.json", get(openapi))
         .route("/heartbeat", get(HeartbeatRestController::run))

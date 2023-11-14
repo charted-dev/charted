@@ -40,7 +40,7 @@ use std::{
     sync::{atomic::AtomicUsize, Arc},
     time::{Duration, Instant},
 };
-use tokio::sync::RwLock;
+use tokio::sync::{Mutex, RwLock};
 
 #[derive(Debug, Clone)]
 pub struct StartServerPhase;
@@ -175,12 +175,13 @@ pub(crate) async fn configure_modules(config: &Config) -> Result<Server> {
     );
 
     Ok(Server {
-        controllers: DbControllerRegistry::new(cache_worker, storage.clone(), pool.clone()),
+        controllers: DbControllerRegistry::new(cache_worker.clone(), storage.clone(), pool.clone()),
         helm_charts,
         snowflake,
         sessions: Arc::new(RwLock::new(sessions)),
         registry,
         requests: AtomicUsize::new(0),
+        db_cache: Arc::new(Mutex::new(cache_worker)),
         avatars,
         storage,
         config: config.clone(),

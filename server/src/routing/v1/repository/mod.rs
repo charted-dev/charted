@@ -17,7 +17,7 @@ use crate::{
     extract::Json,
     macros::controller,
     middleware::{Session, SessionAuth},
-    models::res::{err, no_content, ApiResponse},
+    models::res::{err, no_content, ok, ApiResponse},
     validation::validate,
     Server,
 };
@@ -27,17 +27,28 @@ use axum::{
     http::StatusCode,
     routing, Extension, Router,
 };
-use charted_common::models::{entities::ApiKeyScope, payloads::PatchRepositoryPayload, Name};
+use charted_cache_worker::{CacheKey, CacheWorker};
+use charted_common::{
+    models::{
+        entities::{ApiKeyScope, Repository},
+        payloads::PatchRepositoryPayload,
+        Name,
+    },
+    VERSION,
+};
 use charted_database::controller::{repositories::RepositoryDatabaseController, DbController};
 use serde_json::json;
+use sqlx::{query_as, Postgres};
 use tower_http::auth::AsyncRequireAuthorizationLayer;
 use validator::Validate;
+
+use super::EntrypointResponse;
 
 pub(crate) struct RepositoryResponse;
 charted_openapi::generate_response_schema!(RepositoryResponse, schema = "Repository");
 
 pub fn create_router() -> Router<Server> {
-    Router::new().route(
+    Router::new().route("/", routing::get(MainRestController::run)).route(
         "/:id",
         routing::patch(
             PatchRepositoryRestController::run.layer(AsyncRequireAuthorizationLayer::new(
@@ -45,6 +56,18 @@ pub fn create_router() -> Router<Server> {
             )),
         )
         .get(GetRepositoryRestController::run),
+    )
+}
+
+/// Generic entrypoint route for the Repositories API.
+#[controller(id = "users", tags("Users"), response(200, "Successful response", ("application/json", response!("EntrypointResponse"))))]
+pub async fn main() {
+    ok(
+        StatusCode::OK,
+        EntrypointResponse {
+            message: "Welcome to the Repositories API".into(),
+            docs: format!("https://charts.noelware.org/docs/server/{VERSION}/api/repositories"),
+        },
     )
 }
 
@@ -58,7 +81,56 @@ pub fn create_router() -> Router<Server> {
     ),
     response(200, "Successful response", ("application/json", response!("RepositoryResponse")))
 )]
-pub async fn get_repository() {}
+pub async fn get_repository(
+    State(Server { pool, db_cache, .. }): State<Server>,
+    Path(id): Path<i64>,
+) -> Result<ApiResponse<Repository>, ApiResponse> {
+    let mut worker = db_cache.lock().await;
+    let key = CacheKey::repository(id);
+
+    if let Some(cached) = worker.get::<Repository>(key.clone()).await.map_err(|e| {
+        error!(error = %e, repo.id = id, "unable to get cached repository");
+        sentry_eyre::capture_report(&e);
+
+        err(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+        )
+    })? {
+        Ok(ok(StatusCode::OK, cached))
+    } else {
+        match query_as::<Postgres, Repository>("select repositories.* from repositories where id = $1;")
+            .bind(id)
+            .fetch_optional(&pool)
+            .await
+        {
+            Ok(Some(entity)) => match worker.put(key, &entity).await {
+                Ok(()) => Ok(ok(StatusCode::OK, entity)),
+                Err(e) => {
+                    error!(error = %e, repo.id = id, "unable to put repo in cache; trying again once hit again");
+                    sentry_eyre::capture_report(&e);
+
+                    Ok(ok(StatusCode::OK, entity))
+                }
+            },
+
+            Ok(None) => Err(err(
+                StatusCode::NOT_FOUND,
+                ("REPO_NOT_FOUND", format!("repository with id [{id}] was not found")).into(),
+            )),
+
+            Err(e) => {
+                error!(error = %e, repo.id = id, "unable to get repository from db");
+                sentry::capture_error(&e);
+
+                Err(err(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+                ))
+            }
+        }
+    }
+}
 
 /// Patch a repository's metadata
 #[controller(
