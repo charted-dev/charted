@@ -400,7 +400,7 @@ _NORMAL_DEPENDENCIES = {
             "bytes": "@crate_index__bytes-1.5.0//:bytes",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
             "flate2": "@crate_index__flate2-1.0.28//:flate2",
-            "itertools": "@crate_index__itertools-0.11.0//:itertools",
+            "itertools": "@crate_index__itertools-0.12.0//:itertools",
             "multer": "@crate_index__multer-2.1.0//:multer",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
             "regex": "@crate_index__regex-1.10.2//:regex",
@@ -632,7 +632,7 @@ _NORMAL_DEPENDENCIES = {
             "clap_complete": "@crate_index__clap_complete-4.4.4//:clap_complete",
             "color-eyre": "@crate_index__color-eyre-0.6.2//:color_eyre",
             "eyre": "@crate_index__eyre-0.6.8//:eyre",
-            "itertools": "@crate_index__itertools-0.11.0//:itertools",
+            "itertools": "@crate_index__itertools-0.12.0//:itertools",
             "promptly": "@crate_index__promptly-0.3.1//:promptly",
             "serde": "@crate_index__serde-1.0.192//:serde",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
@@ -3856,6 +3856,16 @@ def crate_repositories():
         urls = ["https://crates.io/api/v1/crates/itertools/0.11.0/download"],
         strip_prefix = "itertools-0.11.0",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.itertools-0.11.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__itertools-0.12.0",
+        sha256 = "25db6b064527c5d482d0423354fcd07a89a2dfe07b67892e62411946db7f07b0",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/itertools/0.12.0/download"],
+        strip_prefix = "itertools-0.12.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.itertools-0.12.0.bazel"),
     )
 
     maybe(
