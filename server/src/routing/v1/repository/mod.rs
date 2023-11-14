@@ -60,7 +60,11 @@ pub fn create_router() -> Router<Server> {
 }
 
 /// Generic entrypoint route for the Repositories API.
-#[controller(id = "users", tags("Users"), response(200, "Successful response", ("application/json", response!("EntrypointResponse"))))]
+#[controller(
+    id = "repositories",
+    tags("Repositories"),
+    response(200, "Successful response", ("application/json", response!("EntrypointResponse")))
+)]
 pub async fn main() {
     ok(
         StatusCode::OK,
