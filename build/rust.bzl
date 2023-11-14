@@ -99,6 +99,7 @@ def rust_project(
             compile_data = external_data,
             proc_macro_deps = proc_macro_deps,
             rustc_flags = extra_flags,
+            edition = _DEFAULT_RUST_EDITION,
         )
 
         # rust_test_suite(
