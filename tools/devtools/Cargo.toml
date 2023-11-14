@@ -29,7 +29,7 @@ clap = { version = "4.4.8", features = ["derive", "env"] }
 clap_complete = "4.4.4"
 color-eyre = "0.6.2"
 eyre = "0.6.8"
-itertools = "0.11.0"
+itertools = "0.12.0"
 simple_tables = "0.3.0"
 serde = { version = "1.0.192", features = ["derive"] }
 starlark = { git = "https://github.com/facebookexperimental/starlark-rust", rev = "a52808f034503bcee9c74354ce1e092cbf63841d" }
