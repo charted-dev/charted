@@ -624,8 +624,6 @@ _NORMAL_DEPENDENCIES = {
             "serde": "@crate_index__serde-1.0.192//:serde",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
             "tokio": "@crate_index__tokio-1.34.0//:tokio",
-            "tower": "@crate_index__tower-0.4.13//:tower",
-            "tower-service": "@crate_index__tower-service-0.3.2//:tower_service",
         },
     },
     "tools/devtools": {

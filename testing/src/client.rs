@@ -83,7 +83,7 @@ where
     <B as HttpBody>::Error: Into<Box<dyn Error + Send + Sync + 'static>>,
 {
     fn new<U: Display>(base_url: Cow<'static, str>, client: Client<HttpConnector, B>, method: Method, url: U) -> Self {
-        let full_url = format!("{}{}", base_url, url);
+        let full_url = format!("http://{}{}", base_url, url);
         let mut req = Request::new(B::default());
 
         *req.uri_mut() = Uri::from_str(&full_url).unwrap();

@@ -76,3 +76,6 @@ tracing-log = "0.2.0"
 tracing-subscriber = "0.3.18"
 utoipa = { version = "4.1.0", features = ["axum_extras", "chrono", "serde_yaml", "uuid"] }
 validator = "0.16.1"
+
+[dev-dependencies]
+charted-integ-rest = { path = "../testing" }

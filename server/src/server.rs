@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use crate::{routing::create_router, WebDist};
-use axum::extract::FromRef;
+use axum::{extract::FromRef, Router};
 use charted_avatars::AvatarsModule;
 use charted_common::Snowflake;
 use charted_config::Config;
@@ -90,14 +90,10 @@ impl Debug for Server {
 }
 
 impl Server {
-    pub async fn run(&self) -> Result<()> {
-        let addr = self.config.server.addr();
-        info!(%addr, "now listening on");
-
+    pub fn create_router(&self) -> Router {
         let router = create_router().with_state(self.clone());
-        let router = match WebDist::available() {
+        match WebDist::available() {
             false => router,
-
             #[cfg(bundle_web)]
             true => {
                 info!("web ui is enabled! all api endpoints will be mounted on /api!");
@@ -105,8 +101,14 @@ impl Server {
             }
 
             true => unreachable!(),
-        };
+        }
+    }
 
+    pub async fn run(&self) -> Result<()> {
+        let addr = self.config.server.addr();
+        info!(%addr, "now listening on");
+
+        let router = self.create_router();
         axum::Server::bind(&addr)
             .serve(router.into_make_service())
             .with_graceful_shutdown(shutdown())

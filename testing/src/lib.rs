@@ -16,16 +16,16 @@
 mod client;
 
 use async_trait::async_trait;
+use axum::Router;
 use client::HttpClient;
 use eyre::{eyre, Context, Result};
-use hyper::{body::HttpBody, Body, Request, Response, Server};
+use hyper::Body;
 use std::{borrow::Cow, future::Future, net::TcpListener};
 use tokio::task::JoinHandle;
-use tower::make::Shared;
-use tower_service::Service;
 
 /// Represents a test context. A test context is a way to use different methods
 /// on a test bed that allows execution over the underlying HTTP server.
+#[derive(Debug)]
 pub struct TestContext {
     /// The name of the test that is running
     pub name: Cow<'static, str>,
@@ -40,24 +40,15 @@ pub struct TestContext {
 
 impl TestContext {
     /// Creates a new [`TestContext`] instance.
-    pub fn new(name: Cow<'static, str>) -> TestContext {
+    pub fn new<C: Into<Cow<'static, str>>>(name: C) -> TestContext {
         TestContext {
-            name,
+            name: name.into(),
             http: HttpClient::new(Cow::Borrowed("http://localhost:0")),
             server_handle: None,
         }
     }
 
-    /// Ignite the test context and launches the Axum server
-    pub fn ignite<S, ResBody>(&mut self, svc: S) -> Result<()>
-    where
-        S: Service<Request<Body>, Response = Response<ResBody>> + Clone + Send + 'static,
-        ResBody: HttpBody + Send + 'static,
-        ResBody::Data: Send,
-        ResBody::Error: Into<Box<dyn std::error::Error + Send + Sync>>,
-        S::Future: Send,
-        S::Error: Into<Box<dyn std::error::Error + Send + Sync>>,
-    {
+    pub fn start_server(&mut self, router: Router) -> Result<()> {
         if self.server_handle.is_some() {
             return Err(eyre!("test server is already listening"));
         }
@@ -69,8 +60,11 @@ impl TestContext {
 
         self.http = HttpClient::new(Cow::Owned(addr.to_string()));
         self.server_handle = Some(tokio::spawn(async move {
-            let server = Server::from_tcp(listener).unwrap().serve(Shared::new(svc));
-            server.await.context("hyper server error")
+            axum::Server::from_tcp(listener)
+                .unwrap()
+                .serve(router.into_make_service())
+                .await
+                .context("hyper server error")
         }));
 
         Ok(())
@@ -80,17 +74,45 @@ impl TestContext {
 /// Represents a single test that can be invoked.
 #[async_trait]
 pub trait Test: Send + Sync {
-    /// Invokes the given test and returns a [`Result`] of the execution itself.
-    async fn invoke(&self, context: TestContext) -> Result<()>;
+    async fn invoke(&self, context: TestContext);
 }
 
 #[async_trait]
 impl<F, Fut> Test for F
 where
     F: Fn(TestContext) -> Fut + Send + Sync,
-    Fut: Future<Output = Result<()>> + Send + Sync,
+    Fut: Future<Output = ()> + Send + Sync,
 {
-    async fn invoke(&self, context: TestContext) -> Result<()> {
+    async fn invoke(&self, context: TestContext) {
         (self)(context).await
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::{routing, Router};
+
+    fn router() -> Router {
+        Router::new().route("/", routing::get(|| async { "Hello, world!" }))
+    }
+
+    #[tokio::test]
+    async fn test_context_example() {
+        async fn my_test(context: TestContext) {
+            let res = context.http.get("/").send().await.unwrap();
+            let text = res.text().await.unwrap();
+
+            assert_eq!(&text, "Hello, world!");
+        }
+
+        let mut ctx = TestContext::new("a test context example");
+        ctx.start_server(router()).unwrap();
+
+        // could've done my_text(ctx) but, this is the purpose
+        // of testing the Test trait (and it works!)
+        //
+        // building block of the #[charted_server::test] macro :0
+        (&my_test as &dyn Test).invoke(ctx).await;
     }
 }

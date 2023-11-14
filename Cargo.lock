@@ -1169,8 +1169,6 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
- "tower",
- "tower-service",
 ]
 
 [[package]]
@@ -1305,6 +1303,7 @@ dependencies = [
  "charted-config",
  "charted-database",
  "charted-helm-charts",
+ "charted-integ-rest",
  "charted-logging",
  "charted-metrics",
  "charted-openapi",

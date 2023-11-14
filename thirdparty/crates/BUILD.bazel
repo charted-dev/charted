@@ -518,12 +518,6 @@ alias(
 )
 
 alias(
-    name = "tower-service",
-    actual = "@crate_index__tower-service-0.3.2//:tower_service",
-    tags = ["manual"],
-)
-
-alias(
     name = "tracing",
     actual = "@crate_index__tracing-0.1.40//:tracing",
     tags = ["manual"],
