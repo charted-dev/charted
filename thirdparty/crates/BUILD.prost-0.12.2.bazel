@@ -36,7 +36,7 @@ rust_library(
     crate_root = "src/lib.rs",
     edition = "2021",
     proc_macro_deps = [
-        "@crate_index__prost-derive-0.12.1//:prost_derive",
+        "@crate_index__prost-derive-0.12.2//:prost_derive",
     ],
     rustc_flags = ["--cap-lints=allow"],
     tags = [
@@ -46,7 +46,7 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.12.1",
+    version = "0.12.2",
     deps = [
         "@crate_index__bytes-1.5.0//:bytes",
     ],
