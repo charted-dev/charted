@@ -29,7 +29,7 @@ charted-config = { version = "0.0.0-devel.0", path = "../../config" }
 charted-redis = { version = "0.0.0-devel.0", path = "../../redis" }
 charted-sessions = { version = "0.0.0-devel.0", path = ".." }
 chrono = "0.4.31"
-eyre = "0.6.8"
+eyre = "0.6.9"
 jsonwebtoken = "9.1.0"
 once_cell = "1.18.0"
 sentry = "0.31.8"
