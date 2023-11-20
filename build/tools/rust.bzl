@@ -26,7 +26,7 @@ def charted_rust_repositories():
     # TODO(@auguwu): switch to newer rules-rust once commit 3a013f8bf11cfda776fce91e3dc0cee387d8c001 is in a release
     http_archive(
         name = "rules_rust",
-        strip_prefix = "rules_rust-f11c529e802ee1a4537634d4a175bd6658dd60be",
-        sha256 = "0dd74fde5810b2a8e47d6fdead0dd239fb6f976fae555996c21c119ce4334941",
-        urls = ["https://github.com/bazelbuild/rules_rust/archive/f11c529e802ee1a4537634d4a175bd6658dd60be.tar.gz"],
+        strip_prefix = "rules_rust-e3dd1707b5a0149b7042ab76b84521690b361998",
+        sha256 = "455c630d9990cf3dbe93b9c927c04f6696ba2f3d1e3a9e152dcbd66d08ed0a23",
+        urls = ["https://github.com/bazelbuild/rules_rust/archive/e3dd1707b5a0149b7042ab76b84521690b361998.tar.gz"],
     )
