@@ -549,7 +549,7 @@ alias(
 
 alias(
     name = "uuid",
-    actual = "@crate_index__uuid-1.5.0//:uuid",
+    actual = "@crate_index__uuid-1.6.0//:uuid",
     tags = ["manual"],
 )
 
