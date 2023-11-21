@@ -51,7 +51,7 @@ rust_library(
         "@crate_index__libsqlite3-sys-0.26.0//:libsqlite3_sys",
         "@crate_index__log-0.4.20//:log",
         "@crate_index__percent-encoding-2.3.0//:percent_encoding",
-        "@crate_index__serde-1.0.192//:serde",
+        "@crate_index__serde-1.0.193//:serde",
         "@crate_index__sqlx-core-0.7.2//:sqlx_core",
         "@crate_index__tracing-0.1.40//:tracing",
         "@crate_index__url-2.4.1//:url",
