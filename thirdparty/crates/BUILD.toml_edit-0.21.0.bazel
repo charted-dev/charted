@@ -46,7 +46,7 @@ rust_library(
     version = "0.21.0",
     deps = [
         "@crate_index__indexmap-2.0.0//:indexmap",
-        "@crate_index__serde-1.0.192//:serde",
+        "@crate_index__serde-1.0.193//:serde",
         "@crate_index__serde_spanned-0.6.4//:serde_spanned",
         "@crate_index__toml_datetime-0.6.5//:toml_datetime",
         "@crate_index__winnow-0.5.15//:winnow",
