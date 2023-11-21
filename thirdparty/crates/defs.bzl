@@ -390,7 +390,7 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/emails": {
         _COMMON_CONDITION: {
-            "prost": "@crate_index__prost-0.12.2//:prost",
+            "prost": "@crate_index__prost-0.12.3//:prost",
             "tonic": "@crate_index__tonic-0.10.2//:tonic",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
@@ -4830,12 +4830,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__prost-0.12.2",
-        sha256 = "5a5a410fc7882af66deb8d01d01737353cf3ad6204c408177ba494291a626312",
+        name = "crate_index__prost-0.12.3",
+        sha256 = "146c289cda302b98a28d40c8b3b90498d6e526dd24ac2ecea73e4e491685b94a",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/prost/0.12.2/download"],
-        strip_prefix = "prost-0.12.2",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.prost-0.12.2.bazel"),
+        urls = ["https://crates.io/api/v1/crates/prost/0.12.3/download"],
+        strip_prefix = "prost-0.12.3",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.prost-0.12.3.bazel"),
     )
 
     maybe(
@@ -4850,12 +4850,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__prost-derive-0.12.2",
-        sha256 = "065717a5dfaca4a83d2fe57db3487b311365200000551d7a364e715dbf4346bc",
+        name = "crate_index__prost-derive-0.12.3",
+        sha256 = "efb6c9a1dd1def8e2124d17e83a20af56f1570d6c2d2bd9e266ccb768df3840e",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/prost-derive/0.12.2/download"],
-        strip_prefix = "prost-derive-0.12.2",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.prost-derive-0.12.2.bazel"),
+        urls = ["https://crates.io/api/v1/crates/prost-derive/0.12.3/download"],
+        strip_prefix = "prost-derive-0.12.3",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.prost-derive-0.12.3.bazel"),
     )
 
     maybe(
