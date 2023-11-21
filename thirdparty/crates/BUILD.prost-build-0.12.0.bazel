@@ -54,7 +54,7 @@ rust_library(
         "@crate_index__once_cell-1.18.0//:once_cell",
         "@crate_index__petgraph-0.6.4//:petgraph",
         "@crate_index__prettyplease-0.2.15//:prettyplease",
-        "@crate_index__prost-0.12.2//:prost",
+        "@crate_index__prost-0.12.3//:prost",
         "@crate_index__prost-types-0.12.0//:prost_types",
         "@crate_index__regex-1.10.2//:regex",
         "@crate_index__syn-2.0.39//:syn",
