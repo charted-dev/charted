@@ -47,7 +47,7 @@ rust_library(
     version = "1.0.20",
     deps = [
         "@crate_index__semver-1.0.20//:build_script_build",
-        "@crate_index__serde-1.0.192//:serde",
+        "@crate_index__serde-1.0.193//:serde",
     ],
 )
 
