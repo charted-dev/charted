@@ -73,7 +73,7 @@ rust_library(
         "@crate_index__futures-0.3.29//:futures",
         "@crate_index__futures-util-0.3.29//:futures_util",
         "@crate_index__itoa-1.0.9//:itoa",
-        "@crate_index__percent-encoding-2.3.0//:percent_encoding",
+        "@crate_index__percent-encoding-2.3.1//:percent_encoding",
         "@crate_index__pin-project-lite-0.2.13//:pin_project_lite",
         "@crate_index__rand-0.8.5//:rand",
         "@crate_index__ryu-1.0.15//:ryu",
@@ -82,6 +82,6 @@ rust_library(
         "@crate_index__tokio-1.34.0//:tokio",
         "@crate_index__tokio-retry-0.3.0//:tokio_retry",
         "@crate_index__tokio-util-0.7.10//:tokio_util",
-        "@crate_index__url-2.4.1//:url",
+        "@crate_index__url-2.5.0//:url",
     ],
 )

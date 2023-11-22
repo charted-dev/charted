@@ -54,7 +54,7 @@ rust_library(
         "@crate_index__aws-types-0.56.1//:aws_types",
         "@crate_index__fastrand-2.0.0//:fastrand",
         "@crate_index__http-0.2.9//:http",
-        "@crate_index__percent-encoding-2.3.0//:percent_encoding",
+        "@crate_index__percent-encoding-2.3.1//:percent_encoding",
         "@crate_index__tracing-0.1.40//:tracing",
         "@crate_index__uuid-1.6.1//:uuid",
     ],
