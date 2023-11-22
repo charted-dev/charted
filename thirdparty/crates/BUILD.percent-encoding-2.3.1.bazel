@@ -15,7 +15,7 @@ package(default_visibility = ["//visibility:public"])
 # ])
 
 rust_library(
-    name = "form_urlencoded",
+    name = "percent_encoding",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -38,13 +38,10 @@ rust_library(
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=form_urlencoded",
+        "crate-name=percent-encoding",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "1.2.0",
-    deps = [
-        "@crate_index__percent-encoding-2.3.0//:percent_encoding",
-    ],
+    version = "2.3.1",
 )
