@@ -479,7 +479,7 @@ _NORMAL_DEPENDENCIES = {
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
             "tokio": "@crate_index__tokio-1.34.0//:tokio",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
-            "url": "@crate_index__url-2.4.1//:url",
+            "url": "@crate_index__url-2.5.0//:url",
         },
     },
     "crates/search/meilisearch": {
@@ -665,7 +665,7 @@ _NORMAL_DEPENDENCIES = {
             "tokio": "@crate_index__tokio-1.34.0//:tokio",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.18//:tracing_subscriber",
-            "url": "@crate_index__url-2.4.1//:url",
+            "url": "@crate_index__url-2.5.0//:url",
             "which": "@crate_index__which-5.0.0//:which",
         },
     },
@@ -3300,12 +3300,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__form_urlencoded-1.2.0",
-        sha256 = "a62bc1cf6f830c2ec14a513a9fb124d0a213a629668a4186f329db21fe045652",
+        name = "crate_index__form_urlencoded-1.2.1",
+        sha256 = "e13624c2627564efccf4934284bdd98cbaa14e79b0b5a141218e507b3a823456",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/form_urlencoded/1.2.0/download"],
-        strip_prefix = "form_urlencoded-1.2.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.form_urlencoded-1.2.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/form_urlencoded/1.2.1/download"],
+        strip_prefix = "form_urlencoded-1.2.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.form_urlencoded-1.2.1.bazel"),
     )
 
     maybe(
@@ -3726,6 +3726,16 @@ def crate_repositories():
         urls = ["https://crates.io/api/v1/crates/idna/0.4.0/download"],
         strip_prefix = "idna-0.4.0",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.idna-0.4.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__idna-0.5.0",
+        sha256 = "634d9b1461af396cad843f47fdba5597a4f9e6ddd4bfb6ff5d85028c25cb12f6",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/idna/0.5.0/download"],
+        strip_prefix = "idna-0.5.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.idna-0.5.0.bazel"),
     )
 
     maybe(
@@ -4630,12 +4640,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__percent-encoding-2.3.0",
-        sha256 = "9b2a4787296e9989611394c33f193f676704af1686e70b8f8033ab5ba9a35a94",
+        name = "crate_index__percent-encoding-2.3.1",
+        sha256 = "e3148f5046208a5d56bcfc03053e3ca6334e51da8dfb19b6cdc8b306fae3283e",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/percent-encoding/2.3.0/download"],
-        strip_prefix = "percent-encoding-2.3.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.percent-encoding-2.3.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/percent-encoding/2.3.1/download"],
+        strip_prefix = "percent-encoding-2.3.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.percent-encoding-2.3.1.bazel"),
     )
 
     maybe(
@@ -6600,12 +6610,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__url-2.4.1",
-        sha256 = "143b538f18257fac9cad154828a57c6bf5157e1aa604d4816b5995bf6de87ae5",
+        name = "crate_index__url-2.5.0",
+        sha256 = "31e6302e3bb753d46e83516cae55ae196fc0c309407cf11ab35cc51a4c2a4633",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/url/2.4.1/download"],
-        strip_prefix = "url-2.4.1",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.url-2.4.1.bazel"),
+        urls = ["https://crates.io/api/v1/crates/url/2.5.0/download"],
+        strip_prefix = "url-2.5.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.url-2.5.0.bazel"),
     )
 
     maybe(

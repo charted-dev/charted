@@ -11,11 +11,11 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # Apache-2.0
+#     "TODO",  # MIT OR Apache-2.0
 # ])
 
 rust_library(
-    name = "aws_sigv4",
+    name = "form_urlencoded",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -29,39 +29,22 @@ rust_library(
         ],
     ),
     crate_features = [
-        "aws-smithy-eventstream",
-        "bytes",
+        "alloc",
         "default",
-        "form_urlencoded",
-        "http",
-        "percent-encoding",
-        "sign-eventstream",
-        "sign-http",
+        "std",
     ],
     crate_root = "src/lib.rs",
-    edition = "2021",
+    edition = "2018",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=aws-sigv4",
+        "crate-name=form_urlencoded",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.56.1",
+    version = "1.2.1",
     deps = [
-        "@crate_index__aws-smithy-eventstream-0.56.1//:aws_smithy_eventstream",
-        "@crate_index__aws-smithy-http-0.56.1//:aws_smithy_http",
-        "@crate_index__bytes-1.5.0//:bytes",
-        "@crate_index__form_urlencoded-1.2.1//:form_urlencoded",
-        "@crate_index__hex-0.4.3//:hex",
-        "@crate_index__hmac-0.12.1//:hmac",
-        "@crate_index__http-0.2.9//:http",
-        "@crate_index__once_cell-1.18.0//:once_cell",
         "@crate_index__percent-encoding-2.3.1//:percent_encoding",
-        "@crate_index__regex-1.10.2//:regex",
-        "@crate_index__sha2-0.10.7//:sha2",
-        "@crate_index__time-0.3.28//:time",
-        "@crate_index__tracing-0.1.40//:tracing",
     ],
 )
