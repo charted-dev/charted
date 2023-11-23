@@ -14,8 +14,8 @@
 # limitations under the License.
 
 [package]
-name = "charted-integ-rest"
-description = "🐻‍❄️📦 Integration testing core for charted-server"
+name = "charted-testkit"
+description = "🐻‍❄️📦 Integration testing kit for charted-server"
 version = "0.0.0-devel.0"
 edition = "2021"
 homepage = "https://charts.noelware.org"

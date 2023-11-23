@@ -1158,20 +1158,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "charted-integ-rest"
-version = "0.0.0-devel.0"
-dependencies = [
- "async-trait",
- "axum",
- "bytes",
- "eyre",
- "hyper",
- "serde",
- "serde_json",
- "tokio",
-]
-
-[[package]]
 name = "charted-logging"
 version = "0.0.0-devel.0"
 dependencies = [
@@ -1303,7 +1289,6 @@ dependencies = [
  "charted-config",
  "charted-database",
  "charted-helm-charts",
- "charted-integ-rest",
  "charted-logging",
  "charted-metrics",
  "charted-openapi",
@@ -1316,6 +1301,7 @@ dependencies = [
  "charted-sessions",
  "charted-sessions-local",
  "charted-storage",
+ "charted-testkit",
  "chrono",
  "erased-serde",
  "eyre",
@@ -1463,6 +1449,29 @@ dependencies = [
  "remi-fs",
  "remi-s3",
  "serde",
+]
+
+[[package]]
+name = "charted-testkit"
+version = "0.0.0-devel.0"
+dependencies = [
+ "async-trait",
+ "axum",
+ "bytes",
+ "eyre",
+ "hyper",
+ "serde",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
+name = "charted-testkit-macros"
+version = "0.0.0-devel.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.39",
 ]
 
 [[package]]
