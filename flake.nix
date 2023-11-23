@@ -92,6 +92,7 @@
         ];
 
         shellHook = ''
+          export LD_LIBRARY_PATH="${pkgs.openssl.out}/lib"
           export RUSTFLAGS="--cfg tokio_unstable ${rustflags}"
         '';
       };

@@ -44,7 +44,8 @@ members = [
     "features/gc",
     "server",
     "server/proc-macro",
-    "testing",
+    "testkit",
+    "testkit/macros",
     "tools/devtools",
     "tools/helm-plugin",
 ]

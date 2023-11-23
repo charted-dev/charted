@@ -78,4 +78,4 @@ utoipa = { version = "4.1.0", features = ["axum_extras", "chrono", "serde_yaml",
 validator = "0.16.1"
 
 [dev-dependencies]
-charted-integ-rest = { path = "../testing" }
+charted-testkit = { path = "../testkit" }
