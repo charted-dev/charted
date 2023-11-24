@@ -19,4 +19,10 @@ exports_files(["Cargo.toml"])
 
 rust_project(
     name = "testkit-macros",
+    proc_macro = True,
+    deps = [
+        "@crate_index//:proc-macro2",
+        "@crate_index//:quote",
+        "@crate_index//:syn",
+    ],
 )
