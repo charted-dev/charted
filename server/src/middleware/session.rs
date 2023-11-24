@@ -13,7 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{models::res::err, Server};
+use crate::{
+    models::res::{err, ErrorCode, INTERNAL_SERVER_ERROR},
+    Server,
+};
 use argon2::{PasswordHash, PasswordVerifier};
 use axum::{
     body::BoxBody,
@@ -105,20 +108,20 @@ impl SessionError {
         }
     }
 
-    pub fn code(&self) -> &'static str {
+    pub fn code(&self) -> ErrorCode {
         match self {
-            SessionError::Base64(_) => "UNABLE_TO_DECODE_BASE64",
-            SessionError::MissingAuthorizationHeader => "MISSING_AUTHORIZATION_HEADER",
-            SessionError::InvalidPassword => "INVALID_PASSWORD",
-            SessionError::InvalidUtf8 => "INVALID_UTF8_IN_HEADER",
-            SessionError::UnknownAuthType(_) => "INVALID_AUTHENTICATION_TYPE",
-            SessionError::UnknownSession => "UNKNOWN_SESSION",
-            SessionError::InvalidParts(_) => "INVALID_AUTHORIZATION_PARTS",
-            | SessionError::RefreshTokenRequired => "REFRESH_TOKEN_REQUIRED",
+            SessionError::Base64(_) => ErrorCode::UnableToDecodeBase64,
+            SessionError::MissingAuthorizationHeader => ErrorCode::MissingAuthorizationHeader,
+            SessionError::InvalidPassword => ErrorCode::InvalidPassword,
+            SessionError::InvalidUtf8 => ErrorCode::InvalidUtf8,
+            SessionError::UnknownAuthType(_) => ErrorCode::InvalidAuthenticationType,
+            SessionError::UnknownSession => ErrorCode::UnknownSession,
+            SessionError::InvalidParts(_) => ErrorCode::InvalidAuthorizationParts,
+            SessionError::RefreshTokenRequired => ErrorCode::RefreshTokenRequired,
             SessionError::JsonWebToken(err) => match err.kind() {
-                jsonwebtoken::errors::ErrorKind::InvalidToken => "INVALID_SESSION_TOKEN",
-                jsonwebtoken::errors::ErrorKind::ExpiredSignature => "SESSION_EXPIRED",
-                _ => "INTERNAL_SERVER_ERROR",
+                jsonwebtoken::errors::ErrorKind::InvalidToken => ErrorCode::InvalidSessionToken,
+                jsonwebtoken::errors::ErrorKind::ExpiredSignature => ErrorCode::SessionExpired,
+                _ => ErrorCode::InternalServerError,
             },
         }
     }
@@ -126,7 +129,7 @@ impl SessionError {
 
 impl IntoResponse for SessionError {
     fn into_response(self) -> axum::response::Response {
-        err(self.status_code(), (self.code(), format!("{self}").as_str()).into()).into_response()
+        err(self.status_code(), (self.code(), format!("{self}"))).into_response()
     }
 }
 
@@ -276,7 +279,7 @@ where
 
                         err(
                             StatusCode::NOT_ACCEPTABLE,
-                            ("INVALID_HTTP_HEADER", "Received invalid `Authorization` header.").into(),
+                            (ErrorCode::InvalidHttpHeader, "Received invalid `Authorization` header."),
                         )
                         .into_response()
                     }
@@ -299,12 +302,7 @@ where
             let pool = server.pool.clone();
             let jwt_secret_key = config.jwt_secret_key().map_err(|e| {
                 error!(setting = "config.jwt_secret_key", %e, "unable to parse secure setting");
-
-                err(
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-                )
-                .into_response()
+                err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR).into_response()
             })?;
 
             let span = info_span!(
@@ -369,36 +367,27 @@ where
                             error!(user = username, %e, "failed to fetch user");
                             sentry::capture_error(&e);
 
-                            err(
-                                StatusCode::INTERNAL_SERVER_ERROR,
-                                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-                            )
-                            .into_response()
+                            err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR).into_response()
                         })?
                     else {
                         return Err(err(
                             StatusCode::NOT_FOUND,
-                            ("UNKNOWN_USER", format!("unknown user with name '{username}'").as_str()).into(),
+                            (
+                                ErrorCode::EntityNotFound,
+                                format!("unknown user with name '{username}'"),
+                            ),
                         )
                         .into_response());
                     };
 
                     let hashed = hash_password(password.into()).map_err(|e| {
                         error!(%e, "unable to hash password");
-                        err(
-                            StatusCode::INTERNAL_SERVER_ERROR,
-                            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-                        )
-                        .into_response()
+                        err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR).into_response()
                     })?;
 
                     let hash = PasswordHash::new(&hashed).map_err(|e| {
                         error!(%e, "unable to create password hasher");
-                        err(
-                            StatusCode::INTERNAL_SERVER_ERROR,
-                            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-                        )
-                        .into_response()
+                        err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR).into_response()
                     })?;
 
                     match ARGON2.verify_password(password.as_bytes(), &hash) {
@@ -434,7 +423,7 @@ where
                     let id = uid.as_u64().ok_or_else(|| {
                         err(
                             StatusCode::UNPROCESSABLE_ENTITY,
-                            ("INVALID_JWT_CLAIM", "Expected JWT claim [user_id] to be a u64").into(),
+                            (ErrorCode::InvalidJwtClaim, "Expected JWT claim [user_id] to be a u64"),
                         )
                         .into_response()
                     })?;
@@ -447,16 +436,12 @@ where
                             error!(id, %e, "failed to fetch user with");
                             sentry::capture_error(&e);
 
-                            err(
-                                StatusCode::INTERNAL_SERVER_ERROR,
-                                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-                            )
-                            .into_response()
+                            err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR).into_response()
                         })?
                     else {
                         return Err(err(
                             StatusCode::NOT_FOUND,
-                            ("UNKNOWN_USER", format!("unknown user with ID [{id}]").as_str()).into(),
+                            (ErrorCode::EntityNotFound, format!("unknown user with ID [{id}]")),
                         )
                         .into_response());
                     };

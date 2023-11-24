@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use crate::{
-    models::res::{err, ApiResponse},
+    models::res::{err, ApiResponse, ErrorCode},
     Server,
 };
 use axum::{
@@ -41,13 +41,12 @@ pub async fn cdn(Path(path): Path<String>, State(server): State<Server>) -> Resu
         err(
             StatusCode::INTERNAL_SERVER_ERROR,
             (
-                "INTERNAL_SERVER_ERROR",
+                ErrorCode::InternalServerError,
                 "Unable to perform CDN query at the moment, try again later!",
                 json!({
                     "query": query,
                 }),
-            )
-                .into(),
+            ),
         )
     })?;
 
@@ -55,13 +54,12 @@ pub async fn cdn(Path(path): Path<String>, State(server): State<Server>) -> Resu
         return Err::<Response<_>, ApiResponse>(err(
             StatusCode::NOT_FOUND,
             (
-                "UNKNOWN_CDN_QUERY",
+                ErrorCode::UnknownCdnQuery,
                 "CDN query was not found",
                 json!({
                     "query": query,
                 }),
-            )
-                .into(),
+            ),
         ));
     }
 
@@ -70,13 +68,12 @@ pub async fn cdn(Path(path): Path<String>, State(server): State<Server>) -> Resu
         Blob::Directory(_) => Err::<Response<_>, ApiResponse>(err(
             StatusCode::NOT_FOUND,
             (
-                "UNKNOWN_QUERY",
+                ErrorCode::UnknownCdnQuery,
                 "CDN query was not found",
                 json!({
                     "query": query,
                 }),
-            )
-                .into(),
+            ),
         )),
 
         Blob::File(file) => {

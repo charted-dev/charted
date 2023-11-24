@@ -17,7 +17,7 @@ use crate::{
     extract::Json,
     macros::controller,
     middleware::{Session, SessionAuth},
-    models::res::{err, ok, ApiResponse},
+    models::res::{err, ok, ErrorCode, Result, INTERNAL_SERVER_ERROR},
     validation::validate,
     Server,
 };
@@ -74,32 +74,29 @@ pub async fn list_user_repositories(
         mut per_page,
         order,
     }): Query<PaginationQuery>,
-) -> Result<ApiResponse<Pagination<Repository>>, ApiResponse> {
+) -> Result<Pagination<Repository>> {
     let users = controllers.get::<UserDatabaseController>();
     let owner = users
         .get_by_nos(nos.clone())
         .await
-        .map_err(|_| {
-            err(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-            )
-        })?
+        .map_err(|_| err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR))?
         .ok_or_else(|| {
             err(
                 StatusCode::NOT_FOUND,
                 (
-                    "USER_NOT_FOUND",
-                    format!("unable to find user by ID or name [{nos}]").as_str(),
-                )
-                    .into(),
+                    ErrorCode::EntityNotFound,
+                    format!("unable to find user by ID or name [{nos}]"),
+                ),
             )
         })?;
 
     if per_page > 100 {
         return Err(err(
             StatusCode::NOT_ACCEPTABLE,
-            ("MAX_PER_PAGE_EXCEEDED", "per_page query parameter can't go over 100").into(),
+            (
+                ErrorCode::MaxPerPageExceeded,
+                "per_page query parameter can't go over 100",
+            ),
         ));
     }
 
@@ -116,12 +113,7 @@ pub async fn list_user_repositories(
             owner_id: Some(u64::try_from(owner.id).unwrap()),
         })
         .await
-        .map_err(|_| {
-            err(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-            )
-        })?;
+        .map_err(|_| err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR))?;
 
     Ok(ok(StatusCode::OK, data))
 }
@@ -141,7 +133,7 @@ pub async fn create_user_repository(
     }): State<Server>,
     Extension(Session { user, .. }): Extension<Session>,
     Json(payload): Json<CreateRepositoryPayload>,
-) -> Result<ApiResponse<Repository>, ApiResponse> {
+) -> Result<Repository> {
     let repos = controllers.get::<RepositoryDatabaseController>();
     validate(payload.clone(), CreateRepositoryPayload::validate)?;
 
@@ -155,21 +147,17 @@ pub async fn create_user_repository(
             return Err(err(
                 StatusCode::CONFLICT,
                 (
-                    "REPO_ALREADY_EXISTS",
+                    ErrorCode::EntityAlreadyExists,
                     format!(
                         "repository with name {} already exists under your account",
                         payload.name.clone()
                     ),
-                )
-                    .into(),
+                ),
             ));
         }
 
         Err(_) => {
-            return Err(err(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-            ));
+            return Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -192,12 +180,7 @@ pub async fn create_user_repository(
             },
         )
         .await
-        .map_err(|_| {
-            err(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-            )
-        })?;
+        .map_err(|_| err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR))?;
 
     Ok(ok(StatusCode::CREATED, repo))
 }

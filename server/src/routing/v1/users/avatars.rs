@@ -16,7 +16,7 @@
 use crate::{
     macros::controller,
     middleware::Session,
-    models::res::{err, ApiResponse},
+    models::res::{err, ApiResponse, ErrorCode, INTERNAL_SERVER_ERROR},
     Multipart, Server,
 };
 use axum::{
@@ -52,10 +52,9 @@ pub async fn get_current_user_avatar(
             return Err(err(
                 StatusCode::NOT_FOUND,
                 (
-                    "UNKNOWN_USER",
+                    ErrorCode::EntityNotFound,
                     format!("User with ID or name [{id_or_name}] was not found."),
-                )
-                    .into(),
+                ),
             ))
         }
 
@@ -63,10 +62,7 @@ pub async fn get_current_user_avatar(
             error!(idOrName = tracing::field::display(id_or_name), error = %e, "unable to query user with");
             sentry::capture_error(&*e);
 
-            return Err(err(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-            ));
+            return Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR));
         }
     };
 
@@ -89,10 +85,7 @@ pub async fn get_current_user_avatar(
                 error!(user.id, error = %e, "unable to grab current avatar for user");
                 sentry_eyre::capture_report(&e);
 
-                return Err(err(
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-                ));
+                return Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR));
             }
         }
     }
@@ -116,10 +109,7 @@ pub async fn get_current_user_avatar(
                 error!(user.id, error = %e, "unable to grab gravatar for user");
                 sentry_eyre::capture_report(&e);
 
-                return Err(err(
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-                ));
+                return Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR));
             }
         }
     }
@@ -135,10 +125,7 @@ pub async fn get_current_user_avatar(
             error!(user.id, error = %e, "unable to grab current avatar for user");
             sentry_eyre::capture_report(&e);
 
-            Err(err(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-            ))
+            Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR))
         }
     }
 }
@@ -161,15 +148,12 @@ pub async fn upload_user_avatar(
         error!(user.id, error = %e, "unable to grab next multipart field");
         sentry::capture_error(&e);
 
-        err(
-            StatusCode::INTERNAL_SERVER_ERROR,
-            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-        )
+        err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
     })?
     else {
         return Err(err(
             StatusCode::NOT_ACCEPTABLE,
-            ("MISSING_MULTIPART_FIELD", "missing a single multipart field").into(),
+            (ErrorCode::MissingMultipartField, "missing a single multipart field"),
         ));
     };
 
@@ -177,17 +161,14 @@ pub async fn upload_user_avatar(
         error!(user.id, error = %e, "unable to collect the data from field");
         sentry::capture_error(&e);
 
-        err(
-            StatusCode::INTERNAL_SERVER_ERROR,
-            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-        )
+        err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
     })?;
 
     let actual_ct = DefaultContentTypeResolver::resolve(&DefaultContentTypeResolver, data.as_ref());
     let mime = actual_ct.parse::<mime::Mime>().map_err(|e| {
         err(
             StatusCode::NOT_ACCEPTABLE,
-            ("INVALID_CONTENT_TYPE", e.to_string()).into(),
+            (ErrorCode::InvalidContentType, e.to_string()),
         )
     })?;
 
@@ -195,10 +176,9 @@ pub async fn upload_user_avatar(
         return Err(err(
             StatusCode::NOT_ACCEPTABLE,
             (
-                "INVALID_CONTENT_TYPE",
+                ErrorCode::InvalidContentType,
                 format!("expected `image/` as type, received {}", mime.type_()),
-            )
-                .into(),
+            ),
         ));
     }
 
@@ -210,13 +190,12 @@ pub async fn upload_user_avatar(
             return Err(err(
                 StatusCode::NOT_ACCEPTABLE,
                 (
-                    "INVALID_CONTENT_TYPE",
+                    ErrorCode::InvalidContentType,
                     format!(
                         "expected `png`, `jpeg`, or `gif` for the content-type's subtype, received {}",
                         mime.subtype()
                     ),
-                )
-                    .into(),
+                ),
             ))
         }
     };
@@ -229,10 +208,7 @@ pub async fn upload_user_avatar(
             error!(user.id, error = %e, "unable to upload user avatar");
             sentry::capture_error(&*e);
 
-            err(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-            )
+            err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
         })?;
 
     // update it in the database
@@ -248,10 +224,7 @@ pub async fn upload_user_avatar(
             sentry::capture_error(&e);
 
             // TODO(@auguwu): push to a background task and keep trying for 5 times?
-            return Err(err(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-            ));
+            return Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -268,7 +241,7 @@ pub mod me {
     use crate::{
         macros::controller,
         middleware::Session,
-        models::res::{err, ApiResponse},
+        models::res::{err, ApiResponse, INTERNAL_SERVER_ERROR},
         Server,
     };
     use axum::{
@@ -322,10 +295,7 @@ pub mod me {
                     error!(user.id, error = %e, "unable to grab current avatar for user");
                     sentry_eyre::capture_report(&e);
 
-                    return Err(err(
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-                    ));
+                    return Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR));
                 }
             }
         }
@@ -343,10 +313,7 @@ pub mod me {
                     error!(user.id, error = %e, "unable to grab gravatar for user");
                     sentry_eyre::capture_report(&e);
 
-                    return Err(err(
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-                    ));
+                    return Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR));
                 }
             }
         }
@@ -362,10 +329,7 @@ pub mod me {
                 error!(user.id, error = %e, "unable to grab current avatar for user");
                 sentry_eyre::capture_report(&e);
 
-                Err(err(
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-                ))
+                Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR))
             }
         }
     }

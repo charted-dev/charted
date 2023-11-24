@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use crate::{
-    models::res::{err, ApiResponse},
+    models::res::{err, ApiResponse, ErrorCode},
     Server,
 };
 use axum::{
@@ -35,7 +35,10 @@ pub async fn metrics(State(server): State<Server>) -> Result<impl IntoResponse, 
 
                 err(
                     StatusCode::UNPROCESSABLE_ENTITY,
-                    ("UNABLE_TO_PROCESS", "Unable to process Prometheus registry metrics").into(),
+                    (
+                        ErrorCode::UnableToProcess,
+                        "Unable to process Prometheus registry metrics",
+                    ),
                 )
             })?;
 
@@ -51,14 +54,13 @@ pub async fn metrics(State(server): State<Server>) -> Result<impl IntoResponse, 
             err(
                 StatusCode::NOT_FOUND,
                 (
-                    "HANDLER_NOT_FOUND",
+                    ErrorCode::HandlerNotFound,
                     "Route was not found",
                     json!({
                         "method": "get",
                         "url": "/metrics"
                     }),
-                )
-                    .into(),
+                ),
             ),
         )
             .into_response()),

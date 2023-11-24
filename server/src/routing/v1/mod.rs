@@ -13,7 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{models::res::err, Server};
+use crate::{
+    models::res::{err, ErrorCode},
+    Server,
+};
 use axum::{
     body::Body,
     http::{Request, StatusCode},
@@ -104,13 +107,12 @@ async fn fallback(req: Request<Body>) -> impl IntoResponse {
     err(
         StatusCode::NOT_FOUND,
         (
-            "HANDLER_NOT_FOUND",
+            ErrorCode::HandlerNotFound,
             "Route was not found",
             json!({
                 "method": req.method().as_str().to_lowercase(),
                 "url": req.uri().path(),
             }),
-        )
-            .into(),
+        ),
     )
 }

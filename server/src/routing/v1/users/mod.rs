@@ -27,18 +27,22 @@ use crate::{
     extract::Json,
     macros::controller,
     middleware::{Session, SessionAuth},
-    models::res::{err, no_content, ok, ApiResponse, Empty},
+    models::res::{err, no_content, ok, ApiResponse, ErrorCode, Result, INTERNAL_SERVER_ERROR},
     validation::{validate, validate_email},
     Server,
 };
-use axum::{extract::State, handler::Handler, http::StatusCode, routing, Extension, Router};
+use axum::{
+    extract::{Path, State},
+    handler::Handler,
+    http::StatusCode,
+    routing, Extension, Router,
+};
 use charted_common::{
-    extract::NameOrSnowflake,
     models::{
         entities::{ApiKeyScope, User},
         helm::ChartIndex,
         payloads::{CreateUserPayload, PatchUserPayload},
-        Name,
+        Name, NameOrSnowflake,
     },
     VERSION,
 };
@@ -124,25 +128,21 @@ generate_response_schema!(UserResponse, schema = "User");
     response(403, "Whether if this server doesn't allow registrations", ("application/json", response!("ApiErrorResponse"))),
     response(406, "If the `username` or `email` was taken.", ("application/json", response!("ApiErrorResponse")))
 )]
-async fn create_user(
-    State(server): State<Server>,
-    Json(payload): Json<CreateUserPayload>,
-) -> Result<ApiResponse<User>, ApiResponse> {
+async fn create_user(State(server): State<Server>, Json(payload): Json<CreateUserPayload>) -> Result<User> {
     if !server.config.registrations {
         return Err(err(
             StatusCode::FORBIDDEN,
             (
-                "REGISTRATIONS_DISABLED",
+                ErrorCode::RegistrationsDisabled,
                 "This instance is not allowing registrations at this given moment.",
-            )
-                .into(),
+            ),
         ));
     }
 
     if payload.password.is_none() {
         return Err(err(
             StatusCode::NOT_ACCEPTABLE,
-            ("MISSING_PASSWORD", "Missing the password to create with.").into(),
+            (ErrorCode::MissingPassword, "Missing the password to create with."),
         ));
     }
 
@@ -157,10 +157,9 @@ async fn create_user(
             return Err(err(
                 StatusCode::CONFLICT,
                 (
-                    "USER_EXISTS",
-                    format!("user with username {username} already exists!").as_str(),
-                )
-                    .into(),
+                    ErrorCode::EntityAlreadyExists,
+                    format!("user with username {username} already exists!"),
+                ),
             ))
         }
 
@@ -168,10 +167,7 @@ async fn create_user(
             error!(username = tracing::field::display(username.clone()), %e, "failed to query user {username}");
             sentry::capture_error(&e);
 
-            return Err(err(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-            ));
+            return Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -185,7 +181,10 @@ async fn create_user(
         Ok(Some(_)) => {
             return Err(err(
                 StatusCode::CONFLICT,
-                ("USER_EXISTS", "user with email received already exists").into(),
+                (
+                    ErrorCode::EntityAlreadyExists,
+                    "user with email received already exists",
+                ),
             ))
         }
 
@@ -193,10 +192,7 @@ async fn create_user(
             error!(email, %e, "failed to query user with");
             sentry::capture_error(&e);
 
-            return Err(err(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-            ));
+            return Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR));
         }
     }
 
@@ -205,20 +201,15 @@ async fn create_user(
         return Err(err(
             StatusCode::NOT_ACCEPTABLE,
             (
-                "PASSWORD_LENGTH_NOT_ACCEPTED",
+                ErrorCode::InvalidPassword,
                 "password was expected to be 8 or more characters long",
-            )
-                .into(),
+            ),
         ));
     }
 
     let id = server.snowflake.generate();
-    let password = charted_common::server::hash_password(password.clone()).map_err(|_| {
-        err(
-            StatusCode::INTERNAL_SERVER_ERROR,
-            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-        )
-    })?;
+    let password = charted_common::server::hash_password(password.clone())
+        .map_err(|_| err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR))?;
 
     let user = User {
         created_at: Local::now(),
@@ -232,12 +223,10 @@ async fn create_user(
     };
 
     let users = server.controllers.get::<UserDatabaseController>();
-    let user = users.create(payload, user).await.map_err(|_| {
-        err(
-            StatusCode::INTERNAL_SERVER_ERROR,
-            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-        )
-    })?;
+    let user = users
+        .create(payload, user)
+        .await
+        .map_err(|_| err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR))?;
 
     let index = ChartIndex::default();
     let serialized = serde_yaml::to_string(&index).unwrap();
@@ -255,10 +244,7 @@ async fn create_user(
             error!(user.id, error = %e, "unable to upload [./metadata/{}/index.yaml] to storage service", user.id);
             sentry::capture_error(&e);
 
-            err(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-            )
+            err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
         })?;
 
     Ok(ok(StatusCode::CREATED, user))
@@ -274,24 +260,20 @@ async fn create_user(
 )]
 pub async fn get_user(
     State(Server { controllers, .. }): State<Server>,
-    NameOrSnowflake(id_or_name): NameOrSnowflake,
-) -> Result<ApiResponse<User>, ApiResponse> {
+    Path(id_or_name): Path<NameOrSnowflake>,
+) -> Result<User> {
     let users = controllers.get::<UserDatabaseController>();
     match users.get_by_nos(id_or_name.clone()).await {
         Ok(Some(user)) => Ok(ok(StatusCode::OK, user)),
         Ok(None) => Err(err(
             StatusCode::NOT_FOUND,
             (
-                "UNKNOWN_USER",
-                format!("User with ID or name [{id_or_name}] was not found.").as_str(),
-            )
-                .into(),
+                ErrorCode::EntityNotFound,
+                format!("User with ID or name [{id_or_name}] was not found."),
+            ),
         )),
 
-        Err(_) => Err(err(
-            StatusCode::INTERNAL_SERVER_ERROR,
-            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-        )),
+        Err(_) => Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)),
     }
 }
 
@@ -326,7 +308,7 @@ pub async fn patch_user(
     State(server): State<Server>,
     Extension(Session { user, .. }): Extension<Session>,
     payload: Json<PatchUserPayload>,
-) -> Result<ApiResponse, ApiResponse> {
+) -> Result {
     validate(payload.clone(), PatchUserPayload::validate)?;
 
     // validate username (since it doesn't validate it D:)
@@ -344,10 +326,9 @@ pub async fn patch_user(
                 return Err(err(
                     StatusCode::CONFLICT,
                     (
-                        "USER_EXISTS",
-                        format!("unable to patch: user with username {username} already exists").as_str(),
-                    )
-                        .into(),
+                        ErrorCode::EntityAlreadyExists,
+                        format!("unable to patch: user with username {username} already exists"),
+                    ),
                 ))
             }
 
@@ -355,10 +336,7 @@ pub async fn patch_user(
                 error!(username = tracing::field::display(username.clone()), %e, "failed to query user {username}");
                 sentry::capture_error(&e);
 
-                return Err(err(
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-                ));
+                return Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR));
             }
         }
     }
@@ -374,7 +352,10 @@ pub async fn patch_user(
             Ok(Some(_)) => {
                 return Err(err(
                     StatusCode::CONFLICT,
-                    ("USER_EXISTS", "user with email received already exists").into(),
+                    (
+                        ErrorCode::EntityAlreadyExists,
+                        "user with email received already exists",
+                    ),
                 ))
             }
 
@@ -382,10 +363,7 @@ pub async fn patch_user(
                 error!(email, %e, "failed to query user with");
                 sentry::capture_error(&e);
 
-                return Err(err(
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-                ));
+                return Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR));
             }
         }
     }
@@ -394,12 +372,7 @@ pub async fn patch_user(
     users
         .patch(u64::try_from(user.id).unwrap(), payload.clone())
         .await
-        .map_err(|_| {
-            err(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-            )
-        })?;
+        .map_err(|_| err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR))?;
 
     Ok(no_content())
 }
@@ -419,14 +392,12 @@ pub async fn delete_user(
         user,
         session: _session,
     }): Extension<Session>,
-) -> Result<ApiResponse, ApiResponse> {
+) -> Result {
     let users = server.controllers.get::<UserDatabaseController>();
-    users.delete(u64::try_from(user.id).unwrap()).await.map_err(|_| {
-        err(
-            StatusCode::INTERNAL_SERVER_ERROR,
-            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-        )
-    })?;
+    users
+        .delete(u64::try_from(user.id).unwrap())
+        .await
+        .map_err(|_| err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR))?;
 
     // in a background task, delete all entities and helm charts
     // that existed with that user.
@@ -436,5 +407,5 @@ pub async fn delete_user(
         let _user = user.clone();
     });
 
-    Ok(ok(StatusCode::ACCEPTED, Empty))
+    Ok(ok(StatusCode::ACCEPTED, ()))
 }

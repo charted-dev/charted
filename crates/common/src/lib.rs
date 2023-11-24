@@ -16,7 +16,6 @@
 mod bitfield;
 pub mod cli;
 pub mod crypto;
-pub mod extract;
 pub mod models;
 pub mod os;
 pub mod rust;

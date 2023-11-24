@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::models::res::{err, ApiResponse};
+use crate::models::res::{err, ApiResponse, ErrorCode};
 use axum::http::StatusCode;
 use charted_common::hashmap;
 use serde_json::{json, Map, Value};
@@ -36,7 +36,7 @@ pub fn validate<R, F: Fn(&R) -> Result<(), ValidationErrors>>(receiver: R, func:
 
             Err(err(
                 StatusCode::NOT_ACCEPTABLE,
-                ("VALIDATION_FAILED", "failed to validate", Value::Object(paths)).into(),
+                (ErrorCode::ValidationFailed, "failed to validate", Value::Object(paths)),
             ))
         }
     }

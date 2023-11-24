@@ -17,7 +17,7 @@ use crate::{
     extract::Json,
     macros::controller,
     middleware::SessionAuth,
-    models::res::{err, ok, ApiResponse, Empty},
+    models::res::{err, ok, ErrorCode, Result, INTERNAL_SERVER_ERROR},
     validation::validate,
     Server,
 };
@@ -69,7 +69,7 @@ pub async fn login(
         sessions, pool, config, ..
     }): State<Server>,
     Json(payload): Json<UserLoginPayload>,
-) -> Result<ApiResponse<Session>, ApiResponse> {
+) -> Result<Session> {
     // if passwordless is the session backend, then /users/login is no longer
     // available, and you will need to use the /users/passwordless/authenticate
     // REST endpoint instead.
@@ -77,14 +77,13 @@ pub async fn login(
         return Err(err(
             StatusCode::NOT_FOUND,
             (
-                "HANDLER_NOT_FOUND",
+                ErrorCode::HandlerNotFound,
                 "Route was not found",
                 json!({
                     "method": "post",
                     "url": "/users/login"
                 }),
-            )
-                .into(),
+            ),
         ));
     }
 
@@ -97,14 +96,20 @@ pub async fn login(
     if username.is_none() && email.is_none() {
         return Err(err(
             StatusCode::BAD_REQUEST,
-            ("INVALID_PAYLOAD", "either `username` or `email` need to be available").into(),
+            (
+                ErrorCode::InvalidBody,
+                "either `username` or `email` need to be available",
+            ),
         ));
     }
 
     if username.is_some() && email.is_some() {
         return Err(err(
             StatusCode::BAD_REQUEST,
-            ("INVALID_PAYLOAD", "`username` and `email` cannot be used together.").into(),
+            (
+                ErrorCode::InvalidBody,
+                "`username` and `email` cannot be used together.",
+            ),
         ));
     }
 
@@ -129,7 +134,7 @@ pub async fn login(
         Ok(None) => {
             return Err(err(
                 StatusCode::NOT_FOUND,
-                ("UNKNOWN_USER", "User was not found").into(),
+                (ErrorCode::EntityNotFound, "User was not found"),
             ))
         }
 
@@ -137,10 +142,7 @@ pub async fn login(
             error!(error = %e, "unable to query user with");
             sentry::capture_error(&e);
 
-            return Err(err(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-            ));
+            return Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR));
         }
     };
 
@@ -149,20 +151,14 @@ pub async fn login(
         error!(user.id, error = %e, "unable to create session for user");
         sentry_eyre::capture_report(&e);
 
-        err(
-            StatusCode::INTERNAL_SERVER_ERROR,
-            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-        )
+        err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
     })?;
 
     let session = sessions.create_session(user.clone()).await.map_err(|e| {
         error!(user.id, error = %e, "unable to create session for user");
         sentry_eyre::capture_report(&e);
 
-        err(
-            StatusCode::INTERNAL_SERVER_ERROR,
-            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-        )
+        err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
     })?;
 
     // spawn task
@@ -181,19 +177,18 @@ pub async fn login(
 pub async fn logout(
     State(Server { sessions, .. }): State<Server>,
     Extension(crate::middleware::Session { user, session }): Extension<crate::middleware::Session>,
-) -> Result<ApiResponse, ApiResponse> {
+) -> Result {
     if session.is_none() {
         return Err(err(
             StatusCode::FORBIDDEN,
             (
-                "SESSION_ONLY_ROUTE",
+                ErrorCode::SessionOnlyRoute,
                 "REST handler only allows session tokens to be used.",
                 json!({
                     "method": "delete",
                     "uri": "/users/sessions/logout"
                 }),
-            )
-                .into(),
+            ),
         ));
     }
 
@@ -203,13 +198,10 @@ pub async fn logout(
         error!(session.id = tracing::field::display(session.session_id), user.id, error = %e, "unable to kill session");
         sentry_eyre::capture_report(&e);
 
-        err(
-            StatusCode::INTERNAL_SERVER_ERROR,
-            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-        )
+        err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
     })?;
 
-    Ok(ok(StatusCode::ACCEPTED, Empty))
+    Ok(ok(StatusCode::ACCEPTED, ()))
 }
 
 #[controller(
@@ -222,19 +214,18 @@ pub async fn logout(
 pub async fn refresh_session_token(
     State(Server { sessions, .. }): State<Server>,
     Extension(crate::middleware::Session { session, user }): Extension<crate::middleware::Session>,
-) -> Result<ApiResponse<Session>, ApiResponse> {
+) -> Result<Session> {
     if session.is_none() {
         return Err(err(
             StatusCode::FORBIDDEN,
             (
-                "SESSION_ONLY_ROUTE",
+                ErrorCode::SessionOnlyRoute,
                 "REST handler only allows session tokens to be used.",
                 json!({
                     "method": "delete",
                     "uri": "/users/sessions/refresh-token"
                 }),
-            )
-                .into(),
+            ),
         ));
     }
 
@@ -244,10 +235,7 @@ pub async fn refresh_session_token(
         error!(session.id = tracing::field::display(session.session_id), user.id, error = %e, "unable to kill session");
         sentry_eyre::capture_report(&e);
 
-        err(
-            StatusCode::INTERNAL_SERVER_ERROR,
-            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-        )
+        err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
     })?;
 
     // now create a new one
@@ -255,10 +243,7 @@ pub async fn refresh_session_token(
         error!(session.id = tracing::field::display(session.session_id), user.id, error = %e, "unable to kill session");
         sentry_eyre::capture_report(&e);
 
-        err(
-            StatusCode::INTERNAL_SERVER_ERROR,
-            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-        )
+        err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
     })?;
 
     Ok(ok(StatusCode::CREATED, new_session))

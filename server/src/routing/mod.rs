@@ -13,7 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{models::res::err, Server};
+use crate::{
+    models::res::{err, ErrorCode},
+    Server,
+};
 use axum::{
     body::Body,
     extract::DefaultBodyLimit,
@@ -80,13 +83,12 @@ fn catch_panic(error: Box<dyn Any + Send + 'static>) -> Response<Body> {
             serde_json::to_string(&err(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 (
-                    "INTERNAL_SERVER_ERROR",
+                    ErrorCode::InternalServerError,
                     "Unable to process your request. Please try again later or report this to Noelware via GitHub",
                     json!({
                         "new_issue_uri": "https://github.com/charted-dev/charted/issues/new"
                     }),
-                )
-                    .into(),
+                ),
             ))
             .unwrap(),
         ))

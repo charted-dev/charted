@@ -17,7 +17,7 @@ use crate::{
     extract::Json,
     macros::controller,
     middleware::{Session, SessionAuth},
-    models::res::{err, no_content, ok, ApiResponse},
+    models::res::{err, no_content, ok, ErrorCode, Result, INTERNAL_SERVER_ERROR},
     validation::validate,
     Server,
 };
@@ -88,7 +88,7 @@ pub async fn main() {
 pub async fn get_repository(
     State(Server { pool, db_cache, .. }): State<Server>,
     Path(id): Path<i64>,
-) -> Result<ApiResponse<Repository>, ApiResponse> {
+) -> Result<Repository> {
     let mut worker = db_cache.lock().await;
     let key = CacheKey::repository(id);
 
@@ -96,10 +96,7 @@ pub async fn get_repository(
         error!(error = %e, repo.id = id, "unable to get cached repository");
         sentry_eyre::capture_report(&e);
 
-        err(
-            StatusCode::INTERNAL_SERVER_ERROR,
-            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-        )
+        err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
     })? {
         Ok(ok(StatusCode::OK, cached))
     } else {
@@ -120,17 +117,17 @@ pub async fn get_repository(
 
             Ok(None) => Err(err(
                 StatusCode::NOT_FOUND,
-                ("REPO_NOT_FOUND", format!("repository with id [{id}] was not found")).into(),
+                (
+                    ErrorCode::EntityNotFound,
+                    format!("repository with id [{id}] was not found"),
+                ),
             )),
 
             Err(e) => {
                 error!(error = %e, repo.id = id, "unable to get repository from db");
                 sentry::capture_error(&e);
 
-                Err(err(
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-                ))
+                Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR))
             }
         }
     }
@@ -153,7 +150,7 @@ pub async fn patch_repository(
     Extension(Session { user, .. }): Extension<Session>,
     Path(id): Path<i64>,
     payload: Json<PatchRepositoryPayload>,
-) -> Result<ApiResponse, ApiResponse> {
+) -> Result {
     let repos = controllers.get::<RepositoryDatabaseController>();
     validate(payload.clone(), PatchRepositoryPayload::validate)?;
 
@@ -168,7 +165,7 @@ pub async fn patch_repository(
         Ok(Some(_)) => {
             return Err(err(
                 StatusCode::NOT_ACCEPTABLE,
-                ("UNABLE_TO_PATCH", "you do not own this repository").into(),
+                (ErrorCode::AccessNotPermitted, "you do not own this repository"),
             ))
         }
 
@@ -176,13 +173,12 @@ pub async fn patch_repository(
             return Err(err(
                 StatusCode::NOT_FOUND,
                 (
-                    "REPO_NOT_FOUND",
+                    ErrorCode::EntityNotFound,
                     "repository with id was not found",
                     json!({
                         "id": id,
                     }),
-                )
-                    .into(),
+                ),
             ))
         }
 
@@ -190,10 +186,7 @@ pub async fn patch_repository(
             error!(%id, error = %e, "unable to find repository");
             sentry_eyre::capture_report(&e);
 
-            return Err(err(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-            ));
+            return Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR));
         }
     };
 
@@ -201,10 +194,7 @@ pub async fn patch_repository(
         error!(%id, error = %e, "unable to patch repository metadata");
         sentry_eyre::capture_report(&e);
 
-        err(
-            StatusCode::INTERNAL_SERVER_ERROR,
-            ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-        )
+        err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
     })?;
 
     Ok(no_content())

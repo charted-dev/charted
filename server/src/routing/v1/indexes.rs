@@ -16,7 +16,7 @@
 use crate::{
     macros::controller,
     models::{
-        res::{err, ApiResponse},
+        res::{err, ApiResponse, ErrorCode, INTERNAL_SERVER_ERROR},
         yaml::Yaml,
     },
     Server,
@@ -57,10 +57,7 @@ pub async fn get_index(
                     error!(idOrName = tracing::field::display(nos.clone()), error = %e, "unable to perform cdn query");
                     sentry::capture_error(&e);
 
-                    err(
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-                    )
+                    err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
                 })?
                 .unwrap();
 
@@ -70,32 +67,26 @@ pub async fn get_index(
 
                 err(
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
+                    INTERNAL_SERVER_ERROR
                 )
             })?;
 
             Ok(Yaml(StatusCode::OK, contents))
         }
 
-        Ok(None) => {
-            return Err(err(
-                StatusCode::NOT_FOUND,
-                (
-                    "USER_NOT_FOUND",
-                    format!("unable to find user with idOrName {nos}").as_str(),
-                )
-                    .into(),
-            ))
-        }
+        Ok(None) => Err(err(
+            StatusCode::NOT_FOUND,
+            (
+                ErrorCode::EntityNotFound,
+                format!("unable to find user with idOrName {nos}"),
+            ),
+        )),
 
         Err(e) => {
             error!(idOrName = tracing::field::display(nos), error = %e, "unable to find user");
             sentry::capture_error(&*e);
 
-            Err(err(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-            ))
+            Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR))
         }
     }
 }

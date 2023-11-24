@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::models::res::{err, ApiResponse};
+use crate::models::res::{err, ApiResponse, ErrorCode};
 use async_trait::async_trait;
 use axum::{
     body::HttpBody,
@@ -138,15 +138,15 @@ impl MultipartRejection {
         }
     }
 
-    fn code(&self) -> &'static str {
+    fn code(&self) -> ErrorCode {
         match self {
-            Self::InvalidBoundary => "INVALID_MULTIPART_BOUNDARY",
+            Self::InvalidBoundary => ErrorCode::InvalidMultipartBoundary,
             Self::Multer(err) => multer_err_to_err_code(err),
         }
     }
 
     pub fn response(self) -> ApiResponse {
-        err(self.status_code(), (self.code(), self.message(), self.details()).into())
+        err(self.status_code(), (self.code(), self.message(), self.details()))
     }
 }
 
@@ -206,24 +206,24 @@ fn multer_err_to_message(err: &multer::Error) -> &'static str {
     }
 }
 
-fn multer_err_to_err_code(err: &multer::Error) -> &'static str {
+fn multer_err_to_err_code(err: &multer::Error) -> ErrorCode {
     match err {
-        multer::Error::UnknownField { .. } => "UNKNOWN_MULTIPART_FIELD",
-        multer::Error::IncompleteFieldData { .. } => "INCOMPLETE_MULTIPART_FIELD_DATA",
-        multer::Error::ReadHeaderFailed(_) => "READ_HEADER_CONTENT_FAILED",
-        multer::Error::DecodeContentType(_) => "DECODE_MULTIPART_CONTENT_TYPE_FAILED",
-        multer::Error::NoBoundary => "NO_MULTIPART_BOUNDARY_RECEIVED",
-        multer::Error::NoMultipart => "NO_MULTIPART_FORM_RECEIVED",
-        multer::Error::IncompleteStream => "INCOMPLETE_MULTIPART_STREAM",
-        multer::Error::DecodeHeaderName { .. } => "DECODE_HEADER_NAME_FAILED",
-        multer::Error::StreamSizeExceeded { .. } => "STREAM_SIZE_EXCEEDED",
-        multer::Error::FieldSizeExceeded { .. } => "FIELD_SIZE_EXCEEDED",
+        multer::Error::UnknownField { .. } => ErrorCode::UnknownMultipartField,
+        multer::Error::IncompleteFieldData { .. } => ErrorCode::IncompleteMultipartFieldData,
+        multer::Error::ReadHeaderFailed(_) => ErrorCode::ReadMultipartHeaderFailed,
+        multer::Error::DecodeContentType(_) => ErrorCode::DecodeMultipartContentTypeFailed,
+        multer::Error::NoBoundary => ErrorCode::MissingMultipartBoundary,
+        multer::Error::NoMultipart => ErrorCode::NoMultipartReceived,
+        multer::Error::IncompleteStream => ErrorCode::IncompleteMultipartStream,
+        multer::Error::DecodeHeaderName { .. } => ErrorCode::DecodeMultipartHeaderNameFailed,
+        multer::Error::StreamSizeExceeded { .. } => ErrorCode::StreamSizeExceeded,
+        multer::Error::FieldSizeExceeded { .. } => ErrorCode::MultipartFieldsSizeExceeded,
         multer::Error::StreamReadFailed(err) => {
             if let Some(err) = err.downcast_ref::<multer::Error>() {
                 return multer_err_to_err_code(err);
             }
 
-            "STREAM_READ_FAILED"
+            ErrorCode::MultipartStreamReadFailed
         }
 
         _ => unreachable!(),

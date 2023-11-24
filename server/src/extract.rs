@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::models::res::{err, ApiResponse};
+use crate::models::res::{err, ApiResponse, ErrorCode};
 use async_trait::async_trait;
 use axum::{
     body::Bytes,
@@ -53,15 +53,17 @@ impl<S: Send + Sync> FromRequestParts<S> for Version {
 
                 let (code, message) = match e {
                     PathRejection::FailedToDeserializePathParams(_) => (
-                        "UNABLE_TO_PARSE_VERSION_PATH",
+                        ErrorCode::UnableToParsePathParameter,
                         "was unable to parse valid semver version from path",
                     ),
 
-                    PathRejection::MissingPathParams(_) => ("MISSING_PATH_PARAM", "missing required version parameter"),
+                    PathRejection::MissingPathParams(_) => {
+                        (ErrorCode::MissingPathParameter, "missing required version parameter")
+                    }
                     _ => unreachable!(),
                 };
 
-                err(StatusCode::BAD_REQUEST, (code, message).into())
+                err(StatusCode::BAD_REQUEST, (code, message))
             })
     }
 }
@@ -122,16 +124,15 @@ where
             return Err(err(
                 StatusCode::BAD_REQUEST,
                 (
-                    "MISSING_CONTENT_TYPE",
-                    "Expected request to have a Content-Type with [application/json]",
-                )
-                    .into(),
+                    ErrorCode::MissingHeader,
+                    "expected request to have a Content-Type with [application/json]",
+                ),
             ));
         }
 
         let bytes = Bytes::from_request(req, state).await.map_err(|e| {
             error!(%e, "received invalid bytes");
-            err(e.status(), ("INVALID_BODY", e.body_text()).into())
+            err(e.status(), (ErrorCode::InvalidBody, e.body_text()))
         })?;
 
         let deserializer = &mut serde_json::Deserializer::from_slice(&bytes);
@@ -151,53 +152,49 @@ where
                     Category::Syntax => Err(err(
                         StatusCode::BAD_REQUEST,
                         (
-                            "INVALID_JSON_PAYLOAD",
+                            ErrorCode::InvalidJsonPayload,
                             format!("received invalid JSON: {inner}"),
                             json!({
                                 "col": inner.column(),
                                 "line": inner.line(),
                                 "path": path,
                             }),
-                        )
-                            .into(),
+                        ),
                     )),
 
                     Category::Data => Err(err(
                         StatusCode::NOT_ACCEPTABLE,
                         (
-                            "INVALID_JSON_PAYLOAD",
+                            ErrorCode::InvalidJsonPayload,
                             inner.to_string(),
                             json!({
                                 "col": inner.column(),
                                 "line": inner.line(),
                                 "path": path,
                             }),
-                        )
-                            .into(),
+                        ),
                     )),
 
                     Category::Eof => Err(err(
                         StatusCode::BAD_REQUEST,
                         (
-                            "REACHED_UNEXPECTED_EOF",
+                            ErrorCode::ReachedUnexpectedEof,
                             "reached unexpected eof",
                             json!({
                                 "path": path,
                             }),
-                        )
-                            .into(),
+                        ),
                     )),
 
                     Category::Io => Err(err(
                         StatusCode::INTERNAL_SERVER_ERROR,
                         (
-                            "IO",
+                            ErrorCode::Io,
                             "received invalid I/O when parsing body",
                             json!({
                                 "path": path,
                             }),
-                        )
-                            .into(),
+                        ),
                     )),
                 }
             }
