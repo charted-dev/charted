@@ -13,6 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+pub mod members;
+pub mod releases;
+
 use crate::{
     extract::Json,
     macros::controller,
@@ -48,15 +51,19 @@ pub(crate) struct RepositoryResponse;
 charted_openapi::generate_response_schema!(RepositoryResponse, schema = "Repository");
 
 pub fn create_router() -> Router<Server> {
-    Router::new().route("/", routing::get(MainRestController::run)).route(
-        "/:id",
-        routing::patch(
-            PatchRepositoryRestController::run.layer(AsyncRequireAuthorizationLayer::new(
-                SessionAuth::default().scope(ApiKeyScope::RepoUpdate),
-            )),
+    Router::new()
+        .nest("/releases", releases::create_router())
+        .nest("/members", members::create_router())
+        .route("/", routing::get(MainRestController::run))
+        .route(
+            "/:id",
+            routing::patch(
+                PatchRepositoryRestController::run.layer(AsyncRequireAuthorizationLayer::new(
+                    SessionAuth::default().scope(ApiKeyScope::RepoUpdate),
+                )),
+            )
+            .get(GetRepositoryRestController::run),
         )
-        .get(GetRepositoryRestController::run),
-    )
 }
 
 /// Generic entrypoint route for the Repositories API.
