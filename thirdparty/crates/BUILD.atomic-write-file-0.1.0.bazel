@@ -11,11 +11,11 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # MIT OR Apache-2.0
+#     "TODO",  # BSD-3-Clause
 # ])
 
 rust_library(
-    name = "sqlx_sqlite",
+    name = "atomic_write_file",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -28,32 +28,36 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
+    crate_features = [
+        "default",
+        "unnamed-tmpfile",
+    ],
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=sqlx-sqlite",
+        "crate-name=atomic-write-file",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.7.2",
+    version = "0.1.0",
     deps = [
-        "@crate_index__atoi-2.0.0//:atoi",
-        "@crate_index__chrono-0.4.31//:chrono",
-        "@crate_index__flume-0.11.0//:flume",
-        "@crate_index__futures-channel-0.3.29//:futures_channel",
-        "@crate_index__futures-core-0.3.29//:futures_core",
-        "@crate_index__futures-executor-0.3.29//:futures_executor",
-        "@crate_index__futures-intrusive-0.5.0//:futures_intrusive",
-        "@crate_index__futures-util-0.3.29//:futures_util",
-        "@crate_index__libsqlite3-sys-0.26.0//:libsqlite3_sys",
-        "@crate_index__log-0.4.20//:log",
-        "@crate_index__percent-encoding-2.3.1//:percent_encoding",
-        "@crate_index__serde-1.0.193//:serde",
-        "@crate_index__sqlx-core-0.7.2//:sqlx_core",
-        "@crate_index__tracing-0.1.40//:tracing",
-        "@crate_index__url-2.5.0//:url",
-    ],
+        "@crate_index__rand-0.8.5//:rand",
+    ] + select({
+        "@rules_rust//rust/platform:aarch64-apple-darwin": [
+            "@crate_index__nix-0.26.4//:nix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
+            "@crate_index__nix-0.26.4//:nix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:x86_64-apple-darwin": [
+            "@crate_index__nix-0.26.4//:nix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
+            "@crate_index__nix-0.26.4//:nix",  # cfg(unix)
+        ],
+        "//conditions:default": [],
+    }),
 )

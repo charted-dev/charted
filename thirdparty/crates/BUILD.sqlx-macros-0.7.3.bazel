@@ -47,12 +47,12 @@ rust_proc_macro(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.7.2",
+    version = "0.7.3",
     deps = [
         "@crate_index__proc-macro2-1.0.69//:proc_macro2",
         "@crate_index__quote-1.0.33//:quote",
-        "@crate_index__sqlx-core-0.7.2//:sqlx_core",
-        "@crate_index__sqlx-macros-core-0.7.2//:sqlx_macros_core",
+        "@crate_index__sqlx-core-0.7.3//:sqlx_core",
+        "@crate_index__sqlx-macros-core-0.7.3//:sqlx_macros_core",
         "@crate_index__syn-1.0.109//:syn",
     ],
 )

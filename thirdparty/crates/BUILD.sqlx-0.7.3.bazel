@@ -15,7 +15,7 @@ package(default_visibility = ["//visibility:public"])
 # ])
 
 rust_library(
-    name = "hashbrown",
+    name = "sqlx",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -29,25 +29,35 @@ rust_library(
         ],
     ),
     crate_features = [
-        "ahash",
-        "allocator-api2",
+        "_rt-tokio",
+        "any",
+        "chrono",
         "default",
-        "inline-more",
-        "raw",
+        "json",
+        "macros",
+        "migrate",
+        "postgres",
+        "runtime-tokio",
+        "sqlx-macros",
+        "sqlx-postgres",
+        "tls-native-tls",
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
+    proc_macro_deps = [
+        "@crate_index__sqlx-macros-0.7.3//:sqlx_macros",
+    ],
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=hashbrown",
+        "crate-name=sqlx",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.14.0",
+    version = "0.7.3",
     deps = [
-        "@crate_index__ahash-0.8.6//:ahash",
-        "@crate_index__allocator-api2-0.2.16//:allocator_api2",
+        "@crate_index__sqlx-core-0.7.3//:sqlx_core",
+        "@crate_index__sqlx-postgres-0.7.3//:sqlx_postgres",
     ],
 )
