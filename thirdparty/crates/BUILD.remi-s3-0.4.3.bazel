@@ -11,11 +11,11 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # MIT OR Apache-2.0
+#     "TODO",  # MIT
 # ])
 
 rust_library(
-    name = "hmac",
+    name = "remi_s3",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -29,20 +29,32 @@ rust_library(
         ],
     ),
     crate_features = [
-        "reset",
+        "default",
+        "log",
+        "serde",
     ],
     crate_root = "src/lib.rs",
-    edition = "2018",
+    edition = "2021",
+    proc_macro_deps = [
+        "@crate_index__async-trait-0.1.74//:async_trait",
+    ],
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=hmac",
+        "crate-name=remi-s3",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.12.1",
+    version = "0.4.3",
     deps = [
-        "@crate_index__digest-0.10.7//:digest",
+        "@crate_index__aws-config-1.0.1//:aws_config",
+        "@crate_index__aws-credential-types-1.0.1//:aws_credential_types",
+        "@crate_index__aws-sdk-s3-1.1.0//:aws_sdk_s3",
+        "@crate_index__bytes-1.5.0//:bytes",
+        "@crate_index__log-0.4.20//:log",
+        "@crate_index__remi-core-0.4.3//:remi_core",
+        "@crate_index__serde-1.0.193//:serde",
+        "@crate_index__tokio-1.34.0//:tokio",
     ],
 )

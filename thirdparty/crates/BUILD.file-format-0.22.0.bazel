@@ -11,11 +11,11 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # Apache-2.0
+#     "TODO",  # MIT/Apache-2.0
 # ])
 
 rust_library(
-    name = "aws_smithy_json",
+    name = "file_format",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -33,13 +33,10 @@ rust_library(
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=aws-smithy-json",
+        "crate-name=file-format",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.56.1",
-    deps = [
-        "@crate_index__aws-smithy-types-0.56.1//:aws_smithy_types",
-    ],
+    version = "0.22.0",
 )

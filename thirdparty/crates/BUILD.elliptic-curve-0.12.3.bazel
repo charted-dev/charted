@@ -11,11 +11,11 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # Apache-2.0
+#     "TODO",  # Apache-2.0 OR MIT
 # ])
 
 rust_library(
-    name = "aws_sigv4",
+    name = "elliptic_curve",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -29,39 +29,39 @@ rust_library(
         ],
     ),
     crate_features = [
-        "aws-smithy-eventstream",
-        "bytes",
-        "default",
-        "form_urlencoded",
-        "http",
-        "percent-encoding",
-        "sign-eventstream",
-        "sign-http",
+        "alloc",
+        "arithmetic",
+        "digest",
+        "ff",
+        "group",
+        "hazmat",
+        "pkcs8",
+        "sec1",
+        "std",
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=aws-sigv4",
+        "crate-name=elliptic-curve",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.56.1",
+    version = "0.12.3",
     deps = [
-        "@crate_index__aws-smithy-eventstream-0.56.1//:aws_smithy_eventstream",
-        "@crate_index__aws-smithy-http-0.56.1//:aws_smithy_http",
-        "@crate_index__bytes-1.5.0//:bytes",
-        "@crate_index__form_urlencoded-1.2.1//:form_urlencoded",
-        "@crate_index__hex-0.4.3//:hex",
-        "@crate_index__hmac-0.12.1//:hmac",
-        "@crate_index__http-0.2.9//:http",
-        "@crate_index__once_cell-1.18.0//:once_cell",
-        "@crate_index__percent-encoding-2.3.1//:percent_encoding",
-        "@crate_index__regex-1.10.2//:regex",
-        "@crate_index__sha2-0.10.7//:sha2",
-        "@crate_index__time-0.3.28//:time",
-        "@crate_index__tracing-0.1.40//:tracing",
+        "@crate_index__base16ct-0.1.1//:base16ct",
+        "@crate_index__crypto-bigint-0.4.9//:crypto_bigint",
+        "@crate_index__der-0.6.1//:der",
+        "@crate_index__digest-0.10.7//:digest",
+        "@crate_index__ff-0.12.1//:ff",
+        "@crate_index__generic-array-0.14.7//:generic_array",
+        "@crate_index__group-0.12.1//:group",
+        "@crate_index__pkcs8-0.9.0//:pkcs8",
+        "@crate_index__rand_core-0.6.4//:rand_core",
+        "@crate_index__sec1-0.3.0//:sec1",
+        "@crate_index__subtle-2.5.0//:subtle",
+        "@crate_index__zeroize-1.6.0//:zeroize",
     ],
 )

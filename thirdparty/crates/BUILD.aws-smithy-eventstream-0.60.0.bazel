@@ -15,7 +15,7 @@ package(default_visibility = ["//visibility:public"])
 # ])
 
 rust_library(
-    name = "aws_smithy_client",
+    name = "aws_smithy_eventstream",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -28,38 +28,20 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "client-hyper",
-        "rt-tokio",
-        "rustls",
-    ],
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=aws-smithy-client",
+        "crate-name=aws-smithy-eventstream",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.56.1",
+    version = "0.60.0",
     deps = [
-        "@crate_index__aws-smithy-async-0.56.1//:aws_smithy_async",
-        "@crate_index__aws-smithy-http-0.56.1//:aws_smithy_http",
-        "@crate_index__aws-smithy-http-tower-0.56.1//:aws_smithy_http_tower",
-        "@crate_index__aws-smithy-types-0.56.1//:aws_smithy_types",
+        "@crate_index__aws-smithy-types-1.0.1//:aws_smithy_types",
         "@crate_index__bytes-1.5.0//:bytes",
-        "@crate_index__fastrand-2.0.0//:fastrand",
-        "@crate_index__http-0.2.9//:http",
-        "@crate_index__http-body-0.4.5//:http_body",
-        "@crate_index__hyper-0.14.27//:hyper",
-        "@crate_index__hyper-rustls-0.24.1//:hyper_rustls",
-        "@crate_index__lazy_static-1.4.0//:lazy_static",
-        "@crate_index__pin-project-lite-0.2.13//:pin_project_lite",
-        "@crate_index__rustls-0.21.8//:rustls",
-        "@crate_index__tokio-1.34.0//:tokio",
-        "@crate_index__tower-0.4.13//:tower",
-        "@crate_index__tracing-0.1.40//:tracing",
+        "@crate_index__crc32fast-1.3.2//:crc32fast",
     ],
 )

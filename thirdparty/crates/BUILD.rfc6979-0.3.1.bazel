@@ -11,11 +11,11 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # MIT/Apache-2.0
+#     "TODO",  # Apache-2.0 OR MIT
 # ])
 
 rust_library(
-    name = "file_format",
+    name = "rfc6979",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -33,10 +33,15 @@ rust_library(
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=file-format",
+        "crate-name=rfc6979",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.21.0",
+    version = "0.3.1",
+    deps = [
+        "@crate_index__crypto-bigint-0.4.9//:crypto_bigint",
+        "@crate_index__hmac-0.12.1//:hmac",
+        "@crate_index__zeroize-1.6.0//:zeroize",
+    ],
 )

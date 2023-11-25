@@ -11,11 +11,11 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # MIT OR Apache-2.0
+#     "TODO",  # MIT/Apache-2.0
 # ])
 
 rust_library(
-    name = "hmac",
+    name = "group",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -28,21 +28,20 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "reset",
-    ],
     crate_root = "src/lib.rs",
-    edition = "2018",
+    edition = "2021",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=hmac",
+        "crate-name=group",
         "manual",
         "noclippy",
         "norustfmt",
     ],
     version = "0.12.1",
     deps = [
-        "@crate_index__digest-0.10.7//:digest",
+        "@crate_index__ff-0.12.1//:ff",
+        "@crate_index__rand_core-0.6.4//:rand_core",
+        "@crate_index__subtle-2.5.0//:subtle",
     ],
 )

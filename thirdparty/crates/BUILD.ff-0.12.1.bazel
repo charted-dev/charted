@@ -11,11 +11,11 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # Apache-2.0
+#     "TODO",  # MIT/Apache-2.0
 # ])
 
 rust_library(
-    name = "aws_smithy_xml",
+    name = "ff",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -33,13 +33,14 @@ rust_library(
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=aws-smithy-xml",
+        "crate-name=ff",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.56.1",
+    version = "0.12.1",
     deps = [
-        "@crate_index__xmlparser-0.13.5//:xmlparser",
+        "@crate_index__rand_core-0.6.4//:rand_core",
+        "@crate_index__subtle-2.5.0//:subtle",
     ],
 )
