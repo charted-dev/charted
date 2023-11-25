@@ -66,8 +66,8 @@ dependencies:
     specifier: 2.0.2
     version: 2.0.2
   markdown-it-shikiji:
-    specifier: 0.7.0
-    version: 0.7.0
+    specifier: 0.7.4
+    version: 0.7.4
   ofetch:
     specifier: 1.3.3
     version: 1.3.3
@@ -3892,11 +3892,11 @@ packages:
     resolution: {integrity: sha512-zLftSaNrKuYl0kR5zm4gxXjHaOI3FAOEaloKmRA5hijmJZvSjmxcokOLlzycb/HXlUFWzXqpIEoyEMCE4i9MvQ==}
     dev: false
 
-  /markdown-it-shikiji@0.7.0:
-    resolution: {integrity: sha512-4M8TdEpH/t5wgt2XvfRjovhTAExmVlCFrKx65n9BYsqlYYk6JXNEMJHtw7GQGA3rcqGpSURbHliBdJENmvTbQA==}
+  /markdown-it-shikiji@0.7.4:
+    resolution: {integrity: sha512-KF3CBJv07mDCdXp/HX2ulFr/C6iXUU26AO/ZzieLEeEilPFdrsBx/JpY7g1iWIdac1aZZcuTbMu4UCihZy+2xQ==}
     dependencies:
       markdown-it: 13.0.2
-      shikiji: 0.7.0
+      shikiji: 0.7.4
     dev: false
 
   /markdown-it@13.0.2:
