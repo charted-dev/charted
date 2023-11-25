@@ -189,7 +189,7 @@ alias(
 
 alias(
     name = "hyper",
-    actual = "@crate_index__hyper-1.0.1//:hyper",
+    actual = "@crate_index__hyper-0.14.27//:hyper",
     tags = ["manual"],
 )
 
