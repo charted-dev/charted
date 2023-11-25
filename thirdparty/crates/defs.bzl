@@ -615,7 +615,7 @@ _NORMAL_DEPENDENCIES = {
             "utoipa": "@crate_index__utoipa-4.1.0//:utoipa",
         },
     },
-    "testing": {
+    "testkit": {
         _COMMON_CONDITION: {
             "axum": "@crate_index__axum-0.6.20//:axum",
             "bytes": "@crate_index__bytes-1.5.0//:bytes",
@@ -624,6 +624,13 @@ _NORMAL_DEPENDENCIES = {
             "serde": "@crate_index__serde-1.0.193//:serde",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
             "tokio": "@crate_index__tokio-1.34.0//:tokio",
+        },
+    },
+    "testkit/macros": {
+        _COMMON_CONDITION: {
+            "proc-macro2": "@crate_index__proc-macro2-1.0.69//:proc_macro2",
+            "quote": "@crate_index__quote-1.0.33//:quote",
+            "syn": "@crate_index__syn-2.0.39//:syn",
         },
     },
     "tools/devtools": {
@@ -782,7 +789,11 @@ _NORMAL_ALIASES = {
         _COMMON_CONDITION: {
         },
     },
-    "testing": {
+    "testkit": {
+        _COMMON_CONDITION: {
+        },
+    },
+    "testkit/macros": {
         _COMMON_CONDITION: {
         },
     },
@@ -861,7 +872,9 @@ _NORMAL_DEV_DEPENDENCIES = {
     },
     "server/proc-macro": {
     },
-    "testing": {
+    "testkit": {
+    },
+    "testkit/macros": {
     },
     "tools/devtools": {
     },
@@ -930,7 +943,9 @@ _NORMAL_DEV_ALIASES = {
     },
     "server/proc-macro": {
     },
-    "testing": {
+    "testkit": {
+    },
+    "testkit/macros": {
     },
     "tools/devtools": {
     },
@@ -1039,10 +1054,12 @@ _PROC_MACRO_DEPENDENCIES = {
     },
     "server/proc-macro": {
     },
-    "testing": {
+    "testkit": {
         _COMMON_CONDITION: {
             "async-trait": "@crate_index__async-trait-0.1.74//:async_trait",
         },
+    },
+    "testkit/macros": {
     },
     "tools/devtools": {
         _COMMON_CONDITION: {
@@ -1113,7 +1130,9 @@ _PROC_MACRO_ALIASES = {
     },
     "server/proc-macro": {
     },
-    "testing": {
+    "testkit": {
+    },
+    "testkit/macros": {
     },
     "tools/devtools": {
     },
@@ -1178,7 +1197,9 @@ _PROC_MACRO_DEV_DEPENDENCIES = {
     },
     "server/proc-macro": {
     },
-    "testing": {
+    "testkit": {
+    },
+    "testkit/macros": {
     },
     "tools/devtools": {
     },
@@ -1247,7 +1268,9 @@ _PROC_MACRO_DEV_ALIASES = {
     },
     "server/proc-macro": {
     },
-    "testing": {
+    "testkit": {
+    },
+    "testkit/macros": {
     },
     "tools/devtools": {
     },
@@ -1321,7 +1344,9 @@ _BUILD_DEPENDENCIES = {
     },
     "server/proc-macro": {
     },
-    "testing": {
+    "testkit": {
+    },
+    "testkit/macros": {
     },
     "tools/devtools": {
     },
@@ -1390,7 +1415,9 @@ _BUILD_ALIASES = {
     },
     "server/proc-macro": {
     },
-    "testing": {
+    "testkit": {
+    },
+    "testkit/macros": {
     },
     "tools/devtools": {
     },
@@ -1455,7 +1482,9 @@ _BUILD_PROC_MACRO_DEPENDENCIES = {
     },
     "server/proc-macro": {
     },
-    "testing": {
+    "testkit": {
+    },
+    "testkit/macros": {
     },
     "tools/devtools": {
     },
@@ -1520,7 +1549,9 @@ _BUILD_PROC_MACRO_ALIASES = {
     },
     "server/proc-macro": {
     },
-    "testing": {
+    "testkit": {
+    },
+    "testkit/macros": {
     },
     "tools/devtools": {
     },

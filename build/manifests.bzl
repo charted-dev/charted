@@ -44,7 +44,7 @@ CARGO_MANIFESTS = [
     "//features/gc:Cargo.toml",
     "//server/proc-macro:Cargo.toml",
     "//server:Cargo.toml",
-    "//testing:Cargo.toml",
+    "//testkit:Cargo.toml",
     "//testkit/macros:Cargo.toml",
     "//tools/devtools:Cargo.toml",
     "//tools/helm-plugin:Cargo.toml",
