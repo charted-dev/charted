@@ -6,16 +6,16 @@
 #     bazel run @//thirdparty:crate_index
 ###############################################################################
 
-load("@rules_rust//rust:defs.bzl", "rust_library")
+load("@rules_rust//rust:defs.bzl", "rust_proc_macro")
 
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # MIT OR Apache-2.0
+#     "TODO",  # BSD-2-Clause OR Apache-2.0 OR MIT
 # ])
 
-rust_library(
-    name = "hashbrown",
+rust_proc_macro(
+    name = "zerocopy_derive",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -28,26 +28,20 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "ahash",
-        "allocator-api2",
-        "default",
-        "inline-more",
-        "raw",
-    ],
     crate_root = "src/lib.rs",
-    edition = "2021",
+    edition = "2018",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=hashbrown",
+        "crate-name=zerocopy-derive",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.14.0",
+    version = "0.7.26",
     deps = [
-        "@crate_index__ahash-0.8.6//:ahash",
-        "@crate_index__allocator-api2-0.2.16//:allocator_api2",
+        "@crate_index__proc-macro2-1.0.69//:proc_macro2",
+        "@crate_index__quote-1.0.33//:quote",
+        "@crate_index__syn-2.0.39//:syn",
     ],
 )

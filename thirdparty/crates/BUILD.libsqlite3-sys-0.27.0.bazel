@@ -30,7 +30,7 @@ rust_library(
         ],
     ),
     crate_root = "src/lib.rs",
-    edition = "2018",
+    edition = "2021",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
@@ -39,9 +39,9 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.26.0",
+    version = "0.27.0",
     deps = [
-        "@crate_index__libsqlite3-sys-0.26.0//:build_script_build",
+        "@crate_index__libsqlite3-sys-0.27.0//:build_script_build",
     ],
 )
 
@@ -61,7 +61,7 @@ cargo_build_script(
             "WORKSPACE.bazel",
         ],
     ),
-    edition = "2018",
+    edition = "2021",
     links = "sqlite3",
     rustc_flags = [
         "--cap-lints=allow",
@@ -73,7 +73,7 @@ cargo_build_script(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.26.0",
+    version = "0.27.0",
     visibility = ["//visibility:private"],
     deps = [
         "@crate_index__cc-1.0.83//:cc",
