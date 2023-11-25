@@ -12,11 +12,11 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # MIT OR Apache-2.0
+#     "TODO",  # Apache-2.0
 # ])
 
 rust_library(
-    name = "libc",
+    name = "aws_types",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -29,61 +29,31 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "default",
-        "std",
-    ] + select({
-        "@rules_rust//rust/platform:aarch64-apple-darwin": [
-            "extra_traits",
-        ],
-        "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
-            "extra_traits",
-        ],
-        "@rules_rust//rust/platform:x86_64-apple-darwin": [
-            "extra_traits",
-        ],
-        "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
-            "extra_traits",
-        ],
-        "//conditions:default": [],
-    }),
     crate_root = "src/lib.rs",
-    edition = "2015",
+    edition = "2021",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=libc",
+        "crate-name=aws-types",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.2.149",
+    version = "1.0.1",
     deps = [
-        "@crate_index__libc-0.2.149//:build_script_build",
+        "@crate_index__aws-credential-types-1.0.1//:aws_credential_types",
+        "@crate_index__aws-smithy-async-1.0.1//:aws_smithy_async",
+        "@crate_index__aws-smithy-runtime-api-1.0.1//:aws_smithy_runtime_api",
+        "@crate_index__aws-smithy-types-1.0.1//:aws_smithy_types",
+        "@crate_index__aws-types-1.0.1//:build_script_build",
+        "@crate_index__http-0.2.9//:http",
+        "@crate_index__tracing-0.1.40//:tracing",
     ],
 )
 
 cargo_build_script(
-    name = "libc_build_script",
+    name = "aws-types_build_script",
     srcs = glob(["**/*.rs"]),
-    crate_features = [
-        "default",
-        "std",
-    ] + select({
-        "@rules_rust//rust/platform:aarch64-apple-darwin": [
-            "extra_traits",
-        ],
-        "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
-            "extra_traits",
-        ],
-        "@rules_rust//rust/platform:x86_64-apple-darwin": [
-            "extra_traits",
-        ],
-        "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
-            "extra_traits",
-        ],
-        "//conditions:default": [],
-    }),
     crate_name = "build_script_build",
     crate_root = "build.rs",
     data = glob(
@@ -97,23 +67,26 @@ cargo_build_script(
             "WORKSPACE.bazel",
         ],
     ),
-    edition = "2015",
+    edition = "2021",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=libc",
+        "crate-name=aws-types",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.2.149",
+    version = "1.0.1",
     visibility = ["//visibility:private"],
+    deps = [
+        "@crate_index__rustc_version-0.4.0//:rustc_version",
+    ],
 )
 
 alias(
     name = "build_script_build",
-    actual = "libc_build_script",
+    actual = "aws-types_build_script",
     tags = ["manual"],
 )
