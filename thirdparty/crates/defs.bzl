@@ -311,7 +311,7 @@ _NORMAL_DEPENDENCIES = {
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
             "serde_yaml": "@crate_index__serde_yaml-0.9.27//:serde_yaml",
             "sqlx": "@crate_index__sqlx-0.7.3//:sqlx",
-            "sysinfo": "@crate_index__sysinfo-0.29.10//:sysinfo",
+            "sysinfo": "@crate_index__sysinfo-0.29.11//:sysinfo",
             "tokio": "@crate_index__tokio-1.34.0//:tokio",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.18//:tracing_subscriber",
@@ -668,7 +668,7 @@ _NORMAL_DEPENDENCIES = {
             "serde": "@crate_index__serde-1.0.193//:serde",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
             "serde_yaml": "@crate_index__serde_yaml-0.9.27//:serde_yaml",
-            "sysinfo": "@crate_index__sysinfo-0.29.10//:sysinfo",
+            "sysinfo": "@crate_index__sysinfo-0.29.11//:sysinfo",
             "tokio": "@crate_index__tokio-1.34.0//:tokio",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "tracing-subscriber": "@crate_index__tracing-subscriber-0.3.18//:tracing_subscriber",
@@ -6212,12 +6212,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__sysinfo-0.29.10",
-        sha256 = "0a18d114d420ada3a891e6bc8e96a2023402203296a47cdd65083377dad18ba5",
+        name = "crate_index__sysinfo-0.29.11",
+        sha256 = "cd727fc423c2060f6c92d9534cef765c65a6ed3f428a03d7def74a8c4348e666",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sysinfo/0.29.10/download"],
-        strip_prefix = "sysinfo-0.29.10",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sysinfo-0.29.10.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sysinfo/0.29.11/download"],
+        strip_prefix = "sysinfo-0.29.11",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sysinfo-0.29.11.bazel"),
     )
 
     maybe(

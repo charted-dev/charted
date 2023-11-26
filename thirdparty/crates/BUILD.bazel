@@ -453,7 +453,7 @@ alias(
 
 alias(
     name = "sysinfo",
-    actual = "@crate_index__sysinfo-0.29.10//:sysinfo",
+    actual = "@crate_index__sysinfo-0.29.11//:sysinfo",
     tags = ["manual"],
 )
 

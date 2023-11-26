@@ -43,7 +43,7 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.29.10",
+    version = "0.29.11",
     deps = [
         "@crate_index__cfg-if-1.0.0//:cfg_if",
         "@crate_index__rayon-1.7.0//:rayon",
