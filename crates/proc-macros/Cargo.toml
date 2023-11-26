@@ -24,7 +24,7 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 [dependencies]
 axum = "0.6.20"
 charted-common = { version = "0.0.0-devel.0", path = "../common" }
-proc-macro2 = "1.0.69"
+proc-macro2 = "1.0.70"
 quote = "1.0.33"
 serde_json = "1.0.108"
 syn = "2.0.39"

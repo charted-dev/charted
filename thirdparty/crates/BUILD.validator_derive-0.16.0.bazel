@@ -43,7 +43,7 @@ rust_proc_macro(
         "@crate_index__if_chain-1.0.2//:if_chain",
         "@crate_index__lazy_static-1.4.0//:lazy_static",
         "@crate_index__proc-macro-error-1.0.4//:proc_macro_error",
-        "@crate_index__proc-macro2-1.0.69//:proc_macro2",
+        "@crate_index__proc-macro2-1.0.70//:proc_macro2",
         "@crate_index__quote-1.0.33//:quote",
         "@crate_index__regex-1.10.2//:regex",
         "@crate_index__syn-1.0.109//:syn",
