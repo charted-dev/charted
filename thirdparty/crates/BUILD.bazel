@@ -327,7 +327,7 @@ alias(
 
 alias(
     name = "redis",
-    actual = "@crate_index__redis-0.23.3//:redis",
+    actual = "@crate_index__redis-0.23.4//:redis",
     tags = ["manual"],
 )
 
