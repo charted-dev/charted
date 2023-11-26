@@ -65,7 +65,7 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.23.3",
+    version = "0.23.4",
     deps = [
         "@crate_index__arc-swap-1.6.0//:arc_swap",
         "@crate_index__bytes-1.5.0//:bytes",
