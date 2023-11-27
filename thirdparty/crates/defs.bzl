@@ -362,7 +362,7 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/config": {
         _COMMON_CONDITION: {
-            "aws-sdk-s3": "@crate_index__aws-sdk-s3-1.1.0//:aws_sdk_s3",
+            "aws-sdk-s3": "@crate_index__aws-sdk-s3-1.2.0//:aws_sdk_s3",
             "base64": "@crate_index__base64-0.21.5//:base64",
             "clap": "@crate_index__clap-4.4.8//:clap",
             "eyre": "@crate_index__eyre-0.6.9//:eyre",
@@ -2002,12 +2002,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__aws-sdk-s3-1.1.0",
-        sha256 = "62d240c8c3e3663cd278e47702bbd2566203362d93b51d95575d7b2e0c265e99",
+        name = "crate_index__aws-sdk-s3-1.2.0",
+        sha256 = "2a995f3cbbfaac2744bf6f1746693cb9260029b7787c29b0103a7be32095cacd",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/aws-sdk-s3/1.1.0/download"],
-        strip_prefix = "aws-sdk-s3-1.1.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-sdk-s3-1.1.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/aws-sdk-s3/1.2.0/download"],
+        strip_prefix = "aws-sdk-s3-1.2.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-sdk-s3-1.2.0.bazel"),
     )
 
     maybe(
