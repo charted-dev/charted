@@ -2,10 +2,20 @@
 # Manual edits may be lost in future updates.
 
 provider "registry.terraform.io/hashicorp/helm" {
-  version     = "2.11.0"
-  constraints = "2.11.0"
+  version     = "2.12.0"
+  constraints = "2.12.0"
   hashes = [
-    "h1:XidRQK5M7VFc8lWnrp7ucXI5lE5yfJ7DLBEjiMDpgnk=",
+    "h1:8EsvI/hOM9Q9ltVhkQfeK2NF4cr0RxHiUPqdmddcKHI=",
+    "h1:8xbrS4zEvuaNm2UjbRaIo7XKowMucKG1Y1vYOHe/6A4=",
+    "h1:AYFfmSailEmMvsQoHYITqcqEsdJQVYULsI+gwONBmAE=",
+    "h1:JCix4Gx48xhQ0xG17OChj2zWX3uWPXK+iZpO/y8Wa88=",
+    "h1:N29oQNxmZR0tOdpUSeHZCLY/ML0Pa14a+CqDbBApSuw=",
+    "h1:YvSw8JzS/6QZUcZ0pjQY3EPKhtk2ozlHtU7O4u3Ln7A=",
+    "h1:ZNtHw95EKvgnnU+1B7dLpF0bFvTFJKc4I7RwDCVy7Vs=",
+    "h1:i2zP1ebwFcRsFV+vrLv/MRj+Aar8wnk1VNbY5p/49Uw=",
+    "h1:nk9CCuHkvoJZbbI90ybKiVlU2SUQCIdsmREzOoDtY8Q=",
+    "h1:q2t74cDvT3Ig4DlkCpk0Rqslc5FUs6I40dRdkMWZX4E=",
+    "h1:sfDhLsIZVbkq6zNZe/jsEhrk0SgagXYCj9MsBmIBDNc=",
   ]
 }
 
