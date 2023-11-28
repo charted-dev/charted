@@ -84,8 +84,8 @@ dependencies:
     specifier: 1.2.3
     version: 1.2.3(vue@3.3.9)
   shikiji:
-    specifier: 0.7.4
-    version: 0.7.4
+    specifier: 0.7.5
+    version: 0.7.5
   tailwind-merge:
     specifier: 2.0.0
     version: 2.0.0
@@ -4799,12 +4799,6 @@ packages:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
     dev: true
-
-  /shikiji@0.7.4:
-    resolution: {integrity: sha512-N5dmPvyhH/zfcsuWysUEAMwRJDMz26LUns2VEUs5y4Ozbf5jkAODU0Yswjcf/tZAwpFnk5x3y34dupFMnF2+NA==}
-    dependencies:
-      hast-util-to-html: 9.0.0
-    dev: false
 
   /shikiji@0.7.5:
     resolution: {integrity: sha512-He8lAcTZUVuUW+Z4VRPM+TP+HVZCe4R1qzrP7voUrmAKrFKE260YEUVgqcP7y/0ps0uVvKgVhu5vgIshGpGocQ==}
