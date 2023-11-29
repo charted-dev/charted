@@ -19,7 +19,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 def charted_nixpkgs_repositories():
     http_archive(
         name = "io_tweag_rules_nixpkgs",
-        sha256 = "f0024fda8e0c61a56b2090964dd24248e6b620e61b77292a946a527b89fa7f7d",
-        strip_prefix = "rules_nixpkgs-3a8141aec5d27a9aee358faa737aa4405dc04022",
-        urls = ["https://github.com/tweag/rules_nixpkgs/archive/3a8141aec5d27a9aee358faa737aa4405dc04022.tar.gz"],
+        sha256 = "95c4d3fd05d4b144015e78840121f89623df3a3c214af730828ed20540ec26e4",
+        strip_prefix = "rules_nixpkgs-21c4ea481021cb51a6e5d0969b2cee03dba5a637",
+        urls = ["https://github.com/tweag/rules_nixpkgs/archive/21c4ea481021cb51a6e5d0969b2cee03dba5a637.tar.gz"],
     )
