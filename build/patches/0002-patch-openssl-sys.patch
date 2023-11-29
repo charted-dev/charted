@@ -1,7 +1,7 @@
-diff --git a/thirdparty/crates/BUILD.openssl-sys-0.9.93.bazel b/thirdparty/crates/BUILD.openssl-sys-0.9.93.bazel
+diff --git a/thirdparty/crates/BUILD.openssl-sys-0.9.96.bazel b/thirdparty/crates/BUILD.openssl-sys-0.9.96.bazel
 index b3dfcb6..02349de 100644
---- a/thirdparty/crates/BUILD.openssl-sys-0.9.93.bazel
-+++ b/thirdparty/crates/BUILD.openssl-sys-0.9.93.bazel
+--- a/thirdparty/crates/BUILD.openssl-sys-0.9.96.bazel
++++ b/thirdparty/crates/BUILD.openssl-sys-0.9.96.bazel
 @@ -30,8 +30,20 @@ rust_library(
          ],
      ),
