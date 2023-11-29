@@ -12,15 +12,12 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # Apache-2.0
+#     "TODO",  # MIT
 # ])
 
 rust_library(
-    name = "openssl",
+    name = "openssl_sys",
     srcs = glob(["**/*.rs"]),
-    aliases = {
-        "@crate_index__openssl-sys-0.9.93//:openssl_sys": "ffi",
-    },
     compile_data = glob(
         include = ["**"],
         exclude = [
@@ -32,42 +29,28 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "default",
-    ],
     crate_root = "src/lib.rs",
     edition = "2018",
-    proc_macro_deps = [
-        "@crate_index__openssl-macros-0.1.1//:openssl_macros",
-    ],
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=openssl",
+        "crate-name=openssl-sys",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.10.57",
+    version = "0.9.96",
     deps = [
-        "@crate_index__bitflags-2.4.0//:bitflags",
-        "@crate_index__cfg-if-1.0.0//:cfg_if",
-        "@crate_index__foreign-types-0.3.2//:foreign_types",
         "@crate_index__libc-0.2.149//:libc",
-        "@crate_index__once_cell-1.18.0//:once_cell",
-        "@crate_index__openssl-0.10.57//:build_script_build",
-        "@crate_index__openssl-sys-0.9.93//:openssl_sys",
+        "@crate_index__openssl-sys-0.9.96//:build_script_main",
     ],
 )
 
 cargo_build_script(
-    name = "openssl_build_script",
+    name = "openssl-sys_build_script",
     srcs = glob(["**/*.rs"]),
-    crate_features = [
-        "default",
-    ],
-    crate_name = "build_script_build",
-    crate_root = "build.rs",
+    crate_name = "build_script_main",
+    crate_root = "build/main.rs",
     data = glob(
         include = ["**"],
         exclude = [
@@ -80,25 +63,28 @@ cargo_build_script(
         ],
     ),
     edition = "2018",
-    link_deps = [
-        "@crate_index__openssl-sys-0.9.93//:openssl_sys",
-    ],
+    links = "openssl",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=openssl",
+        "crate-name=openssl-sys",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.10.57",
+    version = "0.9.96",
     visibility = ["//visibility:private"],
+    deps = [
+        "@crate_index__cc-1.0.83//:cc",
+        "@crate_index__pkg-config-0.3.27//:pkg_config",
+        "@crate_index__vcpkg-0.2.15//:vcpkg",
+    ],
 )
 
 alias(
-    name = "build_script_build",
-    actual = "openssl_build_script",
+    name = "build_script_main",
+    actual = "openssl-sys_build_script",
     tags = ["manual"],
 )
