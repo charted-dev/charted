@@ -40,7 +40,7 @@ rust_library(
     ],
     version = "0.16.0",
     deps = [
-        "@crate_index__proc-macro2-1.0.69//:proc_macro2",
+        "@crate_index__proc-macro2-1.0.70//:proc_macro2",
         "@crate_index__syn-1.0.109//:syn",
     ],
 )

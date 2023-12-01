@@ -51,7 +51,7 @@ alias(
 
 alias(
     name = "aws-sdk-s3",
-    actual = "@crate_index__aws-sdk-s3-0.34.0//:aws_sdk_s3",
+    actual = "@crate_index__aws-sdk-s3-1.4.0//:aws_sdk_s3",
     tags = ["manual"],
 )
 
@@ -99,7 +99,7 @@ alias(
 
 alias(
     name = "clap",
-    actual = "@crate_index__clap-4.4.8//:clap",
+    actual = "@crate_index__clap-4.4.10//:clap",
     tags = ["manual"],
 )
 
@@ -201,7 +201,7 @@ alias(
 
 alias(
     name = "jsonwebtoken",
-    actual = "@crate_index__jsonwebtoken-9.1.0//:jsonwebtoken",
+    actual = "@crate_index__jsonwebtoken-9.2.0//:jsonwebtoken",
     tags = ["manual"],
 )
 
@@ -279,7 +279,7 @@ alias(
 
 alias(
     name = "openssl",
-    actual = "@crate_index__openssl-0.10.57//:openssl",
+    actual = "@crate_index__openssl-0.10.60//:openssl",
     tags = ["manual"],
 )
 
@@ -291,7 +291,7 @@ alias(
 
 alias(
     name = "proc-macro2",
-    actual = "@crate_index__proc-macro2-1.0.69//:proc_macro2",
+    actual = "@crate_index__proc-macro2-1.0.70//:proc_macro2",
     tags = ["manual"],
 )
 
@@ -327,7 +327,7 @@ alias(
 
 alias(
     name = "redis",
-    actual = "@crate_index__redis-0.23.3//:redis",
+    actual = "@crate_index__redis-0.23.4//:redis",
     tags = ["manual"],
 )
 
@@ -339,19 +339,19 @@ alias(
 
 alias(
     name = "remi-core",
-    actual = "@crate_index__remi-core-0.4.2//:remi_core",
+    actual = "@crate_index__remi-core-0.4.3//:remi_core",
     tags = ["manual"],
 )
 
 alias(
     name = "remi-fs",
-    actual = "@crate_index__remi-fs-0.4.2//:remi_fs",
+    actual = "@crate_index__remi-fs-0.4.3//:remi_fs",
     tags = ["manual"],
 )
 
 alias(
     name = "remi-s3",
-    actual = "@crate_index__remi-s3-0.4.2//:remi_s3",
+    actual = "@crate_index__remi-s3-0.4.3//:remi_s3",
     tags = ["manual"],
 )
 
@@ -393,7 +393,7 @@ alias(
 
 alias(
     name = "sentry-tracing",
-    actual = "@crate_index__sentry-tracing-0.31.8//:sentry_tracing",
+    actual = "@crate_index__sentry-tracing-0.32.0//:sentry_tracing",
     tags = ["manual"],
 )
 
@@ -435,7 +435,7 @@ alias(
 
 alias(
     name = "sqlx",
-    actual = "@crate_index__sqlx-0.7.2//:sqlx",
+    actual = "@crate_index__sqlx-0.7.3//:sqlx",
     tags = ["manual"],
 )
 
@@ -453,7 +453,7 @@ alias(
 
 alias(
     name = "sysinfo",
-    actual = "@crate_index__sysinfo-0.29.10//:sysinfo",
+    actual = "@crate_index__sysinfo-0.29.11//:sysinfo",
     tags = ["manual"],
 )
 

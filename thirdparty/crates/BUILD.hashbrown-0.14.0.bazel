@@ -47,7 +47,7 @@ rust_library(
     ],
     version = "0.14.0",
     deps = [
-        "@crate_index__ahash-0.8.3//:ahash",
+        "@crate_index__ahash-0.8.6//:ahash",
         "@crate_index__allocator-api2-0.2.16//:allocator_api2",
     ],
 )

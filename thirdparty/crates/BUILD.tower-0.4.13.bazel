@@ -45,7 +45,6 @@ rust_library(
         "pin-project-lite",
         "rand",
         "ready-cache",
-        "retry",
         "slab",
         "timeout",
         "tokio",
