@@ -494,7 +494,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "chrono": "@crate_index__chrono-0.4.31//:chrono",
             "eyre": "@crate_index__eyre-0.6.9//:eyre",
-            "jsonwebtoken": "@crate_index__jsonwebtoken-9.1.0//:jsonwebtoken",
+            "jsonwebtoken": "@crate_index__jsonwebtoken-9.2.0//:jsonwebtoken",
             "redis": "@crate_index__redis-0.23.4//:redis",
             "sentry": "@crate_index__sentry-0.31.8//:sentry",
             "serde": "@crate_index__serde-1.0.193//:serde",
@@ -535,7 +535,7 @@ _NORMAL_DEPENDENCIES = {
             "argon2": "@crate_index__argon2-0.5.2//:argon2",
             "chrono": "@crate_index__chrono-0.4.31//:chrono",
             "eyre": "@crate_index__eyre-0.6.9//:eyre",
-            "jsonwebtoken": "@crate_index__jsonwebtoken-9.1.0//:jsonwebtoken",
+            "jsonwebtoken": "@crate_index__jsonwebtoken-9.2.0//:jsonwebtoken",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
             "sentry": "@crate_index__sentry-0.31.8//:sentry",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
@@ -578,7 +578,7 @@ _NORMAL_DEPENDENCIES = {
             "erased-serde": "@crate_index__erased-serde-0.3.31//:erased_serde",
             "eyre": "@crate_index__eyre-0.6.9//:eyre",
             "futures-util": "@crate_index__futures-util-0.3.29//:futures_util",
-            "jsonwebtoken": "@crate_index__jsonwebtoken-9.1.0//:jsonwebtoken",
+            "jsonwebtoken": "@crate_index__jsonwebtoken-9.2.0//:jsonwebtoken",
             "mime": "@crate_index__mime-0.3.17//:mime",
             "multer": "@crate_index__multer-2.1.0//:multer",
             "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
@@ -1564,6 +1564,7 @@ _CONDITIONS = {
     "aarch64-linux-android": [],
     "aarch64-pc-windows-gnullvm": [],
     "aarch64-unknown-linux-gnu": ["@rules_rust//rust/platform:aarch64-unknown-linux-gnu"],
+    "cfg(all(any(target_arch = \"wasm32\", target_arch = \"wasm64\"), target_os = \"unknown\"))": [],
     "cfg(all(any(target_os = \"android\", target_os = \"linux\"), any(rustix_use_libc, miri, not(all(target_os = \"linux\", target_endian = \"little\", any(target_arch = \"arm\", all(target_arch = \"aarch64\", target_pointer_width = \"64\"), target_arch = \"riscv64\", all(rustix_use_experimental_asm, target_arch = \"powerpc64\"), all(rustix_use_experimental_asm, target_arch = \"mips\"), all(rustix_use_experimental_asm, target_arch = \"mips32r6\"), all(rustix_use_experimental_asm, target_arch = \"mips64\"), all(rustix_use_experimental_asm, target_arch = \"mips64r6\"), target_arch = \"x86\", all(target_arch = \"x86_64\", target_pointer_width = \"64\")))))))": [],
     "cfg(all(not(rustix_use_libc), not(miri), target_os = \"linux\", target_endian = \"little\", any(target_arch = \"arm\", all(target_arch = \"aarch64\", target_pointer_width = \"64\"), target_arch = \"riscv64\", all(rustix_use_experimental_asm, target_arch = \"powerpc64\"), all(rustix_use_experimental_asm, target_arch = \"mips\"), all(rustix_use_experimental_asm, target_arch = \"mips32r6\"), all(rustix_use_experimental_asm, target_arch = \"mips64\"), all(rustix_use_experimental_asm, target_arch = \"mips64r6\"), target_arch = \"x86\", all(target_arch = \"x86_64\", target_pointer_width = \"64\"))))": ["@rules_rust//rust/platform:aarch64-unknown-linux-gnu", "@rules_rust//rust/platform:x86_64-unknown-linux-gnu"],
     "cfg(all(not(windows), any(rustix_use_libc, miri, not(all(target_os = \"linux\", target_endian = \"little\", any(target_arch = \"arm\", all(target_arch = \"aarch64\", target_pointer_width = \"64\"), target_arch = \"riscv64\", all(rustix_use_experimental_asm, target_arch = \"powerpc64\"), all(rustix_use_experimental_asm, target_arch = \"mips\"), all(rustix_use_experimental_asm, target_arch = \"mips32r6\"), all(rustix_use_experimental_asm, target_arch = \"mips64\"), all(rustix_use_experimental_asm, target_arch = \"mips64r6\"), target_arch = \"x86\", all(target_arch = \"x86_64\", target_pointer_width = \"64\")))))))": ["@rules_rust//rust/platform:aarch64-apple-darwin", "@rules_rust//rust/platform:x86_64-apple-darwin"],
@@ -4022,12 +4023,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__jsonwebtoken-9.1.0",
-        sha256 = "155c4d7e39ad04c172c5e3a99c434ea3b4a7ba7960b38ecd562b270b097cce09",
+        name = "crate_index__jsonwebtoken-9.2.0",
+        sha256 = "5c7ea04a7c5c055c175f189b6dc6ba036fd62306b58c66c9f6389036c503a3f4",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/jsonwebtoken/9.1.0/download"],
-        strip_prefix = "jsonwebtoken-9.1.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.jsonwebtoken-9.1.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/jsonwebtoken/9.2.0/download"],
+        strip_prefix = "jsonwebtoken-9.2.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.jsonwebtoken-9.2.0.bazel"),
     )
 
     maybe(
