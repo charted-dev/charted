@@ -166,6 +166,25 @@
                 }
             }
         },
+        "/repositories": {
+            "get": {
+                "tags": ["Repositories"],
+                "description": "Generic entrypoint route for the Repositories API.",
+                "operationId": "repositories",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/EntrypointResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/repositories/{id}": {
             "get": {
                 "tags": ["Repositories"],
@@ -997,6 +1016,25 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/responses/InfoResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/repositories": {
+            "get": {
+                "tags": ["Repositories"],
+                "description": "Generic entrypoint route for the Repositories API.",
+                "operationId": "repositories",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/EntrypointResponse"
                                 }
                             }
                         }
@@ -1991,21 +2029,25 @@
             },
             "Error": {
                 "type": "object",
+                "description": "Represents an error that could occur.",
                 "required": ["code", "message"],
                 "properties": {
                     "code": {
-                        "type": "string",
-                        "description": "A code that can be looked up on why a request failed. You can view\nall available codes in [the documentation](https://charts.noelware.org/docs/server/latest/api#errors)."
+                        "$ref": "#/components/schemas/ErrorCode"
                     },
                     "details": {
-                        "description": "Any JSON value on any details that might help you on why it failed.",
+                        "description": "Other details to send to the user to give even more context about this error.",
                         "nullable": true
                     },
                     "message": {
                         "type": "string",
-                        "description": "Detailed message on why this request failed."
+                        "description": "Humane message that is based off the contextual [error code][Error::code] to give\na brief description."
                     }
                 }
+            },
+            "ErrorCode": {
+                "type": "string",
+                "description": "Represents a error code that can happen"
             },
             "FeaturesResponse": {
                 "type": "object",

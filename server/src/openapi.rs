@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::APIVersion;
+use crate::{models::res::ErrorCode, APIVersion};
 use charted_common::{
     lazy,
     models::{
@@ -61,6 +61,7 @@ static COMPONENTS: Lazy<Components> = lazy!(ComponentsBuilder::new()
         Repository::schema(),
         ChartIndex::schema(),
         ChartType::schema(),
+        ErrorCode::schema(),
         Member::schema(),
         ApiKey::schema(),
         Chart::schema(),
