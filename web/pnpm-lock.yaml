@@ -161,8 +161,8 @@ devDependencies:
     specifier: 1.1.4
     version: 1.1.4
   unplugin-vue-components:
-    specifier: 0.25.2
-    version: 0.25.2(vue@3.3.9)
+    specifier: 0.26.0
+    version: 0.26.0(vue@3.3.9)
   unplugin-vue-router:
     specifier: 0.7.0
     version: 0.7.0(vue-router@4.2.5)(vue@3.3.9)
@@ -1624,7 +1624,7 @@ packages:
         optional: true
     dependencies:
       '@babel/types': 7.23.3
-      '@rollup/pluginutils': 5.0.5
+      '@rollup/pluginutils': 5.1.0
       '@vue/compiler-sfc': 3.3.9
       ast-kit: 0.11.2
       local-pkg: 0.4.3
@@ -2020,7 +2020,7 @@ packages:
     engines: {node: '>=16.14.0'}
     dependencies:
       '@babel/parser': 7.23.3
-      '@rollup/pluginutils': 5.0.5
+      '@rollup/pluginutils': 5.1.0
       pathe: 1.1.1
     transitivePeerDependencies:
       - rollup
@@ -2031,7 +2031,7 @@ packages:
     engines: {node: '>=16.14.0'}
     dependencies:
       '@babel/parser': 7.23.3
-      '@rollup/pluginutils': 5.0.5
+      '@rollup/pluginutils': 5.1.0
       pathe: 1.1.1
     transitivePeerDependencies:
       - rollup
@@ -5329,8 +5329,8 @@ packages:
       - rollup
     dev: true
 
-  /unplugin-vue-components@0.25.2(vue@3.3.9):
-    resolution: {integrity: sha512-OVmLFqILH6w+eM8fyt/d/eoJT9A6WO51NZLf1vC5c1FZ4rmq2bbGxTy8WP2Jm7xwFdukaIdv819+UI7RClPyCA==}
+  /unplugin-vue-components@0.26.0(vue@3.3.9):
+    resolution: {integrity: sha512-s7IdPDlnOvPamjunVxw8kNgKNK8A5KM1YpK5j/p97jEKTjlPNrA0nZBiSfAKKlK1gWZuyWXlKL5dk3EDw874LQ==}
     engines: {node: '>=14'}
     peerDependencies:
       '@babel/parser': ^7.15.8
@@ -5343,7 +5343,7 @@ packages:
         optional: true
     dependencies:
       '@antfu/utils': 0.7.6
-      '@rollup/pluginutils': 5.0.5
+      '@rollup/pluginutils': 5.1.0
       chokidar: 3.5.3
       debug: 4.3.4
       fast-glob: 3.3.2
@@ -5351,7 +5351,7 @@ packages:
       magic-string: 0.30.5
       minimatch: 9.0.3
       resolve: 1.22.8
-      unplugin: 1.5.0
+      unplugin: 1.5.1
       vue: 3.3.9(typescript@5.3.2)
     transitivePeerDependencies:
       - rollup
@@ -5497,7 +5497,7 @@ packages:
         optional: true
     dependencies:
       '@antfu/utils': 0.7.6
-      '@rollup/pluginutils': 5.0.5
+      '@rollup/pluginutils': 5.1.0
       debug: 4.3.4
       error-stack-parser-es: 0.1.1
       fs-extra: 11.1.1
