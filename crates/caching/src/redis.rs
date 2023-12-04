@@ -21,7 +21,7 @@ use charted_redis::RedisClient;
 use eyre::{Context, Report, Result};
 use redis::{AsyncCommands, Commands};
 use serde::{de::DeserializeOwned, ser::Serialize};
-use tracing::{info, instrument};
+use tracing::{info, instrument, trace};
 
 #[derive(Debug, Clone)]
 pub struct RedisCacheWorker {
@@ -65,14 +65,14 @@ impl CacheWorker for RedisCacheWorker {
         let client = self.client.master()?;
         let mut conn = client.get_connection()?;
 
-        if conn.exists(redis_key.clone())? {
+        if conn.exists(&redis_key)? {
             return Ok(());
         }
 
         let mut pipeline = RedisClient::pipeline();
         pipeline
-            .set(redis_key.clone(), serde_json::to_string(obj)?)
-            .expire(redis_key.clone(), self.ttl.as_secs().try_into().unwrap())
+            .set(&redis_key, serde_json::to_string(obj)?)
+            .expire(&redis_key, self.ttl.as_secs().try_into()?)
             .query::<()>(&mut conn)
             .context(format!("unable to run 'SET {redis_key}'"))
     }
@@ -87,7 +87,11 @@ impl CacheWorker for RedisCacheWorker {
             return Ok(());
         }
 
-        conn.del(&redis_key).await?;
-        Ok(())
+        conn.del::<_, ()>(&redis_key)
+            .await
+            .map(|_| {
+                trace!(cache.worker = "redis", key = %redis_key, "deleted cache key in Redis successfully");
+            })
+            .with_context(|| "unable to delete cache key from Redis")
     }
 }

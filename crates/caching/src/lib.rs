@@ -24,6 +24,9 @@ use eyre::Result;
 use serde::{de::DeserializeOwned, ser::Serialize};
 use std::{fmt::Display, time::Duration};
 
+/// [`CacheKey`] namespace for organizations.
+pub const ORGANIZATIONS: &str = "organizations";
+
 /// [`CacheKey`] namespace for fetching repositories.
 pub const REPOSITORIES: &str = "repositories";
 
@@ -68,6 +71,11 @@ impl CacheKey {
     /// Creates a [`CacheKey`] instance for a repository with their ID
     pub fn repository(id: i64) -> CacheKey {
         CacheKey::new(REPOSITORIES, id.to_string())
+    }
+
+    /// Creates a [`CacheKey`] instance for a organization with their ID
+    pub fn organization(id: i64) -> CacheKey {
+        CacheKey::new(ORGANIZATIONS, id.to_string())
     }
 
     /// Takes ownership of this [`CacheKey`] and returns a Redis key representation

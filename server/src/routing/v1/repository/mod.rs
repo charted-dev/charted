@@ -62,7 +62,8 @@ pub fn create_router() -> Router<Server> {
                     SessionAuth::default().scope(ApiKeyScope::RepoUpdate),
                 )),
             )
-            .get(GetRepositoryRestController::run),
+            .get(GetRepositoryRestController::run)
+            .delete(DeleteRepositoryRestController::run),
         )
 }
 
@@ -205,4 +206,89 @@ pub async fn patch_repository(
     })?;
 
     Ok(no_content())
+}
+
+/// Deletes a repository from the user or organization account that owns it. Members with the
+/// `repo:delete` permission and the owner are the only ones that are permitted to delete
+/// repositories.
+///
+/// As of the release of `0.1.0-beta`, only repository owners can delete it & the organization owner
+/// can only delete the repository. In the future, owners of the repository (even if it was apart
+/// of an organization) can delete it.
+#[controller(
+    method = delete,
+    tags("Repositories"),
+    securityRequirements(
+        ("ApiKey", ["repo:delete"]),
+        ("Bearer", []),
+        ("Basic", [])
+    ),
+    response(204, "Successful response", ("application/json", response!("EmptyApiResponse"))),
+    response(400, "If the request body was invalid (i.e, validation errors)", ("application/json", response!("ApiErrorResponse"))),
+    response(401, "If the session couldn't be validated", ("application/json", response!("ApiErrorResponse"))),
+    response(403, "(Bearer token only) - if the JWT was invalid.", ("application/json", response!("ApiErrorResponse"))),
+    response(406, "If the request body contained invalid data, or if the session header contained invalid data", ("application/json", response!("ApiErrorResponse"))),
+    response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
+)]
+pub async fn delete_repository(
+    State(Server {
+        db_cache, controllers, ..
+    }): State<Server>,
+    Extension(Session { user, .. }): Extension<Session>,
+    Path(id): Path<i64>,
+) -> Result {
+    let repos = controllers.get::<RepositoryDatabaseController>();
+    let mut worker = db_cache.lock().await;
+    let repo = match worker.get::<Repository>(CacheKey::repository(id)).await {
+        Ok(Some(entity)) => entity,
+        Ok(None) => match repos.get(id.try_into().unwrap()).await {
+            Ok(Some(entity)) => entity,
+            Ok(None) => {
+                return Err(err(
+                    StatusCode::NOT_FOUND,
+                    (
+                        ErrorCode::EntityNotFound,
+                        "repository with id doesn't exist",
+                        json!({"id": id}),
+                    ),
+                ));
+            }
+
+            Err(e) => {
+                error!(repository.id = id, error = %e, "unable to fetch repository from PostgreSQL");
+                sentry_eyre::capture_report(&e);
+
+                return Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR));
+            }
+        },
+
+        Err(e) => {
+            error!(repository.id = id, error = %e, "unable to get cache hit for repository");
+            sentry_eyre::capture_report(&e);
+
+            return Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR));
+        }
+    };
+
+    if repo.owner != user.id {
+        return Err(err(
+            StatusCode::FORBIDDEN,
+            (
+                ErrorCode::AccessNotPermitted,
+                "you cannot delete this repository as you don't own it",
+                json!({"id": id}),
+            ),
+        ));
+    }
+
+    repos
+        .delete(id.try_into().unwrap())
+        .await
+        .map_err(|_| err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR))?;
+
+    worker
+        .delete(CacheKey::repository(id))
+        .await
+        .map(|()| ok(StatusCode::ACCEPTED, ()))
+        .map_err(|_| err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR))
 }
