@@ -15,7 +15,7 @@ package(default_visibility = ["//visibility:public"])
 # ])
 
 rust_library(
-    name = "clap_builder",
+    name = "clap",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -30,6 +30,8 @@ rust_library(
     ),
     crate_features = [
         "color",
+        "default",
+        "derive",
         "env",
         "error-context",
         "help",
@@ -39,19 +41,19 @@ rust_library(
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
+    proc_macro_deps = [
+        "@crate_index__clap_derive-4.4.7//:clap_derive",
+    ],
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=clap_builder",
+        "crate-name=clap",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "4.4.9",
+    version = "4.4.11",
     deps = [
-        "@crate_index__anstream-0.6.4//:anstream",
-        "@crate_index__anstyle-1.0.2//:anstyle",
-        "@crate_index__clap_lex-0.6.0//:clap_lex",
-        "@crate_index__strsim-0.10.0//:strsim",
+        "@crate_index__clap_builder-4.4.11//:clap_builder",
     ],
 )

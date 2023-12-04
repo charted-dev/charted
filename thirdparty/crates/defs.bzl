@@ -298,7 +298,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "ansi_term": "@crate_index__ansi_term-0.12.1//:ansi_term",
             "chrono": "@crate_index__chrono-0.4.31//:chrono",
-            "clap": "@crate_index__clap-4.4.10//:clap",
+            "clap": "@crate_index__clap-4.4.11//:clap",
             "clap_complete": "@crate_index__clap_complete-4.4.4//:clap_complete",
             "cli-table": "@crate_index__cli-table-0.4.7//:cli_table",
             "color-eyre": "@crate_index__color-eyre-0.6.2//:color_eyre",
@@ -364,7 +364,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "aws-sdk-s3": "@crate_index__aws-sdk-s3-1.4.0//:aws_sdk_s3",
             "base64": "@crate_index__base64-0.21.5//:base64",
-            "clap": "@crate_index__clap-4.4.10//:clap",
+            "clap": "@crate_index__clap-4.4.11//:clap",
             "eyre": "@crate_index__eyre-0.6.9//:eyre",
             "lazy_static": "@crate_index__lazy_static-1.4.0//:lazy_static",
             "merge-struct": "@crate_index__merge-struct-0.1.0//:merge_struct",
@@ -635,7 +635,7 @@ _NORMAL_DEPENDENCIES = {
     },
     "tools/devtools": {
         _COMMON_CONDITION: {
-            "clap": "@crate_index__clap-4.4.10//:clap",
+            "clap": "@crate_index__clap-4.4.11//:clap",
             "clap_complete": "@crate_index__clap_complete-4.4.4//:clap_complete",
             "color-eyre": "@crate_index__color-eyre-0.6.2//:color_eyre",
             "eyre": "@crate_index__eyre-0.6.9//:eyre",
@@ -657,7 +657,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "ansi_term": "@crate_index__ansi_term-0.12.1//:ansi_term",
             "chrono": "@crate_index__chrono-0.4.31//:chrono",
-            "clap": "@crate_index__clap-4.4.10//:clap",
+            "clap": "@crate_index__clap-4.4.11//:clap",
             "clap_complete": "@crate_index__clap_complete-4.4.4//:clap_complete",
             "color-eyre": "@crate_index__color-eyre-0.6.2//:color_eyre",
             "dirs": "@crate_index__dirs-5.0.1//:dirs",
@@ -2447,22 +2447,22 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__clap-4.4.10",
-        sha256 = "41fffed7514f420abec6d183b1d3acfd9099c79c3a10a06ade4f8203f1411272",
+        name = "crate_index__clap-4.4.11",
+        sha256 = "bfaff671f6b22ca62406885ece523383b9b64022e341e53e009a62ebc47a45f2",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/clap/4.4.10/download"],
-        strip_prefix = "clap-4.4.10",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap-4.4.10.bazel"),
+        urls = ["https://crates.io/api/v1/crates/clap/4.4.11/download"],
+        strip_prefix = "clap-4.4.11",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap-4.4.11.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__clap_builder-4.4.9",
-        sha256 = "63361bae7eef3771745f02d8d892bec2fee5f6e34af316ba556e7f97a7069ff1",
+        name = "crate_index__clap_builder-4.4.11",
+        sha256 = "a216b506622bb1d316cd51328dce24e07bdff4a6128a47c7e7fad11878d5adbb",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/clap_builder/4.4.9/download"],
-        strip_prefix = "clap_builder-4.4.9",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap_builder-4.4.9.bazel"),
+        urls = ["https://crates.io/api/v1/crates/clap_builder/4.4.11/download"],
+        strip_prefix = "clap_builder-4.4.11",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.clap_builder-4.4.11.bazel"),
     )
 
     maybe(
@@ -7335,7 +7335,7 @@ def crate_repositories():
         struct(repo = "crate_index__base64-0.21.5", is_dev_dep = False),
         struct(repo = "crate_index__bytes-1.5.0", is_dev_dep = False),
         struct(repo = "crate_index__chrono-0.4.31", is_dev_dep = False),
-        struct(repo = "crate_index__clap-4.4.10", is_dev_dep = False),
+        struct(repo = "crate_index__clap-4.4.11", is_dev_dep = False),
         struct(repo = "crate_index__clap_complete-4.4.4", is_dev_dep = False),
         struct(repo = "crate_index__cli-table-0.4.7", is_dev_dep = False),
         struct(repo = "crate_index__color-eyre-0.6.2", is_dev_dep = False),
