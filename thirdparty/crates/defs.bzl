@@ -332,7 +332,7 @@ _NORMAL_DEPENDENCIES = {
             "eyre": "@crate_index__eyre-0.6.9//:eyre",
             "futures-util": "@crate_index__futures-util-0.3.29//:futures_util",
             "moka": "@crate_index__moka-0.12.1//:moka",
-            "redis": "@crate_index__redis-0.23.4//:redis",
+            "redis": "@crate_index__redis-0.24.0//:redis",
             "serde": "@crate_index__serde-1.0.193//:serde",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
@@ -458,7 +458,7 @@ _NORMAL_DEPENDENCIES = {
     "crates/redis": {
         _COMMON_CONDITION: {
             "eyre": "@crate_index__eyre-0.6.9//:eyre",
-            "redis": "@crate_index__redis-0.23.4//:redis",
+            "redis": "@crate_index__redis-0.24.0//:redis",
             "tokio": "@crate_index__tokio-1.34.0//:tokio",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
@@ -495,7 +495,7 @@ _NORMAL_DEPENDENCIES = {
             "chrono": "@crate_index__chrono-0.4.31//:chrono",
             "eyre": "@crate_index__eyre-0.6.9//:eyre",
             "jsonwebtoken": "@crate_index__jsonwebtoken-9.2.0//:jsonwebtoken",
-            "redis": "@crate_index__redis-0.23.4//:redis",
+            "redis": "@crate_index__redis-0.24.0//:redis",
             "sentry": "@crate_index__sentry-0.31.8//:sentry",
             "serde": "@crate_index__serde-1.0.193//:serde",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
@@ -5127,12 +5127,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__redis-0.23.4",
-        sha256 = "1326371ccc7b3cd1c0c603f6eb3490a1ddecf1e7fb4a3caacf5db4684f5a7db9",
+        name = "crate_index__redis-0.24.0",
+        sha256 = "c580d9cbbe1d1b479e8d67cf9daf6a62c957e6846048408b80b43ac3f6af84cd",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/redis/0.23.4/download"],
-        strip_prefix = "redis-0.23.4",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.redis-0.23.4.bazel"),
+        urls = ["https://crates.io/api/v1/crates/redis/0.24.0/download"],
+        strip_prefix = "redis-0.24.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.redis-0.24.0.bazel"),
     )
 
     maybe(
@@ -7373,7 +7373,7 @@ def crate_repositories():
         struct(repo = "crate_index__prost-0.12.3", is_dev_dep = False),
         struct(repo = "crate_index__quote-1.0.33", is_dev_dep = False),
         struct(repo = "crate_index__rand-0.8.5", is_dev_dep = False),
-        struct(repo = "crate_index__redis-0.23.4", is_dev_dep = False),
+        struct(repo = "crate_index__redis-0.24.0", is_dev_dep = False),
         struct(repo = "crate_index__regex-1.10.2", is_dev_dep = False),
         struct(repo = "crate_index__remi-core-0.4.3", is_dev_dep = False),
         struct(repo = "crate_index__remi-fs-0.4.3", is_dev_dep = False),
