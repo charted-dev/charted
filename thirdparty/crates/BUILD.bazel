@@ -51,7 +51,7 @@ alias(
 
 alias(
     name = "aws-sdk-s3",
-    actual = "@crate_index__aws-sdk-s3-1.4.0//:aws_sdk_s3",
+    actual = "@crate_index__aws-sdk-s3-1.5.0//:aws_sdk_s3",
     tags = ["manual"],
 )
 

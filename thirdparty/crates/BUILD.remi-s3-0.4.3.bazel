@@ -49,8 +49,8 @@ rust_library(
     version = "0.4.3",
     deps = [
         "@crate_index__aws-config-1.0.1//:aws_config",
-        "@crate_index__aws-credential-types-1.0.1//:aws_credential_types",
-        "@crate_index__aws-sdk-s3-1.4.0//:aws_sdk_s3",
+        "@crate_index__aws-credential-types-1.0.3//:aws_credential_types",
+        "@crate_index__aws-sdk-s3-1.5.0//:aws_sdk_s3",
         "@crate_index__bytes-1.5.0//:bytes",
         "@crate_index__log-0.4.20//:log",
         "@crate_index__remi-core-0.4.3//:remi_core",
