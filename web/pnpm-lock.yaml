@@ -9,11 +9,11 @@ dependencies:
     specifier: 5.0.8
     version: 5.0.8
   '@fontsource/inter':
-    specifier: 5.0.15
-    version: 5.0.15
+    specifier: 5.0.16
+    version: 5.0.16
   '@fontsource/jetbrains-mono':
-    specifier: 5.0.17
-    version: 5.0.17
+    specifier: 5.0.18
+    version: 5.0.18
   '@formkit/vue':
     specifier: 1.3.2
     version: 1.3.2(tailwindcss@3.3.6)(typescript@5.3.2)
@@ -846,12 +846,12 @@ packages:
     resolution: {integrity: sha512-9vVu1vH2BtzbXi+GikEVY4+/BUNb7GD1/onxc6iLPQtgfUZg4DJhEkyuWYuzInagmL7k/9DBNb7pp//7VSIBOQ==}
     dev: false
 
-  /@fontsource/inter@5.0.15:
-    resolution: {integrity: sha512-/IoWYEXl8lqJEx50JqNPT+bI4VNwxb/bg2oOfvG8PiEsDsmHRFvWBVHlohBNn1+QdBf+KbAjU/gb4vlGOSsVWw==}
+  /@fontsource/inter@5.0.16:
+    resolution: {integrity: sha512-qF0aH5UiZvCmneX5orJbVRoc2VTyLTV3X/7laMp03Qt28L+B9tFlZODOGUL64wDWc69YVdi1LeJB0cIgd51lvw==}
     dev: false
 
-  /@fontsource/jetbrains-mono@5.0.17:
-    resolution: {integrity: sha512-Y/EtdbwKwNQTGpnMrexX8SVW6Jqlh0nX2bNHI9Z9m6FsyjbocZIFNJqwSY9bDUoi7irGtz8nuidAN7FF8wYuJA==}
+  /@fontsource/jetbrains-mono@5.0.18:
+    resolution: {integrity: sha512-0+YDAaAnCdXjirHFO3NfHLUW8xtKCT5rlm23Q0qG3TpZp3QBrZh5r9ikUxh3ufHc2+fVnk4Y6GWNEnVIfB7u/g==}
     dev: false
 
   /@formkit/core@1.3.2:
