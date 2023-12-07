@@ -347,7 +347,7 @@ _NORMAL_DEPENDENCIES = {
             "hex": "@crate_index__hex-0.4.3//:hex",
             "humantime": "@crate_index__humantime-2.1.0//:humantime",
             "md-5": "@crate_index__md-5-0.10.6//:md5",
-            "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
+            "once_cell": "@crate_index__once_cell-1.19.0//:once_cell",
             "rand": "@crate_index__rand-0.8.5//:rand",
             "regex": "@crate_index__regex-1.10.2//:regex",
             "semver": "@crate_index__semver-1.0.20//:semver",
@@ -368,7 +368,7 @@ _NORMAL_DEPENDENCIES = {
             "eyre": "@crate_index__eyre-0.6.9//:eyre",
             "lazy_static": "@crate_index__lazy_static-1.4.0//:lazy_static",
             "merge-struct": "@crate_index__merge-struct-0.1.0//:merge_struct",
-            "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
+            "once_cell": "@crate_index__once_cell-1.19.0//:once_cell",
             "regex": "@crate_index__regex-1.10.2//:regex",
             "remi-fs": "@crate_index__remi-fs-0.4.3//:remi_fs",
             "remi-s3": "@crate_index__remi-s3-0.4.3//:remi_s3",
@@ -402,7 +402,7 @@ _NORMAL_DEPENDENCIES = {
             "flate2": "@crate_index__flate2-1.0.28//:flate2",
             "itertools": "@crate_index__itertools-0.12.0//:itertools",
             "multer": "@crate_index__multer-2.1.0//:multer",
-            "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
+            "once_cell": "@crate_index__once_cell-1.19.0//:once_cell",
             "regex": "@crate_index__regex-1.10.2//:regex",
             "remi-core": "@crate_index__remi-core-0.4.3//:remi_core",
             "semver": "@crate_index__semver-1.0.20//:semver",
@@ -434,7 +434,7 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/openapi": {
         _COMMON_CONDITION: {
-            "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
+            "once_cell": "@crate_index__once_cell-1.19.0//:once_cell",
             "utoipa": "@crate_index__utoipa-4.1.0//:utoipa",
         },
     },
@@ -466,7 +466,7 @@ _NORMAL_DEPENDENCIES = {
     "crates/search": {
         _COMMON_CONDITION: {
             "eyre": "@crate_index__eyre-0.6.9//:eyre",
-            "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
+            "once_cell": "@crate_index__once_cell-1.19.0//:once_cell",
             "serde": "@crate_index__serde-1.0.193//:serde",
         },
     },
@@ -474,7 +474,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "elasticsearch": "@crate_index__elasticsearch-8.5.0-alpha.1//:elasticsearch",
             "eyre": "@crate_index__eyre-0.6.9//:eyre",
-            "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
+            "once_cell": "@crate_index__once_cell-1.19.0//:once_cell",
             "serde": "@crate_index__serde-1.0.193//:serde",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
             "tokio": "@crate_index__tokio-1.34.0//:tokio",
@@ -536,7 +536,7 @@ _NORMAL_DEPENDENCIES = {
             "chrono": "@crate_index__chrono-0.4.31//:chrono",
             "eyre": "@crate_index__eyre-0.6.9//:eyre",
             "jsonwebtoken": "@crate_index__jsonwebtoken-9.2.0//:jsonwebtoken",
-            "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
+            "once_cell": "@crate_index__once_cell-1.19.0//:once_cell",
             "sentry": "@crate_index__sentry-0.31.8//:sentry",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
             "sqlx": "@crate_index__sqlx-0.7.3//:sqlx",
@@ -581,7 +581,7 @@ _NORMAL_DEPENDENCIES = {
             "jsonwebtoken": "@crate_index__jsonwebtoken-9.2.0//:jsonwebtoken",
             "mime": "@crate_index__mime-0.3.17//:mime",
             "multer": "@crate_index__multer-2.1.0//:multer",
-            "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
+            "once_cell": "@crate_index__once_cell-1.19.0//:once_cell",
             "prometheus-client": "@crate_index__prometheus-client-0.22.0//:prometheus_client",
             "remi-core": "@crate_index__remi-core-0.4.3//:remi_core",
             "rust-embed": "@crate_index__rust-embed-8.0.0//:rust_embed",
@@ -663,7 +663,7 @@ _NORMAL_DEPENDENCIES = {
             "dirs": "@crate_index__dirs-5.0.1//:dirs",
             "dotenv": "@crate_index__dotenv-0.15.0//:dotenv",
             "eyre": "@crate_index__eyre-0.6.9//:eyre",
-            "once_cell": "@crate_index__once_cell-1.18.0//:once_cell",
+            "once_cell": "@crate_index__once_cell-1.19.0//:once_cell",
             "reqwest": "@crate_index__reqwest-0.11.22//:reqwest",
             "serde": "@crate_index__serde-1.0.193//:serde",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
@@ -4597,12 +4597,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__once_cell-1.18.0",
-        sha256 = "dd8b5dd2ae5ed71462c540258bedcb51965123ad7e7ccf4b9a8cafaa4a63576d",
+        name = "crate_index__once_cell-1.19.0",
+        sha256 = "3fdb12b2476b595f9358c5161aa467c2438859caa136dec86c26fdd2efe17b92",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/once_cell/1.18.0/download"],
-        strip_prefix = "once_cell-1.18.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.once_cell-1.18.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/once_cell/1.19.0/download"],
+        strip_prefix = "once_cell-1.19.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.once_cell-1.19.0.bazel"),
     )
 
     maybe(
@@ -7364,7 +7364,7 @@ def crate_repositories():
         struct(repo = "crate_index__moka-0.12.1", is_dev_dep = False),
         struct(repo = "crate_index__multer-2.1.0", is_dev_dep = False),
         struct(repo = "crate_index__num_cpus-1.16.0", is_dev_dep = False),
-        struct(repo = "crate_index__once_cell-1.18.0", is_dev_dep = False),
+        struct(repo = "crate_index__once_cell-1.19.0", is_dev_dep = False),
         struct(repo = "crate_index__openssl-0.10.60", is_dev_dep = False),
         struct(repo = "crate_index__paste-1.0.14", is_dev_dep = False),
         struct(repo = "crate_index__proc-macro2-1.0.70", is_dev_dep = False),

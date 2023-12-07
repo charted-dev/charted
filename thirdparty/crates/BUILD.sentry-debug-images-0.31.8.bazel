@@ -41,7 +41,7 @@ rust_library(
     version = "0.31.8",
     deps = [
         "@crate_index__findshlibs-0.10.2//:findshlibs",
-        "@crate_index__once_cell-1.18.0//:once_cell",
+        "@crate_index__once_cell-1.19.0//:once_cell",
         "@crate_index__sentry-core-0.31.8//:sentry_core",
     ],
 )

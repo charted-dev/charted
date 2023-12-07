@@ -47,7 +47,7 @@ rust_library(
     version = "0.31.8",
     deps = [
         "@crate_index__log-0.4.20//:log",
-        "@crate_index__once_cell-1.18.0//:once_cell",
+        "@crate_index__once_cell-1.19.0//:once_cell",
         "@crate_index__rand-0.8.5//:rand",
         "@crate_index__sentry-types-0.31.8//:sentry_types",
         "@crate_index__serde-1.0.193//:serde",

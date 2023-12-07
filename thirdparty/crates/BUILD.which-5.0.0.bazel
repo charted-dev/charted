@@ -54,7 +54,7 @@ rust_library(
         ],
         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [
             "@crate_index__home-0.5.5//:home",  # cfg(any(windows, unix, target_os = "redox"))
-            "@crate_index__once_cell-1.18.0//:once_cell",  # cfg(windows)
+            "@crate_index__once_cell-1.19.0//:once_cell",  # cfg(windows)
             "@crate_index__windows-sys-0.48.0//:windows_sys",  # cfg(windows)
         ],
         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
