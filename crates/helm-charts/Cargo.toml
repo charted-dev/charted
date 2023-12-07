@@ -31,7 +31,7 @@ eyre = "0.6.9"
 flate2 = "1.0.28"
 itertools = "0.12.0"
 multer = { version = "2.1.0", features = ["tokio-io"] }
-once_cell = "1.18.0"
+once_cell = "1.19.0"
 regex = "1.10.2"
 remi-core = "0.4.3"
 semver = "1.0.20"

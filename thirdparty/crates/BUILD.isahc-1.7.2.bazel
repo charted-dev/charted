@@ -60,7 +60,7 @@ rust_library(
         "@crate_index__isahc-1.7.2//:build_script_build",
         "@crate_index__log-0.4.20//:log",
         "@crate_index__mime-0.3.17//:mime",
-        "@crate_index__once_cell-1.18.0//:once_cell",
+        "@crate_index__once_cell-1.19.0//:once_cell",
         "@crate_index__polling-2.8.0//:polling",
         "@crate_index__slab-0.4.9//:slab",
         "@crate_index__sluice-0.5.5//:sluice",

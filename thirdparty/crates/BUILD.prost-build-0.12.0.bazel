@@ -51,7 +51,7 @@ rust_library(
         "@crate_index__itertools-0.11.0//:itertools",
         "@crate_index__log-0.4.20//:log",
         "@crate_index__multimap-0.8.3//:multimap",
-        "@crate_index__once_cell-1.18.0//:once_cell",
+        "@crate_index__once_cell-1.19.0//:once_cell",
         "@crate_index__petgraph-0.6.4//:petgraph",
         "@crate_index__prettyplease-0.2.15//:prettyplease",
         "@crate_index__prost-0.12.3//:prost",
