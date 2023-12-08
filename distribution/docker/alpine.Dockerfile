@@ -64,7 +64,7 @@ RUN bazel build --platforms //build/platforms:linux_x64_musl \
 
 RUN bazel shutdown
 
-FROM alpine:3.18
+FROM alpine:3.19
 
 RUN apk update && apk add --no-cache bash tini curl
 WORKDIR /app/noelware/charted/server
