@@ -43,7 +43,7 @@ rust_library(
         "@crate_index__bytes-1.5.0//:bytes",
         "@crate_index__hyper-0.14.27//:hyper",
         "@crate_index__native-tls-0.2.11//:native_tls",
-        "@crate_index__tokio-1.34.0//:tokio",
+        "@crate_index__tokio-1.35.0//:tokio",
         "@crate_index__tokio-native-tls-0.3.1//:tokio_native_tls",
     ],
 )

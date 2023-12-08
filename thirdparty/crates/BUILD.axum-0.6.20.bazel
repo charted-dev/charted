@@ -82,7 +82,7 @@ rust_library(
         "@crate_index__serde_path_to_error-0.1.14//:serde_path_to_error",
         "@crate_index__serde_urlencoded-0.7.1//:serde_urlencoded",
         "@crate_index__sync_wrapper-0.1.2//:sync_wrapper",
-        "@crate_index__tokio-1.34.0//:tokio",
+        "@crate_index__tokio-1.35.0//:tokio",
         "@crate_index__tower-0.4.13//:tower",
         "@crate_index__tower-layer-0.3.2//:tower_layer",
         "@crate_index__tower-service-0.3.2//:tower_service",
