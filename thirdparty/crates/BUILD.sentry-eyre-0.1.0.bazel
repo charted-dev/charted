@@ -44,7 +44,7 @@ rust_library(
     ],
     version = "0.1.0",
     deps = [
-        "@crate_index__eyre-0.6.9//:eyre",
+        "@crate_index__eyre-0.6.10//:eyre",
         "@crate_index__sentry-backtrace-0.31.8//:sentry_backtrace",
         "@crate_index__sentry-core-0.31.8//:sentry_core",
     ],

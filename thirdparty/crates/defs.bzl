@@ -303,7 +303,7 @@ _NORMAL_DEPENDENCIES = {
             "cli-table": "@crate_index__cli-table-0.4.7//:cli_table",
             "color-eyre": "@crate_index__color-eyre-0.6.2//:color_eyre",
             "dotenv": "@crate_index__dotenv-0.15.0//:dotenv",
-            "eyre": "@crate_index__eyre-0.6.9//:eyre",
+            "eyre": "@crate_index__eyre-0.6.10//:eyre",
             "mimalloc": "@crate_index__mimalloc-0.1.39//:mimalloc",
             "num_cpus": "@crate_index__num_cpus-1.16.0//:num_cpus",
             "openssl": "@crate_index__openssl-0.10.60//:openssl",
@@ -321,7 +321,7 @@ _NORMAL_DEPENDENCIES = {
     "crates/avatars": {
         _COMMON_CONDITION: {
             "bytes": "@crate_index__bytes-1.5.0//:bytes",
-            "eyre": "@crate_index__eyre-0.6.9//:eyre",
+            "eyre": "@crate_index__eyre-0.6.10//:eyre",
             "remi-core": "@crate_index__remi-core-0.4.3//:remi_core",
             "reqwest": "@crate_index__reqwest-0.11.22//:reqwest",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
@@ -329,7 +329,7 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/caching": {
         _COMMON_CONDITION: {
-            "eyre": "@crate_index__eyre-0.6.9//:eyre",
+            "eyre": "@crate_index__eyre-0.6.10//:eyre",
             "futures-util": "@crate_index__futures-util-0.3.29//:futures_util",
             "moka": "@crate_index__moka-0.12.1//:moka",
             "redis": "@crate_index__redis-0.24.0//:redis",
@@ -343,7 +343,7 @@ _NORMAL_DEPENDENCIES = {
             "argon2": "@crate_index__argon2-0.5.2//:argon2",
             "axum": "@crate_index__axum-0.6.20//:axum",
             "chrono": "@crate_index__chrono-0.4.31//:chrono",
-            "eyre": "@crate_index__eyre-0.6.9//:eyre",
+            "eyre": "@crate_index__eyre-0.6.10//:eyre",
             "hex": "@crate_index__hex-0.4.3//:hex",
             "humantime": "@crate_index__humantime-2.1.0//:humantime",
             "md-5": "@crate_index__md-5-0.10.6//:md5",
@@ -365,7 +365,7 @@ _NORMAL_DEPENDENCIES = {
             "aws-sdk-s3": "@crate_index__aws-sdk-s3-1.5.0//:aws_sdk_s3",
             "base64": "@crate_index__base64-0.21.5//:base64",
             "clap": "@crate_index__clap-4.4.11//:clap",
-            "eyre": "@crate_index__eyre-0.6.9//:eyre",
+            "eyre": "@crate_index__eyre-0.6.10//:eyre",
             "lazy_static": "@crate_index__lazy_static-1.4.0//:lazy_static",
             "merge-struct": "@crate_index__merge-struct-0.1.0//:merge_struct",
             "once_cell": "@crate_index__once_cell-1.19.0//:once_cell",
@@ -380,7 +380,7 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/database": {
         _COMMON_CONDITION: {
-            "eyre": "@crate_index__eyre-0.6.9//:eyre",
+            "eyre": "@crate_index__eyre-0.6.10//:eyre",
             "sentry": "@crate_index__sentry-0.31.8//:sentry",
             "serde": "@crate_index__serde-1.0.193//:serde",
             "sqlx": "@crate_index__sqlx-0.7.3//:sqlx",
@@ -398,7 +398,7 @@ _NORMAL_DEPENDENCIES = {
     "crates/helm-charts": {
         _COMMON_CONDITION: {
             "bytes": "@crate_index__bytes-1.5.0//:bytes",
-            "eyre": "@crate_index__eyre-0.6.9//:eyre",
+            "eyre": "@crate_index__eyre-0.6.10//:eyre",
             "flate2": "@crate_index__flate2-1.0.28//:flate2",
             "itertools": "@crate_index__itertools-0.12.0//:itertools",
             "multer": "@crate_index__multer-2.1.0//:multer",
@@ -457,7 +457,7 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/redis": {
         _COMMON_CONDITION: {
-            "eyre": "@crate_index__eyre-0.6.9//:eyre",
+            "eyre": "@crate_index__eyre-0.6.10//:eyre",
             "redis": "@crate_index__redis-0.24.0//:redis",
             "tokio": "@crate_index__tokio-1.34.0//:tokio",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
@@ -465,7 +465,7 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/search": {
         _COMMON_CONDITION: {
-            "eyre": "@crate_index__eyre-0.6.9//:eyre",
+            "eyre": "@crate_index__eyre-0.6.10//:eyre",
             "once_cell": "@crate_index__once_cell-1.19.0//:once_cell",
             "serde": "@crate_index__serde-1.0.193//:serde",
         },
@@ -473,7 +473,7 @@ _NORMAL_DEPENDENCIES = {
     "crates/search/elasticsearch": {
         _COMMON_CONDITION: {
             "elasticsearch": "@crate_index__elasticsearch-8.5.0-alpha.1//:elasticsearch",
-            "eyre": "@crate_index__eyre-0.6.9//:eyre",
+            "eyre": "@crate_index__eyre-0.6.10//:eyre",
             "once_cell": "@crate_index__once_cell-1.19.0//:once_cell",
             "serde": "@crate_index__serde-1.0.193//:serde",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
@@ -484,7 +484,7 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/search/meilisearch": {
         _COMMON_CONDITION: {
-            "eyre": "@crate_index__eyre-0.6.9//:eyre",
+            "eyre": "@crate_index__eyre-0.6.10//:eyre",
             "meilisearch-sdk": "@crate_index__meilisearch-sdk-0.24.3//:meilisearch_sdk",
             "serde": "@crate_index__serde-1.0.193//:serde",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
@@ -493,7 +493,7 @@ _NORMAL_DEPENDENCIES = {
     "crates/sessions": {
         _COMMON_CONDITION: {
             "chrono": "@crate_index__chrono-0.4.31//:chrono",
-            "eyre": "@crate_index__eyre-0.6.9//:eyre",
+            "eyre": "@crate_index__eyre-0.6.10//:eyre",
             "jsonwebtoken": "@crate_index__jsonwebtoken-9.2.0//:jsonwebtoken",
             "redis": "@crate_index__redis-0.24.0//:redis",
             "sentry": "@crate_index__sentry-0.31.8//:sentry",
@@ -509,7 +509,7 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/sessions/integrations": {
         _COMMON_CONDITION: {
-            "eyre": "@crate_index__eyre-0.6.9//:eyre",
+            "eyre": "@crate_index__eyre-0.6.10//:eyre",
             "serde": "@crate_index__serde-1.0.193//:serde",
         },
     },
@@ -523,7 +523,7 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/sessions/ldap": {
         _COMMON_CONDITION: {
-            "eyre": "@crate_index__eyre-0.6.9//:eyre",
+            "eyre": "@crate_index__eyre-0.6.10//:eyre",
             "ldap3": "@crate_index__ldap3-0.11.3//:ldap3",
             "sentry": "@crate_index__sentry-0.31.8//:sentry",
             "tokio": "@crate_index__tokio-1.34.0//:tokio",
@@ -534,7 +534,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "argon2": "@crate_index__argon2-0.5.2//:argon2",
             "chrono": "@crate_index__chrono-0.4.31//:chrono",
-            "eyre": "@crate_index__eyre-0.6.9//:eyre",
+            "eyre": "@crate_index__eyre-0.6.10//:eyre",
             "jsonwebtoken": "@crate_index__jsonwebtoken-9.2.0//:jsonwebtoken",
             "once_cell": "@crate_index__once_cell-1.19.0//:once_cell",
             "sentry": "@crate_index__sentry-0.31.8//:sentry",
@@ -576,7 +576,7 @@ _NORMAL_DEPENDENCIES = {
             "base64": "@crate_index__base64-0.21.5//:base64",
             "chrono": "@crate_index__chrono-0.4.31//:chrono",
             "erased-serde": "@crate_index__erased-serde-0.3.31//:erased_serde",
-            "eyre": "@crate_index__eyre-0.6.9//:eyre",
+            "eyre": "@crate_index__eyre-0.6.10//:eyre",
             "futures-util": "@crate_index__futures-util-0.3.29//:futures_util",
             "jsonwebtoken": "@crate_index__jsonwebtoken-9.2.0//:jsonwebtoken",
             "mime": "@crate_index__mime-0.3.17//:mime",
@@ -619,7 +619,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "axum": "@crate_index__axum-0.6.20//:axum",
             "bytes": "@crate_index__bytes-1.5.0//:bytes",
-            "eyre": "@crate_index__eyre-0.6.9//:eyre",
+            "eyre": "@crate_index__eyre-0.6.10//:eyre",
             "hyper": "@crate_index__hyper-0.14.27//:hyper",
             "serde": "@crate_index__serde-1.0.193//:serde",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
@@ -638,7 +638,7 @@ _NORMAL_DEPENDENCIES = {
             "clap": "@crate_index__clap-4.4.11//:clap",
             "clap_complete": "@crate_index__clap_complete-4.4.4//:clap_complete",
             "color-eyre": "@crate_index__color-eyre-0.6.2//:color_eyre",
-            "eyre": "@crate_index__eyre-0.6.9//:eyre",
+            "eyre": "@crate_index__eyre-0.6.10//:eyre",
             "itertools": "@crate_index__itertools-0.12.0//:itertools",
             "promptly": "@crate_index__promptly-0.3.1//:promptly",
             "serde": "@crate_index__serde-1.0.193//:serde",
@@ -662,7 +662,7 @@ _NORMAL_DEPENDENCIES = {
             "color-eyre": "@crate_index__color-eyre-0.6.2//:color_eyre",
             "dirs": "@crate_index__dirs-5.0.1//:dirs",
             "dotenv": "@crate_index__dotenv-0.15.0//:dotenv",
-            "eyre": "@crate_index__eyre-0.6.9//:eyre",
+            "eyre": "@crate_index__eyre-0.6.10//:eyre",
             "once_cell": "@crate_index__once_cell-1.19.0//:once_cell",
             "reqwest": "@crate_index__reqwest-0.11.22//:reqwest",
             "serde": "@crate_index__serde-1.0.193//:serde",
@@ -3247,12 +3247,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__eyre-0.6.9",
-        sha256 = "80f656be11ddf91bd709454d15d5bd896fbaf4cc3314e69349e4d1569f5b46cd",
+        name = "crate_index__eyre-0.6.10",
+        sha256 = "8bbb8258be8305fb0237d7b295f47bb24ff1b136a535f473baf40e70468515aa",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/eyre/0.6.9/download"],
-        strip_prefix = "eyre-0.6.9",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.eyre-0.6.9.bazel"),
+        urls = ["https://crates.io/api/v1/crates/eyre/0.6.10/download"],
+        strip_prefix = "eyre-0.6.10",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.eyre-0.6.10.bazel"),
     )
 
     maybe(
@@ -7344,7 +7344,7 @@ def crate_repositories():
         struct(repo = "crate_index__dyn-clone-1.0.16", is_dev_dep = False),
         struct(repo = "crate_index__elasticsearch-8.5.0-alpha.1", is_dev_dep = False),
         struct(repo = "crate_index__erased-serde-0.3.31", is_dev_dep = False),
-        struct(repo = "crate_index__eyre-0.6.9", is_dev_dep = False),
+        struct(repo = "crate_index__eyre-0.6.10", is_dev_dep = False),
         struct(repo = "crate_index__flate2-1.0.28", is_dev_dep = False),
         struct(repo = "crate_index__futures-util-0.3.29", is_dev_dep = False),
         struct(repo = "crate_index__heck-0.4.1", is_dev_dep = False),

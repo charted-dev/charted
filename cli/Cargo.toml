@@ -35,7 +35,7 @@ charted-server = { path = "../server", version = "0.0.0-devel.0" }
 cli-table = { version = "0.4.7", default-features = false, features = ["derive", "title"] }
 color-eyre = { version = "0.6.2", features = ["issue-url", "track-caller"] }
 dotenv = "0.15.0"
-eyre = "0.6.9"
+eyre = "0.6.10"
 mimalloc = { version = "0.1.39", default-features = false }
 num_cpus = "1.16.0"
 openssl = "0.10.60"
