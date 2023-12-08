@@ -363,7 +363,7 @@ alias(
 
 alias(
     name = "rust-embed",
-    actual = "@crate_index__rust-embed-8.0.0//:rust_embed",
+    actual = "@crate_index__rust-embed-8.1.0//:rust_embed",
     tags = ["manual"],
 )
 
