@@ -19,7 +19,7 @@ rust_library(
     srcs = glob(["**/*.rs"]),
     aliases = {
         "@crate_index__futures-core-0.3.29//:futures_core": "futures_core_03",
-        "@crate_index__tokio-1.34.0//:tokio": "tokio_dep",
+        "@crate_index__tokio-1.35.0//:tokio": "tokio_dep",
     },
     compile_data = glob(
         include = ["**"],
@@ -58,7 +58,7 @@ rust_library(
         "@crate_index__futures-core-0.3.29//:futures_core",
         "@crate_index__memchr-2.6.3//:memchr",
         "@crate_index__pin-project-lite-0.2.13//:pin_project_lite",
-        "@crate_index__tokio-1.34.0//:tokio",
+        "@crate_index__tokio-1.35.0//:tokio",
         "@crate_index__tokio-util-0.7.10//:tokio_util",
     ],
 )
