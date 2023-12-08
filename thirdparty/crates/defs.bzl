@@ -584,7 +584,7 @@ _NORMAL_DEPENDENCIES = {
             "once_cell": "@crate_index__once_cell-1.19.0//:once_cell",
             "prometheus-client": "@crate_index__prometheus-client-0.22.0//:prometheus_client",
             "remi-core": "@crate_index__remi-core-0.4.3//:remi_core",
-            "rust-embed": "@crate_index__rust-embed-8.0.0//:rust_embed",
+            "rust-embed": "@crate_index__rust-embed-8.1.0//:rust_embed",
             "semver": "@crate_index__semver-1.0.20//:semver",
             "sentry": "@crate_index__sentry-0.31.8//:sentry",
             "sentry-eyre": "@crate_index__sentry-eyre-0.1.0//:sentry_eyre",
@@ -5297,32 +5297,32 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__rust-embed-8.0.0",
-        sha256 = "b1e7d90385b59f0a6bf3d3b757f3ca4ece2048265d70db20a2016043d4509a40",
+        name = "crate_index__rust-embed-8.1.0",
+        sha256 = "810294a8a4a0853d4118e3b94bb079905f2107c7fe979d8f0faae98765eb6378",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/rust-embed/8.0.0/download"],
-        strip_prefix = "rust-embed-8.0.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.rust-embed-8.0.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/rust-embed/8.1.0/download"],
+        strip_prefix = "rust-embed-8.1.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.rust-embed-8.1.0.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__rust-embed-impl-8.0.0",
-        sha256 = "3c3d8c6fd84090ae348e63a84336b112b5c3918b3bf0493a581f7bd8ee623c29",
+        name = "crate_index__rust-embed-impl-8.1.0",
+        sha256 = "bfc144a1273124a67b8c1d7cd19f5695d1878b31569c0512f6086f0f4676604e",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/rust-embed-impl/8.0.0/download"],
-        strip_prefix = "rust-embed-impl-8.0.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.rust-embed-impl-8.0.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/rust-embed-impl/8.1.0/download"],
+        strip_prefix = "rust-embed-impl-8.1.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.rust-embed-impl-8.1.0.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__rust-embed-utils-8.0.0",
-        sha256 = "873feff8cb7bf86fdf0a71bb21c95159f4e4a37dd7a4bd1855a940909b583ada",
+        name = "crate_index__rust-embed-utils-8.1.0",
+        sha256 = "816ccd4875431253d6bb54b804bcff4369cbde9bae33defde25fdf6c2ef91d40",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/rust-embed-utils/8.0.0/download"],
-        strip_prefix = "rust-embed-utils-8.0.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.rust-embed-utils-8.0.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/rust-embed-utils/8.1.0/download"],
+        strip_prefix = "rust-embed-utils-8.1.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.rust-embed-utils-8.1.0.bazel"),
     )
 
     maybe(
@@ -7379,7 +7379,7 @@ def crate_repositories():
         struct(repo = "crate_index__remi-fs-0.4.3", is_dev_dep = False),
         struct(repo = "crate_index__remi-s3-0.4.3", is_dev_dep = False),
         struct(repo = "crate_index__reqwest-0.11.22", is_dev_dep = False),
-        struct(repo = "crate_index__rust-embed-8.0.0", is_dev_dep = False),
+        struct(repo = "crate_index__rust-embed-8.1.0", is_dev_dep = False),
         struct(repo = "crate_index__rustc_version-0.4.0", is_dev_dep = False),
         struct(repo = "crate_index__semver-1.0.20", is_dev_dep = False),
         struct(repo = "crate_index__sentry-0.31.8", is_dev_dep = False),
