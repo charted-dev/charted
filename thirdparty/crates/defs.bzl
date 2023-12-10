@@ -426,7 +426,7 @@ _NORMAL_DEPENDENCIES = {
     "crates/metrics": {
         _COMMON_CONDITION: {
             "dyn-clone": "@crate_index__dyn-clone-1.0.16//:dyn_clone",
-            "erased-serde": "@crate_index__erased-serde-0.3.31//:erased_serde",
+            "erased-serde": "@crate_index__erased-serde-0.4.0//:erased_serde",
             "prometheus-client": "@crate_index__prometheus-client-0.22.0//:prometheus_client",
             "serde": "@crate_index__serde-1.0.193//:serde",
             "tokio": "@crate_index__tokio-1.35.0//:tokio",
@@ -575,7 +575,7 @@ _NORMAL_DEPENDENCIES = {
             "axum": "@crate_index__axum-0.6.20//:axum",
             "base64": "@crate_index__base64-0.21.5//:base64",
             "chrono": "@crate_index__chrono-0.4.31//:chrono",
-            "erased-serde": "@crate_index__erased-serde-0.3.31//:erased_serde",
+            "erased-serde": "@crate_index__erased-serde-0.4.0//:erased_serde",
             "eyre": "@crate_index__eyre-0.6.10//:eyre",
             "futures-util": "@crate_index__futures-util-0.3.29//:futures_util",
             "jsonwebtoken": "@crate_index__jsonwebtoken-9.2.0//:jsonwebtoken",
@@ -3183,6 +3183,16 @@ def crate_repositories():
         urls = ["https://crates.io/api/v1/crates/erased-serde/0.3.31/download"],
         strip_prefix = "erased-serde-0.3.31",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.erased-serde-0.3.31.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__erased-serde-0.4.0",
+        sha256 = "a3286168faae03a0e583f6fde17c02c8b8bba2dcc2061d0f7817066e5b0af706",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/erased-serde/0.4.0/download"],
+        strip_prefix = "erased-serde-0.4.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.erased-serde-0.4.0.bazel"),
     )
 
     maybe(
@@ -7343,7 +7353,7 @@ def crate_repositories():
         struct(repo = "crate_index__dotenv-0.15.0", is_dev_dep = False),
         struct(repo = "crate_index__dyn-clone-1.0.16", is_dev_dep = False),
         struct(repo = "crate_index__elasticsearch-8.5.0-alpha.1", is_dev_dep = False),
-        struct(repo = "crate_index__erased-serde-0.3.31", is_dev_dep = False),
+        struct(repo = "crate_index__erased-serde-0.4.0", is_dev_dep = False),
         struct(repo = "crate_index__eyre-0.6.10", is_dev_dep = False),
         struct(repo = "crate_index__flate2-1.0.28", is_dev_dep = False),
         struct(repo = "crate_index__futures-util-0.3.29", is_dev_dep = False),
