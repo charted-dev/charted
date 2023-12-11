@@ -107,8 +107,8 @@ devDependencies:
     specifier: 4.0.1
     version: 4.0.1(typescript@5.3.3)
   '@augu/tsconfig':
-    specifier: 1.1.1
-    version: 1.1.1
+    specifier: 1.2.0
+    version: 1.2.0
   '@intlify/unplugin-vue-i18n':
     specifier: 1.5.0
     version: 1.5.0
@@ -223,8 +223,8 @@ packages:
       - typescript
     dev: true
 
-  /@augu/tsconfig@1.1.1:
-    resolution: {integrity: sha512-qTqAK8+kTefw3PTixTFUHYATvl5inkFKnz3ByaYXO6P0prq5csA2T4weyVSWzR7dKL7rto9kHXnnN/8bTuPTKg==}
+  /@augu/tsconfig@1.2.0:
+    resolution: {integrity: sha512-CLlPSaQYMwX7P3++N7CFAuJX9UEYkEPDEo7Jm9N8yTKsVOZ1FflIO1Yjk73QPzXGPHnDDTVh0SF7sHnme6DLAw==}
     engines: {node: '>=10'}
     dev: true
 
