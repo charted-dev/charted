@@ -26,7 +26,7 @@ async-trait = "0.1.74"
 charted-cache-worker = { version = "0.0.0-devel.0", path = "../caching" }
 charted-common = { version = "0.0.0-devel.0", path = "../common" }
 charted-storage = { version = "0.0.0-devel.0", path = "../storage" }
-eyre = "0.6.10"
+eyre = "0.6.11"
 sentry = "0.31.8"
 serde = { version = "1.0.193", features = ["derive"] }
 sqlx = { version = "0.7.3", features = ["chrono", "postgres", "runtime-tokio", "tls-native-tls", "migrate"] }
