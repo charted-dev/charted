@@ -66,8 +66,8 @@ dependencies:
     specifier: 3.0.0
     version: 3.0.0
   markdown-it-shikiji:
-    specifier: 0.8.6
-    version: 0.8.6
+    specifier: 0.8.7
+    version: 0.8.7
   ofetch:
     specifier: 1.3.3
     version: 1.3.3
@@ -3883,11 +3883,11 @@ packages:
     resolution: {integrity: sha512-+rUD93bXHubA4arpEZO3q80so0qgoFJEKRkRbjKX8RTdca89v2kfyF+xR3i2sQTwql9tpPZPOQN5B+PunspXRg==}
     dev: false
 
-  /markdown-it-shikiji@0.8.6:
-    resolution: {integrity: sha512-9xqMuXmm0zQikpoZwPWyexDOIcJ6iWKEhgWH3OEsBXxwG3ngGyk8HcYLu1hoHlwoZDZo3qvVkBRmr/Xofy6MsQ==}
+  /markdown-it-shikiji@0.8.7:
+    resolution: {integrity: sha512-PseTDi67w0i3kyex6ZM6HJBM7UMVwt+E17K0fp/5zUzJjgJSnbtbhSaHiozGxKqoC8xG1XiMAFm3tAq1/A5j0w==}
     dependencies:
       markdown-it: 14.0.0
-      shikiji: 0.8.6
+      shikiji: 0.8.7
     dev: false
 
   /markdown-it@14.0.0:
@@ -4804,6 +4804,12 @@ packages:
 
   /shikiji@0.8.6:
     resolution: {integrity: sha512-ES15MfwaJ2vzehLRNKbpyMkl+ToAqQieHNtUDHBU6ZH50ibddS8pF4rYg8QRQXgRjMZMHipOblaEbCcgIxHUfw==}
+    dependencies:
+      hast-util-to-html: 9.0.0
+    dev: false
+
+  /shikiji@0.8.7:
+    resolution: {integrity: sha512-j5usxwI0yHkDTHOuhuSJl9+wT5CNYeYO82dJMSJBlJ/NYT5SIebGcPoL6y9QOyH15wGrJC4LOP2nz5k8mUDGRQ==}
     dependencies:
       hast-util-to-html: 9.0.0
     dev: false
