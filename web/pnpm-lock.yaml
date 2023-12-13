@@ -170,8 +170,8 @@ devDependencies:
     specifier: 5.0.8
     version: 5.0.8(@types/node@20.10.4)
   vite-plugin-vue-devtools:
-    specifier: 1.0.0-rc.7
-    version: 1.0.0-rc.7(pug@3.0.2)(vite@5.0.8)
+    specifier: 1.0.0-rc.8
+    version: 1.0.0-rc.8(pug@3.0.2)(vite@5.0.8)
   vite-plugin-vue-layouts:
     specifier: 0.9.1
     version: 0.9.1(vite@5.0.8)(vue-router@4.2.5)(vue@3.3.11)
@@ -1515,8 +1515,8 @@ packages:
       vue: 3.3.11(typescript@5.3.3)
     dev: false
 
-  /@vite-plugin-vue-devtools/core@1.0.0-rc.7(vite@5.0.8):
-    resolution: {integrity: sha512-Tv9JeRZQ6KDwSkOQJvXc5TBcc4fkSazA96GDhi99v4VCthTgXjnhaah41CeZD3hFDKnNS0MHKFFqN+RHAgYDyQ==}
+  /@vite-plugin-vue-devtools/core@1.0.0-rc.8(vite@5.0.8):
+    resolution: {integrity: sha512-UtNf/I5D6vk/xr/V+O6lMgqYbCJQ+ctjXPiebzz/wgMuNj4DF1iEuui9E260vrIgUsqaK4O1zmTkjoYtb9lYYw==}
     peerDependencies:
       vite: ^3.1.0 || ^4.0.0-0 || ^5.0.0-0
     dependencies:
@@ -1655,15 +1655,6 @@ packages:
       - supports-color
     dev: true
 
-  /@vue/compiler-core@3.3.10:
-    resolution: {integrity: sha512-doe0hODR1+i1menPkRzJ5MNR6G+9uiZHIknK3Zn5OcIztu6GGw7u0XUzf3AgB8h/dfsZC9eouzoLo3c3+N/cVA==}
-    dependencies:
-      '@babel/parser': 7.23.5
-      '@vue/shared': 3.3.10
-      estree-walker: 2.0.2
-      source-map-js: 1.0.2
-    dev: true
-
   /@vue/compiler-core@3.3.11:
     resolution: {integrity: sha512-h97/TGWBilnLuRaj58sxNrsUU66fwdRKLOLQ9N/5iNDfp+DZhYH9Obhe0bXxhedl8fjAgpRANpiZfbgWyruQ0w==}
     dependencies:
@@ -1671,13 +1662,6 @@ packages:
       '@vue/shared': 3.3.11
       estree-walker: 2.0.2
       source-map-js: 1.0.2
-
-  /@vue/compiler-dom@3.3.10:
-    resolution: {integrity: sha512-NCrqF5fm10GXZIK0GrEAauBqdy+F2LZRt3yNHzrYjpYBuRssQbuPLtSnSNjyR9luHKkWSH8we5LMB3g+4z2HvA==}
-    dependencies:
-      '@vue/compiler-core': 3.3.10
-      '@vue/shared': 3.3.10
-    dev: true
 
   /@vue/compiler-dom@3.3.11:
     resolution: {integrity: sha512-zoAiUIqSKqAJ81WhfPXYmFGwDRuO+loqLxvXmfUdR5fOitPoUiIeFI9cTTyv9MU5O1+ZZglJVTusWzy+wfk5hw==}
@@ -1718,7 +1702,7 @@ packages:
     dependencies:
       '@volar/language-core': 1.11.1
       '@volar/source-map': 1.11.1
-      '@vue/compiler-dom': 3.3.10
+      '@vue/compiler-dom': 3.3.11
       '@vue/shared': 3.3.10
       computeds: 0.0.1
       minimatch: 9.0.3
@@ -5508,13 +5492,13 @@ packages:
       - supports-color
     dev: true
 
-  /vite-plugin-vue-devtools@1.0.0-rc.7(pug@3.0.2)(vite@5.0.8):
-    resolution: {integrity: sha512-vkAj9a6s7Qo8yJ4R6mpa1wMovnZNZrWezsXorAoguydWrzYirKOhu8FrosK/csbjqTibKktmgfpzMxtqCqMaqQ==}
+  /vite-plugin-vue-devtools@1.0.0-rc.8(pug@3.0.2)(vite@5.0.8):
+    resolution: {integrity: sha512-xl7m81yHaMG4TuOFSLkHjbOLUJ8IEMHxc5TJJUDgqDDxrvethXFy6Ay+AOH1ilZLZ1N45KR13YnqWw+f89NwOw==}
     engines: {node: '>=v14.21.3'}
     peerDependencies:
       vite: ^3.1.0 || ^4.0.0-0 || ^5.0.0-0
     dependencies:
-      '@vite-plugin-vue-devtools/core': 1.0.0-rc.7(vite@5.0.8)
+      '@vite-plugin-vue-devtools/core': 1.0.0-rc.8(vite@5.0.8)
       '@webfansplz/vuedoc-parser': 0.0.4(pug@3.0.2)
       birpc: 0.2.14
       execa: 8.0.1
@@ -5540,7 +5524,7 @@ packages:
       '@babel/plugin-syntax-import-meta': 7.10.4(@babel/core@7.23.3)
       '@babel/plugin-transform-typescript': 7.23.3(@babel/core@7.23.3)
       '@vue/babel-plugin-jsx': 1.1.5(@babel/core@7.23.3)
-      '@vue/compiler-dom': 3.3.10
+      '@vue/compiler-dom': 3.3.11
       kolorist: 1.8.0
       magic-string: 0.30.5
       vite: 5.0.8(@types/node@20.10.4)
