@@ -50,6 +50,6 @@ rust_library(
         "@crate_index__proc-macro2-1.0.70//:proc_macro2",
         "@crate_index__prost-build-0.12.0//:prost_build",
         "@crate_index__quote-1.0.33//:quote",
-        "@crate_index__syn-2.0.40//:syn",
+        "@crate_index__syn-2.0.41//:syn",
     ],
 )

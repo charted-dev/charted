@@ -442,7 +442,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "proc-macro2": "@crate_index__proc-macro2-1.0.70//:proc_macro2",
             "quote": "@crate_index__quote-1.0.33//:quote",
-            "syn": "@crate_index__syn-2.0.40//:syn",
+            "syn": "@crate_index__syn-2.0.41//:syn",
         },
     },
     "crates/proc-macros": {
@@ -451,7 +451,7 @@ _NORMAL_DEPENDENCIES = {
             "proc-macro2": "@crate_index__proc-macro2-1.0.70//:proc_macro2",
             "quote": "@crate_index__quote-1.0.33//:quote",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
-            "syn": "@crate_index__syn-2.0.40//:syn",
+            "syn": "@crate_index__syn-2.0.41//:syn",
             "utoipa": "@crate_index__utoipa-4.1.0//:utoipa",
         },
     },
@@ -611,7 +611,7 @@ _NORMAL_DEPENDENCIES = {
             "heck": "@crate_index__heck-0.4.1//:heck",
             "proc-macro2": "@crate_index__proc-macro2-1.0.70//:proc_macro2",
             "quote": "@crate_index__quote-1.0.33//:quote",
-            "syn": "@crate_index__syn-2.0.40//:syn",
+            "syn": "@crate_index__syn-2.0.41//:syn",
             "utoipa": "@crate_index__utoipa-4.1.0//:utoipa",
         },
     },
@@ -630,7 +630,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "proc-macro2": "@crate_index__proc-macro2-1.0.70//:proc_macro2",
             "quote": "@crate_index__quote-1.0.33//:quote",
-            "syn": "@crate_index__syn-2.0.40//:syn",
+            "syn": "@crate_index__syn-2.0.41//:syn",
         },
     },
     "tools/devtools": {
@@ -6237,12 +6237,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__syn-2.0.40",
-        sha256 = "13fa70a4ee923979ffb522cacce59d34421ebdea5625e1073c4326ef9d2dd42e",
+        name = "crate_index__syn-2.0.41",
+        sha256 = "44c8b28c477cc3bf0e7966561e3460130e1255f7a1cf71931075f1c5e7a7e269",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/syn/2.0.40/download"],
-        strip_prefix = "syn-2.0.40",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.syn-2.0.40.bazel"),
+        urls = ["https://crates.io/api/v1/crates/syn/2.0.41/download"],
+        strip_prefix = "syn-2.0.41",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.syn-2.0.41.bazel"),
     )
 
     maybe(
@@ -7404,7 +7404,7 @@ def crate_repositories():
         struct(repo = "crate_index__simple_tables-0.3.0", is_dev_dep = False),
         struct(repo = "crate_index__sqlx-0.7.3", is_dev_dep = False),
         struct(repo = "crate_index__starlark-0.10.0", is_dev_dep = False),
-        struct(repo = "crate_index__syn-2.0.40", is_dev_dep = False),
+        struct(repo = "crate_index__syn-2.0.41", is_dev_dep = False),
         struct(repo = "crate_index__sysinfo-0.29.11", is_dev_dep = False),
         struct(repo = "crate_index__tar-0.4.40", is_dev_dep = False),
         struct(repo = "crate_index__thiserror-1.0.50", is_dev_dep = False),
