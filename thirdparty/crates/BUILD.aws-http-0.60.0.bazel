@@ -40,9 +40,9 @@ rust_library(
     ],
     version = "0.60.0",
     deps = [
-        "@crate_index__aws-smithy-runtime-api-1.0.3//:aws_smithy_runtime_api",
-        "@crate_index__aws-smithy-types-1.0.3//:aws_smithy_types",
-        "@crate_index__aws-types-1.0.3//:aws_types",
+        "@crate_index__aws-smithy-runtime-api-1.1.0//:aws_smithy_runtime_api",
+        "@crate_index__aws-smithy-types-1.1.0//:aws_smithy_types",
+        "@crate_index__aws-types-1.1.0//:aws_types",
         "@crate_index__bytes-1.5.0//:bytes",
         "@crate_index__http-0.2.9//:http",
         "@crate_index__http-body-0.4.5//:http_body",
