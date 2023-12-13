@@ -15,7 +15,7 @@ package(default_visibility = ["//visibility:public"])
 # ])
 
 rust_library(
-    name = "aws_credential_types",
+    name = "aws_smithy_xml",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -33,16 +33,13 @@ rust_library(
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=aws-credential-types",
+        "crate-name=aws-smithy-xml",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "1.0.3",
+    version = "0.61.0",
     deps = [
-        "@crate_index__aws-smithy-async-1.0.3//:aws_smithy_async",
-        "@crate_index__aws-smithy-runtime-api-1.0.3//:aws_smithy_runtime_api",
-        "@crate_index__aws-smithy-types-1.0.3//:aws_smithy_types",
-        "@crate_index__zeroize-1.6.0//:zeroize",
+        "@crate_index__xmlparser-0.13.5//:xmlparser",
     ],
 )
