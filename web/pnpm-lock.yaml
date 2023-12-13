@@ -110,8 +110,8 @@ devDependencies:
     specifier: 1.2.0
     version: 1.2.0
   '@intlify/unplugin-vue-i18n':
-    specifier: 1.5.0
-    version: 1.5.0
+    specifier: 1.6.0
+    version: 1.6.0
   '@types/luxon':
     specifier: 3.3.7
     version: 3.3.7
@@ -1026,8 +1026,8 @@ packages:
     engines: {node: '>= 16'}
     dev: true
 
-  /@intlify/unplugin-vue-i18n@1.5.0:
-    resolution: {integrity: sha512-jW0MCCdwxybxcwjEfCunAcKjVoxyO3i+cnLL6v+MNGRLUHqrpELF6zQAJUhgAK2afhY7mCliy8RxTFWKdXm26w==}
+  /@intlify/unplugin-vue-i18n@1.6.0:
+    resolution: {integrity: sha512-IGeFNWxdEvB12E/3Y/+nmIsGeTg5okPsK1XEtUUD/DdkHbVqUbJucMpHKeHF8Px55Qca551pQCs/g+VjNUt6KA==}
     engines: {node: '>= 14.16'}
     peerDependencies:
       petite-vue-i18n: '*'
@@ -1043,7 +1043,7 @@ packages:
     dependencies:
       '@intlify/bundle-utils': 7.4.0
       '@intlify/shared': 9.6.5
-      '@rollup/pluginutils': 5.0.5
+      '@rollup/pluginutils': 5.1.0
       '@vue/compiler-sfc': 3.3.11
       debug: 4.3.4
       fast-glob: 3.3.2
@@ -1052,7 +1052,7 @@ packages:
       pathe: 1.1.1
       picocolors: 1.0.0
       source-map-js: 1.0.2
-      unplugin: 1.5.0
+      unplugin: 1.5.1
     transitivePeerDependencies:
       - rollup
       - supports-color
