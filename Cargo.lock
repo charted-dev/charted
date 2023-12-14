@@ -1231,7 +1231,7 @@ dependencies = [
  "charted-common",
  "charted-config",
  "dyn-clone",
- "erased-serde 0.4.0",
+ "erased-serde 0.4.1",
  "prometheus-client",
  "serde",
  "tokio",
@@ -1356,7 +1356,7 @@ dependencies = [
  "charted-storage",
  "charted-testkit",
  "chrono",
- "erased-serde 0.4.0",
+ "erased-serde 0.4.1",
  "eyre",
  "futures-util",
  "jsonwebtoken 9.2.0",
@@ -2286,9 +2286,9 @@ dependencies = [
 
 [[package]]
 name = "erased-serde"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a3286168faae03a0e583f6fde17c02c8b8bba2dcc2061d0f7817066e5b0af706"
+checksum = "4adbf0983fe06bd3a5c19c8477a637c2389feb0994eca7a59e3b961054aa7c0a"
 dependencies = [
  "serde",
 ]
