@@ -401,7 +401,7 @@ _NORMAL_DEPENDENCIES = {
             "eyre": "@crate_index__eyre-0.6.11//:eyre",
             "flate2": "@crate_index__flate2-1.0.28//:flate2",
             "itertools": "@crate_index__itertools-0.12.0//:itertools",
-            "multer": "@crate_index__multer-2.1.0//:multer",
+            "multer": "@crate_index__multer-3.0.0//:multer",
             "once_cell": "@crate_index__once_cell-1.19.0//:once_cell",
             "regex": "@crate_index__regex-1.10.2//:regex",
             "remi-core": "@crate_index__remi-core-0.4.3//:remi_core",
@@ -580,7 +580,7 @@ _NORMAL_DEPENDENCIES = {
             "futures-util": "@crate_index__futures-util-0.3.29//:futures_util",
             "jsonwebtoken": "@crate_index__jsonwebtoken-9.2.0//:jsonwebtoken",
             "mime": "@crate_index__mime-0.3.17//:mime",
-            "multer": "@crate_index__multer-2.1.0//:multer",
+            "multer": "@crate_index__multer-3.0.0//:multer",
             "once_cell": "@crate_index__once_cell-1.19.0//:once_cell",
             "prometheus-client": "@crate_index__prometheus-client-0.22.0//:prometheus_client",
             "remi-core": "@crate_index__remi-core-0.4.3//:remi_core",
@@ -3757,6 +3757,16 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crate_index__http-1.0.0",
+        sha256 = "b32afd38673a8016f7c9ae69e5af41a58f81b1d31689040f2f1959594ce194ea",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/http/1.0.0/download"],
+        strip_prefix = "http-1.0.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.http-1.0.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crate_index__http-body-0.4.5",
         sha256 = "d5f38f16d184e36f2408a55281cd658ecbd3ca05cce6d6510a176eca393e26d1",
         type = "tar.gz",
@@ -4473,6 +4483,16 @@ def crate_repositories():
         urls = ["https://crates.io/api/v1/crates/multer/2.1.0/download"],
         strip_prefix = "multer-2.1.0",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.multer-2.1.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__multer-3.0.0",
+        sha256 = "a15d522be0a9c3e46fd2632e272d178f56387bdb5c9fbb3a36c649062e9b5219",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/multer/3.0.0/download"],
+        strip_prefix = "multer-3.0.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.multer-3.0.0.bazel"),
     )
 
     maybe(
@@ -7402,7 +7422,7 @@ def crate_repositories():
         struct(repo = "crate_index__mimalloc-0.1.39", is_dev_dep = False),
         struct(repo = "crate_index__mime-0.3.17", is_dev_dep = False),
         struct(repo = "crate_index__moka-0.12.1", is_dev_dep = False),
-        struct(repo = "crate_index__multer-2.1.0", is_dev_dep = False),
+        struct(repo = "crate_index__multer-3.0.0", is_dev_dep = False),
         struct(repo = "crate_index__num_cpus-1.16.0", is_dev_dep = False),
         struct(repo = "crate_index__once_cell-1.19.0", is_dev_dep = False),
         struct(repo = "crate_index__openssl-0.10.60", is_dev_dep = False),
