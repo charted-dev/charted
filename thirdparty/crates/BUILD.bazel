@@ -261,7 +261,7 @@ alias(
 
 alias(
     name = "multer",
-    actual = "@crate_index__multer-2.1.0//:multer",
+    actual = "@crate_index__multer-3.0.0//:multer",
     tags = ["manual"],
 )
 
