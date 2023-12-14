@@ -46,7 +46,7 @@ charted-sessions = { version = "0.0.0-devel.0", path = "../crates/sessions" }
 charted-sessions-local = { version = "0.0.0-devel.0", path = "../crates/sessions/local" }
 charted-storage = { version = "0.0.0-devel.0", path = "../crates/storage" }
 chrono = "0.4.31"
-erased-serde = "0.4.0"
+erased-serde = "0.4.1"
 eyre = "0.6.11"
 futures-util = "0.3.29"
 jsonwebtoken = "9.2.0"
