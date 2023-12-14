@@ -40,7 +40,7 @@ rust_library(
     ],
     version = "0.61.0",
     deps = [
-        "@crate_index__aws-smithy-types-1.1.0//:aws_smithy_types",
+        "@crate_index__aws-smithy-types-1.1.1//:aws_smithy_types",
         "@crate_index__bytes-1.5.0//:bytes",
         "@crate_index__crc32fast-1.3.2//:crc32fast",
     ],
