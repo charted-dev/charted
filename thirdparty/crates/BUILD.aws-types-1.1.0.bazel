@@ -42,9 +42,9 @@ rust_library(
     version = "1.1.0",
     deps = [
         "@crate_index__aws-credential-types-1.1.0//:aws_credential_types",
-        "@crate_index__aws-smithy-async-1.1.0//:aws_smithy_async",
-        "@crate_index__aws-smithy-runtime-api-1.1.0//:aws_smithy_runtime_api",
-        "@crate_index__aws-smithy-types-1.1.0//:aws_smithy_types",
+        "@crate_index__aws-smithy-async-1.1.1//:aws_smithy_async",
+        "@crate_index__aws-smithy-runtime-api-1.1.1//:aws_smithy_runtime_api",
+        "@crate_index__aws-smithy-types-1.1.1//:aws_smithy_types",
         "@crate_index__aws-types-1.1.0//:build_script_build",
         "@crate_index__http-0.2.9//:http",
         "@crate_index__tracing-0.1.40//:tracing",

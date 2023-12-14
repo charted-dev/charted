@@ -362,7 +362,7 @@ _NORMAL_DEPENDENCIES = {
     },
     "crates/config": {
         _COMMON_CONDITION: {
-            "aws-sdk-s3": "@crate_index__aws-sdk-s3-1.6.0//:aws_sdk_s3",
+            "aws-sdk-s3": "@crate_index__aws-sdk-s3-1.7.0//:aws_sdk_s3",
             "base64": "@crate_index__base64-0.21.5//:base64",
             "clap": "@crate_index__clap-4.4.11//:clap",
             "eyre": "@crate_index__eyre-0.6.11//:eyre",
@@ -2017,12 +2017,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__aws-sdk-s3-1.6.0",
-        sha256 = "693ff3ba604fa0db18799fb770c7cde5c3e9302a7b7644647c4e46a615b96e23",
+        name = "crate_index__aws-sdk-s3-1.7.0",
+        sha256 = "c1c12ff4dee4cbcfb0f7b7c19b1f72d5603ff8cd1183db7678a10ecf378ba534",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/aws-sdk-s3/1.6.0/download"],
-        strip_prefix = "aws-sdk-s3-1.6.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-sdk-s3-1.6.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/aws-sdk-s3/1.7.0/download"],
+        strip_prefix = "aws-sdk-s3-1.7.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-sdk-s3-1.7.0.bazel"),
     )
 
     maybe(
@@ -2067,22 +2067,32 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__aws-smithy-async-1.1.0",
-        sha256 = "8251646e230593f141a6df2421f5c9cebae4b7b5f874482164ccc9885a662b5d",
+        name = "crate_index__aws-smithy-async-1.1.1",
+        sha256 = "1e9f65000917e3aa94c259d67fe01fa9e4cd456187d026067d642436e6311a81",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/aws-smithy-async/1.1.0/download"],
-        strip_prefix = "aws-smithy-async-1.1.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-async-1.1.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/aws-smithy-async/1.1.1/download"],
+        strip_prefix = "aws-smithy-async-1.1.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-async-1.1.1.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__aws-smithy-checksums-0.61.0",
-        sha256 = "d3c4fd37c10269ad70de25cfbe29f52c1ae6fc48606a2b1ed2c4bdeb624d5da9",
+        name = "crate_index__aws-smithy-checksums-0.60.1",
+        sha256 = "4c2a63681f82fb85ca58d566534b7dc619c782fee0c61c1aa51e2b560c21cb4f",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/aws-smithy-checksums/0.61.0/download"],
-        strip_prefix = "aws-smithy-checksums-0.61.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-checksums-0.61.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/aws-smithy-checksums/0.60.1/download"],
+        strip_prefix = "aws-smithy-checksums-0.60.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-checksums-0.60.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__aws-smithy-eventstream-0.60.1",
+        sha256 = "a85e16fa903c70c49ab3785e5f4ac2ad2171b36e0616f321011fa57962404bb6",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/aws-smithy-eventstream/0.60.1/download"],
+        strip_prefix = "aws-smithy-eventstream-0.60.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-eventstream-0.60.1.bazel"),
     )
 
     maybe(
@@ -2097,12 +2107,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__aws-smithy-http-0.60.0",
-        sha256 = "5b1de8aee22f67de467b2e3d0dd0fb30859dc53f579a63bd5381766b987db644",
+        name = "crate_index__aws-smithy-http-0.60.1",
+        sha256 = "e4e816425a6b9caea4929ac97d0cb33674849bd5f0086418abc0d02c63f7a1bf",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/aws-smithy-http/0.60.0/download"],
-        strip_prefix = "aws-smithy-http-0.60.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-http-0.60.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/aws-smithy-http/0.60.1/download"],
+        strip_prefix = "aws-smithy-http-0.60.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-http-0.60.1.bazel"),
     )
 
     maybe(
@@ -2127,16 +2137,6 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__aws-smithy-json-0.61.0",
-        sha256 = "50877200c8d382b728631e9abe6556abc9830b1aa9c1e7b3e16f64bdbfb86a89",
-        type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/aws-smithy-json/0.61.0/download"],
-        strip_prefix = "aws-smithy-json-0.61.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-json-0.61.0.bazel"),
-    )
-
-    maybe(
-        http_archive,
         name = "crate_index__aws-smithy-query-0.60.0",
         sha256 = "feb5b8c7a86d4b6399169670723b7e6f21a39fc833a30f5c5a2f997608178129",
         type = "tar.gz",
@@ -2157,22 +2157,22 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__aws-smithy-runtime-api-1.1.0",
-        sha256 = "a55ed8f64f72162056db15e05394e9aa2b5a58a0b5ebeab5694f9a463b79bea8",
+        name = "crate_index__aws-smithy-runtime-api-1.1.1",
+        sha256 = "2404c9eb08bfe9af255945254d9afc69a367b7ee008b8db75c05e3bca485fc65",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/aws-smithy-runtime-api/1.1.0/download"],
-        strip_prefix = "aws-smithy-runtime-api-1.1.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-runtime-api-1.1.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/aws-smithy-runtime-api/1.1.1/download"],
+        strip_prefix = "aws-smithy-runtime-api-1.1.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-runtime-api-1.1.1.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__aws-smithy-types-1.1.0",
-        sha256 = "d6d0b5ba0f92811d45954c61e3ada057d2a09ee0357403cf86ece562e5fa8268",
+        name = "crate_index__aws-smithy-types-1.1.1",
+        sha256 = "2aba8136605d14ac88f57dc3a693a9f8a4eab4a3f52bc03ff13746f0cd704e97",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/aws-smithy-types/1.1.0/download"],
-        strip_prefix = "aws-smithy-types-1.1.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-types-1.1.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/aws-smithy-types/1.1.1/download"],
+        strip_prefix = "aws-smithy-types-1.1.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-types-1.1.1.bazel"),
     )
 
     maybe(
@@ -2183,16 +2183,6 @@ def crate_repositories():
         urls = ["https://crates.io/api/v1/crates/aws-smithy-xml/0.60.0/download"],
         strip_prefix = "aws-smithy-xml-0.60.0",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-xml-0.60.0.bazel"),
-    )
-
-    maybe(
-        http_archive,
-        name = "crate_index__aws-smithy-xml-0.61.0",
-        sha256 = "a8085dd62bd9dc6ecdd2ef74d8420ac3101595d31977f280fb42325a08ecdeab",
-        type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/aws-smithy-xml/0.61.0/download"],
-        strip_prefix = "aws-smithy-xml-0.61.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.aws-smithy-xml-0.61.0.bazel"),
     )
 
     maybe(
@@ -5247,16 +5237,6 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__regex-lite-0.1.5",
-        sha256 = "30b661b2f27137bdbc16f00eda72866a92bb28af1753ffbd56744fb6e2e9cd8e",
-        type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/regex-lite/0.1.5/download"],
-        strip_prefix = "regex-lite-0.1.5",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.regex-lite-0.1.5.bazel"),
-    )
-
-    maybe(
-        http_archive,
         name = "crate_index__regex-syntax-0.6.29",
         sha256 = "f162c6dd7b008981e4d40210aca20b4bd0f9b60ca9271061b07f78537722f2e1",
         type = "tar.gz",
@@ -7390,7 +7370,7 @@ def crate_repositories():
         struct(repo = "crate_index__argon2-0.5.2", is_dev_dep = False),
         struct(repo = "crate_index__async-recursion-1.0.5", is_dev_dep = False),
         struct(repo = "crate_index__async-trait-0.1.74", is_dev_dep = False),
-        struct(repo = "crate_index__aws-sdk-s3-1.6.0", is_dev_dep = False),
+        struct(repo = "crate_index__aws-sdk-s3-1.7.0", is_dev_dep = False),
         struct(repo = "crate_index__axum-0.6.20", is_dev_dep = False),
         struct(repo = "crate_index__base64-0.21.5", is_dev_dep = False),
         struct(repo = "crate_index__bytes-1.5.0", is_dev_dep = False),
