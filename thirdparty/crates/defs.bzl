@@ -7337,22 +7337,22 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__zerocopy-0.7.26",
-        sha256 = "e97e415490559a91254a2979b4829267a57d2fcd741a98eee8b722fb57289aa0",
+        name = "crate_index__zerocopy-0.7.31",
+        sha256 = "1c4061bedbb353041c12f413700357bec76df2c7e2ca8e4df8bac24c6bf68e3d",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/zerocopy/0.7.26/download"],
-        strip_prefix = "zerocopy-0.7.26",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.zerocopy-0.7.26.bazel"),
+        urls = ["https://crates.io/api/v1/crates/zerocopy/0.7.31/download"],
+        strip_prefix = "zerocopy-0.7.31",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.zerocopy-0.7.31.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__zerocopy-derive-0.7.26",
-        sha256 = "dd7e48ccf166952882ca8bd778a43502c64f33bf94c12ebe2a7f08e5a0f6689f",
+        name = "crate_index__zerocopy-derive-0.7.31",
+        sha256 = "b3c129550b3e6de3fd0ba67ba5c81818f9805e58b8d7fee80a3a59d2c9fc601a",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/zerocopy-derive/0.7.26/download"],
-        strip_prefix = "zerocopy-derive-0.7.26",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.zerocopy-derive-0.7.26.bazel"),
+        urls = ["https://crates.io/api/v1/crates/zerocopy-derive/0.7.31/download"],
+        strip_prefix = "zerocopy-derive-0.7.31",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.zerocopy-derive-0.7.31.bazel"),
     )
 
     maybe(
