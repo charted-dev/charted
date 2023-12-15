@@ -66,8 +66,8 @@ dependencies:
     specifier: 3.0.0
     version: 3.0.0
   markdown-it-shikiji:
-    specifier: 0.9.3
-    version: 0.9.3
+    specifier: 0.9.4
+    version: 0.9.4
   ofetch:
     specifier: 1.3.3
     version: 1.3.3
@@ -3342,11 +3342,11 @@ packages:
     resolution: {integrity: sha512-+rUD93bXHubA4arpEZO3q80so0qgoFJEKRkRbjKX8RTdca89v2kfyF+xR3i2sQTwql9tpPZPOQN5B+PunspXRg==}
     dev: false
 
-  /markdown-it-shikiji@0.9.3:
-    resolution: {integrity: sha512-cM929MgXeyb2qcCBUNcPu0N5576JwfOAaPVWG2wzhN/8tf5AvKWWXPKG3H85keGjmHVAQBmLkZ61+WfkbfQHYQ==}
+  /markdown-it-shikiji@0.9.4:
+    resolution: {integrity: sha512-Y930mbRo9J9lDtPAFfsm3pCA2oH7+sH3ACQnjX0ayvcMez8jXbi13mvjAOdC42z1Hzo/zoWiSiY02WC35QMgZw==}
     dependencies:
       markdown-it: 14.0.0
-      shikiji: 0.9.3
+      shikiji: 0.9.4
     dev: false
 
   /markdown-it@14.0.0:
@@ -4074,10 +4074,20 @@ packages:
     resolution: {integrity: sha512-Khc/xyxUDAXit7QWA8QhtmuGSVdvpxooTathF+sYcsT52uKVH59GR2D48tMxQ8lnpW6Dx17TSZSE1ocRmhr6wQ==}
     dev: false
 
+  /shikiji-core@0.9.4:
+    resolution: {integrity: sha512-8HYVsejb1FTorl5UcsWCam/ANWX9T36irFqqOW+4MeD+WqmxQu6iwCqbTaatHxfYfWCcQLCZ+D5nOM6798O16A==}
+    dev: false
+
   /shikiji@0.9.3:
     resolution: {integrity: sha512-v1F/jlsEDjxVticC9IZ74vHOaLe6zpyXkv5sI/8mfZ0esoitDjVDoINP2Tmbsx9NZuX1gSvLfjbK2mqkPM1ViA==}
     dependencies:
       shikiji-core: 0.9.3
+    dev: false
+
+  /shikiji@0.9.4:
+    resolution: {integrity: sha512-fyGSLi+UGgbh1CvQjAv4Jy1Zsj+sitF+qDgead4mo9SISRkQS3wOmVeKfnl0zk7wz29HDorcQ0cghe8I/RNo7g==}
+    dependencies:
+      shikiji-core: 0.9.4
     dev: false
 
   /siginfo@2.0.0:
