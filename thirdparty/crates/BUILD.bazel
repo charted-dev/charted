@@ -279,7 +279,7 @@ alias(
 
 alias(
     name = "openssl",
-    actual = "@crate_index__openssl-0.10.60//:openssl",
+    actual = "@crate_index__openssl-0.10.61//:openssl",
     tags = ["manual"],
 )
 

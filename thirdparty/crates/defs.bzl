@@ -306,7 +306,7 @@ _NORMAL_DEPENDENCIES = {
             "eyre": "@crate_index__eyre-0.6.11//:eyre",
             "mimalloc": "@crate_index__mimalloc-0.1.39//:mimalloc",
             "num_cpus": "@crate_index__num_cpus-1.16.0//:num_cpus",
-            "openssl": "@crate_index__openssl-0.10.60//:openssl",
+            "openssl": "@crate_index__openssl-0.10.61//:openssl",
             "promptly": "@crate_index__promptly-0.3.1//:promptly",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
             "serde_yaml": "@crate_index__serde_yaml-0.9.27//:serde_yaml",
@@ -4637,12 +4637,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__openssl-0.10.60",
-        sha256 = "79a4c6c3a2b158f7f8f2a2fc5a969fa3a068df6fc9dbb4a43845436e3af7c800",
+        name = "crate_index__openssl-0.10.61",
+        sha256 = "6b8419dc8cc6d866deb801274bba2e6f8f6108c1bb7fcc10ee5ab864931dbb45",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/openssl/0.10.60/download"],
-        strip_prefix = "openssl-0.10.60",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.openssl-0.10.60.bazel"),
+        urls = ["https://crates.io/api/v1/crates/openssl/0.10.61/download"],
+        strip_prefix = "openssl-0.10.61",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.openssl-0.10.61.bazel"),
     )
 
     maybe(
@@ -4667,12 +4667,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__openssl-sys-0.9.96",
-        sha256 = "3812c071ba60da8b5677cc12bcb1d42989a65553772897a7e0355545a819838f",
+        name = "crate_index__openssl-sys-0.9.97",
+        sha256 = "c3eaad34cdd97d81de97964fc7f29e2d104f483840d906ef56daa1912338460b",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/openssl-sys/0.9.96/download"],
-        strip_prefix = "openssl-sys-0.9.96",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.openssl-sys-0.9.96.bazel"),
+        urls = ["https://crates.io/api/v1/crates/openssl-sys/0.9.97/download"],
+        strip_prefix = "openssl-sys-0.9.97",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.openssl-sys-0.9.97.bazel"),
     )
 
     maybe(
@@ -7405,7 +7405,7 @@ def crate_repositories():
         struct(repo = "crate_index__multer-3.0.0", is_dev_dep = False),
         struct(repo = "crate_index__num_cpus-1.16.0", is_dev_dep = False),
         struct(repo = "crate_index__once_cell-1.19.0", is_dev_dep = False),
-        struct(repo = "crate_index__openssl-0.10.60", is_dev_dep = False),
+        struct(repo = "crate_index__openssl-0.10.61", is_dev_dep = False),
         struct(repo = "crate_index__paste-1.0.14", is_dev_dep = False),
         struct(repo = "crate_index__proc-macro2-1.0.70", is_dev_dep = False),
         struct(repo = "crate_index__prometheus-client-0.22.0", is_dev_dep = False),
