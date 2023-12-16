@@ -38,7 +38,7 @@ rust_proc_macro(
         "noclippy",
         "norustfmt",
     ],
-    version = "1.0.50",
+    version = "1.0.51",
     deps = [
         "@crate_index__proc-macro2-1.0.70//:proc_macro2",
         "@crate_index__quote-1.0.33//:quote",

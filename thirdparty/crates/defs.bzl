@@ -354,7 +354,7 @@ _NORMAL_DEPENDENCIES = {
             "serde": "@crate_index__serde-1.0.193//:serde",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
             "sqlx": "@crate_index__sqlx-0.7.3//:sqlx",
-            "thiserror": "@crate_index__thiserror-1.0.50//:thiserror",
+            "thiserror": "@crate_index__thiserror-1.0.51//:thiserror",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "utoipa": "@crate_index__utoipa-4.1.0//:utoipa",
             "validator": "@crate_index__validator-0.16.1//:validator",
@@ -374,7 +374,7 @@ _NORMAL_DEPENDENCIES = {
             "remi-s3": "@crate_index__remi-s3-0.4.3//:remi_s3",
             "serde": "@crate_index__serde-1.0.193//:serde",
             "serde_yaml": "@crate_index__serde_yaml-0.9.27//:serde_yaml",
-            "thiserror": "@crate_index__thiserror-1.0.50//:thiserror",
+            "thiserror": "@crate_index__thiserror-1.0.51//:thiserror",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
     },
@@ -6377,22 +6377,22 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__thiserror-1.0.50",
-        sha256 = "f9a7210f5c9a7156bb50aa36aed4c95afb51df0df00713949448cf9e97d382d2",
+        name = "crate_index__thiserror-1.0.51",
+        sha256 = "f11c217e1416d6f036b870f14e0413d480dbf28edbee1f877abaf0206af43bb7",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/thiserror/1.0.50/download"],
-        strip_prefix = "thiserror-1.0.50",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.thiserror-1.0.50.bazel"),
+        urls = ["https://crates.io/api/v1/crates/thiserror/1.0.51/download"],
+        strip_prefix = "thiserror-1.0.51",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.thiserror-1.0.51.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "crate_index__thiserror-impl-1.0.50",
-        sha256 = "266b2e40bc00e5a6c09c3584011e08b06f123c00362c92b975ba9843aaaa14b8",
+        name = "crate_index__thiserror-impl-1.0.51",
+        sha256 = "01742297787513b79cf8e29d1056ede1313e2420b7b3b15d0a768b4921f549df",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/thiserror-impl/1.0.50/download"],
-        strip_prefix = "thiserror-impl-1.0.50",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.thiserror-impl-1.0.50.bazel"),
+        urls = ["https://crates.io/api/v1/crates/thiserror-impl/1.0.51/download"],
+        strip_prefix = "thiserror-impl-1.0.51",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.thiserror-impl-1.0.51.bazel"),
     )
 
     maybe(
@@ -7437,7 +7437,7 @@ def crate_repositories():
         struct(repo = "crate_index__syn-2.0.41", is_dev_dep = False),
         struct(repo = "crate_index__sysinfo-0.29.11", is_dev_dep = False),
         struct(repo = "crate_index__tar-0.4.40", is_dev_dep = False),
-        struct(repo = "crate_index__thiserror-1.0.50", is_dev_dep = False),
+        struct(repo = "crate_index__thiserror-1.0.51", is_dev_dep = False),
         struct(repo = "crate_index__tokio-1.35.0", is_dev_dep = False),
         struct(repo = "crate_index__tokio-util-0.7.10", is_dev_dep = False),
         struct(repo = "crate_index__toml-0.8.8", is_dev_dep = False),

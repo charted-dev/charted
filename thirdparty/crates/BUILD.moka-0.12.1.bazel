@@ -67,7 +67,7 @@ rust_library(
         "@crate_index__quanta-0.11.1//:quanta",
         "@crate_index__smallvec-1.11.0//:smallvec",
         "@crate_index__tagptr-0.2.0//:tagptr",
-        "@crate_index__thiserror-1.0.50//:thiserror",
+        "@crate_index__thiserror-1.0.51//:thiserror",
         "@crate_index__triomphe-0.1.9//:triomphe",
         "@crate_index__uuid-1.6.1//:uuid",
     ],
