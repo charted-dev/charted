@@ -550,8 +550,6 @@ _NORMAL_DEPENDENCIES = {
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
     },
-    "crates/sessions/zitadel": {
-    },
     "crates/storage": {
         _COMMON_CONDITION: {
             "bytes": "@crate_index__bytes-1.5.0//:bytes",
@@ -771,8 +769,6 @@ _NORMAL_ALIASES = {
         _COMMON_CONDITION: {
         },
     },
-    "crates/sessions/zitadel": {
-    },
     "crates/storage": {
         _COMMON_CONDITION: {
         },
@@ -862,8 +858,6 @@ _NORMAL_DEV_DEPENDENCIES = {
     },
     "crates/sessions/passwordless": {
     },
-    "crates/sessions/zitadel": {
-    },
     "crates/storage": {
     },
     "features/gc": {
@@ -932,8 +926,6 @@ _NORMAL_DEV_ALIASES = {
     "crates/sessions/local": {
     },
     "crates/sessions/passwordless": {
-    },
-    "crates/sessions/zitadel": {
     },
     "crates/storage": {
     },
@@ -1040,8 +1032,6 @@ _PROC_MACRO_DEPENDENCIES = {
     },
     "crates/sessions/passwordless": {
     },
-    "crates/sessions/zitadel": {
-    },
     "crates/storage": {
     },
     "features/gc": {
@@ -1120,8 +1110,6 @@ _PROC_MACRO_ALIASES = {
     },
     "crates/sessions/passwordless": {
     },
-    "crates/sessions/zitadel": {
-    },
     "crates/storage": {
     },
     "features/gc": {
@@ -1186,8 +1174,6 @@ _PROC_MACRO_DEV_DEPENDENCIES = {
     "crates/sessions/local": {
     },
     "crates/sessions/passwordless": {
-    },
-    "crates/sessions/zitadel": {
     },
     "crates/storage": {
     },
@@ -1257,8 +1243,6 @@ _PROC_MACRO_DEV_ALIASES = {
     "crates/sessions/local": {
     },
     "crates/sessions/passwordless": {
-    },
-    "crates/sessions/zitadel": {
     },
     "crates/storage": {
     },
@@ -1334,8 +1318,6 @@ _BUILD_DEPENDENCIES = {
     },
     "crates/sessions/passwordless": {
     },
-    "crates/sessions/zitadel": {
-    },
     "crates/storage": {
     },
     "features/gc": {
@@ -1405,8 +1387,6 @@ _BUILD_ALIASES = {
     },
     "crates/sessions/passwordless": {
     },
-    "crates/sessions/zitadel": {
-    },
     "crates/storage": {
     },
     "features/gc": {
@@ -1472,8 +1452,6 @@ _BUILD_PROC_MACRO_DEPENDENCIES = {
     },
     "crates/sessions/passwordless": {
     },
-    "crates/sessions/zitadel": {
-    },
     "crates/storage": {
     },
     "features/gc": {
@@ -1538,8 +1516,6 @@ _BUILD_PROC_MACRO_ALIASES = {
     "crates/sessions/local": {
     },
     "crates/sessions/passwordless": {
-    },
-    "crates/sessions/zitadel": {
     },
     "crates/storage": {
     },
