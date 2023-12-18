@@ -65,7 +65,7 @@ rust_library(
         "@crate_index__fastrand-2.0.0//:fastrand",
         "@crate_index__hex-0.4.3//:hex",
         "@crate_index__http-0.2.9//:http",
-        "@crate_index__hyper-0.14.27//:hyper",
+        "@crate_index__hyper-0.14.28//:hyper",
         "@crate_index__ring-0.17.5//:ring",
         "@crate_index__time-0.3.28//:time",
         "@crate_index__tokio-1.35.0//:tokio",

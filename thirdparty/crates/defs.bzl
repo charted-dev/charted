@@ -618,7 +618,7 @@ _NORMAL_DEPENDENCIES = {
             "axum": "@crate_index__axum-0.6.20//:axum",
             "bytes": "@crate_index__bytes-1.5.0//:bytes",
             "eyre": "@crate_index__eyre-0.6.11//:eyre",
-            "hyper": "@crate_index__hyper-0.14.27//:hyper",
+            "hyper": "@crate_index__hyper-0.14.28//:hyper",
             "serde": "@crate_index__serde-1.0.193//:serde",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
             "tokio": "@crate_index__tokio-1.35.0//:tokio",
@@ -3763,12 +3763,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__hyper-0.14.27",
-        sha256 = "ffb1cfd654a8219eaef89881fdb3bb3b1cdc5fa75ded05d6933b2b382e395468",
+        name = "crate_index__hyper-0.14.28",
+        sha256 = "bf96e135eb83a2a8ddf766e426a841d8ddd7449d5f00d34ea02b41d2f19eef80",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/hyper/0.14.27/download"],
-        strip_prefix = "hyper-0.14.27",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.hyper-0.14.27.bazel"),
+        urls = ["https://crates.io/api/v1/crates/hyper/0.14.28/download"],
+        strip_prefix = "hyper-0.14.28",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.hyper-0.14.28.bazel"),
     )
 
     maybe(
@@ -7366,7 +7366,7 @@ def crate_repositories():
         struct(repo = "crate_index__heck-0.4.1", is_dev_dep = False),
         struct(repo = "crate_index__hex-0.4.3", is_dev_dep = False),
         struct(repo = "crate_index__humantime-2.1.0", is_dev_dep = False),
-        struct(repo = "crate_index__hyper-0.14.27", is_dev_dep = False),
+        struct(repo = "crate_index__hyper-0.14.28", is_dev_dep = False),
         struct(repo = "crate_index__itertools-0.12.0", is_dev_dep = False),
         struct(repo = "crate_index__jsonwebtoken-9.2.0", is_dev_dep = False),
         struct(repo = "crate_index__lazy_static-1.4.0", is_dev_dep = False),
