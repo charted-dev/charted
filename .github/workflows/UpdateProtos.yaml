@@ -14,6 +14,9 @@
 # limitations under the License.
 
 name: Update Protocol Buffers
+concurrency:
+    group: charted-protobufs-${{ github.ref }}
+    cancel-in-progress: true
 on:
     workflow_dispatch: {}
     schedule:

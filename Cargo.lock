@@ -1442,10 +1442,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "charted-sessions-zitadel"
-version = "0.0.0-devel.0"
-
-[[package]]
 name = "charted-storage"
 version = "0.0.0-devel.0"
 dependencies = [

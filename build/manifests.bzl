@@ -38,7 +38,6 @@ CARGO_MANIFESTS = [
     "//crates/sessions/ldap:Cargo.toml",
     "//crates/sessions/local:Cargo.toml",
     "//crates/sessions/passwordless:Cargo.toml",
-    "//crates/sessions/zitadel:Cargo.toml",
     "//crates/sessions:Cargo.toml",
     "//crates/storage:Cargo.toml",
     "//features/gc:Cargo.toml",
@@ -49,4 +48,3 @@ CARGO_MANIFESTS = [
     "//tools/devtools:Cargo.toml",
     "//tools/helm-plugin:Cargo.toml",
 ]
-
