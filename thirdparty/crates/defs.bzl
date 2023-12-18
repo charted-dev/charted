@@ -416,7 +416,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "ansi_term": "@crate_index__ansi_term-0.12.1//:ansi_term",
             "chrono": "@crate_index__chrono-0.4.31//:chrono",
-            "sentry-tracing": "@crate_index__sentry-tracing-0.32.0//:sentry_tracing",
+            "sentry-tracing": "@crate_index__sentry-tracing-0.32.1//:sentry_tracing",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
             "tracing-log": "@crate_index__tracing-log-0.2.0//:tracing_log",
@@ -587,7 +587,7 @@ _NORMAL_DEPENDENCIES = {
             "sentry": "@crate_index__sentry-0.31.8//:sentry",
             "sentry-eyre": "@crate_index__sentry-eyre-0.1.0//:sentry_eyre",
             "sentry-tower": "@crate_index__sentry-tower-0.31.8//:sentry_tower",
-            "sentry-tracing": "@crate_index__sentry-tracing-0.32.0//:sentry_tracing",
+            "sentry-tracing": "@crate_index__sentry-tracing-0.32.1//:sentry_tracing",
             "serde": "@crate_index__serde-1.0.193//:serde",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
             "serde_path_to_error": "@crate_index__serde_path_to_error-0.1.14//:serde_path_to_error",
@@ -5633,12 +5633,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__sentry-core-0.32.0",
-        sha256 = "ebb7a6ad833035f6b36db3e61e450643eec8a3c5f2839b8e41c74a73e57c6bae",
+        name = "crate_index__sentry-core-0.32.1",
+        sha256 = "5e362d3fb1c5de5124bf1681086eaca7adf6a8c4283a7e1545359c729f9128ff",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sentry-core/0.32.0/download"],
-        strip_prefix = "sentry-core-0.32.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-core-0.32.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sentry-core/0.32.1/download"],
+        strip_prefix = "sentry-core-0.32.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-core-0.32.1.bazel"),
     )
 
     maybe(
@@ -5693,12 +5693,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__sentry-tracing-0.32.0",
-        sha256 = "53ef38653386354058f30b3c6d0bf764c59ee6270cd769ac4620a2d2fd60c8fe",
+        name = "crate_index__sentry-tracing-0.32.1",
+        sha256 = "087bed8c616d176a9c6b662a8155e5f23b40dc9e1fa96d0bd5fb56e8636a9275",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sentry-tracing/0.32.0/download"],
-        strip_prefix = "sentry-tracing-0.32.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-tracing-0.32.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sentry-tracing/0.32.1/download"],
+        strip_prefix = "sentry-tracing-0.32.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-tracing-0.32.1.bazel"),
     )
 
     maybe(
@@ -5713,12 +5713,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__sentry-types-0.32.0",
-        sha256 = "26342e85c6b3332273b820d5be6b93027fe991ded23a2aa6fb88a5a28c845c40",
+        name = "crate_index__sentry-types-0.32.1",
+        sha256 = "fb4f0e37945b7a8ce7faebc310af92442e2d7c5aa7ef5b42fe6daa98ee133f65",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/sentry-types/0.32.0/download"],
-        strip_prefix = "sentry-types-0.32.0",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-types-0.32.0.bazel"),
+        urls = ["https://crates.io/api/v1/crates/sentry-types/0.32.1/download"],
+        strip_prefix = "sentry-types-0.32.1",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.sentry-types-0.32.1.bazel"),
     )
 
     maybe(
@@ -7401,7 +7401,7 @@ def crate_repositories():
         struct(repo = "crate_index__sentry-0.31.8", is_dev_dep = False),
         struct(repo = "crate_index__sentry-eyre-0.1.0", is_dev_dep = False),
         struct(repo = "crate_index__sentry-tower-0.31.8", is_dev_dep = False),
-        struct(repo = "crate_index__sentry-tracing-0.32.0", is_dev_dep = False),
+        struct(repo = "crate_index__sentry-tracing-0.32.1", is_dev_dep = False),
         struct(repo = "crate_index__serde-1.0.193", is_dev_dep = False),
         struct(repo = "crate_index__serde_json-1.0.108", is_dev_dep = False),
         struct(repo = "crate_index__serde_path_to_error-0.1.14", is_dev_dep = False),

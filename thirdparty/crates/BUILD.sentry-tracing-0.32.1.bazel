@@ -41,9 +41,9 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.32.0",
+    version = "0.32.1",
     deps = [
-        "@crate_index__sentry-core-0.32.0//:sentry_core",
+        "@crate_index__sentry-core-0.32.1//:sentry_core",
         "@crate_index__tracing-core-0.1.32//:tracing_core",
         "@crate_index__tracing-subscriber-0.3.18//:tracing_subscriber",
     ],

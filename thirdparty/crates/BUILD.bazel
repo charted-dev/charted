@@ -393,7 +393,7 @@ alias(
 
 alias(
     name = "sentry-tracing",
-    actual = "@crate_index__sentry-tracing-0.32.0//:sentry_tracing",
+    actual = "@crate_index__sentry-tracing-0.32.1//:sentry_tracing",
     tags = ["manual"],
 )
 
