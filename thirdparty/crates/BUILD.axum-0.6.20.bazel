@@ -69,7 +69,7 @@ rust_library(
         "@crate_index__headers-0.3.9//:headers",
         "@crate_index__http-0.2.9//:http",
         "@crate_index__http-body-0.4.5//:http_body",
-        "@crate_index__hyper-0.14.27//:hyper",
+        "@crate_index__hyper-0.14.28//:hyper",
         "@crate_index__itoa-1.0.9//:itoa",
         "@crate_index__matchit-0.7.2//:matchit",
         "@crate_index__memchr-2.6.3//:memchr",
