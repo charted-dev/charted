@@ -16,7 +16,7 @@ dependencies:
     version: 5.0.18
   '@formkit/vue':
     specifier: 1.4.0
-    version: 1.4.0(tailwindcss@3.3.7)(typescript@5.3.3)
+    version: 1.4.0(tailwindcss@3.4.0)(typescript@5.3.3)
   '@formkit/zod':
     specifier: 1.4.0
     version: 1.4.0(zod@3.22.4)
@@ -31,10 +31,10 @@ dependencies:
     version: 2.4.0
   '@tailwindcss/forms':
     specifier: 0.5.7
-    version: 0.5.7(tailwindcss@3.3.7)
+    version: 0.5.7(tailwindcss@3.4.0)
   '@tailwindcss/typography':
     specifier: 0.5.10
-    version: 0.5.10(tailwindcss@3.3.7)
+    version: 0.5.10(tailwindcss@3.4.0)
   '@tanstack/vue-query':
     specifier: 5.14.1
     version: 5.14.1(vue@3.3.13)
@@ -90,8 +90,8 @@ dependencies:
     specifier: 2.1.0
     version: 2.1.0
   tailwindcss:
-    specifier: 3.3.7
-    version: 3.3.7
+    specifier: 3.4.0
+    version: 3.4.0
   vue:
     specifier: 3.3.13
     version: 3.3.13(typescript@5.3.3)
@@ -931,7 +931,7 @@ packages:
       '@formkit/validation': 1.4.0
     dev: false
 
-  /@formkit/themes@1.4.0(tailwindcss@3.3.7):
+  /@formkit/themes@1.4.0(tailwindcss@3.4.0):
     resolution: {integrity: sha512-isyHZALh6S3BM+0G5NeRQkI12gydDRXEkI6oGt5uTn3Ju2olLt8RwOXNYgJ9lWSb8HrfuHh7/89SozdIRNVuCA==}
     peerDependencies:
       tailwindcss: ^3.2.0
@@ -946,7 +946,7 @@ packages:
         optional: true
     dependencies:
       '@formkit/core': 1.4.0
-      tailwindcss: 3.3.7
+      tailwindcss: 3.4.0
     dev: false
 
   /@formkit/utils@1.4.0:
@@ -961,7 +961,7 @@ packages:
       '@formkit/utils': 1.4.0
     dev: false
 
-  /@formkit/vue@1.4.0(tailwindcss@3.3.7)(typescript@5.3.3):
+  /@formkit/vue@1.4.0(tailwindcss@3.4.0)(typescript@5.3.3):
     resolution: {integrity: sha512-qxLJLG/rc0Mv75h9aaBu1SIFo8AZq1mMCa+u4aWQdXf0k/e8Mfuyhkch25c9pfbzSjEpFzs7G7L5U1gMuTcmtQ==}
     dependencies:
       '@formkit/core': 1.4.0
@@ -970,7 +970,7 @@ packages:
       '@formkit/inputs': 1.4.0
       '@formkit/observer': 1.4.0
       '@formkit/rules': 1.4.0
-      '@formkit/themes': 1.4.0(tailwindcss@3.3.7)
+      '@formkit/themes': 1.4.0(tailwindcss@3.4.0)
       '@formkit/utils': 1.4.0
       '@formkit/validation': 1.4.0
       vue: 3.3.13(typescript@5.3.3)
@@ -1286,16 +1286,16 @@ packages:
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
     dev: true
 
-  /@tailwindcss/forms@0.5.7(tailwindcss@3.3.7):
+  /@tailwindcss/forms@0.5.7(tailwindcss@3.4.0):
     resolution: {integrity: sha512-QE7X69iQI+ZXwldE+rzasvbJiyV/ju1FGHH0Qn2W3FKbuYtqp8LKcy6iSw79fVUT5/Vvf+0XgLCeYVG+UV6hOw==}
     peerDependencies:
       tailwindcss: '>=3.0.0 || >= 3.0.0-alpha.1'
     dependencies:
       mini-svg-data-uri: 1.4.4
-      tailwindcss: 3.3.7
+      tailwindcss: 3.4.0
     dev: false
 
-  /@tailwindcss/typography@0.5.10(tailwindcss@3.3.7):
+  /@tailwindcss/typography@0.5.10(tailwindcss@3.4.0):
     resolution: {integrity: sha512-Pe8BuPJQJd3FfRnm6H0ulKIGoMEQS+Vq01R6M5aCrFB/ccR/shT+0kXLjouGC1gFLm9hopTFN+DMP0pfwRWzPw==}
     peerDependencies:
       tailwindcss: '>=3.0.0 || insiders'
@@ -1304,7 +1304,7 @@ packages:
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       postcss-selector-parser: 6.0.10
-      tailwindcss: 3.3.7
+      tailwindcss: 3.4.0
     dev: false
 
   /@tanstack/match-sorter-utils@8.8.4:
@@ -4339,8 +4339,8 @@ packages:
       '@babel/runtime': 7.23.5
     dev: false
 
-  /tailwindcss@3.3.7:
-    resolution: {integrity: sha512-pjgQxDZPvyS/nG3ZYkyCvsbONJl7GdOejfm24iMt2ElYQQw8Jc4p0m8RdMp7mznPD0kUhfzwV3zAwa80qI0zmQ==}
+  /tailwindcss@3.4.0:
+    resolution: {integrity: sha512-VigzymniH77knD1dryXbyxR+ePHihHociZbXnLZHUyzf2MMs2ZVqlUrZ3FvpXP8pno9JzmILt1sZPD19M3IxtA==}
     engines: {node: '>=14.0.0'}
     hasBin: true
     dependencies:
