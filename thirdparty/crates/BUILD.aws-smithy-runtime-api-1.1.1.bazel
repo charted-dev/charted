@@ -51,7 +51,7 @@ rust_library(
         "@crate_index__bytes-1.5.0//:bytes",
         "@crate_index__http-0.2.9//:http",
         "@crate_index__pin-project-lite-0.2.13//:pin_project_lite",
-        "@crate_index__tokio-1.35.0//:tokio",
+        "@crate_index__tokio-1.35.1//:tokio",
         "@crate_index__tracing-0.1.40//:tracing",
         "@crate_index__zeroize-1.6.0//:zeroize",
     ],

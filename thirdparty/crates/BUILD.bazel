@@ -477,7 +477,7 @@ alias(
 
 alias(
     name = "tokio",
-    actual = "@crate_index__tokio-1.35.0//:tokio",
+    actual = "@crate_index__tokio-1.35.1//:tokio",
     tags = ["manual"],
 )
 

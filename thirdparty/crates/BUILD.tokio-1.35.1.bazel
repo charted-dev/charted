@@ -70,7 +70,7 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "1.35.0",
+    version = "1.35.1",
     deps = [
         "@crate_index__bytes-1.5.0//:bytes",
         "@crate_index__mio-0.8.9//:mio",

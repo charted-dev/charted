@@ -30,5 +30,5 @@ eyre = "0.6.11"
 sentry = "0.31.8"
 serde = { version = "1.0.193", features = ["derive"] }
 sqlx = { version = "0.7.3", features = ["chrono", "postgres", "runtime-tokio", "tls-native-tls", "migrate"] }
-tokio = "1.35.0"
+tokio = "1.35.1"
 tracing = "0.1.40"
