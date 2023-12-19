@@ -58,6 +58,6 @@ rust_library(
         "@crate_index__log-0.4.20//:log",
         "@crate_index__remi-core-0.4.3//:remi_core",
         "@crate_index__serde-1.0.193//:serde",
-        "@crate_index__tokio-1.35.0//:tokio",
+        "@crate_index__tokio-1.35.1//:tokio",
     ],
 )

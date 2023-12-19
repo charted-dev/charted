@@ -45,6 +45,6 @@ rust_library(
     deps = [
         "@crate_index__futures-util-0.3.29//:futures_util",
         "@crate_index__pin-project-lite-0.2.13//:pin_project_lite",
-        "@crate_index__tokio-1.35.0//:tokio",
+        "@crate_index__tokio-1.35.1//:tokio",
     ],
 )
