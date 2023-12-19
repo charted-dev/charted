@@ -12,14 +12,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+# This is not implemented as charted-server doesn't support using Bzlmod yet. This is due to
+# (as of 18/12/23) `rules_rust` not being published on Bazel Central Registry (https://registry.bazel.build),
+# so we need to wait and `bazel` in nixpkgs is still pinned at 6.4.0
 
 # buildifier: disable=module-docstring
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-
-def charted_nixpkgs_repositories():
-    http_archive(
-        name = "io_tweag_rules_nixpkgs",
-        sha256 = "980edfceef2e59e1122d9be6c52413bc298435f0a3d452532b8a48d7562ffd67",
-        strip_prefix = "rules_nixpkgs-0.10.0",
-        urls = ["https://github.com/tweag/rules_nixpkgs/releases/download/v0.10.0/rules_nixpkgs-0.10.0.tar.gz"],
-    )
+module(
+    name = "charted-server",
+    version = "0.0.0-devel.0",
+)
