@@ -423,7 +423,7 @@ alias(
 
 alias(
     name = "serde_yaml",
-    actual = "@crate_index__serde_yaml-0.9.27//:serde_yaml",
+    actual = "@crate_index__serde_yaml-0.9.28//:serde_yaml",
     tags = ["manual"],
 )
 
