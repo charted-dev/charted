@@ -52,7 +52,7 @@
     "devDependencies": {
         "@augu/eslint-config": "5.0.0",
         "@augu/tsconfig": "1.2.0",
-        "@intlify/unplugin-vue-i18n": "1.6.0",
+        "@intlify/unplugin-vue-i18n": "2.0.0",
         "@types/luxon": "3.3.7",
         "@types/node": "20.10.5",
         "@typescript-eslint/eslint-plugin": "6.15.0",
