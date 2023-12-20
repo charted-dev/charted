@@ -53,6 +53,6 @@ rust_library(
         "@crate_index__indexmap-2.0.0//:indexmap",
         "@crate_index__serde-1.0.193//:serde",
         "@crate_index__serde_json-1.0.108//:serde_json",
-        "@crate_index__serde_yaml-0.9.27//:serde_yaml",
+        "@crate_index__serde_yaml-0.9.28//:serde_yaml",
     ],
 )

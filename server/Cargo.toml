@@ -65,7 +65,7 @@ sentry-tracing = "0.32.1"
 serde = { version = "1.0.193", features = ["derive"] }
 serde_json = "1.0.108"
 serde_path_to_error = "0.1.14"
-serde_yaml = "0.9.27"
+serde_yaml = "0.9.28"
 sqlx = { version = "0.7.3", features = ["postgres", "runtime-tokio", "tls-native-tls"] }
 tokio = { version = "1.35.1", features = ["full"] }
 tower = { version = "0.4.13", features = ["tracing"] }

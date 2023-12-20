@@ -309,7 +309,7 @@ _NORMAL_DEPENDENCIES = {
             "openssl": "@crate_index__openssl-0.10.61//:openssl",
             "promptly": "@crate_index__promptly-0.3.1//:promptly",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
-            "serde_yaml": "@crate_index__serde_yaml-0.9.27//:serde_yaml",
+            "serde_yaml": "@crate_index__serde_yaml-0.9.28//:serde_yaml",
             "sqlx": "@crate_index__sqlx-0.7.3//:sqlx",
             "sysinfo": "@crate_index__sysinfo-0.29.11//:sysinfo",
             "tokio": "@crate_index__tokio-1.35.1//:tokio",
@@ -373,7 +373,7 @@ _NORMAL_DEPENDENCIES = {
             "remi-fs": "@crate_index__remi-fs-0.4.3//:remi_fs",
             "remi-s3": "@crate_index__remi-s3-0.4.3//:remi_s3",
             "serde": "@crate_index__serde-1.0.193//:serde",
-            "serde_yaml": "@crate_index__serde_yaml-0.9.27//:serde_yaml",
+            "serde_yaml": "@crate_index__serde_yaml-0.9.28//:serde_yaml",
             "thiserror": "@crate_index__thiserror-1.0.51//:thiserror",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
@@ -407,7 +407,7 @@ _NORMAL_DEPENDENCIES = {
             "remi-core": "@crate_index__remi-core-0.4.3//:remi_core",
             "semver": "@crate_index__semver-1.0.20//:semver",
             "sentry": "@crate_index__sentry-0.31.8//:sentry",
-            "serde_yaml": "@crate_index__serde_yaml-0.9.27//:serde_yaml",
+            "serde_yaml": "@crate_index__serde_yaml-0.9.28//:serde_yaml",
             "tar": "@crate_index__tar-0.4.40//:tar",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
         },
@@ -591,7 +591,7 @@ _NORMAL_DEPENDENCIES = {
             "serde": "@crate_index__serde-1.0.193//:serde",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
             "serde_path_to_error": "@crate_index__serde_path_to_error-0.1.14//:serde_path_to_error",
-            "serde_yaml": "@crate_index__serde_yaml-0.9.27//:serde_yaml",
+            "serde_yaml": "@crate_index__serde_yaml-0.9.28//:serde_yaml",
             "sqlx": "@crate_index__sqlx-0.7.3//:sqlx",
             "tokio": "@crate_index__tokio-1.35.1//:tokio",
             "tower": "@crate_index__tower-0.4.13//:tower",
@@ -665,7 +665,7 @@ _NORMAL_DEPENDENCIES = {
             "reqwest": "@crate_index__reqwest-0.11.23//:reqwest",
             "serde": "@crate_index__serde-1.0.193//:serde",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
-            "serde_yaml": "@crate_index__serde_yaml-0.9.27//:serde_yaml",
+            "serde_yaml": "@crate_index__serde_yaml-0.9.28//:serde_yaml",
             "sysinfo": "@crate_index__sysinfo-0.29.11//:sysinfo",
             "tokio": "@crate_index__tokio-1.35.1//:tokio",
             "tracing": "@crate_index__tracing-0.1.40//:tracing",
@@ -5823,12 +5823,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__serde_yaml-0.9.27",
-        sha256 = "3cc7a1570e38322cfe4154732e5110f887ea57e22b76f4bfd32b5bdd3368666c",
+        name = "crate_index__serde_yaml-0.9.28",
+        sha256 = "9269cfafc7e0257ee4a42f3f68a307f458c63d9e7c8ba4b58c5d15f1b7d7e8d3",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/serde_yaml/0.9.27/download"],
-        strip_prefix = "serde_yaml-0.9.27",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.serde_yaml-0.9.27.bazel"),
+        urls = ["https://crates.io/api/v1/crates/serde_yaml/0.9.28/download"],
+        strip_prefix = "serde_yaml-0.9.28",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.serde_yaml-0.9.28.bazel"),
     )
 
     maybe(
@@ -6803,12 +6803,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__unsafe-libyaml-0.2.9",
-        sha256 = "f28467d3e1d3c6586d8f25fa243f544f5800fec42d97032474e17222c2b75cfa",
+        name = "crate_index__unsafe-libyaml-0.2.10",
+        sha256 = "ab4c90930b95a82d00dc9e9ac071b4991924390d46cbd0dfe566148667605e4b",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/unsafe-libyaml/0.2.9/download"],
-        strip_prefix = "unsafe-libyaml-0.2.9",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.unsafe-libyaml-0.2.9.bazel"),
+        urls = ["https://crates.io/api/v1/crates/unsafe-libyaml/0.2.10/download"],
+        strip_prefix = "unsafe-libyaml-0.2.10",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.unsafe-libyaml-0.2.10.bazel"),
     )
 
     maybe(
@@ -7406,7 +7406,7 @@ def crate_repositories():
         struct(repo = "crate_index__serde_json-1.0.108", is_dev_dep = False),
         struct(repo = "crate_index__serde_path_to_error-0.1.14", is_dev_dep = False),
         struct(repo = "crate_index__serde_starlark-0.1.14", is_dev_dep = False),
-        struct(repo = "crate_index__serde_yaml-0.9.27", is_dev_dep = False),
+        struct(repo = "crate_index__serde_yaml-0.9.28", is_dev_dep = False),
         struct(repo = "crate_index__simple_tables-0.3.0", is_dev_dep = False),
         struct(repo = "crate_index__sqlx-0.7.3", is_dev_dep = False),
         struct(repo = "crate_index__starlark-0.10.0", is_dev_dep = False),
