@@ -641,7 +641,7 @@ _NORMAL_DEPENDENCIES = {
             "promptly": "@crate_index__promptly-0.3.1//:promptly",
             "serde": "@crate_index__serde-1.0.193//:serde",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
-            "serde_starlark": "@crate_index__serde_starlark-0.1.14//:serde_starlark",
+            "serde_starlark": "@crate_index__serde_starlark-0.1.15//:serde_starlark",
             "simple_tables": "@crate_index__simple_tables-0.3.0//:simple_tables",
             "starlark": "@crate_index__starlark-0.10.0//:starlark",
             "tokio": "@crate_index__tokio-1.35.1//:tokio",
@@ -5783,12 +5783,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__serde_starlark-0.1.14",
-        sha256 = "29675b116dd4c7ab4012e00e71f6dee9ed8c731108468b4434779c6b9eec7957",
+        name = "crate_index__serde_starlark-0.1.15",
+        sha256 = "e1d3c794ee0c5cb2ca7fc95e6a733bd481a21dd9b816eac83b9a6a4006773e8d",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/serde_starlark/0.1.14/download"],
-        strip_prefix = "serde_starlark-0.1.14",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.serde_starlark-0.1.14.bazel"),
+        urls = ["https://crates.io/api/v1/crates/serde_starlark/0.1.15/download"],
+        strip_prefix = "serde_starlark-0.1.15",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.serde_starlark-0.1.15.bazel"),
     )
 
     maybe(
@@ -7405,7 +7405,7 @@ def crate_repositories():
         struct(repo = "crate_index__serde-1.0.193", is_dev_dep = False),
         struct(repo = "crate_index__serde_json-1.0.108", is_dev_dep = False),
         struct(repo = "crate_index__serde_path_to_error-0.1.14", is_dev_dep = False),
-        struct(repo = "crate_index__serde_starlark-0.1.14", is_dev_dep = False),
+        struct(repo = "crate_index__serde_starlark-0.1.15", is_dev_dep = False),
         struct(repo = "crate_index__serde_yaml-0.9.28", is_dev_dep = False),
         struct(repo = "crate_index__simple_tables-0.3.0", is_dev_dep = False),
         struct(repo = "crate_index__sqlx-0.7.3", is_dev_dep = False),

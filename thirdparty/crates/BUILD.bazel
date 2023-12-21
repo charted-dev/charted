@@ -417,7 +417,7 @@ alias(
 
 alias(
     name = "serde_starlark",
-    actual = "@crate_index__serde_starlark-0.1.14//:serde_starlark",
+    actual = "@crate_index__serde_starlark-0.1.15//:serde_starlark",
     tags = ["manual"],
 )
 

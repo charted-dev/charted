@@ -5034,9 +5034,9 @@ dependencies = [
 
 [[package]]
 name = "serde_starlark"
-version = "0.1.14"
+version = "0.1.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "29675b116dd4c7ab4012e00e71f6dee9ed8c731108468b4434779c6b9eec7957"
+checksum = "e1d3c794ee0c5cb2ca7fc95e6a733bd481a21dd9b816eac83b9a6a4006773e8d"
 dependencies = [
  "serde",
 ]
