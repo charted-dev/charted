@@ -42,7 +42,7 @@ rust_library(
     deps = [
         "@crate_index__beef-0.5.2//:beef",
         "@crate_index__fnv-1.0.7//:fnv",
-        "@crate_index__proc-macro2-1.0.70//:proc_macro2",
+        "@crate_index__proc-macro2-1.0.71//:proc_macro2",
         "@crate_index__quote-1.0.33//:quote",
         "@crate_index__regex-syntax-0.6.29//:regex_syntax",
         "@crate_index__syn-2.0.42//:syn",

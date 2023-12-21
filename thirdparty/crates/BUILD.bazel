@@ -291,7 +291,7 @@ alias(
 
 alias(
     name = "proc-macro2",
-    actual = "@crate_index__proc-macro2-1.0.70//:proc_macro2",
+    actual = "@crate_index__proc-macro2-1.0.71//:proc_macro2",
     tags = ["manual"],
 )
 
