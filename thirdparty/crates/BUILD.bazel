@@ -45,7 +45,7 @@ alias(
 
 alias(
     name = "async-trait",
-    actual = "@crate_index__async-trait-0.1.74//:async_trait",
+    actual = "@crate_index__async-trait-0.1.75//:async_trait",
     tags = ["manual"],
 )
 
