@@ -44,7 +44,7 @@ rust_library(
     version = "0.5.2",
     deps = [
         "@crate_index__Inflector-0.11.4//:inflector",
-        "@crate_index__proc-macro2-1.0.70//:proc_macro2",
+        "@crate_index__proc-macro2-1.0.71//:proc_macro2",
         "@crate_index__quote-1.0.33//:quote",
         "@crate_index__schemafy_core-0.5.2//:schemafy_core",
         "@crate_index__serde-1.0.193//:serde",

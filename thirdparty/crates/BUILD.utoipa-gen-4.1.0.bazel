@@ -47,7 +47,7 @@ rust_proc_macro(
     version = "4.1.0",
     deps = [
         "@crate_index__proc-macro-error-1.0.4//:proc_macro_error",
-        "@crate_index__proc-macro2-1.0.70//:proc_macro2",
+        "@crate_index__proc-macro2-1.0.71//:proc_macro2",
         "@crate_index__quote-1.0.33//:quote",
         "@crate_index__regex-1.10.2//:regex",
         "@crate_index__syn-2.0.42//:syn",
