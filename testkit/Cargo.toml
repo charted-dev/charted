@@ -22,7 +22,7 @@ homepage = "https://charts.noelware.org"
 authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
 [dependencies]
-async-trait = "0.1.74"
+async-trait = "0.1.75"
 axum = "0.6.20"
 bytes = "1.5.0"
 eyre = "0.6.11"
