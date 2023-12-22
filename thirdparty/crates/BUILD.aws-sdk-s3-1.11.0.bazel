@@ -44,7 +44,7 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "1.10.0",
+    version = "1.11.0",
     deps = [
         "@crate_index__aws-credential-types-1.1.1//:aws_credential_types",
         "@crate_index__aws-http-0.60.1//:aws_http",
