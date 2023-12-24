@@ -11,11 +11,11 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 # licenses([
-#     "TODO",  # Apache-2.0 OR MIT
+#     "TODO",  # MIT OR Apache-2.0
 # ])
 
 rust_library(
-    name = "futures_lite",
+    name = "futures_io",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -29,33 +29,18 @@ rust_library(
         ],
     ),
     crate_features = [
-        "alloc",
         "default",
-        "fastrand",
-        "futures-io",
-        "memchr",
-        "parking",
         "std",
-        "waker-fn",
     ],
     crate_root = "src/lib.rs",
     edition = "2018",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=futures-lite",
+        "crate-name=futures-io",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "1.13.0",
-    deps = [
-        "@crate_index__fastrand-1.9.0//:fastrand",
-        "@crate_index__futures-core-0.3.30//:futures_core",
-        "@crate_index__futures-io-0.3.30//:futures_io",
-        "@crate_index__memchr-2.6.3//:memchr",
-        "@crate_index__parking-2.1.0//:parking",
-        "@crate_index__pin-project-lite-0.2.13//:pin_project_lite",
-        "@crate_index__waker-fn-1.1.0//:waker_fn",
-    ],
+    version = "0.3.30",
 )

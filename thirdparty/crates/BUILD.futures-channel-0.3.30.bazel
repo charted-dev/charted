@@ -6,7 +6,6 @@
 #     bazel run @//thirdparty:crate_index
 ###############################################################################
 
-load("@rules_rust//cargo:defs.bzl", "cargo_build_script")
 load("@rules_rust//rust:defs.bzl", "rust_library")
 
 package(default_visibility = ["//visibility:public"])
@@ -46,54 +45,9 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.3.29",
+    version = "0.3.30",
     deps = [
-        "@crate_index__futures-channel-0.3.29//:build_script_build",
-        "@crate_index__futures-core-0.3.29//:futures_core",
-        "@crate_index__futures-sink-0.3.29//:futures_sink",
+        "@crate_index__futures-core-0.3.30//:futures_core",
+        "@crate_index__futures-sink-0.3.30//:futures_sink",
     ],
-)
-
-cargo_build_script(
-    name = "futures-channel_build_script",
-    srcs = glob(["**/*.rs"]),
-    crate_features = [
-        "alloc",
-        "default",
-        "futures-sink",
-        "sink",
-        "std",
-    ],
-    crate_name = "build_script_build",
-    crate_root = "build.rs",
-    data = glob(
-        include = ["**"],
-        exclude = [
-            "**/* *",
-            ".tmp_git_root/**/*",
-            "BUILD",
-            "BUILD.bazel",
-            "WORKSPACE",
-            "WORKSPACE.bazel",
-        ],
-    ),
-    edition = "2018",
-    rustc_flags = [
-        "--cap-lints=allow",
-    ],
-    tags = [
-        "cargo-bazel",
-        "crate-name=futures-channel",
-        "manual",
-        "noclippy",
-        "norustfmt",
-    ],
-    version = "0.3.29",
-    visibility = ["//visibility:private"],
-)
-
-alias(
-    name = "build_script_build",
-    actual = "futures-channel_build_script",
-    tags = ["manual"],
 )

@@ -52,7 +52,7 @@ rust_library(
     ],
     version = "0.24.1",
     deps = [
-        "@crate_index__futures-util-0.3.29//:futures_util",
+        "@crate_index__futures-util-0.3.30//:futures_util",
         "@crate_index__http-0.2.9//:http",
         "@crate_index__hyper-0.14.28//:hyper",
         "@crate_index__log-0.4.20//:log",

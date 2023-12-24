@@ -48,7 +48,7 @@ charted-storage = { version = "0.0.0-devel.0", path = "../crates/storage" }
 chrono = "0.4.31"
 erased-serde = "0.4.1"
 eyre = "0.6.11"
-futures-util = "0.3.29"
+futures-util = "0.3.30"
 jsonwebtoken = "9.2.0"
 mime = "0.3.17"
 multer = { version = "3.0.0", features = ["tokio-io"] }

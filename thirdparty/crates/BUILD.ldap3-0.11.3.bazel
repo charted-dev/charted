@@ -53,7 +53,7 @@ rust_library(
     deps = [
         "@crate_index__bytes-1.5.0//:bytes",
         "@crate_index__futures-0.3.29//:futures",
-        "@crate_index__futures-util-0.3.29//:futures_util",
+        "@crate_index__futures-util-0.3.30//:futures_util",
         "@crate_index__lazy_static-1.4.0//:lazy_static",
         "@crate_index__lber-0.4.2//:lber",
         "@crate_index__log-0.4.20//:log",
