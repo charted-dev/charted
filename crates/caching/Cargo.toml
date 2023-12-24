@@ -27,7 +27,7 @@ charted-common = { version = "0.0.0-devel.0", path = "../common" }
 charted-config = { version = "0.0.0-devel.0", path = "../config" }
 charted-redis = { version = "0.0.0-devel.0", path = "../redis" }
 eyre = "0.6.11"
-futures-util = "0.3.29"
+futures-util = "0.3.30"
 moka = { version = "0.12.1", features = ["future", "logging"] }
 redis = "0.24.0"
 serde = "1.0.193"

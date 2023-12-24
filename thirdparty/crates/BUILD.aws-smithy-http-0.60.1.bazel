@@ -49,7 +49,7 @@ rust_library(
         "@crate_index__aws-smithy-types-1.1.1//:aws_smithy_types",
         "@crate_index__bytes-1.5.0//:bytes",
         "@crate_index__bytes-utils-0.1.3//:bytes_utils",
-        "@crate_index__futures-core-0.3.29//:futures_core",
+        "@crate_index__futures-core-0.3.30//:futures_core",
         "@crate_index__http-0.2.9//:http",
         "@crate_index__http-body-0.4.5//:http_body",
         "@crate_index__once_cell-1.19.0//:once_cell",

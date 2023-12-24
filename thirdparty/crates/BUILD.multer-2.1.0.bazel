@@ -46,7 +46,7 @@ rust_library(
     deps = [
         "@crate_index__bytes-1.5.0//:bytes",
         "@crate_index__encoding_rs-0.8.33//:encoding_rs",
-        "@crate_index__futures-util-0.3.29//:futures_util",
+        "@crate_index__futures-util-0.3.30//:futures_util",
         "@crate_index__http-0.2.9//:http",
         "@crate_index__httparse-1.8.0//:httparse",
         "@crate_index__log-0.4.20//:log",

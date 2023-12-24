@@ -42,6 +42,6 @@ rust_library(
     deps = [
         "@crate_index__concurrent-queue-2.2.0//:concurrent_queue",
         "@crate_index__event-listener-2.5.3//:event_listener",
-        "@crate_index__futures-core-0.3.29//:futures_core",
+        "@crate_index__futures-core-0.3.30//:futures_core",
     ],
 )

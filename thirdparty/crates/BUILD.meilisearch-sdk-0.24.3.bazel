@@ -60,31 +60,31 @@ rust_library(
     ] + select({
         "@rules_rust//rust/platform:aarch64-apple-darwin": [
             "@crate_index__futures-0.3.29//:futures",  # cfg(not(target_arch = "wasm32"))
-            "@crate_index__futures-io-0.3.29//:futures_io",  # cfg(not(target_arch = "wasm32"))
+            "@crate_index__futures-io-0.3.30//:futures_io",  # cfg(not(target_arch = "wasm32"))
             "@crate_index__isahc-1.7.2//:isahc",  # cfg(not(target_arch = "wasm32"))
             "@crate_index__uuid-1.6.1//:uuid",  # cfg(not(target_arch = "wasm32"))
         ],
         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
             "@crate_index__futures-0.3.29//:futures",  # cfg(not(target_arch = "wasm32"))
-            "@crate_index__futures-io-0.3.29//:futures_io",  # cfg(not(target_arch = "wasm32"))
+            "@crate_index__futures-io-0.3.30//:futures_io",  # cfg(not(target_arch = "wasm32"))
             "@crate_index__isahc-1.7.2//:isahc",  # cfg(not(target_arch = "wasm32"))
             "@crate_index__uuid-1.6.1//:uuid",  # cfg(not(target_arch = "wasm32"))
         ],
         "@rules_rust//rust/platform:x86_64-apple-darwin": [
             "@crate_index__futures-0.3.29//:futures",  # cfg(not(target_arch = "wasm32"))
-            "@crate_index__futures-io-0.3.29//:futures_io",  # cfg(not(target_arch = "wasm32"))
+            "@crate_index__futures-io-0.3.30//:futures_io",  # cfg(not(target_arch = "wasm32"))
             "@crate_index__isahc-1.7.2//:isahc",  # cfg(not(target_arch = "wasm32"))
             "@crate_index__uuid-1.6.1//:uuid",  # cfg(not(target_arch = "wasm32"))
         ],
         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [
             "@crate_index__futures-0.3.29//:futures",  # cfg(not(target_arch = "wasm32"))
-            "@crate_index__futures-io-0.3.29//:futures_io",  # cfg(not(target_arch = "wasm32"))
+            "@crate_index__futures-io-0.3.30//:futures_io",  # cfg(not(target_arch = "wasm32"))
             "@crate_index__isahc-1.7.2//:isahc",  # cfg(not(target_arch = "wasm32"))
             "@crate_index__uuid-1.6.1//:uuid",  # cfg(not(target_arch = "wasm32"))
         ],
         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
             "@crate_index__futures-0.3.29//:futures",  # cfg(not(target_arch = "wasm32"))
-            "@crate_index__futures-io-0.3.29//:futures_io",  # cfg(not(target_arch = "wasm32"))
+            "@crate_index__futures-io-0.3.30//:futures_io",  # cfg(not(target_arch = "wasm32"))
             "@crate_index__isahc-1.7.2//:isahc",  # cfg(not(target_arch = "wasm32"))
             "@crate_index__uuid-1.6.1//:uuid",  # cfg(not(target_arch = "wasm32"))
         ],
