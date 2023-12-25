@@ -70,6 +70,9 @@ jobs:
             - name: Setup Rust cache
               uses: Swatinem/rust-cache@v2
 
+            - name: Install `protoc`
+              uses: Noelware/setup-protoc@1.1.0
+
             - name: Build project
               run: cargo build --all-features
 
