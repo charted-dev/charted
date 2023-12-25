@@ -41,42 +41,23 @@ done
 SCRIPT_DIR=$(cd -P "$(dirname $BASH_SRC)" >/dev/null 2>&1 && pwd)
 ! [ -d "$SCRIPT_DIR/.cache" ] && mkdir "$SCRIPT_DIR/.cache"
 
-BAZEL=${BAZEL:-bazel}
-BAZEL_ARGS=${BAZEL_ARGS:-}
-BAZEL_STARTUP_ARGS=${BAZEL_STARTUP_ARGS:-}
+CARGO=${CARGO:-cargo}
+BAZEL_ARGS=${CARGO_ARGS:-}
+REBUILD=${DEV_REBUILD:-}
 
-# Allow the use of 'bazelisk' when using ./dev
-if [[ "x$BAZEL" == "xbazel" ]] && command -v bazelisk >/dev/null; then
-    BAZEL=$(which bazelisk)
+if [[ "x$CARGO" == "xcargo" ]] && ! command -v cargo >/dev/null; then
+    devtools::fatal "Unable to find \`cargo\` installed! Did you install \`rustup\`?"
 fi
 
-# Check if we have Bazel installed
-# TODO(@auguwu): allow the option to download it.
-if [[ "x$BAZEL" == "xbazel" ]] && ! command -v bazel >/dev/null; then
-    devtools::fatal "unable to find \`bazel\` binary!"
+if ! [[ -f "$SCRIPT_DIR/.cache/dev" || "x$REBUILD" != "x" ]]; then
+    [[ "x$REBUILD" != "x" && -f "$SCRIPT_DIR/.cache/dev" ]] && rm -rf "$SCRIPT_DIR/.cache/dev"
+
+    devtools::log "Compiling \`charted-devtools\` binary!"
+    devtools::log "$ $CARGO build --release $CARGO_ARGS --bin charted-devtools"
+
+    "$CARGO" build --release $CARGO_ARGS --bin charted-devtools
+    cp $SCRIPT_DIR/target/release/charted-devtools $SCRIPT_DIR/.cache/dev
 fi
 
-if [[ "$1" == "sync-deps" ]]; then
-    . "$SCRIPT_DIR/scripts/sync_deps.sh"
-    exit 0
-fi
-
-if [[ "$1" == "update-node" ]]; then
-    . "$SCRIPT_DIR/scripts/update-node.sh"
-
-    exit 0
-fi
-
-if [[ ! -f "$SCRIPT_DIR/.cache/dev" || "x${DEV_REBUILD:-}" != "x" ]]; then
-    # if DEV_REBUILD was set and .cache/dev exists, then remove the old binary
-    [[ "x${DEV_REBUILD:-}" != "x" && -f "$SCRIPT_DIR/.cache/dev" ]] && rm -f "$SCRIPT_DIR/.cache/dev"
-
-    echo "===> Compiling devtools binary!"
-    echo "===> $ $BAZEL $BAZEL_STARTUP_ARGS build $BAZEL_ARGS --compilation_mode=opt //:devtools" | xargs
-
-    $BAZEL $BAZEL_STARTUP_ARGS build $BAZEL_ARGS --compilation_mode=opt //:devtools
-    cp "$SCRIPT_DIR/bazel-bin/tools/devtools/devtools" "$SCRIPT_DIR/.cache/dev"
-fi
-
-echo "$ ./dev $@"
-"$SCRIPT_DIR/.cache/dev" "$@"
+devtools::log "$ ./dev $*"
+"$SCRIPT_DIR/.cache/dev" $*
