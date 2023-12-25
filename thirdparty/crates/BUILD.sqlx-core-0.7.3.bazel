@@ -88,7 +88,7 @@ rust_library(
         "@crate_index__sha2-0.10.7//:sha2",
         "@crate_index__smallvec-1.11.0//:smallvec",
         "@crate_index__sqlformat-0.2.2//:sqlformat",
-        "@crate_index__thiserror-1.0.51//:thiserror",
+        "@crate_index__thiserror-1.0.52//:thiserror",
         "@crate_index__tokio-1.35.1//:tokio",
         "@crate_index__tokio-stream-0.1.14//:tokio_stream",
         "@crate_index__tracing-0.1.40//:tracing",

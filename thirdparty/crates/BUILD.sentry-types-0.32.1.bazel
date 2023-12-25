@@ -49,7 +49,7 @@ rust_library(
         "@crate_index__rand-0.8.5//:rand",
         "@crate_index__serde-1.0.193//:serde",
         "@crate_index__serde_json-1.0.108//:serde_json",
-        "@crate_index__thiserror-1.0.51//:thiserror",
+        "@crate_index__thiserror-1.0.52//:thiserror",
         "@crate_index__time-0.3.28//:time",
         "@crate_index__url-2.5.0//:url",
         "@crate_index__uuid-1.6.1//:uuid",
