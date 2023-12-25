@@ -46,7 +46,7 @@ rust_proc_macro(
         "@crate_index__proc-macro2-1.0.71//:proc_macro2",
         "@crate_index__quote-1.0.33//:quote",
         "@crate_index__rust-embed-utils-8.1.0//:rust_embed_utils",
-        "@crate_index__syn-2.0.42//:syn",
+        "@crate_index__syn-2.0.43//:syn",
         "@crate_index__walkdir-2.4.0//:walkdir",
     ],
 )

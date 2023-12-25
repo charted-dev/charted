@@ -28,7 +28,7 @@ proc-macro = true
 charted-proc-macros = { version = "0.0.0-devel.0", path = "../../proc-macros" }
 proc-macro2 = "1.0.71"
 quote = "1.0.33"
-syn = "2.0.42"
+syn = "2.0.43"
 
 [dev-dependencies]
 utoipa = "4.1.0"
