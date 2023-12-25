@@ -15,14 +15,26 @@
 {
   description = "🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust";
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
+    nixpkgs.url = github:NixOS/nixpkgs/nixpkgs-unstable;
+    flake-utils.url = github:numtide/flake-utils;
     rust-overlay = {
-      url = "github:oxalica/rust-overlay";
+      url = github:oxalica/rust-overlay;
       inputs = {
         nixpkgs.follows = "nixpkgs";
         flake-utils.follows = "flake-utils";
       };
+    };
+
+    crane = {
+      url = github:ipetkov/crane;
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+      };
+    };
+
+    flake-compat = {
+      url = github:edolstra/flake-compat;
+      flake = false;
     };
   };
 
@@ -31,15 +43,18 @@
     nixpkgs,
     flake-utils,
     rust-overlay,
+    crane,
+    ...
   }:
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = import nixpkgs {
         inherit system;
 
         overlays = [(import rust-overlay)];
-        config.allowUnfree = true; # im so sorry stallman senpai :(
+        config.allowUnfree = true; # sorry stallman senpai :(
       };
 
+      rust = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
       stdenv =
         if pkgs.stdenv.isLinux
         then pkgs.stdenv
@@ -56,44 +71,78 @@
         then ''-C link-arg=-fuse-ld=mold -C target-cpu=native $RUSTFLAGS''
         else ''$RUSTFLAGS'';
 
-      rust = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
-      bazel = pkgs.bazel_6;
-    in {
-      devShells.default = pkgs.mkShell {
-        # TODO(@auguwu): uncomment once we are in a release of `rules_rust`, not
-        #                in a commit.
-        #
-        # NIX_LD = "${stdenv.cc}/nix-support/dynamic-linker";
-        # NIX_LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath (with pkgs; [
-        #   stdenv.cc.cc
-        #   openssl
-        #   curl
-        # ]);
+      craneLib = crane.lib.${system};
+      commonCraneArgs = {
+        src = craneLib.cleanCargoSource (craneLib.path ./.);
+        buildInputs = with pkgs; [openssl];
+        nativeBuildInputs = with pkgs; [pkg-config];
+      };
 
+      commonRustPlatformArgs = {
+        version = "0.1.0-beta";
+        src = ./.;
+        cargoBuildFlags = "-C lto=true -C opt-level=s -C strip=symbols";
+        cargoLock = {lockFile = ./Cargo.lock;};
+      };
+
+      dependencies = craneLib.buildDepsOnly (commonCraneArgs
+        // {
+          pname = "charted-deps";
+        });
+
+      clippy = craneLib.cargoClippy (commonCraneArgs
+        // {
+          inherit dependencies;
+
+          pname = "charted-clippy";
+        });
+
+      charted-cli = pkgs.rustPlatform.buildRustPackage (commonRustPlatformArgs
+        // {
+          pname = "charted";
+
+          nativeBuildInputs = with pkgs; [pkg-config];
+          PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
+        });
+
+      charted-helm-plugin = pkgs.rustPlatform.buildRustPackage (commonRustPlatformArgs
+        // {
+          pname = "charted-helm-plugin";
+
+          nativeBuildInputs = with pkgs; [pkg-config];
+          PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
+        });
+    in rec {
+      packages = {
+        charted = charted-cli;
+        helm-plugin = charted-helm-plugin;
+        all = pkgs.symlinkJoin {
+          name = "charted";
+          paths = [charted-cli charted-helm-plugin];
+        };
+
+        default = packages.all;
+      };
+
+      devShells.default = pkgs.mkShell {
+        LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath (with pkgs; [openssl]);
         nativeBuildInputs = with pkgs;
-          [pkg-config git]
-          ++ (lib.optional stdenv.isLinux [mold lldb])
+          [pkg-config]
+          ++ (lib.optional stdenv.isLinux [mold])
           ++ (lib.optional stdenv.isDarwin [darwin.apple_sdk.frameworks.CoreFoundation]);
 
         buildInputs = with pkgs; [
-          nodePackages.pnpm
-
           cargo-expand
           terraform
-          nodejs_20
-          clang_16
           openssl
-          bazel_6
-          cargo
-          llvm
-          mold
+          glibc
           rust
           git
+          bun
         ];
 
         shellHook = ''
-          export LD_LIBRARY_PATH="${pkgs.openssl.out}/lib"
-          export RUSTFLAGS="--cfg tokio_unstable ${rustflags}"
+          export RUSTFLAGS="--cfg tokio_unstable ${rustflags}";
         '';
       };
     });
