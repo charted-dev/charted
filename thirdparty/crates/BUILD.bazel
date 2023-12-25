@@ -447,7 +447,7 @@ alias(
 
 alias(
     name = "syn",
-    actual = "@crate_index__syn-2.0.42//:syn",
+    actual = "@crate_index__syn-2.0.43//:syn",
     tags = ["manual"],
 )
 
