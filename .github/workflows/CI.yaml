@@ -73,6 +73,16 @@ jobs:
             - name: Install `protoc`
               uses: Noelware/setup-protoc@1.1.0
 
+            - name: Setup `vcpkg`
+              if: matrix.runner == 'windows-latest'
+              uses: friendlyanon/setup-vcpkg@v1.5.1
+              with:
+                committish: f1c6efee2245009540dde947e0e3d008f3aa7dbb
+
+            - name: Install OpenSSL on Windows with `vcpkg`
+              if: matrix.runner == 'windows-latest'
+              run: vcpkg install openssl:x64-windows
+
             - name: Build project
               run: cargo build --all-features
 
