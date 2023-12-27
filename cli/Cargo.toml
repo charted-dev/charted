@@ -26,7 +26,7 @@ ansi_term = "0.12.1"
 async-trait = "0.1.75"
 chrono = "0.4.31"
 clap = { version = "4.4.11", features = ["derive", "env"] }
-clap_complete = "4.4.4"
+clap_complete = "4.4.5"
 charted-common = { path = "../crates/common", version = "0.0.0-devel.0" }
 charted-config = { path = "../crates/config", version = "0.0.0-devel.0" }
 charted-database = { version = "0.0.0-devel.0", path = "../crates/database" }
