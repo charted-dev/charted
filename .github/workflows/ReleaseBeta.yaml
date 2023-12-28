@@ -14,9 +14,6 @@
 # limitations under the License.
 
 name: Release CI (Beta)
-concurrency:
-    group: charted-release-ci[beta]-${{ github.ref }}
-    cancel-in-progress: true
 on:
     push:
         tags:
