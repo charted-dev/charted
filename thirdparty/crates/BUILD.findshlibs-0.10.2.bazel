@@ -42,7 +42,7 @@ rust_library(
     version = "0.10.2",
     deps = [
         "@crate_index__findshlibs-0.10.2//:build_script_build",
-        "@crate_index__libc-0.2.149//:libc",
+        "@crate_index__libc-0.2.151//:libc",
     ] + select({
         "@rules_rust//rust/platform:aarch64-apple-darwin": [
             "@crate_index__lazy_static-1.4.0//:lazy_static",  # cfg(any(target_os = "macos", target_os = "ios"))

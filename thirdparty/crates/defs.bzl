@@ -821,7 +821,7 @@ _NORMAL_DEV_DEPENDENCIES = {
     "crates/helm-charts": {
         _COMMON_CONDITION: {
             "remi-fs": "@crate_index__remi-fs-0.4.3//:remi_fs",
-            "tempfile": "@crate_index__tempfile-3.8.1//:tempfile",
+            "tempfile": "@crate_index__tempfile-3.9.0//:tempfile",
             "tokio": "@crate_index__tokio-1.35.1//:tokio",
         },
     },
@@ -1592,7 +1592,6 @@ _CONDITIONS = {
     "cfg(target_env = \"msvc\")": ["@rules_rust//rust/platform:x86_64-pc-windows-msvc"],
     "cfg(target_feature = \"atomics\")": [],
     "cfg(target_os = \"android\")": [],
-    "cfg(target_os = \"dragonfly\")": [],
     "cfg(target_os = \"haiku\")": [],
     "cfg(target_os = \"hermit\")": [],
     "cfg(target_os = \"ios\")": [],
@@ -3173,22 +3172,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__errno-0.3.3",
-        sha256 = "136526188508e25c6fef639d7927dfb3e0e3084488bf202267829cf7fc23dbdd",
+        name = "crate_index__errno-0.3.8",
+        sha256 = "a258e46cdc063eb8519c00b9fc845fc47bcfca4130e2f08e88665ceda8474245",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/errno/0.3.3/download"],
-        strip_prefix = "errno-0.3.3",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.errno-0.3.3.bazel"),
-    )
-
-    maybe(
-        http_archive,
-        name = "crate_index__errno-dragonfly-0.1.2",
-        sha256 = "aa68f1b12764fab894d2755d2518754e71b4fd80ecfb822714a1206c2aab39bf",
-        type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/errno-dragonfly/0.1.2/download"],
-        strip_prefix = "errno-dragonfly-0.1.2",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.errno-dragonfly-0.1.2.bazel"),
+        urls = ["https://crates.io/api/v1/crates/errno/0.3.8/download"],
+        strip_prefix = "errno-0.3.8",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.errno-0.3.8.bazel"),
     )
 
     maybe(
@@ -4083,12 +4072,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__libc-0.2.149",
-        sha256 = "a08173bc88b7955d1b3145aa561539096c421ac8debde8cbc3612ec635fee29b",
+        name = "crate_index__libc-0.2.151",
+        sha256 = "302d7ab3130588088d277783b1e2d2e10c9e9e4a16dd9050e6ec93fb3e7048f4",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/libc/0.2.149/download"],
-        strip_prefix = "libc-0.2.149",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.libc-0.2.149.bazel"),
+        urls = ["https://crates.io/api/v1/crates/libc/0.2.151/download"],
+        strip_prefix = "libc-0.2.151",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.libc-0.2.151.bazel"),
     )
 
     maybe(
@@ -4143,12 +4132,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__linux-raw-sys-0.4.10",
-        sha256 = "da2479e8c062e40bf0066ffa0bc823de0a9368974af99c9f6df941d2c231e03f",
+        name = "crate_index__linux-raw-sys-0.4.12",
+        sha256 = "c4cd1a83af159aa67994778be9070f0ae1bd732942279cabb14f86f986a21456",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/linux-raw-sys/0.4.10/download"],
-        strip_prefix = "linux-raw-sys-0.4.10",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.linux-raw-sys-0.4.10.bazel"),
+        urls = ["https://crates.io/api/v1/crates/linux-raw-sys/0.4.12/download"],
+        strip_prefix = "linux-raw-sys-0.4.12",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.linux-raw-sys-0.4.12.bazel"),
     )
 
     maybe(
@@ -5373,12 +5362,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__rustix-0.38.21",
-        sha256 = "2b426b0506e5d50a7d8dafcf2e81471400deb602392c7dd110815afb4eaf02a3",
+        name = "crate_index__rustix-0.38.28",
+        sha256 = "72e572a5e8ca657d7366229cdde4bd14c4eb5499a9573d4d366fe1b599daa316",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/rustix/0.38.21/download"],
-        strip_prefix = "rustix-0.38.21",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.rustix-0.38.21.bazel"),
+        urls = ["https://crates.io/api/v1/crates/rustix/0.38.28/download"],
+        strip_prefix = "rustix-0.38.28",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.rustix-0.38.28.bazel"),
     )
 
     maybe(
@@ -6313,12 +6302,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__tempfile-3.8.1",
-        sha256 = "7ef1adac450ad7f4b3c28589471ade84f25f731a7a0fe30d71dfa9f60fd808e5",
+        name = "crate_index__tempfile-3.9.0",
+        sha256 = "01ce4141aa927a6d1bd34a041795abd0db1cccba5d5f24b009f694bdf3a1f3fa",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/tempfile/3.8.1/download"],
-        strip_prefix = "tempfile-3.8.1",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tempfile-3.8.1.bazel"),
+        urls = ["https://crates.io/api/v1/crates/tempfile/3.9.0/download"],
+        strip_prefix = "tempfile-3.9.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.tempfile-3.9.0.bazel"),
     )
 
     maybe(
@@ -7183,12 +7172,32 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crate_index__windows-sys-0.52.0",
+        sha256 = "282be5f36a8ce781fad8c8ae18fa3f9beff57ec1b52cb3de0789201425d9a33d",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/windows-sys/0.52.0/download"],
+        strip_prefix = "windows-sys-0.52.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.windows-sys-0.52.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crate_index__windows-targets-0.48.5",
         sha256 = "9a2fa6e2155d7247be68c096456083145c183cbbbc2764150dda45a87197940c",
         type = "tar.gz",
         urls = ["https://crates.io/api/v1/crates/windows-targets/0.48.5/download"],
         strip_prefix = "windows-targets-0.48.5",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.windows-targets-0.48.5.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__windows-targets-0.52.0",
+        sha256 = "8a18201040b24831fbb9e4eb208f8892e1f50a37feb53cc7ff887feb8f50e7cd",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/windows-targets/0.52.0/download"],
+        strip_prefix = "windows-targets-0.52.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.windows-targets-0.52.0.bazel"),
     )
 
     maybe(
@@ -7203,12 +7212,32 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crate_index__windows_aarch64_gnullvm-0.52.0",
+        sha256 = "cb7764e35d4db8a7921e09562a0304bf2f93e0a51bfccee0bd0bb0b666b015ea",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/windows_aarch64_gnullvm/0.52.0/download"],
+        strip_prefix = "windows_aarch64_gnullvm-0.52.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.windows_aarch64_gnullvm-0.52.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crate_index__windows_aarch64_msvc-0.48.5",
         sha256 = "dc35310971f3b2dbbf3f0690a219f40e2d9afcf64f9ab7cc1be722937c26b4bc",
         type = "tar.gz",
         urls = ["https://crates.io/api/v1/crates/windows_aarch64_msvc/0.48.5/download"],
         strip_prefix = "windows_aarch64_msvc-0.48.5",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.windows_aarch64_msvc-0.48.5.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__windows_aarch64_msvc-0.52.0",
+        sha256 = "bbaa0368d4f1d2aaefc55b6fcfee13f41544ddf36801e793edbbfd7d7df075ef",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/windows_aarch64_msvc/0.52.0/download"],
+        strip_prefix = "windows_aarch64_msvc-0.52.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.windows_aarch64_msvc-0.52.0.bazel"),
     )
 
     maybe(
@@ -7223,12 +7252,32 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crate_index__windows_i686_gnu-0.52.0",
+        sha256 = "a28637cb1fa3560a16915793afb20081aba2c92ee8af57b4d5f28e4b3e7df313",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/windows_i686_gnu/0.52.0/download"],
+        strip_prefix = "windows_i686_gnu-0.52.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.windows_i686_gnu-0.52.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crate_index__windows_i686_msvc-0.48.5",
         sha256 = "8f55c233f70c4b27f66c523580f78f1004e8b5a8b659e05a4eb49d4166cca406",
         type = "tar.gz",
         urls = ["https://crates.io/api/v1/crates/windows_i686_msvc/0.48.5/download"],
         strip_prefix = "windows_i686_msvc-0.48.5",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.windows_i686_msvc-0.48.5.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__windows_i686_msvc-0.52.0",
+        sha256 = "ffe5e8e31046ce6230cc7215707b816e339ff4d4d67c65dffa206fd0f7aa7b9a",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/windows_i686_msvc/0.52.0/download"],
+        strip_prefix = "windows_i686_msvc-0.52.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.windows_i686_msvc-0.52.0.bazel"),
     )
 
     maybe(
@@ -7243,6 +7292,16 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crate_index__windows_x86_64_gnu-0.52.0",
+        sha256 = "3d6fa32db2bc4a2f5abeacf2b69f7992cd09dca97498da74a151a3132c26befd",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/windows_x86_64_gnu/0.52.0/download"],
+        strip_prefix = "windows_x86_64_gnu-0.52.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.windows_x86_64_gnu-0.52.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crate_index__windows_x86_64_gnullvm-0.48.5",
         sha256 = "0b7b52767868a23d5bab768e390dc5f5c55825b6d30b86c844ff2dc7414044cc",
         type = "tar.gz",
@@ -7253,12 +7312,32 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "crate_index__windows_x86_64_gnullvm-0.52.0",
+        sha256 = "1a657e1e9d3f514745a572a6846d3c7aa7dbe1658c056ed9c3344c4109a6949e",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/windows_x86_64_gnullvm/0.52.0/download"],
+        strip_prefix = "windows_x86_64_gnullvm-0.52.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.windows_x86_64_gnullvm-0.52.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "crate_index__windows_x86_64_msvc-0.48.5",
         sha256 = "ed94fce61571a4006852b7389a063ab983c02eb1bb37b47f8272ce92d06d9538",
         type = "tar.gz",
         urls = ["https://crates.io/api/v1/crates/windows_x86_64_msvc/0.48.5/download"],
         strip_prefix = "windows_x86_64_msvc-0.48.5",
         build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.windows_x86_64_msvc-0.48.5.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "crate_index__windows_x86_64_msvc-0.52.0",
+        sha256 = "dff9641d1cd4be8d1a070daf9e3773c5f67e78b4d9d42263020c057706765c04",
+        type = "tar.gz",
+        urls = ["https://crates.io/api/v1/crates/windows_x86_64_msvc/0.52.0/download"],
+        strip_prefix = "windows_x86_64_msvc-0.52.0",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.windows_x86_64_msvc-0.52.0.bazel"),
     )
 
     maybe(
@@ -7430,5 +7509,5 @@ def crate_repositories():
         struct(repo = "crate_index__uuid-1.6.1", is_dev_dep = False),
         struct(repo = "crate_index__validator-0.16.1", is_dev_dep = False),
         struct(repo = "crate_index__which-5.0.0", is_dev_dep = False),
-        struct(repo = "crate_index__tempfile-3.8.1", is_dev_dep = True),
+        struct(repo = "crate_index__tempfile-3.9.0", is_dev_dep = True),
     ]

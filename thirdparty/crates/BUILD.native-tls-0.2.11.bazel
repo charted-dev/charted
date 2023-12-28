@@ -45,10 +45,10 @@ rust_library(
     ] + select({
         "@rules_rust//rust/platform:aarch64-apple-darwin": [
             "@crate_index__lazy_static-1.4.0//:lazy_static",  # cfg(any(target_os = "macos", target_os = "ios"))
-            "@crate_index__libc-0.2.149//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
+            "@crate_index__libc-0.2.151//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
             "@crate_index__security-framework-2.9.2//:security_framework",  # cfg(any(target_os = "macos", target_os = "ios"))
             "@crate_index__security-framework-sys-2.9.1//:security_framework_sys",  # cfg(any(target_os = "macos", target_os = "ios"))
-            "@crate_index__tempfile-3.8.1//:tempfile",  # cfg(any(target_os = "macos", target_os = "ios"))
+            "@crate_index__tempfile-3.9.0//:tempfile",  # cfg(any(target_os = "macos", target_os = "ios"))
         ],
         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
             "@crate_index__log-0.4.20//:log",  # cfg(not(any(target_os = "windows", target_os = "macos", target_os = "ios")))
@@ -58,10 +58,10 @@ rust_library(
         ],
         "@rules_rust//rust/platform:x86_64-apple-darwin": [
             "@crate_index__lazy_static-1.4.0//:lazy_static",  # cfg(any(target_os = "macos", target_os = "ios"))
-            "@crate_index__libc-0.2.149//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
+            "@crate_index__libc-0.2.151//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
             "@crate_index__security-framework-2.9.2//:security_framework",  # cfg(any(target_os = "macos", target_os = "ios"))
             "@crate_index__security-framework-sys-2.9.1//:security_framework_sys",  # cfg(any(target_os = "macos", target_os = "ios"))
-            "@crate_index__tempfile-3.8.1//:tempfile",  # cfg(any(target_os = "macos", target_os = "ios"))
+            "@crate_index__tempfile-3.9.0//:tempfile",  # cfg(any(target_os = "macos", target_os = "ios"))
         ],
         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [
             "@crate_index__schannel-0.1.22//:schannel",  # cfg(target_os = "windows")

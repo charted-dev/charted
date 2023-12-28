@@ -40,6 +40,6 @@ rust_library(
     ],
     version = "1.4.1",
     deps = [
-        "@crate_index__libc-0.2.149//:libc",
+        "@crate_index__libc-0.2.151//:libc",
     ],
 )

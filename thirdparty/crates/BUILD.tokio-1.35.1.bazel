@@ -79,17 +79,17 @@ rust_library(
         "@crate_index__pin-project-lite-0.2.13//:pin_project_lite",
     ] + select({
         "@rules_rust//rust/platform:aarch64-apple-darwin": [
-            "@crate_index__libc-0.2.149//:libc",  # cfg(unix)
+            "@crate_index__libc-0.2.151//:libc",  # cfg(unix)
             "@crate_index__signal-hook-registry-1.4.1//:signal_hook_registry",  # cfg(unix)
             "@crate_index__socket2-0.5.5//:socket2",  # cfg(not(target_family = "wasm"))
         ],
         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
-            "@crate_index__libc-0.2.149//:libc",  # cfg(unix)
+            "@crate_index__libc-0.2.151//:libc",  # cfg(unix)
             "@crate_index__signal-hook-registry-1.4.1//:signal_hook_registry",  # cfg(unix)
             "@crate_index__socket2-0.5.5//:socket2",  # cfg(not(target_family = "wasm"))
         ],
         "@rules_rust//rust/platform:x86_64-apple-darwin": [
-            "@crate_index__libc-0.2.149//:libc",  # cfg(unix)
+            "@crate_index__libc-0.2.151//:libc",  # cfg(unix)
             "@crate_index__signal-hook-registry-1.4.1//:signal_hook_registry",  # cfg(unix)
             "@crate_index__socket2-0.5.5//:socket2",  # cfg(not(target_family = "wasm"))
         ],
@@ -98,7 +98,7 @@ rust_library(
             "@crate_index__windows-sys-0.48.0//:windows_sys",  # cfg(windows)
         ],
         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
-            "@crate_index__libc-0.2.149//:libc",  # cfg(unix)
+            "@crate_index__libc-0.2.151//:libc",  # cfg(unix)
             "@crate_index__signal-hook-registry-1.4.1//:signal_hook_registry",  # cfg(unix)
             "@crate_index__socket2-0.5.5//:socket2",  # cfg(not(target_family = "wasm"))
         ],
