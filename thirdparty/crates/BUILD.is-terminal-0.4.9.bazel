@@ -41,19 +41,19 @@ rust_library(
     version = "0.4.9",
     deps = select({
         "@rules_rust//rust/platform:aarch64-apple-darwin": [
-            "@crate_index__rustix-0.38.21//:rustix",  # cfg(not(any(windows, target_os = "hermit", target_os = "unknown")))
+            "@crate_index__rustix-0.38.28//:rustix",  # cfg(not(any(windows, target_os = "hermit", target_os = "unknown")))
         ],
         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
-            "@crate_index__rustix-0.38.21//:rustix",  # cfg(not(any(windows, target_os = "hermit", target_os = "unknown")))
+            "@crate_index__rustix-0.38.28//:rustix",  # cfg(not(any(windows, target_os = "hermit", target_os = "unknown")))
         ],
         "@rules_rust//rust/platform:x86_64-apple-darwin": [
-            "@crate_index__rustix-0.38.21//:rustix",  # cfg(not(any(windows, target_os = "hermit", target_os = "unknown")))
+            "@crate_index__rustix-0.38.28//:rustix",  # cfg(not(any(windows, target_os = "hermit", target_os = "unknown")))
         ],
         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [
             "@crate_index__windows-sys-0.48.0//:windows_sys",  # cfg(windows)
         ],
         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
-            "@crate_index__rustix-0.38.21//:rustix",  # cfg(not(any(windows, target_os = "hermit", target_os = "unknown")))
+            "@crate_index__rustix-0.38.28//:rustix",  # cfg(not(any(windows, target_os = "hermit", target_os = "unknown")))
         ],
         "//conditions:default": [],
     }),

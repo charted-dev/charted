@@ -41,7 +41,7 @@ rust_library(
     ],
     version = "0.1.35",
     deps = [
-        "@crate_index__libc-0.2.149//:libc",
+        "@crate_index__libc-0.2.151//:libc",
         "@crate_index__libmimalloc-sys-0.1.35//:build_script_build",
     ],
 )

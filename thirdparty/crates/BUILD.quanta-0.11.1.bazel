@@ -51,7 +51,7 @@ rust_library(
             "@crate_index__mach2-0.4.1//:mach2",  # cfg(target_os = "macos")
         ],
         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
-            "@crate_index__libc-0.2.149//:libc",  # cfg(not(any(target_os = "macos", target_os = "ios", target_os = "windows", target_arch = "wasm32")))
+            "@crate_index__libc-0.2.151//:libc",  # cfg(not(any(target_os = "macos", target_os = "ios", target_os = "windows", target_arch = "wasm32")))
         ],
         "@rules_rust//rust/platform:x86_64-apple-darwin": [
             "@crate_index__mach2-0.4.1//:mach2",  # cfg(target_os = "macos")
@@ -62,7 +62,7 @@ rust_library(
             "@crate_index__winapi-0.3.9//:winapi",  # cfg(target_os = "windows")
         ],
         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
-            "@crate_index__libc-0.2.149//:libc",  # cfg(not(any(target_os = "macos", target_os = "ios", target_os = "windows", target_arch = "wasm32")))
+            "@crate_index__libc-0.2.151//:libc",  # cfg(not(any(target_os = "macos", target_os = "ios", target_os = "windows", target_arch = "wasm32")))
             "@crate_index__raw-cpuid-10.7.0//:raw_cpuid",  # cfg(target_arch = "x86_64")
         ],
         "//conditions:default": [],

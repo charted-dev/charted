@@ -15,7 +15,7 @@ package(default_visibility = ["//visibility:public"])
 # ])
 
 rust_library(
-    name = "dirs_sys_next",
+    name = "windows_sys",
     srcs = glob(["**/*.rs"]),
     compile_data = glob(
         include = ["**"],
@@ -28,33 +28,33 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
+    crate_features = [
+        "Win32",
+        "Win32_Foundation",
+        "Win32_NetworkManagement",
+        "Win32_NetworkManagement_IpHelper",
+        "Win32_Networking",
+        "Win32_Networking_WinSock",
+        "Win32_Storage",
+        "Win32_Storage_FileSystem",
+        "Win32_System",
+        "Win32_System_Diagnostics",
+        "Win32_System_Diagnostics_Debug",
+        "Win32_System_Threading",
+        "default",
+    ],
     crate_root = "src/lib.rs",
-    edition = "2018",
+    edition = "2021",
     rustc_flags = ["--cap-lints=allow"],
     tags = [
         "cargo-bazel",
-        "crate-name=dirs-sys-next",
+        "crate-name=windows-sys",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.1.2",
-    deps = select({
-        "@rules_rust//rust/platform:aarch64-apple-darwin": [
-            "@crate_index__libc-0.2.151//:libc",  # cfg(unix)
-        ],
-        "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
-            "@crate_index__libc-0.2.151//:libc",  # cfg(unix)
-        ],
-        "@rules_rust//rust/platform:x86_64-apple-darwin": [
-            "@crate_index__libc-0.2.151//:libc",  # cfg(unix)
-        ],
-        "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [
-            "@crate_index__winapi-0.3.9//:winapi",  # cfg(windows)
-        ],
-        "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
-            "@crate_index__libc-0.2.151//:libc",  # cfg(unix)
-        ],
-        "//conditions:default": [],
-    }),
+    version = "0.52.0",
+    deps = [
+        "@crate_index__windows-targets-0.52.0//:windows_targets",
+    ],
 )

@@ -41,7 +41,7 @@ rust_library(
     version = "4.4.2",
     deps = [
         "@crate_index__either-1.9.0//:either",
-        "@crate_index__rustix-0.38.21//:rustix",
+        "@crate_index__rustix-0.38.28//:rustix",
     ] + select({
         "@rules_rust//rust/platform:aarch64-apple-darwin": [
             "@crate_index__home-0.5.5//:home",  # cfg(any(windows, unix, target_os = "redox"))

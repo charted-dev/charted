@@ -48,7 +48,7 @@ rust_library(
         "@crate_index__untrusted-0.9.0//:untrusted",
     ] + select({
         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
-            "@crate_index__libc-0.2.149//:libc",  # cfg(any(target_os = "android", target_os = "linux"))
+            "@crate_index__libc-0.2.151//:libc",  # cfg(any(target_os = "android", target_os = "linux"))
             "@crate_index__spin-0.9.8//:spin",  # cfg(any(target_arch = "x86", target_arch = "x86_64", all(any(target_arch = "aarch64", target_arch = "arm"), any(target_os = "android", target_os = "fuchsia", target_os = "linux", target_os = "windows"))))
         ],
         "@rules_rust//rust/platform:x86_64-apple-darwin": [
@@ -58,7 +58,7 @@ rust_library(
             "@crate_index__spin-0.9.8//:spin",  # cfg(any(target_arch = "x86", target_arch = "x86_64", all(any(target_arch = "aarch64", target_arch = "arm"), any(target_os = "android", target_os = "fuchsia", target_os = "linux", target_os = "windows"))))
         ],
         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
-            "@crate_index__libc-0.2.149//:libc",  # cfg(any(target_os = "android", target_os = "linux"))
+            "@crate_index__libc-0.2.151//:libc",  # cfg(any(target_os = "android", target_os = "linux"))
             "@crate_index__spin-0.9.8//:spin",  # cfg(any(target_arch = "x86", target_arch = "x86_64", all(any(target_arch = "aarch64", target_arch = "arm"), any(target_os = "android", target_os = "fuchsia", target_os = "linux", target_os = "windows"))))
         ],
         "//conditions:default": [],
