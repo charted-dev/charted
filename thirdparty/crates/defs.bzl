@@ -331,7 +331,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "eyre": "@crate_index__eyre-0.6.11//:eyre",
             "futures-util": "@crate_index__futures-util-0.3.30//:futures_util",
-            "moka": "@crate_index__moka-0.12.1//:moka",
+            "moka": "@crate_index__moka-0.12.2//:moka",
             "redis": "@crate_index__redis-0.24.0//:redis",
             "serde": "@crate_index__serde-1.0.193//:serde",
             "serde_json": "@crate_index__serde_json-1.0.108//:serde_json",
@@ -4402,12 +4402,12 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "crate_index__moka-0.12.1",
-        sha256 = "d8017ec3548ffe7d4cef7ac0e12b044c01164a74c0f3119420faeaf13490ad8b",
+        name = "crate_index__moka-0.12.2",
+        sha256 = "f353abec74660d4b8533c2516c86eb062f1ec8ca49a2758f4f2b1b60b06b0c6e",
         type = "tar.gz",
-        urls = ["https://crates.io/api/v1/crates/moka/0.12.1/download"],
-        strip_prefix = "moka-0.12.1",
-        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.moka-0.12.1.bazel"),
+        urls = ["https://crates.io/api/v1/crates/moka/0.12.2/download"],
+        strip_prefix = "moka-0.12.2",
+        build_file = Label("@org_noelware_charted_server//thirdparty/crates:BUILD.moka-0.12.2.bazel"),
     )
 
     maybe(
@@ -7456,7 +7456,7 @@ def crate_repositories():
         struct(repo = "crate_index__merge-struct-0.1.0", is_dev_dep = False),
         struct(repo = "crate_index__mimalloc-0.1.39", is_dev_dep = False),
         struct(repo = "crate_index__mime-0.3.17", is_dev_dep = False),
-        struct(repo = "crate_index__moka-0.12.1", is_dev_dep = False),
+        struct(repo = "crate_index__moka-0.12.2", is_dev_dep = False),
         struct(repo = "crate_index__multer-3.0.0", is_dev_dep = False),
         struct(repo = "crate_index__num_cpus-1.16.0", is_dev_dep = False),
         struct(repo = "crate_index__once_cell-1.19.0", is_dev_dep = False),
