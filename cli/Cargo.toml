@@ -32,17 +32,24 @@ charted-config = { path = "../crates/config", version = "0.0.0-devel.0" }
 charted-database = { version = "0.0.0-devel.0", path = "../crates/database" }
 charted-logging = { version = "0.0.0-devel.0", path = "../crates/logging" }
 charted-server = { path = "../server", version = "0.0.0-devel.0" }
-cli-table = { version = "0.4.7", default-features = false, features = ["derive", "title"] }
+cli-table = { version = "0.4.7", default-features = false, features = [
+    "derive",
+    "title",
+] }
 color-eyre = { version = "0.6.2", features = ["issue-url", "track-caller"] }
 dotenv = "0.15.0"
 eyre = "0.6.11"
 mimalloc = { version = "0.1.39", default-features = false }
 num_cpus = "1.16.0"
-openssl = "0.10.61"
+openssl = "0.10.62"
 promptly = "0.3.1"
 serde_json = "1.0.108"
 serde_yaml = "0.9.29"
-sqlx = { version = "0.7.3", features = ["postgres", "runtime-tokio", "tls-native-tls"] }
+sqlx = { version = "0.7.3", features = [
+    "postgres",
+    "runtime-tokio",
+    "tls-native-tls",
+] }
 sysinfo = "0.29.11"
 tokio = { version = "1.35.1", features = ["full"] }
 tracing = "0.1.40"
