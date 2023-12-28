@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-import noel from '@augu/eslint-config';
-import { resolve } from 'path';
+import { default as noel } from '@augu/eslint-config';
+import { fileURLToPath } from 'url';
 
-export default noel({
+export default noel.default({
     typescript: {
-        tsconfig: resolve(__dirname, 'tsconfig.json')
+        tsconfig: fileURLToPath(new URL('.', import.meta.url))
     }
 });
