@@ -84,8 +84,8 @@ dependencies:
     specifier: 1.2.5
     version: 1.2.5(vue@3.3.13)
   shikiji:
-    specifier: 0.9.12
-    version: 0.9.12
+    specifier: 0.9.13
+    version: 0.9.13
   tailwind-merge:
     specifier: 2.2.0
     version: 2.2.0
@@ -4220,18 +4220,8 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /shikiji-core@0.9.12:
-    resolution: {integrity: sha512-AYsAtsbZuq0FPT3mdskNMa+yxD5VwXrFC2sH7R2ELmncVGNYvSzR6Zlfq8iEzINq7/kKL5prtt81UFzFWTTbxQ==}
-    dev: false
-
   /shikiji-core@0.9.13:
     resolution: {integrity: sha512-9r6hLKZ6Y0eIkPdt6AQJASITIM0MTOoNgDDnCS6oHL6TH94mWUwUtZ0O9I4OhKVb5m/QnD9PqlxI6+aj42eUng==}
-    dev: false
-
-  /shikiji@0.9.12:
-    resolution: {integrity: sha512-jYbulSGcPKYKu2uFZOSg4lgrF7s9s8/ITFzRvczE6633wypMjnnTcRnG/mCFe6v1Dbov7bRCMsXVINBUD2FV9w==}
-    dependencies:
-      shikiji-core: 0.9.12
     dev: false
 
   /shikiji@0.9.13:
