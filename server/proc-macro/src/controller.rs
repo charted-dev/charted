@@ -889,8 +889,9 @@ impl Args {
     /// Parses the security requirements for this controller.
     ///
     /// Syntax:
-    ///
+    /// ```rust,ignore
     ///     #[controller(securityRequirements(("name", [<scopes>]), ...))
+    /// ```
     pub(crate) fn parse_security_requirements(&mut self, input: ParseStream) -> Result<()> {
         input.parse::<kw::securityRequirements>()?; // parse out "securityRequirements"
 
