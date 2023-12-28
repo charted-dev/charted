@@ -1,0 +1,13 @@
+{
+    "extends": ["@augu/tsconfig"],
+    "exclude": ["node_modules"],
+    "include": ["**/*.ts"],
+    "compilerOptions": {
+        "resolveJsonModule": true,
+        "moduleResolution": "Bundler",
+        "removeComments": false,
+        "target": "ESNext",
+        "module": "ESNext",
+        "types": ["bun"]
+    }
+}

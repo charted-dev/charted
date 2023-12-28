@@ -15,6 +15,7 @@
         "incremental": true,
         "isolatedModules": true,
         "typeRoots": ["./node_modules/@types", "./src/@types"],
+        "types": ["node"],
         "paths": {
             "~/*": ["src/*"]
         }
