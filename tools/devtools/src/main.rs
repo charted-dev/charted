@@ -13,30 +13,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_common::is_debug_enabled;
-use charted_devtools::Cli;
+use charted_common::cli::AsyncExecute;
+use charted_devtools::Program;
 use charted_logging::generic::GenericLayer;
 use clap::Parser;
 use eyre::Result;
-use std::env::{set_var, var};
-use tracing::{metadata::LevelFilter, Level};
-use tracing_subscriber::{prelude::*, registry};
+use tracing::{level_filters::LevelFilter, Level};
+use tracing_subscriber::{layer::SubscriberExt, registry, Layer};
 
-fn main() -> Result<()> {
-    if is_debug_enabled() && var("RUST_BACKTRACE").is_err() {
-        set_var("RUST_BACKTRACE", "full");
-    }
-
+#[tokio::main(flavor = "current_thread")]
+async fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let cli = Cli::parse();
-    tracing::subscriber::set_global_default(registry().with(GenericLayer { verbose: cli.verbose }.with_filter(
-        match cli.verbose {
-            true => LevelFilter::from_level(Level::DEBUG),
-            false => LevelFilter::from_level(Level::INFO),
-        },
-    )))?;
+    let program = Program::parse();
+    let level = program.level.unwrap_or(Level::INFO);
+    let verbose = match program.verbose {
+        true => true,
+        false => level >= Level::DEBUG,
+    };
 
-    cli.command.execute()?;
-    Ok(())
+    let filter = match program.verbose {
+        true => LevelFilter::from_level(Level::DEBUG),
+        false => LevelFilter::from_level(level),
+    };
+
+    let registry = registry().with(GenericLayer { verbose }.with_filter(filter));
+    tracing::subscriber::set_global_default(registry).unwrap();
+
+    program.cmd.execute().await
 }

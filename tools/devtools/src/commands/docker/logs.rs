@@ -22,21 +22,13 @@ use std::{
     process::{exit, Stdio},
 };
 
-/// Destroys the containers that was created by `./dev docker up`.
+/// Views all the logs of every container that was spawned from `./dev docker up`
 #[derive(Debug, Clone, clap::Parser)]
 pub struct Cmd {
-    /// Removes containers for services not defined in the Compose project file.
-    #[arg(long = "remove-orphans")]
-    remove_orphans: bool,
-
     /// Location to a `docker` binary that exists. This must be an absolute path as all
     /// paths are relative to where the `charted-devtools` binary was executed in.
     #[arg(long, env = "DOCKER")]
     docker: Option<PathBuf>,
-
-    /// Removes all of the volume mounts as well.
-    #[arg(long, short = 'v')]
-    volumes: bool,
 }
 
 impl Execute for Cmd {
@@ -55,22 +47,12 @@ impl Execute for Cmd {
             exit(1);
         }
 
-        let root = dir.join(".cache");
         utils::cmd(docker, |cmd| {
             cmd.stdout(Stdio::inherit())
                 .stderr(Stdio::inherit())
                 .args(["compose", "-f"])
                 .arg(&compose_project)
-                .arg("down")
-                .current_dir(&root);
-
-            if self.remove_orphans {
-                cmd.arg("--remove-orphans");
-            }
-
-            if self.volumes {
-                cmd.arg("-v");
-            }
+                .arg("logs");
         })
         .map(|_| ())
     }

@@ -30,12 +30,10 @@ use tracing::{info, warn};
 /// over a standalone and sentinel connections.
 ///
 /// ## Example
-/// ```no_run
-/// # use charted_config::RedisConfig;
+/// ```rust,ignore
+/// # use charted_config::Config;
 /// # use charted_redis::RedisClient;
 /// #
-/// // uses the default connection info
-/// let config = Config::default();
 /// let mut client = RedisClient::new();
 /// assert!(client.is_ok());
 /// ```

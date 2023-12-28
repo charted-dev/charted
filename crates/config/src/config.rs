@@ -37,15 +37,15 @@ make_config! {
     ///
     /// ## Example
     /// ```no_run
-    /// # use charted_config::Config;
+    /// # use charted_config::{FromEnv, Config};
     /// #
     /// let config = Config::from_env();
     /// // loads the config from the system environment variables
     ///
-    /// let config2 = Config::from_file("./file.yaml");
+    /// let config2 = Config::load(Some("./file.yaml"));
     /// // loads the config from ./file.yaml
     ///
-    /// let config3 = Config::load();
+    /// let config3 = Config::load::<std::path::PathBuf>(None);
     /// // loads from ./config/charted.yaml or ./config.yml
     /// ```
     Config {

@@ -13,6 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use async_trait::async_trait;
+use charted_common::cli::{AsyncExecute, Execute};
+
 mod cli;
 mod docker;
 mod generate;
@@ -20,39 +23,31 @@ mod helm_plugin;
 mod server;
 mod web;
 
-use charted_common::cli::*;
-use clap::Subcommand;
-use cli::*;
-use docker::*;
-use eyre::Result;
-use generate::*;
-use helm_plugin::*;
-use server::*;
-use web::*;
-
-#[derive(Debug, Clone, Subcommand)]
-pub enum Commands {
-    HelmPlugin(HelmPlugin),
+/// List of all available subcommands for `./dev`
+#[derive(Debug, Clone, clap::Subcommand)]
+pub enum Command {
+    #[command(subcommand)]
+    Generate(generate::Cmd),
 
     #[command(subcommand)]
-    Generate(Generate),
-    Server(Server),
+    Docker(docker::Cmd),
 
-    #[command(subcommand)]
-    Docker(Docker),
-    Cli(Cli),
-    Web(Web),
+    HelmPlugin(helm_plugin::Cmd),
+    Server(server::Cmd),
+    Cli(cli::Cmd),
+    Web(web::Cmd),
 }
 
-impl Commands {
-    pub fn execute(self) -> Result<()> {
+#[async_trait]
+impl AsyncExecute for Command {
+    async fn execute(&self) -> eyre::Result<()> {
         match self {
-            Commands::HelmPlugin(plugin) => plugin.execute(),
-            Commands::Generate(generate) => generate.execute(),
-            Commands::Server(server) => server.execute(),
-            Commands::Docker(docker) => docker.execute(),
-            Commands::Cli(cli) => cli.execute(),
-            Commands::Web(web) => web.execute(),
+            Self::Generate(generate) => generate.execute(),
+            Self::HelmPlugin(helm) => helm.execute(),
+            Self::Docker(docker) => docker.execute().await,
+            Self::Server(server) => server.execute(),
+            Self::Web(web) => web.execute(),
+            Self::Cli(cli) => cli.execute(),
         }
     }
 }

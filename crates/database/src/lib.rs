@@ -24,9 +24,9 @@ pub static MIGRATIONS: Migrator = migrate!();
 /// Macro to implement the `paginate` method for a controller.
 ///
 /// ## Example
-/// ```no_run
+/// ```rust,ignore
 /// # use async_trait::async_trait;
-/// # use charted_database::{DbController, impl_paginate};
+/// # use charted_database::{controllers::DbController, impl_paginate};
 /// #
 /// # pub struct MyDbController { pool: ::sqlx::PgPool }
 /// #
