@@ -255,7 +255,7 @@ alias(
 
 alias(
     name = "moka",
-    actual = "@crate_index__moka-0.12.1//:moka",
+    actual = "@crate_index__moka-0.12.2//:moka",
     tags = ["manual"],
 )
 
