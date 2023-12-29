@@ -52,9 +52,9 @@ rust_library(
         ],
         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
             "@crate_index__log-0.4.20//:log",  # cfg(not(any(target_os = "windows", target_os = "macos", target_os = "ios")))
-            "@crate_index__openssl-0.10.61//:openssl",  # cfg(not(any(target_os = "windows", target_os = "macos", target_os = "ios")))
+            "@crate_index__openssl-0.10.62//:openssl",  # cfg(not(any(target_os = "windows", target_os = "macos", target_os = "ios")))
             "@crate_index__openssl-probe-0.1.5//:openssl_probe",  # cfg(not(any(target_os = "windows", target_os = "macos", target_os = "ios")))
-            "@crate_index__openssl-sys-0.9.97//:openssl_sys",  # cfg(not(any(target_os = "windows", target_os = "macos", target_os = "ios")))
+            "@crate_index__openssl-sys-0.9.98//:openssl_sys",  # cfg(not(any(target_os = "windows", target_os = "macos", target_os = "ios")))
         ],
         "@rules_rust//rust/platform:x86_64-apple-darwin": [
             "@crate_index__lazy_static-1.4.0//:lazy_static",  # cfg(any(target_os = "macos", target_os = "ios"))
@@ -68,9 +68,9 @@ rust_library(
         ],
         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
             "@crate_index__log-0.4.20//:log",  # cfg(not(any(target_os = "windows", target_os = "macos", target_os = "ios")))
-            "@crate_index__openssl-0.10.61//:openssl",  # cfg(not(any(target_os = "windows", target_os = "macos", target_os = "ios")))
+            "@crate_index__openssl-0.10.62//:openssl",  # cfg(not(any(target_os = "windows", target_os = "macos", target_os = "ios")))
             "@crate_index__openssl-probe-0.1.5//:openssl_probe",  # cfg(not(any(target_os = "windows", target_os = "macos", target_os = "ios")))
-            "@crate_index__openssl-sys-0.9.97//:openssl_sys",  # cfg(not(any(target_os = "windows", target_os = "macos", target_os = "ios")))
+            "@crate_index__openssl-sys-0.9.98//:openssl_sys",  # cfg(not(any(target_os = "windows", target_os = "macos", target_os = "ios")))
         ],
         "//conditions:default": [],
     }),
@@ -95,10 +95,10 @@ cargo_build_script(
     edition = "2015",
     link_deps = select({
         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
-            "@crate_index__openssl-sys-0.9.97//:openssl_sys",  # cfg(not(any(target_os = "windows", target_os = "macos", target_os = "ios")))
+            "@crate_index__openssl-sys-0.9.98//:openssl_sys",  # cfg(not(any(target_os = "windows", target_os = "macos", target_os = "ios")))
         ],
         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
-            "@crate_index__openssl-sys-0.9.97//:openssl_sys",  # cfg(not(any(target_os = "windows", target_os = "macos", target_os = "ios")))
+            "@crate_index__openssl-sys-0.9.98//:openssl_sys",  # cfg(not(any(target_os = "windows", target_os = "macos", target_os = "ios")))
         ],
         "//conditions:default": [],
     }),
