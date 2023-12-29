@@ -17,7 +17,7 @@ use std::{
     env::{set_var, var},
     path::PathBuf,
 };
-use tonic_build::{compile_protos, configure};
+use tonic_build::compile_protos;
 use which::which;
 
 fn main() {
