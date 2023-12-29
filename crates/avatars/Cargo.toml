@@ -25,7 +25,7 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 bytes = "1.5.0"
 charted-common = { version = "0.0.0-devel.0", path = "../common" }
 charted-storage = { version = "0.0.0-devel.0", path = "../storage" }
-eyre = "0.6.9"
+eyre = "0.6.11"
 remi-core = "0.4.3"
-reqwest = { version = "0.11.22", features = ["async-compression", "gzip"] }
+reqwest = { version = "0.11.23", features = ["async-compression", "gzip"] }
 tracing = "0.1.40"

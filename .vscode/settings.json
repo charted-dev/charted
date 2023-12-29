@@ -3,6 +3,8 @@
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
     "rust-analyzer.check.command": "clippy",
+    "eslint.workingDirectories": ["./web"],
+    "eslint.experimental.useFlatConfig": true,
     "rust-analyzer.showUnlinkedFileNotification": false,
     "tailwindCSS.experimental.configFile": "web/tailwind.config.ts",
     "tailwindCSS.experimental.classRegex": [
@@ -61,5 +63,8 @@
     },
     "[vue]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[toml]": {
+        "editor.defaultFormatter": "tamasfe.even-better-toml"
     }
 }

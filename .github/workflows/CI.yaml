@@ -45,51 +45,15 @@ on:
             - '**.md'
             - renovate.json
             - LICENSE
-env:
-    BAZEL_STARTUP_ARGS: --bazelrc=./.bazelrc --host_jvm_args=-Xmx500m --host_jvm_args=-Xms500m
 jobs:
     ci:
-        name: Rust CI (${{matrix.runner == 'ubuntu-latest' && 'Linux (x86_64)' || matrix.runner == 'self-hosted' && 'Linux (arm64)' || matrix.runner == 'macos-latest' && 'macOS (x86_64)' || matrix.runner == 'windows-latest' && 'Windows' || 'Unknown'}})
+        name: Rust CI (${{matrix.runner == 'ubuntu-latest' && 'Linux (x86_64)' || matrix.runner == 'self-hosted' && 'Linux (arm64)' || matrix.runner == 'macos-latest' && 'macOS (x86_64)' || matrix.runner == 'windows-latest' && 'Windows' || 'Unknown'}}, Rust ${{matrix.rust-version}})
         runs-on: ${{matrix.runner}}
         strategy:
             fail-fast: true
             matrix:
-                runner: [macos-latest, ubuntu-latest]
-                include:
-                    - runner: ubuntu-latest
-                      bazelisk-cache-dir: ~/.cache/bazelisk
-                    - runner: macos-latest
-                      bazelisk-cache-dir: ~/Library/Caches/bazelisk
-                    # - runner: windows-latest
-                    #   bazelisk-cache-dir: ~\AppData\Local\bazelisk
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
-
-            - name: Setup Bazel cache
-              uses: actions/cache@v3
-              with:
-                path: |
-                    ${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}}
-                    ${{matrix.bazelisk-cache-dir}}
-                restore-keys: bazel-cache-${{matrix.runner}}-
-                key: bazel-cache-${{matrix.runner}}-${{ hashFiles('WORKSPACE', 'BUILD.bazel', '.bazelversion') }}
-
-            - name: Build CLI
-              run: bazel ${{env.BAZEL_STARTUP_ARGS}} build --config=ci --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //:cli
-
-            - name: Build Helm plugin
-              run: bazel ${{env.BAZEL_STARTUP_ARGS}} build --config=ci --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //:helm-plugin
-
-            - name: Run tests
-              run: bazel ${{env.BAZEL_STARTUP_ARGS}} test --config=ci --disk_cache=${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}} //...
-    clippy:
-        name: Clippy!
-        runs-on: ubuntu-latest
-        strategy:
-            fail-fast: true
-            matrix:
-                directory: [./cli, ./tools/helm-plugin]
+                runner: [ubuntu-latest, macos-latest, windows-latest]
+                rust-version: [stable, nightly]
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -97,15 +61,52 @@ jobs:
             - name: Setup Rust toolchain
               uses: dtolnay/rust-toolchain@master
               with:
-                toolchain: stable
+                toolchain: ${{matrix.rust-version}}
                 components: clippy, rustfmt
 
             - name: Setup Rust cache
               uses: Swatinem/rust-cache@v2
 
+            - name: Install `protoc`
+              uses: Noelware/setup-protoc@1.1.0
+
+            - name: Setup `VCPKG_ROOT` environment variable
+              if: matrix.runner == 'windows-latest'
+              run: echo "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+            - name: Install OpenSSL on Windows with `vcpkg`
+              if: matrix.runner == 'windows-latest'
+              run: vcpkg install openssl:x64-windows-static-md
+
+            - name: Build project
+              run: cargo build --all-features
+
             - name: Clippy!
               uses: auguwu/clippy-action@1.3.0
               with:
-                working-directory: ${{matrix.directory}}
                 all-features: true
-                token: ${{secrets.GITHUB_TOKEN}}
+                token: ${{github.token}}
+
+            - name: Run tests
+              run: cargo test --all-features
+    ui:
+        name: Hoshi CI
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout source code
+              uses: actions/checkout@v4
+
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v1
+
+            - name: Install packages
+              working-directory: ./web
+              run: bun install --no-save --frozen-lockfile
+
+            - name: Run Prettier
+              working-directory: ./web
+              run: bun run fmt
+
+            - name: Run ESLint
+              working-directory: ./web
+              run: bun run lint

@@ -18,7 +18,7 @@
 import type { ApiError } from '@ncharts/types';
 
 export class ApiResponseError<D = never> extends Error {
-    constructor(errors: ApiError<D>[]) {
+    constructor(errors: Array<ApiError<D>>) {
         super();
 
         Error.captureStackTrace && Error.captureStackTrace(this, ApiResponseError);
@@ -26,7 +26,7 @@ export class ApiResponseError<D = never> extends Error {
         this.name = 'ApiResponseError';
     }
 
-    static _computeMessage<D>(errors: ApiError<D>[]) {
+    static _computeMessage<D>(errors: Array<ApiError<D>>) {
         let content = `Received ${errors.length} error${errors.length === 1 ? '' : 's'}\n`;
         for (let i = 0; i < errors.length; i++) {
             content += `~> #${i + 1}. errors[${errors[i].code}]: ${errors[i].message}`;

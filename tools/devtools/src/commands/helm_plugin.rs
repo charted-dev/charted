@@ -13,33 +13,51 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    args::{CommonBazelArgs, CommonBuildRunArgs},
-    utils::{self, BuildCliArgs},
-};
+use crate::{utils, CommonArgs};
 use charted_common::cli::Execute;
-use eyre::Result;
+use eyre::{eyre, Result};
+use std::{ffi::OsString, process::Stdio};
 
+/// Runs the API server, which invokes the `charted server` CLI command.
 #[derive(Debug, Clone, clap::Parser)]
-#[clap(about = "Builds the Helm plugin or runs it")]
-pub struct HelmPlugin {
+pub struct Cmd {
     #[command(flatten)]
-    common: CommonBuildRunArgs,
-
-    #[command(flatten)]
-    bazel: CommonBazelArgs,
+    args: CommonArgs,
 }
 
-impl Execute for HelmPlugin {
+impl Execute for Cmd {
     fn execute(&self) -> Result<()> {
-        let bazel = utils::find_bazel(self.bazel.bazel.clone())?;
-        let args = BuildCliArgs {
-            release: self.common.release,
-            bazelrc: self.bazel.bazelrc.clone(),
-            args: self.common.args.clone(),
-            run: self.common.run,
-        };
+        let cargo = utils::find_binary(self.args.cargo.clone(), "cargo")
+            .ok_or_else(|| eyre!("unable to find `cargo` binary"))?;
 
-        utils::build_or_run(bazel.clone(), "//tools/helm-plugin", args)
+        utils::cmd(cargo, |cmd| {
+            cmd.stdout(Stdio::inherit())
+                .stderr(Stdio::inherit())
+                .arg(match (self.args.release, self.args.run) {
+                    (true, true) | (false, true) => "run",
+                    (false, false) | (true, false) => "build",
+                })
+                .arg("--locked");
+
+            if self.args.release {
+                cmd.arg("--release");
+            }
+
+            let mut rustflags = OsString::from("--cfg tokio_unstable");
+            let rustc_flags = self.args.rustc_flags.clone().unwrap_or_default();
+            if !rustc_flags.is_empty() {
+                rustflags.push(" ");
+                rustflags.push(rustc_flags);
+            }
+
+            cmd.env("RUSTFLAGS", rustflags);
+            cmd.args(["--bin", "charted-helm-plugin"]);
+            cmd.args(&self.args.cargo_args);
+
+            if self.args.run && !self.args.args.is_empty() {
+                cmd.arg("--").args(&self.args.args);
+            }
+        })
+        .map(|_| ())
     }
 }

@@ -23,7 +23,6 @@ use jsonwebtoken::{encode, Algorithm, EncodingKey, Header};
 use serde_json::Value;
 use std::{
     collections::HashMap,
-    convert::TryInto,
     sync::{Arc, Mutex},
     time::Duration,
 };
@@ -178,8 +177,9 @@ impl SessionManager {
 
     pub fn create_task(&mut self, session_id: Uuid, duration: Duration) {
         debug!(
-            session.id = session_id.to_string(),
-            "spawning task for session with a duration of {:?}", duration
+            session.id = %session_id,
+            ?duration,
+            "spawning task for session with given duration",
         );
 
         let mut redis = self.redis.clone();
@@ -367,10 +367,7 @@ impl SessionManager {
         RedisClient::pipeline()
             .hset("charted:sessions", session_id.to_string(), as_json)
             .set(format!("charted:sessions:{session_id}"), "dummy payload for now")
-            .expire_at(
-                format!("charted:sessions:{session_id}"),
-                one_week.timestamp_millis().try_into().unwrap(),
-            )
+            .expire_at(format!("charted:sessions:{session_id}"), one_week.timestamp_millis())
             .query(&mut client)?;
 
         Ok(session)

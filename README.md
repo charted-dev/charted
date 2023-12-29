@@ -17,9 +17,9 @@ As **charted-server** is being prepared for a beta release, we do not have an of
 ### Locally from source
 To build charted-server from the canonical Git repository, you are required to have the following tools:
 
-* [Bazel](https://bazel.build)
+* [Rust](https://rust-lang.org)
 * [Git](https://git-scm.com)
-* 10GB of storage
+* 20GB of storage
 * 2GB of system RAM
 
 To clone the repository, you can use the `git pull` command:
@@ -32,38 +32,32 @@ $ git pull https://github.com/charted-dev/charted
 $ git pull git@github.com:charted-dev/charted
 ```
 
-Once you cloned the repository, you can `cd` into it and run `bazel build //cli`:
+Once you cloned the repository, you can `cd` into it and run:
 
 ```shell
-$ bazel build //cli
+$ ./dev cli --release
 ```
 
-This will build the charted CLI in release mode, to run it, you can use `run` instead of `build`:
+This will build the charted CLI in release mode, to run it, you can use `--run` (but it'll produce a debug build):
 
 ```shell
-$ bazel run //cli
+$ ./dev cli --run
 ```
 
-This will run the actual CLI, to run the server, you will need to append `-- server --config=$PWD/config.yml`:
+This will run the actual CLI, to run the server, you will need to use `./dev server` instead:
 
 ```shell
-$ bazel run //cli -- server --config=$PWD/config.yml
+$ ./dev server
 ```
-
-> **Note**: The `--config=$PWD/config.yml` is required when you invoke Bazel by itself since it'll run it in
-> the sandbox if you're on Linux or macOS.
 
 ## FAQ
-### :question: Why Bazel? Couldn't you done this with `node` and `cargo` together?
-**Bazel** is a build tool by Google to provide fast and correct builds, and can handle multiple languages in the same workspace. While it is possible to use `node` (Node.js) and `cargo` (Rust) together, we don't recommend it as we are tailouring the workflow to Bazel only.
-
 ### :question: Can I use `cargo install` from the Git repository?
-Yes! We will try to keep Cargo as a second alternative for people who use `cargo install` and for IDE support like Visual Studio Code. Since the repository has multiple binaries, here is what binary to pass in what you want:
+Yes! To do so, you can use the following commands:
 
 * [charted CLI](https://charts.noelware.org/docs/cli/latest): `cargo install https://github.com/charted-dev/charted charted-cli`
 * [charted Helm plugin](https://charts.noelware.org/docs/helm-plugin/latest): `cargo install https://github.com/charted-dev/charted charted-helm-plugin`
 
-We don't recommend installing `charted-devtools` as it will require a Bazel installation.
+We don't recommend installing `charted-devtools` as it is an internal tool.
 
 ## License
 **charted-server** is released under the **Apache 2.0** License with love by Noelware, LLC.! If you wish to know more,

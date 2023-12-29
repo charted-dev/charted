@@ -15,48 +15,21 @@
 
 name: Release CI (Stable)
 on:
-    release:
-        types: [published]
-env:
-    BAZEL_ARGS: --bazelrc=./.bazelrc --bazelrc=./.github/.ci.bazelrc --host_jvm_args=-Xmx500m --host_jvm_args=-Xms500m
+    push:
+        tags:
+            - 'v?[0-9]+.[0-9]+.[0-9]'
 jobs:
-    woof:
-        runs-on: ubuntu-latest
+    binaries:
+        name: Build `cli` and `helm-plugin` binaries
+        runs-on: ${{matrix.runner}}
+        strategy:
+            fail-fast: true
+            matrix:
+                runner: [ubuntu-latest, macos-latest, windows-latest]
         steps:
-            - run: echo woof
+            - name: Checkout source code
+              uses: actions/checkout@v4
 
-    # binary:
-    #     name: Build Binary
-    #     runs-on: ${{matrix.data.runner}}
-    #     strategy:
-    #         fail-fast: true
-    #         matrix:
-    #             data:
-    #                 - runner: ubuntu-latest
-    #                   bazelisk-cache-dir: ~/.cache/bazelisk
-    #                   os: linux
-    #                   arch: x86_64
-    #                   ext: ""
-    #                   bazel-args: ""
-    #                 - runner: self-hosted
-    #                   bazelisk-cache-dir: ~/.cache/bazelisk
-    #                   os: linux
-    #                   arch: aarch64
-    #                   ext: ""
-    #                   bazel-args: ""
-    #                 - runner: macos-latest
-    #                   bazelisk-cache-dir: ~/Library/Caches/bazelisk
-    #                   os: darwin
-    #                   arch: x86_64
-    #                   ext: ""
-    #                   bazel-args: ""
-    #                 - runner: macos-latest
-    #                   bazelisk-cache-dir: ~/Library/Caches/bazelisk
-    #                   os: darwin
-    #                   arch: aarch64
-    #                   ext: ""
-    #                   bazel-args: "--platforms=//build/platforms:apple_silicon"
-    #     steps:
     #         - name: Checkout source code
     #           uses: actions/checkout@v3
 

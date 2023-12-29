@@ -28,19 +28,19 @@
         }
     },
     "devDependencies": {
-        "@augu/eslint-config": "4.0.1",
-        "@augu/tsconfig": "1.1.1",
+        "@augu/eslint-config": "5.0.0",
+        "@augu/tsconfig": "1.2.0",
         "@noelware/utils": "2.4.0",
-        "@types/node": "20.10.1",
-        "@typescript-eslint/eslint-plugin": "6.13.1",
-        "@typescript-eslint/parser": "6.13.1",
-        "eslint": "8.54.0",
-        "eslint-config-prettier": "9.0.0",
+        "@types/node": "20.10.5",
+        "@typescript-eslint/eslint-plugin": "6.16.0",
+        "@typescript-eslint/parser": "6.16.0",
+        "eslint": "8.56.0",
+        "eslint-config-prettier": "9.1.0",
         "eslint-formatter-codeframe": "7.32.1",
-        "openapi-typescript": "6.7.1",
-        "prettier": "3.1.0",
-        "tsx": "4.6.1",
-        "typescript": "5.3.2",
-        "vitest": "0.34.6"
+        "openapi-typescript": "6.7.3",
+        "prettier": "3.1.1",
+        "tsx": "4.7.0",
+        "typescript": "5.3.3",
+        "vitest": "1.1.0"
     }
 }

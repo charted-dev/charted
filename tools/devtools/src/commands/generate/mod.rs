@@ -13,23 +13,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod rust_module;
-
-pub use rust_module::*;
-
 use charted_common::cli::Execute;
-use eyre::Result;
 
+mod rust_mod;
+
+/// Utilities for generating code or modules
 #[derive(Debug, Clone, clap::Subcommand)]
-#[clap(about = "Utilities for code-generation")]
-pub enum Generate {
-    RustModule(RustModule),
+pub enum Cmd {
+    Crate(rust_mod::Cmd),
 }
 
-impl Execute for Generate {
-    fn execute(&self) -> Result<()> {
+impl Execute for Cmd {
+    fn execute(&self) -> eyre::Result<()> {
         match self {
-            Generate::RustModule(module) => module.execute(),
+            Self::Crate(krate) => krate.execute(),
         }
     }
 }

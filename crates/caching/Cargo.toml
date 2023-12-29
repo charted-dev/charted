@@ -22,14 +22,14 @@ homepage = "https://charts.noelware.org"
 authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
 [dependencies]
-async-trait = "0.1.74"
+async-trait = "0.1.75"
 charted-common = { version = "0.0.0-devel.0", path = "../common" }
 charted-config = { version = "0.0.0-devel.0", path = "../config" }
 charted-redis = { version = "0.0.0-devel.0", path = "../redis" }
-eyre = "0.6.9"
-futures-util = "0.3.29"
-moka = { version = "0.12.1", features = ["future", "logging"] }
-redis = "0.23.4"
+eyre = "0.6.11"
+futures-util = "0.3.30"
+moka = { version = "0.12.2", features = ["future", "logging"] }
+redis = "0.24.0"
 serde = "1.0.193"
 serde_json = "1.0.108"
 tracing = "0.1.40"

@@ -23,28 +23,35 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
 [dependencies]
 ansi_term = "0.12.1"
-async-trait = "0.1.74"
+async-trait = "0.1.75"
 chrono = "0.4.31"
-clap = { version = "4.4.10", features = ["derive", "env"] }
-clap_complete = "4.4.4"
+clap = { version = "4.4.12", features = ["derive", "env"] }
+clap_complete = "4.4.5"
 charted-common = { path = "../crates/common", version = "0.0.0-devel.0" }
 charted-config = { path = "../crates/config", version = "0.0.0-devel.0" }
 charted-database = { version = "0.0.0-devel.0", path = "../crates/database" }
 charted-logging = { version = "0.0.0-devel.0", path = "../crates/logging" }
 charted-server = { path = "../server", version = "0.0.0-devel.0" }
-cli-table = { version = "0.4.7", default-features = false, features = ["derive", "title"] }
+cli-table = { version = "0.4.7", default-features = false, features = [
+    "derive",
+    "title",
+] }
 color-eyre = { version = "0.6.2", features = ["issue-url", "track-caller"] }
 dotenv = "0.15.0"
-eyre = "0.6.9"
+eyre = "0.6.11"
 mimalloc = { version = "0.1.39", default-features = false }
 num_cpus = "1.16.0"
-openssl = "0.10.60"
+openssl = "0.10.62"
 promptly = "0.3.1"
 serde_json = "1.0.108"
-serde_yaml = "0.9.27"
-sqlx = { version = "0.7.3", features = ["postgres", "runtime-tokio", "tls-native-tls"] }
+serde_yaml = "0.9.29"
+sqlx = { version = "0.7.3", features = [
+    "postgres",
+    "runtime-tokio",
+    "tls-native-tls",
+] }
 sysinfo = "0.29.11"
-tokio = { version = "1.34.0", features = ["full"] }
+tokio = { version = "1.35.1", features = ["full"] }
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
 utoipa = "4.1.0"

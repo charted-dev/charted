@@ -15,48 +15,63 @@
 
 use crate::utils;
 use charted_common::cli::Execute;
-use eyre::Result;
-use std::{path::PathBuf, process::exit};
+use eyre::eyre;
+use std::{
+    env::current_dir,
+    path::PathBuf,
+    process::{exit, Stdio},
+};
 
+/// Destroys the containers that was created by `./dev docker up`.
 #[derive(Debug, Clone, clap::Parser)]
-#[clap(about = "Teardowns the Docker compose project that is used for development purposes")]
-pub struct Down {
-    /// Location to a `bazel` binary that is used to locate the workspace
-    #[arg(long)]
-    bazel: Option<PathBuf>,
+pub struct Cmd {
+    /// Removes containers for services not defined in the Compose project file.
+    #[arg(long = "remove-orphans")]
+    remove_orphans: bool,
 
-    /// Location to a `docker` binary that exists on the filesystem.
-    #[arg(long)]
+    /// Location to a `docker` binary that exists. This must be an absolute path as all
+    /// paths are relative to where the `charted-devtools` binary was executed in.
+    #[arg(long, env = "DOCKER")]
     docker: Option<PathBuf>,
+
+    /// Removes all of the volume mounts as well.
+    #[arg(long, short = 'v')]
+    volumes: bool,
 }
 
-impl Execute for Down {
-    fn execute(&self) -> Result<()> {
-        let bazel = utils::find_bazel(self.bazel.clone())?;
-        let workspace: PathBuf = utils::info(bazel.clone(), &["workspace"])?.trim().into();
-        let docker_compose_file = workspace.join(".cache/docker-compose.yml");
-        if !docker_compose_file.exists() {
+impl Execute for Cmd {
+    fn execute(&self) -> eyre::Result<()> {
+        let dir = current_dir()?;
+        let docker =
+            utils::find_binary(self.docker.clone(), "docker").ok_or_else(|| eyre!("unable to find `docker` binary"))?;
+
+        let compose_project = dir.join(".cache/docker-compose.yml");
+        if !compose_project.try_exists()? {
             error!(
-                "Unable to locate Docker Compose project in [{}]. Are you sure that you ran `./dev docker up` before running this command?",
-                docker_compose_file.display()
+                project = %compose_project.display(),
+                "unable to locate docker compose project! did you run `./dev docker up`?"
             );
 
             exit(1);
         }
 
-        let docker = utils::docker::find(self.docker.clone())?;
-        utils::docker::exec(
-            docker.clone(),
-            workspace,
-            &[
-                "compose",
-                "-f",
-                docker_compose_file.as_os_str().to_str().unwrap(),
-                "down",
-            ],
-        )?;
+        let root = dir.join(".cache");
+        utils::cmd(docker, |cmd| {
+            cmd.stdout(Stdio::inherit())
+                .stderr(Stdio::inherit())
+                .args(["compose", "-f"])
+                .arg(&compose_project)
+                .arg("down")
+                .current_dir(&root);
 
-        info!("containers has been destroyed!");
-        Ok(())
+            if self.remove_orphans {
+                cmd.arg("--remove-orphans");
+            }
+
+            if self.volumes {
+                cmd.arg("-v");
+            }
+        })
+        .map(|_| ())
     }
 }

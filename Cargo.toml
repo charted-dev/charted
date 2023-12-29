@@ -39,7 +39,6 @@ members = [
     "crates/sessions/ldap",
     "crates/sessions/local",
     "crates/sessions/passwordless",
-    "crates/sessions/zitadel",
     "crates/storage",
     "features/gc",
     "server",

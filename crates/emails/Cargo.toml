@@ -23,6 +23,7 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
 [dependencies]
 prost = "0.12.3"
+prost-types = "0.12.3"
 tonic = "0.10.2"
 tracing = "0.1.40"
 

@@ -3,15 +3,9 @@
     "enabled": true,
     "automerge": true,
     "extends": ["config:base", "default:timezone(America/Los_Angeles)", "docker:disableMajor"],
+    "assignees": ["auguwu", "spotlightishere"],
+    "addLabels": ["deps"],
     "vulnerabilityAlerts": {
         "labels": ["security"]
-    },
-    "packageRules": [
-        {
-            "matchPackagePatterns": ["*"],
-            "postUpgradeTasks": {
-                "commands": ["./dev sync-deps"]
-            }
-        }
-    ]
+    }
 }

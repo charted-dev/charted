@@ -23,24 +23,24 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
 [dependencies]
 ansi_term = "0.12.1"
-async-trait = "0.1.74"
+async-trait = "0.1.75"
 chrono = "0.4.31"
-clap = { version = "4.4.10", features = ["derive", "env"] }
-clap_complete = "4.4.4"
+clap = { version = "4.4.12", features = ["derive", "env"] }
+clap_complete = "4.4.5"
 charted-common = { path = "../../crates/common", version = "0.0.0-devel.0" }
 charted-logging = { version = "0.0.0-devel.0", path = "../../crates/logging" }
 color-eyre = { version = "0.6.2", features = ["issue-url", "track-caller"] }
 dirs = "5.0.1"
 dotenv = "0.15.0"
-eyre = "0.6.9"
-reqwest = "0.11.22"
+eyre = "0.6.11"
+reqwest = "0.11.23"
 serde = { version = "1.0.193", features = ["rc", "derive"] }
 serde_json = "1.0.108"
-serde_yaml = "0.9.27"
+serde_yaml = "0.9.29"
 sysinfo = "0.29.11"
-tokio = { version = "1.34.0", features = ["full"] }
+tokio = { version = "1.35.1", features = ["full"] }
 tracing-subscriber = "0.3.18"
 tracing = "0.1.40"
 which = "5.0.0"
 url = "2.5.0"
-once_cell = "1.18.0"
+once_cell = "1.19.0"
