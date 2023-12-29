@@ -66,8 +66,8 @@ dependencies:
     specifier: 3.0.0
     version: 3.0.0
   markdown-it-shikiji:
-    specifier: 0.9.13
-    version: 0.9.13
+    specifier: 0.9.14
+    version: 0.9.14
   ofetch:
     specifier: 1.3.3
     version: 1.3.3
@@ -2370,7 +2370,7 @@ packages:
   /constantinople@4.0.1:
     resolution: {integrity: sha512-vCrqcSIq4//Gx74TXXCGnHpulY1dskqLTFGDmhrGxzeXL8lF8kvXv6mpNWlJj1uD4DW23D4ljAqbY4RRaaUZIw==}
     dependencies:
-      '@babel/parser': 7.23.5
+      '@babel/parser': 7.23.6
       '@babel/types': 7.23.3
     dev: true
 
@@ -3491,11 +3491,11 @@ packages:
     resolution: {integrity: sha512-+rUD93bXHubA4arpEZO3q80so0qgoFJEKRkRbjKX8RTdca89v2kfyF+xR3i2sQTwql9tpPZPOQN5B+PunspXRg==}
     dev: false
 
-  /markdown-it-shikiji@0.9.13:
-    resolution: {integrity: sha512-lKuZhP8OMvlEHk9p+ruGyGEXoDhdokaN5mzXVv2sP3D1mNjb9yZ7U5eM/eVLjgHejPbfdrcfHKZil6MJpUF0pw==}
+  /markdown-it-shikiji@0.9.14:
+    resolution: {integrity: sha512-DfrzAioA4GWhYkx8pm4z5HkKIG5b0aDjWmDC8enAZzNMCR54cSe0sfogT2f+NryWl352nICaa8gpWYKfa0FAJg==}
     dependencies:
       markdown-it: 14.0.0
-      shikiji: 0.9.13
+      shikiji: 0.9.14
     dev: false
 
   /markdown-it@14.0.0:
@@ -4223,10 +4223,20 @@ packages:
     resolution: {integrity: sha512-9r6hLKZ6Y0eIkPdt6AQJASITIM0MTOoNgDDnCS6oHL6TH94mWUwUtZ0O9I4OhKVb5m/QnD9PqlxI6+aj42eUng==}
     dev: false
 
+  /shikiji-core@0.9.14:
+    resolution: {integrity: sha512-ja+PUlDCwMMIrr9FsRhMYQHKDbjWC3VTUtKfvt20p5u4iEQFYJ/oJn+gfa1eixP6+HDHvE9Zb1vOs8TJS7FcUA==}
+    dev: false
+
   /shikiji@0.9.13:
     resolution: {integrity: sha512-nEmxSoeOgzfHcpv1dVeYml0PYBso10Ak9KH7Pgz1fHAvyvvsh1PcgZfTb6Aj2y+Nbw3h4vxNCho9+lNcuzHrNA==}
     dependencies:
       shikiji-core: 0.9.13
+    dev: false
+
+  /shikiji@0.9.14:
+    resolution: {integrity: sha512-u9VUYYH/S6/ssA4hgAjp2KBdPymC2wRKd4omwkJSG8BRBtHJ8M6ubjnFjdqWbNlqvAkxoyaG+DWzQEmcEuLFUA==}
+    dependencies:
+      shikiji-core: 0.9.14
     dev: false
 
   /siginfo@2.0.0:
@@ -5056,7 +5066,7 @@ packages:
     resolution: {integrity: sha512-RNGKj82nUPg3g5ygxkQl0R937xLyho1J24ItRCBTr/m1YnZkzJy1hUiHUJrc/VlsDQzsCnInEGSg3bci0Lmd4w==}
     engines: {node: '>= 10.0.0'}
     dependencies:
-      '@babel/parser': 7.23.5
+      '@babel/parser': 7.23.6
       '@babel/types': 7.23.3
       assert-never: 1.2.1
       babel-walk: 3.0.0-canary-5
