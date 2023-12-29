@@ -13,199 +13,101 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use eyre::{Context, Result};
+use eyre::{eyre, Context, Result};
 use std::{
-    ffi::OsString,
+    ffi::OsStr,
     path::{Path, PathBuf},
-    process::{exit, Command, Stdio},
+    process::{Command, Stdio},
 };
-use which::which;
 
-pub mod docker {
-    use eyre::{Context, Result};
-    use std::{
-        path::{Path, PathBuf},
-        process::{Command, Stdio},
-    };
-    use which::which;
-
-    pub fn find<P: AsRef<Path>>(path: Option<P>) -> Result<PathBuf> {
-        match path {
-            Some(path) => Ok(path.as_ref().to_path_buf()),
-            None => which("docker").context("unable to locate 'docker' binary from $PATH"),
-        }
+/// Finds a binary with a specific path, or finds it under the `$PATH` variable
+/// with a given `bin`.
+///
+/// ## Example
+/// ```
+/// # use charted_devtools::utils::*;
+/// #
+/// let bin = find_binary::<&str>(None, "rustc");
+/// assert!(bin.is_some());
+/// ```
+pub fn find_binary<P: AsRef<Path>>(path: Option<P>, bin: &str) -> Option<PathBuf> {
+    if let Some(p) = path {
+        return Some(p.as_ref().to_path_buf());
     }
 
-    pub fn exec(docker: PathBuf, wd: PathBuf, args: &[&str]) -> Result<()> {
-        let mut cmd = Command::new(&docker);
-        cmd.args(args)
-            .current_dir(wd)
-            .stdin(Stdio::null())
-            .stderr(Stdio::inherit())
-            .stdout(Stdio::inherit());
-
-        let cmd_args = cmd
-            .get_args()
-            .map(|arg| arg.to_string_lossy().to_string())
-            .collect::<Vec<_>>();
-
-        info!("$ {} {}", docker.display(), cmd_args.join(" "));
-        cmd.spawn()?.wait().map(|_| ()).context("unable to bark")
-    }
+    which::which(bin).ok()
 }
 
-pub fn find_bazel<P: AsRef<Path>>(path: Option<P>) -> Result<PathBuf> {
-    match path {
-        Some(path) => validate(path.as_ref().to_path_buf()),
-        None => validate(which("bazel").context("unable to locate 'bazel' binary from $PATH")?),
-    }
-}
+/// Creates and runs a specific command and returns the standard output as an allocated [`String`]. The
+/// second argument is a builder method, which you can modify the command.
+///
+/// ## Panics
+/// `cmd` can panic if the command has failed, which `eyre` will propagate if this was caused. It will
+/// print both the standard output and error pipes.
+///
+/// ## Example
+/// ```
+/// # use charted_devtools::utils::cmd;
+/// # use std::process::Stdio;
+/// #
+/// let cmd = cmd("ls", |_| {});
+///
+/// assert!(cmd.is_ok());
+/// ```
+pub fn cmd<C: AsRef<OsStr>, F: FnOnce(&mut Command)>(command: C, builder: F) -> Result<String> {
+    let name = command.as_ref();
+    let mut cmd = Command::new(&command);
+    cmd.stdin(Stdio::null()).stderr(Stdio::null()).stdout(Stdio::inherit());
+    builder(&mut cmd);
 
-pub fn info(bazel: PathBuf, args: &[&str]) -> Result<String> {
-    let cmd = Command::new(bazel.clone()).arg("info").args(args).output()?;
-    assert!(cmd.status.success(), "expected success, got failed command");
+    let args = cmd.get_args().map(|x| x.to_string_lossy()).collect::<Vec<_>>();
 
-    String::from_utf8(cmd.stdout).context("unable to transform stdout to utf-8")
-}
+    info!("$ {} {}", name.to_string_lossy(), args.join(" "));
+    let output = cmd.output();
 
-#[derive(Clone, Default)]
-pub struct BuildCliArgs {
-    pub release: bool,
-    pub bazelrc: Vec<PathBuf>,
-    pub args: Vec<OsString>,
-    pub run: bool,
-}
-
-pub fn build_or_run(bazel: PathBuf, target: &str, args: BuildCliArgs) -> Result<()> {
-    let mut cmd = Command::new(bazel.clone());
-    cmd.args(args.bazelrc.as_slice());
-
-    let is_build = match (args.release, args.run) {
-        (true, true) => {
-            cmd.args(["run", "--compilation_mode=opt", target]);
-            false
+    match output {
+        Ok(output) if output.status.success() => {
+            Ok(String::from_utf8(output.stdout).context("unable to convert stdout to utf-8")?)
         }
 
-        (false, true) => {
-            cmd.args(["run", target]);
-            false
-        }
+        Ok(output) => {
+            let code = output.status.code().unwrap_or(-1);
 
-        _ => {
-            cmd.args(["build", "--compilation_mode=opt", target]);
-            true
-        }
-    };
+            // '101' is clap's help command exit code when prompted
+            if code == 2 {
+                return Ok(String::new());
+            }
 
-    if !args.args.is_empty() {
-        cmd.arg("--");
-    }
+            let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+            let stderr = String::from_utf8_lossy(&output.stderr).to_string();
 
-    for arg in args.args.iter() {
-        cmd.arg(arg);
-    }
+            // this happens if Stdio::null()/Stdio::inherit() was used in Command::stdout/Command::stderr
+            if stdout.is_empty() && stderr.is_empty() {
+                panic!("command ran has failed with exit code {code} but no stdout/stderr logs were captured, view above for more information.");
+            }
 
-    cmd.stdin(Stdio::null());
-    cmd.env("CHARTED_DISTRIBUTION_KIND", "git");
-
-    // we still want to see bazel stdout/stderr when --release
-    // is passed in
-    if args.release {
-        cmd.stdout(Stdio::inherit());
-        cmd.stderr(Stdio::inherit());
-    }
-
-    let cmd_args = cmd
-        .get_args()
-        .map(|arg| arg.to_string_lossy().to_string())
-        .collect::<Vec<_>>();
-
-    info!("$ {} {}", bazel.display(), cmd_args.join(" "));
-
-    let result = if args.release {
-        cmd.output()?.status
-    } else {
-        cmd.spawn()?.wait()?
-    };
-
-    // exit immediately if the process failed
-    if !result.success() {
-        exit(result.code().unwrap_or(1));
-    }
-
-    if is_build {
-        info!("--release was passed in but not --run, printing output location in stderr");
-        let cquery = Command::new(bazel.clone())
-            .args(args.bazelrc.clone())
-            .args(["cquery", target, "--output=files"])
-            .stdin(Stdio::null())
-            .output()?;
-
-        assert!(cquery.status.success(), "expected success, 'bazel cquery' failed");
-        let stdout = String::from_utf8(cquery.stdout).context("unable to convert stdout to utf-8")?;
-
-        eprintln!("{}", stdout.trim());
-    }
-
-    Ok(())
-}
-
-pub fn build_or_run_cli(bazel: PathBuf, args: BuildCliArgs) -> Result<()> {
-    build_or_run(bazel, "//cli", args)
-}
-
-fn validate(bazel: PathBuf) -> Result<PathBuf> {
-    let output = Command::new(bazel.clone())
-        .arg("--version")
-        .output()
-        .context(format!("unable to run command [{} --version]", bazel.display()))?;
-
-    if !output.status.success() {
-        error!("unable to validate bazel binary");
-        error!("why: {} --version failed to execute", bazel.display());
-        error!("---- stdout ----");
-
-        let stdout = String::from_utf8(output.stdout).context("unable to convert stdout to utf-8")?;
-        error!("{stdout}");
-        error!("---- stderr ----");
-
-        let stderr = String::from_utf8(output.stderr).context("unable to convert stderr to utf-8")?;
-        error!("{stderr}");
-        exit(1);
-    }
-
-    let stdout = String::from_utf8(output.stdout).context("unable to convert stdout to utf-8")?;
-    let split = stdout.split(' ').collect::<Vec<_>>();
-    let Some(product) = split.first() else {
-        error!("unable to validate bazel binary");
-        error!("why: {} --version stdout was empty", bazel.display());
-
-        exit(1);
-    };
-
-    match *product {
-        "bazel" | "blaze" => {}
-        _ => {
-            error!("unable to validate bazel binary");
-            error!(
-                "why: {} --version uses an invalid product (expected: 'bazel', 'blaze'; received: {product})",
-                bazel.display()
+            panic!(
+                "\n-- command has failed --\n~! STDOUT !~\n{stdout}\n\n~! STDERR !~\n{stderr}\n\nExited with code {}",
+                output.status.code().unwrap_or(-1)
             );
-
-            exit(1);
         }
+
+        Err(e) => Err(e.into()),
     }
+}
 
-    let Some(version) = split.get(1) else {
-        error!("unable to validate bazel binary");
-        error!(
-            "why: {} --version stdout was only '{product}', missing version number",
-            bazel.display()
-        );
-
-        exit(1);
-    };
-
-    debug!("using product {product}, version {}", version.trim());
-    Ok(bazel)
+/// Runs a `cargo` command with specified subcommand and arguments.
+pub fn cargo<'s, P: AsRef<Path>, S: AsRef<OsStr>, I: Iterator<Item = S>>(
+    cargo: Option<P>,
+    subcommand: impl Into<&'s OsStr>,
+    args: I,
+) -> Result<()> {
+    let cargo = find_binary(cargo, "cargo").ok_or_else(|| eyre!("unable to find `cargo` binary"))?;
+    cmd(cargo, |cmd| {
+        cmd.arg(subcommand.into())
+            .args(args)
+            .stdout(Stdio::inherit())
+            .stderr(Stdio::inherit());
+    })
+    .map(|_| ())
 }

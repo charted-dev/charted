@@ -13,26 +13,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use async_trait::async_trait;
+use charted_common::cli::{AsyncExecute, Execute};
+
 mod down;
+mod logs;
 mod up;
 
-use charted_common::cli::Execute;
-use down::*;
-use eyre::Result;
-use up::*;
-
+/// Utilities for starting and tearing down the development Docker compose project
+/// that is used to run the server.
 #[derive(Debug, Clone, clap::Subcommand)]
-#[clap(about = "Utilities for starting or tearing down the development Docker compose project")]
-pub enum Docker {
-    Down(Down),
-    Up(Up),
+pub enum Cmd {
+    Down(down::Cmd),
+    Logs(logs::Cmd),
+    Up(up::Cmd),
 }
 
-impl Execute for Docker {
-    fn execute(&self) -> Result<()> {
+#[async_trait]
+impl AsyncExecute for Cmd {
+    async fn execute(&self) -> eyre::Result<()> {
         match self {
-            Docker::Down(down) => down.execute(),
-            Docker::Up(up) => up.execute(),
+            Self::Up(up) => up.execute().await,
+            Self::Down(down) => down.execute(),
+            Self::Logs(logs) => logs.execute(),
         }
     }
 }

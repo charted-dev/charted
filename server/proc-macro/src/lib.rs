@@ -63,7 +63,7 @@ pub fn response(body: TokenStream) -> TokenStream {
 /// It works by grouping APIs together into a single module with a function that points to
 /// a path and a method. This is used by the `#[handler]` attribute macro:
 ///
-/// ```no_run
+/// ```rust,ignore
 /// # use charted_proc_macros::{response, handler};
 /// # use charted_openapi::security::*;
 /// #

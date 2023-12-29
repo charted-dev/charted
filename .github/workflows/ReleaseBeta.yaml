@@ -14,13 +14,10 @@
 # limitations under the License.
 
 name: Release CI (Beta)
-concurrency:
-    group: charted-release-ci[beta]-${{ github.ref }}
-    cancel-in-progress: true
 on:
     push:
         tags:
-            - '[0-9]+.[0-9]+.[0-9]+-beta(\.[0-9]+)?'
+            - 'v?[0-9]+.[0-9]+.[0-9]+-beta(\.[0-9]+)?'
 jobs:
     binary:
         runs-on: ubuntu-latest

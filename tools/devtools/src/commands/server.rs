@@ -13,75 +13,68 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    args::{CommonBazelArgs, CommonBuildRunArgs},
-    utils::{self, BuildCliArgs},
-};
+use crate::{utils, CommonArgs};
 use charted_common::cli::Execute;
-use eyre::Result;
-use std::{ffi::OsString, path::PathBuf};
+use eyre::{eyre, Result};
+use itertools::Itertools;
+use std::{collections::HashSet, env::current_dir, ffi::OsString, process::Stdio};
 
+/// Runs the API server, which invokes the `charted server` CLI command.
 #[derive(Debug, Clone, clap::Parser)]
-#[clap(about = "Builds and runs the API server")]
-pub struct Server {
-    /// Whether if the configuration should be built or not.
-    #[arg(long)]
-    print_config: bool,
-
-    /// Path to use to locate a configuration file.
-    #[arg(short = 'c', long, env = "CHARTED_CONFIG_FILE")]
-    config: Option<PathBuf>,
-
+pub struct Cmd {
     #[command(flatten)]
-    bazel: CommonBazelArgs,
-
-    #[command(flatten)]
-    common: CommonBuildRunArgs,
+    args: CommonArgs,
 }
 
-impl Execute for Server {
+impl Execute for Cmd {
     fn execute(&self) -> Result<()> {
-        let bazel = utils::find_bazel(self.bazel.bazel.clone())?;
-        let mut args = vec![OsString::from("server")];
-        match self.config.clone() {
-            Some(path) => {
-                args.push("--config".into());
-                args.push(path.into());
+        let cargo = utils::find_binary(self.args.cargo.clone(), "cargo")
+            .ok_or_else(|| eyre!("unable to find `cargo` binary"))?;
+
+        utils::cmd(cargo, |cmd| {
+            cmd.stdout(Stdio::inherit())
+                .stderr(Stdio::inherit())
+                .arg(match (self.args.release, self.args.run) {
+                    (true, true) | (false, true) => "run",
+                    (false, false) | (true, false) => "build",
+                })
+                .arg("--locked");
+
+            if self.args.release {
+                cmd.arg("--release");
             }
 
-            None => {
-                let workspace = PathBuf::from(utils::info(bazel.clone(), &["workspace"])?.trim());
-                let default_location_1 = workspace.join("config.yml");
+            let mut rustflags: HashSet<OsString> = HashSet::new();
+            rustflags.insert(OsString::from("--cfg tokio_unstable"));
 
-                if default_location_1.exists() {
-                    info!("using provided config in {}", default_location_1.display());
+            let rustc_flags = self.args.rustc_flags.clone().unwrap_or_default();
+            if !rustc_flags.is_empty() {
+                rustflags.insert(rustc_flags);
+            }
 
-                    args.push("--config".into());
-                    args.push(default_location_1.into());
+            cmd.env(
+                "RUSTFLAGS",
+                rustflags.iter().map(|x| x.to_string_lossy().to_string()).join(" "),
+            );
+
+            cmd.args(["--bin", "charted-cli"]);
+
+            if self.args.run {
+                let root = current_dir().unwrap();
+                let mut config = None;
+
+                for path in [root.join("config.yml"), root.join("config/charted.yaml")] {
+                    if path.try_exists().unwrap() {
+                        config = Some(path);
+                        break;
+                    }
                 }
 
-                let default_location_2 = workspace.join("config").join("charted.yaml");
-                if default_location_2.exists() {
-                    info!("using provided config in {}", default_location_2.display());
-
-                    args.push("--config".into());
-                    args.push(default_location_2.into());
+                if let Some(cfg) = config {
+                    cmd.arg("--").arg("server").arg(format!("--config={}", cfg.display()));
                 }
             }
-        }
-
-        if self.print_config {
-            args.push(OsString::from("--print-config"));
-        }
-
-        args.extend(self.common.args.clone());
-        let args = BuildCliArgs {
-            release: self.common.release,
-            bazelrc: self.bazel.bazelrc.clone(),
-            args,
-            run: true,
-        };
-
-        utils::build_or_run_cli(bazel.clone(), args)
+        })
+        .map(|_| ())
     }
 }

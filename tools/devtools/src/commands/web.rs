@@ -13,38 +13,60 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    args::{CommonBazelArgs, CommonBuildRunArgs},
-    utils::{self, find_bazel},
-};
+use crate::utils;
 use charted_common::cli::Execute;
-use eyre::Result;
+use eyre::eyre;
+use std::{env::current_dir, path::PathBuf, process::Stdio};
 
+/// Runs or builds the web distribution. This will require [Bun](https://bun.sh) to be installed.
 #[derive(Debug, Clone, clap::Parser)]
-#[clap(about = "Spawns the development server for the web UI")]
-pub struct Web {
-    #[command(flatten)]
-    bazel: CommonBazelArgs,
+pub struct Cmd {
+    /// whether or not if we should just build the web distribution's production build.
+    #[arg(long)]
+    build: bool,
 
-    #[command(flatten)]
-    common: CommonBuildRunArgs,
+    /// Location as an absolute path to a [`bun`](https://bun.sh) binary.
+    #[arg(long, env = "BUN")]
+    bun: Option<PathBuf>,
+
+    /// whether or not if we should run in development mode (invokes `bun run dev` in `web/`),
+    /// or in production mode (invokes `bun run preview`). If `--build` is specified, then it will
+    /// only build and not run the web distribution in Vite itself.
+    #[arg(long)]
+    run: bool,
 }
 
-#[async_trait]
-impl Execute for Web {
-    fn execute(&self) -> Result<()> {
-        let bazel = find_bazel(self.bazel.bazel.clone())?;
-        let args = utils::BuildCliArgs {
-            bazelrc: self.bazel.bazelrc.clone(),
-            release: self.common.release,
-            args: self.common.args.clone(),
-            run: self.common.run,
-        };
+impl Execute for Cmd {
+    fn execute(&self) -> eyre::Result<()> {
+        let bun =
+            utils::find_binary(self.bun.clone(), "bun").ok_or_else(|| eyre!("unable to find the `bun` binary"))?;
 
-        match (self.common.release, self.common.run) {
-            (true, true) => utils::build_or_run(bazel.clone(), "//web:build", args),
-            (false, true) => utils::build_or_run(bazel.clone(), "//web:vite", args),
-            _ => utils::build_or_run(bazel.clone(), "//web:build", args),
-        }
+        utils::cmd(bun, |cmd| {
+            cmd.stdout(Stdio::inherit())
+                .stderr(Stdio::inherit())
+                .current_dir(current_dir().unwrap().join("web"));
+
+            match (self.build, self.run) {
+                // only build the web distribution
+                (true, true) => {
+                    cmd.args(["run", "preview"]);
+                }
+
+                (false, true) => {
+                    cmd.args(["run", "dev"]);
+                }
+
+                (true, false) => {
+                    cmd.args(["run", "build"]);
+                }
+
+                (_, _) => {
+                    cmd.args(["run", "dev"]);
+                }
+            }
+
+            cmd.args(["--", "--clearScreen=false"]);
+        })
+        .map(|_| ())
     }
 }

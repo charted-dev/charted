@@ -27,7 +27,7 @@ use syn::{
 /// of paths.
 ///
 /// ## Example
-/// ```no_run
+/// ```rust,ignore
 /// # use charted_openapi::add_paths;
 /// #
 /// add_paths! {

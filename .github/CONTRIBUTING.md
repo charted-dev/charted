@@ -48,7 +48,6 @@ This repository is a monorepo, so the codebase might be intimidating, but this g
 ### How is the project structured?
 The project is a monorepo that is structured into multiple folders:
 
-* `build/` is meant to add [Bazel macros](https://bazel.build/extending/macros).
 * `cli/` is the actual CLI source code.
 * `crates/` is the different crates that is used through-out the `cli` and `server` folders.
 * `distribution/` is related to how **charted-server** is distributed once a release is settled.
@@ -57,43 +56,15 @@ The project is a monorepo that is structured into multiple folders:
 * `tools/` is tools and services that help aid the `server/` folder.
 * `web/` is the actual web interface that is packaged with the server!
 
-Originally, **charted-server** was written in Kotlin, which made it impossible to include both the `web/` and `server/` together without magic with Gradle, Rust and Bazel helps us build a monorepo that brings in what **charted-server** brings to the table without trying to separate it between repositories and make it harder on the team.
+Originally, **charted-server** was written in Kotlin, which made it impossible to include both the `web/` and `server/` together without magic with Gradle, Rust and Bun helps us build a monorepo that brings in what **charted-server** brings to the table without trying to separate it between repositories and make it harder on the team.
 
 We don't do any specification for Git commit messages, like [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0), but all Git commits that are pushed to `main` should be helpful with an optional body payload.
 
-> Note
+> [!NOTE]
 >
 > In a pull request, you can add meaningless Git commit messages since we merge `main` branches with the PR title (#id) with the README from that PR as the optional body.
 
 ## FAQ
-### :question: How can I use a different Rust channel?
-You can use the `--@rules_rust//rust/toolchain/channel` setting when you run `bazel build`, or you can add it in your .user.bazelrc to persist on builds:
-
-```shell
-# we only support stable and nightly
-build --@rules_rust//rust/toolchain/channel=nightly
-```
-
-If you don't want it persisted, you can include it when you run `bazel build`, or use the `BAZEL_ARGS` environment variable if you use the `./dev` script:
-
-```shell
-BAZEL_ARGS="--@rules_rust//rust/toolchain/channel=nightly" ./dev server
-```
-
-### :question: How can I contribute on NixOS?
-Since Rust toolchains are resolved with a remote source and are unpatched, you can add this to your .user.bazelrc file:
-
-```shell filename=".user.bazelrc"
-# signalify that OpenSSL is compiled statically and will use the nixpkgs version, which is patched.
-build --//build/settings:is-nixos
-
-# recommended by rules_nixpkgs
-build --host_platform=@rules_nixpkgs_core//platforms:host
-
-# use the nixpkgs_config_cc toolchain
-build --crosstool_top=@nixpkgs_config_cc//:toolchain
-```
-
 ### :question: Why do I get a `container unhealthy` error when I run `./dev docker up`?
 Because Bitnami's PostgreSQL and Redis containers expect the filesystem path of `./.cache/docker/postgresql` and `./.cache/docker/redis` be with uid and gid `1001`.
 
