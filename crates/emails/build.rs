@@ -15,10 +15,9 @@
 
 use std::{
     env::{set_var, var},
-    fs,
     path::PathBuf,
 };
-use tonic_build::configure;
+use tonic_build::{compile_protos, configure};
 use which::which;
 
 fn main() {
@@ -26,60 +25,17 @@ fn main() {
     println!("cargo:rerun-if-changed=build.rs");
 
     // detect changes in protos/emails.proto
-    #[cfg(not(bazel))]
     println!("cargo:rerun-if-changed=protos/emails.proto");
 
     // Allow Prost to use the detected `protoc` binary if there is no PROTOC
-    // environment variable. Bazel users will have this defined as we have a
-    // hermetic protoc toolchain.
+    // environment variable.
     if var("PROTOC").is_err() {
         let protoc = which("protoc").expect("missing `protoc` binary!");
         set_var("PROTOC", protoc);
     }
 
-    let files = var("PROTOS")
-        .unwrap_or("./protos/emails.proto".into())
-        .split(',')
-        .map(|f| f.parse::<PathBuf>())
-        .filter_map(|s| s.ok())
-        .collect::<Vec<_>>();
+    let file = PathBuf::from("./protos/emails.proto");
 
-    for file in files {
-        eprintln!("[BUILD] >> compiling proto file [{}]", file.display());
-        let (parent, canonicalized) = match cfg!(bazel) {
-            false => {
-                let canonicalized = fs::canonicalize(file.clone())
-                    .unwrap_or_else(|e| panic!("unable to canonicalize file {}: {e}", file.display()));
-
-                let parent = file.parent().unwrap().canonicalize().unwrap();
-                eprintln!(
-                    "[BUILD] >> PARENT: [{}] | CANONICAL PATH: [{}]",
-                    parent.display(),
-                    canonicalized.display()
-                );
-
-                (parent, canonicalized)
-            }
-
-            true => {
-                let canonical_path = file.clone();
-                let parent = file.parent().unwrap().to_path_buf();
-
-                eprintln!(
-                    "[BUILD] >> PARENT: [{}] | CANONICAL PATH: [{}]",
-                    parent.display(),
-                    canonical_path.display()
-                );
-
-                (file.parent().unwrap().to_path_buf(), file.clone())
-            }
-        };
-
-        let builder = configure()
-            .build_client(true)
-            .build_server(false)
-            .compile_well_known_types(true);
-
-        builder.compile(&[canonicalized], &[parent]).unwrap();
-    }
+    eprintln!("[BUILD] >> compiling proto file {}", file.display());
+    compile_protos(file).expect("protobufs to be compiled successfully");
 }
