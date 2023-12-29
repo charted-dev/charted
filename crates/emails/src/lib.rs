@@ -15,11 +15,11 @@
 
 /// Generated protobuf definitions.
 pub mod protos {
-    pub mod google {
-        pub mod protobuf {
-            tonic::include_proto!("google.protobuf");
-        }
-    }
+    // pub mod google {
+    //     pub mod protobuf {
+    //         tonic::include_proto!("google.protobuf");
+    //     }
+    // }
 
     pub mod noelware {
         pub mod charted {
