@@ -1072,6 +1072,7 @@ name = "charted-emails-client"
 version = "0.0.0-devel.0"
 dependencies = [
  "prost",
+ "prost-types",
  "tonic",
  "tonic-build",
  "tracing",
