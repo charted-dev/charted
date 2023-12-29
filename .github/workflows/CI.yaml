@@ -70,11 +70,9 @@ jobs:
             - name: Install `protoc`
               uses: Noelware/setup-protoc@1.1.0
 
-            - name: Setup `vcpkg`
+            - name: Setup `VCPKG_ROOT` environment variable
               if: matrix.runner == 'windows-latest'
-              uses: friendlyanon/setup-vcpkg@v1.5.1
-              with:
-                committish: f1c6efee2245009540dde947e0e3d008f3aa7dbb
+              run: echo "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" | Out-File -FilePath $env:GITHUB_ENV -Append
 
             - name: Install OpenSSL on Windows with `vcpkg`
               if: matrix.runner == 'windows-latest'
