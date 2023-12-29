@@ -78,7 +78,7 @@ jobs:
 
             - name: Install OpenSSL on Windows with `vcpkg`
               if: matrix.runner == 'windows-latest'
-              run: vcpkg install openssl:x64-windows
+              run: vcpkg install openssl:x64-windows-static-md
 
             - name: Build project
               run: cargo build --all-features

@@ -28,7 +28,7 @@ RUN bun run build
 
 FROM --platform=${TARGETPLATFORM} rust:1.75-alpine3.18 AS build
 
-RUN apk update && apk add --no-cache git ca-certificates openssl-dev pkgconfig musl-dev build-base
+RUN apk update && apk add --no-cache git ca-certificates curl musl-dev libc6-compat gcompat pkgconfig openssl-dev build-base
 WORKDIR /build
 
 COPY . .
