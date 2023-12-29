@@ -13,6 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// disable clippy on Windows as it is all dead code for now
+#![cfg_attr(windows, allow(clippy::all))]
+
 use charted_config::var;
 use charted_helm_charts::{HelmCharts, UploadReleaseTarball};
 use charted_storage::MultiStorageService;
