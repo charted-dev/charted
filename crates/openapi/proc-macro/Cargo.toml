@@ -26,7 +26,7 @@ proc-macro = true
 
 [dependencies]
 charted-proc-macros = { version = "0.0.0-devel.0", path = "../../proc-macros" }
-proc-macro2 = "1.0.71"
+proc-macro2 = "1.0.73"
 quote = "1.0.33"
 syn = "2.0.43"
 
