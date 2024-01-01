@@ -1,6 +1,6 @@
 /*
  * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
- * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
+ * Copyright 2022-2024 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,16 @@
  * limitations under the License.
  */
 
-import { hasOwnProperty } from '@noelware/utils';
-import { readFile, writeFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
-import openapi from 'openapi-typescript';
+import { hasOwnProperty } from "@noelware/utils";
+import { readFile, writeFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import openapi from "openapi-typescript";
 
 // People could theoritically add their own JS_BINARY__ env if not on Bazel,
 // but whatever I guess...
-const INVOKED_BY_BAZEL = Object.keys(process.env).some((s) => s.startsWith('JS_BINARY__'));
+const INVOKED_BY_BAZEL = Object.keys(process.env).some((s) =>
+  s.startsWith("JS_BINARY__"),
+);
 
 // aspect's rules-js exposes a JS_BINARY__RUNFILES environment variable, where we can find files
 // from Bazel's runfiles!
@@ -30,23 +32,27 @@ const INVOKED_BY_BAZEL = Object.keys(process.env).some((s) => s.startsWith('JS_B
 // Since we expose 'assets/openapi.json' to runfiles, we can access it without breaking the
 // Bazel sandbox.
 const PWD =
-    INVOKED_BY_BAZEL && hasOwnProperty(process.env, 'JS_BINARY__RUNFILES')
-        ? resolve(process.env.JS_BINARY__RUNFILES!, 'org_noelware_charted_server')
-        : resolve(process.cwd(), '../..');
+  INVOKED_BY_BAZEL && hasOwnProperty(process.env, "JS_BINARY__RUNFILES")
+    ? resolve(process.env.JS_BINARY__RUNFILES!, "org_noelware_charted_server")
+    : resolve(process.cwd(), "../..");
 
-const SCHEMA_FILE = resolve(PWD, 'assets/openapi.json');
+const SCHEMA_FILE = resolve(PWD, "assets/openapi.json");
 
 async function main() {
-    const dts = await openapi(SCHEMA_FILE, {
-        immutableTypes: true,
-        supportArrayLength: true
-    });
+  const dts = await openapi(SCHEMA_FILE, {
+    immutableTypes: true,
+    supportArrayLength: true,
+  });
 
-    await writeFile(resolve(PWD, 'types/js/src/generated.d.ts'), dts, { encoding: 'utf-8' });
-    console.log(`generate successfully in ${resolve(PWD, 'types/js/src/generated.d.ts')}`);
+  await writeFile(resolve(PWD, "types/js/src/generated.d.ts"), dts, {
+    encoding: "utf-8",
+  });
+  console.log(
+    `generate successfully in ${resolve(PWD, "types/js/src/generated.d.ts")}`,
+  );
 }
 
 main().catch((ex) => {
-    console.error(ex.message);
-    process.exit(1);
+  console.error(ex.message);
+  process.exit(1);
 });

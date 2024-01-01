@@ -1,6 +1,6 @@
 /*
  * 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
- * Copyright 2022-2023 Noelware, LLC. <team@noelware.org>
+ * Copyright 2022-2024 Noelware, LLC. <team@noelware.org>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,11 @@
 
 // @ts-check
 
-import { Name, NameError } from '../src/index.mjs';
-import { expect, test } from 'vitest';
+import { Name, NameError } from "../src/index.mjs";
+import { expect, test } from "vitest";
 
-test('Name#validate', () => {
-    expect(new Name('noel').validate()).not.toThrowError(NameError);
-    expect(() => new Name().validate()).toThrowError(NameError);
-    expect(() => new Name('@@@@@').validate()).toThrowError(NameError);
+test("Name#validate", () => {
+  expect(new Name("noel").validate()).not.toThrowError(NameError);
+  expect(() => new Name().validate()).toThrowError(NameError);
+  expect(() => new Name("@@@@@").validate()).toThrowError(NameError);
 });
