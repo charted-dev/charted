@@ -42,20 +42,23 @@ SCRIPT_DIR=$(cd -P "$(dirname $BASH_SRC)" >/dev/null 2>&1 && pwd)
 ! [ -d "$SCRIPT_DIR/.cache" ] && mkdir "$SCRIPT_DIR/.cache"
 
 CARGO=${CARGO:-cargo}
-BAZEL_ARGS=${CARGO_ARGS:-}
-REBUILD=${DEV_REBUILD:-}
+CARGO_ARGS=${CARGO_ARGS:-}
+should_rebuild="no"
 
 if [[ "x$CARGO" == "xcargo" ]] && ! command -v cargo >/dev/null; then
     devtools::fatal "Unable to find \`cargo\` installed! Did you install \`rustup\`?"
 fi
 
-if ! [[ -f "$SCRIPT_DIR/.cache/dev" || "x$REBUILD" != "x" ]]; then
-    [[ "x$REBUILD" != "x" && -f "$SCRIPT_DIR/.cache/dev" ]] && rm -rf "$SCRIPT_DIR/.cache/dev"
+[ ! -f "$SCRIPT_DIR/.cache/dev" ] && should_rebuild="yes"
+[ "x${DEV_REBUILD:-}" != "x" ] && should_rebuild="yes"
+
+if [[ "$should_rebuild" == "yes" ]]; then
+    rm -rf "$SCRIPT_DIR/.cache/dev" || true # ignore if it doesn't exist already
 
     devtools::log "Compiling \`charted-devtools\` binary!"
-    devtools::log "$ $CARGO build --release $CARGO_ARGS --bin charted-devtools"
+    devtools::log "$ $CARGO build --release --locked $CARGO_ARGS --bin charted-devtools"
 
-    "$CARGO" build --release $CARGO_ARGS --bin charted-devtools
+    "$CARGO" build --release --locked $CARGO_ARGS --bin charted-devtools | xargs
     cp $SCRIPT_DIR/target/release/charted-devtools $SCRIPT_DIR/.cache/dev
 fi
 

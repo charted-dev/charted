@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use crate::SNOWFLAKE_EPOCH;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::{
     fmt::{Debug, Display, Formatter},
     ops::Deref,
@@ -170,6 +170,15 @@ impl Serialize for ID {
         S: serde::Serializer,
     {
         serializer.serialize_u64(self.0)
+    }
+}
+
+impl<'de> Deserialize<'de> for ID {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        u64::deserialize(deserializer).map(ID)
     }
 }
 

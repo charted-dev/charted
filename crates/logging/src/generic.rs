@@ -41,6 +41,11 @@ impl<S: Subscriber> Layer<S> for GenericLayer {
             Level::INFO => Colour::RGB(178, 157, 243).bold(),
         };
 
+        let target = metadata.module_path().unwrap_or("unknown");
+        if target.starts_with("tokio::") {
+            return;
+        }
+
         if self.verbose {
             let _ = write!(
                 writer,

@@ -168,7 +168,7 @@ pub struct RepositoryRelease {
 
     /// Markdown-formatted string that contains a changelog of this release.
     #[serde(default)]
-    pub update_test: Option<String>,
+    pub update_text: Option<String>,
 
     /// Date of when this release was registered to this instance
     pub created_at: DateTime,

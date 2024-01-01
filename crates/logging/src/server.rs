@@ -142,6 +142,11 @@ where
             let time = GRAY.paint(format!("{}", Local::now().format("[%B %d, %G - %H:%M:%S %p]")));
             let thread_name_color = Colour::RGB(255, 105, 189).paint(format!("{:>7}", thread.name().unwrap_or("main")));
 
+            let target = metadata.module_path().unwrap_or("unknown");
+            if target.starts_with("tokio::") {
+                return;
+            }
+
             let target =
                 Colour::RGB(120, 231, 255).paint(format!("{:<40}", metadata.module_path().unwrap_or("unknown")));
 

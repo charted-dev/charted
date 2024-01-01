@@ -15,6 +15,7 @@
 
 use super::{entities::ApiKeyScope, helm::ChartType, Name};
 use crate::serde::duration::Duration;
+use semver::Version;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use validator::Validate;
@@ -240,7 +241,7 @@ pub struct PatchOrganizationPayload {
 }
 
 /// Request body payload for creating a API key.
-#[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, Validate, ToSchema)]
 pub struct CreateApiKeyPayload {
     /// Description of the API key
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -261,7 +262,7 @@ pub struct CreateApiKeyPayload {
 }
 
 /// Request body payload to patch a API key's metadata.
-#[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, Validate, ToSchema)]
 pub struct PatchApiKeyPayload {
     /// Updates or removes the description of the API key.
     ///
@@ -278,48 +279,30 @@ pub struct PatchApiKeyPayload {
     pub name: Option<Name>,
 }
 
-/*
-@Schema(description = "Represents a resource for creating API keys")
-@Serializable
-data class CreateApiKeyPayload(
-    val description: String? = null,
-
-    @JsonProperty("expires_in")
-    @SerialName("expires_in")
-    val expiresIn: TimeSpan? = null,
-    val scopes: List<String> = listOf(),
-    val name: String
-) {
-    init {
-        if (description != null && description.length > 140) {
-            throw StringOverflowException("body.description", 140, description.length)
-        }
-
-        if (expiresIn != null) {
-            if (expiresIn.value < 30.seconds.inWholeMilliseconds) {
-                throw ValidationException("body.expires_in", "Expiration time can't be under 30 seconds")
-            }
-
-            if (scopes.isNotEmpty()) {
-                val isAddAll = scopes.size == 1 && scopes.first() == "*"
-                if (!isAddAll && !scopes.every { SCOPES.containsKey(it) }) {
-                    val invalidScopes = scopes.filter { !SCOPES.containsKey(it) }
-                    throw ValidationException("body.scopes", "Invalid scopes: [${invalidScopes.joinToString(", ")}]")
-                }
-            }
-        }
-
-        if (name.isBlank()) {
-            throw ValidationException("body.name", "API key name can't be blank")
-        }
-
-        if (!name.matchesNameAndIdRegex()) {
-            throw ValidationException("body.name", "API key name can only contain letters, digits, dashes, or underscores.")
-        }
-
-        if (name.length > 64) {
-            throw StringOverflowException("body.name", 64, name.length)
-        }
-    }
+/// Represents the request body for patching a repository release.
+#[derive(Debug, Clone, Default, Serialize, Deserialize, Validate, ToSchema)]
+pub struct PatchRepositoryReleasePayload {
+    /// The body of the release notes to update. It will not attempt to update
+    /// if the contents are the same.
+    ///
+    /// Conditions:
+    /// * If `update_text` is null, then nothing will be attempted to be patched
+    /// * If `update_text` is a empty string, then the release notes will be removed
+    /// * If `update_text` is an non empty string and is different than the ones in the previous cache,
+    ///   then it'll be updated.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[validate(length(max = 2048))]
+    pub update_text: Option<String>,
 }
-*/
+
+/// Represents the request body to create a Repository Release.
+#[derive(Debug, Clone, Serialize, Deserialize, Validate, ToSchema)]
+pub struct CreateRepositoryReleasePayload {
+    /// The body of the release notes that can be in Markdown.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[validate(length(max = 2048))]
+    pub update_text: Option<String>,
+
+    /// Release tag that can be filtered through.
+    pub tag: Version,
+}
