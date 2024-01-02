@@ -29,6 +29,6 @@ charted-common = { version = "0.0.0-devel.0", path = "../../crates/common" }
 charted-proc-macros = { version = "0.0.0-devel.0", path = "../../crates/proc-macros" }
 heck = "0.4.1"
 proc-macro2 = "1.0.73"
-quote = "1.0.33"
+quote = "1.0.35"
 syn = "2.0.43"
 utoipa = "4.1.0"
