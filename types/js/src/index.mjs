@@ -15,4 +15,4 @@
  * limitations under the License.
  */
 
-export { Name, NameError, NameErrorKind } from "./index.js";
+export { Name, NameError, NameErrorKind } from './index.js';

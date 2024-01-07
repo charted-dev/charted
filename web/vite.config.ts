@@ -16,7 +16,6 @@
  */
 
 import { type CommonServerOptions, type PluginOption, defineConfig } from 'vite';
-import { hasOwnProperty } from '@noelware/utils';
 import { fileURLToPath } from 'url';
 
 // @ts-ignore
@@ -31,11 +30,6 @@ import vueLayouts from 'vite-plugin-vue-layouts';
 import vueRouter from 'unplugin-vue-router/vite';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import vue from '@vitejs/plugin-vue';
-
-// If we have been invoked with `bazel build //web:build`, then we don't auto-update
-// the type declarations for Vue Router and unplugin-auto-import as Bazel's sandbox
-// for Linux and macOS is readonly.
-const IS_BAZEL = hasOwnProperty(process.env, 'BAZEL') && process.env.BAZEL === '1';
 
 export default defineConfig(async ({ command }) => {
     const proxy: CommonServerOptions['proxy'] =
@@ -62,15 +56,16 @@ export default defineConfig(async ({ command }) => {
                 'vue-router',
                 {
                     '@noelware/utils': ['Lazy', 'assertIsError', 'hasOwnProperty', 'lazy', 'titleCase'],
+                    '@tanstack/vue-query': ['useQuery'],
                     zod: ['z']
                 }
             ],
             dirs: ['src/components', 'src/composables', 'src/stores'],
-            dts: IS_BAZEL ? false : './auto-imports.d.ts'
+            dts: './auto-imports.d.ts'
         }),
         vueLayouts(),
         vueRouter({
-            dts: !IS_BAZEL,
+            dts: true,
             routesFolder: resolve(fileURLToPath(new URL('./src/views', import.meta.url)))
         }),
         vueComponents({

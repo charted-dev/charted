@@ -3,7 +3,7 @@
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
     "rust-analyzer.check.command": "clippy",
-    "eslint.workingDirectories": ["./web"],
+    "eslint.workingDirectories": ["./web", "./types/js"],
     "eslint.experimental.useFlatConfig": true,
     "rust-analyzer.showUnlinkedFileNotification": false,
     "tailwindCSS.experimental.configFile": "web/tailwind.config.ts",

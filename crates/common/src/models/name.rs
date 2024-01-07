@@ -127,7 +127,10 @@ impl Name {
         }
 
         std::str::from_utf8(name.as_bytes()).map_err(|_| NameError::InvalidUtf8)?;
-        for (at, ch) in name.chars().enumerate() {
+
+        // convert it to lowercase to allow uppercase strings as well
+        let lower = name.to_lowercase();
+        for (at, ch) in lower.chars().enumerate() {
             // if the character is alphanumeric (a-z | A-Z | 0-9), then let's
             // continue.
             if ch.is_alphanumeric() {
@@ -171,9 +174,10 @@ impl Name {
     /// Checks whether if this [`Name`] is valid or not. This is useful if this
     /// came from the `new_unchecked` method.
     pub fn is_valid(&self) -> Result<(), NameError> {
-        Name::check_is_valid(self.0.clone())
+        Name::check_is_valid(&self.0)
     }
 
+    /// Returns the name as a string slice.
     pub fn as_str(&self) -> &str {
         &self.0
     }
@@ -341,5 +345,16 @@ where
 {
     fn array_type_info() -> sqlx::postgres::PgTypeInfo {
         <String as PgHasArrayType>::array_type_info()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Name;
+
+    #[test]
+    fn allow_uppercase_letters() {
+        assert!(Name::new("Noel").is_ok());
+        assert!(Name::new("noel123gaming~!").is_err());
     }
 }
