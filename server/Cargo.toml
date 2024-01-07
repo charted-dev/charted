@@ -58,7 +58,7 @@ prometheus-client = "0.22.0"
 remi-core = "0.4.3"
 rust-embed = { version = "8.2.0", features = ["mime-guess"] }
 semver = { version = "1.0.20", features = ["serde"] }
-sentry = { version = "0.31.8", features = ["tracing", "tower", "tower-http", "debug-logs"] }
+sentry = { version = "0.32.1", features = ["tracing", "tower", "tower-http", "debug-logs"] }
 sentry-eyre = "0.1.0"
 sentry-tower = "0.31.8"
 sentry-tracing = "0.32.1"
