@@ -43,14 +43,13 @@ SCRIPT_DIR=$(cd -P "$(dirname $BASH_SRC)" >/dev/null 2>&1 && pwd)
 
 CARGO=${CARGO:-cargo}
 BAZEL_ARGS=${CARGO_ARGS:-}
-REBUILD=${DEV_REBUILD:-}
 
 if [[ "x$CARGO" == "xcargo" ]] && ! command -v cargo >/dev/null; then
     devtools::fatal "Unable to find \`cargo\` installed! Did you install \`rustup\`?"
 fi
 
-if ! [[ -f "$SCRIPT_DIR/.cache/dev" || "x$REBUILD" != "x" ]]; then
-    [[ "x$REBUILD" != "x" && -f "$SCRIPT_DIR/.cache/dev" ]] && rm -rf "$SCRIPT_DIR/.cache/dev"
+if [[ ! -f "$SCRIPT_DIR/.cache/dev" || "x${DEV_REBUILD:-}" != "x" ]]; then
+    [[ "x${DEV_REBUILD:-}" != "x" && -f "$SCRIPT_DIR/.cache/dev" ]] && rm -rf "$SCRIPT_DIR/.cache/dev"
 
     devtools::log "Compiling \`charted-devtools\` binary!"
     devtools::log "$ $CARGO build --release $CARGO_ARGS --bin charted-devtools"

@@ -15,7 +15,7 @@
 
 [package]
 name = "charted-cli"
-description = "🐻‍❄️📦 Command-line executor for running charted's API server or administration tools via terminal"
+description = "🐻‍❄️📦 Command-line executor for running charted's API server or administration tools"
 version = "0.0.0-devel.0"
 edition = "2021"
 homepage = "https://charts.noelware.org"

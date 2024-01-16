@@ -34,10 +34,7 @@ impl Execute for Cmd {
         utils::cmd(cargo, |cmd| {
             cmd.stdout(Stdio::inherit())
                 .stderr(Stdio::inherit())
-                .arg(match (self.args.release, self.args.run) {
-                    (true, true) | (false, true) => "run",
-                    (false, false) | (true, false) => "build",
-                })
+                .arg("run")
                 .arg("--locked");
 
             if self.args.release {
@@ -57,21 +54,13 @@ impl Execute for Cmd {
                 rustflags.iter().map(|x| x.to_string_lossy().to_string()).join(" "),
             );
 
-            cmd.args(["--bin", "charted-cli"]);
+            cmd.args(["--bin", "charted-cli", "--", "server"]);
 
-            if self.args.run {
-                let root = current_dir().unwrap();
-                let mut config = None;
-
-                for path in [root.join("config.yml"), root.join("config/charted.yaml")] {
-                    if path.try_exists().unwrap() {
-                        config = Some(path);
-                        break;
-                    }
-                }
-
-                if let Some(cfg) = config {
-                    cmd.arg("--").arg("server").arg(format!("--config={}", cfg.display()));
+            let root = current_dir().unwrap();
+            for path in [root.join("config.yml"), root.join("config/charted.yaml")] {
+                if path.try_exists().unwrap() {
+                    cmd.arg("--config").arg(path);
+                    break;
                 }
             }
         })
