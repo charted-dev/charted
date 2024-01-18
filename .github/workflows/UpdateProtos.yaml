@@ -31,8 +31,8 @@ jobs:
 
             - name: Update protos
               run: |
-                curl -fsSL -o ./crates/emails/protos/google/protobuf/struct.proto ${{env.GOOGLE_PROTOBUF_STRUCT_PROTO}}
-                curl -fsSL -o ./crates/emails/protos/emails.proto ${{env.CHARTED_EMAILS_PROTO}}
+                curl -fsSL -o ./protos/google/protobuf/struct.proto ${{env.GOOGLE_PROTOBUF_STRUCT_PROTO}}
+                curl -fsSL -o ./protos/emails.proto ${{env.CHARTED_EMAILS_PROTO}}
 
             - name: Commit!
               uses: EndBug/add-and-commit@v9
