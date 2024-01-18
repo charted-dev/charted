@@ -13,9 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+pub mod inmemory;
+pub mod redis;
+
 use eyre::Result;
 use serde::{de::DeserializeOwned, Serialize};
 use std::{borrow::Cow, fmt::Display, ops::Deref, time::Duration};
+
+use crate::common::models::entities::{Organization, Repository, User};
 
 /// Default max object size (15mb)
 pub const DEFAULT_MAX_OBJECT_SIZE: u64 = 15 * 1024 * 1024; // 15mb
@@ -87,6 +92,13 @@ pub trait CacheWorker<Target: Serialize + DeserializeOwned>: Send + Sync {
 
     /// Attempts to delete a cache key from the cache if it exists.
     async fn delete(&mut self, key: CacheKey) -> Result<()>;
+}
+
+/// Represents a joined cache worker, where it has all the available [`CacheWorker`]s as one struct.
+pub struct JoinedCacheWorker {
+    pub organizations: Box<dyn CacheWorker<Organization>>,
+    pub repositories: Box<dyn CacheWorker<Repository>>,
+    pub users: Box<dyn CacheWorker<User>>,
 }
 
 #[cfg(test)]

@@ -13,13 +13,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use avatars::AvatarsModule;
+use axum::extract::FromRef;
+use metrics::Registry;
+use noelware_remi::StorageService;
 use once_cell::sync::{Lazy, OnceCell};
 use rand::distributions::{Alphanumeric, DistString};
 use regex::Regex;
+use search::JoinedBackend;
 use std::{
     any::Any,
-    sync::atomic::{AtomicUsize, Ordering},
+    sync::{
+        atomic::{AtomicUsize, Ordering},
+        Arc,
+    },
 };
+use tokio::sync::RwLock;
 
 // useful global macros to use in the whole crate
 #[macro_use]
@@ -114,8 +123,28 @@ static GLOBAL: OnceCell<Instance<'static>> = OnceCell::new();
 /// Represents the core instance of charted-server. It contains a whole bunch of references
 /// to be able to operate successfully.
 pub struct Instance<'i> {
+    /// Represents how many requests the server has handled.
     pub requests: AtomicUsize,
+
+    /// Reference to the [`AvatarsModule`].
+    pub avatars: &'i AvatarsModule<'i>,
+
+    /// Storage service that does the handling for all external media and chart indexes.
+    pub storage: StorageService,
+
+    /// Search backend, if one was requested to be available.
+    pub search: Option<&'i JoinedBackend>,
+
+    /// Metrics registry
+    pub metrics: &'i dyn Registry,
+
+    /// Configuration that this [`Instance`] was created with.
     pub config: &'i config::Config,
+
+    /// Redis client used for caching.
+    pub redis: Arc<RwLock<redis::Client>>,
+
+    /// PostgreSQL pool.
     pub pool: sqlx::postgres::PgPool,
 }
 
@@ -123,9 +152,14 @@ impl<'i> Clone for Instance<'i> {
     fn clone(&self) -> Self {
         Instance {
             requests: AtomicUsize::new(self.requests.load(Ordering::Relaxed)),
+            metrics: self.metrics,
+            avatars: self.avatars,
+            search: self.search,
             config: self.config,
 
-            // this can be cheaply cloned
+            // these can be cheaply cloned
+            storage: self.storage.clone(),
+            redis: self.redis.clone(),
             pool: self.pool.clone(),
         }
     }
@@ -136,6 +170,12 @@ impl<'i> Instance<'i> {
     /// if [`set_instance`] wasn't called.
     pub fn get<'s>() -> &'s Instance<'i> {
         GLOBAL.get().unwrap()
+    }
+}
+
+impl<'i> FromRef<()> for Instance<'i> {
+    fn from_ref(_input: &()) -> Self {
+        GLOBAL.get().expect("instance to be available").clone()
     }
 }
 

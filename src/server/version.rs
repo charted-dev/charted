@@ -12,3 +12,23 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+use serde::{Deserialize, Serialize};
+use std::fmt::Display;
+
+/// Represents the REST version that an API controller is supported on.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd, Ord)]
+#[serde(rename_all = "lowercase")]
+pub enum APIVersion {
+    /// v1
+    #[default]
+    V1,
+}
+
+impl Display for APIVersion {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            APIVersion::V1 => "v1",
+        })
+    }
+}

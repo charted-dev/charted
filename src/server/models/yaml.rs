@@ -12,3 +12,25 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+use axum::{
+    http::{header, HeaderValue, StatusCode},
+    response::{IntoResponse, Response},
+};
+use serde::Serialize;
+
+#[derive(Debug, Clone)]
+pub struct Yaml<T>(pub StatusCode, pub T);
+
+impl<T: Serialize> IntoResponse for Yaml<T> {
+    fn into_response(self) -> axum::response::Response {
+        let mut res = Response::new(serde_yaml::to_string(&self.1).unwrap());
+        *res.status_mut() = self.0;
+        res.headers_mut().insert(
+            header::CONTENT_TYPE,
+            HeaderValue::from_static("text/yaml; charset=utf-8"),
+        );
+
+        res.into_response()
+    }
+}

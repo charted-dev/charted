@@ -134,6 +134,7 @@
         buildInputs = with pkgs; [
           cargo-expand
           terraform
+          sqlx-cli
           openssl
           glibc
           rust

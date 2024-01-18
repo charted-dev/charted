@@ -12,3 +12,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+use crate::metrics::{Collector, Registry};
+
+/// Represents the default registry that just contains a list of collectors.
+#[derive(Default)]
+pub struct Default(Vec<Box<dyn Collector>>);
+
+impl Registry for Default {
+    fn insert(&mut self, collector: Box<dyn Collector>) {
+        self.0.push(collector);
+    }
+
+    fn collectors(&self) -> &Vec<Box<dyn Collector>> {
+        &self.0
+    }
+}

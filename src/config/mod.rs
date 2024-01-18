@@ -146,8 +146,12 @@ impl Config {
     }
 
     /// Creates a new [`Config`] instance from a given path.
-    pub fn new<P: AsRef<Path>>(path: P) -> eyre::Result<Config> {
+    pub fn new<P: AsRef<Path>>(path: Option<P>) -> eyre::Result<Config> {
         // priority: config file > env variables
+        let Some(path) = path.as_ref() else {
+            return Config::try_from_env();
+        };
+
         let path = path.as_ref();
         if !path.try_exists()? {
             eprintln!(
