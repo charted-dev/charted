@@ -37,7 +37,7 @@
         "eslint": "8.56.0",
         "eslint-config-prettier": "9.1.0",
         "eslint-formatter-codeframe": "7.32.1",
-        "openapi-typescript": "6.7.3",
+        "openapi-typescript": "6.7.4",
         "prettier": "3.1.1",
         "tsx": "4.7.0",
         "typescript": "5.3.3",
