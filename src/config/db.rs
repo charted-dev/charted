@@ -17,6 +17,8 @@ use eyre::Context;
 use noelware_config::{env, merge::Merge, TryFromEnv};
 use serde::{Deserialize, Serialize};
 
+use crate::TRUTHY_REGEX;
+
 /// Represents the configuration details for configuring charted-server's
 /// database connections. charted-server uses [SQLx](https://github.com/launchbadge/sqlx) as
 /// the database module used, so you can only configure the maximum amount of connections.
@@ -26,6 +28,12 @@ pub struct Config {
     /// pool should maintain.
     #[serde(default = "__max_connections")]
     pub max_connections: u32,
+
+    /// Runs all migrations when the API server starts. This is disabled by default, if you want to run migrations,
+    /// use the `charted migrations run` command.
+    #[serde(default)]
+    #[merge(strategy = noelware_config::merge::strategy::bool::only_if_falsy)]
+    pub run_migrations: bool,
 
     /// Caching strategy for caching database objects.
     #[serde(default, with = "serde_yaml::with::singleton_map")]
@@ -56,10 +64,28 @@ pub struct Config {
     pub port: u16,
 }
 
+impl ToString for Config {
+    fn to_string(&self) -> String {
+        use std::fmt::Write;
+
+        let mut buf = String::from("postgres://");
+        match (self.username.as_ref(), self.password.as_ref()) {
+            (Some(user), Some(password)) => write!(buf, "{user}:{password}@").unwrap(),
+            (Some(user), None) => write!(buf, "{user}:@").unwrap(),
+            (None, Some(pass)) => write!(buf, "postgres:{pass}@").unwrap(),
+            _ => {}
+        }
+
+        write!(buf, "{}:{}/{}", self.host, self.port, self.database).unwrap();
+        buf
+    }
+}
+
 impl Default for Config {
     fn default() -> Config {
         Config {
             max_connections: __max_connections(),
+            run_migrations: false,
             password: None,
             username: None,
             database: __database(),
@@ -77,6 +103,11 @@ impl TryFromEnv for Config {
 
     fn try_from_env() -> Result<Self::Output, Self::Error> {
         Ok(Config {
+            run_migrations: env!("CHARTED_DATABASE_RUN_MIGRATIONS", {
+                or_else: false;
+                mapper: |val| TRUTHY_REGEX.is_match(&val);
+            }),
+
             max_connections: env!("CHARTED_DATABASE_MAX_CONNECTIONS", to: u32, or_else: __max_connections()),
             database: env!("CHARTED_DATABASE_NAME", or_else: __database()),
             username: env!("CHARTED_DATABASE_USERNAME", is_optional: true),

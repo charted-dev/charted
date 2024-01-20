@@ -29,6 +29,69 @@ pub mod routing;
 pub mod validation;
 pub mod version;
 
+/// Represents the Hoshi distribution that was built from the `--cfg "bundle_web"` Rust flag.
+#[derive(Debug, Clone, Copy)]
+#[cfg_attr(bundle_web, derive(rustembed::RustEmbed))]
+#[cfg_attr(bundle_web, folder = "dist/")]
+pub struct Hoshi;
+
+impl Hoshi {
+    #[allow(unused)] // it is only used in Hoshi::handler, so it's fine if it is unused.
+    const INDEX_HTML: &'static str = "index.html";
+
+    /// Checks whenever if [`Hoshi`] was built or not. This will just return the
+    /// value from `--cfg "bundle_web"`.
+    pub fn built() -> bool {
+        cfg!(bundle_web)
+    }
+
+    #[cfg(bundle_web)]
+    pub async fn handler(uri: axum::http::Uri) -> impl axum::response::IntoResponse {
+        use axum::response::IntoResponse;
+
+        let path = uri.path().trim_start_matches('/');
+        if path.is_empty() || path == INDEX_HTML {
+            let asset = Hoshi::get(INDEX_HTML).expect("missing 'index.html' file?!");
+            let content = remi::Bytes::from(asset.data.into_owned());
+
+            return (
+                [(axum::http::header::CONTENT_TYPE, "text/html; charset=utf-8")],
+                content,
+            )
+                .into_response();
+        }
+
+        match Hoshi::get(path) {
+            Some(file) => (
+                [(axum::http::header::CONTENT_TYPE, file.metadata.mimetype())],
+                remi::Bytes::from(file.data.into_owned()),
+            )
+                .into_response(),
+
+            None if path.contains('.') => crate::server::models::res::err(
+                axum::http::StatusCode::NOT_FOUND,
+                (
+                    crate::server::models::res::ErrorCode::HandlerNotFound,
+                    "route was not found",
+                ),
+            )
+            .into_response(),
+
+            // let vue-router handle it.
+            None => {
+                let asset = Hoshi::get(INDEX_HTML).expect("missing 'index.html' file?!");
+                let content = remi::Bytes::from(asset.data.into_owned());
+
+                (
+                    [(axum::http::header::CONTENT_TYPE, "text/html; charset=utf-8")],
+                    content,
+                )
+                    .into_response();
+            }
+        }
+    }
+}
+
 /// Static [`Argon2`] instance that is used for the API server.
 pub static ARGON2: Lazy<Argon2<'static>> = lazy!(Argon2::new(Algorithm::Argon2id, Version::V0x13, Params::default()));
 

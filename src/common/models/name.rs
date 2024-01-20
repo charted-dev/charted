@@ -30,6 +30,7 @@ use std::{
     borrow::Cow,
     fmt::{Debug, Display},
     ops::Deref,
+    str::FromStr,
     sync::Arc,
 };
 use utoipa::{
@@ -191,6 +192,14 @@ impl Deref for Name {
     }
 }
 
+impl FromStr for Name {
+    type Err = NameError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Name::new(s)
+    }
+}
+
 impl From<&str> for Name {
     fn from(value: &str) -> Name {
         Name(Arc::from(value))
@@ -286,7 +295,7 @@ impl<'de> Deserialize<'de> for Name {
             where
                 E: serde::de::Error,
             {
-                Ok(Name::new_unchecked(v))
+                Name::new(v).map_err(E::custom)
             }
         }
 

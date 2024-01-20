@@ -16,7 +16,8 @@
 use clap::value_parser;
 use commands::Command;
 use std::{ffi::OsString, path::PathBuf};
-use tracing::Level;
+use tracing::{level_filters::LevelFilter, Level};
+use tracing_subscriber::prelude::*;
 
 #[macro_use]
 extern crate tracing;
@@ -44,11 +45,32 @@ pub struct Program {
     /// Level to apply when configuring the CLI logger. If the range for the configured
     /// log level is `DEBUG` or `TRACE`, then file paths will be emitted in the logs where
     /// it was invoked.
-    #[arg(global = true, short = 'l', long = "log-level", env = "DEVTOOLS_LOG_LEVEL")]
-    pub level: Option<Level>,
+    #[arg(global = true, short = 'l', long = "log-level", env = "DEVTOOLS_LOG_LEVEL", default_value_t = Level::INFO)]
+    pub level: Level,
 
     #[command(subcommand)]
     pub cmd: Command,
+}
+
+impl Program {
+    /// Initializes a global tracing subscriber for all CLI-based commands.
+    pub fn init_log(&self) {
+        let level = match self.verbose {
+            true => Level::DEBUG,
+            false => self.level,
+        };
+
+        tracing_subscriber::registry()
+            .with(
+                tracing_subscriber::fmt::layer()
+                    .with_level(true)
+                    .with_target(true)
+                    .with_file(self.verbose)
+                    .with_line_number(self.verbose)
+                    .with_filter(LevelFilter::from_level(level)),
+            )
+            .init();
+    }
 }
 
 /// Represents all the common arguments that *mostly* are present in all CLI commands

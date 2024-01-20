@@ -10,20 +10,32 @@ To install the plugin, you can use the `helm plugin install` command:
 $ helm plugin install https://artifacts.noelware.cloud/charted/helm-plugin/latest/helm-plugin.tgz
 ```
 
-Next, you can setup a `.charted.yaml` file in the directory you wish to setup a repository in with the following contents:
+Next, you can setup a `.charted.hcl` file in the directory you wish to setup a repository workspace in with the following contents:
 
-```yaml
-# This can be a Name (me/my-repo) or a Snowflake.
-repository: me/my-repo
+```hcl
+helm {
+    # Cargo-based SemVer of what Helm version we should support
+    version = "~ 3.12.1"
 
-# This will overwrite the `CHARTED_HELM_REGISTRY`/`--registry` flags when pushing
-# to force-pushing to a separate charted-server instance.
-registry: https://example.com
+    # Cargo-based SemVer of what charted-helm-plugin version we should support
+    plugin = "> 0.1.0-beta"
+}
+
+registry "my-registry" {
+    version = 1
+    url     = "https://my-registry.com"
+}
+
+repository "my-project" {
+    registry = "my-registry"
+    publish  = true
+    source   = "${cwd}/charts/my-project"
+}
 ```
 
 > **Note**: You can also run `helm charted init` to give some prompts to help create this file.
 
-To push a new version, you can run `helm charted push` and it will do the following things:
+To push a new version, you can run `helm charted push --all` and it will do the following things:
 
 * Validate any piece of authentication it can.
 * Read your `Chart.yaml` to determine the new version.

@@ -22,7 +22,7 @@ use std::fmt::Display;
 pub enum APIVersion {
     /// v1
     #[default]
-    V1,
+    V1 = 1,
 }
 
 impl Display for APIVersion {

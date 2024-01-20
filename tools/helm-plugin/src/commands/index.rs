@@ -12,14 +12,3 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-use eyre::{Context, Result};
-use std::path::PathBuf;
-use which::which;
-
-pub fn find_helm(path: Option<PathBuf>) -> Result<PathBuf> {
-    match path {
-        Some(p) => Ok(p),
-        None => which("helm").context("unable to find 'helm' binary"),
-    }
-}

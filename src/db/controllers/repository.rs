@@ -13,7 +13,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod download;
-mod index;
-mod init;
-mod push;
+pub mod member;
+pub mod release;

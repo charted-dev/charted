@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use cargo_toml::Manifest;
-use charted_common::cli::Execute;
+use charted::cli::Execute;
 use eyre::Report;
 use heck::ToKebabCase;
 use std::{

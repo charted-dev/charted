@@ -35,7 +35,6 @@ use tokio::sync::RwLock;
 extern crate async_trait;
 
 #[macro_use]
-#[allow(unused_imports)]
 extern crate tracing;
 
 #[macro_use]
@@ -118,28 +117,31 @@ pub fn version() -> String {
     buf
 }
 
-static GLOBAL: OnceCell<Instance<'static>> = OnceCell::new();
+static GLOBAL: OnceCell<Instance> = OnceCell::new();
 
 /// Represents the core instance of charted-server. It contains a whole bunch of references
 /// to be able to operate successfully.
-pub struct Instance<'i> {
+pub struct Instance {
     /// Represents how many requests the server has handled.
     pub requests: AtomicUsize,
 
     /// Reference to the [`AvatarsModule`].
-    pub avatars: &'i AvatarsModule<'i>,
+    pub avatars: AvatarsModule,
 
     /// Storage service that does the handling for all external media and chart indexes.
     pub storage: StorageService,
 
+    /// Authentication backend to use
+    pub authz: Arc<dyn auth::Backend>,
+
     /// Search backend, if one was requested to be available.
-    pub search: Option<&'i JoinedBackend>,
+    pub search: Option<Arc<JoinedBackend>>,
 
     /// Metrics registry
-    pub metrics: &'i dyn Registry,
+    pub metrics: Arc<dyn Registry>,
 
     /// Configuration that this [`Instance`] was created with.
-    pub config: &'i config::Config,
+    pub config: config::Config,
 
     /// Redis client used for caching.
     pub redis: Arc<RwLock<redis::Client>>,
@@ -148,39 +150,38 @@ pub struct Instance<'i> {
     pub pool: sqlx::postgres::PgPool,
 }
 
-impl<'i> Clone for Instance<'i> {
+impl Clone for Instance {
     fn clone(&self) -> Self {
         Instance {
             requests: AtomicUsize::new(self.requests.load(Ordering::Relaxed)),
-            metrics: self.metrics,
-            avatars: self.avatars,
-            search: self.search,
-            config: self.config,
-
-            // these can be cheaply cloned
+            avatars: self.avatars.clone(),
+            metrics: self.metrics.clone(),
             storage: self.storage.clone(),
+            search: self.search.clone(),
+            config: self.config.clone(),
+            authz: self.authz.clone(),
             redis: self.redis.clone(),
             pool: self.pool.clone(),
         }
     }
 }
 
-impl<'i> Instance<'i> {
+impl Instance {
     /// Returns a reference to a initialized [`Instance`]. This will panic
     /// if [`set_instance`] wasn't called.
-    pub fn get<'s>() -> &'s Instance<'i> {
+    pub fn get<'s>() -> &'s Instance {
         GLOBAL.get().unwrap()
     }
 }
 
-impl<'i> FromRef<()> for Instance<'i> {
+impl FromRef<()> for Instance {
     fn from_ref(_input: &()) -> Self {
         GLOBAL.get().expect("instance to be available").clone()
     }
 }
 
 /// Sets a global [`Instance`]. This can be only called once.
-pub fn set_instance(instance: Instance<'static>) {
+pub fn set_instance(instance: Instance) {
     match GLOBAL.set(instance) {
         Ok(()) => {}
         Err(_) => panic!("already set a global instance"),

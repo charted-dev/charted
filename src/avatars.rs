@@ -32,14 +32,14 @@ const ACCEPTABLE_CONTENT_TYPE: &[&str] = &["image/png", "image/jpeg", "image/gif
 ///
 /// Uploading will have risks as in NSFW and other cases, but we plan to mitigate it.
 #[derive(Clone)]
-pub struct AvatarsModule<'s> {
-    storage: &'s StorageService,
+pub struct AvatarsModule {
+    storage: StorageService,
     client: Client,
 }
 
-impl<'s> AvatarsModule<'s> {
+impl AvatarsModule {
     /// Creates a new [`AvatarsModule`] instance.
-    pub fn new(storage: &'s StorageService) -> AvatarsModule {
+    pub fn new(storage: StorageService) -> AvatarsModule {
         AvatarsModule {
             storage,
             client: Client::builder()
@@ -55,10 +55,10 @@ impl<'s> AvatarsModule<'s> {
     /// Initializes this [`AvatarsModule`] by creating the necessary directories
     /// if you're using the local filesystem.
     pub async fn init(&self) -> eyre::Result<()> {
-        if let StorageService::Filesystem(fs) = self.storage {
+        if let StorageService::Filesystem(ref fs) = self.storage {
             for path in [
                 fs.normalize("./avatars/organizations")?.unwrap(),
-                fs.normalize("./icons/repositories")?.unwrap(),
+                fs.normalize("./avatars/repositories")?.unwrap(),
                 fs.normalize("./avatars/users")?.unwrap(),
             ] {
                 if !path.try_exists()? {

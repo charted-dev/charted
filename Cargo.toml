@@ -15,18 +15,14 @@
 
 [workspace]
 resolver = "2"
-members = ["proc-macros"]
-#members = ["tools/*"]
+members = ["proc-macros", "tools/devtools", "tools/helm-plugin"]
 
-[package]
-name = "charted"
-description = "🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust"
-version = "0.1.0-beta"
+[workspace.package]
 documentation = "https://charts.noelware.org/docs"
 edition = "2021"
 homepage = "https://charts.noelware.org"
 license = "Apache-2.0"
-publish = true
+publish = false
 repository = "https://github.com/charted-dev/charted"
 authors = [
     "Noel Towa <cutie@floofy.dev>",
@@ -34,30 +30,51 @@ authors = [
     "Noelware, LLC. <team@noelware.org>",
 ]
 
-[[bin]]
+[workspace.dependencies]
+async-trait = "0.1.77"
+color-eyre = { version = "0.6.2", features = ["issue-url", "tracing-error"] }
+chrono = { version = "0.4.31", features = ["serde"] }
+clap = { version = "4.4.17", features = ["derive", "env"] }
+clap_complete = "4.4.7"
+dotenvy = "0.15.7"
+semver = { version = "1.0.21", features = ["serde"] }
+serde = { version = "1.0.195", features = ["derive"] }
+serde_json = "1.0.111"
+eyre = "0.6.11"
+which = "5.0.0"
+
+[package]
 name = "charted"
-path = "./src/bin/main.rs"
+description = "🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust"
+version = "0.1.0-beta"
+documentation.workspace = true
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+publish.workspace = true
+repository.workspace = true
+authors.workspace = true
 
 [dependencies]
 argon2 = "0.5.2"
 async-recursion = "1.0.5"
-async-trait = "0.1.77"
+async-trait.workspace = true
 aws-sdk-s3 = "1.12.0"
 axum = { version = "0.7.4", features = ["http2", "multipart"] }
 axum-server = { version = "0.6.0", features = ["tls-openssl"] }
 azure_storage = "0.19.0"
 base64 = "0.21.7"
 charted-proc-macros = { version = "0.0.0-devel.0", path = "proc-macros" }
-chrono = { version = "0.4.31", features = ["serde"] }
-clap = { version = "4.4.17", features = ["derive", "env"] }
-clap_complete = "4.4.7"
+chrono.workspace = true
+clap.workspace = true
+clap_complete.workspace = true
 cli-table = "0.4.7"
-color-eyre = { version = "0.6.2", features = ["issue-url", "tracing-error"] }
+color-eyre.workspace = true
 cron = "0.12.0"
-dotenvy = "0.15.7"
+dotenvy.workspace = true
 elasticsearch = "8.5.0-alpha.1"
 erased-serde = "0.4.2"
-eyre = "0.6.11"
+eyre.workspace = true
 flate2 = "1.0.28"
 futures-util = "0.3.30"
 hex = "0.4.3"
@@ -88,6 +105,7 @@ noelware-serde = { git = "https://github.com/Noelware/core-rs", version = "0.1.0
 num_cpus = "1.16.0"
 once_cell = "1.19.0"
 openssl = "0.10.62"
+owo-colors = { version = "4.0.0", features = ["supports-color"] }
 paste = "1.0.14"
 prometheus-client = "0.22.0"
 promptly = "0.3.1"
@@ -106,18 +124,19 @@ remi-fs = { version = "0.5.0", features = ["serde", "tracing"] }
 remi-s3 = { version = "0.5.0", features = ["serde", "tracing"] }
 reqwest = "0.11.23"
 rust-embed = "8.2.0"
-semver = { version = "1.0.21", features = ["serde"] }
+semver.workspace = true
 sentry = "0.32.1"
 sentry-eyre = "0.1.0"
 sentry-tower = "0.32.1"
 sentry-tracing = "0.32.1"
-serde = { version = "1.0.195", features = ["derive"] }
-serde_json = "1.0.111"
+serde.workspace = true
+serde_json.workspace = true
 serde_yaml = "0.9.30"
 sqlx = { version = "0.7.3", features = [
     "postgres",
     "runtime-tokio",
     "tls-native-tls",
+    "chrono",
 ] }
 tar = "0.4.40"
 tokio = { version = "1.35.1", features = [
@@ -126,6 +145,7 @@ tokio = { version = "1.35.1", features = [
     "macros",
     "io-util",
     "fs",
+    "signal",
 ] }
 tokio-util = "0.7.10"
 tonic = "0.10.2"
@@ -151,9 +171,14 @@ validator = { version = "0.16.1", features = ["derive"] }
 chrono = "0.4.31"
 rustc_version = "0.4.0"
 tonic-build = "0.10.2"
-which = "5.0.0"
+which.workspace = true
 
 [dev-dependencies]
 remi-fs = "0.5.0"
 tempfile = "3.9.0"
 tokio = "1.35.1"
+
+[profile.release]
+strip = true
+opt-level = "z"
+lto = true

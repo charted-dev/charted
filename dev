@@ -23,7 +23,7 @@ function devtools::log {
 }
 
 function devtools::fatal {
-    echo "[dev][failure] $*"
+    echo "[dev][failure] $*" | xargs
     exit 1
 }
 
@@ -52,9 +52,9 @@ if [[ ! -f "$SCRIPT_DIR/.cache/dev" || "x${DEV_REBUILD:-}" != "x" ]]; then
     [[ "x${DEV_REBUILD:-}" != "x" && -f "$SCRIPT_DIR/.cache/dev" ]] && rm -rf "$SCRIPT_DIR/.cache/dev"
 
     devtools::log "Compiling \`charted-devtools\` binary!"
-    devtools::log "$ $CARGO build --release $CARGO_ARGS --bin charted-devtools"
+    devtools::log "$ $CARGO build --release $CARGO_ARGS --package charted-devtools"
 
-    "$CARGO" build --release $CARGO_ARGS --bin charted-devtools
+    "$CARGO" build --release $CARGO_ARGS --package charted-devtools
     cp $SCRIPT_DIR/target/release/charted-devtools $SCRIPT_DIR/.cache/dev
 fi
 

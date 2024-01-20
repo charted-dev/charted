@@ -17,6 +17,7 @@ As **charted-server** is being prepared for a beta release, we do not have an of
 ### Locally from source
 To build charted-server from the canonical Git repository, you are required to have the following tools:
 
+* [protoc](https://protobuf.dev)
 * [Rust](https://rust-lang.org)
 * [Git](https://git-scm.com)
 * 20GB of storage

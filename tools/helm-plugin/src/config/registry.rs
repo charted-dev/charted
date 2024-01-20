@@ -13,24 +13,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_common::cli::AsyncExecute;
-use eyre::Result;
+use charted::server::version::APIVersion;
+use serde::{Deserialize, Serialize};
+use url::Url;
 
-mod download;
-mod publish;
-mod query;
+/// Represents the registry configuration, which registers a set list
+/// of registries.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Config {
+    /// API version of the registry.
+    #[serde(default)]
+    pub version: APIVersion,
 
-/// Allows to query, download, or publish repositories.
-#[derive(Debug, Clone, clap::Subcommand)]
-pub enum Repo {
-    Download(download::Download),
-}
-
-#[async_trait]
-impl AsyncExecute for Repo {
-    async fn execute(&self) -> Result<()> {
-        match self {
-            Repo::Download(dl) => dl.execute().await,
-        }
-    }
+    /// URL of the registry to point to. This doesn't include the API version
+    /// in the URI itself (i.e, `https://charts.noelware.org/api/v1`).
+    pub url: Url,
 }

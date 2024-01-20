@@ -13,36 +13,52 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use clap::Parser;
-use commands::Commands;
+use std::io::{self, IsTerminal};
 
-#[macro_use]
-extern crate async_trait;
+use clap::Parser;
+use tracing::Level;
 
 #[macro_use]
 extern crate tracing;
 
-mod args;
+pub mod args;
 pub mod auth;
 pub mod commands;
 pub mod config;
-pub mod util;
-
-pub use args::*;
 
 #[derive(Debug, Clone, Parser)]
 #[clap(
     bin_name = "helm charted",
-    about = "🐻‍❄️📦 Helm plugin to help you push your Helm charts into charted-server easily",
+    about = "🐻‍❄️📦 Faciliate downloading, pushing, and misc. tools for `charted-server` as a Helm plugin",
     author = "Noelware, LLC.",
     override_usage = "helm charted <COMMAND> [...ARGS]",
     arg_required_else_help = true
 )]
-pub struct Cli {
-    /// Whether if more verbose logging should be printed or not.
-    #[arg(long, global = true, short = 'v')]
-    pub verbose: bool,
+pub struct Program {
+    /// Sets the global logging level when building the logging system for `helm charted`.
+    #[arg(global, short = 'l', long = "log-level", env = "CHARTED_HELM_LOG_LEVEL", default_level_t = Level::INFO)]
+    pub level: Level,
 
-    #[command(subcommand)]
-    pub command: Commands,
+    /// Disables the use of the progress bars for `helm charted download` and `helm charted push`. This is also disabled if there
+    /// is no TTY attached.
+    #[arg(global, long = "no-progress", env = "CHARTED_HELM_NO_PROGRESS", default_level_t = __check_if_enabled())]
+    pub no_progress: bool,
+}
+
+fn __check_if_enabled() -> bool {
+    let stdout = io::stdout();
+    if !stdout.is_terminal() {
+        return true;
+    }
+
+    false
+}
+
+/// Returns the current version of `charted-helm-plugin`.
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+
+/// Returns the version and commit hash of `charted-helm-plugin`.
+#[inline]
+pub fn version() -> String {
+    format!("v{}+{}", VERSION, charted::COMMIT_HASH)
 }

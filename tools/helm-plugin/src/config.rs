@@ -13,39 +13,86 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_common::models::Name;
-use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+pub mod charted;
+pub mod registry;
+pub mod repository;
 
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
+
+/// Represents the HCL configuration file (`.charted.hcl`)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
-    pub repository: String,
-    pub registry: Option<String>,
-    pub readme: Option<PathBuf>,
+    /// Configuration for the `charted {}` block, which configures
+    /// the Helm plugin itself.
+    #[serde(default)]
+    pub charted: charted::Config,
+
+    /// List of registries that are available for repositories.
+    #[serde(
+        default = "__default_registries",
+        rename = "registry",
+        serialize_with = "hcl::ser::labeled_block"
+    )]
+    pub registries: BTreeMap<String, registry::Config>,
+
+    /// List of repositories available.
+    #[serde(
+        default,
+        skip_serializing_if = "BTreeMap::is_empty",
+        rename = "repository",
+        serialize_with = "hcl::ser::labeled_block"
+    )]
+    pub repositories: BTreeMap<String, repository::Config>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum OwnerRepoOrSnowflake {
-    Snowflake(u64),
-    Repository((Name, Name)),
+/*
+charted {
+    version = "~> 0.1.0-beta"
 }
 
-impl Config {
-    /// Normalize the `repository` key in a `.charted.yaml` file and returns as a
-    /// [`NameOrSnowflake`].
-    pub fn normalize_repository(&self) -> Result<OwnerRepoOrSnowflake, String> {
-        match self.repository.parse::<u64>() {
-            Ok(uid) => Ok(OwnerRepoOrSnowflake::Snowflake(uid)),
-            Err(_) => match self.repository.split_once('/') {
-                Some((_, repo)) if repo.contains('/') => Err("received more than one slash".into()),
-                Some((owner, repo)) => {
-                    let owner = Name::new(owner).map_err(|e| e.to_string())?;
-                    let repo = Name::new(repo).map_err(|e| e.to_string())?;
+registry "default" {
+    version = 1
+    url     = "https://charts.noelware.org/api"
+}
 
-                    Ok(OwnerRepoOrSnowflake::Repository((owner, repo)))
-                }
-                _ => Err("missing slash in repository name; expected 'owner/repo' syntax".into()),
-            },
-        }
+repository "jetbrains-hub" {
+    readme = "./charts/jetbrains/hub/README.md"
+    source = "./charts/jetbrains/hub"
+
+    config {
+        repository = "noelware/jetbrains-hub"
+        registry   = [registry.default]
     }
 }
+
+repository "jetbrains-youtrack" {
+    readme = "./charts/jetbrains/youtrack/README.md"
+    source = "./charts/jetbrains/youtrack"
+
+    config {
+        repository = "noelware/youtrack"
+        registry   = [registry.default]
+    }
+}
+
+repository "hazel" {
+    readme = "./charts/noelware/hazel/README.md"
+    source = "./charts/noelware/hazel"
+
+    config {
+        repository = "noelware/hazel"
+        registry   = [registry.default]
+    }
+}
+
+repository "petal" {
+    readme = "./charts/noelware/petal/README.md"
+    source = "./charts/noelware/petal"
+
+    config {
+        repository = "noelware/petal"
+        registry   = [registry.default]
+    }
+}
+*/

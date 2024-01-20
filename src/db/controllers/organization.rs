@@ -13,33 +13,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_common::cli::AsyncExecute;
-use eyre::Result;
-
-mod delete;
-mod list;
-mod switch;
-
-/// Subcommands for `charted helm context`.
-#[derive(Debug, Clone, clap::Subcommand)]
-pub enum Context {
-    /// Lists all the contexts available.
-    List(list::List),
-
-    /// Easily switch to a different context.
-    Switch(switch::Switch),
-
-    /// Deletes a context.
-    Delete(delete::Delete),
-}
-
-#[async_trait]
-impl AsyncExecute for Context {
-    async fn execute(&self) -> Result<()> {
-        match self {
-            Context::List(list) => list.execute().await,
-            Context::Delete(del) => del.execute().await,
-            Context::Switch(sw) => sw.execute().await,
-        }
-    }
-}
+pub mod member;

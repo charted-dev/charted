@@ -22,17 +22,17 @@ use super::PasswordProvider;
 
 /// Represents the `local` backend itself.
 #[derive(Clone)]
-pub struct Backend<'s>(&'s PgPool);
+pub struct Backend(PgPool);
 
-impl Backend<'_> {
+impl Backend {
     /// Creates a new [`Backend`] instance to a reference of the PostgreSQL connection pool.
-    pub fn new(pool: &PgPool) -> Backend<'_> {
+    pub fn new(pool: PgPool) -> Backend {
         Backend(pool)
     }
 }
 
 #[async_trait]
-impl<'s> super::Backend for Backend<'s> {
+impl super::Backend for Backend {
     async fn authenticate(&self, user: User) -> eyre::Result<()> {
         match user.provide_password(self.0.clone()).await {
             Ok(Some(pass)) => {
