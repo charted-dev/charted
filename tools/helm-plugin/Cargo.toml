@@ -23,7 +23,7 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
 [dependencies]
 ansi_term = "0.12.1"
-async-trait = "0.1.76"
+async-trait = "0.1.77"
 chrono = "0.4.31"
 clap = { version = "4.4.12", features = ["derive", "env"] }
 clap_complete = "4.4.5"
