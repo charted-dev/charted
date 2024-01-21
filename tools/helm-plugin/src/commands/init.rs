@@ -12,3 +12,21 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+use charted::cli::Execute;
+use clap::Parser;
+use std::path::PathBuf;
+
+/// Initialize a `.charted.hcl` file with prompts, if no TTY is attached, it'll just
+/// create a blank `.chared.hcl` file.
+#[derive(Debug, Clone, Parser)]
+pub struct Cmd {
+    /// Project location to write the `.charted.hcl` file in.
+    path: Option<PathBuf>,
+}
+
+impl Execute for Cmd {
+    fn execute(&self) -> eyre::Result<()> {
+        todo!()
+    }
+}

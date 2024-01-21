@@ -13,12 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use super::PasswordProvider;
+use crate::{common::models::entities::User, server::ARGON2};
 use argon2::{PasswordHash, PasswordVerifier};
 use sqlx::PgPool;
-
-use crate::{common::models::entities::User, server::ARGON2};
-
-use super::PasswordProvider;
 
 /// Represents the `local` backend itself.
 #[derive(Clone)]

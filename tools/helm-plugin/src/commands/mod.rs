@@ -13,7 +13,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use charted::cli::{AsyncExecute, Execute};
+use clap::Subcommand;
+
+mod context;
 mod download;
-mod index;
 mod init;
+mod login;
+mod logout;
 mod push;
+
+#[derive(Debug, Clone, Subcommand)]
+pub enum Cmd {
+    Download(download::Cmd),
+
+    #[command(subcommand)]
+    Context(context::Cmd),
+    Logout(logout::Cmd),
+    Login(login::Cmd),
+    Push(push::Cmd),
+    Init(init::Cmd),
+}
+
+#[async_trait]
+impl AsyncExecute for Cmd {
+    async fn execute(&self) -> eyre::Result<()> {
+        match self {
+            Cmd::Download(dl) => dl.execute().await,
+            Cmd::Context(ctx) => ctx.execute(),
+            Cmd::Logout(logout) => logout.execute(),
+            Cmd::Login(login) => login.execute(),
+            Cmd::Init(init) => init.execute(),
+            Cmd::Push(push) => push.execute().await,
+        }
+    }
+}

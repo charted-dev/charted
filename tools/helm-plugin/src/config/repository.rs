@@ -14,7 +14,6 @@
 // limitations under the License.
 
 use charted::common::models::Name;
-use hcl::expr::{Traversal, TraversalBuilder};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -23,13 +22,12 @@ use std::path::PathBuf;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
     /// whether or not if this repository can be published to a registry.
-    #[serde(default, skip_serializing_if = "false")]
+    #[serde(default)]
     pub publish: bool,
 
-    /// Traversal node (i.e, `registry.default`) to what registry to push
-    /// this repository to if `publish = true`.
-    #[serde(default = "__default_registry_traveral")]
-    pub registry: Traversal,
+    /// Registry to publish this repository to.
+    #[serde(default = "__default_registry")]
+    pub registry: String,
 
     /// Path to the repository's full identifier. This is represented as two [`Name`](charted::common::models::Name)s with
     /// a slash: `noel/my-project`
@@ -44,8 +42,8 @@ pub struct Config {
     pub readme: Option<PathBuf>,
 }
 
-fn __default_registry_traveral() -> Traversal {
-    Traversal::builder("registry").attr("default").build()
+fn __default_registry() -> String {
+    String::from("default")
 }
 
 mod __name_sep {
@@ -57,7 +55,7 @@ mod __name_sep {
         serializer.serialize_str(&format!("{}/{}", value.0, value.1))
     }
 
-    pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<String, D::Error> {
+    pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<(Name, Name), D::Error> {
         use serde::de::Error;
 
         struct Visitor;
@@ -68,16 +66,18 @@ mod __name_sep {
                 write!(f, "valid mapping of {{owner}}/{{repo}}")
             }
 
-            fn visit_string<E>(self, v: String) -> Result<Self::Value, E>
+            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
             where
                 E: Error,
             {
                 match v.split_once('/') {
-                    Some((name, repo)) if repo.contains('/') => Err(E::custom("found more than one slash")),
+                    Some((_, repo)) if repo.contains('/') => Err(E::custom("found more than one slash")),
                     Some((name, repo)) => Ok((name.parse().map_err(E::custom)?, repo.parse().map_err(E::custom)?)),
                     None => Err(E::custom("failed to parse repo path, expected [name/repo] match")),
                 }
             }
         }
+
+        deserializer.deserialize_str(Visitor)
     }
 }

@@ -13,23 +13,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use serde_repr::{Deserialize_repr, Serialize_repr};
-use std::fmt::Display;
+use charted::cli::Execute;
+use clap::Subcommand;
 
-/// Represents the REST version that an API controller is supported on.
-#[derive(Debug, Clone, Copy, Serialize_repr, Deserialize_repr, Default, PartialEq, Eq, PartialOrd, Ord)]
-#[serde(rename_all = "lowercase")]
-#[repr(u8)]
-pub enum APIVersion {
-    /// v1
-    #[default]
-    V1 = 1,
+mod list;
+mod switch;
+mod token;
+
+/// Provides all the commands for information about authentication for registry pushes
+/// and downloads.
+#[derive(Debug, Clone, Subcommand)]
+pub enum Cmd {
+    Switch(switch::Cmd),
+    Token(token::Cmd),
+    List(list::Cmd),
 }
 
-impl Display for APIVersion {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(match self {
-            APIVersion::V1 => "v1",
-        })
+impl Execute for Cmd {
+    fn execute(&self) -> eyre::Result<()> {
+        match self {
+            Cmd::Switch(switch) => switch.execute(),
+            Cmd::Token(token) => token.execute(),
+            Cmd::List(list) => list.execute(),
+        }
     }
 }

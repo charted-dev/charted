@@ -42,7 +42,7 @@ SCRIPT_DIR=$(cd -P "$(dirname $BASH_SRC)" >/dev/null 2>&1 && pwd)
 ! [ -d "$SCRIPT_DIR/.cache" ] && mkdir "$SCRIPT_DIR/.cache"
 
 CARGO=${CARGO:-cargo}
-BAZEL_ARGS=${CARGO_ARGS:-}
+CARGO_ARGS=${CARGO_ARGS:-}
 
 if [[ "x$CARGO" == "xcargo" ]] && ! command -v cargo >/dev/null; then
     devtools::fatal "Unable to find \`cargo\` installed! Did you install \`rustup\`?"

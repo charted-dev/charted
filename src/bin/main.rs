@@ -13,14 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::cmp;
-
 use charted::cli::{commands::Cmd, AsyncExecute, Program};
 use clap::Parser;
 use color_eyre::config::HookBuilder;
 use eyre::Result;
 use mimalloc::MiMalloc;
 use noelware_config::env;
+use std::cmp;
 use tokio::runtime::Builder;
 
 #[global_allocator]

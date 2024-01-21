@@ -17,8 +17,19 @@ pub mod charted;
 pub mod registry;
 pub mod repository;
 
+use ::charted::server::version::APIVersion;
+use eyre::Context as _;
+use hcl::{
+    edit::{
+        expr::{Expression, TraversalOperator},
+        visit::{visit_body, Visit},
+        Ident,
+    },
+    Value,
+};
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, fs, path::Path};
+use url::Url;
 
 /// Represents the HCL configuration file (`.charted.hcl`)
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -46,53 +57,117 @@ pub struct Config {
     pub repositories: BTreeMap<String, repository::Config>,
 }
 
-/*
-charted {
-    version = "~> 0.1.0-beta"
-}
+impl Config {
+    /// Loads the [`Config`] struct by first visiting all traversals to collect the `registry.*` keys,
+    /// so we can load up the evaluation environment and then load it via eval expressions.
+    pub fn load<P: AsRef<Path>>(path: P) -> eyre::Result<Config> {
+        let path = path.as_ref();
+        trace!(path = %path.display(), "loading .charted.hcl file in");
 
-registry "default" {
-    version = 1
-    url     = "https://charts.noelware.org/api"
-}
+        let contents = fs::read_to_string(path).context(format!("was unable to read file {}", path.display()))?;
 
-repository "jetbrains-hub" {
-    readme = "./charts/jetbrains/hub/README.md"
-    source = "./charts/jetbrains/hub"
+        // first, get a list of the referenced registries, so we can enforce that they exist
+        #[allow(unused_assignments)]
+        let mut registries = vec![];
+        {
+            let contents = contents.clone();
+            let body = contents
+                .parse::<hcl::edit::structure::Body>()
+                .context("invalid hcl manifest")?;
 
-    config {
-        repository = "noelware/jetbrains-hub"
-        registry   = [registry.default]
+            let mut visitor = RegistryTraversalVisitor::default();
+            visit_body(&mut visitor, &body);
+
+            registries = visitor.0;
+        }
+
+        let mut ctx = hcl::eval::Context::new();
+        ctx.declare_var(
+            "cwd",
+            Value::String(path.parent().unwrap_or(path).display().to_string()),
+        );
+
+        let mut reg = hcl::Map::<String, Value>::new();
+        for registry in registries.iter() {
+            reg.insert(registry.clone(), Value::String(registry.clone()));
+        }
+
+        ctx.declare_var(
+            "registry",
+            Value::Object(
+                registries
+                    .iter()
+
+                    // Since we don't know the URI without evaluating, we will just keep `registry.<name>` ~> `<name>` and
+                    // the Helm plugin will determine what registry it belongs to.
+                    .fold(hcl::Map::<String, Value>::new(), |mut map, registry| {
+                        map.insert(registry.clone(), Value::String(registry.clone()));
+                        map
+                    }),
+            ),
+        );
+
+        hcl::eval::from_str(&contents, &ctx).context("unable to evaluate HCL file")
     }
 }
 
-repository "jetbrains-youtrack" {
-    readme = "./charts/jetbrains/youtrack/README.md"
-    source = "./charts/jetbrains/youtrack"
+fn __default_registries() -> BTreeMap<String, registry::Config> {
+    let mut registries = BTreeMap::new();
+    registries.insert(
+        String::from("default"),
+        registry::Config {
+            version: APIVersion::V1,
+            url: Url::parse("https://charts.noelware.org/api").unwrap(),
+        },
+    );
 
-    config {
-        repository = "noelware/youtrack"
-        registry   = [registry.default]
+    registries
+}
+
+#[derive(Default)]
+struct RegistryTraversalVisitor(Vec<String>);
+impl Visit for RegistryTraversalVisitor {
+    fn visit_traversal(&mut self, node: &hcl::edit::expr::Traversal) {
+        match &node.expr {
+            Expression::Variable(var) if var.value() == &Ident::new("registry") => {
+                for node in node.operators.iter() {
+                    if let TraversalOperator::GetAttr(ref attr) = *node.value() {
+                        let attr = attr.clone();
+                        self.0.push(attr.as_str().to_string());
+                    }
+                }
+            }
+
+            _ => {} // skip
+        }
     }
 }
 
-repository "hazel" {
-    readme = "./charts/noelware/hazel/README.md"
-    source = "./charts/noelware/hazel"
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use hcl::edit::structure::Body;
 
-    config {
-        repository = "noelware/hazel"
-        registry   = [registry.default]
+    #[test]
+    fn test_traversal() {
+        let body = r#"body = 1
+awau = registry.default
+heccccc = true
+"#;
+
+        let body = body.parse::<Body>().unwrap();
+        let mut visitor = RegistryTraversalVisitor::default();
+        visitor.visit_body(&body);
+
+        assert_eq!(visitor.0, vec![String::from("default")]);
+    }
+
+    #[test]
+    fn validate_testcases_files() {
+        for i in 1..4 {
+            eprintln!("./testcases/{i}.charted.hcl :: run");
+            Config::load(format!("./testcases/{i}.charted.hcl")).unwrap();
+            eprintln!("./testcases/{i}.charted.hcl :: ok");
+        }
     }
 }
-
-repository "petal" {
-    readme = "./charts/noelware/petal/README.md"
-    source = "./charts/noelware/petal"
-
-    config {
-        repository = "noelware/petal"
-        registry   = [registry.default]
-    }
-}
-*/

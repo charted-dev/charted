@@ -13,4 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-fn main() {}
+use charted::cli::AsyncExecute;
+use charted_helm_plugin::Program;
+use clap::Parser;
+
+#[tokio::main(flavor = "current_thread")]
+async fn main() -> eyre::Result<()> {
+    color_eyre::install()?;
+    let program = Program::parse();
+    program.init_log();
+
+    program.command.execute().await
+}

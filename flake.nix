@@ -135,6 +135,7 @@
           cargo-expand
           terraform
           sqlx-cli
+          sccache
           openssl
           glibc
           rust
@@ -143,7 +144,8 @@
         ];
 
         shellHook = ''
-          export RUSTFLAGS="--cfg tokio_unstable ${rustflags}";
+          export RUSTC_WRAPPER="${pkgs.sccache}/bin/sccache"
+          export RUSTFLAGS="--cfg tokio_unstable ${rustflags}"
         '';
       };
     });
