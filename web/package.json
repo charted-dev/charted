@@ -30,7 +30,7 @@
         "@tailwindcss/typography": "0.5.10",
         "@tanstack/vue-query": "5.17.15",
         "@vue/compiler-sfc": "3.4.3",
-        "@vueuse/core": "10.7.1",
+        "@vueuse/core": "10.7.2",
         "@vueuse/head": "2.0.0",
         "autoprefixer": "10.4.16",
         "class-variance-authority": "0.7.0",
