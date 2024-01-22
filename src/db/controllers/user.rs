@@ -20,12 +20,14 @@ use crate::{
         payloads::{CreateUserPayload, PatchUserPayload},
         NameOrSnowflake,
     },
+    db::impl_patch_for,
 };
-use eyre::Context;
+use eyre::{Context, Report};
 use sqlx::{PgPool, Postgres};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
+#[derive(Clone)]
 pub struct DbController {
     pool: PgPool,
     worker: Arc<Mutex<dyn CacheWorker<User>>>,
@@ -75,8 +77,7 @@ impl super::DbController for DbController {
         }
     }
 
-    /// Fetch a single `Entity` that is constrained to a [`NameOrSnowflake`], usually from
-    /// a REST controller.
+    #[instrument(name = "charted.database.users.get_by_nos", skip_all)]
     async fn get_by<S: Into<NameOrSnowflake> + Send>(&self, nos: S) -> eyre::Result<Option<Self::Entity>> {
         let nos = nos.into();
         match nos {
@@ -102,98 +103,34 @@ impl super::DbController for DbController {
         }
     }
 
-    /// Inserts a new `Entity` with a given `Created` payload and a skeleton of what to use
-    /// when inserting it.
-    async fn create(&self, payload: Self::Created, skeleton: &Self::Entity) -> eyre::Result<()> {
-        todo!()
-    }
+    #[instrument(name = "charted.database.users.create", skip_all)]
+    async fn create(&self, _payload: Self::Created, skeleton: &Self::Entity) -> eyre::Result<()> {
+        // We don't care about the payload that is sent on each new user invocation as
+        // it is validated and created by its skeleton so we don't bring down any more
+        // dependencies for this db controller.
 
-    /// Patch a given `Entity` by its ID with the specified payload.
-    async fn patch(&self, id: i64, payload: Self::Patched) -> eyre::Result<()> {
-        todo!()
-    }
-
-    /// Deletes a `Entity` with their ID.
-    async fn delete(&self, id: i64) -> eyre::Result<()> {
-        todo!()
-    }
-
-    /// Check if `Entity` by their ID exists in the database.
-    async fn exists(&self, id: u64) -> eyre::Result<bool> {
-        todo!()
-    }
-
-    /// Check if `Entity` by the associated [`NameOrSnowflake`] exists in the database
-    async fn exists_by<S: Into<NameOrSnowflake> + Send>(&self, nos: S) -> eyre::Result<bool> {
-        todo!()
-    }
-}
-
-/*
-#[async_trait]
-impl DbController for UserDatabaseController {
-    #[instrument(name = "charted.db.users.get_nos", skip(self))]
-    async fn get_by_nos(&self, nos: NameOrSnowflake) -> Result<Option<Self::Entity>> {
-        let mut cache = self.worker.lock().await;
-
-        match nos {
-            NameOrSnowflake::Snowflake(uid) => {
-                let key = CacheKey::user(uid.try_into().unwrap());
-                if let Some(cached) = cache.get(key).await? {
-                    return Ok(Some(cached));
-                }
-
-                self.get(uid).await
-            }
-
-            // we can't do cache calucations on Names since we don't need
-            // duplication, but maybe a "pointer" to their ID?
-            //
-            // TODO(@auguwu): determine if pointers (point name -> id) to a resource is acceptable
-            NameOrSnowflake::Name(ref name) => {
-                match sqlx::query_as::<sqlx::Postgres, User>("select users.* from users where username = $1;")
-                    .bind(name.to_string())
-                    .fetch_optional(&self.pool)
-                    .await
-                {
-                    Ok(opt) => Ok(opt),
-                    Err(e) => {
-                        error!(user.name = name.to_string(), error = %e, "unable to query user");
-                        sentry::capture_error(&e);
-
-                        Err(e).context("unable to query user")
-                    }
-                }
-            }
-        }
-    }
-
-    #[instrument(name = "charted.db.users.create", skip(self, _payload, skeleton))]
-    async fn create(&self, _payload: Self::Created, skeleton: Self::Entity) -> Result<Self::Entity> {
-        match sqlx::query(
+        sqlx::query(
             "insert into users(created_at, updated_at, password, username, email, id) values($1, $2, $3, $4, $5, $6);",
         )
         .bind(skeleton.created_at)
         .bind(skeleton.updated_at)
-        .bind(skeleton.password.clone())
+        .bind(skeleton.password.as_ref())
         .bind(skeleton.username.clone())
         .bind(skeleton.email.clone())
         .bind(skeleton.id)
         .execute(&self.pool)
         .await
-        {
-            Ok(_) => Ok(skeleton),
-            Err(e) => {
-                error!(user.id = skeleton.id, error = %e, "unable to create user");
-                sentry::capture_error(&e);
+        .map(|_| ())
+        .map_err(|e| {
+            error!(user.id = skeleton.id, error = %e, "unable to create user");
+            sentry::capture_error(&e);
 
-                Err(e).context("unable to create user")
-            }
-        }
+            Report::from(e)
+        })
     }
 
     #[instrument(name = "charted.db.users.patch", skip(self, payload))]
-    async fn patch(&self, id: u64, payload: Self::Patched) -> Result<()> {
+    async fn patch(&self, id: i64, payload: Self::Patched) -> eyre::Result<()> {
         let mut txn = self
             .pool
             .begin()
@@ -206,83 +143,99 @@ impl DbController for UserDatabaseController {
             })
             .context("unable to create db transaction")?;
 
-        impl_patch_for!(txn, {
-            payload: payload.gravatar_email.clone();
+        impl_patch_for!(txn, optional, {
+            payload: payload.gravatar_email;
             column:  "gravatar_email";
             table:   "users";
-            id:      i64::try_from(id).unwrap();
+            id:      id;
         });
 
-        impl_patch_for!(txn, {
-            payload: payload.description.clone();
+        impl_patch_for!(txn, optional, {
+            payload: payload.description;
             column:  "description";
             table:   "users";
-            id:      i64::try_from(id).unwrap();
+            id:      id;
         });
 
-        impl_patch_for!(txn, {
-            payload: payload.username.clone();
+        impl_patch_for!(txn, optional, {
+            payload: payload.username;
             column:  "username";
             table:   "users";
-            id:      i64::try_from(id).unwrap();
+            id:      id;
         });
 
-        impl_patch_for!(txn, {
-            payload: payload.password.clone();
-            column:  "password";
-            table:   "users";
-            id:      i64::try_from(id).unwrap();
-
-            {
-                hash_password(payload.password.unwrap()).map_err(|e| {
-                    error!(user.id = id, error = %e, "unable to hash password");
-                    sentry::capture_error(&*e);
-
-                    e
-                })?
-            };
-        });
-
-        impl_patch_for!(txn, {
-            payload: payload.email.clone();
+        impl_patch_for!(txn, optional, {
+            payload: payload.email;
             column:  "email";
             table:   "users";
-            id:      i64::try_from(id).unwrap();
+            id:      id;
         });
 
-        impl_patch_for!(txn, {
-            payload: payload.name.clone();
+        impl_patch_for!(txn, optional, {
+            payload: payload.name;
             column:  "name";
             table:   "users";
-            id:      i64::try_from(id).unwrap();
+            id:      id;
         });
 
         txn.commit()
             .await
             .map_err(|e| {
-                error!(error = %e, "unable to commit transaction for user");
+                error!(user.id = id, error = %e, "unable to commit db transaction for user");
                 sentry::capture_error(&e);
 
                 e
             })
-            .context("unable to commit transaction")?;
-
-        Ok(())
+            .context("unable to commit db transaction")
     }
 
     #[instrument(name = "charted.db.users.delete", skip(self))]
-    async fn delete(&self, id: u64) -> Result<()> {
-        // drop the cached value from cache so we don't keep it around
+    async fn delete(&self, id: i64) -> eyre::Result<()> {
         let mut cache = self.worker.lock().await;
-        cache.delete(CacheKey::user(id.try_into().unwrap())).await?;
+        cache.delete(USERS.join(id.to_string())).await?;
 
         sqlx::query("delete from users where id = $1;")
-            .bind(i64::try_from(id).unwrap())
+            .bind(id)
             .execute(&self.pool)
             .await
             .map(|_| ())
             .context("unable to delete user")
     }
-}
 
-*/
+    /// Check if `Entity` by their ID exists in the database.
+    #[instrument(name = "charted.db.users.exists", skip(self))]
+    async fn exists(&self, id: i64) -> eyre::Result<bool> {
+        // look up through cache to make it easier
+        let mut cache = self.worker.lock().await;
+        if (cache.get(USERS.join(id.to_string())).await?).is_some() {
+            return Ok(true);
+        }
+
+        match sqlx::query("select count(1) from users where id = $1;")
+            .bind(id)
+            .execute(&self.pool)
+            .await
+        {
+            Ok(_) => Ok(true),
+            Err(sqlx::Error::ColumnNotFound(_)) => Ok(false),
+            Err(e) => Err(e.into()),
+        }
+    }
+
+    #[instrument(name = "charted.db.users.exists_by_nos", skip_all)]
+    async fn exists_by<S: Into<NameOrSnowflake> + Send>(&self, nos: S) -> eyre::Result<bool> {
+        let nos = nos.into();
+        match nos {
+            NameOrSnowflake::Snowflake(id) => self.exists(id.try_into()?).await,
+            NameOrSnowflake::Name(name) => match sqlx::query("select count(1) from users where username = $1;")
+                .bind(name)
+                .execute(&self.pool)
+                .await
+            {
+                Ok(_) => Ok(true),
+                Err(sqlx::Error::ColumnNotFound(_)) => Ok(false),
+                Err(e) => Err(e.into()),
+            },
+        }
+    }
+}

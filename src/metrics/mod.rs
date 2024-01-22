@@ -18,6 +18,8 @@ pub mod registries;
 
 use std::any::Any;
 
+use crate::common::AsArcAny;
+
 /// The [`Collector`] abstraction allows you to wrap `Serialize`-impl structs
 /// and wrap it around the Admin API, where statistics about the server is running
 /// can be collected.
@@ -37,7 +39,7 @@ pub trait Collector: Send + Sync {
 }
 
 /// Represents a collection of [`Collector`]s.
-pub trait Registry: Send + Sync {
+pub trait Registry: AsArcAny + Send + Sync {
     /// Inserts a new [`Collector`] into this registry.
     fn insert(&mut self, collector: Box<dyn Collector>);
 

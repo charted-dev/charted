@@ -14,7 +14,16 @@
 // limitations under the License.
 
 use crate::{
-    auth, avatars::AvatarsModule, cli::AsyncExecute, config::Config, db::MIGRATIONS, redis, server::Hoshi, Instance,
+    auth,
+    avatars::AvatarsModule,
+    caching::{inmemory::InMemoryCache, redis::RedisCache, CacheWorker},
+    cli::AsyncExecute,
+    common::models::entities::{Repository, User},
+    config::{caching, Config},
+    db::{self, MIGRATIONS},
+    redis,
+    server::Hoshi,
+    Instance,
 };
 use axum::{
     extract::Host,
@@ -184,7 +193,34 @@ impl AsyncExecute for Cmd {
         let avatars = AvatarsModule::new(storage.clone());
         avatars.init().await?;
 
+        let controllers = db::controllers::Controllers {
+            repositories: db::controllers::repository::DbController::new(
+                match config.database.caching {
+                    caching::Config::InMemory(ref inmem) => {
+                        Box::new(InMemoryCache::new(inmem.clone())) as Box<dyn CacheWorker<Repository>>
+                    }
+                    caching::Config::Redis(ref cfg) => {
+                        Box::new(RedisCache::new(redis.clone(), cfg.clone())) as Box<dyn CacheWorker<Repository>>
+                    }
+                },
+                pool.clone(),
+            ),
+
+            users: db::controllers::user::DbController::new(
+                match config.database.caching {
+                    caching::Config::InMemory(ref inmem) => {
+                        Box::new(InMemoryCache::new(inmem.clone())) as Box<dyn CacheWorker<User>>
+                    }
+                    caching::Config::Redis(ref cfg) => {
+                        Box::new(RedisCache::new(redis.clone(), cfg.clone())) as Box<dyn CacheWorker<User>>
+                    }
+                },
+                pool.clone(),
+            ),
+        };
+
         let instance = Instance {
+            controllers,
             requests: AtomicUsize::new(0),
             avatars,
             metrics: Arc::new(crate::metrics::registries::disabled::Disabled::default()),

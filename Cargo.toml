@@ -24,6 +24,7 @@ homepage = "https://charts.noelware.org"
 license = "Apache-2.0"
 publish = false
 repository = "https://github.com/charted-dev/charted"
+rust-version = "1.73"
 authors = [
     "Noel Towa <cutie@floofy.dev>",
     "Spotlight <spotlight@joscomputing.space>",
@@ -52,6 +53,7 @@ edition.workspace = true
 homepage.workspace = true
 license.workspace = true
 publish.workspace = true
+rust-version.workspace = true
 repository.workspace = true
 authors.workspace = true
 
@@ -135,6 +137,7 @@ sentry-tower = "0.32.1"
 sentry-tracing = "0.32.1"
 serde.workspace = true
 serde_json.workspace = true
+serde_path_to_error = "0.1.15"
 serde_repr = "0.1.18"
 serde_yaml = "0.9.30"
 sqlx = { version = "0.7.3", features = [

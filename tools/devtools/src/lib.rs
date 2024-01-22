@@ -100,6 +100,8 @@ pub struct CommonArgs {
 
     /// Whether or not if we should use `cargo run` instead of `cargo build`. If both `--release`
     /// and `--run` are specified, it will run the Release binary instead of the Debug one.
+    ///
+    /// In some cases, `--run` is ignored by some commands (i.e, `./dev server` and `./dev cli` when you have arguments).
     #[arg(long)]
     pub run: bool,
 }

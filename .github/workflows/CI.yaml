@@ -61,22 +61,33 @@ jobs:
             - name: Setup Rust toolchain
               uses: dtolnay/rust-toolchain@master
               with:
-                toolchain: ${{matrix.rust-version}}
-                components: clippy, rustfmt
+                  toolchain: ${{matrix.rust-version}}
+                  components: clippy, rustfmt
 
             - name: Setup Rust cache
               uses: Swatinem/rust-cache@v2
 
-            - name: Install `protoc`
-              uses: Noelware/setup-protoc@1.1.0
-
             - name: Setup `VCPKG_ROOT` environment variable
               if: matrix.runner == 'windows-latest'
-              run: echo "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" | Out-File -FilePath $env:GITHUB_ENV -Append
+              id: vcpkg
+              run: |
+                  echo "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" | Out-File -FilePath $env:GITHUB_ENV -Append
+                  echo "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+            - name: Setup vcpkg cache
+              if: matrix.runner == 'windows-latest'
+              uses: actions/cache@v4
+              with:
+                  key: vcpkg-cache
+                  path: |
+                      ${{steps.vcpkg.outputs.VCPKG_ROOT}}
 
             - name: Install OpenSSL on Windows with `vcpkg`
               if: matrix.runner == 'windows-latest'
               run: vcpkg install openssl:x64-windows-static-md
+
+            - name: Install `protoc`
+              uses: Noelware/setup-protoc@1.2.0
 
             - name: Build project
               run: cargo build --all-features
@@ -88,7 +99,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-              rust-version: [stable, nightly]
+                rust-version: [stable, nightly]
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -96,14 +107,14 @@ jobs:
             - name: Setup Rust toolchain
               uses: dtolnay/rust-toolchain@master
               with:
-                toolchain: ${{matrix.rust-version}}
-                components: clippy, rustfmt
+                  toolchain: ${{matrix.rust-version}}
+                  components: clippy, rustfmt
 
             - name: Setup Rust cache
               uses: Swatinem/rust-cache@v2
 
             - name: Install `protoc`
-              uses: Noelware/setup-protoc@1.1.0
+              uses: Noelware/setup-protoc@1.2.0
 
             - name: Build project
               run: cargo build --all-features
@@ -111,8 +122,8 @@ jobs:
             - name: Clippy!
               uses: auguwu/clippy-action@1.3.0
               with:
-                all-features: true
-                token: ${{github.token}}
+                  all-features: true
+                  token: ${{github.token}}
     ui:
         name: Hoshi CI
         runs-on: ubuntu-latest

@@ -85,7 +85,7 @@ pub trait DbController: Send + Sync {
     async fn delete(&self, id: i64) -> eyre::Result<()>;
 
     /// Check if `Entity` by their ID exists in the database.
-    async fn exists(&self, id: u64) -> eyre::Result<bool>;
+    async fn exists(&self, id: i64) -> eyre::Result<bool>;
 
     /// Check if `Entity` by the associated [`NameOrSnowflake`] exists in the database
     async fn exists_by<S: Into<NameOrSnowflake> + Send>(&self, nos: S) -> eyre::Result<bool>;
@@ -94,4 +94,10 @@ pub trait DbController: Send + Sync {
     async fn paginate(&self, _request: PaginationRequest) -> eyre::Result<Pagination<Self::Entity>> {
         unimplemented!("associated type doesn't implement `DbController::paginate`")
     }
+}
+
+#[derive(Clone)]
+pub struct Controllers {
+    pub repositories: repository::DbController,
+    pub users: user::DbController,
 }

@@ -122,6 +122,9 @@ static GLOBAL: OnceCell<Instance> = OnceCell::new();
 /// Represents the core instance of charted-server. It contains a whole bunch of references
 /// to be able to operate successfully.
 pub struct Instance {
+    /// database controllers
+    pub controllers: db::controllers::Controllers,
+
     /// Represents how many requests the server has handled.
     pub requests: AtomicUsize,
 
@@ -153,6 +156,7 @@ pub struct Instance {
 impl Clone for Instance {
     fn clone(&self) -> Self {
         Instance {
+            controllers: self.controllers.clone(),
             requests: AtomicUsize::new(self.requests.load(Ordering::Relaxed)),
             avatars: self.avatars.clone(),
             metrics: self.metrics.clone(),

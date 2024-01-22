@@ -20,8 +20,6 @@ use eyre::Result;
 use serde::{de::DeserializeOwned, Serialize};
 use std::{borrow::Cow, fmt::Display, ops::Deref, time::Duration};
 
-use crate::common::models::entities::{Organization, Repository, User};
-
 /// Default max object size (15mb)
 pub const DEFAULT_MAX_OBJECT_SIZE: u64 = 15 * 1024 * 1024; // 15mb
 
@@ -88,17 +86,27 @@ pub trait CacheWorker<Target: Serialize + DeserializeOwned>: Send + Sync {
 
     /// Reserve a cache object within a given [`CacheKey`], returns a error
     /// if the cache key was already inserted into the cache.
-    async fn put(&mut self, key: CacheKey, obj: Target) -> Result<()>;
+    async fn put(&mut self, key: CacheKey, obj: Target) -> Result<()>
+    where
+        Target: 'async_trait;
 
     /// Attempts to delete a cache key from the cache if it exists.
     async fn delete(&mut self, key: CacheKey) -> Result<()>;
 }
 
-/// Represents a joined cache worker, where it has all the available [`CacheWorker`]s as one struct.
-pub struct JoinedCacheWorker {
-    pub organizations: Box<dyn CacheWorker<Organization>>,
-    pub repositories: Box<dyn CacheWorker<Repository>>,
-    pub users: Box<dyn CacheWorker<User>>,
+#[async_trait]
+impl<Target: Serialize + DeserializeOwned + Send + Sync> CacheWorker<Target> for Box<dyn CacheWorker<Target>> {
+    async fn get(&mut self, key: CacheKey) -> Result<Option<Target>> {
+        self.get(key).await
+    }
+
+    async fn put(&mut self, key: CacheKey, obj: Target) -> Result<()> {
+        self.put(key, obj).await
+    }
+
+    async fn delete(&mut self, key: CacheKey) -> Result<()> {
+        self.delete(key).await
+    }
 }
 
 #[cfg(test)]

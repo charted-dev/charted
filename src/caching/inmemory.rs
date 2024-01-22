@@ -62,7 +62,10 @@ impl<Target: Serialize + DeserializeOwned + Send + Sync + 'static> CacheWorker<T
     }
 
     #[instrument(name = "charted.caching.inmemory.put", skip(self, obj))]
-    async fn put(&mut self, key: CacheKey, obj: Target) -> eyre::Result<()> {
+    async fn put(&mut self, key: CacheKey, obj: Target) -> eyre::Result<()>
+    where
+        Target: 'async_trait,
+    {
         if self.0.contains_key(&key) {
             return Ok(());
         }

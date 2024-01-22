@@ -13,9 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::{fs::OpenOptions, io::Write, path::PathBuf, process::exit};
-
 use crate::{cli::Execute, config::Config};
+use std::{fs::OpenOptions, io::Write, path::PathBuf, process::exit};
 
 /// Writes a new configuration file in the given `path`. This will bail out of the path already exists.
 #[derive(Debug, Clone, clap::Parser)]

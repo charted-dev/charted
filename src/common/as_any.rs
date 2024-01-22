@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::any::Any;
+use std::{any::Any, sync::Arc};
 
 /// Generic trait to implement `as_any` to help aid using [`Any`]
 /// easier.
@@ -36,6 +36,18 @@ pub trait Cast: private::Sealed + AsAny {
 }
 
 impl<T: ?Sized + AsAny> Cast for T {}
+
+/// Allows upcasting `Arc<dyn T>` ~> `Arc<dyn Any>` easily.
+pub trait AsArcAny: Any {
+    /// Upcasts `Arc<dyn T>` ~> `Arc<dyn Any>`.
+    fn as_arc_any(self: Arc<Self>) -> Arc<dyn Any>;
+}
+
+impl<T: 'static> AsArcAny for T {
+    fn as_arc_any(self: Arc<Self>) -> Arc<dyn Any> {
+        self
+    }
+}
 
 mod private {
     use super::AsAny;

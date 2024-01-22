@@ -13,8 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::cli::Execute;
-use std::path::PathBuf;
+use crate::{cli::Execute, server::openapi::Document};
+use std::{
+    fs::{File, OpenOptions},
+    io::Write,
+    path::PathBuf,
+    process::exit,
+};
+use utoipa::{openapi::ServerBuilder, OpenApi};
 
 /// Generate the OpenAPI schema document without running the server itself.
 #[derive(Debug, Clone, clap::Parser)]
@@ -29,50 +35,40 @@ pub struct Cmd {
 
 impl Execute for Cmd {
     fn execute(&self) -> eyre::Result<()> {
-        Ok(())
-    }
-}
+        let mut doc = Document::openapi();
+        doc.servers = Some(vec![ServerBuilder::new()
+            .description(Some("Official home for charted-server, Noelware's public instance"))
+            .url("https://charts.noelware.org")
+            .build()]);
 
-/*
-impl Execute for OpenAPI {
-    fn execute(&self) -> Result<()> {
-        // Set a temporary config so we can grab the OpenAPI document without
-        // panics.
-        Config::temporary();
-
-        let doc = Document::openapi();
         let serialized = if self.yaml {
             serde_yaml::to_string(&doc)?
         } else {
-            serde_json::to_string_pretty(&doc)?
+            serde_json::to_string(&doc)?
         };
 
-        match self.output.clone() {
-            Some(file) => {
-                info!("Writing OpenAPI specification in {}", file.display());
-
-                let path = file.clone();
-                let mut file = match file.try_exists() {
-                    Ok(true) => File::create(file)?,
-                    Ok(false) => OpenOptions::new().read(true).write(true).create_new(true).open(file)?,
+        match self.output {
+            Some(ref path) => {
+                info!(path = %path.display(), "writing specification in");
+                let mut file = match path.try_exists() {
+                    Ok(true) => File::create(path)?,
+                    Ok(false) => OpenOptions::new().create_new(true).write(true).open(path)?,
                     Err(e) => {
-                        error!(error = %e, "unable to create file {}", file.display());
-                        return Ok(());
+                        error!(error = %e, path = %path.display(), "unable to validate that path exists");
+                        exit(1);
                     }
                 };
 
                 write!(file, "{serialized}")?;
-                info!("Successfully wrote OpenAPI specification in {}", path.display());
+                info!(path = %path.display(), "wrote specification in");
 
                 Ok(())
             }
 
             None => {
-                println!("{serialized}");
+                eprintln!("{serialized}");
                 Ok(())
             }
         }
     }
 }
-
-*/

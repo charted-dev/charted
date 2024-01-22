@@ -13,8 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::any::Any;
-
 use axum::{
     body::Body,
     extract::DefaultBodyLimit,
@@ -22,6 +20,7 @@ use axum::{
     Router,
 };
 use serde_json::json;
+use std::any::Any;
 use tower::ServiceBuilder;
 use tower_http::cors::CorsLayer;
 

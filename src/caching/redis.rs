@@ -20,21 +20,21 @@ use redis::{AsyncCommands, Commands};
 use serde::{de::DeserializeOwned, Serialize};
 
 /// Represents a [`CacheWorker`] that uses Redis as the backend.
-pub struct RedisCache<'c> {
+pub struct RedisCache {
     config: config::caching::redis::Config,
-    client: &'c mut crate::redis::Client,
+    client: crate::redis::Client,
 }
 
-impl RedisCache<'_> {
+impl RedisCache {
     /// Creates a new [`RedisCache`] instance.
-    pub fn new(client: &mut crate::redis::Client, config: config::caching::redis::Config) -> RedisCache<'_> {
+    pub fn new(client: crate::redis::Client, config: config::caching::redis::Config) -> RedisCache {
         trace!(cache.worker = "redis", "configured redis cache");
         RedisCache { config, client }
     }
 }
 
 #[async_trait]
-impl<'c, Target: Serialize + DeserializeOwned + Send + Sync + 'c> CacheWorker<Target> for RedisCache<'c> {
+impl<'a, Target: Serialize + DeserializeOwned + Send + Sync + 'a> CacheWorker<Target> for RedisCache {
     #[instrument(name = "charted.caching.redis.get", skip(self))]
     async fn get(&mut self, key: CacheKey) -> eyre::Result<Option<Target>> {
         let key = key.as_redis_key();
@@ -48,8 +48,10 @@ impl<'c, Target: Serialize + DeserializeOwned + Send + Sync + 'c> CacheWorker<Ta
         }
     }
 
-    #[instrument(name = "charted.caching.redis.put", skip(self, obj))]
-    async fn put(&mut self, key: CacheKey, obj: Target) -> eyre::Result<()> {
+    async fn put(&mut self, key: CacheKey, obj: Target) -> eyre::Result<()>
+    where
+        Target: 'async_trait,
+    {
         let key = key.as_redis_key();
         let client = self.client.master()?;
         let mut conn = client.get_connection()?;

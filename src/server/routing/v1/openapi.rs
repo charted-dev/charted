@@ -13,21 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub mod cdn;
-pub mod features;
-pub mod heartbeat;
-pub mod indexes;
-pub mod info;
-pub mod main;
-pub mod metrics;
-pub mod openapi;
+use crate::server::{models::yaml::Yaml, openapi::Document};
+use axum::{http::StatusCode, response::IntoResponse, Json};
+use utoipa::{openapi::OpenApi, OpenApi as _};
 
-use crate::Instance;
-use axum::{routing, Router};
+pub async fn json() -> impl IntoResponse {
+    let document = Document::openapi();
+    (StatusCode::OK, Json(document))
+}
 
-pub fn create_router() -> Router<Instance> {
-    Router::new()
-        .route("/openapi.json", routing::get(openapi::json))
-        .route("/openapi.yaml", routing::get(openapi::yaml))
-        .route("/", routing::get(main::MainRestController::run))
+pub async fn yaml() -> Yaml<OpenApi> {
+    let document = Document::openapi();
+    Yaml(StatusCode::OK, document)
 }

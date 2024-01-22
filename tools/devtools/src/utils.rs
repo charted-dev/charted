@@ -73,7 +73,7 @@ pub fn cmd<C: AsRef<OsStr>, F: FnOnce(&mut Command)>(command: C, builder: F) -> 
         Ok(output) => {
             let code = output.status.code().unwrap_or(-1);
 
-            // '101' is clap's help command exit code when prompted
+            // '2' is clap's help command exit code when prompted
             if code == 2 {
                 return Ok(String::new());
             }

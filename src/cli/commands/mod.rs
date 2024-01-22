@@ -26,6 +26,9 @@ use clap::Subcommand;
 pub enum Cmd {
     Completions(completions::Cmd),
     Generate(generate::Cmd),
+
+    #[command(name = "openapi")]
+    OpenApi(openapi::Cmd),
     Version(version::Cmd),
     Server(server::Cmd),
 }
@@ -38,6 +41,7 @@ impl AsyncExecute for Cmd {
             Cmd::Completions(comp) => comp.execute(),
             Cmd::Generate(gen) => gen.execute(),
             Cmd::Version(ver) => ver.execute(),
+            Cmd::OpenApi(oa) => oa.execute(),
         }
     }
 }

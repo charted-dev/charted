@@ -32,14 +32,20 @@ pub static MIGRATIONS: Migrator = migrate!();
 /// #
 /// #[async_trait]
 /// impl DbController for MyDbController {
-///     impl_paginate!("table" -> MyDbType);
+///     impl_paginate(MyDbType as "table");
 /// }
 /// ```
 macro_rules! impl_paginate_priv {
-    ("repositories" -> $ty:ty) => {
-        fn paginate<'life0, 'async_trait>(&'life0 self, request: $crate::controller::PaginationRequest) -> ::core::pin::Pin<
-            Box<dyn ::std::future::Future<Output = ::eyre::Result<::charted_common::server::pagination::Pagination<$ty>>> + ::core::marker::Send + 'async_trait>
-        >
+    ("repositories") => {
+        fn paginate<'life0, 'async_trait>(
+            &'life0 self,
+            request: $crate::db::controllers::PaginationRequest
+        ) -> ::core::pin::Pin<
+            Box<
+                dyn ::std::future::Future<
+                    Output = ::eyre::Result<$crate::server::pagination::Pagination<$crate::common::models::entities::Repository>>> + ::core::marker::Send + 'async_trait
+                >
+            >
         where
             'life0: 'async_trait,
             Self: 'async_trait,
@@ -63,8 +69,8 @@ macro_rules! impl_paginate_priv {
                 query.push(" ");
 
                 match request.order_by {
-                    ::charted_common::server::pagination::OrderBy::Ascending => query.push("order by id ASC "),
-                    ::charted_common::server::pagination::OrderBy::Descending => query.push("order by id DESC "),
+                    $crate::server::pagination::OrderBy::Ascending => query.push("order by id ASC "),
+                    $crate::server::pagination::OrderBy::Descending => query.push("order by id DESC "),
                 };
 
                 query.push("limit ").push_bind((request.per_page as i32) + 1).push(" ");
@@ -83,10 +89,10 @@ macro_rules! impl_paginate_priv {
                                 .map(|e| e as u64)
                         };
 
-                        let page_info = ::charted_common::server::pagination::PageInfo { cursor };
-                        let data = entries.iter().filter_map(|row| <$ty>::from_row(row).ok()).collect::<::std::vec::Vec::<_>>();
+                        let page_info = $crate::server::pagination::PageInfo { cursor };
+                        let data = entries.iter().filter_map(|row| <$crate::common::models::entities::Repository>::from_row(row).ok()).collect::<::std::vec::Vec::<_>>();
 
-                        Ok(::charted_common::server::pagination::Pagination { page_info, data })
+                        Ok($crate::server::pagination::Pagination { page_info, data })
                     }
 
                     Err(e) => {
@@ -100,9 +106,9 @@ macro_rules! impl_paginate_priv {
         }
     };
 
-    ("organizations" -> $ty:ty) => {
+    ("organizations") => {
         fn paginate<'life0, 'async_trait>(&'life0 self, request: $crate::controller::PaginationRequest) -> ::core::pin::Pin<
-            Box<dyn ::std::future::Future<Output = ::eyre::Result<::charted_common::server::pagination::Pagination<$ty>>> + ::core::marker::Send + 'async_trait>
+            Box<dyn ::std::future::Future<Output = ::eyre::Result<::crate::server::pagination::Pagination<$ty>>> + ::core::marker::Send + 'async_trait>
         >
         where
             'life0: 'async_trait,
@@ -122,13 +128,13 @@ macro_rules! impl_paginate_priv {
                 }
 
                 let owner_id = request.owner_id.unwrap_or_else(|| panic!("INTERNAL BUG: missing `owner_id`"));
-                query.push("organizations.owner_id = ");
+                query.push("organizations.owner = ");
                 query.push_bind(i64::try_from(owner_id).unwrap());
                 query.push(" ");
 
                 match request.order_by {
-                    ::charted_common::server::pagination::OrderBy::Ascending => query.push("order by id ASC "),
-                    ::charted_common::server::pagination::OrderBy::Descending => query.push("order by id DESC "),
+                    ::crate::server::pagination::OrderBy::Ascending => query.push("order by id ASC "),
+                    ::crate::server::pagination::OrderBy::Descending => query.push("order by id DESC "),
                 };
 
                 query.push("limit ").push_bind((request.per_page as i32) + 1).push(" ");
@@ -147,24 +153,24 @@ macro_rules! impl_paginate_priv {
                                 .map(|e| e as u64)
                         };
 
-                        let page_info = ::charted_common::server::pagination::PageInfo { cursor };
-                        let data = entries.iter().filter_map(|row| <$ty>::from_row(row).ok()).collect::<::std::vec::Vec::<_>>();
+                        let page_info = ::crate::server::pagination::PageInfo { cursor };
+                        let data = entries.iter().filter_map(|row| <::crate::common::models::entities::Organization>::from_row(row).ok()).collect::<::std::vec::Vec::<_>>();
 
-                        Ok(::charted_common::server::pagination::Pagination { page_info, data })
+                        Ok(::crate::server::pagination::Pagination { page_info, data })
                     }
 
                     Err(e) => {
-                        ::tracing::error!(error = %e, "unable to complete pagination request for table [organizations]");
+                        ::tracing::error!(error = %e, concat!("unable to complete pagination request for table [organizatins]"));
                         ::sentry::capture_error(&e);
 
-                        Err(e).context("unable to complete pagination request for table [organizations]")
+                        Err(e).context(concat!("unable to complete pagination request for table [organizations]"))
                     }
                 }
             })
         }
     };
 
-    ($table:literal -> $ty:ty) => {
+    ($table:literal as $ty:ty) => {
         fn paginate<'life0, 'async_trait>(&'life0 self, request: $crate::controller::PaginationRequest) -> ::core::pin::Pin<
             Box<dyn ::std::future::Future<Output = ::eyre::Result<::charted_common::server::pagination::Pagination<$ty>>> + ::core::marker::Send + 'async_trait>
         >
@@ -281,6 +287,130 @@ macro_rules! impl_patch_for_priv {
                 }
             }
         }
+    };
+
+    ($txn:expr, optional, {
+        payload: $payload:expr;
+        column: $column:literal;
+        table: $table:literal;
+        id: $id:expr;
+
+        { $value:expr };
+    }) => {
+        match $payload {
+            // if the value is empty, then we will asume that it needs to be `NULL`
+            Some(ref val) if val.is_empty() => {
+                match sqlx::query(concat!("update ", $table, " set ", $column, " = NULL where id = $1;"))
+                    .bind($id)
+                    .execute(&mut *$txn)
+                    .await
+                {
+                    Ok(_) => {}
+                    Err(e) => {
+                        ::tracing::error!(
+                            user.id = $id,
+                            error = %e,
+                            table = $table,
+                            column = $column,
+                            "unable to update column entry in table to NULL"
+                        );
+
+                        ::sentry::capture_error(&e);
+
+                        // drop the transaction as sqlx will rollback the transaction state
+                        drop($txn);
+                        return Err(e.into());
+                    }
+                }
+            }
+
+            // do the update anyway, even if it is the same
+            Some(ref _) => {
+                match sqlx::query(concat!("update ", $table, " set ", $column, " = $1 where id = $2;"))
+                    .bind($value)
+                    .bind($id)
+                    .execute(&mut *$txn)
+                    .await
+                {
+                    Ok(_) => {}
+                    Err(e) => {
+                        ::tracing::error!(
+                            user.id = $id,
+                            error = %e,
+                            table = $table,
+                            column = $column,
+                            "unable to update column entry in table to NULL"
+                        );
+
+                        ::sentry::capture_error(&e);
+
+                        // drop the transaction as sqlx will rollback the transaction state
+                        drop($txn);
+                        return Err(e.into());
+                    }
+                }
+            }
+
+            // don't even do the update
+            None => {}
+        }
+    };
+
+    ($txn:expr, optional, {
+        payload: $payload:expr;
+        column: $column:literal;
+        table: $table:literal;
+        cond: |$val:ident| $cond:expr;
+        id: $id:expr;
+    }) => {
+        match $payload {
+            Some(ref val) => {
+                // only do the update if the `cond` is true.
+                let $val = val;
+                if $cond {
+                    match sqlx::query(concat!("update ", $table, " set ", $column, " = NULL where id = $1;"))
+                        .bind($id)
+                        .execute(&mut *$txn)
+                        .await
+                    {
+                        Ok(_) => {}
+                        Err(e) => {
+                            ::tracing::error!(
+                                user.id = $id,
+                                error = %e,
+                                table = $table,
+                                column = $column,
+                                "unable to update column entry in table to NULL"
+                            );
+
+                            ::sentry::capture_error(&e);
+
+                            // drop the transaction as sqlx will rollback the transaction state
+                            drop($txn);
+                            return Err(e.into());
+                        }
+                    }
+                }
+            }
+
+            // don't even do the update
+            None => {}
+        }
+    };
+
+    ($txn:expr, optional, {
+        payload: $payload:expr;
+        column: $column:literal;
+        table: $table:literal;
+        id: $id:expr;
+    }) => {
+        $crate::db::impl_patch_for!($txn, optional, {
+            payload: $payload;
+            column:  $column;
+            table:   $table;
+            cond:    |val| val.is_empty();
+            id:      $id;
+        });
     };
 }
 

@@ -20,17 +20,14 @@ use axum::{
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{borrow::Cow, fmt::Debug};
-use utoipa::{
-    openapi::{ObjectBuilder, RefOr, Schema, SchemaType},
-    ToSchema,
-};
+use utoipa::ToSchema;
 
 /// Represents a [`Result`][std::result::Result] type that corresponds to a API response
 /// result type.
 pub type Result<T = ()> = std::result::Result<ApiResponse<T>, ApiResponse>;
 
-#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
-pub struct ApiResponse<T: Debug + Serialize = ()> {
+#[derive(Serialize, ToSchema)]
+pub struct ApiResponse<T = ()> {
     /// Status code of this [`ApiResponse`].
     #[serde(skip)]
     pub(crate) status: StatusCode,
@@ -47,7 +44,7 @@ pub struct ApiResponse<T: Debug + Serialize = ()> {
     pub errors: Vec<Error>,
 }
 
-impl<T: Serialize + Debug> IntoResponse for ApiResponse<T> {
+impl<T: Serialize> IntoResponse for ApiResponse<T> {
     fn into_response(self) -> axum::response::Response {
         let mut res = Response::new(serde_json::to_string(&self).expect("this should never happen"));
         *res.status_mut() = self.status;
@@ -61,7 +58,7 @@ impl<T: Serialize + Debug> IntoResponse for ApiResponse<T> {
 }
 
 /// Represents an error that could occur.
-#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+#[derive(Serialize, ToSchema)]
 pub struct Error {
     /// A contextual error code that can be looked up from the documentation to see
     /// why the request failed.
@@ -83,7 +80,7 @@ pub const INTERNAL_SERVER_ERROR: Error = Error {
 };
 
 /// Represents a error code that can happen.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum ErrorCode {
     // ~ COMMON
@@ -228,20 +225,6 @@ pub enum ErrorCode {
     InvalidMultipartBoundary,
 }
 
-impl<'s> ToSchema<'s> for ErrorCode {
-    fn schema() -> (&'s str, RefOr<Schema>) {
-        (
-            "ErrorCode",
-            RefOr::T(Schema::Object(
-                ObjectBuilder::new()
-                    .description(Some("Represents a error code that can happen"))
-                    .schema_type(SchemaType::String)
-                    .build(),
-            )),
-        )
-    }
-}
-
 impl From<(ErrorCode, &'static str)> for Error {
     fn from((code, message): (ErrorCode, &'static str)) -> Self {
         Error {
@@ -293,7 +276,7 @@ impl From<(ErrorCode, &'static str, Option<Value>)> for Error {
 }
 
 /// Returns a successful API response.
-pub fn ok<T: Serialize + Debug>(status: StatusCode, data: T) -> ApiResponse<T> {
+pub fn ok<T>(status: StatusCode, data: T) -> ApiResponse<T> {
     ApiResponse {
         status,
         success: true,
