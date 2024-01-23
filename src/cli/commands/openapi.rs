@@ -66,7 +66,7 @@ impl Execute for Cmd {
             }
 
             None => {
-                eprintln!("{serialized}");
+                println!("{serialized}");
                 Ok(())
             }
         }

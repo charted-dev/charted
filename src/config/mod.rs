@@ -36,6 +36,11 @@ use crate::TRUTHY_REGEX;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Merge)]
 pub struct Config {
+    /// whether or not if users can be registered on this instance
+    #[serde(default)]
+    #[merge(strategy = noelware_config::merge::strategy::bool::only_if_falsy)]
+    pub registrations: bool,
+
     /// Secret key for encoding JWT tokens. This must be set once and never touched again.
     #[serde(default)]
     #[merge(skip)] // don't even attempt to merge jwt secret keys
@@ -91,6 +96,11 @@ impl TryFromEnv for Config {
 
     fn try_from_env() -> Result<Self::Output, Self::Error> {
         Ok(Config {
+            registrations: env!("CHARTED_ENABLE_REGISTRATIONS", {
+                or_else: false;
+                mapper: |val| TRUTHY_REGEX.is_match(&val);
+            }),
+
             jwt_secret_key: env!("CHARTED_JWT_SECRET_KEY", or_else: env!("SECRET_KEY", or_else: __generated_secret_key())),
             sentry_dsn: env!("CHARTED_SENTRY_DSN", is_optional: true),
             single_org: env!("CHARTED_SINGLE_ORG", {

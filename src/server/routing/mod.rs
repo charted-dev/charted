@@ -33,10 +33,10 @@ pub mod v1;
 
 macro_rules! create_internal_router {
     ($($cr:ident),*) => {
-        fn create_internal_router() -> ::axum::Router<crate::Instance> {
-            let mut router = ::axum::Router::new().merge(v1::create_router());
+        fn create_internal_router(instance: &$crate::Instance) -> ::axum::Router<crate::Instance> {
+            let mut router = ::axum::Router::new().merge(v1::create_router(instance));
             $(
-                router = router.clone().nest(concat!("/", stringify!($cr)), crate::server::routing::$cr::create_router());
+                router = router.clone().nest(concat!("/", stringify!($cr)), crate::server::routing::$cr::create_router(instance));
             )*
 
             router
@@ -76,7 +76,7 @@ fn panic_handler(message: Box<dyn Any + Send + 'static>) -> Response<Body> {
         .unwrap()
 }
 
-pub fn create_router() -> Router<Instance> {
+pub fn create_router(instance: &Instance) -> Router<Instance> {
     let stack = ServiceBuilder::new()
         // .layer(sentry_tower::NewSentryLayer::new_from_top())
         // .layer(sentry_tower::SentryHttpLayer::new())
@@ -86,9 +86,9 @@ pub fn create_router() -> Router<Instance> {
             CorsLayer::new()
                 .allow_methods([Method::GET, Method::PUT, Method::HEAD, Method::POST, Method::PATCH, Method::DELETE])
                 .allow_origin(tower_http::cors::Any)
-        );
-    // .layer(axum::middleware::from_fn(crate::server::middleware::log))
-    // .layer(axum::middleware::from_fn(crate::server::middleware::request_id));
+        )
+        .layer(axum::middleware::from_fn(crate::server::middleware::request_id))
+        .layer(axum::middleware::from_fn(crate::server::middleware::log));
 
-    Router::new().merge(create_internal_router()).layer(stack)
+    Router::new().merge(create_internal_router(instance)).layer(stack)
 }

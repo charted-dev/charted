@@ -109,3 +109,12 @@ impl From<String> for NameOrSnowflake {
         NameOrSnowflake::Name(value.into())
     }
 }
+
+impl From<&NameOrSnowflake> for NameOrSnowflake {
+    fn from(value: &NameOrSnowflake) -> Self {
+        match value {
+            Self::Snowflake(id) => Self::Snowflake(*id),
+            Self::Name(name) => Self::Name(name.clone()),
+        }
+    }
+}

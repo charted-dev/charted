@@ -4,17 +4,16 @@
         "title": "charted-server",
         "description": "🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust",
         "termsOfService": "https://charts.noelware.org/legal/tos",
-        "contact": {
-            "name": "Noelware, LLC.",
-            "url": "https://noelware.org",
-            "email": "team@noelware.org"
-        },
-        "license": {
-            "name": "Apache 2.0",
-            "url": "https://www.apache.org/licenses/LICENSE-2.0"
-        },
+        "contact": { "name": "Noelware, LLC.", "url": "https://noelware.org", "email": "team@noelware.org" },
+        "license": { "name": "Apache 2.0", "url": "https://www.apache.org/licenses/LICENSE-2.0" },
         "version": "0.1.0-beta"
     },
+    "servers": [
+        {
+            "url": "https://charts.noelware.org",
+            "description": "Official home for charted-server, Noelware's public instance"
+        }
+    ],
     "paths": {
         "/": {
             "get": {
@@ -25,11 +24,86 @@
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/responses/MainResponse"
-                                }
-                            }
+                            "application/json": { "schema": { "$ref": "#/components/responses/MainResponse" } }
+                        }
+                    }
+                }
+            }
+        },
+        "/features": {
+            "get": {
+                "tags": ["Main"],
+                "description": "Retrieve this server's features. This is only for enabling or disabling features for API consumers.",
+                "operationId": "features",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/FeaturesResponse" } }
+                        }
+                    }
+                }
+            }
+        },
+        "/heartbeat": {
+            "get": {
+                "tags": ["Main"],
+                "description": "Generic healthcheck endpoint",
+                "operationId": "heartbeat",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": { "text/plain": { "schema": { "type": "string" } } }
+                    }
+                }
+            }
+        },
+        "/index/{idOrName}": {
+            "get": {
+                "tags": ["Main", "Users", "Organizations"],
+                "description": "Returns a index of a user or organization's Helm charts",
+                "operationId": "get_chart_index",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Path parameter that can take a `Name` or `Snowflake` identifier",
+                        "required": true,
+                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Chart index for a specific user or organization",
+                        "content": {
+                            "text/yaml": { "schema": { "$ref": "#/components/responses/ChartIndexResponse" } }
+                        }
+                    },
+                    "404": {
+                        "description": "User or Organization was not found",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    }
+                }
+            }
+        },
+        "/info": {
+            "get": {
+                "tags": ["Main"],
+                "description": "REST handler for getting more information about this instance that can be visible for API consumers.",
+                "operationId": "info",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/InfoResponse" } }
                         }
                     }
                 }
@@ -44,11 +118,86 @@
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/responses/MainResponse"
-                                }
-                            }
+                            "application/json": { "schema": { "$ref": "#/components/responses/MainResponse" } }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/features": {
+            "get": {
+                "tags": ["Main"],
+                "description": "Retrieve this server's features. This is only for enabling or disabling features for API consumers.",
+                "operationId": "features",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/FeaturesResponse" } }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/heartbeat": {
+            "get": {
+                "tags": ["Main"],
+                "description": "Generic healthcheck endpoint",
+                "operationId": "heartbeat",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": { "text/plain": { "schema": { "type": "string" } } }
+                    }
+                }
+            }
+        },
+        "/v1/index/{idOrName}": {
+            "get": {
+                "tags": ["Main", "Users", "Organizations"],
+                "description": "Returns a index of a user or organization's Helm charts",
+                "operationId": "get_chart_index",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Path parameter that can take a `Name` or `Snowflake` identifier",
+                        "required": true,
+                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Chart index for a specific user or organization",
+                        "content": {
+                            "text/yaml": { "schema": { "$ref": "#/components/responses/ChartIndexResponse" } }
+                        }
+                    },
+                    "404": {
+                        "description": "User or Organization was not found",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/info": {
+            "get": {
+                "tags": ["Main"],
+                "description": "REST handler for getting more information about this instance that can be visible for API consumers.",
+                "operationId": "info",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/InfoResponse" } }
                         }
                     }
                 }
@@ -67,20 +216,14 @@
                         "description": "Short description about this API key.",
                         "nullable": true
                     },
-                    "expires_in": {
-                        "allOf": [{ "$ref": "#/components/schemas/DateTime" }],
-                        "nullable": true
-                    },
+                    "expires_in": { "allOf": [{ "$ref": "#/components/schemas/DateTime" }], "nullable": true },
                     "id": {
                         "type": "integer",
                         "format": "int64",
                         "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
                         "minLength": 15
                     },
-                    "name": {
-                        "type": "string",
-                        "description": "The name of the API key."
-                    },
+                    "name": { "type": "string", "description": "The name of the API key." },
                     "owner": { "$ref": "#/components/schemas/User" },
                     "scopes": {
                         "type": "integer",
@@ -104,9 +247,7 @@
                         "description": "Mapping of custom metadata that can be used for custom attributes.\n\n### standardized for charted-server\n* `charts.noelware.org/maintainers` ~ a comma-delimited list of all the maintainers\nthat are mapped by their `Name` or snowflake ID",
                         "additionalProperties": { "type": "string" }
                     },
-                    "apiVersion": {
-                        "$ref": "#/components/schemas/ChartSpecVersion"
-                    },
+                    "apiVersion": { "$ref": "#/components/schemas/ChartSpecVersion" },
                     "appVersion": {
                         "type": "string",
                         "description": "Note that the appVersion field is not related to the version field. It is a way of specifying the version of the\napplication. For example, the drupal chart may have an appVersion: \"8.2.1\", indicating that the version of Drupal\nincluded in the chart (by default) is 8.2.1. This field is informational, and has no impact on chart version calculations.\n\nWrapping the version in quotes is highly recommended. It forces the YAML parser to treat the version number as a string.\nLeaving it unquoted can lead to parsing issues in some cases. For example, YAML interprets 1.0 as a floating point value,\nand a git commit SHA like 1234e10 as scientific notation.",
@@ -114,9 +255,7 @@
                     },
                     "dependencies": {
                         "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ChartDependency"
-                        },
+                        "items": { "$ref": "#/components/schemas/ChartDependency" },
                         "description": "In Helm, one chart may depend on any number of other charts. These dependencies can be dynamically linked using the dependencies'\nfield in Chart.yaml or brought in to the charts/ directory and managed manually. The charts required by the current chart are defined as a list\nin the dependencies field."
                     },
                     "deprecated": {
@@ -143,21 +282,13 @@
                         "items": { "type": "string" },
                         "description": "A list of keywords about this project. These keywords can be searched\nvia the /search endpoint if it's enabled."
                     },
-                    "kubeVersion": {
-                        "allOf": [{ "$ref": "#/components/schemas/VersionReq" }],
-                        "nullable": true
-                    },
+                    "kubeVersion": { "allOf": [{ "$ref": "#/components/schemas/VersionReq" }], "nullable": true },
                     "maintainers": {
                         "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ChartMaintainer"
-                        },
+                        "items": { "$ref": "#/components/schemas/ChartMaintainer" },
                         "description": "A list of name and URL/email address combinations for the maintainer(s)"
                     },
-                    "name": {
-                        "type": "string",
-                        "description": "The name of the chart."
-                    },
+                    "name": { "type": "string", "description": "The name of the chart." },
                     "sources": {
                         "type": "array",
                         "items": { "type": "string" },
@@ -184,15 +315,10 @@
                     },
                     "import-values": {
                         "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/StringOrImportValue"
-                        },
+                        "items": { "$ref": "#/components/schemas/StringOrImportValue" },
                         "description": "[`ImportValues`][ImportValue] holds the mapping of source values to parent key to be imported.\nEach item can be a string or pair of child/parent sublist items."
                     },
-                    "name": {
-                        "type": "string",
-                        "description": "The name of the chart"
-                    },
+                    "name": { "type": "string", "description": "The name of the chart" },
                     "repository": {
                         "type": "string",
                         "description": "Repository URL or alias that should be used to grab\nthe dependency from.",
@@ -203,10 +329,7 @@
                         "items": { "type": "string" },
                         "description": "List of tags that can be used to group charts to enable/disable together."
                     },
-                    "version": {
-                        "allOf": [{ "$ref": "#/components/schemas/Version" }],
-                        "nullable": true
-                    }
+                    "version": { "allOf": [{ "$ref": "#/components/schemas/Version" }], "nullable": true }
                 }
             },
             "ChartIndex": {
@@ -223,9 +346,7 @@
                         "description": "List of all possible entries for this user/organization.",
                         "additionalProperties": {
                             "type": "array",
-                            "items": {
-                                "$ref": "#/components/schemas/ChartIndexSpec"
-                            },
+                            "items": { "$ref": "#/components/schemas/ChartIndexSpec" },
                             "description": "Index contents of a repository",
                             "uniqueItems": true
                         }
@@ -243,23 +364,10 @@
                     {
                         "type": "object",
                         "properties": {
-                            "created": {
-                                "allOf": [{ "$ref": "#/components/schemas/DateTime" }],
-                                "nullable": true
-                            },
-                            "digest": {
-                                "type": "string",
-                                "nullable": true
-                            },
-                            "removed": {
-                                "type": "boolean"
-                            },
-                            "urls": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string"
-                                }
-                            }
+                            "created": { "allOf": [{ "$ref": "#/components/schemas/DateTime" }], "nullable": true },
+                            "digest": { "type": "string", "nullable": true },
+                            "removed": { "type": "boolean" },
+                            "urls": { "type": "array", "items": { "type": "string" } }
                         }
                     }
                 ],
@@ -270,20 +378,9 @@
                 "description": "Name and URL/email address combination as a maintainer. [ChartMaintainer::name] can be referenced\nas a `NameOrSnowflake` union.",
                 "required": ["name"],
                 "properties": {
-                    "email": {
-                        "type": "string",
-                        "description": "The maintainer's email",
-                        "nullable": true
-                    },
-                    "name": {
-                        "type": "string",
-                        "description": "The maintainer's name"
-                    },
-                    "url": {
-                        "type": "string",
-                        "description": "URL for the maintainer",
-                        "nullable": true
-                    }
+                    "email": { "type": "string", "description": "The maintainer's email", "nullable": true },
+                    "name": { "type": "string", "description": "The maintainer's name" },
+                    "url": { "type": "string", "description": "URL for the maintainer", "nullable": true }
                 }
             },
             "ChartSpecVersion": {
@@ -298,14 +395,18 @@
                 "default": "application",
                 "enum": ["application", "library", "operator"]
             },
+            "DateTime": {
+                "type": "string",
+                "format": "date-time",
+                "description": "RFC3339-encoded string that represents the date time of an entity",
+                "readOnly": true
+            },
             "Error": {
                 "type": "object",
                 "description": "Represents an error that could occur.",
                 "required": ["code", "message"],
                 "properties": {
-                    "code": {
-                        "$ref": "#/components/schemas/ErrorCode"
-                    },
+                    "code": { "$ref": "#/components/schemas/ErrorCode" },
                     "details": {
                         "description": "Other details to send to the user to give even more context about this error.",
                         "nullable": true
@@ -372,14 +473,43 @@
                 "description": "ImportValues hold the mapping of source values to parent key to be imported. Each\nitem can be a child/parent sublist item or a string.",
                 "required": ["parent", "child"],
                 "properties": {
-                    "child": {
+                    "child": { "type": "string", "description": "The source key of the values to be imported" },
+                    "parent": { "type": "string", "description": "The destination path in the parent chart's values." }
+                }
+            },
+            "InfoResponse": {
+                "type": "object",
+                "description": "Represents the response for the `GET /info` REST handler.",
+                "required": ["distribution", "commit_sha", "build_date", "product", "version", "vendor"],
+                "properties": {
+                    "build_date": { "type": "string", "description": "Build date in RFC3339 format" },
+                    "commit_sha": { "type": "string", "description": "The commit hash from the Git repository." },
+                    "distribution": { "$ref": "#/components/schemas/Distribution" },
+                    "product": { "type": "string", "description": "Product name. Will always be \"charted-server\"" },
+                    "vendor": {
                         "type": "string",
-                        "description": "The source key of the values to be imported"
+                        "description": "Vendor of charted-server, will always be \"Noelware, LLC.\""
                     },
-                    "parent": {
+                    "version": {
                         "type": "string",
-                        "description": "The destination path in the parent chart's values."
+                        "description": "Valid SemVer 2 of the current version of this instance"
                     }
+                }
+            },
+            "MainResponse": {
+                "type": "object",
+                "description": "Response object for the `GET /` REST controller.",
+                "required": ["message", "tagline", "docs"],
+                "properties": {
+                    "docs": {
+                        "type": "string",
+                        "description": "Documentation URL for this generic entrypoint response."
+                    },
+                    "message": {
+                        "type": "string",
+                        "description": "The message, which will always be \"Hello, world!\""
+                    },
+                    "tagline": { "type": "string", "description": "You know, for Helm charts?" }
                 }
             },
             "Member": {
@@ -466,10 +596,7 @@
                         "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
                         "minLength": 15
                     },
-                    "name": {
-                        "type": "string",
-                        "description": "The name for this organization."
-                    },
+                    "name": { "type": "string", "description": "The name for this organization." },
                     "owner": { "$ref": "#/components/schemas/User" },
                     "private": {
                         "type": "boolean",
@@ -491,18 +618,13 @@
                 "type": "object",
                 "description": "Information about a [pagination][Pagination] page.",
                 "required": ["cursor"],
-                "properties": {
-                    "cursor": { "$ref": "#/components/schemas/Snowflake" }
-                }
+                "properties": { "cursor": { "$ref": "#/components/schemas/Snowflake" } }
             },
             "PaginatedMember": {
                 "type": "object",
                 "required": ["data", "page_info"],
                 "properties": {
-                    "data": {
-                        "type": "array",
-                        "items": { "$ref": "#/components/schemas/Member" }
-                    },
+                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/Member" } },
                     "page_info": { "$ref": "#/components/schemas/PageInfo" }
                 }
             },
@@ -510,10 +632,7 @@
                 "type": "object",
                 "required": ["data", "page_info"],
                 "properties": {
-                    "data": {
-                        "type": "array",
-                        "items": { "$ref": "#/components/schemas/Organization" }
-                    },
+                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/Organization" } },
                     "page_info": { "$ref": "#/components/schemas/PageInfo" }
                 }
             },
@@ -521,10 +640,7 @@
                 "type": "object",
                 "required": ["data", "page_info"],
                 "properties": {
-                    "data": {
-                        "type": "array",
-                        "items": { "$ref": "#/components/schemas/Repository" }
-                    },
+                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/Repository" } },
                     "page_info": { "$ref": "#/components/schemas/PageInfo" }
                 }
             },
@@ -560,10 +676,7 @@
                         "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
                         "minLength": 15
                     },
-                    "private": {
-                        "type": "boolean",
-                        "description": "Whether if this repository is private or not"
-                    },
+                    "private": { "type": "boolean", "description": "Whether if this repository is private or not" },
                     "type": { "$ref": "#/components/schemas/ChartType" },
                     "updated_at": { "$ref": "#/components/schemas/DateTime" }
                 }
@@ -607,11 +720,7 @@
                         "description": "Refresh token. This will always be `null` if queried, but always will\nbe present if you successfully logged in.",
                         "nullable": true
                     },
-                    "session": {
-                        "type": "string",
-                        "format": "uuid",
-                        "description": "UUID of the session."
-                    },
+                    "session": { "type": "string", "format": "uuid", "description": "UUID of the session." },
                     "user": {
                         "type": "integer",
                         "format": "int64",
@@ -628,10 +737,7 @@
             },
             "StringOrImportValue": {
                 "oneOf": [
-                    {
-                        "type": "string",
-                        "description": "String that points to a key to be imported."
-                    },
+                    { "type": "string", "description": "String that points to a key to be imported." },
                     { "$ref": "#/components/schemas/ImportValue" }
                 ],
                 "description": "Union enum that can contain a String or a [ImportValue] as the import source\nfor referencing parent key items to be imported."
@@ -734,9 +840,7 @@
                             "properties": {
                                 "errors": {
                                     "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Error"
-                                    },
+                                    "items": { "$ref": "#/components/schemas/Error" },
                                     "description": "List of errors on why the request failed."
                                 },
                                 "success": {
@@ -759,6 +863,42 @@
                                 "success": {
                                     "type": "boolean",
                                     "description": "whether if this response [EmptyApiResponse] was a success or not"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "InfoResponse": {
+                "description": "Response object for \"InfoResponse\"",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": { "$ref": "#/components/schemas/InfoResponse" },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "whether if this response [InfoResponse] was successful or not"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "MainResponse": {
+                "description": "Response object for \"MainResponse\"",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": { "$ref": "#/components/schemas/MainResponse" },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "whether if this response [MainResponse] was successful or not"
                                 }
                             }
                         }

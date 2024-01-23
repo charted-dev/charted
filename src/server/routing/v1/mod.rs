@@ -25,9 +25,41 @@ pub mod openapi;
 use crate::Instance;
 use axum::{routing, Router};
 
-pub fn create_router() -> Router<Instance> {
-    Router::new()
+#[allow(unused_variables, clippy::let_and_return)]
+pub fn create_router(instance: &Instance) -> Router<Instance> {
+    let mut router = Router::new()
         .route("/openapi.json", routing::get(openapi::json))
         .route("/openapi.yaml", routing::get(openapi::yaml))
-        .route("/", routing::get(main::MainRestController::run))
+        .route("/heartbeat", routing::get(heartbeat::HeartbeatRestController::run))
+        .route("/features", routing::get(features::FeaturesRestController::run))
+        .route(
+            "/index/:idOrName",
+            routing::get(indexes::GetChartIndexRestController::run),
+        )
+        .route("/info", routing::get(info::InfoRestController::run))
+        .route("/", routing::get(main::MainRestController::run));
+
+    /*
+    if instance.config.metrics.enabled {}
+    */
+
+    if instance.config.cdn.enabled {
+        let prefix = match instance.config.cdn.prefix {
+            Some(ref prefix) => {
+                if !prefix.starts_with('/') {
+                    error!(%prefix, "invalid cdn prefix, must be a valid path! opting to /cdn instead");
+                    "/cdn".into()
+                } else {
+                    prefix.clone()
+                }
+            }
+
+            None => "/cdn".into(),
+        };
+
+        let final_path = format!("{}/*file", prefix.trim_end_matches('/'));
+        router = router.clone().route(&final_path, routing::get(cdn::cdn));
+    }
+
+    router
 }

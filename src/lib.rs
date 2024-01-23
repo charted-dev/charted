@@ -50,6 +50,7 @@ pub mod common;
 pub mod config;
 pub mod db;
 pub mod emails;
+pub mod hoshi;
 pub mod macros;
 pub mod metrics;
 pub mod openapi;

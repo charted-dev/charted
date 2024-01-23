@@ -13,9 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+pub use charted_proc_macros::controller;
+
 use crate::lazy;
 use argon2::{password_hash::SaltString, Algorithm, Argon2, Params, PasswordHasher, Version};
-pub use charted_proc_macros::controller;
 use once_cell::sync::Lazy;
 use rand::rngs::OsRng;
 

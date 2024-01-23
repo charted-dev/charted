@@ -12,11 +12,3 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-use crate::server::controller;
-
-/// Generic healthcheck endpoint
-#[controller(tags("Main"), response(200, "Successful response", ("text/plain", string)))]
-pub async fn heartbeat() -> &'static str {
-    "Ok."
-}

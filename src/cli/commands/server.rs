@@ -236,7 +236,7 @@ impl AsyncExecute for Cmd {
 
         info!(took = ?Instant::now().duration_since(original), "initialized global instance, starting server...");
 
-        let router: Router = crate::server::routing::create_router().with_state(instance);
+        let router: Router = crate::server::routing::create_router(&instance).with_state(instance);
         let router = match Hoshi::built() {
             #[cfg(bundle_web)]
             true if config.ui => {

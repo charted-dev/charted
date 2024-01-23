@@ -27,6 +27,10 @@ use utoipa::{
 
 static COMPONENTS: Lazy<Components> = lazy!(ComponentsBuilder::new()
     .schemas_from_iter([
+        // response schemas
+        crate::server::routing::v1::info::InfoResponse::schema(),
+        crate::server::routing::v1::main::MainResponse::schema(),
+        // other schemas
         crate::common::models::entities::RepositoryRelease::schema(),
         crate::server::pagination::PaginatedOrganization::schema(),
         crate::common::models::helm::StringOrImportValue::schema(),
@@ -59,6 +63,7 @@ static COMPONENTS: Lazy<Components> = lazy!(ComponentsBuilder::new()
         datetime()
     ])
     .responses_from_iter([
+        crate::server::routing::v1::info::InfoResponse::response(),
         crate::server::routing::v1::main::MainResponse::response(),
         crate::openapi::ApiErrorResponse::response(),
         crate::openapi::EmptyApiResponse::response(),
@@ -78,6 +83,10 @@ impl Document {
     /// [`Paths`] of all available [`APIVersion::V1`] endpoints.
     pub fn v1() -> Paths {
         add_paths! {
+            Document::format(APIVersion::V1, "/index/{idOrName}") => crate::server::routing::v1::indexes::GetChartIndexRestController::paths();
+            Document::format(APIVersion::V1, "/heartbeat") => crate::server::routing::v1::heartbeat::HeartbeatRestController::paths();
+            Document::format(APIVersion::V1, "/features") => crate::server::routing::v1::features::FeaturesRestController::paths();
+            Document::format(APIVersion::V1, "/info") => crate::server::routing::v1::info::InfoRestController::paths();
             Document::format(APIVersion::V1, "/") => crate::server::routing::v1::main::MainRestController::paths();
         }
     }
@@ -85,6 +94,10 @@ impl Document {
     /// [`Paths`] for all available recent API version endpoints.
     pub fn latest() -> Paths {
         add_paths! {
+            "/index/{idOrName}" => crate::server::routing::v1::indexes::GetChartIndexRestController::paths();
+            "/heartbeat" => crate::server::routing::v1::heartbeat::HeartbeatRestController::paths();
+            "/features" => crate::server::routing::v1::features::FeaturesRestController::paths();
+            "/info" => crate::server::routing::v1::info::InfoRestController::paths();
             "/" => crate::server::routing::v1::main::MainRestController::paths();
         }
     }

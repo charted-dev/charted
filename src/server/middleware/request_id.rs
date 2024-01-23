@@ -12,3 +12,65 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+use crate::rand_string;
+use axum::{
+    body::Body,
+    http::{HeaderMap, HeaderValue, Request},
+    middleware::Next,
+    response::IntoResponse,
+};
+use std::{fmt::Display, ops::Deref};
+
+/// Represents the generated `x-request-id` header that the server creates on each
+/// request invocation.
+#[derive(Debug, Clone)]
+pub struct XRequestId(String);
+
+impl XRequestId {
+    /// Generates a new [`XRequestId`].
+    pub(self) fn generate() -> XRequestId {
+        XRequestId(rand_string(12))
+    }
+}
+
+impl Display for XRequestId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+impl Deref for XRequestId {
+    type Target = str;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl From<XRequestId> for HeaderValue {
+    fn from(value: XRequestId) -> HeaderValue {
+        // we know that it'll always be valid UTF-8
+        HeaderValue::from_str(&value).unwrap()
+    }
+}
+
+pub async fn request_id(mut req: Request<Body>, next: Next) -> impl IntoResponse {
+    let id = XRequestId::generate();
+    req.extensions_mut().insert(id.clone());
+
+    let mut headers = HeaderMap::new();
+    headers.insert("x-request-id", id.into());
+    headers.insert(
+        "server",
+        HeaderValue::from_str(
+            format!(
+                "Noelware/charted-server (+https://github.com/charted-dev/charted; v{})",
+                crate::version()
+            )
+            .as_str(),
+        )
+        .unwrap(),
+    );
+
+    (headers, next.run(req).await)
+}
