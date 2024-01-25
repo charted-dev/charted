@@ -27,6 +27,16 @@ import {
 } from '@actions/core';
 
 export const ci = hasOwnProperty(process.env, 'CI') && process.env.CI !== '';
+export const group = (name: string) => {
+    startGroup(name);
+
+    return {
+        [Symbol.dispose]: () => {
+            endGroup();
+        }
+    };
+};
+
 export const startGroup: typeof __startGroup = (name) =>
     ci
         ? __startGroup(name)

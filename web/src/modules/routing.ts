@@ -16,26 +16,15 @@
  */
 
 import type { ModuleInstall } from '~/env';
-import { Stopwatch } from '@noelware/utils';
-import App from './App.vue';
+import router from '~/router';
 
-import '~/styles/global.css';
+const install: ModuleInstall = (app) => {
+    // @ts-ignore
+    app.use(router);
 
-const config = useRuntimeConfig();
-console.log(`
-
-> starting Hoshi v${config.version}+${config.gitCommit}
-`);
-
-const app = createApp(App);
-const modules = import.meta.glob<boolean, string, { default: ModuleInstall }>('./modules/*.ts');
-
-for (const path in modules) {
-    const sw = Stopwatch.createStarted();
-    console.log(`[hoshi] INSTALL ${path}`);
-
-    modules[path]().then(({ default: mod }) => {
-        mod(app);
-        console.log(`[hoshi] INSTALLED ${path} :: ${sw.stop()}`);
+    void router.isReady().then(() => {
+        app.mount('#app');
     });
-}
+};
+
+export default install;

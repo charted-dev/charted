@@ -16,26 +16,19 @@
  */
 
 import type { ModuleInstall } from '~/env';
-import { Stopwatch } from '@noelware/utils';
-import App from './App.vue';
+import { createHead } from '@vueuse/head';
 
-import '~/styles/global.css';
+const install: ModuleInstall = (app) => {
+    app.use(
+        // @ts-ignore
+        createHead({
+            title: 'Hoshi',
+            link: [
+                // TODO(@auguwu): switch to charted branding
+                { rel: 'shortcut icon', href: 'https://cdn.floofy.dev/images/trans.png' }
+            ]
+        })
+    );
+};
 
-const config = useRuntimeConfig();
-console.log(`
-
-> starting Hoshi v${config.version}+${config.gitCommit}
-`);
-
-const app = createApp(App);
-const modules = import.meta.glob<boolean, string, { default: ModuleInstall }>('./modules/*.ts');
-
-for (const path in modules) {
-    const sw = Stopwatch.createStarted();
-    console.log(`[hoshi] INSTALL ${path}`);
-
-    modules[path]().then(({ default: mod }) => {
-        mod(app);
-        console.log(`[hoshi] INSTALLED ${path} :: ${sw.stop()}`);
-    });
-}
+export default install;

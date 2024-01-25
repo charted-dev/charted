@@ -15,19 +15,8 @@
 ~ limitations under the License.
 -->
 
-<script setup lang="ts">
-const md = `# Welcome to \`charted-server\`, @noel!
-
-| table | desc |
-| :---- | ---- |
-| weow  | true |
-`;
-</script>
-
 <template>
-    <RouterView name="Layout">
-        <Shell>
-            <Markdown :content="md" />
-        </Shell>
-    </RouterView>
+    <p class="leading-7 [&:not(:first-child)]:mt-6">
+        <slot />
+    </p>
 </template>

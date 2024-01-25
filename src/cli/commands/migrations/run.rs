@@ -13,39 +13,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod completions;
-mod generate;
-mod migrations;
-mod openapi;
-mod server;
-mod version;
+use crate::cli::AsyncExecute;
+use std::path::PathBuf;
 
-use super::{AsyncExecute, Execute};
-use clap::Subcommand;
+/// Runs all pending migrations on the database
+#[derive(Debug, Clone, clap::Parser)]
+pub struct Cmd {
+    /// Runs a specific migration only
+    #[arg()]
+    migration: Option<String>,
 
-#[derive(Debug, Clone, Subcommand)]
-pub enum Cmd {
-    #[command(subcommand)]
-    Migrations(migrations::Cmd),
-    Completions(completions::Cmd),
-    Generate(generate::Cmd),
-
-    #[command(name = "openapi")]
-    OpenApi(openapi::Cmd),
-    Version(version::Cmd),
-    Server(server::Cmd),
+    /// location to a relative/absolute path to a configuration file. by default, this will locate
+    /// in `./config/charted.yml`/`./config.yml` if found.
+    #[arg(long, short = 'c', env = "CHARTED_CONFIG_PATH")]
+    config: Option<PathBuf>,
 }
 
 #[async_trait]
 impl AsyncExecute for Cmd {
     async fn execute(&self) -> eyre::Result<()> {
-        match self {
-            Cmd::Server(server) => server.execute().await,
-            Cmd::Migrations(migrations) => migrations.execute().await,
-            Cmd::Completions(comp) => comp.execute(),
-            Cmd::Generate(gen) => gen.execute(),
-            Cmd::Version(ver) => ver.execute(),
-            Cmd::OpenApi(oa) => oa.execute(),
-        }
+        Ok(())
     }
 }

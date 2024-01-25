@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+import type { RuntimeConfig } from '~/env';
+
 declare var __RUNTIME_CONFIG: RuntimeConfig;
 
 /**

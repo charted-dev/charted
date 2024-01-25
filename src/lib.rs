@@ -28,7 +28,7 @@ use std::{
         Arc,
     },
 };
-use tokio::sync::RwLock;
+use tokio::sync::{Mutex, RwLock};
 
 // useful global macros to use in the whole crate
 #[macro_use]
@@ -141,6 +141,9 @@ pub struct Instance {
     /// Search backend, if one was requested to be available.
     pub search: Option<Arc<JoinedBackend>>,
 
+    /// session manager
+    pub sessions: Arc<Mutex<sessions::Manager>>,
+
     /// Metrics registry
     pub metrics: Arc<dyn Registry>,
 
@@ -159,6 +162,7 @@ impl Clone for Instance {
         Instance {
             controllers: self.controllers.clone(),
             requests: AtomicUsize::new(self.requests.load(Ordering::Relaxed)),
+            sessions: self.sessions.clone(),
             avatars: self.avatars.clone(),
             metrics: self.metrics.clone(),
             storage: self.storage.clone(),
@@ -191,4 +195,16 @@ pub fn set_instance(instance: Instance) {
         Ok(()) => {}
         Err(_) => panic!("already set a global instance"),
     }
+}
+
+#[cfg(test)]
+fn __assert_send<T: Send>() {}
+
+#[cfg(test)]
+fn __assert_sync<T: Sync>() {}
+
+#[cfg(test)]
+fn __assertions() {
+    __assert_send::<Instance>();
+    __assert_sync::<Instance>();
 }

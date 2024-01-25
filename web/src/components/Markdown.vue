@@ -16,18 +16,34 @@
 -->
 
 <script setup lang="ts">
-const md = `# Welcome to \`charted-server\`, @noel!
+import { fromHighlighter } from 'markdown-it-shikiji/core';
+import { getHighlighter } from 'shikiji';
+import markdownit from 'markdown-it';
 
-| table | desc |
-| :---- | ---- |
-| weow  | true |
-`;
+const props = defineProps<{
+    content: string;
+}>();
+
+const highlighter = await getHighlighter({
+    langs: ['console', 'shell', 'yaml'],
+    themes: ['rose-pine', 'rose-pine-moon']
+});
+
+const md = markdownit().use(
+    fromHighlighter(highlighter, {
+        themes: {
+            light: 'rose-pine-moon',
+            dark: 'rose-pine'
+        }
+    })
+);
+
+const rendered = computed(() => {
+    console.log(props.content);
+    return md.render(props.content);
+});
 </script>
 
 <template>
-    <RouterView name="Layout">
-        <Shell>
-            <Markdown :content="md" />
-        </Shell>
-    </RouterView>
+    <main class="md" v-html="rendered" />
 </template>

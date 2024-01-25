@@ -16,18 +16,13 @@
 -->
 
 <script setup lang="ts">
-const md = `# Welcome to \`charted-server\`, @noel!
+import { useRouter } from 'vue-router';
+import { computed } from 'vue';
 
-| table | desc |
-| :---- | ---- |
-| weow  | true |
-`;
+const router = useRouter();
+const route = computed(() => router.currentRoute.value.path);
 </script>
 
-<template>
-    <RouterView name="Layout">
-        <Shell>
-            <Markdown :content="md" />
-        </Shell>
-    </RouterView>
-</template>
+<!--
+<div class="py-4 px-4 dark:bg-zinc-800 text-white">weow</div>
+-->

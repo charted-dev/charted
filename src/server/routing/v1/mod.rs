@@ -21,6 +21,7 @@ pub mod info;
 pub mod main;
 pub mod metrics;
 pub mod openapi;
+pub mod user;
 
 use crate::Instance;
 use axum::{routing, Router};
@@ -39,9 +40,9 @@ pub fn create_router(instance: &Instance) -> Router<Instance> {
         .route("/info", routing::get(info::InfoRestController::run))
         .route("/", routing::get(main::MainRestController::run));
 
-    /*
-    if instance.config.metrics.enabled {}
-    */
+    if instance.config.metrics.prometheus {
+        router = router.clone().route("/metrics", routing::get(metrics::metrics));
+    }
 
     if instance.config.cdn.enabled {
         let prefix = match instance.config.cdn.prefix {

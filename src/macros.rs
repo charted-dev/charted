@@ -13,35 +13,49 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Macro to easily create a HashMap easily.
+/// Generic macro to create a [`HashMap`] easily.
 ///
-/// ## Example
+/// ## Matches
+/// ### `hashmap!()`
+/// This will create an empty hashmap.
+///
 /// ```
-/// # use charted_common::hashmap;
+/// # use charted::hashmap;
+/// #
+/// let map = hashmap!();
+/// assert_eq!(map.len(), 0);
+/// ```
+///
+/// ### `hashmap! { key => value }`
+/// Creates a empty [`HashMap`] and insert one or N elements in the HashMap.
+///
+/// ```
+/// # use charted::hashmap;
 /// #
 /// let map = hashmap! {
-///     "hello" => "world"
+///     "hello" => "world",
+///     "world" => "hello"
 /// };
 ///
-/// assert_eq!(map.len(), 1);
-///
-/// /*
-/// expanded:
-///
-/// let map = {
-///     let mut h = ::std::collections::HashMap::new();
-///     h.insert("hello", "world");
-///
-///     h
-/// };
-/// */
+/// assert_eq!(map.len(), 2);
 /// ```
+///
+/// [HashMap]: std::collections::HashMap
 #[macro_export]
 macro_rules! hashmap {
-    () => {{ ::std::collections::HashMap::new() }};
-    ($K:ty, $V:ty) => {{ ::std::collections::HashMap::<$K, $V>::new() }};
+    () => { ::std::collections::HashMap::new() };
+    ($K:ty, $V:ty) => { ::std::collections::HashMap::<$K, $V>::new() };
+    ($K:ty, $V:ty, { $($key:expr => $value:expr),* }) => {{
+        let mut h = $crate::hashmap!($K, $V);
+        $(
+            h.insert($key, $value);
+        )*
+
+        h
+    }};
+
     ($($key:expr => $value:expr),*) => {{
-        let mut h = ::std::collections::HashMap::new();
+        let mut h = $crate::hashmap!();
         $(
             h.insert($key, $value);
         )*

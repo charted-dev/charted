@@ -40,14 +40,59 @@
 
 body {
     -webkit-tap-highlight-color: transparent;
+    @apply min-h-full antialiased bg-white text-[#15151A] overflow-y-hidden dark:text-white dark:bg-[#15151A];
 }
 
 main.md {
     @apply prose max-w-4xl lg:max-w-7xl
 
-    /* <p> elements */
-    prose-p:break-words prose-p:text-zinc-700 prose-p:font-sans prose-p:dark:text-white prose-p:text-lg
+    /* <h1> elements */
+    prose-h1:font-serif prose-h1:font-bold prose-h1:text-5xl prose-h1:tracking-tight prose-h1:scroll-m-20 prose-h1:dark:text-white prose-h1:text-zinc-900/60
 
-    /* heading elements */
-    prose-headings:text-zinc-700 prose-headings:font-serif prose-headings:dark:text-white;
+    /* <h2> elements */
+    prose-h2:font-serif prose-h2:font-bold prose-h2:text-4xl prose-h2:tracking-tight prose-h2:scroll-m-20 prose-h2:first:mt-0 prose-h2:dark:text-white prose-h2:text-zinc-900/60
+
+    /* <h3> elements */
+    prose-h3:font-serif prose-h3:font-bold prose-h3:text-2xl prose-h3:tracking-tight prose-h3:scroll-m-20 prose-h3:dark:text-white prose-h3:text-zinc-900/60
+
+    /* <h4> elements */
+    prose-h4:text-xl prose-h4:tracking-tight prose-h4:scroll-m-20 prose-h4:dark:text-white prose-h4:text-zinc-900/60
+
+    /* <h5> elements */
+    prose-h5:text-lg prose-h5:dark:text-white prose-h5:text-zinc-900/60
+
+    /* <h6> elements */
+    prose-h6:text-sm prose-h6:dark:text-white prose-h6:text-zinc-900/60
+
+    /* <p> elements */
+    prose-p:leading-7 prose-p:[&:not(:first-child)]:mt-6
+
+    /* <tr> element */
+    prose-tr:rounded-md prose-tr:overflow-hidden
+
+    /* <td> element */
+    prose-td:text-sm prose-td:dark:text-white prose-td:text-zinc-900/60;
+}
+
+/*  rounded-md overflow-hidden dark:!bg-[var(--vp-code-block-bg)] */
+
+main.md pre:not(.shiki) {
+    padding: 0;
+}
+
+main.md .shiki {
+    @apply font-mono;
+
+    line-height: 1.4;
+    font-size: 1.2em;
+}
+
+.shiki,
+.shiki span {
+    color: var(--shiki-light);
+}
+
+html.dark .shiki,
+html.dark .shiki span {
+    color: var(--shiki-dark);
 }

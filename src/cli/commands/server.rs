@@ -20,8 +20,7 @@ use crate::{
     cli::AsyncExecute,
     common::models::entities::{Repository, User},
     config::{caching, Config},
-    db::{self, MIGRATIONS},
-    redis,
+    db, redis,
     server::Hoshi,
     Instance,
 };
@@ -38,10 +37,6 @@ use noelware_log::{writers, WriteLayer};
 use owo_colors::{OwoColorize, Stream::Stdout};
 use remi::StorageService;
 use sentry::types::Dsn;
-use sqlx::{
-    postgres::{PgConnectOptions, PgPoolOptions},
-    ConnectOptions,
-};
 use std::{
     borrow::Cow,
     future::Future,
@@ -52,7 +47,7 @@ use std::{
     sync::{atomic::AtomicUsize, Arc},
     time::{Duration, Instant},
 };
-use tokio::sync::RwLock;
+use tokio::sync::{Mutex, RwLock};
 use tracing::level_filters::LevelFilter;
 use tracing_subscriber::prelude::*;
 
@@ -72,6 +67,26 @@ pub struct Cmd {
     /// the amount of CPU cores you have.
     #[arg(short = 'w', long, env = "CHARTED_RUNTIME_WORKERS", default_value_t = num_cpus::get())]
     pub workers: usize,
+}
+
+impl Cmd {
+    fn init_log(config: &Config) {
+        tracing_subscriber::registry()
+            .with(
+                match config.logging.json {
+                    false => WriteLayer::new_with(io::stdout(), writers::default),
+                    true => WriteLayer::new_with(io::stdout(), writers::json),
+                }
+                .with_filter(LevelFilter::from_level(config.logging.level))
+                .with_filter(tracing_subscriber::filter::filter_fn(|meta| {
+                    // disallow from getting logs from `tokio` since it doesn't contain anything
+                    // useful to us
+                    !meta.target().starts_with("tokio::")
+                })),
+            )
+            .with(sentry_tracing::layer())
+            .init();
+    }
 }
 
 #[async_trait]
@@ -108,50 +123,17 @@ impl AsyncExecute for Cmd {
         });
 
         // 3. setup logging
-        tracing_subscriber::registry()
-            .with(
-                match config.logging.json {
-                    false => WriteLayer::new_with(io::stdout(), writers::default),
-                    true => WriteLayer::new_with(io::stdout(), writers::json),
-                }
-                .with_filter(LevelFilter::from_level(config.logging.level))
-                .with_filter(tracing_subscriber::filter::filter_fn(|meta| {
-                    // disallow from getting logs from `tokio` since it doesn't contain anything
-                    // useful to us
-                    !meta.target().starts_with("tokio::")
-                })),
-            )
-            .with(config.sentry_dsn.as_ref().map(|_| sentry_tracing::layer()))
-            .init();
+        Cmd::init_log(&config);
 
         let mut now = Instant::now();
         let original = now; // keep a copy of the original so we can keep a difference
 
         info!("🛰️   Connecting to PostgreSQL...");
 
-        let pool = PgPoolOptions::new()
-            .max_connections(config.database.max_connections)
-            .connect_with(
-                PgConnectOptions::from_str(&config.database.to_string())?
-                    .application_name("charted-server")
-                    .log_statements(tracing::log::LevelFilter::Trace)
-                    .log_slow_statements(tracing::log::LevelFilter::Warn, Duration::from_secs(1)),
-            )
-            .await?;
+        let pool = crate::db::create_pool(&config).await?;
 
         info!(took = ?Instant::now().duration_since(now), "connected to PostgreSQL successfully!");
         now = Instant::now();
-
-        if config.database.run_migrations {
-            let span = info_span!("charted.database.migrate.run");
-            let _entered = span.enter();
-
-            info!("running database migrations!");
-            MIGRATIONS.run(&pool).await?;
-
-            info!(took = ?Instant::now().duration_since(now), "ran all db migrations successfully");
-            now = Instant::now();
-        }
 
         info!("🛰️   Connecting to Redis...");
 
@@ -192,6 +174,13 @@ impl AsyncExecute for Cmd {
         info!(took = ?Instant::now().duration_since(now), "initialized authz backend successfully");
         let avatars = AvatarsModule::new(storage.clone());
         avatars.init().await?;
+        now = Instant::now();
+
+        info!("now initializing sessions manager");
+        let mut sessions = crate::sessions::Manager::new(redis.clone());
+        sessions.init()?;
+
+        info!(took = ?Instant::now().duration_since(now), "initialized sessions manager successfully");
 
         let controllers = db::controllers::Controllers {
             repositories: db::controllers::repository::DbController::new(
@@ -222,8 +211,9 @@ impl AsyncExecute for Cmd {
         let instance = Instance {
             controllers,
             requests: AtomicUsize::new(0),
+            sessions: Arc::new(Mutex::new(sessions)),
             avatars,
-            metrics: Arc::new(crate::metrics::registries::disabled::Disabled::default()),
+            metrics: crate::metrics::new(&config),
             storage,
             search: None,
             config: config.clone(),
@@ -276,9 +266,7 @@ impl AsyncExecute for Cmd {
                 .with_graceful_shutdown(shutdown_signal(None))
                 .await
         }
-        .context("unable to run HTTP service")?;
-
-        Ok(())
+        .context("unable to run HTTP service")
     }
 }
 

@@ -110,6 +110,18 @@ impl From<String> for NameOrSnowflake {
     }
 }
 
+impl From<Name> for NameOrSnowflake {
+    fn from(value: Name) -> Self {
+        NameOrSnowflake::Name(value)
+    }
+}
+
+impl From<&Name> for NameOrSnowflake {
+    fn from(value: &Name) -> Self {
+        NameOrSnowflake::Name(Name::new_unchecked(value.as_str()))
+    }
+}
+
 impl From<&NameOrSnowflake> for NameOrSnowflake {
     fn from(value: &NameOrSnowflake) -> Self {
         match value {

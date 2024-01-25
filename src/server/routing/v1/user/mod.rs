@@ -13,13 +13,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Represents the instance to allow Hoshi to interact with the API service. This is useful
-/// for editing Hoshi-specific settings if the web UI is bundled in. We decided a small SQLite
-/// database can work for specific settings and to determine if we're in a "first install" state, i.e,
-/// if the SQLite database doesn't exist.
-#[derive(Clone)]
-pub struct Hoshi {
-    /// Whether or not if we are in the "first install" state, if both `charted` and hoshi dbs
-    /// don't exist.
-    pub first_install: bool,
-}
+pub mod avatars;
+pub mod sessions;

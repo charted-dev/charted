@@ -58,6 +58,10 @@ pub struct Config {
     #[serde(default)]
     pub database: db::Config,
 
+    /// metrics pipeline configuration
+    #[serde(default)]
+    pub metrics: metrics::Config,
+
     /// whether or not if the API server should act like a single organization, where most features
     /// are disabled like repository/organization members and audit logging.
     #[serde(default)]
@@ -110,6 +114,7 @@ impl TryFromEnv for Config {
 
             database: db::Config::try_from_env()?,
             sessions: sessions::Config::try_from_env()?,
+            metrics: metrics::Config::from_env(),
             logging: logging::Config::from_env(),
             storage: storage::Config::try_from_env()?,
             server: server::Config::try_from_env()?,

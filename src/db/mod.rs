@@ -15,26 +15,45 @@
 
 pub mod controllers;
 
-use sqlx::{migrate, migrate::Migrator};
+use crate::config::Config;
+use sqlx::{
+    migrate,
+    migrate::Migrator,
+    postgres::{PgConnectOptions, PgPoolOptions},
+    ConnectOptions, PgPool,
+};
+use std::{str::FromStr, time::Duration};
 
 /// A static [`Migrator`] instance for migrations that are embedded
 /// in this crate.
 pub static MIGRATIONS: Migrator = migrate!();
 
+/// Creates a [`PgPool`] and runs the migrations, if explicitlly enabled.
+pub async fn create_pool(config: &Config) -> eyre::Result<PgPool> {
+    let pool = PgPoolOptions::new()
+        .max_connections(config.database.max_connections)
+        .connect_with(
+            PgConnectOptions::from_str(&config.database.to_string())?
+                .application_name("charted-server")
+                .log_statements(tracing::log::LevelFilter::Trace)
+                .log_slow_statements(tracing::log::LevelFilter::Warn, Duration::from_secs(1)),
+        )
+        .await?;
+
+    if config.database.run_migrations {
+        let span = info_span!("charted.db.migrations.run");
+        let _ = span.enter();
+
+        info!("running all db migrations!");
+        MIGRATIONS.run(&pool).await?;
+
+        info!("ran all db migrations successfully");
+    }
+
+    Ok(pool)
+}
+
 /// Macro to implement the `paginate` method for a controller.
-///
-/// ## Example
-/// ```rust,ignore
-/// # use async_trait::async_trait;
-/// # use charted_database::{controllers::DbController, impl_paginate};
-/// #
-/// # pub struct MyDbController { pool: ::sqlx::PgPool }
-/// #
-/// #[async_trait]
-/// impl DbController for MyDbController {
-///     impl_paginate(MyDbType as "table");
-/// }
-/// ```
 macro_rules! impl_paginate_priv {
     ("repositories") => {
         fn paginate<'life0, 'async_trait>(
