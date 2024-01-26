@@ -6,14 +6,14 @@
 export {}
 
 declare module 'vue' {
-  export interface GlobalComponents {
-    Icon: typeof import('@iconify/vue')['Icon']
-    Markdown: typeof import('./src/components/Markdown.vue')['default']
-    Navbar: typeof import('./src/components/ui/navigation/Navbar.vue')['default']
-    Paragraph: typeof import('./src/components/ui/typography/Paragraph.vue')['default']
-    RouterLink: typeof import('vue-router')['RouterLink']
-    RouterView: typeof import('vue-router')['RouterView']
-    Shell: typeof import('./src/components/ui/Shell.vue')['default']
-    Sidebar: typeof import('./src/components/ui/navigation/Sidebar.vue')['default']
-  }
+    export interface GlobalComponents {
+        Icon: (typeof import('@iconify/vue'))['Icon'];
+        Markdown: (typeof import('./src/components/Markdown.vue'))['default'];
+        Navbar: (typeof import('./src/components/ui/navigation/Navbar.vue'))['default'];
+        Paragraph: (typeof import('./src/components/ui/typography/Paragraph.vue'))['default'];
+        RouterLink: (typeof import('vue-router'))['RouterLink'];
+        RouterView: (typeof import('vue-router'))['RouterView'];
+        Shell: (typeof import('./src/components/ui/Shell.vue'))['default'];
+        Sidebar: (typeof import('./src/components/ui/navigation/Sidebar.vue'))['default'];
+    }
 }
