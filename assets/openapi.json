@@ -148,6 +148,37 @@
                     }
                 }
             },
+            "delete": {
+                "tags": ["Users"],
+                "description": "Delete your user and the data attached to you from the service",
+                "operationId": "delete_self",
+                "responses": {
+                    "201": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/EmptyApiResponse" } }
+                        }
+                    },
+                    "401": {
+                        "description": "If the session couldn't be validated",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "403": {
+                        "description": "(Bearer token only) - if the JWT was invalid or expired",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    }
+                }
+            },
             "patch": {
                 "tags": ["Users"],
                 "description": "Patch the current authenticated user's metadata about themselves.",

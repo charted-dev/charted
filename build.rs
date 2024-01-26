@@ -63,13 +63,13 @@ fn main() {
         let mut iter = ref_.split('/');
         let _ = iter.next().expect("to pop 'ref/'");
         let _ = iter.next().expect("to pop 'heads/'");
-        let branch = iter.next().expect("full branch");
+        let branch = iter.collect::<Vec<_>>().join("/");
         let contents = fs::read_to_string(PathBuf::from(".git").join("refs/heads").join(branch.trim()))
             .expect("to read file [.git/refs/heads/<branch>] contents");
 
         println!("cargo:rustc-env=CHARTED_COMMIT_HASH={}", &contents.trim()[0..8]);
     } else {
-        println!("cargo:warning=missing `git` or .git/HEAD file, using `d1cebae` commit hash instead");
+        println!("cargo:warning=missing `git` or `.git/HEAD` file, using `d1cebae` commit hash instead");
         println!("cargo:rustc-env=CHARTED_COMMIT_HASH=d1cebae");
     }
 
