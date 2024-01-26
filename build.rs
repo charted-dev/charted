@@ -72,28 +72,6 @@ fn main() {
         }
     }
 
-    let headfile = PathBuf::from(".git").join("HEAD");
-    if let Ok(true) = headfile.try_exists() {
-        // we should expect "ref: ref/heads/<branch we want>"
-        let contents = fs::read_to_string(&headfile).expect("to read file [.git/HEAD] contents");
-        let Some((_, ref_)) = contents.split_once(' ') else {
-            panic!("expected 'ref: ref/heads/<branch we want>'; received {}", contents);
-        };
-
-        // i know this isn't rusty but what could i do better
-        let mut iter = ref_.split('/');
-        let _ = iter.next().expect("to pop 'ref/'");
-        let _ = iter.next().expect("to pop 'heads/'");
-        let branch = iter.collect::<Vec<_>>().join("/");
-        let contents = fs::read_to_string(PathBuf::from(".git").join("refs/heads").join(branch.trim()))
-            .expect("to read file [.git/refs/heads/<branch>] contents");
-
-        println!("cargo:rustc-env=CHARTED_COMMIT_HASH={}", &contents.trim()[0..8]);
-    } else {
-        println!("cargo:warning=missing `git` or `.git/HEAD` file, using `d1cebae` commit hash instead");
-        println!("cargo:rustc-env=CHARTED_COMMIT_HASH=d1cebae");
-    }
-
     // allow Prost to use a detected `protoc` binary from the host if no `$PROTOC`
     // is defined as a env variable.
     if var("PROTOC").is_err() {
