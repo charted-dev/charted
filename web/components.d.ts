@@ -7,13 +7,6 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
-    AppShell: typeof import('./src/components/ui/AppShell.vue')['default']
-    Description: typeof import('./src/components/ui/toast/Description.vue')['default']
-    DropdownMenuContent: typeof import('radix-vue')['DropdownMenuContent']
-    DropdownMenuPortal: typeof import('radix-vue')['DropdownMenuPortal']
-    DropdownMenuRoot: typeof import('radix-vue')['DropdownMenuRoot']
-    DropdownMenuTrigger: typeof import('radix-vue')['DropdownMenuTrigger']
-    ErrorBoundary: typeof import('./src/components/ErrorBoundary.vue')['default']
     Icon: typeof import('@iconify/vue')['Icon']
     Markdown: typeof import('./src/components/Markdown.vue')['default']
     Navbar: typeof import('./src/components/ui/navigation/Navbar.vue')['default']
@@ -22,12 +15,5 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     Shell: typeof import('./src/components/ui/Shell.vue')['default']
     Sidebar: typeof import('./src/components/ui/navigation/Sidebar.vue')['default']
-    Title: typeof import('./src/components/ui/toast/Title.vue')['default']
-    Toast: typeof import('./src/components/ui/toast/Toast.vue')['default']
-    Toaster: typeof import('./src/components/ui/toast/Toaster.vue')['default']
-    ToastProvider: typeof import('radix-vue')['ToastProvider']
-    ToastTitle: typeof import('radix-vue')['ToastTitle']
-    ToastViewport: typeof import('radix-vue')['ToastViewport']
-    UserDropdown: (typeof import('./src/components/ui/navbar/UserDropdown.vue'))['default']
   }
 }

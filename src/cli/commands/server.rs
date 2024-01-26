@@ -18,7 +18,10 @@ use crate::{
     avatars::AvatarsModule,
     caching::{inmemory::InMemoryCache, redis::RedisCache, CacheWorker},
     cli::AsyncExecute,
-    common::models::entities::{Repository, User},
+    common::{
+        models::entities::{Repository, User},
+        Snowflake,
+    },
     config::{caching, Config},
     db, redis,
     server::Hoshi,
@@ -210,6 +213,7 @@ impl AsyncExecute for Cmd {
 
         let instance = Instance {
             controllers,
+            snowflake: Snowflake::computed(),
             requests: AtomicUsize::new(0),
             sessions: Arc::new(Mutex::new(sessions)),
             avatars,

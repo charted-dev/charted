@@ -32,8 +32,8 @@ pub mod version;
 
 /// Represents the Hoshi distribution that was built from the `--cfg "bundle_web"` Rust flag.
 #[derive(Debug, Clone, Copy)]
-#[cfg_attr(bundle_web, derive(rustembed::RustEmbed))]
-#[cfg_attr(bundle_web, folder = "dist/")]
+#[cfg_attr(bundle_web, derive(rust_embed::RustEmbed))]
+#[cfg_attr(bundle_web, folder = "web/dist/")]
 pub struct Hoshi;
 
 impl Hoshi {
@@ -51,8 +51,8 @@ impl Hoshi {
         use axum::response::IntoResponse;
 
         let path = uri.path().trim_start_matches('/');
-        if path.is_empty() || path == INDEX_HTML {
-            let asset = Hoshi::get(INDEX_HTML).expect("missing 'index.html' file?!");
+        if path.is_empty() || path == Self::INDEX_HTML {
+            let asset = Hoshi::get(Self::INDEX_HTML).expect("missing 'index.html' file?!");
             let content = remi::Bytes::from(asset.data.into_owned());
 
             return (
@@ -80,14 +80,14 @@ impl Hoshi {
 
             // let vue-router handle it.
             None => {
-                let asset = Hoshi::get(INDEX_HTML).expect("missing 'index.html' file?!");
+                let asset = Hoshi::get(Self::INDEX_HTML).expect("missing 'index.html' file?!");
                 let content = remi::Bytes::from(asset.data.into_owned());
 
                 (
                     [(axum::http::header::CONTENT_TYPE, "text/html; charset=utf-8")],
                     content,
                 )
-                    .into_response();
+                    .into_response()
             }
         }
     }

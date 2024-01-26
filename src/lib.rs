@@ -15,6 +15,7 @@
 
 use avatars::AvatarsModule;
 use axum::extract::FromRef;
+use common::Snowflake;
 use metrics::Registry;
 use noelware_remi::StorageService;
 use once_cell::sync::{Lazy, OnceCell};
@@ -111,7 +112,7 @@ pub fn version() -> String {
     let mut buf = String::new();
     write!(buf, "{VERSION}").unwrap();
 
-    if !COMMIT_HASH.is_empty() {
+    if !COMMIT_HASH.is_empty() && COMMIT_HASH != "d1cebae" {
         write!(buf, "+{COMMIT_HASH}").unwrap();
     }
 
@@ -144,6 +145,9 @@ pub struct Instance {
     /// session manager
     pub sessions: Arc<Mutex<sessions::Manager>>,
 
+    /// snowflake generator
+    pub snowflake: Snowflake,
+
     /// Metrics registry
     pub metrics: Arc<dyn Registry>,
 
@@ -161,6 +165,7 @@ impl Clone for Instance {
     fn clone(&self) -> Self {
         Instance {
             controllers: self.controllers.clone(),
+            snowflake: self.snowflake.clone(),
             requests: AtomicUsize::new(self.requests.load(Ordering::Relaxed)),
             sessions: self.sessions.clone(),
             avatars: self.avatars.clone(),

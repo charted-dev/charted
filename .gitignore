@@ -694,10 +694,10 @@ FodyWeavers.xsd
 .user.bazelrc
 !Cargo.lock
 config.yml
+!src/bin/
 .direnv/
 .cache/
 .data/
 data/
 docs/
 .env
-!src/bin/

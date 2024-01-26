@@ -21,8 +21,9 @@
 ///
 /// ```
 /// # use charted::hashmap;
+/// # use std::collections::HashMap;
 /// #
-/// let map = hashmap!();
+/// let map: HashMap<&str, &str> = hashmap!();
 /// assert_eq!(map.len(), 0);
 /// ```
 ///

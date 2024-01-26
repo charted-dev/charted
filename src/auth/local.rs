@@ -49,4 +49,8 @@ impl super::Backend for Backend {
             Err(e) => Err(e)
         }
     }
+
+    fn is_local(&self) -> bool {
+        true
+    }
 }

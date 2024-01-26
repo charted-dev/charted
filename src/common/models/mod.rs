@@ -31,6 +31,7 @@ use utoipa::{
     openapi::{OneOfBuilder, RefOr, Schema},
     ToSchema,
 };
+use validator::Validate;
 
 use super::ID;
 
@@ -88,6 +89,15 @@ impl NameOrSnowflake {
             }
 
             NameOrSnowflake::Name(s) => Name::check_is_valid(s.to_string()).map_err(|e| format!("{e}")),
+        }
+    }
+}
+
+impl Validate for NameOrSnowflake {
+    fn validate(&self) -> Result<(), validator::ValidationErrors> {
+        match self {
+            NameOrSnowflake::Snowflake(_) => Ok(()),
+            NameOrSnowflake::Name(name) => name.validate(),
         }
     }
 }

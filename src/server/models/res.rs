@@ -302,3 +302,9 @@ pub fn no_content() -> ApiResponse {
         errors: vec![],
     }
 }
+
+/// Propagate a [`ApiResponse`] with the `500 Internal Server Error` HTTP status
+/// and the [`INTERNAL_SERVER_ERROR`] error details.
+pub fn internal_server_error() -> ApiResponse {
+    err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
+}

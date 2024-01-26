@@ -29,6 +29,7 @@ use utoipa::{
 const SEQUENCE_BITS: usize = 12;
 const NODE_BITS: usize = 10;
 const MAX_SEQUENCE_BITS: usize = (1 << SEQUENCE_BITS) - 1;
+const MAX_NODE: u64 = 5;
 
 #[derive(Debug)]
 pub struct Snowflake {
@@ -49,9 +50,6 @@ impl Clone for Snowflake {
     }
 }
 
-unsafe impl Send for Snowflake {}
-unsafe impl Sync for Snowflake {}
-
 impl Snowflake {
     #[inline(never)]
     fn current_timestamp() -> u64 {
@@ -69,6 +67,21 @@ impl Snowflake {
             sequence: AtomicU16::new(0),
             node_id,
         }
+    }
+
+    /// Creates a new [`Snowflake`] generator with a computed node ID via the system's
+    /// MAC address.
+    pub fn computed() -> Snowflake {
+        let Ok(Some(addr)) = mac_address::get_mac_address() else {
+            warn!("unable to compute snowflake ID by mac address, defaulting to node 0");
+            return Snowflake::new(0);
+        };
+
+        let mac = u64::from_str_radix(&addr.to_string().replace(':', ""), 16).unwrap();
+        let node = (mac % MAX_NODE) as u16;
+
+        info!(node.id = node, "computed Snowflake node");
+        Snowflake::new(node)
     }
 
     #[inline]
@@ -97,6 +110,18 @@ impl Snowflake {
 
         ID((now << (NODE_BITS + SEQUENCE_BITS)) | ((self.node_id as u64) << (SEQUENCE_BITS as u64)) | seq as u64)
     }
+}
+
+#[cfg(test)]
+fn __assert_send<T: Send>() {}
+
+#[cfg(test)]
+fn __assert_sync<T: Sync>() {}
+
+#[cfg(test)]
+fn __assertions() {
+    __assert_send::<Snowflake>();
+    __assert_sync::<Snowflake>();
 }
 
 /// Represents a snowflake ID.

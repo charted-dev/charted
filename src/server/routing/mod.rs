@@ -78,14 +78,21 @@ fn panic_handler(message: Box<dyn Any + Send + 'static>) -> Response<Body> {
 
 pub fn create_router(instance: &Instance) -> Router<Instance> {
     let stack = ServiceBuilder::new()
-        // .layer(sentry_tower::NewSentryLayer::new_from_top())
-        // .layer(sentry_tower::SentryHttpLayer::new())
+        .layer(sentry_tower::NewSentryLayer::new_from_top())
+        .layer(sentry_tower::SentryHttpLayer::with_transaction())
         .layer(tower_http::catch_panic::CatchPanicLayer::custom(panic_handler))
         .layer(DefaultBodyLimit::max(100 * 1024 * 1024))
         .layer(
             CorsLayer::new()
-                .allow_methods([Method::GET, Method::PUT, Method::HEAD, Method::POST, Method::PATCH, Method::DELETE])
-                .allow_origin(tower_http::cors::Any)
+                .allow_methods([
+                    Method::GET,
+                    Method::PUT,
+                    Method::HEAD,
+                    Method::POST,
+                    Method::PATCH,
+                    Method::DELETE,
+                ])
+                .allow_origin(tower_http::cors::Any),
         )
         .layer(axum::middleware::from_fn(crate::server::middleware::request_id))
         .layer(axum::middleware::from_fn(crate::server::middleware::log));

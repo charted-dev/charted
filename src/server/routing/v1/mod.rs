@@ -23,10 +23,29 @@ pub mod metrics;
 pub mod openapi;
 pub mod user;
 
-use crate::Instance;
-use axum::{routing, Router};
+use crate::{
+    openapi::generate_response_schema,
+    server::models::res::{err, ErrorCode},
+    Instance,
+};
+use axum::{extract::Request, http::StatusCode, response::IntoResponse, routing, Router};
+use serde::Serialize;
+use serde_json::json;
+use utoipa::ToSchema;
 
-#[allow(unused_variables, clippy::let_and_return)]
+/// Generic entrypoint message for any API routes like `/users`.
+#[derive(Serialize, ToSchema)]
+pub struct EntrypointResponse {
+    /// A cute message to greet you with
+    pub message: String,
+
+    /// URL to the documentation to where you can explore more routes for
+    /// this specific API.
+    pub docs: String,
+}
+
+generate_response_schema!(EntrypointResponse);
+
 pub fn create_router(instance: &Instance) -> Router<Instance> {
     let mut router = Router::new()
         .route("/openapi.json", routing::get(openapi::json))
@@ -37,8 +56,10 @@ pub fn create_router(instance: &Instance) -> Router<Instance> {
             "/index/:idOrName",
             routing::get(indexes::GetChartIndexRestController::run),
         )
+        .nest("/users", user::create_router())
         .route("/info", routing::get(info::InfoRestController::run))
-        .route("/", routing::get(main::MainRestController::run));
+        .route("/", routing::get(main::MainRestController::run))
+        .fallback(fallback);
 
     if instance.config.metrics.prometheus {
         router = router.clone().route("/metrics", routing::get(metrics::metrics));
@@ -63,4 +84,15 @@ pub fn create_router(instance: &Instance) -> Router<Instance> {
     }
 
     router
+}
+
+async fn fallback(req: Request) -> impl IntoResponse {
+    err(
+        StatusCode::NOT_FOUND,
+        (
+            ErrorCode::HandlerNotFound,
+            "route was not found",
+            json!({"method":req.method().as_str(),"url":req.uri().path()}),
+        ),
+    )
 }

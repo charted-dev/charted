@@ -79,7 +79,6 @@ impl Parse for AddPathArgs {
                 return Err(Error::new(rhs.span(), "expected call expression for right-hand side"));
             }
 
-            dbg!(lhs.clone());
             return Err(Error::new(
                 lhs.span(),
                 "expected Path or literal string for left-hand side",

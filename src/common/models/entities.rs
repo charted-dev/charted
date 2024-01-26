@@ -217,7 +217,7 @@ impl Member {
     ///
     /// ## Example
     /// ```
-    /// # use charted_common::models::entities::Member;
+    /// # use charted::common::models::entities::Member;
     /// #
     /// let member = Member::default();
     /// assert_eq!(member.bitfield().bits(), 0);
@@ -313,7 +313,7 @@ impl ApiKey {
     ///
     /// ## Example
     /// ```
-    /// # use charted_common::models::entities::ApiKey;
+    /// # use charted::common::models::entities::ApiKey;
     /// #
     /// let resource = ApiKey::default();
     /// assert_eq!(resource.bitfield().bits(), 0);

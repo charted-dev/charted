@@ -23,6 +23,11 @@ use sqlx::{PgPool, Row};
 pub trait Backend: Send + Sync {
     /// Authenticate a user. If it returns `()`, then authentication was a success.
     async fn authenticate(&self, user: User) -> eyre::Result<()>;
+
+    /// Checks whenever if this is the local backend.
+    fn is_local(&self) -> bool {
+        false
+    }
 }
 
 /// Represents a provider for providing a password for a user.

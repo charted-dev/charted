@@ -68,6 +68,9 @@ fn main() {
             .expect("to read file [.git/refs/heads/<branch>] contents");
 
         println!("cargo:rustc-env=CHARTED_COMMIT_HASH={}", &contents.trim()[0..8]);
+    } else {
+        println!("cargo:warning=missing `git` or .git/HEAD file, using `d1cebae` commit hash instead");
+        println!("cargo:rustc-env=CHARTED_COMMIT_HASH=d1cebae");
     }
 
     // allow Prost to use a detected `protoc` binary from the host if no `$PROTOC`

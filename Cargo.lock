@@ -1176,6 +1176,7 @@ dependencies = [
  "iterutils",
  "jsonwebtoken 9.2.0",
  "ldap3",
+ "mac_address",
  "md-5",
  "meilisearch-sdk",
  "mimalloc",
@@ -1309,9 +1310,9 @@ dependencies = [
 
 [[package]]
 name = "chrono"
-version = "0.4.31"
+version = "0.4.33"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f2c685bad3eb3d45a01354cedb7d5faa66194d1d58ba6e267a8de788f79db38"
+checksum = "9f13690e35a5e4ace198e7beea2895d29f3a9cc55015fcebe6336bd2010af9eb"
 dependencies = [
  "android-tzdata",
  "iana-time-zone",
@@ -1319,7 +1320,7 @@ dependencies = [
  "num-traits",
  "serde",
  "wasm-bindgen",
- "windows-targets 0.48.5",
+ "windows-targets 0.52.0",
 ]
 
 [[package]]
@@ -3087,6 +3088,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
 
 [[package]]
+name = "mac_address"
+version = "1.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4863ee94f19ed315bf3bc00299338d857d4b5bc856af375cc97d237382ad3856"
+dependencies = [
+ "nix 0.23.2",
+ "winapi",
+]
+
+[[package]]
 name = "match_cfg"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3176,6 +3187,16 @@ name = "mime"
 version = "0.3.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6877bb514081ee2a7ff5ef9de3281f14a4dd4bceac4c09388074a6b5df8a139a"
+
+[[package]]
+name = "mime_guess"
+version = "2.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4192263c238a5f0d0c6bfd21f336a313a4ce1c450542449ca191bb657b4642ef"
+dependencies = [
+ "mime",
+ "unicase",
+]
 
 [[package]]
 name = "minimal-lexical"
@@ -3305,7 +3326,7 @@ dependencies = [
 [[package]]
 name = "noelware-config"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/core-rs?rev=41257fc1eb6d89a4b4c42a1a2727fd13814ff9d0#41257fc1eb6d89a4b4c42a1a2727fd13814ff9d0"
+source = "git+https://github.com/Noelware/core-rs?rev=d8a7a22783ccfe9a69b9530a266aaa943a61976e#d8a7a22783ccfe9a69b9530a266aaa943a61976e"
 dependencies = [
  "noelware-config-derive",
 ]
@@ -3313,7 +3334,7 @@ dependencies = [
 [[package]]
 name = "noelware-config-derive"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/core-rs?rev=41257fc1eb6d89a4b4c42a1a2727fd13814ff9d0#41257fc1eb6d89a4b4c42a1a2727fd13814ff9d0"
+source = "git+https://github.com/Noelware/core-rs?rev=d8a7a22783ccfe9a69b9530a266aaa943a61976e#d8a7a22783ccfe9a69b9530a266aaa943a61976e"
 dependencies = [
  "proc-macro-error",
  "proc-macro2",
@@ -3324,7 +3345,7 @@ dependencies = [
 [[package]]
 name = "noelware-log"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/core-rs?rev=41257fc1eb6d89a4b4c42a1a2727fd13814ff9d0#41257fc1eb6d89a4b4c42a1a2727fd13814ff9d0"
+source = "git+https://github.com/Noelware/core-rs?rev=d8a7a22783ccfe9a69b9530a266aaa943a61976e#d8a7a22783ccfe9a69b9530a266aaa943a61976e"
 dependencies = [
  "chrono",
  "owo-colors 4.0.0",
@@ -3337,7 +3358,7 @@ dependencies = [
 [[package]]
 name = "noelware-remi"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/core-rs?rev=41257fc1eb6d89a4b4c42a1a2727fd13814ff9d0#41257fc1eb6d89a4b4c42a1a2727fd13814ff9d0"
+source = "git+https://github.com/Noelware/core-rs?rev=d8a7a22783ccfe9a69b9530a266aaa943a61976e#d8a7a22783ccfe9a69b9530a266aaa943a61976e"
 dependencies = [
  "bytes",
  "remi",
@@ -3349,7 +3370,7 @@ dependencies = [
 [[package]]
 name = "noelware-serde"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/core-rs?rev=41257fc1eb6d89a4b4c42a1a2727fd13814ff9d0#41257fc1eb6d89a4b4c42a1a2727fd13814ff9d0"
+source = "git+https://github.com/Noelware/core-rs?rev=d8a7a22783ccfe9a69b9530a266aaa943a61976e#d8a7a22783ccfe9a69b9530a266aaa943a61976e"
 dependencies = [
  "serde",
  "tracing",
@@ -3829,9 +3850,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.76"
+version = "1.0.78"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "95fc56cda0b5c3325f5fbbd7ff9fda9e02bb00bb3dac51252d2f1bfa1cb8cc8c"
+checksum = "e2422ad645d89c99f8f3e6b88a9fdeca7fabeac836b1002371c4367c8f984aae"
 dependencies = [
  "unicode-ident",
 ]
@@ -4331,6 +4352,7 @@ version = "8.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8cb0a25bfbb2d4b4402179c2cf030387d9990857ce08a32592c6238db9fa8665"
 dependencies = [
+ "mime_guess",
  "sha2",
  "walkdir",
 ]
@@ -4666,9 +4688,13 @@ version = "0.32.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ca654f9bb134581169b51f2dcf713ae0909157121870a0b94e369368f75ab050"
 dependencies = [
+ "axum 0.7.4",
+ "http 1.0.0",
+ "pin-project",
  "sentry-core 0.32.1",
  "tower-layer",
  "tower-service",
+ "url",
 ]
 
 [[package]]

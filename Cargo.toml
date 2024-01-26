@@ -41,7 +41,7 @@ version = "0.1.0-beta"
 authors = [
     "Noel Towa <cutie@floofy.dev>",
     "Spotlight <spotlight@joscomputing.space>",
-    "Noelware, LLC. <team@noelware.org>",
+    "John Burke <winter@winterfox.tech>",
 ]
 documentation = "https://charts.noelware.org/docs"
 edition = "2021"
@@ -100,6 +100,7 @@ humantime = "2.1.0"
 iterutils = "0.1.0"
 jsonwebtoken = "9.2.0"
 ldap3 = "0.11.3"
+mac_address = "1.1.5"
 md-5 = "0.10.6"
 meilisearch-sdk = "0.24.3"
 mimalloc = "0.1.39"
@@ -117,10 +118,10 @@ rand = "0.8.5"
 regex = "1.10.2"
 remi = "0.5.0"
 reqwest = "0.11.23"
-rust-embed = "8.2.0"
+rust-embed = { version = "8.2.0", features = ["mime-guess"] }
 sentry = "0.32.1"
 sentry-eyre = "0.1.0"
-sentry-tower = "0.32.1"
+sentry-tower = { version = "0.32.1", features = ["axum", "http"] }
 sentry-tracing = "0.32.1"
 serde_json = "1.0.111"
 serde_path_to_error = "0.1.15"
@@ -153,7 +154,7 @@ version = "0.0.0-devel.0"
 path = "proc-macros"
 
 [dependencies.chrono]
-version = "0.4.31"
+version = "0.4.33"
 features = ["serde"]
 
 [dependencies.clap]
@@ -171,25 +172,25 @@ features = ["future"]
 [dependencies.noelware-config]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "41257fc1eb6d89a4b4c42a1a2727fd13814ff9d0"
+rev = "d8a7a22783ccfe9a69b9530a266aaa943a61976e"
 features = ["derive"]
 
 [dependencies.noelware-log]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "41257fc1eb6d89a4b4c42a1a2727fd13814ff9d0"
+rev = "d8a7a22783ccfe9a69b9530a266aaa943a61976e"
 features = ["log"]
 
 [dependencies.noelware-remi]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "41257fc1eb6d89a4b4c42a1a2727fd13814ff9d0"
+rev = "d8a7a22783ccfe9a69b9530a266aaa943a61976e"
 features = ["azure", "fs", "s3"]
 
 [dependencies.noelware-serde]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "41257fc1eb6d89a4b4c42a1a2727fd13814ff9d0"
+rev = "d8a7a22783ccfe9a69b9530a266aaa943a61976e"
 features = ["tracing"]
 
 [dependencies.owo-colors]
@@ -259,22 +260,13 @@ rustc_version = "0.4.0"
 tonic-build = "0.10.2"
 which = "5.0.0"
 
-[lib]
-path = "src/lib.rs"
-name = "charted"
-edition = "2021"
-crate-type = ["rlib"]
-required-features = []
-
 [profile.release]
 opt-level = "z"
 lto = true
 codegen-units = 1
-incremental = true
 strip = true
 
 [[bin]]
 path = "./src/bin/main.rs"
 name = "charted"
 edition = "2021"
-required-features = []

@@ -28,6 +28,7 @@ use utoipa::{
 static COMPONENTS: Lazy<Components> = lazy!(ComponentsBuilder::new()
     .schemas_from_iter([
         // response schemas
+        crate::server::routing::v1::EntrypointResponse::schema(),
         crate::server::routing::v1::info::InfoResponse::schema(),
         crate::server::routing::v1::main::MainResponse::schema(),
         // other schemas
@@ -63,8 +64,10 @@ static COMPONENTS: Lazy<Components> = lazy!(ComponentsBuilder::new()
         datetime()
     ])
     .responses_from_iter([
+        crate::server::routing::v1::EntrypointResponse::response(),
         crate::server::routing::v1::info::InfoResponse::response(),
         crate::server::routing::v1::main::MainResponse::response(),
+        crate::server::routing::v1::user::UserResponse::response(),
         crate::openapi::ApiErrorResponse::response(),
         crate::openapi::EmptyApiResponse::response(),
     ])
@@ -94,6 +97,15 @@ impl Document {
     /// [`Paths`] for all available recent API version endpoints.
     pub fn latest() -> Paths {
         add_paths! {
+            "/users/{idOrName}" => crate::server::routing::v1::user::GetUserRestController::paths();
+            "/users/@me" => crate::server::routing::v1::user::GetSelfRestController::paths();
+            "/users" => [
+                crate::server::routing::v1::user::DeleteSelfRestController::paths(),
+                crate::server::routing::v1::user::CreateUserRestController::paths(),
+                crate::server::routing::v1::user::PatchRestController::paths(),
+                crate::server::routing::v1::user::MainRestController::paths()
+            ];
+
             "/index/{idOrName}" => crate::server::routing::v1::indexes::GetChartIndexRestController::paths();
             "/heartbeat" => crate::server::routing::v1::heartbeat::HeartbeatRestController::paths();
             "/features" => crate::server::routing::v1::features::FeaturesRestController::paths();

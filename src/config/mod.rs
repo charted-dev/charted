@@ -24,6 +24,7 @@ pub mod server;
 pub mod sessions;
 pub mod storage;
 
+use crate::TRUTHY_REGEX;
 use eyre::Report;
 use noelware_config::{env, merge::Merge, FromEnv, TryFromEnv};
 use serde::{Deserialize, Serialize};
@@ -32,12 +33,10 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::TRUTHY_REGEX;
-
-#[derive(Debug, Clone, Default, Serialize, Deserialize, Merge)]
+#[derive(Debug, Clone, Serialize, Deserialize, Merge)]
 pub struct Config {
     /// whether or not if users can be registered on this instance
-    #[serde(default)]
+    #[serde(default = "__truthy")]
     #[merge(strategy = noelware_config::merge::strategy::bool::only_if_falsy)]
     pub registrations: bool,
 
@@ -94,6 +93,26 @@ pub struct Config {
     pub ui: bool,
 }
 
+impl Default for Config {
+    fn default() -> Self {
+        Config {
+            jwt_secret_key: String::default(),
+            registrations: __truthy(),
+            single_org: false,
+            sentry_dsn: None,
+            sessions: sessions::Config::default(),
+            database: db::Config::default(),
+            logging: logging::Config::default(),
+            metrics: metrics::Config::default(),
+            storage: storage::Config::default(),
+            server: server::Config::default(),
+            redis: redis::Config::default(),
+            cdn: cdn::Config::default(),
+            ui: __truthy(),
+        }
+    }
+}
+
 impl TryFromEnv for Config {
     type Output = Config;
     type Error = Report;
@@ -101,7 +120,7 @@ impl TryFromEnv for Config {
     fn try_from_env() -> Result<Self::Output, Self::Error> {
         Ok(Config {
             registrations: env!("CHARTED_ENABLE_REGISTRATIONS", {
-                or_else: false;
+                or_else: true;
                 mapper: |val| TRUTHY_REGEX.is_match(&val);
             }),
 
