@@ -18,6 +18,7 @@ use std::{
     env::{set_var, var},
     fs,
     path::PathBuf,
+    process::Command,
     time::SystemTime,
 };
 use tonic_build::compile_protos;
@@ -49,8 +50,28 @@ fn main() {
     println!("cargo:rustc-env=CHARTED_BUILD_DATE={build_date}");
 
     // First, we need to get the Git commit hash. There is ways we can do it:
-    //      1. Find a .git/HEAD file, read where we need to find the file, read the file and `&bytes[0..8]`
+    //      1. Use `git rev-parse --short=8 HEAD`, if `git` exists
     //      2. fuck it and ball with `d1cebae` as the dummy hash
+    match which("git") {
+        Ok(git) => {
+            let mut cmd = Command::new(git);
+            cmd.args(["rev-parse", "--short=8", "HEAD"]);
+
+            let output = cmd.output().expect("to succeed");
+            let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+            println!("cargo:rustc-env=CHARTED_COMMIT_HASH={stdout}");
+        }
+
+        Err(which::Error::CannotFindBinaryPath) => {
+            println!("cargo:warning=missing `git` binary, using `d1cebae` as the commit hash instead");
+            println!("cargo:rustc-env=CHARTED_COMMIT_HASH=d1cebae");
+        }
+
+        Err(e) => {
+            panic!("failed to get `git` from `$PATH`: {e}");
+        }
+    }
+
     let headfile = PathBuf::from(".git").join("HEAD");
     if let Ok(true) = headfile.try_exists() {
         // we should expect "ref: ref/heads/<branch we want>"
