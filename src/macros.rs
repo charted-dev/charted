@@ -72,10 +72,11 @@ macro_rules! hashmap {
 /// # use charted::hashset;
 /// #
 /// let map = hashset! {
-///     "hello" => "world"
+///     "hello",
+///     "world"
 /// };
 ///
-/// assert_eq!(map.len(), 1);
+/// assert_eq!(map.len(), 2);
 ///
 /// /*
 /// expanded:
@@ -83,6 +84,7 @@ macro_rules! hashmap {
 /// let map = {
 ///     let mut h = ::std::collections::HashSet::new();
 ///     h.insert("hello");
+///     h.insert("world");
 ///
 ///     h
 /// };
@@ -90,10 +92,19 @@ macro_rules! hashmap {
 /// ```
 #[macro_export]
 macro_rules! hashset {
-    () => {{ ::std::collections::HashSet::new() }};
-    ($V:ty) => {{ ::std::collections::HashSet::<$V>::new() }};
+    () => { ::std::collections::HashSet::new() };
+    ($V:ty) => { ::std::collections::HashSet::<$V>::new() };
+    ($V:ty, $($value:expr),*) => {{
+        let mut set = $crate::hashset!($V);
+        $(
+            set.insert($value);
+        )*
+
+        set
+    }};
+
     ($($value:expr),*) => {{
-        let mut h = ::std::collections::HashSet::new();
+        let mut h = $crate::hashset!();
         $(
             h.insert($value);
         )*
