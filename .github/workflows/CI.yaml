@@ -115,6 +115,8 @@ jobs:
 
             - name: Install `protoc`
               uses: Noelware/setup-protoc@1.2.0
+              with:
+                  repo-token: ${{github.token}}
 
             - name: Build project
               run: cargo build --all-features
