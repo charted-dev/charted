@@ -88,7 +88,9 @@ impl super::DbController for DbController {
                 // of pointers (name -> id) that lives temporarily until it needs to be re-cached.
                 //
                 // TODO(@auguwu/@spotlightishere): is there any way we can do that or? ^
-                let query = sqlx::query_as::<Postgres, User>("select users.* from users where name = $1").bind(&name);
+                let query =
+                    sqlx::query_as::<Postgres, User>("select users.* from users where username = $1").bind(&name);
+
                 query
                     .fetch_optional(&self.pool)
                     .await

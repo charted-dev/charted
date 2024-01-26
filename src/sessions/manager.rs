@@ -210,6 +210,32 @@ impl Manager {
             .context("unable to delete session from Redis")
     }
 
+    pub async fn from_user(&mut self, id: u64, session_id: Uuid) -> eyre::Result<Option<Session>> {
+        let mut client = self
+            .redis
+            .client()
+            .unwrap_or(self.redis.replica()?)
+            .get_async_connection()
+            .await?;
+
+        let all: HashMap<String, String> = redis::cmd("HGETALL")
+            .arg("charted:sessions")
+            .query_async(&mut client)
+            .await?;
+
+        for json in all.values() {
+            let Ok(session) = serde_json::from_str::<Session>(json) else {
+                continue;
+            };
+
+            if session.user == id && session.session == session_id {
+                return Ok(Some(session));
+            }
+        }
+
+        Ok(None)
+    }
+
     #[instrument(name = "charted.sessions.create", skip_all, fields(user.id))]
     pub async fn create(&mut self, user: User) -> eyre::Result<Session> {
         let session = Uuid::new_v4();

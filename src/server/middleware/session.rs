@@ -15,14 +15,13 @@
 
 use crate::{
     common::models::{
-        entities::{ApiKeyScope, ApiKeyScopes, User},
-        Name, NameOrSnowflake,
+        entities::{ApiKeyScopes, User},
+        Name,
     },
-    config::Config,
     db::controllers::DbController,
     server::{
         hash_password,
-        models::res::{err, ErrorCode, INTERNAL_SERVER_ERROR},
+        models::res::{err, internal_server_error, ErrorCode, INTERNAL_SERVER_ERROR},
         ARGON2,
     },
     Instance,
@@ -30,7 +29,6 @@ use crate::{
 use argon2::{PasswordHash, PasswordVerifier};
 use axum::{
     body::Body,
-    extract::State,
     http::{HeaderName, HeaderValue, Request, Response, StatusCode},
     response::IntoResponse,
     RequestExt,
@@ -47,6 +45,7 @@ use std::{
 };
 use tower_http::auth::AsyncAuthorizeRequest;
 use tracing::Instrument;
+use uuid::Uuid;
 
 static AUTHORIZATION: HeaderName = HeaderName::from_static("authorization");
 
@@ -378,7 +377,73 @@ impl AsyncAuthorizeRequest<Body> for Middleware {
                         }
                     }
 
-                    "Bearer" => todo!(),
+                    "Bearer" => {
+                        let span = info_span!(parent: &span, "charted.authz.bearer");
+                        let _guard = span.enter();
+
+                        let decoded = decode::<HashMap<String, Value>>(
+                            &token,
+                            &DecodingKey::from_secret(instance.config.jwt_secret_key.as_ref()),
+                            &Validation::new(Algorithm::HS512)
+                        ).map_err(|e| {
+                            error!(error = %e, "unable to decode JWT token");
+                            sentry::capture_error(&e);
+
+                            Error::Jwt(e).into_response()
+                        })?;
+
+                        let Some(Value::Number(uid)) = decoded.claims.get("user_id") else {
+                            warn!("JWT token didn't have a `user_id` claim, marking as an unknown session");
+                            return Err(Error::UnknownSession.into_response());
+                        };
+
+                        let Some(Value::String(sess_id)) = decoded.claims.get("session_id") else {
+                            warn!("JWT token doesn't have a `session_id` claim, marking as an unknown session");
+                            return Err(Error::UnknownSession.into_response());
+                        };
+
+                        let sess_id = Uuid::parse_str(sess_id).map_err(|e| {
+                            error!(error = %e, session.id = sess_id, "unable to parse `session_id` as a UUID");
+                            sentry::capture_error(&e);
+
+                            internal_server_error().into_response()
+                        })?;
+
+                        let id = uid.as_u64().ok_or_else(||
+                            err(
+                                StatusCode::UNPROCESSABLE_ENTITY,
+                                (
+                                    ErrorCode::InvalidJwtClaim,
+                                    "[user_id] jwt claim was not a valid `u64` value",
+                                    json!({"value":uid})
+                                )
+                            ).into_response()
+                        )?;
+
+                        let user = match instance.controllers.users.get(id.try_into().unwrap()).await {
+                            Ok(Some(user)) => user,
+                            Ok(None) => return Err(err(StatusCode::NOT_FOUND, (ErrorCode::EntityNotFound, "user with given id doesn't exist", json!({"id":id}))).into_response()),
+                            Err(_) => return Err(internal_server_error().into_response())
+                        };
+
+                        let Some(session) = sessions.from_user(id, sess_id).await.map_err(|e| {
+                            error!(error = %e, user.id, session.id = %sess_id, "unable to get session from Redis");
+                            sentry_eyre::capture_report(&e);
+
+                            Error::UnknownSession.into_response()
+                        })? else {
+                            return Err(Error::UnknownSession.into_response());
+                        };
+
+                        let refresh_token = session.refresh_token.as_ref().unwrap();
+                        if require_refresh_token && token.as_str() != refresh_token.as_str() {
+                            return Err(Error::RefreshTokenRequired.into_response());
+                        }
+
+                        req.extensions_mut().insert(Session { session: Some(session), user });
+                    }
+
+                    "ApiKey" => todo!(),
                     _ => unreachable!(),
                 }
 
@@ -388,83 +453,3 @@ impl AsyncAuthorizeRequest<Body> for Middleware {
         )
     }
 }
-
-/*
-    fn authorize(&mut self, mut req: Request<B>) -> Self::Future {
-        Box::pin(async move {
-                "Bearer" => {
-                    let span = info_span!(parent: &span, "charted.http.auth.bearer");
-                    let _guard = span.enter();
-                    let decoded = decode::<HashMap<String, Value>>(
-                        &token,
-                        &DecodingKey::from_secret(jwt_secret_key.as_ref()),
-                        &Validation::new(Algorithm::HS512),
-                    )
-                    .map_err(|e| {
-                        error!(%e, "unable to decode jwt token");
-                        sentry::capture_error(&e);
-
-                        SessionError::JsonWebToken(e).into_response()
-                    })?;
-
-                    let Some(Value::Number(uid)) = decoded.claims.get("user_id") else {
-                        debug!("missing `user_id` in jwt token, not doing anything...");
-                        return Err(SessionError::UnknownSession.into_response());
-                    };
-
-                    let id = uid.as_u64().ok_or_else(|| {
-                        err(
-                            StatusCode::UNPROCESSABLE_ENTITY,
-                            ("INVALID_JWT_CLAIM", "Expected JWT claim [user_id] to be a u64").into(),
-                        )
-                        .into_response()
-                    })?;
-
-                    let Some(user) = sqlx::query_as::<_, User>("select users.* from users where id = $1;")
-                        .bind(i64::try_from(id).unwrap())
-                        .fetch_optional(&pool)
-                        .await
-                        .map_err(|e| {
-                            error!(id, %e, "failed to fetch user with");
-                            sentry::capture_error(&e);
-
-                            err(
-                                StatusCode::INTERNAL_SERVER_ERROR,
-                                ("INTERNAL_SERVER_ERROR", "Internal Server Error").into(),
-                            )
-                            .into_response()
-                        })?
-                    else {
-                        return Err(err(
-                            StatusCode::NOT_FOUND,
-                            ("UNKNOWN_USER", format!("unknown user with ID [{id}]").as_str()).into(),
-                        )
-                        .into_response());
-                    };
-
-                    let session = sessions
-                        .from_user(id)
-                        .await
-                        .map_err(|_| SessionError::UnknownSession.into_response())?
-                        .ok_or_else(|| SessionError::UnknownSession.into_response())?;
-
-                    let refresh_token = session.refresh_token.as_ref().unwrap();
-                    if require_refresh_token && token.as_str() != refresh_token.as_str() {
-                        return Err(SessionError::RefreshTokenRequired.into_response());
-                    }
-
-                    req.extensions_mut().insert(Session {
-                        session: Some(session),
-                        user,
-                    });
-                }
-
-                _ => unreachable!(),
-            }
-
-            Ok(req)
-        })
-    }
-}
-
-*/

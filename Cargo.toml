@@ -172,25 +172,25 @@ features = ["future"]
 [dependencies.noelware-config]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "d8a7a22783ccfe9a69b9530a266aaa943a61976e"
+rev = "8ed59ef104db38fbf0a64630db4d28ce2534d050"
 features = ["derive"]
 
 [dependencies.noelware-log]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "d8a7a22783ccfe9a69b9530a266aaa943a61976e"
+rev = "8ed59ef104db38fbf0a64630db4d28ce2534d050"
 features = ["log"]
 
 [dependencies.noelware-remi]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "d8a7a22783ccfe9a69b9530a266aaa943a61976e"
+rev = "8ed59ef104db38fbf0a64630db4d28ce2534d050"
 features = ["azure", "fs", "s3"]
 
 [dependencies.noelware-serde]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "d8a7a22783ccfe9a69b9530a266aaa943a61976e"
+rev = "8ed59ef104db38fbf0a64630db4d28ce2534d050"
 features = ["tracing"]
 
 [dependencies.owo-colors]

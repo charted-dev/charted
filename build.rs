@@ -16,8 +16,6 @@
 use chrono::{DateTime, Utc};
 use std::{
     env::{set_var, var},
-    fs,
-    path::PathBuf,
     process::Command,
     time::SystemTime,
 };

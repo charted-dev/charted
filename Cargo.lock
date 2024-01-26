@@ -3308,7 +3308,7 @@ dependencies = [
 [[package]]
 name = "noelware-config"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/core-rs?rev=d8a7a22783ccfe9a69b9530a266aaa943a61976e#d8a7a22783ccfe9a69b9530a266aaa943a61976e"
+source = "git+https://github.com/Noelware/core-rs?rev=8ed59ef104db38fbf0a64630db4d28ce2534d050#8ed59ef104db38fbf0a64630db4d28ce2534d050"
 dependencies = [
  "noelware-config-derive",
 ]
@@ -3316,7 +3316,7 @@ dependencies = [
 [[package]]
 name = "noelware-config-derive"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/core-rs?rev=d8a7a22783ccfe9a69b9530a266aaa943a61976e#d8a7a22783ccfe9a69b9530a266aaa943a61976e"
+source = "git+https://github.com/Noelware/core-rs?rev=8ed59ef104db38fbf0a64630db4d28ce2534d050#8ed59ef104db38fbf0a64630db4d28ce2534d050"
 dependencies = [
  "proc-macro-error",
  "proc-macro2",
@@ -3327,7 +3327,7 @@ dependencies = [
 [[package]]
 name = "noelware-log"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/core-rs?rev=d8a7a22783ccfe9a69b9530a266aaa943a61976e#d8a7a22783ccfe9a69b9530a266aaa943a61976e"
+source = "git+https://github.com/Noelware/core-rs?rev=8ed59ef104db38fbf0a64630db4d28ce2534d050#8ed59ef104db38fbf0a64630db4d28ce2534d050"
 dependencies = [
  "chrono",
  "owo-colors 4.0.0",
@@ -3340,7 +3340,7 @@ dependencies = [
 [[package]]
 name = "noelware-remi"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/core-rs?rev=d8a7a22783ccfe9a69b9530a266aaa943a61976e#d8a7a22783ccfe9a69b9530a266aaa943a61976e"
+source = "git+https://github.com/Noelware/core-rs?rev=8ed59ef104db38fbf0a64630db4d28ce2534d050#8ed59ef104db38fbf0a64630db4d28ce2534d050"
 dependencies = [
  "bytes",
  "remi",
@@ -3352,7 +3352,7 @@ dependencies = [
 [[package]]
 name = "noelware-serde"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/core-rs?rev=d8a7a22783ccfe9a69b9530a266aaa943a61976e#d8a7a22783ccfe9a69b9530a266aaa943a61976e"
+source = "git+https://github.com/Noelware/core-rs?rev=8ed59ef104db38fbf0a64630db4d28ce2534d050#8ed59ef104db38fbf0a64630db4d28ce2534d050"
 dependencies = [
  "serde",
  "tracing",
