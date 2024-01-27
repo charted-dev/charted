@@ -12,7 +12,7 @@
         "Noelware Team <team@noelware.org>"
     ],
     "scripts": {
-        "generate:openapi": "bun run scripts/openapi.ts",
+        "generate:openapi": "bun run scripts/openapi.ts && bun fmt && bun lint",
         "build": "vite build",
         "lint": "bun run scripts/eslint.ts",
         "dev": "bunx --bun vite",
