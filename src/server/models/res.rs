@@ -141,6 +141,9 @@ pub enum ErrorCode {
     /// something went wrong with the given input/output stream.
     Io,
 
+    /// received an invalid type that was expected
+    InvalidType,
+
     // ~ SESSIONS
     /// received JWT claim was not found or was invalid
     InvalidJwtClaim,
@@ -251,6 +254,16 @@ impl From<(ErrorCode, String, Value)> for Error {
             code,
             message: Cow::Owned(message),
             details: Some(details),
+        }
+    }
+}
+
+impl From<(ErrorCode, String, Option<Value>)> for Error {
+    fn from((code, message, details): (ErrorCode, String, Option<Value>)) -> Self {
+        Error {
+            code,
+            message: Cow::Owned(message),
+            details,
         }
     }
 }

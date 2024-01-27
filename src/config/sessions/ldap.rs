@@ -13,10 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::{common::serde::Duration, TRUTHY_REGEX};
 use noelware_config::{env, merge::Merge, FromEnv};
 use serde::{Deserialize, Serialize};
-
-use crate::TRUTHY_REGEX;
+use std::{ops::Deref, str::FromStr};
 
 #[derive(Debug, Clone, Merge, Serialize, Deserialize)]
 pub struct Config {
@@ -37,6 +37,11 @@ pub struct Config {
     #[serde(default)]
     #[merge(strategy = noelware_config::merge::strategy::bool::only_if_falsy)]
     pub schedule_user_updates: bool,
+
+    /// Timeout on when the connection should be dropped due to not being responsive.
+    #[serde(default)]
+    #[merge(strategy = __duration_strategy)]
+    pub conn_timeout: Duration,
 
     /// Query used to authenticate users as. If empty, then `<username>=%u` will be used as the default
     /// bind DN.
@@ -76,6 +81,7 @@ impl Default for Config {
             insecure_skip_tls_verify: false,
             schedule_user_updates: false,
             schedule_new_users: true,
+            conn_timeout: __default_duration(),
             filter_query: __default_filter_query(),
             attributes: Attributes::default(),
             starttls: false,
@@ -100,9 +106,14 @@ impl FromEnv for Config {
                 mapper: |val| TRUTHY_REGEX.is_match(&val);
             }),
 
-            schedule_new_users: env!("CHARTED_SESSION_LDAP_NEW_USERS", {
+            schedule_new_users: env!("CHARTED_SESSION_LDAP_SCHEDULE_NEW_USERS", {
                 or_else: true;
                 mapper: |val| TRUTHY_REGEX.is_match(&val);
+            }),
+
+            conn_timeout: env!("CHARTED_SESSION_LDAP_CONNECTION_TIMEOUT", {
+                or_else: __default_duration();
+                mapper: |val| Duration::from_str(&val).expect("unable to parse `CHARTED_SESSION_LDAP_CONNECTION_TIMEOUT` as a valid duration");
             }),
 
             filter_query: env!("CHARTED_SESSION_LDAP_FILTER_QUERY", or_else: __default_filter_query()),
@@ -179,4 +190,33 @@ fn __default_filter_query() -> String {
 
 fn __default_ldap_server() -> String {
     String::from("http://localhost:389")
+}
+
+fn __default_duration() -> Duration {
+    Duration::from(std::time::Duration::from_secs(5))
+}
+
+fn __duration_strategy(first: &mut Duration, other: Duration) {
+    // don't do anything if it is both
+    if first.is_zero() && other.is_zero() {
+        return;
+    }
+
+    // if `other` is zero, but `first` is non-zero, don't merge
+    if !first.is_zero() && other.is_zero() {
+        return;
+    }
+
+    // if it goes over one minute, don't update it
+    if other.deref() > &std::time::Duration::from_secs(60) {
+        return;
+    }
+
+    // if it is under 1 second, don't do anything
+    if other.deref() < &std::time::Duration::from_secs(1) {
+        return;
+    }
+
+    // otherwise, do update it
+    *first = other;
 }

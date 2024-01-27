@@ -17,6 +17,7 @@ use crate::{
     auth,
     avatars::AvatarsModule,
     caching::{inmemory::InMemoryCache, redis::RedisCache, CacheWorker},
+    charts,
     cli::AsyncExecute,
     common::{
         models::entities::{Repository, User},
@@ -163,16 +164,14 @@ impl AsyncExecute for Cmd {
         now = Instant::now();
 
         info!("initializing authz backend...");
-        let authz = Arc::new(match config.sessions.backend {
-            crate::config::sessions::Backend::Local => auth::local::Backend::new(pool.clone()),
-            crate::config::sessions::Backend::Passwordless
-            | crate::config::sessions::Backend::TokenServer(_)
-            | crate::config::sessions::Backend::Ldap(_)
-            | crate::config::sessions::Backend::Htpasswd(_) => {
+        let authz: Arc<dyn crate::auth::Backend> = match config.sessions.backend {
+            crate::config::sessions::Backend::Local => Arc::new(auth::local::Backend::new(pool.clone())),
+            crate::config::sessions::Backend::Ldap(ref config) => Arc::new(auth::ldap::Backend::new(config.clone())),
+            crate::config::sessions::Backend::Passwordless | crate::config::sessions::Backend::Htpasswd(_) => {
                 warn!("other authz backends are not supported at this time, switching to `local` backend instead");
-                auth::local::Backend::new(pool.clone())
+                Arc::new(auth::local::Backend::new(pool.clone()))
             }
-        });
+        };
 
         info!(took = ?Instant::now().duration_since(now), "initialized authz backend successfully");
         let avatars = AvatarsModule::new(storage.clone());
@@ -184,6 +183,12 @@ impl AsyncExecute for Cmd {
         sessions.init()?;
 
         info!(took = ?Instant::now().duration_since(now), "initialized sessions manager successfully");
+        now = Instant::now();
+
+        let charts = charts::HelmCharts::new(storage.clone());
+        charts.init().await?;
+
+        info!(took = ?Instant::now().duration_since(now), "initialized core chart library");
 
         let controllers = db::controllers::Controllers {
             repositories: db::controllers::repository::DbController::new(
@@ -219,6 +224,7 @@ impl AsyncExecute for Cmd {
             avatars,
             metrics: crate::metrics::new(&config),
             storage,
+            charts,
             search: None,
             config: config.clone(),
             redis: Arc::new(RwLock::new(redis)),
@@ -227,7 +233,6 @@ impl AsyncExecute for Cmd {
         };
 
         crate::set_instance(instance.clone());
-
         info!(took = ?Instant::now().duration_since(original), "initialized global instance, starting server...");
 
         let router: Router = crate::server::routing::create_router(&instance).with_state(instance);

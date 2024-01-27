@@ -31,7 +31,7 @@ impl Backend {
 
 #[async_trait]
 impl super::Backend for Backend {
-    async fn authenticate(&self, user: User) -> eyre::Result<()> {
+    async fn authenticate(&self, user: User, _password: String) -> Result<(), super::Error> {
         match user.provide_password(self.0.clone()).await {
             Ok(Some(pass)) => {
                 let hash = PasswordHash::new(&pass).map_err(|e| {
@@ -39,14 +39,12 @@ impl super::Backend for Backend {
                     eyre!("unable to compute hash: {e}")
                 })?;
 
-                ARGON2.verify_password(pass.as_ref(), &hash).map_err(|e| {
-                    error!(error = %e, "unable to verify password");
-                    eyre!("unable to verify password: {e}")
-                })
+                // error will always be an invalid password, so return that instead
+                ARGON2.verify_password(pass.as_ref(), &hash).map_err(|_| super::Error::InvalidPassword)
             }
 
-            Ok(None) => Err(eyre!("internal server error: user @{} ({}) doesn't contain a password field! did you forget to migrate your users?", user.username, user.id)),
-            Err(e) => Err(e)
+            Ok(None) => Err(eyre!("internal server error: user @{} ({}) doesn't contain a password field! did you forget to migrate your users?", user.username, user.id).into()),
+            Err(e) => Err(e.into())
         }
     }
 

@@ -124,3 +124,12 @@ macro_rules! lazy {
         ::once_cell::sync::Lazy::<$ty>::default()
     }};
 }
+
+/// General macro to create a [regular expression][regex::Regex] that you know
+/// is valid.
+#[macro_export]
+macro_rules! regex {
+    ($e:expr) => {
+        ::regex::Regex::new($e).unwrap()
+    };
+}

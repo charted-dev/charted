@@ -51,7 +51,6 @@ pub mod common;
 pub mod config;
 pub mod db;
 pub mod emails;
-pub mod hoshi;
 pub mod macros;
 pub mod metrics;
 pub mod openapi;
@@ -124,40 +123,18 @@ static GLOBAL: OnceCell<Instance> = OnceCell::new();
 /// Represents the core instance of charted-server. It contains a whole bunch of references
 /// to be able to operate successfully.
 pub struct Instance {
-    /// database controllers
     pub controllers: db::controllers::Controllers,
-
-    /// Represents how many requests the server has handled.
     pub requests: AtomicUsize,
-
-    /// Reference to the [`AvatarsModule`].
     pub avatars: AvatarsModule,
-
-    /// Storage service that does the handling for all external media and chart indexes.
     pub storage: StorageService,
-
-    /// Authentication backend to use
+    pub charts: charts::HelmCharts,
     pub authz: Arc<dyn auth::Backend>,
-
-    /// Search backend, if one was requested to be available.
     pub search: Option<Arc<JoinedBackend>>,
-
-    /// session manager
     pub sessions: Arc<Mutex<sessions::Manager>>,
-
-    /// snowflake generator
     pub snowflake: Snowflake,
-
-    /// Metrics registry
     pub metrics: Arc<dyn Registry>,
-
-    /// Configuration that this [`Instance`] was created with.
     pub config: config::Config,
-
-    /// Redis client used for caching.
     pub redis: Arc<RwLock<redis::Client>>,
-
-    /// PostgreSQL pool.
     pub pool: sqlx::postgres::PgPool,
 }
 
@@ -171,6 +148,7 @@ impl Clone for Instance {
             avatars: self.avatars.clone(),
             metrics: self.metrics.clone(),
             storage: self.storage.clone(),
+            charts: self.charts.clone(),
             search: self.search.clone(),
             config: self.config.clone(),
             authz: self.authz.clone(),

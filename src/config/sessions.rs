@@ -14,7 +14,6 @@
 // limitations under the License.
 
 pub mod ldap;
-pub mod token_server;
 
 use crate::TRUTHY_REGEX;
 use noelware_config::{env, merge::Merge, FromEnv, TryFromEnv};
@@ -54,9 +53,6 @@ impl TryFromEnv for Config {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(untagged, rename_all = "camelCase")]
 pub enum Backend {
-    /// Uses a local HTTPS service to authenticate users.
-    TokenServer(token_server::Config),
-
     /// Uses a list of htpasswd files to define user:password hashes. This will not provide
     /// a `password` field when creating users or when creating users in the db.
     Htpasswd(BTreeSet<PathBuf>),
@@ -76,7 +72,6 @@ pub enum Backend {
 impl Merge for Backend {
     fn merge(&mut self, other: Self) {
         match (self, other) {
-            (Self::TokenServer(tk), Self::TokenServer(tk2)) => tk.merge(tk2),
             (Self::Htpasswd(htpasswd), Self::Htpasswd(htpasswd2)) => htpasswd.merge(htpasswd2),
             (Self::Ldap(ldap), Self::Ldap(ldap2)) => ldap.merge(ldap2),
             (Self::Passwordless, Self::Passwordless) => {} // don't even merge
@@ -99,14 +94,11 @@ impl TryFromEnv for Backend {
                         .unwrap_or_default(),
                 )),
 
-                "token_server" | "tokenServer" => Ok(Backend::TokenServer(token_server::Config::from_env())),
                 "passwordless" => Ok(Backend::Passwordless),
                 "ldap" => Ok(Backend::Ldap(ldap::Config::from_env())),
                 "local" => Ok(Backend::Local),
                 out if out.is_empty() => Ok(Backend::Local),
-                out => Err(eyre!(
-                    "expected [htpasswd, token_server/tokenServer, ldap, local]; received '{out}'"
-                )),
+                out => Err(eyre!("expected [htpasswd, ldap, local]; received '{out}'")),
             },
             Err(std::env::VarError::NotUnicode(_)) => Err(eyre!(
                 "expected a utf-8 encoded string for `CHARTED_SESSION_BACKEND` env variable"

@@ -689,9 +689,9 @@ FodyWeavers.xsd
 
 !crates/helm-charts/tests/__fixtures__/*.tgz
 !server/src/routing/**/repository/releases/
+!src/charts/__fixtures__/*.tgz
 !distribution/bin/
 !scripts/publish/
-.user.bazelrc
 !Cargo.lock
 config.yml
 !src/bin/

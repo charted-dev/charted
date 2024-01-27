@@ -1155,6 +1155,7 @@ dependencies = [
  "futures-util",
  "hex",
  "humantime",
+ "itertools 0.12.0",
  "iterutils",
  "jsonwebtoken 9.2.0",
  "ldap3",

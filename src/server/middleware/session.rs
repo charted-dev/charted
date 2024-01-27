@@ -14,19 +14,15 @@
 // limitations under the License.
 
 use crate::{
+    auth,
     common::models::{
         entities::{ApiKeyScopes, User},
         Name,
     },
     db::controllers::DbController,
-    server::{
-        hash_password,
-        models::res::{err, internal_server_error, ErrorCode, INTERNAL_SERVER_ERROR},
-        ARGON2,
-    },
+    server::models::res::{err, internal_server_error, ErrorCode, INTERNAL_SERVER_ERROR},
     Instance,
 };
-use argon2::{PasswordHash, PasswordVerifier};
 use axum::{
     body::Body,
     http::{HeaderName, HeaderValue, Request, Response, StatusCode},
@@ -356,24 +352,18 @@ impl AsyncAuthorizeRequest<Body> for Middleware {
                             Err(_) => return Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR).into_response()),
                         };
 
-                        let hashed = hash_password(password).map_err(|e| {
-                            error!(error = %e, %user.username, "unable to hash password");
-                            sentry_eyre::capture_report(&e);
-
-                            err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR).into_response()
-                        })?;
-
-                        let hash = PasswordHash::new(&hashed).map_err(|e| {
-                            error!(error = %e, %user.username, "unable to create hasher for password");
-                            err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR).into_response()
-                        })?;
-
-                        match ARGON2.verify_password(password.as_bytes(), &hash) {
+                        match instance.authz.authenticate(user.clone(), password.to_string()).await {
                             Ok(()) => {
                                 req.extensions_mut().insert(Session { session: None, user });
                             }
 
-                            Err(_) => return Err(Error::InvalidPassword.into_response())
+                            Err(auth::Error::InvalidPassword) => return Err(Error::InvalidPassword.into_response()),
+                            Err(e) => {
+                                error!(error = %e, user.id, "failed to authenticate from authz backend");
+                                sentry::capture_error(&e);
+
+                                return Err(internal_server_error().into_response());
+                            }
                         }
                     }
 

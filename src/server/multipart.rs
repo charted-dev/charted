@@ -160,7 +160,7 @@ impl MultipartRejection {
     }
 }
 
-fn to_status_code(err: &multer::Error) -> StatusCode {
+pub fn to_status_code(err: &multer::Error) -> StatusCode {
     match err {
         multer::Error::UnknownField { .. }
         | multer::Error::IncompleteFieldData { .. }
@@ -188,7 +188,7 @@ fn to_status_code(err: &multer::Error) -> StatusCode {
     }
 }
 
-fn err_to_msg(err: &multer::Error) -> &'static str {
+pub fn err_to_msg(err: &multer::Error) -> &'static str {
     match err {
         multer::Error::UnknownField { .. } => "received unknown field",
         multer::Error::IncompleteFieldData { .. } => "received incomplete field data in request",
@@ -212,7 +212,7 @@ fn err_to_msg(err: &multer::Error) -> &'static str {
     }
 }
 
-fn to_err_code(err: &multer::Error) -> ErrorCode {
+pub fn to_err_code(err: &multer::Error) -> ErrorCode {
     match err {
         multer::Error::UnknownField { .. } => ErrorCode::UnknownMultipartField,
         multer::Error::IncompleteFieldData { .. } => ErrorCode::IncompleteMultipartFieldData,
@@ -236,7 +236,7 @@ fn to_err_code(err: &multer::Error) -> ErrorCode {
     }
 }
 
-fn expand_details_from_err(err: &multer::Error) -> Option<Value> {
+pub fn expand_details_from_err(err: &multer::Error) -> Option<Value> {
     match err {
         multer::Error::UnknownField { field_name } => field_name.as_ref().map(|field| json!({ "field": field })),
         multer::Error::IncompleteFieldData { field_name } => field_name.as_ref().map(|field| json!({ "field": field })),

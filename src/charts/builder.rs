@@ -13,176 +13,160 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/*
-use crate::{HelmCharts, ACCEPTABLE_CONTENT_TYPES};
-use flate2::read::MultiGzDecoder;
-use multer::{Error, Multipart};
-use semver::Version;
-use std::{fmt::Display, io, sync::Arc};
-use tar::Archive;
+use crate::server::{
+    models::res::{err, ApiResponse, ErrorCode},
+    multipart::{err_to_msg, expand_details_from_err, to_err_code, to_status_code},
+};
+use axum::http::StatusCode;
+use serde_json::{json, Value};
+use std::{borrow::Cow, fmt::Display, io};
 
-/// Possible error outcomes when uploading a tarball to charted-server.
-#[derive(Debug, Clone)]
-pub enum ReleaseTarballError {
-    /// Received an invalid content type
-    InvalidContentType(String),
+/// Represents a request payload to upload a release tarball.
+#[derive(Default)]
+pub struct UploadReleaseTarballRequest {
+    /// version of the release
+    pub version: String,
 
-    /// Received more than 1-2 files.
-    MaxExceeded(usize),
+    /// ID of the owner that owns the repository
+    pub owner: u64,
 
-    /// Missing the Content-Type of the tarball.
-    MissingContentType,
-
-    /// Multipart error occurred.
-    Multipart(Arc<Error>),
-
-    /// The version given was not a valid SemVer v2 version.
-    Semver(Arc<semver::Error>),
-
-    /// The server was unable to check if the tarball is valid or not.
-    NotValidTarball,
-
-    /// Missing a required tarball file.
-    MissingFiles,
-
-    /// I/O error occurred
-    Io(Arc<io::Error>),
+    /// ID of the repository to upload in
+    pub repo: u64,
 }
 
-impl Display for ReleaseTarballError {
+/// Possible error outcomes when uploading a tarball to the API server
+#[derive(Debug)]
+pub enum Error {
+    /// received an invalid content type
+    InvalidContentType(Cow<'static, str>),
+
+    /// received more than one or two files
+    MaxFileLimit(usize),
+
+    /// missing the required `Content-Type`
+    MissingContentType,
+
+    /// Received an multipart error
+    Multipart(multer::Error),
+
+    /// received an invalid semver version
+    SemVer(semver::Error),
+
+    /// the API server was unable to validate that the tarball received
+    /// was a valid tarball.
+    InvalidTarball,
+
+    /// Missing a required file
+    MissingFile,
+
+    /// Some I/O error occurred
+    Io(io::Error),
+}
+
+impl Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use Error as E;
+
         match self {
-            Self::InvalidContentType(ct) => f.write_fmt(format_args!(
-                "received invalid content type, expected one of [{}], but received [{ct}]",
-                ACCEPTABLE_CONTENT_TYPES.join(", ")
-            )),
+            E::InvalidContentType(ct) => write!(f, "received invalid content type [{ct}]"),
+            E::MaxFileLimit(files) => write!(
+                f,
+                "reached maximum files to receive by the request; wanted 1-2, received {files} file(s) instead"
+            ),
 
-            Self::MaxExceeded(files) => {
-                f.write_fmt(format_args!("expected 1-2 files, received [{files}] amount of files"))
-            }
+            E::MissingContentType => f.write_str("missing required `Content-Type`"),
+            E::InvalidTarball => f.write_str("received an invalid tarball"),
+            E::MissingFile => write!(f, "wanted a tarball release file or provenance file, but was missing"),
 
-            Self::MissingContentType => f.write_str("missing `Content-Type` of the tarball itself"),
-            Self::NotValidTarball => f.write_str("the server was unable to check if the tarball was valid"),
-            Self::Multipart(err) => f.write_fmt(format_args!("multipart error: {err}")),
-            Self::MissingFiles => f.write_str("expected a tarball release file, but was missing"),
-            Self::Semver(err) => f.write_fmt(format_args!("semver error: {err}")),
-            Self::Io(err) => f.write_fmt(format_args!("i/o error: {err}")),
+            E::Multipart(err) => Display::fmt(err, f),
+            E::SemVer(err) => Display::fmt(err, f),
+            E::Io(err) => Display::fmt(err, f),
         }
     }
 }
 
-impl std::error::Error for ReleaseTarballError {
-    fn cause(&self) -> Option<&dyn std::error::Error> {
+impl From<multer::Error> for Error {
+    fn from(value: multer::Error) -> Self {
+        Self::Multipart(value)
+    }
+}
+
+impl From<semver::Error> for Error {
+    fn from(value: semver::Error) -> Self {
+        Self::SemVer(value)
+    }
+}
+
+impl From<io::Error> for Error {
+    fn from(value: io::Error) -> Self {
+        Self::Io(value)
+    }
+}
+
+impl Error {
+    fn status(&self) -> StatusCode {
+        use Error as E;
+
         match self {
-            Self::Multipart(err) => Some(err),
-            Self::Semver(err) => Some(err),
-            Self::Io(err) => Some(err),
+            E::InvalidContentType(_)
+            | E::MaxFileLimit(_)
+            | E::SemVer(_)
+            | E::MissingFile
+            | E::MissingContentType
+            | E::InvalidTarball => StatusCode::NOT_ACCEPTABLE,
+
+            E::Multipart(err) => to_status_code(err),
+            E::Io(_) => StatusCode::INTERNAL_SERVER_ERROR,
+        }
+    }
+
+    fn error_code(&self) -> ErrorCode {
+        use Error as E;
+
+        match self {
+            E::InvalidContentType(_) => ErrorCode::InvalidContentType,
+            E::MissingContentType => ErrorCode::MissingHeader,
+            E::MaxFileLimit(_) => ErrorCode::MultipartFieldsSizeExceeded,
+            E::InvalidTarball => ErrorCode::InvalidBody,
+            E::Multipart(err) => to_err_code(err),
+            E::MissingFile => ErrorCode::MissingMultipartField,
+            E::SemVer(_) => ErrorCode::InvalidType,
+            E::Io(_) => ErrorCode::Io,
+        }
+    }
+
+    fn message(&self) -> String {
+        use Error as E;
+
+        match self {
+            E::InvalidContentType(_) => String::from("received an invalid content type"),
+            E::MaxFileLimit(_) => String::from("received maximum amount of files"),
+            E::Multipart(err) => err_to_msg(err).to_string(),
+            E::SemVer(_) => String::from("received an invalid semver value"),
+            E::Io(_) => String::from("unexpected error that occurred, try again later"),
+            e => format!("{e}"),
+        }
+    }
+
+    fn details(&self) -> Option<Value> {
+        use Error as E;
+
+        match self {
+            E::InvalidContentType(ct) => Some(json!({"contentType":ct})),
+            E::MaxFileLimit(received) => Some(json!({"expected":2,"received":received})),
+            E::Multipart(err) => expand_details_from_err(err),
+
             _ => None,
         }
     }
 }
 
-impl From<Error> for ReleaseTarballError {
+impl From<Error> for ApiResponse {
     fn from(value: Error) -> Self {
-        Self::Multipart(Arc::new(value))
-    }
-}
-
-impl From<semver::Error> for ReleaseTarballError {
-    fn from(value: semver::Error) -> Self {
-        Self::Semver(Arc::new(value))
-    }
-}
-
-impl From<io::Error> for ReleaseTarballError {
-    fn from(value: io::Error) -> Self {
-        Self::Io(Arc::new(value))
-    }
-}
-
-/// Abstraction over how we should do the uploading step.
-#[derive(Debug, Clone, Default)]
-pub struct UploadReleaseTarball {
-    /// version of the release
-    pub version: String,
-
-    /// owner id that owns the repository
-    pub owner: u64,
-
-    /// repository id
-    pub repo: u64,
-}
-
-impl UploadReleaseTarball {
-    /// Sets the release version for this upload.
-    pub fn with_version<I: Into<String>>(mut self, version: I) -> Self {
-        self.version = version.into();
-        self
-    }
-
-    /// Sets the `owner` field to whatever the `owner` variable is.
-    pub fn with_owner(mut self, owner: u64) -> Self {
-        self.owner = owner;
-        self
-    }
-
-    /// Sets the `owner` field to whatever the `owner` variable is.
-    pub fn with_repo(mut self, repo: u64) -> Self {
-        self.repo = repo;
-        self
-    }
-
-    pub async fn upload(self, _charts: HelmCharts, mut multipart: Multipart<'_>) -> Result<(), ReleaseTarballError> {
-        // first, we parse the version and check if it is a valid SemVer string
-        let _version = Version::parse(&self.version)?;
-        let Some(field) = multipart.next_field().await? else {
-            return Err(ReleaseTarballError::MissingFiles);
-        };
-
-        let Some(content_type) = field.content_type() else {
-            return Err(ReleaseTarballError::MissingContentType);
-        };
-
-        let received = content_type.to_string();
-        if !ACCEPTABLE_CONTENT_TYPES.contains(&received.as_str()) {
-            return Err(ReleaseTarballError::InvalidContentType(received));
+        if let Error::Multipart(err) = value {
+            return err.into();
         }
 
-        // next is validation over the tarball itself, to see if it has the available
-        // structure we need:
-        //
-        //    >> charted-0.1.0-beta.tgz
-        //    --> templates/
-        //    --> Chart.lock
-        //    --> Chart.yaml
-        //    --> README.md or LICENSE
-        //    --> values.yaml
-        //    --> values.schema.json
-        let bytes = field.bytes().await?;
-        let mut bytes_ref = bytes.as_ref();
-        let decoder = MultiGzDecoder::new(&mut bytes_ref);
-        let mut archive = Archive::new(decoder);
-        let entries = archive.entries()?;
-
-        for entry in entries.into_iter() {
-            let entry = entry?;
-
-            // skip directories
-            if entry.header().entry_type().is_dir() {
-                continue;
-            }
-
-            // skip non files
-            if !entry.header().entry_type().is_file() {
-                continue;
-            }
-
-            let path = entry.path()?;
-            dbg!(path);
-        }
-
-        Ok(())
+        err(value.status(), (value.error_code(), value.message(), value.details()))
     }
 }
-
-*/

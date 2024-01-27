@@ -15,16 +15,67 @@
 
 pub mod ldap;
 pub mod local;
-pub mod token_server;
 
 use crate::common::models::entities::User;
 use sqlx::{PgPool, Row};
+use std::fmt::Display;
+
+/// Represents an error that could've happened when authenticating via an authz [`Backend`].
+#[derive(Debug)]
+pub enum Error {
+    /// given password was not the right one
+    InvalidPassword,
+
+    /// generic [`eyre::Report`] that was generated, this indicates that
+    /// something didn't go right
+    Eyre(eyre::Report),
+
+    /// error that came through LDAP, this should never be received if the backend
+    /// is not the LDAP one.
+    Ldap(ldap3::LdapError),
+}
+
+impl Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use Error as E;
+
+        match self {
+            E::InvalidPassword => f.write_str("received incorrect password"),
+            E::Ldap(err) => Display::fmt(err, f),
+            E::Eyre(err) => Display::fmt(err, f),
+        }
+    }
+}
+
+impl std::error::Error for Error {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        use Error as E;
+
+        match self {
+            E::Eyre(e) => Some(e.as_ref()),
+            E::Ldap(e) => Some(e),
+            _ => None,
+        }
+    }
+}
+
+impl From<eyre::Report> for Error {
+    fn from(value: eyre::Report) -> Self {
+        Self::Eyre(value)
+    }
+}
+
+impl From<ldap3::LdapError> for Error {
+    fn from(value: ldap3::LdapError) -> Self {
+        Self::Ldap(value)
+    }
+}
 
 /// Represents an auth backend that allows to authenticate users.
 #[async_trait]
 pub trait Backend: Send + Sync {
     /// Authenticate a user. If it returns `()`, then authentication was a success.
-    async fn authenticate(&self, user: User) -> eyre::Result<()>;
+    async fn authenticate(&self, user: User, password: String) -> Result<(), Error>;
 
     /// Checks whenever if this is the local backend.
     fn is_local(&self) -> bool {
