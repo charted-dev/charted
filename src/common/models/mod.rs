@@ -25,6 +25,7 @@ pub mod payloads;
 
 pub type DateTime = chrono::DateTime<chrono::Local>;
 
+use super::ID;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 use utoipa::{
@@ -33,11 +34,9 @@ use utoipa::{
 };
 use validator::Validate;
 
-use super::ID;
-
 /// Represents a union enum that can hold a Snowflake ([u64]-based integer)
 /// and a Name, which is a String that is validated with the Name regex.
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 #[serde(untagged)]
 pub enum NameOrSnowflake {
     /// [u64]-based integer that can point to a entity resource.

@@ -119,28 +119,37 @@ impl AvatarsModule {
         res.bytes().await.context("unable to get bytes from request").map(Some)
     }
 
-    #[instrument(name = "charted.avatars.get", skip(self, entity, hash))]
+    #[instrument(name = "charted.avatars.get", skip_all)]
     async fn entity<E: AsRef<str>, I: Into<String>>(
         &self,
         entity: E,
+        ty: impl AsRef<str>,
         id: u64,
         hash: Option<I>,
     ) -> eyre::Result<Option<Bytes>> {
         let entity = entity.as_ref();
+        let ty = ty.as_ref();
         let hash = match hash {
             Some(i) => i.into(),
             None => String::from("current.png"),
         };
 
         self.storage
-            .open(format!("./avatars/{}/{id}/{hash}", entity))
+            .open(format!("./{ty}/{entity}/{id}/{hash}"))
             .await
             .context(format!("unable to open file [./avatars/{}/{id}/{hash}", entity))
     }
 
-    #[instrument(name = "charted.avatars.upload", skip(self, entity, data))]
-    async fn upload<E: AsRef<str>>(&self, entity: E, id: u64, data: Bytes) -> eyre::Result<String> {
+    #[instrument(name = "charted.avatars.upload", skip_all)]
+    async fn upload<E: AsRef<str>>(
+        &self,
+        entity: E,
+        ty: impl AsRef<str>,
+        id: u64,
+        data: Bytes,
+    ) -> eyre::Result<String> {
         let entity = entity.as_ref();
+        let ty = ty.as_ref();
         let content_type = default_resolver(&data);
 
         let mut already_found = false;
@@ -165,7 +174,7 @@ impl AvatarsModule {
         self.storage
             .upload(
                 format!(
-                    "./avatars/{entity}/{id}/{hash}.{}",
+                    "./{ty}/{entity}/{id}/{hash}.{}",
                     match content_type.as_str() {
                         "image/png" => "png",
                         "image/jpeg" => "jpg",
@@ -183,31 +192,31 @@ impl AvatarsModule {
 
     /// Retrieve a user's avatar and returns the [`Bytes`] of it.
     pub async fn user<H: Into<String>>(&self, uid: u64, hash: Option<H>) -> eyre::Result<Option<Bytes>> {
-        self.entity("users", uid, hash).await
+        self.entity("users", "avatars", uid, hash).await
     }
 
     /// Retrieve a repository icon and returns the [`Bytes`] of it.
     pub async fn repository<H: Into<String>>(&self, uid: u64, hash: Option<H>) -> eyre::Result<Option<Bytes>> {
-        self.entity("repositories", uid, hash).await
+        self.entity("repositories", "icons", uid, hash).await
     }
 
     /// Retrieve a organization's avatar and returns the [`Bytes`] of it.
     pub async fn organization<H: Into<String>>(&self, uid: u64, hash: Option<H>) -> eyre::Result<Option<Bytes>> {
-        self.entity("organizations", uid, hash).await
+        self.entity("organizations", "avatars", uid, hash).await
     }
 
     /// Uploads a user's avatar
     pub async fn upload_user_avatar(&self, id: u64, data: Bytes) -> eyre::Result<String> {
-        self.upload("users", id, data).await
+        self.upload("users", "avatars", id, data).await
     }
 
     /// Uploads a organization's avatar
     pub async fn upload_organization_avatar(&self, id: u64, data: Bytes) -> eyre::Result<String> {
-        self.upload("organizations", id, data).await
+        self.upload("organizations", "avatars", id, data).await
     }
 
     /// Uploads a repository icon
     pub async fn upload_repo_icon(&self, id: u64, data: Bytes) -> eyre::Result<String> {
-        self.upload("repositories", id, data).await
+        self.upload("repositories", "icons", id, data).await
     }
 }

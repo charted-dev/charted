@@ -13,7 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+pub mod ldap;
 pub mod local;
+pub mod token_server;
 
 use crate::common::models::entities::User;
 use sqlx::{PgPool, Row};

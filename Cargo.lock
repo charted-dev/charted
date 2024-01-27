@@ -1216,7 +1216,7 @@ dependencies = [
  "utoipa",
  "uuid",
  "validator",
- "which 5.0.0",
+ "which 6.0.0",
 ]
 
 [[package]]
@@ -1272,7 +1272,7 @@ dependencies = [
  "tracing-log",
  "tracing-subscriber",
  "url",
- "which 5.0.0",
+ "which 6.0.0",
 ]
 
 [[package]]
@@ -6288,6 +6288,19 @@ dependencies = [
  "once_cell",
  "rustix",
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "which"
+version = "6.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7fa5e0c10bf77f44aac573e498d1a82d5fbd5e91f6fc0a99e7be4b38e85e101c"
+dependencies = [
+ "either",
+ "home",
+ "once_cell",
+ "rustix",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]

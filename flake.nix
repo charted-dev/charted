@@ -99,64 +99,11 @@
         default = packages.charted;
       };
 
-      # packages = {
-      #   charted = charted-cli;
-      #   helm-plugin = charted-helm-plugin;
-      #   all = pkgs.symlinkJoin {
-      #     name = "charted";
-      #     paths = [charted-cli charted-helm-plugin];
-      #   };
-
-      #   default = packages.all;
-      # };
-
-      # craneLib = crane.lib.${system};
-      # commonCraneArgs = {
-      #   src = craneLib.cleanCargoSource (craneLib.path ./.);
-      #   buildInputs = with pkgs; [openssl];
-      #   nativeBuildInputs = with pkgs; [pkg-config];
-      # };
-
-      # commonRustPlatformArgs = {
-      #   version = "0.1.0-beta";
-      #   src = ./.;
-      #   cargoBuildFlags = "-C lto=true -C opt-level=s -C strip=symbols";
-      #   cargoLock = {lockFile = ./Cargo.lock;};
-      # };
-
-      # dependencies = craneLib.buildDepsOnly (commonCraneArgs
-      #   // {
-      #     pname = "charted-deps";
-      #   });
-
-      # clippy = craneLib.cargoClippy (commonCraneArgs
-      #   // {
-      #     inherit dependencies;
-
-      #     pname = "charted-clippy";
-      #   });
-
-      # charted-cli = pkgs.rustPlatform.buildRustPackage (commonRustPlatformArgs
-      #   // {
-      #     pname = "charted";
-
-      #     nativeBuildInputs = with pkgs; [pkg-config];
-      #     PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
-      #   });
-
-      # charted-helm-plugin = pkgs.rustPlatform.buildRustPackage (commonRustPlatformArgs
-      #   // {
-      #     pname = "charted-helm-plugin";
-
-      #     nativeBuildInputs = with pkgs; [pkg-config];
-      #     PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
-      #   });
-
       devShells.default = pkgs.mkShell {
         LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath (with pkgs; [openssl]);
         nativeBuildInputs = with pkgs;
           [pkg-config]
-          ++ (lib.optional stdenv.isLinux [mold])
+          ++ (lib.optional stdenv.isLinux [mold lldb])
           ++ (lib.optional stdenv.isDarwin [darwin.apple_sdk.frameworks.CoreFoundation]);
 
         buildInputs = with pkgs; [

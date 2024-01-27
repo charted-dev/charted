@@ -26,7 +26,7 @@ proc-macro = true
 
 [dependencies]
 heck = "0.4.1"
-proc-macro2 = "1.0.76"
+proc-macro2 = "1.0.78"
 quote = "1.0.35"
 syn = "2.0.48"
 utoipa = "4.2.0"

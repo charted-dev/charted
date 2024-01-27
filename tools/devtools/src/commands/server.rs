@@ -53,7 +53,8 @@ impl Execute for Cmd {
                 "RUSTFLAGS",
                 rustflags.iter().map(|x| x.to_string_lossy().to_string()).join(" "),
             )
-            .env("CHARTED_DISTRIBUTION_KIND", "git");
+            .env("CHARTED_DISTRIBUTION_KIND", "git")
+            .env("RUST_BACKTRACE", "full");
 
             cmd.args(["--", "server"]);
 
