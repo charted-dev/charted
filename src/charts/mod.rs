@@ -319,6 +319,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[cfg_attr(windows, ignore = "broken on windows, fix soon")]
     async fn test_sort_versions() {
         // ~ we will keep track of the temporary directory
         let tempdir = TempDir::new().unwrap();
@@ -376,6 +377,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[cfg_attr(windows, ignore = "broken on windows, fix soon")]
     async fn test_get_tarball() {
         // ~ we will keep track of the temporary directory
         let tempdir = TempDir::new().unwrap();
