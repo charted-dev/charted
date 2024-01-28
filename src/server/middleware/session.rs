@@ -268,30 +268,29 @@ impl AsyncAuthorizeRequest<Body> for Middleware {
 
         Box::pin(
             async move {
-                let header = req.extract_parts::<TypedHeader<Authorization>>().await.map_err(|e| {
-                    error!(error = %e, "unable to extract `Authorization` header");
+                let header = match req.extract_parts::<TypedHeader<Authorization>>().await {
+                    Ok(header) => header,
+                    Err(e) => {
+                        error!(error = %e, "unable to extract `Authorization` header");
+                        match e.reason() {
+                            TypedHeaderRejectionReason::Missing if allow_unauth_requests => return Ok(req),
+                            TypedHeaderRejectionReason::Missing => return Err(Error::MissingHeader.into_response()),
+                            TypedHeaderRejectionReason::Error(e) => {
+                                sentry::capture_error(&e);
+                                return Err(err(
+                                    StatusCode::NOT_ACCEPTABLE,
+                                    (
+                                        ErrorCode::InvalidHttpHeader,
+                                        "received an invalid `Authorization` header",
+                                    ),
+                                )
+                                .into_response());
+                            }
 
-                    match e.reason() {
-                        TypedHeaderRejectionReason::Missing => Error::MissingHeader.into_response(),
-                        TypedHeaderRejectionReason::Error(e) => {
-                            sentry::capture_error(&e);
-                            err(
-                                StatusCode::NOT_ACCEPTABLE,
-                                (
-                                    ErrorCode::InvalidHttpHeader,
-                                    "received an invalid `Authorization` header",
-                                ),
-                            )
-                            .into_response()
+                            _ => unreachable!(),
                         }
-
-                        _ => unreachable!(),
                     }
-                })?;
-
-                if header.is_empty() && allow_unauth_requests {
-                    return Ok(req);
-                }
+                };
 
                 let (ty, token) = header.get().map_err(IntoResponse::into_response)?;
                 let instance = Instance::get();

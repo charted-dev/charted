@@ -65,7 +65,10 @@ static COMPONENTS: Lazy<Components> = lazy!(ComponentsBuilder::new()
         datetime()
     ])
     .responses_from_iter([
+        crate::server::routing::v1::user::sessions::SessionResponse::response(),
+        crate::server::routing::v1::repository::RepositoryResponse::response(),
         crate::server::routing::v1::features::FeaturesResponse::response(),
+        crate::server::routing::v1::user::UserResponse::response(),
         crate::server::routing::v1::EntrypointResponse::response(),
         crate::server::routing::v1::info::InfoResponse::response(),
         crate::server::routing::v1::main::MainResponse::response(),
@@ -89,14 +92,17 @@ impl Document {
     pub fn v1() -> Paths {
         add_paths! {
             Document::format(APIVersion::V1, "/users/{idOrName}/avatar/{hash}") => crate::server::routing::v1::user::avatars::GetUserAvatarByHashRestController::paths();
+            Document::format(APIVersion::V1, "/users/{idOrName}/repositories") => crate::server::routing::v1::user::repositories::ListUserRepositoriesRestController::paths();
             Document::format(APIVersion::V1, "/users/{idOrName}/avatar") => crate::server::routing::v1::user::avatars::GetCurrentUserAvatarRestController::paths();
+            Document::format(APIVersion::V1, "/users/{idOrName}") => crate::server::routing::v1::user::GetUserRestController::paths();
+
             Document::format(APIVersion::V1, "/users/@me/avatar/{hash}") => crate::server::routing::v1::user::avatars::GetSelfUserAvatarByHashRestController::paths();
             Document::format(APIVersion::V1, "/users/@me/avatar") => [
                 crate::server::routing::v1::user::avatars::GetSelfUserAvatarRestController::paths(),
                 crate::server::routing::v1::user::avatars::UploadAvatarRestController::paths()
             ];
 
-            Document::format(APIVersion::V1, "/users/{idOrName}") => crate::server::routing::v1::user::GetUserRestController::paths();
+            Document::format(APIVersion::V1, "/users/@me/repositories") => crate::server::routing::v1::user::repositories::CreateUserRepositoryRestController::paths();
             Document::format(APIVersion::V1, "/users/@me") => crate::server::routing::v1::user::GetSelfRestController::paths();
             Document::format(APIVersion::V1, "/users") => [
                 crate::server::routing::v1::user::DeleteSelfRestController::paths(),
@@ -117,14 +123,17 @@ impl Document {
     pub fn latest() -> Paths {
         add_paths! {
             "/users/{idOrName}/avatar/{hash}" => crate::server::routing::v1::user::avatars::GetUserAvatarByHashRestController::paths();
+            "/users/{idOrName}/repositories" => crate::server::routing::v1::user::repositories::ListUserRepositoriesRestController::paths();
             "/users/{idOrName}/avatar" => crate::server::routing::v1::user::avatars::GetCurrentUserAvatarRestController::paths();
+            "/users/{idOrName}" => crate::server::routing::v1::user::GetUserRestController::paths();
+
             "/users/@me/avatar/{hash}" => crate::server::routing::v1::user::avatars::GetSelfUserAvatarByHashRestController::paths();
             "/users/@me/avatar" => [
                 crate::server::routing::v1::user::avatars::GetSelfUserAvatarRestController::paths(),
                 crate::server::routing::v1::user::avatars::UploadAvatarRestController::paths()
             ];
 
-            "/users/{idOrName}" => crate::server::routing::v1::user::GetUserRestController::paths();
+            "/users/@me/repositories" => crate::server::routing::v1::user::repositories::CreateUserRepositoryRestController::paths();
             "/users/@me" => crate::server::routing::v1::user::GetSelfRestController::paths();
             "/users" => [
                 crate::server::routing::v1::user::DeleteSelfRestController::paths(),

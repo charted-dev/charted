@@ -87,6 +87,12 @@ macro_rules! impl_paginate_priv {
                 query.push_bind(i64::try_from(owner_id).unwrap());
                 query.push(" ");
 
+                if request.list_private_stuff {
+                    query.push(" and repositories.private = true ");
+                } else {
+                    query.push(" and repositories.private = false ");
+                }
+
                 match request.order_by {
                     $crate::server::pagination::OrderBy::Ascending => query.push("order by id ASC "),
                     $crate::server::pagination::OrderBy::Descending => query.push("order by id DESC "),
@@ -150,6 +156,12 @@ macro_rules! impl_paginate_priv {
                 query.push("organizations.owner = ");
                 query.push_bind(i64::try_from(owner_id).unwrap());
                 query.push(" ");
+
+                if request.list_private_stuff {
+                    query.push(" and organizations.private = true ");
+                } else {
+                    query.push(" and organizations.private = false ");
+                }
 
                 match request.order_by {
                     ::crate::server::pagination::OrderBy::Ascending => query.push("order by id ASC "),

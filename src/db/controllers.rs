@@ -41,11 +41,15 @@ pub struct PaginationRequest {
 
     /// Owner ID to collect, if from `repositories` or `organizations`.
     pub owner_id: Option<u64>,
+
+    /// whether or not if private repositories/organizations can be sent or not
+    pub list_private_stuff: bool,
 }
 
 impl From<PaginationQuery> for PaginationRequest {
     fn from(value: PaginationQuery) -> Self {
         Self {
+            list_private_stuff: false,
             per_page: value.per_page,
             order_by: value.order,
             owner_id: None,

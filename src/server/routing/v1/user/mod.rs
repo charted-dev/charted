@@ -17,6 +17,10 @@ pub mod avatars;
 pub mod repositories;
 pub mod sessions;
 
+use self::avatars::{
+    GetCurrentUserAvatarRestController, GetSelfUserAvatarByHashRestController, GetSelfUserAvatarRestController,
+    GetUserAvatarByHashRestController, UploadAvatarRestController,
+};
 use crate::{
     common::models::{
         entities::{ApiKeyScope, ApiKeyScopes, User},
@@ -51,11 +55,6 @@ use serde_json::json;
 use tower_http::auth::AsyncRequireAuthorizationLayer;
 use validator::Validate;
 
-use self::avatars::{
-    GetCurrentUserAvatarRestController, GetSelfUserAvatarByHashRestController, GetSelfUserAvatarRestController,
-    GetUserAvatarByHashRestController, UploadAvatarRestController,
-};
-
 pub struct UserResponse;
 generate_response_schema!(UserResponse, schema = "User");
 
@@ -63,7 +62,16 @@ pub fn create_router() -> Router<Instance> {
     let nos = Router::new()
         .route("/", routing::get(GetUserRestController::run))
         .route("/avatar", routing::get(GetCurrentUserAvatarRestController::run))
-        .route("/avatar/:hash", routing::get(GetUserAvatarByHashRestController::run));
+        .route("/avatar/:hash", routing::get(GetUserAvatarByHashRestController::run))
+        .route(
+            "/repositories",
+            routing::get(repositories::ListUserRepositoriesRestController::run.layer(
+                AsyncRequireAuthorizationLayer::new(Middleware {
+                    allow_unauthenticated_requests: true,
+                    ..Default::default()
+                }),
+            )),
+        );
 
     let me = Router::new()
         .route(
@@ -107,6 +115,15 @@ pub fn create_router() -> Router<Instance> {
                 sessions::RefreshSessionTokenRestController::run
                     .layer(AsyncRequireAuthorizationLayer::new(Middleware::default())),
             ),
+        )
+        .route(
+            "/repositories",
+            routing::put(repositories::CreateUserRepositoryRestController::run.layer(
+                AsyncRequireAuthorizationLayer::new(Middleware {
+                    scopes: ApiKeyScopes::with_iter([ApiKeyScope::RepoCreate]),
+                    ..Default::default()
+                }),
+            )),
         );
 
     Router::new()

@@ -13,6 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+pub mod admin;
+pub mod apikey;
 pub mod cdn;
 pub mod features;
 pub mod heartbeat;
@@ -21,6 +23,8 @@ pub mod info;
 pub mod main;
 pub mod metrics;
 pub mod openapi;
+pub mod organization;
+pub mod repository;
 pub mod user;
 
 use crate::{
