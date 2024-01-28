@@ -14,19 +14,8 @@
 // limitations under the License.
 
 use crate::{
-    auth,
-    avatars::AvatarsModule,
-    caching::{inmemory::InMemoryCache, redis::RedisCache, CacheWorker},
-    charts,
-    cli::AsyncExecute,
-    common::{
-        models::entities::{Repository, User},
-        Snowflake,
-    },
-    config::{caching, Config},
-    db, redis,
-    server::Hoshi,
-    Instance,
+    auth, avatars::AvatarsModule, charts, cli::AsyncExecute, common::Snowflake, config::Config, db, redis,
+    server::Hoshi, Instance,
 };
 use axum::{
     extract::Host,
@@ -192,26 +181,11 @@ impl AsyncExecute for Cmd {
 
         let controllers = db::controllers::Controllers {
             repositories: db::controllers::repository::DbController::new(
-                match config.database.caching {
-                    caching::Config::InMemory(ref inmem) => {
-                        Box::new(InMemoryCache::new(inmem.clone())) as Box<dyn CacheWorker<Repository>>
-                    }
-                    caching::Config::Redis(ref cfg) => {
-                        Box::new(RedisCache::new(redis.clone(), cfg.clone())) as Box<dyn CacheWorker<Repository>>
-                    }
-                },
+                crate::caching::choose_strategy(&config.database.caching, &redis),
                 pool.clone(),
             ),
-
             users: db::controllers::user::DbController::new(
-                match config.database.caching {
-                    caching::Config::InMemory(ref inmem) => {
-                        Box::new(InMemoryCache::new(inmem.clone())) as Box<dyn CacheWorker<User>>
-                    }
-                    caching::Config::Redis(ref cfg) => {
-                        Box::new(RedisCache::new(redis.clone(), cfg.clone())) as Box<dyn CacheWorker<User>>
-                    }
-                },
+                crate::caching::choose_strategy(&config.database.caching, &redis),
                 pool.clone(),
             ),
         };

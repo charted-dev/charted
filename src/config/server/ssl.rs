@@ -13,12 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::TRUTHY_REGEX;
 use eyre::Context;
 use noelware_config::{env, merge::Merge, TryFromEnv};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
-
-use crate::TRUTHY_REGEX;
 
 #[derive(Debug, Clone, Merge, Serialize, Deserialize)]
 pub struct Config {

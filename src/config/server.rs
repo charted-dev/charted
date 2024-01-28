@@ -16,11 +16,10 @@
 pub mod ratelimits;
 pub mod ssl;
 
+use crate::TRUTHY_REGEX;
 use noelware_config::{env, merge::Merge, TryFromEnv};
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
-
-use crate::TRUTHY_REGEX;
 
 #[derive(Debug, Clone, Merge, Serialize, Deserialize)]
 pub struct Config {
@@ -33,7 +32,7 @@ pub struct Config {
     pub port: u16,
 
     /// Configures the use of HTTPS on the server.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub ssl: Option<ssl::Config>,
 }
 

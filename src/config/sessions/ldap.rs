@@ -39,7 +39,7 @@ pub struct Config {
     pub schedule_user_updates: bool,
 
     /// Timeout on when the connection should be dropped due to not being responsive.
-    #[serde(default)]
+    #[serde(default = "__default_duration")]
     #[merge(strategy = __duration_strategy)]
     pub conn_timeout: Duration,
 
@@ -72,6 +72,7 @@ pub struct Config {
 
     /// LDAP server to connect to.
     #[serde(default = "__default_ldap_server")]
+    #[merge(strategy = __ldap_host_strategy)]
     pub host: String,
 }
 
@@ -189,7 +190,7 @@ fn __default_filter_query() -> String {
 }
 
 fn __default_ldap_server() -> String {
-    String::from("http://localhost:389")
+    String::from("ldap://localhost:389")
 }
 
 fn __default_duration() -> Duration {
@@ -220,3 +221,14 @@ fn __duration_strategy(first: &mut Duration, other: Duration) {
     // otherwise, do update it
     *first = other;
 }
+
+crate::config::merge_strat_where_def_is_discarded!(
+    __ldap_host_strategy: String,
+    __default_ldap_server().as_str(),
+    |first, other| {
+        dbg!(first.clone());
+        dbg!(other.clone());
+
+        <String as noelware_config::merge::Merge>::merge(first, other)
+    }
+);

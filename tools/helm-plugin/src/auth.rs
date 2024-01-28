@@ -20,7 +20,7 @@ use url::Url;
 /// Represents the authentication type on how we should authenticate
 /// to a charted-server instance.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-#[serde(untagged, rename_all = "camelCase")]
+#[serde(rename_all = "camelCase")]
 pub enum Type {
     /// Refers to a session token (and refresh token) to do authentication.
     Session { refresh: Option<String>, access: String },

@@ -30,7 +30,6 @@ pub struct Config {
 
     /// [`Backend`] to use for authenticating users.
     #[serde(default, with = "serde_yaml::with::singleton_map")]
-    #[merge(skip)]
     pub backend: Backend,
 }
 
@@ -51,7 +50,7 @@ impl TryFromEnv for Config {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-#[serde(untagged, rename_all = "camelCase")]
+#[serde(rename_all = "camelCase")]
 pub enum Backend {
     /// Uses a list of htpasswd files to define user:password hashes. This will not provide
     /// a `password` field when creating users or when creating users in the db.
@@ -71,12 +70,25 @@ pub enum Backend {
 
 impl Merge for Backend {
     fn merge(&mut self, other: Self) {
-        match (self, other) {
-            (Self::Htpasswd(htpasswd), Self::Htpasswd(htpasswd2)) => htpasswd.merge(htpasswd2),
-            (Self::Ldap(ldap), Self::Ldap(ldap2)) => ldap.merge(ldap2),
+        match (self.clone(), other) {
+            (Self::Htpasswd(ref mut htpasswd), Self::Htpasswd(htpasswd2)) => htpasswd.merge(htpasswd2),
+            (Self::Ldap(ref mut ldap), Self::Ldap(ldap2)) => ldap.merge(ldap2),
             (Self::Passwordless, Self::Passwordless) => {} // don't even merge
             (Self::Local, Self::Local) => {}               // don't merge anything
-            _ => {}                                        // don't do anything if no matches are available
+
+            (Self::Local, Self::Htpasswd(files)) => {
+                *self = Backend::Htpasswd(files);
+            }
+
+            (Self::Local, Self::Passwordless) => {
+                *self = Backend::Passwordless;
+            }
+
+            (Self::Local, Self::Ldap(config)) => {
+                *self = Backend::Ldap(config);
+            }
+
+            _ => {} // don't do anything if no matches are available
         }
     }
 }

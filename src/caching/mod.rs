@@ -16,6 +16,10 @@
 pub mod inmemory;
 pub mod redis;
 
+use crate::{
+    config::caching::{Config, Strategy},
+    redis::Client,
+};
 use eyre::Result;
 use serde::{de::DeserializeOwned, Serialize};
 use std::{borrow::Cow, fmt::Display, ops::Deref, time::Duration};
@@ -128,4 +132,14 @@ fn __assert_object_safe() {
     }
 
     let _: &dyn CacheWorker<()> = &SomeCacheWorker;
+}
+
+pub fn choose_strategy<Target: Serialize + DeserializeOwned + Send + Sync + 'static>(
+    config: &Config,
+    redis: &Client,
+) -> Box<dyn CacheWorker<Target>> {
+    match config.strategy {
+        Strategy::InMemory => Box::new(inmemory::InMemoryCache::new(config.clone())),
+        Strategy::Redis => Box::new(redis::RedisCache::new(redis.clone(), config.clone())),
+    }
 }

@@ -220,3 +220,19 @@ fn __generated_secret_key() -> String {
 const fn __truthy() -> bool {
     true
 }
+
+macro_rules! merge_strategy_where_default_is_discarded_impl {
+    ($name:ident: $ty:ty, $default:expr, |$first:ident, $other:ident| $code:expr) => {
+        fn $name(first: &mut $ty, other: $ty) {
+            if *first != $default && other == $default {
+                return;
+            }
+
+            let $first = first;
+            let $other = other;
+            $code
+        }
+    };
+}
+
+pub(in crate::config) use merge_strategy_where_default_is_discarded_impl as merge_strat_where_def_is_discarded;

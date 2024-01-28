@@ -24,7 +24,7 @@ use std::ops::Deref;
 pub struct InMemoryCache(Cache<CacheKey, String>);
 
 impl InMemoryCache {
-    pub fn new(config: crate::config::caching::inmemory::Config) -> InMemoryCache {
+    pub fn new(config: crate::config::caching::Config) -> InMemoryCache {
         trace!(cache.worker = "inmemory", "configuring in-memory cache worker...");
 
         InMemoryCache(

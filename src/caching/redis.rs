@@ -21,13 +21,13 @@ use serde::{de::DeserializeOwned, Serialize};
 
 /// Represents a [`CacheWorker`] that uses Redis as the backend.
 pub struct RedisCache {
-    config: config::caching::redis::Config,
+    config: config::caching::Config,
     client: crate::redis::Client,
 }
 
 impl RedisCache {
     /// Creates a new [`RedisCache`] instance.
-    pub fn new(client: crate::redis::Client, config: config::caching::redis::Config) -> RedisCache {
+    pub fn new(client: crate::redis::Client, config: config::caching::Config) -> RedisCache {
         trace!(cache.worker = "redis", "configured redis cache");
         RedisCache { config, client }
     }
