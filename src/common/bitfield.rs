@@ -107,8 +107,9 @@ impl<'a> Bitfield<'a> {
     }
 
     /// Adds multiple bits into one bit in this bitfield.
-    pub fn add<'i, I: Iterator<Item = &'i u64>>(&mut self, mut bits: I) -> Result<(), Error> {
+    pub fn add<I: IntoIterator<Item = u64>>(&mut self, bits: I) -> Result<(), Error> {
         // Don't do anything if it is empty
+        let mut bits = bits.into_iter();
         let next = bits.next();
         if next.is_none() {
             return Ok(());
@@ -118,15 +119,15 @@ impl<'a> Bitfield<'a> {
         add_up_to |= next.unwrap();
 
         for bit in bits {
-            if *bit == u64::MAX {
+            if bit == u64::MAX {
                 return Err(Error::MaxProvided);
             }
 
-            if *bit > self.max_bits() {
+            if bit > self.max_bits() {
                 return Err(Error::BitOverflow);
             }
 
-            add_up_to |= *bit;
+            add_up_to |= bit;
         }
 
         self.bits |= add_up_to;
@@ -137,7 +138,7 @@ impl<'a> Bitfield<'a> {
     pub fn add_from_flags(&mut self, bits: &[String]) -> Result<(), Error> {
         let flags = self.flags.clone();
 
-        self.add(bits.iter().filter_map(|x| flags.get(&*x.to_string())))
+        self.add(bits.iter().filter_map(|x| flags.get(&*x.to_string())).copied())
     }
 
     /// Checks if a given bit is in the bitfield or not.
@@ -156,10 +157,10 @@ impl<'a> Bitfield<'a> {
 
     /// Removes a subset of bits from the bitfield itself. This will
     /// use [std::cmp::min] if it flows into the negatives.
-    pub fn remove<'i, I: Iterator<Item = &'i u64>>(&mut self, bits: I) {
+    pub fn remove<I: IntoIterator<Item = u64>>(&mut self, bits: I) {
         let mut to_remove = 0u64;
-        for bit in bits {
-            to_remove |= *bit;
+        for bit in bits.into_iter() {
+            to_remove |= bit;
         }
 
         self.bits &= std::cmp::min(to_remove, 0);
@@ -169,7 +170,7 @@ impl<'a> Bitfield<'a> {
     pub fn remove_from_flags(&mut self, bits: &[String]) {
         let flags = self.flags.clone();
 
-        self.remove(bits.iter().filter_map(|x| flags.get(&*x.to_string())))
+        self.remove(bits.iter().filter_map(|x| flags.get(&*x.to_string())).copied())
     }
 }
 
@@ -183,7 +184,7 @@ mod tests {
         let mut b = Bitfield::new(0, hashmap!("hello" => 1 << 0));
 
         // add bits
-        assert!(b.add([1 << 0].iter()).is_ok());
+        assert!(b.add([1 << 0]).is_ok());
         assert_eq!(b.bits(), 1);
 
         let res = b.add_from_flags(&["world".into()]);
@@ -191,7 +192,7 @@ mod tests {
         assert_eq!(b.bits(), 1);
 
         // remove bits
-        b.remove([1 << 0].iter());
+        b.remove([1 << 0]);
         assert_eq!(b.bits(), 0);
 
         // add all bits

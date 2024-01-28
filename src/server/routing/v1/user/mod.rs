@@ -51,20 +51,63 @@ use serde_json::json;
 use tower_http::auth::AsyncRequireAuthorizationLayer;
 use validator::Validate;
 
+use self::avatars::{
+    GetCurrentUserAvatarRestController, GetSelfUserAvatarByHashRestController, GetSelfUserAvatarRestController,
+    GetUserAvatarByHashRestController, UploadAvatarRestController,
+};
+
 pub struct UserResponse;
 generate_response_schema!(UserResponse, schema = "User");
 
 pub fn create_router() -> Router<Instance> {
-    let nos = Router::new().route("/", routing::get(GetUserRestController::run));
-    let me = Router::new().route(
-        "/",
-        routing::get(
-            GetSelfRestController::run.layer(AsyncRequireAuthorizationLayer::new(Middleware {
-                scopes: ApiKeyScopes::init(ApiKeyScope::UserAccess.into()),
-                ..Default::default()
-            })),
-        ),
-    );
+    let nos = Router::new()
+        .route("/", routing::get(GetUserRestController::run))
+        .route("/avatar", routing::get(GetCurrentUserAvatarRestController::run))
+        .route("/avatar/:hash", routing::get(GetUserAvatarByHashRestController::run));
+
+    let me = Router::new()
+        .route(
+            "/",
+            routing::get(
+                GetSelfRestController::run.layer(AsyncRequireAuthorizationLayer::new(Middleware {
+                    scopes: ApiKeyScopes::with_iter([ApiKeyScope::UserAccess]),
+                    ..Default::default()
+                })),
+            ),
+        )
+        .route(
+            "/avatar",
+            routing::get(GetSelfUserAvatarRestController::run).post(UploadAvatarRestController::run.layer(
+                AsyncRequireAuthorizationLayer::new(Middleware {
+                    scopes: ApiKeyScopes::with_iter([ApiKeyScope::UserAvatarUpdate]),
+                    ..Default::default()
+                }),
+            )),
+        )
+        .route(
+            "/avatar/:hash",
+            routing::get(GetSelfUserAvatarByHashRestController::run),
+        )
+        .route(
+            "/login",
+            routing::post(
+                sessions::LoginRestController::run.layer(AsyncRequireAuthorizationLayer::new(Middleware::default())),
+            ),
+        )
+        .route(
+            "/sessions/logout",
+            routing::delete(
+                sessions::DestroySessionRestController::run
+                    .layer(AsyncRequireAuthorizationLayer::new(Middleware::default())),
+            ),
+        )
+        .route(
+            "/sessions/refresh",
+            routing::post(
+                sessions::RefreshSessionTokenRestController::run
+                    .layer(AsyncRequireAuthorizationLayer::new(Middleware::default())),
+            ),
+        );
 
     Router::new()
         .route(

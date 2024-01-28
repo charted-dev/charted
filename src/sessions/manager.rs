@@ -150,7 +150,7 @@ impl Manager {
     }
 
     #[instrument(name = "charted.sessions.tasks.create", skip_all)]
-    fn create_task(&mut self, id: Uuid, duration: Duration) {
+    pub fn create_task(&mut self, id: Uuid, duration: Duration) {
         debug!(session.id = %id, ?duration, "spawning Tokio task for session");
 
         let mut redis = self.redis.clone();
