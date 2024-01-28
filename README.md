@@ -1,5 +1,6 @@
 # 🐻‍❄️📦 charted-server
-> *Free, open sourced, and reliable [Helm](https://helm.sh) chart registry in [Rust](https://rustlang.org)*
+
+> _Free, open sourced, and reliable [Helm](https://helm.sh) chart registry in [Rust](https://rustlang.org)_
 >
 > [<kbd>v0.1-beta</kbd>](https://github.com/charted-dev/charted/releases/0.1.0-beta) **|** [:scroll: **Documentation**](#)
 
@@ -11,17 +12,20 @@
 [our official instance](https://charts.noelware.org)!
 
 ## Getting started
+
 As **charted-server** is being prepared for a beta release, we do not have an official "getting started" guide yet.
 
 ## Installation
+
 ### Locally from source
+
 To build charted-server from the canonical Git repository, you are required to have the following tools:
 
-* [protoc](https://protobuf.dev)
-* [Rust](https://rust-lang.org)
-* [Git](https://git-scm.com)
-* 20GB of storage
-* 2GB of system RAM
+-   [protoc](https://protobuf.dev)
+-   [Rust](https://rust-lang.org)
+-   [Git](https://git-scm.com)
+-   20GB of storage
+-   2GB of system RAM
 
 To clone the repository, you can use the `git pull` command:
 
@@ -52,14 +56,17 @@ $ ./dev server
 ```
 
 ## FAQ
+
 ### :question: Can I use `cargo install` from the Git repository?
+
 Yes! To do so, you can use the following commands:
 
-* [charted CLI](https://charts.noelware.org/docs/cli/latest): `cargo install https://github.com/charted-dev/charted charted-cli`
-* [charted Helm plugin](https://charts.noelware.org/docs/helm-plugin/latest): `cargo install https://github.com/charted-dev/charted charted-helm-plugin`
+-   [charted CLI](https://charts.noelware.org/docs/cli/latest): `cargo install https://github.com/charted-dev/charted`
+-   [charted Helm plugin](https://charts.noelware.org/docs/helm-plugin/latest): `cargo install https://github.com/charted-dev/charted charted-helm-plugin`
 
 We don't recommend installing `charted-devtools` as it is an internal tool.
 
 ## License
+
 **charted-server** is released under the **Apache 2.0** License with love by Noelware, LLC.! If you wish to know more,
 you can read the [LICENSE](./LICENSE) file for more information
