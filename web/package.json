@@ -72,7 +72,7 @@
         "jsdom": "23.0.1",
         "prettier": "3.2.2",
         "typescript": "5.3.3",
-        "unplugin-auto-import": "0.17.3",
+        "unplugin-auto-import": "0.17.5",
         "unplugin-fluent-vue": "1.1.4",
         "unplugin-vue-components": "0.26.0",
         "unplugin-vue-router": "0.7.0",
