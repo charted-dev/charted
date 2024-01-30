@@ -45,7 +45,7 @@ charted-server-proc-macro = { version = "0.0.0-devel.0", path = "proc-macro" }
 charted-sessions = { version = "0.0.0-devel.0", path = "../crates/sessions" }
 charted-sessions-local = { version = "0.0.0-devel.0", path = "../crates/sessions/local" }
 charted-storage = { version = "0.0.0-devel.0", path = "../crates/storage" }
-chrono = "0.4.31"
+chrono = "0.4.33"
 erased-serde = "0.4.1"
 eyre = "0.6.11"
 futures-util = "0.3.30"
