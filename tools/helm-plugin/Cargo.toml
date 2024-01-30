@@ -26,7 +26,7 @@ ansi_term = "0.12.1"
 async-trait = "0.1.77"
 chrono = "0.4.33"
 clap = { version = "4.4.18", features = ["derive", "env"] }
-clap_complete = "4.4.5"
+clap_complete = "4.4.9"
 charted-common = { path = "../../crates/common", version = "0.0.0-devel.0" }
 charted-logging = { version = "0.0.0-devel.0", path = "../../crates/logging" }
 color-eyre = { version = "0.6.2", features = ["issue-url", "track-caller"] }
