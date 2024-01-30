@@ -101,15 +101,15 @@ pub trait CacheWorker<Target: Serialize + DeserializeOwned>: Send + Sync {
 #[async_trait]
 impl<Target: Serialize + DeserializeOwned + Send + Sync> CacheWorker<Target> for Box<dyn CacheWorker<Target>> {
     async fn get(&mut self, key: CacheKey) -> Result<Option<Target>> {
-        self.get(key).await
+        (**self).get(key).await
     }
 
     async fn put(&mut self, key: CacheKey, obj: Target) -> Result<()> {
-        self.put(key, obj).await
+        (**self).put(key, obj).await
     }
 
     async fn delete(&mut self, key: CacheKey) -> Result<()> {
-        self.delete(key).await
+        (**self).delete(key).await
     }
 }
 

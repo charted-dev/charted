@@ -22,6 +22,7 @@ use serde::{Deserialize, Serialize};
 use ubyte::ByteUnit;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum Strategy {
     /// Uses the internal in-memory cache worker. All objects that are put into the cache
     /// are destroyed after the server closes. This is not recommended for production
@@ -33,6 +34,22 @@ pub enum Strategy {
     /// are cached as long they exist in the database, a job worker is created to clean up old
     /// objects every ~15 minutes to not bloat up Redis.
     Redis,
+}
+
+impl Merge for Strategy {
+    fn merge(&mut self, other: Self) {
+        match (self.clone(), other) {
+            (Self::InMemory, Self::InMemory) => {}
+            (Self::Redis, Self::Redis) => {}
+            (Self::InMemory, Self::Redis) => {
+                *self = Strategy::Redis;
+            }
+
+            (Self::Redis, Self::InMemory) => {
+                *self = Strategy::InMemory;
+            }
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -91,6 +108,7 @@ impl TryFromEnv for Config {
 
 impl Merge for Config {
     fn merge(&mut self, other: Self) {
+        self.strategy.merge(other.strategy);
         self.ttl.merge(other.ttl);
 
         // don't do anything if they are the same

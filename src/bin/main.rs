@@ -17,13 +17,12 @@ use charted::cli::{commands::Cmd, AsyncExecute, Program};
 use clap::Parser;
 use color_eyre::config::HookBuilder;
 use eyre::Result;
-use mimalloc::MiMalloc;
 use noelware_config::env;
 use std::cmp;
 use tokio::runtime::Builder;
 
-#[global_allocator]
-static GLOBAL: MiMalloc = MiMalloc;
+// #[global_allocator]
+// static GLOBAL: MiMalloc = MiMalloc;
 
 // When `charted server` is invoked, you can specify a `CHARTED_RUNTIME_WORKERS` environment
 // variable for Tokio to use a multi-threaded scheduler.

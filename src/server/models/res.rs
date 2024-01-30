@@ -144,6 +144,10 @@ pub enum ErrorCode {
     /// received an invalid type that was expected
     InvalidType,
 
+    /// generic bad request error, the message gives more context on why it is considered
+    /// a bad request.
+    BadRequest,
+
     // ~ SESSIONS
     /// received JWT claim was not found or was invalid
     InvalidJwtClaim,

@@ -37,7 +37,7 @@ impl Client {
     pub fn new(config: &crate::config::redis::Config) -> Result<Client> {
         if config.hosts.is_empty() {
             warn!("received no redis hosts, using default connection info [redis://localhost:6379]");
-            let client = RedisClient::open("redis://loclahost:6379")
+            let client = RedisClient::open("redis://localhost:6379")
                 .context("used default Redis connection info (redis://localhost:6379)")?;
 
             return Ok(Client {

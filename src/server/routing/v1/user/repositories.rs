@@ -14,11 +14,11 @@
 // limitations under the License.
 
 use crate::{
-    common::models::{entities::Repository, payloads::CreateRepositoryPayload, NameOrSnowflake},
+    common::models::{entities::Repository, payloads::CreateRepositoryPayload},
     db::controllers::{DbController, PaginationRequest},
     server::{
         controller,
-        extract::Json,
+        extract::{Json, NameOrSnowflake},
         middleware::session::Session,
         models::res::{err, internal_server_error, ok, ErrorCode, Result},
         pagination::{Pagination, PaginationQuery},
@@ -27,7 +27,7 @@ use crate::{
     Instance,
 };
 use axum::{
-    extract::{Path, Query, State},
+    extract::{Query, State},
     http::StatusCode,
     Extension,
 };
@@ -48,7 +48,7 @@ use validator::Validate;
 )]
 pub async fn list_user_repositories(
     State(Instance { controllers, .. }): State<Instance>,
-    Path(nos): Path<NameOrSnowflake>,
+    NameOrSnowflake(nos): NameOrSnowflake,
     Query(PaginationQuery {
         mut per_page,
         cursor,

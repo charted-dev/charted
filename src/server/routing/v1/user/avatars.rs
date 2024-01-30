@@ -50,7 +50,7 @@ pub async fn get_current_user_avatar(
     State(Instance {
         controllers, avatars, ..
     }): State<Instance>,
-    Path(nos): Path<NameOrSnowflake>,
+    crate::server::extract::NameOrSnowflake(nos): crate::server::extract::NameOrSnowflake,
 ) -> std::result::Result<impl IntoResponse, ApiResponse> {
     validate(&nos, NameOrSnowflake::validate)?;
     match controllers.users.get_by(&nos).await {
@@ -80,7 +80,7 @@ pub async fn get_user_avatar_by_hash(
     State(Instance {
         controllers, avatars, ..
     }): State<Instance>,
-    Path(nos): Path<NameOrSnowflake>,
+    crate::server::extract::NameOrSnowflake(nos): crate::server::extract::NameOrSnowflake,
     Path(hash): Path<String>,
 ) -> std::result::Result<impl IntoResponse, ApiResponse> {
     validate(&nos, NameOrSnowflake::validate)?;

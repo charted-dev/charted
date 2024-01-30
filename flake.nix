@@ -103,7 +103,7 @@
         LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath (with pkgs; [openssl]);
         nativeBuildInputs = with pkgs;
           [pkg-config]
-          ++ (lib.optional stdenv.isLinux [mold lldb])
+          ++ (lib.optional stdenv.isLinux [mold lldb gdb])
           ++ (lib.optional stdenv.isDarwin [darwin.apple_sdk.frameworks.CoreFoundation]);
 
         buildInputs = with pkgs; [

@@ -41,8 +41,12 @@ impl<'a, Target: Serialize + DeserializeOwned + Send + Sync + 'a> CacheWorker<Ta
         let client = self.client.replica()?;
         let mut conn = client.get_async_connection().await?;
 
-        match conn.get::<_, Option<String>>(key).await {
-            Ok(Some(data)) => Ok(Some(serde_json::from_str::<Target>(&data)?)),
+        match conn.get::<_, Option<String>>(&key).await {
+            Ok(Some(data)) => {
+                info!(cache.key = key, "cache hit successful");
+                Ok(Some(serde_json::from_str::<Target>(&data)?))
+            }
+
             Ok(None) => Ok(None),
             Err(e) => Err(e.into()),
         }

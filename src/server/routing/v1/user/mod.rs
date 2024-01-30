@@ -43,12 +43,7 @@ use crate::{
     },
     Instance, VERSION,
 };
-use axum::{
-    extract::{Path, State},
-    handler::Handler,
-    http::StatusCode,
-    routing, Extension, Router,
-};
+use axum::{extract::State, handler::Handler, http::StatusCode, routing, Extension, Router};
 use chrono::Local;
 use remi::{Bytes, StorageService, UploadRequest};
 use serde_json::json;
@@ -311,7 +306,7 @@ pub async fn create_user(
 )]
 pub async fn get_user(
     State(Instance { controllers, .. }): State<Instance>,
-    Path(nos): Path<NameOrSnowflake>,
+    crate::server::extract::NameOrSnowflake(nos): crate::server::extract::NameOrSnowflake,
 ) -> Result<User> {
     validate(&nos, NameOrSnowflake::validate)?;
     match controllers.users.get_by(&nos).await {
