@@ -35,9 +35,30 @@ const { version, gitCommit } = useRuntimeConfig();
                 />
 
                 <div class="flex-grow" />
-                <span class="font-mono leading-3 text-2xl my-auto ml-2">charted</span>
+                <div class="grid grid-cols-3 gap-2">
+                    <span>hewo</span>
+                    <span>hewo</span>
+                    <DropdownMenuRoot v-model:open="isUserListOpen">
+                        <DropdownMenuTrigger
+                            class="rounded-lg w-[32px] h-[32px] inline-flex items-center justify-center"
+                        >
+                            <img
+                                alt="@noel's avatar"
+                                src="https://cdn.floofy.dev/images/August.png"
+                                draggable="false"
+                                class="rounded-lg w-[32px] h-[32px]"
+                            />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuPortal>
+                            <DropdownMenuContent
+                                class="min-w-[220px] outline-none bg-gray-950 rounded-md p-[5px] shadow-[0px_10px_38px_-10px_rgba(22,_23,_24,_0.35),_0px_10px_20px_-15px_rgba(22,_23,_24,_0.2)] will-change-[opacity,transform] data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade"
+                            >
+                                weow
+                            </DropdownMenuContent>
+                        </DropdownMenuPortal>
+                    </DropdownMenuRoot>
+                </div>
             </div>
-
             <nav class="flex flex-1 flex-col">
                 <ul role="list" class="relative flex flex-col gap-y-7">
                     <li>

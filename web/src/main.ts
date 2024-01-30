@@ -17,12 +17,17 @@
 
 import type { ModuleInstall } from '~/env';
 import { Stopwatch } from '@noelware/utils';
+import router from '~/router';
 import App from './App.vue';
 
 import '~/styles/global.css';
 
 const config = useRuntimeConfig();
-console.log(`
+console.log(` _   _           _     _
+| | | | ___  ___| |__ (_)
+| |_| |/ _ \\/ __| '_ \\| |
+|  _  | (_) \\__ | | | | |
+|_| |_|\\___/|___|_| |_|_|
 
 > starting Hoshi v${config.version}+${config.gitCommit}
 `);
@@ -39,3 +44,7 @@ for (const path in modules) {
         console.log(`[hoshi] INSTALLED ${path} :: ${sw.stop()}`);
     });
 }
+
+// @ts-ignore
+app.use(router);
+router.isReady().then(() => app.mount('#app'));

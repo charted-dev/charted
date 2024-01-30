@@ -7,6 +7,10 @@ export {}
 
 declare module 'vue' {
     export interface GlobalComponents {
+        DropdownMenuContent: (typeof import('radix-vue'))['DropdownMenuContent'];
+        DropdownMenuPortal: (typeof import('radix-vue'))['DropdownMenuPortal'];
+        DropdownMenuRoot: (typeof import('radix-vue'))['DropdownMenuRoot'];
+        DropdownMenuTrigger: (typeof import('radix-vue'))['DropdownMenuTrigger'];
         Icon: (typeof import('@iconify/vue'))['Icon'];
         Markdown: (typeof import('./src/components/Markdown.vue'))['default'];
         Navbar: (typeof import('./src/components/ui/navigation/Navbar.vue'))['default'];
