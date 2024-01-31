@@ -30,5 +30,5 @@ charted-proc-macros = { version = "0.0.0-devel.0", path = "../../crates/proc-mac
 heck = "0.4.1"
 proc-macro2 = "1.0.78"
 quote = "1.0.35"
-syn = "2.0.43"
+syn = "2.0.48"
 utoipa = "4.1.0"
