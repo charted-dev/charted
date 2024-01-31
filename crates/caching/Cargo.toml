@@ -26,7 +26,7 @@ async-trait = "0.1.77"
 charted-common = { version = "0.0.0-devel.0", path = "../common" }
 charted-config = { version = "0.0.0-devel.0", path = "../config" }
 charted-redis = { version = "0.0.0-devel.0", path = "../redis" }
-eyre = "0.6.11"
+eyre = "0.6.12"
 futures-util = "0.3.30"
 moka = { version = "0.12.5", features = ["future", "logging"] }
 redis = "0.24.0"

@@ -32,7 +32,7 @@ charted-logging = { version = "0.0.0-devel.0", path = "../../crates/logging" }
 color-eyre = { version = "0.6.2", features = ["issue-url", "track-caller"] }
 dirs = "5.0.1"
 dotenv = "0.15.0"
-eyre = "0.6.11"
+eyre = "0.6.12"
 reqwest = "0.11.23"
 serde = { version = "1.0.196", features = ["rc", "derive"] }
 serde_json = "1.0.113"
