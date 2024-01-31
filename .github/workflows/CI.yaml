@@ -68,7 +68,7 @@ jobs:
               uses: Swatinem/rust-cache@v2
 
             - name: Install `protoc`
-              uses: Noelware/setup-protoc@1.1.0
+              uses: Noelware/setup-protoc@1.2.0
 
             - name: Setup `VCPKG_ROOT` environment variable
               if: matrix.runner == 'windows-latest'
@@ -103,7 +103,7 @@ jobs:
               uses: Swatinem/rust-cache@v2
 
             - name: Install `protoc`
-              uses: Noelware/setup-protoc@1.1.0
+              uses: Noelware/setup-protoc@1.2.0
 
             - name: Build project
               run: cargo build --all-features
