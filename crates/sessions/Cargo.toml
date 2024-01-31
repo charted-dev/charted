@@ -27,7 +27,7 @@ charted-common = { version = "0.0.0-devel.0", path = "../common" }
 charted-config = { version = "0.0.0-devel.0", path = "../config" }
 charted-redis = { version = "0.0.0-devel.0", path = "../redis" }
 chrono = "0.4.33"
-eyre = "0.6.11"
+eyre = "0.6.12"
 jsonwebtoken = "9.2.0"
 redis = "0.24.0"
 sentry = "0.31.8"
