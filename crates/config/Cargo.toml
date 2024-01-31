@@ -37,4 +37,4 @@ remi-s3 = { version = "0.4.3", features = ["serde"] }
 serde = { version = "1.0.196", features = ["derive"] }
 serde_yaml = "0.9.31"
 tracing = "0.1.40"
-thiserror = "1.0.52"
+thiserror = "1.0.56"
