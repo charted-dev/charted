@@ -65,7 +65,7 @@ resource "helm_release" "redis" {
   repository = "oci://registry-1.docker.io/bitnamicharts"
   depends_on = [kubernetes_namespace.charted]
   namespace  = "charted"
-  version    = "18.6.1"
+  version    = "18.11.0"
   values     = ["./values/redis.yaml"]
   atomic     = true
   chart      = "redis"
