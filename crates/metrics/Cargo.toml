@@ -27,5 +27,5 @@ charted-config = { version = "0.0.0-devel.0", path = "../config" }
 dyn-clone = "1.0.16"
 erased-serde = "0.4.2"
 prometheus-client = "0.22.1"
-serde = { version = "1.0.193", features = ["derive"] }
+serde = { version = "1.0.196", features = ["derive"] }
 tokio = { version = "1.35.1", features = ["rt"] }

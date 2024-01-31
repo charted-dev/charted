@@ -25,4 +25,4 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 async-trait = "0.1.77"
 charted-sessions = { version = "0.0.0-devel.0", path = ".." }
 eyre = "0.6.11"
-serde = "1.0.193"
+serde = "1.0.196"
