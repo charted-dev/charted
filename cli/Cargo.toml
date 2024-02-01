@@ -54,4 +54,4 @@ sysinfo = "0.29.11"
 tokio = { version = "1.35.1", features = ["full"] }
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
-utoipa = "4.1.0"
+utoipa = "4.2.0"
