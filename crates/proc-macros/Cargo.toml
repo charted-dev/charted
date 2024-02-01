@@ -22,7 +22,7 @@ homepage = "https://charts.noelware.org"
 authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
 [dependencies]
-axum = "0.6.20"
+axum = "0.7.4"
 charted-common = { version = "0.0.0-devel.0", path = "../common" }
 proc-macro2 = "1.0.78"
 quote = "1.0.35"

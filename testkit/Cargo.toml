@@ -23,7 +23,7 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
 [dependencies]
 async-trait = "0.1.77"
-axum = "0.6.20"
+axum = "0.7.4"
 bytes = "1.5.0"
 eyre = "0.6.12"
 hyper = { version = "0.14.28", features = ["client", "http1", "http2"] }

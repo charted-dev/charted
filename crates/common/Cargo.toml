@@ -24,7 +24,7 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 [dependencies]
 argon2 = "0.5.3"
 async-trait = "0.1.77"
-axum = "0.6.20"
+axum = "0.7.4"
 chrono = { version = "0.4.33", features = ["serde"] }
 eyre = "0.6.12"
 hex = "0.4.3"
