@@ -19,7 +19,6 @@ use std::{
     process::Command,
     time::SystemTime,
 };
-use tonic_build::compile_protos;
 use which::which;
 
 fn main() {
@@ -77,6 +76,10 @@ fn main() {
         set_var("protoc", protoc);
     }
 
-    compile_protos("./protos/emails.proto")
+    tonic_build::configure()
+        .protoc_arg("--experimental_allow_proto3_optional")
+        .build_client(true)
+        .build_server(false)
+        .compile(&["./protos/emails.proto"], &["./protos"])
         .expect("protobuf [./protos/emails.proto] to be compiled by `prost` successfully");
 }

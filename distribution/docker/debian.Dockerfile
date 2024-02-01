@@ -23,7 +23,7 @@ WORKDIR /build
 COPY web/package.json .
 COPY web/bun.lockb .
 
-RUN bun install --frozen-lockfile
+RUN bun install
 COPY web .
 
 RUN bun run build
@@ -32,7 +32,7 @@ FROM --platform=${TARGETPLATFORM} rust:1.75-slim-bullseye AS build
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt update && apt install -y libssl-dev pkg-config git ca-certificates
+RUN apt update && apt install -y libssl-dev pkg-config git ca-certificates protobuf-compiler
 WORKDIR /build
 
 COPY . .
@@ -41,14 +41,14 @@ COPY --from=web /build/dist /build/server/dist
 ENV CARGO_INCREMENTAL=1
 ENV RUSTFLAGS="--cfg tokio_unstable --cfg bundle_web -Ctarget-cpu=native"
 
-RUN cargo build --locked --release --bin charted-cli
+RUN cargo build --locked --release --bin charted
 
 FROM debian:bullseye-slim
 
 RUN DEBIAN_FRONTEND=noninteractive apt update && apt install -y bash tini curl libssl-dev pkg-config
 
-COPY --from=build /build/target/release/charted-cli /app/noelware/charted/server/bin/charted
-COPY --from=build /build/crates/database/migrations /app/noelware/charted/server/migrations
+COPY --from=build /build/target/release/charted     /app/noelware/charted/server/bin/charted
+COPY --from=build /build/migrations                 /app/noelware/charted/server/migrations
 COPY distribution/docker/scripts                    /app/noelware/charted/server/scripts
 COPY distribution/docker/config                     /app/noelware/charted/server/config
 
