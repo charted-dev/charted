@@ -12,9 +12,10 @@
         "Noelware Team <team@noelware.org>"
     ],
     "scripts": {
+        "generate:openapi": "bun run scripts/openapi.ts && bun fmt && bun lint",
         "build": "vite build",
         "lint": "bun run scripts/eslint.ts",
-        "dev": "vite",
+        "dev": "bunx --bun vite",
         "fmt": "bun run scripts/prettier.ts"
     },
     "dependencies": {
@@ -69,7 +70,7 @@
         "eslint-config-prettier": "9.1.0",
         "eslint-formatter-codeframe": "7.32.1",
         "eslint-plugin-vue": "9.21.1",
-        "jsdom": "23.2.0",
+        "jsdom": "24.0.0",
         "prettier": "3.2.4",
         "typescript": "5.3.3",
         "unplugin-auto-import": "0.17.5",

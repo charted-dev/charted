@@ -13,30 +13,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use charted::cli::{AsyncExecute, Execute};
+use clap::Subcommand;
+
 mod context;
-mod repo;
-mod version;
+mod download;
+mod init;
+mod login;
+mod logout;
+mod push;
 
-use charted_common::cli::{AsyncExecute, Execute};
-use eyre::Result;
-
-#[derive(Debug, Clone, clap::Subcommand)]
-pub enum Commands {
-    #[command(subcommand)]
-    Context(context::Context),
-    Version(version::Version),
+#[derive(Debug, Clone, Subcommand)]
+pub enum Cmd {
+    Download(download::Cmd),
 
     #[command(subcommand)]
-    Repo(repo::Repo),
+    Context(context::Cmd),
+    Logout(logout::Cmd),
+    Login(login::Cmd),
+    Push(push::Cmd),
+    Init(init::Cmd),
 }
 
 #[async_trait]
-impl AsyncExecute for Commands {
-    async fn execute(&self) -> Result<()> {
+impl AsyncExecute for Cmd {
+    async fn execute(&self) -> eyre::Result<()> {
         match self {
-            Commands::Context(context) => context.execute().await,
-            Commands::Version(version) => version.execute(),
-            Commands::Repo(repo) => repo.execute().await,
+            Cmd::Download(dl) => dl.execute().await,
+            Cmd::Context(ctx) => ctx.execute(),
+            Cmd::Logout(logout) => logout.execute(),
+            Cmd::Login(login) => login.execute(),
+            Cmd::Init(init) => init.execute(),
+            Cmd::Push(push) => push.execute().await,
         }
     }
 }

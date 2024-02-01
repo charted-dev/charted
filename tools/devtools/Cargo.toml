@@ -17,19 +17,25 @@
 name = "charted-devtools"
 description = "🐻‍❄️📦 Development tool helper to help develop charted-server"
 version = "0.0.0-devel.0"
-edition = "2021"
-homepage = "https://charts.noelware.org"
-authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
+documentation.workspace = true
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+publish.workspace = true
+repository.workspace = true
+authors.workspace = true
 
 [dependencies]
-async-trait = "0.1.77"
+async-trait.workspace = true
 bollard = "0.15.0"
-charted-common = { path = "../../crates/common", version = "0.0.0-devel.0" }
-charted-logging = { path = "../../crates/logging", version = "0.0.0-devel.0" }
-clap = { version = "4.4.18", features = ["derive", "env"] }
-clap_complete = "4.4.9"
-color-eyre = "0.6.2"
-eyre = "0.6.12"
+cargo_toml = "0.17.2"
+
+# this is fine since the root crate doesn't depend on `charted-devtools`
+charted = { path = "../..", version = "0.1.0-beta" }
+clap = { version = "4.4.12", features = ["derive", "env"] }
+clap_complete = "4.4.5"
+color-eyre.workspace = true
+eyre.workspace = true
 heck = "0.4.1"
 itertools = "0.12.1"
 simple_tables = "0.3.0"
@@ -39,6 +45,5 @@ tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
 which = "5.0.0"
 promptly = "0.3.1"
-toml = "0.8.9"
-serde_json = "1.0.113"
-cargo_toml = "0.19.1"
+toml = "0.8.8"
+serde_json = "1.0.108"

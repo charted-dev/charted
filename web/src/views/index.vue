@@ -16,16 +16,18 @@
 -->
 
 <script setup lang="ts">
-const store = useSessionStore();
-const user = store.session.user!;
+const md = `# Welcome to \`charted-server\`, @noel!
+
+| table | desc |
+| :---- | ---- |
+| weow  | true |
+`;
 </script>
 
-<route lang="yaml">
-meta:
-    auth: true
-    layout: full
-</route>
-
 <template>
-    <span>Hello, world!</span>
+    <RouterView name="Layout">
+        <Shell>
+            <Markdown :content="md" />
+        </Shell>
+    </RouterView>
 </template>

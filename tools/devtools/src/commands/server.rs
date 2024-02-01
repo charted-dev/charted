@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use crate::{utils, CommonArgs};
-use charted_common::cli::Execute;
+use charted::cli::Execute;
 use eyre::{eyre, Result};
 use itertools::Itertools;
 use std::{collections::HashSet, env::current_dir, ffi::OsString, process::Stdio};
@@ -52,9 +52,11 @@ impl Execute for Cmd {
             cmd.env(
                 "RUSTFLAGS",
                 rustflags.iter().map(|x| x.to_string_lossy().to_string()).join(" "),
-            );
+            )
+            .env("CHARTED_DISTRIBUTION_KIND", "git")
+            .env("RUST_BACKTRACE", "full");
 
-            cmd.args(["--bin", "charted-cli", "--", "server"]);
+            cmd.args(["--", "server"]);
 
             let root = current_dir().unwrap();
             for path in [root.join("config.yml"), root.join("config/charted.yaml")] {

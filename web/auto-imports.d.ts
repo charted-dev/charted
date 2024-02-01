@@ -55,7 +55,6 @@ declare global {
     const inject: (typeof import('vue'))['inject'];
     const injectLocal: (typeof import('@vueuse/core'))['injectLocal'];
     const isDefined: (typeof import('@vueuse/core'))['isDefined'];
-
     const isProxy: (typeof import('vue'))['isProxy'];
     const isReactive: (typeof import('vue'))['isReactive'];
     const isReadonly: (typeof import('vue'))['isReadonly'];
@@ -160,6 +159,7 @@ declare global {
     const useBrowserLocation: (typeof import('@vueuse/core'))['useBrowserLocation'];
     const useCached: (typeof import('@vueuse/core'))['useCached'];
     const useClipboard: (typeof import('@vueuse/core'))['useClipboard'];
+    const useClipboardItems: (typeof import('@vueuse/core'))['useClipboardItems'];
     const useCloned: (typeof import('@vueuse/core'))['useCloned'];
     const useColorMode: (typeof import('@vueuse/core'))['useColorMode'];
     const useConfirmDialog: (typeof import('@vueuse/core'))['useConfirmDialog'];
@@ -244,6 +244,7 @@ declare global {
     const usePreferredLanguages: (typeof import('@vueuse/core'))['usePreferredLanguages'];
     const usePreferredReducedMotion: (typeof import('@vueuse/core'))['usePreferredReducedMotion'];
     const usePrevious: (typeof import('@vueuse/core'))['usePrevious'];
+    const useQuery: (typeof import('@tanstack/vue-query'))['useQuery'];
     const useRafFn: (typeof import('@vueuse/core'))['useRafFn'];
     const useRandomSplash: (typeof import('./src/composables/useSplashText'))['useRandomSplash'];
     const useRefHistory: (typeof import('@vueuse/core'))['useRefHistory'];
@@ -336,10 +337,12 @@ declare global {
         VNode,
         WritableComputedRef
     } from 'vue';
+    import('vue');
 }
 // for vue template auto import
 import { UnwrapRef } from 'vue';
 declare module 'vue' {
+    interface GlobalComponents {}
     interface ComponentCustomProperties {
         readonly EffectScope: UnwrapRef<(typeof import('vue'))['EffectScope']>;
         readonly Lazy: UnwrapRef<(typeof import('@noelware/utils'))['Lazy']>;
@@ -394,7 +397,6 @@ declare module 'vue' {
         readonly mapStores: UnwrapRef<(typeof import('pinia'))['mapStores']>;
         readonly mapWritableState: UnwrapRef<(typeof import('pinia'))['mapWritableState']>;
         readonly markRaw: UnwrapRef<(typeof import('vue'))['markRaw']>;
-        readonly newRequest: UnwrapRef<(typeof import('./src/composables/useApiClient'))['newRequest']>;
         readonly nextTick: UnwrapRef<(typeof import('vue'))['nextTick']>;
         readonly onActivated: UnwrapRef<(typeof import('vue'))['onActivated']>;
         readonly onBeforeMount: UnwrapRef<(typeof import('vue'))['onBeforeMount']>;
@@ -485,6 +487,7 @@ declare module 'vue' {
         readonly useBrowserLocation: UnwrapRef<(typeof import('@vueuse/core'))['useBrowserLocation']>;
         readonly useCached: UnwrapRef<(typeof import('@vueuse/core'))['useCached']>;
         readonly useClipboard: UnwrapRef<(typeof import('@vueuse/core'))['useClipboard']>;
+        readonly useClipboardItems: UnwrapRef<(typeof import('@vueuse/core'))['useClipboardItems']>;
         readonly useCloned: UnwrapRef<(typeof import('@vueuse/core'))['useCloned']>;
         readonly useColorMode: UnwrapRef<(typeof import('@vueuse/core'))['useColorMode']>;
         readonly useConfirmDialog: UnwrapRef<(typeof import('@vueuse/core'))['useConfirmDialog']>;
@@ -562,13 +565,13 @@ declare module 'vue' {
         readonly usePointer: UnwrapRef<(typeof import('@vueuse/core'))['usePointer']>;
         readonly usePointerLock: UnwrapRef<(typeof import('@vueuse/core'))['usePointerLock']>;
         readonly usePointerSwipe: UnwrapRef<(typeof import('@vueuse/core'))['usePointerSwipe']>;
-        readonly usePreferencesStore: UnwrapRef<(typeof import('./src/stores/preferences'))['usePreferencesStore']>;
         readonly usePreferredColorScheme: UnwrapRef<(typeof import('@vueuse/core'))['usePreferredColorScheme']>;
         readonly usePreferredContrast: UnwrapRef<(typeof import('@vueuse/core'))['usePreferredContrast']>;
         readonly usePreferredDark: UnwrapRef<(typeof import('@vueuse/core'))['usePreferredDark']>;
         readonly usePreferredLanguages: UnwrapRef<(typeof import('@vueuse/core'))['usePreferredLanguages']>;
         readonly usePreferredReducedMotion: UnwrapRef<(typeof import('@vueuse/core'))['usePreferredReducedMotion']>;
         readonly usePrevious: UnwrapRef<(typeof import('@vueuse/core'))['usePrevious']>;
+        readonly useQuery: UnwrapRef<(typeof import('@tanstack/vue-query'))['useQuery']>;
         readonly useRafFn: UnwrapRef<(typeof import('@vueuse/core'))['useRafFn']>;
         readonly useRandomSplash: UnwrapRef<(typeof import('./src/composables/useSplashText'))['useRandomSplash']>;
         readonly useRefHistory: UnwrapRef<(typeof import('@vueuse/core'))['useRefHistory']>;
@@ -583,7 +586,6 @@ declare module 'vue' {
         readonly useScrollLock: UnwrapRef<(typeof import('@vueuse/core'))['useScrollLock']>;
         readonly useSeoMeta: UnwrapRef<(typeof import('@vueuse/head'))['useSeoMeta']>;
         readonly useSessionStorage: UnwrapRef<(typeof import('@vueuse/core'))['useSessionStorage']>;
-        readonly useSessionStore: UnwrapRef<(typeof import('./src/stores/session'))['useSessionStore']>;
         readonly useShare: UnwrapRef<(typeof import('@vueuse/core'))['useShare']>;
         readonly useSlots: UnwrapRef<(typeof import('vue'))['useSlots']>;
         readonly useSorted: UnwrapRef<(typeof import('@vueuse/core'))['useSorted']>;
@@ -610,7 +612,6 @@ declare module 'vue' {
         readonly useTitle: UnwrapRef<(typeof import('@vueuse/core'))['useTitle']>;
         readonly useToNumber: UnwrapRef<(typeof import('@vueuse/core'))['useToNumber']>;
         readonly useToString: UnwrapRef<(typeof import('@vueuse/core'))['useToString']>;
-        readonly useToast: UnwrapRef<(typeof import('./src/composables/useToast'))['useToast']>;
         readonly useToggle: UnwrapRef<(typeof import('@vueuse/core'))['useToggle']>;
         readonly useTransition: UnwrapRef<(typeof import('@vueuse/core'))['useTransition']>;
         readonly useUrlSearchParams: UnwrapRef<(typeof import('@vueuse/core'))['useUrlSearchParams']>;
@@ -647,6 +648,7 @@ declare module 'vue' {
     }
 }
 declare module '@vue/runtime-core' {
+    interface GlobalComponents {}
     interface ComponentCustomProperties {
         readonly EffectScope: UnwrapRef<(typeof import('vue'))['EffectScope']>;
         readonly Lazy: UnwrapRef<(typeof import('@noelware/utils'))['Lazy']>;
@@ -701,7 +703,6 @@ declare module '@vue/runtime-core' {
         readonly mapStores: UnwrapRef<(typeof import('pinia'))['mapStores']>;
         readonly mapWritableState: UnwrapRef<(typeof import('pinia'))['mapWritableState']>;
         readonly markRaw: UnwrapRef<(typeof import('vue'))['markRaw']>;
-        readonly newRequest: UnwrapRef<(typeof import('./src/composables/useApiClient'))['newRequest']>;
         readonly nextTick: UnwrapRef<(typeof import('vue'))['nextTick']>;
         readonly onActivated: UnwrapRef<(typeof import('vue'))['onActivated']>;
         readonly onBeforeMount: UnwrapRef<(typeof import('vue'))['onBeforeMount']>;
@@ -792,6 +793,7 @@ declare module '@vue/runtime-core' {
         readonly useBrowserLocation: UnwrapRef<(typeof import('@vueuse/core'))['useBrowserLocation']>;
         readonly useCached: UnwrapRef<(typeof import('@vueuse/core'))['useCached']>;
         readonly useClipboard: UnwrapRef<(typeof import('@vueuse/core'))['useClipboard']>;
+        readonly useClipboardItems: UnwrapRef<(typeof import('@vueuse/core'))['useClipboardItems']>;
         readonly useCloned: UnwrapRef<(typeof import('@vueuse/core'))['useCloned']>;
         readonly useColorMode: UnwrapRef<(typeof import('@vueuse/core'))['useColorMode']>;
         readonly useConfirmDialog: UnwrapRef<(typeof import('@vueuse/core'))['useConfirmDialog']>;
@@ -869,13 +871,13 @@ declare module '@vue/runtime-core' {
         readonly usePointer: UnwrapRef<(typeof import('@vueuse/core'))['usePointer']>;
         readonly usePointerLock: UnwrapRef<(typeof import('@vueuse/core'))['usePointerLock']>;
         readonly usePointerSwipe: UnwrapRef<(typeof import('@vueuse/core'))['usePointerSwipe']>;
-        readonly usePreferencesStore: UnwrapRef<(typeof import('./src/stores/preferences'))['usePreferencesStore']>;
         readonly usePreferredColorScheme: UnwrapRef<(typeof import('@vueuse/core'))['usePreferredColorScheme']>;
         readonly usePreferredContrast: UnwrapRef<(typeof import('@vueuse/core'))['usePreferredContrast']>;
         readonly usePreferredDark: UnwrapRef<(typeof import('@vueuse/core'))['usePreferredDark']>;
         readonly usePreferredLanguages: UnwrapRef<(typeof import('@vueuse/core'))['usePreferredLanguages']>;
         readonly usePreferredReducedMotion: UnwrapRef<(typeof import('@vueuse/core'))['usePreferredReducedMotion']>;
         readonly usePrevious: UnwrapRef<(typeof import('@vueuse/core'))['usePrevious']>;
+        readonly useQuery: UnwrapRef<(typeof import('@tanstack/vue-query'))['useQuery']>;
         readonly useRafFn: UnwrapRef<(typeof import('@vueuse/core'))['useRafFn']>;
         readonly useRandomSplash: UnwrapRef<(typeof import('./src/composables/useSplashText'))['useRandomSplash']>;
         readonly useRefHistory: UnwrapRef<(typeof import('@vueuse/core'))['useRefHistory']>;
@@ -890,7 +892,6 @@ declare module '@vue/runtime-core' {
         readonly useScrollLock: UnwrapRef<(typeof import('@vueuse/core'))['useScrollLock']>;
         readonly useSeoMeta: UnwrapRef<(typeof import('@vueuse/head'))['useSeoMeta']>;
         readonly useSessionStorage: UnwrapRef<(typeof import('@vueuse/core'))['useSessionStorage']>;
-        readonly useSessionStore: UnwrapRef<(typeof import('./src/stores/session'))['useSessionStore']>;
         readonly useShare: UnwrapRef<(typeof import('@vueuse/core'))['useShare']>;
         readonly useSlots: UnwrapRef<(typeof import('vue'))['useSlots']>;
         readonly useSorted: UnwrapRef<(typeof import('@vueuse/core'))['useSorted']>;
@@ -917,7 +918,6 @@ declare module '@vue/runtime-core' {
         readonly useTitle: UnwrapRef<(typeof import('@vueuse/core'))['useTitle']>;
         readonly useToNumber: UnwrapRef<(typeof import('@vueuse/core'))['useToNumber']>;
         readonly useToString: UnwrapRef<(typeof import('@vueuse/core'))['useToString']>;
-        readonly useToast: UnwrapRef<(typeof import('./src/composables/useToast'))['useToast']>;
         readonly useToggle: UnwrapRef<(typeof import('@vueuse/core'))['useToggle']>;
         readonly useTransition: UnwrapRef<(typeof import('@vueuse/core'))['useTransition']>;
         readonly useUrlSearchParams: UnwrapRef<(typeof import('@vueuse/core'))['useUrlSearchParams']>;

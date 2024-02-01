@@ -15,7 +15,7 @@
         // Enable --cfg tokio_unstable with rust-analyzer so we can
         // use Tokio unstable features.
         //
-        // This is really only meant for crates/metrics/src/collectors/tokio.rs to
+        // This is really only meant for src/metrics/collectors/tokio.rs to
         // access the Handle::metrics method.
         "RUSTFLAGS": "--cfg tokio_unstable"
     },

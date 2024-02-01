@@ -18,6 +18,10 @@
 /// <reference types="vite-plugin-vue-layouts/client" />
 /// <reference types="vite/client" />
 
+import { App } from 'vue';
+
+type ModuleInstall = (app: App<Element>) => void;
+
 /**
  * Runtime configuration that was generated at build-time.
  */

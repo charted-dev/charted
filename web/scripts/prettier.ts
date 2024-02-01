@@ -32,6 +32,8 @@ async function main() {
 
     const glob = new Bun.Glob('**/*.{ts,js,md,yaml,yml,json}');
     log.startGroup('formatting!');
+
+    let failed = false;
     for await (const file of glob.scan({ cwd: ROOT })) {
         if (file.includes('node_modules') || file.includes('dist')) {
             continue;
@@ -75,7 +77,8 @@ async function main() {
                     }
                 );
 
-                continue;
+                failed = true;
+                break;
             }
 
             log.info(
@@ -100,7 +103,7 @@ async function main() {
     }
 
     log.endGroup();
-    process.exit(0);
+    process.exit(failed ? 1 : 0);
 }
 
 main().catch((ex) => {

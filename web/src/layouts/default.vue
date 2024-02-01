@@ -16,5 +16,5 @@
 -->
 
 <template>
-    <RouterView />
+    <slot />
 </template>

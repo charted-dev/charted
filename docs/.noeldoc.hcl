@@ -25,7 +25,7 @@ registry "default" {
 project "charted-server" {
     description = "🐻‍❄️📦 Free, open source, and reliable Helm chart registry in Rust"
     homepage    = "https://charts.noelware.org/docs/server"
-    base_url    = "https://charts.noelware.org/docs/server"
+    base_url    = "https://charts.noelware.org/docs"
     version     = "${readfile("${cwd}/.charted-version")}"
 
     github {

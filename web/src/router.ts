@@ -15,14 +15,19 @@
  * limitations under the License.
  */
 
-import { createRouter, createWebHistory } from 'vue-router/auto';
-import { setupLayouts } from 'virtual:generated-layouts';
+import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
     history: createWebHistory(),
-    extendRoutes(routes) {
-        return setupLayouts(routes);
-    }
+    routes: [
+        {
+            path: '/',
+            components: {
+                default: () => import('~/views/index.vue'),
+                Layout: () => import('~/layouts/default.vue')
+            }
+        }
+    ]
 });
 
 router.onError((error, to, from) => {
@@ -30,20 +35,20 @@ router.onError((error, to, from) => {
     console.error(error);
 });
 
-router.beforeEach((to, _, next) => {
-    const needsAuth = to.meta.auth || false;
-    const session = useSessionStore();
+// router.beforeEach((to, _, next) => {
+//     const needsAuth = to.meta.auth || false;
+//     const session = useSessionStore();
 
-    if (needsAuth && !session.isAvailable[0]) {
-        return next({
-            path: '/login',
-            query: {
-                next: to.fullPath
-            }
-        });
-    }
+//     if (needsAuth && !session.isAvailable[0]) {
+//         return next({
+//             path: '/login',
+//             query: {
+//                 next: to.fullPath
+//             }
+//         });
+//     }
 
-    return next();
-});
+//     return next();
+// });
 
 export default router;

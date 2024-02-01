@@ -43,7 +43,7 @@ jobs:
             - name: Setup Rust toolchain
               uses: dtolnay/rust-toolchain@master
               with:
-                toolchain: stable
+                  toolchain: stable
 
             - name: Setup Rust cache
               uses: Swatinem/rust-cache@v2
@@ -53,8 +53,12 @@ jobs:
 
             - name: Generate OpenAPI document
               run: |
-                cargo run --release --locked --bin charted-cli -- openapi ${GITHUB_WORKSPACE}/assets/openapi.json
-                bunx prettier --write --config ${GITHUB_WORKSPACE}/web/.prettierrc.json ./assets/openapi.json
+                  cargo run --release --locked -- openapi ${GITHUB_WORKSPACE}/assets/openapi.json
+                  bunx prettier --write --config ${GITHUB_WORKSPACE}/web/.prettierrc.json ./assets/openapi.json
+
+            - name: Update OpenAPI types
+              working-directory: ./web
+              run: bun generate:openapi
 
             - name: Commit changes (if we can)
               uses: EndBug/add-and-commit@v9

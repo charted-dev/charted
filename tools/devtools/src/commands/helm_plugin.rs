@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use crate::{utils, CommonArgs};
-use charted_common::cli::Execute;
+use charted::cli::Execute;
 use eyre::{eyre, Result};
 use std::{ffi::OsString, process::Stdio};
 
@@ -51,7 +51,7 @@ impl Execute for Cmd {
             }
 
             cmd.env("RUSTFLAGS", rustflags);
-            cmd.args(["--bin", "charted-helm-plugin"]);
+            cmd.args(["--package", "charted-helm-plugin"]);
             cmd.args(&self.args.cargo_args);
 
             if self.args.run && !self.args.args.is_empty() {

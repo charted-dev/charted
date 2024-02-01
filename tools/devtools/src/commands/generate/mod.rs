@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_common::cli::Execute;
+use charted::cli::Execute;
 
 mod rust_mod;
 

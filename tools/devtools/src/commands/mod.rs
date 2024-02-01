@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use async_trait::async_trait;
-use charted_common::cli::{AsyncExecute, Execute};
+use charted::cli::{AsyncExecute, Execute};
 
 mod cli;
 mod docker;

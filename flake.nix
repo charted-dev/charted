@@ -25,13 +25,6 @@
       };
     };
 
-    crane = {
-      url = github:ipetkov/crane;
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-      };
-    };
-
     flake-compat = {
       url = github:edolstra/flake-compat;
       flake = false;
@@ -43,7 +36,6 @@
     nixpkgs,
     flake-utils,
     rust-overlay,
-    crane,
     ...
   }:
     flake-utils.lib.eachDefaultSystem (system: let
@@ -70,70 +62,55 @@
         if pkgs.stdenv.isLinux
         then ''-C link-arg=-fuse-ld=mold -C target-cpu=native $RUSTFLAGS''
         else ''$RUSTFLAGS'';
-
-      craneLib = crane.lib.${system};
-      commonCraneArgs = {
-        src = craneLib.cleanCargoSource (craneLib.path ./.);
-        buildInputs = with pkgs; [openssl];
-        nativeBuildInputs = with pkgs; [pkg-config];
-      };
-
-      commonRustPlatformArgs = {
-        version = "0.1.0-beta";
-        src = ./.;
-        cargoBuildFlags = "-C lto=true -C opt-level=s -C strip=symbols";
-        cargoLock = {lockFile = ./Cargo.lock;};
-      };
-
-      dependencies = craneLib.buildDepsOnly (commonCraneArgs
-        // {
-          pname = "charted-deps";
-        });
-
-      clippy = craneLib.cargoClippy (commonCraneArgs
-        // {
-          inherit dependencies;
-
-          pname = "charted-clippy";
-        });
-
-      charted-cli = pkgs.rustPlatform.buildRustPackage (commonRustPlatformArgs
-        // {
-          pname = "charted";
-
-          nativeBuildInputs = with pkgs; [pkg-config];
-          PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
-        });
-
-      charted-helm-plugin = pkgs.rustPlatform.buildRustPackage (commonRustPlatformArgs
-        // {
-          pname = "charted-helm-plugin";
-
-          nativeBuildInputs = with pkgs; [pkg-config];
-          PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
-        });
     in rec {
       packages = {
-        charted = charted-cli;
-        helm-plugin = charted-helm-plugin;
-        all = pkgs.symlinkJoin {
+        charted = pkgs.rustPlatform.buildRustPackage {
+          nativeBuildInputs = with pkgs; [pkg-config protobuf];
+          buildInputs = with pkgs; [openssl];
+          cargoSha256 = pkgs.lib.fakeSha256;
+          version = "0.1.0-beta";
           name = "charted";
-          paths = [charted-cli charted-helm-plugin];
+          src = ./.;
+
+          env.PROTOC = pkgs.lib.getExe pkgs.protobuf;
+          doCheckPhase = false;
+
+          cargoLock = {
+            lockFile = ./Cargo.lock;
+            outputHashes = {
+              "noelware-config-0.1.0" = "sha256-Y6Yf3TU0vzhU1UVdIdrDaECD5tvDwQZ9CYyDXwxmpe8=";
+              "noelware-config-derive-0.1.0" = pkgs.lib.fakeSha256;
+              "noelware-log-0.1.0" = pkgs.lib.fakeSha256;
+              "noelware-remi-0.1.0" = pkgs.lib.fakeSha256;
+              "noelware-serde-0.1.0" = pkgs.lib.fakeSha256;
+            };
+          };
+
+          meta = with pkgs.lib; {
+            description = "Free, open source, and reliable Helm chart registry in Rust";
+            homepage = "https://charts.noelware.org";
+            license = with licenses; [asl20];
+            maintainers = with maintainers; [auguwu spotlightishere];
+            mainProgram = "charted";
+          };
         };
 
-        default = packages.all;
+        helm-plugin = import ./nix/helm-plugin;
+        default = packages.charted;
       };
 
       devShells.default = pkgs.mkShell {
         LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath (with pkgs; [openssl]);
         nativeBuildInputs = with pkgs;
           [pkg-config]
-          ++ (lib.optional stdenv.isLinux [mold])
+          ++ (lib.optional stdenv.isLinux [mold lldb gdb])
           ++ (lib.optional stdenv.isDarwin [darwin.apple_sdk.frameworks.CoreFoundation]);
 
         buildInputs = with pkgs; [
           cargo-expand
           terraform
+          sqlx-cli
+          sccache
           openssl
           glibc
           rust
@@ -142,7 +119,8 @@
         ];
 
         shellHook = ''
-          export RUSTFLAGS="--cfg tokio_unstable ${rustflags}";
+          export RUSTC_WRAPPER="${pkgs.sccache}/bin/sccache"
+          export RUSTFLAGS="--cfg tokio_unstable ${rustflags}"
         '';
       };
     });

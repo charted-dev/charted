@@ -37,6 +37,8 @@ async function main() {
     const formatter = await linter.loadFormatter('codeframe');
 
     log.startGroup(`linting directory [${resolve(ROOT)}]`);
+
+    let failed = false;
     for await (const file of glob.scan({ cwd: ROOT })) {
         if (file.includes('node_modules') || file.includes('dist')) {
             continue;
@@ -69,6 +71,7 @@ async function main() {
                             continue;
 
                         case 2:
+                            failed = true;
                             log.error(
                                 `${
                                     colors.isColorSupported ? colors.bold(colors.red('FAILED')) : 'FAILED'
@@ -84,6 +87,8 @@ async function main() {
                                     file: file
                                 }
                             );
+
+                            break;
                     }
                 }
             }
@@ -97,6 +102,7 @@ async function main() {
     }
 
     log.endGroup();
+    process.exit(failed ? 1 : 0);
 }
 
 main().catch((ex) => {

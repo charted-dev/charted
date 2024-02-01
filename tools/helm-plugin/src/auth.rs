@@ -14,74 +14,44 @@
 // limitations under the License.
 
 use serde::{Deserialize, Serialize};
-use std::{collections::BTreeMap, fmt::Display, ops::Deref, sync::Arc};
+use std::{borrow::Cow, collections::BTreeMap, fmt::Display, ops::Deref, sync::Arc};
 use url::Url;
 
+/// Represents the authentication type on how we should authenticate
+/// to a charted-server instance.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "camelCase")]
-pub enum AuthType {
+#[serde(rename_all = "camelCase")]
+pub enum Type {
+    /// Refers to a session token (and refresh token) to do authentication.
+    Session { refresh: Option<String>, access: String },
+
+    /// Refer to a environment variable for the API key or bearer token.
     EnvironmentVariable(String),
+
+    /// Uses an created API key. By default, when `helm charted login` is ran, it'll
+    /// create an API key on your user and use it indefinitely (or until you remove it
+    /// via REST API or UI (if enabled)).
     ApiKey(String),
-    Basic(String),
 
-    SessionToken {
-        access: String,
-        refresh: Option<String>,
-    },
-
+    /// Does no prior authentication.
     #[default]
     None,
 }
 
-impl AuthType {
-    /// This only validates the [`AuthType::FromEnvironmentVariable`] authentication types as
-    /// others might require asynchronous work to be used with.
-    pub fn validate(&self) -> Result<(), String> {
+impl Type {
+    /// Does extra validation that the given auth type is correct.
+    pub fn validate(&self) -> Result<(), Cow<'static, str>> {
         match self {
-            AuthType::EnvironmentVariable(var) => {
-                if std::env::var(var.clone()).is_err() {
-                    return Err(format!("environment variable {var} doesn't exist"));
-                }
-
-                Ok(())
+            Type::EnvironmentVariable(var) if std::env::var(var).is_err() => {
+                Err(Cow::Owned(format!("environment variable [{var}] doesn't exist!")))
             }
 
             _ => Ok(()),
         }
     }
-
-    /// Returns the header name for this authentication type.
-    pub fn header(&self) -> Option<&'static str> {
-        match self {
-            AuthType::EnvironmentVariable(_) | AuthType::ApiKey(_) => Some("ApiKey"),
-            AuthType::SessionToken { .. } => Some("Bearer"),
-            AuthType::Basic(_) => Some("Basic"),
-            _ => None,
-        }
-    }
 }
 
-impl ToString for AuthType {
-    fn to_string(&self) -> String {
-        let Some(header) = self.header() else {
-            return String::new();
-        };
-
-        match self {
-            AuthType::EnvironmentVariable(var) => {
-                let value = std::env::var(var).expect("to be validated with AuthType::validate");
-                format!("{header} {value}")
-            }
-
-            AuthType::SessionToken { access, .. } => format!("{header} {access}"),
-            AuthType::ApiKey(key) => format!("{header} {key}"),
-            AuthType::Basic(b64) => format!("{header} {b64}"),
-            _ => unreachable!(),
-        }
-    }
-}
-
-/// Represents the context that the `.auth.yaml` file contains. A context is
+/// Represents the context that the `auth.yaml` file contains. A context is
 /// relative to what registries a user has access towards.
 ///
 /// For instance, if the current context is `personal`, then the `personal` context
@@ -132,22 +102,21 @@ impl Display for Context {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct RegistryConfig {
-    pub registry: Url,
-
-    #[serde(default)]
-    pub auth: AuthType,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Auth {
-    #[serde(default = "default_context")]
+    #[serde(default = "__default_context")]
     pub current: Context,
 
     #[serde(default)]
-    pub context: BTreeMap<Context, Vec<RegistryConfig>>,
+    pub contexts: BTreeMap<Context, Vec<Registry>>,
 }
 
-fn default_context() -> Context {
-    "default".into()
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Registry {
+    #[serde(default, with = "serde_yaml::with::singleton_map")]
+    pub auth: Type,
+    pub registry: Url,
+}
+
+fn __default_context() -> Context {
+    Context::new("default")
 }

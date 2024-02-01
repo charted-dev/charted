@@ -16,13 +16,9 @@
 -->
 
 <script setup lang="ts">
-import { ToastDescription, ToastProvider, ToastRoot, ToastTitle, ToastViewport } from 'radix-vue';
-import { useRandomSplash } from '~/composables/useSplashText';
-import ErrorBoundary from './components/ErrorBoundary.vue';
-import { isVNode } from 'vue';
-
 const router = useRouter();
 const route = router.currentRoute.value.fullPath;
+
 useSeoMeta({
     applicationName: 'Hoshi',
     ogDescription: '🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust',
@@ -36,6 +32,27 @@ useSeoMeta({
 });
 </script>
 
+<template>
+    <RouterView v-slot="{ Component }">
+        <Suspense timeout="0">
+            <component :is="Component" />
+            <template #fallback>
+                <div class="h-screen justify-center items-center flex flex-col space-y-1.5 container mx-auto">
+                    <img
+                        alt="Noelware"
+                        src="https://cdn.floofy.dev/images/trans.png"
+                        draggable="false"
+                        class="rounded-lg w-[96px] h-[96px] motion-safe:animate-bounce motion-safe:delay-300"
+                    />
+
+                    <span class="font-medium text-lg break-words">{{ useRandomSplash() }}</span>
+                </div>
+            </template>
+        </Suspense>
+    </RouterView>
+</template>
+
+<!--
 <template>
     <RouterView v-slot="{ Component }">
         <ErrorBoundary>
@@ -58,3 +75,4 @@ useSeoMeta({
     </RouterView>
     <Toaster />
 </template>
+-->

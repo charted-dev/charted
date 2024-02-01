@@ -27,7 +27,6 @@ import { resolve } from 'path';
 import autoImports from 'unplugin-auto-import/vite';
 import vueDevtools from 'vite-plugin-vue-devtools';
 import vueLayouts from 'vite-plugin-vue-layouts';
-import vueRouter from 'unplugin-vue-router/vite';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import vue from '@vitejs/plugin-vue';
 
@@ -60,14 +59,10 @@ export default defineConfig(async ({ command }) => {
                     zod: ['z']
                 }
             ],
-            dirs: ['src/components', 'src/composables', 'src/stores'],
+            dirs: ['src/components', 'src/composables', 'src/stores', 'src/utils'],
             dts: './auto-imports.d.ts'
         }),
         vueLayouts(),
-        vueRouter({
-            dts: true,
-            routesFolder: resolve(fileURLToPath(new URL('./src/views', import.meta.url)))
-        }),
         vueComponents({
             dts: './components.d.ts',
             resolvers: [

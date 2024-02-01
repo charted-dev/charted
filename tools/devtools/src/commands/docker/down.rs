@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use crate::utils;
-use charted_common::cli::Execute;
+use charted::cli::Execute;
 use eyre::eyre;
 use std::{
     env::current_dir,
