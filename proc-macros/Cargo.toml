@@ -17,9 +17,10 @@
 name = "charted-proc-macros"
 description = "🐻‍❄️📦 Procedural macros for `charted-server`"
 version = "0.0.0-devel.0"
-edition = "2021"
-homepage = "https://charts.noelware.org"
-authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
+edition.workspace = true
+homepage.workspace = true
+authors.workspace = true
+rust-version.workspace = true
 
 [lib]
 proc-macro = true

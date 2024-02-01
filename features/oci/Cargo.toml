@@ -15,7 +15,7 @@
 
 [package]
 name = "charted-oci-registry"
-description = "🐻‍❄️📦 TODO: fill this out"
+description = "🐻‍❄️📦 Enables the use of the OCI registry specification for charted-server"
 version.workspace = true
 edition.workspace = true
 homepage.workspace = true
