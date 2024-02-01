@@ -52,7 +52,7 @@ jobs:
         strategy:
             fail-fast: true
             matrix:
-                runner: [ubuntu-latest, macos-latest, windows-latest, macos-14-arm64]
+                runner: [ubuntu-latest, macos-latest, windows-latest]
                 rust-version: [stable, nightly]
         steps:
             - name: Checkout repository
