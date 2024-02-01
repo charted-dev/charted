@@ -41,6 +41,6 @@ tar = "0.4.40"
 tracing = "0.1.40"
 
 [dev-dependencies]
-remi-fs = "0.4.3"
+remi-fs = "0.5.0"
 tempfile = "3.9.0"
 tokio = { version = "1.35.1", features = ["rt", "macros"] }

@@ -2203,9 +2203,9 @@ dependencies = [
 
 [[package]]
 name = "file-format"
-version = "0.22.0"
+version = "0.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7fcb859e047d667f798f913a2cd0d5c214b85944d1191efa8146c98888fc557b"
+checksum = "865ed54301d7e5136763302a3c9e595317e08a3119e19a078ab1ed269eb18edc"
 
 [[package]]
 name = "filetime"
@@ -4038,6 +4038,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c08c74e62047bb2de4ff487b251e4a92e24f48745648451635cec7d591162d9f"
 
 [[package]]
+name = "remi"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "83247f07ce229ea31f36926fa9bf2a72dab8031a32ba63bac50154f6694d0aab"
+dependencies = [
+ "async-trait",
+ "bytes",
+ "futures",
+]
+
+[[package]]
 name = "remi-core"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4051,19 +4062,18 @@ dependencies = [
 
 [[package]]
 name = "remi-fs"
-version = "0.4.3"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "39ed3e42c17da520748e0bb0fb37d243787d80a8ff88309066746fa6fcf3c748"
+checksum = "4f603281d176b4975064df0d30b64479c149ef8716078365f12a2e913354c2f9"
 dependencies = [
  "async-trait",
  "bytes",
- "derive_builder",
  "dirs",
  "file-format",
  "futures",
  "infer",
  "log",
- "remi-core",
+ "remi",
  "serde",
  "tokio",
 ]
