@@ -346,6 +346,39 @@
                 }
             }
         },
+        "/users/@me/repositories": {
+            "put": {
+                "tags": ["Repositories"],
+                "description": "Create a repository with the current authenticated user as the owner of the repository",
+                "operationId": "create_user_repository",
+                "responses": {
+                    "201": {
+                        "description": "Repository created",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/RepositoryResponse" } }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict: repository with that name already exists on the user's account",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    }
+                }
+            }
+        },
         "/users/{idOrName}": {
             "get": {
                 "tags": ["Users"],
@@ -440,6 +473,58 @@
                         "description": "Internal Server Error",
                         "content": {
                             "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{idOrName}/repositories": {
+            "get": {
+                "tags": ["Users", "Repositories"],
+                "description": "Retrieve all of a user's repositories. This filters out private ones.",
+                "operationId": "list_user_repositories",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Cursor to passthrough to proceed into the next or previous page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
+                            "minLength": 15
+                        }
+                    },
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.",
+                        "required": true,
+                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "Order to sort the entries by.",
+                        "required": false,
+                        "schema": { "$ref": "#/components/schemas/OrderBy" }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "How many elements should be present in a page.",
+                        "required": false,
+                        "schema": { "type": "integer", "format": "int32" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of all the user's repositories",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/responses/RepositoryPaginatedResponse" }
+                            }
                         }
                     }
                 }
@@ -776,6 +861,39 @@
                 }
             }
         },
+        "/v1/users/@me/repositories": {
+            "put": {
+                "tags": ["Repositories"],
+                "description": "Create a repository with the current authenticated user as the owner of the repository",
+                "operationId": "create_user_repository",
+                "responses": {
+                    "201": {
+                        "description": "Repository created",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/RepositoryResponse" } }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict: repository with that name already exists on the user's account",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/users/{idOrName}": {
             "get": {
                 "tags": ["Users"],
@@ -870,6 +988,58 @@
                         "description": "Internal Server Error",
                         "content": {
                             "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/{idOrName}/repositories": {
+            "get": {
+                "tags": ["Users", "Repositories"],
+                "description": "Retrieve all of a user's repositories. This filters out private ones.",
+                "operationId": "list_user_repositories",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Cursor to passthrough to proceed into the next or previous page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
+                            "minLength": 15
+                        }
+                    },
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.",
+                        "required": true,
+                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "Order to sort the entries by.",
+                        "required": false,
+                        "schema": { "$ref": "#/components/schemas/OrderBy" }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "How many elements should be present in a page.",
+                        "required": false,
+                        "schema": { "type": "integer", "format": "int32" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of all the user's repositories",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/responses/RepositoryPaginatedResponse" }
+                            }
                         }
                     }
                 }
@@ -1124,6 +1294,8 @@
                     "MISSING_PASSWORD",
                     "ACCESS_NOT_PERMITTED",
                     "IO",
+                    "INVALID_TYPE",
+                    "BAD_REQUEST",
                     "INVALID_JWT_CLAIM",
                     "MISSING_AUTHORIZATION_HEADER",
                     "INVALID_PASSWORD",
@@ -1669,6 +1841,42 @@
                                 "success": {
                                     "type": "boolean",
                                     "description": "whether if this response [MainResponse] was successful or not"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "RepositoryResponse": {
+                "description": "Response object for \"Repository\"",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": { "$ref": "#/components/schemas/Repository" },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "whether if this response [RepositoryResponse] was successful or not"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "SessionResponse": {
+                "description": "Response object for \"Session\"",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": { "$ref": "#/components/schemas/Session" },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "whether if this response [SessionResponse] was successful or not"
                                 }
                             }
                         }

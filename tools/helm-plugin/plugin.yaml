@@ -16,10 +16,10 @@
 name: charted
 version: 0.1.0-beta
 description: 🐻‍❄️🌺 Helm plugin to help you push your Helm charts into charted-server easily!~
-command: "$HELM_PLUGIN_DIR/bin/charted-helm-plugin"
+command: '$HELM_PLUGIN_DIR/bin/charted-helm-plugin'
 useTunnel: false
 downloaders:
-- command: bin/charted-helm-plugin repo download
-  protocols: [charted]
+    - command: bin/charted-helm-plugin repo download
+      protocols: [charted]
 hooks:
-  update: "cd $HELM_PLUGIN_DIR; ./scripts/update.sh"
+    update: 'cd $HELM_PLUGIN_DIR; ./scripts/update.sh'

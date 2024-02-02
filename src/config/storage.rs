@@ -25,7 +25,7 @@ use std::{borrow::Cow, path::PathBuf, str::FromStr};
 
 /// Configures the storage for holding external media and chart indexes.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged, rename_all = "lowercase")]
+#[serde(rename_all = "lowercase")]
 pub enum Config {
     /// Uses the local filesystem to store external media and chart indexes.
     Filesystem(remi_fs::Config),

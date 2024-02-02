@@ -59,7 +59,7 @@ jobs:
             - name: Generate OpenAPI document
               run: |
                   cargo run --release --locked -- openapi ${GITHUB_WORKSPACE}/assets/openapi.json
-                  bunx prettier --write --config ${GITHUB_WORKSPACE}/web/.prettierrc.json ./assets/openapi.json
+                  bunx prettier --write --config ${GITHUB_WORKSPACE}/.prettierrc.json ./assets/openapi.json
 
             - name: Commit changes (if we can)
               uses: EndBug/add-and-commit@v9

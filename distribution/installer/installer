@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+
+# 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
+# Copyright 2022-2024 Noelware, LLC. <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This is the one-line installer for installing the `charted` binary only on Unix platforms (Linux and macOS are
+# officially supported by Noelware).
+#
+#   Usage:
+#   $ curl -fsSL https://i.noel.pink/charted | sh -
+#
+# on new releases, the CI for the Hazel instance for `i.noel.pink` will pick up the installer
+# scripts and will be updated.
+
+# Define global constants here
+APP="charted"
+VERSION="{{Version}}"
+
+# define parameters that can be customised with flags or environment variables
+ARTIFACT_URI=${CHARTED_ARTIFACTS_URL:-"https://artifacts.noelware.cloud"}
+NEVER_MODIFY_PATH=${CHARTED_NEVER_MODIFY_PATH:-"0"}
+
+function installer::download {
+    local url="$1"
+    local in="$2"
+
+    if command -v curl >/dev/null; then
+        echo "[verbose] using \`curl\` as installer"
+        curl -fSL "$url" -o "$in"
+    fi
+}
+
+function installer::help {
+    echo "USAGE    :: curl -fsSL https://i.noel.pink/charted | sh -"
+    echo "SYNOPSIS :: Downloads the \`charted\` binary on your system on Unix platforms (macOS and Linux are officially supported)"
+    echo "OPTIONS  ::"
+    echo "--help, -h                                                                                     prints this message"
+    echo "--artifact-url      [env: CHARTED_ARTIFACTS_URL=] [default: https://artifacts.noelware.cloud]  defines the URL to download the \`charted\` binary from"
+    echo "--never-modify-path [env: CHARTED_NEVER_MODIFY_PATH=] [default: false]                         whether if we should never modify the \`\$PATH\` environment variable"
+
+    exit 1
+}
+
+function installer::main {
+    echo "installing \`$APP\` v$VERSION..."
+
+    os=unknown
+    arch=unknown
+
+    case "$(uname -m)" in
+        x86_64|amd64)
+            arch=x86_64
+            ;;
+        arm64|aarch64)
+            arch=arm64
+            ;;
+        *)
+            echo "[error] Unsupported platform: $(uname -m)"
+            exit 1
+            ;;
+    esac
+
+    case "$(uname -s)" in
+        Linux)
+            os=linux
+            ;;
+        Darwin)
+            os=darwin
+            ;;
+        *)
+            echo "[error] Unsupported platform: $(uname -s)"
+            exit 1
+            ;;
+    esac
+
+    echo "[verbose] os=$os arch=$arch"
+    url="$ARTIFACT_URI/charted/server/$VERSION/charted-$os-$arch"
+    tmpdir=$(mktemp -d)
+
+    # on random exits or SIGINT, it will delete the temporary directory
+    # so random temporary directories by the installer will be removed.
+    trap "rm -rf $tmpdir" EXIT
+    trap "rm -rf $tmpdir" SIGINT
+
+    echo "[verbose] url=$url tmpdir=$tmpdir"
+}
+
+while [ $# != 0 ]; do
+    case "$1" in
+        --help|-h)
+            installer::help
+            ;;
+        --artifact-url)
+            shift
+            ARTIFACT_URI="$1"
+            ;;
+        --artifact-url=*)
+            url="$(echo "$1" | cut -d "=" -f2)"
+            ARTIFACT_URI="$url"
+            ;;
+        --never-modify-path)
+            NEVER_MODIFY_PATH=1
+            ;;
+        *)
+            echo "[error] Unknown argument: $1"
+            installer::help
+            ;;
+    esac
+
+    shift
+done
+
+installer::main
