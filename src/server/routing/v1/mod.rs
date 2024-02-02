@@ -30,7 +30,7 @@ pub mod user;
 use crate::{
     openapi::generate_response_schema,
     server::models::res::{err, ErrorCode},
-    Instance,
+    Instance, VERSION,
 };
 use axum::{extract::Request, http::StatusCode, response::IntoResponse, routing, Router};
 use serde::Serialize;
@@ -48,10 +48,24 @@ pub struct EntrypointResponse {
     pub docs: String,
 }
 
+impl EntrypointResponse {
+    pub fn new(entity: impl Into<String>) -> EntrypointResponse {
+        let entity = entity.into();
+        EntrypointResponse {
+            message: format!("Welcome to the {entity} API!"),
+            docs: format!(
+                "https://charts.noelware.org/docs/server/{VERSION}/api/reference/{}",
+                entity.to_lowercase()
+            ),
+        }
+    }
+}
+
 generate_response_schema!(EntrypointResponse);
 
 pub fn create_router(instance: &Instance) -> Router<Instance> {
     let mut router = Router::new()
+        .nest("/repositories", repository::create_router())
         .route("/openapi.json", routing::get(openapi::json))
         .route("/openapi.yaml", routing::get(openapi::yaml))
         .route("/heartbeat", routing::get(heartbeat::HeartbeatRestController::run))

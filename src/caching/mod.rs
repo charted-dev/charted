@@ -96,6 +96,9 @@ pub trait CacheWorker<Target: Serialize + DeserializeOwned>: Send + Sync {
 
     /// Attempts to delete a cache key from the cache if it exists.
     async fn delete(&mut self, key: CacheKey) -> Result<()>;
+
+    /// Checks if the cache key exists in the cache or not.
+    async fn exists(&mut self, key: &CacheKey) -> Result<bool>;
 }
 
 #[async_trait]
@@ -110,6 +113,10 @@ impl<Target: Serialize + DeserializeOwned + Send + Sync> CacheWorker<Target> for
 
     async fn delete(&mut self, key: CacheKey) -> Result<()> {
         (**self).delete(key).await
+    }
+
+    async fn exists(&mut self, key: &CacheKey) -> Result<bool> {
+        (**self).exists(key).await
     }
 }
 
@@ -128,6 +135,10 @@ fn __assert_object_safe() {
 
         async fn delete(&mut self, _key: CacheKey) -> Result<()> {
             Ok(())
+        }
+
+        async fn exists(&mut self, _key: &CacheKey) -> Result<bool> {
+            Ok(false)
         }
     }
 

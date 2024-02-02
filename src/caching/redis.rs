@@ -90,4 +90,13 @@ impl<'a, Target: Serialize + DeserializeOwned + Send + Sync + 'a> CacheWorker<Ta
 
         conn.del(&key).await.context("unable to delete Redis key [{key}]")
     }
+
+    #[instrument(name = "charted.caching.redis.exists", skip(self))]
+    async fn exists(&mut self, key: &CacheKey) -> eyre::Result<bool> {
+        let key = key.clone().as_redis_key();
+        let client = self.client.master()?;
+        let mut conn = client.get_async_connection().await?;
+
+        conn.exists(&key).await.map_err(eyre::Report::from)
+    }
 }

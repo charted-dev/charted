@@ -77,6 +77,10 @@ impl<Target: Serialize + DeserializeOwned + Send + Sync + 'static> CacheWorker<T
         Ok(())
     }
 
+    async fn exists(&mut self, key: &CacheKey) -> eyre::Result<bool> {
+        Ok(self.0.contains_key(key))
+    }
+
     async fn delete(&mut self, key: CacheKey) -> eyre::Result<()> {
         // continue if no cache key exists
         if !self.0.contains_key(&key) {

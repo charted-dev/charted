@@ -67,6 +67,7 @@ static COMPONENTS: Lazy<Components> = lazy!(ComponentsBuilder::new()
     .responses_from_iter([
         crate::server::routing::v1::user::sessions::SessionResponse::response(),
         crate::server::routing::v1::repository::RepositoryResponse::response(),
+        crate::server::routing::v1::repository::RepositoryResponse::response(),
         crate::server::routing::v1::features::FeaturesResponse::response(),
         crate::server::routing::v1::user::UserResponse::response(),
         crate::server::routing::v1::EntrypointResponse::response(),
@@ -91,6 +92,13 @@ impl Document {
     /// [`Paths`] of all available [`APIVersion::V1`] endpoints.
     pub fn v1() -> Paths {
         add_paths! {
+            Document::format(APIVersion::V1, "/repositories/{owner}/{name}") => crate::server::routing::v1::repository::GetRepoByOwnerAndNameRestController::paths();
+            Document::format(APIVersion::V1, "/repositories/{id}") => [
+                crate::server::routing::v1::repository::GetRepoByIdRestController::paths()
+            ];
+
+            Document::format(APIVersion::V1, "/repositories") => crate::server::routing::v1::repository::EntrypointRestController::paths();
+
             Document::format(APIVersion::V1, "/users/{idOrName}/avatar/{hash}") => crate::server::routing::v1::user::avatars::GetUserAvatarByHashRestController::paths();
             Document::format(APIVersion::V1, "/users/{idOrName}/repositories") => crate::server::routing::v1::user::repositories::ListUserRepositoriesRestController::paths();
             Document::format(APIVersion::V1, "/users/{idOrName}/avatar") => crate::server::routing::v1::user::avatars::GetCurrentUserAvatarRestController::paths();
@@ -122,6 +130,13 @@ impl Document {
     /// [`Paths`] for all available recent API version endpoints.
     pub fn latest() -> Paths {
         add_paths! {
+            "/repositories/{owner}/{name}" => crate::server::routing::v1::repository::GetRepoByOwnerAndNameRestController::paths();
+            "/repositories/{id}" => [
+                crate::server::routing::v1::repository::GetRepoByIdRestController::paths()
+            ];
+
+            "/repositories" => crate::server::routing::v1::repository::EntrypointRestController::paths();
+
             "/users/{idOrName}/avatar/{hash}" => crate::server::routing::v1::user::avatars::GetUserAvatarByHashRestController::paths();
             "/users/{idOrName}/repositories" => crate::server::routing::v1::user::repositories::ListUserRepositoriesRestController::paths();
             "/users/{idOrName}/avatar" => crate::server::routing::v1::user::avatars::GetCurrentUserAvatarRestController::paths();

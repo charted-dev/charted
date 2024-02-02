@@ -41,7 +41,7 @@ use crate::{
         routing::v1::EntrypointResponse,
         validation::{validate, validate_email},
     },
-    Instance, VERSION,
+    Instance,
 };
 use axum::{extract::State, handler::Handler, http::StatusCode, routing, Extension, Router};
 use chrono::Local;
@@ -146,13 +146,7 @@ pub fn create_router() -> Router<Instance> {
 /// Generic entrypoint route for the Users API.
 #[controller(id = "users", tags("Users"), response(200, "Successful response", ("application/json", response!("EntrypointResponse"))))]
 async fn main() {
-    ok(
-        StatusCode::OK,
-        EntrypointResponse {
-            message: "Welcome to the Users API".into(),
-            docs: format!("https://charts.noelware.org/docs/server/{VERSION}/api/users"),
-        },
-    )
+    ok(StatusCode::OK, EntrypointResponse::new("Users"))
 }
 
 /// Creates a new user if the server allows registrations.
