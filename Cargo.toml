@@ -243,7 +243,7 @@ version = "4.2.0"
 features = ["uuid"]
 
 [dependencies.uuid]
-version = "1.6.1"
+version = "1.7.0"
 features = ["serde", "v4"]
 
 [dependencies.validator]
