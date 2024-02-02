@@ -51,14 +51,15 @@ jobs:
             - name: Setup Bun
               uses: oven-sh/setup-bun@v1
 
+            - name: Install `protoc`
+              uses: Noelware/setup-protoc@1.2.0
+              with:
+                  repo-token: ${{github.token}}
+
             - name: Generate OpenAPI document
               run: |
                   cargo run --release --locked -- openapi ${GITHUB_WORKSPACE}/assets/openapi.json
                   bunx prettier --write --config ${GITHUB_WORKSPACE}/web/.prettierrc.json ./assets/openapi.json
-
-            - name: Update OpenAPI types
-              working-directory: ./web
-              run: bun generate:openapi
 
             - name: Commit changes (if we can)
               uses: EndBug/add-and-commit@v9
