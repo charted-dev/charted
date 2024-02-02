@@ -33,7 +33,7 @@ repository = "https://github.com/charted-dev/charted"
 publish = false
 
 [workspace]
-members = ["features/oci", "proc-macros", "tools/devtools", "tools/helm-plugin"]
+members = ["features/gc", "features/oci", "proc-macros", "tools/devtools", "tools/helm-plugin"]
 resolver = "2"
 
 [workspace.package]
