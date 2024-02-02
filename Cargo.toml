@@ -56,7 +56,7 @@ async-trait = "0.1.77"
 clap_complete = "4.4.7"
 dotenvy = "0.15.7"
 eyre = "0.6.12"
-serde_json = "1.0.112"
+serde_json = "1.0.113"
 which = "6.0.0"
 
 [workspace.dependencies.chrono]
@@ -124,7 +124,7 @@ sentry = "0.32.1"
 sentry-eyre = "0.1.0"
 sentry-tower = { version = "0.32.1", features = ["axum", "http"] }
 sentry-tracing = "0.32.1"
-serde_json = "1.0.111"
+serde_json = "1.0.113"
 serde_path_to_error = "0.1.15"
 serde_repr = "0.1.18"
 serde_yaml = "0.9.31"
