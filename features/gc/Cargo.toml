@@ -23,5 +23,5 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
 [dependencies]
 logos = "0.13.0"
-sentry = "0.31.8"
+sentry = "0.32.2"
 tracing = "0.1.40"
