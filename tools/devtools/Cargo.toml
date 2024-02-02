@@ -33,7 +33,7 @@ cargo_toml = "0.19.1"
 # this is fine since the root crate doesn't depend on `charted-devtools`
 charted = { path = "../..", version = "0.1.0-beta" }
 clap = { version = "4.4.18", features = ["derive", "env"] }
-clap_complete = "4.4.9"
+clap_complete = "4.4.10"
 color-eyre.workspace = true
 eyre.workspace = true
 heck = "0.4.1"
