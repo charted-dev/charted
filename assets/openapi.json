@@ -109,6 +109,128 @@
                 }
             }
         },
+        "/repositories": {
+            "get": {
+                "tags": ["Repositories"],
+                "description": "Entrypoint for the Repositories API",
+                "operationId": "repositories",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/EntrypointResponse" } }
+                        }
+                    }
+                }
+            }
+        },
+        "/repositories/{id}": {
+            "get": {
+                "tags": ["Repositories"],
+                "description": "Finds a repository by its ID.",
+                "operationId": "get_repo_by_id",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
+                            "minLength": 15
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/RepositoryResponse" } }
+                        }
+                    },
+                    "403": {
+                        "description": "You are not allowed to see this resource",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "404": {
+                        "description": "Entity was not found",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    }
+                }
+            }
+        },
+        "/repositories/{owner}/{name}": {
+            "get": {
+                "tags": ["Repositories"],
+                "description": "Find a repository by the owner's ID/name and the repository's ID/name\n\n ## Examples\n ```http\n # Acceptable\n GET /repositories/charted/server\n\n # Not acceptable\n GET /repositories/server  # `server` will be treated as a owner's ID or name.\n GET /repositories/charted # use /[users|organizations]/repositories to list all repositories\n ```",
+                "operationId": "get_repo_by_owner_and_name",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "owner's ID or name",
+                        "required": true,
+                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "repository's ID or name",
+                        "required": true,
+                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/RepositoryResponse" } }
+                        }
+                    },
+                    "400": {
+                        "description": "Unable to decode given path parameter",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "403": {
+                        "description": "You are not allowed to patch this resource",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "404": {
+                        "description": "Entity was not found",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "406": {
+                        "description": "Received an invalid `Name`",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
                 "tags": ["Users"],
@@ -619,6 +741,128 @@
                         "description": "Successful response",
                         "content": {
                             "application/json": { "schema": { "$ref": "#/components/responses/InfoResponse" } }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/repositories": {
+            "get": {
+                "tags": ["Repositories"],
+                "description": "Entrypoint for the Repositories API",
+                "operationId": "repositories",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/EntrypointResponse" } }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/repositories/{id}": {
+            "get": {
+                "tags": ["Repositories"],
+                "description": "Finds a repository by its ID.",
+                "operationId": "get_repo_by_id",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
+                            "minLength": 15
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/RepositoryResponse" } }
+                        }
+                    },
+                    "403": {
+                        "description": "You are not allowed to see this resource",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "404": {
+                        "description": "Entity was not found",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/repositories/{owner}/{name}": {
+            "get": {
+                "tags": ["Repositories"],
+                "description": "Find a repository by the owner's ID/name and the repository's ID/name\n\n ## Examples\n ```http\n # Acceptable\n GET /repositories/charted/server\n\n # Not acceptable\n GET /repositories/server  # `server` will be treated as a owner's ID or name.\n GET /repositories/charted # use /[users|organizations]/repositories to list all repositories\n ```",
+                "operationId": "get_repo_by_owner_and_name",
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "in": "path",
+                        "description": "owner's ID or name",
+                        "required": true,
+                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                    },
+                    {
+                        "name": "repo",
+                        "in": "path",
+                        "description": "repository's ID or name",
+                        "required": true,
+                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/RepositoryResponse" } }
+                        }
+                    },
+                    "400": {
+                        "description": "Unable to decode given path parameter",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "403": {
+                        "description": "You are not allowed to patch this resource",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "404": {
+                        "description": "Entity was not found",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "406": {
+                        "description": "Received an invalid `Name`",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
                         }
                     }
                 }
