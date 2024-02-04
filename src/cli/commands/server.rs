@@ -78,6 +78,22 @@ impl Cmd {
                 })),
             )
             .with(sentry_tracing::layer())
+            .with(
+                config
+                    .logging
+                    .logstash_tcp_uri
+                    .as_ref()
+                    .map(|url| {
+                        let stream = std::net::TcpStream::connect(url).unwrap();
+                        WriteLayer::new_with(stream, writers::json)
+                    })
+                    .with_filter(LevelFilter::from_level(config.logging.level))
+                    .with_filter(tracing_subscriber::filter::filter_fn(|meta| {
+                        // disallow from getting logs from `tokio` since it doesn't contain anything
+                        // useful to us
+                        !meta.target().starts_with("tokio::")
+                    })),
+            )
             .init();
     }
 }
@@ -200,7 +216,7 @@ impl AsyncExecute for Cmd {
             storage,
             charts,
             search: None,
-            config: config.clone(),
+            config,
             redis: Arc::new(RwLock::new(redis)),
             authz,
             pool,
@@ -220,7 +236,8 @@ impl AsyncExecute for Cmd {
             _ => router,
         };
 
-        if let Some(ref cfg) = config.server.clone().ssl {
+        let instance = Instance::get();
+        if let Some(ref cfg) = instance.config.server.ssl {
             info!("server is now using HTTPS support");
 
             // keep a handle for the TLS server so the shutdown signal can all shutdown
@@ -229,10 +246,10 @@ impl AsyncExecute for Cmd {
 
             if cfg.allow_redirections {
                 info!("...with HTTP redirection on :7015");
-                tokio::spawn(redirect_http_to_https(7015, config.server.port, fut));
+                tokio::spawn(redirect_http_to_https(7015, instance.config.server.port, fut));
             }
 
-            let addr: SocketAddr = config.server.into();
+            let addr = instance.config.server.addr();
             let config = OpenSSLConfig::from_pem_file(&cfg.cert, &cfg.cert_key)?;
 
             info!(address = ?addr, "listening on HTTPS");
@@ -241,7 +258,7 @@ impl AsyncExecute for Cmd {
                 .serve(router.into_make_service())
                 .await
         } else {
-            let addr: SocketAddr = config.server.into();
+            let addr = instance.config.server.addr();
             let listener = tokio::net::TcpListener::bind(addr).await?;
             info!(address = ?addr, "listening on HTTP");
 

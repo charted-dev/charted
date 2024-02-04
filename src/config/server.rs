@@ -36,6 +36,12 @@ pub struct Config {
     pub ssl: Option<ssl::Config>,
 }
 
+impl Config {
+    pub fn addr(&self) -> SocketAddr {
+        format!("{}:{}", self.host, self.port).parse().unwrap()
+    }
+}
+
 impl Default for Config {
     fn default() -> Self {
         Config {
@@ -65,12 +71,6 @@ impl TryFromEnv for Config {
                 Err(_) => None,
             },
         })
-    }
-}
-
-impl From<Config> for SocketAddr {
-    fn from(value: Config) -> SocketAddr {
-        format!("{}:{}", value.host, value.port).parse().unwrap()
     }
 }
 
