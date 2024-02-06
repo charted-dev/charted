@@ -56,7 +56,7 @@ services:
     elasticsearch:
         <<: *container
         container_name: charted_elasticsearch
-        image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+        image: docker.elastic.co/elasticsearch/elasticsearch:8.12.1
         ports:
             - '9200:9200'
         environment:
