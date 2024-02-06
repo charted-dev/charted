@@ -17,7 +17,7 @@ use super::EntrypointResponse;
 use crate::{
     caching::REPOSITORIES,
     common::models::{
-        entities::{ApiKeyScope, ApiKeyScopes, Repository, User},
+        entities::{ApiKeyScope, ApiKeyScopes, Organization, Repository, User},
         NameOrSnowflake,
     },
     db::controllers::DbController,
@@ -170,6 +170,15 @@ pub async fn get_repo_by_owner_and_name(
 
     match controllers.users.get_by(&owner).await {
         Ok(Some(User { id, .. })) => {
+            owner_id = Some(id);
+        }
+
+        Ok(None) => {}
+        Err(_) => return Err(internal_server_error()),
+    }
+
+    match controllers.organizations.get_by(&owner).await {
+        Ok(Some(Organization { id, .. })) => {
             owner_id = Some(id);
         }
 

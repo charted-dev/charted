@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use super::models::res::{err, ApiResponse, ErrorCode};
 use axum::{
     body::Body,
     extract::FromRequest,
@@ -25,8 +26,6 @@ use std::{
     fmt::Display,
     ops::{Deref, DerefMut},
 };
-
-use super::models::res::{err, ApiResponse, ErrorCode};
 
 /// Explicit wrapper type for [`multer::Multipart`] that is also an Axum extractor.
 pub struct Multipart(multer::Multipart<'static>);

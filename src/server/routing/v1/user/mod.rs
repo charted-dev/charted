@@ -337,6 +337,7 @@ pub async fn get_self(Extension(Session { user, .. }): Extension<Session>) -> Ap
 #[controller(
     method = patch,
     tags("Users"),
+    requestBody("Payload for creating a new user. `password` can be empty if the server's session manager is not Local", ("application/json", schema!("PatchUserPayload"))),
     securityRequirements(("ApiKey", ["users:update"]), ("Bearer", []), ("Basic", [])),
     response(204, "Successful response", ("application/json", response!("EmptyApiResponse"))),
     response(400, "If the request body was invalid (i.e, validation errors)", ("application/json", response!("ApiErrorResponse"))),

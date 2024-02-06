@@ -196,6 +196,10 @@ impl AsyncExecute for Cmd {
         info!(took = ?Instant::now().duration_since(now), "initialized core chart library");
 
         let controllers = db::controllers::Controllers {
+            organizations: db::controllers::organization::DbController::new(
+                crate::caching::choose_strategy(&config.database.caching, &redis),
+                pool.clone(),
+            ),
             repositories: db::controllers::repository::DbController::new(
                 crate::caching::choose_strategy(&config.database.caching, &redis),
                 pool.clone(),

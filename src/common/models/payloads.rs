@@ -173,7 +173,7 @@ pub struct PatchRepositoryPayload {
     pub r#type: Option<ChartType>,
 }
 
-#[derive(Debug, Clone, Default, Validate, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Validate, Serialize, Deserialize, ToSchema)]
 pub struct PatchUserConnectionsPayload {
     /// Snowflake ID that was sourced from [Noelware's Accounts System](https://accounts.noelware.org)
     pub noelware_account_id: Option<u64>,
@@ -242,7 +242,7 @@ pub struct PatchOrganizationPayload {
 }
 
 /// Request body payload for creating a API key.
-#[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, Validate, ToSchema)]
 pub struct CreateApiKeyPayload {
     /// Description of the API key
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -263,7 +263,7 @@ pub struct CreateApiKeyPayload {
 }
 
 /// Request body payload to patch a API key's metadata.
-#[derive(Debug, Clone, Default, Serialize, Deserialize, Validate)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, Validate, ToSchema)]
 pub struct PatchApiKeyPayload {
     /// Updates or removes the description of the API key.
     ///

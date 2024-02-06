@@ -106,7 +106,7 @@ impl Client {
             .lock()
             .expect("unable to acquire mutex lock");
 
-        Ok(sentinel.master_for(&self.master_name.clone().unwrap(), None)?)
+        Ok(sentinel.master_for(self.master_name.as_ref().unwrap(), None)?)
     }
 
     /// Retrives a replica client from the sentinel list. If this is a standalone connection,
@@ -129,7 +129,7 @@ impl Client {
             .try_lock()
             .expect("unable to acquire mutex lock");
 
-        Ok(sentinel.replica_for(&self.master_name.clone().unwrap(), None)?)
+        Ok(sentinel.replica_for(self.master_name.as_ref().unwrap(), None)?)
     }
 
     /// Utility to create a single [command][redis::Cmd] without requiring

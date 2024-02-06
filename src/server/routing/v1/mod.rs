@@ -65,6 +65,7 @@ generate_response_schema!(EntrypointResponse);
 
 pub fn create_router(instance: &Instance) -> Router<Instance> {
     let mut router = Router::new()
+        .nest("/organizations", organization::create_router())
         .nest("/repositories", repository::create_router())
         .route("/openapi.json", routing::get(openapi::json))
         .route("/openapi.yaml", routing::get(openapi::yaml))

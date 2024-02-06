@@ -132,8 +132,16 @@ macro_rules! impl_paginate_priv {
     };
 
     ("organizations") => {
-        fn paginate<'life0, 'async_trait>(&'life0 self, request: $crate::controller::PaginationRequest) -> ::core::pin::Pin<
-            Box<dyn ::std::future::Future<Output = ::eyre::Result<::crate::server::pagination::Pagination<$ty>>> + ::core::marker::Send + 'async_trait>
+        fn paginate<'life0, 'async_trait>(&'life0 self, request: $crate::db::controllers::PaginationRequest) -> ::core::pin::Pin<
+            Box<
+                dyn ::std::future::Future<
+                    Output = ::eyre::Result<
+                        $crate::server::pagination::Pagination<
+                            $crate::common::models::entities::Organization
+                        >
+                    >
+                > + ::core::marker::Send + 'async_trait
+            >
         >
         where
             'life0: 'async_trait,
@@ -164,8 +172,8 @@ macro_rules! impl_paginate_priv {
                 }
 
                 match request.order_by {
-                    ::crate::server::pagination::OrderBy::Ascending => query.push("order by id ASC "),
-                    ::crate::server::pagination::OrderBy::Descending => query.push("order by id DESC "),
+                    $crate::server::pagination::OrderBy::Ascending => query.push("order by id ASC "),
+                    $crate::server::pagination::OrderBy::Descending => query.push("order by id DESC "),
                 };
 
                 query.push("limit ").push_bind((request.per_page as i32) + 1).push(" ");
@@ -184,10 +192,10 @@ macro_rules! impl_paginate_priv {
                                 .map(|e| e as u64)
                         };
 
-                        let page_info = ::crate::server::pagination::PageInfo { cursor };
-                        let data = entries.iter().filter_map(|row| <::crate::common::models::entities::Organization>::from_row(row).ok()).collect::<::std::vec::Vec::<_>>();
+                        let page_info = $crate::server::pagination::PageInfo { cursor };
+                        let data = entries.iter().filter_map(|row| <$crate::common::models::entities::Organization>::from_row(row).ok()).collect::<::std::vec::Vec::<_>>();
 
-                        Ok(::crate::server::pagination::Pagination { page_info, data })
+                        Ok($crate::server::pagination::Pagination { page_info, data })
                     }
 
                     Err(e) => {

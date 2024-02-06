@@ -107,6 +107,7 @@ pub async fn list_user_repositories(
 #[controller(
     method = put,
     tags("Repositories"),
+    requestBody("Payload for creating a repository", ("application/json", schema!("CreateRepositoryPayload"))),
     response(201, "Repository created", ("application/json", response!("RepositoryResponse"))),
     response(400, "Bad Request", ("application/json", response!("ApiErrorResponse"))),
     response(409, "Conflict: repository with that name already exists on the user's account", ("application/json", response!("ApiErrorResponse"))),

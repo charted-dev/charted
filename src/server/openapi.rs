@@ -32,6 +32,17 @@ static COMPONENTS: Lazy<Components> = lazy!(ComponentsBuilder::new()
         crate::server::routing::v1::EntrypointResponse::schema(),
         crate::server::routing::v1::info::InfoResponse::schema(),
         crate::server::routing::v1::main::MainResponse::schema(),
+        // request body schemas
+        crate::common::models::payloads::PatchUserConnectionsPayload::schema(),
+        crate::common::models::payloads::CreateOrganizationPayload::schema(),
+        crate::common::models::payloads::PatchOrganizationPayload::schema(),
+        crate::common::models::payloads::CreateRepositoryPayload::schema(),
+        crate::common::models::payloads::PatchRepositoryPayload::schema(),
+        crate::common::models::payloads::CreateApiKeyPayload::schema(),
+        crate::common::models::payloads::PatchApiKeyPayload::schema(),
+        crate::common::models::payloads::CreateUserPayload::schema(),
+        crate::common::models::payloads::PatchUserPayload::schema(),
+        crate::common::models::payloads::UserLoginPayload::schema(),
         // other schemas
         crate::common::models::entities::RepositoryRelease::schema(),
         crate::server::pagination::PaginatedOrganization::schema(),
@@ -92,6 +103,14 @@ impl Document {
     /// [`Paths`] of all available [`APIVersion::V1`] endpoints.
     pub fn v1() -> Paths {
         add_paths! {
+            // ~~~~~~~~~~~ ORGANIZATIONS ~~~~~~~~~~~~~~~~~~~
+            Document::format(APIVersion::V1, "/organizations/{idOrName}/repositories") => crate::server::routing::v1::organization::repositories::ListOrgRepositoriesRestController::paths();
+            Document::format(APIVersion::V1, "/organizations/{idOrName}/icon/{hash}") => crate::server::routing::v1::organization::icons::GetOrgIconByHashRestController::paths();
+            Document::format(APIVersion::V1, "/organizations/{idOrName}/icon") => crate::server::routing::v1::organization::icons::GetCurrentOrgIconRestController::paths();
+            Document::format(APIVersion::V1, "/organizations/{idOrName}") => crate::server::routing::v1::organization::GetOrgByIdOrNameRestController::paths();
+            Document::format(APIVersion::V1, "/organizations") => crate::server::routing::v1::organization::EntrypointRestController::paths();
+
+            // ~~~~~~~~~~~ REPOSITORIES ~~~~~~~~~~~~~~~~~~~
             Document::format(APIVersion::V1, "/repositories/{owner}/{name}") => crate::server::routing::v1::repository::GetRepoByOwnerAndNameRestController::paths();
             Document::format(APIVersion::V1, "/repositories/{id}") => [
                 crate::server::routing::v1::repository::GetRepoByIdRestController::paths()
@@ -99,6 +118,7 @@ impl Document {
 
             Document::format(APIVersion::V1, "/repositories") => crate::server::routing::v1::repository::EntrypointRestController::paths();
 
+            // ~~~~~~~~~~~     USERS     ~~~~~~~~~~~~~~~~~~~
             Document::format(APIVersion::V1, "/users/{idOrName}/avatar/{hash}") => crate::server::routing::v1::user::avatars::GetUserAvatarByHashRestController::paths();
             Document::format(APIVersion::V1, "/users/{idOrName}/repositories") => crate::server::routing::v1::user::repositories::ListUserRepositoriesRestController::paths();
             Document::format(APIVersion::V1, "/users/{idOrName}/avatar") => crate::server::routing::v1::user::avatars::GetCurrentUserAvatarRestController::paths();
@@ -119,6 +139,7 @@ impl Document {
                 crate::server::routing::v1::user::MainRestController::paths()
             ];
 
+            // ~~~~~~~~~~~      MAIN     ~~~~~~~~~~~~~~~~~~~
             Document::format(APIVersion::V1, "/index/{idOrName}") => crate::server::routing::v1::indexes::GetChartIndexRestController::paths();
             Document::format(APIVersion::V1, "/heartbeat") => crate::server::routing::v1::heartbeat::HeartbeatRestController::paths();
             Document::format(APIVersion::V1, "/features") => crate::server::routing::v1::features::FeaturesRestController::paths();
@@ -130,6 +151,14 @@ impl Document {
     /// [`Paths`] for all available recent API version endpoints.
     pub fn latest() -> Paths {
         add_paths! {
+            // ~~~~~~~~~~~ ORGANIZATIONS ~~~~~~~~~~~~~~~~~~~
+            "/organizations/{idOrName}/repositories" => crate::server::routing::v1::organization::repositories::ListOrgRepositoriesRestController::paths();
+            "/organizations/{idOrName}/icon/{hash}" => crate::server::routing::v1::organization::icons::GetOrgIconByHashRestController::paths();
+            "/organizations/{idOrName}/icon" => crate::server::routing::v1::organization::icons::GetCurrentOrgIconRestController::paths();
+            "/organizations/{idOrName}" => crate::server::routing::v1::organization::GetOrgByIdOrNameRestController::paths();
+            "/organizations" => crate::server::routing::v1::organization::EntrypointRestController::paths();
+
+            // ~~~~~~~~~~~ REPOSITORIES ~~~~~~~~~~~~~~~~~~~
             "/repositories/{owner}/{name}" => crate::server::routing::v1::repository::GetRepoByOwnerAndNameRestController::paths();
             "/repositories/{id}" => [
                 crate::server::routing::v1::repository::GetRepoByIdRestController::paths()
@@ -137,6 +166,7 @@ impl Document {
 
             "/repositories" => crate::server::routing::v1::repository::EntrypointRestController::paths();
 
+            // ~~~~~~~~~~~     USERS     ~~~~~~~~~~~~~~~~~~~
             "/users/{idOrName}/avatar/{hash}" => crate::server::routing::v1::user::avatars::GetUserAvatarByHashRestController::paths();
             "/users/{idOrName}/repositories" => crate::server::routing::v1::user::repositories::ListUserRepositoriesRestController::paths();
             "/users/{idOrName}/avatar" => crate::server::routing::v1::user::avatars::GetCurrentUserAvatarRestController::paths();
@@ -157,6 +187,7 @@ impl Document {
                 crate::server::routing::v1::user::MainRestController::paths()
             ];
 
+            // ~~~~~~~~~~~      MAIN     ~~~~~~~~~~~~~~~~~~~
             "/index/{idOrName}" => crate::server::routing::v1::indexes::GetChartIndexRestController::paths();
             "/heartbeat" => crate::server::routing::v1::heartbeat::HeartbeatRestController::paths();
             "/features" => crate::server::routing::v1::features::FeaturesRestController::paths();

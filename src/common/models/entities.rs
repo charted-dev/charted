@@ -263,11 +263,12 @@ pub struct Organization {
     #[serde(default)]
     pub private: bool,
 
-    /// The User resource that owns this organization
-    pub owner: User,
+    /// User ID that owns this organization
+    #[schema(schema_with = snowflake_schema)]
+    pub owner: i64,
 
     /// The name for this organization.
-    pub name: String,
+    pub name: Name,
 
     /// Unique identifier to locate this organization with the API
     #[schema(schema_with = snowflake_schema)]
@@ -300,7 +301,7 @@ pub struct ApiKey {
     pub owner: User,
 
     /// The name of the API key.
-    pub name: String,
+    pub name: Name,
 
     /// Unique identifer to locate this resource in the API server.
     #[schema(schema_with = snowflake_schema)]

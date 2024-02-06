@@ -20,7 +20,7 @@ use crate::{
     server::{
         controller,
         models::{
-            res::{err, ApiResponse, ErrorCode, INTERNAL_SERVER_ERROR},
+            res::{err, internal_server_error, ApiResponse, ErrorCode, INTERNAL_SERVER_ERROR},
             yaml::Yaml,
         },
     },
@@ -66,8 +66,8 @@ pub async fn get_chart_index(
                     StatusCode::NOT_FOUND,
                     (
                         ErrorCode::EntityNotFound,
-                        "user index doesn't exist, this is most definitely a bug",
-                        json!({"idOrName": nos}),
+                        "index doesn't exist, this is most definitely a bug",
+                        json!({"class":"User","idOrName": nos}),
                     ),
                 ));
             };
@@ -82,20 +82,49 @@ pub async fn get_chart_index(
             Ok(Yaml(StatusCode::OK, contents))
         }
 
-        Ok(None) => Err(err(
-            StatusCode::NOT_FOUND,
-            (
-                ErrorCode::EntityNotFound,
-                "user or organization doesn't exist",
-                json!({"idOrName": nos}),
-            ),
-        )),
+        Ok(None) => match controllers.organizations.get_by(&nos).await {
+            Ok(Some(org)) => {
+                let Some(contents) = storage
+                    .open(format!("./metadata/{}/index.yaml", org.id))
+                    .await
+                    .map_err(|e| {
+                        error!(idOrName = %nos, error = %e, "unable to perform chart index lookup");
+                        sentry::capture_error(&e);
 
-        Err(e) => {
-            error!(idOrName = %nos, error = %e, "received unexpected error from db");
-            sentry_eyre::capture_report(&e);
+                        err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
+                    })?
+                else {
+                    return Err(err(
+                        StatusCode::NOT_FOUND,
+                        (
+                            ErrorCode::EntityNotFound,
+                            "index doesn't exist, this is most definitely a bug",
+                            json!({"class":"Organization","idOrName": nos}),
+                        ),
+                    ));
+                };
 
-            Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR))
-        }
+                let contents: ChartIndex = serde_yaml::from_slice(contents.as_ref()).map_err(|e| {
+                    error!(idOrName = %nos, error = %e, "unable to deserialize contents into `ChartIndex`, was it tampered with?");
+                    sentry::capture_error(&e);
+
+                    err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
+                })?;
+
+                Ok(Yaml(StatusCode::OK, contents))
+            }
+            Ok(None) => Err(err(
+                StatusCode::NOT_FOUND,
+                (
+                    ErrorCode::EntityNotFound,
+                    "user or organization doesn't exist",
+                    json!({"idOrName": nos}),
+                ),
+            )),
+
+            Err(_) => Err(internal_server_error()),
+        },
+
+        Err(_) => Err(internal_server_error()),
     }
 }

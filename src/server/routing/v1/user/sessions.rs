@@ -39,6 +39,7 @@ generate_response_schema!(SessionResponse, schema = "Session");
 #[controller(
     method = post,
     tags("Users", "Sessions"),
+    requestBody("Payload for creating a new user. `password` can be empty if the server's session manager is not Local", ("application/json", schema!("UserLoginPayload"))),
     response(201, "Successful response", ("application/json", response!("SessionResponse"))),
     response(400, "Invalid payload received.", ("application/json", response!("ApiErrorResponse"))),
     response(403, "Invalid password received", ("application/json", response!("ApiErrorResponse"))),

@@ -102,6 +102,7 @@ pub trait DbController: Send + Sync {
 
 #[derive(Clone)]
 pub struct Controllers {
+    pub organizations: organization::DbController,
     pub repositories: repository::DbController,
     pub users: user::DbController,
 }
