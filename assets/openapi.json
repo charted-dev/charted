@@ -109,6 +109,178 @@
                 }
             }
         },
+        "/organizations": {
+            "get": {
+                "tags": ["Organizations"],
+                "description": "Entrypoint for the Organizations API",
+                "operationId": "repositories",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/EntrypointResponse" } }
+                        }
+                    }
+                }
+            }
+        },
+        "/organizations/{idOrName}": {
+            "get": {
+                "tags": ["Organizations"],
+                "description": "Finds an organization by its ID or name.",
+                "operationId": "get_org_by_id_or_name",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Path parameter that can take a `Name` or Snowflake ID",
+                        "required": true,
+                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/OrganizationResponse" } }
+                        }
+                    },
+                    "403": {
+                        "description": "You are not allowed to see this resource",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "404": {
+                        "description": "Entity was not found",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    }
+                }
+            }
+        },
+        "/organizations/{idOrName}/icon": {
+            "get": {
+                "tags": ["Organizations", "Icons"],
+                "description": "Returns the organization's current icon. Use the [`GET /organizations/{idOrName}/icons/{hash}.png`] REST route\n to grab an organization icon by a specific hash.\n\n [`GET /organizations/{idOrName}/icons/{hash}.png`]: https://charts.noelware.org/docs/server/latest/api/reference/organizations#GET-/organizations/{idOrName}/icon/{hash}.png",
+                "operationId": "get_current_org_icon",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Path parameter that can take a `Name` or Snowflake ID",
+                        "required": true,
+                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": { "image/*": { "schema": { "type": "string", "format": "binary" } } }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    }
+                }
+            }
+        },
+        "/organizations/{idOrName}/icon/{hash}": {
+            "get": {
+                "tags": ["Organizations", "Icons"],
+                "description": "Return a organization icon by the icon hash.",
+                "operationId": "get_org_icon_by_hash",
+                "parameters": [
+                    {
+                        "name": "hash",
+                        "in": "path",
+                        "description": "the hash to lookup for",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Path parameter that can take a `Name` or Snowflake ID",
+                        "required": true,
+                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": { "image/*": { "schema": { "type": "string", "format": "binary" } } }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    }
+                }
+            }
+        },
+        "/organizations/{idOrName}/repositories": {
+            "get": {
+                "tags": ["Organizations", "Repositories"],
+                "description": "Retrieve all of a organization's repositories. This filters out private ones.",
+                "operationId": "list_org_repositories",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Cursor to passthrough to proceed into the next or previous page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
+                            "minLength": 15
+                        }
+                    },
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.",
+                        "required": true,
+                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "Order to sort the entries by.",
+                        "required": false,
+                        "schema": { "$ref": "#/components/schemas/OrderBy" }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "How many elements should be present in a page.",
+                        "required": false,
+                        "schema": { "type": "integer", "format": "int32" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of all the organization's repositories",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/responses/RepositoryPaginatedResponse" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/repositories": {
             "get": {
                 "tags": ["Repositories"],
@@ -746,6 +918,178 @@
                 }
             }
         },
+        "/v1/organizations": {
+            "get": {
+                "tags": ["Organizations"],
+                "description": "Entrypoint for the Organizations API",
+                "operationId": "repositories",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/EntrypointResponse" } }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/organizations/{idOrName}": {
+            "get": {
+                "tags": ["Organizations"],
+                "description": "Finds an organization by its ID or name.",
+                "operationId": "get_org_by_id_or_name",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Path parameter that can take a `Name` or Snowflake ID",
+                        "required": true,
+                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/OrganizationResponse" } }
+                        }
+                    },
+                    "403": {
+                        "description": "You are not allowed to see this resource",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "404": {
+                        "description": "Entity was not found",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/organizations/{idOrName}/icon": {
+            "get": {
+                "tags": ["Organizations", "Icons"],
+                "description": "Returns the organization's current icon. Use the [`GET /organizations/{idOrName}/icons/{hash}.png`] REST route\n to grab an organization icon by a specific hash.\n\n [`GET /organizations/{idOrName}/icons/{hash}.png`]: https://charts.noelware.org/docs/server/latest/api/reference/organizations#GET-/organizations/{idOrName}/icon/{hash}.png",
+                "operationId": "get_current_org_icon",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Path parameter that can take a `Name` or Snowflake ID",
+                        "required": true,
+                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": { "image/*": { "schema": { "type": "string", "format": "binary" } } }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/organizations/{idOrName}/icon/{hash}": {
+            "get": {
+                "tags": ["Organizations", "Icons"],
+                "description": "Return a organization icon by the icon hash.",
+                "operationId": "get_org_icon_by_hash",
+                "parameters": [
+                    {
+                        "name": "hash",
+                        "in": "path",
+                        "description": "the hash to lookup for",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Path parameter that can take a `Name` or Snowflake ID",
+                        "required": true,
+                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": { "image/*": { "schema": { "type": "string", "format": "binary" } } }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/organizations/{idOrName}/repositories": {
+            "get": {
+                "tags": ["Organizations", "Repositories"],
+                "description": "Retrieve all of a organization's repositories. This filters out private ones.",
+                "operationId": "list_org_repositories",
+                "parameters": [
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "description": "Cursor to passthrough to proceed into the next or previous page.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
+                            "minLength": 15
+                        }
+                    },
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.",
+                        "required": true,
+                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "description": "Order to sort the entries by.",
+                        "required": false,
+                        "schema": { "$ref": "#/components/schemas/OrderBy" }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "How many elements should be present in a page.",
+                        "required": false,
+                        "schema": { "type": "integer", "format": "int32" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of all the organization's repositories",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/responses/RepositoryPaginatedResponse" }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/repositories": {
             "get": {
                 "tags": ["Repositories"],
@@ -1309,7 +1653,7 @@
                         "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
                         "minLength": 15
                     },
-                    "name": { "type": "string", "description": "The name of the API key." },
+                    "name": { "$ref": "#/components/schemas/Name" },
                     "owner": { "$ref": "#/components/schemas/User" },
                     "scopes": {
                         "type": "integer",
@@ -1480,6 +1824,70 @@
                 "description": "Represents what type this chart is. Do keep in mind that `operator` is not supported by Helm, but is specific to the API server. For serializing to valid Helm objects, `application` will be the replacement.",
                 "default": "application",
                 "enum": ["application", "library", "operator"]
+            },
+            "CreateApiKeyPayload": {
+                "type": "object",
+                "description": "Request body payload for creating a API key.",
+                "required": ["name"],
+                "properties": {
+                    "description": { "type": "string", "description": "Description of the API key", "nullable": true },
+                    "expires_in": { "allOf": [{ "$ref": "#/components/schemas/Duration" }], "nullable": true },
+                    "name": { "$ref": "#/components/schemas/Name" },
+                    "scopes": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/ApiKeyScope" },
+                        "description": "the list of scopes to apply to this API key"
+                    }
+                }
+            },
+            "CreateOrganizationPayload": {
+                "type": "object",
+                "description": "Request body payload for creating a new organization",
+                "required": ["name"],
+                "properties": {
+                    "description": {
+                        "type": "string",
+                        "description": "Short description about this organization. If `description` was set to `null`, then\nthis will not be updated, if `description` was a empty string, the `description`\nwill be set to a empty string and will present as \"*no description for this organization*\"\nin Hoshi.",
+                        "nullable": true
+                    },
+                    "display_name": {
+                        "type": "string",
+                        "description": "Display name for this organization.",
+                        "nullable": true
+                    },
+                    "name": { "$ref": "#/components/schemas/Name" },
+                    "private": { "type": "boolean", "description": "Whether if the organization is private or not." }
+                }
+            },
+            "CreateRepositoryPayload": {
+                "type": "object",
+                "description": "Payload to create a Repository entity.",
+                "required": ["name"],
+                "properties": {
+                    "description": {
+                        "type": "string",
+                        "description": "Short description about this repository.",
+                        "nullable": true
+                    },
+                    "name": { "$ref": "#/components/schemas/Name" },
+                    "private": { "type": "boolean", "description": "Whether if this repository is private." },
+                    "readme": {
+                        "type": "string",
+                        "description": "The contents of the README that will be displayed on the repository. If you're\nusing charted's official Helm plugin, new releases can update its README and it'll\nbe reflected.\n\nThis should be valid Markdown, but XSS cross scripting is impossible as scripts\nin codeblocks or via `<script>` won't be executed.\n\nYou can retrieve a repository's README (if it is public or if you have access) with\nthe [`GET /cdn`](https://charts.noelware.org/docs/server/latest/api/cdn#GET-{...params}) REST\nendpoint if the instance has the CDN feature enabled. It'll be under `/repositories/{id}/README.md`.",
+                        "nullable": true
+                    },
+                    "type": { "$ref": "#/components/schemas/ChartType" }
+                }
+            },
+            "CreateUserPayload": {
+                "type": "object",
+                "description": "Represents the payload for creating a new user.",
+                "required": ["username", "password", "email"],
+                "properties": {
+                    "email": { "type": "string", "description": "Email address to identify this user" },
+                    "password": { "$ref": "#/components/schemas/password" },
+                    "username": { "$ref": "#/components/schemas/Name" }
+                }
             },
             "DateTime": {
                 "type": "string",
@@ -1746,8 +2154,13 @@
                         "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
                         "minLength": 15
                     },
-                    "name": { "type": "string", "description": "The name for this organization." },
-                    "owner": { "$ref": "#/components/schemas/User" },
+                    "name": { "$ref": "#/components/schemas/Name" },
+                    "owner": {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
+                        "minLength": 15
+                    },
                     "private": {
                         "type": "boolean",
                         "description": "Whether this organization is private and only its member can access this resource."
@@ -1792,6 +2205,112 @@
                 "properties": {
                     "data": { "type": "array", "items": { "$ref": "#/components/schemas/Repository" } },
                     "page_info": { "$ref": "#/components/schemas/PageInfo" }
+                }
+            },
+            "PatchApiKeyPayload": {
+                "type": "object",
+                "description": "Request body payload to patch a API key's metadata.",
+                "properties": {
+                    "description": {
+                        "type": "string",
+                        "description": "Updates or removes the description of the API key.\n\n* If this is `null`, this will not do any patching\n* If this is a empty string, this will act as \"removing\" it from the metadata\n* If the comparsion (`old.description == this.description`) is false, then this will update it.",
+                        "nullable": true
+                    },
+                    "name": { "allOf": [{ "$ref": "#/components/schemas/Name" }], "nullable": true }
+                }
+            },
+            "PatchOrganizationPayload": {
+                "type": "object",
+                "description": "Request body payload for patching an organization's metadata.",
+                "properties": {
+                    "display_name": {
+                        "type": "string",
+                        "description": "Display name for this organization.",
+                        "nullable": true
+                    },
+                    "gravatar_email": {
+                        "type": "string",
+                        "description": "Optional field to update this organization's gravatar email. If this organization doesn't\nhave an avatar that is used or prefers not to use their previously uploaded\navatars and they set their Gravatar email, their Gravatar will be used.",
+                        "nullable": true
+                    },
+                    "name": { "allOf": [{ "$ref": "#/components/schemas/Name" }], "nullable": true },
+                    "private": {
+                        "type": "boolean",
+                        "description": "Whether if the organization is private or not.",
+                        "nullable": true
+                    },
+                    "twitter_handle": {
+                        "type": "string",
+                        "description": "Adds or removes a Twitter handle from this organization's metadata.\n\n* If this is `null`, this will not do any patching\n* If this is a empty string, this will act as \"removing\" it from the metadata\n* If the comparsion (`old.twitter_handle == twitter_handle`) is false, then this will update it.",
+                        "nullable": true
+                    }
+                }
+            },
+            "PatchRepositoryPayload": {
+                "type": "object",
+                "description": "Payload to patch a repository's metadata.",
+                "required": ["name"],
+                "properties": {
+                    "description": {
+                        "type": "string",
+                        "description": "Short description about this repository. If `description` was set to `null`, then\nthis will not be updated, if `description` was a empty string, the `description`\nwill be set to a empty string and will present as \"*no description for this repository*\"\nin Hoshi.",
+                        "nullable": true
+                    },
+                    "name": { "$ref": "#/components/schemas/Name" },
+                    "private": {
+                        "type": "boolean",
+                        "description": "Whether if this repository is private. This cannot be set to the actual value\nthat it was previously.",
+                        "nullable": true
+                    },
+                    "readme": {
+                        "type": "string",
+                        "description": "The contents of the README that will be displayed on the repository. If you're\nusing charted's official Helm plugin, new releases can update its README and it'll\nbe reflected.\n\nThis should be valid Markdown, but XSS cross scripting is impossible as scripts\nin codeblocks or via `<script>` won't be executed.\n\nYou can retrieve a repository's README (if it is public or if you have access) with\nthe [`GET /cdn`](https://charts.noelware.org/docs/server/latest/api/cdn#GET-{...params}) REST\nendpoint if the instance has the CDN feature enabled. It'll be under `/repositories/{id}/README.md`.",
+                        "nullable": true
+                    },
+                    "type": { "allOf": [{ "$ref": "#/components/schemas/ChartType" }], "nullable": true }
+                }
+            },
+            "PatchUserConnectionsPayload": {
+                "type": "object",
+                "properties": {
+                    "github_account_id": {
+                        "type": "string",
+                        "description": "Account ID that was sourced from GitHub OAuth2. This can differ from\nGitHub (https://github.com) and GitHub Enterprise usage.",
+                        "nullable": true
+                    },
+                    "google_account_id": {
+                        "type": "string",
+                        "description": "Account ID that was sourced from Google OAuth2",
+                        "nullable": true
+                    },
+                    "noelware_account_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Snowflake ID that was sourced from [Noelware's Accounts System](https://accounts.noelware.org)",
+                        "nullable": true,
+                        "minimum": 0
+                    }
+                }
+            },
+            "PatchUserPayload": {
+                "type": "object",
+                "description": "Payload for patching your user metadata.",
+                "required": ["username", "password"],
+                "properties": {
+                    "description": {
+                        "type": "string",
+                        "description": "Short description about this user. If this field was provided, then the\ndescription will be overwritten. If this field is `null`, then nothing\nwill happen. If this field is a empty string, then the description\nwill be wiped.",
+                        "nullable": true
+                    },
+                    "email": { "type": "string", "description": "Updates this user's email.", "nullable": true },
+                    "gravatar_email": {
+                        "type": "string",
+                        "description": "Optional field to update this user's gravatar email. If this user doesn't\nhave an avatar that is used or prefers not to use their previously uploaded\navatars and they set their Gravatar email, their Gravatar will be used.",
+                        "nullable": true
+                    },
+                    "name": { "type": "string", "description": "Updates this user's display name.", "nullable": true },
+                    "password": { "$ref": "#/components/schemas/password" },
+                    "username": { "allOf": [{ "$ref": "#/components/schemas/Name" }], "nullable": true }
                 }
             },
             "Repository": {
@@ -1967,6 +2486,20 @@
                         "nullable": true
                     },
                     "updated_at": { "$ref": "#/components/schemas/DateTime" }
+                }
+            },
+            "UserLoginPayload": {
+                "type": "object",
+                "description": "Payload to login as a user from the `GET /users/login` endpoint for session-based\nauthentication.",
+                "required": ["password"],
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "description": "Email to authenticate as. This is mutually exclusive with `username`.",
+                        "nullable": true
+                    },
+                    "password": { "$ref": "#/components/schemas/password" },
+                    "username": { "allOf": [{ "$ref": "#/components/schemas/Name" }], "nullable": true }
                 }
             },
             "Version": {
