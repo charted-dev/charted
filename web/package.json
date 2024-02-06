@@ -22,7 +22,7 @@
         "@fontsource/cantarell": "5.0.8",
         "@fontsource/inter": "5.0.16",
         "@fontsource/jetbrains-mono": "5.0.18",
-        "@formkit/vue": "1.5.5",
+        "@formkit/vue": "1.5.7",
         "@formkit/zod": "1.5.5",
         "@iconify/vue": "4.1.1",
         "@ncharts/types": "0.1.0-unstable",
