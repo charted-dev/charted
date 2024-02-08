@@ -28,7 +28,7 @@ COPY web .
 
 RUN bun run build
 
-FROM --platform=${TARGETPLATFORM} rust:1.75-slim-bullseye AS build
+FROM --platform=${TARGETPLATFORM} rust:1.76-slim-bullseye AS build
 
 ENV DEBIAN_FRONTEND=noninteractive
 
