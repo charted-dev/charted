@@ -64,7 +64,7 @@ version = "0.4.33"
 features = ["serde"]
 
 [workspace.dependencies.clap]
-version = "4.4.18"
+version = "4.5.0"
 features = ["derive", "env"]
 
 [workspace.dependencies.color-eyre]
@@ -159,7 +159,7 @@ version = "0.4.33"
 features = ["serde"]
 
 [dependencies.clap]
-version = "4.4.18"
+version = "4.5.0"
 features = ["derive", "env"]
 
 [dependencies.color-eyre]
