@@ -5,6 +5,5 @@
     "endOfLine": "lf",
     "printWidth": 120,
     "trailingComma": "none",
-    "bracketSpacing": true,
-    "plugins": ["prettier-plugin-tailwindcss"]
+    "bracketSpacing": true
 }
