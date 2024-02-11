@@ -44,7 +44,7 @@ COPY --from=web /build/dist /build/web/dist
 # rather from rustup.
 RUN rm rust-toolchain.toml
 
-ENV RUSTFLAGS="--cfg tokio_unstable --cfg bundle_web -Ctarget-cpu=native -Ctarget-feature=-crt-static"
+ENV RUSTFLAGS="--cfg tokio_unstable -Ctarget-cpu=native -Ctarget-feature=-crt-static"
 RUN cargo build --locked --release
 
 ############ FINAL STAGE

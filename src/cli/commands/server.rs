@@ -14,8 +14,7 @@
 // limitations under the License.
 
 use crate::{
-    auth, avatars::AvatarsModule, charts, cli::AsyncExecute, common::Snowflake, config::Config, db, redis,
-    server::Hoshi, Instance,
+    auth, avatars::AvatarsModule, charts, cli::AsyncExecute, common::Snowflake, config::Config, db, redis, Instance,
 };
 use axum::{
     extract::Host,
@@ -230,17 +229,8 @@ impl AsyncExecute for Cmd {
         info!(took = ?Instant::now().duration_since(original), "initialized global instance, starting server...");
 
         let router: Router = crate::server::routing::create_router(&instance).with_state(instance);
-        let router = match Hoshi::built() {
-            #[cfg(bundle_web)]
-            true if config.ui => {
-                info!("Hoshi is enabled on this instance (since `config.ui` is set to `true`), all API endpoints are now mounted to /api instead of /");
-                Router::new().nest("/api", router).fallback(Hoshi::handler)
-            }
-
-            _ => router,
-        };
-
         let instance = Instance::get();
+
         if let Some(ref cfg) = instance.config.server.ssl {
             info!("server is now using HTTPS support");
 

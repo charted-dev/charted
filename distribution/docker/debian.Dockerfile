@@ -39,7 +39,7 @@ COPY . .
 COPY --from=web /build/dist /build/server/dist
 
 ENV CARGO_INCREMENTAL=1
-ENV RUSTFLAGS="--cfg tokio_unstable --cfg bundle_web -Ctarget-cpu=native"
+ENV RUSTFLAGS="--cfg tokio_unstable -Ctarget-cpu=native"
 
 RUN cargo build --locked --release --bin charted
 

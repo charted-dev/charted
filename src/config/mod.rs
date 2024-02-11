@@ -86,11 +86,6 @@ pub struct Config {
     /// Configures the CDN feature.
     #[serde(default)]
     pub cdn: cdn::Config,
-
-    /// Enables the web UI and mounts all API endpoints to `/api` instead of the root scope.
-    #[serde(default = "__truthy")]
-    #[merge(strategy = noelware_config::merge::strategy::bool::only_if_falsy)]
-    pub ui: bool,
 }
 
 impl Default for Config {
@@ -108,7 +103,6 @@ impl Default for Config {
             server: server::Config::default(),
             redis: redis::Config::default(),
             cdn: cdn::Config::default(),
-            ui: __truthy(),
         }
     }
 }
@@ -139,10 +133,6 @@ impl TryFromEnv for Config {
             server: server::Config::try_from_env()?,
             redis: redis::Config::from_env(),
             cdn: cdn::Config::from_env(),
-            ui: env!("CHARTED_ENABLE_HOSHI", {
-                or_else: true;
-                mapper: |val| TRUTHY_REGEX.is_match(&val);
-            }),
         })
     }
 }

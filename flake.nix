@@ -52,12 +52,6 @@
         then pkgs.stdenv
         else pkgs.clangStdenv;
 
-      terraform = pkgs.terraform.withPlugins (plugins:
-        with plugins; [
-          kubernetes
-          helm
-        ]);
-
       rustflags =
         if pkgs.stdenv.isLinux
         then ''-C link-arg=-fuse-ld=mold -C target-cpu=native $RUSTFLAGS''
@@ -73,8 +67,6 @@
           src = ./.;
 
           env.PROTOC = pkgs.lib.getExe pkgs.protobuf;
-          doCheckPhase = false;
-
           cargoLock = {
             lockFile = ./Cargo.lock;
             outputHashes = {
@@ -108,14 +100,12 @@
 
         buildInputs = with pkgs; [
           cargo-expand
-          terraform
           sqlx-cli
           sccache
           openssl
           glibc
           rust
           git
-          bun
         ];
 
         shellHook = ''

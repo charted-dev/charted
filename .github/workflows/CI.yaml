@@ -128,24 +128,3 @@ jobs:
               with:
                   all-features: true
                   token: ${{github.token}}
-    ui:
-        name: Hoshi CI
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout source code
-              uses: actions/checkout@v4
-
-            - name: Setup Bun
-              uses: oven-sh/setup-bun@v1
-
-            - name: Install packages
-              working-directory: ./web
-              run: bun install
-
-            - name: Run Prettier
-              working-directory: ./web
-              run: bun run fmt
-
-            - name: Run ESLint
-              working-directory: ./web
-              run: bun run lint

@@ -108,21 +108,10 @@ jobs:
               with:
                   repo-token: ${{github.token}}
 
-            - name: Setup Bun
-              uses: oven-sh/setup-bun@v1
-
-            - name: Install NPM packages
-              working-directory: ./web
-              run: bun install
-
-            - name: Build frontend
-              working-directory: ./web
-              run: bun run build
-
             - name: Build binary
               run: cargo build --release --locked --target=${{matrix.target}}
               env:
-                  RUSTFLAGS: '--cfg tokio_unstable --cfg bundle_web'
+                  RUSTFLAGS: '--cfg tokio_unstable'
 
             - name: Create SHA256 checksum (Unix-like)
               if: ${{matrix.runner != 'windows-latest'}}
