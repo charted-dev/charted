@@ -21,7 +21,6 @@ mod docker;
 mod generate;
 mod helm_plugin;
 mod server;
-mod web;
 
 /// List of all available subcommands for `./dev`
 #[derive(Debug, Clone, clap::Subcommand)]
@@ -35,7 +34,6 @@ pub enum Command {
     HelmPlugin(helm_plugin::Cmd),
     Server(server::Cmd),
     Cli(cli::Cmd),
-    Web(web::Cmd),
 }
 
 #[async_trait]
@@ -46,7 +44,6 @@ impl AsyncExecute for Command {
             Self::HelmPlugin(helm) => helm.execute(),
             Self::Docker(docker) => docker.execute().await,
             Self::Server(server) => server.execute(),
-            Self::Web(web) => web.execute(),
             Self::Cli(cli) => cli.execute(),
         }
     }
