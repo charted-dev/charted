@@ -34,10 +34,9 @@ impl super::Backend for Backend {
     async fn authenticate(&self, user: User, _password: String) -> Result<(), super::Error> {
         match user.provide_password(self.0.clone()).await {
             Ok(Some(pass)) => {
-                let hash = PasswordHash::new(&pass).map_err(|e| {
+                let hash = PasswordHash::new(&pass).inspect_err(|e| {
                     error!(error = %e, "unable to compute hash");
-                    eyre!("unable to compute hash: {e}")
-                })?;
+                }).map_err(|e| eyre!(e))?;
 
                 // error will always be an invalid password, so return that instead
                 ARGON2.verify_password(pass.as_ref(), &hash).map_err(|_| super::Error::InvalidPassword)

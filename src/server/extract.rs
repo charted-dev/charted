@@ -51,10 +51,11 @@ impl<S: Send + Sync> FromRequestParts<S> for Version {
         Path::<semver::Version>::from_request_parts(parts, _state)
             .await
             .map(|ver| Version(ver.0))
-            .map_err(|e| {
+            .inspect_err(|e| {
                 tracing::error!(error = %e, "unable to parse semver version");
                 sentry::capture_error(&e);
-
+            })
+            .map_err(|e| {
                 let (code, message) = match e {
                     PathRejection::FailedToDeserializePathParams(_) => (
                         ErrorCode::UnableToParsePathParameter,
@@ -132,10 +133,12 @@ where
             ));
         }
 
-        let bytes = Bytes::from_request(req, state).await.map_err(|e| {
-            error!(%e, "received invalid bytes");
-            err(e.status(), (ErrorCode::InvalidBody, e.body_text()))
-        })?;
+        let bytes = Bytes::from_request(req, state)
+            .await
+            .inspect_err(|e| {
+                error!(%e, "received invalid bytes");
+            })
+            .map_err(|e| err(e.status(), (ErrorCode::InvalidBody, e.body_text())))?;
 
         let deserializer = &mut serde_json::Deserializer::from_slice(&bytes);
         match serde_path_to_error::deserialize(deserializer) {

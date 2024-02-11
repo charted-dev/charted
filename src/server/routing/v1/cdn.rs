@@ -36,19 +36,23 @@ pub async fn cdn(
     };
 
     info!(%query, "performing cdn query");
-    let Some(blob) = storage.blob(&query).await.map_err(|e| {
-        error!(%query, error = %e, "unable to perform cdn query");
-        sentry::capture_error(&e);
-
-        err(
-            StatusCode::INTERNAL_SERVER_ERROR,
-            (
-                ErrorCode::InternalServerError,
-                "unable to perform cdn query at this moment, try again later",
-                json!({"query":query}),
-            ),
-        )
-    })?
+    let Some(blob) = storage
+        .blob(&query)
+        .await
+        .inspect_err(|e| {
+            error!(%query, error = %e, "unable to perform cdn query");
+            sentry::capture_error(&e);
+        })
+        .map_err(|_| {
+            err(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                (
+                    ErrorCode::InternalServerError,
+                    "unable to perform cdn query at this moment, try again later",
+                    json!({"query":query}),
+                ),
+            )
+        })?
     else {
         return Err::<Response<_>, ApiResponse>(err(
             StatusCode::NOT_FOUND,

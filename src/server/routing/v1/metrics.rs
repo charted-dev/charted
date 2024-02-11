@@ -30,15 +30,18 @@ pub async fn metrics(State(Instance { metrics, .. }): State<Instance>) -> Result
     match registry.downcast_ref::<Prometheus>() {
         Some(metrics) => {
             let mut buf = String::new();
-            metrics.write_to(&mut buf).map_err(|e| {
-                error!(error = %e, "unable to collect Prometheus metrics");
-                sentry::capture_error(&e);
-
-                err(
-                    StatusCode::UNPROCESSABLE_ENTITY,
-                    (ErrorCode::UnableToProcess, "was unable to process Prometheus metrics"),
-                )
-            })?;
+            metrics
+                .write_to(&mut buf)
+                .inspect_err(|e| {
+                    error!(error = %e, "unable to collect Prometheus metrics");
+                    sentry::capture_error(&e);
+                })
+                .map_err(|_| {
+                    err(
+                        StatusCode::UNPROCESSABLE_ENTITY,
+                        (ErrorCode::UnableToProcess, "was unable to process Prometheus metrics"),
+                    )
+                })?;
 
             Ok((
                 StatusCode::OK,

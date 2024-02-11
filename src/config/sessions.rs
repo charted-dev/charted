@@ -108,8 +108,7 @@ impl TryFromEnv for Backend {
 
                 "passwordless" => Ok(Backend::Passwordless),
                 "ldap" => Ok(Backend::Ldap(ldap::Config::from_env())),
-                "local" => Ok(Backend::Local),
-                out if out.is_empty() => Ok(Backend::Local),
+                "local" | "" => Ok(Backend::Local),
                 out => Err(eyre!("expected [htpasswd, ldap, local]; received '{out}'")),
             },
             Err(std::env::VarError::NotUnicode(_)) => Err(eyre!(

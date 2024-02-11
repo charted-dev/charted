@@ -39,8 +39,8 @@ pub fn hash_password<P: Into<String>>(password: P) -> eyre::Result<String> {
     ARGON2
         .hash_password(password.into().as_ref(), &salt)
         .map(|hash| hash.to_string())
-        .map_err(|e| {
+        .inspect_err(|e| {
             error!(error = %e, "unable to compute password");
-            eyre!("unable to compute password: {e}")
         })
+        .map_err(|e| eyre!(e))
 }

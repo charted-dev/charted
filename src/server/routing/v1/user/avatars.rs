@@ -113,11 +113,9 @@ pub async fn upload_avatar(
     Extension(Session { user, .. }): Extension<Session>,
     mut data: Multipart,
 ) -> Result<()> {
-    let Some(field) = data.next_field().await.map_err(|e| {
+    let Some(field) = data.next_field().await.inspect_err(|e| {
         error!(error = %e, user.id, "unable to fetch next multipart field");
         sentry::capture_error(&e);
-
-        e
     })?
     else {
         return Err(err(
@@ -137,18 +135,21 @@ pub async fn upload_avatar(
     })?;
 
     let ct = default_resolver(data.as_ref());
-    let mime = ct.parse::<mime::Mime>().map_err(|e| {
-        error!(error = %e, "received invalid content type, this is a bug");
-        sentry::capture_error(&e);
-
-        err(
-            StatusCode::UNPROCESSABLE_ENTITY,
-            (
-                ErrorCode::InvalidContentType,
-                "received an invalid content type, this is a bug",
-            ),
-        )
-    })?;
+    let mime = ct
+        .parse::<mime::Mime>()
+        .inspect_err(|e| {
+            error!(error = %e, "received invalid content type, this is a bug");
+            sentry::capture_error(&e);
+        })
+        .map_err(|_| {
+            err(
+                StatusCode::UNPROCESSABLE_ENTITY,
+                (
+                    ErrorCode::InvalidContentType,
+                    "received an invalid content type, this is a bug",
+                ),
+            )
+        })?;
 
     if mime.type_() != mime::IMAGE {
         return Err(err(
@@ -181,12 +182,10 @@ pub async fn upload_avatar(
     let hash = avatars
         .upload_user_avatar(user.id.try_into().unwrap(), data)
         .await
-        .map_err(|e| {
+        .inspect_err(|e| {
             error!(error = %e, user.id, "unable to upload user avatar");
-            sentry_eyre::capture_report(&e);
-
-            internal_server_error()
-        })?;
+        })
+        .map_err(|_| internal_server_error())?;
 
     // update it in the database
     match sqlx::query("update users set avatar_hash = $1 where id = $2")
@@ -244,12 +243,10 @@ async fn fetch_avatar_by_hash_impl(
     match avatars.user(id, Some(&hash)).await {
         Ok(Some(data)) => {
             let ct = default_resolver(data.as_ref());
-            let mime = ct.parse::<mime::Mime>().map_err(|e| {
+            let mime = ct.parse::<mime::Mime>().inspect_err(|e| {
                 error!(error = %e, id, user.avatar = hash, "unable to validate `Content-Type` as a valid media type");
                 sentry::capture_error(&e);
-
-                internal_server_error()
-            })?;
+            }).map_err(|_| internal_server_error())?;
 
             if mime.type_() != mime::IMAGE {
                 return Err(err(

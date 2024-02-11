@@ -106,11 +106,9 @@ impl super::DbController for DbController {
                 query
                     .fetch_optional(&self.pool)
                     .await
-                    .map_err(|e| {
+                    .inspect_err(|e| {
                         error!(repository.name = %name, error = %e, "unable to query repository from db");
                         sentry::capture_error(&e);
-
-                        e
                     })
                     .context("unable to query repository by name")
             }
@@ -130,12 +128,11 @@ impl super::DbController for DbController {
             .execute(&self.pool)
             .await
             .map(|_| ())
-            .map_err(|e| {
+            .inspect_err(|e| {
                 error!(organization.id = skeleton.id, error = %e, "unable to create organization");
                 sentry::capture_error(&e);
-
-                e.into()
             })
+            .map_err(From::from)
     }
 
     #[instrument(name = "charted.database.organizations.path", skip(self, payload))]
@@ -171,12 +168,13 @@ impl super::DbController for DbController {
         });
 
         patch!(txn, payload.name.as_ref(), in "organizations" on column "name" where id = id);
-        txn.commit().await.map_err(|e| {
-            error!(organization.id = id, "unable to commit transaction for db update");
-            sentry::capture_error(&e);
-
-            Report::from(e)
-        })
+        txn.commit()
+            .await
+            .inspect_err(|e| {
+                error!(organization.id = id, "unable to commit transaction for db update");
+                sentry::capture_error(&e);
+            })
+            .map_err(From::from)
     }
 
     #[instrument(name = "charted.db.repositories.delete", skip(self))]

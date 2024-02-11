@@ -215,9 +215,9 @@ pub async fn get_repo_by_owner_and_name(
                     Ok(true) => Ok(ok(StatusCode::OK, repo)),
                     Ok(false) => {
                         warn!(repository.id = id, cache.key = %key, "cache hit miss");
-                        let _ = cache.put(key.clone(), repo.clone()).await.map_err(|e| {
+                        let _ = cache.put(key.clone(), repo.clone()).await.inspect_err(|e| {
                             error!(error = %e, cache.key = %key, repository.id = id, "not placing entity in cache due to error");
-                            sentry_eyre::capture_report(&e);
+                            sentry_eyre::capture_report(e);
                         });
 
                         Ok(ok(StatusCode::OK, repo))

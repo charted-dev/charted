@@ -323,7 +323,13 @@ jobs:
             fail-fast: true
             matrix:
                 platform: [linux/amd64, linux/arm64]
-        steps: []
+        steps:
+            - name: Checkout source code
+              uses: actions/checkout@v4
+
+            - name: Get Git tag
+              uses: auguwu/git-tag-action@master
+              id: tag
 
     docker-alpine:
         name: Build Docker Image (Debian) [${{matrix.platform}}]
@@ -332,7 +338,13 @@ jobs:
             fail-fast: true
             matrix:
                 platform: [linux/amd64, linux/arm64]
-        steps: []
+        steps:
+            - name: Checkout source code
+              uses: actions/checkout@v4
+
+            - name: Get Git tag
+              uses: auguwu/git-tag-action@master
+              id: tag
 
     helm-plugin-docker-debian:
         name: Build Docker Image (Debian) [${{matrix.platform}}]
@@ -342,7 +354,13 @@ jobs:
             fail-fast: true
             matrix:
                 platform: [linux/amd64, linux/arm64]
-        steps: []
+        steps:
+            - name: Checkout source code
+              uses: actions/checkout@v4
+
+            - name: Get Git tag
+              uses: auguwu/git-tag-action@master
+              id: tag
 
     helm-plugin-docker-alpine:
         name: Build Docker Image (Debian) [${{matrix.platform}}]
@@ -352,10 +370,22 @@ jobs:
             fail-fast: true
             matrix:
                 platform: [linux/amd64, linux/arm64]
-        steps: []
+        steps:
+            - name: Checkout source code
+              uses: actions/checkout@v4
+
+            - name: Get Git tag
+              uses: auguwu/git-tag-action@master
+              id: tag
 
     manifests:
         name: Docker Manifests
         runs-on: ubuntu-latest
         needs: [docker-alpine, docker-debian]
-        steps: []
+        steps:
+            - name: Checkout source code
+              uses: actions/checkout@v4
+
+            - name: Get Git tag
+              uses: auguwu/git-tag-action@master
+              id: tag

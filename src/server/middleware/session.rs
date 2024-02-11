@@ -202,12 +202,12 @@ impl Authorization {
 
     pub fn get(&self) -> Result<(&str, String), Error> {
         let header = self.0.to_owned();
-        let value = String::from_utf8(header.as_ref().to_vec()).map_err(|e| {
-            error!(error = %e, "received invalid UTF-8 characters when trying to parse header value");
-            sentry::capture_error(&e);
-
-            Error::InvalidUtf8
-        })?;
+        let value = String::from_utf8(header.as_ref().to_vec())
+            .inspect_err(|e| {
+                error!(error = %e, "received invalid UTF-8 characters when trying to parse header value");
+                sentry::capture_error(&e);
+            })
+            .map_err(|_| Error::InvalidUtf8)?;
 
         let instance = Instance::get();
         match value.split_once(' ') {
@@ -311,19 +311,15 @@ impl AsyncAuthorizeRequest<Body> for Middleware {
 
                         let span = info_span!(parent: &span, "charted.authz.basic");
                         let _guard = span.enter();
-                        let decoded = STANDARD.decode(&token).map_err(|e| {
+                        let decoded = STANDARD.decode(&token).inspect_err(|e| {
                             error!(error = %e, "unable to decode base64 from Authorization header");
                             sentry::capture_error(&e);
+                        }).map_err(|e| Error::Base64(e).into_response())?;
 
-                            Error::Base64(e).into_response()
-                        })?;
-
-                        let decoded = String::from_utf8(decoded).map_err(|e| {
+                        let decoded = String::from_utf8(decoded).inspect_err(|e| {
                             error!(error = %e, "received invalid UTF-8 characters when trying to parse header value");
                             sentry::capture_error(&e);
-
-                            Error::InvalidUtf8.into_response()
-                        })?;
+                        }).map_err(|_| Error::InvalidUtf8.into_response())?;
 
                         let (username, password) = match decoded.split_once(':') {
                             Some((_, password)) if password.contains(':') => {
@@ -338,12 +334,10 @@ impl AsyncAuthorizeRequest<Body> for Middleware {
                             None => return Err(Error::InvalidParts { why: Cow::Borrowed("`Basic` authentication requires the header value to be a base64 string of [username:password]") }.into_response()),
                         };
 
-                        let name = Name::new(username).map_err(|e| {
+                        let name = Name::new(username).inspect_err(|e| {
                             error!(error = %e, username, "received invalid `Name` for username");
                             sentry::capture_error(&e);
-
-                            Error::InvalidParts { why: Cow::Owned(e.to_string()) }.into_response()
-                        })?;
+                        }).map_err(|e| Error::InvalidParts { why: Cow::Owned(e.to_string()) }.into_response())?;
 
                         let user = match instance.controllers.users.get_by(&name).await {
                             Ok(Some(user)) => user,
@@ -374,12 +368,10 @@ impl AsyncAuthorizeRequest<Body> for Middleware {
                             &token,
                             &DecodingKey::from_secret(instance.config.jwt_secret_key.as_ref()),
                             &Validation::new(Algorithm::HS512)
-                        ).map_err(|e| {
+                        ).inspect_err(|e| {
                             error!(error = %e, "unable to decode JWT token");
                             sentry::capture_error(&e);
-
-                            Error::Jwt(e).into_response()
-                        })?;
+                        }).map_err(|e| Error::Jwt(e).into_response())?;
 
                         let Some(Value::Number(uid)) = decoded.claims.get("user_id") else {
                             warn!("JWT token didn't have a `user_id` claim, marking as an unknown session");
@@ -391,12 +383,10 @@ impl AsyncAuthorizeRequest<Body> for Middleware {
                             return Err(Error::UnknownSession.into_response());
                         };
 
-                        let sess_id = Uuid::parse_str(sess_id).map_err(|e| {
+                        let sess_id = Uuid::parse_str(sess_id).inspect_err(|e| {
                             error!(error = %e, session.id = sess_id, "unable to parse `session_id` as a UUID");
                             sentry::capture_error(&e);
-
-                            internal_server_error().into_response()
-                        })?;
+                        }).map_err(|_| internal_server_error().into_response())?;
 
                         let id = uid.as_u64().ok_or_else(||
                             err(
@@ -415,10 +405,7 @@ impl AsyncAuthorizeRequest<Body> for Middleware {
                             Err(_) => return Err(internal_server_error().into_response())
                         };
 
-                        let Some(session) = sessions.from_user(id, sess_id).await.map_err(|e| {
-                            error!(error = %e, user.id, session.id = %sess_id, "unable to get session from Redis");
-                            sentry_eyre::capture_report(&e);
-
+                        let Some(session) = sessions.from_user(id, sess_id).await.map_err(|_| {
                             Error::UnknownSession.into_response()
                         })? else {
                             return Err(Error::UnknownSession.into_response());

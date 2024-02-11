@@ -67,7 +67,7 @@ fn boundary(headers: &HeaderMap) -> Result<String, MultipartRejection> {
         return Err(MultipartRejection::InvalidBoundary);
     };
 
-    multer::parse_boundary(val).map_err(|e| e.into())
+    multer::parse_boundary(val).map_err(From::from)
 }
 
 #[derive(Debug)]

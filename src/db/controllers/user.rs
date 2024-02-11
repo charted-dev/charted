@@ -22,7 +22,7 @@ use crate::{
     },
     db::impl_patch_for,
 };
-use eyre::{Context, Report};
+use eyre::Context;
 use sqlx::{PgPool, Postgres};
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -94,11 +94,9 @@ impl super::DbController for DbController {
                 query
                     .fetch_optional(&self.pool)
                     .await
-                    .map_err(|e| {
+                    .inspect_err(|e| {
                         error!(user.name = %name, error = %e, "unable to query user from db");
                         sentry::capture_error(&e);
-
-                        e
                     })
                     .context("unable to query user by name")
             }
@@ -122,13 +120,12 @@ impl super::DbController for DbController {
         .bind(skeleton.id)
         .execute(&self.pool)
         .await
-        .map(|_| ())
-        .map_err(|e| {
+        .inspect_err(|e| {
             error!(user.id = skeleton.id, error = %e, "unable to create user");
             sentry::capture_error(&e);
-
-            Report::from(e)
         })
+        .map(|_| ())
+        .map_err(From::from)
     }
 
     #[instrument(name = "charted.db.users.patch", skip(self, payload))]
@@ -137,11 +134,9 @@ impl super::DbController for DbController {
             .pool
             .begin()
             .await
-            .map_err(|e| {
+            .inspect_err(|e| {
                 error!(user.id = id, error = %e, "unable to create db transaction");
                 sentry::capture_error(&e);
-
-                e
             })
             .context("unable to create db transaction")?;
 
@@ -182,11 +177,9 @@ impl super::DbController for DbController {
 
         txn.commit()
             .await
-            .map_err(|e| {
+            .inspect_err(|e| {
                 error!(user.id = id, error = %e, "unable to commit db transaction for user");
                 sentry::capture_error(&e);
-
-                e
             })
             .context("unable to commit db transaction")
     }

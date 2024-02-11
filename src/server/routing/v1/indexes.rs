@@ -20,7 +20,7 @@ use crate::{
     server::{
         controller,
         models::{
-            res::{err, internal_server_error, ApiResponse, ErrorCode, INTERNAL_SERVER_ERROR},
+            res::{err, internal_server_error, ApiResponse, ErrorCode},
             yaml::Yaml,
         },
     },
@@ -55,12 +55,11 @@ pub async fn get_chart_index(
             let Some(contents) = storage
                 .open(format!("./metadata/{}/index.yaml", user.id))
                 .await
-                .map_err(|e| {
+                .inspect_err(|e| {
                     error!(idOrName = %nos, error = %e, "unable to perform chart index lookup");
                     sentry::capture_error(&e);
-
-                    err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
-                })?
+                })
+                .map_err(|_| internal_server_error())?
             else {
                 return Err(err(
                     StatusCode::NOT_FOUND,
@@ -72,12 +71,10 @@ pub async fn get_chart_index(
                 ));
             };
 
-            let contents: ChartIndex = serde_yaml::from_slice(contents.as_ref()).map_err(|e| {
+            let contents: ChartIndex = serde_yaml::from_slice(contents.as_ref()).inspect_err(|e| {
                 error!(idOrName = %nos, error = %e, "unable to deserialize contents into `ChartIndex`, was it tampered with?");
                 sentry::capture_error(&e);
-
-                err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
-            })?;
+            }).map_err(|_| internal_server_error())?;
 
             Ok(Yaml(StatusCode::OK, contents))
         }
@@ -87,12 +84,11 @@ pub async fn get_chart_index(
                 let Some(contents) = storage
                     .open(format!("./metadata/{}/index.yaml", org.id))
                     .await
-                    .map_err(|e| {
+                    .inspect_err(|e| {
                         error!(idOrName = %nos, error = %e, "unable to perform chart index lookup");
                         sentry::capture_error(&e);
-
-                        err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
-                    })?
+                    })
+                    .map_err(|_| internal_server_error())?
                 else {
                     return Err(err(
                         StatusCode::NOT_FOUND,
@@ -104,12 +100,10 @@ pub async fn get_chart_index(
                     ));
                 };
 
-                let contents: ChartIndex = serde_yaml::from_slice(contents.as_ref()).map_err(|e| {
+                let contents: ChartIndex = serde_yaml::from_slice(contents.as_ref()).inspect_err(|e| {
                     error!(idOrName = %nos, error = %e, "unable to deserialize contents into `ChartIndex`, was it tampered with?");
                     sentry::capture_error(&e);
-
-                    err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
-                })?;
+                }).map_err(|_| internal_server_error())?;
 
                 Ok(Yaml(StatusCode::OK, contents))
             }

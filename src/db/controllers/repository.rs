@@ -100,11 +100,9 @@ impl super::DbController for DbController {
                 query
                     .fetch_optional(&self.pool)
                     .await
-                    .map_err(|e| {
+                    .inspect_err(|e| {
                         error!(repository.name = %name, error = %e, "unable to query repository from db");
                         sentry::capture_error(&e);
-
-                        e
                     })
                     .context("unable to query repository by name")
             }
@@ -144,11 +142,9 @@ impl super::DbController for DbController {
             .pool
             .begin()
             .await
-            .map_err(|e| {
+            .inspect_err(|e| {
                 error!(repository.id = id, error = %e, "unable to create db transaction");
                 sentry::capture_error(&e);
-
-                e
             })
             .context("unable to create db transaction")?;
 
@@ -184,11 +180,9 @@ impl super::DbController for DbController {
 
         txn.commit()
             .await
-            .map_err(|e| {
+            .inspect_err(|e| {
                 error!(repository.id = id, error = %e, "unable to commit db transaction for repository");
                 sentry::capture_error(&e);
-
-                e
             })
             .context("unable to commit db transaction")
     }
