@@ -14,7 +14,13 @@
 // limitations under the License.
 
 use crate::{
-    auth, avatars::AvatarsModule, charts, cli::AsyncExecute, common::Snowflake, config::Config, db, redis, Instance,
+    auth,
+    avatars::AvatarsModule,
+    charts,
+    cli::AsyncExecute,
+    common::{models::Distribution, Snowflake},
+    config::Config,
+    db, redis, Instance,
 };
 use axum::{
     extract::Host,
@@ -388,9 +394,11 @@ fn print_banner() {
     );
 
     let _ = writeln!(stdout);
+    let distribution = Distribution::detect();
+
     let _ = writeln!(
         stdout,
-        "» Booting up {} v{}, compiled with Rust v{}",
+        "» Booting up {} v{}, compiled with Rust v{} on {distribution}",
         "charted-server".if_supports_color(Stdout, |x| x.bold()),
         crate::version().if_supports_color(Stdout, |x| x.bold()),
         crate::RUSTC_VERSION.if_supports_color(Stdout, |x| x.bold())

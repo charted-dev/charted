@@ -126,7 +126,7 @@ pub async fn create_user_repository(
     validate(&payload, CreateRepositoryPayload::validate)?;
 
     match sqlx::query_as::<Postgres, Repository>(
-        "select repositories.id from repositories where name = $1 and owner_id = $2;",
+        "select repositories.id from repositories where name = $1 and owner = $2;",
     )
     .bind(&payload.name)
     .bind(user.id)

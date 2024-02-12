@@ -13,7 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{cli::Execute, common::os};
+use crate::{
+    cli::Execute,
+    common::{models::Distribution, os},
+};
 use serde_json::json;
 
 /// Returns the version information of this binary.
@@ -26,11 +29,13 @@ pub struct Cmd {
 
 impl Execute for Cmd {
     fn execute(&self) -> eyre::Result<()> {
+        let distribution = Distribution::detect();
         if self.json {
             let info = json!({
                 "version": crate::VERSION,
                 "commit_hash": crate::COMMIT_HASH,
-                "build_date": crate::BUILD_DATE
+                "build_date": crate::BUILD_DATE,
+                "distribution": distribution
             });
 
             eprintln!("{}", serde_json::to_string(&info).unwrap());
@@ -38,10 +43,11 @@ impl Execute for Cmd {
         }
 
         eprintln!(
-            "🐻‍❄️📦 charted-server v{} ({}/{})",
+            "🐻‍❄️📦 charted-server v{} ({}/{}) on {}",
             crate::version(),
             os::os_name(),
-            os::architecture()
+            os::architecture(),
+            distribution
         );
 
         Ok(())

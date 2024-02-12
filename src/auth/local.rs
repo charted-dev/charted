@@ -31,7 +31,7 @@ impl Backend {
 
 #[async_trait]
 impl super::Backend for Backend {
-    async fn authenticate(&self, user: User, _password: String) -> Result<(), super::Error> {
+    async fn authenticate(&self, user: User, password: String) -> Result<(), super::Error> {
         match user.provide_password(self.0.clone()).await {
             Ok(Some(pass)) => {
                 let hash = PasswordHash::new(&pass).inspect_err(|e| {
@@ -39,7 +39,7 @@ impl super::Backend for Backend {
                 }).map_err(|e| eyre!(e))?;
 
                 // error will always be an invalid password, so return that instead
-                ARGON2.verify_password(pass.as_ref(), &hash).map_err(|_| super::Error::InvalidPassword)
+                ARGON2.verify_password(password.as_ref(), &hash).map_err(|_| super::Error::InvalidPassword)
             }
 
             Ok(None) => Err(eyre!("internal server error: user @{} ({}) doesn't contain a password field! did you forget to migrate your users?", user.username, user.id).into()),

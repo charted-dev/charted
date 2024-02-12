@@ -100,7 +100,7 @@ impl AsyncExecute for Cmd {
 
                 Some(_) => {
                     eprintln!(
-                        "⏭️     migration {:<20} ({}): {}   0ns",
+                        "⏭️     migration {:<25} ({}): {}   0ns",
                         migration.description,
                         migration.migration_type.label(),
                         "Already applied".if_supports_color(Stream::Stderr, |x| x.fg_rgb::<160, 219, 142>())
@@ -141,7 +141,7 @@ impl AsyncExecute for Cmd {
                     };
 
                     eprintln!(
-                        "{emoji}    migration {:<20} ({}): {status}    {elapsed:?}",
+                        "{emoji}    migration {:<25} ({}): {status}    {elapsed:?}",
                         migration.description,
                         migration.migration_type.label(),
                     );

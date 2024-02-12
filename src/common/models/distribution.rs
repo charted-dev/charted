@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use serde::{Deserialize, Serialize};
-use std::{env::var, fmt::Display, fs, path::PathBuf};
+use std::{env::var, fmt::Display, fs, path::PathBuf, sync::Once};
 use tracing::error;
 use utoipa::{
     openapi::{ObjectBuilder, RefOr, Schema, SchemaType},
@@ -126,30 +126,42 @@ impl Distribution {
         has_dockerenv || has_docker_cgroup
     }
 
-    // TODO(@auguwu): should we cache this information?
     pub fn detect() -> Distribution {
-        if Distribution::is_kubernetes() {
-            return Distribution::Kubernetes;
-        }
+        static ONCE: Once = Once::new();
+        static mut DETECTED: Distribution = Distribution::Unknown;
 
-        if Distribution::is_docker() {
-            return Distribution::Docker;
-        }
+        // Safety: we are only mutating `DETECTED` once if the fn is called
+        //         on the first run of `Distribution::detect`
+        unsafe {
+            ONCE.call_once(|| {
+                if Distribution::is_kubernetes() {
+                    DETECTED = Distribution::Kubernetes;
+                    return;
+                }
 
-        match var("CHARTED_DISTRIBUTION_KIND") {
-            Ok(s) => match s.as_str() {
-                // rpm and deb are automatically set in the systemd service
-                // so we don't need to do any detection
-                "rpm" => Distribution::RPM,
-                "deb" => Distribution::Deb,
+                if Distribution::is_docker() {
+                    DETECTED = Distribution::Docker;
+                    return;
+                }
 
-                // git is applied when built from source (i.e, ./dev server)
-                "git" => Distribution::Git,
+                DETECTED = match var("CHARTED_DISTRIBUTION_KIND") {
+                    Ok(s) => match s.as_str() {
+                        // rpm and deb are automatically set in the systemd service
+                        // so we don't need to do any detection
+                        "rpm" => Distribution::RPM,
+                        "deb" => Distribution::Deb,
 
-                // disallow any other value
-                _ => Distribution::Unknown,
-            },
-            Err(_) => Distribution::Unknown,
+                        // git is applied when built from source (i.e, ./dev server)
+                        "git" => Distribution::Git,
+
+                        // disallow any other value
+                        _ => Distribution::Unknown,
+                    },
+                    Err(_) => Distribution::Unknown,
+                };
+            });
+
+            DETECTED
         }
     }
 }

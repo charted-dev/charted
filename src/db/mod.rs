@@ -87,9 +87,7 @@ macro_rules! impl_paginate_priv {
                 query.push_bind(i64::try_from(owner_id).unwrap());
                 query.push(" ");
 
-                if request.list_private_stuff {
-                    query.push(" and repositories.private = true ");
-                } else {
+                if !request.list_private_stuff {
                     query.push(" and repositories.private = false ");
                 }
 
@@ -165,9 +163,7 @@ macro_rules! impl_paginate_priv {
                 query.push_bind(i64::try_from(owner_id).unwrap());
                 query.push(" ");
 
-                if request.list_private_stuff {
-                    query.push(" and organizations.private = true ");
-                } else {
+                if !request.list_private_stuff {
                     query.push(" and organizations.private = false ");
                 }
 

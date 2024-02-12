@@ -55,7 +55,8 @@ impl Execute for Cmd {
             cmd.env(
                 "RUSTFLAGS",
                 rustflags.iter().map(|x| x.to_string_lossy().to_string()).join(" "),
-            );
+            )
+            .env("CHARTED_DISTRIBUTION_KIND", "git");
 
             if !self.args.args.is_empty() {
                 cmd.arg("--").args(&self.args.args);

@@ -70,11 +70,7 @@
           cargoLock = {
             lockFile = ./Cargo.lock;
             outputHashes = {
-              "noelware-config-0.1.0" = "sha256-Y6Yf3TU0vzhU1UVdIdrDaECD5tvDwQZ9CYyDXwxmpe8=";
-              "noelware-config-derive-0.1.0" = pkgs.lib.fakeSha256;
-              "noelware-log-0.1.0" = pkgs.lib.fakeSha256;
-              "noelware-remi-0.1.0" = pkgs.lib.fakeSha256;
-              "noelware-serde-0.1.0" = pkgs.lib.fakeSha256;
+              "noelware-config-0.1.0" = "sha256-DWJLfVekkvr9Aw95WhZWp3iQLvQrYCfZcnZrujPN3Wc=";
             };
           };
 

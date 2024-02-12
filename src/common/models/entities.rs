@@ -136,6 +136,11 @@ pub struct Repository {
     #[serde(default)]
     pub icon_hash: Option<String>,
 
+    /// Unique identifier that points to a [`User`] that owns the repository if it is
+    /// under an organization.
+    #[schema(schema_with = snowflake_schema)]
+    pub creator: Option<i64>,
+
     /// Whether if this repository is private or not
     #[serde(default)]
     pub private: bool,

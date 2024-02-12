@@ -123,6 +123,9 @@ pub struct CreateRepositoryPayload {
     #[serde(default)]
     pub readme: Option<String>,
 
+    #[serde(skip)]
+    pub creator: i64,
+
     /// [`Name`] to attach to this repository.
     #[schema(value_type = Name)]
     pub name: Name,
