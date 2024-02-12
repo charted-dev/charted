@@ -56,9 +56,7 @@ impl Program {
         tracing_subscriber::registry()
             .with(
                 tracing_subscriber::fmt::layer()
-                    .with_file(true)
                     .with_level(true)
-                    .with_line_number(true)
                     .with_target(true)
                     .with_filter(LevelFilter::from_level(self.level)),
             )
