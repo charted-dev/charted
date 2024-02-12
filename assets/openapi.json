@@ -2318,6 +2318,12 @@
                 "required": ["created_at", "updated_at", "owner", "name", "type", "id"],
                 "properties": {
                     "created_at": { "$ref": "#/components/schemas/DateTime" },
+                    "creator": {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
+                        "minLength": 15
+                    },
                     "deprecated": {
                         "type": "boolean",
                         "description": "Whether if this repository is deprecated or not"
