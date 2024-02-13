@@ -14,11 +14,11 @@
 // limitations under the License.
 
 use crate::{
-    common::models::entities::Repository,
+    common::models::{entities::Repository, payloads::CreateRepositoryPayload},
     db::controllers::{DbController, PaginationRequest},
     server::{
         controller,
-        extract::NameOrSnowflake,
+        extract::{Json, NameOrSnowflake},
         middleware::session::Session,
         models::res::{err, internal_server_error, ok, ErrorCode, Result},
         pagination::{Pagination, PaginationQuery},
@@ -31,7 +31,9 @@ use axum::{
     http::StatusCode,
     Extension,
 };
+use chrono::Local;
 use serde_json::json;
+use sqlx::Postgres;
 use std::cmp;
 use validator::Validate;
 
@@ -103,75 +105,100 @@ pub async fn list_org_repositories(
         .map_err(|_| internal_server_error())
 }
 
-// Create a repository with the current authenticated user as the owner of the repository that is
-// #[controller(
-//     method = put,
-//     tags("Repositories"),
-//     requestBody("Payload for creating a new user. `password` can be empty if the server's session manager is not Local", ("application/json", schema!("CreateRepositoryPayload"))),
-//     response(201, "Repository created", ("application/json", response!("RepositoryResponse"))),
-//     response(400, "Bad Request", ("application/json", response!("ApiErrorResponse"))),
-//     response(409, "Conflict: repository with that name already exists on the user's account", ("application/json", response!("ApiErrorResponse"))),
-//     response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
-// )]
-// pub async fn create_user_repository(
-//     State(Instance {
-//         controllers,
-//         snowflake,
-//         pool,
-//         ..
-//     }): State<Instance>,
-//     Extension(Session { user, .. }): Extension<Session>,
-//     Json(payload): Json<CreateRepositoryPayload>,
-// ) -> Result<Repository> {
-//     validate(&payload, CreateRepositoryPayload::validate)?;
+/// Create a repository with the current authenticated user as the owner of the repository.
+#[controller(
+    method = put,
+    tags("Organization", "Repositories"),
+    requestBody("Payload for creating a new repository under the organization", ("application/json", schema!("CreateRepositoryPayload"))),
+    securityRequirements(
+        ("ApiKey", ["repo:create"]),
+        ("Bearer", []),
+        ("Basic", [])
+    ),
+    pathParameter("idOrName", schema!("NameOrSnowflake"), description = "Path parameter that can take a [`Name`] or [`Snowflake`] identifier."),
+    response(201, "Repository created", ("application/json", response!("RepositoryResponse"))),
+    response(400, "Bad Request", ("application/json", response!("ApiErrorResponse"))),
+    response(409, "Conflict: repository with that name already exists in the organization", ("application/json", response!("ApiErrorResponse"))),
+    response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
+)]
+pub async fn create_organization_repository(
+    State(Instance {
+        controllers,
+        snowflake,
+        pool,
+        ..
+    }): State<Instance>,
+    NameOrSnowflake(nos): NameOrSnowflake,
+    Extension(Session { user, .. }): Extension<Session>,
+    Json(payload): Json<CreateRepositoryPayload>,
+) -> Result<Repository> {
+    validate(&nos, crate::common::models::NameOrSnowflake::validate)?;
+    validate(&payload, CreateRepositoryPayload::validate)?;
 
-//     match sqlx::query_as::<Postgres, Repository>(
-//         "select repositories.id from repositories where name = $1 and owner_id = $2;",
-//     )
-//     .bind(&payload.name)
-//     .bind(user.id)
-//     .fetch_optional(&pool)
-//     .await
-//     {
-//         Ok(None) => {}
-//         Ok(Some(_)) => {
-//             return Err(err(
-//                 StatusCode::CONFLICT,
-//                 (
-//                     ErrorCode::EntityAlreadyExists,
-//                     "repository with given name already exists on your account",
-//                     json!({"name":payload.name}),
-//                 ),
-//             ))
-//         }
+    let org = match controllers.organizations.get_by(&nos).await {
+        Ok(Some(org)) => org,
+        Ok(None) => {
+            return Err(err(
+                StatusCode::NOT_FOUND,
+                (
+                    ErrorCode::EntityNotFound,
+                    "organization with id or name doesn't exist",
+                    json!({"idOrName":nos}),
+                ),
+            ))
+        }
 
-//         Err(e) => {
-//             error!(error = %e, user.id, %payload.name, "unable to find a user repository with name");
-//             sentry::capture_error(&e);
+        Err(_) => return Err(internal_server_error()),
+    };
 
-//             return Err(internal_server_error());
-//         }
-//     }
+    match sqlx::query_as::<Postgres, Repository>(
+        "select repositories.id from repositories where name = $1 and owner = $2;",
+    )
+    .bind(&payload.name)
+    .bind(org.id)
+    .fetch_optional(&pool)
+    .await
+    {
+        Ok(None) => {}
+        Ok(Some(_)) => {
+            return Err(err(
+                StatusCode::CONFLICT,
+                (
+                    ErrorCode::EntityAlreadyExists,
+                    "repository with given name already exists in this organization",
+                    json!({"name":payload.name}),
+                ),
+            ))
+        }
 
-//     let id = snowflake.generate();
-//     let now = Local::now();
-//     let repo = Repository {
-//         description: payload.description.clone(),
-//         created_at: now,
-//         updated_at: now,
-//         private: payload.private,
-//         r#type: payload.r#type,
-//         owner: user.id,
-//         name: payload.name.clone(),
-//         id: i64::try_from(id.value()).unwrap(),
+        Err(e) => {
+            error!(error = %e, org.id, %payload.name, "unable to find a organization repository with name");
+            sentry::capture_error(&e);
 
-//         ..Default::default()
-//     };
+            return Err(internal_server_error());
+        }
+    }
 
-//     controllers
-//         .repositories
-//         .create(payload, &repo)
-//         .await
-//         .map(|_| ok(StatusCode::CREATED, repo))
-//         .map_err(|_| internal_server_error())
-// }
+    let id = snowflake.generate();
+    let now = Local::now();
+    let repo = Repository {
+        description: payload.description.clone(),
+        created_at: now,
+        updated_at: now,
+        private: payload.private,
+        creator: Some(user.id),
+        r#type: payload.r#type,
+        owner: org.id,
+        name: payload.name.clone(),
+        id: i64::try_from(id.value()).unwrap(),
+
+        ..Default::default()
+    };
+
+    controllers
+        .repositories
+        .create(payload, &repo)
+        .await
+        .map(|_| ok(StatusCode::CREATED, repo))
+        .map_err(|_| internal_server_error())
+}

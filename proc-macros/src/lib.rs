@@ -355,25 +355,6 @@ pub fn controller(attr: TokenStream, body: TokenStream) -> TokenStream {
         #deprecated_attr
         pub struct #struct_name;
 
-        impl ::std::fmt::Debug for #struct_name {
-            fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-                f.debug_struct(#ident_name).finish()
-            }
-        }
-
-        impl ::core::marker::Copy for #struct_name {}
-        impl ::core::clone::Clone for #struct_name {
-            fn clone(&self) -> #struct_name {
-                *self
-            }
-        }
-
-        impl ::core::default::Default for #struct_name {
-            fn default() -> #struct_name {
-                #struct_name
-            }
-        }
-
         impl #struct_name {
             #[doc = " Generates a new [PathItem][utoipa::openapi::path::PathItem] for this rest controller."]
             pub fn paths() -> ::utoipa::openapi::path::PathItem {

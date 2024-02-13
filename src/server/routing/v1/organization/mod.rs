@@ -18,19 +18,23 @@ pub mod repositories;
 
 use super::EntrypointResponse;
 use crate::{
-    common::models::{entities::Organization, NameOrSnowflake},
+    common::models::{
+        entities::{ApiKeyScope, ApiKeyScopes, Organization},
+        NameOrSnowflake,
+    },
     db::controllers::DbController,
     openapi::generate_response_schema,
     server::{
         controller,
-        middleware::session::Session,
+        middleware::session::{Middleware, Session},
         models::res::{err, internal_server_error, ok, ErrorCode, Result},
         validation::validate,
     },
     Instance,
 };
-use axum::{extract::State, http::StatusCode, routing, Extension, Router};
+use axum::{extract::State, handler::Handler, http::StatusCode, routing, Extension, Router};
 use serde_json::json;
+use tower_http::auth::AsyncRequireAuthorizationLayer;
 use validator::Validate;
 
 pub struct OrganizationResponse;
@@ -42,7 +46,19 @@ pub fn create_router() -> Router<Instance> {
         .route("/:idOrName", routing::get(GetOrgByIdOrNameRestController::run))
         .route(
             "/:idOrName/repositories",
-            routing::get(repositories::ListOrgRepositoriesRestController::run),
+            routing::get(repositories::ListOrgRepositoriesRestController::run.layer(
+                AsyncRequireAuthorizationLayer::new(Middleware {
+                    allow_unauthenticated_requests: true,
+                    scopes: ApiKeyScopes::with_iter([ApiKeyScope::RepoCreate]),
+                    ..Default::default()
+                }),
+            ))
+            .put(repositories::CreateOrganizationRepositoryRestController::run.layer(
+                AsyncRequireAuthorizationLayer::new(Middleware {
+                    scopes: ApiKeyScopes::with_iter([ApiKeyScope::RepoCreate]),
+                    ..Default::default()
+                }),
+            )),
         )
         .route(
             "/:idOrName/icon",
