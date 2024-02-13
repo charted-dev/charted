@@ -13,15 +13,50 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::auth::{Auth, Context};
 use charted::cli::Execute;
 use clap::Parser;
+use std::path::PathBuf;
 
 /// Switch the default authentication context to what you prefer.
 #[derive(Debug, Clone, Parser)]
-pub struct Cmd {}
+pub struct Cmd {
+    // switches the current context to this context
+    context: String,
+
+    /// Location to an `auth.yaml` file that represents the authentication file
+    /// to authenticate between charted instances
+    ///
+    /// ## Default Locations
+    /// | OS               | Location                                                                                                  |
+    /// | :--------------- | :-------------------------------------------------------------------------------------------------------- |
+    /// | Windows          | `C:\Users\<username>\AppData\Local\Noelware\charted-server\auth.yaml`                                     |
+    /// | macOS            | `/Users/<username>/Library/Application Support/Noelware/charted-server/auth.yaml`                         |
+    /// | Linux            | `$XDG_CONFIG_DIR/Noelware/charted-server/auth.yaml` or `$HOME/.config/Noelware/charted-server/auth.yaml` |
+    #[arg(long, short = 'a', env = "CHARTED_AUTH_YAML_LOCATION")]
+    auth: Option<PathBuf>,
+}
 
 impl Execute for Cmd {
     fn execute(&self) -> eyre::Result<()> {
-        todo!()
+        let mut auth = Auth::load(self.auth.clone())?;
+        let context = Context::from(&self.context);
+
+        if self.context == context {
+            warn!("not doing anything as the current context is already {}", context);
+            return Ok(());
+        }
+
+        if !auth.contexts.contains_key(&context) {
+            warn!("not doing anything as context `{}` doesn't exist", context);
+            return Ok(());
+        }
+
+        info!("updating current context from {} ~> {}", auth.current, context);
+        auth.current = context;
+        auth.sync(self.auth.clone())?;
+
+        info!("updated & synced successfully");
+        Ok(())
     }
 }

@@ -44,5 +44,5 @@ fn __default_charted_req() -> VersionReq {
 
 #[inline]
 fn __default_helm_req() -> VersionReq {
-    VersionReq::parse(">=3.7").unwrap()
+    VersionReq::parse(">=3.10").unwrap()
 }

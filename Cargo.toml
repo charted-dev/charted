@@ -53,9 +53,11 @@ rust-version = "1.73"
 
 [workspace.dependencies]
 async-trait = "0.1.77"
+cli-table = "0.4.7"
 clap_complete = "4.5.0"
 dotenvy = "0.15.7"
 eyre = "0.6.12"
+promptly = "0.3.1"
 serde_json = "1.0.113"
 which = "6.0.0"
 
@@ -70,6 +72,12 @@ features = ["derive", "env"]
 [workspace.dependencies.color-eyre]
 version = "0.6.2"
 features = ["issue-url", "tracing-error"]
+
+[workspace.dependencies.noelware-config]
+version = "0.1.0"
+git = "https://github.com/Noelware/core-rs"
+rev = "cad14b9b2f3995916d01434406778de7d3f1f0ea"
+features = ["derive"]
 
 [workspace.dependencies.semver]
 version = "1.0.21"
@@ -87,8 +95,7 @@ aws-sdk-s3 = "1.15.0"
 azure_storage = "0.19.0"
 base64 = "0.21.7"
 clap_complete = "4.5.0"
-cli-table = "0.4.7"
-cron = "0.12.0"
+cli-table.workspace = true
 dotenvy = "0.15.7"
 elasticsearch = "8.5.0-alpha.1"
 erased-serde = "0.4.2"
@@ -108,11 +115,12 @@ mimalloc = "0.1.39"
 mime = "0.3.17"
 multer = "3.0.0"
 num_cpus = "1.16.0"
+noelware-config.workspace = true
 once_cell = "1.19.0"
 openssl = "0.10.63"
 paste = "1.0.14"
 prometheus-client = "0.22.1"
-promptly = "0.3.1"
+promptly.workspace = true
 prost = "0.12.3"
 prost-types = "0.12.3"
 rand = "0.8.5"
@@ -170,28 +178,22 @@ features = ["issue-url", "tracing-error"]
 version = "0.12.5"
 features = ["future"]
 
-[dependencies.noelware-config]
-version = "0.1.0"
-git = "https://github.com/Noelware/core-rs"
-rev = "8ed59ef104db38fbf0a64630db4d28ce2534d050"
-features = ["derive"]
-
 [dependencies.noelware-log]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "8ed59ef104db38fbf0a64630db4d28ce2534d050"
+rev = "cad14b9b2f3995916d01434406778de7d3f1f0ea"
 features = ["log"]
 
 [dependencies.noelware-remi]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "8ed59ef104db38fbf0a64630db4d28ce2534d050"
+rev = "cad14b9b2f3995916d01434406778de7d3f1f0ea"
 features = ["azure", "fs", "s3"]
 
 [dependencies.noelware-serde]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "8ed59ef104db38fbf0a64630db4d28ce2534d050"
+rev = "cad14b9b2f3995916d01434406778de7d3f1f0ea"
 features = ["tracing"]
 
 [dependencies.owo-colors]

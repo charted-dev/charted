@@ -35,7 +35,7 @@ pub fn load_config(loc: Option<PathBuf>) -> eyre::Result<Config> {
 pub fn validate_version_constraints(config: &Config, helm: Option<PathBuf>) {
     if !config.charted.version.matches(&Version::parse(crate::VERSION).unwrap()) {
         error!(
-            "configuration expects `charted-helm-plugin` to match its version constraint: {}, but it is on v{}",
+            "configuration expects `charted-helm-plugin` to match its version constraint: {}, but we are on v{}",
             config.charted.version,
             crate::VERSION
         );
@@ -97,7 +97,7 @@ pub fn validate_version_constraints(config: &Config, helm: Option<PathBuf>) {
             let stdout = String::from_utf8_lossy(&output.stdout);
             let stderr = String::from_utf8_lossy(&output.stderr);
 
-            error!(helm = %helm.display(), "received an abnormal status code [{}] with `helm version --template '{{{{ .Version }}}}'`", output.status.code().unwrap_or(-1));
+            error!(helm = %helm.display(), "received an abnormal status code [{}] with `helm version --template '{{ .Version }}'`", output.status.code().unwrap_or(-1));
             error!("report this to Noelware: https://github.com/charted-dev/charted/issues/new");
             error!("~~~ stdout ~~~");
             error!("{}", stdout.trim());

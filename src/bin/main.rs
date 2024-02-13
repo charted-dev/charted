@@ -17,18 +17,23 @@ use charted::cli::{commands::Cmd, AsyncExecute, Program};
 use clap::Parser;
 use color_eyre::config::HookBuilder;
 use eyre::Result;
+use mimalloc::MiMalloc;
 use noelware_config::env;
 use std::cmp;
 use tokio::runtime::Builder;
 
-// #[global_allocator]
-// static GLOBAL: MiMalloc = MiMalloc;
+#[global_allocator]
+static GLOBAL: MiMalloc = MiMalloc;
 
 // When `charted server` is invoked, you can specify a `CHARTED_RUNTIME_WORKERS` environment
 // variable for Tokio to use a multi-threaded scheduler.
 //
 // Otherwise, this will be use Tokio's single thread schdeduler.
 fn main() -> Result<()> {
+    // skip errors since it couldn't be found or whatever, i don't really
+    // want to care about it
+    let _ = dotenvy::dotenv();
+
     let program = Program::parse();
     if matches!(program.command, Cmd::Server(_)) && env!("TOKIO_RUNTIME_THREADS").is_ok() {
         eprintln!("[charted WARN] using `TOKIO_RUNTIME_THREADS` will not do anything. please use `CHARTED_RUNTIME_WORKERS` instead");

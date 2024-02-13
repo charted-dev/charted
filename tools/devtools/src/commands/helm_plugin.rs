@@ -33,9 +33,9 @@ impl Execute for Cmd {
         utils::cmd(cargo, |cmd| {
             cmd.stdout(Stdio::inherit())
                 .stderr(Stdio::inherit())
-                .arg(match (self.args.release, self.args.run) {
-                    (true, true) | (false, true) => "run",
-                    (false, false) | (true, false) => "build",
+                .arg(match self.args.args.is_empty() {
+                    false => "run",
+                    true => "build",
                 })
                 .arg("--locked");
 
@@ -50,11 +50,11 @@ impl Execute for Cmd {
                 rustflags.push(rustc_flags);
             }
 
-            cmd.env("RUSTFLAGS", rustflags);
+            cmd.env("RUSTFLAGS", rustflags).env("CHARTED_DISTRIBUTION_KIND", "git");
             cmd.args(["--package", "charted-helm-plugin"]);
             cmd.args(&self.args.cargo_args);
 
-            if self.args.run && !self.args.args.is_empty() {
+            if !self.args.args.is_empty() {
                 cmd.arg("--").args(&self.args.args);
             }
         })

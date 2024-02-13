@@ -13,18 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::auth::{Auth, Context, Type};
 use charted::cli::Execute;
 use clap::Parser;
-use eyre::{ContextCompat, Report};
-use noelware_config::env;
-use std::path::PathBuf;
+use std::{path::PathBuf, process::exit};
 
-/// Prints out the auth type and token itself, if it can retrieve it. It'll be in the
-/// style of `Authorization: [Type] [Token]`
+use crate::auth::{Auth, Context};
+
+/// Deletes a context from the auth configuration
 #[derive(Debug, Clone, Parser)]
 pub struct Cmd {
-    /// which context to print the token to, defaults to the default context
+    /// which context to delete
     context: Option<String>,
 
     /// Location to an `auth.yaml` file that represents the authentication file
@@ -42,44 +40,23 @@ pub struct Cmd {
 
 impl Execute for Cmd {
     fn execute(&self) -> eyre::Result<()> {
-        let auth = Auth::load(self.auth.clone())?;
-        let context = self.context.as_ref().map(Context::new).unwrap_or(auth.current);
-        let info = auth
-            .contexts
-            .get(&context)
-            .wrap_err_with(|| format!("context `{context}` doesn't exist"))?;
+        let mut auth = Auth::load(self.auth.clone())?;
+        let context = self.context.as_ref().map(Context::new).unwrap_or(auth.current.clone());
 
-        if let Type::None = info.auth {
-            warn!("context `{context}` doesn't have a token available");
-            return Ok(());
+        if !auth.contexts.contains_key(&context) {
+            warn!("context `{context}` doesn't exist, cannot delete");
+            exit(1);
         }
 
-        match info.auth {
-            Type::EnvironmentVariable { ref kind, ref env } => match env!(env) {
-                Ok(val) => {
-                    eprintln!("Authorization: {kind} {val}");
-                    Ok(())
-                }
-
-                Err(std::env::VarError::NotPresent) => {
-                    warn!("cannot print env var {env} as it doesn't exist");
-                    Ok(())
-                }
-
-                Err(e) => Err(Report::from(e)),
-            },
-
-            Type::ApiKey(ref key) => {
-                eprintln!("Authorization: ApiKey {key}");
-                Ok(())
-            }
-
-            Type::Session { ref access, .. } => {
-                eprintln!("Authorization: Bearer {access}");
-                Ok(())
-            }
-
-            _ => unreachable!(),
+        if auth.current == context {
+            warn!("context `{context}` is the default, please switch to a different context to delete this one");
+            exit(1);
         }
+
+        let _ = auth.contexts.remove(&context);
+        auth.sync(self.auth.clone())?;
+
+        info!("deleted context `{context}` from auth.yaml");
+        Ok(())
     }
 }

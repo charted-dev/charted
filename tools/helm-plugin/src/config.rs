@@ -88,6 +88,11 @@ impl Config {
         );
 
         let mut reg = hcl::Map::<String, Value>::new();
+        reg.insert(
+            String::from("default"),
+            Value::String(String::from("https://charts.noelware.org/api")),
+        );
+
         for registry in registries.iter() {
             reg.insert(registry.clone(), Value::String(registry.clone()));
         }

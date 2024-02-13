@@ -1152,7 +1152,6 @@ dependencies = [
  "clap_complete",
  "cli-table",
  "color-eyre",
- "cron",
  "dotenvy",
  "elasticsearch",
  "erased-serde",
@@ -1269,13 +1268,16 @@ dependencies = [
  "chrono",
  "clap",
  "clap_complete",
+ "cli-table",
  "color-eyre",
  "dirs",
  "dotenvy",
  "eyre",
  "hcl-rs",
  "indicatif",
+ "noelware-config",
  "once_cell",
+ "promptly",
  "reqwest",
  "semver 1.0.21",
  "serde",
@@ -1545,17 +1547,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b540bd8bc810d3885c6ea91e2018302f68baba2129ab3e88f32389ee9370880d"
 dependencies = [
  "cfg-if",
-]
-
-[[package]]
-name = "cron"
-version = "0.12.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ff76b51e4c068c52bfd2866e1567bee7c567ae8f24ada09fd4307019e25eab7"
-dependencies = [
- "chrono",
- "nom",
- "once_cell",
 ]
 
 [[package]]
@@ -3355,7 +3346,7 @@ dependencies = [
 [[package]]
 name = "noelware-config"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/core-rs?rev=8ed59ef104db38fbf0a64630db4d28ce2534d050#8ed59ef104db38fbf0a64630db4d28ce2534d050"
+source = "git+https://github.com/Noelware/core-rs?rev=cad14b9b2f3995916d01434406778de7d3f1f0ea#cad14b9b2f3995916d01434406778de7d3f1f0ea"
 dependencies = [
  "noelware-config-derive",
 ]
@@ -3363,7 +3354,7 @@ dependencies = [
 [[package]]
 name = "noelware-config-derive"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/core-rs?rev=8ed59ef104db38fbf0a64630db4d28ce2534d050#8ed59ef104db38fbf0a64630db4d28ce2534d050"
+source = "git+https://github.com/Noelware/core-rs?rev=cad14b9b2f3995916d01434406778de7d3f1f0ea#cad14b9b2f3995916d01434406778de7d3f1f0ea"
 dependencies = [
  "proc-macro-error",
  "proc-macro2",
@@ -3374,7 +3365,7 @@ dependencies = [
 [[package]]
 name = "noelware-log"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/core-rs?rev=8ed59ef104db38fbf0a64630db4d28ce2534d050#8ed59ef104db38fbf0a64630db4d28ce2534d050"
+source = "git+https://github.com/Noelware/core-rs?rev=cad14b9b2f3995916d01434406778de7d3f1f0ea#cad14b9b2f3995916d01434406778de7d3f1f0ea"
 dependencies = [
  "chrono",
  "owo-colors 4.0.0",
@@ -3387,7 +3378,7 @@ dependencies = [
 [[package]]
 name = "noelware-remi"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/core-rs?rev=8ed59ef104db38fbf0a64630db4d28ce2534d050#8ed59ef104db38fbf0a64630db4d28ce2534d050"
+source = "git+https://github.com/Noelware/core-rs?rev=cad14b9b2f3995916d01434406778de7d3f1f0ea#cad14b9b2f3995916d01434406778de7d3f1f0ea"
 dependencies = [
  "bytes",
  "remi",
@@ -3399,7 +3390,7 @@ dependencies = [
 [[package]]
 name = "noelware-serde"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/core-rs?rev=8ed59ef104db38fbf0a64630db4d28ce2534d050#8ed59ef104db38fbf0a64630db4d28ce2534d050"
+source = "git+https://github.com/Noelware/core-rs?rev=cad14b9b2f3995916d01434406778de7d3f1f0ea#cad14b9b2f3995916d01434406778de7d3f1f0ea"
 dependencies = [
  "serde",
  "tracing",

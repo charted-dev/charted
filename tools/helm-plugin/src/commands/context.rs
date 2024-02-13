@@ -16,6 +16,7 @@
 use charted::cli::Execute;
 use clap::Subcommand;
 
+mod delete;
 mod list;
 mod switch;
 mod token;
@@ -24,6 +25,7 @@ mod token;
 /// and downloads.
 #[derive(Debug, Clone, Subcommand)]
 pub enum Cmd {
+    Delete(delete::Cmd),
     Switch(switch::Cmd),
     Token(token::Cmd),
     List(list::Cmd),
@@ -33,6 +35,7 @@ impl Execute for Cmd {
     fn execute(&self) -> eyre::Result<()> {
         match self {
             Cmd::Switch(switch) => switch.execute(),
+            Cmd::Delete(del) => del.execute(),
             Cmd::Token(token) => token.execute(),
             Cmd::List(list) => list.execute(),
         }

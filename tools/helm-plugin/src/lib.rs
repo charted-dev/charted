@@ -121,12 +121,12 @@ impl Program {
 }
 
 fn __check_if_enabled() -> bool {
-    let stdout = io::stdout();
+    let stdout = io::stdout().lock();
     if !stdout.is_terminal() {
-        return true;
+        return false;
     }
 
-    false
+    true
 }
 
 /// Returns the current version of `charted-helm-plugin`.
