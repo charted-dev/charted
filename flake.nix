@@ -56,9 +56,16 @@
         if pkgs.stdenv.isLinux
         then ''-C link-arg=-fuse-ld=mold -C target-cpu=native $RUSTFLAGS''
         else ''$RUSTFLAGS'';
+
+      # create a Rust platform that uses our rust-toolchain.toml since Nix doesn't
+      # detect it
+      rustPlatform = pkgs.makeRustPlatform {
+        cargo = rust;
+        rustc = rust;
+      };
     in rec {
       packages = {
-        charted = pkgs.rustPlatform.buildRustPackage {
+        charted = rustPlatform.buildRustPackage {
           nativeBuildInputs = with pkgs; [pkg-config protobuf];
           buildInputs = with pkgs; [openssl];
           cargoSha256 = pkgs.lib.fakeSha256;
@@ -70,7 +77,7 @@
           cargoLock = {
             lockFile = ./Cargo.lock;
             outputHashes = {
-              "noelware-config-0.1.0" = "sha256-DWJLfVekkvr9Aw95WhZWp3iQLvQrYCfZcnZrujPN3Wc=";
+              "noelware-config-0.1.0" = "sha256-VEKhm9n9YGhkuofbvD3qUDhy57qAKQtSWu2kANegFXE=";
             };
           };
 
@@ -83,7 +90,35 @@
           };
         };
 
-        helm-plugin = import ./nix/helm-plugin;
+        helm-plugin = rustPlatform.buildRustPackage {
+          nativeBuildInputs = with pkgs; [pkg-config];
+          buildInputs = with pkgs; [openssl];
+          cargoSha256 = pkgs.lib.fakeSha256;
+          version = "0.1.0-beta";
+          name = "charted-helm-plugin";
+          src = ./.;
+
+          cargoBuildFlags = ["--bin" "charted-helm-plugin"];
+          cargoLock = {
+            lockFile = ./Cargo.lock;
+            outputHashes = {
+              "noelware-config-0.1.0" = "sha256-VEKhm9n9YGhkuofbvD3qUDhy57qAKQtSWu2kANegFXE=";
+            };
+          };
+
+          meta = with pkgs.lib; {
+            description = "Faciliate common practices with Helm + charted-server easily as a plugin";
+            homepage = "https://charts.noelware.org";
+            license = with licenses; [asl20];
+            maintainers = with maintainers; [auguwu spotlightishere];
+          };
+        };
+
+        all = pkgs.symlinkJoin {
+          name = "charted-0.1.0-beta";
+          paths = [packages.charted packages.helm-plugin];
+        };
+
         default = packages.charted;
       };
 
@@ -96,6 +131,7 @@
 
         buildInputs = with pkgs; [
           cargo-expand
+          cargo-deny
           sqlx-cli
           sccache
           openssl

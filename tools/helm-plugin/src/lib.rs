@@ -137,3 +137,11 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 pub fn version() -> String {
     format!("v{}+{}", VERSION, charted::COMMIT_HASH)
 }
+
+#[cfg(test)]
+#[test]
+fn verify() {
+    use clap::CommandFactory;
+
+    Program::command().debug_assert();
+}

@@ -24,6 +24,16 @@ use std::{
 
 static DEFAULT_CONFIG_PATH: Lazy<PathBuf> = lazy!(PathBuf::new().join(".charted.hcl"));
 
+/// Return a concrete [`PathBuf`] of the `.charted.hcl` file to format.
+pub fn get_config(path: Option<PathBuf>) -> PathBuf {
+    match path {
+        Some(path) => path,
+        None => Lazy::get(&DEFAULT_CONFIG_PATH)
+            .unwrap_or(&*DEFAULT_CONFIG_PATH)
+            .to_path_buf(),
+    }
+}
+
 /// Loads a [`Config`] struct easily with one line of code with a optional location.
 pub fn load_config(loc: Option<PathBuf>) -> eyre::Result<Config> {
     let path = loc.as_ref().unwrap_or(&*DEFAULT_CONFIG_PATH);

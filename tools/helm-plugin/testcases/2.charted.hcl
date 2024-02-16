@@ -16,11 +16,11 @@
 # tests `charted {}` and `registry {}` blocks
 
 charted {
-    version = "~0.1.0-beta"
-    helm = ">=3.12"
+  version = "~0.1.0-beta"
+  helm    = ">=3.12"
 }
 
 registry "default" {
-    version = 1
-    url     = "https://charts.noelware.org/api"
+  version = 1
+  url     = "https://charts.noelware.org/api"
 }

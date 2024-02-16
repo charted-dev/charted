@@ -20,12 +20,14 @@ use super::EntrypointResponse;
 use crate::{
     common::models::{
         entities::{ApiKeyScope, ApiKeyScopes, Organization},
+        payloads::CreateOrganizationPayload,
         NameOrSnowflake,
     },
     db::controllers::DbController,
     openapi::generate_response_schema,
     server::{
         controller,
+        extract::Json,
         middleware::session::{Middleware, Session},
         models::res::{err, internal_server_error, ok, ErrorCode, Result},
         validation::validate,
@@ -33,6 +35,7 @@ use crate::{
     Instance,
 };
 use axum::{extract::State, handler::Handler, http::StatusCode, routing, Extension, Router};
+use chrono::Local;
 use serde_json::json;
 use tower_http::auth::AsyncRequireAuthorizationLayer;
 use validator::Validate;
@@ -42,14 +45,30 @@ generate_response_schema!(OrganizationResponse, schema = "Organization");
 
 pub fn create_router() -> Router<Instance> {
     Router::new()
-        .route("/", routing::get(EntrypointRestController::run))
-        .route("/:idOrName", routing::get(GetOrgByIdOrNameRestController::run))
+        .route(
+            "/",
+            routing::get(EntrypointRestController::run).put(CreateOrganizationRestController::run.layer(
+                AsyncRequireAuthorizationLayer::new(Middleware {
+                    scopes: ApiKeyScopes::with_iter([ApiKeyScope::OrgCreate]),
+                    ..Default::default()
+                }),
+            )),
+        )
+        .route(
+            "/:idOrName",
+            routing::get(
+                GetOrgByIdOrNameRestController::run.layer(AsyncRequireAuthorizationLayer::new(Middleware {
+                    scopes: ApiKeyScopes::with_iter([ApiKeyScope::OrgAccess]),
+                    ..Default::default()
+                })),
+            ),
+        )
         .route(
             "/:idOrName/repositories",
             routing::get(repositories::ListOrgRepositoriesRestController::run.layer(
                 AsyncRequireAuthorizationLayer::new(Middleware {
                     allow_unauthenticated_requests: true,
-                    scopes: ApiKeyScopes::with_iter([ApiKeyScope::RepoCreate]),
+                    scopes: ApiKeyScopes::with_iter([ApiKeyScope::RepoAccess]),
                     ..Default::default()
                 }),
             ))
@@ -124,8 +143,78 @@ pub async fn get_org_by_id_or_name(
                     ),
                 ));
             }
+        } else {
+            return Err(err(
+                StatusCode::FORBIDDEN,
+                (
+                    ErrorCode::AccessNotPermitted,
+                    "you're not allowed to see this resource",
+                    json!({"class":"Organization"}),
+                ),
+            ));
         }
     }
 
     Ok(ok(StatusCode::OK, org))
+}
+
+/// Creates an organization under the current authenticated user's account.
+#[controller(
+    method = put,
+    tags("Organizations"),
+    securityRequirements(
+        ("ApiKey", ["org:create"]),
+        ("Bearer", []),
+        ("Basic", [])
+    ),
+    pathParameter("idOrName", schema!("NameOrSnowflake"), description = "Path parameter that can take a `Name` or Snowflake ID"),
+    response(200, "Successful response", ("application/json", response!("OrganizationResponse"))),
+    response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
+)]
+pub async fn create_organization(
+    State(Instance {
+        controllers, snowflake, ..
+    }): State<Instance>,
+    Extension(Session { user, .. }): Extension<Session>,
+    Json(payload): Json<CreateOrganizationPayload>,
+) -> Result<Organization> {
+    validate(&payload, CreateOrganizationPayload::validate)?;
+    match controllers.organizations.get_by(&payload.name).await {
+        Ok(None) => {}
+        Ok(Some(_)) => {
+            return Err(err(
+                StatusCode::CONFLICT,
+                (
+                    ErrorCode::EntityAlreadyExists,
+                    "entity with given username already exists",
+                    json!({"name":payload.name}),
+                ),
+            ))
+        }
+
+        Err(_) => return Err(internal_server_error()),
+    }
+
+    let id = snowflake.generate();
+    let now = Local::now();
+    let org = Organization {
+        verified_publisher: false,
+        twitter_handle: None,
+        gravatar_email: None,
+        display_name: payload.display_name.clone(),
+        created_at: now,
+        updated_at: now,
+        icon_hash: None,
+        private: payload.private,
+        owner: user.id,
+        name: payload.name.clone(),
+        id: id.value().try_into().map_err(|_| internal_server_error())?,
+    };
+
+    controllers
+        .organizations
+        .create(payload, &org)
+        .await
+        .map(|_| ok(StatusCode::CREATED, org))
+        .map_err(|_| internal_server_error())
 }

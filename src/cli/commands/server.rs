@@ -209,6 +209,7 @@ impl AsyncExecute for Cmd {
                 crate::caching::choose_strategy(&config.database.caching, &redis),
                 pool.clone(),
             ),
+            apikeys: db::controllers::apikeys::DbController::new(pool.clone()),
             users: db::controllers::user::DbController::new(
                 crate::caching::choose_strategy(&config.database.caching, &redis),
                 pool.clone(),

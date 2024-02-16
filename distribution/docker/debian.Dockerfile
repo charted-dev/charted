@@ -13,20 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM --platform=${TARGETPLATFORM} oven/bun:1.0-debian AS web
-
-ENV DEBIAN_FRONTEND=noninteractive
-
-RUN apt update && apt install -y git ca-certificates build-essential
-WORKDIR /build
-
-COPY web/package.json .
-COPY web/bun.lockb .
-
-RUN bun install
-COPY web .
-
-RUN bun run build
+############ BINARY
 
 FROM --platform=${TARGETPLATFORM} rust:1.76-slim-bullseye AS build
 
@@ -36,12 +23,13 @@ RUN apt update && apt install -y libssl-dev pkg-config git ca-certificates proto
 WORKDIR /build
 
 COPY . .
-COPY --from=web /build/dist /build/server/dist
 
 ENV CARGO_INCREMENTAL=1
 ENV RUSTFLAGS="--cfg tokio_unstable -Ctarget-cpu=native"
 
 RUN cargo build --locked --release --bin charted
+
+############ FINAL STAGE
 
 FROM debian:bullseye-slim
 

@@ -79,6 +79,10 @@ git = "https://github.com/Noelware/core-rs"
 rev = "cad14b9b2f3995916d01434406778de7d3f1f0ea"
 features = ["derive"]
 
+[workspace.dependencies.owo-colors]
+version = "4.0.0"
+features = ["supports-color"]
+
 [workspace.dependencies.semver]
 version = "1.0.22"
 features = ["serde"]
@@ -117,7 +121,12 @@ multer = "3.0.0"
 num_cpus = "1.16.0"
 noelware-config.workspace = true
 once_cell = "1.19.0"
+<<<<<<< HEAD
 openssl = "0.10.64"
+=======
+owo-colors.workspace = true
+openssl = "0.10.63"
+>>>>>>> 8a870020 (add `helm charted lint` cmd, add /apikeys & /apikeys/all endpoints)
 paste = "1.0.14"
 prometheus-client = "0.22.1"
 promptly.workspace = true
@@ -195,10 +204,6 @@ version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
 rev = "cad14b9b2f3995916d01434406778de7d3f1f0ea"
 features = ["tracing"]
-
-[dependencies.owo-colors]
-version = "4.0.0"
-features = ["supports-color"]
 
 [dependencies.redis]
 version = "0.24.0"

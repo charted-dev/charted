@@ -14,7 +14,7 @@
 # limitations under the License.
 
 repository "example" {
-    registry = registry.default
-    source = "${cwd}/tools/helm-plugin"
-    path = "noelware/charted-server"
+  registry = registry.default
+  source   = "${cwd}/tools/helm-plugin"
+  path     = "noelware/charted-server"
 }

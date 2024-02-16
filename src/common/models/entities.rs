@@ -289,6 +289,12 @@ pub struct ApiKey {
     #[serde(default)]
     pub description: Option<String>,
 
+    /// Date of when this API key was created
+    pub created_at: DateTime,
+
+    /// Date of when the server has last updated this API key
+    pub updated_at: DateTime,
+
     /// Date-time of when this API token expires in, `null` can be returned
     /// if the token doesn't expire
     #[serde(default)]
@@ -302,10 +308,13 @@ pub struct ApiKey {
     #[serde(default)]
     pub token: Option<String>,
 
-    /// User resource that owns this API key.
-    pub owner: User,
+    /// User resource that owns this API key. This is skipped
+    /// when using the API as this is pretty useless.
+    #[serde(skip)]
+    pub owner: i64,
 
     /// The name of the API key.
+    #[schema(schema_with = name_schema)]
     pub name: Name,
 
     /// Unique identifer to locate this resource in the API server.

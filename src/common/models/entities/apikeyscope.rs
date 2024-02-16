@@ -138,10 +138,50 @@ macro_rules! gen_apikeyscopes {
                 h
             }
         }
+
+        impl<'s> ::utoipa::ToSchema<'s> for ApiKeyScope {
+            fn schema() -> (&'s str, ::utoipa::openapi::RefOr<::utoipa::openapi::Schema>) {
+                let oneof = ::utoipa::openapi::OneOfBuilder::new()
+                    .description(Some("Represents what a single API key scope can represent, this will always represent unsigned 64-bit integers in the API server itself"))
+                    .item(
+                        ::utoipa::openapi::RefOr::T(
+                            ::utoipa::openapi::Schema::Object({
+                                let obj = ::utoipa::openapi::ObjectBuilder::new()
+                                    .description(Some(format!(
+                                        "Represents a scope that is represented as an unsigned 64-bit integer, each scope can be in the range of 1..{}",
+                                        u64::MAX
+                                    )))
+                                    .schema_type(::utoipa::openapi::SchemaType::Number)
+                                    .format(Some(::utoipa::openapi::SchemaFormat::Custom(String::from("int64"))))
+                                    .minimum(Some(1f64));
+
+                                obj.build()
+                            })
+                        )
+                    )
+                    .item(
+                        ::utoipa::openapi::RefOr::T(
+                            ::utoipa::openapi::Schema::Object({
+                                let obj = ::utoipa::openapi::ObjectBuilder::new()
+                                    .description(Some("represents a named version of a scope which is represented as 'entity:operation', i.e, `apikey:list` will allow you to list all API keys"))
+                                    .schema_type(::utoipa::openapi::SchemaType::String)
+                                    .enum_values(Some([
+                                        $($s,)*
+                                    ]));
+
+                                obj.build()
+                            })
+                        )
+                    )
+                    .build();
+
+                ("ApiKeyScope", ::utoipa::openapi::RefOr::T(::utoipa::openapi::Schema::OneOf(oneof)))
+            }
+        }
     };
 }
 
-gen_apikeyscopes!(
+gen_apikeyscopes! {
     // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
     //           User Scopes
     // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
@@ -241,6 +281,7 @@ gen_apikeyscopes!(
     //        API Key Scopes
     // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
     ApiKeyView["apikeys:view"] => 1 << 28;
+    ApiKeyList["apikeys:list"] => 1 << 52;
     ApiKeyCreate["apikeys:create"] => 1 << 29;
     ApiKeyDelete["apikeys:delete"] => 1 << 30;
     ApiKeyUpdate["apikeys:update"] => 1 << 31;
@@ -272,7 +313,7 @@ gen_apikeyscopes!(
     AdminUserUpdate["admin:users:update"] => 1 << 49;
     AdminOrgDelete["admin:orgs:delete"] => 1 << 50;
     AdminOrgUpdate["admin:orgs:update"] => 1 << 51;
-);
+}
 
 /// Represents a [`Bitfield`] for managing [`ApiKeyScope`]s.
 #[derive(Debug, Clone)]

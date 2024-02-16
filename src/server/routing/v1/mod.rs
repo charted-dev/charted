@@ -55,7 +55,7 @@ impl EntrypointResponse {
             message: format!("Welcome to the {entity} API!"),
             docs: format!(
                 "https://charts.noelware.org/docs/server/{VERSION}/api/reference/{}",
-                entity.to_lowercase()
+                entity.to_lowercase().replace(' ', "")
             ),
         }
     }
@@ -67,6 +67,7 @@ pub fn create_router(instance: &Instance) -> Router<Instance> {
     let mut router = Router::new()
         .nest("/organizations", organization::create_router())
         .nest("/repositories", repository::create_router())
+        .nest("/apikeys", apikey::create_router())
         .route("/openapi.json", routing::get(openapi::json))
         .route("/openapi.yaml", routing::get(openapi::yaml))
         .route("/heartbeat", routing::get(heartbeat::HeartbeatRestController::run))

@@ -104,5 +104,6 @@ pub trait DbController: Send + Sync {
 pub struct Controllers {
     pub organizations: organization::DbController,
     pub repositories: repository::DbController,
+    pub apikeys: apikeys::DbController,
     pub users: user::DbController,
 }

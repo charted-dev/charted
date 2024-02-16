@@ -44,6 +44,10 @@ impl Execute for Cmd {
                 cmd.arg("--release");
             }
 
+            for arg in self.args.cargo_args.iter() {
+                cmd.arg(arg);
+            }
+
             let mut rustflags: HashSet<OsString> = HashSet::new();
             rustflags.insert(OsString::from("--cfg tokio_unstable"));
 

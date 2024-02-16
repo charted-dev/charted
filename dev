@@ -19,7 +19,7 @@ set -o errexit
 set -o pipefail
 
 function devtools::log {
-    echo "[dev] $*"
+    echo "[dev] $*" | xargs
 }
 
 function devtools::fatal {

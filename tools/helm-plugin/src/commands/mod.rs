@@ -19,6 +19,7 @@ use clap::Subcommand;
 mod context;
 mod download;
 mod init;
+mod lint;
 mod login;
 mod logout;
 mod push;
@@ -33,6 +34,7 @@ pub enum Cmd {
     Login(login::Cmd),
     Push(push::Cmd),
     Init(init::Cmd),
+    Lint(lint::Cmd),
 }
 
 #[async_trait]
@@ -45,6 +47,7 @@ impl AsyncExecute for Cmd {
             Cmd::Login(login) => login.execute(),
             Cmd::Init(init) => init.execute(),
             Cmd::Push(push) => push.execute().await,
+            Cmd::Lint(cmd) => lint::execute(cmd).await,
         }
     }
 }

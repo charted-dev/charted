@@ -63,3 +63,11 @@ impl Program {
             .init();
     }
 }
+
+#[cfg(test)]
+#[test]
+fn verify() {
+    use clap::CommandFactory;
+
+    Program::command().debug_assert();
+}

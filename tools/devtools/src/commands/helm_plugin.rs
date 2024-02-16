@@ -43,6 +43,10 @@ impl Execute for Cmd {
                 cmd.arg("--release");
             }
 
+            for arg in self.args.cargo_args.iter() {
+                cmd.arg(arg);
+            }
+
             let mut rustflags = OsString::from("--cfg tokio_unstable");
             let rustc_flags = self.args.rustc_flags.clone().unwrap_or_default();
             if !rustc_flags.is_empty() {

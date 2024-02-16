@@ -13,21 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-############ FRONTEND
-
-FROM --platform=${TARGETPLATFORM} oven/bun:1.0-alpine AS web
-
-RUN apk update && apk add --no-cache git ca-certificates
-WORKDIR /build
-
-COPY web/package.json .
-COPY web/bun.lockb .
-
-RUN bun install --frozen-lockfile
-COPY web .
-
-RUN bun run build
-
 ############ BINARY
 
 FROM --platform=${TARGETPLATFORM} rust:1.76-alpine3.19 AS build
@@ -38,7 +23,6 @@ RUN apk update && apk add --no-cache git ca-certificates curl musl-dev libc6-com
 WORKDIR /build
 
 COPY . .
-COPY --from=web /build/dist /build/web/dist
 
 # Remove the `rust-toolchain.toml` file since we expect to use `rustc` from the Docker image
 # rather from rustup.

@@ -17,7 +17,7 @@ use crate::SNOWFLAKE_EPOCH;
 use serde::Serialize;
 use std::{
     fmt::{Debug, Display, Formatter},
-    ops::Deref,
+    num::NonZeroU64,
     sync::atomic::{AtomicU16, AtomicU64, Ordering},
     time::{SystemTime, UNIX_EPOCH},
 };
@@ -108,7 +108,13 @@ impl Snowflake {
             self.last_timestamp.store(now, Ordering::SeqCst);
         }
 
-        ID((now << (NODE_BITS + SEQUENCE_BITS)) | ((self.node_id as u64) << (SEQUENCE_BITS as u64)) | seq as u64)
+        // SAFETY: it will never underflow, if it does, then it is considered
+        //         a huge bug that should be fixed ASAP
+        ID(unsafe {
+            NonZeroU64::new_unchecked(
+                (now << (NODE_BITS + SEQUENCE_BITS)) | ((self.node_id as u64) << (SEQUENCE_BITS as u64)) | seq as u64,
+            )
+        })
     }
 }
 
@@ -126,7 +132,7 @@ fn __assertions() {
 
 /// Represents a snowflake ID.
 #[derive(Clone, Copy)]
-pub struct ID(u64);
+pub struct ID(NonZeroU64);
 
 impl Debug for ID {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
@@ -146,21 +152,7 @@ impl Display for ID {
 
 impl From<ID> for u64 {
     fn from(val: ID) -> Self {
-        val.0
-    }
-}
-
-impl From<u64> for ID {
-    fn from(value: u64) -> Self {
-        ID(value)
-    }
-}
-
-impl Deref for ID {
-    type Target = u64;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
+        val.0.get()
     }
 }
 
@@ -169,23 +161,23 @@ impl ID {
 
     /// Returns the ID itself.
     pub fn value(&self) -> u64 {
-        self.0
+        self.0.get()
     }
 
     /// Returns the node ID that this ID was generated from.
     pub fn node_id(&self) -> usize {
-        (self.0 as usize & ID::MASK_NODE_ID) >> SEQUENCE_BITS
+        (self.0.get() as usize & ID::MASK_NODE_ID) >> SEQUENCE_BITS
     }
 
     /// Returns the sequence number.
     pub fn sequence(&self) -> usize {
-        self.0 as usize & MAX_SEQUENCE_BITS
+        self.0.get() as usize & MAX_SEQUENCE_BITS
     }
 
     /// Timestamp (in milliseconds) of when this snowflake
     /// was created.
     pub fn timestamp(&self) -> usize {
-        (self.0 as usize >> (NODE_BITS + SEQUENCE_BITS)) + SNOWFLAKE_EPOCH
+        (self.0.get() as usize >> (NODE_BITS + SEQUENCE_BITS)) + SNOWFLAKE_EPOCH
     }
 }
 
@@ -194,7 +186,7 @@ impl Serialize for ID {
     where
         S: serde::Serializer,
     {
-        serializer.serialize_u64(self.0)
+        serializer.serialize_u64(self.0.get())
     }
 }
 
