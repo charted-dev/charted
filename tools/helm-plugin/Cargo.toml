@@ -46,7 +46,7 @@ semver.workspace = true
 serde.workspace = true
 serde_repr = "0.1.18"
 serde_json.workspace = true
-serde_yaml = "0.9.31"
+serde_yaml = "0.9.32"
 tokio = { version = "1.36.0", features = ["rt", "macros", "io-util", "fs"] }
 tracing = "0.1.40"
 tracing-indicatif = "0.3.6"
