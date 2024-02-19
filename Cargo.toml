@@ -80,7 +80,7 @@ rev = "cad14b9b2f3995916d01434406778de7d3f1f0ea"
 features = ["derive"]
 
 [workspace.dependencies.semver]
-version = "1.0.21"
+version = "1.0.22"
 features = ["serde"]
 
 [workspace.dependencies.serde]
@@ -217,7 +217,7 @@ version = "0.5.0"
 features = ["serde", "tracing"]
 
 [dependencies.semver]
-version = "1.0.21"
+version = "1.0.22"
 features = ["serde"]
 
 [dependencies.serde]
