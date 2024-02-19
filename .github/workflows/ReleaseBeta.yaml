@@ -122,7 +122,7 @@ jobs:
               run: ((Get-FileHash -Path ./target/${{matrix.runner}}/release/charted.exe).Hash).ToLower() | Out-File ./target/${{matrix.runner}}/release/charted-${{matrix.os}}-${{matrix.arch}}${{matrix.ext}}.sha256
 
             - name: Upload binary to Noelware's Artifact Registry (/charted/server/${{steps.tag.outputs.tag}}/charted-${{matrix.os}}-${{matrix.arch}}${{matrix.ext}})
-              uses: Noelware/s3-action@2.2.2
+              uses: Noelware/s3-action@2.2.3
               with:
                   enforce-path-access-style: true
                   access-key-id: ${{secrets.S3_ACCESS_KEY}}
@@ -134,7 +134,7 @@ jobs:
                   bucket: artifacts
 
             - name: Upload checksum to Noelware's Artifact Registry (/charted/server/${{steps.tag.outputs.tag}}/charted-${{matrix.os}}-${{matrix.arch}}${{matrix.ext}}.sha256)
-              uses: Noelware/s3-action@2.2.2
+              uses: Noelware/s3-action@2.2.3
               with:
                   enforce-path-access-style: true
                   access-key-id: ${{secrets.S3_ACCESS_KEY}}
@@ -146,7 +146,7 @@ jobs:
                   bucket: artifacts
 
             - name: Upload binary to Noelware's Artifact Registry (/charted/server/beta/charted-${{matrix.os}}-${{matrix.arch}}${{matrix.ext}})
-              uses: Noelware/s3-action@2.2.2
+              uses: Noelware/s3-action@2.2.3
               with:
                   enforce-path-access-style: true
                   access-key-id: ${{secrets.S3_ACCESS_KEY}}
@@ -158,7 +158,7 @@ jobs:
                   bucket: artifacts
 
             - name: Upload checksum to Noelware's Artifact Registry (/charted/server/beta/charted-${{matrix.os}}-${{matrix.arch}}${{matrix.ext}}.sha256)
-              uses: Noelware/s3-action@2.2.2
+              uses: Noelware/s3-action@2.2.3
               with:
                   enforce-path-access-style: true
                   access-key-id: ${{secrets.S3_ACCESS_KEY}}
@@ -269,7 +269,7 @@ jobs:
               run: ((Get-FileHash -Path ./target/${{matrix.runner}}/release/charted-helm-plugin.exe).Hash).ToLower() | Out-File ./target/${{matrix.runner}}/release/charted-${{matrix.os}}-${{matrix.arch}}${{matrix.ext}}.sha256
 
             - name: Upload binary to Noelware's Artifact Registry (/charted/helm-plugin/${{steps.tag.outputs.tag}}/helm-plugin-${{matrix.os}}-${{matrix.arch}}${{matrix.ext}})
-              uses: Noelware/s3-action@2.2.2
+              uses: Noelware/s3-action@2.2.3
               with:
                   enforce-path-access-style: true
                   access-key-id: ${{secrets.S3_ACCESS_KEY}}
@@ -281,7 +281,7 @@ jobs:
                   bucket: artifacts
 
             - name: Upload checksum to Noelware's Artifact Registry (/charted/helm-plugin/${{steps.tag.outputs.tag}}/helm-plugin-${{matrix.os}}-${{matrix.arch}}${{matrix.ext}}.sha256)
-              uses: Noelware/s3-action@2.2.2
+              uses: Noelware/s3-action@2.2.3
               with:
                   enforce-path-access-style: true
                   access-key-id: ${{secrets.S3_ACCESS_KEY}}
@@ -293,7 +293,7 @@ jobs:
                   bucket: artifacts
 
             - name: Upload binary to Noelware's Artifact Registry (/charted/helm-plugin/beta/helm-plugin-${{matrix.os}}-${{matrix.arch}}${{matrix.ext}})
-              uses: Noelware/s3-action@2.2.2
+              uses: Noelware/s3-action@2.2.3
               with:
                   enforce-path-access-style: true
                   access-key-id: ${{secrets.S3_ACCESS_KEY}}
@@ -305,7 +305,7 @@ jobs:
                   bucket: artifacts
 
             - name: Upload checksum to Noelware's Artifact Registry (/charted/helm-plugin/beta/helm-plugin-${{matrix.os}}-${{matrix.arch}}${{matrix.ext}}.sha256)
-              uses: Noelware/s3-action@2.2.2
+              uses: Noelware/s3-action@2.2.3
               with:
                   enforce-path-access-style: true
                   access-key-id: ${{secrets.S3_ACCESS_KEY}}
