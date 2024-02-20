@@ -84,7 +84,7 @@ version = "1.0.22"
 features = ["serde"]
 
 [workspace.dependencies.serde]
-version = "1.0.196"
+version = "1.0.197"
 features = ["derive"]
 
 [dependencies]
@@ -221,7 +221,7 @@ version = "1.0.22"
 features = ["serde"]
 
 [dependencies.serde]
-version = "1.0.196"
+version = "1.0.197"
 features = ["derive"]
 
 [dependencies.sqlx]
