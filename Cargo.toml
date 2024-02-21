@@ -213,7 +213,7 @@ version = "0.5.0"
 features = ["serde", "tracing"]
 
 [dependencies.remi-s3]
-version = "0.5.0"
+version = "0.6.3"
 features = ["serde", "tracing"]
 
 [dependencies.semver]
