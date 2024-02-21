@@ -205,7 +205,7 @@ version = "0.24.0"
 features = ["sentinel", "tokio-comp", "connection-manager"]
 
 [dependencies.remi-azure]
-version = "0.5.0"
+version = "0.6.3"
 features = ["serde", "tracing"]
 
 [dependencies.remi-fs]
