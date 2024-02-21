@@ -50,7 +50,46 @@
                 "tags": ["API Keys"],
                 "description": "Paginate through all API keys available",
                 "operationId": "list_all_apikeys",
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/responses/ApiKeyPaginatedResponse" }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Unable to process request query parameters",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized to process the given session details or if the JWT token had expired",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "403": {
+                        "description": "Received an invalid password from the `Basic` authorization scheme",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "406": {
+                        "description": "Unable to process the session due to some unexpected outcome",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    }
+                }
             }
         },
         "/apikeys/{idOrName}": {},
@@ -883,7 +922,46 @@
                 "tags": ["API Keys"],
                 "description": "Paginate through all API keys available",
                 "operationId": "list_all_apikeys",
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/responses/ApiKeyPaginatedResponse" }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Unable to process request query parameters",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized to process the given session details or if the JWT token had expired",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "403": {
+                        "description": "Received an invalid password from the `Basic` authorization scheme",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "406": {
+                        "description": "Unable to process the session due to some unexpected outcome",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                        }
+                    }
+                }
             }
         },
         "/v1/apikeys/{idOrName}": {},
@@ -2017,7 +2095,7 @@
             "DateTime": {
                 "type": "string",
                 "format": "date-time",
-                "description": "RFC3339-encoded string that represents the date time of an entity",
+                "description": "RFC3339-encoded string that represents a datetime",
                 "readOnly": true
             },
             "EntrypointResponse": {
@@ -2307,6 +2385,14 @@
                 "description": "Information about a [pagination][Pagination] page.",
                 "required": ["cursor"],
                 "properties": { "cursor": { "$ref": "#/components/schemas/Snowflake" } }
+            },
+            "PaginatedApiKey": {
+                "type": "object",
+                "required": ["data", "page_info"],
+                "properties": {
+                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/ApiKey" } },
+                    "page_info": { "$ref": "#/components/schemas/PageInfo" }
+                }
             },
             "PaginatedMember": {
                 "type": "object",
@@ -2666,6 +2752,42 @@
                     }
                 }
             },
+            "ApiKeyPaginatedResponse": {
+                "description": "Response object for \"PaginatedApiKey\"",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": { "$ref": "#/components/schemas/PaginatedApiKey" },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "whether if this response [ApiKeyPaginatedResponse] was successful or not"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "ApiKeyResponse": {
+                "description": "Response object for \"ApiKey\"",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": { "$ref": "#/components/schemas/ApiKey" },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "whether if this response [ApiKeyResponse] was successful or not"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             "EmptyApiResponse": {
                 "description": "API response that doesn't contain any data",
                 "content": {
@@ -2749,6 +2871,60 @@
                                 "success": {
                                     "type": "boolean",
                                     "description": "whether if this response [MainResponse] was successful or not"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "MemberPaginatedResponse": {
+                "description": "Response object for \"PaginatedMember\"",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": { "$ref": "#/components/schemas/PaginatedMember" },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "whether if this response [MemberPaginatedResponse] was successful or not"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "OrganizationPaginatedResponse": {
+                "description": "Response object for \"PaginatedOrganization\"",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": { "$ref": "#/components/schemas/PaginatedOrganization" },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "whether if this response [OrganizationPaginatedResponse] was successful or not"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "RepositoryPaginatedResponse": {
+                "description": "Response object for \"PaginatedRepository\"",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": { "$ref": "#/components/schemas/PaginatedRepository" },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "whether if this response [RepositoryPaginatedResponse] was successful or not"
                                 }
                             }
                         }
