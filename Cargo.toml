@@ -13,20 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[package]
-name = "charted"
-description = "🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust"
-version.workspace = true
-authors.workspace = true
-homepage.workspace = true
-edition.workspace = true
-rust-version.workspace = true
-documentation.workspace = true
-license.workspace = true
-repository.workspace = true
-publish.workspace = true
-
 [workspace]
+resolver = "2"
 members = [
     "features/gc",
     "features/oci",
@@ -34,7 +22,10 @@ members = [
     "tools/devtools",
     "tools/helm-plugin",
 ]
-resolver = "2"
+
+[features]
+vendored = ["openssl/vendored"]
+default = []
 
 [workspace.package]
 version = "0.1.0-beta"
@@ -53,53 +44,54 @@ rust-version = "1.73"
 
 [workspace.dependencies]
 async-trait = "0.1.77"
+chrono = { version = "0.4.34", features = ["serde"] }
+clap = { version = "4.5.1", features = ["derive", "env"] }
 cli-table = "0.4.7"
 clap_complete = "4.5.1"
+color-eyre = { version = "0.6.2", features = ["issue-url", "tracing-error"] }
 dotenvy = "0.15.7"
 eyre = "0.6.12"
-promptly = "0.3.1"
+owo-colors = { version = "4.0.0", features = ["supports-color"] }
+semver = { version = "1.0.22", features = ["serde"] }
+serde = { version = "1.0.197", features = ["derive"] }
 serde_json = "1.0.114"
 which = "6.0.0"
-
-[workspace.dependencies.chrono]
-version = "0.4.34"
-features = ["serde"]
-
-[workspace.dependencies.clap]
-version = "4.5.1"
-features = ["derive", "env"]
-
-[workspace.dependencies.color-eyre]
-version = "0.6.2"
-features = ["issue-url", "tracing-error"]
 
 [workspace.dependencies.noelware-config]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "cad14b9b2f3995916d01434406778de7d3f1f0ea"
+rev = "3dbcdece3d4c0ee756b05ab6ec99111ec89c4262"
 features = ["derive"]
 
-[workspace.dependencies.owo-colors]
-version = "4.0.0"
-features = ["supports-color"]
-
-[workspace.dependencies.semver]
-version = "1.0.22"
-features = ["serde"]
-
-[workspace.dependencies.serde]
-version = "1.0.197"
-features = ["derive"]
+[package]
+name = "charted"
+description = "🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust"
+version.workspace = true
+authors.workspace = true
+homepage.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+documentation.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
 
 [dependencies]
 argon2 = "0.5.3"
 async-recursion = "1.0.5"
 async-trait = "0.1.77"
 aws-sdk-s3 = "1.16.0"
+axum = { version = "0.7.4", features = ["macros", "http2"] }
+axum-extra = { version = "0.9.2", features = ["typed-header"] }
+axum-server = { version = "0.6.0", features = ["tls-rustls"] }
 azure_storage = "0.19.0"
 base64 = "0.21.7"
+charted-proc-macros = { version = "0.0.0-devel.0", path = "./proc-macros" }
+chrono.workspace = true
+clap.workspace = true
 clap_complete = "4.5.1"
 cli-table.workspace = true
+color-eyre.workspace = true
 dotenvy = "0.15.7"
 elasticsearch = "8.5.0-alpha.1"
 erased-serde = "0.4.3"
@@ -117,145 +109,92 @@ md-5 = "0.10.6"
 meilisearch-sdk = "0.24.3"
 mimalloc = "0.1.39"
 mime = "0.3.17"
+moka = { version = "0.12.5", features = ["future"] }
 multer = "3.0.0"
 num_cpus = "1.16.0"
 noelware-config.workspace = true
 once_cell = "1.19.0"
-<<<<<<< HEAD
-openssl = "0.10.64"
-=======
+openssl = "0.10.64" # only here for the `vendored` feature
 owo-colors.workspace = true
-openssl = "0.10.63"
->>>>>>> 8a870020 (add `helm charted lint` cmd, add /apikeys & /apikeys/all endpoints)
 paste = "1.0.14"
 prometheus-client = "0.22.1"
-promptly.workspace = true
 prost = "0.12.3"
 prost-types = "0.12.3"
 rand = "0.8.5"
+redis = { version = "0.24.0", features = [
+    "sentinel",
+    "tokio-comp",
+    "connection-manager",
+] }
 regex = "1.10.3"
-remi = "0.5.0"
+remi = "0.6.3"
+remi-azure = { version = "0.6.3", features = ["serde", "tracing"] }
+remi-fs = { version = "0.6.3", features = ["serde", "tracing"] }
+remi-s3 = { version = "0.6.3", features = ["serde", "tracing"] }
 reqwest = "0.11.24"
 rust-embed = { version = "8.2.0", features = ["mime-guess"] }
+semver.workspace = true
 sentry = "0.32.2"
 sentry-eyre = "0.1.0"
 sentry-tower = { version = "0.32.2", features = ["axum", "http"] }
 sentry-tracing = "0.32.2"
-serde_json = "1.0.114"
+serde.workspace = true
+serde_json.workspace = true
 serde_path_to_error = "0.1.15"
 serde_repr = "0.1.18"
 serde_yaml = "0.9.32"
+sqlx = { version = "0.7.3", features = [
+    "postgres",
+    "runtime-tokio",
+    "tls-native-tls",
+    "chrono",
+] }
 tar = "0.4.40"
+tokio = { version = "1.36.0", features = [
+    "rt",
+    "rt-multi-thread",
+    "macros",
+    "io-util",
+    "fs",
+    "signal",
+] }
 tokio-util = "0.7.10"
 tonic = "0.11.0"
 tower = "0.4.13"
+tower-http = { version = "0.5.1", features = [
+    "compression-full",
+    "auth",
+    "cors",
+    "catch-panic",
+    "limit",
+] }
 tracing = "0.1.40"
 tracing-appender = "0.2.3"
 tracing-log = "0.2.0"
 tracing-opentelemetry = "0.22.0"
 tracing-subscriber = "0.3.18"
-
-[dependencies.axum]
-version = "0.7.4"
-features = ["http2", "multipart", "macros"]
-
-[dependencies.axum-extra]
-version = "0.9.2"
-features = ["typed-header"]
-
-[dependencies.axum-server]
-version = "0.6.0"
-features = ["tls-openssl"]
-
-[dependencies.charted-proc-macros]
-version = "0.0.0-devel.0"
-path = "proc-macros"
-
-[dependencies.chrono]
-version = "0.4.34"
-features = ["serde"]
-
-[dependencies.clap]
-version = "4.5.1"
-features = ["derive", "env"]
-
-[dependencies.color-eyre]
-version = "0.6.2"
-features = ["issue-url", "tracing-error"]
-
-[dependencies.moka]
-version = "0.12.5"
-features = ["future"]
+ubyte = { version = "0.10.4", features = ["serde"] }
+utoipa = { version = "4.2.0", features = ["uuid"] }
+uuid = { version = "1.7.0", features = ["serde", "v4"] }
+validator = { version = "0.16.1", features = ["derive"] }
 
 [dependencies.noelware-log]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "cad14b9b2f3995916d01434406778de7d3f1f0ea"
+rev = "3dbcdece3d4c0ee756b05ab6ec99111ec89c4262"
 features = ["log"]
 
 [dependencies.noelware-remi]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "cad14b9b2f3995916d01434406778de7d3f1f0ea"
+rev = "3dbcdece3d4c0ee756b05ab6ec99111ec89c4262"
 features = ["azure", "fs", "s3"]
 
 [dependencies.noelware-serde]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "cad14b9b2f3995916d01434406778de7d3f1f0ea"
+rev = "3dbcdece3d4c0ee756b05ab6ec99111ec89c4262"
 features = ["tracing"]
-
-[dependencies.redis]
-version = "0.24.0"
-features = ["sentinel", "tokio-comp", "connection-manager"]
-
-[dependencies.remi-azure]
-version = "0.5.0"
-features = ["serde", "tracing"]
-
-[dependencies.remi-fs]
-version = "0.5.0"
-features = ["serde", "tracing"]
-
-[dependencies.remi-s3]
-version = "0.5.0"
-features = ["serde", "tracing"]
-
-[dependencies.semver]
-version = "1.0.22"
-features = ["serde"]
-
-[dependencies.serde]
-version = "1.0.197"
-features = ["derive"]
-
-[dependencies.sqlx]
-version = "0.7.3"
-features = ["postgres", "runtime-tokio", "tls-native-tls", "chrono"]
-
-[dependencies.tokio]
-version = "1.36.0"
-features = ["rt", "rt-multi-thread", "macros", "io-util", "fs", "signal"]
-
-[dependencies.tower-http]
-version = "0.5.1"
-features = ["compression-full", "auth", "cors", "catch-panic", "limit"]
-
-[dependencies.ubyte]
-version = "0.10.4"
-features = ["serde"]
-
-[dependencies.utoipa]
-version = "4.2.0"
-features = ["uuid"]
-
-[dependencies.uuid]
-version = "1.7.0"
-features = ["serde", "v4"]
-
-[dependencies.validator]
-version = "0.16.1"
-features = ["derive"]
 
 [dev-dependencies]
 remi-fs = "0.5.0"
@@ -263,7 +202,7 @@ tempfile = "3.10.0"
 tokio = { version = "1.36.0", features = ["rt", "macros"] }
 
 [build-dependencies]
-chrono = "0.4.34"
+chrono.workspace = true
 rustc_version = "0.4.0"
 tonic-build = "0.11.0"
 which.workspace = true

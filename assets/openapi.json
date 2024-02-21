@@ -30,6 +30,30 @@
                 }
             }
         },
+        "/apikeys": {
+            "get": {
+                "tags": ["API Keys"],
+                "description": "Entrypoint for the API Keys API",
+                "operationId": "apikeys",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/EntrypointResponse" } }
+                        }
+                    }
+                }
+            }
+        },
+        "/apikeys/all": {
+            "get": {
+                "tags": ["API Keys"],
+                "description": "Paginate through all API keys available",
+                "operationId": "list_all_apikeys",
+                "responses": {}
+            }
+        },
+        "/apikeys/{idOrName}": {},
         "/features": {
             "get": {
                 "tags": ["Main"],
@@ -839,6 +863,30 @@
                 }
             }
         },
+        "/v1/apikeys": {
+            "get": {
+                "tags": ["API Keys"],
+                "description": "Entrypoint for the API Keys API",
+                "operationId": "apikeys",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": { "schema": { "$ref": "#/components/responses/EntrypointResponse" } }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/apikeys/all": {
+            "get": {
+                "tags": ["API Keys"],
+                "description": "Paginate through all API keys available",
+                "operationId": "list_all_apikeys",
+                "responses": {}
+            }
+        },
+        "/v1/apikeys/{idOrName}": {},
         "/v1/features": {
             "get": {
                 "tags": ["Main"],
@@ -1639,8 +1687,9 @@
             "ApiKey": {
                 "type": "object",
                 "description": "A resource for personal-managed API tokens that is created by a User. This is useful\nfor command line tools or scripts that need to interact with charted-server, but\nthe main use-case is for the [Helm plugin](https://charts.noelware.org/docs/helm-plugin/current).",
-                "required": ["scopes", "owner", "name", "id"],
+                "required": ["created_at", "updated_at", "scopes", "name", "id"],
                 "properties": {
+                    "created_at": { "$ref": "#/components/schemas/DateTime" },
                     "description": {
                         "type": "string",
                         "description": "Short description about this API key.",
@@ -1653,8 +1702,13 @@
                         "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
                         "minLength": 15
                     },
-                    "name": { "$ref": "#/components/schemas/Name" },
-                    "owner": { "$ref": "#/components/schemas/User" },
+                    "name": {
+                        "type": "string",
+                        "description": "A valid UTF-8 string that is used to identify a resource from the REST API in a humane fashion. This is meant to help identify a resource without trying to calculate the resource's Snowflake on the first try.",
+                        "maxLength": 32,
+                        "minLength": 1,
+                        "pattern": "([A-z]|-|_|\\d{0,9}){1,32}"
+                    },
                     "scopes": {
                         "type": "integer",
                         "format": "int64",
@@ -1664,8 +1718,79 @@
                         "type": "string",
                         "description": "The token itself. This is never revealed when querying, but only revealed\nwhen you create the token.",
                         "nullable": true
-                    }
+                    },
+                    "updated_at": { "$ref": "#/components/schemas/DateTime" }
                 }
+            },
+            "ApiKeyScope": {
+                "oneOf": [
+                    {
+                        "type": "number",
+                        "format": "int64",
+                        "description": "Represents a scope that is represented as an unsigned 64-bit integer, each scope can be in the range of 1..18446744073709551615",
+                        "minimum": 1
+                    },
+                    {
+                        "type": "string",
+                        "description": "represents a named version of a scope which is represented as 'entity:operation', i.e, `apikey:list` will allow you to list all API keys",
+                        "enum": [
+                            "user:access",
+                            "user:update",
+                            "user:delete",
+                            "user:connections",
+                            "user:notifications",
+                            "user:avatar:update",
+                            "user:sessions:list",
+                            "repo:access",
+                            "repo:create",
+                            "repo:delete",
+                            "repo:update",
+                            "repo:write",
+                            "repo:icon:update",
+                            "repo:releases:create",
+                            "repo:releases:update",
+                            "repo:releases:delete",
+                            "repo:members:list",
+                            "repo:members:update",
+                            "repo:members:kick",
+                            "repo:members:invites:access",
+                            "repo:members:invites:update",
+                            "repo:members:invites:delete",
+                            "repo:webhooks:list",
+                            "repo:webhooks:create",
+                            "repo:webhooks:update",
+                            "repo:webhooks:delete",
+                            "repo:webhooks:events:access",
+                            "repo:webhooks:events:delete",
+                            "apikeys:view",
+                            "apikeys:list",
+                            "apikeys:create",
+                            "apikeys:delete",
+                            "apikeys:update",
+                            "org:access",
+                            "org:create",
+                            "org:update",
+                            "org:delete",
+                            "org:members:invites",
+                            "org:members:list",
+                            "org:members:kick",
+                            "org:members:update",
+                            "org:webhooks:list",
+                            "org:webhooks:create",
+                            "org:webhooks:update",
+                            "org:webhooks:delete",
+                            "org:webhooks:events:list",
+                            "org:webhooks:events:delete",
+                            "admin:stats",
+                            "admin:users:create",
+                            "admin:users:delete",
+                            "admin:users:update",
+                            "admin:orgs:delete",
+                            "admin:orgs:update"
+                        ]
+                    }
+                ],
+                "description": "Represents what a single API key scope can represent, this will always represent unsigned 64-bit integers in the API server itself"
             },
             "Chart": {
                 "type": "object",

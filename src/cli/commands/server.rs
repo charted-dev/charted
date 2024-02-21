@@ -29,7 +29,7 @@ use axum::{
     response::Redirect,
     BoxError, Router,
 };
-use axum_server::{tls_openssl::OpenSSLConfig, Handle};
+use axum_server::{tls_rustls::RustlsConfig, Handle};
 use eyre::Context;
 use noelware_log::{writers, WriteLayer};
 use owo_colors::{OwoColorize, Stream::Stdout};
@@ -251,10 +251,10 @@ impl AsyncExecute for Cmd {
             }
 
             let addr = instance.config.server.addr();
-            let config = OpenSSLConfig::from_pem_file(&cfg.cert, &cfg.cert_key)?;
+            let config = RustlsConfig::from_pem_file(&cfg.cert, &cfg.cert_key).await?;
 
             info!(address = ?addr, "listening on HTTPS");
-            axum_server::bind_openssl(addr, config)
+            axum_server::bind_rustls(addr, config)
                 .handle(handle)
                 .serve(router.into_make_service())
                 .await
@@ -267,7 +267,16 @@ impl AsyncExecute for Cmd {
                 .with_graceful_shutdown(shutdown_signal(None))
                 .await
         }
-        .context("unable to run HTTP service")
+        .context("unable to run HTTP service")?;
+
+        info!("charted system is shutting down...");
+        {
+            let sessions = instance.sessions.lock().await;
+            sessions.destroy();
+        }
+
+        info!("Goodbye...");
+        Ok(())
     }
 }
 

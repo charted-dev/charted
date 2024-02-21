@@ -18,6 +18,18 @@ use noelware_config::{env, merge::Merge, FromEnv};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
+/// Represents the configuration for configuring Redis for session management
+/// and caching (if enabled from [`server.ratelimits.caching`] or [`database.caching`]).
+///
+/// ## Standalone
+/// For standalone connections, [`redis.master_name`] is not necessary, only for Sentinel connections.
+///
+/// ## Sentinel
+/// Redis Sentinel is first-class supported in `charted-server` as Noelware's deployment
+/// for Redis uses sentinels for failover.
+///
+/// ## Cluster
+/// We don't support Redis Cluster yet, but if people want it, open an issue!
 #[derive(Debug, Clone, Serialize, Deserialize, Merge)]
 pub struct Config {
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -27,6 +39,7 @@ pub struct Config {
     pub password: Option<String>,
 
     #[serde(default, skip_serializing_if = "HashSet::is_empty")]
+    #[merge(strategy = __merge_redis_hosts)]
     pub hosts: HashSet<String>,
 
     #[serde(default)]
@@ -75,4 +88,15 @@ const fn __default_db() -> u8 {
 
 fn __default_redis_hosts() -> HashSet<String> {
     hashset!["redis://localhost:6379".to_string()]
+}
+
+fn __merge_redis_hosts(hosts: &mut HashSet<String>, right: HashSet<String>) {
+    // if `right` is the default hosts, then we don't do anything
+    if right == __default_redis_hosts() {
+        return;
+    }
+
+    // overwrite it so it can be reflected correctly
+    hosts.clear();
+    hosts.extend(right);
 }

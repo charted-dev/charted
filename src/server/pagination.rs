@@ -105,3 +105,4 @@ macro_rules! gen_response_schemas_for_types {
 gen_response_schemas_for_types!(Organization);
 gen_response_schemas_for_types!(Repository);
 gen_response_schemas_for_types!(Member);
+gen_response_schemas_for_types!(ApiKey);

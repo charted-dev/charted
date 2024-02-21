@@ -13,22 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[package]
-name = "charted-proc-macros"
-description = "🐻‍❄️📦 Procedural macros for `charted-server`"
-version = "0.0.0-devel.0"
-license.workspace = true
-edition.workspace = true
-homepage.workspace = true
-authors.workspace = true
-rust-version.workspace = true
+[target.x86_64-unknown-linux-gnu]
+image = "ghcr.io/cross-rs/aarch64-unknown-linux-gnu:0.2.5"
+pre-build = ["apt update && apt install -y libssl-dev"]
 
-[lib]
-proc-macro = true
-
-[dependencies]
-heck = "0.4.1"
-proc-macro2 = "1.0.78"
-quote = "1.0.35"
-syn = "2.0.50"
-utoipa = "4.2.0"
+[target.aarch64-unknown-linux-gnu]
+image = "ghcr.io/cross-rs/aarch64-unknown-linux-gnu:0.2.5"
+pre-build = [
+    "dpkg --add-architecture arm64 && apt update && apt install --assume-yes libssl-dev:arm64",
+]

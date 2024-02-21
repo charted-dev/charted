@@ -18,16 +18,12 @@ use charted::cli::{AsyncExecute, Execute};
 
 mod cli;
 mod docker;
-mod generate;
 mod helm_plugin;
 mod server;
 
 /// List of all available subcommands for `./dev`
 #[derive(Debug, Clone, clap::Subcommand)]
 pub enum Command {
-    #[command(subcommand)]
-    Generate(generate::Cmd),
-
     #[command(subcommand)]
     Docker(docker::Cmd),
 
@@ -40,7 +36,6 @@ pub enum Command {
 impl AsyncExecute for Command {
     async fn execute(&self) -> eyre::Result<()> {
         match self {
-            Self::Generate(generate) => generate.execute(),
             Self::HelmPlugin(helm) => helm.execute(),
             Self::Docker(docker) => docker.execute().await,
             Self::Server(server) => server.execute(),

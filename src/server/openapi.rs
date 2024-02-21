@@ -53,9 +53,11 @@ static COMPONENTS: Lazy<Components> = lazy!(ComponentsBuilder::new()
         crate::common::models::helm::ChartSpecVersion::schema(),
         crate::common::models::helm::ChartMaintainer::schema(),
         crate::common::models::helm::ChartDependency::schema(),
+        crate::common::models::entities::ApiKeyScope::schema(),
         crate::common::models::entities::Repository::schema(),
         crate::common::models::helm::ChartIndexSpec::schema(),
         crate::server::pagination::PaginatedMember::schema(),
+        crate::server::pagination::PaginatedApiKey::schema(),
         crate::common::models::helm::ImportValue::schema(),
         crate::common::models::entities::Member::schema(),
         crate::common::models::helm::ChartIndex::schema(),
@@ -79,7 +81,12 @@ static COMPONENTS: Lazy<Components> = lazy!(ComponentsBuilder::new()
         crate::server::routing::v1::user::sessions::SessionResponse::response(),
         crate::server::routing::v1::repository::RepositoryResponse::response(),
         crate::server::routing::v1::repository::RepositoryResponse::response(),
+        crate::server::pagination::OrganizationPaginatedResponse::response(),
         crate::server::routing::v1::features::FeaturesResponse::response(),
+        crate::server::pagination::RepositoryPaginatedResponse::response(),
+        crate::server::routing::v1::apikey::ApiKeyResponse::response(),
+        crate::server::pagination::ApiKeyPaginatedResponse::response(),
+        crate::server::pagination::MemberPaginatedResponse::response(),
         crate::server::routing::v1::user::UserResponse::response(),
         crate::server::routing::v1::EntrypointResponse::response(),
         crate::server::routing::v1::info::InfoResponse::response(),
@@ -103,6 +110,13 @@ impl Document {
     /// [`Paths`] of all available [`APIVersion::V1`] endpoints.
     pub fn v1() -> Paths {
         add_paths! {
+            // ~~~~~~~~~~~ API KEYS ~~~~~~~~~~~~~~~~~~~
+            Document::format(APIVersion::V1, "/apikeys/{idOrName}") => [];
+            Document::format(APIVersion::V1, "/apikeys/all") => crate::server::routing::v1::apikey::ListAllApikeysRestController::paths();
+            Document::format(APIVersion::V1, "/apikeys") => [
+                crate::server::routing::v1::apikey::EntrypointRestController::paths()
+            ];
+
             // ~~~~~~~~~~~ ORGANIZATIONS ~~~~~~~~~~~~~~~~~~~
             Document::format(APIVersion::V1, "/organizations/{idOrName}/repositories") => crate::server::routing::v1::organization::repositories::ListOrgRepositoriesRestController::paths();
             Document::format(APIVersion::V1, "/organizations/{idOrName}/icon/{hash}") => crate::server::routing::v1::organization::icons::GetOrgIconByHashRestController::paths();
@@ -151,6 +165,13 @@ impl Document {
     /// [`Paths`] for all available recent API version endpoints.
     pub fn latest() -> Paths {
         add_paths! {
+            // ~~~~~~~~~~~ API KEYS ~~~~~~~~~~~~~~~~~~~
+            "/apikeys/{idOrName}" => [];
+            "/apikeys/all" => crate::server::routing::v1::apikey::ListAllApikeysRestController::paths();
+            "/apikeys" => [
+                crate::server::routing::v1::apikey::EntrypointRestController::paths()
+            ];
+
             // ~~~~~~~~~~~ ORGANIZATIONS ~~~~~~~~~~~~~~~~~~~
             "/organizations/{idOrName}/repositories" => crate::server::routing::v1::organization::repositories::ListOrgRepositoriesRestController::paths();
             "/organizations/{idOrName}/icon/{hash}" => crate::server::routing::v1::organization::icons::GetOrgIconByHashRestController::paths();
@@ -217,9 +238,7 @@ fn datetime<'s>() -> (&'s str, RefOr<Schema>) {
             ObjectBuilder::new()
                 .schema_type(SchemaType::String)
                 .format(Some(SchemaFormat::KnownFormat(KnownFormat::DateTime)))
-                .description(Some(
-                    "RFC3339-encoded string that represents the date time of an entity",
-                ))
+                .description(Some("RFC3339-encoded string that represents a datetime"))
                 .read_only(Some(true))
                 .build(),
         )),

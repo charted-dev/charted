@@ -15,13 +15,17 @@
 
 use super::EntrypointResponse;
 use crate::{
-    common::models::entities::{ApiKey, ApiKeyScope, ApiKeyScopes},
+    common::models::{
+        entities::{ApiKey, ApiKeyScope, ApiKeyScopes},
+        NameOrSnowflake,
+    },
     openapi::generate_response_schema,
     server::{
         controller,
         middleware::session::{Middleware, Session},
-        models::res::{internal_server_error, ok, Result},
+        models::res::{err, internal_server_error, ok, ErrorCode, Result},
         pagination::{OrderBy, PageInfo, Pagination, PaginationQuery},
+        validation::validate,
     },
     Instance,
 };
@@ -31,8 +35,10 @@ use axum::{
     http::StatusCode,
     routing, Extension, Router,
 };
+use serde_json::json;
 use sqlx::{FromRow, QueryBuilder, Row};
 use tower_http::auth::AsyncRequireAuthorizationLayer;
+use validator::Validate;
 
 pub struct ApiKeyResponse;
 generate_response_schema!(ApiKeyResponse, schema = "ApiKey");
@@ -49,6 +55,15 @@ pub fn create_router() -> Router<Instance> {
                 })),
             ),
         )
+        .route(
+            "/:idOrName",
+            routing::get(
+                GetSingleApikeyRestController::run.layer(AsyncRequireAuthorizationLayer::new(Middleware {
+                    scopes: ApiKeyScopes::with_iter([ApiKeyScope::ApiKeyView]),
+                    ..Default::default()
+                })),
+            ),
+        )
 }
 
 /// Entrypoint for the API Keys API
@@ -58,7 +73,20 @@ pub async fn entrypoint() {
 }
 
 /// Paginate through all API keys available
-#[controller(tags("API Keys"))]
+#[controller(
+    tags("API Keys"),
+    securityRequirements(
+        ("ApiKey", ["apikeys:list"]),
+        ("Bearer", []),
+        ("Basic", [])
+    ),
+    response(200, "Successful response", ("application/json", response!("ApiKeyPaginatedResponse"))),
+    response(400, "Unable to process request query parameters", ("application/json", response!("ApiErrorResponse"))),
+    response(401, "Unauthorized to process the given session details or if the JWT token had expired", ("application/json", response!("ApiErrorResponse"))),
+    response(403, "Received an invalid password from the `Basic` authorization scheme", ("application/json", response!("ApiErrorResponse"))),
+    response(406, "Unable to process the session due to some unexpected outcome", ("application/json", response!("ApiErrorResponse"))),
+    response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
+)]
 pub async fn list_all_apikeys(
     State(Instance { pool, .. }): State<Instance>,
     Extension(Session { user, .. }): Extension<Session>,
@@ -120,8 +148,64 @@ pub async fn list_all_apikeys(
 }
 
 /// Retrieve a single API key by its ID or name.
-#[controller(tags("API Keys"))]
-pub async fn get_single_apikey() {}
+#[controller(
+    tags("API Keys"),
+    securityRequirements(
+        ("ApiKey", ["apikeys:view"]),
+        ("Bearer", []),
+        ("Basic", [])
+    ),
+    response(200, "Successful response", ("application/json", response!("ApiKeyResponse"))),
+    response(400, "Unable to process request query parameters", ("application/json", response!("ApiErrorResponse"))),
+    response(401, "Unauthorized to process the given session details or if the JWT token had expired", ("application/json", response!("ApiErrorResponse"))),
+    response(403, "Received an invalid password from the `Basic` authorization scheme", ("application/json", response!("ApiErrorResponse"))),
+    response(404, "Entity was not found", ("application/json", response!("ApiErrorResponse"))),
+    response(406, "Unable to process the session due to some unexpected outcome", ("application/json", response!("ApiErrorResponse"))),
+    response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
+)]
+pub async fn get_single_apikey(
+    State(Instance { pool, .. }): State<Instance>,
+    Extension(Session { user, .. }): Extension<Session>,
+    crate::server::extract::NameOrSnowflake(nos): crate::server::extract::NameOrSnowflake,
+) -> Result<ApiKey> {
+    validate(&nos, NameOrSnowflake::validate)?;
+    let mut query = QueryBuilder::<sqlx::Postgres>::new("select api_keys.* from api_keys");
+
+    match nos {
+        NameOrSnowflake::Snowflake(id) => query.push(" where id = $1").push_bind(i64::try_from(id).unwrap()),
+        NameOrSnowflake::Name(ref name) => query.push(" where name = $1").push_bind(name),
+    };
+
+    query.push(" and owner = $2").push_bind(user.id);
+
+    let query = query.build();
+    match query.fetch_optional(&pool).await {
+        Ok(Some(apikey)) => Ok(ok(
+            StatusCode::OK,
+            ApiKey::from_row(&apikey)
+                .inspect_err(|e| {
+                    error!(apikey.idOrName = %nos, error = %e, "unable to convert postgres row ~> ApiKey");
+                    sentry::capture_error(&e);
+                })
+                .map_err(|_| internal_server_error())?,
+        )),
+        Ok(None) => Err(err(
+            StatusCode::NOT_FOUND,
+            (
+                ErrorCode::EntityNotFound,
+                "unable to find api key",
+                json!({"idOrName":nos}),
+            ),
+        )),
+
+        Err(e) => {
+            error!(apikey.idOrName = %nos, error = %e, "unable to query api key from db");
+            sentry::capture_error(&e);
+
+            Err(internal_server_error())
+        }
+    }
+}
 
 /// Create an API key under the current authenticated user's account.
 #[controller(tags("API Keys"))]

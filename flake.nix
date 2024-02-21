@@ -133,7 +133,6 @@
           cargo-expand
           cargo-deny
           sqlx-cli
-          sccache
           openssl
           glibc
           rust
@@ -141,7 +140,6 @@
         ];
 
         shellHook = ''
-          export RUSTC_WRAPPER="${pkgs.sccache}/bin/sccache"
           export RUSTFLAGS="--cfg tokio_unstable ${rustflags}"
         '';
       };

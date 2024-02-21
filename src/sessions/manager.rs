@@ -304,10 +304,10 @@ impl Manager {
             .map(|_: ()| sess)
             .context("unable to create session in Redis")
     }
-}
 
-impl Drop for Manager {
-    fn drop(&mut self) {
+    /// Attempts to destroy the manager by dropping all Tokio handles
+    /// it is controlling
+    pub fn destroy(&self) {
         let mut failed = 0usize;
 
         warn!("destroying all sessions");
