@@ -1187,10 +1187,9 @@ dependencies = [
  "rand 0.8.5",
  "redis",
  "regex",
- "remi 0.6.3",
+ "remi",
  "remi-azure",
- "remi-fs 0.5.0",
- "remi-fs 0.6.3",
+ "remi-fs",
  "remi-s3",
  "reqwest",
  "rust-embed",
@@ -1991,12 +1990,6 @@ dependencies = [
  "rand_core 0.6.4",
  "subtle",
 ]
-
-[[package]]
-name = "file-format"
-version = "0.23.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "865ed54301d7e5136763302a3c9e595317e08a3119e19a078ab1ed269eb18edc"
 
 [[package]]
 name = "file-format"
@@ -3373,9 +3366,9 @@ source = "git+https://github.com/Noelware/core-rs?rev=3dbcdece3d4c0ee756b05ab6ec
 dependencies = [
  "azure_core",
  "bytes",
- "remi 0.6.3",
+ "remi",
  "remi-azure",
- "remi-fs 0.6.3",
+ "remi-fs",
  "remi-s3",
 ]
 
@@ -4169,17 +4162,6 @@ checksum = "c08c74e62047bb2de4ff487b251e4a92e24f48745648451635cec7d591162d9f"
 
 [[package]]
 name = "remi"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "83247f07ce229ea31f36926fa9bf2a72dab8031a32ba63bac50154f6694d0aab"
-dependencies = [
- "async-trait",
- "bytes",
- "futures",
-]
-
-[[package]]
-name = "remi"
 version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "95e4f0987a37ec809f24eb092befd09da76b2023d863d1dcbb1919951e25221a"
@@ -4201,25 +4183,9 @@ dependencies = [
  "azure_storage_blobs",
  "bytes",
  "futures-util",
- "remi 0.6.3",
+ "remi",
  "serde",
  "tracing",
-]
-
-[[package]]
-name = "remi-fs"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4f603281d176b4975064df0d30b64479c149ef8716078365f12a2e913354c2f9"
-dependencies = [
- "async-trait",
- "bytes",
- "dirs",
- "file-format 0.23.0",
- "futures",
- "infer 0.15.0",
- "remi 0.5.0",
- "tokio",
 ]
 
 [[package]]
@@ -4231,10 +4197,10 @@ dependencies = [
  "async-trait",
  "bytes",
  "dirs",
- "file-format 0.24.0",
+ "file-format",
  "futures",
  "infer 0.15.0",
- "remi 0.6.3",
+ "remi",
  "serde",
  "tokio",
  "tracing",
@@ -4251,7 +4217,7 @@ dependencies = [
  "aws-credential-types",
  "aws-sdk-s3",
  "bytes",
- "remi 0.6.3",
+ "remi",
  "serde",
  "tracing",
 ]

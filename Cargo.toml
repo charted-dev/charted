@@ -197,7 +197,7 @@ rev = "3dbcdece3d4c0ee756b05ab6ec99111ec89c4262"
 features = ["tracing"]
 
 [dev-dependencies]
-remi-fs = "0.5.0"
+remi-fs = "0.6.3"
 tempfile = "3.10.0"
 tokio = { version = "1.36.0", features = ["rt", "macros"] }
 
