@@ -209,7 +209,7 @@ version = "0.5.0"
 features = ["serde", "tracing"]
 
 [dependencies.remi-fs]
-version = "0.5.0"
+version = "0.6.3"
 features = ["serde", "tracing"]
 
 [dependencies.remi-s3]
@@ -253,7 +253,7 @@ version = "0.16.1"
 features = ["derive"]
 
 [dev-dependencies]
-remi-fs = "0.5.0"
+remi-fs = "0.6.3"
 tempfile = "3.10.0"
 tokio = { version = "1.36.0", features = ["rt", "macros"] }
 
