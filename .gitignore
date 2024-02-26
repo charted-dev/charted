@@ -694,7 +694,7 @@ FodyWeavers.xsd
 !scripts/publish/
 web/.output
 !Cargo.lock
-config.yml
+config.toml
 !src/bin/
 .direnv/
 .cache/

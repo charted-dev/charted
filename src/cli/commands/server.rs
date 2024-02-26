@@ -115,7 +115,7 @@ impl AsyncExecute for Cmd {
         }?;
 
         if self.print {
-            eprintln!("{}", serde_yaml::to_string(&config).unwrap());
+            eprintln!("{}", toml::to_string(&config).unwrap());
             return Ok(());
         }
 

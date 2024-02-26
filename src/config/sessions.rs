@@ -29,7 +29,7 @@ pub struct Config {
     pub enable_basic_auth: bool,
 
     /// [`Backend`] to use for authenticating users.
-    #[serde(default, with = "serde_yaml::with::singleton_map")]
+    #[serde(default)]
     pub backend: Backend,
 }
 

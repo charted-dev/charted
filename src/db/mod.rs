@@ -332,6 +332,7 @@ macro_rules! impl_patch_for_priv {
 
         { $value:expr };
     }) => {
+        dbg!(&$payload);
         match $payload {
             // if the value is empty, then we will asume that it needs to be `NULL`
             Some(ref val) if val.is_empty() => {

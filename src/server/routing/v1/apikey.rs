@@ -17,11 +17,15 @@ use super::EntrypointResponse;
 use crate::{
     common::models::{
         entities::{ApiKey, ApiKeyScope, ApiKeyScopes},
+        payloads::CreateApiKeyPayload,
         NameOrSnowflake,
     },
+    db::controllers::DbController,
     openapi::generate_response_schema,
+    rand_string,
     server::{
         controller,
+        extract::Json,
         middleware::session::{Middleware, Session},
         models::res::{err, internal_server_error, ok, ErrorCode, Result},
         pagination::{OrderBy, PageInfo, Pagination, PaginationQuery},
@@ -35,6 +39,7 @@ use axum::{
     http::StatusCode,
     routing, Extension, Router,
 };
+use chrono::Local;
 use serde_json::json;
 use sqlx::{FromRow, QueryBuilder, Row};
 use tower_http::auth::AsyncRequireAuthorizationLayer;
@@ -208,8 +213,73 @@ pub async fn get_single_apikey(
 }
 
 /// Create an API key under the current authenticated user's account.
-#[controller(tags("API Keys"))]
-pub async fn create_apikey() {}
+#[controller(
+    tags("API Keys"),
+    securityRequirements(
+        ("ApiKey", ["apikeys:create"]),
+        ("Bearer", []),
+        ("Basic", [])
+    ),
+    response(201, "Created API key successfully", ("application/json", response!("ApiKeyResponse"))),
+    response(401, "Unauthorized to process the given session details or if the JWT token had expired", ("application/json", response!("ApiErrorResponse"))),
+    response(403, "Received an invalid password from the `Basic` authorization scheme", ("application/json", response!("ApiErrorResponse"))),
+    response(406, "Unable to process the session due to some unexpected outcome", ("application/json", response!("ApiErrorResponse"))),
+    response(409, "API Key with the name already exists on your account", ("application/json", response!("ApiErrorResponse"))),
+    response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
+)]
+pub async fn create_apikey(
+    State(Instance {
+        controllers, snowflake, ..
+    }): State<Instance>,
+    Extension(Session { user, .. }): Extension<Session>,
+    Json(payload): Json<CreateApiKeyPayload>,
+) -> Result<ApiKey> {
+    validate(&payload, CreateApiKeyPayload::validate)?;
+
+    // check if the api key under the name already exists
+    match controllers
+        .apikeys
+        .get_by(NameOrSnowflake::Name(payload.name.clone()))
+        .await
+    {
+        Ok(None) => {}
+        Ok(Some(_)) => {
+            return Err(err(
+                StatusCode::CONFLICT,
+                (
+                    ErrorCode::EntityAlreadyExists,
+                    "apikey already exists under this account",
+                    json!({"name":payload.name, "user":user.username}),
+                ),
+            ))
+        }
+
+        Err(_) => return Err(internal_server_error()),
+    }
+
+    let scopes = ApiKeyScopes::with_iter(payload.scopes.clone());
+    let token = rand_string(16);
+    let now = Local::now();
+    let id = snowflake.generate();
+    let apikey = ApiKey {
+        description: payload.description.clone(),
+        created_at: now,
+        updated_at: now,
+        expires_in: None,
+        scopes: scopes.max_bits().try_into().unwrap(),
+        token: Some(token),
+        owner: user.id,
+        name: payload.name.clone(),
+        id: id.value().try_into().unwrap(),
+    };
+
+    controllers
+        .apikeys
+        .create(payload, &apikey)
+        .await
+        .map(|_| ok(StatusCode::CREATED, apikey))
+        .map_err(|_| internal_server_error())
+}
 
 /// Patch an API key's metadata
 #[controller(tags("API Keys"))]

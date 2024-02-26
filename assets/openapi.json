@@ -1806,6 +1806,7 @@
                         "type": "number",
                         "format": "int64",
                         "description": "Represents a scope that is represented as an unsigned 64-bit integer, each scope can be in the range of 1..18446744073709551615",
+                        "maximum": 4503599627370496,
                         "minimum": 1
                     },
                     {

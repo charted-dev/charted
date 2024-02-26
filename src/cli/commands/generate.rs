@@ -39,7 +39,7 @@ impl Execute for Cmd {
         let mut file = OpenOptions::new().create_new(true).write(true).open(&self.path)?;
 
         let config = Config::default();
-        let serialized = serde_yaml::to_string(&config)?;
+        let serialized = toml::to_string(&config)?;
         file.write_all(serialized.as_ref())?;
 
         info!(path = %self.path.display(), "wrote new config!");

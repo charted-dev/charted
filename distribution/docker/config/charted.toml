@@ -20,6 +20,5 @@
 #
 # You can read up the reference here: https://charts.noelware.org/docs/server/current/self-hosting/configuration
 
-storage:
-    filesystem:
-        directory: /var/lib/noelware/charted/data
+[storage.filesystem]
+directory = "/var/lib/noelware/charted/data"

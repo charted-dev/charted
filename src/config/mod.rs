@@ -30,6 +30,7 @@ use noelware_config::{env, merge::Merge, FromEnv, TryFromEnv};
 use serde::{Deserialize, Serialize};
 use std::{
     fs::File,
+    io::Read,
     path::{Path, PathBuf},
 };
 
@@ -68,7 +69,7 @@ pub struct Config {
     pub single_org: bool,
 
     /// Configures the storage for holding external media and chart indexes.
-    #[serde(default, with = "serde_yaml::with::singleton_map")]
+    #[serde(default)]
     #[merge(skip)]
     pub storage: storage::Config,
 
@@ -142,7 +143,7 @@ impl Config {
     pub fn find_default_conf_location() -> Option<PathBuf> {
         let mut config_dir = Path::new("./config").to_path_buf();
         if config_dir.is_dir() {
-            config_dir.push("charted.yaml");
+            config_dir.push("charted.toml");
             if config_dir.exists() && config_dir.is_file() {
                 return Some(config_dir.clone());
             }
@@ -159,7 +160,7 @@ impl Config {
             }
 
             Err(_) => {
-                let last_resort = Path::new("./config.yml");
+                let last_resort = Path::new("./config.toml");
                 if last_resort.exists() && last_resort.is_file() {
                     return Some(last_resort.to_path_buf());
                 }
@@ -187,9 +188,16 @@ impl Config {
         }
 
         let mut cfg = Config::try_from_env()?;
-        let file = serde_yaml::from_reader::<_, Config>(File::open(path)?)?;
+        let mut contents = String::new();
 
+        {
+            let mut file = File::open(path)?;
+            file.read_to_string(&mut contents)?;
+        }
+
+        let file: Config = toml::from_str(&contents)?;
         cfg.merge(file);
+
         if cfg.jwt_secret_key.is_empty() {
             let key = __generated_secret_key();
             eprintln!("[charted WARN] Missing a secret key for encoding JWT tokens, but I have generated one for you: {key} \

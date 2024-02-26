@@ -142,7 +142,6 @@ serde.workspace = true
 serde_json.workspace = true
 serde_path_to_error = "0.1.15"
 serde_repr = "0.1.18"
-serde_yaml = "0.9.32"
 sqlx = { version = "0.7.3", features = [
     "postgres",
     "runtime-tokio",
@@ -177,6 +176,8 @@ ubyte = { version = "0.10.4", features = ["serde"] }
 utoipa = { version = "4.2.0", features = ["uuid"] }
 uuid = { version = "1.7.0", features = ["serde", "v4"] }
 validator = { version = "0.16.1", features = ["derive"] }
+toml = "0.8.10"
+serde_yaml = "0.9.32"
 
 [dependencies.noelware-log]
 version = "0.1.0"

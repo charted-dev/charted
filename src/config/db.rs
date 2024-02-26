@@ -36,7 +36,7 @@ pub struct Config {
     pub run_migrations: bool,
 
     /// Caching strategy for caching database objects.
-    #[serde(default, with = "serde_yaml::with::singleton_map")]
+    #[serde(default)]
     pub caching: super::caching::Config,
 
     /// The password to use for authentication.

@@ -149,11 +149,12 @@ macro_rules! gen_apikeyscopes {
                                 let obj = ::utoipa::openapi::ObjectBuilder::new()
                                     .description(Some(format!(
                                         "Represents a scope that is represented as an unsigned 64-bit integer, each scope can be in the range of 1..{}",
-                                        u64::MAX
+                                        ApiKeyScope::max()
                                     )))
                                     .schema_type(::utoipa::openapi::SchemaType::Number)
                                     .format(Some(::utoipa::openapi::SchemaFormat::Custom(String::from("int64"))))
-                                    .minimum(Some(1f64));
+                                    .minimum(Some(1f64))
+                                    .maximum(Some(ApiKeyScope::max() as f64));
 
                                 obj.build()
                             })

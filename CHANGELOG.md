@@ -12,6 +12,8 @@ Sorry it took a year to do, this will never happen again.
 
 ~ **Noel Towa**
 
+### Breaking Changes
+
 -   Rework all code into Rust as the Kotlin codebase became too complex to work on and Rust makes it easier (@auguwu, @spotlightishere)
 -   **ClickHouse** is not required anymore for any feature. **ClickHouse** will become a critical component for some features that haven't been implemented already. (@auguwu)
 -   OpenAPI document is now more stable and is the recommended way to generate the APIs necessary (@auguwu)
@@ -19,7 +21,8 @@ Sorry it took a year to do, this will never happen again.
 -   Java is no longer necessary, `charted` is now a flat binary that can be installed from Noelware's Artifacts Registry (@auguwu)
 -   `accounts` subcommand is no longer available (@auguwu)
 -   LDAP is now supported when authenticating users, while it is basic and experimental (@auguwu)
--   `logback.properties` is no longer available, please use the `logging` block in your `config.yml` (@auguwu)
+-   `logback.properties` is no longer available, please use the `logging` block in your `config.toml` (@auguwu)
+-   Configuration file now uses TOML instead of YAML
 
 ## v0.4.0-unstable.3
 

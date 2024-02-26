@@ -63,7 +63,7 @@ impl Execute for Cmd {
             cmd.args(["--", "server"]);
 
             let root = current_dir().unwrap();
-            for path in [root.join("config.yml"), root.join("config/charted.yaml")] {
+            for path in [root.join("config.toml"), root.join("config/charted.toml")] {
                 if path.try_exists().unwrap() {
                     cmd.arg("--config").arg(path);
                     break;

@@ -13,22 +13,29 @@ This implements:
 
 ## Configuration
 
-This can be configured with the `./config/gc.yaml` file or in `./config/charted.yaml` with the `gc` key:
+This can be configured in `./config/charted.toml` with the `[features.gc]` TOML table:
 
-```yaml filename=./config/charted.yaml
-gc:
-    cron: '0 0 * * *' # runs at 00:00 for each constraint that doesn't have a `gc.constraints[].cron` value set.
-    constraints:
-        - $object: Repository
-          constraint: updated_at >= 30d
-          description: Delete repositories that haven't been updated in 30 days
-          actions:
-              - delete:db
-              - email:deletion
+```toml filename=./config/charted.toml
+[features.gc]
+cron = "@daily" # runs at 00:00 - this is the base cron schedule, it'll be the default if none were specified.
+
+# Specify a constraint that the garbage collector will use to determine
+# how a entity should be garbage collected.
+[[features.constraint]]
+entity = "Repository"
+constraint = "updated_at >= 30d"
+description = "Delete all repositories that haven't been updated in 30 days"
+actions = [
+    # delete it from the database
+    "delete",
+
+    # send the email to the owner and the team members
+    "email"
+]
 ```
 
 The garbage collector will:
 
--   Run a cron job (specified in `gc.cron` or `gc.constraints[].cron`) to check if the `constraint` is true, then will run the following actions:
+-   Run a cron job (specified in `gc.cron` or `gc.constraint[].cron`) to check if the `constraint` is true, then will run the following actions:
     -   Deletes the repository from the database
     -   Sends a email that a repository was deleted (if the emails service is enabled, this will be nop if not enabled)
