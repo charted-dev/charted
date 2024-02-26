@@ -199,7 +199,7 @@ features = ["tracing"]
 
 [dev-dependencies]
 remi-fs = "0.6.3"
-tempfile = "3.10.0"
+tempfile = "3.10.1"
 tokio = { version = "1.36.0", features = ["rt", "macros"] }
 
 [build-dependencies]
