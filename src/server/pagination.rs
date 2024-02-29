@@ -14,17 +14,29 @@
 // limitations under the License.
 
 use serde::{Deserialize, Serialize};
+use std::fmt::Display;
 use utoipa::ToSchema;
 
 /// The ordering to use when querying paginated REST calls.
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, ToSchema)]
 pub enum OrderBy {
+    /// Sorts all entities in ascending order by the entity ID
     #[serde(rename = "ASC")]
     #[default]
     Ascending,
 
+    /// Sorts all entities in descending order by the entity ID
     #[serde(rename = "DESC")]
     Descending,
+}
+
+impl Display for OrderBy {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            OrderBy::Ascending => f.write_str("ASC"),
+            OrderBy::Descending => f.write_str("DESC"),
+        }
+    }
 }
 
 /// Represents the result of a paginated REST call.
@@ -102,6 +114,7 @@ macro_rules! gen_response_schemas_for_types {
     };
 }
 
+gen_response_schemas_for_types!(RepositoryRelease);
 gen_response_schemas_for_types!(Organization);
 gen_response_schemas_for_types!(Repository);
 gen_response_schemas_for_types!(Member);

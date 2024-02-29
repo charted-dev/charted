@@ -200,24 +200,8 @@ impl AsyncExecute for Cmd {
 
         info!(took = ?Instant::now().duration_since(now), "initialized core chart library");
 
-        let controllers = db::controllers::Controllers {
-            organizations: db::controllers::organization::DbController::new(
-                crate::caching::choose_strategy(&config.database.caching, &redis),
-                pool.clone(),
-            ),
-            repositories: db::controllers::repository::DbController::new(
-                crate::caching::choose_strategy(&config.database.caching, &redis),
-                pool.clone(),
-            ),
-            apikeys: db::controllers::apikeys::DbController::new(pool.clone()),
-            users: db::controllers::user::DbController::new(
-                crate::caching::choose_strategy(&config.database.caching, &redis),
-                pool.clone(),
-            ),
-        };
-
         let instance = Instance {
-            controllers,
+            controllers: db::controllers::Controllers::new(&config, &pool, &redis),
             snowflake: Snowflake::computed(),
             requests: AtomicUsize::new(0),
             sessions: Arc::new(Mutex::new(sessions)),

@@ -20,10 +20,9 @@ pub use apikeyscope::*;
 pub use member_permissions::*;
 
 use crate::common::{
-    models::{helm::ChartType, DateTime, Name},
+    models::{helm::ChartType, DateTime, Name, Version},
     snowflake::ID,
 };
-use semver::Version;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use utoipa::{
@@ -176,6 +175,10 @@ pub struct RepositoryRelease {
     /// Markdown-formatted string that contains a changelog of this release.
     #[serde(default)]
     pub update_text: Option<String>,
+
+    /// Repository that owns this release
+    #[schema(schema_with = snowflake_schema)]
+    pub repository: i64,
 
     /// Date of when this release was registered to this instance
     pub created_at: DateTime,

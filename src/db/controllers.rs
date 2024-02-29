@@ -13,11 +13,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use self::repository::release;
 use crate::{
     common::models::NameOrSnowflake,
+    config::Config,
     server::pagination::{OrderBy, Pagination, PaginationQuery},
 };
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use sqlx::PgPool;
+use std::{collections::HashMap, sync::Arc};
+use tokio::sync::Mutex;
 
 pub mod apikeys;
 pub mod organization;
@@ -44,6 +50,9 @@ pub struct PaginationRequest {
 
     /// whether or not if private repositories/organizations can be sent or not
     pub list_private_stuff: bool,
+
+    /// List of metadata to use when requesting a pagination request.
+    pub metadata: HashMap<&'static str, Value>,
 }
 
 impl From<PaginationQuery> for PaginationRequest {
@@ -54,6 +63,7 @@ impl From<PaginationQuery> for PaginationRequest {
             order_by: value.order,
             owner_id: None,
             cursor: value.cursor,
+            metadata: crate::hashmap!(),
         }
     }
 }
@@ -66,10 +76,10 @@ pub trait DbController: Send + Sync {
     type Entity: Serialize + for<'de> Deserialize<'de>;
 
     /// Represents the payload for creating the `Entity`.
-    type Created: Serialize;
+    type Created: for<'de> Deserialize<'de>;
 
     /// Represents the payload for patching a `Entity`.
-    type Patched: Serialize;
+    type Patched: for<'de> Deserialize<'de>;
 
     /// Fetch a single `Entity` by its ID.
     async fn get(&self, id: i64) -> eyre::Result<Option<Self::Entity>>;
@@ -104,6 +114,47 @@ pub trait DbController: Send + Sync {
 pub struct Controllers {
     pub organizations: organization::DbController,
     pub repositories: repository::DbController,
+    pub releases: release::DbController,
     pub apikeys: apikeys::DbController,
     pub users: user::DbController,
+}
+
+impl Controllers {
+    pub fn new(config: &Config, pool: &PgPool, redis: &crate::redis::Client) -> Controllers {
+        Controllers {
+            organizations: organization::DbController {
+                worker: Arc::new(Mutex::new(crate::caching::choose_strategy(
+                    &config.database.caching,
+                    redis,
+                ))),
+
+                pool: pool.clone(),
+            },
+            repositories: repository::DbController {
+                worker: Arc::new(Mutex::new(crate::caching::choose_strategy(
+                    &config.database.caching,
+                    redis,
+                ))),
+
+                pool: pool.clone(),
+            },
+            releases: release::DbController {
+                worker: Arc::new(Mutex::new(crate::caching::choose_strategy(
+                    &config.database.caching,
+                    redis,
+                ))),
+
+                pool: pool.clone(),
+            },
+            apikeys: apikeys::DbController { pool: pool.clone() },
+            users: user::DbController {
+                worker: Arc::new(Mutex::new(crate::caching::choose_strategy(
+                    &config.database.caching,
+                    redis,
+                ))),
+
+                pool: pool.clone(),
+            },
+        }
+    }
 }

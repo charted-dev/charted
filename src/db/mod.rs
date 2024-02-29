@@ -265,77 +265,69 @@ macro_rules! impl_paginate_priv {
 
 pub(crate) use impl_paginate_priv as impl_paginate;
 
-/// Generic macro to implement patching an entry in the database and in return,
-/// will append the query to the current transaction.
 macro_rules! impl_patch_for_priv {
-    ($txn:expr, {
-        payload: $payload:expr;
-        column: $column:literal;
-        table: $table:literal;
-        $(as_: $as_:ty;)?
-        id: $id:expr;
-    }) => {
-        if let Some(val) = $payload {
-            match sqlx::query(concat!("update ", $table, " set ", $column, " = $1 where id = $2;"))
-                .bind(val$( as $as_)?)
-                .bind($id)
-                .execute(&mut *$txn)
-                .await
-            {
-                Ok(_) => {}
-                Err(e) => {
-                    ::tracing::error!(id = $id, error = %e, concat!("unable to update [", $column, "] for table [", $table, "]"));
-                    ::sentry::capture_error(&e);
-
-                    // drop it so it can be rolled back.
-                    ::std::mem::drop($txn);
-                    return Err(e.into());
-                }
-            }
-        }
+    // Syntax:
+    //
+    //      impl_patch_for!([txn]: update on [payload.description] on table "users" and column "description" where id = 1234);
+    //
+    ([$txn:expr]: update on [$payload:expr] in table $table:literal, in column $column:literal where id = $id:expr$(; if |$val:ident| $cond:expr)?) => {
+        $crate::db::impl_patch_for!($txn; {
+            payload: $payload;
+            column:  $column;
+            table:   $table;
+            id:      $id;
+        }$(; if |$val| $cond)?);
     };
 
-    ($txn:expr, {
+    // Syntax:
+    //
+    //     impl_patch_for!(txn; {
+    //         payload: payload.description;
+    //         column:  "description";
+    //         table:   "users";
+    //         id:      payload.id;
+    //     }; if |val| if val.is_empty());
+    //
+    ($txn:expr; {
         payload: $payload:expr;
-        column: $column:literal;
-        table: $table:literal;
-        $(as_: $as_:ty;)?
-        id: $id:expr;
-
-        { $value:expr };
-    }) => {
-        if let Some(_) = $payload {
-            match sqlx::query(concat!("update ", $table, " set ", $column, " = $1 where id = $2;"))
-                .bind($value$( as $as_)?)
-                .bind($id)
-                .execute(&mut *$txn)
-                .await
-            {
-                Ok(_) => {}
-                Err(e) => {
-                    ::tracing::error!(id = $id, error = %e, concat!("unable to update [", $column, "] for table [", $table, "]"));
-                    ::sentry::capture_error(&e);
-
-                    // drop it so it can be rolled back.
-                    ::std::mem::drop($txn);
-                    return Err(e.into());
-                }
-            }
-        }
-    };
-
-    ($txn:expr, optional, {
-        payload: $payload:expr;
-        column: $column:literal;
-        table: $table:literal;
-        id: $id:expr;
-
-        { $value:expr };
-    }) => {
-        dbg!(&$payload);
+        column:  $column:literal;
+        table:   $table:literal;
+        id:      $id:expr;
+    }; if |$value:ident| $cond:expr) => {
         match $payload {
-            // if the value is empty, then we will asume that it needs to be `NULL`
-            Some(ref val) if val.is_empty() => {
+            Some(ref val) => {
+                let $value = val;
+                if $cond {
+                    match sqlx::query(concat!("update ", $table, " set ", $column, " = $1 where id = $2;"))
+                        .bind($value)
+                        .bind($id)
+                        .execute(&mut *$txn)
+                        .await {
+                            Ok(_) => {}
+                            Err(e) => {
+                                ::tracing::error!(id = $id, error = %e, concat!("unable to update column [", $column, "] for table [", $table, "]"));
+                                ::sentry::capture_error(&e);
+
+                                drop($txn);
+                                return Err(e.into());
+                            }
+                        }
+                }
+            }
+
+            None => {}
+        }
+    };
+
+    ($txn:expr; {
+        payload: $payload:expr;
+        column:  $column:literal;
+        table:   $table:literal;
+        id:      $id:expr;
+    }) => {
+        match $payload {
+            // if `content` is empty, it is a indication that it should be wiped out
+            Some(ref content) if content.is_empty() => {
                 match sqlx::query(concat!("update ", $table, " set ", $column, " = NULL where id = $1;"))
                     .bind($id)
                     .execute(&mut *$txn)
@@ -360,10 +352,10 @@ macro_rules! impl_patch_for_priv {
                 }
             }
 
-            // do the update anyway, even if it is the same
-            Some(ref _) => {
+            // Perform the update anyway
+            Some(ref content) => {
                 match sqlx::query(concat!("update ", $table, " set ", $column, " = $1 where id = $2;"))
-                    .bind($value)
+                    .bind(content)
                     .bind($id)
                     .execute(&mut *$txn)
                     .await
@@ -375,7 +367,7 @@ macro_rules! impl_patch_for_priv {
                             error = %e,
                             table = $table,
                             column = $column,
-                            "unable to update column entry in table to NULL"
+                            "unable to update column entry in table"
                         );
 
                         ::sentry::capture_error(&e);
@@ -387,67 +379,10 @@ macro_rules! impl_patch_for_priv {
                 }
             }
 
-            // don't even do the update
+            // don't perform the update
             None => {}
         }
-    };
-
-    ($txn:expr, optional, {
-        payload: $payload:expr;
-        column: $column:literal;
-        table: $table:literal;
-        cond: |$val:ident| $cond:expr;
-        id: $id:expr;
-    }) => {
-        match $payload {
-            Some(ref val) => {
-                // only do the update if the `cond` is true.
-                let $val = val;
-                if $cond {
-                    match sqlx::query(concat!("update ", $table, " set ", $column, " = NULL where id = $1;"))
-                        .bind($id)
-                        .execute(&mut *$txn)
-                        .await
-                    {
-                        Ok(_) => {}
-                        Err(e) => {
-                            ::tracing::error!(
-                                user.id = $id,
-                                error = %e,
-                                table = $table,
-                                column = $column,
-                                "unable to update column entry in table to NULL"
-                            );
-
-                            ::sentry::capture_error(&e);
-
-                            // drop the transaction as sqlx will rollback the transaction state
-                            drop($txn);
-                            return Err(e.into());
-                        }
-                    }
-                }
-            }
-
-            // don't even do the update
-            None => {}
-        }
-    };
-
-    ($txn:expr, optional, {
-        payload: $payload:expr;
-        column: $column:literal;
-        table: $table:literal;
-        id: $id:expr;
-    }) => {
-        $crate::db::impl_patch_for!($txn, optional, {
-            payload: $payload;
-            column:  $column;
-            table:   $table;
-            cond:    |val| val.is_empty();
-            id:      $id;
-        });
-    };
+    }
 }
 
 pub(crate) use impl_patch_for_priv as impl_patch_for;

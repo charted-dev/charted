@@ -13,9 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use eyre::Context;
-use sqlx::{PgPool, Postgres};
-
 use crate::{
     common::models::{
         entities::ApiKey,
@@ -24,16 +21,12 @@ use crate::{
     },
     db::impl_patch_for,
 };
+use eyre::Context;
+use sqlx::{PgPool, Postgres};
 
 #[derive(Clone)]
 pub struct DbController {
-    pool: PgPool,
-}
-
-impl DbController {
-    pub fn new(pool: PgPool) -> DbController {
-        DbController { pool }
-    }
+    pub(in crate::db) pool: PgPool,
 }
 
 #[async_trait]
@@ -115,14 +108,14 @@ impl super::DbController for DbController {
             })
             .context("unable to create db transaction")?;
 
-        impl_patch_for!(txn, optional, {
+        impl_patch_for!(txn; {
             payload: payload.description;
             column:  "description";
             table:   "api_keys";
             id:      id;
         });
 
-        impl_patch_for!(txn, optional, {
+        impl_patch_for!(txn; {
             payload: payload.name;
             column:  "name";
             table:   "api_keys";

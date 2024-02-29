@@ -19,13 +19,14 @@ use crate::{
     db::controllers::DbController,
     server::{
         controller,
+        extract::Path,
         models::res::{err, internal_server_error, ApiResponse, ErrorCode},
         validation::validate,
     },
     Instance,
 };
 use axum::{
-    extract::{Path, State},
+    extract::State,
     http::{header, StatusCode},
     response::IntoResponse,
 };

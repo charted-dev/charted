@@ -69,12 +69,12 @@ static COMPONENTS: Lazy<Components> = lazy!(ComponentsBuilder::new()
         crate::server::pagination::PageInfo::schema(),
         crate::common::models::helm::Chart::schema(),
         crate::server::pagination::OrderBy::schema(),
-        crate::server::extract::VersionReq::schema(),
         crate::server::models::res::Error::schema(),
-        crate::server::extract::Version::schema(),
+        crate::common::models::Version::schema(),
         crate::common::models::Name::schema(),
         crate::sessions::Session::schema(),
         crate::common::ID::schema(),
+        version_req(),
         datetime()
     ])
     .responses_from_iter([
@@ -243,4 +243,13 @@ fn datetime<'s>() -> (&'s str, RefOr<Schema>) {
                 .build(),
         )),
     )
+}
+
+fn version_req<'s>() -> (&'s str, RefOr<Schema>) {
+    let obj = ObjectBuilder::new()
+            .schema_type(SchemaType::String)
+            .description(Some("Represents a semantic version (https://semver.org) requirement (i.e, `>=1.2.0`) that Helm and charted-server will only accept"))
+            .build();
+
+    ("VersionReq", RefOr::T(Schema::Object(obj)))
 }

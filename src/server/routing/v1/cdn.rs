@@ -14,11 +14,14 @@
 // limitations under the License.
 
 use crate::{
-    server::models::res::{err, ApiResponse, ErrorCode},
+    server::{
+        extract::Path,
+        models::res::{err, ApiResponse, ErrorCode},
+    },
     Instance,
 };
 use axum::{
-    extract::{Path, State},
+    extract::State,
     http::{header, Response, StatusCode},
     response::IntoResponse,
 };

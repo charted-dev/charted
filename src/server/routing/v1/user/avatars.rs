@@ -19,6 +19,7 @@ use crate::{
     db::controllers::DbController,
     server::{
         controller,
+        extract::Path,
         middleware::session::Session,
         models::res::{err, internal_server_error, ok, ApiResponse, ErrorCode, Result},
         multipart::Multipart,
@@ -27,7 +28,7 @@ use crate::{
     Instance,
 };
 use axum::{
-    extract::{Path, State},
+    extract::State,
     http::{header, StatusCode},
     response::IntoResponse,
     Extension,

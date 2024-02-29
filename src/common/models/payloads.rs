@@ -17,12 +17,13 @@ use crate::common::{
     models::{entities::ApiKeyScope, helm::ChartType, Name},
     serde::Duration,
 };
-use serde::{Deserialize, Serialize};
+use semver::Version;
+use serde::Deserialize;
 use utoipa::ToSchema;
 use validator::Validate;
 
 /// Represents the payload for creating a new user.
-#[derive(Debug, Clone, Serialize, Deserialize, ToSchema, Validate)]
+#[derive(Debug, Clone, Deserialize, ToSchema, Validate)]
 pub struct CreateUserPayload {
     /// User handle to use to identify yourself.
     #[schema(value_type = Name)]
@@ -42,7 +43,7 @@ pub struct CreateUserPayload {
 }
 
 /// Payload for patching your user metadata.
-#[derive(Debug, Clone, Serialize, Deserialize, ToSchema, Validate)]
+#[derive(Debug, Clone, Deserialize, ToSchema, Validate)]
 pub struct PatchUserPayload {
     /// Optional field to update this user's gravatar email. If this user doesn't
     /// have an avatar that is used or prefers not to use their previously uploaded
@@ -80,7 +81,7 @@ pub struct PatchUserPayload {
 
 /// Payload to login as a user from the `GET /users/login` endpoint for session-based
 /// authentication.
-#[derive(Debug, Clone, Serialize, Deserialize, ToSchema, Validate)]
+#[derive(Debug, Clone, Deserialize, ToSchema, Validate)]
 pub struct UserLoginPayload {
     /// Password to authenticate as.
     #[schema(
@@ -99,7 +100,7 @@ pub struct UserLoginPayload {
 }
 
 /// Payload to create a Repository entity.
-#[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema, Validate)]
+#[derive(Debug, Clone, Default, Deserialize, ToSchema, Validate)]
 pub struct CreateRepositoryPayload {
     /// Short description about this repository.
     #[serde(default)]
@@ -137,7 +138,7 @@ pub struct CreateRepositoryPayload {
 }
 
 /// Payload to patch a repository's metadata.
-#[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema, Validate)]
+#[derive(Debug, Clone, Default, Deserialize, ToSchema, Validate)]
 pub struct PatchRepositoryPayload {
     /// Short description about this repository. If `description` was set to `null`, then
     /// this will not be updated, if `description` was a empty string, the `description`
@@ -176,7 +177,8 @@ pub struct PatchRepositoryPayload {
     pub r#type: Option<ChartType>,
 }
 
-#[derive(Debug, Clone, Default, Validate, Serialize, Deserialize, ToSchema)]
+/// Represents the request payload for updating a user's connection.
+#[derive(Debug, Clone, Default, Validate, Deserialize, ToSchema)]
 pub struct PatchUserConnectionsPayload {
     /// Snowflake ID that was sourced from [Noelware's Accounts System](https://accounts.noelware.org)
     pub noelware_account_id: Option<u64>,
@@ -190,7 +192,7 @@ pub struct PatchUserConnectionsPayload {
 }
 
 /// Request body payload for creating a new organization
-#[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema, Validate)]
+#[derive(Debug, Clone, Default, Deserialize, ToSchema, Validate)]
 pub struct CreateOrganizationPayload {
     /// Short description about this organization. If `description` was set to `null`, then
     /// this will not be updated, if `description` was a empty string, the `description`
@@ -214,7 +216,7 @@ pub struct CreateOrganizationPayload {
 }
 
 /// Request body payload for patching an organization's metadata.
-#[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema, Validate)]
+#[derive(Debug, Clone, Default, Deserialize, ToSchema, Validate)]
 pub struct PatchOrganizationPayload {
     /// Adds or removes a Twitter handle from this organization's metadata.
     ///
@@ -245,19 +247,19 @@ pub struct PatchOrganizationPayload {
 }
 
 /// Request body payload for creating a API key.
-#[derive(Debug, Clone, Default, Serialize, Deserialize, Validate, ToSchema)]
+#[derive(Debug, Clone, Default, Deserialize, Validate, ToSchema)]
 pub struct CreateApiKeyPayload {
     /// Description of the API key
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
     #[validate(length(max = 140))]
     pub description: Option<String>,
 
     /// Duration of when the API key should expire at
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
     pub expires_in: Option<Duration>,
 
     /// the list of scopes to apply to this API key
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[serde(default)]
     pub scopes: Vec<ApiKeyScope>,
 
     /// key name to use to identify the key
@@ -266,19 +268,53 @@ pub struct CreateApiKeyPayload {
 }
 
 /// Request body payload to patch a API key's metadata.
-#[derive(Debug, Clone, Default, Serialize, Deserialize, Validate, ToSchema)]
+#[derive(Debug, Clone, Default, Deserialize, Validate, ToSchema)]
 pub struct PatchApiKeyPayload {
     /// Updates or removes the description of the API key.
     ///
     /// * If this is `null`, this will not do any patching
     /// * If this is a empty string, this will act as "removing" it from the metadata
     /// * If the comparsion (`old.description == this.description`) is false, then this will update it.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
     #[validate(length(max = 140))]
     pub description: Option<String>,
 
     /// key name to use to identify the key
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
     #[validate]
     pub name: Option<Name>,
+}
+
+/// Represents the request body payload for creating a repository release.
+#[derive(Debug, Clone, Deserialize)]
+pub struct CreateRepositoryReleasePayload {
+    /// Represents a changelog (that can be Markdown or HTML (it'll remove XSS vulnerabilities)) that will
+    /// appear via `/repositories/:id/releases/:version/changelog`.
+    ///
+    /// > [!NOTE]
+    /// > Hoshi will wrap `CHANGELOG.html` to the same styles as when rendering Markdown.
+    pub update_text: Option<String>,
+
+    /// SemVer-based [`Version`] to indicate what version this release is. This is an immutable
+    /// tag and can't be patched without conflicting; you can only delete a release by its ID
+    /// or version, which will remove this tag and can be freely used.
+    pub tag: Version,
+}
+
+/// Request body payload for patching a repository release.
+#[derive(Debug, Clone, Default, Deserialize, Validate, ToSchema)]
+pub struct PatchRepositoryReleasePayload {
+    /// Updates the changelog for the repository release that people can view from
+    /// the API server or from [Hoshi]
+    ///
+    /// * If this is `null`, this will not attempt to do anything as this is the
+    ///   default state.
+    /// * If this is just `""`, then this is considered as a removal and won't be available
+    ///   for people to access.
+    /// * If this is not an empty string, it will overwrite the previous value.
+    ///
+    /// [Hoshi]: https://charts.noelware.org/docs/hoshi/latest
+    #[serde(default)]
+    #[validate(length(max = 4096))]
+    pub update_text: Option<String>,
 }

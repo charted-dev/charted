@@ -31,28 +31,8 @@ pub mod member;
 
 #[derive(Clone)]
 pub struct DbController {
-    worker: Arc<Mutex<dyn CacheWorker<Organization>>>,
-    pool: PgPool,
-}
-
-impl DbController {
-    pub fn new<W: CacheWorker<Organization> + 'static>(worker: W, pool: PgPool) -> DbController {
-        DbController {
-            worker: Arc::new(Mutex::new(worker)),
-            pool,
-        }
-    }
-}
-
-macro_rules! patch {
-    ($txn:expr, $payload:expr, in $table:literal on column $column:literal where id = $id:expr) => {
-        $crate::db::impl_patch_for!($txn, optional, {
-            payload: $payload;
-            column:  $column;
-            table:   $table;
-            id:      $id;
-        });
-    };
+    pub(in crate::db) worker: Arc<Mutex<dyn CacheWorker<Organization>>>,
+    pub(in crate::db) pool: PgPool,
 }
 
 #[async_trait]
@@ -144,30 +124,12 @@ impl super::DbController for DbController {
             Report::from(e)
         })?;
 
-        impl_patch_for!(txn, optional, {
-            payload: payload.twitter_handle.as_ref();
-            column:  "twitter_handle";
-            table:   "organizations";
-            id:      id;
-        });
+        impl_patch_for!([txn]: update on [payload.twitter_handle] in table "organizations", in column "twitter_handle" where id = id);
+        impl_patch_for!([txn]: update on [payload.gravatar_email] in table "organizations", in column "organizations" where id = id);
+        impl_patch_for!([txn]: update on [payload.display_name]   in table "organizations", in column "display_name" where id = id);
+        impl_patch_for!([txn]: update on [payload.private]        in table "organizations", in column "private" where id = id; if |_val| true);
+        impl_patch_for!([txn]: update on [payload.name]           in table "organizations", in column "name" where id = id);
 
-        impl_patch_for!(txn, optional, {
-            payload: payload.gravatar_email.as_ref();
-            column:  "gravatar_email";
-            table:   "organizations";
-            id:      id;
-        });
-
-        patch!(txn, payload.display_name.as_ref(), in "organizations" on column "display_name" where id = id);
-        impl_patch_for!(txn, optional, {
-            payload: payload.private;
-            column:  "private";
-            table:   "organizations";
-            cond:    |val| *val;
-            id:      id;
-        });
-
-        patch!(txn, payload.name.as_ref(), in "organizations" on column "name" where id = id);
         txn.commit()
             .await
             .inspect_err(|e| {

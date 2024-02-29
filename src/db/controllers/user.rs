@@ -29,18 +29,8 @@ use tokio::sync::Mutex;
 
 #[derive(Clone)]
 pub struct DbController {
-    pool: PgPool,
-    worker: Arc<Mutex<dyn CacheWorker<User>>>,
-}
-
-impl DbController {
-    /// Creates a new [`DbController`].
-    pub fn new<W: CacheWorker<User> + 'static>(worker: W, pool: PgPool) -> DbController {
-        DbController {
-            pool,
-            worker: Arc::new(Mutex::new(worker)),
-        }
-    }
+    pub(in crate::db) pool: PgPool,
+    pub(in crate::db) worker: Arc<Mutex<dyn CacheWorker<User>>>,
 }
 
 #[async_trait]
@@ -140,40 +130,11 @@ impl super::DbController for DbController {
             })
             .context("unable to create db transaction")?;
 
-        impl_patch_for!(txn, optional, {
-            payload: payload.gravatar_email;
-            column:  "gravatar_email";
-            table:   "users";
-            id:      id;
-        });
-
-        impl_patch_for!(txn, optional, {
-            payload: payload.description;
-            column:  "description";
-            table:   "users";
-            id:      id;
-        });
-
-        impl_patch_for!(txn, optional, {
-            payload: payload.username;
-            column:  "username";
-            table:   "users";
-            id:      id;
-        });
-
-        impl_patch_for!(txn, optional, {
-            payload: payload.email;
-            column:  "email";
-            table:   "users";
-            id:      id;
-        });
-
-        impl_patch_for!(txn, optional, {
-            payload: payload.name;
-            column:  "name";
-            table:   "users";
-            id:      id;
-        });
+        impl_patch_for!([txn]: update on [payload.gravatar_email] in table "users", in column "gravatar_email" where id = id);
+        impl_patch_for!([txn]: update on [payload.description]    in table "users", in column "description" where id = id);
+        impl_patch_for!([txn]: update on [payload.username]       in table "users", in column "username" where id = id);
+        impl_patch_for!([txn]: update on [payload.email]          in table "users", in column "email" where id = id);
+        impl_patch_for!([txn]: update on [payload.name]           in table "users", in column "name" where id = id);
 
         txn.commit()
             .await

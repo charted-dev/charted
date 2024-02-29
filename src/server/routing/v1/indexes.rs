@@ -19,6 +19,7 @@ use crate::{
     openapi::generate_response_schema,
     server::{
         controller,
+        extract::Path,
         models::{
             res::{err, internal_server_error, ApiResponse, ErrorCode},
             yaml::Yaml,
@@ -26,10 +27,7 @@ use crate::{
     },
     Instance,
 };
-use axum::{
-    extract::{Path, State},
-    http::StatusCode,
-};
+use axum::{extract::State, http::StatusCode};
 use remi::StorageService;
 use serde_json::json;
 

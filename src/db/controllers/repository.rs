@@ -33,17 +33,7 @@ use tokio::sync::Mutex;
 #[derive(Clone)]
 pub struct DbController {
     pub worker: Arc<Mutex<dyn CacheWorker<Repository>>>,
-    pool: PgPool,
-}
-
-impl DbController {
-    /// Creates a new [`DbController`].
-    pub fn new<W: CacheWorker<Repository> + 'static>(worker: W, pool: PgPool) -> DbController {
-        DbController {
-            pool,
-            worker: Arc::new(Mutex::new(worker)),
-        }
-    }
+    pub(in crate::db) pool: PgPool,
 }
 
 #[async_trait]
@@ -148,35 +138,10 @@ impl super::DbController for DbController {
             })
             .context("unable to create db transaction")?;
 
-        impl_patch_for!(txn, optional, {
-            payload: payload.description;
-            column:  "description";
-            table:   "repositories";
-            id:      id;
-        });
-
-        impl_patch_for!(txn, optional, {
-            payload: payload.private;
-            column:  "private";
-            table:   "repositories";
-            cond:    |_val| true; // just update it either way
-            id:      id;
-        });
-
-        impl_patch_for!(txn, optional, {
-            payload: payload.name;
-            column:  "name";
-            table:   "repositories";
-            id:      id;
-        });
-
-        impl_patch_for!(txn, optional, {
-            payload: payload.r#type;
-            column:  "type";
-            table:   "repositories";
-            cond:    |_val| true;
-            id:      id;
-        });
+        impl_patch_for!([txn]: update on [payload.description] in table "repositories", in column "description" where id = id);
+        impl_patch_for!([txn]: update on [payload.private]     in table "repositories", in column "private" where id = id; if |_val| true);
+        impl_patch_for!([txn]: update on [payload.r#type]      in table "repositories", in column "type" where id = id; if |_val| true);
+        impl_patch_for!([txn]: update on [payload.name]        in table "repositories", in column "name" where id = id);
 
         txn.commit()
             .await

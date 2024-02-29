@@ -26,13 +26,14 @@ use crate::{
     openapi::generate_response_schema,
     server::{
         controller,
+        extract::Path,
         middleware::session::{Middleware, Session},
         models::res::{err, internal_server_error, ok, ErrorCode, Result},
     },
     Instance,
 };
 use axum::{
-    extract::{FromRequestParts, Path, State},
+    extract::{FromRequestParts, State},
     handler::Handler,
     http::StatusCode,
     routing, Extension, Router,
@@ -45,6 +46,7 @@ generate_response_schema!(RepositoryResponse, schema = "Repository");
 
 pub fn create_router() -> Router<Instance> {
     Router::new()
+        .nest("/:id/releases", releases::create_router())
         .route("/", routing::get(EntrypointRestController::run))
         .route(
             "/:id",

@@ -19,18 +19,21 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::{borrow::Cow, fmt::Debug};
+use std::{
+    borrow::Cow,
+    fmt::{Debug, Display},
+};
 use utoipa::ToSchema;
 
 /// Represents a [`Result`][std::result::Result] type that corresponds to a API response
 /// result type.
 pub type Result<T = ()> = std::result::Result<ApiResponse<T>, ApiResponse>;
 
-#[derive(Serialize, ToSchema)]
+#[derive(Debug, Serialize, ToSchema)]
 pub struct ApiResponse<T = ()> {
     /// Status code of this [`ApiResponse`].
     #[serde(skip)]
-    pub(crate) status: StatusCode,
+    pub(in crate::server) status: StatusCode,
 
     /// whether or not if this request was successful
     pub success: bool,
@@ -42,6 +45,12 @@ pub struct ApiResponse<T = ()> {
     /// any errors to send to the user to indicate that this request failed.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub errors: Vec<Error>,
+}
+
+impl<T: Display> Display for ApiResponse<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "API response ({})", self.status)
+    }
 }
 
 impl<T: Serialize> IntoResponse for ApiResponse<T> {
@@ -58,7 +67,7 @@ impl<T: Serialize> IntoResponse for ApiResponse<T> {
 }
 
 /// Represents an error that could occur.
-#[derive(Serialize, ToSchema)]
+#[derive(Debug, Serialize, ToSchema)]
 pub struct Error {
     /// A contextual error code that can be looked up from the documentation to see
     /// why the request failed.
@@ -147,6 +156,17 @@ pub enum ErrorCode {
     /// generic bad request error, the message gives more context on why it is considered
     /// a bad request.
     BadRequest,
+
+    /// missing a `Content-Type` header in your request
+    MissingContentType,
+
+    // ~ PATH PARAMETERS
+    /// received the wrong list of path parameters, this is usually a bug within the code
+    /// and nothing with you.
+    WrongParameters,
+
+    /// the server had failed to validate the path parameter's content.
+    ParsingFailedInPathParam,
 
     // ~ SESSIONS
     /// received JWT claim was not found or was invalid
