@@ -2152,6 +2152,9 @@
                     "IO",
                     "INVALID_TYPE",
                     "BAD_REQUEST",
+                    "MISSING_CONTENT_TYPE",
+                    "WRONG_PARAMETERS",
+                    "PARSING_FAILED_IN_PATH_PARAM",
                     "INVALID_JWT_CLAIM",
                     "MISSING_AUTHORIZATION_HEADER",
                     "INVALID_PASSWORD",
@@ -2484,6 +2487,7 @@
             },
             "PatchUserConnectionsPayload": {
                 "type": "object",
+                "description": "Represents the request payload for updating a user's connection.",
                 "properties": {
                     "github_account_id": {
                         "type": "string",
@@ -2571,7 +2575,7 @@
             "RepositoryRelease": {
                 "type": "object",
                 "description": "Represents a resource that contains a release from a [Repository] release. Releases\nare a way to group releases of new versions of Helm charts that can be easily\nfetched from the API server.\n\nAny repository can have an unlimited amount of releases, but tags cannot clash\ninto each other, so the API server will not accept it. Each tag should be\na SemVer 2 comformant string, parsing is related to how Cargo evaluates SemVer 2 tags.",
-                "required": ["created_at", "updated_at", "tag", "id"],
+                "required": ["repository", "created_at", "updated_at", "tag", "id"],
                 "properties": {
                     "created_at": { "$ref": "#/components/schemas/DateTime" },
                     "id": {
@@ -2583,6 +2587,12 @@
                     "is_prerelease": {
                         "type": "boolean",
                         "description": "Whether if this release is a pre-release or not."
+                    },
+                    "repository": {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
+                        "minLength": 15
                     },
                     "tag": { "$ref": "#/components/schemas/Version" },
                     "update_text": {
@@ -2722,7 +2732,7 @@
             },
             "Version": {
                 "type": "string",
-                "description": "Represents a semantic version (https://semver.org) that Helm and charted-server will only accept",
+                "description": "Represents a [semantic version](https://semver.org) that both Helm and charted-server accept as versions for Helm charts",
                 "pattern": "^(?P<major>0|[1-9]\\d*)\\.(?P<minor>0|[1-9]\\d*)\\.(?P<patch>0|[1-9]\\d*)(?:-(?P<prerelease>(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
             },
             "VersionReq": {
