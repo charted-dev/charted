@@ -27,7 +27,7 @@ authors.workspace = true
 
 [dependencies]
 async-trait.workspace = true
-bollard = "0.15.0"
+bollard = "0.16.0"
 cargo_toml = "0.19.1"
 
 # this is fine since the root crate doesn't depend on `charted-devtools`
