@@ -170,7 +170,7 @@ tower-http = { version = "0.5.2", features = [
 tracing = "0.1.40"
 tracing-appender = "0.2.3"
 tracing-log = "0.2.0"
-tracing-opentelemetry = "0.22.0"
+tracing-opentelemetry = "0.23.0"
 tracing-subscriber = "0.3.18"
 ubyte = { version = "0.10.4", features = ["serde"] }
 utoipa = { version = "4.2.0", features = ["uuid"] }
