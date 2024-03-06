@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{cli::AsyncExecute, config::Config, db::MIGRATIONS};
+use crate::{config::Config, db::MIGRATIONS};
 use cli_table::{format::Justify, Cell, Table};
 use owo_colors::{OwoColorize, Stream};
 use sqlx::{migrate::Migrate, postgres::PgConnectOptions, ConnectOptions, Connection};
@@ -33,112 +33,108 @@ struct Migration {
 
 /// Lists all migrations available
 #[derive(Debug, Clone, clap::Parser)]
-pub struct Cmd {
+pub struct Args {
     /// location to a relative/absolute path to a configuration file. by default, this will locate
     /// in `./config/charted.yml`/`./config.yml` if found.
     #[arg(long, short = 'c', env = "CHARTED_CONFIG_PATH")]
     config: Option<PathBuf>,
 }
 
-#[async_trait]
-impl AsyncExecute for Cmd {
-    async fn execute(&self) -> eyre::Result<()> {
-        debug!("🛰️   Connecting to PostgreSQL...");
+pub async fn run(Args { config }: Args) -> eyre::Result<()> {
+    debug!("🛰️   Connecting to PostgreSQL...");
 
-        let config = match self.config {
-            Some(ref path) => Config::new(Some(path)),
-            None => match Config::find_default_conf_location() {
-                Some(path) => Config::new(Some(path)),
-                None => Config::new::<&str>(None),
-            },
-        }?;
+    let config = match config {
+        Some(ref path) => Config::new(Some(path)),
+        None => match Config::find_default_conf_location() {
+            Some(path) => Config::new(Some(path)),
+            None => Config::new::<&str>(None),
+        },
+    }?;
 
-        let mut conn = sqlx::postgres::PgConnection::connect_with(
-            &PgConnectOptions::from_str(&config.database.to_string())?
-                .application_name("charted-server")
-                .log_statements(tracing::log::LevelFilter::Trace)
-                .log_slow_statements(tracing::log::LevelFilter::Warn, Duration::from_secs(1)),
-        )
-        .await?;
+    let mut conn = sqlx::postgres::PgConnection::connect_with(
+        &PgConnectOptions::from_str(&config.database.to_string())?
+            .application_name("charted-server")
+            .log_statements(tracing::log::LevelFilter::Trace)
+            .log_slow_statements(tracing::log::LevelFilter::Warn, Duration::from_secs(1)),
+    )
+    .await?;
 
-        debug!("connected to PostgreSQL successfully! ensuring that `migrations` table exists");
-        conn.ensure_migrations_table().await?;
+    debug!("connected to PostgreSQL successfully! ensuring that `migrations` table exists");
+    conn.ensure_migrations_table().await?;
 
-        if let Some(version) = conn.dirty_version().await? {
-            error!("migration {version} was previously applied but is missing when resolving migrations!");
+    if let Some(version) = conn.dirty_version().await? {
+        error!("migration {version} was previously applied but is missing when resolving migrations!");
+    }
+
+    let applied: HashMap<_, _> = conn
+        .list_applied_migrations()
+        .await?
+        .into_iter()
+        .map(|m| (m.version, m))
+        .collect();
+
+    let mut table = Vec::with_capacity(MIGRATIONS.iter().len());
+    let mut has_pending = false;
+
+    for migration in MIGRATIONS.iter() {
+        if migration.migration_type.is_down_migration() {
+            continue;
         }
 
-        let applied: HashMap<_, _> = conn
-            .list_applied_migrations()
-            .await?
-            .into_iter()
-            .map(|m| (m.version, m))
-            .collect();
-
-        let mut table = Vec::with_capacity(MIGRATIONS.iter().len());
-        let mut has_pending = false;
-
-        for migration in MIGRATIONS.iter() {
-            if migration.migration_type.is_down_migration() {
-                continue;
-            }
-
-            let applied = applied.get(&migration.version);
-            let (status, mismatched) = if let Some(applied) = applied {
-                if applied.checksum != migration.checksum {
-                    (
-                        "Applied (different checksum)"
-                            .if_supports_color(Stream::Stderr, |x| x.fg_rgb::<104, 186, 106>())
-                            .to_string(),
-                        true,
-                    )
-                } else {
-                    (
-                        "Applied"
-                            .if_supports_color(Stream::Stderr, |x| x.fg_rgb::<104, 186, 106>())
-                            .to_string(),
-                        false,
-                    )
-                }
-            } else {
-                has_pending = true;
-
+        let applied = applied.get(&migration.version);
+        let (status, mismatched) = if let Some(applied) = applied {
+            if applied.checksum != migration.checksum {
                 (
-                    "Pending"
-                        .if_supports_color(Stream::Stderr, |x| x.fg_rgb::<236, 33, 81>())
+                    "Applied (different checksum)"
+                        .if_supports_color(Stream::Stderr, |x| x.fg_rgb::<104, 186, 106>())
+                        .to_string(),
+                    true,
+                )
+            } else {
+                (
+                    "Applied"
+                        .if_supports_color(Stream::Stderr, |x| x.fg_rgb::<104, 186, 106>())
                         .to_string(),
                     false,
                 )
-            };
-
-            table.push(Migration {
-                status,
-                checksum: hex::encode(&migration.checksum),
-                name: migration.description.to_string(),
-            });
-
-            if mismatched {
-                warn!(
-                    migration = %migration.description,
-                    applied.checksum = %applied.map(|x| Cow::Owned(hex::encode(&x.checksum))).unwrap_or_else(|| Cow::Borrowed("<was not applied?!>")),
-                    local.checksum = hex::encode(&migration.checksum),
-                    "applied migration checksum is completely different than the locally checked out one"
-                );
             }
-        }
+        } else {
+            has_pending = true;
 
-        let _ = conn.close().await;
-        let _ =
-            cli_table::print_stdout(
-                table
-                    .table()
-                    .title(["Description ".cell(), "Status".cell(), "Checksum".cell()]),
+            (
+                "Pending"
+                    .if_supports_color(Stream::Stderr, |x| x.fg_rgb::<236, 33, 81>())
+                    .to_string(),
+                false,
+            )
+        };
+
+        table.push(Migration {
+            status,
+            checksum: hex::encode(&migration.checksum),
+            name: migration.description.to_string(),
+        });
+
+        if mismatched {
+            warn!(
+                migration = %migration.description,
+                applied.checksum = %applied.map(|x| Cow::Owned(hex::encode(&x.checksum))).unwrap_or_else(|| Cow::Borrowed("<was not applied?!>")),
+                local.checksum = hex::encode(&migration.checksum),
+                "applied migration checksum is completely different than the locally checked out one"
             );
-
-        if has_pending {
-            warn!("you have pending migrations to run! use the `charted migrations run` or enable the `database.run_pending_migrations` configuration key when booting up the API server");
         }
-
-        Ok(())
     }
+
+    let _ = conn.close().await;
+    let _ = cli_table::print_stdout(
+        table
+            .table()
+            .title(["Description ".cell(), "Status".cell(), "Checksum".cell()]),
+    );
+
+    if has_pending {
+        warn!("you have pending migrations to run! use the `charted migrations run` or enable the `database.run_pending_migrations` configuration key when booting up the API server");
+    }
+
+    Ok(())
 }

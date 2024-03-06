@@ -13,10 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{hashset, TRUTHY_REGEX};
-use noelware_config::{env, merge::Merge, FromEnv};
+use crate::TRUTHY_REGEX;
+use azalia::hashset;
+use noelware_config::{env, merge::Merge, TryFromEnv};
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
+use std::{borrow::Cow, collections::HashSet};
 
 /// Represents the configuration for configuring Redis for session management
 /// and caching (if enabled from [`server.ratelimits.caching`] or [`database.caching`]).
@@ -61,24 +62,18 @@ impl Default for Config {
     }
 }
 
-impl FromEnv for Config {
+impl TryFromEnv for Config {
     type Output = Config;
+    type Error = eyre::Report;
 
-    fn from_env() -> Self::Output {
-        Config {
-            master_name: env!("CHARTED_REDIS_SENTINEL_MASTER_NAME", is_optional: true),
-            password: env!("CHARTED_REDIS_PASSWORD", is_optional: true),
-            db: env!("CHARTED_REDIS_DB", to: u8, or_else: __default_db()),
-            tls: env!("CHARTED_REDIS_TLS", {
-                or_else: false;
-                mapper: |val| TRUTHY_REGEX.is_match(&val);
-            }),
-
-            hosts: env!("CHARTED_REDIS_HOSTS", {
-                or_else: __default_redis_hosts();
-                mapper: |val| val.split(',').map(String::from).collect();
-            }),
-        }
+    fn try_from_env() -> Result<Self::Output, Self::Error> {
+        Ok(Config {
+            master_name: env!("CHARTED_REDIS_SENTINEL_MASTER_NAME", optional),
+            password: env!("CHARTED_REDIS_PASSWORD", optional),
+            hosts: env!("CHARTED_REDIS_HOSTS", |val| val.split(',').map(String::from).collect(); or __default_redis_hosts()),
+            tls: env!("CHARTED_REDIS_TLS", |val| TRUTHY_REGEX.is_match(&val); or false),
+            db: crate::common::env("CHARTED_REDIS_PORT", __default_db(), |err| Cow::Owned(err.to_string()))?,
+        })
     }
 }
 

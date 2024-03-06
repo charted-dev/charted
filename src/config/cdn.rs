@@ -13,10 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::TRUTHY_REGEX;
 use noelware_config::{env, merge::Merge, FromEnv};
 use serde::{Deserialize, Serialize};
-
-use crate::TRUTHY_REGEX;
 
 #[derive(Debug, Clone, Default, Merge, Serialize, Deserialize)]
 pub struct Config {
@@ -36,12 +35,8 @@ impl FromEnv for Config {
 
     fn from_env() -> Self::Output {
         Config {
-            enabled: env!("CHARTED_CDN_ENABLE", {
-                or_else: false;
-                mapper: |val| TRUTHY_REGEX.is_match(&val);
-            }),
-
-            prefix: env!("CHARTED_CDN_PREFIX", is_optional: true),
+            enabled: env!("CHARTED_CDN_ENABLED", |val| TRUTHY_REGEX.is_match(&val)).unwrap_or(false),
+            prefix: env!("CHARTED_CDN_PREFIX", optional),
         }
     }
 }

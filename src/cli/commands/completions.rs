@@ -13,24 +13,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::cli::{Execute, Program};
+use crate::cli::Program;
 use clap::CommandFactory;
 use clap_complete::{generate, Shell};
 use std::io;
 
 /// Evaluates shell completions for the `charted` binary
 #[derive(Debug, Clone, clap::Parser)]
-pub struct Cmd {
+pub struct Args {
     /// shell to print out completions
     shell: Shell,
 }
 
-impl Execute for Cmd {
-    fn execute(&self) -> eyre::Result<()> {
-        let mut cmd = Program::command();
-        let mut stdout = io::stdout().lock();
+pub fn run(args: Args) {
+    let mut cmd = Program::command();
+    let mut stdout = io::stdout().lock();
 
-        generate(self.shell, &mut cmd, "charted", &mut stdout);
-        Ok(())
-    }
+    generate(args.shell, &mut cmd, "charted", &mut stdout);
 }

@@ -13,43 +13,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    cli::Execute,
-    common::{models::Distribution, os},
-};
+use crate::common::{models::Distribution, os};
 use serde_json::json;
 
 /// Returns the version information of this binary.
 #[derive(Debug, Clone, clap::Parser)]
-pub struct Cmd {
+pub struct Args {
     /// represent the version information as JSON.
     #[arg(short = 'j', long)]
     json: bool,
 }
 
-impl Execute for Cmd {
-    fn execute(&self) -> eyre::Result<()> {
-        let distribution = Distribution::detect();
-        if self.json {
-            let info = json!({
-                "version": crate::VERSION,
-                "commit_hash": crate::COMMIT_HASH,
-                "build_date": crate::BUILD_DATE,
-                "distribution": distribution
-            });
+pub fn run(Args { json }: Args) {
+    let distribution = Distribution::detect();
+    if json {
+        let info = json!({
+            "version": crate::VERSION,
+            "commit_hash": crate::COMMIT_HASH,
+            "build_date": crate::BUILD_DATE,
+            "distribution": distribution
+        });
 
-            eprintln!("{}", serde_json::to_string(&info).unwrap());
-            return Ok(());
-        }
-
-        eprintln!(
-            "🐻‍❄️📦 charted-server v{} ({}/{}) on {}",
-            crate::version(),
-            os::os_name(),
-            os::architecture(),
-            distribution
-        );
-
-        Ok(())
+        eprintln!("{}", serde_json::to_string(&info).unwrap());
+        return;
     }
+
+    eprintln!(
+        "🐻‍❄️📦 charted-server v{} ({}/{}) on {}",
+        crate::version(),
+        os::os_name(),
+        os::architecture(),
+        distribution
+    );
 }

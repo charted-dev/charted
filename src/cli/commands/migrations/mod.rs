@@ -13,23 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::cli::AsyncExecute;
-
 mod list;
 mod run;
 
 #[derive(Debug, Clone, clap::Subcommand)]
 pub enum Cmd {
-    List(list::Cmd),
-    Run(run::Cmd),
+    List(list::Args),
+    Run(run::Args),
 }
 
-#[async_trait]
-impl AsyncExecute for Cmd {
-    async fn execute(&self) -> eyre::Result<()> {
-        match self {
-            Cmd::List(list) => list.execute().await,
-            Cmd::Run(run) => run.execute().await,
-        }
+pub async fn execute(cmd: Cmd) -> eyre::Result<()> {
+    match cmd {
+        Cmd::List(args) => list::run(args).await,
+        Cmd::Run(args) => run::run(args).await,
     }
 }

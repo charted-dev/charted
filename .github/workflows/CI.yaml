@@ -109,6 +109,20 @@ jobs:
                   command: check
                   arguments: --all-features
                   log-level: warn
+    report-missing-deps:
+        name: Report Missing Dependencies
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Install `cargo-machete`
+              uses: taiki-e/install-action@v2.28.1
+              with:
+                  tool: cargo-machete
+
+            - name: Run!
+              run: cargo machete
     clippy:
         name: Clippy!
         runs-on: ubuntu-latest

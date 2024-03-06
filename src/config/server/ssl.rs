@@ -13,7 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::TRUTHY_REGEX;
 use eyre::Context;
 use noelware_config::{env, merge::Merge, TryFromEnv};
 use serde::{Deserialize, Serialize};
@@ -21,18 +20,10 @@ use std::path::PathBuf;
 
 #[derive(Debug, Clone, Merge, Serialize, Deserialize)]
 pub struct Config {
-    /// Allows to redirect all HTTP traffic to the HTTPS server instead. This will listen on port
-    /// `:7015` for all redirection traffic to `https://{server.host}:{server.port}[/...]`
-    #[serde(default)]
-    #[merge(strategy = noelware_config::merge::strategy::bool::only_if_falsy)]
-    pub allow_redirections: bool,
-
     /// Location to a certificate private key.
-    #[merge(skip)]
     pub cert_key: PathBuf,
 
     /// Location to a certificate public key.
-    #[merge(skip)]
     pub cert: PathBuf,
 }
 
@@ -40,7 +31,6 @@ impl Default for Config {
     fn default() -> Config {
         let certs = PathBuf::from("./certs");
         Config {
-            allow_redirections: true,
             cert_key: certs.join("key.pem"),
             cert: certs.join("cert.pem"),
         }
@@ -53,11 +43,6 @@ impl TryFromEnv for Config {
 
     fn try_from_env() -> Result<Self::Output, Self::Error> {
         Ok(Config {
-            allow_redirections: env!("CHARTED_SERVER_SSL_ALLOW_REDIRECTIONS", {
-                or_else: true;
-                mapper: |val| TRUTHY_REGEX.is_match(&val);
-            }),
-
             cert_key: env!("CHARTED_SERVER_SSL_CERT_KEY")
                 .map(PathBuf::from)
                 .context("unable to load up `CHARTED_SERVER_SSL_CERT_KEY` env")?,

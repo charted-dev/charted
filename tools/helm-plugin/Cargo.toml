@@ -25,16 +25,22 @@ publish.workspace = true
 repository.workspace = true
 authors.workspace = true
 
+[package.metadata.cargo-machete]
+ignored = [
+    "hcl-rs",      # it is the `hcl` module, but the crate is named differently
+    "inquire",     # for `helm charted init`, not implemented yet
+    "reqwest",     # for `helm charted download` and `helm charted push`, not implemented yet
+    "tracing-log", # We enable the `log` feature to get logs from crates that use the `log` library, but we don't ever use it
+]
+
 [dependencies]
 async-trait.workspace = true
 charted = { version = "0.1.0-beta", path = "../.." }
-chrono.workspace = true
 clap.workspace = true
 clap_complete.workspace = true
 cli-table.workspace = true
 color-eyre.workspace = true
 dirs = "5.0.1"
-dotenvy.workspace = true
 eyre.workspace = true
 hcl-rs = "0.16.7"
 indicatif = "0.17.8"
@@ -45,8 +51,6 @@ owo-colors.workspace = true
 reqwest = { version = "0.11.24", features = ["async-compression", "gzip"] }
 semver.workspace = true
 serde.workspace = true
-serde_repr = "0.1.18"
-serde_json.workspace = true
 serde_yaml = "0.9.32"
 similar = { version = "2.4.0", features = ["inline"] }
 tokio = { version = "1.36.0", features = ["rt", "macros", "io-util", "fs"] }

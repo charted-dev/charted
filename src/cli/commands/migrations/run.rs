@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{cli::AsyncExecute, config::Config, db::MIGRATIONS};
+use crate::{config::Config, db::MIGRATIONS};
 use eyre::Context;
 use owo_colors::{OwoColorize, Stream};
 use sqlx::{migrate::Migrate, postgres::PgConnectOptions, ConnectOptions, Connection};
@@ -21,7 +21,7 @@ use std::{collections::HashMap, path::PathBuf, process::exit, str::FromStr, time
 
 /// Runs all pending migrations on the database
 #[derive(Debug, Clone, clap::Parser)]
-pub struct Cmd {
+pub struct Args {
     /// Runs a specific migration only
     #[arg(long, short = 'v')]
     target_version: Option<i64>,
@@ -37,124 +37,127 @@ pub struct Cmd {
     config: Option<PathBuf>,
 }
 
-#[async_trait]
-impl AsyncExecute for Cmd {
-    async fn execute(&self) -> eyre::Result<()> {
-        debug!("🛰️   Connecting to PostgreSQL...");
+pub async fn run(
+    Args {
+        config,
+        dry_run,
+        target_version,
+    }: Args,
+) -> eyre::Result<()> {
+    debug!("🛰️   Connecting to PostgreSQL...");
 
-        let config = match self.config {
-            Some(ref path) => Config::new(Some(path)),
-            None => match Config::find_default_conf_location() {
-                Some(path) => Config::new(Some(path)),
-                None => Config::new::<&str>(None),
-            },
-        }?;
+    let config = match config {
+        Some(ref path) => Config::new(Some(path)),
+        None => match Config::find_default_conf_location() {
+            Some(path) => Config::new(Some(path)),
+            None => Config::new::<&str>(None),
+        },
+    }?;
 
-        let mut conn = sqlx::postgres::PgConnection::connect_with(
-            &PgConnectOptions::from_str(&config.database.to_string())?
-                .application_name("charted-server")
-                .log_statements(tracing::log::LevelFilter::Trace)
-                .log_slow_statements(tracing::log::LevelFilter::Warn, Duration::from_secs(1)),
-        )
-        .await?;
+    let mut conn = sqlx::postgres::PgConnection::connect_with(
+        &PgConnectOptions::from_str(&config.database.to_string())?
+            .application_name("charted-server")
+            .log_statements(tracing::log::LevelFilter::Trace)
+            .log_slow_statements(tracing::log::LevelFilter::Warn, Duration::from_secs(1)),
+    )
+    .await?;
 
-        debug!("connected to PostgreSQL successfully! ensuring that `migrations` table exists");
-        conn.ensure_migrations_table().await?;
+    debug!("connected to PostgreSQL successfully! ensuring that `migrations` table exists");
+    conn.ensure_migrations_table().await?;
 
-        if let Some(version) = conn.dirty_version().await? {
-            error!("migration {version} was previously applied but is missing when resolving migrations!");
+    if let Some(version) = conn.dirty_version().await? {
+        error!("migration {version} was previously applied but is missing when resolving migrations!");
+        exit(1);
+    }
+
+    let applied: HashMap<_, _> = conn
+        .list_applied_migrations()
+        .await?
+        .into_iter()
+        .map(|m| (m.version, m))
+        .collect();
+
+    let latest = applied
+        .iter()
+        .max_by(|(_, x), (_, y)| x.version.cmp(&y.version))
+        .map(|(version, _)| *version)
+        .unwrap_or(0);
+
+    if let Some(target) = target_version {
+        if target > latest {
+            error!("version {target} is newer than latest migration {latest}!");
             exit(1);
         }
+    }
 
-        let applied: HashMap<_, _> = conn
-            .list_applied_migrations()
-            .await?
-            .into_iter()
-            .map(|m| (m.version, m))
-            .collect();
+    let mut has_applied = false;
+    for migration in MIGRATIONS.iter() {
+        if migration.migration_type.is_down_migration() {
+            continue;
+        }
 
-        let latest = applied
-            .iter()
-            .max_by(|(_, x), (_, y)| x.version.cmp(&y.version))
-            .map(|(version, _)| *version)
-            .unwrap_or(0);
-
-        if let Some(target) = self.target_version {
-            if target > latest {
-                error!("version {target} is newer than latest migration {latest}!");
+        match applied.get(&migration.version) {
+            Some(m) if m.checksum != migration.checksum => {
+                error!("bailing due to version mismatch in migrations");
                 exit(1);
             }
-        }
 
-        let mut has_applied = false;
-        for migration in MIGRATIONS.iter() {
-            if migration.migration_type.is_down_migration() {
-                continue;
+            Some(_) => {
+                eprintln!(
+                    "⏭️     migration {:<25} ({}): {}   0ns",
+                    migration.description,
+                    migration.migration_type.label(),
+                    "Already applied".if_supports_color(Stream::Stderr, |x| x.fg_rgb::<160, 219, 142>())
+                );
             }
 
-            match applied.get(&migration.version) {
-                Some(m) if m.checksum != migration.checksum => {
-                    error!("bailing due to version mismatch in migrations");
-                    exit(1);
-                }
+            None => {
+                let skipped = target_version.map(|x| migration.version > x).unwrap_or(false);
+                let elapsed = if dry_run || skipped {
+                    Duration::new(0, 0)
+                } else {
+                    conn.apply(migration)
+                        .await
+                        .inspect(|_| {
+                            has_applied = true;
+                        })
+                        .context(format!("failed to apply migration {}", migration.description))?
+                };
 
-                Some(_) => {
-                    eprintln!(
-                        "⏭️     migration {:<25} ({}): {}   0ns",
-                        migration.description,
-                        migration.migration_type.label(),
-                        "Already applied".if_supports_color(Stream::Stderr, |x| x.fg_rgb::<160, 219, 142>())
-                    );
-                }
+                let status = match (dry_run, skipped) {
+                    (true, false) => "Can be applied"
+                        .if_supports_color(Stream::Stderr, |x| x.fg_rgb::<129, 216, 208>())
+                        .to_string(),
 
-                None => {
-                    let skipped = self.target_version.map(|x| migration.version > x).unwrap_or(false);
-                    let elapsed = if self.dry_run || skipped {
-                        Duration::new(0, 0)
-                    } else {
-                        conn.apply(migration)
-                            .await
-                            .inspect(|_| {
-                                has_applied = true;
-                            })
-                            .context(format!("failed to apply migration {}", migration.description))?
-                    };
+                    (false, true) => "Skipped"
+                        .if_supports_color(Stream::Stderr, |x| x.fg_rgb::<236, 33, 81>())
+                        .to_string(),
 
-                    let status = match (self.dry_run, skipped) {
-                        (true, false) => "Can be applied"
-                            .if_supports_color(Stream::Stderr, |x| x.fg_rgb::<129, 216, 208>())
-                            .to_string(),
+                    _ => "Applied"
+                        .if_supports_color(Stream::Stderr, |x| x.fg_rgb::<104, 186, 106>())
+                        .to_string(),
+                };
 
-                        (false, true) => "Skipped"
-                            .if_supports_color(Stream::Stderr, |x| x.fg_rgb::<236, 33, 81>())
-                            .to_string(),
+                let emoji = match (dry_run, skipped) {
+                    (true, false) => "💤",
+                    (false, true) => "⏭️",
+                    _ => "✨",
+                };
 
-                        _ => "Applied"
-                            .if_supports_color(Stream::Stderr, |x| x.fg_rgb::<104, 186, 106>())
-                            .to_string(),
-                    };
-
-                    let emoji = match (self.dry_run, skipped) {
-                        (true, false) => "💤",
-                        (false, true) => "⏭️",
-                        _ => "✨",
-                    };
-
-                    eprintln!(
-                        "{emoji}    migration {:<25} ({}): {status}    {elapsed:?}",
-                        migration.description,
-                        migration.migration_type.label(),
-                    );
-                }
+                eprintln!(
+                    "{emoji}    migration {:<25} ({}): {status}    {elapsed:?}",
+                    migration.description,
+                    migration.migration_type.label(),
+                );
             }
         }
-
-        if !self.dry_run && !has_applied {
-            warn!("no new migrations had been applied!");
-        }
-
-        let _ = conn.close().await;
-
-        Ok(())
     }
+
+    if !dry_run && !has_applied {
+        warn!("no new migrations had been applied!");
+    }
+
+    let _ = conn.close().await;
+
+    Ok(())
 }

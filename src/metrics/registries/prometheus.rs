@@ -34,6 +34,11 @@ impl Prometheus {
         }
     }
 
+    /// Returns a reference to a dynamic [`Registry`] that the Prometheus collector owns.
+    pub fn inner(&self) -> &dyn Registry {
+        self.inner.as_ref()
+    }
+
     /// Registers a Prometheus collector into the Prometheus registry that this collector
     /// registry holds. This won't do anything if the registry lock couldn't be locked.
     ///

@@ -13,11 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use super::caching;
+use crate::TRUTHY_REGEX;
 use eyre::Context;
 use noelware_config::{env, merge::Merge, TryFromEnv};
 use serde::{Deserialize, Serialize};
-
-use crate::TRUTHY_REGEX;
+use std::borrow::Cow;
 
 /// Represents the configuration details for configuring charted-server's
 /// database connections. charted-server uses [SQLx](https://github.com/launchbadge/sqlx) as
@@ -103,19 +104,17 @@ impl TryFromEnv for Config {
 
     fn try_from_env() -> Result<Self::Output, Self::Error> {
         Ok(Config {
-            run_migrations: env!("CHARTED_DATABASE_RUN_MIGRATIONS", {
-                or_else: false;
-                mapper: |val| TRUTHY_REGEX.is_match(&val);
-            }),
-
-            max_connections: env!("CHARTED_DATABASE_MAX_CONNECTIONS", to: u32, or_else: __max_connections()),
-            database: env!("CHARTED_DATABASE_NAME", or_else: __database()),
-            username: env!("CHARTED_DATABASE_USERNAME", is_optional: true),
-            password: env!("CHARTED_DATABASE_PASSWORD", is_optional: true),
-            caching: super::caching::Config::try_from_env().context("unable to transform caching db configuration")?,
-            schema: env!("CHARTED_DATABASE_SCHEMA", is_optional: true),
-            host: env!("CHARTED_DATABASE_HOST", or_else: __host()),
-            port: env!("CHARTED_DATABASE_PORT", to: u16, or_else: __port()),
+            run_migrations: env!("CHARTED_DATABASE_RUN_MIGRATIONS", |val| TRUTHY_REGEX.is_match(&val)).unwrap_or(false),
+            database: env!("CHARTED_DATABASE_HOST").unwrap_or(__database()),
+            username: env!("CHARTED_DATABASE_USERNAME", optional),
+            password: env!("CHARTED_DATABASE_PASSWORD", optional),
+            caching: caching::Config::try_from_env().context("failed to parse caching configuration")?,
+            schema: env!("CHARTED_DATABASE_SCHEMA", optional),
+            host: env!("CHARTED_DATABASE_HOST").unwrap_or(__host()),
+            port: crate::common::env("CHARTED_DATABASE_PORT", __port(), |err| Cow::Owned(err.to_string()))?,
+            max_connections: crate::common::env("CHARTED_DATABASE_MAX_CONNECTIONS", __max_connections(), |err| {
+                Cow::Owned(err.to_string())
+            })?,
         })
     }
 }

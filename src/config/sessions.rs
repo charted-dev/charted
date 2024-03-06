@@ -16,7 +16,7 @@
 pub mod ldap;
 
 use crate::TRUTHY_REGEX;
-use noelware_config::{env, merge::Merge, FromEnv, TryFromEnv};
+use noelware_config::{env, merge::Merge, TryFromEnv};
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeSet, path::PathBuf};
 
@@ -39,11 +39,7 @@ impl TryFromEnv for Config {
 
     fn try_from_env() -> Result<Self::Output, Self::Error> {
         Ok(Config {
-            enable_basic_auth: env!("CHARTED_SESSION_ENABLE_BASIC_AUTH", {
-                or_else: false;
-                mapper: |val| TRUTHY_REGEX.is_match(&val);
-            }),
-
+            enable_basic_auth: env!("CHARTED_SESSION_ENABLE_BASIC_AUTH", |val| TRUTHY_REGEX.is_match(&val); or false),
             backend: Backend::try_from_env()?,
         })
     }
@@ -107,7 +103,7 @@ impl TryFromEnv for Backend {
                 )),
 
                 "passwordless" => Ok(Backend::Passwordless),
-                "ldap" => Ok(Backend::Ldap(ldap::Config::from_env())),
+                "ldap" => Ok(Backend::Ldap(ldap::Config::try_from_env()?)),
                 "local" | "" => Ok(Backend::Local),
                 out => Err(eyre!("expected [htpasswd, ldap, local]; received '{out}'")),
             },

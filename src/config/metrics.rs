@@ -13,10 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::TRUTHY_REGEX;
 use noelware_config::{env, merge::Merge, FromEnv};
 use serde::{Deserialize, Serialize};
-
-use crate::TRUTHY_REGEX;
 
 /// Represents the configuration for configuring the metrics pipeline.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Merge)]
@@ -44,9 +43,9 @@ impl FromEnv for Config {
 
     fn from_env() -> Self::Output {
         Config {
-            prometheus: env!("CHARTED_METRICS_PROMETHEUS", { or_else: false; mapper: |val| TRUTHY_REGEX.is_match(&val); }),
-            enabled: env!("CHARTED_METRICS_ENABLE", { or_else: false; mapper: |val| TRUTHY_REGEX.is_match(&val); }),
-            admin: env!("CHARTED_METRICS_ENABLE_ADMIN_ENDPOINT", { or_else: false; mapper: |val| TRUTHY_REGEX.is_match(&val); }),
+            prometheus: env!("CHARTED_METRICS_PROMETHEUS", |val| TRUTHY_REGEX.is_match(&val); or false),
+            enabled: env!("CHARTED_METRICS_ENABLE", |val| TRUTHY_REGEX.is_match(&val); or false),
+            admin: env!("CHARTED_METRICS_ENABLE_ADMIN_ENDPOINT", |val| TRUTHY_REGEX.is_match(&val); or false),
         }
     }
 }

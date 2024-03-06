@@ -29,6 +29,7 @@ use eyre::Report;
 use noelware_config::{env, merge::Merge, FromEnv, TryFromEnv};
 use serde::{Deserialize, Serialize};
 use std::{
+    env::VarError,
     fs::File,
     io::Read,
     path::{Path, PathBuf},
@@ -53,6 +54,15 @@ pub struct Config {
     /// Logging configuration to configure the API server's logging capabilities.
     #[serde(default)]
     pub logging: logging::Config,
+
+    /// whether or not if the API server should act like a single user, where *most* features
+    /// are disabled and only one user is allowed to roam.
+    ///
+    /// all publically available features like Audit Logging can be enabled but repository and
+    /// organization members are disabled. most endpoints will be also disabled.
+    #[serde(default)]
+    #[merge(strategy = noelware_config::merge::strategy::bool::only_if_falsy)]
+    pub single_user: bool,
 
     /// Configures how to connect to the PostgreSQL database.
     #[serde(default)]
@@ -94,6 +104,7 @@ impl Default for Config {
         Config {
             jwt_secret_key: String::default(),
             registrations: __truthy(),
+            single_user: false,
             single_org: false,
             sentry_dsn: None,
             sessions: sessions::Config::default(),
@@ -114,17 +125,18 @@ impl TryFromEnv for Config {
 
     fn try_from_env() -> Result<Self::Output, Self::Error> {
         Ok(Config {
-            registrations: env!("CHARTED_ENABLE_REGISTRATIONS", {
-                or_else: true;
-                mapper: |val| TRUTHY_REGEX.is_match(&val);
-            }),
+            registrations: env!("CHARTED_ENABLE_REGISTRATIONS", |val| TRUTHY_REGEX.is_match(&val); or true),
+            jwt_secret_key: match env!("CHARTED_JWT_SECRET_KEY") {
+                Ok(val) => val,
+                Err(VarError::NotPresent) => __generated_secret_key(),
+                Err(VarError::NotUnicode(_)) => {
+                    return Err(eyre!("failed to parse `CHARTED_JWT_SECRET_KEY` as valid unicode"))
+                }
+            },
 
-            jwt_secret_key: env!("CHARTED_JWT_SECRET_KEY", or_else: env!("SECRET_KEY", or_else: __generated_secret_key())),
-            sentry_dsn: env!("CHARTED_SENTRY_DSN", is_optional: true),
-            single_org: env!("CHARTED_SINGLE_ORG", {
-                or_else: false;
-                mapper: |val| TRUTHY_REGEX.is_match(&val);
-            }),
+            single_user: env!("CHARTED_SINGLE_USER", |val| TRUTHY_REGEX.is_match(&val); or false),
+            sentry_dsn: env!("CHARTED_SENTRY_DSN", optional),
+            single_org: env!("CHARTED_SINGLE_ORG", |val| TRUTHY_REGEX.is_match(&val); or false),
 
             database: db::Config::try_from_env()?,
             sessions: sessions::Config::try_from_env()?,
@@ -132,7 +144,7 @@ impl TryFromEnv for Config {
             logging: logging::Config::from_env(),
             storage: storage::Config::try_from_env()?,
             server: server::Config::try_from_env()?,
-            redis: redis::Config::from_env(),
+            redis: redis::Config::try_from_env()?,
             cdn: cdn::Config::from_env(),
         })
     }

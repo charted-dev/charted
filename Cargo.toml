@@ -60,7 +60,7 @@ which = "6.0.0"
 [workspace.dependencies.noelware-config]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "3dbcdece3d4c0ee756b05ab6ec99111ec89c4262"
+rev = "f190efd883e61f0b630a14a5e1cc20da648fb38a"
 features = ["derive"]
 
 [package]
@@ -84,6 +84,7 @@ aws-sdk-s3 = "1.17.0"
 axum = { version = "0.7.4", features = ["macros", "http2"] }
 axum-extra = { version = "0.9.2", features = ["typed-header"] }
 axum-server = { version = "0.6.0", features = ["tls-rustls"] }
+azalia = { version = "0.1.0", git = "https://github.com/Noelware/core-rs", rev = "f190efd883e61f0b630a14a5e1cc20da648fb38a" }
 azure_storage = "0.19.0"
 base64 = "0.22.0"
 charted-proc-macros = { version = "0.0.0-devel.0", path = "./proc-macros" }
@@ -101,7 +102,6 @@ futures-util = "0.3.30"
 hex = "0.4.3"
 humantime = "2.1.0"
 itertools = "0.12.1"
-iterutils = "0.1.0"
 jsonwebtoken = "9.2.0"
 ldap3 = "0.11.3"
 mac_address = "1.1.5"
@@ -132,7 +132,6 @@ remi-azure = { version = "0.6.3", features = ["serde", "tracing"] }
 remi-fs = { version = "0.6.3", features = ["serde", "tracing"] }
 remi-s3 = { version = "0.6.3", features = ["serde", "tracing"] }
 reqwest = "0.11.24"
-rust-embed = { version = "8.3.0", features = ["mime-guess"] }
 semver.workspace = true
 sentry = "0.32.2"
 sentry-eyre = "0.1.0"
@@ -168,7 +167,6 @@ tower-http = { version = "0.5.2", features = [
     "limit",
 ] }
 tracing = "0.1.40"
-tracing-appender = "0.2.3"
 tracing-log = "0.2.0"
 tracing-opentelemetry = "0.23.0"
 tracing-subscriber = "0.3.18"
@@ -182,19 +180,19 @@ serde_yaml = "0.9.32"
 [dependencies.noelware-log]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "3dbcdece3d4c0ee756b05ab6ec99111ec89c4262"
+rev = "f190efd883e61f0b630a14a5e1cc20da648fb38a"
 features = ["log"]
 
 [dependencies.noelware-remi]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "3dbcdece3d4c0ee756b05ab6ec99111ec89c4262"
+rev = "f190efd883e61f0b630a14a5e1cc20da648fb38a"
 features = ["azure", "fs", "s3"]
 
 [dependencies.noelware-serde]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "3dbcdece3d4c0ee756b05ab6ec99111ec89c4262"
+rev = "f190efd883e61f0b630a14a5e1cc20da648fb38a"
 features = ["tracing"]
 
 [dev-dependencies]
@@ -207,6 +205,15 @@ chrono.workspace = true
 rustc_version = "0.4.0"
 tonic-build = "0.11.0"
 which.workspace = true
+
+[package.metadata.cargo-machete]
+ignored = [
+    "md-5",        # md-5 is actually used but it is under the `md5` module.
+    "openssl",     # this is mainly for releases since we have `--features=vendored`, which will vender OpenSSL
+    "prost",       # Prost is used when we send messages to charted-emails, but as of 02/03/24, it is not implemented
+    "prost-types", # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    "tracing-log", # We enable the `log` feature to get logs from crates that use the `log` library, but we don't ever use it
+]
 
 [profile.release]
 opt-level = "z"

@@ -16,6 +16,7 @@
 use charted::cli::{AsyncExecute, Execute};
 use clap::Subcommand;
 
+mod completions;
 mod context;
 mod download;
 mod init;
@@ -26,6 +27,7 @@ mod push;
 
 #[derive(Debug, Clone, Subcommand)]
 pub enum Cmd {
+    Completions(completions::Args),
     Download(download::Cmd),
 
     #[command(subcommand)]
@@ -41,6 +43,11 @@ pub enum Cmd {
 impl AsyncExecute for Cmd {
     async fn execute(&self) -> eyre::Result<()> {
         match self {
+            Cmd::Completions(args) => {
+                completions::run(args.clone());
+                Ok(())
+            }
+
             Cmd::Download(dl) => dl.execute().await,
             Cmd::Context(ctx) => ctx.execute(),
             Cmd::Logout(logout) => logout.execute(),

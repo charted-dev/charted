@@ -23,6 +23,8 @@ use remi_azure::Credential;
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, path::PathBuf, str::FromStr};
 
+use crate::TRUTHY_REGEX;
+
 /// Configures the storage for holding external media and chart indexes.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -55,43 +57,37 @@ impl TryFromEnv for Config {
         match env!("CHARTED_STORAGE_SERVICE") {
             Ok(res) => match res.to_lowercase().as_str() {
                 "filesystem" | "fs" => Ok(Config::Filesystem(remi_fs::Config {
-                    directory: env!("CHARTED_STORAGE_FILESYSTEM_DIRECTORY", to: PathBuf, or_else: PathBuf::from("./data")),
+                    directory: crate::common::env(
+                        "CHARTED_STORAGE_FILESYSTEM_DIRECTORY",
+                        PathBuf::from("./data"),
+                        |_| panic!("should never reach here"),
+                    )
+                    .expect("this should never fail"),
                 })),
 
                 "azure" => Ok(Config::Azure(remi_azure::StorageConfig {
                     credentials: to_env_credentials()?,
                     location: to_env_location()?,
-                    container: env!("CHARTED_STORAGE_AZURE_CONTAINER", is_optional: true).unwrap_or("ume".into()),
+                    container: env!("CHARTED_STORAGE_AZURE_CONTAINER", optional).unwrap_or("ume".into()),
                 })),
 
                 "s3" => Ok(Config::S3(remi_s3::S3StorageConfig {
-                    enable_signer_v4_requests: env!("CHARTED_STORAGE_S3_ENABLE_SIGNER_V4_REQUESTS", to: bool),
-                    enforce_path_access_style: env!("CHARTED_STORAGE_S3_ENFORCE_PATH_ACCESS_STYLE", to: bool),
-                    default_object_acl: env!("CHARTED_STORAGE_S3_DEFAULT_OBJECT_ACL", {
-                        or_else: Some(ObjectCannedAcl::BucketOwnerFullControl);
-                        mapper: |val| ObjectCannedAcl::from_str(val.as_str()).ok();
-                    }),
-
-                    default_bucket_acl: env!("CHARTED_STORAGE_S3_DEFAULT_OBJECT_ACL", {
-                        or_else: Some(BucketCannedAcl::AuthenticatedRead);
-                        mapper: |val| BucketCannedAcl::from_str(val.as_str()).ok();
-                    }),
+                    enable_signer_v4_requests: env!("CHARTED_STORAGE_S3_ENABLE_SIGNER_V4_REQUESTS", |val| TRUTHY_REGEX.is_match(&val); or false),
+                    enforce_path_access_style: env!("CHARTED_STORAGE_S3_ENFORCE_PATH_ACCESS_STYLE", |val| TRUTHY_REGEX.is_match(&val); or false),
+                    default_object_acl: env!("CHARTED_STORAGE_S3_DEFAULT_OBJECT_ACL", |val| ObjectCannedAcl::from_str(val.as_str()).ok(); or Some(ObjectCannedAcl::BucketOwnerFullControl)),
+                    default_bucket_acl: env!("CHARTED_STORAGE_S3_DEFAULT_OBJECT_ACL", |val| BucketCannedAcl::from_str(val.as_str()).ok(); or Some(BucketCannedAcl::AuthenticatedRead)),
 
                     secret_access_key: env!("CHARTED_STORAGE_S3_SECRET_ACCESS_KEY")
-                        .expect("required env variable [CHARTED_STORAGE_S3_SECRET_ACCESS_KEY]"),
+                        .context("required env variable [CHARTED_STORAGE_S3_SECRET_ACCESS_KEY]")?,
 
                     access_key_id: env!("CHARTED_STORAGE_S3_ACCESS_KEY_ID")
-                        .expect("required env variable [CHARTED_STORAGE_S3_ACCESS_KEY_ID]"),
+                        .context("required env variable [CHARTED_STORAGE_S3_ACCESS_KEY_ID]")?,
 
-                    app_name: env!("CHARTED_STORAGE_S3_APP_NAME", is_optional: true),
-                    endpoint: env!("CHARTED_STORAGE_S3_ENDPOINT", is_optional: true),
-                    prefix: env!("CHARTED_STORAGE_S3_PREFIX", is_optional: true),
-                    region: env!("CHARTED_STORAGE_S3_REGION", {
-                        or_else: Some(Region::new(Cow::Owned("us-east-1".to_owned())));
-                        mapper: |val| Some(Region::new(Cow::Owned(val)));
-                    }),
-
-                    bucket: env!("CHARTED_STORAGE_S3_BUCKET", is_optional: true).unwrap_or("ume".into()),
+                    app_name: env!("CHARTED_STORAGE_S3_APP_NAME", optional),
+                    endpoint: env!("CHARTED_STORAGE_S3_ENDPOINT", optional),
+                    prefix: env!("CHARTED_STORAGE_S3_PREFIX", optional),
+                    region: env!("CHARTED_STORAGE_S3_REGION", |val| Some(Region::new(Cow::Owned(val))); or Some(Region::new(Cow::Owned("us-east-1".to_owned())))),
+                    bucket: env!("CHARTED_STORAGE_S3_BUCKET", optional).unwrap_or("ume".into()),
                 })),
 
                 loc => Err(eyre!("expected [filesystem/fs, azure, s3]; received '{loc}'")),
@@ -149,7 +145,9 @@ fn to_env_location() -> eyre::Result<azure_storage::CloudLocation> {
                 address: env!("CHARTED_STORAGE_AZURE_EMULATOR_ADDRESS")
                     .context("missing required env [CHARTED_STORAGE_AZURE_EMULATOR_ADDRESS]")?,
 
-                port: env!("CHARTED_STORAGE_AZURE_EMULATOR_PORT", to: u16),
+                port: crate::common::env("CHARTED_STORAGE_AZURE_EMULATOR_PORT", 10000u16, |err| {
+                    Cow::Owned(err.to_string())
+                })?,
             }),
 
             "custom" => Ok(azure_storage::CloudLocation::Custom {

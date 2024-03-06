@@ -20,32 +20,35 @@ mod openapi;
 mod server;
 mod version;
 
-use super::{AsyncExecute, Execute};
 use clap::Subcommand;
 
 #[derive(Debug, Clone, Subcommand)]
 pub enum Cmd {
     #[command(subcommand)]
     Migrations(migrations::Cmd),
-    Completions(completions::Cmd),
-    Generate(generate::Cmd),
+    Completions(completions::Args),
+    Generate(generate::Args),
 
     #[command(name = "openapi")]
-    OpenApi(openapi::Cmd),
-    Version(version::Cmd),
-    Server(server::Cmd),
+    OpenApi(openapi::Args),
+    Version(version::Args),
+    Server(server::Args),
 }
 
-#[async_trait]
-impl AsyncExecute for Cmd {
-    async fn execute(&self) -> eyre::Result<()> {
-        match self {
-            Cmd::Server(server) => server.execute().await,
-            Cmd::Migrations(migrations) => migrations.execute().await,
-            Cmd::Completions(comp) => comp.execute(),
-            Cmd::Generate(gen) => gen.execute(),
-            Cmd::Version(ver) => ver.execute(),
-            Cmd::OpenApi(oa) => oa.execute(),
+pub async fn execute(cmd: Cmd) -> eyre::Result<()> {
+    match cmd {
+        Cmd::Server(args) => server::run(args).await,
+        Cmd::Completions(args) => {
+            completions::run(args);
+            Ok(())
         }
+        Cmd::Generate(args) => generate::run(args),
+        Cmd::OpenApi(args) => openapi::run(args),
+        Cmd::Version(args) => {
+            version::run(args);
+            Ok(())
+        }
+
+        Cmd::Migrations(cmd) => migrations::execute(cmd).await,
     }
 }

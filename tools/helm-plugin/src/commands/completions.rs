@@ -13,27 +13,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod stats;
+use crate::Program;
+use clap::CommandFactory;
+use clap_complete::{generate, Shell};
+use std::io;
 
-use super::EntrypointResponse;
-use crate::{
-    server::models::res::{ok, ApiResponse},
-    Instance,
-};
-use axum::{http::StatusCode, routing, Router};
-
-pub fn create_router() -> Router<Instance> {
-    Router::new()
-        .route("/", routing::get(main))
-        .route("/stats", routing::get(stats::stats))
+/// Evaluates shell completions for the `helm charted` binary
+#[derive(Debug, Clone, clap::Parser)]
+pub struct Args {
+    /// shell to print out completions
+    shell: Shell,
 }
 
-async fn main() -> ApiResponse<EntrypointResponse> {
-    ok(
-        StatusCode::OK,
-        EntrypointResponse {
-            message: String::from("Hello to the Admin API!"),
-            docs: String::from("/admin is not documented and probably never will be"),
-        },
-    )
+pub fn run(args: Args) {
+    let mut cmd = Program::command();
+    let mut stdout = io::stdout().lock();
+
+    generate(args.shell, &mut cmd, "helm charted", &mut stdout);
 }

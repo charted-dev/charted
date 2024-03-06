@@ -797,6 +797,11 @@ dependencies = [
 ]
 
 [[package]]
+name = "azalia"
+version = "0.1.0"
+source = "git+https://github.com/Noelware/core-rs?rev=f190efd883e61f0b630a14a5e1cc20da648fb38a#f190efd883e61f0b630a14a5e1cc20da648fb38a"
+
+[[package]]
 name = "azure_core"
 version = "0.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1049,9 +1054,9 @@ dependencies = [
 
 [[package]]
 name = "bumpalo"
-version = "3.15.3"
+version = "3.15.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ea184aa71bb362a1157c896979544cc23974e08fd265f29ea96b59f0b4a555b"
+checksum = "7ff69b9dd49fd426c69a0db9fc04dd934cdb6645ff000864d98f7e2af8830eaa"
 
 [[package]]
 name = "bytecount"
@@ -1130,9 +1135,9 @@ checksum = "a2698f953def977c68f935bb0dfa959375ad4638570e969e2f1e9f433cbf1af6"
 
 [[package]]
 name = "cc"
-version = "1.0.89"
+version = "1.0.90"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a0ba8f7aaa012f30d5b2861462f6708eccd49c3c39863fe083a308035f63d723"
+checksum = "8cd6604a82acf3039f1144f54b8eb34e91ffba622051189e71b781822d5ee1f5"
 dependencies = [
  "jobserver",
  "libc",
@@ -1161,6 +1166,7 @@ dependencies = [
  "axum 0.7.4",
  "axum-extra",
  "axum-server",
+ "azalia",
  "azure_storage",
  "base64 0.22.0",
  "charted-proc-macros",
@@ -1178,7 +1184,6 @@ dependencies = [
  "hex",
  "humantime",
  "itertools 0.12.1",
- "iterutils",
  "jsonwebtoken 9.2.0",
  "ldap3",
  "mac_address",
@@ -1208,7 +1213,6 @@ dependencies = [
  "remi-fs",
  "remi-s3",
  "reqwest",
- "rust-embed",
  "rustc_version 0.4.0",
  "semver 1.0.22",
  "sentry",
@@ -1231,7 +1235,6 @@ dependencies = [
  "tower",
  "tower-http",
  "tracing",
- "tracing-appender",
  "tracing-log",
  "tracing-opentelemetry",
  "tracing-subscriber",
@@ -1254,13 +1257,8 @@ dependencies = [
  "clap_complete",
  "color-eyre",
  "eyre",
- "heck",
  "itertools 0.12.1",
- "serde",
- "serde_json",
- "simple_tables",
  "tokio",
- "toml",
  "tracing",
  "tracing-subscriber",
  "which 6.0.0",
@@ -1281,13 +1279,11 @@ version = "0.1.0-beta"
 dependencies = [
  "async-trait",
  "charted",
- "chrono",
  "clap",
  "clap_complete",
  "cli-table",
  "color-eyre",
  "dirs",
- "dotenvy",
  "eyre",
  "hcl-rs",
  "indicatif",
@@ -1298,8 +1294,6 @@ dependencies = [
  "reqwest",
  "semver 1.0.22",
  "serde",
- "serde_json",
- "serde_repr",
  "serde_yaml",
  "similar",
  "tokio",
@@ -2919,12 +2913,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "iterutils"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "83842df9b3772441fec891020d9018e3a4980a13419a6ef866c43c39dfe68a9d"
-
-[[package]]
 name = "itoa"
 version = "1.0.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3251,16 +3239,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6877bb514081ee2a7ff5ef9de3281f14a4dd4bceac4c09388074a6b5df8a139a"
 
 [[package]]
-name = "mime_guess"
-version = "2.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4192263c238a5f0d0c6bfd21f336a313a4ce1c450542449ca191bb657b4642ef"
-dependencies = [
- "mime",
- "unicase",
-]
-
-[[package]]
 name = "minimal-lexical"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3390,7 +3368,7 @@ dependencies = [
 [[package]]
 name = "noelware-config"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/core-rs?rev=3dbcdece3d4c0ee756b05ab6ec99111ec89c4262#3dbcdece3d4c0ee756b05ab6ec99111ec89c4262"
+source = "git+https://github.com/Noelware/core-rs?rev=f190efd883e61f0b630a14a5e1cc20da648fb38a#f190efd883e61f0b630a14a5e1cc20da648fb38a"
 dependencies = [
  "noelware-config-derive",
 ]
@@ -3398,7 +3376,7 @@ dependencies = [
 [[package]]
 name = "noelware-config-derive"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/core-rs?rev=3dbcdece3d4c0ee756b05ab6ec99111ec89c4262#3dbcdece3d4c0ee756b05ab6ec99111ec89c4262"
+source = "git+https://github.com/Noelware/core-rs?rev=f190efd883e61f0b630a14a5e1cc20da648fb38a#f190efd883e61f0b630a14a5e1cc20da648fb38a"
 dependencies = [
  "proc-macro-error",
  "proc-macro2",
@@ -3409,7 +3387,7 @@ dependencies = [
 [[package]]
 name = "noelware-log"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/core-rs?rev=3dbcdece3d4c0ee756b05ab6ec99111ec89c4262#3dbcdece3d4c0ee756b05ab6ec99111ec89c4262"
+source = "git+https://github.com/Noelware/core-rs?rev=f190efd883e61f0b630a14a5e1cc20da648fb38a#f190efd883e61f0b630a14a5e1cc20da648fb38a"
 dependencies = [
  "chrono",
  "owo-colors 4.0.0",
@@ -3422,10 +3400,9 @@ dependencies = [
 [[package]]
 name = "noelware-remi"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/core-rs?rev=3dbcdece3d4c0ee756b05ab6ec99111ec89c4262#3dbcdece3d4c0ee756b05ab6ec99111ec89c4262"
+source = "git+https://github.com/Noelware/core-rs?rev=f190efd883e61f0b630a14a5e1cc20da648fb38a#f190efd883e61f0b630a14a5e1cc20da648fb38a"
 dependencies = [
  "azure_core",
- "bytes",
  "remi",
  "remi-azure",
  "remi-fs",
@@ -3435,7 +3412,7 @@ dependencies = [
 [[package]]
 name = "noelware-serde"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/core-rs?rev=3dbcdece3d4c0ee756b05ab6ec99111ec89c4262#3dbcdece3d4c0ee756b05ab6ec99111ec89c4262"
+source = "git+https://github.com/Noelware/core-rs?rev=f190efd883e61f0b630a14a5e1cc20da648fb38a#f190efd883e61f0b630a14a5e1cc20da648fb38a"
 dependencies = [
  "serde",
  "tracing",
@@ -3938,9 +3915,9 @@ dependencies = [
 
 [[package]]
 name = "prometheus-client"
-version = "0.22.1"
+version = "0.22.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6f87c10af16e0af74010d2a123d202e8363c04db5acfa91d8747f64a8524da3a"
+checksum = "c1ca959da22a332509f2a73ae9e5f23f9dcfc31fd3a54d71f159495bd5909baa"
 dependencies = [
  "dtoa",
  "itoa",
@@ -4382,41 +4359,6 @@ dependencies = [
  "spki 0.7.3",
  "subtle",
  "zeroize",
-]
-
-[[package]]
-name = "rust-embed"
-version = "8.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fb78f46d0066053d16d4ca7b898e9343bc3530f71c61d5ad84cd404ada068745"
-dependencies = [
- "rust-embed-impl",
- "rust-embed-utils",
- "walkdir",
-]
-
-[[package]]
-name = "rust-embed-impl"
-version = "8.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b91ac2a3c6c0520a3fb3dd89321177c3c692937c4eb21893378219da10c44fc8"
-dependencies = [
- "proc-macro2",
- "quote",
- "rust-embed-utils",
- "syn 2.0.52",
- "walkdir",
-]
-
-[[package]]
-name = "rust-embed-utils"
-version = "8.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "86f69089032567ffff4eada41c573fc43ff466c7db7c5688b2e7969584345581"
-dependencies = [
- "mime_guess",
- "sha2",
- "walkdir",
 ]
 
 [[package]]
@@ -5036,34 +4978,6 @@ dependencies = [
  "num-traits",
  "thiserror",
  "time",
-]
-
-[[package]]
-name = "simple_tables"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a1248aa113774f3193c5ad090ee8a429005d32fcdb722f114dce7a74356cce4c"
-dependencies = [
- "simple_tables-core",
- "simple_tables-derive",
-]
-
-[[package]]
-name = "simple_tables-core"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e7d16173bdde70a696f9eaf1b49bb38f41ea7445c800ab46e6d8ac08c157551"
-
-[[package]]
-name = "simple_tables-derive"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "add2dda7ba63477aabd1ff151a8f570ebbea9c12444d07bf6ec1a7c5858bd0e7"
-dependencies = [
- "proc-macro2",
- "quote",
- "simple_tables-core",
- "syn 1.0.109",
 ]
 
 [[package]]
@@ -5820,18 +5734,6 @@ dependencies = [
  "pin-project-lite",
  "tracing-attributes",
  "tracing-core",
-]
-
-[[package]]
-name = "tracing-appender"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3566e8ce28cc0a3fe42519fc80e6b4c943cc4c8cef275620eb8dac2d3d4e06cf"
-dependencies = [
- "crossbeam-channel",
- "thiserror",
- "time",
- "tracing-subscriber",
 ]
 
 [[package]]

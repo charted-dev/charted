@@ -14,9 +14,9 @@
 // limitations under the License.
 
 use crate::{common::serde::Duration, TRUTHY_REGEX};
-use noelware_config::{env, merge::Merge, FromEnv};
+use noelware_config::{env, merge::Merge, TryFromEnv};
 use serde::{Deserialize, Serialize};
-use std::{ops::Deref, str::FromStr};
+use std::{borrow::Cow, ops::Deref};
 
 #[derive(Debug, Clone, Merge, Serialize, Deserialize)]
 pub struct Config {
@@ -92,41 +92,29 @@ impl Default for Config {
     }
 }
 
-impl FromEnv for Config {
+impl TryFromEnv for Config {
     type Output = Config;
+    type Error = eyre::Report;
 
-    fn from_env() -> Self::Output {
-        Config {
-            insecure_skip_tls_verify: env!("CHARTED_SESSION_LDAP_INSECURE_SKIP_TLS_VERIFY", {
-                or_else: false;
-                mapper: |val| TRUTHY_REGEX.is_match(&val);
-            }),
+    fn try_from_env() -> Result<Self::Output, Self::Error> {
+        Ok(Config {
+            insecure_skip_tls_verify: env!("CHARTED_SESSION_LDAP_INSECURE_SKIP_TLS_VERIFY", |val| TRUTHY_REGEX.is_match(&val); or false),
+            schedule_user_updates: env!("CHARTED_SESSION_LDAP_SCHEDULE_USER_UPDATES", |val| TRUTHY_REGEX.is_match(&val); or false),
+            schedule_new_users: env!("CHARTED_SESSION_LDAP_SCHEDULE_NEW_USERS", |val| TRUTHY_REGEX.is_match(&val); or true),
+            conn_timeout: crate::common::env("CHARTED_SESSION_LDAP_CONNECTION_TIMEOUT", __default_duration(), |err| {
+                Cow::Owned(err.to_string())
+            })?,
 
-            schedule_user_updates: env!("CHARTED_SESSION_LDAP_SCHEDULE_USER_UPDATES", {
-                or_else: false;
-                mapper: |val| TRUTHY_REGEX.is_match(&val);
-            }),
+            filter_query: crate::common::env_string("CHARTED_SESSION_LDAP_FILTER_QUERY", __default_filter_query())?,
+            attributes: Attributes::try_from_env()?,
+            starttls: env!("CHARTED_SESSION_LDAP_STARTTLS", |val| TRUTHY_REGEX.is_match(&val); or false),
+            bind_dn: crate::common::env_string(
+                "CHARTED_SESSION_LDAP_BIND_DN",
+                String::from("uid=%u,dc=domain,dc=com"),
+            )?,
 
-            schedule_new_users: env!("CHARTED_SESSION_LDAP_SCHEDULE_NEW_USERS", {
-                or_else: true;
-                mapper: |val| TRUTHY_REGEX.is_match(&val);
-            }),
-
-            conn_timeout: env!("CHARTED_SESSION_LDAP_CONNECTION_TIMEOUT", {
-                or_else: __default_duration();
-                mapper: |val| Duration::from_str(&val).expect("unable to parse `CHARTED_SESSION_LDAP_CONNECTION_TIMEOUT` as a valid duration");
-            }),
-
-            filter_query: env!("CHARTED_SESSION_LDAP_FILTER_QUERY", or_else: __default_filter_query()),
-            attributes: Attributes::from_env(),
-            starttls: env!("CHARTED_SESSION_LDAP_STARTTLS", {
-                or_else: false;
-                mapper: |val| TRUTHY_REGEX.is_match(&val);
-            }),
-
-            bind_dn: env!("CHARTED_SESSION_LDAP_FILTER_QUERY", or_else: String::from("uid=%u,dc=domain,dc=com")),
-            host: env!("CHARTED_SESSION_LDAP_SERVER", or_else: __default_ldap_server()),
-        }
+            host: crate::common::env_string("CHARTED_SESSION_LDAP_SERVER", __default_ldap_server())?,
+        })
     }
 }
 
@@ -161,15 +149,24 @@ impl Default for Attributes {
     }
 }
 
-impl FromEnv for Attributes {
+impl TryFromEnv for Attributes {
     type Output = Attributes;
+    type Error = eyre::Report;
 
-    fn from_env() -> Self::Output {
-        Attributes {
-            display_name: env!("CHARTED_SESSION_LDAP_ATTR_DISPLAY_NAME", or_else: __default_ldap_display_name_attribute()),
-            username: env!("CHARTED_SESSION_LDAP_ATTR_USERNAME", or_else: __default_ldap_username_attribute()),
-            email: env!("CHARTED_SESSION_LDAP_ATTR_EMAIL", or_else: __default_ldap_email_attribute()),
-        }
+    fn try_from_env() -> Result<Self::Output, Self::Error> {
+        Ok(Attributes {
+            display_name: crate::common::env_string(
+                "CHARTED_SESSION_LDAP_ATTR_DISPLAY_NAME",
+                __default_ldap_display_name_attribute(),
+            )?,
+
+            username: crate::common::env_string(
+                "CHARTED_SESSION_LDAP_ATTR_USERNAME",
+                __default_ldap_username_attribute(),
+            )?,
+
+            email: crate::common::env_string("CHARTED_SESSION_LDAP_ATTR_EMAIL", __default_ldap_email_attribute())?,
+        })
     }
 }
 

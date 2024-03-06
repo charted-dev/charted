@@ -21,6 +21,10 @@ edition = "2021"
 homepage = "https://charts.noelware.org"
 authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
+# `gc` feature is not implemented as of 02/03/24
+[package.metadata.cargo-machete]
+ignored = ["logos", "sentry", "tracing"]
+
 [dependencies]
 logos = "0.14.0"
 sentry = "0.32.2"

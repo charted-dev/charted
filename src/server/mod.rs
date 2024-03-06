@@ -13,9 +13,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub use charted_proc_macros::controller;
+use std::time::Duration;
 
-use crate::lazy;
+use axum::Router;
+use axum_server::{tls_rustls::RustlsConfig, Handle};
+pub use charted_proc_macros::controller;
+use eyre::Context;
+
+use crate::{
+    config::server::{self, ssl},
+    lazy, set_instance, Instance,
+};
 use argon2::{password_hash::SaltString, Algorithm, Argon2, Params, PasswordHasher, Version};
 use once_cell::sync::Lazy;
 use rand::rngs::OsRng;
@@ -43,4 +51,73 @@ pub fn hash_password<P: Into<String>>(password: P) -> eyre::Result<String> {
             error!(error = %e, "unable to compute password");
         })
         .map_err(|e| eyre!(e))
+}
+
+/// Starts the API server, this is the main code for the `charted server` command.
+pub async fn start(instance: Instance) -> eyre::Result<()> {
+    info!("starting API server");
+    set_instance(instance.clone());
+
+    let config = instance.config.server.clone();
+    let router: Router = self::routing::create_router(&instance).with_state(instance);
+
+    match config.ssl {
+        Some(ref ssl) => start_with_https(&config, ssl, &router).await,
+        None => start_without_https(&config, router).await,
+    }
+}
+
+async fn start_with_https(config: &server::Config, ssl: &ssl::Config, router: &Router) -> eyre::Result<()> {
+    info!("handling all TLS connections!");
+
+    let handle = Handle::new();
+    tokio::spawn(shutdown_signal(Some(handle.clone())));
+
+    let addr = config.addr();
+    let config = RustlsConfig::from_pem_file(&ssl.cert, &ssl.cert_key).await?;
+
+    info!(address = %addr, "now listening on HTTPS");
+    axum_server::bind_rustls(addr, config)
+        .handle(handle)
+        .serve(router.clone().into_make_service())
+        .await
+        .context("received unexpected error")
+}
+
+async fn start_without_https(config: &server::Config, router: Router) -> eyre::Result<()> {
+    let addr = config.addr();
+    let listener = tokio::net::TcpListener::bind(addr).await?;
+
+    info!(address = %addr, "listening on HTTP");
+    axum::serve(listener, router.into_make_service())
+        .with_graceful_shutdown(shutdown_signal(None))
+        .await
+        .context("received unexpected error")
+}
+
+async fn shutdown_signal(handle: Option<Handle>) {
+    let ctrl_c = async {
+        tokio::signal::ctrl_c().await.expect("unable to install CTRL+C handler");
+    };
+
+    #[cfg(unix)]
+    let terminate = async {
+        tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
+            .expect("unable to install signal handler")
+            .recv()
+            .await;
+    };
+
+    #[cfg(not(unix))]
+    let terminate = std::future::pending::<()>();
+
+    tokio::select! {
+        _ = ctrl_c => {}
+        _ = terminate => {}
+    }
+
+    warn!("received terminal signal! shutting down");
+    if let Some(handle) = handle {
+        handle.graceful_shutdown(Some(Duration::from_secs(10)));
+    }
 }

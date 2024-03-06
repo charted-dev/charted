@@ -130,6 +130,7 @@
           ++ (lib.optional stdenv.isDarwin [darwin.apple_sdk.frameworks.CoreFoundation]);
 
         buildInputs = with pkgs; [
+          cargo-machete
           cargo-expand
           cargo-deny
           sqlx-cli

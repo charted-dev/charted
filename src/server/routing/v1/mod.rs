@@ -68,6 +68,7 @@ pub fn create_router(instance: &Instance) -> Router<Instance> {
         .nest("/organizations", organization::create_router())
         .nest("/repositories", repository::create_router())
         .nest("/apikeys", apikey::create_router())
+        .nest("/admin", admin::create_router())
         .route("/openapi.json", routing::get(openapi::json))
         .route("/openapi.yaml", routing::get(openapi::yaml))
         .route("/heartbeat", routing::get(heartbeat::HeartbeatRestController::run))

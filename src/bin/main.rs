@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted::cli::{commands::Cmd, AsyncExecute, Program};
+use charted::cli::{commands::Cmd, Program};
 use clap::Parser;
 use color_eyre::config::HookBuilder;
 use eyre::Result;
@@ -30,8 +30,6 @@ static GLOBAL: MiMalloc = MiMalloc;
 //
 // Otherwise, this will be use Tokio's single thread schdeduler.
 fn main() -> Result<()> {
-    // skip errors since it couldn't be found or whatever, i don't really
-    // want to care about it
     let _ = dotenvy::dotenv();
 
     let program = Program::parse();
@@ -64,5 +62,5 @@ fn main() -> Result<()> {
         }
     };
 
-    runtime.block_on(async { program.command.execute().await })
+    runtime.block_on(charted::cli::commands::execute(program.command))
 }

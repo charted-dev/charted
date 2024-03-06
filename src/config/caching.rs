@@ -21,7 +21,7 @@ use noelware_config::{env, merge::Merge, TryFromEnv};
 use serde::{Deserialize, Serialize};
 use ubyte::ByteUnit;
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Strategy {
     /// Uses the internal in-memory cache worker. All objects that are put into the cache
@@ -84,7 +84,8 @@ impl TryFromEnv for Config {
 
     fn try_from_env() -> Result<Self::Output, Self::Error> {
         Ok(Config {
-            max_object_size: env!("CHARTED_CACHE_MAX_OBJECT_SIZE", to: ByteUnit, or_else: __one_megabyte()),
+            max_object_size: env!("CHARTED_CACHE_MAX_OBJECT_SIZE", as ByteUnit, or __one_megabyte())?,
+            ttl: env!("CHARTED_CACHE_TTL", |val| Duration::from_str(&val).ok(); or None),
             strategy: match env!("CHARTED_CACHE_STRATEGY") {
                 Ok(res) => match res.as_str() {
                     "inmemory" | "in-memory" => Strategy::InMemory,
@@ -98,10 +99,6 @@ impl TryFromEnv for Config {
                 Err(VarError::NotPresent) => Strategy::default(),
                 Err(_) => return Err(eyre!("received invalid UTF-8 content")),
             },
-            ttl: env!("CHARTED_CACHE_TIME_TO_LIVE", {
-                or_else: None;
-                mapper: |val| Duration::from_str(&val).ok();
-            }),
         })
     }
 }
@@ -125,4 +122,42 @@ impl Merge for Config {
 
 const fn __one_megabyte() -> ByteUnit {
     ByteUnit::Megabyte(1)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Config, Strategy};
+    use noelware_config::{expand_with, merge::Merge, TryFromEnv};
+    use ubyte::ToByteUnit;
+
+    #[test]
+    fn test_env_config() {
+        expand_with("CHARTED_CACHING_STRATEGY", "inmemory", || {
+            let config = Config::try_from_env();
+            assert!(config.is_ok());
+        });
+    }
+
+    #[test]
+    fn test_merge_config() {
+        expand_with("CHARTED_CACHING_STRATEGY", "inmemory", || {
+            let config = Config::try_from_env();
+            assert!(config.is_ok());
+
+            let mut config = config.unwrap();
+            config.merge(Config {
+                strategy: Strategy::Redis,
+                ..Default::default()
+            });
+
+            assert_eq!(config.strategy, Strategy::Redis);
+
+            config.merge(Config {
+                max_object_size: 512.kibibytes(),
+                ..Default::default()
+            });
+
+            assert_eq!(config.max_object_size, 512.kibibytes());
+        });
+    }
 }

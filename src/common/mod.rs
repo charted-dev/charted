@@ -24,3 +24,30 @@ pub mod models;
 pub mod os;
 pub mod serde;
 pub mod validators;
+
+use std::{borrow::Cow, env::VarError, str::FromStr};
+
+pub fn env<U: FromStr, S: Into<String>, F>(key: S, default: U, onfail: F) -> eyre::Result<U>
+where
+    F: FnOnce(<U as FromStr>::Err) -> Cow<'static, str>,
+{
+    let env = key.into();
+    match noelware_config::env!(&env) {
+        Ok(val) => match val.parse::<U>() {
+            Ok(val) => Ok(val),
+            Err(e) => Err(eyre!("failed to parse for env `{}`: {}", env, onfail(e))),
+        },
+
+        Err(VarError::NotPresent) => Ok(default),
+        Err(VarError::NotUnicode(_)) => Err(eyre!("received invalid unicode data for `{}` env", env)),
+    }
+}
+
+pub fn env_string<S: Into<String>>(key: S, default: String) -> eyre::Result<String> {
+    let env = key.into();
+    match noelware_config::env!(&env) {
+        Ok(val) => Ok(val),
+        Err(VarError::NotPresent) => Ok(default),
+        Err(VarError::NotUnicode(_)) => Err(eyre!("received invalid unicode for `{env}` env")),
+    }
+}
