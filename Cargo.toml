@@ -44,7 +44,7 @@ rust-version = "1.73"
 
 [workspace.dependencies]
 async-trait = "0.1.77"
-chrono = { version = "0.4.34", features = ["serde"] }
+chrono = { version = "0.4.35", features = ["serde"] }
 clap = { version = "4.5.1", features = ["derive", "env"] }
 cli-table = "0.4.7"
 clap_complete = "4.5.1"
