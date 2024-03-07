@@ -13,12 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::{env::VarError, str::FromStr};
-
 use crate::common::serde::Duration;
 use eyre::Report;
 use noelware_config::{env, merge::Merge, TryFromEnv};
 use serde::{Deserialize, Serialize};
+use std::{borrow::Cow, env::VarError, str::FromStr};
 use ubyte::ByteUnit;
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -84,7 +83,10 @@ impl TryFromEnv for Config {
 
     fn try_from_env() -> Result<Self::Output, Self::Error> {
         Ok(Config {
-            max_object_size: env!("CHARTED_CACHE_MAX_OBJECT_SIZE", as ByteUnit, or __one_megabyte())?,
+            max_object_size: crate::common::env("CHARTED_CACHE_MAX_OBJECT_SIZE", __one_megabyte(), |err| {
+                Cow::Owned(err.to_string())
+            })?,
+
             ttl: env!("CHARTED_CACHE_TTL", |val| Duration::from_str(&val).ok(); or None),
             strategy: match env!("CHARTED_CACHE_STRATEGY") {
                 Ok(res) => match res.as_str() {

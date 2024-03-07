@@ -13,20 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::time::Duration;
-
+use crate::{
+    config::server::{self, ssl},
+    lazy, Instance,
+};
+use argon2::{password_hash::SaltString, Algorithm, Argon2, Params, PasswordHasher, Version};
 use axum::Router;
 use axum_server::{tls_rustls::RustlsConfig, Handle};
 pub use charted_proc_macros::controller;
 use eyre::Context;
-
-use crate::{
-    config::server::{self, ssl},
-    lazy, set_instance, Instance,
-};
-use argon2::{password_hash::SaltString, Algorithm, Argon2, Params, PasswordHasher, Version};
 use once_cell::sync::Lazy;
 use rand::rngs::OsRng;
+use std::time::Duration;
 
 pub mod extract;
 pub mod middleware;
@@ -56,7 +54,6 @@ pub fn hash_password<P: Into<String>>(password: P) -> eyre::Result<String> {
 /// Starts the API server, this is the main code for the `charted server` command.
 pub async fn start(instance: Instance) -> eyre::Result<()> {
     info!("starting API server");
-    set_instance(instance.clone());
 
     let config = instance.config.server.clone();
     let router: Router = self::routing::create_router(&instance).with_state(instance);

@@ -63,6 +63,10 @@
         cargo = rust;
         rustc = rust;
       };
+
+      hashes = {
+        "noelware-config" = "sha256-wSBYHva/VbU0F++2XBUrg1Onhatq46gjksDyv1aMaeM=";
+      };
     in rec {
       packages = {
         charted = rustPlatform.buildRustPackage {
@@ -77,7 +81,7 @@
           cargoLock = {
             lockFile = ./Cargo.lock;
             outputHashes = {
-              "noelware-config-0.1.0" = "sha256-VEKhm9n9YGhkuofbvD3qUDhy57qAKQtSWu2kANegFXE=";
+              "noelware-config-0.1.0" = hashes."noelware-config";
             };
           };
 
@@ -98,11 +102,12 @@
           name = "charted-helm-plugin";
           src = ./.;
 
-          cargoBuildFlags = ["--bin" "charted-helm-plugin"];
+          env.PROTOC = pkgs.lib.getExe pkgs.protobuf;
+          cargoBuildFlags = ["--package" "charted-helm-plugin"];
           cargoLock = {
             lockFile = ./Cargo.lock;
             outputHashes = {
-              "noelware-config-0.1.0" = "sha256-VEKhm9n9YGhkuofbvD3qUDhy57qAKQtSWu2kANegFXE=";
+              "noelware-config-0.1.0" = hashes."noelware-config";
             };
           };
 
