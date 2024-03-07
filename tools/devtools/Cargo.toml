@@ -28,11 +28,10 @@ authors.workspace = true
 [dependencies]
 async-trait.workspace = true
 bollard = "0.16.0"
-cargo_toml = "0.19.2"
+
 # this is fine since the root crate doesn't depend on `charted-devtools`
 charted = { path = "../..", version = "0.1.0-beta" }
 clap.workspace = true
-clap_complete.workspace = true
 color-eyre.workspace = true
 eyre.workspace = true
 itertools = "0.12.1"

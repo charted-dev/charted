@@ -208,11 +208,12 @@ which.workspace = true
 
 [package.metadata.cargo-machete]
 ignored = [
-    "md-5",        # md-5 is actually used but it is under the `md5` module.
-    "openssl",     # this is mainly for releases since we have `--features=vendored`, which will vender OpenSSL
-    "prost",       # Prost is used when we send messages to charted-emails, but as of 02/03/24, it is not implemented
-    "prost-types", # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    "tracing-log", # We enable the `log` feature to get logs from crates that use the `log` library, but we don't ever use it
+    "md-5",                  # md-5 is actually used but it is under the `md5` module.
+    "openssl",               # this is mainly for releases since we have `--features=vendored`, which will vender OpenSSL
+    "prost",                 # Prost is used when we send messages to charted-emails, but as of 02/03/24, it is not implemented
+    "prost-types",           # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    "tracing-log",           # We enable the `log` feature to get logs from crates that use the `log` library, but we don't ever use it
+    "tracing-opentelemetry", # we plan to have logs and traces be reported to any OpenTelemetry-supported protocol, not implemented yet
 ]
 
 [profile.release]
