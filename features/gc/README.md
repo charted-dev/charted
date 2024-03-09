@@ -21,7 +21,7 @@ cron = "@daily" # runs at 00:00 - this is the base cron schedule, it'll be the d
 
 # Specify a constraint that the garbage collector will use to determine
 # how a entity should be garbage collected.
-[[features.constraint]]
+[[features.gc.constraint]]
 entity = "Repository"
 constraint = "updated_at >= 30d"
 description = "Delete all repositories that haven't been updated in 30 days"

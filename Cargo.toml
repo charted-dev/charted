@@ -18,6 +18,7 @@ resolver = "2"
 members = [
     "features/gc",
     "features/oci",
+    "features",
     "proc-macros",
     "tools/devtools",
     "tools/helm-plugin",
@@ -40,7 +41,7 @@ homepage = "https://charts.noelware.org"
 license = "Apache-2.0"
 publish = false
 repository = "https://github.com/charted-dev/charted"
-rust-version = "1.73"
+rust-version = "1.76"
 
 [workspace.dependencies]
 async-trait = "0.1.79"

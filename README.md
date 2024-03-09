@@ -4,7 +4,7 @@
 >
 > [<kbd>v0.1-beta</kbd>](https://github.com/charted-dev/charted/releases/0.1.0-beta) **|** [:scroll: **Documentation**](#)
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=469212491&machine=standardLinux32gb&devcontainer_path=.devcontainer%2Fdevcontainer.json&location=WestUs2)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=469212491&machine=basicLinux32gb&devcontainer_path=.devcontainer%2Fdevcontainer.json&location=WestUs2&skip_quickstart=true&geo=UsWest)
 
 **charted-server** is a free and open platform to help you host, test, and build efficient Helm charts that allow you to use Helm efficiently in a single-user or multi-organization instance.
 
@@ -65,6 +65,10 @@ Yes! To do so, you can use the following commands:
 -   [charted Helm plugin](https://charts.noelware.org/docs/helm-plugin/latest): `cargo install https://github.com/charted-dev/charted charted-helm-plugin`
 
 We don't recommend installing `charted-devtools` as it is an internal tool.
+
+### :question: Can I use `cargo install` from [crates.io](https://crates.io)?
+
+At the moment, no you can't since we use Git dependencies to pull from [`Noelware/core-rs`](https://github.com/Noelware/core-rs).
 
 ## License
 

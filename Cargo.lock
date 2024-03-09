@@ -1244,9 +1244,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "charted-features"
+version = "0.0.0-devel.0"
+
+[[package]]
 name = "charted-features-gc"
 version = "0.0.0-devel.0"
 dependencies = [
+ "charted-features",
  "logos",
  "sentry",
  "tracing",

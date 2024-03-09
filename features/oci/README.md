@@ -17,6 +17,6 @@ Not exactly. It would allow tools to ingest Helm charts from charted-server from
 You can use the `[[features.oci]]` TOML table:
 
 ```toml
-[[features.oci]]
+[features.oci]
 allow_docker_images = false # allows uploading docker images
 ```
