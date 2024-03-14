@@ -14,6 +14,7 @@
 # limitations under the License.
 
 # we only support the following targets below
+[graph]
 all-features = true
 targets = [
     { triple = "x86_64-unknown-linux-gnu" },
@@ -25,10 +26,12 @@ targets = [
 ]
 
 [advisories]
-vulnerability = "deny"
-unmaintained = "deny"
-unsound = "deny"
-notice = "warn"
+# We use version 2 of the advisory config, which
+# roughly defaults to denying any vulnerable,
+# unmaintained, or unsound crates.
+#
+# See also: https://github.com/EmbarkStudios/cargo-deny/pull/611
+version = 2
 
 [bans]
 multiple-versions = "warn" # only warn since `tonic` doesn't support Axum 0.7 / Hyper 1
@@ -39,9 +42,8 @@ unknown-registry = "deny"
 unknown-git = "allow"     # only for Noelware/core-rs
 
 [licenses]
-unlicensed = "deny"
-allow-osi-fsf-free = "neither"
-copyleft = "deny"
+# Similar to advisories, opt in to version 2.
+version = 2
 # We want really high confidence when inferring licenses from text
 confidence-threshold = 0.93
 allow = [
