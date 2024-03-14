@@ -48,7 +48,7 @@ chrono = { version = "0.4.35", features = ["serde"] }
 clap = { version = "4.5.2", features = ["derive", "env"] }
 cli-table = "0.4.7"
 clap_complete = "4.5.1"
-color-eyre = { version = "0.6.2", features = ["issue-url", "tracing-error"] }
+color-eyre = { version = "0.6.3", features = ["issue-url", "tracing-error"] }
 dotenvy = "0.15.7"
 eyre = "0.6.12"
 owo-colors = { version = "4.0.0", features = ["supports-color"] }
