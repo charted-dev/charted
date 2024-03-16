@@ -121,7 +121,7 @@ prometheus-client = "0.22.2"
 prost = "0.12.3"
 prost-types = "0.12.3"
 rand = "0.8.5"
-redis = { version = "0.25.1", features = [
+redis = { version = "0.25.2", features = [
     "sentinel",
     "tokio-comp",
     "connection-manager",
