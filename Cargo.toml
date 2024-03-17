@@ -78,7 +78,7 @@ publish.workspace = true
 
 [dependencies]
 argon2 = "0.5.3"
-async-recursion = "1.0.5"
+async-recursion = "1.1.0"
 async-trait = "0.1.78"
 aws-sdk-s3 = "1.19.1"
 axum = { version = "0.7.4", features = ["macros", "http2"] }
