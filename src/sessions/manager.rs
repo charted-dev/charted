@@ -215,7 +215,7 @@ impl Manager {
             .redis
             .client()
             .unwrap_or(self.redis.replica()?)
-            .get_async_connection()
+            .get_multiplexed_async_connection()
             .await?;
 
         let all: HashMap<String, String> = redis::cmd("HGETALL")

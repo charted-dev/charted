@@ -39,7 +39,7 @@ impl<'a, Target: Serialize + DeserializeOwned + Send + Sync + 'a> CacheWorker<Ta
     async fn get(&mut self, key: CacheKey) -> eyre::Result<Option<Target>> {
         let key = key.as_redis_key();
         let client = self.client.replica()?;
-        let mut conn = client.get_async_connection().await?;
+        let mut conn = client.get_multiplexed_async_connection().await?;
 
         match conn.get::<_, Option<String>>(&key).await {
             Ok(Some(data)) => {
@@ -82,7 +82,7 @@ impl<'a, Target: Serialize + DeserializeOwned + Send + Sync + 'a> CacheWorker<Ta
     async fn delete(&mut self, key: CacheKey) -> eyre::Result<()> {
         let key = key.as_redis_key();
         let client = self.client.master()?;
-        let mut conn = client.get_async_connection().await?;
+        let mut conn = client.get_multiplexed_async_connection().await?;
 
         if !conn.exists(&key).await? {
             return Ok(());
@@ -95,7 +95,7 @@ impl<'a, Target: Serialize + DeserializeOwned + Send + Sync + 'a> CacheWorker<Ta
     async fn exists(&mut self, key: &CacheKey) -> eyre::Result<bool> {
         let key = key.clone().as_redis_key();
         let client = self.client.master()?;
-        let mut conn = client.get_async_connection().await?;
+        let mut conn = client.get_multiplexed_async_connection().await?;
 
         conn.exists(&key).await.map_err(eyre::Report::from)
     }
