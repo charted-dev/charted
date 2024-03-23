@@ -55,7 +55,7 @@ owo-colors = { version = "4.0.0", features = ["supports-color"] }
 semver = { version = "1.0.22", features = ["serde"] }
 serde = { version = "1.0.197", features = ["derive"] }
 serde_json = "1.0.114"
-which = "6.0.0"
+which = "6.0.1"
 
 [workspace.dependencies.noelware-config]
 version = "0.1.0"
