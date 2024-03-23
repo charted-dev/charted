@@ -27,7 +27,7 @@ authors.workspace = true
 
 [dependencies]
 async-trait.workspace = true
-bollard = "0.16.0"
+bollard = "0.16.1"
 
 # this is fine since the root crate doesn't depend on `charted-devtools`
 charted = { path = "../..", version = "0.1.0-beta" }
