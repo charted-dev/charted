@@ -51,7 +51,7 @@ owo-colors.workspace = true
 reqwest = { version = "0.12.1", features = ["gzip"] }
 semver.workspace = true
 serde.workspace = true
-serde_yaml = "0.9.33"
+serde_yaml = "0.9.34+deprecated"
 similar = { version = "2.4.0", features = ["inline"] }
 tokio = { version = "1.36.0", features = ["rt", "macros", "io-util", "fs"] }
 tracing = "0.1.40"

@@ -175,7 +175,7 @@ utoipa = { version = "4.2.0", features = ["uuid"] }
 uuid = { version = "1.8.0", features = ["serde", "v4"] }
 validator = { version = "0.16.1", features = ["derive"] }
 toml = "0.8.12"
-serde_yaml = "0.9.33"
+serde_yaml = "0.9.34+deprecated"
 
 [dependencies.noelware-log]
 version = "0.1.0"
