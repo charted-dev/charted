@@ -1774,19 +1774,8 @@
                         "nullable": true
                     },
                     "expires_in": { "allOf": [{ "$ref": "#/components/schemas/DateTime" }], "nullable": true },
-                    "id": {
-                        "type": "integer",
-                        "format": "int64",
-                        "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
-                        "minLength": 15
-                    },
-                    "name": {
-                        "type": "string",
-                        "description": "A valid UTF-8 string that is used to identify a resource from the REST API in a humane fashion. This is meant to help identify a resource without trying to calculate the resource's Snowflake on the first try.",
-                        "maxLength": 32,
-                        "minLength": 1,
-                        "pattern": "([A-z]|-|_|\\d{0,9}){1,32}"
-                    },
+                    "id": { "$ref": "#/components/schemas/Snowflake" },
+                    "name": { "$ref": "#/components/schemas/Name" },
                     "scopes": {
                         "type": "integer",
                         "format": "int64",
@@ -1795,6 +1784,7 @@
                     "token": {
                         "type": "string",
                         "description": "The token itself. This is never revealed when querying, but only revealed\nwhen you create the token.",
+                        "readOnly": true,
                         "nullable": true
                     },
                     "updated_at": { "$ref": "#/components/schemas/DateTime" }
@@ -1805,13 +1795,13 @@
                     {
                         "type": "number",
                         "format": "int64",
-                        "description": "Represents a scope that is represented as an unsigned 64-bit integer, each scope can be in the range of 1..4503599627370496",
+                        "description": "Represents the raw unsigned 64bit integer that this scope represents as far the API server is aware of. Scopes can be in a range of 1..4503599627370496 and can't exceed or go below over it",
                         "maximum": 4503599627370496,
                         "minimum": 1
                     },
                     {
                         "type": "string",
-                        "description": "represents a named version of a scope which is represented as 'entity:operation', i.e, `apikey:list` will allow you to list all API keys",
+                        "description": "Represents a named, human-readable version of the scope that is always represented as 'entity:operation', i.e, `apikey:list` will allow the API key to list all API keys",
                         "enum": [
                             "user:access",
                             "user:update",
@@ -1869,7 +1859,7 @@
                         ]
                     }
                 ],
-                "description": "Represents what a single API key scope can represent, this will always represent unsigned 64-bit integers in the API server itself"
+                "description": "Describes a role-based enumeration of what a API key can do. This can be represented as an unsigned 64bit integer or a string that represents what scope it functions as"
             },
             "Chart": {
                 "type": "object",
@@ -1878,7 +1868,7 @@
                 "properties": {
                     "annotations": {
                         "type": "object",
-                        "description": "Mapping of custom metadata that can be used for custom attributes.\n\n### standardized for charted-server\n* `charts.noelware.org/maintainers` ~ a comma-delimited list of all the maintainers\nthat are mapped by their `Name` or snowflake ID",
+                        "description": "Mapping of custom metadata that can be used for custom attributes. Some attributes\nare regconized for [`Hoshi`] to understand some elements that can be represented\nin the UI:\n\n* `charts.noelware.org/maintainers` ~ a YAML sequence of available maintainers, must be prefixed\nwith `user:` for a user and `org:` for an organization that maintains the Helm chart.\n\n```yaml\nannotations:\ncharts.noelware.org/maintainers: |-\n- user:noel\n- org:noelware\n```\n\n* `charts.noelware.org/images` ~ YAML sequence of the Docker images that the chart will install. This\nis used in Hoshi to allow to go to the registry that owns the Docker image.\n\n```yaml\ncharts.noelware.org/images: |-\n# maps to `hub.docker.com/r/charted/server`\n- charted/server:latest\n\n# maps to `docker.elastic.co`\n- docker.elastic.co/elasticsearch/elasticsearch\n```\n\n[`Hoshi`]: https://charts.noelware.org/docs/hoshi/latest",
                         "additionalProperties": { "type": "string" }
                     },
                     "apiVersion": { "$ref": "#/components/schemas/ChartSpecVersion" },
@@ -1968,28 +1958,22 @@
             },
             "ChartIndex": {
                 "type": "object",
-                "description": "Schema skeleton for a `index.yml` file that represents a Chart index.",
-                "required": ["api_version", "generated_at"],
+                "description": "Schema skeleton for a `index.yaml` file, that represents a [`Chart`] index.",
+                "required": ["apiVersion", "generatedAt", "entries"],
                 "properties": {
-                    "api_version": {
+                    "apiVersion": {
                         "type": "string",
-                        "description": "API version for the `index.yaml` file. Will be a constant as `v1`."
+                        "description": "API version for the schema itself, will always be `v1`."
                     },
                     "entries": {
                         "type": "object",
-                        "description": "List of all possible entries for this user/organization.",
+                        "description": "Map of [`ChartIndexSpec`]s for the Helm charts that Helm uses to install a Helm chart.",
                         "additionalProperties": {
                             "type": "array",
-                            "items": { "$ref": "#/components/schemas/ChartIndexSpec" },
-                            "description": "Index contents of a repository",
-                            "uniqueItems": true
+                            "items": { "$ref": "#/components/schemas/ChartIndexSpec" }
                         }
                     },
-                    "generated_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "DateTime of when this `index.yaml` was last generated. In charted-server, this is relative on when a new chart release was last published."
-                    }
+                    "generatedAt": { "$ref": "#/components/schemas/DateTime" }
                 }
             },
             "ChartIndexSpec": {
@@ -2019,14 +2003,12 @@
             },
             "ChartSpecVersion": {
                 "type": "string",
-                "description": "The apiVersion field should be v2 for Helm charts that require at least Helm 3. Charts supporting previous Helm versions have an apiVersion set to v1 and are still installable by Helm 3.",
-                "default": "v2",
+                "description": "The apiVersion field should be v2 for Helm charts that require at least Helm 3. Charts supporting previous\nHelm versions have an apiVersion set to v1 and are still installable by Helm 3.",
                 "enum": ["v1", "v2"]
             },
             "ChartType": {
                 "type": "string",
-                "description": "Represents what type this chart is. Do keep in mind that `operator` is not supported by Helm, but is specific to the API server. For serializing to valid Helm objects, `application` will be the replacement.",
-                "default": "application",
+                "description": "Represents what type this chart is. Do note that [`ChartType::Operator`] is not supported\nby Helm, but specific to the API server, this will be switched to [`ChartType::Application`]\nwhen serializing to valid Helm objects",
                 "enum": ["application", "library", "operator"]
             },
             "CreateApiKeyPayload": {
@@ -2155,6 +2137,7 @@
                     "MISSING_CONTENT_TYPE",
                     "WRONG_PARAMETERS",
                     "PARSING_FAILED_IN_PATH_PARAM",
+                    "PARSING_QUERY_PARAMS_FAILED",
                     "INVALID_JWT_CLAIM",
                     "MISSING_AUTHORIZATION_HEADER",
                     "INVALID_PASSWORD",
@@ -2287,12 +2270,7 @@
                         "description": "Display name for this member. This should be formatted as '[{display_name}][Member::display_name] (@[{username}][User::username])' if this\nis set, otherwise '@[{username}][User::username]' is used.",
                         "nullable": true
                     },
-                    "id": {
-                        "type": "integer",
-                        "format": "int64",
-                        "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
-                        "minLength": 15
-                    },
+                    "id": { "$ref": "#/components/schemas/Snowflake" },
                     "joined_at": { "$ref": "#/components/schemas/DateTime" },
                     "permissions": {
                         "type": "integer",
@@ -2301,7 +2279,7 @@
                         "minimum": 0
                     },
                     "updated_at": { "$ref": "#/components/schemas/DateTime" },
-                    "user": { "$ref": "#/components/schemas/User" }
+                    "user": { "$ref": "#/components/schemas/Snowflake" }
                 }
             },
             "Name": {
@@ -2312,21 +2290,7 @@
                 "pattern": "([A-z]|-|_|\\d{0,9}){1,32}"
             },
             "NameOrSnowflake": {
-                "oneOf": [
-                    {
-                        "type": "integer",
-                        "format": "int64",
-                        "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
-                        "minLength": 15
-                    },
-                    {
-                        "type": "string",
-                        "description": "A valid UTF-8 string that is used to identify a resource from the REST API in a humane fashion. This is meant to help identify a resource without trying to calculate the resource's Snowflake on the first try.",
-                        "maxLength": 32,
-                        "minLength": 1,
-                        "pattern": "([A-z]|-|_|\\d{0,9}){1,32}"
-                    }
-                ],
+                "oneOf": [{ "$ref": "#/components/schemas/Snowflake" }, { "$ref": "#/components/schemas/Name" }],
                 "description": "Represents a union enum that can hold a Snowflake and a Name, which is a String that is validated with the Name regex."
             },
             "OrderBy": {
@@ -2355,19 +2319,9 @@
                         "description": "Unique hash to locate an organization's icon, this also includes the extension that this icon is, i.e, `png`.",
                         "nullable": true
                     },
-                    "id": {
-                        "type": "integer",
-                        "format": "int64",
-                        "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
-                        "minLength": 15
-                    },
+                    "id": { "$ref": "#/components/schemas/Snowflake" },
                     "name": { "$ref": "#/components/schemas/Name" },
-                    "owner": {
-                        "type": "integer",
-                        "format": "int64",
-                        "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
-                        "minLength": 15
-                    },
+                    "owner": { "$ref": "#/components/schemas/Snowflake" },
                     "private": {
                         "type": "boolean",
                         "description": "Whether this organization is private and only its member can access this resource."
@@ -2380,7 +2334,8 @@
                     "updated_at": { "$ref": "#/components/schemas/DateTime" },
                     "verified_publisher": {
                         "type": "boolean",
-                        "description": "Whether if this Organization is a Verified Publisher or not."
+                        "description": "Whether if this Organization is a Verified Publisher or not.",
+                        "readOnly": true
                     }
                 }
             },
@@ -2511,7 +2466,7 @@
             "PatchUserPayload": {
                 "type": "object",
                 "description": "Payload for patching your user metadata.",
-                "required": ["username", "password"],
+                "required": ["password"],
                 "properties": {
                     "description": {
                         "type": "string",
@@ -2524,9 +2479,9 @@
                         "description": "Optional field to update this user's gravatar email. If this user doesn't\nhave an avatar that is used or prefers not to use their previously uploaded\navatars and they set their Gravatar email, their Gravatar will be used.",
                         "nullable": true
                     },
-                    "name": { "type": "string", "description": "Updates this user's display name.", "nullable": true },
+                    "name": { "allOf": [{ "$ref": "#/components/schemas/Name" }], "nullable": true },
                     "password": { "$ref": "#/components/schemas/password" },
-                    "username": { "allOf": [{ "$ref": "#/components/schemas/Name" }], "nullable": true }
+                    "username": { "$ref": "#/components/schemas/Name" }
                 }
             },
             "Repository": {
@@ -2534,12 +2489,7 @@
                 "required": ["created_at", "updated_at", "owner", "name", "type", "id"],
                 "properties": {
                     "created_at": { "$ref": "#/components/schemas/DateTime" },
-                    "creator": {
-                        "type": "integer",
-                        "format": "int64",
-                        "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
-                        "minLength": 15
-                    },
+                    "creator": { "$ref": "#/components/schemas/Snowflake" },
                     "deprecated": {
                         "type": "boolean",
                         "description": "Whether if this repository is deprecated or not"
@@ -2554,19 +2504,9 @@
                         "description": "Unique hash to locate a repository's icon, this also includes the extension that this avatar is, i.e, `png`.",
                         "nullable": true
                     },
-                    "id": {
-                        "type": "integer",
-                        "format": "int64",
-                        "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
-                        "minLength": 15
-                    },
+                    "id": { "$ref": "#/components/schemas/Snowflake" },
                     "name": { "$ref": "#/components/schemas/Name" },
-                    "owner": {
-                        "type": "integer",
-                        "format": "int64",
-                        "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
-                        "minLength": 15
-                    },
+                    "owner": { "$ref": "#/components/schemas/Snowflake" },
                     "private": { "type": "boolean", "description": "Whether if this repository is private or not" },
                     "type": { "$ref": "#/components/schemas/ChartType" },
                     "updated_at": { "$ref": "#/components/schemas/DateTime" }
@@ -2578,22 +2518,12 @@
                 "required": ["repository", "created_at", "updated_at", "tag", "id"],
                 "properties": {
                     "created_at": { "$ref": "#/components/schemas/DateTime" },
-                    "id": {
-                        "type": "integer",
-                        "format": "int64",
-                        "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
-                        "minLength": 15
-                    },
+                    "id": { "$ref": "#/components/schemas/Snowflake" },
                     "is_prerelease": {
                         "type": "boolean",
                         "description": "Whether if this release is a pre-release or not."
                     },
-                    "repository": {
-                        "type": "integer",
-                        "format": "int64",
-                        "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
-                        "minLength": 15
-                    },
+                    "repository": { "$ref": "#/components/schemas/Snowflake" },
                     "tag": { "$ref": "#/components/schemas/Version" },
                     "update_text": {
                         "type": "string",
@@ -2641,12 +2571,13 @@
             },
             "User": {
                 "type": "object",
-                "description": "Represents an account that can own [repositories][Repository] and [organizations][Organizations]",
+                "description": "Represents an account that can own [repositories][Repository] and [organizations][Organization]",
                 "required": ["created_at", "updated_at", "username", "id"],
                 "properties": {
                     "admin": {
                         "type": "boolean",
-                        "description": "Whether if this User is an Administrator of this instance"
+                        "description": "Whether if this User is an Administrator of this instance",
+                        "readOnly": true
                     },
                     "avatar_hash": {
                         "type": "string",
@@ -2664,24 +2595,18 @@
                         "description": "Valid email address that points to a Gravatar avatar, or `null` if it shouldn't use one as the primary avatar",
                         "nullable": true
                     },
-                    "id": {
-                        "type": "integer",
-                        "format": "int64",
-                        "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
-                        "minLength": 15
-                    },
+                    "id": { "$ref": "#/components/schemas/Snowflake" },
                     "name": {
                         "type": "string",
-                        "description": "A valid UTF-8 string that is used to identify a resource from the REST API in a humane fashion. This is meant to help identify a resource without trying to calculate the resource's Snowflake on the first try.",
-                        "maxLength": 32,
-                        "minLength": 1,
-                        "pattern": "([A-z]|-|_|\\d{0,9}){1,32}"
+                        "description": "Display name for this user, it should be displayed as '{name} (@{username})' or just '@{username}' if there is no display name",
+                        "nullable": true
                     },
                     "updated_at": { "$ref": "#/components/schemas/DateTime" },
                     "username": { "$ref": "#/components/schemas/Name" },
                     "verified_publisher": {
                         "type": "boolean",
-                        "description": "Whether if this User is a Verified Publisher or not."
+                        "description": "Whether if this User is a Verified Publisher or not.",
+                        "readOnly": true
                     }
                 }
             },
@@ -2701,12 +2626,7 @@
                         "description": "Account ID that was sourced from Google OAuth2",
                         "nullable": true
                     },
-                    "id": {
-                        "type": "integer",
-                        "format": "int64",
-                        "description": "Unique identifier for a resource. Based off the [Twitter Snowflake](https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake) spec.",
-                        "minLength": 15
-                    },
+                    "id": { "$ref": "#/components/schemas/Snowflake" },
                     "noelware_account_id": {
                         "type": "integer",
                         "format": "int64",
