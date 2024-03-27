@@ -46,7 +46,7 @@ repository = "https://github.com/charted-dev/charted"
 rust-version = "1.76"
 
 [workspace.dependencies]
-axum = { version = "0.7.4", features = ["macros", "http2"] }
+axum = { version = "0.7.5", features = ["macros", "http2"] }
 async-trait = "0.1.79"
 base64 = "0.22.0"
 chrono = { version = "0.4.35", features = ["serde"] }
