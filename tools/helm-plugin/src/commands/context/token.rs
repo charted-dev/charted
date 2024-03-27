@@ -14,7 +14,6 @@
 // limitations under the License.
 
 use crate::auth::{Auth, Context, Type};
-use charted::cli::Execute;
 use clap::Parser;
 use eyre::{ContextCompat, Report};
 use noelware_config::env;
@@ -40,46 +39,43 @@ pub struct Cmd {
     auth: Option<PathBuf>,
 }
 
-impl Execute for Cmd {
-    fn execute(&self) -> eyre::Result<()> {
-        let auth = Auth::load(self.auth.clone())?;
-        let context = self.context.as_ref().map(Context::new).unwrap_or(auth.current);
-        let info = auth
-            .contexts
-            .get(&context)
-            .wrap_err_with(|| format!("context `{context}` doesn't exist"))?;
+pub async fn run(cmd: Cmd) -> eyre::Result<()> {
+    let auth = Auth::load(cmd.auth.as_ref())?;
+    let context = cmd.context.map(Context::new).unwrap_or(auth.current);
+    let info = auth
+        .contexts
+        .get(&context)
+        .wrap_err_with(|| format!("context `{context}` doesn't exist"))?;
 
-        if let Type::None = info.auth {
-            warn!("context `{context}` doesn't have a token available");
-            return Ok(());
-        }
+    if let Type::None = info.auth {
+        return Ok(());
+    }
 
-        match info.auth {
-            Type::EnvironmentVariable { ref kind, ref env } => match env!(env) {
-                Ok(val) => {
-                    eprintln!("Authorization: {kind} {val}");
-                    Ok(())
-                }
-
-                Err(std::env::VarError::NotPresent) => {
-                    warn!("cannot print env var {env} as it doesn't exist");
-                    Ok(())
-                }
-
-                Err(e) => Err(Report::from(e)),
-            },
-
-            Type::ApiKey(ref key) => {
-                eprintln!("Authorization: ApiKey {key}");
+    match info.auth {
+        Type::EnvironmentVariable { ref kind, ref env } => match env!(env) {
+            Ok(val) => {
+                eprintln!("Authorization: {kind} {val}");
                 Ok(())
             }
 
-            Type::Session { ref access, .. } => {
-                eprintln!("Authorization: Bearer {access}");
+            Err(std::env::VarError::NotPresent) => {
+                warn!("cannot print environment variable [${env}] as it doesn't exist");
                 Ok(())
             }
 
-            _ => unreachable!(),
+            Err(e) => Err(Report::from(e)),
+        },
+
+        Type::ApiKey(ref key) => {
+            eprintln!("Authorization: ApiKey {key}");
+            Ok(())
         }
+
+        Type::Session { ref access, .. } => {
+            eprintln!("Authorization: Bearer {access}");
+            Ok(())
+        }
+
+        _ => unreachable!(),
     }
 }

@@ -135,10 +135,13 @@
           ++ (lib.optional stdenv.isDarwin [darwin.apple_sdk.frameworks.CoreFoundation]);
 
         buildInputs = with pkgs; [
+          cargo-llvm-lines
+          cargo-nextest
           cargo-machete
           cargo-expand
           cargo-deny
           sqlx-cli
+
           openssl
           glibc
           rust

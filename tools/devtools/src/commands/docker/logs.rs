@@ -14,7 +14,6 @@
 // limitations under the License.
 
 use crate::utils;
-use charted::cli::Execute;
 use eyre::eyre;
 use std::{
     env::current_dir,
@@ -31,29 +30,27 @@ pub struct Cmd {
     docker: Option<PathBuf>,
 }
 
-impl Execute for Cmd {
-    fn execute(&self) -> eyre::Result<()> {
-        let dir = current_dir()?;
-        let docker =
-            utils::find_binary(self.docker.clone(), "docker").ok_or_else(|| eyre!("unable to find `docker` binary"))?;
+pub fn run(command: Cmd) -> eyre::Result<()> {
+    let dir = current_dir()?;
+    let docker =
+        utils::find_binary(command.docker.clone(), "docker").ok_or_else(|| eyre!("unable to find `docker` binary"))?;
 
-        let compose_project = dir.join(".cache/docker-compose.yml");
-        if !compose_project.try_exists()? {
-            error!(
-                project = %compose_project.display(),
-                "unable to locate docker compose project! did you run `./dev docker up`?"
-            );
+    let compose_project = dir.join(".cache/docker-compose.yml");
+    if !compose_project.try_exists()? {
+        error!(
+            project = %compose_project.display(),
+            "unable to locate docker compose project! did you run `./dev docker up`?"
+        );
 
-            exit(1);
-        }
-
-        utils::cmd(docker, |cmd| {
-            cmd.stdout(Stdio::inherit())
-                .stderr(Stdio::inherit())
-                .args(["compose", "-f"])
-                .arg(&compose_project)
-                .arg("logs");
-        })
-        .map(|_| ())
+        exit(1);
     }
+
+    utils::cmd(docker, |cmd| {
+        cmd.stdout(Stdio::inherit())
+            .stderr(Stdio::inherit())
+            .args(["compose", "-f"])
+            .arg(&compose_project)
+            .arg("logs");
+    })
+    .map(|_| ())
 }

@@ -14,7 +14,9 @@
 // limitations under the License.
 
 mod helpers;
+mod indexable;
 mod openapi;
+mod searchable;
 mod server;
 
 use heck::ToPascalCase;
@@ -23,8 +25,8 @@ use proc_macro::TokenStream;
 use quote::quote;
 use server::controller;
 use syn::{
-    parse_macro_input, punctuated::Punctuated, spanned::Spanned, Expr, ExprArray, ExprAssign, ExprLit, ExprMacro,
-    ExprPath, Ident, ItemFn, Lit, ReturnType, Token,
+    parse_macro_input, punctuated::Punctuated, spanned::Spanned, Data, DeriveInput, Expr, ExprArray, ExprAssign,
+    ExprLit, ExprMacro, ExprPath, Ident, ItemFn, Lit, ReturnType, Token,
 };
 use utoipa::openapi::PathItemType;
 
@@ -385,4 +387,58 @@ pub fn controller(attr: TokenStream, body: TokenStream) -> TokenStream {
             pub async fn run(#args) -> #return_type #body
         }
     }.into()
+}
+
+/// Derive macro to implement the `Indexable` trait in the `charted_search` crate.
+///
+/// ## Example
+/// ```rust,ignore
+/// # use charted_search::Indexable;
+/// # use charted_proc_macros::Indexable;
+/// #
+/// #[derive(serde::Serialize, Indexable)]
+/// #[indexable(index = "me", id_field = "id")]
+/// pub struct Me;
+///
+/// fn indexable<I: Indexable>(indexable: &I) {
+///     indexable.index();
+///     // => "me"
+/// }
+///
+/// indexable(&Me);
+/// ```
+#[proc_macro_derive(Indexable, attributes(indexable))]
+pub fn indexable(body: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(body as DeriveInput);
+
+    match &input.data {
+        Data::Struct(_) => indexable::expand(&input).into(),
+        Data::Enum(_) => error(input.span(), "enums are not supported in #[derive(Indexable)]").into(),
+        Data::Union(_) => error(input.span(), "unions are not supported in #[derive(Indexable)]").into(),
+    }
+}
+
+/// Procedural macro that derives `Searchable` from `charted_search`. This must implement `Indexable`
+/// or use the [`#[derive(Indexable)`][indexable] proc-macro.
+///
+/// ```rust,ignore
+/// # use charted_proc_macros::{Indexable, Searchable};
+/// #
+/// #[derive(Indexable, Searchable)]
+/// #[indexable(index = "us")]
+/// pub struct Us {
+///     #[search(skip)] // <-- allows to skip a field from being indexed.
+///     skipped_field: (),
+///     id: u64,
+/// }
+/// ```
+#[proc_macro_derive(Searchable, attributes(search))]
+pub fn searchable(body: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(body as DeriveInput);
+
+    match &input.data {
+        Data::Struct(me) => searchable::expand(&input, me).into(),
+        Data::Enum(_) => error(input.span(), "enums are not supported in #[derive(Searchable)]").into(),
+        Data::Union(_) => error(input.span(), "unions are not supported in #[derive(Searchable)]").into(),
+    }
 }

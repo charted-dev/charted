@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted::common::models::Name;
+use charted_entities::Name;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -29,7 +29,7 @@ pub struct Config {
     #[serde(default = "__default_registry")]
     pub registry: String,
 
-    /// Path to the repository's full identifier. This is represented as two [`Name`](charted::common::models::Name)s with
+    /// Path to the repository's full identifier. This is represented as two [`Name`](charted_entities::Name)s with
     /// a slash: `noel/my-project`
     #[serde(with = "__name_sep")]
     pub path: (Name, Name),
@@ -47,7 +47,7 @@ fn __default_registry() -> String {
 }
 
 mod __name_sep {
-    use charted::common::models::Name;
+    use charted_entities::Name;
     use serde::{de, Deserializer, Serializer};
 
     pub fn serialize<S: Serializer>(value: &(Name, Name), serializer: S) -> Result<S::Ok, S::Error> {

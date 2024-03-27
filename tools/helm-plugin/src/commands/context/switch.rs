@@ -14,7 +14,6 @@
 // limitations under the License.
 
 use crate::auth::{Auth, Context};
-use charted::cli::Execute;
 use clap::Parser;
 use std::path::PathBuf;
 
@@ -37,26 +36,24 @@ pub struct Cmd {
     auth: Option<PathBuf>,
 }
 
-impl Execute for Cmd {
-    fn execute(&self) -> eyre::Result<()> {
-        let mut auth = Auth::load(self.auth.clone())?;
-        let context = Context::from(&self.context);
+pub async fn run(cmd: Cmd) -> eyre::Result<()> {
+    let mut auth = Auth::load(cmd.auth.as_ref())?;
+    let context = Context::from(&cmd.context);
 
-        if self.context == context {
-            warn!("not doing anything as the current context is already {}", context);
-            return Ok(());
-        }
-
-        if !auth.contexts.contains_key(&context) {
-            warn!("not doing anything as context `{}` doesn't exist", context);
-            return Ok(());
-        }
-
-        info!("updating current context from {} ~> {}", auth.current, context);
-        auth.current = context;
-        auth.sync(self.auth.clone())?;
-
-        info!("updated & synced successfully");
-        Ok(())
+    if cmd.context == context {
+        warn!("not doing anything as the current context is already {}", context);
+        return Ok(());
     }
+
+    if !auth.contexts.contains_key(&context) {
+        warn!("not doing anything as context `{}` doesn't exist", context);
+        return Ok(());
+    }
+
+    info!("updating current context from {} ~> {}", auth.current, context);
+    auth.current = context;
+    auth.sync(cmd.auth)?;
+
+    info!("updated & synced successfully");
+    Ok(())
 }

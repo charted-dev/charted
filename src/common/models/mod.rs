@@ -14,15 +14,10 @@
 // limitations under the License.
 
 mod distribution;
-use axum::{
-    extract::{rejection::PathRejection, FromRequestParts, Path},
-    http::{request::Parts, StatusCode},
-};
 pub use distribution::*;
 
 mod name;
 pub use name::*;
-use sqlx::{postgres::PgHasArrayType, Database, Decode, Encode, Type};
 
 pub mod entities;
 pub mod helm;
@@ -31,12 +26,15 @@ pub mod payloads;
 pub type DateTime = chrono::DateTime<chrono::Local>;
 
 use crate::server::models::res::{err, ApiResponse, ErrorCode};
-
-use super::ID;
+use axum::{
+    extract::{rejection::PathRejection, FromRequestParts, Path},
+    http::{request::Parts, StatusCode},
+};
 use serde::{Deserialize, Serialize};
+use sqlx::{postgres::PgHasArrayType, Database, Decode, Encode, Type};
 use std::{fmt::Display, ops::Deref};
 use utoipa::{
-    openapi::{ObjectBuilder, OneOfBuilder, RefOr, Schema, SchemaType},
+    openapi::{ObjectBuilder, OneOfBuilder, Ref, RefOr, Schema, SchemaType},
     ToSchema,
 };
 use validator::Validate;
@@ -202,8 +200,8 @@ impl<'s> ToSchema<'s> for NameOrSnowflake {
             RefOr::T(Schema::OneOf(
                 OneOfBuilder::new()
                     .description(Some("Represents a union enum that can hold a Snowflake and a Name, which is a String that is validated with the Name regex."))
-                    .item(ID::schema().1)
-                    .item(Name::schema().1)
+                    .item(Ref::from_schema_name("Snowflake"))
+                    .item(Ref::from_schema_name("Name"))
                     .build(),
             )),
         )

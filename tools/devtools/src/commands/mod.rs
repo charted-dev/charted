@@ -13,9 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use async_trait::async_trait;
-use charted::cli::{AsyncExecute, Execute};
-
 mod cli;
 mod docker;
 mod helm_plugin;
@@ -23,7 +20,7 @@ mod server;
 
 /// List of all available subcommands for `./dev`
 #[derive(Debug, Clone, clap::Subcommand)]
-pub enum Command {
+pub enum Cmd {
     #[command(subcommand)]
     Docker(docker::Cmd),
 
@@ -32,14 +29,11 @@ pub enum Command {
     Cli(cli::Cmd),
 }
 
-#[async_trait]
-impl AsyncExecute for Command {
-    async fn execute(&self) -> eyre::Result<()> {
-        match self {
-            Self::HelmPlugin(helm) => helm.execute(),
-            Self::Docker(docker) => docker.execute().await,
-            Self::Server(server) => server.execute(),
-            Self::Cli(cli) => cli.execute(),
-        }
+pub async fn run(cmd: Cmd) -> eyre::Result<()> {
+    match cmd {
+        Cmd::Server(cmd) => server::run(cmd),
+        Cmd::HelmPlugin(cmd) => helm_plugin::run(cmd),
+        Cmd::Cli(cmd) => cli::run(cmd),
+        Cmd::Docker(cmd) => docker::run(cmd).await,
     }
 }

@@ -16,15 +16,6 @@
 use crate::hashmap;
 use std::{collections::HashMap, fmt::Display};
 
-// #[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
-// pub enum BitfieldError {
-//     #[error("You can't use u64::MAX to add or remove bits!")]
-//     MaxProvided,
-
-//     #[error("Bit overflow!!")]
-//     BitOverflow,
-// }
-
 #[derive(Debug)]
 pub enum Error {
     /// Provided something [`u64::MAX`] or higher.

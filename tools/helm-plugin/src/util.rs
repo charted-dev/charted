@@ -14,11 +14,11 @@
 // limitations under the License.
 
 use crate::config::Config;
-use charted::lazy;
+use charted_common::lazy;
 use once_cell::sync::Lazy;
 use semver::Version;
 use std::{
-    path::PathBuf,
+    path::{Path, PathBuf},
     process::{exit, Command},
 };
 
@@ -35,14 +35,14 @@ pub fn get_config(path: Option<PathBuf>) -> PathBuf {
 }
 
 /// Loads a [`Config`] struct easily with one line of code with a optional location.
-pub fn load_config(loc: Option<PathBuf>) -> eyre::Result<Config> {
-    let path = loc.as_ref().unwrap_or(&*DEFAULT_CONFIG_PATH);
+pub fn load_config<P: AsRef<Path>>(loc: Option<P>) -> eyre::Result<Config> {
+    let path = loc.as_ref().map(AsRef::as_ref).unwrap_or(&*DEFAULT_CONFIG_PATH);
     Config::load(path)
 }
 
 /// Validate the `charted { version = "..." }` and `charted { helm = "..." }` constraints
 /// with a one-liner when called.
-pub fn validate_version_constraints(config: &Config, helm: Option<PathBuf>) {
+pub fn validate_version_constraints<P: AsRef<Path>>(config: &Config, helm: Option<P>) {
     if !config.charted.version.matches(&Version::parse(crate::VERSION).unwrap()) {
         error!(
             "configuration expects `charted-helm-plugin` to match its version constraint: {}, but we are on v{}",
@@ -54,7 +54,7 @@ pub fn validate_version_constraints(config: &Config, helm: Option<PathBuf>) {
     }
 
     let helm = match helm {
-        Some(path) => path,
+        Some(path) => path.as_ref().to_path_buf(),
         None => match which::which("helm") {
             Ok(path) => path,
 

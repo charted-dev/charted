@@ -26,12 +26,6 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, Layer, R
 #[macro_use]
 extern crate tracing;
 
-#[macro_use]
-extern crate async_trait;
-
-#[macro_use]
-extern crate eyre;
-
 pub mod args;
 pub mod auth;
 pub mod commands;
@@ -135,7 +129,7 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// Returns the version and commit hash of `charted-helm-plugin`.
 #[inline]
 pub fn version() -> String {
-    format!("v{}+{}", VERSION, charted::COMMIT_HASH)
+    format!("v{}+{}", VERSION, charted_common::COMMIT_HASH)
 }
 
 #[cfg(test)]

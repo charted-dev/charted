@@ -13,19 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::auth::{Auth, Context, Registry, Type};
-use charted::cli::Execute;
+use crate::auth::{Auth, Type};
 use clap::Parser;
 use cli_table::{Cell, Table};
-use eyre::ContextCompat;
-use std::{
-    borrow::Cow,
-    collections::BTreeMap,
-    fs::{create_dir_all, File},
-    io::Write as _,
-    path::PathBuf,
-};
-use url::Url;
+use std::{borrow::Cow, path::PathBuf};
 
 #[derive(Table)]
 struct Row {
@@ -55,70 +46,31 @@ pub struct Cmd {
     json: bool,
 }
 
-impl Execute for Cmd {
-    fn execute(&self) -> eyre::Result<()> {
-        let path = self.auth.clone().unwrap_or(
-            dirs::config_local_dir()
-                .expect("support for `dirs::config_local_dir`")
-                .join("Noelware/charted-server/auth.yaml"),
-        );
-
-        trace!(path = %path.display(), "loading `auth.yaml` file...");
-        if !path.try_exists()? {
-            warn!(path = %path.display(), "`auth.yaml` doesn't exist, creating...");
-            let parent = path
-                .parent()
-                .context("expected parent to be available, is the grandparent root '/'?")?;
-
-            create_dir_all(parent)?;
-
-            let auth = Auth {
-                current: Context::new("default"),
-                contexts: {
-                    let mut b = BTreeMap::new();
-                    b.insert(
-                        Context::new("default"),
-                        Registry {
-                            registry: Url::parse("https://charts.noelware.org/api").expect("invalid uri received"),
-                            auth: Type::None,
-                        },
-                    );
-
-                    b
-                },
-            };
-
-            let mut file = File::create(&path)?;
-            write!(file, "{}", serde_yaml::to_string(&auth)?)?;
-
-            info!(path = %path.display(), "created `auth.yaml`! :3");
-        }
-
-        let auth: Auth = serde_yaml::from_reader(File::open(path)?)?;
-        let mut rows = Vec::<Row>::with_capacity(auth.contexts.len());
-        for (context, registry) in auth.contexts {
-            rows.push(Row {
-                current: match auth.current.as_str() == context.as_str() {
-                    true => "*",
-                    false => "",
-                },
-                context: context.to_string(),
-                registry: registry.registry.to_string(),
-                ty: match registry.auth {
-                    Type::EnvironmentVariable { env, .. } => Cow::Owned(format!("environment variable ${env}")),
-                    Type::Session { .. } => Cow::Borrowed("session token"),
-                    Type::ApiKey(_) => Cow::Borrowed("api key"),
-                    Type::None => Cow::Borrowed("none available"),
-                },
-            });
-        }
-
-        cli_table::print_stdout(rows.table().title([
-            "Current".cell(),
-            "Context".cell(),
-            "Registry".cell(),
-            "Auth Type".cell(),
-        ]))
-        .map_err(From::from)
+pub async fn run(cmd: Cmd) -> eyre::Result<()> {
+    let auth = Auth::load(cmd.auth.as_ref())?;
+    let mut rows = Vec::<Row>::with_capacity(auth.contexts.len());
+    for (context, registry) in auth.contexts {
+        rows.push(Row {
+            current: match auth.current.as_str() == context.as_str() {
+                true => "*",
+                false => "",
+            },
+            context: context.to_string(),
+            registry: registry.registry.to_string(),
+            ty: match registry.auth {
+                Type::EnvironmentVariable { env, .. } => Cow::Owned(format!("environment variable ${env}")),
+                Type::Session { .. } => Cow::Borrowed("session token"),
+                Type::ApiKey(_) => Cow::Borrowed("api key"),
+                Type::None => Cow::Borrowed("none available"),
+            },
+        });
     }
+
+    cli_table::print_stdout(rows.table().title([
+        "Current".cell(),
+        "Context".cell(),
+        "Registry".cell(),
+        "Auth Type".cell(),
+    ]))
+    .map_err(From::from)
 }

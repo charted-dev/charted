@@ -51,11 +51,11 @@ pub struct Cmd {
     common: CommonArgs,
 }
 
-pub async fn execute(cmd: &Cmd) -> Result<()> {
-    let config = util::load_config(cmd.common.config_path.clone())?;
-    util::validate_version_constraints(&config, cmd.common.helm.clone());
+pub async fn run(cmd: Cmd) -> Result<()> {
+    let config = util::load_config(cmd.common.config_path.as_ref())?;
+    util::validate_version_constraints(&config, cmd.common.helm.as_ref());
 
-    let hclfmt = match cmd.hclfmt.clone() {
+    let hclfmt = match cmd.hclfmt {
         Some(hclfmt) => hclfmt,
         None => match which::which("hclfmt") {
             Ok(hclfmt) => hclfmt,

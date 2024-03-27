@@ -14,7 +14,6 @@
 // limitations under the License.
 
 use crate::{utils, CommonArgs};
-use charted::cli::Execute;
 use eyre::{eyre, Result};
 use std::{ffi::OsString, process::Stdio};
 
@@ -25,43 +24,41 @@ pub struct Cmd {
     args: CommonArgs,
 }
 
-impl Execute for Cmd {
-    fn execute(&self) -> Result<()> {
-        let cargo = utils::find_binary(self.args.cargo.clone(), "cargo")
-            .ok_or_else(|| eyre!("unable to find `cargo` binary"))?;
+pub fn run(command: Cmd) -> Result<()> {
+    let cargo = utils::find_binary(command.args.cargo.as_ref(), "cargo")
+        .ok_or_else(|| eyre!("unable to find `cargo` binary"))?;
 
-        utils::cmd(cargo, |cmd| {
-            cmd.stdout(Stdio::inherit())
-                .stderr(Stdio::inherit())
-                .arg(match self.args.args.is_empty() {
-                    false => "run",
-                    true => "build",
-                })
-                .arg("--locked");
+    utils::cmd(cargo, |cmd| {
+        cmd.stdout(Stdio::inherit())
+            .stderr(Stdio::inherit())
+            .arg(match command.args.args.is_empty() {
+                false => "run",
+                true => "build",
+            })
+            .arg("--locked");
 
-            if self.args.release {
-                cmd.arg("--release");
-            }
+        if command.args.release {
+            cmd.arg("--release");
+        }
 
-            for arg in self.args.cargo_args.iter() {
-                cmd.arg(arg);
-            }
+        for arg in command.args.cargo_args.iter() {
+            cmd.arg(arg);
+        }
 
-            let mut rustflags = OsString::from("--cfg tokio_unstable");
-            let rustc_flags = self.args.rustc_flags.clone().unwrap_or_default();
-            if !rustc_flags.is_empty() {
-                rustflags.push(" ");
-                rustflags.push(rustc_flags);
-            }
+        let mut rustflags = OsString::from("--cfg tokio_unstable");
+        let rustc_flags = command.args.rustc_flags.clone().unwrap_or_default();
+        if !rustc_flags.is_empty() {
+            rustflags.push(" ");
+            rustflags.push(rustc_flags);
+        }
 
-            cmd.env("RUSTFLAGS", rustflags).env("CHARTED_DISTRIBUTION_KIND", "git");
-            cmd.args(["--package", "charted-helm-plugin"]);
-            cmd.args(&self.args.cargo_args);
+        cmd.env("RUSTFLAGS", rustflags).env("CHARTED_DISTRIBUTION_KIND", "git");
+        cmd.args(["--package", "charted-helm-plugin"]);
+        cmd.args(&command.args.cargo_args);
 
-            if !self.args.args.is_empty() {
-                cmd.arg("--").args(&self.args.args);
-            }
-        })
-        .map(|_| ())
-    }
+        if !command.args.args.is_empty() {
+            cmd.arg("--").args(&command.args.args);
+        }
+    })
+    .map(|_| ())
 }

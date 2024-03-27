@@ -13,7 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted::cli::{AsyncExecute, Execute};
 use clap::Subcommand;
 
 mod completions;
@@ -39,22 +38,19 @@ pub enum Cmd {
     Lint(lint::Cmd),
 }
 
-#[async_trait]
-impl AsyncExecute for Cmd {
-    async fn execute(&self) -> eyre::Result<()> {
-        match self {
-            Cmd::Completions(args) => {
-                completions::run(args.clone());
-                Ok(())
-            }
-
-            Cmd::Download(dl) => dl.execute().await,
-            Cmd::Context(ctx) => ctx.execute(),
-            Cmd::Logout(logout) => logout.execute(),
-            Cmd::Login(login) => login.execute(),
-            Cmd::Init(init) => init.execute(),
-            Cmd::Push(push) => push.execute().await,
-            Cmd::Lint(cmd) => lint::execute(cmd).await,
+pub async fn execute(cmd: Cmd) -> eyre::Result<()> {
+    match cmd {
+        Cmd::Completions(args) => {
+            completions::run(args);
+            Ok(())
         }
+
+        Cmd::Download(cmd) => download::run(cmd).await,
+        Cmd::Context(cmd) => context::run(cmd).await,
+        Cmd::Logout(cmd) => logout::run(cmd),
+        Cmd::Login(cmd) => login::run(cmd).await,
+        Cmd::Init(cmd) => init::run(cmd),
+        Cmd::Push(cmd) => push::run(cmd).await,
+        Cmd::Lint(cmd) => lint::run(cmd).await,
     }
 }

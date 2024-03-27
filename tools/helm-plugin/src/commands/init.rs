@@ -13,7 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted::cli::Execute;
 use clap::Parser;
 use std::path::PathBuf;
 
@@ -25,8 +24,6 @@ pub struct Cmd {
     path: Option<PathBuf>,
 }
 
-impl Execute for Cmd {
-    fn execute(&self) -> eyre::Result<()> {
-        todo!()
-    }
+pub fn run(_cmd: Cmd) -> eyre::Result<()> {
+    todo!()
 }

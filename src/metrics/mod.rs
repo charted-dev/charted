@@ -17,7 +17,8 @@ pub mod collectors;
 pub mod registries;
 
 use self::registries::{default::Default, prometheus::Prometheus};
-use crate::{common::AsArcAny, config::Config, metrics::registries::disabled::Disabled};
+use crate::{config::Config, metrics::registries::disabled::Disabled};
+use azalia::rust::AsArcAny;
 use std::{
     any::{Any, TypeId},
     sync::Arc,

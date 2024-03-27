@@ -13,7 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted::cli::AsyncExecute;
 use charted_devtools::Program;
 use clap::Parser;
 use eyre::Result;
@@ -24,5 +23,6 @@ async fn main() -> Result<()> {
 
     let program = Program::parse();
     program.init_log();
-    program.cmd.execute().await
+
+    charted_devtools::run(program.cmd).await
 }

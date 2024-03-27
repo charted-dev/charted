@@ -13,7 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted::cli::Execute;
 use clap::Subcommand;
 
 mod delete;
@@ -31,13 +30,11 @@ pub enum Cmd {
     List(list::Cmd),
 }
 
-impl Execute for Cmd {
-    fn execute(&self) -> eyre::Result<()> {
-        match self {
-            Cmd::Switch(switch) => switch.execute(),
-            Cmd::Delete(del) => del.execute(),
-            Cmd::Token(token) => token.execute(),
-            Cmd::List(list) => list.execute(),
-        }
+pub async fn run(cmd: Cmd) -> eyre::Result<()> {
+    match cmd {
+        Cmd::Switch(cmd) => switch::run(cmd).await,
+        Cmd::Delete(cmd) => delete::run(cmd).await,
+        Cmd::Token(cmd) => token::run(cmd).await,
+        Cmd::List(cmd) => list::run(cmd).await,
     }
 }

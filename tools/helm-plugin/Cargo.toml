@@ -16,7 +16,7 @@
 [package]
 name = "charted-helm-plugin"
 description = "🐻‍❄️📦 Command-line executor for running charted's Helm plugin"
-version = "0.1.0-beta"
+version.workspace = true
 documentation.workspace = true
 edition.workspace = true
 homepage.workspace = true
@@ -35,7 +35,9 @@ ignored = [
 
 [dependencies]
 async-trait.workspace = true
-charted = { version = "0.1.0-beta", path = "../.." }
+charted-common = { version = "0.1.0-beta", path = "../../crates/common" }
+charted-entities = { version = "0.1.0-beta", path = "../../crates/entities" }
+charted-server = { version = "0.1.0-beta", path = "../../crates/server" }
 clap.workspace = true
 clap_complete.workspace = true
 cli-table.workspace = true
@@ -51,7 +53,7 @@ owo-colors.workspace = true
 reqwest = { version = "0.12.2", features = ["gzip"] }
 semver.workspace = true
 serde.workspace = true
-serde_yaml = "0.9.34+deprecated"
+serde_yaml.workspace = true
 similar = { version = "2.4.0", features = ["inline"] }
 tokio = { version = "1.36.0", features = ["rt", "macros", "io-util", "fs"] }
 tracing = "0.1.40"

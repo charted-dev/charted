@@ -13,11 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted::cli::Execute;
+use crate::auth::{Auth, Context};
 use clap::Parser;
 use std::{path::PathBuf, process::exit};
-
-use crate::auth::{Auth, Context};
 
 /// Deletes a context from the auth configuration
 #[derive(Debug, Clone, Parser)]
@@ -38,25 +36,23 @@ pub struct Cmd {
     auth: Option<PathBuf>,
 }
 
-impl Execute for Cmd {
-    fn execute(&self) -> eyre::Result<()> {
-        let mut auth = Auth::load(self.auth.clone())?;
-        let context = self.context.as_ref().map(Context::new).unwrap_or(auth.current.clone());
+pub async fn run(cmd: Cmd) -> eyre::Result<()> {
+    let mut auth = Auth::load(cmd.auth.as_ref())?;
+    let context = cmd.context.as_ref().map(Context::new).unwrap_or(auth.current.clone());
 
-        if !auth.contexts.contains_key(&context) {
-            warn!("context `{context}` doesn't exist, cannot delete");
-            exit(1);
-        }
-
-        if auth.current == context {
-            warn!("context `{context}` is the default, please switch to a different context to delete this one");
-            exit(1);
-        }
-
-        let _ = auth.contexts.remove(&context);
-        auth.sync(self.auth.clone())?;
-
-        info!("deleted context `{context}` from auth.yaml");
-        Ok(())
+    if !auth.contexts.contains_key(&context) {
+        warn!("context `{context}` doesn't exist, cannot delete");
+        exit(1);
     }
+
+    if auth.current == context {
+        warn!("context `{context}` is the default, please switch to a different context to delete this one");
+        exit(1);
+    }
+
+    let _ = auth.contexts.remove(&context);
+    auth.sync(cmd.auth)?;
+
+    info!("deleted context `{context}` from auth.yaml");
+    Ok(())
 }

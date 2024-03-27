@@ -13,7 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted::cli::AsyncExecute;
 use clap::Parser;
 
 /// Push one or all Helm charts to a charted-server registry
@@ -26,9 +25,6 @@ pub struct Cmd {
     concurrency: Option<usize>,
 }
 
-#[async_trait]
-impl AsyncExecute for Cmd {
-    async fn execute(&self) -> eyre::Result<()> {
-        todo!()
-    }
+pub async fn run(_cmd: Cmd) -> eyre::Result<()> {
+    todo!()
 }

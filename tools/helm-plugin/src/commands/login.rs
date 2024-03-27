@@ -13,15 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted::cli::Execute;
 use clap::Parser;
 
 /// Log into a `charted-server` registry and store it in the authentication file.
 #[derive(Debug, Clone, Parser)]
 pub struct Cmd {}
 
-impl Execute for Cmd {
-    fn execute(&self) -> eyre::Result<()> {
-        todo!()
-    }
+pub async fn run(_cmd: Cmd) -> eyre::Result<()> {
+    todo!()
 }

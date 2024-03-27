@@ -16,6 +16,8 @@
 [workspace]
 resolver = "2"
 members = [
+    "crates/*",
+    "crates/search/*",
     "features/gc",
     "features/oci",
     "features",
@@ -44,25 +46,60 @@ repository = "https://github.com/charted-dev/charted"
 rust-version = "1.76"
 
 [workspace.dependencies]
+axum = { version = "0.7.4", features = ["macros", "http2"] }
 async-trait = "0.1.79"
+base64 = "0.22.0"
 chrono = { version = "0.4.35", features = ["serde"] }
 clap = { version = "4.5.4", features = ["derive", "env"] }
 cli-table = "0.4.7"
 clap_complete = "4.5.1"
 color-eyre = { version = "0.6.3", features = ["issue-url", "tracing-error"] }
 dotenvy = "0.15.7"
+erased-serde = "0.4.4"
 eyre = "0.6.12"
+mime = "0.3.17"
+multer = "3.0.0"
+once_cell = "1.19.0"
+opentelemetry = "0.22.0"
 owo-colors = { version = "4.0.0", features = ["supports-color"] }
+prometheus-client = "0.22.1"
+regex = "1.10.3"
+remi = "0.6.3"
+remi-fs = "0.6.3"
 semver = { version = "1.0.22", features = ["serde"] }
+sentry = "0.32.2"
 serde = { version = "1.0.197", features = ["derive"] }
 serde_json = "1.0.115"
+serde_yaml = "0.9.34+deprecated"
+sqlx = { version = "0.7.3", features = [
+    "postgres",
+    "runtime-tokio",
+    "tls-native-tls",
+    "chrono",
+] }
+tempfile = "3.10.1"
+tracing = "0.1.40"
+tokio = "1.36.0"
+url = { version = "2.5.0", features = ["serde"] }
+utoipa = { version = "4.2.0", features = ["uuid"] }
+validator = { version = "0.17.0", features = ["derive"] }
 which = "6.0.1"
 
 [workspace.dependencies.noelware-config]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "f190efd883e61f0b630a14a5e1cc20da648fb38a"
+rev = "c9d1919536ccfe0ba9b32fc3a9bc43b638e208b4"
 features = ["derive"]
+
+[workspace.dependencies.noelware-remi]
+version = "0.1.0"
+git = "https://github.com/Noelware/core-rs"
+rev = "c9d1919536ccfe0ba9b32fc3a9bc43b638e208b4"
+
+[workspace.dependencies.azalia]
+version = "0.1.0"
+git = "https://github.com/Noelware/core-rs"
+rev = "c9d1919536ccfe0ba9b32fc3a9bc43b638e208b4"
 
 [package]
 name = "charted"
@@ -78,16 +115,14 @@ repository.workspace = true
 publish.workspace = true
 
 [dependencies]
-argon2 = "0.5.3"
-async-recursion = "1.1.0"
 async-trait = "0.1.79"
-aws-sdk-s3 = "1.21.0"
-axum = { version = "0.7.5", features = ["macros", "http2"] }
+aws-sdk-s3 = "1.17.0"
+axum.workspace = true
 axum-extra = { version = "0.9.3", features = ["typed-header"] }
 axum-server = { version = "0.6.0", features = ["tls-rustls"] }
-azalia = { version = "0.1.0", git = "https://github.com/Noelware/core-rs", rev = "f190efd883e61f0b630a14a5e1cc20da648fb38a" }
+azalia.workspace = true
 azure_storage = "0.19.0"
-base64 = "0.22.0"
+base64.workspace = true
 charted-proc-macros = { version = "0.0.0-devel.0", path = "./proc-macros" }
 chrono.workspace = true
 clap.workspace = true
@@ -96,7 +131,7 @@ cli-table.workspace = true
 color-eyre.workspace = true
 dotenvy = "0.15.7"
 elasticsearch = "8.5.0-alpha.1"
-erased-serde = "0.4.4"
+erased-serde.workspace = true
 eyre = "0.6.12"
 flate2 = "1.0.28"
 futures-util = "0.3.30"
@@ -109,16 +144,19 @@ mac_address = "1.1.5"
 md-5 = "0.10.6"
 meilisearch-sdk = "0.25.0"
 mimalloc = "0.1.39"
-mime = "0.3.17"
+mime.workspace = true
 moka = { version = "0.12.5", features = ["future"] }
-multer = "3.0.0"
+multer.workspace = true
 num_cpus = "1.16.0"
 noelware-config.workspace = true
-once_cell = "1.19.0"
+noelware-remi = { workspace = true, features = ["azure", "fs", "s3"] }
+once_cell.workspace = true
 openssl = "0.10.64" # only here for the `vendored` feature
+opentelemetry.workspace = true
+opentelemetry_sdk = "0.22.1"
 owo-colors.workspace = true
 paste = "1.0.14"
-prometheus-client = "0.22.2"
+prometheus-client.workspace = true
 prost = "0.12.3"
 prost-types = "0.12.3"
 rand = "0.8.5"
@@ -127,14 +165,14 @@ redis = { version = "0.25.2", features = [
     "tokio-comp",
     "connection-manager",
 ] }
-regex = "1.10.4"
-remi = "0.6.3"
+regex.workspace = true
+remi.workspace = true
 remi-azure = { version = "0.6.3", features = ["serde", "tracing"] }
-remi-fs = { version = "0.6.3", features = ["serde", "tracing"] }
+remi-fs.workspace = true
 remi-s3 = { version = "0.6.3", features = ["serde", "tracing"] }
 reqwest = "0.12.2"
 semver.workspace = true
-sentry = "0.32.2"
+sentry.workspace = true
 sentry-eyre = "0.1.0"
 sentry-tower = { version = "0.32.2", features = ["axum", "http"] }
 sentry-tracing = "0.32.2"
@@ -142,14 +180,10 @@ serde.workspace = true
 serde_json.workspace = true
 serde_path_to_error = "0.1.16"
 serde_repr = "0.1.18"
-sqlx = { version = "0.7.4", features = [
-    "postgres",
-    "runtime-tokio",
-    "tls-native-tls",
-    "chrono",
-] }
+serde_yaml.workspace = true
+sqlx.workspace = true
 tar = "0.4.40"
-tokio = { version = "1.36.0", features = [
+tokio = { workspace = true, features = [
     "rt",
     "rt-multi-thread",
     "macros",
@@ -167,39 +201,32 @@ tower-http = { version = "0.5.2", features = [
     "catch-panic",
     "limit",
 ] }
-tracing = "0.1.40"
+tracing.workspace = true
 tracing-log = "0.2.0"
 tracing-opentelemetry = "0.23.0"
 tracing-subscriber = "0.3.18"
 ubyte = { version = "0.10.4", features = ["serde"] }
-utoipa = { version = "4.2.0", features = ["uuid"] }
+utoipa.workspace = true
 uuid = { version = "1.8.0", features = ["serde", "v4"] }
-validator = { version = "0.16.1", features = ["derive"] }
+validator.workspace = true
 toml = "0.8.12"
-serde_yaml = "0.9.34+deprecated"
 
 [dependencies.noelware-log]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "f190efd883e61f0b630a14a5e1cc20da648fb38a"
+rev = "c9d1919536ccfe0ba9b32fc3a9bc43b638e208b4"
 features = ["log"]
-
-[dependencies.noelware-remi]
-version = "0.1.0"
-git = "https://github.com/Noelware/core-rs"
-rev = "f190efd883e61f0b630a14a5e1cc20da648fb38a"
-features = ["azure", "fs", "s3"]
 
 [dependencies.noelware-serde]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "f190efd883e61f0b630a14a5e1cc20da648fb38a"
+rev = "c9d1919536ccfe0ba9b32fc3a9bc43b638e208b4"
 features = ["tracing"]
 
 [dev-dependencies]
-remi-fs = "0.6.3"
-tempfile = "3.10.1"
-tokio = { version = "1.36.0", features = ["rt", "macros"] }
+remi-fs.workspace = true
+tempfile.workspace = true
+tokio = { workspace = true, features = ["rt", "macros"] }
 
 [build-dependencies]
 chrono.workspace = true

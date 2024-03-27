@@ -13,9 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use async_trait::async_trait;
-use charted::cli::{AsyncExecute, Execute};
-
 mod down;
 mod logs;
 mod up;
@@ -29,13 +26,10 @@ pub enum Cmd {
     Up(up::Cmd),
 }
 
-#[async_trait]
-impl AsyncExecute for Cmd {
-    async fn execute(&self) -> eyre::Result<()> {
-        match self {
-            Self::Up(up) => up.execute().await,
-            Self::Down(down) => down.execute(),
-            Self::Logs(logs) => logs.execute(),
-        }
+pub async fn run(cmd: Cmd) -> eyre::Result<()> {
+    match cmd {
+        Cmd::Up(cmd) => up::run(cmd).await,
+        Cmd::Down(cmd) => down::run(cmd),
+        Cmd::Logs(cmd) => logs::run(cmd),
     }
 }

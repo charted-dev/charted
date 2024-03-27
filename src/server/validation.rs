@@ -20,7 +20,7 @@ use crate::{
 use axum::http::StatusCode;
 use serde_json::{json, Map, Value};
 use std::borrow::Cow;
-use validator::{ValidationError, ValidationErrors, ValidationErrorsKind};
+use validator::{ValidateEmail, ValidationError, ValidationErrors, ValidationErrorsKind};
 
 /// Validates a function that has the signature of:
 ///
@@ -41,10 +41,10 @@ pub fn validate<R, F: Fn(&R) -> Result<(), ValidationErrors>>(receiver: &R, func
     })
 }
 
-pub fn validate_email<'a, R: Into<Cow<'a, str>> + Clone>(receiver: R) -> Result<(), ApiResponse> {
-    fn do_validate<'a, R: Into<Cow<'a, str>> + Clone>(email: &R) -> Result<(), ValidationErrors> {
+pub fn validate_email<'a, R: Into<Cow<'a, str>> + ValidateEmail>(receiver: R) -> Result<(), ApiResponse> {
+    fn do_validate<'a, R: Into<Cow<'a, str>> + ValidateEmail>(email: &R) -> Result<(), ValidationErrors> {
         let mut errors = ValidationErrors::new();
-        match validator::validate_email(email.clone()) {
+        match email.validate_email() {
             true => Ok(()),
             false => {
                 errors.add(

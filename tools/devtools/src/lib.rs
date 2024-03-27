@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use clap::value_parser;
-use commands::Command;
+use commands::Cmd;
 use std::{ffi::OsString, path::PathBuf};
 use tracing::{level_filters::LevelFilter, Level};
 use tracing_subscriber::prelude::*;
@@ -23,6 +23,8 @@ use tracing_subscriber::prelude::*;
 extern crate tracing;
 
 mod commands;
+pub use commands::run;
+
 pub mod utils;
 
 /// CLI program that is used to execute the main binary.
@@ -49,7 +51,7 @@ pub struct Program {
     pub level: Level,
 
     #[command(subcommand)]
-    pub cmd: Command,
+    pub cmd: Cmd,
 }
 
 impl Program {
