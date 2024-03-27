@@ -26,13 +26,12 @@ repository.workspace = true
 authors.workspace = true
 
 [dependencies]
-async-trait.workspace = true
 bollard = "0.16.1"
 clap.workspace = true
 color-eyre.workspace = true
 eyre.workspace = true
 itertools = "0.12.1"
-tokio = { version = "1.36.0", features = ["full"] }
-tracing = "0.1.40"
+tokio = { workspace = true, features = ["rt", "macros", "rt-multi-thread"] }
+tracing.workspace = true
 tracing-subscriber = "0.3.18"
-which = "6.0.1"
+which.workspace = true

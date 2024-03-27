@@ -13,13 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    common::models::{
-        entities::ApiKey,
-        payloads::{CreateApiKeyPayload, PatchApiKeyPayload},
-        NameOrSnowflake,
-    },
-    db::impl_patch_for,
+use crate::db::impl_patch_for;
+use charted_entities::{
+    payloads::{CreateApiKeyPayload, PatchApiKeyPayload},
+    ApiKey, NameOrSnowflake,
 };
 use eyre::Context;
 use sqlx::{PgPool, Postgres};

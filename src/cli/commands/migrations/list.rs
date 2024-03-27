@@ -13,7 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{config::Config, db::MIGRATIONS};
+use crate::db::MIGRATIONS;
+use charted_config::Config;
 use cli_table::{format::Justify, Cell, Table};
 use owo_colors::{OwoColorize, Stream};
 use sqlx::{migrate::Migrate, postgres::PgConnectOptions, ConnectOptions, Connection};

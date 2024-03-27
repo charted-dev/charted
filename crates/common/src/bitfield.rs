@@ -38,6 +38,10 @@ impl Default for Bitfield {
 }
 
 impl Bitfield {
+    pub fn new(value: u64, flags: HashMap<&'static str, u64>) -> Bitfield {
+        Bitfield { flags, value }
+    }
+
     /// Creates a new [`Bitfield`] data structure with a pre-determined map of flags.
     pub fn with_flags(flags: HashMap<&'static str, u64>) -> Bitfield {
         Bitfield { flags, value: 0 }

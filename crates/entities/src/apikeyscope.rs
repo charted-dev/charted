@@ -215,6 +215,21 @@ impl ApiKeyScopes {
 
         ApiKeyScopes(bitfield.with_value(bits))
     }
+
+    /// Initialize a [`ApiKeyScope`] bitfield with an iterator of [`ApiKeyScope`]s.
+    pub fn with_iter<I: IntoIterator<Item = ApiKeyScope>>(iter: I) -> ApiKeyScopes {
+        let mut bitfield = Bitfield::new(
+            0,
+            ApiKeyScope::as_map()
+                .iter()
+                .map(|(key, val)| (*key, (*val) as u64))
+                .collect(),
+        );
+
+        bitfield.add(iter.into_iter().map(|x| x as u64));
+
+        ApiKeyScopes(bitfield)
+    }
 }
 
 impl std::ops::Deref for ApiKeyScopes {

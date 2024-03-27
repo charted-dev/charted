@@ -16,10 +16,8 @@
 pub mod inmemory;
 pub mod redis;
 
-use crate::{
-    config::caching::{Config, Strategy},
-    redis::Client,
-};
+use crate::redis::Client;
+use charted_config::caching::{Config, Strategy};
 use eyre::Result;
 use serde::{de::DeserializeOwned, Serialize};
 use std::{borrow::Cow, fmt::Display, ops::Deref, time::Duration};

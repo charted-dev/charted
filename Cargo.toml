@@ -46,10 +46,10 @@ repository = "https://github.com/charted-dev/charted"
 rust-version = "1.76"
 
 [workspace.dependencies]
-axum = { version = "0.7.4", features = ["macros", "http2"] }
+axum = { version = "0.7.5", features = ["macros", "http2"] }
 async-trait = "0.1.79"
 base64 = "0.22.0"
-chrono = { version = "0.4.35", features = ["serde"] }
+chrono = { version = "0.4.37", features = ["serde"] }
 clap = { version = "4.5.4", features = ["derive", "env"] }
 cli-table = "0.4.7"
 clap_complete = "4.5.1"
@@ -62,16 +62,18 @@ multer = "3.0.0"
 once_cell = "1.19.0"
 opentelemetry = "0.22.0"
 owo-colors = { version = "4.0.0", features = ["supports-color"] }
-prometheus-client = "0.22.1"
-regex = "1.10.3"
+prometheus-client = "0.22.2"
+regex = "1.10.4"
 remi = "0.6.3"
+remi-azure = "0.6.3"
 remi-fs = "0.6.3"
+remi-s3 = "0.6.3"
 semver = { version = "1.0.22", features = ["serde"] }
 sentry = "0.32.2"
 serde = { version = "1.0.197", features = ["derive"] }
 serde_json = "1.0.115"
 serde_yaml = "0.9.34+deprecated"
-sqlx = { version = "0.7.3", features = [
+sqlx = { version = "0.7.4", features = [
     "postgres",
     "runtime-tokio",
     "tls-native-tls",
@@ -116,38 +118,38 @@ publish.workspace = true
 
 [dependencies]
 argon2 = "0.5.3"
-async-trait = "0.1.79"
-aws-sdk-s3 = "1.17.0"
+async-trait.workspace = true
 axum.workspace = true
 axum-extra = { version = "0.9.3", features = ["typed-header"] }
 axum-server = { version = "0.6.0", features = ["tls-rustls"] }
 azalia.workspace = true
-azure_storage = "0.19.0"
 base64.workspace = true
+charted-helm-charts = { version = "0.1.0-beta", path = "crates/charts" }
+charted-common = { version = "0.1.0-beta", path = "crates/common" }
+charted-config = { version = "0.1.0-beta", path = "crates/config" }
+charted-entities = { version = "0.1.0-beta", path = "crates/entities" }
+charted-metrics = { version = "0.1.0-beta", path = "crates/metrics" }
 charted-proc-macros = { version = "0.0.0-devel.0", path = "./proc-macros" }
+charted-search = { version = "0.1.0-beta", path = "crates/search" }
+charted-search-elasticsearch = { version = "0.1.0-beta", path = "crates/search/elasticsearch" }
+charted-search-meilisearch = { version = "0.1.0-beta", path = "crates/search/meilisearch" }
+charted-server = { version = "0.1.0-beta", path = "crates/server" }
 chrono.workspace = true
 clap.workspace = true
 clap_complete = "4.5.1"
 cli-table.workspace = true
 color-eyre.workspace = true
 dotenvy = "0.15.7"
-elasticsearch = "8.5.0-alpha.1"
 erased-serde.workspace = true
 eyre = "0.6.12"
-flate2 = "1.0.28"
 futures-util = "0.3.30"
 hex = "0.4.3"
-humantime = "2.1.0"
-itertools = "0.12.1"
 jsonwebtoken = "9.3.0"
 ldap3 = "0.11.3"
-mac_address = "1.1.5"
 md-5 = "0.10.6"
-meilisearch-sdk = "0.25.0"
 mimalloc = "0.1.39"
 mime.workspace = true
 moka = { version = "0.12.5", features = ["future"] }
-multer.workspace = true
 num_cpus = "1.16.0"
 noelware-config.workspace = true
 noelware-remi = { workspace = true, features = ["azure", "fs", "s3"] }
@@ -168,22 +170,19 @@ redis = { version = "0.25.2", features = [
 ] }
 regex.workspace = true
 remi.workspace = true
-remi-azure = { version = "0.6.3", features = ["serde", "tracing"] }
+remi-azure = { workspace = true, features = ["serde", "tracing"] }
 remi-fs = { workspace = true, features = ["serde", "tracing"] }
-remi-s3 = { version = "0.6.3", features = ["serde", "tracing"] }
+remi-s3 = { workspace = true, features = ["serde", "tracing"] }
 reqwest = "0.12.2"
-semver.workspace = true
 sentry.workspace = true
 sentry-eyre = "0.1.0"
 sentry-tower = { version = "0.32.2", features = ["axum", "http"] }
 sentry-tracing = "0.32.2"
 serde.workspace = true
 serde_json.workspace = true
-serde_path_to_error = "0.1.16"
 serde_repr = "0.1.18"
 serde_yaml.workspace = true
 sqlx.workspace = true
-tar = "0.4.40"
 tokio = { workspace = true, features = [
     "rt",
     "rt-multi-thread",
@@ -192,7 +191,6 @@ tokio = { workspace = true, features = [
     "fs",
     "signal",
 ] }
-tokio-util = "0.7.10"
 tonic = "0.11.0"
 tower = "0.4.13"
 tower-http = { version = "0.5.2", features = [
@@ -206,7 +204,6 @@ tracing.workspace = true
 tracing-log = "0.2.0"
 tracing-opentelemetry = "0.23.0"
 tracing-subscriber = "0.3.18"
-ubyte = { version = "0.10.4", features = ["serde"] }
 utoipa.workspace = true
 uuid = { version = "1.8.0", features = ["serde", "v4"] }
 validator.workspace = true
@@ -217,12 +214,6 @@ version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
 rev = "c9d1919536ccfe0ba9b32fc3a9bc43b638e208b4"
 features = ["log"]
-
-[dependencies.noelware-serde]
-version = "0.1.0"
-git = "https://github.com/Noelware/core-rs"
-rev = "c9d1919536ccfe0ba9b32fc3a9bc43b638e208b4"
-features = ["tracing"]
 
 [dev-dependencies]
 remi-fs.workspace = true
@@ -237,12 +228,17 @@ which.workspace = true
 
 [package.metadata.cargo-machete]
 ignored = [
-    "md-5",                  # md-5 is actually used but it is under the `md5` module.
-    "openssl",               # this is mainly for releases since we have `--features=vendored`, which will vender OpenSSL
-    "prost",                 # Prost is used when we send messages to charted-emails, but as of 02/03/24, it is not implemented
-    "prost-types",           # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    "tracing-log",           # We enable the `log` feature to get logs from crates that use the `log` library, but we don't ever use it
-    "tracing-opentelemetry", # we plan to have logs and traces be reported to any OpenTelemetry-supported protocol, not implemented yet
+    "md-5",                         # md-5 is actually used but it is under the `md5` module.
+    "openssl",                      # this is mainly for releases since we have `--features=vendored`, which will vender OpenSSL
+    "prost",                        # Prost is used when we send messages to charted-emails, but as of 02/03/24, it is not implemented
+    "prost-types",                  # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    "tracing-log",                  # We enable the `log` feature to get logs from crates that use the `log` library, but we don't ever use it
+    "tracing-opentelemetry",        # we plan to have logs and traces be reported to any OpenTelemetry-supported protocol, not implemented yet
+    "opentelemetry",                # this is planned to be linked with `tracing-opentelemetry` and charted's Admin Metrics API
+    "opentelemetry_sdk",            # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    "charted-search",               # the poc is done but might have some issues
+    "charted-search-meilisearch",   # module hasn't been implemented yet
+    "charted-search-elasticsearch", # module hasn't been implemented yet
 ]
 
 [profile.release]

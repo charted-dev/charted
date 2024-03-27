@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{metrics::collectors::server::REQUEST_LATENCY_HISTOGRAM, server::middleware::XRequestId, Instance};
+use crate::{metrics::REQUEST_LATENCY_HISTOGRAM, Instance};
 use axum::{
     body::Body,
     extract::{FromRequestParts, State},
@@ -21,6 +21,7 @@ use axum::{
     middleware::Next,
     response::IntoResponse,
 };
+use charted_server::middleware::XRequestId;
 use std::{sync::atomic::Ordering, time::Instant};
 
 #[derive(FromRequestParts)]

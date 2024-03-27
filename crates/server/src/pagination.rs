@@ -81,7 +81,7 @@ pub struct PageInfo {
 macro_rules! gen_response_schemas_for_types {
     ($ty:ty) => {
         paste::paste! {
-            pub(crate) struct [<Paginated $ty>];
+            pub struct [<Paginated $ty>];
             impl<'s> ::utoipa::ToSchema<'s> for [<Paginated $ty>] {
                 fn schema() -> (&'s str, ::utoipa::openapi::RefOr<::utoipa::openapi::Schema>) {
                     (
@@ -108,7 +108,7 @@ macro_rules! gen_response_schemas_for_types {
                 }
             }
 
-            pub(crate) struct [<$ty PaginatedResponse>];
+            pub struct [<$ty PaginatedResponse>];
             charted_proc_macros::generate_response_schema!([<$ty PaginatedResponse>], schema = stringify!([<Paginated $ty>]));
         }
     };

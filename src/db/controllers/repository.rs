@@ -18,12 +18,11 @@ pub mod release;
 
 use crate::{
     caching::{CacheWorker, REPOSITORIES},
-    common::models::{
-        entities::Repository,
-        payloads::{CreateRepositoryPayload, PatchRepositoryPayload},
-        NameOrSnowflake,
-    },
     db::{impl_paginate, impl_patch_for},
+};
+use charted_entities::{
+    payloads::{CreateRepositoryPayload, PatchRepositoryPayload},
+    NameOrSnowflake, Repository,
 };
 use eyre::Context;
 use sqlx::{PgPool, Postgres};

@@ -14,22 +14,22 @@
 // limitations under the License.
 
 use crate::{
-    common::models::{entities::Repository, payloads::CreateRepositoryPayload},
     db::controllers::{DbController, PaginationRequest},
-    server::{
-        controller,
-        extract::{Json, NameOrSnowflake},
-        middleware::session::Session,
-        models::res::{err, internal_server_error, ok, ErrorCode, Result},
-        pagination::{Pagination, PaginationQuery},
-        validation::validate,
-    },
+    server::{middleware::session::Session, validation::validate},
     Instance,
 };
 use axum::{
     extract::{Query, State},
     http::StatusCode,
     Extension,
+};
+use charted_entities::{payloads::CreateRepositoryPayload, Repository};
+use charted_server::{
+    controller, err,
+    extract::{Json, NameOrSnowflake},
+    internal_server_error, ok,
+    pagination::{Pagination, PaginationQuery},
+    ErrorCode, Result,
 };
 use chrono::Local;
 use serde_json::json;
@@ -56,7 +56,7 @@ pub async fn list_org_repositories(
     }): Query<PaginationQuery>,
     session: Option<Extension<Session>>,
 ) -> Result<Pagination<Repository>> {
-    validate(&nos, crate::common::models::NameOrSnowflake::validate)?;
+    validate(&nos, charted_entities::NameOrSnowflake::validate)?;
 
     let owner = match controllers.organizations.get_by(&nos).await {
         Ok(Some(org)) => org,
@@ -133,7 +133,7 @@ pub async fn create_organization_repository(
     Extension(Session { user, .. }): Extension<Session>,
     Json(payload): Json<CreateRepositoryPayload>,
 ) -> Result<Repository> {
-    validate(&nos, crate::common::models::NameOrSnowflake::validate)?;
+    validate(&nos, charted_entities::NameOrSnowflake::validate)?;
     validate(&payload, CreateRepositoryPayload::validate)?;
 
     let org = match controllers.organizations.get_by(&nos).await {

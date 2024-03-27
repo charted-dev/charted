@@ -34,7 +34,6 @@ ignored = [
 ]
 
 [dependencies]
-async-trait.workspace = true
 charted-common = { version = "0.1.0-beta", path = "../../crates/common" }
 charted-entities = { version = "0.1.0-beta", path = "../../crates/entities" }
 charted-server = { version = "0.1.0-beta", path = "../../crates/server" }

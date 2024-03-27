@@ -98,7 +98,7 @@ jobs:
               run: cargo build --all-features --workspace
 
             - name: Run tests
-              run: cargo test --all-features --workspace
+              run: cargo nextest run --all-features --workspace
 
             - name: Run doctests
               run: cargo test --doc --all-features --workspace

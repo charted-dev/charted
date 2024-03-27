@@ -15,7 +15,7 @@
 
 pub mod controllers;
 
-use crate::config::Config;
+use charted_config::Config;
 use sqlx::{
     migrate,
     migrate::Migrator,
@@ -62,7 +62,7 @@ macro_rules! impl_paginate_priv {
         ) -> ::core::pin::Pin<
             Box<
                 dyn ::std::future::Future<
-                    Output = ::eyre::Result<$crate::server::pagination::Pagination<$crate::common::models::entities::Repository>>> + ::core::marker::Send + 'async_trait
+                    Output = ::eyre::Result<::charted_server::pagination::Pagination<charted_entities::Repository>>> + ::core::marker::Send + 'async_trait
                 >
             >
         where
@@ -92,8 +92,8 @@ macro_rules! impl_paginate_priv {
                 }
 
                 match request.order_by {
-                    $crate::server::pagination::OrderBy::Ascending => query.push("order by id ASC "),
-                    $crate::server::pagination::OrderBy::Descending => query.push("order by id DESC "),
+                    ::charted_server::pagination::OrderBy::Ascending => query.push("order by id ASC "),
+                    ::charted_server::pagination::OrderBy::Descending => query.push("order by id DESC "),
                 };
 
                 query.push("limit ").push_bind((request.per_page as i32) + 1).push(" ");
@@ -112,10 +112,10 @@ macro_rules! impl_paginate_priv {
                                 .map(|e| e as u64)
                         };
 
-                        let page_info = $crate::server::pagination::PageInfo { cursor };
-                        let data = entries.iter().filter_map(|row| <$crate::common::models::entities::Repository>::from_row(row).ok()).collect::<::std::vec::Vec::<_>>();
+                        let page_info = ::charted_server::pagination::PageInfo { cursor };
+                        let data = entries.iter().filter_map(|row| <charted_entities::Repository>::from_row(row).ok()).collect::<::std::vec::Vec::<_>>();
 
-                        Ok($crate::server::pagination::Pagination { page_info, data })
+                        Ok(::charted_server::pagination::Pagination { page_info, data })
                     }
 
                     Err(e) => {
@@ -134,8 +134,8 @@ macro_rules! impl_paginate_priv {
             Box<
                 dyn ::std::future::Future<
                     Output = ::eyre::Result<
-                        $crate::server::pagination::Pagination<
-                            $crate::common::models::entities::Organization
+                        ::charted_server::pagination::Pagination<
+                            charted_entities::Organization
                         >
                     >
                 > + ::core::marker::Send + 'async_trait
@@ -168,8 +168,8 @@ macro_rules! impl_paginate_priv {
                 }
 
                 match request.order_by {
-                    $crate::server::pagination::OrderBy::Ascending => query.push("order by id ASC "),
-                    $crate::server::pagination::OrderBy::Descending => query.push("order by id DESC "),
+                    ::charted_server::pagination::OrderBy::Ascending => query.push("order by id ASC "),
+                    ::charted_server::pagination::OrderBy::Descending => query.push("order by id DESC "),
                 };
 
                 query.push("limit ").push_bind((request.per_page as i32) + 1).push(" ");
@@ -188,10 +188,10 @@ macro_rules! impl_paginate_priv {
                                 .map(|e| e as u64)
                         };
 
-                        let page_info = $crate::server::pagination::PageInfo { cursor };
-                        let data = entries.iter().filter_map(|row| <$crate::common::models::entities::Organization>::from_row(row).ok()).collect::<::std::vec::Vec::<_>>();
+                        let page_info = ::charted_server::pagination::PageInfo { cursor };
+                        let data = entries.iter().filter_map(|row| <charted_entities::Organization>::from_row(row).ok()).collect::<::std::vec::Vec::<_>>();
 
-                        Ok($crate::server::pagination::Pagination { page_info, data })
+                        Ok(::charted_server::pagination::Pagination { page_info, data })
                     }
 
                     Err(e) => {
@@ -207,7 +207,7 @@ macro_rules! impl_paginate_priv {
 
     ($table:literal as $ty:ty) => {
         fn paginate<'life0, 'async_trait>(&'life0 self, request: $crate::db::controllers::PaginationRequest) -> ::core::pin::Pin<
-            Box<dyn ::std::future::Future<Output = ::eyre::Result<$crate::server::pagination::Pagination<$ty>>> + ::core::marker::Send + 'async_trait>
+            Box<dyn ::std::future::Future<Output = ::eyre::Result<::charted_server::pagination::Pagination<$ty>>> + ::core::marker::Send + 'async_trait>
         >
         where
             'life0: 'async_trait,
@@ -225,8 +225,8 @@ macro_rules! impl_paginate_priv {
                 }
 
                 match request.order_by {
-                    $crate::server::pagination::OrderBy::Ascending => query.push("order by id ASC "),
-                    $crate::server::pagination::OrderBy::Descending => query.push("order by id DESC "),
+                    ::charted_server::pagination::OrderBy::Ascending => query.push("order by id ASC "),
+                    ::charted_server::pagination::OrderBy::Descending => query.push("order by id DESC "),
                 };
 
                 query.push("limit ").push_bind((request.per_page as i32) + 1);
@@ -245,10 +245,10 @@ macro_rules! impl_paginate_priv {
                                 .map(|e| e as u64)
                         };
 
-                        let page_info = $crate::server::pagination::PageInfo { cursor };
+                        let page_info = ::charted_server::pagination::PageInfo { cursor };
                         let data = entries.iter().filter_map(|row| <$ty>::from_row(row).ok()).collect::<::std::vec::Vec::<_>>();
 
-                        Ok($crate::server::pagination::Pagination { page_info, data })
+                        Ok(::charted_server::pagination::Pagination { page_info, data })
                     }
 
                     Err(e) => {

@@ -13,16 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    metrics::registries::prometheus::Prometheus,
-    server::models::res::{err, ApiResponse, ErrorCode},
-    Instance,
-};
+use crate::Instance;
 use axum::{
     extract::State,
     http::{header, StatusCode},
     response::IntoResponse,
 };
+use charted_metrics::prometheus::Prometheus;
+use charted_server::{err, ApiResponse, ErrorCode};
 
 pub async fn metrics(State(Instance { metrics, .. }): State<Instance>) -> Result<impl IntoResponse, ApiResponse> {
     // upcast Arc<dyn Registry> ~> Arc<dyn Any> so we can downcast which `Registry` impl is being used.

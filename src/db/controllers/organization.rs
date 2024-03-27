@@ -15,12 +15,11 @@
 
 use crate::{
     caching::{CacheWorker, ORGANIZATIONS},
-    common::models::{
-        entities::Organization,
-        payloads::{CreateOrganizationPayload, PatchOrganizationPayload},
-        NameOrSnowflake,
-    },
     db::{impl_paginate, impl_patch_for},
+};
+use charted_entities::{
+    payloads::{CreateOrganizationPayload, PatchOrganizationPayload},
+    NameOrSnowflake, Organization,
 };
 use eyre::{Context, Report};
 use sqlx::{PgPool, Postgres};

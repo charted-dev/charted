@@ -15,13 +15,10 @@
 
 #![allow(deprecated)]
 
-use crate::{
-    hashmap,
-    openapi::generate_response_schema,
-    server::{controller, models::res::ok},
-    Instance,
-};
+use crate::{openapi::generate_response_schema, Instance};
 use axum::{extract::State, http::StatusCode};
+use azalia::hashmap;
+use charted_server::{controller, ok};
 use serde::Serialize;
 use std::collections::HashMap;
 use utoipa::ToSchema;

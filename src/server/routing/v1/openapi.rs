@@ -13,8 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::server::{models::yaml::Yaml, openapi::Document};
+use crate::server::openapi::Document;
 use axum::{http::StatusCode, response::IntoResponse, Json};
+use charted_server::{yaml as __yaml, Yaml};
 use utoipa::{openapi::OpenApi, OpenApi as _};
 
 pub async fn json() -> impl IntoResponse {
@@ -24,5 +25,5 @@ pub async fn json() -> impl IntoResponse {
 
 pub async fn yaml() -> Yaml<OpenApi> {
     let document = Document::openapi();
-    Yaml(StatusCode::OK, document)
+    __yaml(StatusCode::OK, document)
 }

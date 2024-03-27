@@ -30,10 +30,13 @@ azalia.workspace = true
 eyre.workspace = true
 noelware-config.workspace = true
 humantime = "2.1.0"
+mac_address = "1.1.5"
 once_cell.workspace = true
 rand = "0.8.5"
 regex.workspace = true
 serde.workspace = true
+tracing.workspace = true
+utoipa.workspace = true
 
 [dev-dependencies]
 serde_json.workspace = true

@@ -14,20 +14,12 @@
 // limitations under the License.
 
 use crate::{
-    auth,
-    common::models::payloads::UserLoginPayload,
-    db::controllers::DbController,
-    openapi::generate_response_schema,
-    server::{
-        controller,
-        extract::Json,
-        models::res::{err, internal_server_error, ok, ErrorCode, Result},
-        validation::validate,
-    },
-    sessions::Session,
-    Instance,
+    authz, db::controllers::DbController, openapi::generate_response_schema, server::validation::validate,
+    sessions::Session, Instance,
 };
 use axum::{extract::State, http::StatusCode, Extension};
+use charted_entities::payloads::UserLoginPayload;
+use charted_server::{controller, err, extract::Json, internal_server_error, ok, ErrorCode, Result};
 use serde_json::json;
 use sqlx::Postgres;
 use validator::Validate;
@@ -126,19 +118,19 @@ pub async fn login(
         .authenticate(user.clone(), payload.password)
         .await
         .map_err(|e| match e {
-            auth::Error::InvalidPassword => err(
+            authz::Error::InvalidPassword => err(
                 StatusCode::FORBIDDEN,
                 (ErrorCode::InvalidPassword, "password given was not correct"),
             ),
 
-            auth::Error::Eyre(e) => {
+            authz::Error::Eyre(e) => {
                 error!(error = %e, user.id, "unable to complete authentication from authz backend");
                 sentry_eyre::capture_report(&e);
 
                 internal_server_error()
             }
 
-            auth::Error::Ldap(e) => {
+            authz::Error::Ldap(e) => {
                 error!(error = %e, user.id, "unable to complete authentication from LDAP authz backend");
                 sentry::capture_error(&e);
 

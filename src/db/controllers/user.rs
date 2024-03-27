@@ -15,12 +15,11 @@
 
 use crate::{
     caching::{CacheWorker, USERS},
-    common::models::{
-        entities::User,
-        payloads::{CreateUserPayload, PatchUserPayload},
-        NameOrSnowflake,
-    },
     db::impl_patch_for,
+};
+use charted_entities::{
+    payloads::{CreateUserPayload, PatchUserPayload},
+    NameOrSnowflake, User,
 };
 use eyre::Context;
 use sqlx::{PgPool, Postgres};

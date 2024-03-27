@@ -13,14 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    auth,
-    avatars::AvatarsModule,
-    charts,
-    common::{models::Distribution, Snowflake},
-    config::Config,
-    db, redis, Instance,
-};
+use crate::{authz, db, redis, Instance};
+use charted_common::Snowflake;
+use charted_config::Config;
+use charted_entities::Distribution;
+use charted_helm_charts as charts;
 use noelware_log::{writers, WriteLayer};
 use owo_colors::{OwoColorize, Stream::Stdout};
 use remi::StorageService;
@@ -126,15 +123,15 @@ pub async fn run(args: Args) -> eyre::Result<()> {
     now = Instant::now();
 
     let storage = match config.storage {
-        crate::config::storage::Config::Filesystem(ref fs) => {
+        charted_config::storage::Config::Filesystem(ref fs) => {
             noelware_remi::StorageService::Filesystem(remi_fs::StorageService::with_config(fs.clone()))
         }
 
-        crate::config::storage::Config::Azure(ref azure) => {
+        charted_config::storage::Config::Azure(ref azure) => {
             noelware_remi::StorageService::Azure(remi_azure::StorageService::new(azure.clone()))
         }
 
-        crate::config::storage::Config::S3(ref s3) => {
+        charted_config::storage::Config::S3(ref s3) => {
             noelware_remi::StorageService::S3(remi_s3::StorageService::new(s3.clone()))
         }
     };
@@ -144,19 +141,16 @@ pub async fn run(args: Args) -> eyre::Result<()> {
     now = Instant::now();
 
     info!("initializing authz backend...");
-    let authz: Arc<dyn crate::auth::Backend> = match config.sessions.backend {
-        crate::config::sessions::Backend::Local => Arc::new(auth::local::Backend::new(pool.clone())),
-        crate::config::sessions::Backend::Ldap(ref config) => Arc::new(auth::ldap::Backend::new(config.clone())),
-        crate::config::sessions::Backend::Passwordless | crate::config::sessions::Backend::Htpasswd(_) => {
+    let authz: Arc<dyn crate::authz::Backend> = match config.sessions.backend {
+        charted_config::sessions::Backend::Local => Arc::new(authz::local::Backend::new(pool.clone())),
+        charted_config::sessions::Backend::Ldap(ref config) => Arc::new(authz::ldap::Backend::new(config.clone())),
+        charted_config::sessions::Backend::Passwordless | charted_config::sessions::Backend::Htpasswd(_) => {
             warn!("other authz backends are not supported at this time, switching to `local` backend instead");
-            Arc::new(auth::local::Backend::new(pool.clone()))
+            Arc::new(authz::local::Backend::new(pool.clone()))
         }
     };
 
     info!(took = ?Instant::now().duration_since(now), "initialized authz backend successfully");
-    let avatars = AvatarsModule::new(storage.clone());
-    avatars.init().await?;
-    now = Instant::now();
 
     info!("now initializing sessions manager");
     let mut sessions = crate::sessions::Manager::new(redis.clone());
@@ -175,11 +169,9 @@ pub async fn run(args: Args) -> eyre::Result<()> {
         snowflake: Snowflake::computed(),
         requests: AtomicUsize::new(0),
         sessions: Arc::new(Mutex::new(sessions)),
-        avatars,
-        metrics: crate::metrics::new(&config),
+        metrics: crate::metrics::new(&config.metrics),
         storage,
         charts,
-        search: None,
         config,
         redis: Arc::new(RwLock::new(redis)),
         authz,

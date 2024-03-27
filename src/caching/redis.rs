@@ -14,21 +14,21 @@
 // limitations under the License.
 
 use super::{CacheKey, CacheWorker, DEFAULT_TTL_LIFESPAN};
-use crate::config;
+use charted_config::caching;
 use eyre::Context;
 use redis::{AsyncCommands, Commands};
 use serde::{de::DeserializeOwned, Serialize};
 
 /// Represents a [`CacheWorker`] that uses Redis as the backend.
 pub struct RedisCache {
-    config: config::caching::Config,
+    config: caching::Config,
     client: crate::redis::Client,
 }
 
 impl RedisCache {
     /// Creates a new [`RedisCache`] instance.
-    pub fn new(client: crate::redis::Client, config: config::caching::Config) -> RedisCache {
-        trace!(cache.worker = "redis", "configured redis cache");
+    pub fn new(client: crate::redis::Client, config: caching::Config) -> RedisCache {
+        trace!(cache.worker = "redis", "configured redis as the main caching strategy");
         RedisCache { config, client }
     }
 }

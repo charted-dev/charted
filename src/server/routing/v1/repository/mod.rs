@@ -18,18 +18,9 @@ pub mod releases;
 use super::EntrypointResponse;
 use crate::{
     caching::REPOSITORIES,
-    common::models::{
-        entities::{ApiKeyScope, ApiKeyScopes, Organization, Repository, User},
-        NameOrSnowflake,
-    },
     db::controllers::DbController,
     openapi::generate_response_schema,
-    server::{
-        controller,
-        extract::Path,
-        middleware::session::{Middleware, Session},
-        models::res::{err, internal_server_error, ok, ErrorCode, Result},
-    },
+    server::middleware::session::{Middleware, Session},
     Instance,
 };
 use axum::{
@@ -38,6 +29,8 @@ use axum::{
     http::StatusCode,
     routing, Extension, Router,
 };
+use charted_entities::{ApiKeyScope, ApiKeyScopes, NameOrSnowflake, Organization, Repository, User};
+use charted_server::{controller, err, extract::Path, internal_server_error, ok, ErrorCode, Result};
 use serde_json::json;
 use tower_http::auth::AsyncRequireAuthorizationLayer;
 
@@ -131,8 +124,8 @@ pub async fn get_repo_by_id(
 
 #[derive(FromRequestParts)]
 pub struct RepoByOwnerAndNamePathParams {
-    owner: crate::server::extract::NameOrSnowflake,
-    repo: crate::server::extract::NameOrSnowflake,
+    owner: charted_server::extract::NameOrSnowflake,
+    repo: charted_server::extract::NameOrSnowflake,
 }
 
 /// Find a repository by the owner's ID/name and the repository's ID/name
@@ -165,8 +158,8 @@ pub struct RepoByOwnerAndNamePathParams {
 pub async fn get_repo_by_owner_and_name(
     State(Instance { controllers, pool, .. }): State<Instance>,
     RepoByOwnerAndNamePathParams {
-        owner: crate::server::extract::NameOrSnowflake(owner),
-        repo: crate::server::extract::NameOrSnowflake(repo),
+        owner: charted_server::extract::NameOrSnowflake(owner),
+        repo: charted_server::extract::NameOrSnowflake(repo),
     }: RepoByOwnerAndNamePathParams,
     session: Option<Extension<Session>>,
 ) -> Result<Repository> {

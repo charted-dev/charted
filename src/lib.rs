@@ -13,20 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use avatars::AvatarsModule;
 use axum::extract::FromRef;
-use common::Snowflake;
-use metrics::Registry;
+use charted_common::Snowflake;
+use charted_metrics::Registry;
 use noelware_remi::StorageService;
-use once_cell::sync::{Lazy, OnceCell};
-use rand::distributions::{Alphanumeric, DistString};
+use once_cell::sync::Lazy;
 use regex::Regex;
-use search::JoinedBackend;
+use reqwest::Client;
 use std::{
     any::Any,
     sync::{
         atomic::{AtomicUsize, Ordering},
-        Arc,
+        Arc, OnceLock,
     },
 };
 use tokio::sync::{Mutex, RwLock};
@@ -42,20 +40,16 @@ extern crate tracing;
 extern crate eyre;
 
 // modules
-pub mod auth;
+pub mod authz;
 pub mod avatars;
 pub mod caching;
-pub mod charts;
 pub mod cli;
-pub mod common;
-pub mod config;
 pub mod db;
 pub mod emails;
 pub mod macros;
 pub mod metrics;
 pub mod openapi;
 pub mod redis;
-pub mod search;
 pub mod server;
 pub mod sessions;
 
@@ -79,6 +73,16 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// Generic [`Regex`] implementation for possible truthy boolean values.
 pub static TRUTHY_REGEX: Lazy<Regex> = lazy!(Regex::new(r#"^(yes|true|si*|e|enable|1)$"#).unwrap());
 
+/// Lazily constructed [`reqwest::Client`] that allows the instance to send HTTP requests
+/// to other servers.
+pub static HTTP_CLIENT: Lazy<Client> = lazy!(Client::builder()
+    .user_agent(format!(
+        "Noelware/charted-server (+https://github.com/charted-dev/charted; v{})",
+        crate::version(),
+    ))
+    .build()
+    .unwrap());
+
 /// Checks if debug mode is enabled or not.
 pub fn is_debug_enabled() -> bool {
     if cfg!(debug_assertions) {
@@ -86,11 +90,6 @@ pub fn is_debug_enabled() -> bool {
     }
 
     matches!(std::env::var("CHARTED_DEBUG"), Ok(val) if TRUTHY_REGEX.is_match(val.as_str()))
-}
-
-/// Returns a randomized alphanumeric string with a specified length.
-pub fn rand_string(len: usize) -> String {
-    Alphanumeric.sample_string(&mut rand::thread_rng(), len)
 }
 
 /// Returns a [`String`] buffer that represents a panic message from methods like [`catch_unwind`](std::panic::catch_unwind).
@@ -118,23 +117,44 @@ pub fn version() -> String {
     buf
 }
 
-static GLOBAL: OnceCell<Instance> = OnceCell::new();
+static GLOBAL: OnceLock<Instance> = OnceLock::new();
 
 /// Represents the core instance of charted-server. It contains a whole bunch of references
 /// to be able to operate successfully.
 pub struct Instance {
+    /// List of database controllers that are used to query objects in the Postgres database.
     pub controllers: db::controllers::Controllers,
+
+    /// Amount of requests this instance has received
     pub requests: AtomicUsize,
-    pub avatars: AvatarsModule,
+
+    /// [`StorageService`] that holds persistent data about user and organization Helm charts,
+    /// user/organization icons, repository avatars, and user and organization Helm indexes.
     pub storage: StorageService,
-    pub charts: charts::HelmCharts,
-    pub authz: Arc<dyn auth::Backend>,
-    pub search: Option<Arc<JoinedBackend>>,
+
+    /// Module for publishing, listing, updating, and deletion of Helm charts.
+    pub charts: charted_helm_charts::HelmCharts,
+
+    /// [`authz::Backend`] that is used to authenticate users.
+    pub authz: Arc<dyn authz::Backend>,
+
+    /// Manager for handling all user sessions.
     pub sessions: Arc<Mutex<sessions::Manager>>,
+
+    /// Snowflake generator.
     pub snowflake: Snowflake,
+
+    /// [`Registry`] that allows to pull metrics from this instance.
     pub metrics: Arc<dyn Registry>,
-    pub config: config::Config,
+
+    /// the parsed configuration that the user has supplied.
+    pub config: charted_config::Config,
+
+    /// Redis client that supports Redis Sentinel and Clustered modes.
     pub redis: Arc<RwLock<redis::Client>>,
+
+    /// sqlx pool to allow dynamic queries that aren't supported by the db controllers
+    /// and holds all connections to the Postgres database.
     pub pool: sqlx::postgres::PgPool,
 }
 
@@ -145,11 +165,9 @@ impl Clone for Instance {
             snowflake: self.snowflake.clone(),
             requests: AtomicUsize::new(self.requests.load(Ordering::Relaxed)),
             sessions: self.sessions.clone(),
-            avatars: self.avatars.clone(),
             metrics: self.metrics.clone(),
             storage: self.storage.clone(),
             charts: self.charts.clone(),
-            search: self.search.clone(),
             config: self.config.clone(),
             authz: self.authz.clone(),
             redis: self.redis.clone(),

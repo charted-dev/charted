@@ -28,7 +28,6 @@ authors.workspace = true
 [dependencies]
 async-trait.workspace = true
 axum.workspace = true
-eyre.workspace = true
 charted-common = { version = "0.1.0-beta", path = "../common" }
 charted-entities = { version = "0.1.0-beta", path = "../entities" }
 charted-proc-macros = { version = "0.0.0-devel.0", path = "../../proc-macros" }
@@ -38,7 +37,7 @@ multer.workspace = true
 sentry.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-serde_path_to_error = "0.1.15"
+serde_path_to_error = "0.1.16"
 serde_yaml.workspace = true
 tracing.workspace = true
 utoipa.workspace = true

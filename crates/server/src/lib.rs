@@ -17,6 +17,8 @@
 //! uses to implement the rest of the API and `charted-helm-plugin` package to use the types
 //! instead of including the `charted` package.
 
+pub use charted_proc_macros::controller;
+
 pub mod extract;
 pub mod middleware;
 pub mod multipart;
@@ -24,8 +26,6 @@ pub mod pagination;
 
 mod models;
 pub use models::*;
-
-use std::fmt::Display;
 
 /// Represents the REST version that an API controller is supported on.
 #[derive(
@@ -47,7 +47,7 @@ pub enum APIVersion {
     V1 = 1,
 }
 
-impl Display for APIVersion {
+impl std::fmt::Display for APIVersion {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(match self {
             APIVersion::V1 => "v1",

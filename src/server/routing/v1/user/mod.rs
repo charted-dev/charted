@@ -22,28 +22,25 @@ use self::avatars::{
     GetUserAvatarByHashRestController, UploadAvatarRestController,
 };
 use crate::{
-    common::models::{
-        entities::{ApiKeyScope, ApiKeyScopes, User},
-        helm::ChartIndex,
-        payloads::{CreateUserPayload, PatchUserPayload},
-        Name, NameOrSnowflake,
-    },
     db::controllers::DbController,
     openapi::generate_response_schema,
     server::{
-        controller,
-        extract::Json,
         hash_password,
         middleware::session::{Middleware, Session},
-        models::res::{
-            err, internal_server_error, no_content, ok, ApiResponse, ErrorCode, Result, INTERNAL_SERVER_ERROR,
-        },
         routing::v1::EntrypointResponse,
         validation::{validate, validate_email},
     },
     Instance,
 };
 use axum::{extract::State, handler::Handler, http::StatusCode, routing, Extension, Router};
+use charted_entities::{
+    helm::ChartIndex,
+    payloads::{CreateUserPayload, PatchUserPayload},
+    ApiKeyScope, ApiKeyScopes, Name, NameOrSnowflake, User,
+};
+use charted_server::{
+    controller, err, extract::Json, internal_server_error, no_content, ok, ApiResponse, ErrorCode, Result,
+};
 use chrono::Local;
 use remi::{Bytes, StorageService, UploadRequest};
 use serde_json::json;
@@ -206,7 +203,7 @@ pub async fn create_user(
             ))
         }
 
-        Err(_) => return Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)),
+        Err(_) => return Err(internal_server_error()),
     }
 
     validate_email(payload.email.clone())?;
@@ -231,7 +228,7 @@ pub async fn create_user(
             error!(error = %e, user.email = payload.email, "unable to query user by email");
             sentry::capture_error(&e);
 
-            return Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR));
+            return Err(internal_server_error());
         }
     }
 
@@ -246,7 +243,7 @@ pub async fn create_user(
             ));
         }
 
-        Some(hash_password(pass).map_err(|_| err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR))?)
+        Some(hash_password(pass).map_err(|_| internal_server_error())?)
     } else {
         None
     };
@@ -267,7 +264,7 @@ pub async fn create_user(
         .users
         .create(payload, &user)
         .await
-        .map_err(|_| err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR))?;
+        .map_err(|_| internal_server_error())?;
 
     // create the chart index for this user
     let index = ChartIndex::default();
@@ -284,7 +281,7 @@ pub async fn create_user(
             error!(error = %e, user.id, "unable to create chart index for user");
             sentry::capture_error(&e);
 
-            err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
+            internal_server_error()
         })?;
 
     Ok(ok(StatusCode::CREATED, user))
@@ -300,7 +297,7 @@ pub async fn create_user(
 )]
 pub async fn get_user(
     State(Instance { controllers, .. }): State<Instance>,
-    crate::server::extract::NameOrSnowflake(nos): crate::server::extract::NameOrSnowflake,
+    charted_server::extract::NameOrSnowflake(nos): charted_server::extract::NameOrSnowflake,
 ) -> Result<User> {
     validate(&nos, NameOrSnowflake::validate)?;
     match controllers.users.get_by(&nos).await {
@@ -314,7 +311,7 @@ pub async fn get_user(
             ),
         )),
 
-        Err(_) => Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)),
+        Err(_) => Err(internal_server_error()),
     }
 }
 

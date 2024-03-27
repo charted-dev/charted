@@ -13,12 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    openapi::generate_response_schema,
-    server::{controller, models::res::ok},
-    VERSION,
-};
+use crate::{openapi::generate_response_schema, VERSION};
 use axum::http::StatusCode;
+use charted_server::{controller, ok};
 use serde::Serialize;
 use utoipa::ToSchema;
 

@@ -24,3 +24,24 @@ license.workspace = true
 publish.workspace = true
 repository.workspace = true
 authors.workspace = true
+
+[dependencies]
+azalia.workspace = true
+azure_storage = "0.19.0"
+aws-sdk-s3 = "1.21.0"
+charted-common = { version = "0.1.0-beta", path = "../common" }
+eyre.workspace = true
+noelware-config.workspace = true
+remi-azure = { workspace = true, features = ["serde"] }
+remi-fs = { workspace = true, features = ["serde"] }
+remi-s3 = { workspace = true, features = ["serde"] }
+serde.workspace = true
+toml = "0.8.12"
+tracing.workspace = true
+ubyte = { version = "0.10.4", features = ["serde"] }
+
+[dependencies.noelware-serde]
+version = "0.1.0"
+git = "https://github.com/Noelware/core-rs"
+rev = "c9d1919536ccfe0ba9b32fc3a9bc43b638e208b4"
+features = ["tracing"]

@@ -14,11 +14,9 @@
 // limitations under the License.
 
 use self::repository::release;
-use crate::{
-    common::models::NameOrSnowflake,
-    config::Config,
-    server::pagination::{OrderBy, Pagination, PaginationQuery},
-};
+use charted_config::Config;
+use charted_entities::NameOrSnowflake;
+use charted_server::pagination::{OrderBy, Pagination, PaginationQuery};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sqlx::PgPool;

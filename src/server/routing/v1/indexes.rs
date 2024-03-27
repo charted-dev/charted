@@ -13,21 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    common::models::{helm::ChartIndex, NameOrSnowflake},
-    db::controllers::DbController,
-    openapi::generate_response_schema,
-    server::{
-        controller,
-        extract::Path,
-        models::{
-            res::{err, internal_server_error, ApiResponse, ErrorCode},
-            yaml::Yaml,
-        },
-    },
-    Instance,
-};
+use crate::{db::controllers::DbController, openapi::generate_response_schema, Instance};
 use axum::{extract::State, http::StatusCode};
+use charted_entities::{helm::ChartIndex, NameOrSnowflake};
+use charted_server::{controller, err, extract::Path, internal_server_error, yaml, ApiResponse, ErrorCode, Yaml};
 use remi::StorageService;
 use serde_json::json;
 
@@ -74,7 +63,7 @@ pub async fn get_chart_index(
                 sentry::capture_error(&e);
             }).map_err(|_| internal_server_error())?;
 
-            Ok(Yaml(StatusCode::OK, contents))
+            Ok(yaml(StatusCode::OK, contents))
         }
 
         Ok(None) => match controllers.organizations.get_by(&nos).await {
@@ -103,8 +92,9 @@ pub async fn get_chart_index(
                     sentry::capture_error(&e);
                 }).map_err(|_| internal_server_error())?;
 
-                Ok(Yaml(StatusCode::OK, contents))
+                Ok(yaml(StatusCode::OK, contents))
             }
+
             Ok(None) => Err(err(
                 StatusCode::NOT_FOUND,
                 (

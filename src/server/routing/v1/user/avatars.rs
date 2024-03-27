@@ -14,17 +14,8 @@
 // limitations under the License.
 
 use crate::{
-    avatars::AvatarsModule,
-    common::models::{entities::User, NameOrSnowflake},
     db::controllers::DbController,
-    server::{
-        controller,
-        extract::Path,
-        middleware::session::Session,
-        models::res::{err, internal_server_error, ok, ApiResponse, ErrorCode, Result},
-        multipart::Multipart,
-        validation::validate,
-    },
+    server::{middleware::session::Session, validation::validate},
     Instance,
 };
 use axum::{
@@ -33,6 +24,12 @@ use axum::{
     response::IntoResponse,
     Extension,
 };
+use charted_entities::NameOrSnowflake;
+use charted_entities::User;
+use charted_server::{
+    controller, err, extract::Path, internal_server_error, multipart::Multipart, ok, ApiResponse, ErrorCode, Result,
+};
+use noelware_remi::StorageService;
 use remi_fs::default_resolver;
 use serde_json::json;
 use validator::Validate;
@@ -49,13 +46,15 @@ use validator::Validate;
 )]
 pub async fn get_current_user_avatar(
     State(Instance {
-        controllers, avatars, ..
+        controllers,
+        ref storage,
+        ..
     }): State<Instance>,
-    crate::server::extract::NameOrSnowflake(nos): crate::server::extract::NameOrSnowflake,
+    charted_server::extract::NameOrSnowflake(nos): charted_server::extract::NameOrSnowflake,
 ) -> std::result::Result<impl IntoResponse, ApiResponse> {
     validate(&nos, NameOrSnowflake::validate)?;
     match controllers.users.get_by(&nos).await {
-        Ok(Some(user)) => fetch_avatar_impl(user, avatars).await,
+        Ok(Some(user)) => fetch_avatar_impl(user, storage).await,
         Ok(None) => Err::<_, ApiResponse>(err(
             StatusCode::NOT_FOUND,
             (
@@ -79,14 +78,16 @@ pub async fn get_current_user_avatar(
 )]
 pub async fn get_user_avatar_by_hash(
     State(Instance {
-        controllers, avatars, ..
+        controllers,
+        ref storage,
+        ..
     }): State<Instance>,
-    crate::server::extract::NameOrSnowflake(nos): crate::server::extract::NameOrSnowflake,
+    charted_server::extract::NameOrSnowflake(nos): charted_server::extract::NameOrSnowflake,
     Path(hash): Path<String>,
 ) -> std::result::Result<impl IntoResponse, ApiResponse> {
     validate(&nos, NameOrSnowflake::validate)?;
     match controllers.users.get_by(&nos).await {
-        Ok(Some(user)) => fetch_avatar_by_hash_impl(user.id.try_into().unwrap(), hash, avatars).await,
+        Ok(Some(user)) => fetch_avatar_by_hash_impl(user.id.try_into().unwrap(), hash, storage).await,
         Ok(None) => Err::<_, ApiResponse>(err(
             StatusCode::NOT_FOUND,
             (
@@ -110,7 +111,7 @@ pub async fn get_user_avatar_by_hash(
     response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
 )]
 pub async fn upload_avatar(
-    State(Instance { avatars, pool, .. }): State<Instance>,
+    State(Instance { pool, ref storage, .. }): State<Instance>,
     Extension(Session { user, .. }): Extension<Session>,
     mut data: Multipart,
 ) -> Result<()> {
@@ -180,8 +181,7 @@ pub async fn upload_avatar(
         }
     };
 
-    let hash = avatars
-        .upload_user_avatar(user.id.try_into().unwrap(), data)
+    let hash = crate::avatars::upload_user_avatar(storage, user.id.try_into().unwrap(), data)
         .await
         .inspect_err(|e| {
             error!(error = %e, user.id, "unable to upload user avatar");
@@ -215,10 +215,10 @@ pub async fn upload_avatar(
     response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
 )]
 pub async fn get_self_user_avatar(
-    State(Instance { avatars, .. }): State<Instance>,
+    State(Instance { ref storage, .. }): State<Instance>,
     Extension(Session { user, .. }): Extension<Session>,
 ) -> std::result::Result<impl IntoResponse, ApiResponse> {
-    fetch_avatar_impl(user, avatars).await
+    fetch_avatar_impl(user, storage).await
 }
 
 /// Returns the current authenticated user's current avatar by the specific hash
@@ -229,19 +229,19 @@ pub async fn get_self_user_avatar(
     response(500, "Internal Server Error", ("application/json", response!("ApiErrorResponse")))
 )]
 pub async fn get_self_user_avatar_by_hash(
-    State(Instance { avatars, .. }): State<Instance>,
+    State(Instance { ref storage, .. }): State<Instance>,
     Extension(Session { user, .. }): Extension<Session>,
     Path(hash): Path<String>,
 ) -> std::result::Result<impl IntoResponse, ApiResponse> {
-    fetch_avatar_by_hash_impl(user.id.try_into().unwrap(), hash, avatars).await
+    fetch_avatar_by_hash_impl(user.id.try_into().unwrap(), hash, storage).await
 }
 
 async fn fetch_avatar_by_hash_impl(
     id: u64,
     hash: String,
-    avatars: AvatarsModule,
+    storage: &StorageService,
 ) -> std::result::Result<impl IntoResponse, ApiResponse> {
-    match avatars.user(id, Some(&hash)).await {
+    match crate::avatars::user(storage, id, Some(&hash)).await {
         Ok(Some(data)) => {
             let ct = default_resolver(data.as_ref());
             let mime = ct.parse::<mime::Mime>().inspect_err(|e| {
@@ -282,9 +282,12 @@ async fn fetch_avatar_by_hash_impl(
     }
 }
 
-async fn fetch_avatar_impl(user: User, avatars: AvatarsModule) -> std::result::Result<impl IntoResponse, ApiResponse> {
+async fn fetch_avatar_impl(
+    user: User,
+    storage: &StorageService,
+) -> std::result::Result<impl IntoResponse, ApiResponse> {
     if let Some(ref hash) = user.avatar_hash {
-        match avatars.user(user.id.try_into().unwrap(), Some(hash)).await {
+        match crate::avatars::user(storage, user.id.try_into().unwrap(), Some(hash)).await {
             Ok(Some(data)) => {
                 let ct = default_resolver(data.as_ref());
                 let mime = ct.parse::<mime::Mime>().map_err(|e| {
@@ -320,7 +323,7 @@ async fn fetch_avatar_impl(user: User, avatars: AvatarsModule) -> std::result::R
     }
 
     if let Some(ref gravatar) = user.gravatar_email {
-        match avatars.gravatar(gravatar).await {
+        match crate::avatars::gravatar(gravatar).await {
             Ok(Some(data)) => {
                 let ct = default_resolver(data.as_ref());
                 let mime = ct.parse::<mime::Mime>().map_err(|e| {
@@ -355,7 +358,7 @@ async fn fetch_avatar_impl(user: User, avatars: AvatarsModule) -> std::result::R
         }
     }
 
-    match avatars.identicons(user.id.try_into().unwrap()).await {
+    match crate::avatars::identicons(user.id.try_into().unwrap()).await {
         Ok(data) => {
             let ct = default_resolver(data.as_ref());
             let mime = ct.parse::<mime::Mime>().map_err(|e| {

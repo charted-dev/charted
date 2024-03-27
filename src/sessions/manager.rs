@@ -13,7 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{common::models::entities::User, hashmap, sessions::Session, Instance};
+use crate::{sessions::Session, Instance};
+use azalia::hashmap;
+use charted_entities::User;
 use chrono::Local;
 use eyre::{Context, Report};
 use jsonwebtoken::{Algorithm, EncodingKey, Header};

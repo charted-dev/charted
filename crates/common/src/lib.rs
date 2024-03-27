@@ -19,6 +19,9 @@ pub mod validation;
 mod bitfield;
 pub use bitfield::*;
 
+mod snowflake;
+pub use snowflake::*;
+
 mod macros;
 
 /// Snowflake epoch used for ID generation. (March 1st, 2024)
@@ -105,4 +108,30 @@ pub fn env_string<S: Into<String>>(key: S, default: String) -> eyre::Result<Stri
 /// Returns a randomized alphanumeric string with a specified length.
 pub fn rand_string(len: usize) -> String {
     Alphanumeric.sample_string(&mut rand::thread_rng(), len)
+}
+
+/// Returns the target architecture that this crate was built off from. charted-server only supports running
+/// on x86_64 and ARMv8 chips.
+pub fn architecture() -> &'static str {
+    if cfg!(target_arch = "x86_64") {
+        "amd64"
+    } else if cfg!(target_arch = "aarch64") {
+        "arm64"
+    } else {
+        "unknown"
+    }
+}
+
+/// Returns a machine-readable OS name. This will return `unknown` if this crate was built off an operating system
+/// that isn't supported by charted-server.
+pub fn os() -> &'static str {
+    if cfg!(target_os = "linux") {
+        "linux"
+    } else if cfg!(target_os = "macos") {
+        "macos"
+    } else if cfg!(windows) {
+        "windows"
+    } else {
+        "unknown"
+    }
 }

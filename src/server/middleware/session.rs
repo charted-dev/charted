@@ -13,16 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    auth,
-    common::models::{
-        entities::{ApiKeyScopes, User},
-        Name,
-    },
-    db::controllers::DbController,
-    server::models::res::{err, internal_server_error, ErrorCode, INTERNAL_SERVER_ERROR},
-    Instance,
-};
+use crate::{authz, db::controllers::DbController, Instance};
 use axum::{
     body::Body,
     http::{HeaderName, HeaderValue, Request, Response, StatusCode},
@@ -31,6 +22,8 @@ use axum::{
 };
 use axum_extra::{headers::Header, typed_header::TypedHeaderRejectionReason, TypedHeader};
 use base64::{engine::general_purpose::STANDARD, Engine as _};
+use charted_entities::{ApiKeyScopes, Name, User};
+use charted_server::{err, internal_server_error, ErrorCode};
 use futures_util::future::BoxFuture;
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use serde_json::{json, Value};
@@ -185,7 +178,7 @@ pub struct Middleware {
     pub require_refresh_token: bool,
 
     /// List of API key scopes to validate when a API key is sent.
-    pub scopes: ApiKeyScopes<'static>,
+    pub scopes: ApiKeyScopes,
 }
 
 /// Wrapper over [`axum::headers::Authorization`] that doesn't know
@@ -342,7 +335,7 @@ impl AsyncAuthorizeRequest<Body> for Middleware {
                         let user = match instance.controllers.users.get_by(&name).await {
                             Ok(Some(user)) => user,
                             Ok(None) => return Err(err(StatusCode::NOT_FOUND, (ErrorCode::EntityNotFound, "user with given username was not found", json!({"username":name}))).into_response()),
-                            Err(_) => return Err(err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR).into_response()),
+                            Err(_) => return Err(internal_server_error().into_response()),
                         };
 
                         match instance.authz.authenticate(user.clone(), password.to_string()).await {
@@ -350,7 +343,7 @@ impl AsyncAuthorizeRequest<Body> for Middleware {
                                 req.extensions_mut().insert(Session { session: None, user });
                             }
 
-                            Err(auth::Error::InvalidPassword) => return Err(Error::InvalidPassword.into_response()),
+                            Err(authz::Error::InvalidPassword) => return Err(Error::InvalidPassword.into_response()),
                             Err(e) => {
                                 error!(error = %e, user.id, "failed to authenticate from authz backend");
                                 sentry::capture_error(&e);

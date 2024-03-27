@@ -16,11 +16,9 @@
 mod stats;
 
 use super::EntrypointResponse;
-use crate::{
-    server::models::res::{ok, ApiResponse},
-    Instance,
-};
+use crate::Instance;
 use axum::{http::StatusCode, routing, Router};
+use charted_server::{ok, ApiResponse};
 
 pub fn create_router() -> Router<Instance> {
     Router::new()

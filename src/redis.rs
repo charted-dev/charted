@@ -34,7 +34,7 @@ pub struct Client {
 
 impl Client {
     /// Creates a new [`Client`].
-    pub fn new(config: &crate::config::redis::Config) -> Result<Client> {
+    pub fn new(config: &charted_config::redis::Config) -> Result<Client> {
         if config.hosts.is_empty() {
             warn!("received no redis hosts, using default connection info [redis://localhost:6379]");
             let client = RedisClient::open("redis://localhost:6379")

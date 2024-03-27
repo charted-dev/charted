@@ -13,22 +13,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    metrics::{
-        registries::{default::Default, prometheus::Prometheus},
-        Registry,
-    },
-    server::models::res::{err, internal_server_error, ok, ErrorCode, Result},
-    Instance,
-};
+use crate::Instance;
 use axum::{extract::State, http::StatusCode};
+use charted_metrics::{prometheus::Prometheus, Minimal, Registry};
+use charted_server::{err, internal_server_error, ok, ErrorCode, Result};
 use serde_json::{Map, Value};
 
 // Endpoint to collect raw metrics from this instance.
 pub async fn stats(State(Instance { metrics, .. }): State<Instance>) -> Result<Map<String, Value>> {
     // We first need to check if downcasting to `Prometheus` is successful since it contains
     // an inner registry that can be used for this specific reason.
-    let registry: Option<&Default> = if let Some(prometheus) = metrics.downcast::<Prometheus>() {
+    let registry: Option<&Minimal> = if let Some(prometheus) = metrics.downcast::<Prometheus>() {
         let inner = prometheus.inner();
         inner.downcast()
     } else {

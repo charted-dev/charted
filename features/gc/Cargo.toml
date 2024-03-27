@@ -23,7 +23,7 @@ authors = ["Noel Towa <cutie@floofy.dev>", "Noelware Team <team@noelware.org>"]
 
 # `gc` feature is not implemented as of 02/03/24
 [package.metadata.cargo-machete]
-ignored = ["logos", "sentry", "tracing"]
+ignored = ["logos", "sentry", "tracing", "charted-features"]
 
 [dependencies]
 charted-features = { version = "0.0.0-devel.0", path = ".." }

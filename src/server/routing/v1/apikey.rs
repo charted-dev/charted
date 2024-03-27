@@ -15,20 +15,10 @@
 
 use super::EntrypointResponse;
 use crate::{
-    common::models::{
-        entities::{ApiKey, ApiKeyScope, ApiKeyScopes},
-        payloads::CreateApiKeyPayload,
-        NameOrSnowflake,
-    },
     db::controllers::DbController,
     openapi::generate_response_schema,
-    rand_string,
     server::{
-        controller,
-        extract::Json,
         middleware::session::{Middleware, Session},
-        models::res::{err, internal_server_error, ok, ErrorCode, Result},
-        pagination::{OrderBy, PageInfo, Pagination, PaginationQuery},
         validation::validate,
     },
     Instance,
@@ -38,6 +28,15 @@ use axum::{
     handler::Handler,
     http::StatusCode,
     routing, Extension, Router,
+};
+use charted_common::rand_string;
+use charted_entities::{payloads::CreateApiKeyPayload, ApiKey, ApiKeyScope, ApiKeyScopes, NameOrSnowflake};
+use charted_server::{
+    controller, err,
+    extract::Json,
+    internal_server_error, ok,
+    pagination::{OrderBy, PageInfo, Pagination, PaginationQuery},
+    ErrorCode, Result,
 };
 use chrono::Local;
 use serde_json::json;
@@ -171,7 +170,7 @@ pub async fn list_all_apikeys(
 pub async fn get_single_apikey(
     State(Instance { pool, .. }): State<Instance>,
     Extension(Session { user, .. }): Extension<Session>,
-    crate::server::extract::NameOrSnowflake(nos): crate::server::extract::NameOrSnowflake,
+    charted_server::extract::NameOrSnowflake(nos): charted_server::extract::NameOrSnowflake,
 ) -> Result<ApiKey> {
     validate(&nos, NameOrSnowflake::validate)?;
     let mut query = QueryBuilder::<sqlx::Postgres>::new("select api_keys.* from api_keys");
@@ -266,7 +265,7 @@ pub async fn create_apikey(
         created_at: now,
         updated_at: now,
         expires_in: None,
-        scopes: scopes.max_bits().try_into().unwrap(),
+        scopes: scopes.max().try_into().unwrap(),
         token: Some(token),
         owner: user.id,
         name: payload.name.clone(),

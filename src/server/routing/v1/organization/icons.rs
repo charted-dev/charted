@@ -13,23 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{
-    avatars::AvatarsModule,
-    common::models::{entities::Organization, NameOrSnowflake},
-    db::controllers::DbController,
-    server::{
-        controller,
-        extract::Path,
-        models::res::{err, internal_server_error, ApiResponse, ErrorCode},
-        validation::validate,
-    },
-    Instance,
-};
+use crate::{db::controllers::DbController, server::validation::validate, Instance};
 use axum::{
     extract::State,
     http::{header, StatusCode},
     response::IntoResponse,
 };
+use charted_entities::{NameOrSnowflake, Organization};
+use charted_server::{controller, err, extract::Path, internal_server_error, ApiResponse, ErrorCode};
+use noelware_remi::StorageService;
 use remi_fs::default_resolver;
 use serde_json::json;
 use validator::Validate;
@@ -46,13 +38,15 @@ use validator::Validate;
 )]
 pub async fn get_current_org_icon(
     State(Instance {
-        controllers, avatars, ..
+        controllers,
+        ref storage,
+        ..
     }): State<Instance>,
-    crate::server::extract::NameOrSnowflake(nos): crate::server::extract::NameOrSnowflake,
+    charted_server::extract::NameOrSnowflake(nos): charted_server::extract::NameOrSnowflake,
 ) -> std::result::Result<impl IntoResponse, ApiResponse> {
     validate(&nos, NameOrSnowflake::validate)?;
     match controllers.organizations.get_by(&nos).await {
-        Ok(Some(org)) => fetch_icon_impl(org, avatars).await,
+        Ok(Some(org)) => fetch_icon_impl(org, storage).await,
         Ok(None) => Err::<_, ApiResponse>(err(
             StatusCode::NOT_FOUND,
             (
@@ -76,14 +70,16 @@ pub async fn get_current_org_icon(
 )]
 pub async fn get_org_icon_by_hash(
     State(Instance {
-        controllers, avatars, ..
+        controllers,
+        ref storage,
+        ..
     }): State<Instance>,
-    crate::server::extract::NameOrSnowflake(nos): crate::server::extract::NameOrSnowflake,
+    charted_server::extract::NameOrSnowflake(nos): charted_server::extract::NameOrSnowflake,
     Path(hash): Path<String>,
 ) -> std::result::Result<impl IntoResponse, ApiResponse> {
     validate(&nos, NameOrSnowflake::validate)?;
     match controllers.organizations.get_by(&nos).await {
-        Ok(Some(org)) => fetch_icon_by_hash_impl(org.id.try_into().unwrap(), hash, avatars).await,
+        Ok(Some(org)) => fetch_icon_by_hash_impl(org.id.try_into().unwrap(), hash, storage).await,
         Ok(None) => Err::<_, ApiResponse>(err(
             StatusCode::NOT_FOUND,
             (
@@ -206,9 +202,9 @@ pub async fn get_org_icon_by_hash(
 async fn fetch_icon_by_hash_impl(
     id: u64,
     hash: String,
-    icons: AvatarsModule,
+    storage: &StorageService,
 ) -> std::result::Result<impl IntoResponse, ApiResponse> {
-    match icons.organization(id, Some(&hash)).await {
+    match crate::avatars::organization(storage, id, Some(&hash)).await {
         Ok(Some(data)) => {
             let ct = default_resolver(data.as_ref());
             let mime = ct.parse::<mime::Mime>().map_err(|e| {
@@ -253,10 +249,10 @@ async fn fetch_icon_by_hash_impl(
 
 async fn fetch_icon_impl(
     org: Organization,
-    icons: AvatarsModule,
+    storage: &StorageService,
 ) -> std::result::Result<impl IntoResponse, ApiResponse> {
     if let Some(ref hash) = org.icon_hash {
-        match icons.organization(org.id.try_into().unwrap(), Some(hash)).await {
+        match crate::avatars::organization(storage, org.id.try_into().unwrap(), Some(hash)).await {
             Ok(Some(data)) => {
                 let ct = default_resolver(data.as_ref());
                 let mime = ct.parse::<mime::Mime>().map_err(|e| {
@@ -292,7 +288,7 @@ async fn fetch_icon_impl(
     }
 
     if let Some(ref gravatar) = org.gravatar_email {
-        match icons.gravatar(gravatar).await {
+        match crate::avatars::gravatar(gravatar).await {
             Ok(Some(data)) => {
                 let ct = default_resolver(data.as_ref());
                 let mime = ct.parse::<mime::Mime>().map_err(|e| {
@@ -327,7 +323,7 @@ async fn fetch_icon_impl(
         }
     }
 
-    match icons.identicons(org.id.try_into().unwrap()).await {
+    match crate::avatars::identicons(org.id.try_into().unwrap()).await {
         Ok(data) => {
             let ct = default_resolver(data.as_ref());
             let mime = ct.parse::<mime::Mime>().map_err(|e| {

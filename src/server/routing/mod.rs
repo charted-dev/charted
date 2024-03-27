@@ -13,21 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::Instance;
 use axum::{
     body::Body,
     extract::DefaultBodyLimit,
     http::{header, Method, Response, StatusCode},
     Router,
 };
+use charted_server::{err, ErrorCode};
 use serde_json::json;
 use std::any::Any;
 use tower::ServiceBuilder;
 use tower_http::cors::CorsLayer;
-
-use crate::{
-    server::models::res::{err, ErrorCode},
-    Instance,
-};
 
 pub mod v1;
 
@@ -94,7 +91,7 @@ pub fn create_router(instance: &Instance) -> Router<Instance> {
                 ])
                 .allow_origin(tower_http::cors::Any),
         )
-        .layer(axum::middleware::from_fn(crate::server::middleware::request_id))
+        .layer(axum::middleware::from_fn(charted_server::middleware::request_id))
         .layer(axum::middleware::from_fn(crate::server::middleware::log));
 
     Router::new().merge(create_internal_router(instance)).layer(stack)

@@ -13,7 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::common::{models::Distribution, os};
+use charted_common::{architecture, os};
+use charted_entities::Distribution;
 use serde_json::json;
 
 /// Returns the version information of this binary.
@@ -41,8 +42,8 @@ pub fn run(Args { json }: Args) {
     eprintln!(
         "🐻‍❄️📦 charted-server v{} ({}/{}) on {}",
         crate::version(),
-        os::os_name(),
-        os::architecture(),
+        os(),
+        architecture(),
         distribution
     );
 }
