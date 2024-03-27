@@ -169,7 +169,7 @@ redis = { version = "0.25.2", features = [
 regex.workspace = true
 remi.workspace = true
 remi-azure = { version = "0.6.3", features = ["serde", "tracing"] }
-remi-fs.workspace = true
+remi-fs = { workspace = true, features = ["serde", "tracing"] }
 remi-s3 = { version = "0.6.3", features = ["serde", "tracing"] }
 reqwest = "0.12.2"
 semver.workspace = true

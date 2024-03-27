@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::TRUTHY_REGEX;
 use aws_sdk_s3::{
     config::Region,
     types::{BucketCannedAcl, ObjectCannedAcl},
@@ -22,8 +23,6 @@ use noelware_config::{env, TryFromEnv};
 use remi_azure::Credential;
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, path::PathBuf, str::FromStr};
-
-use crate::TRUTHY_REGEX;
 
 /// Configures the storage for holding external media and chart indexes.
 #[derive(Debug, Clone, Serialize, Deserialize)]

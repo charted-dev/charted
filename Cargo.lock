@@ -4608,7 +4608,9 @@ dependencies = [
  "futures",
  "infer 0.15.0",
  "remi",
+ "serde",
  "tokio",
+ "tracing",
 ]
 
 [[package]]
