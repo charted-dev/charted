@@ -117,7 +117,7 @@ publish.workspace = true
 [dependencies]
 argon2 = "0.5.3"
 async-trait = "0.1.79"
-aws-sdk-s3 = "1.17.0"
+aws-sdk-s3 = "1.21.0"
 axum.workspace = true
 axum-extra = { version = "0.9.3", features = ["typed-header"] }
 axum-server = { version = "0.6.0", features = ["tls-rustls"] }
