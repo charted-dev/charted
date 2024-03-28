@@ -687,8 +687,8 @@ FodyWeavers.xsd
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
 
-!crates/helm-charts/tests/__fixtures__/*.tgz
 !server/src/routing/**/repository/releases/
+!crates/charts/tests/__fixtures__/*.tgz
 !src/charts/__fixtures__/*.tgz
 !distribution/bin/
 !scripts/publish/
