@@ -44,7 +44,7 @@ async-trait.workspace = true
 chrono = { optional = true, workspace = true }
 cron = { version = "0.12.1", optional = true }
 log = { version = "0.4.21", optional = true }
-pin-project-lite = "0.2.13"
+pin-project-lite = "0.2.14"
 tokio = { version = "1.37.0", features = ["macros"] }
 tokio-util = "0.7.10"
 tracing = { version = "0.1.40", optional = true }
