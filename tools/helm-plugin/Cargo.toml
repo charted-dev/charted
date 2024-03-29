@@ -53,8 +53,8 @@ reqwest = { version = "0.12.2", features = ["gzip"] }
 semver.workspace = true
 serde.workspace = true
 serde_yaml.workspace = true
-similar = { version = "2.4.0", features = ["inline"] }
-tokio = { version = "1.36.0", features = ["rt", "macros", "io-util", "fs"] }
+similar = { version = "2.5.0", features = ["inline"] }
+tokio = { workspace = true, features = ["rt", "macros", "io-util", "fs"] }
 tracing = "0.1.40"
 tracing-indicatif = "0.3.6"
 tracing-log = "0.2.0"

@@ -21,18 +21,18 @@ I built `tatsuki` due to wanting a smaller library that only requires an async r
 
 You can view the [`./examples` directory](./examples) for more examples on what you can do.
 
-```rust
+```rust,ignore
 // [dependencies]
 // tatsuki = { version = "*", features = ["tokio"] }
 // tokio = { version = "*", features = ["full"] }
 
-use tatsuki::{EventLoop, rt::Tokio};
+use tatsuki::EventLoop;
 
 #[tokio::main]
 async fn main() {
     // First, we build an `EventLoop` where all jobs will live in. It will depend
     // on the Tokio runtime.
-    let mut scheduler = EventLoop::<Tokio>::default();
+    let mut scheduler = EventLoop::tokio();
 
     // Now, we can schedule a job
     scheduler.first_shot("a description of the job", myjob);
