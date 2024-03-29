@@ -61,7 +61,7 @@ impl From<PaginationQuery> for PaginationRequest {
             order_by: value.order,
             owner_id: None,
             cursor: value.cursor,
-            metadata: crate::hashmap!(),
+            metadata: azalia::hashmap!(),
         }
     }
 }

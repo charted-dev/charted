@@ -15,7 +15,6 @@
 
 use crate::{
     db::controllers::{DbController, PaginationRequest},
-    hashmap,
     server::middleware::session::{Middleware, Session},
     Instance,
 };
@@ -25,6 +24,7 @@ use axum::{
     http::StatusCode,
     routing, Extension, Router,
 };
+use azalia::hashmap;
 use charted_entities::{ApiKeyScope, ApiKeyScopes, RepositoryRelease};
 use charted_server::{
     controller, err,

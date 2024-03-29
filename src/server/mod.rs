@@ -15,10 +15,11 @@
 
 pub use charted_proc_macros::controller;
 
-use crate::{lazy, Instance};
+use crate::Instance;
 use argon2::{password_hash::SaltString, Algorithm, Argon2, Params, PasswordHasher, Version};
 use axum::Router;
 use axum_server::{tls_rustls::RustlsConfig, Handle};
+use charted_common::lazy;
 use charted_config::server::{self, ssl};
 use eyre::Context;
 use once_cell::sync::Lazy;

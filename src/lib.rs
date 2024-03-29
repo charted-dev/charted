@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use axum::extract::FromRef;
-use charted_common::Snowflake;
+use charted_common::{lazy, Snowflake};
 use charted_metrics::Registry;
 use noelware_remi::StorageService;
 use once_cell::sync::Lazy;
@@ -46,7 +46,6 @@ pub mod caching;
 pub mod cli;
 pub mod db;
 pub mod emails;
-pub mod macros;
 pub mod metrics;
 pub mod openapi;
 pub mod redis;

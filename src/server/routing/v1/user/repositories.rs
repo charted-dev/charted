@@ -93,7 +93,7 @@ pub async fn list_user_repositories(
             order_by: order,
             per_page,
             cursor,
-            metadata: crate::hashmap!(),
+            metadata: azalia::hashmap!(),
         })
         .await
         .map(|data| ok(StatusCode::OK, data))

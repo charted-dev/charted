@@ -68,7 +68,7 @@ impl dyn Registry {
     ///
     /// ## Example
     /// ```
-    /// # use charted::metrics::{Registry, registries::disabled::Disabled};
+    /// # use charted_metrics::{Registry, Disabled};
     /// # use std::sync::Arc;
     /// #
     /// // create a registry using `Arc` (this also works with `Box`).

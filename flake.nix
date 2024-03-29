@@ -65,7 +65,7 @@
       };
 
       hashes = {
-        "noelware-config" = "sha256-wSBYHva/VbU0F++2XBUrg1Onhatq46gjksDyv1aMaeM=";
+        "noelware-config" = "sha256-ZOIaeMJO44NNn2/PKiLX731UlKAQukYAlSWQixELxl4=";
       };
     in rec {
       packages = {

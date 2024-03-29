@@ -13,7 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{lazy, openapi::openapi};
+use crate::openapi::openapi;
+use charted_common::lazy;
 use charted_proc_macros::add_paths;
 use charted_server::APIVersion;
 use once_cell::sync::Lazy;
