@@ -29,10 +29,7 @@ pub struct CreateUserPayload {
     pub username: Name,
 
     /// The password to use when authenticating, this is optional on non-local sessions.
-    #[schema(
-        value_type = password,
-        pattern = "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$"
-    )]
+    #[schema(pattern = "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$")]
     pub password: Option<String>,
 
     /// Email address to identify this user
@@ -97,10 +94,7 @@ pub struct PatchUserPayload {
     pub username: Option<Name>,
 
     /// Updates this user's password, if the session manager configured allows it.
-    #[schema(
-        value_type = password,
-        pattern = "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$"
-    )]
+    #[schema(pattern = "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$")]
     #[validate(length(min = 8))]
     pub password: Option<String>,
 
@@ -117,10 +111,7 @@ pub struct PatchUserPayload {
 #[derive(Debug, Clone, Deserialize, ToSchema, Validate)]
 pub struct UserLoginPayload {
     /// Password to authenticate as.
-    #[schema(
-        value_type = password,
-        pattern = "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$"
-    )]
+    #[schema(pattern = "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$")]
     #[validate(length(min = 8))]
     pub password: String,
 

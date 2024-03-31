@@ -23,6 +23,10 @@ use std::{
     ops::Deref,
     str::FromStr,
 };
+use utoipa::{
+    openapi::{KnownFormat, ObjectBuilder, OneOfBuilder, RefOr, Schema, SchemaFormat, SchemaType},
+    ToSchema,
+};
 
 /// Represents a [`Duration`][std::time::Duration] that can be used with
 /// serde's Serializer and Deserializer traits.
@@ -107,6 +111,31 @@ impl Deref for Duration {
 
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+impl<'s> ToSchema<'s> for Duration {
+    fn schema() -> (&'s str, RefOr<Schema>) {
+        let oneof = OneOfBuilder::new()
+            .description(Some("Generalised type to represent a span of time. charted-server supports using unsigned 64-bit integers (in milliseconds) or a human-based format (like '1s') to represent durations."))
+            .item(Schema::Object(
+                ObjectBuilder::new()
+                    .schema_type(SchemaType::Number)
+                    .format(Some(SchemaFormat::KnownFormat(KnownFormat::Int64)))
+                    .description(Some("Represents a span of time (in milliseconds) that can be represented"))
+                    .build()
+            ))
+            .item(
+                Schema::Object(
+                    ObjectBuilder::new()
+                        .schema_type(SchemaType::String)
+                        .description(Some("Human-based representation of a span of time (i.e, '1s') or a concatenation of one single span of time as multiple units (i.e, '1min2s')"))
+                        .build()
+                )
+            )
+            .build();
+
+        ("Duration", RefOr::T(Schema::OneOf(oneof)))
     }
 }
 

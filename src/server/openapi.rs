@@ -62,6 +62,8 @@ static COMPONENTS: Lazy<Components> = lazy!(ComponentsBuilder::new()
         charted_entities::UserConnections::schema(),
         charted_entities::helm::ChartType::schema(),
         charted_entities::NameOrSnowflake::schema(),
+        charted_common::serde::Duration::schema(),
+        charted_entities::Distribution::schema(),
         charted_entities::Organization::schema(),
         charted_entities::ApiKeyScope::schema(),
         charted_entities::helm::Chart::schema(),
@@ -79,6 +81,7 @@ static COMPONENTS: Lazy<Components> = lazy!(ComponentsBuilder::new()
         datetime()
     ])
     .responses_from_iter([
+        crate::server::routing::v1::organization::OrganizationResponse::response(),
         crate::server::routing::v1::user::sessions::SessionResponse::response(),
         crate::server::routing::v1::repository::RepositoryResponse::response(),
         crate::server::routing::v1::repository::RepositoryResponse::response(),
