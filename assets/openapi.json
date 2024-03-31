@@ -2068,10 +2068,15 @@
             "CreateUserPayload": {
                 "type": "object",
                 "description": "Represents the payload for creating a new user.",
-                "required": ["username", "password", "email"],
+                "required": ["username", "email"],
                 "properties": {
                     "email": { "type": "string", "description": "Email address to identify this user" },
-                    "password": { "$ref": "#/components/schemas/password" },
+                    "password": {
+                        "type": "string",
+                        "description": "The password to use when authenticating, this is optional on non-local sessions.",
+                        "nullable": true,
+                        "pattern": "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$"
+                    },
                     "username": { "$ref": "#/components/schemas/Name" }
                 }
             },
@@ -2080,6 +2085,25 @@
                 "format": "date-time",
                 "description": "RFC3339-encoded string that represents a datetime",
                 "readOnly": true
+            },
+            "Distribution": {
+                "type": "string",
+                "description": "Represents the distribution that this instance is running off from.",
+                "enum": ["kubernetes", "unknown", "docker", "rpm", "deb", "git"]
+            },
+            "Duration": {
+                "oneOf": [
+                    {
+                        "type": "number",
+                        "format": "int64",
+                        "description": "Represents a span of time (in milliseconds) that can be represented"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Human-based representation of a span of time (i.e, '1s') or a concatenation of one single span of time as multiple units (i.e, '1min2s')"
+                    }
+                ],
+                "description": "Generalised type to represent a span of time. charted-server supports using unsigned 64-bit integers (in milliseconds) or a human-based format (like '1s') to represent durations."
             },
             "EntrypointResponse": {
                 "type": "object",
@@ -2466,7 +2490,6 @@
             "PatchUserPayload": {
                 "type": "object",
                 "description": "Payload for patching your user metadata.",
-                "required": ["password"],
                 "properties": {
                     "description": {
                         "type": "string",
@@ -2480,7 +2503,12 @@
                         "nullable": true
                     },
                     "name": { "allOf": [{ "$ref": "#/components/schemas/Name" }], "nullable": true },
-                    "password": { "$ref": "#/components/schemas/password" },
+                    "password": {
+                        "type": "string",
+                        "description": "Updates this user's password, if the session manager configured allows it.",
+                        "nullable": true,
+                        "pattern": "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$"
+                    },
                     "username": { "$ref": "#/components/schemas/Name" }
                 }
             },
@@ -2646,7 +2674,11 @@
                         "description": "Email to authenticate as. This is mutually exclusive with `username`.",
                         "nullable": true
                     },
-                    "password": { "$ref": "#/components/schemas/password" },
+                    "password": {
+                        "type": "string",
+                        "description": "Password to authenticate as.",
+                        "pattern": "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$"
+                    },
                     "username": { "allOf": [{ "$ref": "#/components/schemas/Name" }], "nullable": true }
                 }
             },
@@ -2838,6 +2870,24 @@
                                 "success": {
                                     "type": "boolean",
                                     "description": "whether if this response [OrganizationPaginatedResponse] was successful or not"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "OrganizationResponse": {
+                "description": "Response object for \"Organization\"",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": { "$ref": "#/components/schemas/Organization" },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "whether if this response [OrganizationResponse] was successful or not"
                                 }
                             }
                         }
