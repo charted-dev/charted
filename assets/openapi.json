@@ -2089,7 +2089,7 @@
             "Distribution": {
                 "type": "string",
                 "description": "Represents the distribution that this instance is running off from.",
-                "enum": ["kubernetes", "unknown", "docker", "rpm", "deb", "git"]
+                "enum": ["kubernetes", "unknown", "docker", "rpm", "deb", "git@nix", "git"]
             },
             "Duration": {
                 "oneOf": [
@@ -2490,6 +2490,7 @@
             "PatchUserPayload": {
                 "type": "object",
                 "description": "Payload for patching your user metadata.",
+                "required": ["username"],
                 "properties": {
                     "description": {
                         "type": "string",
@@ -2514,7 +2515,7 @@
             },
             "Repository": {
                 "type": "object",
-                "required": ["created_at", "updated_at", "owner", "name", "type", "id"],
+                "required": ["created_at", "updated_at", "creator", "owner", "name", "type", "id"],
                 "properties": {
                     "created_at": { "$ref": "#/components/schemas/DateTime" },
                     "creator": { "$ref": "#/components/schemas/Snowflake" },
@@ -2745,6 +2746,24 @@
                                 "success": {
                                     "type": "boolean",
                                     "description": "whether if this response [ApiKeyResponse] was successful or not"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "ChartIndexResponse": {
+                "description": "Response object for \"ChartIndex\"",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": { "$ref": "#/components/schemas/ChartIndex" },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "whether if this response [ChartIndexResponse] was successful or not"
                                 }
                             }
                         }
