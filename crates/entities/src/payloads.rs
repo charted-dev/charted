@@ -90,7 +90,7 @@ pub struct PatchUserPayload {
     pub description: Option<String>,
 
     /// Updates this user's username.
-    #[schema(schema_with = crate::name_schema)]
+    #[schema(value_type = Name)]
     pub username: Option<Name>,
 
     /// Updates this user's password, if the session manager configured allows it.

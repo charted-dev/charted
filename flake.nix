@@ -78,6 +78,8 @@
           src = ./.;
 
           env.PROTOC = pkgs.lib.getExe pkgs.protobuf;
+          env.CHARTED_DISTRIBUTION_KIND = "git@nix";
+
           cargoLock = {
             lockFile = ./Cargo.lock;
             outputHashes = {

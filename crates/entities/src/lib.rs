@@ -142,6 +142,13 @@ pub enum Distribution {
     /// from [Noelware's Artifacts Registry](https://artifacts.noelware.cloud)
     Deb,
 
+    /// Built from the [Nix flake] in the [canonical Git repository].
+    ///
+    /// [Nix flake]: https://github.com/charted-dev/charted/blob/main/flake.nix
+    /// [canonical Git repository]: https://github.com/charted-dev/charted
+    #[serde(rename = "git@nix")]
+    GitNix,
+
     /// Running from the Git repository
     Git,
 }
@@ -167,6 +174,9 @@ impl Distribution {
 
                 DETECTED = match env!("CHARTED_DISTRIBUTION_KIND") {
                     Ok(s) => match s.as_str() {
+                        // built from `nix build .#charted`
+                        "git@nix" => Distribution::GitNix,
+
                         // rpm and deb are automatically set in the systemd service
                         // so we don't need to do any detection
                         "rpm" => Distribution::RPM,
@@ -192,20 +202,13 @@ impl Display for Distribution {
         match self {
             Distribution::Kubernetes => f.write_str("kubernetes"),
             Distribution::Docker => f.write_str("docker"),
+            Distribution::GitNix => f.write_str("nix package manager"),
             Distribution::Git => f.write_str("git"),
             Distribution::Deb => f.write_str("debian"),
             Distribution::RPM => f.write_str("rpm"),
             _ => f.write_str("«unknown»"),
         }
     }
-}
-
-fn snowflake_schema() -> impl Into<RefOr<Schema>> {
-    Ref::from_schema_name("Snowflake")
-}
-
-fn name_schema() -> impl Into<RefOr<Schema>> {
-    Ref::from_schema_name("Name")
 }
 
 /// Represents an account that can own [repositories][Repository] and [organizations][Organization]
@@ -259,7 +262,7 @@ pub struct User {
     pub name: Option<String>,
 
     /// Unique identifier to locate this user with the API
-    #[schema(read_only, schema_with = snowflake_schema)]
+    #[schema(read_only, value_type = Snowflake)]
     pub id: i64,
 }
 
@@ -289,11 +292,12 @@ pub struct UserConnections {
     pub updated_at: DateTime,
 
     /// Snowflake of the user that owns this connections object.
-    #[schema(read_only, schema_with = snowflake_schema)]
+    #[schema(read_only, value_type = Snowflake)]
     pub id: i64,
 }
 
-#[derive(Debug, Clone, Default, ToSchema, Serialize, Deserialize, FromRow)]
+#[derive(Debug, Clone, Default, ToSchema, Serialize, Deserialize, FromRow, Indexable, Searchable)]
+#[indexable(index = "repositories")]
 pub struct Repository {
     /// Short description about this user, can be `null` if none was provided.
     #[serde(default)]
@@ -317,7 +321,7 @@ pub struct Repository {
 
     /// Unique identifier that points to a [`User`] that owns the repository if it is
     /// under an organization.
-    #[schema(read_only, schema_with = snowflake_schema)]
+    #[schema(read_only, value_type = Snowflake)]
     pub creator: Option<i64>,
 
     /// Whether if this repository is private or not
@@ -325,18 +329,18 @@ pub struct Repository {
     pub private: bool,
 
     /// Unique identifier that points to a User or Organization resource that owns this repository
-    #[schema(read_only, schema_with = snowflake_schema)]
+    #[schema(read_only, value_type = Snowflake)]
     pub owner: i64,
 
     /// Unique [Name] to locate this repository from the API
-    #[schema(schema_with = name_schema)]
+    #[schema(value_type = Name)]
     pub name: Name,
 
     /// The chart type that this repository is
     pub r#type: ChartType,
 
     /// Unique identifier to locate this repository from the API
-    #[schema(read_only, schema_with = snowflake_schema)]
+    #[schema(read_only, value_type = Snowflake)]
     pub id: i64,
 }
 
@@ -347,7 +351,8 @@ pub struct Repository {
 /// Any repository can have an unlimited amount of releases, but tags cannot clash
 /// into each other, so the API server will not accept it. Each tag should be
 /// a SemVer 2 comformant string, parsing is related to how Cargo evaluates SemVer 2 tags.
-#[derive(Debug, Clone, Serialize, Deserialize, ToSchema, FromRow)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema, FromRow, Indexable, Searchable)]
+#[indexable(index = "repository_releases")]
 pub struct RepositoryRelease {
     /// Whether if this release is a pre-release or not.
     #[serde(default)]
@@ -358,7 +363,7 @@ pub struct RepositoryRelease {
     pub update_text: Option<String>,
 
     /// Repository that owns this release
-    #[schema(read_only, schema_with = snowflake_schema)]
+    #[schema(read_only, value_type = Snowflake)]
     pub repository: i64,
 
     /// Date of when this release was registered to this instance
@@ -374,7 +379,7 @@ pub struct RepositoryRelease {
     pub tag: Version,
 
     /// Unique identifier to locate this repository release resource from the API.
-    #[schema(read_only, schema_with = snowflake_schema)]
+    #[schema(read_only, value_type = Snowflake)]
     pub id: i64,
 }
 
@@ -398,11 +403,11 @@ pub struct Member {
     pub joined_at: DateTime,
 
     /// [User] resource that this member is.
-    #[schema(read_only, schema_with = snowflake_schema)]
+    #[schema(read_only, value_type = Snowflake)]
     pub user: i64,
 
     /// Unique identifier to locate this member with the API
-    #[schema(schema_with = snowflake_schema)]
+    #[schema(value_type = Snowflake)]
     pub id: i64,
 }
 
@@ -425,7 +430,8 @@ impl Member {
 /// Represents a unified entity that can manage and own repositories outside
 /// a User. Organizations to the server is used for business-related Helm charts
 /// that aren't tied to a specific User.
-#[derive(Debug, Clone, ToSchema, Serialize, Deserialize, Default, FromRow)]
+#[derive(Debug, Clone, ToSchema, Serialize, Deserialize, Default, FromRow, Indexable, Searchable)]
+#[indexable(index = "organizations")]
 pub struct Organization {
     /// Whether if this Organization is a Verified Publisher or not.
     #[serde(default)]
@@ -462,7 +468,7 @@ pub struct Organization {
     pub private: bool,
 
     /// User ID that owns this organization
-    #[schema(read_only, schema_with = snowflake_schema)]
+    #[schema(read_only, value_type = Snowflake)]
     pub owner: i64,
 
     /// The name for this organization.
@@ -470,7 +476,7 @@ pub struct Organization {
     pub name: Name,
 
     /// Unique identifier to locate this organization with the API
-    #[schema(read_only, schema_with = snowflake_schema)]
+    #[schema(read_only, value_type = Snowflake)]
     pub id: i64,
 }
 
@@ -509,15 +515,15 @@ pub struct ApiKey {
     /// User resource that owns this API key. This is skipped
     /// when using the API as this is pretty useless.
     #[serde(skip)]
-    #[schema(read_only, schema_with = snowflake_schema)]
+    #[schema(read_only, value_type = Snowflake)]
     pub owner: i64,
 
     /// The name of the API key.
-    #[schema(read_only, schema_with = name_schema)]
+    #[schema(read_only, value_type = Name)]
     pub name: Name,
 
     /// Unique identifer to locate this resource in the API server.
-    #[schema(read_only, schema_with = snowflake_schema)]
+    #[schema(read_only, value_type = Snowflake)]
     pub id: i64,
 }
 

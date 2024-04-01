@@ -144,7 +144,7 @@ pub fn new(config: &Config) -> Arc<dyn Registry> {
 
     #[cfg(not(tokio_unstable))]
     let collectors: [Box<dyn Collector>; 2] = [
-        Box::new(crate::metrics::ProcessCollector),
+        Box::new(charted_metrics::collectors::ProcessCollector),
         Box::new(crate::metrics::ServerMetricsCollector),
     ];
 
