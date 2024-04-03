@@ -30,5 +30,5 @@ proc-macro = true
 heck = "0.5.0"
 proc-macro2 = "1.0.79"
 quote = "1.0.35"
-syn = "2.0.57"
+syn = "2.0.58"
 utoipa = "4.2.0"
