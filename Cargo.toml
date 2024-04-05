@@ -173,7 +173,7 @@ remi.workspace = true
 remi-azure = { workspace = true, features = ["serde", "tracing"] }
 remi-fs = { workspace = true, features = ["serde", "tracing"] }
 remi-s3 = { workspace = true, features = ["serde", "tracing"] }
-reqwest = "0.12.2"
+reqwest = "0.12.3"
 sentry.workspace = true
 sentry-eyre = "0.1.0"
 sentry-tower = { version = "0.32.2", features = ["axum", "http"] }
