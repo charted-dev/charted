@@ -2578,21 +2578,21 @@ dependencies = [
 
 [[package]]
 name = "hcl-edit"
-version = "0.7.5"
+version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "03a26997e14682d03577efb6db478afe69d92ffcaacc2a96190a43f65930d272"
+checksum = "5b6883d69debee97ab70f17202b413677ae48fa20e24d2f8954b6143eacfb743"
 dependencies = [
  "fnv",
  "hcl-primitives",
  "vecmap-rs",
- "winnow 0.5.40",
+ "winnow",
 ]
 
 [[package]]
 name = "hcl-primitives"
-version = "0.1.2"
+version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "449e681c5cb0ba266dd22b9b3fbd9895e5239c60707a0c5319cfdbe620efb49a"
+checksum = "4ee6b6fdd021746aba7082aebd6f83d63de8bfdd97c95acc2b40bee8355a1644"
 dependencies = [
  "itoa",
  "kstring",
@@ -2603,9 +2603,9 @@ dependencies = [
 
 [[package]]
 name = "hcl-rs"
-version = "0.16.7"
+version = "0.16.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e57c79b24c24fcabd8aaf00ccb2ab4e5d4145b935ede0be53d3ebb434decd56c"
+checksum = "e8d56140ed9407425519a792cc2140bbe4165353cf4325be19484a3856f5b594"
 dependencies = [
  "hcl-edit",
  "hcl-primitives",
@@ -5804,7 +5804,7 @@ dependencies = [
  "serde",
  "serde_spanned",
  "toml_datetime",
- "winnow 0.6.5",
+ "winnow",
 ]
 
 [[package]]
@@ -6219,9 +6219,9 @@ checksum = "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426"
 
 [[package]]
 name = "vecmap-rs"
-version = "0.1.15"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9a0ce445fd2377c601626ca410ac4d24c2c3fdabbca5c88c1eb94003f1586541"
+checksum = "67d9c76f2c769d47dec11c6f4a9cd3be5e5e025a6bce297b07a311a3514ca97d"
 dependencies = [
  "serde",
 ]
@@ -6618,15 +6618,6 @@ name = "windows_x86_64_msvc"
 version = "0.52.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32b752e52a2da0ddfbdbcc6fceadfeede4c939ed16d13e648833a61dfb611ed8"
-
-[[package]]
-name = "winnow"
-version = "0.5.40"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f593a95398737aeed53e489c785df13f3618e41dbcd6718c6addbf1395aa6876"
-dependencies = [
- "memchr",
-]
 
 [[package]]
 name = "winnow"
