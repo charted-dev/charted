@@ -180,7 +180,7 @@ sentry-tower = { version = "0.32.2", features = ["axum", "http"] }
 sentry-tracing = "0.32.2"
 serde.workspace = true
 serde_json.workspace = true
-serde_repr = "0.1.18"
+serde_repr = "0.1.19"
 serde_yaml.workspace = true
 sqlx.workspace = true
 tokio = { workspace = true, features = [
