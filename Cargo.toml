@@ -52,7 +52,7 @@ base64 = "0.22.0"
 chrono = { version = "0.4.37", features = ["serde"] }
 clap = { version = "4.5.4", features = ["derive", "env"] }
 cli-table = "0.4.7"
-clap_complete = "4.5.1"
+clap_complete = "4.5.2"
 color-eyre = { version = "0.6.3", features = ["issue-url", "tracing-error"] }
 dotenvy = "0.15.7"
 erased-serde = "0.4.4"
@@ -136,7 +136,7 @@ charted-search-meilisearch = { version = "0.1.0-beta", path = "crates/search/mei
 charted-server = { version = "0.1.0-beta", path = "crates/server" }
 chrono.workspace = true
 clap.workspace = true
-clap_complete = "4.5.1"
+clap_complete = "4.5.2"
 cli-table.workspace = true
 color-eyre.workspace = true
 dotenvy = "0.15.7"
