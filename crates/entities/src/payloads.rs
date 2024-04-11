@@ -287,7 +287,7 @@ pub struct CreateApiKeyPayload {
     pub scopes: Vec<ApiKeyScope>,
 
     /// key name to use to identify the key
-    #[validate]
+    #[validate(nested)]
     pub name: Name,
 }
 
@@ -305,7 +305,7 @@ pub struct PatchApiKeyPayload {
 
     /// key name to use to identify the key
     #[serde(default)]
-    #[validate]
+    #[validate(nested)]
     pub name: Option<Name>,
 }
 
