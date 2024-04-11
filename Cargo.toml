@@ -84,7 +84,7 @@ tracing = "0.1.40"
 tokio = "1.37.0"
 url = { version = "2.5.0", features = ["serde"] }
 utoipa = { version = "4.2.0", features = ["uuid"] }
-validator = { version = "0.17.0", features = ["derive"] }
+validator = { version = "0.18.1", features = ["derive"] }
 which = "6.0.1"
 
 [workspace.dependencies.noelware-config]
