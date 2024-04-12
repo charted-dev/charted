@@ -66,7 +66,7 @@ prometheus-client = "0.22.2"
 regex = "1.10.4"
 remi = "0.6.3"
 remi-azure = "0.6.3"
-remi-fs = "0.6.3"
+remi-fs = "0.7.0"
 remi-s3 = "0.6.3"
 semver = { version = "1.0.22", features = ["serde"] }
 sentry = "0.32.2"
