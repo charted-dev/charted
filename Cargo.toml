@@ -149,7 +149,7 @@ ldap3 = "0.11.3"
 md-5 = "0.10.6"
 mimalloc = "0.1.39"
 mime.workspace = true
-moka = { version = "0.12.5", features = ["future"] }
+moka = { version = "0.12.6", features = ["future"] }
 num_cpus = "1.16.0"
 noelware-config.workspace = true
 noelware-remi = { workspace = true, features = ["azure", "fs", "s3"] }
