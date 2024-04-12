@@ -65,7 +65,8 @@
       };
 
       hashes = {
-        "noelware-config" = "sha256-ZOIaeMJO44NNn2/PKiLX731UlKAQukYAlSWQixELxl4=";
+        "noelware-serde" = "sha256-ZOIaeMJO44NNn2/PKiLX731UlKAQukYAlSWQixELxl4=";
+        "azalia" = "sha256-qhX0hZXKqEyGWTxxbCimYixM+/YGIqi6gPFhj1F/csA=";
       };
     in rec {
       packages = {
@@ -83,7 +84,8 @@
           cargoLock = {
             lockFile = ./Cargo.lock;
             outputHashes = {
-              "noelware-config-0.1.0" = hashes."noelware-config";
+              "noelware-serde-0.1.0" = hashes."noelware-serde";
+              "azalia-0.1.0" = hashes.azalia;
             };
           };
 
