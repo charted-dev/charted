@@ -23,7 +23,7 @@ if [ -n "${CHARTED_HELM_NO_INSTALL_HOOK:-}" ]; then
 fi
 
 function charted::helm::os {
-    case "$(uname -s)"; do
+    case "$(uname -s)" in
         Darwin)
             echo "darwin"
             ;;
@@ -44,7 +44,7 @@ function charted::helm::os {
 }
 
 function charted::helm::architecture {
-    case "$(uname -m)"; do
+    case "$(uname -m)" in
         x86_64|amd64)
             echo "x86_64"
             ;;
@@ -110,7 +110,7 @@ function charted::helm::on_exit {
 
 trap charted::helm::on_exit EXIT
 
-version="$(grep 'version' plugin.yaml | cut -d '"' -f 2)"
+version="$(grep 'version' plugin.yaml | cut -d "'" -f 2)"
 BINARY_URL=$(charted::helm::binary_url "$version")
 CHECKSUM_URL=$(charted::helm::checksum_url "$version")
 
