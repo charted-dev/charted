@@ -29,7 +29,7 @@ use utoipa::ToSchema;
 /// result type.
 pub type Result<T = ()> = std::result::Result<ApiResponse<T>, ApiResponse>;
 
-#[derive(Debug, Serialize, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct ApiResponse<T = ()> {
     /// Status code of this [`ApiResponse`].
     #[serde(skip)]
@@ -39,11 +39,11 @@ pub struct ApiResponse<T = ()> {
     pub success: bool,
 
     /// inner data to send to the user, if any
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub data: Option<T>,
 
     /// any errors to send to the user to indicate that this request failed.
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub errors: Vec<Error>,
 }
 
@@ -67,7 +67,7 @@ impl<T: Serialize> IntoResponse for ApiResponse<T> {
 }
 
 /// Represents an error that could occur.
-#[derive(Debug, Serialize, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct Error {
     /// A contextual error code that can be looked up from the documentation to see
     /// why the request failed.
@@ -78,7 +78,7 @@ pub struct Error {
     pub message: Cow<'static, str>,
 
     /// Other details to send to the user to give even more context about this error.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub details: Option<Value>,
 }
 
@@ -89,7 +89,7 @@ pub const INTERNAL_SERVER_ERROR: Error = Error {
 };
 
 /// Represents a error code that can happen.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, ToSchema)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, ToSchema, PartialEq, Eq)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum ErrorCode {
     // ~ COMMON

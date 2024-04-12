@@ -13,9 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::config::Config;
+use crate::{auth::Type, config::Config};
 use charted_common::lazy;
+use eyre::Context;
 use once_cell::sync::Lazy;
+use reqwest::{header::AUTHORIZATION, RequestBuilder};
 use semver::Version;
 use std::{
     path::{Path, PathBuf},
@@ -40,6 +42,26 @@ pub fn load_config<P: AsRef<Path>>(loc: Option<P>) -> eyre::Result<Config> {
     Config::load(path)
 }
 
+pub fn get_helm_path<P: AsRef<Path>>(helm: Option<P>) -> Option<PathBuf> {
+    match helm {
+        Some(path) => Some(path.as_ref().to_path_buf()),
+        None => match which::which("helm") {
+            Ok(path) => Some(path),
+
+            // don't even bother to exit if not found as it's not required for this
+            Err(which::Error::CannotFindBinaryPath) => {
+                error!("unable to find `helm` binary!");
+                None
+            }
+
+            Err(e) => {
+                error!(error = %e, "reached error while trying to locate `helm` binary via $PATH");
+                None
+            }
+        },
+    }
+}
+
 /// Validate the `charted { version = "..." }` and `charted { helm = "..." }` constraints
 /// with a one-liner when called.
 pub fn validate_version_constraints<P: AsRef<Path>>(config: &Config, helm: Option<P>) {
@@ -53,22 +75,8 @@ pub fn validate_version_constraints<P: AsRef<Path>>(config: &Config, helm: Optio
         exit(1);
     }
 
-    let helm = match helm {
-        Some(path) => path.as_ref().to_path_buf(),
-        None => match which::which("helm") {
-            Ok(path) => path,
-
-            // don't even bother to exit if not found as it's not required for this
-            Err(which::Error::CannotFindBinaryPath) => {
-                warn!(constraint = %config.charted.helm, "unable to find `helm` binary, this will cause issues when using newer Helm commands with given version constraint");
-                return;
-            }
-
-            Err(e) => {
-                error!(error = %e, "reached error while trying to locate `helm` binary via $PATH");
-                exit(1);
-            }
-        },
+    let Some(helm) = get_helm_path(helm) else {
+        exit(1);
     };
 
     let mut cmd = Command::new(&helm);
@@ -122,4 +130,36 @@ pub fn validate_version_constraints<P: AsRef<Path>>(config: &Config, helm: Optio
             exit(1);
         }
     }
+}
+
+pub fn set_auth_details(req: &mut RequestBuilder, ty: &Type) -> eyre::Result<()> {
+    match ty {
+        Type::ApiKey(key) => {
+            *req = req
+                .try_clone()
+                .ok_or_else(|| eyre!("failed to clone `RequestBuilder`"))?
+                .header(AUTHORIZATION, format!("ApiKey {key}"));
+        }
+
+        Type::Session { access, .. } => {
+            *req = req
+                .try_clone()
+                .ok_or_else(|| eyre!("failed to clone `RequestBuilder`"))?
+                .bearer_auth(access);
+        }
+
+        Type::EnvironmentVariable { kind, env } => {
+            let value =
+                noelware_config::env!(env).with_context(|| format!("environment variable ${env} doesn't exist"))?;
+
+            *req = req
+                .try_clone()
+                .ok_or_else(|| eyre!("failed to clone `RequestBuilder`"))?
+                .header(AUTHORIZATION, format!("{kind} {value}"));
+        }
+
+        _ => {}
+    }
+
+    Ok(())
 }

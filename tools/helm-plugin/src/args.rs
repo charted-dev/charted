@@ -20,10 +20,25 @@ use std::path::PathBuf;
 #[derive(Debug, Clone, Args)]
 pub struct CommonArgs {
     /// location to a `.charted.hcl` to be evaluated, will default to `$CWD/.charted.hcl`
-    #[arg(long, short = 'c', env = "CHARTED_HELM_CONFIG")]
+    #[arg(long = "config", short = 'c', env = "CHARTED_HELM_CONFIG")]
     pub config_path: Option<PathBuf>,
 
     /// location to a `helm` binary.
     #[arg(long, env = "CHARTED_HELM_BINARY")]
     pub helm: Option<PathBuf>,
+}
+
+#[derive(Debug, Clone, Args)]
+pub struct CommonAuthArgs {
+    /// Location to an `auth.yaml` file that represents the authentication file
+    /// to authenticate between charted instances
+    ///
+    /// ## Default Locations
+    /// | OS               | Location                                                                                                  |
+    /// | :--------------- | :-------------------------------------------------------------------------------------------------------- |
+    /// | Windows          | `C:\Users\<username>\AppData\Local\Noelware\charted-server\auth.yaml`                                     |
+    /// | macOS            | `/Users/<username>/Library/Application Support/Noelware/charted-server/auth.yaml`                         |
+    /// | Linux            | `$XDG_CONFIG_DIR/Noelware/charted-server/auth.yaml` or `$HOME/.config/Noelware/charted-server/auth.yaml` |
+    #[arg(long, short = 'a', env = "CHARTED_AUTH_YAML_LOCATION")]
+    pub auth: Option<PathBuf>,
 }

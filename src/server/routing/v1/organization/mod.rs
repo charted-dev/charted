@@ -52,6 +52,7 @@ pub fn create_router() -> Router<Instance> {
             "/:idOrName",
             routing::get(
                 GetOrgByIdOrNameRestController::run.layer(AsyncRequireAuthorizationLayer::new(Middleware {
+                    allow_unauthenticated_requests: true,
                     scopes: ApiKeyScopes::with_iter([ApiKeyScope::OrgAccess]),
                     ..Default::default()
                 })),

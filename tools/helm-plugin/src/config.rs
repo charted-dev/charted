@@ -28,7 +28,7 @@ use hcl::{
     Value,
 };
 use serde::{Deserialize, Serialize};
-use std::{collections::BTreeMap, fs, path::Path};
+use std::{collections::BTreeMap, fs, path::Path, process::exit};
 use url::Url;
 
 /// Represents the HCL configuration file (`.charted.hcl`)
@@ -63,6 +63,22 @@ impl Config {
     pub fn load<P: AsRef<Path>>(path: P) -> eyre::Result<Config> {
         let path = path.as_ref();
         trace!(path = %path.display(), "loading .charted.hcl file in");
+
+        if !path.try_exists()? {
+            error!(path = %path.display(), "unable to locate '.charted.hcl' file");
+            exit(1);
+        }
+
+        // If the given path is a directory, then call `Config::load` again and append
+        // `.charted.hcl` at the end of the path.
+        if path.is_dir() {
+            trace!(
+                "referenced a directory, trying again with new path: {}",
+                path.join(".charted.hcl").display()
+            );
+
+            return Config::load(path.join(".charted.hcl"));
+        }
 
         let contents = fs::read_to_string(path).context(format!("was unable to read file {}", path.display()))?;
 

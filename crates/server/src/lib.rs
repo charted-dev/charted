@@ -47,10 +47,16 @@ pub enum APIVersion {
     V1 = 1,
 }
 
+impl APIVersion {
+    pub fn as_str(&self) -> &str {
+        match self {
+            APIVersion::V1 => "v1",
+        }
+    }
+}
+
 impl std::fmt::Display for APIVersion {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(match self {
-            APIVersion::V1 => "v1",
-        })
+        f.write_str(self.as_str())
     }
 }

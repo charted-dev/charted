@@ -15,13 +15,25 @@
 
 use crate::{args::CommonArgs, util};
 use clap::Parser;
-use std::process::exit;
+use std::{path::PathBuf, process::exit};
 use url::Url;
 
-/// Attempt to download a Helm chart from the charted-server REST API. This is also used
-/// with `helm install` with the `charted://` URI scheme.
+/// Attempts to download a chart from the charted-server REST API.
+///
+/// Do note that this command implements the downloader plugin for Helm
+/// and isn't intended to be ran explicitly. For more information,
+/// please read: https://helm.sh/docs/topics/plugins/#downloader-plugins
 #[derive(Debug, Clone, Parser)]
 pub struct Cmd {
+    /// Path to a certificate public key. This isn't used.
+    cert_file: PathBuf,
+
+    /// Path to a certificate private key. This isn't used.
+    key_file: PathBuf,
+
+    /// Path to a certificate authority. This isn't used.
+    ca_file: PathBuf,
+
     /// Download a repository with the given URI. If the scheme is not `charted://`,
     /// then it'll fail with no questions asked.
     repository: Url,

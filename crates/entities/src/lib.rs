@@ -383,6 +383,20 @@ pub struct RepositoryRelease {
     pub id: i64,
 }
 
+impl Default for RepositoryRelease {
+    fn default() -> Self {
+        RepositoryRelease {
+            is_prerelease: false,
+            update_text: None,
+            repository: 0,
+            created_at: DateTime::default(),
+            updated_at: DateTime::default(),
+            tag: Version(semver::Version::parse("0.0.0+derived").expect("failed to parse semver")),
+            id: i64::default(),
+        }
+    }
+}
+
 /// Represents a resource that is correlated to a repository or organization member
 /// that can control the repository's metadata.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema, FromRow)]
@@ -547,6 +561,12 @@ impl ApiKey {
 /// or as sqlx types.
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Version(semver::Version);
+impl std::fmt::Display for Version {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        Display::fmt(&self.0, f)
+    }
+}
+
 impl Deref for Version {
     type Target = semver::Version;
 

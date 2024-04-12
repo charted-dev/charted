@@ -23,12 +23,7 @@ use crate::{
     server::middleware::session::{Middleware, Session},
     Instance,
 };
-use axum::{
-    extract::{FromRequestParts, State},
-    handler::Handler,
-    http::StatusCode,
-    routing, Extension, Router,
-};
+use axum::{extract::State, handler::Handler, http::StatusCode, routing, Extension, Router};
 use charted_entities::{ApiKeyScope, ApiKeyScopes, NameOrSnowflake, Organization, Repository, User};
 use charted_server::{controller, err, extract::Path, internal_server_error, ok, ErrorCode, Result};
 use serde_json::json;
@@ -122,12 +117,6 @@ pub async fn get_repo_by_id(
     Ok(ok(StatusCode::OK, repo))
 }
 
-#[derive(FromRequestParts)]
-pub struct RepoByOwnerAndNamePathParams {
-    owner: charted_server::extract::NameOrSnowflake,
-    repo: charted_server::extract::NameOrSnowflake,
-}
-
 /// Find a repository by the owner's ID/name and the repository's ID/name
 ///
 /// ## Examples
@@ -157,10 +146,7 @@ pub struct RepoByOwnerAndNamePathParams {
 )]
 pub async fn get_repo_by_owner_and_name(
     State(Instance { controllers, pool, .. }): State<Instance>,
-    RepoByOwnerAndNamePathParams {
-        owner: charted_server::extract::NameOrSnowflake(owner),
-        repo: charted_server::extract::NameOrSnowflake(repo),
-    }: RepoByOwnerAndNamePathParams,
+    Path((owner, repo)): Path<(NameOrSnowflake, NameOrSnowflake)>,
     session: Option<Extension<Session>>,
 ) -> Result<Repository> {
     let mut owner_id: Option<i64> = None;

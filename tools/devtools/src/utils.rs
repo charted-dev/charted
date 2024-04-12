@@ -17,7 +17,7 @@ use eyre::{eyre, Context, Result};
 use std::{
     ffi::OsStr,
     path::{Path, PathBuf},
-    process::{Command, Stdio},
+    process::{exit, Command, Stdio},
 };
 
 /// Finds a binary with a specific path, or finds it under the `$PATH` variable
@@ -83,7 +83,7 @@ pub fn cmd<C: AsRef<OsStr>, F: FnOnce(&mut Command)>(command: C, builder: F) -> 
 
             // this happens if Stdio::null()/Stdio::inherit() was used in Command::stdout/Command::stderr
             if stdout.is_empty() && stderr.is_empty() {
-                panic!("command ran has failed with exit code {code} but no stdout/stderr logs were captured, view above for more information.");
+                exit(output.status.code().unwrap_or(-1));
             }
 
             panic!(

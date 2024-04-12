@@ -40,13 +40,22 @@ impl Display for OrderBy {
 }
 
 /// Represents the result of a paginated REST call.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Pagination<T> {
     /// List of all the data that was contained by the cursors.
     pub data: Vec<T>,
 
     /// Page information relating to this pagination request.
     pub page_info: PageInfo,
+}
+
+impl<T> Default for Pagination<T> {
+    fn default() -> Self {
+        Self {
+            data: Vec::new(),
+            page_info: PageInfo { cursor: None },
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]

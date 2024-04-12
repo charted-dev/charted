@@ -56,11 +56,15 @@ where
                         let mut status = StatusCode::BAD_REQUEST;
                         let kind = e.into_kind();
                         let error = match &kind {
-                            ErrorKind::WrongNumberOfParameters { .. } => (
-                                ErrorCode::WrongParameters,
-                                "received a wrong list of path parameters, report this issue immediately to Noelware",
-                                None,
-                            ),
+                            ErrorKind::WrongNumberOfParameters { .. } => {
+                                status = StatusCode::INTERNAL_SERVER_ERROR;
+
+                                (
+                                    ErrorCode::WrongParameters,
+                                    "received a wrong list of path parameters, report this issue immediately to Noelware",
+                                    None,
+                                )
+                            }
 
                             ErrorKind::ParseErrorAtKey { key, .. } => (
                                 ErrorCode::ParsingFailedInPathParam,

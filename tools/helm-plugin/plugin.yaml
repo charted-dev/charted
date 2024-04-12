@@ -19,7 +19,8 @@ description: 🐻‍❄️🌺 Helm plugin to help you push your Helm charts int
 command: '$HELM_PLUGIN_DIR/bin/charted-helm-plugin'
 useTunnel: false
 downloaders:
-    - command: bin/charted-helm-plugin repo download
+    - command: bin/charted-helm-plugin download
       protocols: [charted]
 hooks:
+    install: 'cd $HELM_PLUGIN_DIR; ./scripts/update.sh'
     update: 'cd $HELM_PLUGIN_DIR; ./scripts/update.sh'

@@ -37,7 +37,7 @@ pub enum Config {
 
     /// Uses Amazon's Simple Storage Service (S3) service or a S3-compatible server to store
     /// external media and chart indexes.
-    S3(remi_s3::S3StorageConfig),
+    S3(remi_s3::StorageConfig),
 }
 
 impl Default for Config {
@@ -70,7 +70,7 @@ impl TryFromEnv for Config {
                     container: env!("CHARTED_STORAGE_AZURE_CONTAINER", optional).unwrap_or("ume".into()),
                 })),
 
-                "s3" => Ok(Config::S3(remi_s3::S3StorageConfig {
+                "s3" => Ok(Config::S3(remi_s3::StorageConfig {
                     enable_signer_v4_requests: env!("CHARTED_STORAGE_S3_ENABLE_SIGNER_V4_REQUESTS", |val| TRUTHY_REGEX.is_match(&val); or false),
                     enforce_path_access_style: env!("CHARTED_STORAGE_S3_ENFORCE_PATH_ACCESS_STYLE", |val| TRUTHY_REGEX.is_match(&val); or false),
                     default_object_acl: env!("CHARTED_STORAGE_S3_DEFAULT_OBJECT_ACL", |val| ObjectCannedAcl::from_str(val.as_str()).ok(); or Some(ObjectCannedAcl::BucketOwnerFullControl)),

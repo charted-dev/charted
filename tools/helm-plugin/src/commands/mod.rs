@@ -13,7 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use charted_common::lazy;
 use clap::Subcommand;
+use once_cell::sync::Lazy;
+use reqwest::Client;
 
 mod completions;
 mod context;
@@ -23,6 +26,14 @@ mod lint;
 mod login;
 mod logout;
 mod push;
+
+pub(crate) static HTTP: Lazy<Client> = lazy!(Client::builder()
+    .user_agent(format!(
+        "Noelware/charted-helm-plugin (+{}; https://github.com/charted-dev/charted/tree/main/tools/helm-plugin)",
+        crate::version()
+    ))
+    .build()
+    .unwrap());
 
 #[derive(Debug, Clone, Subcommand)]
 pub enum Cmd {

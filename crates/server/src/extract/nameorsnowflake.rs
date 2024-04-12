@@ -94,3 +94,9 @@ where
         }
     }
 }
+
+impl From<NameOrSnowflake> for charted_entities::NameOrSnowflake {
+    fn from(value: NameOrSnowflake) -> Self {
+        value.0
+    }
+}

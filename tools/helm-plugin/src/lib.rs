@@ -26,6 +26,9 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, Layer, R
 #[macro_use]
 extern crate tracing;
 
+#[macro_use]
+extern crate eyre;
+
 pub mod args;
 pub mod auth;
 pub mod commands;
