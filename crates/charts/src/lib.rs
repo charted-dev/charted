@@ -226,6 +226,47 @@ impl HelmCharts {
         })
     }
 
+    #[instrument(name = "charted.helm.provenance.get", skip(self, version), fields(version = version.as_ref()))]
+    pub fn get_provenance<'asyncfn, S: AsRef<str> + Send + 'asyncfn>(
+        &'asyncfn self,
+        owner: u64,
+        repo: u64,
+        version: S,
+        prereleases: bool,
+    ) -> Pin<Box<impl Future<Output = Result<Option<Bytes>, eyre::Error>> + 'asyncfn>> {
+        Box::pin(async move {
+            let version = version.as_ref();
+            if version == "latest" || version == "current" {
+                let sorted = self.sort_versions(owner, repo, prereleases).await?;
+                let Some(ver) = sorted.first() else {
+                    return Ok(None);
+                };
+
+                return self.get_provenance(owner, repo, ver.to_string(), prereleases).await;
+            }
+
+            info!(
+                owner.id = owner,
+                repository.id = repo,
+                version,
+                "fetching provenance tarball"
+            );
+            let ver = Version::parse(version)?;
+            if !ver.pre.is_empty() && !prereleases {
+                return Err(eyre!(
+                    "specified a prerelease version but preleases aren't allowed to be queried"
+                ));
+            }
+
+            self.storage
+                .open(format!(
+                    "./repositories/{owner}/{repo}/tarballs/{version}.provenance.tgz"
+                ))
+                .await
+                .context("unable to open tarball")
+        })
+    }
+
     pub async fn upload<'m>(
         &self,
         request: UploadReleaseTarballRequest,

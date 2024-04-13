@@ -75,8 +75,8 @@ fn nest_err(err: &ValidationErrorsKind) -> Value {
                 }
 
                 fields.push(json!({
-                    "message": match item.message.clone() {
-                        Some(message) => Some(Value::String(message.to_string())),
+                    "message": match item.message {
+                        Some(ref msg) => Some(Value::String(msg.to_string())),
                         None => match value {
                             Some(Value::String(s)) if !s.is_empty() => Some(Value::String(s)),
                             _ => None

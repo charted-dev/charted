@@ -13,10 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{helm::ChartType, ApiKeyScope, Name};
+use crate::{helm::ChartType, ApiKeyScope, Name, Version};
 use azalia::hashmap;
 use charted_common::serde::Duration;
-use semver::Version;
 use serde::Deserialize;
 use std::borrow::Cow;
 use utoipa::ToSchema;
@@ -310,13 +309,15 @@ pub struct PatchApiKeyPayload {
 }
 
 /// Represents the request body payload for creating a repository release.
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Validate, ToSchema)]
 pub struct CreateRepositoryReleasePayload {
     /// Represents a changelog (that can be Markdown or HTML (it'll remove XSS vulnerabilities)) that will
     /// appear via `/repositories/:id/releases/:version/changelog`.
     ///
     /// > [!NOTE]
     /// > Hoshi will wrap `CHANGELOG.html` to the same styles as when rendering Markdown.
+    #[validate(length(max = 4096))]
+    #[serde(default)]
     pub update_text: Option<String>,
 
     /// SemVer-based [`Version`] to indicate what version this release is. This is an immutable

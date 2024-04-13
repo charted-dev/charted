@@ -130,11 +130,29 @@ impl Document {
             Document::format(APIVersion::V1, "/organizations") => crate::server::routing::v1::organization::EntrypointRestController::paths();
 
             // ~~~~~~~~~~~ REPOSITORIES ~~~~~~~~~~~~~~~~~~~
-            Document::format(APIVersion::V1, "/repositories/{owner}/{name}") => crate::server::routing::v1::repository::GetRepoByOwnerAndNameRestController::paths();
-            Document::format(APIVersion::V1, "/repositories/{id}") => [
-                crate::server::routing::v1::repository::GetRepoByIdRestController::paths()
+            Document::format(APIVersion::V1, "/repositories/{id}/releases/{version}/provenance") => [
+                crate::server::routing::v1::repository::releases::PutReleaseProvenanceTarballRestController::paths(),
+                crate::server::routing::v1::repository::releases::GetReleaseProvenanceFileRestController::paths(),
             ];
 
+            Document::format(APIVersion::V1, "/repositories/{id}/releases/{version}/tarball") => [
+                crate::server::routing::v1::repository::releases::GetReleaseTarballRestController::paths(),
+                crate::server::routing::v1::repository::releases::PutReleaseTarballRestController::paths(),
+            ];
+
+            Document::format(APIVersion::V1, "/repositories/{id}/releases/{version}") => [
+                crate::server::routing::v1::repository::releases::GetRepositoryReleaseByTagRestController::paths(),
+                crate::server::routing::v1::repository::releases::PatchRepositoryReleaseRestController::paths(),
+                crate::server::routing::v1::repository::releases::DeleteRepositoryReleaseRestController::paths()
+            ];
+
+            Document::format(APIVersion::V1, "/repositories/{id}/releases") => [
+                crate::server::routing::v1::repository::releases::GetAllRepositoryReleasesRestController::paths(),
+                crate::server::routing::v1::repository::releases::CreateRepositoryReleaseRestController::paths(),
+            ];
+
+            Document::format(APIVersion::V1, "/repositories/{owner}/{name}") => crate::server::routing::v1::repository::GetRepoByOwnerAndNameRestController::paths();
+            Document::format(APIVersion::V1, "/repositories/{id}") => crate::server::routing::v1::repository::GetRepoByIdRestController::paths();
             Document::format(APIVersion::V1, "/repositories") => crate::server::routing::v1::repository::EntrypointRestController::paths();
 
             // ~~~~~~~~~~~     USERS     ~~~~~~~~~~~~~~~~~~~
@@ -185,11 +203,29 @@ impl Document {
             "/organizations" => crate::server::routing::v1::organization::EntrypointRestController::paths();
 
             // ~~~~~~~~~~~ REPOSITORIES ~~~~~~~~~~~~~~~~~~~
-            "/repositories/{owner}/{name}" => crate::server::routing::v1::repository::GetRepoByOwnerAndNameRestController::paths();
-            "/repositories/{id}" => [
-                crate::server::routing::v1::repository::GetRepoByIdRestController::paths()
+            "/repositories/{id}/releases/{version}/provenance" => [
+                crate::server::routing::v1::repository::releases::PutReleaseProvenanceTarballRestController::paths(),
+                crate::server::routing::v1::repository::releases::GetReleaseProvenanceFileRestController::paths(),
             ];
 
+            "/repositories/{id}/releases/{version}/tarball" => [
+                crate::server::routing::v1::repository::releases::GetReleaseTarballRestController::paths(),
+                crate::server::routing::v1::repository::releases::PutReleaseTarballRestController::paths(),
+            ];
+
+            "/repositories/{id}/releases/{version}" => [
+                crate::server::routing::v1::repository::releases::GetRepositoryReleaseByTagRestController::paths(),
+                crate::server::routing::v1::repository::releases::PatchRepositoryReleaseRestController::paths(),
+                crate::server::routing::v1::repository::releases::DeleteRepositoryReleaseRestController::paths()
+            ];
+
+            "/repositories/{id}/releases" => [
+                crate::server::routing::v1::repository::releases::GetAllRepositoryReleasesRestController::paths(),
+                crate::server::routing::v1::repository::releases::CreateRepositoryReleaseRestController::paths(),
+            ];
+
+            "/repositories/{owner}/{name}" => crate::server::routing::v1::repository::GetRepoByOwnerAndNameRestController::paths();
+            "/repositories/{id}" => crate::server::routing::v1::repository::GetRepoByIdRestController::paths();
             "/repositories" => crate::server::routing::v1::repository::EntrypointRestController::paths();
 
             // ~~~~~~~~~~~     USERS     ~~~~~~~~~~~~~~~~~~~

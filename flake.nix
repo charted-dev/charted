@@ -46,6 +46,7 @@
         config.allowUnfree = true; # sorry stallman senpai :(
       };
 
+      cargoTOML = builtins.fromTOML (builtins.readFile ./Cargo.toml);
       rust = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
       stdenv =
         if pkgs.stdenv.isLinux
@@ -74,7 +75,7 @@
           nativeBuildInputs = with pkgs; [pkg-config protobuf];
           buildInputs = with pkgs; [openssl];
           cargoSha256 = pkgs.lib.fakeSha256;
-          version = "0.1.0-beta";
+          version = "${cargoTOML.workspace.package.version}";
           name = "charted";
           src = ./.;
 
@@ -102,7 +103,7 @@
           nativeBuildInputs = with pkgs; [pkg-config];
           buildInputs = with pkgs; [openssl];
           cargoSha256 = pkgs.lib.fakeSha256;
-          version = "0.1.0-beta";
+          version = "${cargoTOML.workspace.package.version}";
           name = "charted-helm-plugin";
           src = ./.;
 
@@ -111,7 +112,8 @@
           cargoLock = {
             lockFile = ./Cargo.lock;
             outputHashes = {
-              "noelware-config-0.1.0" = hashes."noelware-config";
+              "noelware-serde-0.1.0" = hashes."noelware-serde";
+              "azalia-0.1.0" = hashes.azalia;
             };
           };
 
