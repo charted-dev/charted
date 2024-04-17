@@ -28,5 +28,5 @@ ignored = ["logos", "sentry", "tracing", "charted-features"]
 [dependencies]
 charted-features = { version = "0.0.0-devel.0", path = ".." }
 logos = "0.14.0"
-sentry = "0.32.2"
+sentry = "0.32.3"
 tracing = "0.1.40"

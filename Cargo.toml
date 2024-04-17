@@ -69,7 +69,7 @@ remi-azure = "0.7.0"
 remi-fs = "0.7.0"
 remi-s3 = "0.7.0"
 semver = { version = "1.0.22", features = ["serde"] }
-sentry = "0.32.2"
+sentry = "0.32.3"
 serde = { version = "1.0.198", features = ["derive"] }
 serde_json = "1.0.116"
 serde_yaml = "0.9.34+deprecated"
@@ -176,8 +176,8 @@ remi-s3 = { workspace = true, features = ["serde", "tracing"] }
 reqwest = "0.12.3"
 sentry.workspace = true
 sentry-eyre = "0.1.0"
-sentry-tower = { version = "0.32.2", features = ["axum", "http"] }
-sentry-tracing = "0.32.2"
+sentry-tower = { version = "0.32.3", features = ["axum", "http"] }
+sentry-tracing = "0.32.3"
 serde.workspace = true
 serde_json.workspace = true
 serde_repr = "0.1.19"
