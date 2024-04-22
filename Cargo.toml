@@ -147,7 +147,7 @@ hex = "0.4.3"
 jsonwebtoken = "9.3.0"
 ldap3 = "0.11.3"
 md-5 = "0.10.6"
-mimalloc = "0.1.39"
+mimalloc = "0.1.41"
 mime.workspace = true
 moka = { version = "0.12.7", features = ["future"] }
 num_cpus = "1.16.0"
