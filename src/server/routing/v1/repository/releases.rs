@@ -320,6 +320,7 @@ pub async fn get_repository_release_by_tag(
 ///
 /// [`PUT /repositories/{id}/releases/{version}/tarball`]: https://charts.noelware.org/docs/server/latest/api/reference/repository/releases/#PUT-/{version}/tarball
 #[controller(
+    method = put,
     tags("Repository", "Releases"),
     securityRequirements(
         ("ApiKey", ["repo:releases:create"]),
@@ -423,6 +424,7 @@ pub async fn create_repository_release(
 /// Patch a repository release's update changelog. In the future, this would change other
 /// things that is implemented, but for now, it'll only update the release's update changelog.
 #[controller(
+    method = patch,
     tags("Repository", "Releases"),
     securityRequirements(
         ("ApiKey", ["repo:releases:update"]),
@@ -458,6 +460,7 @@ pub async fn patch_repository_release(
 /// Deletes the repository release from the server and delete the release tarball and provenance file
 /// as well.
 #[controller(
+    method = delete,
     tags("Repository", "Releases"),
     securityRequirements(
         ("ApiKey", ["repo:releases:delete"]),
@@ -712,6 +715,7 @@ pub async fn get_release_provenance_file(
 /// ### Helm plugin
 /// All you need to call is `helm charted push [repository or '.' for all]` and it'll do it for you!
 #[controller(
+    method = put,
     tags("Repository", "Releases"),
     securityRequirements(
         ("ApiKey", []),
@@ -797,6 +801,7 @@ pub async fn put_release_tarball(
 
 /// Deletes a Helm chart release from a repository release.
 #[controller(
+    method = delete,
     tags("Repository", "Releases"),
     securityRequirements(
         ("ApiKey", []),
@@ -804,7 +809,6 @@ pub async fn put_release_tarball(
         ("Basic", [])
     ),
 )]
-#[allow(unused_variables)]
 pub async fn delete_release_tarball(
     State(Instance {
         controllers, charts, ..
