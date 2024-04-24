@@ -1427,6 +1427,7 @@ dependencies = [
 name = "charted-helm-plugin"
 version = "0.1.0-beta"
 dependencies = [
+ "base64 0.22.0",
  "charted-common",
  "charted-entities",
  "charted-server",

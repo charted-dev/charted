@@ -46,7 +46,7 @@ pub struct Cmd {
     json: bool,
 }
 
-pub async fn run(cmd: Cmd) -> eyre::Result<()> {
+pub fn run(cmd: Cmd) -> eyre::Result<()> {
     let auth = Auth::load(cmd.auth.as_ref())?;
     let mut rows = Vec::<Row>::with_capacity(auth.contexts.len());
     for (context, registry) in auth.contexts {

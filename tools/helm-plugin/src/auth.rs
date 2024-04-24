@@ -67,6 +67,32 @@ pub enum Type {
     None,
 }
 
+impl From<&str> for Type {
+    fn from(s: &str) -> Self {
+        match s {
+            "session" => Type::Session {
+                refresh: None,
+                access: String::default(),
+            },
+
+            "env" | "environment" | "envvar" => Type::EnvironmentVariable {
+                env: String::default(),
+                kind: EnvVarKind::default(),
+            },
+
+            "apikey" | "api-key" => Type::ApiKey(Default::default()),
+            "basic" => Type::Basic {
+                username: Default::default(),
+                password: Default::default(),
+            },
+
+            "none" | "" => Type::default(),
+
+            s => panic!("unknown type: {s}"),
+        }
+    }
+}
+
 /// Represents the context that the `auth.yaml` file contains. A context is
 /// relative to what registries a user has access towards.
 ///

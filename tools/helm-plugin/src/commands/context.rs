@@ -15,6 +15,7 @@
 
 use clap::Subcommand;
 
+mod add;
 mod delete;
 mod list;
 mod switch;
@@ -28,13 +29,15 @@ pub enum Cmd {
     Switch(switch::Cmd),
     Token(token::Cmd),
     List(list::Cmd),
+    Add(add::Cmd),
 }
 
-pub async fn run(cmd: Cmd) -> eyre::Result<()> {
+pub fn run(cmd: Cmd) -> eyre::Result<()> {
     match cmd {
-        Cmd::Switch(cmd) => switch::run(cmd).await,
-        Cmd::Delete(cmd) => delete::run(cmd).await,
-        Cmd::Token(cmd) => token::run(cmd).await,
-        Cmd::List(cmd) => list::run(cmd).await,
+        Cmd::Switch(cmd) => switch::run(cmd),
+        Cmd::Delete(cmd) => delete::run(cmd),
+        Cmd::Token(cmd) => token::run(cmd),
+        Cmd::List(cmd) => list::run(cmd),
+        Cmd::Add(cmd) => add::run(cmd),
     }
 }

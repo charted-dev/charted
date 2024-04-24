@@ -14,6 +14,7 @@
 // limitations under the License.
 
 use crate::auth::{Auth, Context, Type};
+use base64::{engine::general_purpose, Engine};
 use clap::Parser;
 use eyre::{ContextCompat, Report};
 use noelware_config::env;
@@ -39,7 +40,7 @@ pub struct Cmd {
     auth: Option<PathBuf>,
 }
 
-pub async fn run(cmd: Cmd) -> eyre::Result<()> {
+pub fn run(cmd: Cmd) -> eyre::Result<()> {
     let auth = Auth::load(cmd.auth.as_ref())?;
     let context = cmd.context.map(Context::new).unwrap_or(auth.current);
     let info = auth
@@ -73,6 +74,16 @@ pub async fn run(cmd: Cmd) -> eyre::Result<()> {
 
         Type::Session { ref access, .. } => {
             eprintln!("Authorization: Bearer {access}");
+            Ok(())
+        }
+
+        Type::Basic {
+            ref username,
+            ref password,
+        } => {
+            let b64 = general_purpose::STANDARD.encode(format!("{username}:{password}"));
+            eprintln!("Authorization: Basic {b64}");
+
             Ok(())
         }
 

@@ -36,7 +36,7 @@ pub struct Cmd {
     auth: Option<PathBuf>,
 }
 
-pub async fn run(cmd: Cmd) -> eyre::Result<()> {
+pub fn run(cmd: Cmd) -> eyre::Result<()> {
     let mut auth = Auth::load(cmd.auth.as_ref())?;
     let context = cmd.context.as_ref().map(Context::new).unwrap_or(auth.current.clone());
 

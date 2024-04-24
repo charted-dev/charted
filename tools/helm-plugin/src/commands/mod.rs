@@ -57,7 +57,7 @@ pub async fn execute(cmd: Cmd) -> eyre::Result<()> {
         }
 
         Cmd::Download(cmd) => download::run(cmd).await,
-        Cmd::Context(cmd) => context::run(cmd).await,
+        Cmd::Context(cmd) => context::run(cmd),
         Cmd::Logout(cmd) => logout::run(cmd),
         Cmd::Login(cmd) => login::run(cmd).await,
         Cmd::Init(cmd) => init::run(cmd),
