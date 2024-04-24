@@ -405,6 +405,38 @@
                 }
             }
         },
+        "/repositories/{id}/releases": {
+            "get": {
+                "tags": ["Repository", "Releases"],
+                "description": "Creates a new repository release with the specified tag and update changelog,\n if present.\n\n To publish a new release tarball (+ provenance file that can be used via `helm package --sign`), you\n can use the [`PUT /repositories/{id}/releases/{version}/tarball`] endpoint to do so.\n\n [`PUT /repositories/{id}/releases/{version}/tarball`]: https://charts.noelware.org/docs/server/latest/api/reference/repository/releases/#PUT-/{version}/tarball",
+                "operationId": "create_repository_release",
+                "responses": {}
+            }
+        },
+        "/repositories/{id}/releases/{version}": {
+            "get": {
+                "tags": ["Repository", "Releases"],
+                "description": "Deletes the repository release from the server and delete the release tarball and provenance file\n as well.",
+                "operationId": "delete_repository_release",
+                "responses": {}
+            }
+        },
+        "/repositories/{id}/releases/{version}/provenance": {
+            "get": {
+                "tags": ["Repository", "Releases"],
+                "description": "Locate a repository releases' provenance file, which is used when signing Helm charts. This can be uploaded\n when a release is published and is called via the [`PUT /repositories/{id}/releases/{version}/provenance`] endpoint.\n\n If the chart didn't include uploading it from the specific endpoint, then it'll return a 404 Not Found, indicating\n that the publisher didn't include one.\n\n If you used the [Helm plugin] and used `helm charted push --provenance`, it'll upload the provenance file to the API server\n and updates it accordingly.\n\n ## Using the provenance file\n To check the integrity of the Helm chart, you can use the [`helm verify`] command:\n\n ```sh\n # Since Helm requires to verify a *file*, we will need to get the Helm chart\n # from the API server. (we need `charted`'s ID to locate since we don't perform lookups from `owner/name` references)\n $ export ID=$(curl -fsSL https://charts.noelware.org/api/organizations/charted | jq '.data.id')\n $ curl -fsSL -o ./charted.tgz https://charts.noelware.org/api/repositories/$ID/releases/0.1.0-beta/tarball\n\n # Validates the `charted/server` Helm chart, since Noelware upload provenance files\n # when new releases occur.\n $ helm verify charted.tgz\n ```\n\n To use it from [`helm install`], we can use `helm install --verify` and it'll verify its integrity. This is easier\n than performing [`helm verify`] manually.\n\n ```sh\n # If you have the Helm plugin for charted installed, we can use `charted://`, which will\n # do the necessary lookups when using `helm install`.\n $ helm install --verify charted charted://charted/server\n ```\n\n [`PUT /repositories/{id}/releases/{version}/tarball`]: https://charts.noelware.org/docs/server/latest/api/reference/repository/releases/#PUT-/{version}/tarball\n [`helm install`]: https://helm.sh/docs/helm/helm_install/#helm-install\n [`helm verify`]: https://helm.sh/docs/helm/helm_verify/#helm-verify\n [Helm plugin]: https://charts.noelware.org/docs/helm-plugin",
+                "operationId": "get_release_provenance_file",
+                "responses": {}
+            }
+        },
+        "/repositories/{id}/releases/{version}/tarball": {
+            "get": {
+                "tags": ["Repository", "Releases"],
+                "description": "Initiate a upload request for adding a Helm chart from a created repository release. Do be warned that\n this can be any arbitrary Helm chart, so put in care of what you upload to this endpoint.\n\n This endpoint uses `multipart/form-data` as a way for uploading, you are required to send the Helm chart's\n package itself as the first field and an optional second field, which will be the provenance file that was\n generated either from `helm package --sign` or from `charted helm push --provenance`.\n\n ## Usage\n ### API Server\n > [!IMPORTANT]\n > Please handle this endpoint with care as this will accept any arbitrary Helm chart!\n\n ```sh\n # Create your Helm chart archive\n $ helm package .\n\n # Now, we send a request to the API server. You will need to handle\n # authentication on your own.\n $ curl -L -F \"chart=@./package-version.tgz\" https://charts.noelware.org/api/repositories/{id}/releases/{version}/release.tgz\n ```\n\n ### Helm plugin\n All you need to call is `helm charted push [repository or '.' for all]` and it'll do it for you!",
+                "operationId": "put_release_tarball",
+                "responses": {}
+            }
+        },
         "/repositories/{owner}/{name}": {
             "get": {
                 "tags": ["Repositories"],
@@ -1275,6 +1307,38 @@
                         }
                     }
                 }
+            }
+        },
+        "/v1/repositories/{id}/releases": {
+            "get": {
+                "tags": ["Repository", "Releases"],
+                "description": "Creates a new repository release with the specified tag and update changelog,\n if present.\n\n To publish a new release tarball (+ provenance file that can be used via `helm package --sign`), you\n can use the [`PUT /repositories/{id}/releases/{version}/tarball`] endpoint to do so.\n\n [`PUT /repositories/{id}/releases/{version}/tarball`]: https://charts.noelware.org/docs/server/latest/api/reference/repository/releases/#PUT-/{version}/tarball",
+                "operationId": "create_repository_release",
+                "responses": {}
+            }
+        },
+        "/v1/repositories/{id}/releases/{version}": {
+            "get": {
+                "tags": ["Repository", "Releases"],
+                "description": "Deletes the repository release from the server and delete the release tarball and provenance file\n as well.",
+                "operationId": "delete_repository_release",
+                "responses": {}
+            }
+        },
+        "/v1/repositories/{id}/releases/{version}/provenance": {
+            "get": {
+                "tags": ["Repository", "Releases"],
+                "description": "Locate a repository releases' provenance file, which is used when signing Helm charts. This can be uploaded\n when a release is published and is called via the [`PUT /repositories/{id}/releases/{version}/provenance`] endpoint.\n\n If the chart didn't include uploading it from the specific endpoint, then it'll return a 404 Not Found, indicating\n that the publisher didn't include one.\n\n If you used the [Helm plugin] and used `helm charted push --provenance`, it'll upload the provenance file to the API server\n and updates it accordingly.\n\n ## Using the provenance file\n To check the integrity of the Helm chart, you can use the [`helm verify`] command:\n\n ```sh\n # Since Helm requires to verify a *file*, we will need to get the Helm chart\n # from the API server. (we need `charted`'s ID to locate since we don't perform lookups from `owner/name` references)\n $ export ID=$(curl -fsSL https://charts.noelware.org/api/organizations/charted | jq '.data.id')\n $ curl -fsSL -o ./charted.tgz https://charts.noelware.org/api/repositories/$ID/releases/0.1.0-beta/tarball\n\n # Validates the `charted/server` Helm chart, since Noelware upload provenance files\n # when new releases occur.\n $ helm verify charted.tgz\n ```\n\n To use it from [`helm install`], we can use `helm install --verify` and it'll verify its integrity. This is easier\n than performing [`helm verify`] manually.\n\n ```sh\n # If you have the Helm plugin for charted installed, we can use `charted://`, which will\n # do the necessary lookups when using `helm install`.\n $ helm install --verify charted charted://charted/server\n ```\n\n [`PUT /repositories/{id}/releases/{version}/tarball`]: https://charts.noelware.org/docs/server/latest/api/reference/repository/releases/#PUT-/{version}/tarball\n [`helm install`]: https://helm.sh/docs/helm/helm_install/#helm-install\n [`helm verify`]: https://helm.sh/docs/helm/helm_verify/#helm-verify\n [Helm plugin]: https://charts.noelware.org/docs/helm-plugin",
+                "operationId": "get_release_provenance_file",
+                "responses": {}
+            }
+        },
+        "/v1/repositories/{id}/releases/{version}/tarball": {
+            "get": {
+                "tags": ["Repository", "Releases"],
+                "description": "Initiate a upload request for adding a Helm chart from a created repository release. Do be warned that\n this can be any arbitrary Helm chart, so put in care of what you upload to this endpoint.\n\n This endpoint uses `multipart/form-data` as a way for uploading, you are required to send the Helm chart's\n package itself as the first field and an optional second field, which will be the provenance file that was\n generated either from `helm package --sign` or from `charted helm push --provenance`.\n\n ## Usage\n ### API Server\n > [!IMPORTANT]\n > Please handle this endpoint with care as this will accept any arbitrary Helm chart!\n\n ```sh\n # Create your Helm chart archive\n $ helm package .\n\n # Now, we send a request to the API server. You will need to handle\n # authentication on your own.\n $ curl -L -F \"chart=@./package-version.tgz\" https://charts.noelware.org/api/repositories/{id}/releases/{version}/release.tgz\n ```\n\n ### Helm plugin\n All you need to call is `helm charted push [repository or '.' for all]` and it'll do it for you!",
+                "operationId": "put_release_tarball",
+                "responses": {}
             }
         },
         "/v1/repositories/{owner}/{name}": {
