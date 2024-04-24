@@ -62,6 +62,7 @@ pub async fn run(cmd: Cmd) -> eyre::Result<()> {
                 Type::Session { .. } => Cow::Borrowed("session token"),
                 Type::ApiKey(_) => Cow::Borrowed("api key"),
                 Type::None => Cow::Borrowed("none available"),
+                Type::Basic { username, .. } => Cow::Owned(format!("basic auth as user @{username}")),
             },
         });
     }

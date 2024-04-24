@@ -3,6 +3,7 @@
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
     "rust-analyzer.check.command": "clippy",
+    "rust-analyzer.showUnlinkedFileNotification": false,
     "rust-analyzer.cargo.extraEnv": {
         // Enable --cfg tokio_unstable with rust-analyzer so we can
         // use Tokio unstable features.
@@ -17,5 +18,7 @@
     "[toml]": {
         "editor.defaultFormatter": "tamasfe.even-better-toml"
     },
-    "rust-analyzer.showUnlinkedFileNotification": false
+    "yaml.schemas": {
+        "https://json.schemastore.org/github-workflow.json": "/.github/actions/*"
+    }
 }

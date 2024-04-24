@@ -131,7 +131,7 @@ impl Document {
 
             // ~~~~~~~~~~~ REPOSITORIES ~~~~~~~~~~~~~~~~~~~
             Document::format(APIVersion::V1, "/repositories/{id}/releases/{version}/provenance") => [
-                crate::server::routing::v1::repository::releases::PutReleaseProvenanceTarballRestController::paths(),
+                // crate::server::routing::v1::repository::releases::PutReleaseProvenanceTarballRestController::paths(),
                 crate::server::routing::v1::repository::releases::GetReleaseProvenanceFileRestController::paths(),
             ];
 
@@ -204,7 +204,7 @@ impl Document {
 
             // ~~~~~~~~~~~ REPOSITORIES ~~~~~~~~~~~~~~~~~~~
             "/repositories/{id}/releases/{version}/provenance" => [
-                crate::server::routing::v1::repository::releases::PutReleaseProvenanceTarballRestController::paths(),
+                // crate::server::routing::v1::repository::releases::PutReleaseProvenanceTarballRestController::paths(),
                 crate::server::routing::v1::repository::releases::GetReleaseProvenanceFileRestController::paths(),
             ];
 

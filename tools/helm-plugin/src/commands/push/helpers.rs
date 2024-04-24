@@ -166,7 +166,7 @@ pub fn package_chart(path: &Path, helm: Option<&Path>) -> eyre::Result<()> {
         .args(["package", "."])
         .stdin(Stdio::null())
         .stderr(Stdio::inherit())
-        .stdout(Stdio::inherit())
+        .stdout(Stdio::null())
         .output();
 
     match output {

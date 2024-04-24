@@ -32,6 +32,7 @@ use charted_entities::{
     payloads::{CreateRepositoryReleasePayload, PatchRepositoryReleasePayload},
     ApiKeyScope, ApiKeyScopes, Repository, RepositoryRelease, Version,
 };
+use charted_helm_charts::UploadReleaseTarballRequest;
 use charted_server::{
     controller, err,
     extract::{Json, Path},
@@ -104,23 +105,25 @@ pub fn create_router() -> Router<Instance> {
                     ..Default::default()
                 })),
             )
-            .put(
-                PutReleaseTarballRestController::run.layer(AsyncRequireAuthorizationLayer::new(Middleware::default())),
-            ),
-        )
-        .route(
-            "/:version/provenance",
-            routing::get(
-                GetReleaseProvenanceFileRestController::run.layer(AsyncRequireAuthorizationLayer::new(Middleware {
-                    allow_unauthenticated_requests: true,
-                    ..Default::default()
-                })),
-            )
-            .put(
-                PutReleaseProvenanceTarballRestController::run
+            .put(PutReleaseTarballRestController::run.layer(AsyncRequireAuthorizationLayer::new(Middleware::default())))
+            .delete(
+                DeleteReleaseTarballRestController::run
                     .layer(AsyncRequireAuthorizationLayer::new(Middleware::default())),
             ),
         )
+    // .route(
+    //     "/:version/provenance",
+    //     routing::get(
+    //         GetReleaseProvenanceFileRestController::run.layer(AsyncRequireAuthorizationLayer::new(Middleware {
+    //             allow_unauthenticated_requests: true,
+    //             ..Default::default()
+    //         })),
+    //     )
+    //     .put(
+    //         PutReleaseProvenanceTarballRestController::run
+    //             .layer(AsyncRequireAuthorizationLayer::new(Middleware::default())),
+    //     ),
+    // )
 }
 
 #[controller(
@@ -505,31 +508,58 @@ pub async fn delete_repository_release(
 )]
 pub async fn get_release_tarball(
     State(Instance {
-        controllers,
-        pool,
-        charts,
-        ..
+        controllers, charts, ..
     }): State<Instance>,
     Path((id, version)): Path<(i64, Version)>,
     session: Option<Extension<Session>>,
 ) -> std::result::Result<Bytes, ApiResponse> {
-    // Ensure a repository and a release exist
-    let (repo, _) = ensure_repository_and_release_exist(
-        &controllers,
-        &pool,
-        id,
-        &version,
-        session.as_ref().map(|x| x.0.clone()).as_ref(),
-        true,
-    )
-    .await?;
+    let repo = match controllers.repositories.get(id).await {
+        Ok(Some(repo)) => repo,
+        Ok(None) => {
+            return Err(err(
+                StatusCode::NOT_FOUND,
+                (
+                    ErrorCode::EntityNotFound,
+                    "repository with id was not found",
+                    json!({"id":id}),
+                ),
+            ))
+        }
+
+        Err(_) => return Err(internal_server_error()),
+    };
+
+    if repo.private {
+        if let Some(ref session) = session {
+            let compare = if let Some(creator) = repo.creator {
+                creator == session.user.id
+            } else {
+                repo.owner == session.user.id
+            };
+
+            if !compare {
+                return Err(err(
+                    StatusCode::FORBIDDEN,
+                    (
+                        ErrorCode::AccessNotPermitted,
+                        "access is not permitted to this resource",
+                    ),
+                ));
+            }
+        } else {
+            return Err(err(
+                StatusCode::FORBIDDEN,
+                (
+                    ErrorCode::AccessNotPermitted,
+                    "access is not permitted to this resource",
+                ),
+            ));
+        }
+    }
 
     match charts
         .get_tarball(
-            repo.creator
-                .unwrap_or(repo.owner)
-                .try_into()
-                .map_err(|_| internal_server_error())?,
+            repo.owner.try_into().map_err(|_| internal_server_error())?,
             repo.id.try_into().map_err(|_| internal_server_error())?,
             version.to_string().trim(),
             !version.pre.is_empty(),
@@ -591,31 +621,58 @@ pub async fn get_release_tarball(
 )]
 pub async fn get_release_provenance_file(
     State(Instance {
-        controllers,
-        pool,
-        charts,
-        ..
+        controllers, charts, ..
     }): State<Instance>,
     Path((id, version)): Path<(i64, Version)>,
     session: Option<Extension<Session>>,
 ) {
-    // Ensure a repository and a release exist
-    let (repo, _) = ensure_repository_and_release_exist(
-        &controllers,
-        &pool,
-        id,
-        &version,
-        session.as_ref().map(|x| x.0.clone()).as_ref(),
-        true,
-    )
-    .await?;
+    let repo = match controllers.repositories.get(id).await {
+        Ok(Some(repo)) => repo,
+        Ok(None) => {
+            return Err(err(
+                StatusCode::NOT_FOUND,
+                (
+                    ErrorCode::EntityNotFound,
+                    "repository with id was not found",
+                    json!({"id":id}),
+                ),
+            ))
+        }
+
+        Err(_) => return Err(internal_server_error()),
+    };
+
+    if repo.private {
+        if let Some(ref session) = session {
+            let compare = if let Some(creator) = repo.creator {
+                creator == session.user.id
+            } else {
+                repo.owner == session.user.id
+            };
+
+            if !compare {
+                return Err(err(
+                    StatusCode::FORBIDDEN,
+                    (
+                        ErrorCode::AccessNotPermitted,
+                        "access is not permitted to this resource",
+                    ),
+                ));
+            }
+        } else {
+            return Err(err(
+                StatusCode::FORBIDDEN,
+                (
+                    ErrorCode::AccessNotPermitted,
+                    "access is not permitted to this resource",
+                ),
+            ));
+        }
+    }
 
     match charts
         .get_provenance(
-            repo.creator
-                .unwrap_or(repo.owner)
-                .try_into()
-                .map_err(|_| internal_server_error())?,
+            repo.owner.try_into().map_err(|_| internal_server_error())?,
             repo.id.try_into().map_err(|_| internal_server_error())?,
             version.to_string().trim(),
             !version.pre.is_empty(),
@@ -663,28 +720,80 @@ pub async fn get_release_provenance_file(
     ),
 )]
 pub async fn put_release_tarball(
-    State(Instance { controllers: _, .. }): State<Instance>,
-    Path((_, _)): Path<(i64, Version)>,
-    Extension(Session { user: _, .. }): Extension<Session>,
-    _: Multipart,
-) {
+    State(Instance {
+        controllers, charts, ..
+    }): State<Instance>,
+    Path((id, version)): Path<(i64, Version)>,
+    Extension(Session { user, .. }): Extension<Session>,
+    data: Multipart,
+) -> Result<()> {
+    let repo = match controllers.repositories.get(id).await {
+        Ok(Some(repo)) => repo,
+        Ok(None) => {
+            return Err(err(
+                StatusCode::NOT_FOUND,
+                (
+                    ErrorCode::EntityNotFound,
+                    "repository with id was not found",
+                    json!({"id":id}),
+                ),
+            ))
+        }
+
+        Err(_) => return Err(internal_server_error()),
+    };
+
+    if repo.private {
+        let compare = if let Some(creator) = repo.creator {
+            creator == user.id
+        } else {
+            repo.owner == user.id
+        };
+
+        if !compare {
+            return Err(err(
+                StatusCode::FORBIDDEN,
+                (
+                    ErrorCode::AccessNotPermitted,
+                    "access is not permitted to this resource",
+                ),
+            ));
+        }
+    }
+
+    charts
+        .upload(
+            UploadReleaseTarballRequest {
+                owner: repo.owner.try_into().unwrap(),
+                version: version.to_string(),
+                repo: repo.id.try_into().unwrap(),
+            },
+            data.into_inner(),
+        )
+        .await
+        .map(|_| ok(StatusCode::ACCEPTED, ()))
+        .inspect_err(|e| {
+            error!(error = %e, repository.id = repo.id, "failed to upload tarball");
+            sentry::capture_error(&e);
+        })
+        .map_err(|_| internal_server_error())
 }
 
-#[controller(
-    tags("Repository", "Releases"),
-    securityRequirements(
-        ("ApiKey", []),
-        ("Bearer", []),
-        ("Basic", [])
-    ),
-)]
-pub async fn put_release_provenance_tarball(
-    State(Instance { controllers: _, .. }): State<Instance>,
-    Path((_, _)): Path<(i64, Version)>,
-    Extension(Session { user: _, .. }): Extension<Session>,
-    _: Multipart,
-) {
-}
+// #[controller(
+//     tags("Repository", "Releases"),
+//     securityRequirements(
+//         ("ApiKey", []),
+//         ("Bearer", []),
+//         ("Basic", [])
+//     ),
+// )]
+// pub async fn put_release_provenance_tarball(
+//     State(Instance { controllers: _, .. }): State<Instance>,
+//     Path((_, _)): Path<(i64, Version)>,
+//     Extension(Session { user: _, .. }): Extension<Session>,
+//     _: Multipart,
+// ) {
+// }
 
 /// Deletes a Helm chart release from a repository release.
 #[controller(
@@ -697,27 +806,76 @@ pub async fn put_release_provenance_tarball(
 )]
 #[allow(unused_variables)]
 pub async fn delete_release_tarball(
-    State(Instance { controllers, .. }): State<Instance>,
+    State(Instance {
+        controllers, charts, ..
+    }): State<Instance>,
     Path((id, version)): Path<(i64, Version)>,
     Extension(Session { user, .. }): Extension<Session>,
 ) {
+    let repo = match controllers.repositories.get(id).await {
+        Ok(Some(repo)) => repo,
+        Ok(None) => {
+            return Err(err(
+                StatusCode::NOT_FOUND,
+                (
+                    ErrorCode::EntityNotFound,
+                    "repository with id was not found",
+                    json!({"id":id}),
+                ),
+            ))
+        }
+
+        Err(_) => return Err(internal_server_error()),
+    };
+
+    if repo.private {
+        let compare = if let Some(creator) = repo.creator {
+            creator == user.id
+        } else {
+            repo.owner == user.id
+        };
+
+        if !compare {
+            return Err(err(
+                StatusCode::FORBIDDEN,
+                (
+                    ErrorCode::AccessNotPermitted,
+                    "access is not permitted to this resource",
+                ),
+            ));
+        }
+    }
+
+    charts
+        .delete_chart(
+            repo.owner.try_into().unwrap(),
+            repo.id.try_into().unwrap(),
+            version.to_string(),
+        )
+        .await
+        .map(|()| ok(StatusCode::ACCEPTED, ()))
+        .inspect_err(|e| {
+            error!(error = %e, repo.id, "failed to delete chart for repository");
+            sentry_eyre::capture_report(e);
+        })
+        .map_err(|_| internal_server_error())
 }
 
-/// Deletes a Helm chart's provenance file from a repository release.
-#[controller(
-    tags("Repository", "Releases"),
-    securityRequirements(
-        ("ApiKey", []),
-        ("Bearer", []),
-        ("Basic", [])
-    ),
-)]
-pub async fn delete_release_provenance_tarball(
-    State(Instance { controllers: _, .. }): State<Instance>,
-    Path((_, _)): Path<(i64, Version)>,
-    Extension(Session { user: _, .. }): Extension<Session>,
-) {
-}
+// /// Deletes a Helm chart's provenance file from a repository release.
+// #[controller(
+//     tags("Repository", "Releases"),
+//     securityRequirements(
+//         ("ApiKey", []),
+//         ("Bearer", []),
+//         ("Basic", [])
+//     ),
+// )]
+// pub async fn delete_release_provenance_tarball(
+//     State(Instance { controllers: _, .. }): State<Instance>,
+//     Path((_, _)): Path<(i64, Version)>,
+//     Extension(Session { user: _, .. }): Extension<Session>,
+// ) {
+// }
 
 async fn ensure_repository_and_release_exist(
     controllers: &Controllers,
@@ -789,7 +947,7 @@ async fn ensure_repository_and_release_exist(
             (
                 ErrorCode::EntityNotFound,
                 "repository release with tag doesn't exist",
-                json!({"repository":repo,"tag":tag}),
+                json!({"repository":repo.id,"tag":tag}),
             ),
         )),
 

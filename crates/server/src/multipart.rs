@@ -30,6 +30,13 @@ use std::{
 
 /// Explicit wrapper type for [`multer::Multipart`] that is also an Axum extractor.
 pub struct Multipart(multer::Multipart<'static>);
+
+impl Multipart {
+    pub fn into_inner(self) -> multer::Multipart<'static> {
+        self.0
+    }
+}
+
 impl Deref for Multipart {
     type Target = multer::Multipart<'static>;
 

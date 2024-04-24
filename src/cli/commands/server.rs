@@ -68,6 +68,7 @@ impl Args {
                 })),
             )
             .with(sentry_tracing::layer())
+            .with(tracing_error::ErrorLayer::default())
             .init();
     }
 }

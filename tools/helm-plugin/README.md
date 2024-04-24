@@ -9,7 +9,7 @@
 To install the plugin, you can use the `helm plugin install` command:
 
 ```shell
-$ helm plugin install https://artifacts.noelware.cloud/charted/helm-plugin/latest/helm-plugin.tgz
+$ helm plugin install https://github.com/charted-dev/charted
 ```
 
 Next, you can setup a `.charted.hcl` file in the directory you wish to setup a repository workspace in with the following contents:
@@ -17,10 +17,10 @@ Next, you can setup a `.charted.hcl` file in the directory you wish to setup a r
 ```hcl
 helm {
     # Cargo-based SemVer of what Helm version we should support
-    version = "~ 3.12.1"
+    version = ">=3.12"
 
     # Cargo-based SemVer of what charted-helm-plugin version we should support
-    plugin = "> 0.1.0-beta"
+    plugin = ">=0.1.0-beta"
 }
 
 registry "my-registry" {
@@ -41,7 +41,6 @@ To push a new version, you can run `helm charted push --all` and it will do the 
 
 -   Validate any piece of authentication it can.
 -   Read your `Chart.yaml` to determine the new version.
-    -   Note: If the version is the same and `--force` isn't specified, this will not push a new version.
--   Creates a new release with the [`PUT /repositories/{id}/releases`](https://charts.noelware.org/docs/server/latest/api/resources/repository/releases#PUT-/releases) REST endpoint.
+    -   Note: If the version is the same and `--force` isn't specified, it'll ask you if you want to overwrite it. In CI, this will be a failure if `--force` is not specified.
 -   Create the tarball with `helm package .`
 -   Upload the tarball with the [`PUT /repositories/{id}/releases/{version}/tarball`](https://charts.noelware.org/docs/server/latest/api/resources/repository/releases#PUT-/releases/{version}/tarball) REST endpoint.

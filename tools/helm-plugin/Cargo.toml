@@ -49,7 +49,9 @@ noelware-config.workspace = true
 num_cpus = "1.16.0"
 once_cell = "1.19.0"
 owo-colors.workspace = true
-reqwest = { version = "0.12.4", features = ["gzip"] }
+remi.workspace = true
+remi-fs.workspace = true
+reqwest = { workspace = true, features = ["gzip", "multipart"] }
 semver.workspace = true
 serde.workspace = true
 serde_json.workspace = true

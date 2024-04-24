@@ -18,13 +18,18 @@ mod helpers;
 use crate::{
     args::{CommonArgs, CommonAuthArgs},
     auth::{Auth, Type},
+    commands::HTTP,
     config::{self, Config},
     util,
 };
 use charted_entities::helm::Chart;
 use clap::Parser;
 use inquire::InquireError;
-use std::{cmp::min, fs, path::PathBuf, process::exit};
+use reqwest::{
+    header::{HeaderMap, HeaderValue},
+    multipart::{Form, Part},
+};
+use std::{fs, path::PathBuf, process::exit};
 
 /// Push one or all Helm charts to a charted-server registry
 #[derive(Debug, Clone, Parser)]
@@ -55,17 +60,17 @@ pub struct Cmd {
 
 pub async fn run(
     Cmd {
-        concurrency,
         repository: repo,
         common,
         force,
         auth: CommonAuthArgs { auth },
+        ..
     }: Cmd,
 ) -> eyre::Result<()> {
-    let concurrency = {
-        let value = concurrency.unwrap_or(2);
-        min(value, num_cpus::get())
-    };
+    // let concurrency = {
+    //     let value = concurrency.unwrap_or(2);
+    //     min(value, num_cpus::get())
+    // };
 
     let config = util::load_config(common.config_path.as_ref())?;
     util::validate_version_constraints(&config, common.helm.as_ref());
@@ -86,7 +91,8 @@ pub async fn run(
     }
 
     if repo == "." {
-        return upload_multi_repositories(&config, auth, concurrency).await;
+        return Err(eyre!("uploading multiple charts is not supported (yet!)"));
+        // return upload_multi_repositories(&config, auth, concurrency).await;
     }
 
     let repos = config.repositories.clone();
@@ -156,29 +162,61 @@ async fn upload_single_repository(
 
     // If we're in a CI system, then we won't prompt if we should push a new version, so it'll act like `--force`
     // ...without using the `--force` flag.
-    if !helpers::check_if_release_is_avaliable(registry, ty, &chart.version, id).await? && !is_ci::uncached() && !force
-    {
-        match inquire::prompt_confirmation("Do you wish to push a new version?") {
-            Ok(true) => {}
-            Ok(false) => {
-                info!("told to not push version {} to registry", chart.version);
-                return Ok(());
-            }
+    if !helpers::check_if_release_is_avaliable(registry, ty, &chart.version, id).await? {
+        let should_prompt = !is_ci::cached() && !force;
+        if should_prompt {
+            match inquire::prompt_confirmation("Do you wish to push a new version?") {
+                Ok(true) => {}
+                Ok(false) => {
+                    info!("told to not push version {} to registry", chart.version);
+                    return Ok(());
+                }
 
-            Err(InquireError::NotTTY) => {
-                warn!("there is no TTY available, using `--force` is not useful here");
-            }
+                Err(InquireError::NotTTY) => {
+                    warn!("there is no TTY available, using `--force` is not useful here");
+                }
 
-            Err(e) => return Err(e.into()),
+                Err(e) => return Err(e.into()),
+            }
         }
     }
 
     info!("Packaging Helm chart with `helm` CLI...");
     helpers::package_chart(&config.source, helm.as_deref())?;
 
-    Ok(())
-}
+    // Helm will save it in '{name}-{version}.tgz'
+    let pkg = config.source.join(format!("{}-{}.tgz", chart.name, chart.version));
+    assert!(
+        pkg.try_exists()?,
+        "failed to assert that path exist, might be an internal change by Helm"
+    );
 
-async fn upload_multi_repositories(_config: &Config, _auth: Option<PathBuf>, _concurrency: usize) -> eyre::Result<()> {
+    info!(chart = %pkg.display(), "successfully packaged chart with Helm! Pushing to server...");
+
+    let bytes = fs::read(&pkg)?;
+    let ct = remi_fs::default_resolver(&bytes);
+
+    let form = Form::new().part(
+        "main",
+        Part::bytes(bytes).headers({
+            let mut map = HeaderMap::new();
+            map.insert("content-type", HeaderValue::from_str(&ct)?);
+
+            map
+        }),
+    );
+
+    let mut req = HTTP.put(registry.join_url(format!("repositories/{id}/releases/{}/tarball", chart.version))?);
+    util::set_auth_details(&mut req, ty)?;
+
+    let res = HTTP.execute(req.multipart(form).build()?).await?;
+    if res.status().is_success() {
+        info!("Uploaded Helm chart successfully!");
+        return Ok(());
+    }
+
+    error!(status = %res.status(), "unable to upload Helm chart :(");
+    trace!("{}", res.text().await?);
+
     Ok(())
 }

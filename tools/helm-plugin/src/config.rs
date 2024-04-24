@@ -128,7 +128,12 @@ impl Config {
             ),
         );
 
-        hcl::eval::from_str(&contents, &ctx).context("unable to evaluate HCL file")
+        let mut config: Config = hcl::eval::from_str(&contents, &ctx).context("unable to evaluate HCL file")?;
+
+        // Extend to have the `default` registry if we don't already have it
+        config.registries.extend(__default_registries());
+
+        Ok(config)
     }
 }
 

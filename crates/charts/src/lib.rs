@@ -18,7 +18,7 @@ pub use builder::*;
 
 use charted_common::{lazy, regex};
 use charted_entities::helm::ChartIndex;
-use eyre::{eyre, Context};
+use eyre::{eyre, Context, Report};
 use flate2::bufread::MultiGzDecoder;
 use itertools::Itertools;
 use multer::Multipart;
@@ -30,19 +30,17 @@ use semver::Version;
 use std::{borrow::Cow, future::Future, pin::Pin};
 use tar::Archive;
 use tokio::fs::create_dir_all;
-use tracing::{error, info, instrument, warn};
+use tracing::{error, info, instrument, trace, warn};
 
 /// Accepted content types that are allowed to be sent as a tarball
 const ACCEPTABLE_CONTENT_TYPES: &[&str] = &["application/gzip", "application/tar+gzip"];
 
 /// Exempted files that aren't usually in a Helm chart, but they are allowed to be in one.
-#[allow(dead_code)]
-const EXEMPTED_FILES: &[&str] = &["values.schema.json", "README.md"];
+const EXEMPTED_FILES: &[&str] = &["values.schema.json", "README.md", "LICENSE"];
 
 /// Regular expression on all allowed files in a Helm chart
-#[allow(dead_code)]
 static ALLOWED_FILES: Lazy<Regex> = lazy!(regex!(
-    "(Chart.lock|Chart.ya?ml|values.ya?ml|[.]helmignore|templates/\\w+.*[.](txt|tpl|ya?ml)|charts/\\w+.*.(tgz|tar.gz))"
+    r"(Chart.lock|Chart.ya?ml|values.ya?ml|[.]helmignore|NOTES.txt|\w+.*[.](txt|tpl|ya?ml))"
 ));
 
 #[derive(Clone)]
@@ -267,6 +265,15 @@ impl HelmCharts {
         })
     }
 
+    #[instrument(
+        name = "charted.charts.upload",
+        skip_all,
+        fields(
+            owner = request.owner,
+            repo = request.repo,
+            version = request.version
+        )
+    )]
     pub async fn upload<'m>(
         &self,
         request: UploadReleaseTarballRequest,
@@ -286,6 +293,7 @@ impl HelmCharts {
             return Err(Error::InvalidContentType(Cow::Owned(content_type.to_string())));
         }
 
+        let ct = content_type.clone();
         info!(owner.id = request.owner, repository.id = request.repo, %version, "now validating tarball given...");
 
         // next is validation over the tarball itself, to see if it has the available
@@ -308,34 +316,73 @@ impl HelmCharts {
         let entries = archive.entries()?;
 
         for entry in entries.into_iter() {
-            let _entry = entry?;
-        }
-
-        todo!()
-    }
-}
-
-/*
-impl UploadReleaseTarball {
-    pub async fn upload(self, _charts: HelmCharts, mut multipart: Multipart<'_>) -> Result<(), ReleaseTarballError> {
-        for entry in entries.into_iter() {
             let entry = entry?;
-
-            // skip directories
-            if entry.header().entry_type().is_dir() {
-                continue;
-            }
-
-            // skip non files
-            if !entry.header().entry_type().is_file() {
-                continue;
-            }
-
+            let hdr = entry.header();
             let path = entry.path()?;
-            dbg!(path);
+
+            trace!(path = %path.display(), "validating file");
+
+            // for directories, we only allow 'charts/' and 'templates/'
+            if hdr.entry_type().is_dir() {
+                // continue as we can probably confirm that they have the
+                // files that is required.
+                if path.ends_with("charts") || path.ends_with("templates") {
+                    continue;
+                }
+
+                return Err(Error::InvalidTarball {
+                    why: Cow::Owned(format!(
+                        "expected 'charts/' or 'templates/' directory, received: {path:?}"
+                    )),
+                });
+            }
+
+            if !hdr.entry_type().is_file() {
+                error!(ty = ?hdr.entry_type(), "wanted a regular file");
+
+                return Err(Error::InvalidTarball {
+                    why: Cow::Owned(format!("wanted a regular file for entry: {path:?}")),
+                });
+            }
+
+            let name = path.file_name().ok_or_else(|| Error::InvalidTarball {
+                why: Cow::Borrowed("path was relative"),
+            })?;
+
+            // if we can find the exempt file from the file name, then it is fine
+            if EXEMPTED_FILES.iter().any(|x| name == *x) {
+                continue;
+            }
+
+            if !ALLOWED_FILES.is_match(name.to_string_lossy().as_ref()) {
+                let name = name.to_string_lossy();
+                return Err(Error::InvalidTarball {
+                    why: Cow::Owned(format!("file {name} is not allowed to appear in a Helm chart")),
+                });
+            }
         }
 
-        Ok(())
+        info!("validated that given tarball was a Helm chart, uploading!");
+        self.storage
+            .upload(
+                format!(
+                    "./repositories/{}/{}/{}.tar.gz",
+                    request.owner, request.repo, request.version
+                ),
+                UploadRequest::default()
+                    .with_content_type(Some(ct.as_ref()))
+                    .with_data(bytes),
+            )
+            .await
+            .map(|_| ())
+            .map_err(Into::into)
+    }
+
+    pub async fn delete_chart(&self, owner: u64, repo: u64, version: impl AsRef<str> + Send) -> eyre::Result<()> {
+        self.storage
+            .delete(format!("./repositories/{owner}/{repo}/{}.tgz", version.as_ref()))
+            .await
+            .map(|_| ())
+            .map_err(Report::from)
     }
 }
-*/

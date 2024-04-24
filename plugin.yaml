@@ -22,5 +22,5 @@ downloaders:
     - command: bin/charted-helm-plugin download
       protocols: [charted]
 hooks:
-    install: 'cd $HELM_PLUGIN_DIR; ./scripts/update.sh'
-    update: 'cd $HELM_PLUGIN_DIR; ./scripts/update.sh'
+    install: 'cd $HELM_PLUGIN_DIR; ./hack/helm-plugin/update.sh'
+    update: 'cd $HELM_PLUGIN_DIR; ./hack/helm-plugin/update.sh'

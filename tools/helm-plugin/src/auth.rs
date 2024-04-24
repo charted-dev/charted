@@ -59,6 +59,9 @@ pub enum Type {
     /// via REST API or UI (if enabled)).
     ApiKey(String),
 
+    /// Uses basic authentication, not recommended in production!
+    Basic { username: String, password: String },
+
     /// Does no prior authentication.
     #[default]
     None,

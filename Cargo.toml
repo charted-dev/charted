@@ -26,10 +26,6 @@ members = [
     "tools/helm-plugin",
 ]
 
-[features]
-vendored = ["openssl/vendored"]
-default = []
-
 [workspace.package]
 version = "0.1.0-beta"
 authors = [
@@ -68,6 +64,7 @@ remi = "0.7.0"
 remi-azure = "0.7.0"
 remi-fs = "0.7.0"
 remi-s3 = "0.7.0"
+reqwest = "0.12.4"
 semver = { version = "1.0.22", features = ["serde"] }
 sentry = "0.32.3"
 serde = { version = "1.0.198", features = ["derive"] }
@@ -154,7 +151,6 @@ num_cpus = "1.16.0"
 noelware-config.workspace = true
 noelware-remi = { workspace = true, features = ["azure", "fs", "s3"] }
 once_cell.workspace = true
-openssl = "0.10.64" # only here for the `vendored` feature
 opentelemetry.workspace = true
 opentelemetry_sdk = "0.22.1"
 owo-colors.workspace = true
@@ -173,7 +169,7 @@ remi.workspace = true
 remi-azure = { workspace = true, features = ["serde", "tracing"] }
 remi-fs = { workspace = true, features = ["serde", "tracing"] }
 remi-s3 = { workspace = true, features = ["serde", "tracing"] }
-reqwest = "0.12.4"
+reqwest.workspace = true
 sentry.workspace = true
 sentry-eyre = "0.1.0"
 sentry-tower = { version = "0.32.3", features = ["axum", "http"] }
@@ -191,6 +187,7 @@ tokio = { workspace = true, features = [
     "fs",
     "signal",
 ] }
+toml = "0.8.12"
 tonic = "0.11.0"
 tower = "0.4.13"
 tower-http = { version = "0.5.2", features = [
@@ -201,13 +198,13 @@ tower-http = { version = "0.5.2", features = [
     "limit",
 ] }
 tracing.workspace = true
+tracing-error = "0.2.0"
 tracing-log = "0.2.0"
 tracing-opentelemetry = "0.23.0"
 tracing-subscriber = "0.3.18"
 utoipa.workspace = true
 uuid = { version = "1.8.0", features = ["serde", "v4"] }
 validator.workspace = true
-toml = "0.8.12"
 
 [dependencies.noelware-log]
 version = "0.1.0"
@@ -229,7 +226,6 @@ which.workspace = true
 [package.metadata.cargo-machete]
 ignored = [
     "md-5",                         # md-5 is actually used but it is under the `md5` module.
-    "openssl",                      # this is mainly for releases since we have `--features=vendored`, which will vender OpenSSL
     "prost",                        # Prost is used when we send messages to charted-emails, but as of 02/03/24, it is not implemented
     "prost-types",                  # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     "tracing-log",                  # We enable the `log` feature to get logs from crates that use the `log` library, but we don't ever use it

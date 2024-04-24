@@ -44,6 +44,9 @@ pub enum Error {
     /// received more than one or two files
     MaxFileLimit(usize),
 
+    /// Upload has failed.
+    UploadFailed(noelware_remi::Error),
+
     /// missing the required `Content-Type`
     MissingContentType,
 
@@ -55,7 +58,7 @@ pub enum Error {
 
     /// the API server was unable to validate that the tarball received
     /// was a valid tarball.
-    InvalidTarball,
+    InvalidTarball { why: Cow<'static, str> },
 
     /// Missing a required file
     MissingFile,
@@ -70,13 +73,14 @@ impl Display for Error {
 
         match self {
             E::InvalidContentType(ct) => write!(f, "received invalid content type [{ct}]"),
+            E::UploadFailed(_) => f.write_str("failed to upload file to data storage"),
             E::MaxFileLimit(files) => write!(
                 f,
                 "reached maximum files to receive by the request; wanted 1-2, received {files} file(s) instead"
             ),
 
+            E::InvalidTarball { why } => write!(f, "received an invalid tarball: {why}"),
             E::MissingContentType => f.write_str("missing required `Content-Type`"),
-            E::InvalidTarball => f.write_str("received an invalid tarball"),
             E::MissingFile => write!(f, "wanted a tarball release file or provenance file, but was missing"),
 
             E::Multipart(err) => Display::fmt(err, f),
@@ -104,6 +108,25 @@ impl From<io::Error> for Error {
     }
 }
 
+impl From<noelware_remi::Error> for Error {
+    fn from(value: noelware_remi::Error) -> Self {
+        Self::UploadFailed(value)
+    }
+}
+
+impl std::error::Error for Error {
+    fn cause(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        use Error as E;
+        match self {
+            E::UploadFailed(err) => Some(err),
+            E::Multipart(err) => Some(err),
+            E::SemVer(err) => Some(err),
+            E::Io(err) => Some(err),
+            _ => None,
+        }
+    }
+}
+
 impl Error {
     fn status(&self) -> StatusCode {
         use Error as E;
@@ -114,10 +137,10 @@ impl Error {
             | E::SemVer(_)
             | E::MissingFile
             | E::MissingContentType
-            | E::InvalidTarball => StatusCode::NOT_ACCEPTABLE,
+            | E::InvalidTarball { .. } => StatusCode::NOT_ACCEPTABLE,
 
             E::Multipart(err) => to_status_code(err),
-            E::Io(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            E::Io(_) | E::UploadFailed(_) => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 
@@ -128,11 +151,12 @@ impl Error {
             E::InvalidContentType(_) => ErrorCode::InvalidContentType,
             E::MissingContentType => ErrorCode::MissingHeader,
             E::MaxFileLimit(_) => ErrorCode::MultipartFieldsSizeExceeded,
-            E::InvalidTarball => ErrorCode::InvalidBody,
+            E::InvalidTarball { .. } => ErrorCode::InvalidBody,
             E::Multipart(err) => to_err_code(err),
             E::MissingFile => ErrorCode::MissingMultipartField,
             E::SemVer(_) => ErrorCode::InvalidType,
             E::Io(_) => ErrorCode::Io,
+            E::UploadFailed(_) => ErrorCode::InternalServerError,
         }
     }
 

@@ -116,6 +116,8 @@ CHECKSUM_URL=$(charted::helm::checksum_url "$version")
 
 echo "~> Downloading \`charted-helm-plugin\` from binary URL: $BINARY_URL"
 charted::helm::download "$BINARY_URL" bin/charted-helm-plugin
+
+echo "~> Downloading \`charted-helm-plugin\` checksum: $CHECKSUM_URL"
 charted::helm::download "$CHECKSUM_URL" bin/charted-helm-plugin.sha256
 
 # Verify the checksum

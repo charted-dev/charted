@@ -158,6 +158,13 @@ pub fn set_auth_details(req: &mut RequestBuilder, ty: &Type) -> eyre::Result<()>
                 .header(AUTHORIZATION, format!("{kind} {value}"));
         }
 
+        Type::Basic { username, password } => {
+            *req = req
+                .try_clone()
+                .ok_or_else(|| eyre!("failed to clone `RequestBuilder`"))?
+                .basic_auth(username, Some(password));
+        }
+
         _ => {}
     }
 
