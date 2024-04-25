@@ -100,7 +100,7 @@
         };
 
         helm-plugin = rustPlatform.buildRustPackage {
-          nativeBuildInputs = with pkgs; [pkg-config];
+          nativeBuildInputs = with pkgs; [pkg-config installShellFiles];
           buildInputs = with pkgs; [openssl];
           cargoSha256 = pkgs.lib.fakeSha256;
           version = "${cargoTOML.workspace.package.version}";
@@ -116,6 +116,23 @@
               "azalia-0.1.0" = hashes.azalia;
             };
           };
+
+          # NOTE: Remove the install and upgrade hooks.
+          postPatch = ''
+            sed -i '/^hooks:/,+2 d' plugin.yaml
+          '';
+
+          postInstall = ''
+            # install completion shell scripts before moving everything around
+            installShellCompletion --cmd 'helm charted' \
+              --bash <($out/bin/charted-helm-plugin completions bash) \
+              --fish <($out/bin/charted-helm-plugin completions fish) \
+              --zsh <($out/bin/charted-helm-plugin completions zsh)
+
+            install -dm755 $out/charted-helm-plugin
+            install -Dm644 plugin.yaml $out/charted-helm-plugin/plugin.yaml
+            mv $out/bin $out/charted-helm-plugin
+          '';
 
           meta = with pkgs.lib; {
             description = "Faciliate common practices with Helm + charted-server easily as a plugin";
