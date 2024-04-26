@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_common::{architecture, os};
+use charted_common::{architecture, os, BUILD_DATE, COMMIT_HASH, VERSION};
 use charted_entities::Distribution;
 use serde_json::json;
 
@@ -29,9 +29,9 @@ pub fn run(Args { json }: Args) {
     let distribution = Distribution::detect();
     if json {
         let info = json!({
-            "version": crate::VERSION,
-            "commit_hash": crate::COMMIT_HASH,
-            "build_date": crate::BUILD_DATE,
+            "version": VERSION,
+            "commit_hash": COMMIT_HASH,
+            "build_date": BUILD_DATE,
             "distribution": distribution
         });
 

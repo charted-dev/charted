@@ -24,6 +24,10 @@ pub use snowflake::*;
 
 mod macros;
 
+/// Represents a type-alias that wraps [`chrono::DateTime`]<[`chrono::Local`]> for database objects'
+/// `created_at` and `updated_at` timestamps.
+pub type DateTime = chrono::DateTime<chrono::Local>;
+
 /// Snowflake epoch used for ID generation. (March 1st, 2024)
 pub const SNOWFLAKE_EPOCH: usize = 1709280000000;
 

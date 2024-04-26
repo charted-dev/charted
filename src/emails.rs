@@ -13,25 +13,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Generated protobuf definitions.
-pub mod protos {
-    // pub mod google {
-    //     pub mod protobuf {
-    //         tonic::include_proto!("google.protobuf");
-    //     }
-    // }
+// /// Generated protobuf definitions.
+// pub mod protos {
+//     // pub mod google {
+//     //     pub mod protobuf {
+//     //         tonic::include_proto!("google.protobuf");
+//     //     }
+//     // }
 
-    pub mod noelware {
-        pub mod charted {
-            pub mod emails {
-                tonic::include_proto!("noelware.charted.emails");
-            }
-        }
-    }
-}
+//     pub mod noelware {
+//         pub mod charted {
+//             pub mod emails {
+//                 tonic::include_proto!("noelware.charted.emails");
+//             }
+//         }
+//     }
+// }
 
-use protos::noelware::charted::emails::emails_client::EmailsClient;
-use tonic::transport::Channel;
+// use protos::noelware::charted::emails::emails_client::EmailsClient;
+// use tonic::transport::Channel;
 
-/// Represents a [`EmailsClient`] that uses the [`tonic::transport::Channel`] as the generic.
-pub type Client = EmailsClient<Channel>;
+// /// Represents a [`EmailsClient`] that uses the [`tonic::transport::Channel`] as the generic.
+// pub type Client = EmailsClient<Channel>;

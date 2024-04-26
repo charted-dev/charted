@@ -27,8 +27,9 @@ pub mod organization;
 pub mod repository;
 pub mod user;
 
-use crate::{openapi::generate_response_schema, Instance, VERSION};
+use crate::{openapi::generate_response_schema, Instance};
 use axum::{extract::Request, http::StatusCode, response::IntoResponse, routing, Router};
+use charted_common::VERSION;
 use charted_server::{err, ErrorCode};
 use serde::Serialize;
 use serde_json::json;

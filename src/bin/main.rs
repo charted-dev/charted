@@ -54,7 +54,7 @@ fn main() -> Result<()> {
             HookBuilder::new()
                 .issue_url("https://github.com/charted-dev/charted/issues/new")
                 .add_issue_metadata("version", charted::version())
-                .add_issue_metadata("rustc", charted::RUSTC_VERSION)
+                .add_issue_metadata("rustc", charted_common::RUSTC_VERSION)
                 .install()?;
 
             program.init_log();

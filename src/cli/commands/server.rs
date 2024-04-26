@@ -95,7 +95,7 @@ pub async fn run(args: Args) -> eyre::Result<()> {
         traces_sample_rate: 1.0,
         attach_stacktrace: true,
         server_name: Some(Cow::Borrowed("charted-server")),
-        release: Some(Cow::Owned(crate::version())),
+        release: Some(Cow::Borrowed(crate::version())),
         dsn: config
             .sentry_dsn
             .as_ref()
@@ -266,6 +266,6 @@ fn print_banner() {
         "» Booting up {} v{}, compiled with Rust v{} on {distribution}",
         "charted-server".if_supports_color(Stdout, |x| x.bold()),
         crate::version().if_supports_color(Stdout, |x| x.bold()),
-        crate::RUSTC_VERSION.if_supports_color(Stdout, |x| x.bold())
+        charted_common::RUSTC_VERSION.if_supports_color(Stdout, |x| x.bold())
     );
 }

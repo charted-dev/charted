@@ -24,7 +24,7 @@ use std::{
     any::Any,
     sync::{
         atomic::{AtomicUsize, Ordering},
-        Arc, OnceLock,
+        Arc, Once, OnceLock,
     },
 };
 use tokio::sync::{Mutex, RwLock};
@@ -57,17 +57,33 @@ pub const SNOWFLAKE_EPOCH: usize = 1677654000000;
 
 /// Returns the version of the Rust compiler that charted-server
 /// was compiled on.
-pub const RUSTC_VERSION: &str = env!("CHARTED_RUSTC_VERSION");
+#[deprecated(
+    since = "0.1.0-beta",
+    note = "Replaced by `charted_common::VERSION`, will be removed in v0.2.0-beta"
+)]
+pub const RUSTC_VERSION: &str = charted_common::RUSTC_VERSION;
 
 /// Returns the Git commit hash from the charted-server repository that
 /// this build was built off from.
-pub const COMMIT_HASH: &str = env!("CHARTED_COMMIT_HASH");
+#[deprecated(
+    since = "0.1.0-beta",
+    note = "Replaced by `charted_common::VERSION`, will be removed in v0.2.0-beta"
+)]
+pub const COMMIT_HASH: &str = charted_common::COMMIT_HASH;
 
 /// RFC3339-formatted date of when charted-server was last built at.
-pub const BUILD_DATE: &str = env!("CHARTED_BUILD_DATE");
+#[deprecated(
+    since = "0.1.0-beta",
+    note = "Replaced by `charted_common::VERSION`, will be removed in v0.2.0-beta"
+)]
+pub const BUILD_DATE: &str = charted_common::BUILD_DATE;
 
 /// Returns the current version of `charted-server`.
-pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+#[deprecated(
+    since = "0.1.0-beta",
+    note = "Replaced by `charted_common::VERSION`, will be removed in v0.2.0-beta"
+)]
+pub const VERSION: &str = charted_common::VERSION;
 
 /// Generic [`Regex`] implementation for possible truthy boolean values.
 pub static TRUTHY_REGEX: Lazy<Regex> = lazy!(Regex::new(r#"^(yes|true|si*|e|enable|1)$"#).unwrap());
@@ -103,17 +119,28 @@ pub fn panic_message(error: Box<dyn Any + Send + 'static>) -> String {
 }
 
 /// Returns a version that includes the Git commit hash in the version string.
-pub fn version() -> String {
-    use std::fmt::Write;
+pub fn version<'v>() -> &'v str {
+    static ONCE: Once = Once::new();
+    static mut VALUE: String = String::new();
 
-    let mut buf = String::new();
-    write!(buf, "{VERSION}").unwrap();
+    // Safety: `VALUE` is only mutated by the `ONCE.call_once` block and nowhere else and
+    //         cannot be mutated as it'll return an immutable string.
+    unsafe {
+        ONCE.call_once(move || {
+            use std::fmt::Write;
 
-    if !COMMIT_HASH.is_empty() && COMMIT_HASH != "d1cebae" {
-        write!(buf, "+{COMMIT_HASH}").unwrap();
+            let mut buf = String::new();
+            write!(buf, "{}", charted_common::VERSION).unwrap();
+
+            if !charted_common::COMMIT_HASH.is_empty() && charted_common::COMMIT_HASH != "d1cebae" {
+                write!(buf, "+{}", charted_common::COMMIT_HASH).unwrap();
+            }
+
+            VALUE = buf;
+        });
+
+        VALUE.as_str()
     }
-
-    buf
 }
 
 static GLOBAL: OnceLock<Instance> = OnceLock::new();

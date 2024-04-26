@@ -24,3 +24,13 @@ license.workspace = true
 publish.workspace = true
 repository.workspace = true
 authors.workspace = true
+
+[dependencies]
+async-trait.workspace = true
+charted-config = { version = "0.1.0-beta", path = "../../config" }
+charted-search = { version = "0.1.0-beta", path = ".." }
+erased-serde.workspace = true
+eyre.workspace = true
+meilisearch-sdk = "0.25.0"
+sentry.workspace = true
+tracing.workspace = true

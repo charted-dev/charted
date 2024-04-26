@@ -69,19 +69,22 @@
         "noelware-serde" = "sha256-ZOIaeMJO44NNn2/PKiLX731UlKAQukYAlSWQixELxl4=";
         "azalia" = "sha256-qhX0hZXKqEyGWTxxbCimYixM+/YGIqi6gPFhj1F/csA=";
       };
-    in rec {
-      packages = {
-        charted = rustPlatform.buildRustPackage {
-          nativeBuildInputs = with pkgs; [pkg-config protobuf];
+
+      mkPackage = {
+        description,
+        mainProgram,
+        name,
+      }:
+        rustPlatform.buildRustPackage {
+          inherit name;
+
+          nativeBuildInputs = with pkgs; [pkg-config protobuf installShellFiles];
           buildInputs = with pkgs; [openssl];
           cargoSha256 = pkgs.lib.fakeSha256;
           version = "${cargoTOML.workspace.package.version}";
-          name = "charted";
           src = ./.;
 
           env.PROTOC = pkgs.lib.getExe pkgs.protobuf;
-          env.CHARTED_DISTRIBUTION_KIND = "git@nix";
-
           cargoLock = {
             lockFile = ./Cargo.lock;
             outputHashes = {
@@ -90,32 +93,30 @@
             };
           };
 
+          useNextest = true;
           meta = with pkgs.lib; {
-            description = "Free, open source, and reliable Helm chart registry in Rust";
+            inherit description mainProgram;
+
             homepage = "https://charts.noelware.org";
             license = with licenses; [asl20];
             maintainers = with maintainers; [auguwu spotlightishere];
-            mainProgram = "charted";
           };
         };
 
-        helm-plugin = rustPlatform.buildRustPackage {
-          nativeBuildInputs = with pkgs; [pkg-config installShellFiles];
-          buildInputs = with pkgs; [openssl];
-          cargoSha256 = pkgs.lib.fakeSha256;
-          version = "${cargoTOML.workspace.package.version}";
-          name = "charted-helm-plugin";
-          src = ./.;
+      charted = mkPackage {
+        description = "Free, open source, and reliable Helm chart registry in Rust";
+        mainProgram = "charted";
+        name = "charted";
+      };
 
-          env.PROTOC = pkgs.lib.getExe pkgs.protobuf;
+      helm-plugin =
+        mkPackage {
+          description = "Faciliate common practices with Helm + charted-server easily as a plugin";
+          mainProgram = "helm charted";
+          name = "charted-helm-plugin";
+        }
+        // {
           cargoBuildFlags = ["--package" "charted-helm-plugin"];
-          cargoLock = {
-            lockFile = ./Cargo.lock;
-            outputHashes = {
-              "noelware-serde-0.1.0" = hashes."noelware-serde";
-              "azalia-0.1.0" = hashes.azalia;
-            };
-          };
 
           # NOTE: Remove the install and upgrade hooks.
           postPatch = ''
@@ -123,8 +124,7 @@
           '';
 
           postInstall = ''
-            # install completion shell scripts before moving everything around
-            installShellCompletion --cmd 'helm charted' \
+            installShellCompletion --cmd charted-helm-plugin \
               --bash <($out/bin/charted-helm-plugin completions bash) \
               --fish <($out/bin/charted-helm-plugin completions fish) \
               --zsh <($out/bin/charted-helm-plugin completions zsh)
@@ -133,21 +133,17 @@
             install -Dm644 plugin.yaml $out/charted-helm-plugin/plugin.yaml
             mv $out/bin $out/charted-helm-plugin
           '';
-
-          meta = with pkgs.lib; {
-            description = "Faciliate common practices with Helm + charted-server easily as a plugin";
-            homepage = "https://charts.noelware.org";
-            license = with licenses; [asl20];
-            maintainers = with maintainers; [auguwu spotlightishere];
-          };
         };
+    in {
+      packages = {
+        inherit charted helm-plugin;
 
         all = pkgs.symlinkJoin {
-          name = "charted-0.1.0-beta";
-          paths = [packages.charted packages.helm-plugin];
+          name = "charted-${cargoTOML.workspace.package.version}";
+          paths = [charted helm-plugin];
         };
 
-        default = packages.charted;
+        default = charted;
       };
 
       devShells.default = pkgs.mkShell {

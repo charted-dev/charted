@@ -15,7 +15,8 @@
 
 pub use charted_proc_macros::generate_response_schema;
 
-use crate::{lazy, VERSION};
+use crate::lazy;
+use charted_common::VERSION;
 use once_cell::sync::Lazy;
 use utoipa::{
     openapi::{
@@ -58,7 +59,7 @@ pub fn openapi() -> OpenApi {
         .build();
 
     let docs = ExternalDocsBuilder::new()
-        .url(format!("https://charts.noelware.org/docs/server/{}", crate::VERSION))
+        .url(format!("https://charts.noelware.org/docs/server/{}", VERSION))
         .description(Some("Main documentation source for charted-server"))
         .build();
 

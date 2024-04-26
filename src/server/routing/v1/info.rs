@@ -13,8 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{openapi::generate_response_schema, BUILD_DATE, COMMIT_HASH, VERSION};
+use crate::openapi::generate_response_schema;
 use axum::http::StatusCode;
+use charted_common::{BUILD_DATE, COMMIT_HASH, VERSION};
 use charted_entities::Distribution;
 use charted_server::{controller, ok};
 use serde::Serialize;

@@ -40,7 +40,8 @@ use validator::Validate;
 
 /// Represents a type-alias that wraps [`chrono::DateTime`]<[`chrono::Local`]> for database objects'
 /// `created_at` and `updated_at` timestamps.
-pub type DateTime = chrono::DateTime<chrono::Local>;
+#[deprecated(since = "0.1.0-beta", note = "Replaced by `charted_common::DateTime` instead")]
+pub type DateTime = charted_common::DateTime;
 
 const KUBERNETES_SERVICE_TOKEN_FILE: &str = "/run/secrets/kubernetes.io/serviceaccount/token";
 const KUBERNETES_NAMESPACE_FILE: &str = "/run/secrets/kubernetes.io/serviceaccount/namespace";
@@ -235,11 +236,11 @@ pub struct User {
 
     /// Date of when this user was registered to this instance
     #[schema(read_only)]
-    pub created_at: DateTime,
+    pub created_at: charted_common::DateTime,
 
     /// Date of when the server has last updated this user
     #[schema(read_only)]
-    pub updated_at: DateTime,
+    pub updated_at: charted_common::DateTime,
 
     #[serde(skip)]
     #[search(skip)]
@@ -285,11 +286,11 @@ pub struct UserConnections {
 
     /// Date of when this connection was inserted to the database.
     #[schema(read_only)]
-    pub created_at: DateTime,
+    pub created_at: charted_common::DateTime,
 
     /// Date of when the server has last updated this user's connections.
     #[schema(read_only)]
-    pub updated_at: DateTime,
+    pub updated_at: charted_common::DateTime,
 
     /// Snowflake of the user that owns this connections object.
     #[schema(read_only, value_type = Snowflake)]
@@ -309,11 +310,11 @@ pub struct Repository {
 
     /// Date of when this repository was registered to this instance
     #[schema(read_only)]
-    pub created_at: DateTime,
+    pub created_at: charted_common::DateTime,
 
     /// Date of when the server has last updated this repository
     #[schema(read_only)]
-    pub updated_at: DateTime,
+    pub updated_at: charted_common::DateTime,
 
     /// Unique hash to locate a repository's icon, this also includes the extension that this avatar is, i.e, `png`.
     #[serde(default)]
@@ -368,11 +369,11 @@ pub struct RepositoryRelease {
 
     /// Date of when this release was registered to this instance
     #[schema(read_only)]
-    pub created_at: DateTime,
+    pub created_at: charted_common::DateTime,
 
     /// Date of when the server has last updated this repository release
     #[schema(read_only)]
-    pub updated_at: DateTime,
+    pub updated_at: charted_common::DateTime,
 
     /// SemVer 2 comformant string that represents this tag.
     #[schema(read_only)]
@@ -389,8 +390,8 @@ impl Default for RepositoryRelease {
             is_prerelease: false,
             update_text: None,
             repository: 0,
-            created_at: DateTime::default(),
-            updated_at: DateTime::default(),
+            created_at: charted_common::DateTime::default(),
+            updated_at: charted_common::DateTime::default(),
             tag: Version(semver::Version::parse("0.0.0+derived").expect("failed to parse semver")),
             id: i64::default(),
         }
@@ -410,11 +411,11 @@ pub struct Member {
 
     /// Date-time of when this member resource was last updated by the API server.
     #[schema(read_only)]
-    pub updated_at: DateTime,
+    pub updated_at: charted_common::DateTime,
 
     /// Date-time of when this member resource was created by the API server.
     #[schema(read_only)]
-    pub joined_at: DateTime,
+    pub joined_at: charted_common::DateTime,
 
     /// [User] resource that this member is.
     #[schema(read_only, value_type = Snowflake)]
@@ -467,11 +468,11 @@ pub struct Organization {
 
     /// Date of when this organization was registered to this instance
     #[schema(read_only)]
-    pub created_at: DateTime,
+    pub created_at: charted_common::DateTime,
 
     /// Date of when the server has last updated this organization
     #[schema(read_only)]
-    pub updated_at: DateTime,
+    pub updated_at: charted_common::DateTime,
 
     /// Unique hash to locate an organization's icon, this also includes the extension that this icon is, i.e, `png`.
     #[serde(default)]
@@ -505,17 +506,17 @@ pub struct ApiKey {
 
     /// Date of when this API key was created
     #[schema(read_only)]
-    pub created_at: DateTime,
+    pub created_at: charted_common::DateTime,
 
     /// Date of when the server has last updated this API key
     #[schema(read_only)]
-    pub updated_at: DateTime,
+    pub updated_at: charted_common::DateTime,
 
     /// Date-time of when this API token expires in, `null` can be returned
     /// if the token doesn't expire
     #[serde(default)]
     #[schema(read_only)]
-    pub expires_in: Option<DateTime>,
+    pub expires_in: Option<charted_common::DateTime>,
 
     /// The scopes that are attached to this API key resource.
     pub scopes: i64,

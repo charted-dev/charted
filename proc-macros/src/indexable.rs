@@ -14,17 +14,18 @@
 // limitations under the License.
 
 use crate::{error, helpers::OptionHelper};
-use proc_macro2::TokenStream;
+use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::{
     parse::{Parse, ParseStream},
     spanned::Spanned,
-    DeriveInput, Error, Expr, ExprLit, Lit, Result, Token,
+    DeriveInput, Error, Expr, ExprLit, Ident, Lit, Result, Token,
 };
 
 pub struct Attributes {
     pub index: String,
     pub id_field: Option<String>,
+    pub id: Ident,
 }
 
 impl Parse for Attributes {
@@ -33,12 +34,14 @@ impl Parse for Attributes {
             return Ok(Attributes {
                 index: "<unknown>".into(),
                 id_field: None,
+                id: Ident::new("id", Span::call_site()),
             });
         }
 
         let mut me = Attributes {
             index: "<unknown>".into(),
             id_field: None,
+            id: Ident::new("id", Span::call_site()),
         };
 
         while !input.is_empty() {
@@ -77,6 +80,15 @@ impl Parse for Attributes {
                 me.id_field = Some(s.value());
                 continue;
             }
+
+            if input.peek(kw::id) {
+                input.parse::<kw::id>()?;
+                input.parse::<Token![=]>()?;
+
+                let ident: Ident = input.parse()?;
+                me.id = ident;
+                continue;
+            }
         }
 
         Ok(me)
@@ -86,6 +98,7 @@ impl Parse for Attributes {
 mod kw {
     syn::custom_keyword!(id_field);
     syn::custom_keyword!(index);
+    syn::custom_keyword!(id);
 }
 
 pub(crate) fn expand(derive: &DeriveInput) -> TokenStream {
@@ -113,16 +126,21 @@ pub(crate) fn expand(derive: &DeriveInput) -> TokenStream {
 
     let id_field = &OptionHelper(args.id_field);
     let index = &args.index;
+    let id = &args.id;
     quote! {
         #[automatically_derived]
         impl #generics ::charted_search::Indexable for #name {
             fn index(&self) -> &'static str { #index }
-            fn id(&self) -> &'static str {
+            fn id_field(&self) -> &'static str {
                 let __value: Option<&str> = #id_field;
                 match __value {
                     Some(value) => value,
                     None => "id"
                 }
+            }
+
+            fn id(&self) -> i64 {
+                self.#id
             }
         }
     }

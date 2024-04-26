@@ -27,6 +27,7 @@ authors.workspace = true
 
 [dependencies]
 azalia.workspace = true
+chrono.workspace = true
 eyre.workspace = true
 noelware-config.workspace = true
 humantime = "2.1.0"
