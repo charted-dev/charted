@@ -31,7 +31,7 @@ charted-common = { version = "0.1.0-beta", path = "../common" }
 charted-entities = { version = "0.1.0-beta", path = "../entities" }
 charted-server = { version = "0.1.0-beta", path = "../server" }
 eyre.workspace = true
-flate2 = "1.0.28"
+flate2 = "1.0.29"
 itertools = "0.12.1"
 multer.workspace = true
 noelware-remi = { workspace = true, features = ["fs"] }
