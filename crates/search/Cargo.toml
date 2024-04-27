@@ -30,7 +30,6 @@ path = "lib.rs"
 
 [dependencies]
 async-trait.workspace = true
-charted-common = { version = "0.1.0-beta", path = "../common" }
 charted-proc-macros = { version = "0.0.0-devel.0", path = "../../proc-macros" }
 erased-serde.workspace = true
 eyre.workspace = true
