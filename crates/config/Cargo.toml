@@ -27,7 +27,7 @@ authors.workspace = true
 
 [dependencies]
 azalia.workspace = true
-azure_storage = "0.19.0"
+azure_storage = "0.20.0"
 aws-sdk-s3 = "1.24.0"
 charted-common = { version = "0.1.0-beta", path = "../common" }
 eyre.workspace = true
