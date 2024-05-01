@@ -44,7 +44,7 @@ rust-version = "1.76"
 [workspace.dependencies]
 axum = { version = "0.7.5", features = ["macros", "http2"] }
 async-trait = "0.1.80"
-base64 = "0.22.0"
+base64 = "0.22.1"
 chrono = { version = "0.4.38", features = ["serde"] }
 clap = { version = "4.5.4", features = ["derive", "env"] }
 cli-table = "0.4.7"
