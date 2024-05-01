@@ -67,7 +67,7 @@
 
       hashes = {
         "noelware-serde" = "sha256-ZOIaeMJO44NNn2/PKiLX731UlKAQukYAlSWQixELxl4=";
-        "azalia" = "sha256-qhX0hZXKqEyGWTxxbCimYixM+/YGIqi6gPFhj1F/csA=";
+        "azalia" = "sha256-jHYJRLjVmakQIJeD/Xq+AOTm4icBEoqBNJWJpTpS8KM=";
       };
 
       mkPackage = {
