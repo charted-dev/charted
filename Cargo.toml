@@ -69,7 +69,7 @@ semver = { version = "1.0.22", features = ["serde"] }
 sentry = "0.32.3"
 serde = { version = "1.0.199", features = ["derive"] }
 serde_json = "1.0.116"
-serde_yaml = "0.9.34+deprecated"
+serde_yaml = "0.9.34"
 sqlx = { version = "0.7.4", features = [
     "postgres",
     "runtime-tokio",
@@ -87,18 +87,18 @@ which = "6.0.1"
 [workspace.dependencies.noelware-config]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "8e96a18b09d0f35668f356633d1dcb7c4ff84f14"
+rev = "007aacf9b4afa70cf0d69c8a8aa8f01f1c63156d"
 features = ["derive"]
 
 [workspace.dependencies.noelware-remi]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "8e96a18b09d0f35668f356633d1dcb7c4ff84f14"
+rev = "007aacf9b4afa70cf0d69c8a8aa8f01f1c63156d"
 
 [workspace.dependencies.azalia]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "8e96a18b09d0f35668f356633d1dcb7c4ff84f14"
+rev = "007aacf9b4afa70cf0d69c8a8aa8f01f1c63156d"
 
 [package]
 name = "charted"
@@ -208,7 +208,7 @@ validator.workspace = true
 [dependencies.noelware-log]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "8e96a18b09d0f35668f356633d1dcb7c4ff84f14"
+rev = "007aacf9b4afa70cf0d69c8a8aa8f01f1c63156d"
 features = ["log"]
 
 [dev-dependencies]
