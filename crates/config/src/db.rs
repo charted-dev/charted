@@ -14,11 +14,12 @@
 // limitations under the License.
 
 use super::caching;
-use charted_common::TRUTHY_REGEX;
-use eyre::Context;
+use crate::caching::Strategy;
+use charted_common::{serde::Duration, TRUTHY_REGEX};
+use eyre::eyre;
 use noelware_config::{env, merge::Merge, TryFromEnv};
 use serde::{Deserialize, Serialize};
-use std::borrow::Cow;
+use std::{borrow::Cow, env::VarError, str::FromStr};
 
 /// Represents the configuration details for configuring charted-server's
 /// database connections. charted-server uses [SQLx](https://github.com/launchbadge/sqlx) as
@@ -108,13 +109,36 @@ impl TryFromEnv for Config {
             database: env!("CHARTED_DATABASE_HOST").unwrap_or(__database()),
             username: env!("CHARTED_DATABASE_USERNAME", optional),
             password: env!("CHARTED_DATABASE_PASSWORD", optional),
-            caching: caching::Config::try_from_env().context("failed to parse caching configuration")?,
             schema: env!("CHARTED_DATABASE_SCHEMA", optional),
             host: env!("CHARTED_DATABASE_HOST").unwrap_or(__host()),
             port: charted_common::env("CHARTED_DATABASE_PORT", __port(), |err| Cow::Owned(err.to_string()))?,
             max_connections: charted_common::env("CHARTED_DATABASE_MAX_CONNECTIONS", __max_connections(), |err| {
                 Cow::Owned(err.to_string())
             })?,
+
+            caching: caching::Config {
+                max_object_size: charted_common::env(
+                    "CHARTED_DATABASE_CACHE_MAX_OBJECT_SIZE",
+                    caching::__one_megabyte(),
+                    |err| Cow::Owned(err.to_string()),
+                )?,
+
+                ttl: env!("CHARTED_DATABASE_CACHE_TTL", |val| Duration::from_str(&val).ok(); or None),
+                strategy: match env!("CHARTED_DATABASE_CACHE_STRATEGY") {
+                    Ok(res) => match res.as_str() {
+                        "inmemory" | "in-memory" => Strategy::InMemory,
+                        "redis" => Strategy::Redis,
+                        res => {
+                            return Err(eyre!(
+                                "unknown value [{res}], wanted [inmemory/in-memory, redis] instead"
+                            ))
+                        }
+                    },
+
+                    Err(VarError::NotPresent) => Strategy::default(),
+                    Err(_) => return Err(eyre!("received invalid UTF-8 content")),
+                },
+            },
         })
     }
 }
@@ -133,4 +157,51 @@ fn __database() -> String {
 
 const fn __port() -> u16 {
     5432
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::caching;
+
+    use super::{Config, Strategy};
+    use noelware_config::{expand_with, merge::Merge, TryFromEnv};
+    use ubyte::ToByteUnit;
+
+    #[test]
+    fn test_env_config() {
+        expand_with("CHARTED_DATABASE_CACHE_STRATEGY", "inmemory", || {
+            let config = Config::try_from_env();
+            assert!(config.is_ok());
+        });
+    }
+
+    #[test]
+    fn test_merge_config() {
+        expand_with("CHARTED_DATABASE_CACHE_STRATEGY", "inmemory", || {
+            let config = Config::try_from_env();
+            assert!(config.is_ok());
+
+            let mut config = config.unwrap();
+            config.merge(Config {
+                caching: caching::Config {
+                    strategy: Strategy::Redis,
+                    ..Default::default()
+                },
+                ..Default::default()
+            });
+
+            assert_eq!(config.caching.strategy, Strategy::Redis);
+
+            config.merge(Config {
+                caching: caching::Config {
+                    max_object_size: 512.kibibytes(),
+                    ..Default::default()
+                },
+
+                ..Default::default()
+            });
+
+            assert_eq!(config.caching.max_object_size, 512.kibibytes());
+        });
+    }
 }

@@ -33,4 +33,13 @@ erased-serde.workspace = true
 eyre.workspace = true
 meilisearch-sdk = "0.25.0"
 sentry.workspace = true
+serde.workspace = true
 tracing.workspace = true
+
+[dev-dependencies]
+bollard.workspace = true
+charted-entities = { version = "0.1.0-beta", path = "../../entities" }
+testcontainers.workspace = true
+tokio = { workspace = true, features = ["rt", "macros"] }
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
+which.workspace = true

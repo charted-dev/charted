@@ -47,12 +47,12 @@ pub struct SearchResult<T> {
 /// a backend will take a `dyn Indexable` to allow indexing.
 pub trait Indexable: erased_serde::Serialize + Send {
     /// Returns the name of the index that this object should be in
-    fn index(&self) -> &'static str;
+    fn index<'a>(&self) -> Cow<'a, str>;
 
     /// Returns the `id` field that this [`Indexable`] object can be used to delete
     /// or patch the entity in the search backend.
-    fn id_field(&self) -> &'static str {
-        "id"
+    fn id_field<'a>(&self) -> Cow<'a, str> {
+        Cow::Borrowed("id")
     }
 
     /// Returns the actual ID of this indexable object.

@@ -14,10 +14,8 @@
 // limitations under the License.
 
 use charted_common::serde::Duration;
-use eyre::{eyre, Report};
-use noelware_config::{env, merge::Merge, TryFromEnv};
+use noelware_config::merge::Merge;
 use serde::{Deserialize, Serialize};
-use std::{borrow::Cow, env::VarError, str::FromStr};
 use ubyte::ByteUnit;
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -77,34 +75,6 @@ impl Default for Config {
     }
 }
 
-impl TryFromEnv for Config {
-    type Output = Config;
-    type Error = Report;
-
-    fn try_from_env() -> Result<Self::Output, Self::Error> {
-        Ok(Config {
-            max_object_size: charted_common::env("CHARTED_CACHE_MAX_OBJECT_SIZE", __one_megabyte(), |err| {
-                Cow::Owned(err.to_string())
-            })?,
-
-            ttl: env!("CHARTED_CACHE_TTL", |val| Duration::from_str(&val).ok(); or None),
-            strategy: match env!("CHARTED_CACHE_STRATEGY") {
-                Ok(res) => match res.as_str() {
-                    "inmemory" | "in-memory" => Strategy::InMemory,
-                    "redis" => Strategy::Redis,
-                    res => {
-                        return Err(eyre!(
-                            "unknown value [{res}], wanted [inmemory/in-memory, redis] instead"
-                        ))
-                    }
-                },
-                Err(VarError::NotPresent) => Strategy::default(),
-                Err(_) => return Err(eyre!("received invalid UTF-8 content")),
-            },
-        })
-    }
-}
-
 impl Merge for Config {
     fn merge(&mut self, other: Self) {
         self.strategy.merge(other.strategy);
@@ -122,44 +92,6 @@ impl Merge for Config {
     }
 }
 
-const fn __one_megabyte() -> ByteUnit {
+pub(crate) const fn __one_megabyte() -> ByteUnit {
     ByteUnit::Megabyte(1)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::{Config, Strategy};
-    use noelware_config::{expand_with, merge::Merge, TryFromEnv};
-    use ubyte::ToByteUnit;
-
-    #[test]
-    fn test_env_config() {
-        expand_with("CHARTED_CACHING_STRATEGY", "inmemory", || {
-            let config = Config::try_from_env();
-            assert!(config.is_ok());
-        });
-    }
-
-    #[test]
-    fn test_merge_config() {
-        expand_with("CHARTED_CACHING_STRATEGY", "inmemory", || {
-            let config = Config::try_from_env();
-            assert!(config.is_ok());
-
-            let mut config = config.unwrap();
-            config.merge(Config {
-                strategy: Strategy::Redis,
-                ..Default::default()
-            });
-
-            assert_eq!(config.strategy, Strategy::Redis);
-
-            config.merge(Config {
-                max_object_size: 512.kibibytes(),
-                ..Default::default()
-            });
-
-            assert_eq!(config.max_object_size, 512.kibibytes());
-        });
-    }
 }

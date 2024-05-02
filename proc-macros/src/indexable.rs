@@ -130,12 +130,12 @@ pub(crate) fn expand(derive: &DeriveInput) -> TokenStream {
     quote! {
         #[automatically_derived]
         impl #generics ::charted_search::Indexable for #name {
-            fn index(&self) -> &'static str { #index }
-            fn id_field(&self) -> &'static str {
+            fn index<'a>(&self) -> ::std::borrow::Cow<'a, str> { ::std::borrow::Cow::Borrowed(#index) }
+            fn id_field<'a>(&self) -> ::std::borrow::Cow<'a, str> {
                 let __value: Option<&str> = #id_field;
                 match __value {
-                    Some(value) => value,
-                    None => "id"
+                    Some(value) => ::std::borrow::Cow::Borrowed(value),
+                    None => ::std::borrow::Cow::Borrowed("id")
                 }
             }
 
