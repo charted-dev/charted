@@ -13,4 +13,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-msrv = "1.75.0"
+# must be in sync with Cargo.toml's `rust_version` in the `[workspace]` table
+msrv = "1.76.0"

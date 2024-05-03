@@ -4,8 +4,15 @@
         "title": "charted-server",
         "description": "🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust",
         "termsOfService": "https://charts.noelware.org/legal/tos",
-        "contact": { "name": "Noelware, LLC.", "url": "https://noelware.org", "email": "team@noelware.org" },
-        "license": { "name": "Apache 2.0", "url": "https://www.apache.org/licenses/LICENSE-2.0" },
+        "contact": {
+            "name": "Noelware, LLC.",
+            "url": "https://noelware.org",
+            "email": "team@noelware.org"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0"
+        },
         "version": "0.1.0-beta"
     },
     "servers": [
@@ -24,7 +31,11 @@
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/MainResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/MainResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -39,7 +50,11 @@
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/EntrypointResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/EntrypointResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -55,38 +70,60 @@
                         "description": "Successful response",
                         "content": {
                             "application/json": {
-                                "schema": { "$ref": "#/components/responses/ApiKeyPaginatedResponse" }
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiKeyPaginatedResponse"
+                                }
                             }
                         }
                     },
                     "400": {
                         "description": "Unable to process request query parameters",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "401": {
                         "description": "Unauthorized to process the given session details or if the JWT token had expired",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "403": {
                         "description": "Received an invalid password from the `Basic` authorization scheme",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "406": {
                         "description": "Unable to process the session due to some unexpected outcome",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -102,7 +139,11 @@
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/FeaturesResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/FeaturesResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -116,7 +157,9 @@
                 "responses": {
                     "200": {
                         "description": "Successful response",
-                        "content": { "text/plain": { "schema": { "type": "string" } } }
+                        "content": {
+                            "text/plain": { "schema": { "type": "string" } }
+                        }
                     }
                 }
             }
@@ -132,26 +175,40 @@
                         "in": "path",
                         "description": "Path parameter that can take a `Name` or `Snowflake` identifier",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Chart index for a specific user or organization",
                         "content": {
-                            "text/yaml": { "schema": { "$ref": "#/components/responses/ChartIndexResponse" } }
+                            "text/yaml": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ChartIndexResponse"
+                                }
+                            }
                         }
                     },
                     "404": {
                         "description": "User or Organization was not found",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -166,7 +223,11 @@
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/InfoResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/InfoResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -181,7 +242,11 @@
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/EntrypointResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/EntrypointResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -198,32 +263,50 @@
                         "in": "path",
                         "description": "Path parameter that can take a `Name` or Snowflake ID",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/OrganizationResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/OrganizationResponse"
+                                }
+                            }
                         }
                     },
                     "403": {
                         "description": "You are not allowed to see this resource",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "404": {
                         "description": "Entity was not found",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -240,18 +323,31 @@
                         "in": "path",
                         "description": "Path parameter that can take a `Name` or Snowflake ID",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Successful response",
-                        "content": { "image/*": { "schema": { "type": "string", "format": "binary" } } }
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -275,18 +371,31 @@
                         "in": "path",
                         "description": "Path parameter that can take a `Name` or Snowflake ID",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Successful response",
-                        "content": { "image/*": { "schema": { "type": "string", "format": "binary" } } }
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -315,7 +424,9 @@
                         "in": "path",
                         "description": "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
                     },
                     {
                         "name": "order",
@@ -337,7 +448,9 @@
                         "description": "List of all the organization's repositories",
                         "content": {
                             "application/json": {
-                                "schema": { "$ref": "#/components/responses/RepositoryPaginatedResponse" }
+                                "schema": {
+                                    "$ref": "#/components/responses/RepositoryPaginatedResponse"
+                                }
                             }
                         }
                     }
@@ -353,7 +466,11 @@
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/EntrypointResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/EntrypointResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -381,25 +498,41 @@
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/RepositoryResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/RepositoryResponse"
+                                }
+                            }
                         }
                     },
                     "403": {
                         "description": "You are not allowed to see this resource",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "404": {
                         "description": "Entity was not found",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -455,14 +588,20 @@
                         "description": "Successful response",
                         "content": {
                             "application/json": {
-                                "schema": { "$ref": "#/components/responses/RepositoryReleasePaginatedResponse" }
+                                "schema": {
+                                    "$ref": "#/components/responses/RepositoryReleasePaginatedResponse"
+                                }
                             }
                         }
                     },
                     "400": {
                         "description": "If parsing through the `id` path parameter failed",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -527,51 +666,79 @@
                         "in": "path",
                         "description": "owner's ID or name",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
                     },
                     {
                         "name": "repo",
                         "in": "path",
                         "description": "repository's ID or name",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/RepositoryResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/RepositoryResponse"
+                                }
+                            }
                         }
                     },
                     "400": {
                         "description": "Unable to decode given path parameter",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "403": {
                         "description": "You are not allowed to patch this resource",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "404": {
                         "description": "Entity was not found",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "406": {
                         "description": "Received an invalid `Name`",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -586,7 +753,11 @@
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/EntrypointResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/EntrypointResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -599,19 +770,31 @@
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/UserResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/UserResponse"
+                                }
+                            }
                         }
                     },
                     "403": {
                         "description": "Whether if this server doesn't allow registrations",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "406": {
                         "description": "If the `username` or `email` was taken.",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -624,25 +807,41 @@
                     "201": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/EmptyApiResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/EmptyApiResponse"
+                                }
+                            }
                         }
                     },
                     "401": {
                         "description": "If the session couldn't be validated",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "403": {
                         "description": "(Bearer token only) - if the JWT was invalid or expired",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -655,37 +854,61 @@
                     "204": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/EmptyApiResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/EmptyApiResponse"
+                                }
+                            }
                         }
                     },
                     "400": {
                         "description": "If the request body was invalid (i.e, validation errors)",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "401": {
                         "description": "If the session couldn't be validated",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "403": {
                         "description": "(Bearer token only) - if the JWT was invalid.",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "406": {
                         "description": "If the request body contained invalid data, or if the session header contained invalid data",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -700,37 +923,61 @@
                     "200": {
                         "description": "Returns the authenticated user",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/UserResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/UserResponse"
+                                }
+                            }
                         }
                     },
                     "400": {
                         "description": "If the request body was invalid (i.e, validation errors)",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "401": {
                         "description": "If the session couldn't be validated",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "403": {
                         "description": "(Bearer token only) - if the JWT was invalid.",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "406": {
                         "description": "If the request body contained invalid data, or if the session header contained invalid data",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -744,12 +991,23 @@
                 "responses": {
                     "200": {
                         "description": "Successful response",
-                        "content": { "image/*": { "schema": { "type": "string", "format": "binary" } } }
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -762,25 +1020,41 @@
                     "201": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/EmptyApiResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/EmptyApiResponse"
+                                }
+                            }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "406": {
                         "description": "Not Acceptable",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -803,12 +1077,23 @@
                 "responses": {
                     "200": {
                         "description": "Successful response",
-                        "content": { "image/*": { "schema": { "type": "string", "format": "binary" } } }
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -823,25 +1108,41 @@
                     "201": {
                         "description": "Repository created",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/RepositoryResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/RepositoryResponse"
+                                }
+                            }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "409": {
                         "description": "Conflict: repository with that name already exists on the user's account",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -858,26 +1159,40 @@
                         "in": "path",
                         "description": "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/UserResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/UserResponse"
+                                }
+                            }
                         }
                     },
                     "400": {
                         "description": "Invalid `idOrName` specified",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "404": {
                         "description": "Unknown User",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -894,18 +1209,31 @@
                         "in": "path",
                         "description": "Path parameter that can take a `Name` or Snowflake ID",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Successful response",
-                        "content": { "image/*": { "schema": { "type": "string", "format": "binary" } } }
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -929,18 +1257,31 @@
                         "in": "path",
                         "description": "Path parameter that can take a `Name` or Snowflake ID",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Successful response",
-                        "content": { "image/*": { "schema": { "type": "string", "format": "binary" } } }
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -969,7 +1310,9 @@
                         "in": "path",
                         "description": "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
                     },
                     {
                         "name": "order",
@@ -991,7 +1334,9 @@
                         "description": "List of all the user's repositories",
                         "content": {
                             "application/json": {
-                                "schema": { "$ref": "#/components/responses/RepositoryPaginatedResponse" }
+                                "schema": {
+                                    "$ref": "#/components/responses/RepositoryPaginatedResponse"
+                                }
                             }
                         }
                     }
@@ -1007,7 +1352,11 @@
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/MainResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/MainResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1022,7 +1371,11 @@
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/EntrypointResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/EntrypointResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1038,38 +1391,60 @@
                         "description": "Successful response",
                         "content": {
                             "application/json": {
-                                "schema": { "$ref": "#/components/responses/ApiKeyPaginatedResponse" }
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiKeyPaginatedResponse"
+                                }
                             }
                         }
                     },
                     "400": {
                         "description": "Unable to process request query parameters",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "401": {
                         "description": "Unauthorized to process the given session details or if the JWT token had expired",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "403": {
                         "description": "Received an invalid password from the `Basic` authorization scheme",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "406": {
                         "description": "Unable to process the session due to some unexpected outcome",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1085,7 +1460,11 @@
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/FeaturesResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/FeaturesResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1099,7 +1478,9 @@
                 "responses": {
                     "200": {
                         "description": "Successful response",
-                        "content": { "text/plain": { "schema": { "type": "string" } } }
+                        "content": {
+                            "text/plain": { "schema": { "type": "string" } }
+                        }
                     }
                 }
             }
@@ -1115,26 +1496,40 @@
                         "in": "path",
                         "description": "Path parameter that can take a `Name` or `Snowflake` identifier",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Chart index for a specific user or organization",
                         "content": {
-                            "text/yaml": { "schema": { "$ref": "#/components/responses/ChartIndexResponse" } }
+                            "text/yaml": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ChartIndexResponse"
+                                }
+                            }
                         }
                     },
                     "404": {
                         "description": "User or Organization was not found",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1149,7 +1544,11 @@
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/InfoResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/InfoResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1164,7 +1563,11 @@
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/EntrypointResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/EntrypointResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1181,32 +1584,50 @@
                         "in": "path",
                         "description": "Path parameter that can take a `Name` or Snowflake ID",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/OrganizationResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/OrganizationResponse"
+                                }
+                            }
                         }
                     },
                     "403": {
                         "description": "You are not allowed to see this resource",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "404": {
                         "description": "Entity was not found",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1223,18 +1644,31 @@
                         "in": "path",
                         "description": "Path parameter that can take a `Name` or Snowflake ID",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Successful response",
-                        "content": { "image/*": { "schema": { "type": "string", "format": "binary" } } }
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1258,18 +1692,31 @@
                         "in": "path",
                         "description": "Path parameter that can take a `Name` or Snowflake ID",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Successful response",
-                        "content": { "image/*": { "schema": { "type": "string", "format": "binary" } } }
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1298,7 +1745,9 @@
                         "in": "path",
                         "description": "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
                     },
                     {
                         "name": "order",
@@ -1320,7 +1769,9 @@
                         "description": "List of all the organization's repositories",
                         "content": {
                             "application/json": {
-                                "schema": { "$ref": "#/components/responses/RepositoryPaginatedResponse" }
+                                "schema": {
+                                    "$ref": "#/components/responses/RepositoryPaginatedResponse"
+                                }
                             }
                         }
                     }
@@ -1336,7 +1787,11 @@
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/EntrypointResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/EntrypointResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1364,25 +1819,41 @@
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/RepositoryResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/RepositoryResponse"
+                                }
+                            }
                         }
                     },
                     "403": {
                         "description": "You are not allowed to see this resource",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "404": {
                         "description": "Entity was not found",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1438,14 +1909,20 @@
                         "description": "Successful response",
                         "content": {
                             "application/json": {
-                                "schema": { "$ref": "#/components/responses/RepositoryReleasePaginatedResponse" }
+                                "schema": {
+                                    "$ref": "#/components/responses/RepositoryReleasePaginatedResponse"
+                                }
                             }
                         }
                     },
                     "400": {
                         "description": "If parsing through the `id` path parameter failed",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1510,51 +1987,79 @@
                         "in": "path",
                         "description": "owner's ID or name",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
                     },
                     {
                         "name": "repo",
                         "in": "path",
                         "description": "repository's ID or name",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/RepositoryResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/RepositoryResponse"
+                                }
+                            }
                         }
                     },
                     "400": {
                         "description": "Unable to decode given path parameter",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "403": {
                         "description": "You are not allowed to patch this resource",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "404": {
                         "description": "Entity was not found",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "406": {
                         "description": "Received an invalid `Name`",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1569,7 +2074,11 @@
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/EntrypointResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/EntrypointResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1582,19 +2091,31 @@
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/UserResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/UserResponse"
+                                }
+                            }
                         }
                     },
                     "403": {
                         "description": "Whether if this server doesn't allow registrations",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "406": {
                         "description": "If the `username` or `email` was taken.",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1607,25 +2128,41 @@
                     "201": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/EmptyApiResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/EmptyApiResponse"
+                                }
+                            }
                         }
                     },
                     "401": {
                         "description": "If the session couldn't be validated",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "403": {
                         "description": "(Bearer token only) - if the JWT was invalid or expired",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1638,37 +2175,61 @@
                     "204": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/EmptyApiResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/EmptyApiResponse"
+                                }
+                            }
                         }
                     },
                     "400": {
                         "description": "If the request body was invalid (i.e, validation errors)",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "401": {
                         "description": "If the session couldn't be validated",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "403": {
                         "description": "(Bearer token only) - if the JWT was invalid.",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "406": {
                         "description": "If the request body contained invalid data, or if the session header contained invalid data",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1683,37 +2244,61 @@
                     "200": {
                         "description": "Returns the authenticated user",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/UserResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/UserResponse"
+                                }
+                            }
                         }
                     },
                     "400": {
                         "description": "If the request body was invalid (i.e, validation errors)",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "401": {
                         "description": "If the session couldn't be validated",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "403": {
                         "description": "(Bearer token only) - if the JWT was invalid.",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "406": {
                         "description": "If the request body contained invalid data, or if the session header contained invalid data",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1727,12 +2312,23 @@
                 "responses": {
                     "200": {
                         "description": "Successful response",
-                        "content": { "image/*": { "schema": { "type": "string", "format": "binary" } } }
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1745,25 +2341,41 @@
                     "201": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/EmptyApiResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/EmptyApiResponse"
+                                }
+                            }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "406": {
                         "description": "Not Acceptable",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1786,12 +2398,23 @@
                 "responses": {
                     "200": {
                         "description": "Successful response",
-                        "content": { "image/*": { "schema": { "type": "string", "format": "binary" } } }
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1806,25 +2429,41 @@
                     "201": {
                         "description": "Repository created",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/RepositoryResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/RepositoryResponse"
+                                }
+                            }
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "409": {
                         "description": "Conflict: repository with that name already exists on the user's account",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1841,26 +2480,40 @@
                         "in": "path",
                         "description": "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Successful response",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/UserResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/UserResponse"
+                                }
+                            }
                         }
                     },
                     "400": {
                         "description": "Invalid `idOrName` specified",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     },
                     "404": {
                         "description": "Unknown User",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1877,18 +2530,31 @@
                         "in": "path",
                         "description": "Path parameter that can take a `Name` or Snowflake ID",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Successful response",
-                        "content": { "image/*": { "schema": { "type": "string", "format": "binary" } } }
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1912,18 +2578,31 @@
                         "in": "path",
                         "description": "Path parameter that can take a `Name` or Snowflake ID",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Successful response",
-                        "content": { "image/*": { "schema": { "type": "string", "format": "binary" } } }
+                        "content": {
+                            "image/*": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "content": {
-                            "application/json": { "schema": { "$ref": "#/components/responses/ApiErrorResponse" } }
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/responses/ApiErrorResponse"
+                                }
+                            }
                         }
                     }
                 }
@@ -1952,7 +2631,9 @@
                         "in": "path",
                         "description": "Path parameter that can take a [`Name`] or [`Snowflake`] identifier.",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrSnowflake" }
+                        "schema": {
+                            "$ref": "#/components/schemas/NameOrSnowflake"
+                        }
                     },
                     {
                         "name": "order",
@@ -1974,7 +2655,9 @@
                         "description": "List of all the user's repositories",
                         "content": {
                             "application/json": {
-                                "schema": { "$ref": "#/components/responses/RepositoryPaginatedResponse" }
+                                "schema": {
+                                    "$ref": "#/components/responses/RepositoryPaginatedResponse"
+                                }
                             }
                         }
                     }
@@ -1987,16 +2670,28 @@
             "ApiKey": {
                 "type": "object",
                 "description": "A resource for personal-managed API tokens that is created by a User. This is useful\nfor command line tools or scripts that need to interact with charted-server, but\nthe main use-case is for the [Helm plugin](https://charts.noelware.org/docs/helm-plugin/current).",
-                "required": ["created_at", "updated_at", "scopes", "name", "id"],
+                "required": [
+                    "created_at",
+                    "updated_at",
+                    "scopes",
+                    "name",
+                    "id"
+                ],
                 "properties": {
-                    "created_at": { "$ref": "#/components/schemas/charted_common.DateTime" },
+                    "created_at": {
+                        "$ref": "#/components/schemas/charted_common.DateTime"
+                    },
                     "description": {
                         "type": "string",
                         "description": "Short description about this API key.",
                         "nullable": true
                     },
                     "expires_in": {
-                        "allOf": [{ "$ref": "#/components/schemas/charted_common.DateTime" }],
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/charted_common.DateTime"
+                            }
+                        ],
                         "nullable": true
                     },
                     "id": { "$ref": "#/components/schemas/Snowflake" },
@@ -2012,7 +2707,9 @@
                         "readOnly": true,
                         "nullable": true
                     },
-                    "updated_at": { "$ref": "#/components/schemas/charted_common.DateTime" }
+                    "updated_at": {
+                        "$ref": "#/components/schemas/charted_common.DateTime"
+                    }
                 }
             },
             "ApiKeyScope": {
@@ -2096,7 +2793,9 @@
                         "description": "Mapping of custom metadata that can be used for custom attributes. Some attributes\nare regconized for [`Hoshi`] to understand some elements that can be represented\nin the UI:\n\n* `charts.noelware.org/maintainers` ~ a YAML sequence of available maintainers, must be prefixed\nwith `user:` for a user and `org:` for an organization that maintains the Helm chart.\n\n```yaml\nannotations:\ncharts.noelware.org/maintainers: |-\n- user:noel\n- org:noelware\n```\n\n* `charts.noelware.org/images` ~ YAML sequence of the Docker images that the chart will install. This\nis used in Hoshi to allow to go to the registry that owns the Docker image.\n\n```yaml\ncharts.noelware.org/images: |-\n# maps to `hub.docker.com/r/charted/server`\n- charted/server:latest\n\n# maps to `docker.elastic.co`\n- docker.elastic.co/elasticsearch/elasticsearch\n```\n\n[`Hoshi`]: https://charts.noelware.org/docs/hoshi/latest",
                         "additionalProperties": { "type": "string" }
                     },
-                    "apiVersion": { "$ref": "#/components/schemas/ChartSpecVersion" },
+                    "apiVersion": {
+                        "$ref": "#/components/schemas/ChartSpecVersion"
+                    },
                     "appVersion": {
                         "type": "string",
                         "description": "Note that the appVersion field is not related to the version field. It is a way of specifying the version of the\napplication. For example, the drupal chart may have an appVersion: \"8.2.1\", indicating that the version of Drupal\nincluded in the chart (by default) is 8.2.1. This field is informational, and has no impact on chart version calculations.\n\nWrapping the version in quotes is highly recommended. It forces the YAML parser to treat the version number as a string.\nLeaving it unquoted can lead to parsing issues in some cases. For example, YAML interprets 1.0 as a floating point value,\nand a git commit SHA like 1234e10 as scientific notation.",
@@ -2104,7 +2803,9 @@
                     },
                     "dependencies": {
                         "type": "array",
-                        "items": { "$ref": "#/components/schemas/ChartDependency" },
+                        "items": {
+                            "$ref": "#/components/schemas/ChartDependency"
+                        },
                         "description": "In Helm, one chart may depend on any number of other charts. These dependencies can be dynamically linked using the dependencies'\nfield in Chart.yaml or brought in to the charts/ directory and managed manually. The charts required by the current chart are defined as a list\nin the dependencies field."
                     },
                     "deprecated": {
@@ -2131,13 +2832,23 @@
                         "items": { "type": "string" },
                         "description": "A list of keywords about this project. These keywords can be searched\nvia the /search endpoint if it's enabled."
                     },
-                    "kubeVersion": { "allOf": [{ "$ref": "#/components/schemas/VersionReq" }], "nullable": true },
+                    "kubeVersion": {
+                        "allOf": [
+                            { "$ref": "#/components/schemas/VersionReq" }
+                        ],
+                        "nullable": true
+                    },
                     "maintainers": {
                         "type": "array",
-                        "items": { "$ref": "#/components/schemas/ChartMaintainer" },
+                        "items": {
+                            "$ref": "#/components/schemas/ChartMaintainer"
+                        },
                         "description": "A list of name and URL/email address combinations for the maintainer(s)"
                     },
-                    "name": { "type": "string", "description": "The name of the chart." },
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the chart."
+                    },
                     "sources": {
                         "type": "array",
                         "items": { "type": "string" },
@@ -2164,10 +2875,15 @@
                     },
                     "import-values": {
                         "type": "array",
-                        "items": { "$ref": "#/components/schemas/StringOrImportValue" },
+                        "items": {
+                            "$ref": "#/components/schemas/StringOrImportValue"
+                        },
                         "description": "[`ImportValues`][ImportValue] holds the mapping of source values to parent key to be imported.\nEach item can be a string or pair of child/parent sublist items."
                     },
-                    "name": { "type": "string", "description": "The name of the chart" },
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the chart"
+                    },
                     "repository": {
                         "type": "string",
                         "description": "Repository URL or alias that should be used to grab\nthe dependency from.",
@@ -2178,7 +2894,10 @@
                         "items": { "type": "string" },
                         "description": "List of tags that can be used to group charts to enable/disable together."
                     },
-                    "version": { "allOf": [{ "$ref": "#/components/schemas/Version" }], "nullable": true }
+                    "version": {
+                        "allOf": [{ "$ref": "#/components/schemas/Version" }],
+                        "nullable": true
+                    }
                 }
             },
             "ChartIndex": {
@@ -2195,7 +2914,9 @@
                         "description": "Map of [`ChartIndexSpec`]s for the Helm charts that Helm uses to install a Helm chart.",
                         "additionalProperties": {
                             "type": "array",
-                            "items": { "$ref": "#/components/schemas/ChartIndexSpec" }
+                            "items": {
+                                "$ref": "#/components/schemas/ChartIndexSpec"
+                            }
                         }
                     },
                     "generatedAt": { "$ref": "#/components/schemas/DateTime" }
@@ -2207,10 +2928,18 @@
                     {
                         "type": "object",
                         "properties": {
-                            "created": { "allOf": [{ "$ref": "#/components/schemas/DateTime" }], "nullable": true },
+                            "created": {
+                                "allOf": [
+                                    { "$ref": "#/components/schemas/DateTime" }
+                                ],
+                                "nullable": true
+                            },
                             "digest": { "type": "string", "nullable": true },
                             "removed": { "type": "boolean" },
-                            "urls": { "type": "array", "items": { "type": "string" } }
+                            "urls": {
+                                "type": "array",
+                                "items": { "type": "string" }
+                            }
                         }
                     }
                 ],
@@ -2221,9 +2950,20 @@
                 "description": "Name and URL/email address combination as a maintainer. [ChartMaintainer::name] can be referenced\nas a `NameOrSnowflake` union.",
                 "required": ["name"],
                 "properties": {
-                    "email": { "type": "string", "description": "The maintainer's email", "nullable": true },
-                    "name": { "type": "string", "description": "The maintainer's name" },
-                    "url": { "type": "string", "description": "URL for the maintainer", "nullable": true }
+                    "email": {
+                        "type": "string",
+                        "description": "The maintainer's email",
+                        "nullable": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "The maintainer's name"
+                    },
+                    "url": {
+                        "type": "string",
+                        "description": "URL for the maintainer",
+                        "nullable": true
+                    }
                 }
             },
             "ChartSpecVersion": {
@@ -2241,8 +2981,15 @@
                 "description": "Request body payload for creating a API key.",
                 "required": ["name"],
                 "properties": {
-                    "description": { "type": "string", "description": "Description of the API key", "nullable": true },
-                    "expires_in": { "allOf": [{ "$ref": "#/components/schemas/Duration" }], "nullable": true },
+                    "description": {
+                        "type": "string",
+                        "description": "Description of the API key",
+                        "nullable": true
+                    },
+                    "expires_in": {
+                        "allOf": [{ "$ref": "#/components/schemas/Duration" }],
+                        "nullable": true
+                    },
                     "name": { "$ref": "#/components/schemas/Name" },
                     "scopes": {
                         "type": "array",
@@ -2267,7 +3014,10 @@
                         "nullable": true
                     },
                     "name": { "$ref": "#/components/schemas/Name" },
-                    "private": { "type": "boolean", "description": "Whether if the organization is private or not." }
+                    "private": {
+                        "type": "boolean",
+                        "description": "Whether if the organization is private or not."
+                    }
                 }
             },
             "CreateRepositoryPayload": {
@@ -2281,7 +3031,10 @@
                         "nullable": true
                     },
                     "name": { "$ref": "#/components/schemas/Name" },
-                    "private": { "type": "boolean", "description": "Whether if this repository is private." },
+                    "private": {
+                        "type": "boolean",
+                        "description": "Whether if this repository is private."
+                    },
                     "readme": {
                         "type": "string",
                         "description": "The contents of the README that will be displayed on the repository. If you're\nusing charted's official Helm plugin, new releases can update its README and it'll\nbe reflected.\n\nThis should be valid Markdown, but XSS cross scripting is impossible as scripts\nin codeblocks or via `<script>` won't be executed.\n\nYou can retrieve a repository's README (if it is public or if you have access) with\nthe [`GET /cdn`](https://charts.noelware.org/docs/server/latest/api/cdn#GET-{...params}) REST\nendpoint if the instance has the CDN feature enabled. It'll be under `/repositories/{id}/README.md`.",
@@ -2295,7 +3048,10 @@
                 "description": "Represents the payload for creating a new user.",
                 "required": ["username", "email"],
                 "properties": {
-                    "email": { "type": "string", "description": "Email address to identify this user" },
+                    "email": {
+                        "type": "string",
+                        "description": "Email address to identify this user"
+                    },
                     "password": {
                         "type": "string",
                         "description": "The password to use when authenticating, this is optional on non-local sessions.",
@@ -2314,7 +3070,15 @@
             "Distribution": {
                 "type": "string",
                 "description": "Represents the distribution that this instance is running off from.",
-                "enum": ["kubernetes", "unknown", "docker", "rpm", "deb", "git@nix", "git"]
+                "enum": [
+                    "kubernetes",
+                    "unknown",
+                    "docker",
+                    "rpm",
+                    "deb",
+                    "git@nix",
+                    "git"
+                ]
             },
             "Duration": {
                 "oneOf": [
@@ -2339,7 +3103,10 @@
                         "type": "string",
                         "description": "URL to the documentation to where you can explore more routes for\nthis specific API."
                     },
-                    "message": { "type": "string", "description": "A cute message to greet you with" }
+                    "message": {
+                        "type": "string",
+                        "description": "A cute message to greet you with"
+                    }
                 }
             },
             "Error": {
@@ -2470,19 +3237,43 @@
                 "description": "ImportValues hold the mapping of source values to parent key to be imported. Each\nitem can be a child/parent sublist item or a string.",
                 "required": ["parent", "child"],
                 "properties": {
-                    "child": { "type": "string", "description": "The source key of the values to be imported" },
-                    "parent": { "type": "string", "description": "The destination path in the parent chart's values." }
+                    "child": {
+                        "type": "string",
+                        "description": "The source key of the values to be imported"
+                    },
+                    "parent": {
+                        "type": "string",
+                        "description": "The destination path in the parent chart's values."
+                    }
                 }
             },
             "InfoResponse": {
                 "type": "object",
                 "description": "Represents the response for the `GET /info` REST handler.",
-                "required": ["distribution", "commit_sha", "build_date", "product", "version", "vendor"],
+                "required": [
+                    "distribution",
+                    "commit_sha",
+                    "build_date",
+                    "product",
+                    "version",
+                    "vendor"
+                ],
                 "properties": {
-                    "build_date": { "type": "string", "description": "Build date in RFC3339 format" },
-                    "commit_sha": { "type": "string", "description": "The commit hash from the Git repository." },
-                    "distribution": { "$ref": "#/components/schemas/Distribution" },
-                    "product": { "type": "string", "description": "Product name. Will always be \"charted-server\"" },
+                    "build_date": {
+                        "type": "string",
+                        "description": "Build date in RFC3339 format"
+                    },
+                    "commit_sha": {
+                        "type": "string",
+                        "description": "The commit hash from the Git repository."
+                    },
+                    "distribution": {
+                        "$ref": "#/components/schemas/Distribution"
+                    },
+                    "product": {
+                        "type": "string",
+                        "description": "Product name. Will always be \"charted-server\""
+                    },
                     "vendor": {
                         "type": "string",
                         "description": "Vendor of charted-server, will always be \"Noelware, LLC.\""
@@ -2506,13 +3297,22 @@
                         "type": "string",
                         "description": "The message, which will always be \"Hello, world!\""
                     },
-                    "tagline": { "type": "string", "description": "You know, for Helm charts?" }
+                    "tagline": {
+                        "type": "string",
+                        "description": "You know, for Helm charts?"
+                    }
                 }
             },
             "Member": {
                 "type": "object",
                 "description": "Represents a resource that is correlated to a repository or organization member\nthat can control the repository's metadata.",
-                "required": ["permissions", "updated_at", "joined_at", "user", "id"],
+                "required": [
+                    "permissions",
+                    "updated_at",
+                    "joined_at",
+                    "user",
+                    "id"
+                ],
                 "properties": {
                     "display_name": {
                         "type": "string",
@@ -2520,14 +3320,18 @@
                         "nullable": true
                     },
                     "id": { "$ref": "#/components/schemas/Snowflake" },
-                    "joined_at": { "$ref": "#/components/schemas/charted_common.DateTime" },
+                    "joined_at": {
+                        "$ref": "#/components/schemas/charted_common.DateTime"
+                    },
                     "permissions": {
                         "type": "integer",
                         "format": "int64",
                         "description": "Bitfield value of this member's permissions.",
                         "minimum": 0
                     },
-                    "updated_at": { "$ref": "#/components/schemas/charted_common.DateTime" },
+                    "updated_at": {
+                        "$ref": "#/components/schemas/charted_common.DateTime"
+                    },
                     "user": { "$ref": "#/components/schemas/Snowflake" }
                 }
             },
@@ -2539,7 +3343,10 @@
                 "pattern": "([A-z]|-|_|\\d{0,9}){1,32}"
             },
             "NameOrSnowflake": {
-                "oneOf": [{ "$ref": "#/components/schemas/Snowflake" }, { "$ref": "#/components/schemas/Name" }],
+                "oneOf": [
+                    { "$ref": "#/components/schemas/Snowflake" },
+                    { "$ref": "#/components/schemas/Name" }
+                ],
                 "description": "Represents a union enum that can hold a Snowflake and a Name, which is a String that is validated with the Name regex."
             },
             "OrderBy": {
@@ -2552,7 +3359,9 @@
                 "description": "Represents a unified entity that can manage and own repositories outside\na User. Organizations to the server is used for business-related Helm charts\nthat aren't tied to a specific User.",
                 "required": ["created_at", "updated_at", "owner", "name", "id"],
                 "properties": {
-                    "created_at": { "$ref": "#/components/schemas/charted_common.DateTime" },
+                    "created_at": {
+                        "$ref": "#/components/schemas/charted_common.DateTime"
+                    },
                     "display_name": {
                         "type": "string",
                         "description": "Display name for this organization. It should be formatted as '[{display_name}][Organization::display_name] (@[{name}][Organization::name])'\nor '@[{name}][Organization::name]'.",
@@ -2580,7 +3389,9 @@
                         "description": "Returns the twitter handle for this organization, if populated.",
                         "nullable": true
                     },
-                    "updated_at": { "$ref": "#/components/schemas/charted_common.DateTime" },
+                    "updated_at": {
+                        "$ref": "#/components/schemas/charted_common.DateTime"
+                    },
                     "verified_publisher": {
                         "type": "boolean",
                         "description": "Whether if this Organization is a Verified Publisher or not.",
@@ -2592,13 +3403,18 @@
                 "type": "object",
                 "description": "Information about a [pagination][Pagination] page.",
                 "required": ["cursor"],
-                "properties": { "cursor": { "$ref": "#/components/schemas/Snowflake" } }
+                "properties": {
+                    "cursor": { "$ref": "#/components/schemas/Snowflake" }
+                }
             },
             "PaginatedApiKey": {
                 "type": "object",
                 "required": ["data", "page_info"],
                 "properties": {
-                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/ApiKey" } },
+                    "data": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/ApiKey" }
+                    },
                     "page_info": { "$ref": "#/components/schemas/PageInfo" }
                 }
             },
@@ -2606,7 +3422,10 @@
                 "type": "object",
                 "required": ["data", "page_info"],
                 "properties": {
-                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/Member" } },
+                    "data": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/Member" }
+                    },
                     "page_info": { "$ref": "#/components/schemas/PageInfo" }
                 }
             },
@@ -2614,7 +3433,10 @@
                 "type": "object",
                 "required": ["data", "page_info"],
                 "properties": {
-                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/Organization" } },
+                    "data": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/Organization" }
+                    },
                     "page_info": { "$ref": "#/components/schemas/PageInfo" }
                 }
             },
@@ -2622,7 +3444,10 @@
                 "type": "object",
                 "required": ["data", "page_info"],
                 "properties": {
-                    "data": { "type": "array", "items": { "$ref": "#/components/schemas/Repository" } },
+                    "data": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/Repository" }
+                    },
                     "page_info": { "$ref": "#/components/schemas/PageInfo" }
                 }
             },
@@ -2635,7 +3460,10 @@
                         "description": "Updates or removes the description of the API key.\n\n* If this is `null`, this will not do any patching\n* If this is a empty string, this will act as \"removing\" it from the metadata\n* If the comparsion (`old.description == this.description`) is false, then this will update it.",
                         "nullable": true
                     },
-                    "name": { "allOf": [{ "$ref": "#/components/schemas/Name" }], "nullable": true }
+                    "name": {
+                        "allOf": [{ "$ref": "#/components/schemas/Name" }],
+                        "nullable": true
+                    }
                 }
             },
             "PatchOrganizationPayload": {
@@ -2652,7 +3480,10 @@
                         "description": "Optional field to update this organization's gravatar email. If this organization doesn't\nhave an avatar that is used or prefers not to use their previously uploaded\navatars and they set their Gravatar email, their Gravatar will be used.",
                         "nullable": true
                     },
-                    "name": { "allOf": [{ "$ref": "#/components/schemas/Name" }], "nullable": true },
+                    "name": {
+                        "allOf": [{ "$ref": "#/components/schemas/Name" }],
+                        "nullable": true
+                    },
                     "private": {
                         "type": "boolean",
                         "description": "Whether if the organization is private or not.",
@@ -2686,7 +3517,10 @@
                         "description": "The contents of the README that will be displayed on the repository. If you're\nusing charted's official Helm plugin, new releases can update its README and it'll\nbe reflected.\n\nThis should be valid Markdown, but XSS cross scripting is impossible as scripts\nin codeblocks or via `<script>` won't be executed.\n\nYou can retrieve a repository's README (if it is public or if you have access) with\nthe [`GET /cdn`](https://charts.noelware.org/docs/server/latest/api/cdn#GET-{...params}) REST\nendpoint if the instance has the CDN feature enabled. It'll be under `/repositories/{id}/README.md`.",
                         "nullable": true
                     },
-                    "type": { "allOf": [{ "$ref": "#/components/schemas/ChartType" }], "nullable": true }
+                    "type": {
+                        "allOf": [{ "$ref": "#/components/schemas/ChartType" }],
+                        "nullable": true
+                    }
                 }
             },
             "PatchUserConnectionsPayload": {
@@ -2722,13 +3556,20 @@
                         "description": "Short description about this user. If this field was provided, then the\ndescription will be overwritten. If this field is `null`, then nothing\nwill happen. If this field is a empty string, then the description\nwill be wiped.",
                         "nullable": true
                     },
-                    "email": { "type": "string", "description": "Updates this user's email.", "nullable": true },
+                    "email": {
+                        "type": "string",
+                        "description": "Updates this user's email.",
+                        "nullable": true
+                    },
                     "gravatar_email": {
                         "type": "string",
                         "description": "Optional field to update this user's gravatar email. If this user doesn't\nhave an avatar that is used or prefers not to use their previously uploaded\navatars and they set their Gravatar email, their Gravatar will be used.",
                         "nullable": true
                     },
-                    "name": { "allOf": [{ "$ref": "#/components/schemas/Name" }], "nullable": true },
+                    "name": {
+                        "allOf": [{ "$ref": "#/components/schemas/Name" }],
+                        "nullable": true
+                    },
                     "password": {
                         "type": "string",
                         "description": "Updates this user's password, if the session manager configured allows it.",
@@ -2740,9 +3581,19 @@
             },
             "Repository": {
                 "type": "object",
-                "required": ["created_at", "updated_at", "creator", "owner", "name", "type", "id"],
+                "required": [
+                    "created_at",
+                    "updated_at",
+                    "creator",
+                    "owner",
+                    "name",
+                    "type",
+                    "id"
+                ],
                 "properties": {
-                    "created_at": { "$ref": "#/components/schemas/charted_common.DateTime" },
+                    "created_at": {
+                        "$ref": "#/components/schemas/charted_common.DateTime"
+                    },
                     "creator": { "$ref": "#/components/schemas/Snowflake" },
                     "deprecated": {
                         "type": "boolean",
@@ -2761,17 +3612,30 @@
                     "id": { "$ref": "#/components/schemas/Snowflake" },
                     "name": { "$ref": "#/components/schemas/Name" },
                     "owner": { "$ref": "#/components/schemas/Snowflake" },
-                    "private": { "type": "boolean", "description": "Whether if this repository is private or not" },
+                    "private": {
+                        "type": "boolean",
+                        "description": "Whether if this repository is private or not"
+                    },
                     "type": { "$ref": "#/components/schemas/ChartType" },
-                    "updated_at": { "$ref": "#/components/schemas/charted_common.DateTime" }
+                    "updated_at": {
+                        "$ref": "#/components/schemas/charted_common.DateTime"
+                    }
                 }
             },
             "RepositoryRelease": {
                 "type": "object",
                 "description": "Represents a resource that contains a release from a [Repository] release. Releases\nare a way to group releases of new versions of Helm charts that can be easily\nfetched from the API server.\n\nAny repository can have an unlimited amount of releases, but tags cannot clash\ninto each other, so the API server will not accept it. Each tag should be\na SemVer 2 comformant string, parsing is related to how Cargo evaluates SemVer 2 tags.",
-                "required": ["repository", "created_at", "updated_at", "tag", "id"],
+                "required": [
+                    "repository",
+                    "created_at",
+                    "updated_at",
+                    "tag",
+                    "id"
+                ],
                 "properties": {
-                    "created_at": { "$ref": "#/components/schemas/charted_common.DateTime" },
+                    "created_at": {
+                        "$ref": "#/components/schemas/charted_common.DateTime"
+                    },
                     "id": { "$ref": "#/components/schemas/Snowflake" },
                     "is_prerelease": {
                         "type": "boolean",
@@ -2784,7 +3648,9 @@
                         "description": "Markdown-formatted string that contains a changelog of this release.",
                         "nullable": true
                     },
-                    "updated_at": { "$ref": "#/components/schemas/charted_common.DateTime" }
+                    "updated_at": {
+                        "$ref": "#/components/schemas/charted_common.DateTime"
+                    }
                 }
             },
             "Session": {
@@ -2801,7 +3667,11 @@
                         "description": "Refresh token. This will always be `null` if queried, but always will\nbe present if you successfully logged in.",
                         "nullable": true
                     },
-                    "session": { "type": "string", "format": "uuid", "description": "UUID of the session." },
+                    "session": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "UUID of the session."
+                    },
                     "user": {
                         "type": "integer",
                         "format": "int64",
@@ -2818,7 +3688,10 @@
             },
             "StringOrImportValue": {
                 "oneOf": [
-                    { "type": "string", "description": "String that points to a key to be imported." },
+                    {
+                        "type": "string",
+                        "description": "String that points to a key to be imported."
+                    },
                     { "$ref": "#/components/schemas/ImportValue" }
                 ],
                 "description": "Union enum that can contain a String or a [ImportValue] as the import source\nfor referencing parent key items to be imported."
@@ -2838,7 +3711,9 @@
                         "description": "Unique hash to locate a user's avatar, this also includes the extension that this avatar is, i.e, `png`.",
                         "nullable": true
                     },
-                    "created_at": { "$ref": "#/components/schemas/charted_common.DateTime" },
+                    "created_at": {
+                        "$ref": "#/components/schemas/charted_common.DateTime"
+                    },
                     "description": {
                         "type": "string",
                         "description": "Short description about this user, can be `null` if none was provided.",
@@ -2855,7 +3730,9 @@
                         "description": "Display name for this user, it should be displayed as '{name} (@{username})' or just '@{username}' if there is no display name",
                         "nullable": true
                     },
-                    "updated_at": { "$ref": "#/components/schemas/charted_common.DateTime" },
+                    "updated_at": {
+                        "$ref": "#/components/schemas/charted_common.DateTime"
+                    },
                     "username": { "$ref": "#/components/schemas/Name" },
                     "verified_publisher": {
                         "type": "boolean",
@@ -2869,7 +3746,9 @@
                 "description": "Represents a collection of a user's connections that can be used\nto login from different sources (like GitHub OAuth2)",
                 "required": ["created_at", "updated_at", "id"],
                 "properties": {
-                    "created_at": { "$ref": "#/components/schemas/charted_common.DateTime" },
+                    "created_at": {
+                        "$ref": "#/components/schemas/charted_common.DateTime"
+                    },
                     "github_account_id": {
                         "type": "string",
                         "description": "Account ID that was sourced from GitHub OAuth2. This can differ from\nGitHub (https://github.com) and GitHub Enterprise usage.",
@@ -2887,7 +3766,9 @@
                         "description": "Snowflake ID that was sourced from [Noelware's Accounts System](https://accounts.noelware.org)",
                         "nullable": true
                     },
-                    "updated_at": { "$ref": "#/components/schemas/charted_common.DateTime" }
+                    "updated_at": {
+                        "$ref": "#/components/schemas/charted_common.DateTime"
+                    }
                 }
             },
             "UserLoginPayload": {
@@ -2905,7 +3786,10 @@
                         "description": "Password to authenticate as.",
                         "pattern": "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$"
                     },
-                    "username": { "allOf": [{ "$ref": "#/components/schemas/Name" }], "nullable": true }
+                    "username": {
+                        "allOf": [{ "$ref": "#/components/schemas/Name" }],
+                        "nullable": true
+                    }
                 }
             },
             "Version": {
@@ -2929,7 +3813,9 @@
                             "properties": {
                                 "errors": {
                                     "type": "array",
-                                    "items": { "$ref": "#/components/schemas/Error" },
+                                    "items": {
+                                        "$ref": "#/components/schemas/Error"
+                                    },
                                     "description": "List of errors on why the request failed."
                                 },
                                 "success": {
@@ -2949,7 +3835,9 @@
                             "type": "object",
                             "required": ["success", "data"],
                             "properties": {
-                                "data": { "$ref": "#/components/schemas/PaginatedApiKey" },
+                                "data": {
+                                    "$ref": "#/components/schemas/PaginatedApiKey"
+                                },
                                 "success": {
                                     "type": "boolean",
                                     "description": "whether if this response [ApiKeyPaginatedResponse] was successful or not"
@@ -2967,7 +3855,9 @@
                             "type": "object",
                             "required": ["success", "data"],
                             "properties": {
-                                "data": { "$ref": "#/components/schemas/ApiKey" },
+                                "data": {
+                                    "$ref": "#/components/schemas/ApiKey"
+                                },
                                 "success": {
                                     "type": "boolean",
                                     "description": "whether if this response [ApiKeyResponse] was successful or not"
@@ -2985,7 +3875,9 @@
                             "type": "object",
                             "required": ["success", "data"],
                             "properties": {
-                                "data": { "$ref": "#/components/schemas/ChartIndex" },
+                                "data": {
+                                    "$ref": "#/components/schemas/ChartIndex"
+                                },
                                 "success": {
                                     "type": "boolean",
                                     "description": "whether if this response [ChartIndexResponse] was successful or not"
@@ -3020,7 +3912,9 @@
                             "type": "object",
                             "required": ["success", "data"],
                             "properties": {
-                                "data": { "$ref": "#/components/schemas/EntrypointResponse" },
+                                "data": {
+                                    "$ref": "#/components/schemas/EntrypointResponse"
+                                },
                                 "success": {
                                     "type": "boolean",
                                     "description": "whether if this response [EntrypointResponse] was successful or not"
@@ -3038,7 +3932,9 @@
                             "type": "object",
                             "required": ["success", "data"],
                             "properties": {
-                                "data": { "$ref": "#/components/schemas/FeaturesResponse" },
+                                "data": {
+                                    "$ref": "#/components/schemas/FeaturesResponse"
+                                },
                                 "success": {
                                     "type": "boolean",
                                     "description": "whether if this response [FeaturesResponse] was successful or not"
@@ -3056,7 +3952,9 @@
                             "type": "object",
                             "required": ["success", "data"],
                             "properties": {
-                                "data": { "$ref": "#/components/schemas/InfoResponse" },
+                                "data": {
+                                    "$ref": "#/components/schemas/InfoResponse"
+                                },
                                 "success": {
                                     "type": "boolean",
                                     "description": "whether if this response [InfoResponse] was successful or not"
@@ -3074,7 +3972,9 @@
                             "type": "object",
                             "required": ["success", "data"],
                             "properties": {
-                                "data": { "$ref": "#/components/schemas/MainResponse" },
+                                "data": {
+                                    "$ref": "#/components/schemas/MainResponse"
+                                },
                                 "success": {
                                     "type": "boolean",
                                     "description": "whether if this response [MainResponse] was successful or not"
@@ -3092,7 +3992,9 @@
                             "type": "object",
                             "required": ["success", "data"],
                             "properties": {
-                                "data": { "$ref": "#/components/schemas/PaginatedMember" },
+                                "data": {
+                                    "$ref": "#/components/schemas/PaginatedMember"
+                                },
                                 "success": {
                                     "type": "boolean",
                                     "description": "whether if this response [MemberPaginatedResponse] was successful or not"
@@ -3110,7 +4012,9 @@
                             "type": "object",
                             "required": ["success", "data"],
                             "properties": {
-                                "data": { "$ref": "#/components/schemas/PaginatedOrganization" },
+                                "data": {
+                                    "$ref": "#/components/schemas/PaginatedOrganization"
+                                },
                                 "success": {
                                     "type": "boolean",
                                     "description": "whether if this response [OrganizationPaginatedResponse] was successful or not"
@@ -3128,7 +4032,9 @@
                             "type": "object",
                             "required": ["success", "data"],
                             "properties": {
-                                "data": { "$ref": "#/components/schemas/Organization" },
+                                "data": {
+                                    "$ref": "#/components/schemas/Organization"
+                                },
                                 "success": {
                                     "type": "boolean",
                                     "description": "whether if this response [OrganizationResponse] was successful or not"
@@ -3146,7 +4052,9 @@
                             "type": "object",
                             "required": ["success", "data"],
                             "properties": {
-                                "data": { "$ref": "#/components/schemas/PaginatedRepository" },
+                                "data": {
+                                    "$ref": "#/components/schemas/PaginatedRepository"
+                                },
                                 "success": {
                                     "type": "boolean",
                                     "description": "whether if this response [RepositoryPaginatedResponse] was successful or not"
@@ -3164,7 +4072,9 @@
                             "type": "object",
                             "required": ["success", "data"],
                             "properties": {
-                                "data": { "$ref": "#/components/schemas/Repository" },
+                                "data": {
+                                    "$ref": "#/components/schemas/Repository"
+                                },
                                 "success": {
                                     "type": "boolean",
                                     "description": "whether if this response [RepositoryResponse] was successful or not"
@@ -3182,7 +4092,9 @@
                             "type": "object",
                             "required": ["success", "data"],
                             "properties": {
-                                "data": { "$ref": "#/components/schemas/Session" },
+                                "data": {
+                                    "$ref": "#/components/schemas/Session"
+                                },
                                 "success": {
                                     "type": "boolean",
                                     "description": "whether if this response [SessionResponse] was successful or not"

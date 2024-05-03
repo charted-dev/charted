@@ -131,7 +131,7 @@ gen_rbac_enum!(
         //        API Key Scopes
         // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
         ApiKeyView["apikeys:view"]: 1 << 28;
-        ApiKeyList["apikeys:list"]: 1 << 52;
+        ApiKeyList["apikeys:list"]: 1u64 << 52u64;
         ApiKeyCreate["apikeys:create"]: 1 << 29;
         ApiKeyDelete["apikeys:delete"]: 1 << 30;
         ApiKeyUpdate["apikeys:update"]: 1 << 31;
@@ -139,30 +139,30 @@ gen_rbac_enum!(
         // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
         //      Organization Scopes
         // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
-        OrgAccess["org:access"]: 1 << 32;
-        OrgCreate["org:create"]: 1 << 33;
-        OrgUpdate["org:update"]: 1 << 34;
-        OrgDelete["org:delete"]: 1 << 35;
-        OrgMemberInvites["org:members:invites"]: 1 << 36;
-        OrgMemberList["org:members:list"]: 1 << 37;
-        OrgMemberKick["org:members:kick"]: 1 << 38;
-        OrgMemberUpdate["org:members:update"]: 1 << 39;
-        OrgWebhookList["org:webhooks:list"]: 1 << 40;
-        OrgWebhookCreate["org:webhooks:create"]: 1 << 41;
-        OrgWebhookUpdate["org:webhooks:update"]: 1 << 42;
-        OrgWebhookDelete["org:webhooks:delete"]: 1 << 43;
-        OrgWebhookEventList["org:webhooks:events:list"]: 1 << 44;
-        OrgWebhookEventDelete["org:webhooks:events:delete"]: 1 << 45;
+        OrgAccess["org:access"]: 1u64 << 32u64;
+        OrgCreate["org:create"]: 1u64 << 33u64;
+        OrgUpdate["org:update"]: 1u64 << 34u64;
+        OrgDelete["org:delete"]: 1u64 << 35u64;
+        OrgMemberInvites["org:members:invites"]: 1u64 << 36u64;
+        OrgMemberList["org:members:list"]: 1u64 << 37u64;
+        OrgMemberKick["org:members:kick"]: 1u64 << 38u64;
+        OrgMemberUpdate["org:members:update"]: 1u64 << 39u64;
+        OrgWebhookList["org:webhooks:list"]: 1u64 << 40u64;
+        OrgWebhookCreate["org:webhooks:create"]: 1u64 << 41u64;
+        OrgWebhookUpdate["org:webhooks:update"]: 1u64 << 42u64;
+        OrgWebhookDelete["org:webhooks:delete"]: 1u64 << 43u64;
+        OrgWebhookEventList["org:webhooks:events:list"]: 1u64 << 44u64;
+        OrgWebhookEventDelete["org:webhooks:events:delete"]: 1u64 << 45u64;
 
         // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
         //    Administration Scopes
         // +~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+
-        AdminStats["admin:stats"]: 1 << 46;
-        AdminUserCreate["admin:users:create"]: 1 << 47;
-        AdminUserDelete["admin:users:delete"]: 1 << 48;
-        AdminUserUpdate["admin:users:update"]: 1 << 49;
-        AdminOrgDelete["admin:orgs:delete"]: 1 << 50;
-        AdminOrgUpdate["admin:orgs:update"]: 1 << 51;
+        AdminStats["admin:stats"]: 1u64 << 46u64;
+        AdminUserCreate["admin:users:create"]: 1u64 << 47u64;
+        AdminUserDelete["admin:users:delete"]: 1u64 << 48u64;
+        AdminUserUpdate["admin:users:update"]: 1u64 << 49u64;
+        AdminOrgDelete["admin:orgs:delete"]: 1u64 << 50u64;
+        AdminOrgUpdate["admin:orgs:update"]: 1u64 << 51u64;
     }
 );
 

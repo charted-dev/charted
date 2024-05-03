@@ -19,7 +19,7 @@ use charted_common::{serde::Duration, TRUTHY_REGEX};
 use eyre::eyre;
 use noelware_config::{env, merge::Merge, TryFromEnv};
 use serde::{Deserialize, Serialize};
-use std::{borrow::Cow, env::VarError, str::FromStr};
+use std::{borrow::Cow, env::VarError, fmt::Display, str::FromStr};
 
 /// Represents the configuration details for configuring charted-server's
 /// database connections. charted-server uses [SQLx](https://github.com/launchbadge/sqlx) as
@@ -66,20 +66,18 @@ pub struct Config {
     pub port: u16,
 }
 
-impl ToString for Config {
-    fn to_string(&self) -> String {
-        use std::fmt::Write;
+impl Display for Config {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("postgres://")?;
 
-        let mut buf = String::from("postgres://");
         match (self.username.as_ref(), self.password.as_ref()) {
-            (Some(user), Some(password)) => write!(buf, "{user}:{password}@").unwrap(),
-            (Some(user), None) => write!(buf, "{user}:@").unwrap(),
-            (None, Some(pass)) => write!(buf, "postgres:{pass}@").unwrap(),
+            (Some(user), Some(pass)) => write!(f, "{user}:{pass}@")?,
+            (Some(user), None) => write!(f, "{user}:@")?,
+            (None, Some(pass)) => write!(f, "postgres:{pass}@")?,
             _ => {}
         }
 
-        write!(buf, "{}:{}/{}", self.host, self.port, self.database).unwrap();
-        buf
+        write!(f, "{}:{}/{}", self.host, self.port, self.database)
     }
 }
 

@@ -126,6 +126,7 @@ pub fn create_router() -> Router<Instance> {
     // )
 }
 
+/// Fetches all the releases for a specific repository.
 #[controller(
     tags("Repository", "Releases"),
     securityRequirements(
