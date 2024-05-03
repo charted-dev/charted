@@ -541,7 +541,7 @@
         "/repositories/{id}/releases": {
             "get": {
                 "tags": ["Repository", "Releases"],
-                "description": "",
+                "description": "Fetches all the releases for a specific repository.",
                 "operationId": "get_all_repository_releases",
                 "parameters": [
                     {
@@ -1862,7 +1862,7 @@
         "/v1/repositories/{id}/releases": {
             "get": {
                 "tags": ["Repository", "Releases"],
-                "description": "",
+                "description": "Fetches all the releases for a specific repository.",
                 "operationId": "get_all_repository_releases",
                 "parameters": [
                     {
@@ -2674,28 +2674,21 @@
                     "created_at",
                     "updated_at",
                     "scopes",
+                    "owner",
                     "name",
                     "id"
                 ],
                 "properties": {
-                    "created_at": {
-                        "$ref": "#/components/schemas/charted_common.DateTime"
-                    },
+                    "created_at": { "$ref": "#/components/schemas/DateTime" },
                     "description": {
                         "type": "string",
                         "description": "Short description about this API key.",
                         "nullable": true
                     },
-                    "expires_in": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/charted_common.DateTime"
-                            }
-                        ],
-                        "nullable": true
-                    },
+                    "expires_in": { "$ref": "#/components/schemas/DateTime" },
                     "id": { "$ref": "#/components/schemas/Snowflake" },
                     "name": { "$ref": "#/components/schemas/Name" },
+                    "owner": { "$ref": "#/components/schemas/Snowflake" },
                     "scopes": {
                         "type": "integer",
                         "format": "int64",
@@ -2707,9 +2700,7 @@
                         "readOnly": true,
                         "nullable": true
                     },
-                    "updated_at": {
-                        "$ref": "#/components/schemas/charted_common.DateTime"
-                    }
+                    "updated_at": { "$ref": "#/components/schemas/DateTime" }
                 }
             },
             "ApiKeyScope": {
@@ -3320,18 +3311,14 @@
                         "nullable": true
                     },
                     "id": { "$ref": "#/components/schemas/Snowflake" },
-                    "joined_at": {
-                        "$ref": "#/components/schemas/charted_common.DateTime"
-                    },
+                    "joined_at": { "$ref": "#/components/schemas/DateTime" },
                     "permissions": {
                         "type": "integer",
                         "format": "int64",
                         "description": "Bitfield value of this member's permissions.",
                         "minimum": 0
                     },
-                    "updated_at": {
-                        "$ref": "#/components/schemas/charted_common.DateTime"
-                    },
+                    "updated_at": { "$ref": "#/components/schemas/DateTime" },
                     "user": { "$ref": "#/components/schemas/Snowflake" }
                 }
             },
@@ -3359,9 +3346,7 @@
                 "description": "Represents a unified entity that can manage and own repositories outside\na User. Organizations to the server is used for business-related Helm charts\nthat aren't tied to a specific User.",
                 "required": ["created_at", "updated_at", "owner", "name", "id"],
                 "properties": {
-                    "created_at": {
-                        "$ref": "#/components/schemas/charted_common.DateTime"
-                    },
+                    "created_at": { "$ref": "#/components/schemas/DateTime" },
                     "display_name": {
                         "type": "string",
                         "description": "Display name for this organization. It should be formatted as '[{display_name}][Organization::display_name] (@[{name}][Organization::name])'\nor '@[{name}][Organization::name]'.",
@@ -3389,9 +3374,7 @@
                         "description": "Returns the twitter handle for this organization, if populated.",
                         "nullable": true
                     },
-                    "updated_at": {
-                        "$ref": "#/components/schemas/charted_common.DateTime"
-                    },
+                    "updated_at": { "$ref": "#/components/schemas/DateTime" },
                     "verified_publisher": {
                         "type": "boolean",
                         "description": "Whether if this Organization is a Verified Publisher or not.",
@@ -3591,9 +3574,7 @@
                     "id"
                 ],
                 "properties": {
-                    "created_at": {
-                        "$ref": "#/components/schemas/charted_common.DateTime"
-                    },
+                    "created_at": { "$ref": "#/components/schemas/DateTime" },
                     "creator": { "$ref": "#/components/schemas/Snowflake" },
                     "deprecated": {
                         "type": "boolean",
@@ -3617,9 +3598,7 @@
                         "description": "Whether if this repository is private or not"
                     },
                     "type": { "$ref": "#/components/schemas/ChartType" },
-                    "updated_at": {
-                        "$ref": "#/components/schemas/charted_common.DateTime"
-                    }
+                    "updated_at": { "$ref": "#/components/schemas/DateTime" }
                 }
             },
             "RepositoryRelease": {
@@ -3633,9 +3612,7 @@
                     "id"
                 ],
                 "properties": {
-                    "created_at": {
-                        "$ref": "#/components/schemas/charted_common.DateTime"
-                    },
+                    "created_at": { "$ref": "#/components/schemas/DateTime" },
                     "id": { "$ref": "#/components/schemas/Snowflake" },
                     "is_prerelease": {
                         "type": "boolean",
@@ -3648,9 +3625,7 @@
                         "description": "Markdown-formatted string that contains a changelog of this release.",
                         "nullable": true
                     },
-                    "updated_at": {
-                        "$ref": "#/components/schemas/charted_common.DateTime"
-                    }
+                    "updated_at": { "$ref": "#/components/schemas/DateTime" }
                 }
             },
             "Session": {
@@ -3711,9 +3686,7 @@
                         "description": "Unique hash to locate a user's avatar, this also includes the extension that this avatar is, i.e, `png`.",
                         "nullable": true
                     },
-                    "created_at": {
-                        "$ref": "#/components/schemas/charted_common.DateTime"
-                    },
+                    "created_at": { "$ref": "#/components/schemas/DateTime" },
                     "description": {
                         "type": "string",
                         "description": "Short description about this user, can be `null` if none was provided.",
@@ -3730,9 +3703,7 @@
                         "description": "Display name for this user, it should be displayed as '{name} (@{username})' or just '@{username}' if there is no display name",
                         "nullable": true
                     },
-                    "updated_at": {
-                        "$ref": "#/components/schemas/charted_common.DateTime"
-                    },
+                    "updated_at": { "$ref": "#/components/schemas/DateTime" },
                     "username": { "$ref": "#/components/schemas/Name" },
                     "verified_publisher": {
                         "type": "boolean",
@@ -3746,9 +3717,7 @@
                 "description": "Represents a collection of a user's connections that can be used\nto login from different sources (like GitHub OAuth2)",
                 "required": ["created_at", "updated_at", "id"],
                 "properties": {
-                    "created_at": {
-                        "$ref": "#/components/schemas/charted_common.DateTime"
-                    },
+                    "created_at": { "$ref": "#/components/schemas/DateTime" },
                     "github_account_id": {
                         "type": "string",
                         "description": "Account ID that was sourced from GitHub OAuth2. This can differ from\nGitHub (https://github.com) and GitHub Enterprise usage.",
@@ -3766,9 +3735,7 @@
                         "description": "Snowflake ID that was sourced from [Noelware's Accounts System](https://accounts.noelware.org)",
                         "nullable": true
                     },
-                    "updated_at": {
-                        "$ref": "#/components/schemas/charted_common.DateTime"
-                    }
+                    "updated_at": { "$ref": "#/components/schemas/DateTime" }
                 }
             },
             "UserLoginPayload": {
