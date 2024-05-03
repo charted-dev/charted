@@ -22,7 +22,7 @@ use axum::{
 };
 use axum_extra::{headers::Header, typed_header::TypedHeaderRejectionReason, TypedHeader};
 use base64::{engine::general_purpose::STANDARD, Engine as _};
-use charted_entities::{ApiKeyScopes, Name, User};
+use charted_entities::{ApiKey, ApiKeyScopes, Name, User};
 use charted_server::{err, internal_server_error, ErrorCode};
 use futures_util::future::BoxFuture;
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
@@ -207,6 +207,7 @@ impl Authorization {
             Some((_, val)) if val.contains(' ') => Err(Error::InvalidParts {
                 why: Cow::Borrowed("received more than one space"),
             }),
+
             Some(("Bearer", val)) => Ok(("Bearer", val.to_owned())),
             Some(("Basic", val)) if instance.config.sessions.enable_basic_auth => Ok(("Basic", val.to_owned())),
             Some(("ApiKey", val)) => Ok(("ApiKey", val.to_owned())),
@@ -214,7 +215,9 @@ impl Authorization {
                 received: ty.to_string(),
             }),
 
-            None => Err(Error::MissingHeader),
+            None => Err(Error::InvalidParts {
+                why: Cow::Borrowed("invalid `Authorization` header"),
+            }),
         }
     }
 }
@@ -412,7 +415,55 @@ impl AsyncAuthorizeRequest<Body> for Middleware {
                         req.extensions_mut().insert(Session { session: Some(session), user });
                     }
 
-                    "ApiKey" => todo!(),
+                    "ApiKey" => {
+                        if require_refresh_token {
+                            return Err(err(StatusCode::NOT_ACCEPTABLE, (ErrorCode::RefreshTokenRequired, "cannot use `ApiKey` authentication on a Bearer-only REST route")).into_response());
+                        }
+
+                        let span = info_span!(parent: &span, "charted.authz.apikey");
+                        let _guard = span.enter();
+
+                        let Some(apikey) = sqlx::query_as::<sqlx::Postgres, ApiKey>("select api_keys.* from api_keys where token = ?")
+                            .bind(token)
+                            .fetch_optional(&instance.pool)
+                            .await
+                            .map_err(|e| {
+                                error!(error = %e, "failed to find API key");
+                                sentry::capture_error(&e);
+
+                                internal_server_error().into_response()
+                            })? else {
+                                return Err(err(
+                                    StatusCode::NOT_FOUND,
+                                    (ErrorCode::EntityNotFound, "api key was not found with associated token")
+                                ).into_response());
+                            };
+
+                        let scopes = apikey.bitfield();
+                        for (scope, value) in scopes.flags() {
+                            trace!(%apikey.name, apikey.id, "checking if scope [{scope}] is enabled ({value})");
+                            if !scopes.contains(*value) {
+                                trace!(%apikey.name, apikey.id, flag = *scope, "...flag is not enabled");
+                                return Err(err(
+                                    StatusCode::FORBIDDEN,
+                                    (
+                                        ErrorCode::AccessNotPermitted,
+                                        "access to route is not permitted since required flag is not enabled",
+                                        json!({"flag":*scope})
+                                    )
+                                ).into_response());
+                            }
+                        }
+
+                        let user = match instance.controllers.users.get(apikey.owner).await {
+                            Ok(Some(user)) => user,
+                            Ok(None) => return Err(err(StatusCode::NOT_FOUND, (ErrorCode::EntityNotFound, "user with given id doesn't exist", json!({"id":apikey.owner}))).into_response()),
+                            Err(_) => return Err(internal_server_error().into_response())
+                        };
+
+                        req.extensions_mut().insert(Session { session: None, user });
+                    }
+
                     _ => unreachable!(),
                 }
 

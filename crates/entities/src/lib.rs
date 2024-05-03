@@ -235,11 +235,11 @@ pub struct User {
     pub avatar_hash: Option<String>,
 
     /// Date of when this user was registered to this instance
-    #[schema(read_only)]
+    #[schema(read_only, value_type = DateTime)]
     pub created_at: charted_common::DateTime,
 
     /// Date of when the server has last updated this user
-    #[schema(read_only)]
+    #[schema(read_only, value_type = DateTime)]
     pub updated_at: charted_common::DateTime,
 
     #[serde(skip)]
@@ -285,11 +285,11 @@ pub struct UserConnections {
     pub github_account_id: Option<String>,
 
     /// Date of when this connection was inserted to the database.
-    #[schema(read_only)]
+    #[schema(read_only, value_type = DateTime)]
     pub created_at: charted_common::DateTime,
 
     /// Date of when the server has last updated this user's connections.
-    #[schema(read_only)]
+    #[schema(read_only, value_type = DateTime)]
     pub updated_at: charted_common::DateTime,
 
     /// Snowflake of the user that owns this connections object.
@@ -309,11 +309,11 @@ pub struct Repository {
     pub deprecated: bool,
 
     /// Date of when this repository was registered to this instance
-    #[schema(read_only)]
+    #[schema(read_only, value_type = DateTime)]
     pub created_at: charted_common::DateTime,
 
     /// Date of when the server has last updated this repository
-    #[schema(read_only)]
+    #[schema(read_only, value_type = DateTime)]
     pub updated_at: charted_common::DateTime,
 
     /// Unique hash to locate a repository's icon, this also includes the extension that this avatar is, i.e, `png`.
@@ -368,11 +368,11 @@ pub struct RepositoryRelease {
     pub repository: i64,
 
     /// Date of when this release was registered to this instance
-    #[schema(read_only)]
+    #[schema(read_only, value_type = DateTime)]
     pub created_at: charted_common::DateTime,
 
     /// Date of when the server has last updated this repository release
-    #[schema(read_only)]
+    #[schema(read_only, value_type = DateTime)]
     pub updated_at: charted_common::DateTime,
 
     /// SemVer 2 comformant string that represents this tag.
@@ -410,11 +410,11 @@ pub struct Member {
     pub permissions: u64,
 
     /// Date-time of when this member resource was last updated by the API server.
-    #[schema(read_only)]
+    #[schema(read_only, value_type = DateTime)]
     pub updated_at: charted_common::DateTime,
 
     /// Date-time of when this member resource was created by the API server.
-    #[schema(read_only)]
+    #[schema(read_only, value_type = DateTime)]
     pub joined_at: charted_common::DateTime,
 
     /// [User] resource that this member is.
@@ -467,11 +467,11 @@ pub struct Organization {
     pub display_name: Option<String>,
 
     /// Date of when this organization was registered to this instance
-    #[schema(read_only)]
+    #[schema(read_only, value_type = DateTime)]
     pub created_at: charted_common::DateTime,
 
     /// Date of when the server has last updated this organization
-    #[schema(read_only)]
+    #[schema(read_only, value_type = DateTime)]
     pub updated_at: charted_common::DateTime,
 
     /// Unique hash to locate an organization's icon, this also includes the extension that this icon is, i.e, `png`.
@@ -505,17 +505,17 @@ pub struct ApiKey {
     pub description: Option<String>,
 
     /// Date of when this API key was created
-    #[schema(read_only)]
+    #[schema(read_only, value_type = DateTime)]
     pub created_at: charted_common::DateTime,
 
     /// Date of when the server has last updated this API key
-    #[schema(read_only)]
+    #[schema(read_only, value_type = DateTime)]
     pub updated_at: charted_common::DateTime,
 
     /// Date-time of when this API token expires in, `null` can be returned
     /// if the token doesn't expire
     #[serde(default)]
-    #[schema(read_only)]
+    #[schema(read_only, value_type = DateTime)]
     pub expires_in: Option<charted_common::DateTime>,
 
     /// The scopes that are attached to this API key resource.
@@ -529,7 +529,6 @@ pub struct ApiKey {
 
     /// User resource that owns this API key. This is skipped
     /// when using the API as this is pretty useless.
-    #[serde(skip)]
     #[schema(read_only, value_type = Snowflake)]
     pub owner: i64,
 
@@ -543,8 +542,7 @@ pub struct ApiKey {
 }
 
 impl ApiKey {
-    /// Returns a new [`Bitfield`], but this member's permissions
-    /// are filled in for the bitfield.
+    /// Returns a new [`Bitfield`], but the API key scopes are filled in.
     ///
     /// ## Example
     /// ```
