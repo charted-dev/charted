@@ -134,8 +134,7 @@ if command -v sha256sum >/dev/null; then
 fi
 
 if [ "$(charted::helm::os)" == "darwin" ]; then
-    # i am blaming spotlight if this goes so wrong
-    checksum=$(shasum -256 bin/charted-helm-plugin | awk '{print $1}')
+    checksum=$(shasum -a 256 bin/charted-helm-plugin | awk '{print $1}')
     if ! grep -q "$checksum" bin/charted-helm-plugin.sha256; then
         echo "~> FATAL: received invalid sha256 checksum for \`bin/charted-helm-plugin\`"
         exit 1
