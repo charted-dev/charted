@@ -70,70 +70,81 @@
         "azalia" = "sha256-jHYJRLjVmakQIJeD/Xq+AOTm4icBEoqBNJWJpTpS8KM=";
       };
 
-      mkPackage = {
-        description,
-        mainProgram,
-        name,
-      }:
-        rustPlatform.buildRustPackage {
-          inherit name;
+      charted = rustPlatform.buildRustPackage {
+        nativeBuildInputs = with pkgs; [pkg-config protobuf installShellFiles];
+        buildInputs = with pkgs; [openssl];
+        cargoSha256 = pkgs.lib.fakeSha256;
+        version = "${cargoTOML.workspace.package.version}";
+        name = "charted";
+        src = ./.;
 
-          nativeBuildInputs = with pkgs; [pkg-config protobuf installShellFiles];
-          buildInputs = with pkgs; [openssl];
-          cargoSha256 = pkgs.lib.fakeSha256;
-          version = "${cargoTOML.workspace.package.version}";
-          src = ./.;
-
-          env.PROTOC = pkgs.lib.getExe pkgs.protobuf;
-          cargoLock = {
-            lockFile = ./Cargo.lock;
-            outputHashes = {
-              "noelware-serde-0.1.0" = hashes."noelware-serde";
-              "azalia-0.1.0" = hashes.azalia;
-            };
-          };
-
-          useNextest = true;
-          meta = with pkgs.lib; {
-            inherit description mainProgram;
-
-            homepage = "https://charts.noelware.org";
-            license = with licenses; [asl20];
-            maintainers = with maintainers; [auguwu spotlightishere];
+        env.PROTOC = pkgs.lib.getExe pkgs.protobuf;
+        cargoLock = {
+          lockFile = ./Cargo.lock;
+          outputHashes = {
+            "noelware-serde-0.1.0" = hashes."noelware-serde";
+            "azalia-0.1.0" = hashes.azalia;
           };
         };
 
-      charted = mkPackage {
-        description = "Free, open source, and reliable Helm chart registry in Rust";
-        mainProgram = "charted";
-        name = "charted";
+        postInstall = ''
+          installShellCompletion --cmd charted \
+            --bash <($out/bin/charted completions bash) \
+            --fish <($out/bin/charted completions fish) \
+            --zsh <($out/bin/charted completions zsh)
+        '';
+
+        useNextest = true;
+        meta = with pkgs.lib; {
+          description = "Free, open source, and reliable Helm chart registry in Rust";
+          homepage = "https://charts.noelware.org";
+          license = with licenses; [asl20];
+          maintainers = with maintainers; [auguwu spotlightishere noelware];
+          mainProgram = "charted";
+        };
       };
 
-      helm-plugin =
-        mkPackage {
-          description = "Faciliate common practices with Helm + charted-server easily as a plugin";
-          mainProgram = "helm charted";
-          name = "charted-helm-plugin";
-        }
-        // {
-          cargoBuildFlags = ["--package" "charted-helm-plugin"];
+      helm-plugin = rustPlatform.buildRustPackage {
+        nativeBuildInputs = with pkgs; [pkg-config protobuf installShellFiles];
+        buildInputs = with pkgs; [openssl];
+        cargoSha256 = pkgs.lib.fakeSha256;
+        version = "${cargoTOML.workspace.package.version}";
+        name = "charted-helm-plugin";
+        src = ./.;
 
-          # NOTE: Remove the install and upgrade hooks.
-          postPatch = ''
-            sed -i '/^hooks:/,+2 d' plugin.yaml
-          '';
-
-          postInstall = ''
-            installShellCompletion --cmd charted-helm-plugin \
-              --bash <($out/bin/charted-helm-plugin completions bash) \
-              --fish <($out/bin/charted-helm-plugin completions fish) \
-              --zsh <($out/bin/charted-helm-plugin completions zsh)
-
-            install -dm755 $out/charted-helm-plugin
-            install -Dm644 plugin.yaml $out/charted-helm-plugin/plugin.yaml
-            mv $out/bin $out/charted-helm-plugin
-          '';
+        env.PROTOC = pkgs.lib.getExe pkgs.protobuf;
+        cargoBuildFlags = ["--package" "charted-helm-plugin"];
+        cargoLock = {
+          lockFile = ./Cargo.lock;
+          outputHashes = {
+            "noelware-serde-0.1.0" = hashes."noelware-serde";
+            "azalia-0.1.0" = hashes.azalia;
+          };
         };
+
+        postPatch = ''
+          sed -i '/^hooks:/,+2 d' plugin.yaml
+        '';
+
+        postInstall = ''
+          installShellCompletion --cmd charted-helm-plugin \
+            --bash <($out/bin/charted-helm-plugin completions bash) \
+            --fish <($out/bin/charted-helm-plugin completions fish) \
+            --zsh <($out/bin/charted-helm-plugin completions zsh)
+
+          install -dm755 $out/charted-helm-plugin
+          install -Dm644 plugin.yaml $out/charted-helm-plugin/plugin.yaml
+          mv $out/bin $out/charted-helm-plugin
+        '';
+
+        useNextest = true;
+        meta = with pkgs.lib; {
+          description = "Faciliate common practices with Helm + charted-server easily as a plugin";
+          homepage = "https://charts.noelware.org";
+          license = with licenses; [asl20];
+          maintainers = with maintainers; [auguwu spotlightishere noelware];
+        };
+      };
     in {
       packages = {
         inherit charted helm-plugin;
