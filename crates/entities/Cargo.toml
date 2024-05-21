@@ -31,6 +31,7 @@ charted-common = { version = "0.1.0-beta", path = "../common" }
 charted-search = { version = "0.1.0-beta", path = "../search" }
 chrono.workspace = true
 noelware-config.workspace = true
+schemars.workspace = true
 semver.workspace = true
 serde.workspace = true
 serde_json.workspace = true

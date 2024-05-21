@@ -700,5 +700,4 @@ config.toml
 .cache/
 .data/
 data/
-docs/
 .env

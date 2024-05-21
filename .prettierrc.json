@@ -8,7 +8,7 @@
     "bracketSpacing": true,
     "overrides": [
         {
-            "files": ["assets/openapi.json"],
+            "files": ["assets/openapi.json", "assets/charted.hcl.json"],
             "options": {
                 "printWidth": 80
             }

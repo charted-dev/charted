@@ -1,0 +1,95 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Config",
+    "description": "Represents the HCL configuration file (`.charted.hcl`)",
+    "type": "object",
+    "properties": {
+        "charted": {
+            "description": "Configuration for the `charted {}` block, which configures the Helm plugin itself.",
+            "default": { "helm": ">=3.10", "version": ">=0.1.0-beta" },
+            "allOf": [{ "$ref": "#/definitions/PluginConfig" }]
+        },
+        "registry": {
+            "description": "List of registries that are available for repositories.",
+            "default": {
+                "default": {
+                    "url": "https://charts.noelware.org/api",
+                    "version": 1
+                }
+            },
+            "type": "object",
+            "additionalProperties": { "$ref": "#/definitions/Registry" }
+        },
+        "repository": {
+            "description": "List of repositories available.",
+            "type": "object",
+            "additionalProperties": { "$ref": "#/definitions/Repository" }
+        }
+    },
+    "definitions": {
+        "PluginConfig": {
+            "description": "Represents the configuration for `charted-helm-plugin` itself",
+            "type": "object",
+            "properties": {
+                "version": {
+                    "description": "Version requirement for the charted Helm plugin.",
+                    "default": ">=0.1.0-beta",
+                    "type": "string"
+                },
+                "helm": {
+                    "description": "Version requirement for Helm itself.",
+                    "default": ">=3.10",
+                    "type": "string"
+                }
+            }
+        },
+        "Registry": {
+            "description": "Represents the list of registries that repositories can be uploaded to",
+            "type": "object",
+            "required": ["url"],
+            "properties": {
+                "version": {
+                    "description": "API version of the registry.",
+                    "default": 1,
+                    "type": "number",
+                    "enum": [1]
+                },
+                "url": {
+                    "description": "URL of the registry to point to. This doesn't include the API version in the URI itself (i.e, `https://charts.noelware.org/api/v1`).",
+                    "type": "string",
+                    "format": "uri"
+                }
+            }
+        },
+        "Repository": {
+            "description": "Represents a single repository, that allows to be uploaded onto `charted-server`",
+            "type": "object",
+            "required": ["path", "source"],
+            "properties": {
+                "publish": {
+                    "description": "whether or not if this repository can be published to a registry, by default, this will be `true`.",
+                    "default": true,
+                    "type": "boolean"
+                },
+                "registry": {
+                    "description": "Registry to publish this repository to.",
+                    "default": "default",
+                    "type": "string"
+                },
+                "path": {
+                    "description": "Path to the repository that'll be referenced when uploading to `charted-server`. It must be a string of `owner/repo` and entries before and after the `/` must match to be a `Name`.",
+                    "type": "string",
+                    "pattern": "^([A-z]{2,}|[0-9]|_|-)\\/([A-z]{2,}|[0-9]|_|-)$"
+                },
+                "source": {
+                    "description": "Source location to where the Helm chart resides in, must be a *relative* path from `.charted.hcl` or an absolute path",
+                    "type": "string"
+                },
+                "readme": {
+                    "description": "Path to a README file, this will default to `{repository.<name>.source}/README.md` if it exists.",
+                    "type": ["string", "null"]
+                }
+            }
+        }
+    }
+}

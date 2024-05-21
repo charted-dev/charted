@@ -1,16 +1,18 @@
 # 🐻‍❄️📦 Contributing to charted-server
+
 Thanks for considering to help build and make **charted-server** even better! We full heartily accept contributions from the community — you! We will accept any contributing from any major feature to small, grammatical bugs.
 
 ## Bug Reporting
+
 Think you found an issue that you ran into? To submit a bug report, please use the latest release of the server because it might've been fixed by us, but if it hasn't then, you can surf through the [issue board](https://github.com/charted-dev/charted/issues) if the issue was already been reported, it'll be tagged with the `bug` label and be added onto Noelware's internal issue board.
 
-- Be clear and concise with the title and description of the bug, it will help others link their issues & solutions to yours!
-- Specify any way to reproduce the bug, so we know what to fix.
+-   Be clear and concise with the title and description of the bug, it will help others link their issues & solutions to yours!
+-   Specify any way to reproduce the bug, so we know what to fix.
 
 To test REST API-related issues, we recommend using `cURL` so it can be easier to reproduce on the latest version.
 
-- Use number-formatted prefixes (i.e, `1. {step}`) to determine a step.
-- Prefix the expected result with `#>`, and the actual result with `#?>`
+-   Use number-formatted prefixes (i.e, `1. {step}`) to determine a step.
+-   Prefix the expected result with `#>`, and the actual result with `#?>`
 
 Example:
 
@@ -34,9 +36,11 @@ $ curl -XDELETE -H "Content-Type: application/json" http://localhost:3651/reposi
 ```
 
 ## Security Vulnerabilities
+
 If you found any security vulnerabilities when using **charted-server**, please refer to our [Security Policy](https://github.com/charted-dev/charted/blob/master/SECURITY.md).
 
 ## Code Contributions
+
 We alweays accept code contributions since your contributions to anything related to the project makes it more powerful and secure than our team can if we just kept this closed sourced, since it is based off community feedback!
 
 This repository is a monorepo, so the codebase might be intimidating, but this guide is here to help you aid in how we structured the project and such.
@@ -46,15 +50,16 @@ This repository is a monorepo, so the codebase might be intimidating, but this g
 > Both Codespaces and Coder have the necessary tooling to help you build and run charted-server easily from a remote environment!
 
 ### How is the project structured?
+
 The project is a monorepo that is structured into multiple folders:
 
-* `cli/` is the actual CLI source code.
-* `crates/` is the different crates that is used through-out the `cli` and `server` folders.
-* `distribution/` is related to how **charted-server** is distributed once a release is settled.
-* `scripts/` is any script that helps to not write long commands, or anything really.
-* `server/` is the actual REST API.
-* `tools/` is tools and services that help aid the `server/` folder.
-* `web/` is the actual web interface that is packaged with the server!
+-   `cli/` is the actual CLI source code.
+-   `crates/` is the different crates that is used through-out the `cli` and `server` folders.
+-   `distribution/` is related to how **charted-server** is distributed once a release is settled.
+-   `scripts/` is any script that helps to not write long commands, or anything really.
+-   `server/` is the actual REST API.
+-   `tools/` is tools and services that help aid the `server/` folder.
+-   `web/` is the actual web interface that is packaged with the server!
 
 Originally, **charted-server** was written in Kotlin, which made it impossible to include both the `web/` and `server/` together without magic with Gradle, Rust and Bun helps us build a monorepo that brings in what **charted-server** brings to the table without trying to separate it between repositories and make it harder on the team.
 
@@ -65,7 +70,9 @@ We don't do any specification for Git commit messages, like [Conventional Commit
 > In a pull request, you can add meaningless Git commit messages since we merge `main` branches with the PR title (#id) with the README from that PR as the optional body.
 
 ## FAQ
+
 ### :question: Why do I get a `container unhealthy` error when I run `./dev docker up`?
+
 Because Bitnami's PostgreSQL and Redis containers expect the filesystem path of `./.cache/docker/postgresql` and `./.cache/docker/redis` be with uid and gid `1001`.
 
 To fix it, just run the `down` subcommand of the `docker` subcommand of `./dev` and then `chown`:

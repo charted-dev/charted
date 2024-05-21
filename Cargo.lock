@@ -1307,6 +1307,7 @@ dependencies = [
  "charted-search",
  "chrono",
  "noelware-config",
+ "schemars",
  "semver",
  "serde",
  "serde_json",
@@ -1362,6 +1363,7 @@ dependencies = [
 name = "charted-helm-plugin"
 version = "0.1.0-beta"
 dependencies = [
+ "azalia",
  "base64 0.22.1",
  "charted-common",
  "charted-entities",
@@ -1380,6 +1382,7 @@ dependencies = [
  "owo-colors 4.0.0",
  "remi-fs",
  "reqwest",
+ "schemars",
  "semver",
  "serde",
  "serde_json",
@@ -1469,6 +1472,7 @@ dependencies = [
  "mime",
  "multer",
  "paste",
+ "schemars",
  "sentry",
  "serde",
  "serde_json",
@@ -1622,21 +1626,6 @@ checksum = "4ca0197aee26d1ae37445ee532fefce43251d24cc7c166799f4d46817f1d3973"
 dependencies = [
  "crossbeam-utils",
 ]
-
-[[package]]
-name = "conquer-once"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d008a441c0f269f36ca13712528069a86a3e60dffee1d98b976eb3b0b2160b4"
-dependencies = [
- "conquer-util",
-]
-
-[[package]]
-name = "conquer-util"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e763eef8846b13b380f37dfecda401770b0ca4e56e95170237bd7c25c7db3582"
 
 [[package]]
 name = "const-oid"
@@ -4761,6 +4750,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "schemars"
+version = "0.8.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fc6e7ed6919cb46507fb01ff1654309219f62b4d603822501b0b80d42f6f21ef"
+dependencies = [
+ "dyn-clone",
+ "indexmap 1.9.3",
+ "schemars_derive",
+ "semver",
+ "serde",
+ "serde_json",
+ "url",
+]
+
+[[package]]
+name = "schemars_derive"
+version = "0.8.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "185f2b7aa7e02d418e453790dde16890256bbd2bcd04b7dc5348811052b53f49"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "serde_derive_internals",
+ "syn 2.0.60",
+]
+
+[[package]]
 name = "scopeguard"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5011,6 +5027,17 @@ name = "serde_derive"
 version = "1.0.200"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "856f046b9400cee3c8c94ed572ecdb752444c24528c035cd35882aad6f492bcb"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.60",
+]
+
+[[package]]
+name = "serde_derive_internals"
+version = "0.29.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "330f01ce65a3a5fe59a60c82f3c9a024b573b8a6e875bd233fe5f934e71d54e3"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -5698,14 +5725,13 @@ dependencies = [
 
 [[package]]
 name = "testcontainers"
-version = "0.16.6"
+version = "0.16.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "576d9d5f497543afe66097a392ac52256ab80870c629fb1a14d5aa21057b437b"
+checksum = "69d47265a44d1035a322691cf0a6cc227d79b62ef86ffb0dbc204b394fee3d07"
 dependencies = [
  "async-trait",
  "bollard",
  "bollard-stubs",
- "conquer-once",
  "dirs",
  "dns-lookup",
  "docker_credential",
@@ -5715,7 +5741,6 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_with",
- "signal-hook",
  "tokio",
  "tokio-util",
  "url",

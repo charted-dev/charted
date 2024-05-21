@@ -153,7 +153,7 @@ async fn process_task(
         .map_err(eyre::Report::from)
 }
 
-#[cfg(tests_that_are_excluded_hehdotdotdotdot)]
+#[cfg(donteventrytoenablethispleaseitsbroken)]
 mod tests {
     use bollard::Docker;
     use charted_search::Backend as _;
@@ -193,6 +193,7 @@ mod tests {
                         let container: ::testcontainers::RunnableImage<::testcontainers::GenericImage> = (image, vec![]).into();
                         let container = container.start().await;
                         let (host, port) = (container.get_host().await, container.get_host_port_ipv4(7700).await);
+                        println!("We have a Meilisearch container {version}! [http://{host}:{port}]");
 
                         let $config = ::charted_config::search::meilisearch::Config {
                             master_key: None,
@@ -222,8 +223,8 @@ mod tests {
                 ..Default::default()
             };
 
-            let res = backend.index(&noel).await;
-            assert!(matches!(res, Ok(())));
+            let res = backend.index(&noel).await?;
+            dbg!(&res);
 
             Ok(())
         }

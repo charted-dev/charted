@@ -27,12 +27,13 @@ use hcl::{
     },
     Value,
 };
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, fs, path::Path, process::exit};
 use url::Url;
 
 /// Represents the HCL configuration file (`.charted.hcl`)
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct Config {
     /// Configuration for the `charted {}` block, which configures
     /// the Helm plugin itself.
@@ -50,8 +51,8 @@ pub struct Config {
     /// List of repositories available.
     #[serde(
         default,
-        skip_serializing_if = "BTreeMap::is_empty",
         rename = "repository",
+        skip_serializing_if = "BTreeMap::is_empty",
         serialize_with = "hcl::ser::labeled_block"
     )]
     pub repositories: BTreeMap<String, repository::Config>,
@@ -177,9 +178,9 @@ mod tests {
     #[test]
     fn test_traversal() {
         let body = r#"body = 1
-awau = registry.default
-heccccc = true
-"#;
+    awau = registry.default
+    heccccc = true
+    "#;
 
         let body = body.parse::<Body>().unwrap();
         let mut visitor = RegistryTraversalVisitor::default();

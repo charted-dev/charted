@@ -41,4 +41,5 @@ serde_path_to_error = "0.1.16"
 serde_yaml.workspace = true
 tracing.workspace = true
 utoipa.workspace = true
+schemars.workspace = true
 serde_repr = "0.1.19"

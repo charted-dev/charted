@@ -1,2 +1,2 @@
-* `hello-world.tgz`: created with `cd tmp; helm create hello-world; (cd hello-world && helm package .)`
-* `youtrack.tgz`: https://charts.noelware.org/~/noelware/youtrack
+-   `hello-world.tgz`: created with `cd tmp; helm create hello-world; (cd hello-world && helm package .)`
+-   `youtrack.tgz`: https://charts.noelware.org/~/noelware/youtrack
