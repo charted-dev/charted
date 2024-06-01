@@ -28,6 +28,7 @@ pub mod args;
 pub mod auth;
 pub mod commands;
 pub mod config;
+pub mod ops;
 pub mod util;
 
 #[derive(Debug, Clone, Parser)]
