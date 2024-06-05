@@ -43,5 +43,5 @@ ubyte = { version = "0.10.4", features = ["serde"] }
 [dependencies.noelware-serde]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "c9d1919536ccfe0ba9b32fc3a9bc43b638e208b4"
+rev = "eedfbce7279787db40203e6f2240d5731c2b2071"
 features = ["tracing"]

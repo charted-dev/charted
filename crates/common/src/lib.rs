@@ -13,6 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use eyre::eyre;
+use once_cell::sync::Lazy;
+use rand::distributions::{Alphanumeric, DistString};
+use std::{borrow::Cow, env::VarError, future::Future, pin::Pin, str::FromStr, sync::OnceLock};
+
 pub mod serde;
 pub mod validation;
 
@@ -27,6 +32,9 @@ mod macros;
 /// Represents a type-alias that wraps [`chrono::DateTime`]<[`chrono::Local`]> for database objects'
 /// `created_at` and `updated_at` timestamps.
 pub type DateTime = chrono::DateTime<chrono::Local>;
+
+/// Type-alias to represent a boxed future.
+pub type BoxedFuture<'a, Output> = Pin<Box<dyn Future<Output = Output> + Send + 'a>>;
 
 /// Snowflake epoch used for ID generation. (March 1st, 2024)
 pub const SNOWFLAKE_EPOCH: usize = 1709280000000;
@@ -48,40 +56,22 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// Generic [`Regex`] implementation for possible truthy boolean values.
 pub static TRUTHY_REGEX: Lazy<regex::Regex> = lazy!(regex!(r#"^(yes|true|si*|e|enable|1)$"#));
 
-use eyre::eyre;
-use once_cell::sync::Lazy;
-use rand::distributions::{Alphanumeric, DistString};
-use std::{borrow::Cow, env::VarError, str::FromStr};
-
 /// Returns a formatted version of `v{version}+{commit}` or `v{version}` if no commit hash
 /// was found.
-#[inline]
 pub fn version() -> &'static str {
-    static ONCE: std::sync::Once = std::sync::Once::new();
-    static mut VERSION: String = String::new();
+    static ONCE: OnceLock<String> = OnceLock::new();
+    ONCE.get_or_init(|| {
+        use std::fmt::Write;
 
-    // Safety: `VERSION` is only mutated on the first call of `version` and is never
-    //         mutated again afterwards.
-    unsafe {
-        ONCE.call_once(move || {
-            use std::fmt::Write;
+        let mut buf = String::new();
+        write!(buf, "{}", crate::VERSION).unwrap();
 
-            let mut buf = String::new();
-            write!(buf, "{}", crate::VERSION).unwrap();
+        if crate::COMMIT_HASH != "d1cebae" {
+            write!(buf, "+{}", crate::COMMIT_HASH).unwrap();
+        }
 
-            if crate::COMMIT_HASH != "d1cebae" {
-                write!(buf, "+{}", crate::COMMIT_HASH).unwrap();
-            }
-
-            VERSION = buf;
-        });
-
-        // clippy lint is wrong because `VERSION` is never mutated after the first
-        // call of this function (which is in src/cli/commands/server.rs) and is
-        // never mutated again so it isn't undefined behaviour.
-        #[allow(static_mut_refs)]
-        &VERSION
-    }
+        buf
+    })
 }
 
 pub fn env<U: FromStr, S: Into<String>, F>(key: S, default: U, onfail: F) -> eyre::Result<U>

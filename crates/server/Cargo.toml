@@ -15,7 +15,7 @@
 
 [package]
 name = "charted-server"
-description = "🐻‍❄️📦 HTTP service types for charted-server"
+description = "🐻‍❄️📦 Types and implementation of charted's HTTP REST Specification"
 version.workspace = true
 documentation.workspace = true
 edition.workspace = true
@@ -29,8 +29,15 @@ authors.workspace = true
 async-trait.workspace = true
 axum.workspace = true
 charted-common = { version = "0.1.0-beta", path = "../common" }
+charted-config = { version = "0.1.0-beta", path = "../config" }
+charted-core = { version = "0.1.0-beta", path = "../core" }
+charted-database = { version = "0.1.0-beta", path = "../database" }
 charted-entities = { version = "0.1.0-beta", path = "../entities" }
+charted-helm-charts = { version = "0.1.0-beta", path = "../charts" }
+charted-metrics = { version = "0.1.0-beta", path = "../metrics" }
 charted-proc-macros = { version = "0.0.0-devel.0", path = "../../proc-macros" }
+charted-search = { version = "0.1.0-beta", path = "../search" }
+charted-sessions = { version = "0.1.0-beta", path = "../sessions" }
 mime.workspace = true
 paste = "1.0.14"
 multer.workspace = true

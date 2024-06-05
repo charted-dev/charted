@@ -14,17 +14,17 @@
 # limitations under the License.
 
 [workspace]
-resolver = "2"
 members = [
     "crates/*",
+    "crates/authz/*",
+    "crates/caching/*",
     "crates/search/*",
-    "features/gc",
-    "features/oci",
-    "features",
+    "features/*",
     "proc-macros",
     "tools/devtools",
     "tools/helm-plugin",
 ]
+resolver = "2"
 
 [workspace.package]
 version = "0.1.0-beta"
@@ -42,6 +42,7 @@ repository = "https://github.com/charted-dev/charted"
 rust-version = "1.76"
 
 [workspace.dependencies]
+argon2 = "0.5.3"
 axum = { version = "0.7.5", features = ["macros", "http2"] }
 async-trait = "0.1.80"
 base64 = "0.22.1"
@@ -61,10 +62,10 @@ opentelemetry = "0.22.0"
 owo-colors = { version = "4.0.0", features = ["supports-color"] }
 prometheus-client = "0.22.2"
 regex = "1.10.4"
-remi = "0.7.1"
-remi-azure = "0.7.1"
-remi-fs = "0.7.1"
-remi-s3 = "0.7.1"
+remi = "0.8.0"
+remi-azure = "0.8.0"
+remi-fs = "0.8.0"
+remi-s3 = "0.8.0"
 reqwest = "0.12.4"
 schemars = "0.8.19"
 semver = { version = "1.0.22", features = ["serde"] }
@@ -85,167 +86,168 @@ tracing-subscriber = "0.3.18"
 tokio = "1.37.0"
 url = { version = "2.5.0", features = ["serde"] }
 utoipa = { version = "4.2.0", features = ["uuid"] }
+uuid = { version = "1.8.0", features = ["serde", "v4"] }
 validator = { version = "0.18.1", features = ["derive"] }
 which = "6.0.1"
 
 [workspace.dependencies.noelware-config]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "007aacf9b4afa70cf0d69c8a8aa8f01f1c63156d"
+rev = "eedfbce7279787db40203e6f2240d5731c2b2071"
 features = ["derive"]
 
 [workspace.dependencies.noelware-remi]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "007aacf9b4afa70cf0d69c8a8aa8f01f1c63156d"
+rev = "eedfbce7279787db40203e6f2240d5731c2b2071"
 
 [workspace.dependencies.azalia]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "007aacf9b4afa70cf0d69c8a8aa8f01f1c63156d"
+rev = "eedfbce7279787db40203e6f2240d5731c2b2071"
 
-[package]
-name = "charted"
-description = "🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust"
-version.workspace = true
-authors.workspace = true
-homepage.workspace = true
-edition.workspace = true
-rust-version.workspace = true
-documentation.workspace = true
-license.workspace = true
-repository.workspace = true
-publish.workspace = true
+# [package]
+# name = "charted"
+# description = "🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust"
+# version.workspace = true
+# authors.workspace = true
+# homepage.workspace = true
+# edition.workspace = true
+# rust-version.workspace = true
+# documentation.workspace = true
+# license.workspace = true
+# repository.workspace = true
+# publish.workspace = true
 
-[dependencies]
-argon2 = "0.5.3"
-async-trait.workspace = true
-axum.workspace = true
-axum-extra = { version = "0.9.3", features = ["typed-header"] }
-axum-server = { version = "0.6.0", features = ["tls-rustls"] }
-azalia.workspace = true
-base64.workspace = true
-charted-helm-charts = { version = "0.1.0-beta", path = "crates/charts" }
-charted-common = { version = "0.1.0-beta", path = "crates/common" }
-charted-config = { version = "0.1.0-beta", path = "crates/config" }
-charted-entities = { version = "0.1.0-beta", path = "crates/entities" }
-charted-metrics = { version = "0.1.0-beta", path = "crates/metrics" }
-charted-proc-macros = { version = "0.0.0-devel.0", path = "./proc-macros" }
-charted-search = { version = "0.1.0-beta", path = "crates/search" }
-charted-search-elasticsearch = { version = "0.1.0-beta", path = "crates/search/elasticsearch" }
-charted-search-meilisearch = { version = "0.1.0-beta", path = "crates/search/meilisearch" }
-charted-server = { version = "0.1.0-beta", path = "crates/server" }
-chrono.workspace = true
-clap.workspace = true
-clap_complete = "4.5.2"
-cli-table.workspace = true
-color-eyre.workspace = true
-dotenvy = "0.15.7"
-erased-serde.workspace = true
-eyre = "0.6.12"
-futures-util = "0.3.30"
-hex = "0.4.3"
-jsonwebtoken = "9.3.0"
-ldap3 = "0.11.3"
-md-5 = "0.10.6"
-mimalloc = "0.1.41"
-mime.workspace = true
-moka = { version = "0.12.7", features = ["future"] }
-num_cpus = "1.16.0"
-noelware-config.workspace = true
-noelware-remi = { workspace = true, features = ["azure", "fs", "s3"] }
-once_cell.workspace = true
-opentelemetry.workspace = true
-opentelemetry_sdk = "0.22.1"
-owo-colors.workspace = true
-paste = "1.0.14"
-prometheus-client.workspace = true
-prost = "0.12.4"
-prost-types = "0.12.4"
-rand = "0.8.5"
-redis = { version = "0.25.3", features = [
-    "sentinel",
-    "tokio-comp",
-    "connection-manager",
-] }
-regex.workspace = true
-remi.workspace = true
-remi-azure = { workspace = true, features = ["serde", "tracing"] }
-remi-fs = { workspace = true, features = ["serde", "tracing"] }
-remi-s3 = { workspace = true, features = ["serde", "tracing"] }
-reqwest.workspace = true
-sentry.workspace = true
-sentry-eyre = "0.1.0"
-sentry-tower = { version = "0.32.3", features = ["axum", "http"] }
-sentry-tracing = "0.32.3"
-serde.workspace = true
-serde_json.workspace = true
-serde_repr = "0.1.19"
-serde_yaml.workspace = true
-sqlx.workspace = true
-tokio = { workspace = true, features = [
-    "rt",
-    "rt-multi-thread",
-    "macros",
-    "io-util",
-    "fs",
-    "signal",
-] }
-toml = "0.8.12"
-tower = "0.4.13"
-tower-http = { version = "0.5.2", features = [
-    "compression-full",
-    "auth",
-    "cors",
-    "catch-panic",
-    "limit",
-] }
-tracing.workspace = true
-tracing-error = "0.2.0"
-tracing-opentelemetry = "0.23.0"
-tracing-subscriber.workspace = true
-utoipa.workspace = true
-uuid = { version = "1.8.0", features = ["serde", "v4"] }
-validator.workspace = true
+# [dependencies]
+# argon2 = "0.5.3"
+# async-trait.workspace = true
+# axum.workspace = true
+# axum-extra = { version = "0.9.3", features = ["typed-header"] }
+# axum-server = { version = "0.6.0", features = ["tls-rustls"] }
+# azalia.workspace = true
+# base64.workspace = true
+# charted-helm-charts = { version = "0.1.0-beta", path = "crates/charts" }
+# charted-common = { version = "0.1.0-beta", path = "crates/common" }
+# charted-config = { version = "0.1.0-beta", path = "crates/config" }
+# charted-entities = { version = "0.1.0-beta", path = "crates/entities" }
+# charted-metrics = { version = "0.1.0-beta", path = "crates/metrics" }
+# charted-proc-macros = { version = "0.0.0-devel.0", path = "./proc-macros" }
+# charted-search = { version = "0.1.0-beta", path = "crates/search" }
+# charted-search-elasticsearch = { version = "0.1.0-beta", path = "crates/search/elasticsearch" }
+# charted-search-meilisearch = { version = "0.1.0-beta", path = "crates/search/meilisearch" }
+# charted-server = { version = "0.1.0-beta", path = "crates/server" }
+# chrono.workspace = true
+# clap.workspace = true
+# clap_complete = "4.5.2"
+# cli-table.workspace = true
+# color-eyre.workspace = true
+# dotenvy = "0.15.7"
+# erased-serde.workspace = true
+# eyre = "0.6.12"
+# futures-util = "0.3.30"
+# hex = "0.4.3"
+# jsonwebtoken = "9.3.0"
+# ldap3 = "0.11.3"
+# md-5 = "0.10.6"
+# mimalloc = "0.1.41"
+# mime.workspace = true
+# moka = { version = "0.12.7", features = ["future"] }
+# num_cpus = "1.16.0"
+# noelware-config.workspace = true
+# noelware-remi = { workspace = true, features = ["azure", "fs", "s3"] }
+# once_cell.workspace = true
+# opentelemetry.workspace = true
+# opentelemetry_sdk = "0.22.1"
+# owo-colors.workspace = true
+# paste = "1.0.14"
+# prometheus-client.workspace = true
+# prost = "0.12.4"
+# prost-types = "0.12.4"
+# rand = "0.8.5"
+# redis = { version = "0.25.3", features = [
+#     "sentinel",
+#     "tokio-comp",
+#     "connection-manager",
+# ] }
+# regex.workspace = true
+# remi.workspace = true
+# remi-azure = { workspace = true, features = ["serde", "tracing"] }
+# remi-fs = { workspace = true, features = ["serde", "tracing"] }
+# remi-s3 = { workspace = true, features = ["serde", "tracing"] }
+# reqwest.workspace = true
+# sentry.workspace = true
+# sentry-eyre = "0.1.0"
+# sentry-tower = { version = "0.32.3", features = ["axum", "http"] }
+# sentry-tracing = "0.32.3"
+# serde.workspace = true
+# serde_json.workspace = true
+# serde_repr = "0.1.19"
+# serde_yaml.workspace = true
+# sqlx.workspace = true
+# tokio = { workspace = true, features = [
+#     "rt",
+#     "rt-multi-thread",
+#     "macros",
+#     "io-util",
+#     "fs",
+#     "signal",
+# ] }
+# toml = "0.8.12"
+# tower = "0.4.13"
+# tower-http = { version = "0.5.2", features = [
+#     "compression-full",
+#     "auth",
+#     "cors",
+#     "catch-panic",
+#     "limit",
+# ] }
+# tracing.workspace = true
+# tracing-error = "0.2.0"
+# tracing-opentelemetry = "0.23.0"
+# tracing-subscriber.workspace = true
+# utoipa.workspace = true
+# uuid.workspace = true
+# validator.workspace = true
 
-[dependencies.noelware-log]
-version = "0.1.0"
-git = "https://github.com/Noelware/core-rs"
-rev = "007aacf9b4afa70cf0d69c8a8aa8f01f1c63156d"
-features = ["log"]
+# [dependencies.noelware-log]
+# version = "0.1.0"
+# git = "https://github.com/Noelware/core-rs"
+# rev = "007aacf9b4afa70cf0d69c8a8aa8f01f1c63156d"
+# features = ["log"]
 
-[dev-dependencies]
-remi-fs.workspace = true
-tempfile.workspace = true
-tokio = { workspace = true, features = ["rt", "macros"] }
+# [dev-dependencies]
+# remi-fs.workspace = true
+# tempfile.workspace = true
+# tokio = { workspace = true, features = ["rt", "macros"] }
 
-[build-dependencies]
-chrono.workspace = true
-rustc_version = "0.4.0"
-tonic-build = "0.11.0"
-which.workspace = true
+# [build-dependencies]
+# chrono.workspace = true
+# rustc_version = "0.4.0"
+# tonic-build = "0.11.0"
+# which.workspace = true
 
-[package.metadata.cargo-machete]
-ignored = [
-    "md-5",                         # md-5 is actually used but it is under the `md5` module.
-    "prost",                        # Prost is used when we send messages to charted-emails, but as of 02/03/24, it is not implemented
-    "prost-types",                  # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    "tracing-log",                  # We enable the `log` feature to get logs from crates that use the `log` library, but we don't ever use it
-    "tracing-opentelemetry",        # we plan to have logs and traces be reported to any OpenTelemetry-supported protocol, not implemented yet
-    "opentelemetry",                # this is planned to be linked with `tracing-opentelemetry` and charted's Admin Metrics API
-    "opentelemetry_sdk",            # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    "charted-search",               # the poc is done but might have some issues
-    "charted-search-meilisearch",   # module hasn't been implemented yet
-    "charted-search-elasticsearch", # module hasn't been implemented yet
-]
+# [package.metadata.cargo-machete]
+# ignored = [
+#     "md-5",                         # md-5 is actually used but it is under the `md5` module.
+#     "prost",                        # Prost is used when we send messages to charted-emails, but as of 02/03/24, it is not implemented
+#     "prost-types",                  # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#     "tracing-log",                  # We enable the `log` feature to get logs from crates that use the `log` library, but we don't ever use it
+#     "tracing-opentelemetry",        # we plan to have logs and traces be reported to any OpenTelemetry-supported protocol, not implemented yet
+#     "opentelemetry",                # this is planned to be linked with `tracing-opentelemetry` and charted's Admin Metrics API
+#     "opentelemetry_sdk",            # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#     "charted-search",               # the poc is done but might have some issues
+#     "charted-search-meilisearch",   # module hasn't been implemented yet
+#     "charted-search-elasticsearch", # module hasn't been implemented yet
+# ]
 
-[profile.release]
-opt-level = "z"
-lto = true
-codegen-units = 1
-strip = true
+# [profile.release]
+# opt-level = "z"
+# lto = true
+# codegen-units = 1
+# strip = true
 
-[[bin]]
-path = "./src/bin/main.rs"
-name = "charted"
-edition = "2021"
+# [[bin]]
+# path = "./src/bin/main.rs"
+# name = "charted"
+# edition = "2021"

@@ -23,7 +23,7 @@ pub trait Feature: Send + Sync {
 
 impl dyn Feature + 'static {
     /// Checks whenver if this [`Feature`] is enabled or not.
-    pub fn is_enabled<T: Feature + 'static>(&self) -> bool {
+    pub fn enabled<T: Feature + 'static>(&self) -> bool {
         if self.is::<T>() {
             let downcasted = unsafe { self.downcast_unchecked::<T>() };
             downcasted.enabled()
@@ -59,7 +59,7 @@ impl dyn Feature + 'static {
     /// // create a feature using `Arc` (this also works with `Box`).
     /// let feature: Arc<dyn Feature> = Arc::new(A::default());
     ///
-    /// // `downcast` uses Feature::is::<Disabled>() internally to check
+    /// // `downcast` uses Feature::is::<A>() internally to check
     /// // if it is `A`, the second assertion will also be true.
     /// assert!(feature.downcast::<A>().is_some());
     /// assert!(feature.is::<A>());

@@ -14,8 +14,8 @@
 # limitations under the License.
 
 [package]
-name = "charted-features-gc"
-description = "🐻‍❄️📦 Allows the API server to run a garbage collection mode to clean unneccessary objects in the datastore"
+name = "charted-gc-feature"
+description = "🐻‍❄️📦 Enables the Garbage Collection feature, which cleans out unnecessary objects that clutter up the datastore"
 version = "0.0.0-devel.0"
 edition = "2021"
 homepage = "https://charts.noelware.org"

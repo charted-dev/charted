@@ -29,7 +29,7 @@ authors.workspace = true
 axum.workspace = true
 charted-common = { version = "0.1.0-beta", path = "../common" }
 charted-entities = { version = "0.1.0-beta", path = "../entities" }
-charted-server = { version = "0.1.0-beta", path = "../server" }
+charted-core = { version = "0.1.0-beta", path = "../core" }
 eyre.workspace = true
 flate2 = "1.0.30"
 itertools = "0.12.1"

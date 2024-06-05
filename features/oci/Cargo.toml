@@ -14,8 +14,8 @@
 # limitations under the License.
 
 [package]
-name = "charted-oci-registry"
-description = "🐻‍❄️📦 Enables the use of the OCI registry specification for charted-server"
+name = "charted-oci-feature"
+description = "🐻‍❄️📦 Enables the OCI Registry Specification, where all Helm charts can be downloaded from OCI-supported tools"
 version.workspace = true
 edition.workspace = true
 homepage.workspace = true
