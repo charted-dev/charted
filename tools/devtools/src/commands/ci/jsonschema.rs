@@ -30,7 +30,7 @@ pub struct Cmd {
 }
 
 pub fn run(Cmd { output }: Cmd) -> eyre::Result<()> {
-    let schema = schema_for!(crate::config::Config);
+    let schema = schema_for!(charted_helm_plugin::config::Config);
     match output {
         Some(ref path) => {
             info!(path = %path.display(), "writing specification in");

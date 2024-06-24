@@ -13,6 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![allow(dead_code)]
+
 use crate::{Collector, Registry};
 use opentelemetry::metrics::{Meter, MeterProvider};
 use std::{borrow::Cow, ops::Deref};
@@ -25,12 +27,12 @@ pub struct OpenTelemetry {
 impl OpenTelemetry {
     /// Creates a new [`OpenTelemetry`] registry, where a [`MeterProvider`] can provide a [`Meter`] that
     /// this registry can create
-    pub fn new<M: MeterProvider + 'static>(provider: &M, registry: Box<dyn Registry>) -> OpenTelemetry {
+    pub fn new<M: MeterProvider + 'static, R: Registry + 'static>(provider: &M, registry: R) -> OpenTelemetry {
         OpenTelemetry {
-            inner: registry,
+            inner: Box::new(registry),
             meter: provider.versioned_meter(
                 "charted-server",
-                Some(Cow::Borrowed("0.0.0-devel.0")),
+                Some(Cow::Borrowed(charted_common::version())),
                 None::<Cow<'static, str>>,
                 None,
             ),

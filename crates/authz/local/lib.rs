@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use argon2::{PasswordHash, PasswordVerifier};
-use charted_authz::PasswordProvider;
+use charted_authz::{InvalidPasswordError, PasswordProvider};
 use charted_common::BoxedFuture;
 use charted_core::ARGON2;
 use charted_entities::User;
@@ -37,7 +37,7 @@ impl Authenticator {
 }
 
 impl charted_authz::Authenticator for Authenticator {
-    fn authenticate(&self, user: User, password: String) -> BoxedFuture<eyre::Result<()>> {
+    fn authenticate<'u>(&'u self, user: &'u User, password: String) -> BoxedFuture<'u, eyre::Result<()>> {
         Box::pin(async move {
             let Some(pass) = user
                 .provide(self.pool.clone())
@@ -55,7 +55,8 @@ impl charted_authz::Authenticator for Authenticator {
 
             ARGON2
                 .verify_password(pass.as_ref(), &hash)
-                .map_err(|e| eyre!("failed to verify password: {e}"))
+                .map_err(|_| InvalidPasswordError)
+                .context("invalid password")
         })
     }
 }

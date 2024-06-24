@@ -17,7 +17,7 @@ use aws_sdk_s3::{
     config::Region,
     types::{BucketCannedAcl, ObjectCannedAcl},
 };
-use charted_common::TRUTHY_REGEX;
+use azalia::TRUTHY_REGEX;
 use eyre::{eyre, Context, Report};
 use noelware_config::{env, TryFromEnv};
 use remi_azure::Credential;

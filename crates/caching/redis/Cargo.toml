@@ -27,3 +27,15 @@ authors.workspace = true
 
 [lib]
 path = "lib.rs"
+
+[dependencies]
+charted-cache = { version = "0.1.0-beta", path = ".." }
+charted-common = { version = "0.1.0-beta", path = "../../common" }
+charted-config = { version = "0.1.0-beta", path = "../../config" }
+charted-core = { version = "0.1.0-beta", path = "../../core" }
+eyre.workspace = true
+redis.workspace = true
+sentry.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true

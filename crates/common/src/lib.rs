@@ -16,10 +16,9 @@
 use eyre::eyre;
 use once_cell::sync::Lazy;
 use rand::distributions::{Alphanumeric, DistString};
-use std::{borrow::Cow, env::VarError, future::Future, pin::Pin, str::FromStr, sync::OnceLock};
+use std::{borrow::Cow, collections::HashMap, env::VarError, future::Future, pin::Pin, str::FromStr, sync::OnceLock};
 
 pub mod serde;
-pub mod validation;
 
 mod bitfield;
 pub use bitfield::*;
@@ -54,6 +53,14 @@ pub const BUILD_DATE: &str = env!("CHARTED_BUILD_DATE");
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// Generic [`Regex`] implementation for possible truthy boolean values.
+///
+/// **Deprecated** (since 0.1.0-beta): use [`azalia::TRUTHY_REGEX`] instead.
+///
+/// [`azalia::TRUTHY_REGEX`]: https://crates.noelware.cloud/~/azalia/*/docs#static-TRUTHY_REGEX
+#[deprecated(
+    since = "0.1.0-beta",
+    note = "use `azalia::TRUTHY_REGEX` instead, removal in 0.2.0-beta"
+)]
 pub static TRUTHY_REGEX: Lazy<regex::Regex> = lazy!(regex!(r#"^(yes|true|si*|e|enable|1)$"#));
 
 /// Returns a formatted version of `v{version}+{commit}` or `v{version}` if no commit hash
@@ -82,20 +89,51 @@ where
     match noelware_config::env!(&env) {
         Ok(val) => match val.parse::<U>() {
             Ok(val) => Ok(val),
-            Err(e) => Err(eyre!("failed to parse for env `{}`: {}", env, onfail(e))),
+            Err(e) => Err(eyre!("unable to represent `${env}` as valid: {}", onfail(e))),
         },
 
         Err(VarError::NotPresent) => Ok(default),
-        Err(VarError::NotUnicode(_)) => Err(eyre!("received invalid unicode data for `{}` env", env)),
+        Err(VarError::NotUnicode(_)) => Err(eyre!(
+            "unable to represent environment variable `${env}` as valid unicode",
+        )),
     }
 }
 
-pub fn env_string<S: Into<String>>(key: S, default: String) -> eyre::Result<String> {
+pub fn env_string(key: impl Into<String>, default: impl Into<String>) -> eyre::Result<String> {
     let env = key.into();
     match noelware_config::env!(&env) {
         Ok(val) => Ok(val),
-        Err(VarError::NotPresent) => Ok(default),
-        Err(VarError::NotUnicode(_)) => Err(eyre!("received invalid unicode for `{env}` env")),
+        Err(VarError::NotPresent) => Ok(default.into()),
+        Err(VarError::NotUnicode(_)) => Err(eyre!(
+            "unable to represent environment variable `${env}` as valid unicode"
+        )),
+    }
+}
+
+pub fn env_map<S: Into<String>>(key: S) -> eyre::Result<HashMap<String, String>> {
+    let env = key.into();
+    match noelware_config::env!(&env) {
+        Ok(val) => {
+            let mut iter = val.split(';');
+            let mut next = iter.next();
+            let mut map = azalia::hashmap!(String, String);
+
+            while let Some(item) = next {
+                let Some((key, value)) = item.split_once('=') else {
+                    next = iter.next();
+                    continue;
+                };
+                map.insert(key.to_owned(), value.to_owned());
+                next = iter.next();
+            }
+
+            Ok(map)
+        }
+
+        Err(VarError::NotPresent) => Ok(azalia::hashmap!()),
+        Err(_) => Err(eyre!(
+            "unable to represent environment variable `${env}` as valid unicode"
+        )),
     }
 }
 
@@ -127,5 +165,60 @@ pub fn os() -> &'static str {
         "windows"
     } else {
         "unknown"
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use noelware_config::expand_with;
+
+    #[test]
+    fn test_env() {
+        expand_with("HELLO", "1", || {
+            let res = env("HELLO", i32::MAX, |e| Cow::Owned(format!("{e}")));
+            assert!(res.is_ok());
+            assert_eq!(res.unwrap(), 1);
+        });
+
+        expand_with("WORLD", "invalid", || {
+            assert!(env("WORLD", i32::MAX, |_| Cow::Borrowed("should happen")).is_err());
+        });
+    }
+
+    #[test]
+    fn test_env_string() {
+        expand_with("HELLO", "blah", || {
+            assert!(env_string("HELLO", "...").is_ok());
+        });
+
+        assert_eq!(env_string("THIS_SHOULD_NEVER_EXIST_WAAAAAAAA", "...").unwrap(), "...");
+    }
+
+    #[test]
+    fn test_env_map() {
+        expand_with(
+            "CHARTED_DATABASE_OPTIONS",
+            "hello=world;wah=true;weee=1=2;wahhh=1=2=3=4",
+            || {
+                let res = env_map("CHARTED_DATABASE_OPTIONS");
+                assert!(res.is_ok());
+                assert_eq!(
+                    res.unwrap(),
+                    azalia::hashmap! {
+                        "hello" => "world",
+                        "wah" => "true",
+                        "weee" => "1=2",
+                        "wahhh" => "1=2=3=4"
+                    }
+                );
+            },
+        );
+
+        expand_with("HELLO", "", || {
+            let res = env_map("HELLO");
+            assert!(res.is_ok());
+            assert_eq!(res.unwrap(), azalia::hashmap!());
+        });
     }
 }

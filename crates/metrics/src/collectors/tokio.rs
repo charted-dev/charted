@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::Collector;
+use crate::{encode_counter, Collector};
 use azalia::hashmap;
 use charted_common::serde::Duration;
 use prometheus_client::{
@@ -103,35 +103,47 @@ impl prometheus_client::collector::Collector for TokioCollector {
         let original = <Self as Collector>::collect(self);
         let metrics = original.downcast_ref::<TokioMetrics>().unwrap();
 
-        {
-            let counter = ConstCounter::new(metrics.blocking_threads as u64);
-            counter.encode(encoder.encode_descriptor(
-                "charted_runtime_blocking_threads",
-                "number of additional threads spawned by the Tokio runtime",
-                None,
-                MetricType::Counter,
-            )?)?;
-        }
+        encode_counter(
+            &mut encoder,
+            ConstCounter::new(metrics.blocking_threads as u64),
+            |encoder| {
+                encoder.encode_descriptor(
+                    "charted_runtime_blocking_threads",
+                    "number of additional threads spawned by the Tokio runtime",
+                    None,
+                    MetricType::Counter,
+                )
+            },
+            |counter, encoder| counter.encode(encoder),
+        )?;
 
-        {
-            let counter = ConstCounter::new(metrics.file_descriptors);
-            counter.encode(encoder.encode_descriptor(
-                "charted_runtime_file_descriptors",
-                "number of file descriptors the runtime's I/O driver has",
-                None,
-                MetricType::Counter,
-            )?)?;
-        }
+        encode_counter(
+            &mut encoder,
+            ConstCounter::new(metrics.file_descriptors),
+            |encoder| {
+                encoder.encode_descriptor(
+                    "charted_runtime_file_descriptors",
+                    "number of file descriptors the runtime's I/O driver has",
+                    None,
+                    MetricType::Counter,
+                )
+            },
+            |counter, encoder| counter.encode(encoder),
+        )?;
 
-        {
-            let counter = ConstCounter::new(metrics.active_tasks as u64);
-            counter.encode(encoder.encode_descriptor(
-                "charted_runtime_active_tasks",
-                "number of active tasks in the runtime",
-                None,
-                MetricType::Counter,
-            )?)?;
-        }
+        encode_counter(
+            &mut encoder,
+            ConstCounter::new(metrics.active_tasks as u64),
+            |encoder| {
+                encoder.encode_descriptor(
+                    "charted_runtime_active_tasks",
+                    "number of active tasks in the runtime",
+                    None,
+                    MetricType::Counter,
+                )
+            },
+            |counter, encoder| counter.encode(encoder),
+        )?;
 
         for (worker, metrics) in &metrics.workers {
             ConstGauge::<i64>::new(metrics.total_busy_duration.as_secs().try_into().unwrap()).encode(

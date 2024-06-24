@@ -15,24 +15,22 @@
 {
   description = "🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust";
   inputs = {
-    nixpkgs.url = github:NixOS/nixpkgs/nixpkgs-unstable;
-    flake-utils.url = github:numtide/flake-utils;
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
     rust-overlay = {
-      url = github:oxalica/rust-overlay;
+      url = "github:oxalica/rust-overlay";
       inputs = {
         nixpkgs.follows = "nixpkgs";
-        flake-utils.follows = "flake-utils";
       };
     };
 
     flake-compat = {
-      url = github:edolstra/flake-compat;
+      url = "github:edolstra/flake-compat";
       flake = false;
     };
   };
 
   outputs = {
-    self,
     nixpkgs,
     flake-utils,
     rust-overlay,
@@ -48,11 +46,6 @@
 
       cargoTOML = builtins.fromTOML (builtins.readFile ./Cargo.toml);
       rust = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
-      stdenv =
-        if pkgs.stdenv.isLinux
-        then pkgs.stdenv
-        else pkgs.clangStdenv;
-
       rustflags =
         if pkgs.stdenv.isLinux
         then ''-C link-arg=-fuse-ld=mold -C target-cpu=native $RUSTFLAGS''
@@ -164,18 +157,19 @@
           ++ (lib.optional stdenv.isLinux [mold lldb gdb])
           ++ (lib.optional stdenv.isDarwin [darwin.apple_sdk.frameworks.CoreFoundation]);
 
-        buildInputs = with pkgs; [
-          cargo-llvm-lines
-          cargo-nextest
-          cargo-machete
-          cargo-expand
-          cargo-deny
-          sqlx-cli
+        buildInputs = [
+          pkgs.cargo-llvm-lines
+          pkgs.cargo-nextest
+          pkgs.cargo-machete
+          pkgs.cargo-expand
+          pkgs.cargo-deny
+          pkgs.sqlx-cli
 
-          openssl
-          glibc
+          pkgs.openssl
+          pkgs.glibc
+          pkgs.git
+
           rust
-          git
         ];
 
         shellHook = ''

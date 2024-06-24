@@ -26,7 +26,21 @@ repository.workspace = true
 authors.workspace = true
 
 [dependencies]
+charted-cache = { version = "0.1.0-beta", path = "../caching" }
+charted-common = { version = "0.1.0-beta", path = "../common" }
 charted-config = { version = "0.1.0-beta", path = "../config" }
+charted-core = { version = "0.1.0-beta", path = "../core" }
+charted-entities = { version = "0.1.0-beta", path = "../entities" }
+eyre.workspace = true
 sentry.workspace = true
-sqlx.workspace = true
+serde.workspace = true
+sqlx = { workspace = true, features = ["uuid"] }
+tokio.workspace = true
 tracing.workspace = true
+
+[dev-dependencies]
+bollard.workspace = true
+charted-cache-inmemory = { path = "../caching/inmemory" }
+testcontainers.workspace = true
+testcontainers-modules = { workspace = true, features = ["postgres"] }
+tracing-subscriber = { workspace = true, features = ["env-filter"] }

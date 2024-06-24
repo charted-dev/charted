@@ -24,7 +24,8 @@ pub mod server;
 pub mod sessions;
 pub mod storage;
 
-use charted_common::{rand_string, TRUTHY_REGEX};
+use azalia::TRUTHY_REGEX;
+use charted_common::rand_string;
 use eyre::{eyre, Report};
 use noelware_config::{env, merge::Merge, FromEnv, TryFromEnv};
 use serde::{Deserialize, Serialize};

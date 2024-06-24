@@ -22,7 +22,6 @@ mod completions;
 mod context;
 mod download;
 mod init;
-mod jsonschema;
 mod lint;
 mod login;
 mod logout;
@@ -41,12 +40,6 @@ pub enum Cmd {
     Completions(completions::Args),
     Download(download::Cmd),
 
-    // it was built for only ci but if people want it, then they can
-    // find it on their own.
-    #[clap(hide = true)]
-    #[command(name = "jsonschema")]
-    JsonSchema(jsonschema::Cmd),
-
     #[command(subcommand)]
     Context(context::Cmd),
     Logout(logout::Cmd),
@@ -63,7 +56,6 @@ pub async fn execute(cmd: Cmd) -> eyre::Result<()> {
             Ok(())
         }
 
-        Cmd::JsonSchema(cmd) => jsonschema::run(cmd),
         Cmd::Download(cmd) => download::run(cmd).await,
         Cmd::Context(cmd) => context::run(cmd),
         Cmd::Logout(cmd) => logout::run(cmd),

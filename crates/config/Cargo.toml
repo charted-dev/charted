@@ -26,7 +26,7 @@ repository.workspace = true
 authors.workspace = true
 
 [dependencies]
-azalia.workspace = true
+azalia = { workspace = true, features = ["lazy", "regex"] }
 azure_storage = "0.20.0"
 aws-sdk-s3 = "1.25.0"
 charted-common = { version = "0.1.0-beta", path = "../common" }
@@ -39,9 +39,10 @@ serde.workspace = true
 toml = "0.8.12"
 tracing.workspace = true
 ubyte = { version = "0.10.4", features = ["serde"] }
+sqlx.workspace = true
 
 [dependencies.noelware-serde]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "eedfbce7279787db40203e6f2240d5731c2b2071"
+rev = "0ee7ef8c7b635b8f9ed50cae5c6bdce3b0d9826d"
 features = ["tracing"]

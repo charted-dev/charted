@@ -15,7 +15,7 @@
 
 pub mod ldap;
 
-use charted_common::TRUTHY_REGEX;
+use azalia::TRUTHY_REGEX;
 use eyre::eyre;
 use noelware_config::{env, merge::Merge, TryFromEnv};
 use serde::{Deserialize, Serialize};

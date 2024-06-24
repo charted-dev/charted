@@ -33,3 +33,6 @@ charted-common = { version = "0.1.0-beta", path = "../common" }
 charted-entities = { version = "0.1.0-beta", path = "../entities" }
 eyre.workspace = true
 sqlx.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt", "macros"] }

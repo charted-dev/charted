@@ -14,11 +14,16 @@
 // limitations under the License.
 
 pub mod collectors;
+pub mod opentelemetry;
 
 mod registries;
 pub use registries::*;
 
 use azalia::rust::AsArcAny;
+use prometheus_client::{
+    encoding::{DescriptorEncoder, EncodeCounterValue, EncodeGaugeValue, MetricEncoder},
+    metrics::{counter::ConstCounter, gauge::ConstGauge, histogram::Histogram},
+};
 use std::any::{Any, TypeId};
 
 /// The [`Collector`] abstraction allows you to wrap `Serialize`-impl structs
@@ -99,6 +104,50 @@ impl dyn Registry {
         // SAFETY: caller has ensured that `self` is `dyn Registry`.
         unsafe { &*(self as *const dyn Registry as *const T) }
     }
+}
+
+/// Easily encode a [`ConstGauge`] from a [`MetricEncoder`].
+pub fn encode_gauge<
+    S: EncodeGaugeValue,
+    G: Into<ConstGauge<S>>,
+    DescriptorFn: for<'a> FnOnce(&'a mut DescriptorEncoder) -> Result<MetricEncoder<'a>, std::fmt::Error>,
+    EncodeFn: for<'a> FnOnce(ConstGauge<S>, MetricEncoder<'a>) -> std::fmt::Result,
+>(
+    encoder: &mut DescriptorEncoder,
+    gauge: G,
+    build: DescriptorFn,
+    encode: EncodeFn,
+) -> std::fmt::Result {
+    encode(gauge.into(), build(encoder)?)
+}
+
+/// Easily encode a [`ConstCounter`] from a [`MetricEncoder`].
+pub fn encode_counter<
+    S: EncodeCounterValue,
+    C: Into<ConstCounter<S>>,
+    DescriptorFn: for<'a> FnOnce(&'a mut DescriptorEncoder) -> Result<MetricEncoder<'a>, std::fmt::Error>,
+    EncodeFn: for<'a> FnOnce(ConstCounter<S>, MetricEncoder<'a>) -> std::fmt::Result,
+>(
+    encoder: &mut DescriptorEncoder,
+    counter: C,
+    build: DescriptorFn,
+    encode: EncodeFn,
+) -> std::fmt::Result {
+    encode(counter.into(), build(encoder)?)
+}
+
+/// Easily encode a [`Histogram`] from a [`MetricEncoder`].
+pub fn encode_histogram<
+    H: Into<Histogram>,
+    DescriptorFn: for<'a> FnOnce(&'a mut DescriptorEncoder) -> Result<MetricEncoder<'a>, std::fmt::Error>,
+    EncodeFn: for<'a> FnOnce(Histogram, MetricEncoder<'a>) -> std::fmt::Result,
+>(
+    encoder: &mut DescriptorEncoder,
+    histogram: H,
+    build: DescriptorFn,
+    encode: EncodeFn,
+) -> std::fmt::Result {
+    encode(histogram.into(), build(encoder)?)
 }
 
 #[cfg(test)]

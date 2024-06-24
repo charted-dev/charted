@@ -28,6 +28,12 @@ authors.workspace = true
 [dependencies]
 async-trait.workspace = true
 axum.workspace = true
+axum-extra = { version = "0.9.3", features = ["typed-header"] }
+axum-server = { version = "0.6.0", features = ["tls-rustls"] }
+azalia.workspace = true
+base64.workspace = true
+charted-authz = { version = "0.1.0-beta", path = "../authz" }
+charted-cache = { version = "0.1.0-beta", path = "../caching" }
 charted-common = { version = "0.1.0-beta", path = "../common" }
 charted-config = { version = "0.1.0-beta", path = "../config" }
 charted-core = { version = "0.1.0-beta", path = "../core" }
@@ -37,16 +43,38 @@ charted-helm-charts = { version = "0.1.0-beta", path = "../charts" }
 charted-metrics = { version = "0.1.0-beta", path = "../metrics" }
 charted-proc-macros = { version = "0.0.0-devel.0", path = "../../proc-macros" }
 charted-search = { version = "0.1.0-beta", path = "../search" }
-charted-sessions = { version = "0.1.0-beta", path = "../sessions" }
+eyre.workspace = true
+jsonwebtoken = "9.3.0"
 mime.workspace = true
-paste = "1.0.14"
 multer.workspace = true
+noelware-remi.workspace = true
+paste = "1.0.14"
+remi.workspace = true
+schemars.workspace = true
 sentry.workspace = true
+sentry-tower = { version = "0.32.3", features = ["axum", "http"] }
 serde.workspace = true
 serde_json.workspace = true
 serde_path_to_error = "0.1.16"
 serde_yaml.workspace = true
-tracing.workspace = true
+sqlx.workspace = true
+tower = "0.4.13"
+tower-http = { version = "0.5.2", features = [
+    "compression-full",
+    "auth",
+    "cors",
+    "catch-panic",
+    "limit",
+] }
 utoipa.workspace = true
-schemars.workspace = true
-serde_repr = "0.1.19"
+tokio = { workspace = true, features = ["signal", "net"] }
+tracing.workspace = true
+prometheus-client.workspace = true
+once_cell.workspace = true
+erased-serde.workspace = true
+
+[dev-dependencies]
+bollard.workspace = true
+charted-testkit.workspace = true
+syn = "2.0.66"
+testcontainers.workspace = true

@@ -33,6 +33,13 @@ use utoipa::{
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 pub struct Duration(pub std::time::Duration);
 
+impl Duration {
+    /// Translate this into a [`std::time::Duration`].
+    pub fn to_std_duration(&self) -> std::time::Duration {
+        self.0
+    }
+}
+
 impl Debug for Duration {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         Debug::fmt(&self.0, f)
@@ -137,6 +144,24 @@ impl<'s> ToSchema<'s> for Duration {
 
         ("Duration", RefOr::T(Schema::OneOf(oneof)))
     }
+}
+
+/// Trait extension to convert a [`std::time::Duration`] into a [`charted_common::serde::Duration`][crate::serde::Duration].
+pub trait ToSerdeDuration: Sized + __private::__ToSerdeDuration_Sealed {
+    fn to_serde_duration(self) -> crate::serde::Duration;
+}
+
+impl ToSerdeDuration for std::time::Duration {
+    fn to_serde_duration(self) -> crate::serde::Duration {
+        crate::serde::Duration(self)
+    }
+}
+
+mod __private {
+    #[allow(non_camel_case_types)]
+    pub trait __ToSerdeDuration_Sealed {}
+
+    impl __ToSerdeDuration_Sealed for std::time::Duration {}
 }
 
 #[cfg(test)]

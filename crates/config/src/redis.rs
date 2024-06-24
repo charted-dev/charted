@@ -13,8 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use azalia::hashset;
-use charted_common::TRUTHY_REGEX;
+use azalia::{hashset, TRUTHY_REGEX};
 use noelware_config::{env, merge::Merge, TryFromEnv};
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, collections::HashSet};

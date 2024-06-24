@@ -13,48 +13,91 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use axum::extract::FromRef;
+use charted_common::Snowflake;
+use charted_config::Config;
+use charted_helm_charts::HelmCharts;
+use noelware_remi::StorageService;
+use sqlx::postgres::PgPool;
+use std::sync::{
+    atomic::{AtomicUsize, Ordering},
+    Arc, OnceLock, RwLock,
+};
+
+static STATE: OnceLock<ServerContext> = OnceLock::new();
+
 /// Represents the context of the API server. This holds all the dependencies that the
 /// CLI's `server` command implementation creates and uses to start the API server.
-#[derive(Debug, Clone)]
-pub struct Context {}
+pub struct ServerContext {
+    /// Registry of all possible database controllers. Some might exist, some might not. we might
+    /// never know... :ghost:
+    pub controllers: charted_database::controllers::Registry,
 
-/*
-/// Represents the core instance of charted-server. It contains a whole bunch of references
-/// to be able to operate successfully.
-pub struct Instance {
-    /// List of database controllers that are used to query objects in the Postgres database.
-    pub controllers: db::controllers::Controllers,
-
-    /// Amount of requests this instance has received
+    /// Amount of requests that the server has received from clients.
     pub requests: AtomicUsize,
 
-    /// [`StorageService`] that holds persistent data about user and organization Helm charts,
-    /// user/organization icons, repository avatars, and user and organization Helm indexes.
+    /// A [`StorageService`] container that wraps our persistent data about all things **charted-server**.
     pub storage: StorageService,
 
-    /// Module for publishing, listing, updating, and deletion of Helm charts.
-    pub charts: charted_helm_charts::HelmCharts,
+    /// Module for publishing, listing, updating, and deletion of Helm charts. The meat and
+    /// potatoes of the functionality as they say.
+    pub charts: HelmCharts,
 
-    /// [`authz::Backend`] that is used to authenticate users.
-    pub authz: Arc<dyn authz::Backend>,
+    /// Authentication system for authenticating users.
+    pub authz: Arc<dyn charted_authz::Authenticator>,
 
-    /// Manager for handling all user sessions.
-    pub sessions: Arc<Mutex<sessions::Manager>>,
-
-    /// Snowflake generator.
+    /// Snowflake generator for unique IDs
     pub snowflake: Snowflake,
 
-    /// [`Registry`] that allows to pull metrics from this instance.
-    pub metrics: Arc<dyn Registry>,
+    /// Registry of all possible metric collectors.
+    pub metrics: Arc<dyn charted_metrics::Registry>,
 
-    /// the parsed configuration that the user has supplied.
-    pub config: charted_config::Config,
+    /// Parsed configuration that the server runner has supplied.
+    pub config: Config,
 
-    /// Redis client that supports Redis Sentinel and Clustered modes.
-    pub redis: Arc<RwLock<redis::Client>>,
+    /// Redis client that allows to hold temporary, fast data.
+    pub redis: Arc<RwLock<charted_core::redis::Client>>,
 
-    /// sqlx pool to allow dynamic queries that aren't supported by the db controllers
-    /// and holds all connections to the Postgres database.
-    pub pool: sqlx::postgres::PgPool,
+    /// Represents the database connection pool.
+    pub pool: PgPool,
 }
-*/
+
+impl Clone for ServerContext {
+    fn clone(&self) -> Self {
+        ServerContext {
+            controllers: self.controllers.clone(),
+            snowflake: self.snowflake.clone(),
+            requests: AtomicUsize::new(self.requests.load(Ordering::Relaxed)),
+            metrics: self.metrics.clone(),
+            storage: self.storage.clone(),
+            charts: self.charts.clone(),
+            config: self.config.clone(),
+            authz: self.authz.clone(),
+            redis: self.redis.clone(),
+            pool: self.pool.clone(),
+        }
+    }
+}
+
+impl ServerContext {
+    /// Returns a reference to the global [`ServerContext`]. If [`set_global`] was
+    /// never called, then this will panic.
+    pub fn get<'ctx>() -> &'ctx ServerContext {
+        STATE.get().expect("server context was never initialized")
+    }
+}
+
+impl FromRef<()> for ServerContext {
+    fn from_ref(_: &()) -> Self {
+        STATE.get().cloned().expect("server context was never initialized")
+    }
+}
+
+/// Sets the global [`ServerContext`]. We need a global singleton due to how the authorization
+/// middleware works.
+pub fn set_global(ctx: ServerContext) {
+    match STATE.set(ctx) {
+        Ok(()) => {}
+        Err(_) => panic!("global server context is already set"),
+    }
+}

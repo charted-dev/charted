@@ -13,10 +13,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use std::fmt::Display;
+
 use charted_common::BoxedFuture;
 use charted_entities::User;
 use eyre::eyre;
 use sqlx::{PgPool, Row};
+
+/// Error which represents the user passed in the wrong password.
+#[derive(Debug)]
+pub struct InvalidPasswordError;
+
+impl Display for InvalidPasswordError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("invalid password")
+    }
+}
+
+impl std::error::Error for InvalidPasswordError {}
 
 /// `Authenticator` is the main interface you implement to crate custom authenticators
 /// where it'll identify a user from a `user` object and check if the credentials are
@@ -24,7 +38,7 @@ use sqlx::{PgPool, Row};
 pub trait Authenticator: Send + Sync {
     /// Authenticates a user with a given password. If the authenticator doesn't support passwords, then
     /// it can be safely ignored. `()` is returned as a indicator that this user is authenticated.
-    fn authenticate(&self, user: User, password: String) -> BoxedFuture<eyre::Result<()>>;
+    fn authenticate<'u>(&'u self, user: &'u User, password: String) -> BoxedFuture<'u, eyre::Result<()>>;
 }
 
 /// Represents a provider to provide a password from `self`.
@@ -62,3 +76,31 @@ mod __private {
 
     impl Sealed for charted_entities::User {}
 }
+
+// #[cfg(test)]
+// mod tests {
+//     use crate::{Authenticator, InvalidPasswordError};
+//     use charted_common::box_pin;
+//     use charted_entities::User;
+//     use eyre::Context;
+
+//     struct MyAuthenticator;
+//     impl Authenticator for MyAuthenticator {
+//         fn authenticate<'u>(
+//             &'u self,
+//             _user: &'u charted_entities::User,
+//             _password: String,
+//         ) -> charted_common::BoxedFuture<'u, eyre::Result<()>> {
+//             box_pin!({ Err(InvalidPasswordError).context("w") })
+//         }
+//     }
+
+//     #[tokio::test]
+//     async fn test_invalid_password_deref() {
+//         let res = MyAuthenticator::authenticate(&MyAuthenticator, &User::default(), "weow fluff".into()).await;
+//         assert!(res.is_err());
+
+//         let err = res.unwrap_err();
+//         assert!(err.downcast_ref::<InvalidPasswordError>().is_some());
+//     }
+// }

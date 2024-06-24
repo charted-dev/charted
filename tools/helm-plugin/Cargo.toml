@@ -35,8 +35,8 @@ ignored = [
 azalia.workspace = true
 base64.workspace = true
 charted-common = { version = "0.1.0-beta", path = "../../crates/common" }
+charted-core = { version = "0.1.0-beta", path = "../../crates/core" }
 charted-entities = { version = "0.1.0-beta", path = "../../crates/entities" }
-charted-server = { version = "0.1.0-beta", path = "../../crates/server" }
 clap.workspace = true
 clap_complete.workspace = true
 cli-table.workspace = true

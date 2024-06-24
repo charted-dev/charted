@@ -50,7 +50,7 @@ jobs:
               uses: Swatinem/rust-cache@v2
 
             - name: Setup Bun
-              uses: oven-sh/setup-bun@v1
+              uses: oven-sh/setup-bun@v2
 
             - name: Install `protoc`
               uses: Noelware/setup-protoc@1.2.0
@@ -59,8 +59,8 @@ jobs:
 
             - name: Generate OpenAPI document
               run: |
-                  cargo run --release --locked -- openapi ${GITHUB_WORKSPACE}/assets/openapi.json
-                  cargo run --release --locked --package charted-helm-plugin -- jsonschema ${GITHUB_WORKSPACE}/assets/charted.hcl.json
+                  cargo dev ci openapi ${GITHUB_WORKSPACE}/assets/openapi.json
+                  cargo dev ci jsonschema ${GITHUB_WORKSPACE}/assets/charted.hcl.json
                   bunx prettier --write --config ${GITHUB_WORKSPACE}/.prettierrc.json ./assets/*.json
 
             - name: Commit changes (if we can)
@@ -69,5 +69,5 @@ jobs:
                   author_name: Noel[bot]
                   default_author: user_info
                   author_email: noelbot@users.noreply.github.com
-                  message: '[skip ci] :sparkles: Update OpenAPI spec'
+                  message: '[skip ci] :sparkles: Update OpenAPI and JSON Schema spec'
                   push: true

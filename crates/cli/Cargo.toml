@@ -24,3 +24,13 @@ license.workspace = true
 publish.workspace = true
 repository.workspace = true
 authors.workspace = true
+
+[dependencies]
+charted-common = { version = "0.1.0-beta", path = "../common" }
+charted-server = { version = "0.1.0-beta", path = "../server" }
+clap.workspace = true
+clap_complete.workspace = true
+eyre.workspace = true
+noelware-log.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true

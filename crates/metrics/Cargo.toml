@@ -29,7 +29,7 @@ authors.workspace = true
 azalia.workspace = true
 charted-common = { version = "0.1.0-beta", path = "../common" }
 erased-serde.workspace = true
-opentelemetry.workspace = true
+opentelemetry = { workspace = true, features = ["metrics"] }
 prometheus-client.workspace = true
 serde.workspace = true
 tokio = { workspace = true, features = ["rt"] }

@@ -556,6 +556,42 @@ impl ApiKey {
     }
 }
 
+#[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema, FromRow)]
+pub struct Session {
+    /// Refresh token. This will always be `null` if queried, but always will
+    /// be present if you successfully login.
+    pub refresh_token: Option<String>,
+
+    /// Access token. This will always be `null` if queried, but always will
+    /// be present if you successfully login.
+    pub access_token: Option<String>,
+
+    /// Time of when the session expires.
+    pub expires_in: charted_common::DateTime,
+
+    /// ID of the user that created this session.
+    pub user_id: i64,
+
+    /// UUID of the session.
+    #[schema(format = Uuid)]
+    pub id: uuid::Uuid,
+}
+
+impl Session {
+    /// Returns a sanitized version of a [`Session`] that returns `None`
+    /// on the `refresh_token` and `access_token` properties. This
+    /// has to be used if querying sessions is going to be a thing.
+    pub fn sanitized(self) -> Session {
+        Session {
+            expires_in: self.expires_in,
+            user_id: self.user_id,
+            id: self.id,
+
+            ..Default::default()
+        }
+    }
+}
+
 /// Represents a [`semver::Version`] which is safe to use in [`Path`][axum::extract::Path]
 /// or as sqlx types.
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]

@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod ci;
 mod cli;
 mod docker;
 mod helm_plugin;
@@ -23,6 +24,9 @@ mod server;
 pub enum Cmd {
     #[command(subcommand)]
     Docker(docker::Cmd),
+
+    #[command(subcommand)]
+    Ci(ci::Cmd),
 
     HelmPlugin(helm_plugin::Cmd),
     Server(server::Cmd),
@@ -35,5 +39,6 @@ pub async fn run(cmd: Cmd) -> eyre::Result<()> {
         Cmd::HelmPlugin(cmd) => helm_plugin::run(cmd),
         Cmd::Cli(cmd) => cli::run(cmd),
         Cmd::Docker(cmd) => docker::run(cmd).await,
+        Cmd::Ci(cmd) => ci::run(cmd),
     }
 }

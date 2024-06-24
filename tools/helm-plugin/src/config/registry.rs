@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_server::APIVersion;
+use charted_core::APIVersion;
 use schemars::{
     gen::SchemaGenerator,
     schema::{InstanceType, ObjectValidation, Schema, SchemaObject},
@@ -110,7 +110,7 @@ impl Display for Config {
 #[cfg(test)]
 mod tests {
     use super::Config;
-    use charted_server::APIVersion;
+    use charted_core::APIVersion;
     use url::Url;
 
     #[test]

@@ -27,10 +27,10 @@ pub struct Prometheus {
 
 impl Prometheus {
     /// Creates a new [`Prometheus`] registry.
-    pub fn new(registry: Box<dyn Registry>, prom: Option<prometheus_client::registry::Registry>) -> Prometheus {
+    pub fn new<R: Registry + 'static>(registry: R, prom: Option<prometheus_client::registry::Registry>) -> Prometheus {
         Prometheus {
             registry: Arc::new(RwLock::new(prom.unwrap_or_default())),
-            inner: registry,
+            inner: Box::new(registry),
         }
     }
 
@@ -113,7 +113,7 @@ mod tests {
 
     #[test]
     fn test_registry() {
-        let mut registry = Prometheus::new(Box::<Disabled>::default(), None);
+        let mut registry = Prometheus::new(Disabled::default(), None);
         {
             let lock = registry.registry.clone();
             let guard = lock.write();

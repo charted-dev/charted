@@ -25,24 +25,37 @@ publish.workspace = true
 repository.workspace = true
 authors.workspace = true
 
+[features]
+testing = ["dep:tracing-subscriber", "dep:testcontainers"]
+default = ["testing"]
+
 [dependencies]
 axum.workspace = true
 azalia = { workspace = true, features = ["lazy"] }
 argon2.workspace = true
 charted-config = { version = "0.1.0-beta", path = "../config" }
+charted-proc-macros = { version = "0.0.0-devel.0", path = "../../proc-macros" }
 once_cell.workspace = true
 eyre.workspace = true
 multer.workspace = true
+paste = "1.0.15"
 rand = "0.8.5"
-redis = { version = "0.25.3", features = [
+redis = { workspace = true, features = [
     "cluster",
     "cluster-async",
     "sentinel",
     "tokio-comp",
     "connection-manager",
 ] }
+schemars.workspace = true
 serde.workspace = true
 serde_json.workspace = true
+serde_repr = "0.1.19"
+testcontainers = { workspace = true, optional = true }
 tracing.workspace = true
+tracing-subscriber = { workspace = true, optional = true }
 tokio.workspace = true
 utoipa.workspace = true
+
+[dev-dependencies]
+charted-testkit.workspace = true

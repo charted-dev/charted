@@ -17,7 +17,7 @@ pub mod charted;
 pub mod registry;
 pub mod repository;
 
-use charted_server::APIVersion;
+use charted_core::APIVersion;
 use eyre::Context as _;
 use hcl::{
     edit::{

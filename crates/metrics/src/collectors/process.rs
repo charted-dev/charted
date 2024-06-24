@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::Collector;
+use crate::{encode_counter, Collector};
 use erased_serde::Serialize;
 use prometheus_client::{
     encoding::EncodeMetric,
@@ -51,15 +51,12 @@ impl prometheus_client::collector::Collector for ProcessCollector {
         let original = <Self as Collector>::collect(self);
         let metrics = original.downcast_ref::<ProcessMetrics>().unwrap();
 
-        {
-            let counter = ConstCounter::new(metrics.id as u64);
-            counter.encode(encoder.encode_descriptor(
-                "charted_process_pid",
-                "current process id",
-                None,
-                MetricType::Counter,
-            )?)?;
-        }
+        encode_counter(
+            &mut encoder,
+            ConstCounter::new(metrics.id as u64),
+            |encoder| encoder.encode_descriptor("charted_process_pid", "current process id", None, MetricType::Counter),
+            |counter, encoder| counter.encode(encoder),
+        )?;
 
         Ok(())
     }

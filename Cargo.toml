@@ -47,6 +47,7 @@ axum = { version = "0.7.5", features = ["macros", "http2"] }
 async-trait = "0.1.80"
 base64 = "0.22.1"
 bollard = "0.16.1"
+charted-testkit = "0.1.0"
 chrono = { version = "0.4.38", features = ["serde"] }
 clap = { version = "4.5.4", features = ["derive", "env"] }
 cli-table = "0.4.7"
@@ -67,6 +68,7 @@ remi-azure = "0.8.0"
 remi-fs = "0.8.0"
 remi-s3 = "0.8.0"
 reqwest = "0.12.4"
+redis = "0.25.3"
 schemars = "0.8.19"
 semver = { version = "1.0.22", features = ["serde"] }
 sentry = "0.32.3"
@@ -80,7 +82,8 @@ sqlx = { version = "0.7.4", features = [
     "chrono",
 ] }
 tempfile = "3.10.1"
-testcontainers = "0.16.7"
+testcontainers = "0.17.0"
+testcontainers-modules = "0.5.0"
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
 tokio = "1.37.0"
@@ -90,21 +93,28 @@ uuid = { version = "1.8.0", features = ["serde", "v4"] }
 validator = { version = "0.18.1", features = ["derive"] }
 which = "6.0.1"
 
+[workspace.dependencies.azalia]
+version = "0.1.0"
+git = "https://github.com/Noelware/core-rs"
+rev = "0ee7ef8c7b635b8f9ed50cae5c6bdce3b0d9826d"
+
 [workspace.dependencies.noelware-config]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "eedfbce7279787db40203e6f2240d5731c2b2071"
+rev = "0ee7ef8c7b635b8f9ed50cae5c6bdce3b0d9826d"
 features = ["derive"]
 
 [workspace.dependencies.noelware-remi]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "eedfbce7279787db40203e6f2240d5731c2b2071"
+rev = "0ee7ef8c7b635b8f9ed50cae5c6bdce3b0d9826d"
 
-[workspace.dependencies.azalia]
+[workspace.dependencies.noelware-log]
 version = "0.1.0"
 git = "https://github.com/Noelware/core-rs"
-rev = "eedfbce7279787db40203e6f2240d5731c2b2071"
+rev = "0ee7ef8c7b635b8f9ed50cae5c6bdce3b0d9826d"
+features = ["log", "writers"]
+
 
 # [package]
 # name = "charted"
@@ -209,12 +219,6 @@ rev = "eedfbce7279787db40203e6f2240d5731c2b2071"
 # utoipa.workspace = true
 # uuid.workspace = true
 # validator.workspace = true
-
-# [dependencies.noelware-log]
-# version = "0.1.0"
-# git = "https://github.com/Noelware/core-rs"
-# rev = "007aacf9b4afa70cf0d69c8a8aa8f01f1c63156d"
-# features = ["log"]
 
 # [dev-dependencies]
 # remi-fs.workspace = true

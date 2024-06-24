@@ -54,6 +54,12 @@ impl Client {
         // if there is only ONE host
         if config.hosts.len() == 1 {
             let host = config.hosts.iter().next().unwrap();
+
+            if config.clustered {
+                error!("`config.redis.clustered` is not supported as of this current version!");
+                return Err(eyre!("`config.redis.clustered` is not supported yet"));
+            }
+
             return Ok(Client {
                 inner: match config.clustered {
                     false => {
@@ -64,12 +70,13 @@ impl Client {
                         )
                     }
 
-                    true => {
-                        warn!(%host, "received single host and clusted mode (`config.redis.clustered`) is enabled. using clustered mode!");
-                        Inner::Clustered(redis::cluster::ClusterClient::new([host.as_str()]).with_context(|| {
-                            format!("tried to connect to a Redis cluster with single host [{host}]")
-                        })?)
-                    }
+                    true => unreachable!(),
+                    // true => {
+                    //     warn!(%host, "received single host and clusted mode (`config.redis.clustered`) is enabled. using clustered mode!");
+                    //     Inner::Clustered(redis::cluster::ClusterClient::new([host.as_str()]).with_context(|| {
+                    //         format!("tried to connect to a Redis cluster with single host [{host}]")
+                    //     })?)
+                    // }
                 },
             });
         }

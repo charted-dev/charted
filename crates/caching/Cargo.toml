@@ -27,3 +27,8 @@ authors.workspace = true
 
 [lib]
 path = "lib.rs"
+
+[dependencies]
+charted-common = { version = "0.1.0-beta", path = "../common" }
+eyre.workspace = true
+serde.workspace = true

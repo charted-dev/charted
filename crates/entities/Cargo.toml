@@ -35,10 +35,11 @@ schemars.workspace = true
 semver.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-sqlx.workspace = true
+sqlx = { workspace = true, features = ["uuid"] }
 utoipa.workspace = true
 tracing.workspace = true
 validator.workspace = true
+uuid.workspace = true
 
 [dev-dependencies]
 serde_yaml.workspace = true

@@ -692,6 +692,7 @@ FodyWeavers.xsd
 !src/charts/__fixtures__/*.tgz
 !distribution/bin/
 !scripts/publish/
+!crates/bin/
 web/.output
 !Cargo.lock
 config.toml

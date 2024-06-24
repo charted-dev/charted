@@ -13,7 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_common::{serde::Duration, TRUTHY_REGEX};
+use azalia::TRUTHY_REGEX;
+use charted_common::serde::Duration;
 use noelware_config::{env, merge::Merge, TryFromEnv};
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, ops::Deref};

@@ -36,7 +36,8 @@ pub fn run(command: Cmd) -> Result<()> {
                 false => "run",
                 true => "build",
             })
-            .arg("--locked");
+            .arg("--locked")
+            .args(["--package", "charted"]);
 
         if command.args.release {
             cmd.arg("--release");
