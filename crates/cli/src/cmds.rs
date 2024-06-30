@@ -23,11 +23,22 @@ use clap::Subcommand;
 
 #[derive(Debug, Clone, Subcommand)]
 pub enum Cmd {
+    #[command(subcommand)]
+    Migrations(migrations::Cmd),
+
+    Completions(completions::Args),
     Version(version::Args),
+    Server(server::Args),
 }
 
 pub async fn exec(cmd: Cmd) -> eyre::Result<()> {
     match cmd {
+        Cmd::Server(args) => server::run(args).await,
+        Cmd::Migrations(subcmd) => migrations::execute(subcmd).await,
         Cmd::Version(args) => version::exec(args),
+        Cmd::Completions(args) => {
+            completions::run(args);
+            Ok(())
+        }
     }
 }

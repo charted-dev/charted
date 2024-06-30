@@ -33,7 +33,9 @@ pub fn run(command: Cmd) -> Result<()> {
         cmd.stdout(Stdio::inherit())
             .stderr(Stdio::inherit())
             .arg("run")
-            .arg("--locked");
+            .arg("--locked")
+            .arg("--bin")
+            .arg("charted");
 
         if command.args.release {
             cmd.arg("--release");

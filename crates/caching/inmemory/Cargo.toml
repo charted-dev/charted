@@ -32,10 +32,8 @@ path = "lib.rs"
 charted-cache = { version = "0.1.0-beta", path = ".." }
 charted-common = { version = "0.1.0-beta", path = "../../common" }
 charted-config = { version = "0.1.0-beta", path = "../../config" }
-charted-core = { version = "0.1.0-beta", path = "../../core" }
 eyre.workspace = true
 moka = { version = "0.12.7", features = ["future", "logging"] }
-sentry.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 tracing.workspace = true

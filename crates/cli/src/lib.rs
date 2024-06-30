@@ -19,7 +19,7 @@ pub use cmds::{exec, Cmd};
 use clap::Parser;
 use noelware_log::writers;
 use std::io;
-use tracing::Level;
+use tracing::{level_filters::LevelFilter, Level};
 use tracing_subscriber::prelude::*;
 
 #[derive(Debug, Clone, Parser)]
@@ -45,18 +45,21 @@ impl Program {
     /// of the library since it'll panic if one was already initialised.
     pub fn init_logging(&self) {
         tracing_subscriber::registry()
-            .with(noelware_log::WriteLayer::new_with(
-                io::stdout(),
-                writers::default::Writer {
-                    print_timestamp: true,
-                    print_level: true,
-                    print_module: false,
-                    print_thread: false,
-                    emit_spans: true,
+            .with(
+                noelware_log::WriteLayer::new_with(
+                    io::stdout(),
+                    writers::default::Writer {
+                        print_timestamp: true,
+                        print_level: true,
+                        print_module: false,
+                        print_thread: false,
+                        emit_spans: true,
 
-                    ..Default::default()
-                },
-            ))
+                        ..Default::default()
+                    },
+                )
+                .with_filter(LevelFilter::from_level(self.log_level)),
+            )
             .init();
     }
 }

@@ -44,7 +44,9 @@ charted-metrics = { version = "0.1.0-beta", path = "../metrics" }
 charted-proc-macros = { version = "0.0.0-devel.0", path = "../../proc-macros" }
 charted-search = { version = "0.1.0-beta", path = "../search" }
 eyre.workspace = true
+faster-hex = "0.9.0"
 jsonwebtoken = "9.3.0"
+md-5 = "0.10.6"
 mime.workspace = true
 multer.workspace = true
 noelware-remi.workspace = true
@@ -72,6 +74,7 @@ tracing.workspace = true
 prometheus-client.workspace = true
 once_cell.workspace = true
 erased-serde.workspace = true
+reqwest.workspace = true
 
 [dev-dependencies]
 bollard.workspace = true

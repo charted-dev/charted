@@ -151,50 +151,6 @@ impl Client {
             _ => unreachable!(),
         }
     }
-}
-
-/*
-impl Client {
-    /// Retrieves the master connection. If this is a standalone client, this will
-    /// fast-path to using the main `client` instance. Otherwise, it will try to
-    /// call the master of the sentinel.
-    pub fn master(&mut self) -> Result<RedisClient> {
-        if let Some(client) = self.client() {
-            return Ok(client);
-        }
-
-        let mut sentinel = self
-            .sentinel
-            .as_mut()
-            .unwrap()
-            .lock()
-            .expect("unable to acquire mutex lock");
-
-        Ok(sentinel.master_for(self.master_name.as_ref().unwrap(), None)?)
-    }
-
-    /// Retrives a replica client from the sentinel list. If this is a standalone connection,
-    /// this will just fast-path to the already constructed client as standalone connections
-    /// operate alone.
-    ///
-    /// Otherwise, this will grab a replica from the `master_name` provided
-    /// from the 'config.redis.master_name' configuration key.
-    ///
-    /// This will panic if grabbing the [`Sentinel`]'s mutex was poisoned.
-    pub fn replica(&mut self) -> Result<RedisClient> {
-        if let Some(client) = self.client() {
-            return Ok(client);
-        }
-
-        let mut sentinel = self
-            .sentinel
-            .as_mut()
-            .unwrap()
-            .try_lock()
-            .expect("unable to acquire mutex lock");
-
-        Ok(sentinel.replica_for(self.master_name.as_ref().unwrap(), None)?)
-    }
 
     /// Utility to create a single [command][redis::Cmd] without requiring
     /// to bring in the `redis` dependency.
@@ -207,5 +163,3 @@ impl Client {
         redis::pipe()
     }
 }
-
-*/

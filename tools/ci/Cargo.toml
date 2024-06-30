@@ -13,11 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[build]
-rustflags = ["--cfg", "tokio_unstable"]
+[package]
+name = "charted-internal-ci"
+description = "🐻‍❄️📦 Internal tool for charted's CI"
+version = "0.0.0-devel.0"
+documentation.workspace = true
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+publish.workspace = true
+repository.workspace = true
+authors.workspace = true
 
-# Invokes `charted-devtools` as `cargo dev` instead of the `./dev` script. It's up to you
-# if you want to use one or the other.
-[alias]
-dev = "run --release --package charted-devtools --"
-ci = "run --release --package charted-internal-ci --"
+[dependencies]
+charted-helm-plugin = { version = "0.1.0-beta", path = "../helm-plugin" }
+charted-server = { version = "0.1.0-beta", path = "../../crates/server" }
+color-eyre = "0.6.3"
+eyre.workspace = true
+schemars.workspace = true
+serde_json.workspace = true
+utoipa.workspace = true

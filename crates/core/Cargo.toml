@@ -59,3 +59,6 @@ utoipa.workspace = true
 
 [dev-dependencies]
 charted-testkit.workspace = true
+
+[package.metadata.cargo-machete]
+ignored = ["tracing-subscriber"]

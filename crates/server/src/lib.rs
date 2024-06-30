@@ -23,6 +23,7 @@ pub mod metrics;
 pub mod middleware;
 pub mod multipart;
 pub mod openapi;
+pub(crate) mod ops;
 pub mod pagination;
 pub mod routing;
 

@@ -58,6 +58,9 @@ pub struct ServerContext {
     /// Redis client that allows to hold temporary, fast data.
     pub redis: Arc<RwLock<charted_core::redis::Client>>,
 
+    /// HTTP client.
+    pub http: reqwest::Client,
+
     /// Represents the database connection pool.
     pub pool: PgPool,
 }
@@ -74,6 +77,7 @@ impl Clone for ServerContext {
             config: self.config.clone(),
             authz: self.authz.clone(),
             redis: self.redis.clone(),
+            http: self.http.clone(),
             pool: self.pool.clone(),
         }
     }

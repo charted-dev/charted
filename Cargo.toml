@@ -21,8 +21,7 @@ members = [
     "crates/search/*",
     "features/*",
     "proc-macros",
-    "tools/devtools",
-    "tools/helm-plugin",
+    "tools/*",
 ]
 resolver = "2"
 

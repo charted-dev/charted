@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::routing;
 use azalia::lazy;
 use charted_common::VERSION;
 use once_cell::sync::Lazy;
@@ -20,10 +21,11 @@ use utoipa::{
     openapi::{
         external_docs::ExternalDocsBuilder,
         security::{ApiKey, ApiKeyValue, HttpAuthScheme, HttpBuilder, SecurityScheme},
-        Components, ComponentsBuilder, Contact, ContactBuilder, ExternalDocs, InfoBuilder, License, LicenseBuilder,
-        OpenApi, OpenApiBuilder, RefOr, Schema,
+        ArrayBuilder, Components, ComponentsBuilder, Contact, ContactBuilder, ContentBuilder, ExternalDocs,
+        InfoBuilder, License, LicenseBuilder, ObjectBuilder, OpenApi, OpenApiBuilder, Ref, RefOr, Response,
+        ResponseBuilder, Schema, SchemaType,
     },
-    ToSchema,
+    ToResponse, ToSchema,
 };
 
 static SCHEMAS: Lazy<Vec<(&str, RefOr<Schema>)>> = lazy!([
@@ -56,12 +58,6 @@ static SCHEMAS: Lazy<Vec<(&str, RefOr<Schema>)>> = lazy!([
 ]
 .into_iter()
 .collect());
-
-pub fn components() -> Components {
-    ComponentsBuilder::new()
-        .schemas_from_iter(Lazy::force(&SCHEMAS).clone())
-        .build()
-}
 
 /*
 static COMPONENTS: Lazy<Components> = lazy!(ComponentsBuilder::new()
@@ -106,8 +102,23 @@ static COMPONENTS: Lazy<Components> = lazy!(ComponentsBuilder::new()
         charted_common::ID::schema(),
         version_req(),
         datetime()
-    ])
-    .responses_from_iter([
+    ]);
+*/
+
+static RESPONSES: Lazy<Vec<(&str, RefOr<Response>)>> = lazy!([
+    /* main endpoints */
+    routing::v1::features::FeaturesResponse::response(),
+    routing::v1::index::ChartIndexResponse::response(),
+    routing::v1::main::MainResponse::response(),
+    routing::v1::info::InfoResponse::response(),
+    /* generic */
+    EmptyApiResponse::response(),
+    ApiErrorResponse::response()
+]
+.into_iter()
+.collect());
+
+/*
         crate::server::routing::v1::organization::OrganizationResponse::response(),
         crate::server::routing::v1::user::sessions::SessionResponse::response(),
         crate::server::routing::v1::repository::RepositoryResponse::response(),
@@ -115,29 +126,23 @@ static COMPONENTS: Lazy<Components> = lazy!(ComponentsBuilder::new()
         charted_server::pagination::OrganizationPaginatedResponse::response(),
         charted_server::pagination::RepositoryPaginatedResponse::response(),
         crate::server::routing::v1::indexes::ChartIndexResponse::response(),
-        crate::server::routing::v1::features::FeaturesResponse::response(),
         charted_server::pagination::ApiKeyPaginatedResponse::response(),
         charted_server::pagination::MemberPaginatedResponse::response(),
         crate::server::routing::v1::apikey::ApiKeyResponse::response(),
         crate::server::routing::v1::user::UserResponse::response(),
         crate::server::routing::v1::EntrypointResponse::response(),
-        crate::server::routing::v1::info::InfoResponse::response(),
-        crate::server::routing::v1::main::MainResponse::response(),
         crate::server::routing::v1::user::UserResponse::response(),
-        crate::openapi::ApiErrorResponse::response(),
-        crate::openapi::EmptyApiResponse::response(),
-    ])
-    .build());
 */
 
-/// Returns a slice of all the [`SecurityScheme`]s that the API server supports.
-pub fn schemes() -> [(&'static str, SecurityScheme); 3] {
-    [
-        (
+pub fn components() -> Components {
+    ComponentsBuilder::new()
+        .schemas_from_iter(Lazy::force(&SCHEMAS).clone())
+        .responses_from_iter(Lazy::force(&RESPONSES).clone())
+        .security_scheme(
             "ApiKey",
             SecurityScheme::ApiKey(ApiKey::Header(ApiKeyValue::new("ApiKey"))),
-        ),
-        (
+        )
+        .security_scheme(
             "Bearer",
             SecurityScheme::Http(
                 HttpBuilder::new()
@@ -147,8 +152,8 @@ pub fn schemes() -> [(&'static str, SecurityScheme); 3] {
                     ))
                     .build(),
             ),
-        ),
-        ("Basic", SecurityScheme::Http(
+        )
+        .security_scheme("Basic", SecurityScheme::Http(
             HttpBuilder::new()
                 .scheme(HttpAuthScheme::Basic)
                 .description(Some(
@@ -156,8 +161,8 @@ pub fn schemes() -> [(&'static str, SecurityScheme); 3] {
                 ))
                 .build()
             )
-        ),
-    ]
+        )
+        .build()
 }
 
 fn license() -> License {
@@ -188,7 +193,7 @@ pub fn object_doc(object: &str) -> ExternalDocs {
 }
 
 pub fn document() -> OpenApi {
-    OpenApiBuilder::new()
+    let mut doc = OpenApiBuilder::new()
         .info(
             InfoBuilder::new()
                 .title("charted-server")
@@ -210,49 +215,12 @@ pub fn document() -> OpenApi {
                 .description(Some("Main documentation source for charted-server"))
                 .build(),
         ))
-        .build()
-}
-
-/*
-/// Returns the [`OpenApi`] object.
-pub fn openapi() -> OpenApi {
-    let license = LicenseBuilder::new()
-        .name("Apache 2.0")
-        .url(Some("https://www.apache.org/licenses/LICENSE-2.0"))
+        .components(Some(components()))
         .build();
 
-    let contact = ContactBuilder::new()
-        .name(Some("Noelware, LLC."))
-        .url(Some("https://noelware.org"))
-        .email(Some("team@noelware.org"))
-        .build();
-
-    let docs = ExternalDocsBuilder::new()
-        .url(format!("https://charts.noelware.org/docs/server/{}", VERSION))
-        .description(Some("Main documentation source for charted-server"))
-        .build();
-
-    let info = InfoBuilder::new()
-        .title("charted-server")
-        .description(Some(
-            "🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust",
-        ))
-        .version(VERSION)
-        .terms_of_service(Some("https://charts.noelware.org/legal/tos"))
-        .license(Some(license))
-        .contact(Some(contact))
-        .build();
-
-    let mut components = ComponentsBuilder::new();
-    for (name, scheme) in SCHEMES.iter() {
-        components = components.security_scheme(name, scheme.clone());
-    }
-
-    OpenApiBuilder::new()
-        .info(info)
-        .external_docs(Some(docs))
-        .components(Some(components.build()))
-        .build()
+    doc.paths.paths.extend(routing::paths().paths);
+    doc.paths.paths.extend(routing::v1::paths().paths);
+    doc
 }
 
 /// Represents a generic empty API response, please do not use this in actual code,
@@ -273,7 +241,7 @@ impl<'r> ToResponse<'r> for EmptyApiResponse {
                                     ObjectBuilder::new()
                                         .schema_type(SchemaType::Boolean)
                                         .description(Some(
-                                            "whether if this response [EmptyApiResponse] was a success or not",
+                                            "always returns `true` if the operation was a success, `false` otherwise.",
                                         ))
                                         .build(),
                                 )),
@@ -307,9 +275,7 @@ impl<'r> ToResponse<'r> for ApiErrorResponse {
                                 RefOr::T(Schema::Object(
                                     ObjectBuilder::new()
                                         .schema_type(SchemaType::Boolean)
-                                        .description(Some(
-                                            "whether if this response [ApiErrorResponse] was a success or not",
-                                        ))
+                                        .description(Some("always returns `false`"))
                                         .build(),
                                 )),
                             )
@@ -334,5 +300,3 @@ impl<'r> ToResponse<'r> for ApiErrorResponse {
         ("ApiErrorResponse", RefOr::T(response))
     }
 }
-
-*/

@@ -13,23 +13,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod jsonschema;
-mod openapi;
-
-use clap::Subcommand;
-
-#[derive(Debug, Clone, Subcommand)]
-pub enum Cmd {
-    #[command(name = "jsonschema")]
-    JsonSchema(jsonschema::Cmd),
-
-    #[command(name = "openapi")]
-    OpenAPI(openapi::Args),
-}
-
-pub fn run(cmd: Cmd) -> eyre::Result<()> {
-    match cmd {
-        Cmd::JsonSchema(args) => jsonschema::run(args),
-        Cmd::OpenAPI(args) => openapi::run(args),
-    }
-}
+//! The `ops::user` module contains common operations that operate on the User entity.

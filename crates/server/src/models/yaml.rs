@@ -22,6 +22,12 @@ use serde::Serialize;
 #[derive(Debug, Clone)]
 pub struct Yaml<T>(StatusCode, T);
 
+impl<T> Yaml<T> {
+    pub fn ok(data: T) -> Yaml<T> {
+        Yaml(StatusCode::OK, data)
+    }
+}
+
 impl<T: Serialize> IntoResponse for Yaml<T> {
     fn into_response(self) -> axum::response::Response {
         let mut res = Response::new(serde_yaml::to_string(&self.1).unwrap());

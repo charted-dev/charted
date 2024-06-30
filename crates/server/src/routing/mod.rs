@@ -21,6 +21,7 @@ use axum::{
     middleware, Router,
 };
 use charted_core::response::{err, ErrorCode};
+use charted_proc_macros::add_paths;
 use serde_json::json;
 use std::any::Any;
 use tower::ServiceBuilder;
@@ -29,6 +30,7 @@ use tower_http::{
     cors::{self, CorsLayer},
 };
 use tracing::error;
+use utoipa::openapi::Paths;
 
 pub mod v1;
 
@@ -92,4 +94,16 @@ pub fn create_router(ctx: &ServerContext) -> Router<ServerContext> {
         .layer(middleware::from_fn(crate::middleware::request_id));
 
     router.layer(stack)
+}
+
+/// Returns a [`Paths`] object of the current API version's paths that are avaliable.
+pub fn paths() -> Paths {
+    add_paths!(
+        // ~~~~~~~~~~~      MAIN     ~~~~~~~~~~~~~~~~~~~
+        "/index/{idOrName}" => v1::index::GetChartIndexRestController::paths();
+        "/heartbeat" => v1::heartbeat::HeartbeatRestController::paths();
+        "/features" => v1::features::FeaturesRestController::paths();
+        "/info" => v1::info::InfoRestController::paths();
+        "/" => v1::main::MainRestController::paths();
+    )
 }

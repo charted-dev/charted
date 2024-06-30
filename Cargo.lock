@@ -1222,10 +1222,8 @@ dependencies = [
  "charted-cache",
  "charted-common",
  "charted-config",
- "charted-core",
  "eyre",
  "moka",
- "sentry",
  "serde",
  "serde_json",
  "tracing",
@@ -1251,13 +1249,36 @@ dependencies = [
 name = "charted-cli"
 version = "0.1.0-beta"
 dependencies = [
+ "charted-authz",
+ "charted-authz-ldap",
+ "charted-authz-local",
+ "charted-cache",
  "charted-common",
+ "charted-config",
+ "charted-core",
+ "charted-database",
+ "charted-entities",
+ "charted-helm-charts",
+ "charted-metrics",
  "charted-server",
  "clap",
  "clap_complete",
+ "cli-table",
  "eyre",
+ "hex",
  "noelware-log",
+ "noelware-remi",
+ "num_cpus",
+ "owo-colors 4.0.0",
+ "remi-azure",
+ "remi-fs",
+ "remi-s3",
+ "reqwest",
+ "sentry",
+ "sentry-tracing 0.34.0",
+ "sqlx",
  "tracing",
+ "tracing-error",
  "tracing-subscriber",
 ]
 
@@ -1337,6 +1358,7 @@ dependencies = [
  "bollard",
  "charted-cache",
  "charted-cache-inmemory",
+ "charted-cache-redis",
  "charted-common",
  "charted-config",
  "charted-core",
@@ -1357,8 +1379,6 @@ name = "charted-devtools"
 version = "0.0.0-devel.0"
 dependencies = [
  "bollard",
- "charted-helm-plugin",
- "charted-server",
  "clap",
  "color-eyre",
  "eyre",
@@ -1472,6 +1492,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "charted-internal-ci"
+version = "0.0.0-devel.0"
+dependencies = [
+ "charted-helm-plugin",
+ "charted-server",
+ "color-eyre",
+ "eyre",
+ "schemars",
+ "serde_json",
+ "utoipa",
+]
+
+[[package]]
 name = "charted-metrics"
 version = "0.1.0-beta"
 dependencies = [
@@ -1560,7 +1593,9 @@ dependencies = [
  "charted-testkit",
  "erased-serde",
  "eyre",
+ "faster-hex",
  "jsonwebtoken",
+ "md-5",
  "mime",
  "multer",
  "noelware-remi",
@@ -1568,6 +1603,7 @@ dependencies = [
  "paste",
  "prometheus-client",
  "remi",
+ "reqwest",
  "schemars",
  "sentry",
  "sentry-tower",
@@ -2287,6 +2323,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "faster-hex"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a2a2b11eda1d40935b26cf18f6833c526845ae8c41e58d09af6adeb6f0269183"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "fastrand"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2909,7 +2954,7 @@ dependencies = [
  "httpdate",
  "itoa",
  "pin-project-lite",
- "socket2 0.4.10",
+ "socket2 0.5.7",
  "tokio",
  "tower-service",
  "tracing",
@@ -3671,8 +3716,11 @@ name = "noelware-remi"
 version = "0.1.0"
 source = "git+https://github.com/Noelware/core-rs?rev=0ee7ef8c7b635b8f9ed50cae5c6bdce3b0d9826d#0ee7ef8c7b635b8f9ed50cae5c6bdce3b0d9826d"
 dependencies = [
+ "azure_core",
  "remi",
+ "remi-azure",
  "remi-fs",
+ "remi-s3",
 ]
 
 [[package]]
@@ -4814,10 +4862,10 @@ dependencies = [
  "reqwest",
  "sentry-backtrace",
  "sentry-contexts",
- "sentry-core",
+ "sentry-core 0.32.3",
  "sentry-debug-images",
  "sentry-panic",
- "sentry-tracing",
+ "sentry-tracing 0.32.3",
  "tokio",
  "ureq",
 ]
@@ -4831,7 +4879,7 @@ dependencies = [
  "backtrace",
  "once_cell",
  "regex",
- "sentry-core",
+ "sentry-core 0.32.3",
 ]
 
 [[package]]
@@ -4844,7 +4892,7 @@ dependencies = [
  "libc",
  "os_info",
  "rustc_version",
- "sentry-core",
+ "sentry-core 0.32.3",
  "uname",
 ]
 
@@ -4856,7 +4904,20 @@ checksum = "46a75011ea1c0d5c46e9e57df03ce81f5c7f0a9e199086334a1f9c0a541e0826"
 dependencies = [
  "once_cell",
  "rand 0.8.5",
- "sentry-types",
+ "sentry-types 0.32.3",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "sentry-core"
+version = "0.34.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "161283cfe8e99c8f6f236a402b9ccf726b201f365988b5bb637ebca0abbd4a30"
+dependencies = [
+ "once_cell",
+ "rand 0.8.5",
+ "sentry-types 0.34.0",
  "serde",
  "serde_json",
 ]
@@ -4869,7 +4930,7 @@ checksum = "7ec2a486336559414ab66548da610da5e9626863c3c4ffca07d88f7dc71c8de8"
 dependencies = [
  "findshlibs",
  "once_cell",
- "sentry-core",
+ "sentry-core 0.32.3",
 ]
 
 [[package]]
@@ -4879,7 +4940,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2eaa3ecfa3c8750c78dcfd4637cfa2598b95b52897ed184b4dc77fcf7d95060d"
 dependencies = [
  "sentry-backtrace",
- "sentry-core",
+ "sentry-core 0.32.3",
 ]
 
 [[package]]
@@ -4891,7 +4952,7 @@ dependencies = [
  "axum",
  "http 1.1.0",
  "pin-project",
- "sentry-core",
+ "sentry-core 0.32.3",
  "tower-layer",
  "tower-service",
  "url",
@@ -4904,7 +4965,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f715932bf369a61b7256687c6f0554141b7ce097287e30e3f7ed6e9de82498fe"
 dependencies = [
  "sentry-backtrace",
- "sentry-core",
+ "sentry-core 0.32.3",
+ "tracing-core",
+ "tracing-subscriber",
+]
+
+[[package]]
+name = "sentry-tracing"
+version = "0.34.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cd3c5faf2103cd01eeda779ea439b68c4ee15adcdb16600836e97feafab362ec"
+dependencies = [
+ "sentry-core 0.34.0",
  "tracing-core",
  "tracing-subscriber",
 ]
@@ -4914,6 +4986,23 @@ name = "sentry-types"
 version = "0.32.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4519c900ce734f7a0eb7aba0869dfb225a7af8820634a7dd51449e3b093cfb7c"
+dependencies = [
+ "debugid",
+ "hex",
+ "rand 0.8.5",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "time",
+ "url",
+ "uuid",
+]
+
+[[package]]
+name = "sentry-types"
+version = "0.34.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5d68cdf6bc41b8ff3ae2a9c4671e97426dcdd154cc1d4b6b72813f285d6b163f"
 dependencies = [
  "debugid",
  "hex",
@@ -5859,16 +5948,15 @@ dependencies = [
 
 [[package]]
 name = "tokio-util"
-version = "0.7.10"
+version = "0.7.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5419f34732d9eb6ee4c3578b7989078579b7f039cbbb9ca2c4da015749371e15"
+checksum = "9cf6b47b3771c49ac75ad09a6162f53ad4b8088b76ac60e8ec1455b31a189fe1"
 dependencies = [
  "bytes",
  "futures-core",
  "futures-sink",
  "pin-project-lite",
  "tokio",
- "tracing",
 ]
 
 [[package]]

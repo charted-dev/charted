@@ -34,7 +34,7 @@ pub async fn metrics(
             (
                 ErrorCode::HandlerNotFound,
                 "route was not found",
-                json!({"route":"/","method":"get"}),
+                json!({"route":"/metrics","method":"get"}),
             ),
         )
     })?;

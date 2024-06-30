@@ -16,8 +16,9 @@
 pub mod controllers;
 pub mod pagination;
 
-use charted_config::db::Config;
+use charted_config::{caching::Strategy, db::Config};
 use eyre::Context;
+use serde::{de::DeserializeOwned, Serialize};
 use sqlx::{
     migrate::Migrator,
     postgres::{PgConnectOptions, PgPoolOptions},
@@ -26,7 +27,7 @@ use sqlx::{
 use std::{str::FromStr, time::Duration};
 use tracing::{info, instrument};
 
-static MIGRATOR: Migrator = sqlx::migrate!("../../migrations");
+pub static MIGRATOR: Migrator = sqlx::migrate!("../../migrations");
 
 pub async fn create_pool(config: &Config) -> eyre::Result<PgPool> {
     info!("building PostgreSQL pool...");
@@ -84,6 +85,16 @@ pub async fn run_migrations(pool: &PgPool) -> eyre::Result<()> {
             sentry::capture_error(e);
         })
         .context("failed to run migrations")
+}
+
+pub fn make_worker<T: Serialize + DeserializeOwned + Send + Sync>(
+    redis: charted_core::redis::Client,
+    config: &Config,
+) -> eyre::Result<Box<dyn charted_cache::CacheWorker<T>>> {
+    match config.caching.strategy {
+        Strategy::InMemory => Ok(Box::new(charted_cache_inmemory::CacheWorker::new(&config.caching)?)),
+        Strategy::Redis => Ok(Box::new(charted_cache_redis::CacheWorker::new(redis, &config.caching)?)),
+    }
 }
 
 // #[cfg(test)]

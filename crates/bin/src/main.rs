@@ -13,9 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_cli::Program;
+use charted_cli::{Cmd, Program};
 use clap::Parser;
 use color_eyre::config::HookBuilder;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use tokio::runtime::Builder;
 
 fn main() -> eyre::Result<()> {
@@ -31,8 +32,25 @@ fn main() -> eyre::Result<()> {
     // Next, we need to pick a scheduler to use for Tokio. While the `charted server` command allows
     // to run in Tokio's multi-threaded scheduler, all CLI commands (exception: `server`) are ran
     // through the single-threaded scheduler.
-    #[allow(clippy::let_unit_value, clippy::match_single_binding)]
     let runtime = match program.command {
+        Cmd::Server(ref args) => {
+            // install the default handler since issue urls can get pretty long
+            // and we don't want that when running the API server
+            color_eyre::install()?;
+
+            let workers = std::cmp::max(num_cpus::get(), args.workers);
+            Builder::new_multi_thread()
+                .worker_threads(workers)
+                .thread_name_fn(|| {
+                    static ID_GEN: AtomicUsize = AtomicUsize::new(0);
+                    let id = ID_GEN.fetch_add(1, Ordering::SeqCst);
+
+                    format!("charted-worker-pool[#{id}]")
+                })
+                .enable_all()
+                .build()?
+        }
+
         _ => {
             HookBuilder::new()
                 .issue_url("https://github.com/charted-dev/charted/issues/new")
