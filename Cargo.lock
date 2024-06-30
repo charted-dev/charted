@@ -1533,6 +1533,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "charted-proc-macros-v2"
+version = "0.0.0-devel.0"
+dependencies = [
+ "heck 0.5.0",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.66",
+ "utoipa",
+]
+
+[[package]]
 name = "charted-search"
 version = "0.1.0-beta"
 dependencies = [

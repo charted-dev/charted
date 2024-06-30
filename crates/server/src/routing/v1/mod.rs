@@ -27,9 +27,37 @@ pub mod user;
 
 use crate::ServerContext;
 use axum::{routing, Router};
-use charted_proc_macros::add_paths;
+use charted_common::VERSION;
+use charted_proc_macros::{add_paths, generate_response_schema};
+use serde::Serialize;
 use tracing::error;
-use utoipa::openapi::Paths;
+use utoipa::{openapi::Paths, ToSchema};
+
+/// Generic entrypoint message for any API routes like `/users`.
+#[derive(Serialize, ToSchema)]
+pub struct EntrypointResponse {
+    /// A cute message to greet you with
+    pub message: String,
+
+    /// URL to the documentation to where you can explore more routes for
+    /// this specific API.
+    pub docs: String,
+}
+
+impl EntrypointResponse {
+    pub fn new(entity: impl Into<String>) -> EntrypointResponse {
+        let entity = entity.into();
+        EntrypointResponse {
+            message: format!("Welcome to the {entity} API!"),
+            docs: format!(
+                "https://charts.noelware.org/docs/server/{VERSION}/api/reference/{}",
+                entity.to_lowercase().replace(' ', "")
+            ),
+        }
+    }
+}
+
+generate_response_schema!(EntrypointResponse);
 
 pub fn create_router(ctx: &ServerContext) -> Router<ServerContext> {
     let mut router = Router::new()
