@@ -14,7 +14,7 @@
 # limitations under the License.
 
 [toolchain]
-channel = "1.79"
+channel = "nightly-2024-07-22"
 profile = "minimal"
 targets = [
     "x86_64-unknown-linux-gnu",

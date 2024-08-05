@@ -687,18 +687,24 @@ FodyWeavers.xsd
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
 
-!server/src/routing/**/repository/releases/
-!crates/charts/tests/__fixtures__/*.tgz
-!src/charts/__fixtures__/*.tgz
-!distribution/bin/
-!scripts/publish/
 !crates/bin/
-web/.output
-!Cargo.lock
-config.toml
-!src/bin/
+config.hcl
 .direnv/
-.cache/
-.data/
 data/
 .env
+
+# !server/src/routing/**/repository/releases/
+# !crates/charts/tests/__fixtures__/*.tgz
+# !src/charts/__fixtures__/*.tgz
+# !distribution/bin/
+# !scripts/publish/
+# !crates/bin/
+# web/.output
+# !Cargo.lock
+# config.hcl
+# !src/bin/
+# .direnv/
+# .cache/
+# .data/
+# data/
+# .env

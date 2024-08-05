@@ -13,14 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 {
-  description = "🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust";
+  description = "charted is a free, open, and reliable way to distribute Helm charts";
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs = {
+        follows = "nixpkgs";
       };
     };
 
@@ -39,9 +39,7 @@
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = import nixpkgs {
         inherit system;
-
         overlays = [(import rust-overlay)];
-        config.allowUnfree = true; # sorry stallman senpai :(
       };
 
       cargoTOML = builtins.fromTOML (builtins.readFile ./Cargo.toml);
@@ -51,33 +49,22 @@
         then ''-C link-arg=-fuse-ld=mold -C target-cpu=native $RUSTFLAGS''
         else ''$RUSTFLAGS'';
 
-      # create a Rust platform that uses our rust-toolchain.toml since Nix doesn't
-      # detect it
+      # We use Rust nightly for all crates, so we want to match it.
       rustPlatform = pkgs.makeRustPlatform {
         cargo = rust;
         rustc = rust;
       };
 
-      hashes = {
-        "noelware-serde" = "sha256-ZOIaeMJO44NNn2/PKiLX731UlKAQukYAlSWQixELxl4=";
-        "azalia" = "sha256-jHYJRLjVmakQIJeD/Xq+AOTm4icBEoqBNJWJpTpS8KM=";
-      };
-
       charted = rustPlatform.buildRustPackage {
-        nativeBuildInputs = with pkgs; [pkg-config protobuf installShellFiles];
+        nativeBuildInputs = with pkgs; [pkg-config installShellFiles];
         buildInputs = with pkgs; [openssl];
-        cargoSha256 = pkgs.lib.fakeSha256;
         version = "${cargoTOML.workspace.package.version}";
         name = "charted";
         src = ./.;
 
-        env.PROTOC = pkgs.lib.getExe pkgs.protobuf;
+        env.CHARTED_DISTRIBUTION_KIND = "nix";
         cargoLock = {
           lockFile = ./Cargo.lock;
-          outputHashes = {
-            "noelware-serde-0.1.0" = hashes."noelware-serde";
-            "azalia-0.1.0" = hashes.azalia;
-          };
         };
 
         postInstall = ''
@@ -89,7 +76,7 @@
 
         useNextest = true;
         meta = with pkgs.lib; {
-          description = "Free, open source, and reliable Helm chart registry in Rust";
+          description = "charted is a free, open, and reliable way to distribute Helm charts";
           homepage = "https://charts.noelware.org";
           license = with licenses; [asl20];
           maintainers = with maintainers; [auguwu spotlightishere noelware];
@@ -105,14 +92,9 @@
         name = "charted-helm-plugin";
         src = ./.;
 
-        env.PROTOC = pkgs.lib.getExe pkgs.protobuf;
         cargoBuildFlags = ["--package" "charted-helm-plugin"];
         cargoLock = {
           lockFile = ./Cargo.lock;
-          outputHashes = {
-            "noelware-serde-0.1.0" = hashes."noelware-serde";
-            "azalia-0.1.0" = hashes.azalia;
-          };
         };
 
         postPatch = ''
@@ -125,14 +107,14 @@
             --fish <($out/bin/charted-helm-plugin completions fish) \
             --zsh <($out/bin/charted-helm-plugin completions zsh)
 
-          install -dm755 $out/charted-helm-plugin
+          install -Dm755 $out/charted-helm-plugin
           install -Dm644 plugin.yaml $out/charted-helm-plugin/plugin.yaml
           mv $out/bin $out/charted-helm-plugin
         '';
 
         useNextest = true;
         meta = with pkgs.lib; {
-          description = "Faciliate common practices with Helm + charted-server easily as a plugin";
+          description = "Helm plugin to help aid developing Helm charts with charted";
           homepage = "https://charts.noelware.org";
           license = with licenses; [asl20];
           maintainers = with maintainers; [auguwu spotlightishere noelware];
@@ -142,28 +124,31 @@
       packages = {
         inherit charted helm-plugin;
 
+        default = charted;
         all = pkgs.symlinkJoin {
           name = "charted-${cargoTOML.workspace.package.version}";
           paths = [charted helm-plugin];
         };
-
-        default = charted;
       };
 
       devShells.default = pkgs.mkShell {
         LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath (with pkgs; [openssl]);
         nativeBuildInputs = with pkgs;
-          [pkg-config]
-          ++ (lib.optional stdenv.isLinux [mold lldb gdb])
-          ++ (lib.optional stdenv.isDarwin [darwin.apple_sdk.frameworks.CoreFoundation]);
+          [pkg-config sqlite postgresql.lib]
+          ++ (lib.optional stdenv.isLinux [mold lldb])
+          ++ (lib.optional stdenv.isDarwin (with darwin.apple_sdk.frameworks; [CoreFoundation Security]));
 
         buildInputs = [
-          pkgs.cargo-llvm-lines
           pkgs.cargo-nextest
           pkgs.cargo-machete
-          pkgs.cargo-expand
           pkgs.cargo-deny
-          pkgs.sqlx-cli
+
+          # I don't plan to add MySQL support and probably never will.
+          (pkgs.diesel-cli.override {
+            mysqlSupport = false;
+            postgresqlSupport = true;
+            sqliteSupport = true;
+          })
 
           pkgs.openssl
           pkgs.glibc

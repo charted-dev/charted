@@ -15,7 +15,7 @@
 
 [package]
 name = "charted-authz-local"
-description = "🐻‍❄️📦 Crate that implements the `charted_authz` protocol using the local database for authentication"
+description = "🐻‍❄️📦 Local implementation that uses charted's database to authorize users"
 version.workspace = true
 documentation.workspace = true
 edition.workspace = true
@@ -27,13 +27,3 @@ authors.workspace = true
 
 [lib]
 path = "lib.rs"
-
-[dependencies]
-argon2.workspace = true
-charted-authz = { version = "0.1.0-beta", path = ".." }
-charted-core = { version = "0.1.0-beta", path = "../../core" }
-charted-common = { version = "0.1.0-beta", path = "../../common" }
-charted-entities = { version = "0.1.0-beta", path = "../../entities" }
-sqlx.workspace = true
-eyre.workspace = true
-tracing.workspace = true

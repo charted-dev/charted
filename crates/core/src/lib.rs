@@ -13,124 +13,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use argon2::{password_hash::SaltString, Algorithm, Argon2, Params, PasswordHasher, Version};
-use azalia::lazy;
-use eyre::eyre;
-use once_cell::sync::Lazy;
-use rand::rngs::OsRng;
-use tracing::error;
+pub use charted_config as config;
+pub use charted_database as db;
+pub use charted_proc_macros as macros;
+pub use charted_types as types;
 
-pub mod avatars;
-pub mod multipart;
+mod distribution;
+pub use distribution::*;
+
+mod bitflags;
+pub use bitflags::*;
+
 pub mod openapi;
-pub mod pagination;
-pub mod redis;
-pub mod response;
+pub mod serde;
+pub mod storage;
 
-#[cfg(feature = "testing")]
-pub mod testing;
+#[cfg(feature = "testkit")]
+pub mod testkit;
 
-use schemars::{
-    gen::SchemaGenerator,
-    schema::{InstanceType, Schema, SchemaObject, SingleOrVec},
-    JsonSchema,
-};
-use serde_json::Value;
-use std::borrow::Cow;
+/// Snowflake epoch used for ID generation. (March 1st, 2024)
+pub const SNOWFLAKE_EPOCH: usize = 1709280000000;
 
-/// Represents the REST version that an API controller is supported on.
-#[derive(
-    Debug,
-    Clone,
-    Copy,
-    Default,
-    PartialEq,
-    Eq,
-    PartialOrd,
-    Ord,
-    serde_repr::Deserialize_repr,
-    serde_repr::Serialize_repr,
-)]
-#[repr(u8)]
-#[non_exhaustive]
-pub enum APIVersion {
-    /// v1
-    #[default]
-    V1 = 1,
-}
+/// Returns the version of the Rust compiler that charted-server
+/// was compiled on.
+pub const RUSTC_VERSION: &str = env!("CHARTED_RUSTC_VERSION");
 
-impl APIVersion {
-    pub fn as_str(&self) -> &str {
-        match self {
-            APIVersion::V1 => "v1",
-        }
-    }
-}
+/// Returns the Git commit hash from the charted-server repository that
+/// this build was built off from.
+pub const COMMIT_HASH: &str = env!("CHARTED_COMMIT_HASH");
 
-impl std::fmt::Display for APIVersion {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
+/// RFC3339-formatted date of when charted-server was last built at.
+pub const BUILD_DATE: &str = env!("CHARTED_BUILD_DATE");
 
-impl JsonSchema for APIVersion {
-    fn is_referenceable() -> bool {
-        false
-    }
-
-    fn schema_id() -> Cow<'static, str> {
-        Cow::Borrowed("charted::server::APIVersion")
-    }
-
-    fn schema_name() -> String {
-        String::from("APIVersion")
-    }
-
-    fn json_schema(_: &mut SchemaGenerator) -> Schema {
-        Schema::Object(SchemaObject {
-            instance_type: Some(SingleOrVec::Single(InstanceType::Number.into())),
-            enum_values: Some(vec![Value::Number(1.into())]),
-
-            ..Default::default()
-        })
-    }
-}
-
-impl From<u8> for APIVersion {
-    fn from(value: u8) -> Self {
-        match value {
-            1 => APIVersion::V1,
-            _ => panic!("reached an unexpected value for From<u8> -> APIVersion"),
-        }
-    }
-}
-
-impl From<APIVersion> for u8 {
-    fn from(value: APIVersion) -> Self {
-        match value {
-            APIVersion::V1 => 1,
-        }
-    }
-}
-
-impl From<APIVersion> for serde_json::Number {
-    fn from(value: APIVersion) -> Self {
-        match value {
-            APIVersion::V1 => serde_json::Number::from(1),
-        }
-    }
-}
-
-pub static ARGON2: Lazy<Argon2<'static>> = lazy!(Argon2::new(Algorithm::Argon2id, Version::V0x13, Params::default()));
-
-/// Hashes a password into a Argon2-based password that is safely secure to store.
-pub fn hash_password<P: AsRef<[u8]>>(password: P) -> eyre::Result<String> {
-    let salt = SaltString::generate(&mut OsRng);
-    ARGON2
-        .hash_password(password.as_ref(), &salt)
-        .map(|hash| hash.to_string())
-        .inspect_err(|e| {
-            error!(error = %e, "unable to compute password");
-        })
-        .map_err(|e| eyre!(e))
-}
+/// Returns the current version of `charted-server`.
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");

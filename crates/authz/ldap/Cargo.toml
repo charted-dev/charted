@@ -15,7 +15,7 @@
 
 [package]
 name = "charted-authz-ldap"
-description = "🐻‍❄️📦 Crate that implements the `charted_authz` protocol using an external LDAP server to authenticate users"
+description = "🐻‍❄️📦 Allow authentication with OpenLDAP or Active Directory"
 version.workspace = true
 documentation.workspace = true
 edition.workspace = true

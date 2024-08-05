@@ -15,7 +15,7 @@
 
 [package]
 name = "charted-database"
-description = "🐻‍❄️📦 Crate that allows abstraction over the PostgreSQL database"
+description = "🐻‍❄️📦 Crate that abstracts over the database for charted."
 version.workspace = true
 documentation.workspace = true
 edition.workspace = true
@@ -26,23 +26,15 @@ repository.workspace = true
 authors.workspace = true
 
 [dependencies]
-charted-cache = { version = "0.1.0-beta", path = "../caching" }
-charted-cache-inmemory = { version = "0.1.0-beta", path = "../caching/inmemory" }
-charted-cache-redis = { version = "0.1.0-beta", path = "../caching/redis" }
-charted-common = { version = "0.1.0-beta", path = "../common" }
-charted-config = { version = "0.1.0-beta", path = "../config" }
-charted-core = { version = "0.1.0-beta", path = "../core" }
-charted-entities = { version = "0.1.0-beta", path = "../entities" }
+charted-config = { version = "0.1.0", path = "../config" }
+diesel = { workspace = true, features = [
+    "chrono",
+    "postgres",
+    "sqlite",
+    "uuid",
+    "r2d2",
+] }
+diesel_migrations = { version = "2.2.0", features = ["postgres", "sqlite"] }
 eyre.workspace = true
 sentry.workspace = true
-serde.workspace = true
-sqlx = { workspace = true, features = ["uuid"] }
-tokio.workspace = true
 tracing.workspace = true
-
-[dev-dependencies]
-bollard.workspace = true
-charted-cache-inmemory = { path = "../caching/inmemory" }
-testcontainers.workspace = true
-testcontainers-modules = { workspace = true, features = ["postgres"] }
-tracing-subscriber = { workspace = true, features = ["env-filter"] }

@@ -1,3 +1,0 @@
-network.host: 0.0.0.0
-cluster.name: charted-es-cluster
-node.name: charted-es-node-0

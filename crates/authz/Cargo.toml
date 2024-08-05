@@ -15,7 +15,7 @@
 
 [package]
 name = "charted-authz"
-description = "🐻‍❄️📦 Crate that implements authenticators to authenticate users from different sources"
+description = "🐻‍❄️📦 Abstraction on how to authenticate a user"
 version.workspace = true
 documentation.workspace = true
 edition.workspace = true
@@ -27,12 +27,3 @@ authors.workspace = true
 
 [lib]
 path = "lib.rs"
-
-[dependencies]
-charted-common = { version = "0.1.0-beta", path = "../common" }
-charted-entities = { version = "0.1.0-beta", path = "../entities" }
-eyre.workspace = true
-sqlx.workspace = true
-
-[dev-dependencies]
-tokio = { workspace = true, features = ["rt", "macros"] }

@@ -14,24 +14,20 @@
 # limitations under the License.
 
 [package]
-name = "charted"
-description = "🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust"
-version.workspace = true
-authors.workspace = true
-homepage.workspace = true
-edition.workspace = true
-rust-version.workspace = true
+name = "binaries"
+version = "0.0.0-devel.0"
 documentation.workspace = true
+edition.workspace = true
+homepage.workspace = true
 license.workspace = true
-repository.workspace = true
 publish.workspace = true
+repository.workspace = true
+authors.workspace = true
 
-[dependencies]
-charted-cli = { version = "0.1.0-beta", path = "../cli" }
-charted-common = { version = "0.1.0-beta", path = "../common" }
-clap.workspace = true
-color-eyre = { version = "0.6.3", features = ["issue-url"] }
-dotenvy.workspace = true
-eyre.workspace = true
-num_cpus = "1.16.0"
-tokio = { workspace = true, features = ["rt", "rt-multi-thread"] }
+[[bin]]
+name = "charted"
+path = "./src/charted.rs"
+
+[[bin]]
+name = "helm-plugin"
+path = "./src/helm_plugin.rs"

@@ -14,8 +14,8 @@
 # limitations under the License.
 
 [package]
-name = "charted-core"
-description = "🐻‍❄️📦 Crate that implements all the *core* functionality of most crates"
+name = "charted"
+description = "🐻‍❄️📦 Represents the core instance of charted."
 version.workspace = true
 documentation.workspace = true
 edition.workspace = true
@@ -26,39 +26,19 @@ repository.workspace = true
 authors.workspace = true
 
 [features]
-testing = ["dep:tracing-subscriber", "dep:testcontainers"]
-default = ["testing"]
+testkit = ["dep:charted-testkit", "dep:testcontainers"]
+default = ["testkit"]
 
 [dependencies]
-axum.workspace = true
-azalia = { workspace = true, features = ["lazy"] }
-argon2.workspace = true
-charted-config = { version = "0.1.0-beta", path = "../config" }
-charted-proc-macros = { version = "0.0.0-devel.0", path = "../../proc-macros" }
-once_cell.workspace = true
-eyre.workspace = true
-multer.workspace = true
-paste = "1.0.15"
-rand = "0.8.5"
-redis = { workspace = true, features = [
-    "cluster",
-    "cluster-async",
-    "sentinel",
-    "tokio-comp",
-    "connection-manager",
-] }
-schemars.workspace = true
-serde.workspace = true
-serde_json.workspace = true
-serde_repr = "0.1.19"
-testcontainers = { workspace = true, optional = true }
-tracing.workspace = true
-tracing-subscriber = { workspace = true, optional = true }
-tokio.workspace = true
-utoipa.workspace = true
+charted-config = { version = "0.1.0", path = "../config" }
+charted-database = { version = "0.1.0", path = "../database" }
+charted-proc-macros = { version = "0.1.0", path = "../proc-macros" }
+charted-types = { version = "0.1.0", path = "../types" }
+charted-testkit = { version = "0.1.0", features = ["macros"], optional = true }
+testcontainers = { version = "0.20.1", optional = true }
+azalia.workspace = true
 
-[dev-dependencies]
-charted-testkit.workspace = true
-
-[package.metadata.cargo-machete]
-ignored = ["tracing-subscriber"]
+[build-dependencies]
+chrono.workspace = true
+rustc_version = "0.4.0"
+which = "6.0.1"

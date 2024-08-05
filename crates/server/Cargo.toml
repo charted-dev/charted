@@ -15,7 +15,7 @@
 
 [package]
 name = "charted-server"
-description = "🐻‍❄️📦 Types and implementation of charted's HTTP REST Specification"
+description = "🐻‍❄️📦 Implementation of charted's REST specification"
 version.workspace = true
 documentation.workspace = true
 edition.workspace = true
@@ -26,58 +26,4 @@ repository.workspace = true
 authors.workspace = true
 
 [dependencies]
-async-trait.workspace = true
 axum.workspace = true
-axum-extra = { version = "0.9.3", features = ["typed-header"] }
-axum-server = { version = "0.6.0", features = ["tls-rustls"] }
-azalia.workspace = true
-base64.workspace = true
-charted-authz = { version = "0.1.0-beta", path = "../authz" }
-charted-cache = { version = "0.1.0-beta", path = "../caching" }
-charted-common = { version = "0.1.0-beta", path = "../common" }
-charted-config = { version = "0.1.0-beta", path = "../config" }
-charted-core = { version = "0.1.0-beta", path = "../core" }
-charted-database = { version = "0.1.0-beta", path = "../database" }
-charted-entities = { version = "0.1.0-beta", path = "../entities" }
-charted-helm-charts = { version = "0.1.0-beta", path = "../charts" }
-charted-metrics = { version = "0.1.0-beta", path = "../metrics" }
-charted-proc-macros = { version = "0.0.0-devel.0", path = "../../proc-macros" }
-charted-search = { version = "0.1.0-beta", path = "../search" }
-eyre.workspace = true
-faster-hex = "0.9.0"
-jsonwebtoken = "9.3.0"
-md-5 = "0.10.6"
-mime.workspace = true
-multer.workspace = true
-noelware-remi.workspace = true
-paste = "1.0.14"
-remi.workspace = true
-schemars.workspace = true
-sentry.workspace = true
-sentry-tower = { version = "0.32.3", features = ["axum", "http"] }
-serde.workspace = true
-serde_json.workspace = true
-serde_path_to_error = "0.1.16"
-serde_yaml.workspace = true
-sqlx.workspace = true
-tower = "0.4.13"
-tower-http = { version = "0.5.2", features = [
-    "compression-full",
-    "auth",
-    "cors",
-    "catch-panic",
-    "limit",
-] }
-utoipa.workspace = true
-tokio = { workspace = true, features = ["signal", "net"] }
-tracing.workspace = true
-prometheus-client.workspace = true
-once_cell.workspace = true
-erased-serde.workspace = true
-reqwest.workspace = true
-
-[dev-dependencies]
-bollard.workspace = true
-charted-testkit.workspace = true
-syn = "2.0.66"
-testcontainers.workspace = true

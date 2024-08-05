@@ -13,85 +13,71 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_common::serde::Duration;
-use noelware_config::merge::Merge;
+use azalia::config::merge::Merge;
 use serde::{Deserialize, Serialize};
 use ubyte::ByteUnit;
 
-#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+/// What caching backend that should be used.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, Default, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
 pub enum Strategy {
-    /// Uses the internal in-memory cache worker. All objects that are put into the cache
-    /// are destroyed after the server closes. This is not recommended for production
-    /// environments.
+    /// Uses the in-memory caching backend.
     #[default]
     InMemory,
 
-    /// Uses the Redis client that was previously configured to cache objects in. The objects
-    /// are cached as long they exist in the database, a job worker is created to clean up old
-    /// objects every ~15 minutes to not bloat up Redis.
+    /// Disables caching all-together. Useful for evaluation purposes.
+    Disable,
+
+    /// For high-avaliablity, Redis is recommended for caching objects.
     Redis,
 }
 
 impl Merge for Strategy {
     fn merge(&mut self, other: Self) {
-        match (self.clone(), other) {
+        match (*self, other) {
+            // if they're the same, then just don't merge in general
             (Self::InMemory, Self::InMemory) => {}
+            (Self::Disable, Self::Disable) => {}
             (Self::Redis, Self::Redis) => {}
-            (Self::InMemory, Self::Redis) => {
-                *self = Strategy::Redis;
-            }
 
-            (Self::Redis, Self::InMemory) => {
-                *self = Strategy::InMemory;
+            (_, other) => {
+                *self = other;
             }
         }
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// Allows to cache external objects for fast reads rather than hitting the database
+/// multiple times for the same exact object that hasn't been modified.
+///
+/// At most, all objects live for ~15 minutes before being invalidated. This allows
+/// the server to optimize for high throughput without database impact in case of
+/// a denial-of-service attack.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Config {
-    /// Max size of a object that can be stored in the cache. By default, it is 1 megabyte of the
-    /// object that has been serialized from JSON.
-    #[serde(default = "__one_megabyte")]
-    pub max_object_size: ByteUnit,
-
-    /// what caching strategy should be used
+    /// Strategy on how to cache objects. By default, the in-memory cache backend
+    /// is enabled.
     #[serde(default)]
     pub strategy: Strategy,
 
-    /// Time-to-live for all objects to be discarded in-memory. This will default to 15 minutes.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub ttl: Option<Duration>,
-}
-
-impl Default for Config {
-    fn default() -> Config {
-        Config {
-            max_object_size: __one_megabyte(),
-            strategy: Strategy::default(),
-            ttl: None,
-        }
-    }
+    /// Size in bytes of how big objects should be. If this exceeds the amount, then
+    /// the server will reject caching it.
+    #[serde(default = "__default_max_object_size")]
+    pub max_object_size: ByteUnit,
 }
 
 impl Merge for Config {
     fn merge(&mut self, other: Self) {
         self.strategy.merge(other.strategy);
-        self.ttl.merge(other.ttl);
+        self.max_object_size = ByteUnit::from({
+            let mut me = self.max_object_size.as_u64();
+            me.merge(other.max_object_size.as_u64());
 
-        // don't do anything if they are the same
-        if self.max_object_size == other.max_object_size {
-            return;
-        }
-
-        // do it if they're not the same
-        if self.max_object_size != other.max_object_size {
-            self.max_object_size = other.max_object_size;
-        }
+            me
+        });
     }
 }
 
-pub(crate) const fn __one_megabyte() -> ByteUnit {
+const fn __default_max_object_size() -> ByteUnit {
     ByteUnit::Megabyte(1)
 }
