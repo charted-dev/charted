@@ -33,7 +33,7 @@ RUN cargo build --locked --release
 
 ############ FINAL STAGE
 
-FROM alpine:3.19
+FROM alpine:3.20
 
 # We need a hard dependency on `libgcc` since it is required for `--panic=unwind`. We could experiment
 # with `--panic=abort`, but I'm not too sure if that works with `color_eyre`!
