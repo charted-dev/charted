@@ -30,7 +30,7 @@ bollard = "0.16.1"
 clap.workspace = true
 color-eyre.workspace = true
 eyre.workspace = true
-itertools = "0.12.1"
+itertools = "0.13.0"
 tokio = { workspace = true, features = ["rt", "macros", "rt-multi-thread"] }
 tracing.workspace = true
 tracing-subscriber = "0.3.18"

@@ -32,7 +32,7 @@ charted-entities = { version = "0.1.0-beta", path = "../entities" }
 charted-server = { version = "0.1.0-beta", path = "../server" }
 eyre.workspace = true
 flate2 = "1.0.30"
-itertools = "0.12.1"
+itertools = "0.13.0"
 multer.workspace = true
 noelware-remi = { workspace = true, features = ["fs"] }
 regex.workspace = true
