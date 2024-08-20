@@ -159,8 +159,8 @@ opentelemetry_sdk = "0.24.1"
 owo-colors.workspace = true
 paste = "1.0.14"
 prometheus-client.workspace = true
-prost = "0.12.4"
-prost-types = "0.12.4"
+prost = "0.13.0"
+prost-types = "0.13.0"
 rand = "0.8.5"
 redis = { version = "0.26.0", features = [
     "sentinel",
