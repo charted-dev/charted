@@ -67,6 +67,7 @@ exceptions = [
     # See https://github.com/dtolnay/unicode-ident/pull/4
     { name = "unicode-ident", allow = ["Unicode-DFS-2016"] },
     { name = "ring", allow = ["OpenSSL"] },
+    { name = "aws-lc-sys", allow = ["OpenSSL"] }
 ]
 
 # Sigh
