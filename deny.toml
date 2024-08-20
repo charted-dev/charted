@@ -33,6 +33,13 @@ targets = [
 # See also: https://github.com/EmbarkStudios/cargo-deny/pull/611
 version = 2
 
+ignore = [
+  # TODO(spotlightishere): Upgrade to sqlx 0.8.x when it's available.
+  # This does not directly affect us in most use cases.
+  # For more information: https://github.com/launchbadge/sqlx/issues/3440
+  "RUSTSEC-2024-0363"
+]
+
 [bans]
 multiple-versions = "warn" # only warn since `tonic` doesn't support Axum 0.7 / Hyper 1
 wildcards = "deny"
