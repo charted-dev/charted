@@ -162,7 +162,7 @@ prometheus-client.workspace = true
 prost = "0.12.4"
 prost-types = "0.12.4"
 rand = "0.8.5"
-redis = { version = "0.25.3", features = [
+redis = { version = "0.26.0", features = [
     "sentinel",
     "tokio-comp",
     "connection-manager",
