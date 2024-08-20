@@ -191,7 +191,7 @@ tokio = { workspace = true, features = [
     "signal",
 ] }
 toml = "0.8.12"
-tower = "0.4.13"
+tower = "0.5.0"
 tower-http = { version = "0.5.2", features = [
     "compression-full",
     "auth",
