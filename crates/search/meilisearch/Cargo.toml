@@ -31,7 +31,7 @@ charted-config = { version = "0.1.0-beta", path = "../../config" }
 charted-search = { version = "0.1.0-beta", path = ".." }
 erased-serde.workspace = true
 eyre.workspace = true
-meilisearch-sdk = "0.25.0"
+meilisearch-sdk = "0.27.0"
 sentry.workspace = true
 serde.workspace = true
 tracing.workspace = true

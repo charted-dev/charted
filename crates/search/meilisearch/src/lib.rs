@@ -16,7 +16,10 @@
 use async_trait::async_trait;
 use charted_config::search::meilisearch::Config;
 use charted_search::{Backend, Indexable};
-use meilisearch_sdk::{FailedTask, Task, TaskInfo};
+use meilisearch_sdk::{
+    task_info::TaskInfo,
+    tasks::{FailedTask, Task},
+};
 use std::borrow::Cow;
 use tracing::{error, info, trace};
 
@@ -35,17 +38,18 @@ impl Indexable for DummyIndexable {
 
 /// Represents a [`Backend`] that allows to search through objects with [Meilisearch](https://meilisearch.com).
 #[derive(Debug, Clone)]
-pub struct Meilisearch(meilisearch_sdk::Client);
+pub struct Meilisearch(meilisearch_sdk::client::Client);
 
 impl Meilisearch {
     /// Creates a new [`Meilisearch`] object with the [configuration reference][Config]
     pub fn new(config: &Config) -> Meilisearch {
-        let client = meilisearch_sdk::Client::new(&config.host, config.master_key.as_ref());
-        Meilisearch(client)
+        let client = meilisearch_sdk::client::Client::new(&config.host, config.master_key.as_ref());
+        // This should only fail if reqwest fails to create its client internally.
+        Meilisearch(client.expect("should be able to create Melisearch client"))
     }
 
     /// Returns a reference to the constructed Meilisearch SDK client.
-    pub fn client(&self) -> &meilisearch_sdk::Client {
+    pub fn client(&self) -> &meilisearch_sdk::client::Client {
         &self.0
     }
 
@@ -104,7 +108,7 @@ impl Backend for Meilisearch {
 }
 
 async fn process_task(
-    client: &meilisearch_sdk::Client,
+    client: &meilisearch_sdk::client::Client,
     task: &TaskInfo,
     obj: &(dyn Indexable + Send + Sync),
 ) -> eyre::Result<()> {
