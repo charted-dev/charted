@@ -14,4 +14,4 @@
 # limitations under the License.
 
 # must be in sync with Cargo.toml's `rust_version` in the `[workspace]` table
-msrv = "1.76.0"
+msrv = "1.78.0"

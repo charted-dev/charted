@@ -14,7 +14,6 @@
 // limitations under the License.
 
 use std::{process::Command, time::SystemTime};
-
 use which::which;
 
 macro_rules! rerun_if_changed {

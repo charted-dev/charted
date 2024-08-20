@@ -16,8 +16,7 @@
 [build]
 rustflags = ["--cfg", "tokio_unstable"]
 
-# Invokes `charted-devtools` as `cargo dev` instead of the `./dev` script. It's up to you
-# if you want to use one or the other.
 [alias]
 dev = "run --release --package charted-devtools --"
 ci = "run --release --package charted-internal-ci --"
+cd = "run --release --package charted-internal-cd --"

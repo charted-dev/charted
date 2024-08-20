@@ -132,7 +132,7 @@
       };
 
       devShells.default = pkgs.mkShell {
-        LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath (with pkgs; [openssl]);
+        LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath (with pkgs; [openssl sqlite postgresql]);
         nativeBuildInputs = with pkgs;
           [pkg-config sqlite postgresql.lib]
           ++ (lib.optional stdenv.isLinux [mold lldb])

@@ -14,7 +14,7 @@
 # limitations under the License.
 
 [package]
-name = "charted"
+name = "charted-core"
 description = "🐻‍❄️📦 Represents the core instance of charted."
 version.workspace = true
 documentation.workspace = true
@@ -30,15 +30,33 @@ testkit = ["dep:charted-testkit", "dep:testcontainers"]
 default = ["testkit"]
 
 [dependencies]
+argon2.workspace = true
+azalia = { workspace = true, features = ["lazy", "regex"] }
 charted-config = { version = "0.1.0", path = "../config" }
 charted-database = { version = "0.1.0", path = "../database" }
 charted-proc-macros = { version = "0.1.0", path = "../proc-macros" }
-charted-types = { version = "0.1.0", path = "../types" }
 charted-testkit = { version = "0.1.0", features = ["macros"], optional = true }
-testcontainers = { version = "0.20.1", optional = true }
-azalia.workspace = true
+humantime = "2.1.0"
+redis = { version = "0.26.1", features = [
+    "aio",
+    "cluster",
+    "cluster-async",
+    "log",
+    "rustls",
+    "sentinel",
+    "tls",
+    "tokio-comp",
+] }
+serde.workspace = true
+utoipa.workspace = true
+testcontainers = { workspace = true, optional = true }
+testcontainers-modules.workspace = true
+eyre.workspace = true
 
 [build-dependencies]
 chrono.workspace = true
 rustc_version = "0.4.0"
 which = "6.0.1"
+
+[dev-dependencies]
+serde_json.workspace = true

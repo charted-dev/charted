@@ -13,15 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::collections::HashMap;
+// use std::collections::HashMap;
 
-const IMAGE: &str = "docker.elastic.co/elasticsearch/elasticsearch";
+// const IMAGE: &str = "docker.elastic.co/elasticsearch/elasticsearch";
 
-// renovate: datasource=github-tags name=elastic/elasticsearch
-const TAG: &str = "8.13.1";
+// // renovate: datasource=github-tags name=elastic/elasticsearch
+// const TAG: &str = "8.13.1";
 
-/// [`Image`][testcontainers::Image]
-#[derive(Debug, Clone, Default)]
-pub struct Elasticsearch {
-    _priv: (),
-}
+// /// [`Image`][testcontainers::Image]
+// #[derive(Debug, Clone, Default)]
+// pub struct Elasticsearch {
+//     _priv: (),
+// }

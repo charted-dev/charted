@@ -14,5 +14,9 @@
 # limitations under the License.
 
 [print_schema]
-file = "src/schema.rs"
-custom_type_derives = ["diesel::query_builder::QueryId", "Clone"]
+file = "src/schema/sqlite.rs"
+generate_missing_sql_type_definitions = false
+import_types = ["diesel::sql_types::*", "crate::schema::sql_types::*"]
+
+[migrations_directory]
+dir = "./migrations/sqlite"

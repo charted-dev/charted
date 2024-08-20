@@ -13,17 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[package]
-name = "charted-authz-oidc"
-description = "🐻‍❄️📦 Allow authorization of users with providers that support OpenID Connect / OAuth2"
-version.workspace = true
-documentation.workspace = true
-edition.workspace = true
-homepage.workspace = true
-license.workspace = true
-publish.workspace = true
-repository.workspace = true
-authors.workspace = true
+[print_schema]
+file = "src/schema/postgresql.rs"
+generate_missing_sql_type_definitions = false
+import_types = ["diesel::sql_types::*", "crate::schema::sql_types::*"]
 
-[lib]
-path = "lib.rs"
+[migrations_directory]
+dir = "./migrations/postgresql"

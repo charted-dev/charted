@@ -24,6 +24,7 @@ use diesel::{
 use eyre::Context;
 use tracing::error;
 
+/// [`Pool`] that wraps a [`ConnectionManager`] of our multi-connection type.
 pub type DbPool = Pool<ConnectionManager<DbConnection>>;
 
 #[derive(diesel::MultiConnection)]
@@ -53,11 +54,35 @@ impl<E: std::error::Error + 'static> r2d2::HandleError<E> for ErrorHandler {
     }
 }
 
+pub fn version(pool: DbPool) -> eyre::Result<String> {
+    connection!(pool, {
+        PostgreSQL(conn) {
+            diesel::define_sql_function! {
+                fn version() -> diesel::sql_types::Text;
+            }
+
+            diesel::select(version())
+                .get_result::<String>(conn)
+                .context("failed to get database version")
+        };
+
+        SQLite(conn) {
+            diesel::define_sql_function! {
+                fn sqlite_version() -> diesel::sql_types::Text;
+            }
+
+            diesel::select(sqlite_version())
+                .get_result::<String>(conn)
+                .context("failed to get database version")
+        };
+    })
+}
+
 #[macro_export]
 macro_rules! connection {
     ($pool:ident, {
         $(
-            $db:ident => |$conn:ident| $code:block;
+            $db:ident($conn:ident) $code:block;
         )*
     }) => {{
         #[allow(unused)]
@@ -71,4 +96,35 @@ macro_rules! connection {
             )*
         }
     }};
+}
+
+#[cfg(test)]
+mod tests {
+    use charted_config::{
+        caching,
+        database::{sqlite, Config},
+    };
+    use std::path::PathBuf;
+
+    #[test]
+    fn test_sqlite_version() {
+        let db = crate::create_pool(&Config::SQLite(sqlite::Config {
+            db_path: PathBuf::from(":memory:"),
+            caching: caching::Config {
+                strategy: caching::Strategy::Disable,
+                ..Default::default()
+            },
+
+            max_connections: 1,
+            run_migrations: false,
+        }))
+        .expect("failed to create in-memory sqlite database");
+
+        let Ok(s) = crate::version(db) else {
+            panic!("failed to get sqlite version")
+        };
+
+        dbg!(&s);
+        assert!(!s.is_empty());
+    }
 }

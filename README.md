@@ -2,7 +2,7 @@
 
 > _Free, open sourced, and reliable [Helm](https://helm.sh) chart registry in [Rust](https://rustlang.org)_
 >
-> [<kbd>v0.1-beta</kbd>](https://github.com/charted-dev/charted/releases/0.1.0-beta) **|** [:scroll: **Documentation**](#)
+> [<kbd>0.1.0</kbd>](https://github.com/charted-dev/charted/releases/0.1.0) **|** [:scroll: **Documentation**](https://charts.noelware.org/docs/server/0.1.0)
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=469212491&machine=basicLinux32gb&devcontainer_path=.devcontainer%2Fdevcontainer.json&location=WestUs2&skip_quickstart=true&geo=UsWest)
 

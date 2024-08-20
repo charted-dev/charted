@@ -13,26 +13,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![feature(once_cell_try)]
+
+use argon2::Argon2;
 pub use charted_config as config;
 pub use charted_database as db;
 pub use charted_proc_macros as macros;
-pub use charted_types as types;
 
 mod distribution;
 pub use distribution::*;
 
-mod bitflags;
-pub use bitflags::*;
-
+pub mod bitflags;
 pub mod openapi;
+pub mod redis;
 pub mod serde;
-pub mod storage;
 
 #[cfg(feature = "testkit")]
 pub mod testkit;
 
-/// Snowflake epoch used for ID generation. (March 1st, 2024)
-pub const SNOWFLAKE_EPOCH: usize = 1709280000000;
+#[macro_use]
+#[path = "macros.rs"]
+mod macros_;
+
+use std::{
+    fmt,
+    sync::{LazyLock, OnceLock},
+};
+
+/// Type-alias that represents a boxed future.
+pub type BoxedFuture<'a, Output> =
+    ::core::pin::Pin<::std::boxed::Box<dyn ::core::future::Future<Output = Output> + Send + 'a>>;
 
 /// Returns the version of the Rust compiler that charted-server
 /// was compiled on.
@@ -47,3 +57,26 @@ pub const BUILD_DATE: &str = env!("CHARTED_BUILD_DATE");
 
 /// Returns the current version of `charted-server`.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+
+#[allow(clippy::incompatible_msrv)]
+pub static ARGON2: LazyLock<Argon2> = LazyLock::new(Argon2::default);
+
+/// Returns a formtted version string of `v0.0.0+{commit hash}` if [`COMMIT_HASH`] is not empty
+/// or `d1cebae`. Otherwise, `v0.0.0` is returned instead.
+pub fn version() -> &'static str {
+    static ONCE: OnceLock<String> = OnceLock::new();
+    ONCE.get_or_try_init(|| -> Result<String, fmt::Error> {
+        use std::fmt::Write;
+
+        let mut buf = String::new();
+        write!(buf, "v{VERSION}")?;
+
+        #[allow(clippy::const_is_empty)] // lint is right but sometimes `git rev-parse --short=8 HEAD` will return empty
+        if !(COMMIT_HASH == "d1cebae" || COMMIT_HASH.is_empty()) {
+            write!(buf, "+{COMMIT_HASH}")?;
+        }
+
+        Ok(buf)
+    })
+    .unwrap_or_else(|e| panic!("internal error: {e}"))
+}

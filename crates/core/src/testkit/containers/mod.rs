@@ -13,8 +13,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub mod elasticsearch;
-pub mod meilisearch;
-pub mod postgresql;
-pub mod redis;
-pub mod valkey;
+pub async fn elasticsearch() {}
+
+/*
+async fn mycontainer() -> String {
+    String::from("weow")
+}
+
+#[charted_testkit_macros::test(containers = [mycontainer()])]
+fn __testcase(ctx: &TestContext) -> Result<(), ()> {
+    Ok(())
+}
+*/
+
+// pub mod elasticsearch;
+// pub mod meilisearch;
+// pub mod postgresql;
+// pub mod redis;
+// pub mod valkey;

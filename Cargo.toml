@@ -15,7 +15,7 @@
 
 [workspace]
 resolver = "2"
-members = ["crates/*"]
+members = ["crates/*", "crates/authz/*"]
 
 [workspace.package]
 version = "0.1.0"
@@ -31,23 +31,31 @@ homepage = "https://charts.noelware.org"
 license = "Apache-2.0"
 publish = false
 repository = "https://github.com/charted-dev/charted"
-rust-version = "1.77"
+rust-version = "1.78"
 
 [workspace.dependencies]
+argon2 = "0.5.3"
 axum = { version = "0.7.5", features = ["macros", "http2"] }
 chrono = { version = "0.4.23", features = ["serde"] }
+clap = { version = "4.5.16", features = ["derive", "env"] }
+derive_more = "1.0.0"
 diesel = "2.2.2"
 eyre = "0.6.12"
+schemars = "0.8.21"
 semver = { version = "1.0.23", features = ["serde"] }
 sentry = "0.34.0"
 serde = { version = "1.0.204", features = ["derive"] }
+serde_json = "1.0.122"
 utoipa = { version = "4.2.3", features = [
     "chrono",
     "non_strict_integers",
     "uuid",
 ] }
+testcontainers = "0.21.0"
+testcontainers-modules = "0.9.0"
 tracing = "0.1.40"
-tracing_subscriber = "0.1.38"
+tracing-subscriber = "0.3.18"
+which = "6.0.3"
 
 [workspace.dependencies.azalia]
 version = "0.1.0"

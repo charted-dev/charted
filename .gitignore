@@ -687,7 +687,11 @@ FodyWeavers.xsd
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
 
-!crates/bin/
+!crates/helm-plugin/src/bin/
+!crates/devtools/src/bin/
+
+crates/database/data.db
+!hack/release/
 config.hcl
 .direnv/
 data/

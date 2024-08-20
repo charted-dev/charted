@@ -13,4 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-fn main() {}
+use charted_devtools::Program;
+use clap::Parser;
+
+fn main() -> eyre::Result<()> {
+    color_eyre::install()?;
+
+    let program = Program::parse();
+    program.init_logging();
+
+    charted_devtools::commands::run(program.command)
+}

@@ -24,13 +24,13 @@ pub fn migrate(pool: &DbPool) -> eyre::Result<()> {
     use diesel_migrations::MigrationHarness;
 
     crate::connection!(pool, {
-        PostgreSQL => |conn| {
+        PostgreSQL(conn) {
             conn.run_pending_migrations(POSTGRESQL_MIGRATIONS)
                 .map(|_| ())
                 .map_err(|e| eyre!("failed to run PostgreSQL migrations: {e}"))
         };
 
-        SQLite => |conn| {
+        SQLite(conn) {
             conn.run_pending_migrations(SQLITE_MIGRATIONS)
                 .map(|_| ())
                 .map_err(|e| eyre!("failed to run SQLite migrations: {e}"))

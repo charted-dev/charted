@@ -16,28 +16,230 @@
 //! The `charted-types` crate defines types that can be used within the lifecycle
 //! of the API server.
 
-pub mod db;
+mod db;
+use std::borrow::Cow;
+
+pub use db::*;
+
 pub mod helm;
 pub mod name;
 pub mod payloads;
 
-mod distribution;
-pub use distribution::*;
+use diesel::{
+    backend::Backend,
+    deserialize::{FromSql, FromSqlRow},
+    expression::AsExpression,
+    query_builder::bind_collector::RawBytesBindCollector,
+    serialize::ToSql,
+    sql_types::{Text, Timestamp, Timestamptz},
+};
+use serde::{Deserialize, Serialize};
+use utoipa::{
+    openapi::{KnownFormat, ObjectBuilder, RefOr, Schema, SchemaFormat, SchemaType},
+    ToSchema,
+};
 
-use utoipa::openapi::{KnownFormat, ObjectBuilder, RefOr, Schema, SchemaFormat, SchemaType};
+charted_core::create_newtype_wrapper! {
+    /// Newtype wrapper for the [`chrono::DateTime`]<[`chrono::Utc`]> type. It implements
+    /// the following traits:
+    ///
+    /// * [`AsExpression`]<[`Timestamp`]>
+    /// * [`AsExpression`]<[`Timestamptz`]>
+    /// * [`utoipa::ToSchema`]
+    #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, AsExpression)]
+    #[diesel(sql_type = Timestamp)]
+    #[diesel(sql_type = Timestamptz)]
+    pub DateTime for ::chrono::DateTime<::chrono::Utc>;
+}
 
-/// Represents a generic [`chrono::DateTime`] that uses the local time.
-pub type DateTime = chrono::DateTime<chrono::Local>;
+impl<'s> ToSchema<'s> for DateTime {
+    fn schema() -> (&'s str, RefOr<Schema>) {
+        (
+            "DateTime",
+            RefOr::T(Schema::Object(
+                ObjectBuilder::new()
+                    .schema_type(SchemaType::String)
+                    .format(Some(SchemaFormat::KnownFormat(KnownFormat::DateTime)))
+                    .description(Some("ISO 8601 combined date and time using local time"))
+                    .build(),
+            )),
+        )
+    }
+}
 
-/// OpenAPI schema for [`chrono::DateTime`].
-pub fn datetime<'s>() -> (&'s str, RefOr<Schema>) {
-    let schema = Schema::Object(
-        ObjectBuilder::new()
-            .schema_type(SchemaType::String)
-            .format(Some(SchemaFormat::KnownFormat(KnownFormat::DateTime)))
-            .description(Some("ISO 8601 combined date and time using local time"))
-            .build(),
-    );
+#[cfg(feature = "jsonschema")]
+impl ::schemars::JsonSchema for DateTime {
+    fn schema_id() -> Cow<'static, str> {
+        Cow::Borrowed("chrono::DateTime<chrono::Utc>")
+    }
 
-    ("DateTime", RefOr::T(schema))
+    fn schema_name() -> String {
+        String::from("DateTime")
+    }
+
+    fn json_schema(_: &mut ::schemars::gen::SchemaGenerator) -> ::schemars::schema::Schema {
+        ::schemars::schema::SchemaObject {
+            instance_type: Some(::schemars::schema::InstanceType::String.into()),
+            format: Some("date-time".into()),
+            ..Default::default()
+        }
+        .into()
+    }
+}
+
+charted_core::create_newtype_wrapper! {
+    /// Newtype wrapper for [`semver::Version`] which implements common traits that charted-server uses for
+    /// API entities.
+    #[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq, Ord, PartialOrd, Hash, AsExpression, FromSqlRow)]
+    #[diesel(sql_type = Text)]
+    pub Version for semver::Version;
+}
+
+// credit to this impl (i had a hard time doing this myself): https://github.com/oxidecomputer/omicron/blob/d3257b9d8d48fa94ed11020598a723644aec9f05/nexus/db-model/src/semver_version.rs#L124-L136
+impl<B> ToSql<Text, B> for Version
+where
+    for<'c> B: Backend<BindCollector<'c> = RawBytesBindCollector<B>>,
+    String: ToSql<Text, B>,
+{
+    fn to_sql<'b>(&'b self, out: &mut diesel::serialize::Output<'b, '_, B>) -> diesel::serialize::Result {
+        let v = self.0.to_string();
+        v.to_sql(&mut out.reborrow())
+    }
+}
+
+impl<'s, B: Backend> FromSql<Text, B> for Version
+where
+    &'s str: FromSql<Text, B>,
+{
+    fn from_sql(bytes: <B as Backend>::RawValue<'_>) -> diesel::deserialize::Result<Self> {
+        Ok(semver::Version::parse(<&str as FromSql<Text, B>>::from_sql(bytes)?)
+            .map(Self)
+            .map_err(Box::new)?)
+    }
+}
+
+impl<'s> ToSchema<'s> for Version {
+    fn schema() -> (&'s str, RefOr<Schema>) {
+        ("Version", RefOr::T(Schema::Object(
+            ObjectBuilder::new()
+                .schema_type(SchemaType::String)
+                .description(Some("Type that represents a semantic version (https://semver.org)."))
+                .pattern(Some(r"^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"))
+                .example(Some(serde_json::json!("1.2.3")))
+                .build(),
+        )))
+    }
+}
+
+#[cfg(feature = "jsonschema")]
+impl ::schemars::JsonSchema for Version {
+    fn schema_id() -> Cow<'static, str> {
+        <semver::Version as ::schemars::JsonSchema>::schema_id()
+    }
+
+    fn schema_name() -> String {
+        <semver::Version as ::schemars::JsonSchema>::schema_name()
+    }
+
+    fn json_schema(gen: &mut schemars::gen::SchemaGenerator) -> schemars::schema::Schema {
+        <semver::Version as ::schemars::JsonSchema>::json_schema(gen)
+    }
+}
+
+charted_core::create_newtype_wrapper! {
+    /// Newtype wrapper for the [`semver::VersionReq`] type that implements
+    /// the following traits:
+    ///
+    /// * [`utoipa::ToSchema`]
+    #[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
+    pub VersionReq for ::semver::VersionReq;
+}
+
+impl<'s> ToSchema<'s> for VersionReq {
+    fn schema() -> (&'s str, RefOr<Schema>) {
+        (
+            "VersionReq",
+            RefOr::T(Schema::Object(
+                ObjectBuilder::new()
+                    .schema_type(SchemaType::String)
+                    .description(Some(
+                        "A semantic version requirement (https://semver.org) that Helm and charted-server supports",
+                    ))
+                    .example(Some(serde_json::json!(">=1.2.3")))
+                    .example(Some(serde_json::json!("~1")))
+                    .build(),
+            )),
+        )
+    }
+}
+
+#[cfg(feature = "jsonschema")]
+impl ::schemars::JsonSchema for VersionReq {
+    fn schema_id() -> Cow<'static, str> {
+        Cow::Borrowed("semver::VersionReq")
+    }
+
+    fn schema_name() -> String {
+        String::from("VersionReq")
+    }
+
+    fn json_schema(_: &mut schemars::gen::SchemaGenerator) -> schemars::schema::Schema {
+        ::schemars::schema::SchemaObject {
+            instance_type: Some(::schemars::schema::InstanceType::String.into()),
+            ..Default::default()
+        }
+        .into()
+    }
+}
+
+charted_core::create_newtype_wrapper! {
+    /// Newtype wrapper for [`ulid::Ulid`] that implements the following traits:
+    ///
+    /// * [`AsExpression`]<[`Text`]>
+    /// * [`utoipa::ToSchema`]
+    /// * [`ToSql`]<[`Text`], [`B`][diesel::backend::Backend]>
+    /// * [`FromSql`]<[`Text`], [`B`][diesel::backend::Backend]>
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, AsExpression)]
+    #[diesel(sql_type = Text)]
+    pub Ulid for ::ulid::Ulid;
+}
+
+impl<'s> ToSchema<'s> for Ulid {
+    fn schema() -> (&'s str, RefOr<Schema>) {
+        (
+            "Ulid",
+            RefOr::T(Schema::Object(
+                ObjectBuilder::new()
+                    .schema_type(SchemaType::String)
+                    .description(Some("`Ulid` is a unique 128-bit lexicographically sortable identifier"))
+                    .max_length(Some(ulid::ULID_LEN))
+                    .example(Some(serde_json::json!("01D39ZY06FGSCTVN4T2V9PKHFZ")))
+                    .build(),
+            )),
+        )
+    }
+}
+
+impl<B> ToSql<Text, B> for Ulid
+where
+    for<'c> B: Backend<BindCollector<'c> = RawBytesBindCollector<B>>,
+    str: ToSql<Text, B>,
+{
+    fn to_sql<'b>(&'b self, out: &mut diesel::serialize::Output<'b, '_, B>) -> diesel::serialize::Result {
+        let mut buf = [0; ulid::ULID_LEN];
+        let v = self.array_to_str(&mut buf);
+
+        (*v).to_sql(&mut out.reborrow())
+    }
+}
+
+impl<'s, B: Backend> FromSql<Text, B> for Ulid
+where
+    &'s str: FromSql<Text, B>,
+{
+    fn from_sql(bytes: <B as Backend>::RawValue<'_>) -> diesel::deserialize::Result<Self> {
+        Ok(ulid::Ulid::from_string(<&str as FromSql<Text, B>>::from_sql(bytes)?)
+            .map(Self)
+            .map_err(Box::new)?)
+    }
 }

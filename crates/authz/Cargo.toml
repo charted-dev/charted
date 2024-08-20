@@ -27,3 +27,12 @@ authors.workspace = true
 
 [lib]
 path = "lib.rs"
+
+[dependencies]
+charted-core = { version = "0.1.0", path = "../core", default-features = false }
+charted-types = { version = "0.1.0", path = "../types", default-features = false }
+derive_more = { workspace = true, features = ["display"] }
+eyre.workspace = true
+
+[dev-dependencies]
+tokio = { version = "1.39.2", features = ["rt", "macros"] }

@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod postgresql;
-mod sqlite;
+pub mod postgresql;
+pub mod sqlite;
 
 use azalia::config::TryFromEnv;
 use serde::{Deserialize, Serialize};

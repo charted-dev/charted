@@ -13,21 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[package]
-name = "binaries"
-version = "0.0.0-devel.0"
-documentation.workspace = true
-edition.workspace = true
-homepage.workspace = true
-license.workspace = true
-publish.workspace = true
-repository.workspace = true
-authors.workspace = true
-
-[[bin]]
-name = "charted"
-path = "./src/charted.rs"
-
-[[bin]]
-name = "helm-plugin"
-path = "./src/helm_plugin.rs"
+[formatting]
+align_comments = false
+trailing_newline = true
+crlf = false
