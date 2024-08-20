@@ -67,7 +67,7 @@ remi-fs = "0.7.1"
 remi-s3 = "0.7.1"
 reqwest = "0.12.4"
 semver = { version = "1.0.22", features = ["serde"] }
-sentry = "0.32.3"
+sentry = "0.34.0"
 serde = { version = "1.0.200", features = ["derive"] }
 serde_json = "1.0.116"
 serde_yaml = "0.9.34"
@@ -175,8 +175,8 @@ remi-s3 = { workspace = true, features = ["serde", "tracing"] }
 reqwest.workspace = true
 sentry.workspace = true
 sentry-eyre = "0.1.0"
-sentry-tower = { version = "0.32.3", features = ["axum", "http"] }
-sentry-tracing = "0.32.3"
+sentry-tower = { version = "0.34.0", features = ["axum", "http"] }
+sentry-tracing = "0.34.0"
 serde.workspace = true
 serde_json.workspace = true
 serde_repr = "0.1.19"
