@@ -39,7 +39,7 @@ services:
     postgresql:
         <<: *container
         container_name: charted_postgresql
-        image: bitnami/postgresql:15.6.0
+        image: bitnami/postgresql:15.8.0
         ports:
             - '5432:5432'
         environment:
