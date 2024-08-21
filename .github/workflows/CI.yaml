@@ -194,5 +194,5 @@ jobs:
               uses: auguwu/clippy-action@1.4.0
               with:
                   all-features: true
-                  args: --workspace --locked
+                  check-args: --workspace --locked
                   token: ${{github.token}}
