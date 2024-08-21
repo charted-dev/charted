@@ -60,6 +60,7 @@ jobs:
 
             # remove the `rust-toolchain.toml` since it'll be overwritten.
             - run: rm ${GITHUB_WORKSPACE}/rust-toolchain.toml
+              shell: bash
 
             - name: Setup Rust toolchain
               uses: dtolnay/rust-toolchain@master
