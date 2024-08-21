@@ -184,7 +184,7 @@ jobs:
               run: cargo build --all-features
 
             - name: Clippy!
-              uses: auguwu/clippy-action@1.3.0
+              uses: auguwu/clippy-action@1.4.0
               with:
                   all-features: true
                   token: ${{github.token}}
