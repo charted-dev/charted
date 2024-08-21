@@ -1270,9 +1270,9 @@ dependencies = [
  "rand 0.8.5",
  "redis",
  "regex",
- "remi",
+ "remi 0.7.1",
  "remi-azure",
- "remi-fs",
+ "remi-fs 0.8.0",
  "remi-s3",
  "reqwest",
  "rustc_version",
@@ -1334,7 +1334,7 @@ dependencies = [
  "noelware-config",
  "noelware-serde",
  "remi-azure",
- "remi-fs",
+ "remi-fs 0.8.0",
  "remi-s3",
  "serde",
  "toml",
@@ -1405,8 +1405,8 @@ dependencies = [
  "noelware-remi",
  "once_cell",
  "regex",
- "remi",
- "remi-fs",
+ "remi 0.7.1",
+ "remi-fs 0.8.0",
  "semver",
  "sentry",
  "serde_json",
@@ -1437,7 +1437,7 @@ dependencies = [
  "noelware-config",
  "once_cell",
  "owo-colors 4.0.0",
- "remi-fs",
+ "remi-fs 0.8.0",
  "reqwest",
  "semver",
  "serde",
@@ -2213,6 +2213,12 @@ name = "file-format"
 version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4ba1b81b3c213cf1c071f8bf3b83531f310df99642e58c48247272eef006cae5"
+
+[[package]]
+name = "file-format"
+version = "0.25.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9ffe3a660c3a1b10e96f304a9413d673b2118d62e4520f7ddf4a4faccfe8b9b9"
 
 [[package]]
 name = "filetime"
@@ -3770,9 +3776,9 @@ version = "0.1.0"
 source = "git+https://github.com/Noelware/core-rs?rev=007aacf9b4afa70cf0d69c8a8aa8f01f1c63156d#007aacf9b4afa70cf0d69c8a8aa8f01f1c63156d"
 dependencies = [
  "azure_core",
- "remi",
+ "remi 0.7.1",
  "remi-azure",
- "remi-fs",
+ "remi-fs 0.7.1",
  "remi-s3",
 ]
 
@@ -4692,6 +4698,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "remi"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ea99d1cfa2378b6ca17db7e7292da6d591dc84e0112eb10618988e35a0eb5275"
+dependencies = [
+ "async-trait",
+ "bytes",
+]
+
+[[package]]
 name = "remi-azure"
 version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4703,7 +4719,7 @@ dependencies = [
  "azure_storage_blobs",
  "bytes",
  "futures-util",
- "remi",
+ "remi 0.7.1",
  "serde",
  "tracing",
 ]
@@ -4717,10 +4733,26 @@ dependencies = [
  "async-trait",
  "bytes",
  "dirs",
- "file-format",
+ "file-format 0.24.0",
  "infer 0.15.0",
- "remi",
+ "remi 0.7.1",
+ "tokio",
+]
+
+[[package]]
+name = "remi-fs"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f7ec24ece20446d91d4b73e98f36f1e6cd2bf09e94708e46449c3cf1d03a5a70"
+dependencies = [
+ "async-trait",
+ "bytes",
+ "dirs",
+ "file-format 0.25.0",
+ "infer 0.15.0",
+ "remi 0.8.0",
  "serde",
+ "serde_json",
  "tokio",
  "tracing",
 ]
@@ -4737,7 +4769,7 @@ dependencies = [
  "aws-sdk-s3",
  "aws-smithy-runtime-api",
  "bytes",
- "remi",
+ "remi 0.7.1",
  "serde",
  "tracing",
 ]
