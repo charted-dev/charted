@@ -15,7 +15,7 @@
 
 ############ BINARY
 
-FROM --platform=${TARGETPLATFORM} rust:1.78-alpine3.19 AS build
+FROM --platform=${TARGETPLATFORM} rust:1.80-alpine3.19 AS build
 
 # We use the `protobuf` package instead of `protobuf-dev` since we vendor `google/protobuf` in the `protos/`
 # directory and we use `prost-types` which Prost does on each release for the well-known google.protobuf.* types.
