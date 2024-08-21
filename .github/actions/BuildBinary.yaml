@@ -92,6 +92,11 @@ jobs:
               if: matrix.runner == 'windows-latest'
               run: vcpkg install openssl:x64-windows-static-md
 
+            # On Windows, we'll also need nasm directly for use with BoringSSL via aws-lc-sys.
+            - name: Install NASM
+              uses: ilammy/setup-nasm@v1
+              if: matrix.runner == 'windows-latest'
+
             - name: Install `protoc`
               uses: Noelware/setup-protoc@1.2.0
               with:
