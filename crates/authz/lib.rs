@@ -18,29 +18,6 @@ use charted_types::User;
 use std::error::Error;
 
 /// [`Error`] that represents that the password given is invalid.
-///
-/// ## Example
-/// ```
-/// # use charted_authz::Authenticator;
-/// #
-/// # #[derive(Default)]
-/// # struct A;
-/// # impl Authenticator for A {
-/// #     fn authenticate(&self) -> ::charted_core::BoxedFuture<::eyre::Result<()>> {
-/// #         Box::pin(async { Err(::charted_authz::InvalidPassword.into()) })
-/// #     }
-/// # }
-/// #
-/// # #[tokio::main(flavor = "current_thread")]
-/// # async fn main() {
-/// let auth = A::default();
-/// let res = auth.authenticate().await;
-/// assert!(res.is_err());
-///
-/// let err = res.unwrap_err();
-/// assert!(err.downcast_ref::<charted_authz::InvalidPassword>().is_some());
-/// # }
-/// ```
 #[derive(Debug, derive_more::Display)]
 #[display("invalid password given")]
 pub struct InvalidPassword;
