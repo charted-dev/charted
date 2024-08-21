@@ -39,7 +39,7 @@ wildcards = "deny"
 
 [sources]
 unknown-registry = "deny"
-unknown-git = "allow"     # only for Noelware/core-rs
+unknown-git = "allow" # only for Noelware/azalia
 
 [licenses]
 # Similar to advisories, opt in to version 2.
