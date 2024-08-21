@@ -94,6 +94,10 @@ jobs:
               uses: ilammy/setup-nasm@v1
               if: matrix.runner == 'windows-latest'
 
+            - name: Install `libpq` on macOS
+              if: matrix.runner == 'macos-latest'
+              run: brew install postgresql
+
             - name: Install `cargo-nextest`
               uses: taiki-e/cache-cargo-install-action@v2
               with:
@@ -171,10 +175,13 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                rust-version: [stable, nightly]
+                rust-version: [nightly]
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
+
+            # remove the `rust-toolchain.toml` since it'll be overwritten.
+            - run: rm ${GITHUB_WORKSPACE}/rust-toolchain.toml
 
             - name: Setup Rust toolchain
               uses: dtolnay/rust-toolchain@master
@@ -184,14 +191,6 @@ jobs:
 
             - name: Setup Rust cache
               uses: Swatinem/rust-cache@v2
-
-            - name: Install `protoc`
-              uses: Noelware/setup-protoc@1.2.0
-              with:
-                  repo-token: ${{github.token}}
-
-            - name: Build project
-              run: cargo build --all-features
 
             - name: Clippy!
               uses: auguwu/clippy-action@1.4.0
