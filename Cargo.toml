@@ -61,7 +61,7 @@ opentelemetry = "0.24.0"
 owo-colors = { version = "4.0.0", features = ["supports-color"] }
 prometheus-client = "0.22.2"
 regex = "1.10.4"
-remi = "0.7.1"
+remi = "0.8.0"
 remi-azure = "0.7.1"
 remi-fs = "0.7.1"
 remi-s3 = "0.7.1"
