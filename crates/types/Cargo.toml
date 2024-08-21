@@ -31,7 +31,7 @@ jsonschema = ["dep:schemars", "schemars?/semver", "schemars?/url"]
 [dependencies]
 azalia = { workspace = true, features = ["config"] }
 chrono.workspace = true
-charted-core = { default-features = false, path = "../core" }
+charted-core = { version = "0.1.0", default-features = false, path = "../core" }
 charted-database = { version = "0.1.0", path = "../database" }
 diesel = { workspace = true, features = [
     "chrono",
