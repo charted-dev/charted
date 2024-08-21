@@ -119,6 +119,18 @@ diesel::table! {
     use diesel::sql_types::*;
     use crate::schema::sql_types::*;
 
+    sessions (id) {
+        refresh_token -> Text,
+        access_token -> Text,
+        owner -> Text,
+        id -> Text,
+    }
+}
+
+diesel::table! {
+    use diesel::sql_types::*;
+    use crate::schema::sql_types::*;
+
     user_connections (id) {
         noelware_account_id -> Nullable<BigInt>,
         google_account_id -> Text,
@@ -158,6 +170,7 @@ diesel::joinable!(organizations -> users(owner));
 diesel::joinable!(repository_members -> repositories(repository));
 diesel::joinable!(repository_members -> users(account));
 diesel::joinable!(repository_releases -> repositories(repository));
+diesel::joinable!(sessions -> users(owner));
 diesel::joinable!(user_connections -> users(account));
 
 diesel::allow_tables_to_appear_in_same_query!(
@@ -167,6 +180,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     repositories,
     repository_members,
     repository_releases,
+    sessions,
     user_connections,
     users,
 );

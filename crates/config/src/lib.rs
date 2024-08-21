@@ -13,7 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub mod caching;
+use azalia::config::merge::Merge;
+use rand::distributions::{Alphanumeric, DistString};
+use sentry_types::Dsn;
+use serde::{Deserialize, Serialize};
+
+pub(crate) mod helpers;
+
 pub mod database;
 pub mod logging;
 pub mod metrics;
@@ -21,3 +27,42 @@ pub mod redis;
 pub mod server;
 pub mod sessions;
 pub mod storage;
+
+#[derive(Debug, Clone, Serialize, Deserialize, Merge)]
+pub struct Config {
+    /// whether or not if users can be registered on this instance
+    #[serde(default = "__truthy")]
+    #[merge(strategy = azalia::config::merge::strategy::bool::only_if_falsy)]
+    pub registrations: bool,
+
+    /// Secret key for encoding JWT tokens. This must be set once and never touched again.
+    #[serde(default)]
+    #[merge(skip)] // don't even attempt to merge jwt secret keys
+    pub jwt_secret_key: String,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sentry_dsn: Option<Dsn>,
+
+    /// whether or not if the API server should act like a single organization, where most features
+    /// are disabled like repository/organization members and audit logging.
+    #[serde(default)]
+    #[merge(strategy = azalia::config::merge::strategy::bool::only_if_falsy)]
+    pub single_org: bool,
+
+    /// whether or not if the API server should act like a single user, where *most* features
+    /// are disabled and only one user is allowed to roam.
+    ///
+    /// all publically available features like Audit Logging can be enabled but repository and
+    /// organization members are disabled. most endpoints will be also disabled.
+    #[serde(default)]
+    #[merge(strategy = azalia::config::merge::strategy::bool::only_if_falsy)]
+    pub single_user: bool,
+}
+
+fn __generated_secret_key() -> String {
+    Alphanumeric.sample_string(&mut rand::thread_rng(), 16)
+}
+
+const fn __truthy() -> bool {
+    true
+}

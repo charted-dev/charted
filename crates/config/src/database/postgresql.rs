@@ -13,21 +13,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use azalia::config::merge::Merge;
+use crate::helpers;
+use azalia::config::{env, merge::Merge, TryFromEnv};
 use serde::{Deserialize, Serialize};
 
+/// ## `database "postgresql" {}`
+///
+/// This database driver will use [PostgreSQL](https://postgresql.org). This driver
+/// is recommended to be used for production use cases for better reliability.
 #[derive(Debug, Clone, Merge, Serialize, Deserialize)]
 pub struct Config {
+    /// Maximum amount of connections that the database pool can hold.
     #[serde(default = "__max_connections")]
     pub max_connections: u32,
 
+    /// whether if migrations should be ran on startup. By default, this is `false`.
+    ///
+    /// You can use the `charted migrations run` command to run all migrations.
     #[serde(default)]
     #[merge(strategy = azalia::config::merge::strategy::bool::only_if_falsy)]
     pub run_migrations: bool,
-
-    /// Caching strategy for caching database objects.
-    #[serde(default)]
-    pub caching: crate::caching::Config,
 
     /// The password to use for authentication.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -52,6 +57,28 @@ pub struct Config {
     /// Database port to connect to.
     #[serde(default = "__port")]
     pub port: u16,
+}
+
+impl TryFromEnv for Config {
+    type Output = Config;
+    type Error = eyre::Report;
+
+    fn try_from_env() -> Result<Self::Output, Self::Error> {
+        Ok(Config {
+            max_connections: helpers::env_from_str("CHARTED_DATABASE_MAX_CONNECTIONS", __max_connections())?,
+            run_migrations: helpers::env_from_result(
+                env!("CHARTED_DATABASE_RUN_MIGRATIONS").map(|x| azalia::TRUTHY_REGEX.is_match(&x)),
+                false,
+            )?,
+
+            password: env!("CHARTED_DATABASE_PASSWORD").ok(),
+            username: env!("CHARTED_DATABASE_USERNAME").ok(),
+            database: helpers::env_from_result(env!("CHARTED_DATABASE_NAME"), String::from("charted"))?,
+            schema: env!("CHARTED_DATABASE_SCHEMA").ok(),
+            host: helpers::env_from_result(env!("CHARTED_DATABASE_HOST"), __host())?,
+            port: helpers::env_from_str("CHARTED_DATABASE_PORT", __port())?,
+        })
+    }
 }
 
 const fn __max_connections() -> u32 {

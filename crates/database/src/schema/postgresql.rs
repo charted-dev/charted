@@ -14,6 +14,9 @@
 // limitations under the License.
 
 diesel::table! {
+    use diesel::sql_types::*;
+    use crate::schema::sql_types::*;
+
     api_keys (id) {
         #[max_length = 140]
         description -> Nullable<Varchar>,
@@ -30,6 +33,9 @@ diesel::table! {
 }
 
 diesel::table! {
+    use diesel::sql_types::*;
+    use crate::schema::sql_types::*;
+
     organization_members (id) {
         public_visibility -> Bool,
         #[max_length = 32]
@@ -44,6 +50,9 @@ diesel::table! {
 }
 
 diesel::table! {
+    use diesel::sql_types::*;
+    use crate::schema::sql_types::*;
+
     organizations (id) {
         verified_publisher -> Bool,
         twitter_handle -> Nullable<Text>,
@@ -63,7 +72,7 @@ diesel::table! {
 
 diesel::table! {
     use diesel::sql_types::*;
-    use crate::schema::sql_types::ChartType;
+    use crate::schema::sql_types::*;
 
     repositories (id) {
         #[max_length = 64]
@@ -84,6 +93,9 @@ diesel::table! {
 }
 
 diesel::table! {
+    use diesel::sql_types::*;
+    use crate::schema::sql_types::*;
+
     repository_members (id) {
         public_visibility -> Bool,
         #[max_length = 32]
@@ -98,6 +110,9 @@ diesel::table! {
 }
 
 diesel::table! {
+    use diesel::sql_types::*;
+    use crate::schema::sql_types::*;
+
     repository_releases (id) {
         repository -> Text,
         update_text -> Nullable<Text>,
@@ -109,6 +124,21 @@ diesel::table! {
 }
 
 diesel::table! {
+    use diesel::sql_types::*;
+    use crate::schema::sql_types::*;
+
+    sessions (id) {
+        refresh_token -> Text,
+        access_token -> Text,
+        owner -> Text,
+        id -> Text,
+    }
+}
+
+diesel::table! {
+    use diesel::sql_types::*;
+    use crate::schema::sql_types::*;
+
     user_connections (id) {
         noelware_account_id -> Nullable<Int8>,
         google_account_id -> Text,
@@ -122,6 +152,9 @@ diesel::table! {
 }
 
 diesel::table! {
+    use diesel::sql_types::*;
+    use crate::schema::sql_types::*;
+
     users (id) {
         verified_publisher -> Bool,
         gravatar_email -> Nullable<Text>,
@@ -148,6 +181,7 @@ diesel::joinable!(organizations -> users(owner));
 diesel::joinable!(repository_members -> repositories(repository));
 diesel::joinable!(repository_members -> users(account));
 diesel::joinable!(repository_releases -> repositories(repository));
+diesel::joinable!(sessions -> users(owner));
 diesel::joinable!(user_connections -> users(account));
 
 diesel::allow_tables_to_appear_in_same_query!(
@@ -157,6 +191,7 @@ diesel::allow_tables_to_appear_in_same_query!(
     repositories,
     repository_members,
     repository_releases,
+    sessions,
     user_connections,
     users,
 );

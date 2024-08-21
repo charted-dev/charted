@@ -16,9 +16,10 @@
 pub mod postgresql;
 pub mod sqlite;
 
-use azalia::config::TryFromEnv;
+use azalia::config::{env, TryFromEnv};
+use eyre::eyre;
 use serde::{Deserialize, Serialize};
-use std::fmt::Display;
+use std::{env::VarError, fmt::Display};
 
 /// The `database {}` block allows to configure the database that charted-server
 /// uses to store persistent data like users, repositories, and more.
@@ -43,7 +44,7 @@ impl Display for Config {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Config::PostgreSQL(psql) => {
-                f.write_str("postgres://")?;
+                f.write_str("postgresql://")?;
 
                 match (psql.username.as_ref(), psql.password.as_ref()) {
                     (Some(user), Some(pass)) => write!(f, "{user}:{pass}@")?,
@@ -65,11 +66,23 @@ impl TryFromEnv for Config {
     type Error = eyre::Report;
 
     fn try_from_env() -> Result<Self::Output, Self::Error> {
-        todo!()
+        match env!("CHARTED_DATABASE_DRIVER") {
+            Ok(s) => match &*s.to_ascii_lowercase() {
+                "postgresql" | "postgres" => Ok(Config::PostgreSQL(postgresql::Config::try_from_env()?)),
+                "sqlite" => Ok(Config::SQLite(sqlite::Config::try_from_env()?)),
+                s => Err(eyre!("unknown variant for `$CHARTED_DATABASE_DRIVER`: {s}")),
+            },
+
+            Err(VarError::NotPresent) => Ok(Config::SQLite(sqlite::Config::try_from_env()?)),
+            Err(VarError::NotUnicode(_)) => Err(eyre!(
+                "received non-unicode in `$CHARTED_DATABASE_DRIVER` environment variable"
+            )),
+        }
     }
 }
 
 impl Config {
+    /// Returns the amount of maximum connections the database pool can hold.
     pub fn max_connections(&self) -> u32 {
         match self {
             Config::PostgreSQL(psql) => psql.max_connections,

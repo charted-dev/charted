@@ -25,9 +25,18 @@ repository.workspace = true
 authors.workspace = true
 
 [dependencies]
+aws-sdk-s3 = "1.46.0"
 azalia = { workspace = true, features = ["config", "config-derive"] }
+azure_storage = "0.20.0"
+charted-core = { version = "0.1.0", path = "../core", default-features = false, features = [
+    "merge",
+] }
 eyre.workspace = true
 hcl-rs = "0.18.0"
+rand = "0.8.5"
+remi-azure = { version = "0.8.0", features = ["serde"] }
+remi-fs = { version = "0.8.0", features = ["serde"] }
+remi-s3 = { version = "0.8.0", features = ["serde"] }
 sentry-types = "0.34.0"
 serde.workspace = true
 ubyte = { version = "0.10.4", features = ["serde"] }

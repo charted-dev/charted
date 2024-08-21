@@ -29,6 +29,24 @@ use utoipa::{
 #[derive(Clone, Copy, Default, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub struct Duration(::std::time::Duration);
 
+impl Duration {
+    /// Creates a new `Duration` from the specified number of whole seconds.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use charted_core::serde::Duration;
+    ///
+    /// let duration = Duration::from_secs(5);
+    ///
+    /// assert_eq!(5, duration.as_secs());
+    /// assert_eq!(0, duration.subsec_nanos());
+    /// ```
+    pub const fn from_secs(secs: u64) -> Duration {
+        Duration(::std::time::Duration::from_secs(secs))
+    }
+}
+
 impl Debug for Duration {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         Debug::fmt(&self.0, f)
@@ -137,6 +155,23 @@ impl<'s> ToSchema<'s> for Duration {
             .build();
 
         ("Duration", RefOr::T(Schema::OneOf(oneof)))
+    }
+}
+
+#[cfg(feature = "merge")]
+impl ::azalia::config::merge::Merge for Duration {
+    fn merge(&mut self, other: Duration) {
+        // if both durations are zero, then don't attempt to merge
+        if self.is_zero() && other.is_zero() {
+            return;
+        }
+
+        // If `self` isn't zero AND `other` is zero, don't attempt to merge
+        if !self.is_zero() && other.is_zero() {
+            return;
+        }
+
+        *self = other;
     }
 }
 

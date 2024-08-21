@@ -100,21 +100,13 @@ macro_rules! connection {
 
 #[cfg(test)]
 mod tests {
-    use charted_config::{
-        caching,
-        database::{sqlite, Config},
-    };
+    use charted_config::database::{sqlite, Config};
     use std::path::PathBuf;
 
     #[test]
     fn test_sqlite_version() {
         let db = crate::create_pool(&Config::SQLite(sqlite::Config {
             db_path: PathBuf::from(":memory:"),
-            caching: caching::Config {
-                strategy: caching::Strategy::Disable,
-                ..Default::default()
-            },
-
             max_connections: 1,
             run_migrations: false,
         }))

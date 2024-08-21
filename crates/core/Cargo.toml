@@ -28,30 +28,20 @@ authors.workspace = true
 [features]
 testkit = ["dep:charted-testkit", "dep:testcontainers"]
 default = ["testkit"]
+merge = ["azalia/config"]
 
 [dependencies]
 argon2.workspace = true
 azalia = { workspace = true, features = ["lazy", "regex"] }
-charted-config = { version = "0.1.0", path = "../config" }
-charted-database = { version = "0.1.0", path = "../database" }
 charted-proc-macros = { version = "0.1.0", path = "../proc-macros" }
 charted-testkit = { version = "0.1.0", features = ["macros"], optional = true }
 humantime = "2.1.0"
-redis = { version = "0.26.1", features = [
-    "aio",
-    "cluster",
-    "cluster-async",
-    "log",
-    "rustls",
-    "sentinel",
-    "tls",
-    "tokio-comp",
-] }
 serde.workspace = true
 utoipa.workspace = true
 testcontainers = { workspace = true, optional = true }
 testcontainers-modules.workspace = true
 eyre.workspace = true
+tokio = "1.39.3"
 
 [build-dependencies]
 chrono.workspace = true
