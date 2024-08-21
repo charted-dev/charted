@@ -57,7 +57,7 @@
 
       charted = rustPlatform.buildRustPackage {
         nativeBuildInputs = with pkgs; [pkg-config installShellFiles];
-        buildInputs = with pkgs; [openssl];
+        buildInputs = with pkgs; [openssl sqlite postgresql];
         version = "${cargoTOML.workspace.package.version}";
         name = "charted";
         src = ./.;
@@ -65,6 +65,9 @@
         env.CHARTED_DISTRIBUTION_KIND = "nix";
         cargoLock = {
           lockFile = ./Cargo.lock;
+          outputHashes = {
+            "azalia-0.1.0" = "sha256-ftI7yUzqhjoTk8dl/4+zkXYai1rG6PF3t5anhOElgLM=";
+          };
         };
 
         postInstall = ''
@@ -95,6 +98,9 @@
         cargoBuildFlags = ["--package" "charted-helm-plugin"];
         cargoLock = {
           lockFile = ./Cargo.lock;
+          outputHashes = {
+            "azalia-0.1.0" = "sha256-ftI7yUzqhjoTk8dl/4+zkXYai1rG6PF3t5anhOElgLM=";
+          };
         };
 
         postPatch = ''

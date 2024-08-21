@@ -12,3 +12,18 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+use testcontainers::{runners::AsyncRunner, ContainerAsync, ImageExt};
+use testcontainers_modules::postgres::Postgres;
+
+// renovate: datasource=docker rev=library/postgres
+const TAG: &str = "16.2";
+
+pub async fn postgresql(tag: Option<&str>) -> ContainerAsync<Postgres> {
+    Postgres::default()
+        .with_db_name("charted")
+        .with_tag(tag.unwrap_or(TAG))
+        .start()
+        .await
+        .expect("failed to start container")
+}

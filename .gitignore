@@ -690,8 +690,10 @@ FodyWeavers.xsd
 !crates/helm-plugin/src/bin/
 !crates/devtools/src/bin/
 
+!crates/helm-charts/__fixtures__/*.tgz
 crates/database/data.db
 !hack/release/
+!crates/bin/
 config.hcl
 .direnv/
 data/

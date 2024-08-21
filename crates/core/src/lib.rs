@@ -20,6 +20,7 @@ pub use charted_proc_macros as macros;
 mod distribution;
 pub use distribution::*;
 
+pub mod api;
 pub mod bitflags;
 pub mod openapi;
 pub mod serde;

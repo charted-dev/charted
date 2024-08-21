@@ -17,7 +17,6 @@
 //! of the API server.
 
 mod db;
-use std::borrow::Cow;
 
 pub use db::*;
 
@@ -69,8 +68,8 @@ impl<'s> ToSchema<'s> for DateTime {
 
 #[cfg(feature = "jsonschema")]
 impl ::schemars::JsonSchema for DateTime {
-    fn schema_id() -> Cow<'static, str> {
-        Cow::Borrowed("chrono::DateTime<chrono::Utc>")
+    fn schema_id() -> ::std::borrow::Cow<'static, str> {
+        ::std::borrow::Cow::Borrowed("chrono::DateTime<chrono::Utc>")
     }
 
     fn schema_name() -> String {
@@ -93,6 +92,12 @@ charted_core::create_newtype_wrapper! {
     #[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq, Ord, PartialOrd, Hash, AsExpression, FromSqlRow)]
     #[diesel(sql_type = Text)]
     pub Version for semver::Version;
+}
+
+impl Version {
+    pub fn parse(v: &str) -> Result<Version, semver::Error> {
+        semver::Version::parse(v).map(Self)
+    }
 }
 
 // credit to this impl (i had a hard time doing this myself): https://github.com/oxidecomputer/omicron/blob/d3257b9d8d48fa94ed11020598a723644aec9f05/nexus/db-model/src/semver_version.rs#L124-L136
@@ -133,7 +138,7 @@ impl<'s> ToSchema<'s> for Version {
 
 #[cfg(feature = "jsonschema")]
 impl ::schemars::JsonSchema for Version {
-    fn schema_id() -> Cow<'static, str> {
+    fn schema_id() -> ::std::borrow::Cow<'static, str> {
         <semver::Version as ::schemars::JsonSchema>::schema_id()
     }
 
@@ -175,8 +180,8 @@ impl<'s> ToSchema<'s> for VersionReq {
 
 #[cfg(feature = "jsonschema")]
 impl ::schemars::JsonSchema for VersionReq {
-    fn schema_id() -> Cow<'static, str> {
-        Cow::Borrowed("semver::VersionReq")
+    fn schema_id() -> ::std::borrow::Cow<'static, str> {
+        ::std::borrow::Cow::Borrowed("semver::VersionReq")
     }
 
     fn schema_name() -> String {
@@ -202,6 +207,12 @@ charted_core::create_newtype_wrapper! {
     #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, AsExpression)]
     #[diesel(sql_type = Text)]
     pub Ulid for ::ulid::Ulid;
+}
+
+impl Ulid {
+    pub fn new(v: &str) -> Result<Ulid, ulid::DecodeError> {
+        ::ulid::Ulid::from_string(v).map(Self)
+    }
 }
 
 impl<'s> ToSchema<'s> for Ulid {

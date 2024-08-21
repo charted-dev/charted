@@ -32,14 +32,16 @@ merge = ["azalia/config"]
 
 [dependencies]
 argon2.workspace = true
+axum.workspace = true
 azalia = { workspace = true, features = ["lazy", "regex"] }
 charted-proc-macros = { version = "0.1.0", path = "../proc-macros" }
 charted-testkit = { version = "0.1.0", features = ["macros"], optional = true }
 humantime = "2.1.0"
 serde.workspace = true
+serde_json.workspace = true
 utoipa.workspace = true
 testcontainers = { workspace = true, optional = true }
-testcontainers-modules.workspace = true
+testcontainers-modules = { workspace = true, features = ["postgres"] }
 eyre.workspace = true
 tokio = "1.39.3"
 

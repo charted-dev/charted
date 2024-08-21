@@ -16,20 +16,20 @@
 name: Generate OpenAPI document
 on:
     workflow_dispatch: {}
-    push:
-        branches:
-            - main
-        paths-ignore:
-            - '.github/**'
-            - '.coder/**'
-            - '.devcontainer/**'
-            - '.vscode/**'
-            - 'docs/**'
-            - 'scripts/**'
-            - '.*ignore'
-            - '**.md'
-            - renovate.json
-            - LICENSE
+    # push:
+    #     branches:
+    #         - main
+    #     paths-ignore:
+    #         - '.github/**'
+    #         - '.coder/**'
+    #         - '.devcontainer/**'
+    #         - '.vscode/**'
+    #         - 'docs/**'
+    #         - 'scripts/**'
+    #         - '.*ignore'
+    #         - '**.md'
+    #         - renovate.json
+    #         - LICENSE
 jobs:
     openapi:
         name: Generate

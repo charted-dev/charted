@@ -86,13 +86,15 @@ jobs:
               if: matrix.runner == 'windows-latest'
               run: vcpkg install openssl:x64-windows-static-md
 
-            - name: Install `protoc`
-              uses: Noelware/setup-protoc@1.2.0
-              with:
-                  repo-token: ${{github.token}}
+            # On Windows, we'll also need nasm for use with BoringSSL via aws-lc-sys.
+            - name: Install NASM on Windows
+              uses: ilammy/setup-nasm@v1
+              if: matrix.runner == 'windows-latest'
 
             - name: Install `cargo-nextest`
-              uses: taiki-e/install-action@nextest
+              uses: taiki-e/cache-cargo-install-action@v2
+              with:
+                tool: cargo-nextest
 
             - name: Build project
               run: cargo build --all-features --workspace
@@ -102,6 +104,7 @@ jobs:
 
             - name: Run doctests
               run: cargo test --doc --all-features --workspace
+
     cargo-deny:
         name: '`cargo deny`'
         runs-on: ubuntu-latest
@@ -109,12 +112,14 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v4
 
-            - name: run "cargo deny"
-              uses: EmbarkStudios/cargo-deny-action@v2
+            - name: Install `cargo-deny`
+              uses: taiki-e/cache-cargo-install-action@v2
               with:
-                  command: check
-                  arguments: --all-features
-                  log-level: warn
+                  tool: cargo-deny
+
+            - name: Run "cargo deny"
+              run: cargo deny check all
+
     report-missing-deps:
         name: Report Missing Dependencies
         runs-on: ubuntu-latest
@@ -123,7 +128,9 @@ jobs:
               uses: actions/checkout@v4
 
             - name: Install `cargo-machete`
-              uses: taiki-e/install-action@cargo-machete
+              uses: taiki-e/cache-cargo-install-action@v2
+              with:
+                tool: cargo-machete
 
             - name: Run `cargo machete`
               run: cargo machete
@@ -187,4 +194,5 @@ jobs:
               uses: auguwu/clippy-action@1.4.0
               with:
                   all-features: true
+                  args: --workspace --locked
                   token: ${{github.token}}

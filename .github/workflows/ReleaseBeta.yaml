@@ -17,329 +17,333 @@ name: Release CI (Beta)
 on:
     push:
         tags:
-            - 'v?[0-9]+.[0-9]+.[0-9]+-beta(\.[0-9]+)?'
+            - '[0-9]+.[0-9]+.[0-9]+-beta(\.[0-9]+)?'
 jobs:
     binary:
-        name: 'Build `charted` binary (${{matrix.runner}}: ${{matrix.target}})'
-        runs-on: ${{matrix.runner}}
-        strategy:
-            fail-fast: true
-            matrix:
-                include:
-                    # charted (Linux x86_64)
-                    - runner: ubuntu-latest
-                      target: x86_64-unknown-linux-gnu
-                      cargoflags: ''
-                      rustflags: '-Ctarget-cpu=native -Clink-arg=-fuse-ld=mold'
-                      cross: false
-                      ext: ''
-
-                    - runner: ubuntu-latest
-                      target: aarch64-unknown-linux-gnu
-                      cargoflags: ''
-                      rustflags: ''
-                      cross: true
-                      ext: ''
-
-                    - runner: macos-latest
-                      target: x86_64-apple-darwin
-                      cargoflags: ''
-                      rustflags: '-Ctarget-cpu=native'
-                      cross: false
-                      ext: ''
-
-                    - runner: macos-latest
-                      target: aarch64-apple-darwin
-                      cargoflags: ''
-                      rustflags: ''
-                      cross: false
-                      ext: ''
-
-                    - runner: windows-latest
-                      target: x86_64-pc-windows-msvc
-                      cargoflags: '--features=mimalloc'
-                      ext: .exe
-                      cross: false
-        steps:
-            - name: Checkout source code
-              uses: actions/checkout@v4
-
-            - name: Get Git tag
-              uses: auguwu/git-tag-action@master
-              id: tag
-
-            - name: Build binary
-              uses: ./.github/actions/BuildBinary.yaml
-              with:
-                  runner: ${{matrix.runner}}
-                  target: ${{matrix.target}}
-                  cargoflags: ${{matrix.cargoflags}}
-                  rustflags: ${{matrix.rustflags}}
-                  cross: ${{matrix.cross}}
-                  ext: ${{matrix.ext}}
-                  binary: charted
-
-            - name: Upload artifacts to GitHub release
-              uses: softprops/action-gh-release@v2
-              with:
-                  files: ./.result/charted-*
-
-            - name: Upload artifacts to S3 (artifacts.noelware.cloud/charted/helm-plugin/${{steps.tag.outputs.version}})
-              uses: Noelware/s3-action@2.2.6
-              with:
-                  enforce-path-access-style: true
-                  access-key-id: ${{secrets.S3_ACCESS_KEY}}
-                  secret-key: ${{secrets.S3_SECRET_KEY}}
-                  path-format: $(prefix)/charted/helm-plugin/${{steps.tag.outputs.version}}/$(file)
-                  directories: .result
-                  endpoint: ${{secrets.S3_ENDPOINT}}
-                  prefix: /noelware/artifacts
-                  region: us-east-1
-                  bucket: august
-
-            - name: Upload artifacts to S3 (artifacts.noelware.cloud/charted/server/latest)
-              uses: Noelware/s3-action@2.2.6
-              with:
-                  enforce-path-access-style: true
-                  access-key-id: ${{secrets.S3_ACCESS_KEY}}
-                  secret-key: ${{secrets.S3_SECRET_KEY}}
-                  path-format: $(prefix)/charted/helm-plugin/latest/$(file)
-                  directories: .result
-                  endpoint: ${{secrets.S3_ENDPOINT}}
-                  prefix: /noelware/artifacts
-                  region: us-east-1
-                  bucket: august
-    helm-plugin:
-        name: Create `charted-helm-plugin` binaries
-        runs-on: ${{matrix.runner}}
-        strategy:
-            fail-fast: true
-            matrix:
-                include:
-                    # charted-helm-plugin (Linux x86_64)
-                    - runner: ubuntu-latest
-                      target: x86_64-unknown-linux-gnu
-                      cargoflags: ''
-                      rustflags: '-Ctarget-cpu=native -Clink-arg=-fuse-ld=mold'
-                      cross: false
-                      ext: ''
-
-                    - runner: ubuntu-latest
-                      target: aarch64-unknown-linux-gnu
-                      cargoflags: ''
-                      rustflags: ''
-                      cross: true
-                      ext: ''
-
-                    - runner: macos-latest
-                      target: x86_64-apple-darwin
-                      cargoflags: ''
-                      rustflags: '-Ctarget-cpu=native'
-                      cross: false
-                      ext: ''
-
-                    - runner: macos-latest
-                      target: aarch64-apple-darwin
-                      cargoflags: ''
-                      rustflags: ''
-                      cross: false
-                      ext: ''
-
-                    - runner: windows-latest
-                      target: x86_64-pc-windows-msvc
-                      cargoflags: ''
-                      ext: .exe
-                      cross: false
-        steps:
-            - name: Checkout source code
-              uses: actions/checkout@v4
-
-            - name: Get Git tag
-              uses: auguwu/git-tag-action@master
-              id: tag
-
-            - name: Build binary
-              uses: ./.github/actions/BuildBinary.yaml
-              with:
-                  runner: ${{matrix.runner}}
-                  target: ${{matrix.target}}
-                  cargoflags: '--package charted-helm-plugin ${{matrix.cargoflags}}'
-                  rustflags: ${{matrix.rustflags}}
-                  cross: ${{matrix.cross}}
-                  ext: ${{matrix.ext}}
-                  binary: charted-helm-plugin
-
-            - name: Upload artifacts to GitHub release
-              uses: softprops/action-gh-release@v2
-              with:
-                  files: ./.result/charted-helm-plugin-*
-
-            - name: Upload artifacts to S3 (artifacts.noelware.cloud/charted/helm-plugin/${{steps.tag.outputs.version}})
-              uses: Noelware/s3-action@2.2.6
-              with:
-                  enforce-path-access-style: true
-                  access-key-id: ${{secrets.S3_ACCESS_KEY}}
-                  secret-key: ${{secrets.S3_SECRET_KEY}}
-                  path-format: $(prefix)/charted/server/${{steps.tag.outputs.version}}/$(file)
-                  directories: .result
-                  endpoint: ${{secrets.S3_ENDPOINT}}
-                  prefix: /noelware/artifacts
-                  region: us-east-1
-                  bucket: august
-
-            - name: Upload artifacts to S3 (artifacts.noelware.cloud/charted/server/latest)
-              uses: Noelware/s3-action@2.2.6
-              with:
-                  enforce-path-access-style: true
-                  access-key-id: ${{secrets.S3_ACCESS_KEY}}
-                  secret-key: ${{secrets.S3_SECRET_KEY}}
-                  path-format: $(prefix)/charted/server/latest/$(file)
-                  directories: .result
-                  endpoint: ${{secrets.S3_ENDPOINT}}
-                  prefix: /noelware/artifacts
-                  region: us-east-1
-                  bucket: august
-    nix-build:
-        name: Nix Build
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout source code
-              uses: actions/checkout@v4
+            - run: echo woof
+    # binary:
+    #     name: 'Build `charted` binary (${{matrix.runner}}: ${{matrix.target}})'
+    #     runs-on: ${{matrix.runner}}
+    #     strategy:
+    #         fail-fast: true
+    #         matrix:
+    #             include:
+    #                 # charted (Linux x86_64)
+    #                 - runner: ubuntu-latest
+    #                   target: x86_64-unknown-linux-gnu
+    #                   cargoflags: ''
+    #                   rustflags: '-Ctarget-cpu=native -Clink-arg=-fuse-ld=mold'
+    #                   cross: false
+    #                   ext: ''
 
-            - name: Install `nix` binary
-              uses: cachix/install-nix-action@v26
-              with:
-                  nix_path: nixpkgs=channel:nixos-unstable
+    #                 - runner: ubuntu-latest
+    #                   target: aarch64-unknown-linux-gnu
+    #                   cargoflags: ''
+    #                   rustflags: ''
+    #                   cross: true
+    #                   ext: ''
 
-            - name: Setup Cachix
-              uses: cachix/cachix-action@v15
-              with:
-                  name: noelware
-                  authToken: ${{secrets.CACHIX_AUTH_TOKEN}}
+    #                 - runner: macos-latest
+    #                   target: x86_64-apple-darwin
+    #                   cargoflags: ''
+    #                   rustflags: '-Ctarget-cpu=native'
+    #                   cross: false
+    #                   ext: ''
 
-            - name: Build `charted` binary
-              run: nix build .#charted
+    #                 - runner: macos-latest
+    #                   target: aarch64-apple-darwin
+    #                   cargoflags: ''
+    #                   rustflags: ''
+    #                   cross: false
+    #                   ext: ''
 
-            - name: Build `charted-helm-plugin` binary
-              run: nix build .#helm-plugin
-    docker:
-        name: Docker
-        runs-on: ubuntu-latest
-        strategy:
-            fail-fast: true
-            matrix:
-                dockerfile:
-                    - debian
-                    - alpine
-                include:
-                    - dockerfile: debian
-                      suffix: ''
-                      updateDescription: true
-                    - dockerfile: alpine
-                      suffix: '-alpine'
-                      updateDescription: false
-        steps:
-            - name: Checkout source code
-              uses: actions/checkout@v4
+    #                 - runner: windows-latest
+    #                   target: x86_64-pc-windows-msvc
+    #                   cargoflags: '--features=mimalloc'
+    #                   ext: .exe
+    #                   cross: false
+    #     steps:
+    #         - name: Checkout source code
+    #           uses: actions/checkout@v4
 
-            - name: Get Git tag
-              uses: auguwu/git-tag-action@master
-              id: tag
+    #         - name: Get Git tag
+    #           uses: auguwu/git-tag-action@master
+    #           id: tag
 
-            - name: Get commit hash
-              id: commit-hash
-              run: echo "commit=$(git rev-parse --short=8 $GITHUB_SHA)" >> $GITHUB_OUTPUT
+    #         - name: Build binary
+    #           uses: ./.github/actions/BuildBinary.yaml
+    #           with:
+    #               runner: ${{matrix.runner}}
+    #               target: ${{matrix.target}}
+    #               cargoflags: ${{matrix.cargoflags}}
+    #               rustflags: ${{matrix.rustflags}}
+    #               cross: ${{matrix.cross}}
+    #               ext: ${{matrix.ext}}
+    #               binary: charted
 
-            - name: Login into Docker Hub
-              uses: docker/login-action@v3
-              with:
-                  username: noelbot
-                  password: ${{secrets.REGISTRY_PASSWORD}}
-                  registry: cr.noelware.cloud
+    #         - name: Upload artifacts to GitHub release
+    #           uses: softprops/action-gh-release@v2
+    #           with:
+    #               files: ./.result/charted-*
 
-            - name: Set up QEMU
-              uses: docker/setup-qemu-action@v3
+    #         - name: Upload artifacts to S3 (artifacts.noelware.cloud/charted/helm-plugin/${{steps.tag.outputs.version}})
+    #           uses: Noelware/s3-action@2.2.6
+    #           with:
+    #               enforce-path-access-style: true
+    #               access-key-id: ${{secrets.S3_ACCESS_KEY}}
+    #               secret-key: ${{secrets.S3_SECRET_KEY}}
+    #               path-format: $(prefix)/charted/helm-plugin/${{steps.tag.outputs.version}}/$(file)
+    #               directories: .result
+    #               endpoint: ${{secrets.S3_ENDPOINT}}
+    #               prefix: /noelware/artifacts
+    #               region: us-east-1
+    #               bucket: august
 
-            - name: Set up Docker Buildx
-              uses: docker/setup-buildx-action@v3
+    #         - name: Upload artifacts to S3 (artifacts.noelware.cloud/charted/server/latest)
+    #           uses: Noelware/s3-action@2.2.6
+    #           with:
+    #               enforce-path-access-style: true
+    #               access-key-id: ${{secrets.S3_ACCESS_KEY}}
+    #               secret-key: ${{secrets.S3_SECRET_KEY}}
+    #               path-format: $(prefix)/charted/helm-plugin/latest/$(file)
+    #               directories: .result
+    #               endpoint: ${{secrets.S3_ENDPOINT}}
+    #               prefix: /noelware/artifacts
+    #               region: us-east-1
+    #               bucket: august
+    # helm-plugin:
+    #     name: Create `charted-helm-plugin` binaries
+    #     runs-on: ${{matrix.runner}}
+    #     strategy:
+    #         fail-fast: true
+    #         matrix:
+    #             include:
+    #                 # charted-helm-plugin (Linux x86_64)
+    #                 - runner: ubuntu-latest
+    #                   target: x86_64-unknown-linux-gnu
+    #                   cargoflags: ''
+    #                   rustflags: '-Ctarget-cpu=native -Clink-arg=-fuse-ld=mold'
+    #                   cross: false
+    #                   ext: ''
 
-            - name: Build and push!
-              uses: docker/build-push-action@v6
-              with:
-                  provenance: false
-                  platforms: linux/amd64,linux/arm64
-                  cache-from: type=gha
-                  cache-to: type=gha
-                  context: .
-                  file: ./distribution/docker/${{matrix.dockerfile}}.Dockerfile
-                  push: true
-                  sbom: true
-                  tags: |
-                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-beta${{matrix.suffix}},
-                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}-beta${{matrix.suffix}},
-                      cr.noelware.cloud/charted/server:${{steps.tag.outputs.version}}${{matrix.suffix}},
-                      cr.noelware.cloud/charted/server:beta-${{matrix.dockerfile == 'alpine' && 'alpine' || 'latest' }}
-                  labels: |
-                      org.opencontainers.image.title=charted-server
-                      org.opencontainers.image.description="🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust"
-                      org.opencontainers.image.version=${{steps.tag.outputs.version}}
-                      org.opencontainers.image.revision=${{steps.commit-hash.outputs.commit}}
-                      org.opencontainers.image.licenses=Apache-2.0
-                      org.opencontainers.image.documentation=https://charts.noelware.org
-                      org.opencontainers.image.source=https://github.com/charted-dev/charted/tree/${{steps.commit-hash.outputs.commit}}
-    helm-plugin-docker:
-        name: Docker [Helm Plugin]
-        runs-on: ubuntu-latest
-        needs: [helm-plugin]
-        steps:
-            - name: Checkout source code
-              uses: actions/checkout@v4
+    #                 - runner: ubuntu-latest
+    #                   target: aarch64-unknown-linux-gnu
+    #                   cargoflags: ''
+    #                   rustflags: ''
+    #                   cross: true
+    #                   ext: ''
 
-            - name: Get Git tag
-              uses: auguwu/git-tag-action@master
-              id: tag
+    #                 - runner: macos-latest
+    #                   target: x86_64-apple-darwin
+    #                   cargoflags: ''
+    #                   rustflags: '-Ctarget-cpu=native'
+    #                   cross: false
+    #                   ext: ''
 
-            - name: Get commit hash
-              id: commit-hash
-              run: echo "commit=$(git rev-parse --short=8 $GITHUB_SHA)" >> $GITHUB_OUTPUT
+    #                 - runner: macos-latest
+    #                   target: aarch64-apple-darwin
+    #                   cargoflags: ''
+    #                   rustflags: ''
+    #                   cross: false
+    #                   ext: ''
 
-            - name: Login into Docker Hub
-              uses: docker/login-action@v3
-              with:
-                  username: noelbot
-                  password: ${{secrets.REGISTRY_PASSWORD}}
-                  registry: cr.noelware.cloud
+    #                 - runner: windows-latest
+    #                   target: x86_64-pc-windows-msvc
+    #                   cargoflags: ''
+    #                   ext: .exe
+    #                   cross: false
+    #     steps:
+    #         - name: Checkout source code
+    #           uses: actions/checkout@v4
 
-            - name: Set up QEMU
-              uses: docker/setup-qemu-action@v3
+    #         - name: Get Git tag
+    #           uses: auguwu/git-tag-action@master
+    #           id: tag
 
-            - name: Set up Docker Buildx
-              uses: docker/setup-buildx-action@v3
+    #         - name: Build binary
+    #           uses: ./.github/actions/BuildBinary.yaml
+    #           with:
+    #               runner: ${{matrix.runner}}
+    #               target: ${{matrix.target}}
+    #               cargoflags: '--package charted-helm-plugin ${{matrix.cargoflags}}'
+    #               rustflags: ${{matrix.rustflags}}
+    #               cross: ${{matrix.cross}}
+    #               ext: ${{matrix.ext}}
+    #               binary: charted-helm-plugin
 
-            - name: Build and push!
-              uses: docker/build-push-action@v6
-              with:
-                  provenance: false
-                  platforms: linux/amd64,linux/arm64
-                  cache-from: type=gha
-                  cache-to: type=gha
-                  context: .
-                  file: ./tools/helm-plugin/Dockerfile
-                  push: true
-                  sbom: true
-                  build-args: |
-                      CHARTED_VERSION=${{steps.tag.outputs.version}}
-                      HELM_VERSION=3.14.3
-                  tags: |
-                      cr.noelware.cloud/charted/helm-plugin:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-beta,
-                      cr.noelware.cloud/charted/helm-plugin:${{steps.tag.outputs.major}}-beta,
-                      cr.noelware.cloud/charted/helm-plugin:${{steps.tag.outputs.version}},
-                      cr.noelware.cloud/charted/helm-plugin:latest
-                  labels: |
-                      org.opencontainers.image.title=charted-server
-                      org.opencontainers.image.description="🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust"
-                      org.opencontainers.image.version=${{steps.tag.outputs.version}}
-                      org.opencontainers.image.revision=${{steps.commit-hash.outputs.commit}}
-                      org.opencontainers.image.licenses=Apache-2.0
-                      org.opencontainers.image.documentation=https://charts.noelware.org
-                      org.opencontainers.image.source=https://github.com/charted-dev/charted/tree/${{steps.commit-hash.outputs.commit}}
+    #         - name: Upload artifacts to GitHub release
+    #           uses: softprops/action-gh-release@v2
+    #           with:
+    #               files: ./.result/charted-helm-plugin-*
+
+    #         - name: Upload artifacts to S3 (artifacts.noelware.cloud/charted/helm-plugin/${{steps.tag.outputs.version}})
+    #           uses: Noelware/s3-action@2.2.6
+    #           with:
+    #               enforce-path-access-style: true
+    #               access-key-id: ${{secrets.S3_ACCESS_KEY}}
+    #               secret-key: ${{secrets.S3_SECRET_KEY}}
+    #               path-format: $(prefix)/charted/server/${{steps.tag.outputs.version}}/$(file)
+    #               directories: .result
+    #               endpoint: ${{secrets.S3_ENDPOINT}}
+    #               prefix: /noelware/artifacts
+    #               region: us-east-1
+    #               bucket: august
+
+    #         - name: Upload artifacts to S3 (artifacts.noelware.cloud/charted/server/latest)
+    #           uses: Noelware/s3-action@2.2.6
+    #           with:
+    #               enforce-path-access-style: true
+    #               access-key-id: ${{secrets.S3_ACCESS_KEY}}
+    #               secret-key: ${{secrets.S3_SECRET_KEY}}
+    #               path-format: $(prefix)/charted/server/latest/$(file)
+    #               directories: .result
+    #               endpoint: ${{secrets.S3_ENDPOINT}}
+    #               prefix: /noelware/artifacts
+    #               region: us-east-1
+    #               bucket: august
+    # nix-build:
+    #     name: Nix Build
+    #     runs-on: ubuntu-latest
+    #     steps:
+    #         - name: Checkout source code
+    #           uses: actions/checkout@v4
+
+    #         - name: Install `nix` binary
+    #           uses: cachix/install-nix-action@v26
+    #           with:
+    #               nix_path: nixpkgs=channel:nixos-unstable
+
+    #         - name: Setup Cachix
+    #           uses: cachix/cachix-action@v14
+    #           with:
+    #               name: noelware
+    #               authToken: ${{secrets.CACHIX_AUTH_TOKEN}}
+
+    #         - name: Build `charted` binary
+    #           run: nix build .#charted
+
+    #         - name: Build `charted-helm-plugin` binary
+    #           run: nix build .#helm-plugin
+    # docker:
+    #     name: Docker
+    #     runs-on: ubuntu-latest
+    #     strategy:
+    #         fail-fast: true
+    #         matrix:
+    #             dockerfile:
+    #                 - debian
+    #                 - alpine
+    #             include:
+    #                 - dockerfile: debian
+    #                   suffix: ''
+    #                   updateDescription: true
+    #                 - dockerfile: alpine
+    #                   suffix: '-alpine'
+    #                   updateDescription: false
+    #     steps:
+    #         - name: Checkout source code
+    #           uses: actions/checkout@v4
+
+    #         - name: Get Git tag
+    #           uses: auguwu/git-tag-action@master
+    #           id: tag
+
+    #         - name: Get commit hash
+    #           id: commit-hash
+    #           run: echo "commit=$(git rev-parse --short=8 $GITHUB_SHA)" >> $GITHUB_OUTPUT
+
+    #         - name: Login into Docker Hub
+    #           uses: docker/login-action@v3
+    #           with:
+    #               username: noelbot
+    #               password: ${{secrets.REGISTRY_PASSWORD}}
+    #               registry: cr.noelware.cloud
+
+    #         - name: Set up QEMU
+    #           uses: docker/setup-qemu-action@v3
+
+    #         - name: Set up Docker Buildx
+    #           uses: docker/setup-buildx-action@v3
+
+    #         - name: Build and push!
+    #           uses: docker/build-push-action@v5
+    #           with:
+    #               provenance: false
+    #               platforms: linux/amd64,linux/arm64
+    #               cache-from: type=gha
+    #               cache-to: type=gha
+    #               context: .
+    #               file: ./distribution/docker/${{matrix.dockerfile}}.Dockerfile
+    #               push: true
+    #               sbom: true
+    #               tags: |
+    #                   cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-beta${{matrix.suffix}},
+    #                   cr.noelware.cloud/charted/server:${{steps.tag.outputs.major}}-beta${{matrix.suffix}},
+    #                   cr.noelware.cloud/charted/server:${{steps.tag.outputs.version}}${{matrix.suffix}},
+    #                   cr.noelware.cloud/charted/server:beta-${{matrix.dockerfile == 'alpine' && 'alpine' || 'latest' }}
+    #               labels: |
+    #                   org.opencontainers.image.title=charted-server
+    #                   org.opencontainers.image.description="🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust"
+    #                   org.opencontainers.image.version=${{steps.tag.outputs.version}}
+    #                   org.opencontainers.image.revision=${{steps.commit-hash.outputs.commit}}
+    #                   org.opencontainers.image.licenses=Apache-2.0
+    #                   org.opencontainers.image.documentation=https://charts.noelware.org
+    #                   org.opencontainers.image.source=https://github.com/charted-dev/charted/tree/${{steps.commit-hash.outputs.commit}}
+    # helm-plugin-docker:
+    #     name: Docker [Helm Plugin]
+    #     runs-on: ubuntu-latest
+    #     needs: [helm-plugin]
+    #     steps:
+    #         - name: Checkout source code
+    #           uses: actions/checkout@v4
+
+    #         - name: Get Git tag
+    #           uses: auguwu/git-tag-action@master
+    #           id: tag
+
+    #         - name: Get commit hash
+    #           id: commit-hash
+    #           run: echo "commit=$(git rev-parse --short=8 $GITHUB_SHA)" >> $GITHUB_OUTPUT
+
+    #         - name: Login into Docker Hub
+    #           uses: docker/login-action@v3
+    #           with:
+    #               username: noelbot
+    #               password: ${{secrets.REGISTRY_PASSWORD}}
+    #               registry: cr.noelware.cloud
+
+    #         - name: Set up QEMU
+    #           uses: docker/setup-qemu-action@v3
+
+    #         - name: Set up Docker Buildx
+    #           uses: docker/setup-buildx-action@v3
+
+    #         - name: Build and push!
+    #           uses: docker/build-push-action@v5
+    #           with:
+    #               provenance: false
+    #               platforms: linux/amd64,linux/arm64
+    #               cache-from: type=gha
+    #               cache-to: type=gha
+    #               context: .
+    #               file: ./tools/helm-plugin/Dockerfile
+    #               push: true
+    #               sbom: true
+    #               build-args: |
+    #                   CHARTED_VERSION=${{steps.tag.outputs.version}}
+    #                   HELM_VERSION=3.14.3
+    #               tags: |
+    #                   cr.noelware.cloud/charted/helm-plugin:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-beta,
+    #                   cr.noelware.cloud/charted/helm-plugin:${{steps.tag.outputs.major}}-beta,
+    #                   cr.noelware.cloud/charted/helm-plugin:${{steps.tag.outputs.version}},
+    #                   cr.noelware.cloud/charted/helm-plugin:latest
+    #               labels: |
+    #                   org.opencontainers.image.title=charted-server
+    #                   org.opencontainers.image.description="🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust"
+    #                   org.opencontainers.image.version=${{steps.tag.outputs.version}}
+    #                   org.opencontainers.image.revision=${{steps.commit-hash.outputs.commit}}
+    #                   org.opencontainers.image.licenses=Apache-2.0
+    #                   org.opencontainers.image.documentation=https://charts.noelware.org
+    #                   org.opencontainers.image.source=https://github.com/charted-dev/charted/tree/${{steps.commit-hash.outputs.commit}}

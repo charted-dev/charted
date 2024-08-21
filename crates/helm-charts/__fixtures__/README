@@ -1,0 +1,2 @@
+* `hello-world.tgz`: created with `cd tmp && helm create hello-world; (cd /tmp/hello-world && helm package .)`
+* `youtrack.tgz`: https://charts.noelware.org/api/v1/repositories/noelware/youtrack/releases/0.1.0.tgz

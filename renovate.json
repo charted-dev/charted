@@ -7,5 +7,15 @@
     "addLabels": ["deps"],
     "vulnerabilityAlerts": {
         "labels": ["security"]
-    }
+    },
+    "customManagers": [
+        {
+            "customType": "regex",
+            "description": "Update Docker tags in any Rust module",
+            "fileMatch": ["^(\\w+).rs$"],
+            "matchStrings": [
+                "\/\/\\s?renovate: datasource=(?<datasource>[a-z-]+)(?: rev=(?<depName>.+))\\sconst .+: &str = \"(?<currentValue>.+?)\";"
+            ]
+        }
+    ]
 }
