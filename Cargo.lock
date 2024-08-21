@@ -1270,8 +1270,8 @@ dependencies = [
  "rand 0.8.5",
  "redis",
  "regex",
- "remi",
- "remi-azure",
+ "remi 0.7.1",
+ "remi-azure 0.8.0",
  "remi-fs",
  "remi-s3",
  "reqwest",
@@ -1333,7 +1333,7 @@ dependencies = [
  "eyre",
  "noelware-config",
  "noelware-serde",
- "remi-azure",
+ "remi-azure 0.8.0",
  "remi-fs",
  "remi-s3",
  "serde",
@@ -1405,7 +1405,7 @@ dependencies = [
  "noelware-remi",
  "once_cell",
  "regex",
- "remi",
+ "remi 0.7.1",
  "remi-fs",
  "semver",
  "sentry",
@@ -3770,8 +3770,8 @@ version = "0.1.0"
 source = "git+https://github.com/Noelware/core-rs?rev=007aacf9b4afa70cf0d69c8a8aa8f01f1c63156d#007aacf9b4afa70cf0d69c8a8aa8f01f1c63156d"
 dependencies = [
  "azure_core",
- "remi",
- "remi-azure",
+ "remi 0.7.1",
+ "remi-azure 0.7.1",
  "remi-fs",
  "remi-s3",
 ]
@@ -4692,6 +4692,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "remi"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ea99d1cfa2378b6ca17db7e7292da6d591dc84e0112eb10618988e35a0eb5275"
+dependencies = [
+ "async-trait",
+ "bytes",
+]
+
+[[package]]
 name = "remi-azure"
 version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4703,7 +4713,23 @@ dependencies = [
  "azure_storage_blobs",
  "bytes",
  "futures-util",
- "remi",
+ "remi 0.7.1",
+ "serde",
+]
+
+[[package]]
+name = "remi-azure"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2c8b86be423a634e6fba4b0bbd879d248e5f7d19f0060ae2462a8cb1c4a74630"
+dependencies = [
+ "async-trait",
+ "azure_core",
+ "azure_storage",
+ "azure_storage_blobs",
+ "bytes",
+ "futures-util",
+ "remi 0.8.0",
  "serde",
  "tracing",
 ]
@@ -4719,7 +4745,7 @@ dependencies = [
  "dirs",
  "file-format",
  "infer 0.15.0",
- "remi",
+ "remi 0.7.1",
  "serde",
  "tokio",
  "tracing",
@@ -4737,7 +4763,7 @@ dependencies = [
  "aws-sdk-s3",
  "aws-smithy-runtime-api",
  "bytes",
- "remi",
+ "remi 0.7.1",
  "serde",
  "tracing",
 ]
