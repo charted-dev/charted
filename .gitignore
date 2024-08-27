@@ -694,6 +694,7 @@ FodyWeavers.xsd
 crates/database/data.db
 !hack/release/
 !crates/bin/
+!Cargo.lock
 config.hcl
 .direnv/
 data/
