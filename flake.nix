@@ -144,24 +144,24 @@
           ++ (lib.optional stdenv.isLinux [mold lldb])
           ++ (lib.optional stdenv.isDarwin (with darwin.apple_sdk.frameworks; [CoreFoundation Security]));
 
-        buildInputs = [
-          pkgs.cargo-nextest
-          pkgs.cargo-machete
-          pkgs.cargo-deny
+        buildInputs = with pkgs; [
+          cargo-nextest
+          cargo-machete
+          cargo-deny
 
           # I don't plan to add MySQL support and probably never will.
-          (pkgs.diesel-cli.override {
+          (diesel-cli.override {
             mysqlSupport = false;
             postgresqlSupport = true;
             sqliteSupport = true;
           })
 
-          pkgs.openssl
-          pkgs.glibc
-          pkgs.git
+          openssl
+          git
 
           rust
-        ];
+        ]
+        ++ (lib.optional stdenv.isLinux [glibc]);
 
         shellHook = ''
           export RUSTFLAGS="--cfg tokio_unstable ${rustflags}"
