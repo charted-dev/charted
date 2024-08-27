@@ -39,7 +39,7 @@ axum = { version = "0.7.5", features = ["macros", "http2"] }
 chrono = { version = "0.4.23", features = ["serde"] }
 clap = { version = "4.5.16", features = ["derive", "env"] }
 derive_more = "1.0.0"
-diesel = "2.2.2"
+diesel = "2.2.3"
 eyre = "0.6.12"
 remi = "0.8.0"
 remi-azure = { version = "0.8.0", features = ["tracing"] }
