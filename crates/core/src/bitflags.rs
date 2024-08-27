@@ -55,7 +55,7 @@ impl<F: Bitflags<Bit = u64>> Bitfield<F> {
     /// #     }
     /// # }
     /// #
-    /// let bitfield = Bitfield::<Scope>::new(0);
+    /// let mut bitfield = Bitfield::<Scope>::new(0);
     /// bitfield.add([Scope::Hello]);
     /// assert_eq!(bitfield.value(), 1);
     /// ```
@@ -67,7 +67,7 @@ impl<F: Bitflags<Bit = u64>> Bitfield<F> {
     //
     // is a good API design choice.
     #[allow(clippy::should_implement_trait)]
-    pub fn add<II: Into<F::Bit>, I: IntoIterator<Item = II>>(mut self, values: I) -> Bitfield<F> {
+    pub fn add<II: Into<F::Bit>, I: IntoIterator<Item = II>>(&mut self, values: I) {
         let iter = values.into_iter().map(Into::into);
         let new = iter.fold(self.0, |mut curr, elem: u64| {
             if elem == u64::MAX {
@@ -82,8 +82,7 @@ impl<F: Bitflags<Bit = u64>> Bitfield<F> {
             curr
         });
 
-        self.0 |= new;
-        self
+        self.0 |= new
     }
 
     /// Removed multiple bits to this [`Bitfield`] and updating the current
@@ -103,7 +102,7 @@ impl<F: Bitflags<Bit = u64>> Bitfield<F> {
     /// #     }
     /// # }
     /// #
-    /// let bitfield = Bitfield::<Scope>::new(0);
+    /// let mut bitfield = Bitfield::<Scope>::new(0);
     ///
     /// bitfield.add([Scope::Hello]);
     /// assert_eq!(bitfield.value(), 1);
@@ -111,7 +110,7 @@ impl<F: Bitflags<Bit = u64>> Bitfield<F> {
     /// bitfield.remove([Scope::Hello]);
     /// assert_eq!(bitfield.value(), 0);
     /// ```
-    pub fn remove<II: Into<F::Bit>, I: IntoIterator<Item = II>>(mut self, values: I) -> Bitfield<F> {
+    pub fn remove<II: Into<F::Bit>, I: IntoIterator<Item = II>>(&mut self, values: I) {
         let iter = values.into_iter().map(Into::into);
         let removed = iter.fold(self.0, |mut curr, elem: u64| {
             if elem == u64::MAX {
@@ -126,8 +125,7 @@ impl<F: Bitflags<Bit = u64>> Bitfield<F> {
             curr
         });
 
-        self.0 &= min(removed, 0);
-        self
+        self.0 &= min(removed, 0)
     }
 }
 
