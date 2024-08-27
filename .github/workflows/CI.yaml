@@ -86,9 +86,9 @@ jobs:
                   path: |
                       ${{steps.vcpkg.outputs.VCPKG_ROOT}}
 
-            - name: Install OpenSSL on Windows with `vcpkg`
+            - name: Install libraries via `vcpkg`
+              run: vcpkg --triplet x64-windows-static-md install openssl sqlite3 libpq
               if: matrix.runner == 'windows-latest'
-              run: vcpkg install openssl:x64-windows-static-md
 
             # On Windows, we'll also need nasm for use with BoringSSL via aws-lc-sys.
             - name: Install NASM on Windows
