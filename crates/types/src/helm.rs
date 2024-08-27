@@ -13,13 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::{DateTime, Version, VersionReq};
 use chrono::Utc;
 use diesel::{deserialize::FromSqlRow, expression::AsExpression, sql_types::Text};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, str::FromStr};
 use utoipa::ToSchema;
-
-use crate::{DateTime, Version, VersionReq};
 
 /// The [`apiVersion`] field should be `v2` for Helm charts that require at least Helm 3.
 ///
@@ -136,7 +135,7 @@ pub struct ChartDependency {
 }
 
 /// Name and URL/email address combination as a maintainer. [ChartMaintainer::name] can be referenced
-/// as a `NameOrSnowflake` union.
+/// as a `Name` or a ULID.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ChartMaintainer {
     /// The maintainer's name

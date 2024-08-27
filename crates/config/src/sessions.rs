@@ -15,23 +15,66 @@
 
 pub mod ldap;
 
-/*
-
-use charted_common::TRUTHY_REGEX;
-use eyre::eyre;
-use noelware_config::{env, merge::Merge, TryFromEnv};
+use azalia::{
+    config::{env, merge::Merge, TryFromEnv},
+    TRUTHY_REGEX,
+};
 use serde::{Deserialize, Serialize};
-use std::{collections::BTreeSet, path::PathBuf};
+use std::env::VarError;
 
-#[derive(Debug, Clone, Default, Merge, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Backend {
+    Ldap(ldap::Config),
+
+    #[default]
+    Local,
+}
+
+impl Merge for Backend {
+    fn merge(&mut self, other: Self) {
+        match (self.clone(), other) {
+            (Backend::Ldap(ref mut ldap1), Backend::Ldap(ldap2)) => {
+                ldap1.merge(ldap2);
+            }
+
+            (_, Backend::Ldap(ldap)) => {
+                *self = Backend::Ldap(ldap);
+            }
+
+            (_, Backend::Local) => {
+                *self = Backend::Local;
+            }
+        }
+    }
+}
+
+impl TryFromEnv for Backend {
+    type Output = Backend;
+    type Error = eyre::Report;
+
+    fn try_from_env() -> Result<Self::Output, Self::Error> {
+        match env!("CHARTED_SESSION_BACKEND") {
+            Ok(res) => match &*res.to_ascii_lowercase() {
+                "ldap" => Ok(Backend::Ldap(ldap::Config::try_from_env()?)),
+                "local" | "default" => Ok(Backend::Local),
+                s => Err(eyre::eyre!("unknown value [{s}]: expected [ldap, local]")),
+            },
+
+            Err(VarError::NotPresent) => Ok(Backend::Local),
+            Err(e) => Err(eyre::eyre!(e)),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize, Merge)]
 pub struct Config {
     /// Allows the API server to accept `Authorization: Basic {base64 of username:password}` when using authenticated
     /// endpoints. This is not recommended in production environments.
     #[serde(default)]
-    #[merge(strategy = noelware_config::merge::strategy::bool::only_if_falsy)]
+    #[merge(strategy = azalia::config::merge::strategy::bool::only_if_falsy)]
     pub enable_basic_auth: bool,
 
-    /// [`Backend`] to use for authenticating users.
     #[serde(default)]
     pub backend: Backend,
 }
@@ -47,74 +90,3 @@ impl TryFromEnv for Config {
         })
     }
 }
-
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub enum Backend {
-    /// Uses a list of htpasswd files to define user:password hashes. This will not provide
-    /// a `password` field when creating users or when creating users in the db.
-    Htpasswd(BTreeSet<PathBuf>),
-
-    /// Uses a LDAP server to authenticate users. This will create a background task to
-    /// import LDAP users if requested.
-    Ldap(ldap::Config),
-
-    /// Enables the use of disallowing passwords to begin with.
-    Passwordless,
-
-    /// Allows to use charted-server's local user system.
-    #[default]
-    Local,
-}
-
-impl Merge for Backend {
-    fn merge(&mut self, other: Self) {
-        match (self.clone(), other) {
-            (Self::Htpasswd(ref mut htpasswd), Self::Htpasswd(htpasswd2)) => htpasswd.merge(htpasswd2),
-            (Self::Ldap(ref mut ldap), Self::Ldap(ldap2)) => ldap.merge(ldap2),
-            (Self::Passwordless, Self::Passwordless) => {} // don't even merge
-            (Self::Local, Self::Local) => {}               // don't merge anything
-
-            (Self::Local, Self::Htpasswd(files)) => {
-                *self = Backend::Htpasswd(files);
-            }
-
-            (Self::Local, Self::Passwordless) => {
-                *self = Backend::Passwordless;
-            }
-
-            (Self::Local, Self::Ldap(config)) => {
-                *self = Backend::Ldap(config);
-            }
-
-            _ => {} // don't do anything if no matches are available
-        }
-    }
-}
-
-impl TryFromEnv for Backend {
-    type Output = Backend;
-    type Error = eyre::Report;
-
-    fn try_from_env() -> Result<Self::Output, Self::Error> {
-        match env!("CHARTED_SESSION_BACKEND") {
-            Ok(res) => match res.as_str() {
-                "htpasswd" => Ok(Backend::Htpasswd(
-                    env!("CHARTED_SESSIONS_HTPASSWD_FILES")
-                        .map(|s| s.split(',').map(PathBuf::from).collect())
-                        .unwrap_or_default(),
-                )),
-
-                "passwordless" => Ok(Backend::Passwordless),
-                "ldap" => Ok(Backend::Ldap(ldap::Config::try_from_env()?)),
-                "local" | "" => Ok(Backend::Local),
-                out => Err(eyre!("expected [htpasswd, ldap, local]; received '{out}'")),
-            },
-            Err(std::env::VarError::NotUnicode(_)) => Err(eyre!(
-                "expected a utf-8 encoded string for `CHARTED_SESSION_BACKEND` env variable"
-            )),
-            Err(_) => Ok(Default::default()),
-        }
-    }
-}
-*/

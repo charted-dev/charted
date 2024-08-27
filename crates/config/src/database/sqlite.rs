@@ -13,11 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::helpers;
 use azalia::config::{env, merge::Merge, TryFromEnv};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
-
-use crate::helpers;
 
 /// ## `database "sqlite" {}`
 ///
@@ -41,6 +40,16 @@ pub struct Config {
     /// The [official Docker image](https://cr.noelware.cloud/~/charted/server) will overwrite this path to `/var/lib/noelware/charted/data/charted.db`.
     #[serde(default = "__db_path")]
     pub db_path: PathBuf,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Config {
+            max_connections: __max_connections(),
+            run_migrations: false,
+            db_path: __db_path(),
+        }
+    }
 }
 
 impl TryFromEnv for Config {

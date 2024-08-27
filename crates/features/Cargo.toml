@@ -29,5 +29,4 @@ authors.workspace = true
 path = "lib.rs"
 
 [dependencies]
-axum.workspace = true
 azalia.workspace = true

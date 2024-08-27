@@ -34,9 +34,9 @@ impl charted_authz::Authenticator for Backend {
                     error!(error = %e, "failed to compute argon2 hash for password");
                 })
                 .map_err(|e|
-                    /* since `password_hash::Error` doesn't implement `std::error::Error`, we forward it to what `eyre!` uses instead */
-                    eyre!(e)
-                )?;
+                    /* since `password_hash::Error` doesn't implement `std::error::Error`,
+                       we forward it to what `eyre!` uses instead */
+                    eyre!(e))?;
 
             ARGON2
                 .verify_password(password.as_ref(), &hash)

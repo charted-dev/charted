@@ -116,7 +116,6 @@ mod tests {
             panic!("failed to get sqlite version")
         };
 
-        dbg!(&s);
         assert!(!s.is_empty());
     }
 }

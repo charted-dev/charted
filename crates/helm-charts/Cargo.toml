@@ -26,7 +26,6 @@ authors.workspace = true
 
 [dependencies]
 azalia = { workspace = true, features = ["remi", "remi-fs"] }
-charted-core = { version = "0.1.0", path = "../core", default-features = false }
 charted-types = { version = "0.1.0", path = "../types" }
 eyre.workspace = true
 flate2 = "1.0.32"

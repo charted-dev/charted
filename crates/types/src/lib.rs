@@ -18,6 +18,8 @@
 
 mod db;
 
+use std::fmt::Display;
+
 pub use db::*;
 
 pub mod helm;
@@ -45,6 +47,7 @@ charted_core::create_newtype_wrapper! {
     /// * [`AsExpression`]<[`Timestamp`]>
     /// * [`AsExpression`]<[`Timestamptz`]>
     /// * [`utoipa::ToSchema`]
+    #[cfg_attr(feature = "jsonschema", doc = "* [`schemars::JsonSchema`](https://docs.rs/schemars/*/schemars/trait.JsonSchema.html)")]
     #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, AsExpression)]
     #[diesel(sql_type = Timestamp)]
     #[diesel(sql_type = Timestamptz)]
@@ -89,6 +92,11 @@ impl ::schemars::JsonSchema for DateTime {
 charted_core::create_newtype_wrapper! {
     /// Newtype wrapper for [`semver::Version`] which implements common traits that charted-server uses for
     /// API entities.
+    ///
+    /// ## Implements
+    /// * [`utoipa::ToSchema`]
+    /// * [`diesel::AsExpression`], [`diesel::FromSqlRow`]
+    #[cfg_attr(feature = "jsonschema", doc = "* [`schemars::JsonSchema`](https://docs.rs/schemars/*/schemars/trait.JsonSchema.html)")]
     #[derive(Debug, Clone, Serialize, Deserialize, Eq, PartialEq, Ord, PartialOrd, Hash, AsExpression, FromSqlRow)]
     #[diesel(sql_type = Text)]
     pub Version for semver::Version;
@@ -151,11 +159,18 @@ impl ::schemars::JsonSchema for Version {
     }
 }
 
+impl Display for Version {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        <::semver::Version as Display>::fmt(&self.0, f)
+    }
+}
+
 charted_core::create_newtype_wrapper! {
     /// Newtype wrapper for the [`semver::VersionReq`] type that implements
     /// the following traits:
     ///
     /// * [`utoipa::ToSchema`]
+    #[cfg_attr(feature = "jsonschema", doc = "* [`schemars::JsonSchema`](https://docs.rs/schemars/*/schemars/trait.JsonSchema.html)")]
     #[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
     pub VersionReq for ::semver::VersionReq;
 }
@@ -207,6 +222,12 @@ charted_core::create_newtype_wrapper! {
     #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, AsExpression)]
     #[diesel(sql_type = Text)]
     pub Ulid for ::ulid::Ulid;
+}
+
+impl Display for Ulid {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        <::ulid::Ulid as Display>::fmt(&self.0, f)
+    }
 }
 
 impl Ulid {

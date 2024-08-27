@@ -12,9 +12,12 @@
         // access the Handle::metrics method.
         "RUSTFLAGS": "--cfg tokio_unstable"
     },
-    // Allows to run integration tests with logging enabled
     "rust-analyzer.runnables.extraEnv": {
-        "INTEGTEST_LOG": "trace"
+        // Allows to run integration tests with logging enabled
+        "INTEGTEST_LOG": "trace",
+
+        // Generate a full backtrace when tests error out
+        "RUST_BACKTRACE": "full"
     },
     "[rust]": {
         "editor.defaultFormatter": "rust-lang.rust-analyzer"

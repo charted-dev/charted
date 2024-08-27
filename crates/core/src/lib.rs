@@ -15,8 +15,6 @@
 
 #![feature(once_cell_try)]
 
-pub use charted_proc_macros as macros;
-
 mod distribution;
 pub use distribution::*;
 
@@ -33,6 +31,7 @@ pub mod testkit;
 mod macros_;
 
 use argon2::Argon2;
+use rand::distributions::{Alphanumeric, DistString};
 use std::{
     fmt,
     sync::{LazyLock, OnceLock},
@@ -77,4 +76,8 @@ pub fn version() -> &'static str {
         Ok(buf)
     })
     .unwrap_or_else(|e| panic!("internal error: {e}"))
+}
+
+pub fn rand_string(len: usize) -> String {
+    Alphanumeric.sample_string(&mut rand::thread_rng(), len)
 }

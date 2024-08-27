@@ -35,40 +35,14 @@ pub fn env_from_str<F: FromStr>(key: &str, default: F) -> eyre::Result<F> {
     }
 }
 
-/*
-pub fn env<U: FromStr, S: Into<String>, F>(key: S, default: U, onfail: F) -> eyre::Result<U>
-where
-    F: FnOnce(<U as FromStr>::Err) -> Cow<'static, str>,
-{
-    let env = key.into();
-    match noelware_config::env!(&env) {
-        Ok(val) => match val.parse::<U>() {
-            Ok(val) => Ok(val),
-            Err(e) => Err(eyre!("failed to parse for env `{}`: {}", env, onfail(e))),
-        },
+pub fn env_optional_from_str<F: FromStr>(key: &str, default: Option<F>) -> eyre::Result<Option<F>> {
+    match azalia::config::env!(key) {
+        Ok(value) => value
+            .parse::<F>()
+            .map(Some)
+            .map_err(|_| eyre!("failed to parse environment variable `${key}`")),
 
         Err(VarError::NotPresent) => Ok(default),
-        Err(VarError::NotUnicode(_)) => Err(eyre!("received invalid unicode data for `{}` env", env)),
+        Err(VarError::NotUnicode(_)) => Err(eyre!("received non-unicode in `${}` environment variable", key)),
     }
 }
-
-pub fn env_string<S: Into<String>>(key: S, default: String) -> eyre::Result<String> {
-    let env = key.into();
-    match noelware_config::env!(&env) {
-        Ok(val) => Ok(val),
-        Err(VarError::NotPresent) => Ok(default),
-        Err(VarError::NotUnicode(_)) => Err(eyre!("received invalid unicode for `{env}` env")),
-    }
-}
-
-
-            max_connections: match env!("CHARTED_DATABASE_MAX_CONNECTIONS") {
-                Ok(value) => value.parse::<u32>()?,
-                Err(VarError::NotPresent) => __max_connections(),
-                Err(VarError::NotUnicode(_)) => {
-                    return Err(eyre!(
-                        "received non-unicode in `$CHARTED_DATABASE_MAX_CONNECTIONS` environment variable"
-                    ))
-                }
-            },
-*/

@@ -29,7 +29,6 @@ azalia = { workspace = true, features = ["log", "log-writers"] }
 clap.workspace = true
 color-eyre = "0.6.3"
 eyre.workspace = true
-tokio = { version = "1.39.3", features = ["rt", "macros"] }
 tracing.workspace = true
 tracing-subscriber.workspace = true
 which.workspace = true

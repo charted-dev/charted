@@ -13,21 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use axum::Router;
+// TODO(@auguwu): how do we get `ServerContext` from `charted_server` if we require
+//                the `Feature` trait to determine what features are avaliable.
+
 use azalia::rust::AsArcAny;
 use std::any::{Any, TypeId};
 
 /// Represents a feature that can be enabled or disabled by the `features` object
 /// in the API server configuration file.
 ///
-/// For now, this is a marker trait for the `GlobalContext` object to determine
+/// For now, this is a marker trait for the `ServerContext` object to determine
 /// a list of features enabled.
-pub trait Feature: AsArcAny + Send + Sync {
-    /// Extend a [`Router`] with additional routes.
-    fn extend_router(&self, router: Router) -> Router {
-        router
-    }
-}
+pub trait Feature: AsArcAny + Send + Sync {}
 
 impl dyn Feature + 'static {
     /// Compares if [`self`] is `T`, similar to [`Any::is`].

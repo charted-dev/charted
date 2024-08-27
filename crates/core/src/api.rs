@@ -310,6 +310,32 @@ impl From<(ErrorCode, &'static str, Option<Value>)> for Error {
     }
 }
 
+impl From<(ErrorCode, Cow<'static, str>)> for Error {
+    fn from((code, message): (ErrorCode, Cow<'static, str>)) -> Self {
+        Error {
+            code,
+            details: None,
+            message,
+        }
+    }
+}
+
+impl From<(ErrorCode, Cow<'static, str>, Value)> for Error {
+    fn from((code, message, details): (ErrorCode, Cow<'static, str>, Value)) -> Self {
+        Error {
+            code,
+            message,
+            details: Some(details),
+        }
+    }
+}
+
+impl From<(ErrorCode, Cow<'static, str>, Option<Value>)> for Error {
+    fn from((code, message, details): (ErrorCode, Cow<'static, str>, Option<Value>)) -> Self {
+        Error { code, details, message }
+    }
+}
+
 /// Returns a successful API response.
 pub fn ok<T>(status: StatusCode, data: T) -> Response<T> {
     Response {
@@ -334,9 +360,4 @@ pub fn err<E: Into<Error>>(status: StatusCode, error: E) -> Response {
 /// and the [`INTERNAL_SERVER_ERROR`] error details.
 pub fn internal_server_error() -> Response {
     err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
-}
-
-// TODO(@auguwu): find a better way of doing this :pensive:
-fn __slice_is_empty(slices: &&[Error]) -> bool {
-    slices.is_empty()
 }

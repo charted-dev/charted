@@ -16,7 +16,7 @@
 pub mod postgresql;
 pub mod sqlite;
 
-use azalia::config::{env, TryFromEnv};
+use azalia::config::{env, merge::Merge, TryFromEnv};
 use eyre::eyre;
 use serde::{Deserialize, Serialize};
 use std::{env::VarError, fmt::Display};
@@ -38,6 +38,30 @@ pub enum Config {
     ///
     /// [SQLite]: https://sqlite.org
     SQLite(sqlite::Config),
+}
+
+impl Merge for Config {
+    fn merge(&mut self, other: Self) {
+        match (self, other) {
+            (Self::PostgreSQL(psql1), Self::PostgreSQL(psql2)) => {
+                psql1.merge(psql2);
+            }
+
+            (Self::SQLite(sqlite1), Self::SQLite(sqlite2)) => {
+                sqlite1.merge(sqlite2);
+            }
+
+            (me, other) => {
+                *me = other;
+            }
+        }
+    }
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self::SQLite(sqlite::Config::default())
+    }
 }
 
 impl Display for Config {

@@ -26,4 +26,33 @@ repository.workspace = true
 authors.workspace = true
 
 [dependencies]
+azalia = { workspace = true, features = ["remi", "remi-all"] }
+async-trait = "0.1.81"
 axum.workspace = true
+axum-server = { version = "0.7.1", features = ["tls-rustls"] }
+charted-authz = { version = "0.1.0", path = "../authz" }
+charted-core = { version = "0.1.0", path = "../core" }
+charted-config = { version = "0.1.0", path = "../config" }
+charted-database = { version = "0.1.0", path = "../database" }
+charted-features = { version = "0.1.0", path = "../features" }
+charted-helm-charts = { version = "0.1.0", path = "../helm-charts" }
+charted-types = { version = "0.1.0", path = "../types" }
+eyre.workspace = true
+inventory = "0.3.15"
+mime = "0.3.17"
+multer = "3.1.0"
+sentry.workspace = true
+sentry-tower = { version = "0.34.0", features = ["axum", "http"] }
+serde.workspace = true
+serde_json.workspace = true
+serde_path_to_error = "0.1.16"
+serde_yaml_ng = "0.10.0"
+tokio = { version = "1.39.3", features = ["signal", "net"] }
+tower = "0.5.0"
+tower-http = { version = "0.5.2", features = [
+    "catch-panic",
+    "compression-gzip",
+    "cors",
+] }
+tracing.workspace = true
+utoipa.workspace = true

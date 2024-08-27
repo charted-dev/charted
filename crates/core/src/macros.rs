@@ -17,7 +17,6 @@
 ///
 /// * [`core::ops::Deref`]
 /// * [`core::convert::From`]
-/// * [`std::fmt::Display`]
 ///
 /// To add more external traits, you can add `#[derive]` at the top of the statement:
 /// ```no_run
@@ -33,36 +32,21 @@
 macro_rules! create_newtype_wrapper {
     (
         $(#[$meta:meta])*
-        $vis:vis $name:ident for $ty:ty;
+        $vis:vis $name:ident$(<$generics:tt>)? for $pubvis:vis $ty:ty;
     ) => {
         $(#[$meta])*
-        $vis struct $name($ty);
+        $vis struct $name $(<$generics>)? ($pubvis $ty);
 
-        impl ::core::convert::From<$ty> for $name {
+        impl$(<$generics>)? ::core::convert::From<$ty> for $name $(<$generics>)? {
             fn from(value: $ty) -> Self {
                 Self(value)
             }
         }
 
-        impl ::core::convert::From<$name> for $ty {
-            fn from(value: $name) -> Self {
-                value.0
-            }
-        }
-
-        impl ::core::ops::Deref for $name {
+        impl$(<$generics>)? ::core::ops::Deref for $name$(<$generics>)? {
             type Target = $ty;
             fn deref(&self) -> &Self::Target {
                 &self.0
-            }
-        }
-
-        impl ::std::fmt::Display for $name
-        where
-            $ty: ::std::fmt::Display,
-        {
-            fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-                ::std::fmt::Display::fmt(&self.0, f)
             }
         }
     };

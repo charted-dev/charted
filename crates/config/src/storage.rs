@@ -1,17 +1,32 @@
+// 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
+// Copyright 2022-2024 Noelware, LLC. <team@noelware.org>
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+use crate::helpers;
 use aws_sdk_s3::{
     config::Region,
     types::{BucketCannedAcl, ObjectCannedAcl},
 };
 use azalia::{
-    config::{env, TryFromEnv},
+    config::{env, merge::Merge, TryFromEnv},
     TRUTHY_REGEX,
 };
+use azure_storage::CloudLocation;
 use eyre::{eyre, Context, Report};
 use remi_azure::Credential;
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, path::PathBuf, str::FromStr};
-
-use crate::helpers;
 
 /// Configures the storage for holding external media and chart indexes.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -27,6 +42,142 @@ pub enum Config {
     /// Uses Amazon's Simple Storage Service (S3) service or a S3-compatible server to store
     /// external media and chart indexes.
     S3(remi_s3::StorageConfig),
+}
+
+macro_rules! merge_tuple {
+    ($first:expr, $second:expr, copyable) => {
+        match ($first, $second) {
+            (Some(obj1), Some(obj2)) if obj1 != obj2 => {
+                $first = Some(obj2);
+            }
+
+            (None, Some(obj)) => {
+                $first = Some(obj);
+            }
+
+            _ => {}
+        }
+    };
+
+    ($first:expr, $second:expr) => {
+        match (&($first), &($second)) {
+            (Some(obj1), Some(obj2)) if obj1 != obj2 => {
+                $first = Some(obj2.clone());
+            }
+
+            (None, Some(obj)) => {
+                $first = Some(obj.clone());
+            }
+
+            _ => {}
+        }
+    };
+}
+
+impl Merge for Config {
+    fn merge(&mut self, other: Self) {
+        match (self, other) {
+            (Self::Filesystem(fs1), Self::Filesystem(fs2)) => {
+                fs1.directory.merge(fs2.directory);
+            }
+
+            (Self::Azure(me), Self::Azure(other)) => {
+                me.container.merge(other.container);
+
+                match (&me.location, &other.location) {
+                    (CloudLocation::Public { account: acc1 }, CloudLocation::Public { account: acc2 })
+                        if acc1 != acc2 =>
+                    {
+                        me.location = CloudLocation::Public { account: acc2.clone() };
+                    }
+
+                    (CloudLocation::China { account: acc1 }, CloudLocation::China { account: acc2 })
+                        if acc1 != acc2 =>
+                    {
+                        me.location = CloudLocation::China { account: acc2.clone() };
+                    }
+
+                    (
+                        CloudLocation::Emulator {
+                            address: addr1,
+                            port: port1,
+                        },
+                        CloudLocation::Emulator {
+                            address: addr2,
+                            port: port2,
+                        },
+                    ) if addr1 != addr2 || port1 != port2 => {
+                        me.location = CloudLocation::Emulator {
+                            address: addr2.clone(),
+                            port: *port2,
+                        };
+                    }
+
+                    (_, other) => {
+                        me.location = other.clone();
+                    }
+                }
+
+                match (&me.credentials, &other.credentials) {
+                    (
+                        Credential::AccessKey {
+                            account: acc1,
+                            access_key: ak1,
+                        },
+                        Credential::AccessKey { account, access_key },
+                    ) if acc1 != account || access_key != ak1 => {
+                        me.credentials = Credential::AccessKey {
+                            account: account.clone(),
+                            access_key: access_key.clone(),
+                        };
+                    }
+
+                    (Credential::SASToken(token1), Credential::SASToken(token2)) if token1 != token2 => {
+                        me.credentials = Credential::SASToken(token2.to_owned());
+                    }
+
+                    (Credential::Bearer(token1), Credential::Bearer(token2)) if token1 != token2 => {
+                        me.credentials = Credential::SASToken(token2.to_owned());
+                    }
+
+                    (Credential::Anonymous, Credential::Anonymous) => {}
+
+                    // overwrite if they aren't the same at all
+                    (_, other) => {
+                        me.credentials = other.clone();
+                    }
+                };
+            }
+
+            (Self::S3(me), Self::S3(other)) => {
+                azalia::config::merge::strategy::bool::only_if_falsy(
+                    &mut me.enable_signer_v4_requests,
+                    other.enable_signer_v4_requests,
+                );
+
+                azalia::config::merge::strategy::bool::only_if_falsy(
+                    &mut me.enforce_path_access_style,
+                    other.enforce_path_access_style,
+                );
+
+                merge_tuple!(me.default_bucket_acl, other.default_bucket_acl);
+                merge_tuple!(me.default_object_acl, other.default_object_acl);
+
+                me.secret_access_key.merge(other.secret_access_key);
+                me.access_key_id.merge(other.access_key_id);
+
+                merge_tuple!(me.app_name, other.app_name);
+                merge_tuple!(me.endpoint, other.endpoint);
+                merge_tuple!(me.region, other.region);
+
+                me.bucket.merge(other.bucket);
+            }
+
+            (me, other) => {
+                *me = other;
+            }
+        }
+    }
 }
 
 impl Default for Config {

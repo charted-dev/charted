@@ -34,5 +34,4 @@ charted-authz = { version = "0.1.0", path = ".." }
 charted-core = { version = "0.1.0", path = "../../core", default-features = false }
 charted-types = { version = "0.1.0", path = "../../types", default-features = false }
 eyre.workspace = true
-sentry.workspace = true
 tracing.workspace = true
