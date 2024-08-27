@@ -44,4 +44,9 @@ remi-s3 = { workspace = true, features = ["serde"] }
 sentry-types = "0.34.0"
 serde.workspace = true
 tracing.workspace = true
-ubyte = { version = "0.10.4", features = ["serde"] }
+
+[package.metadata.cargo-machete]
+ignored = [
+    # the crate name is `hcl` but the name on crates.io is `hcl-rs`.
+    "hcl-rs",
+]
