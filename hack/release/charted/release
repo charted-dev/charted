@@ -15,14 +15,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# the `./distribution/hoshi/zip` script allows to create a `.zip` file
-# with the following contents:
-#
-# | ~~~~~~~~~~~~~~~~~~~~~ |
-# | - config/hoshi.toml   |
-# | - node_modules/       |
-# | - bin/hoshi           |
-# | - build/              |
-# | - LICENSE             |
-# | - README              |
-# | ~~~~~~~~~~~~~~~~~~~~~ |
+# The `./hack/charted/release` script builds a binary and the checksum for it into `$CHARTED_ROOT/.result`,
+# so that the distribution scripts (in `distribution/charted`) can use them to build a tarball/zip of itself.

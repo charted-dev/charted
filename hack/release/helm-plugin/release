@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
 # Copyright 2022-2024 Noelware, LLC. <team@noelware.org>
 #
@@ -13,11 +15,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[instance]
-dbpath = "/var/lib/noelware/charted/hoshi/data.db"
-
-[charted]
-mount_slash_api = true
-
-# it'll attempt to connect to one of these and use the readily avaliable one.
-hosts = ["http://charted:3651", "http://charted-server:3651"]
+# The `./hack/helm-plugin/release` script builds a binary and the checksum for it into `$CHARTED_ROOT/.result`,
+# so that the distribution scripts (in `distribution/helm-plugin`) can use them to build a tarball/zip of itself.

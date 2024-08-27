@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 # 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
 # Copyright 2022-2024 Noelware, LLC. <team@noelware.org>
 #
@@ -14,15 +12,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-# the `./distribution/hoshi/tarball` script allows to create a `.tar.gz` file
-# with the following contents:
-#
-# | ~~~~~~~~~~~~~~~~~~~~~ |
-# | - config/hoshi.toml   |
-# | - node_modules/       |
-# | - bin/hoshi           |
-# | - build/              |
-# | - LICENSE             |
-# | - README              |
-# | ~~~~~~~~~~~~~~~~~~~~~ |
