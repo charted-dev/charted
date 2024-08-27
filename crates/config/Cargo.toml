@@ -38,10 +38,9 @@ charted-core = { version = "0.1.0", path = "../core", default-features = false, 
 ] }
 eyre.workspace = true
 hcl-rs = "0.18.0"
-rand = "0.8.5"
-remi-azure = { version = "0.8.0", features = ["serde"] }
-remi-fs = { version = "0.8.0", features = ["serde"] }
-remi-s3 = { version = "0.8.0", features = ["serde"] }
+remi-azure = { workspace = true, features = ["serde"] }
+remi-fs = { workspace = true, features = ["serde"] }
+remi-s3 = { workspace = true, features = ["serde"] }
 sentry-types = "0.34.0"
 serde.workspace = true
 tracing.workspace = true

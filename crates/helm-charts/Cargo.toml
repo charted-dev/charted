@@ -30,16 +30,16 @@ charted-types = { version = "0.1.0", path = "../types" }
 eyre.workspace = true
 flate2 = "1.0.32"
 itertools = "0.13.0"
-multer = "3.1.0"
+multer.workspace = true
 remi.workspace = true
 sentry.workspace = true
-serde_yaml_ng = "0.10.0"
+serde_yaml_ng.workspace = true
 tar = "0.4.41"
-tokio = { version = "1.39.3", features = ["io-std", "io-util"] }
+tokio = { workspace = true, features = ["io-std", "io-util"] }
 tracing.workspace = true
 
 [dev-dependencies]
 remi-fs.workspace = true
 semver.workspace = true
 tempfile.workspace = true
-tokio = { version = "1.39.3", features = ["rt", "macros"] }
+tokio = { workspace = true, features = ["rt", "macros"] }

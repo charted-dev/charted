@@ -24,7 +24,6 @@ use azalia::{
     config::{env, merge::Merge, FromEnv, TryFromEnv},
     TRUTHY_REGEX,
 };
-use rand::distributions::{Alphanumeric, DistString};
 use sentry_types::Dsn;
 use serde::{Deserialize, Serialize};
 
@@ -169,7 +168,7 @@ impl Config {
 }
 
 fn __generated_secret_key() -> String {
-    Alphanumeric.sample_string(&mut rand::thread_rng(), 16)
+    charted_core::rand_string(16)
 }
 
 const fn __truthy() -> bool {

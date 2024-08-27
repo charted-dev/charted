@@ -1139,7 +1139,6 @@ dependencies = [
  "charted-core",
  "eyre",
  "hcl-rs",
- "rand 0.8.5",
  "remi-azure",
  "remi-fs",
  "remi-s3",
@@ -3592,6 +3591,7 @@ dependencies = [
  "futures-util",
  "remi",
  "serde",
+ "tracing",
 ]
 
 [[package]]
@@ -3640,6 +3640,7 @@ dependencies = [
  "bytes",
  "remi",
  "serde",
+ "tracing",
 ]
 
 [[package]]

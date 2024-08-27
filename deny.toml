@@ -13,9 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# we only support the following targets below
 [graph]
 all-features = true
+
+# we only support the following targets below
 targets = [
     { triple = "x86_64-unknown-linux-gnu" },
     { triple = "x86_64-unknown-linux-musl" },
@@ -59,6 +60,7 @@ exceptions = [
     # which is licensed under Unicode-DFS-2016.
     # See https://github.com/dtolnay/unicode-ident/pull/4
     { name = "unicode-ident", allow = ["Unicode-DFS-2016"] },
+    { name = "aws-lc-sys", allow = ["OpenSSL"] },
     { name = "ring", allow = ["OpenSSL"] },
 ]
 
