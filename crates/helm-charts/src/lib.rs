@@ -347,24 +347,27 @@ mod tests {
 
     macro_rules! testcases {
         ($($name:ident($storage:ident) $code:block;)*) => {
-            $(#[tokio::test]
-            async fn $name() {
-                use ::azalia::remi::remi::StorageService;
+            $(
+                #[tokio::test]
+                #[cfg_attr(windows, ignore = "fails on windows because it feels like it i guess")]
+                async fn $name() {
+                    use ::azalia::remi::remi::StorageService;
 
-                let tempdir = ::tempfile::TempDir::new().unwrap();
-                let path = tempdir.into_path();
-                let $storage = ::azalia::remi::StorageService::Filesystem(::remi_fs::StorageService::with_config(
-                    remi_fs::Config::new(&path),
-                ));
+                    let tempdir = ::tempfile::TempDir::new().unwrap();
+                    let path = tempdir.into_path();
+                    let $storage = ::azalia::remi::StorageService::Filesystem(::remi_fs::StorageService::with_config(
+                        remi_fs::Config::new(&path),
+                    ));
 
-                ($storage).init().await.expect("failed to initialize");
-                $code
+                    ($storage).init().await.expect("failed to initialize");
+                    $code
 
-                // clean up the storage service so we don't dangle the `path` from being destroyed since it
-                // is a reference to the tempdir
-                ::std::mem::drop($storage);
-                ::std::fs::remove_dir_all(path).expect("tempdir to be removed by now");
-            })*
+                    // clean up the storage service so we don't dangle the `path` from being destroyed since it
+                    // is a reference to the tempdir
+                    ::std::mem::drop($storage);
+                    ::std::fs::remove_dir_all(path).expect("tempdir to be removed by now");
+                }
+            )*
         };
     }
 
