@@ -1142,15 +1142,25 @@ name = "charted-cli"
 version = "0.1.0"
 dependencies = [
  "azalia",
+ "charted-authz",
+ "charted-authz-ldap",
+ "charted-authz-local",
  "charted-config",
  "charted-core",
+ "charted-database",
  "charted-server",
  "clap",
  "clap_complete",
  "eyre",
  "num_cpus",
  "owo-colors 4.0.0",
+ "remi-azure",
+ "remi-fs",
+ "remi-s3",
+ "sentry",
+ "sentry-tracing",
  "tracing",
+ "tracing-error",
  "tracing-subscriber",
 ]
 

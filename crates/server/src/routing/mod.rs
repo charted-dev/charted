@@ -86,7 +86,9 @@ pub fn create_router(cx: &ServerContext) -> Router<ServerContext> {
                     Method::DELETE,
                 ])
                 .allow_origin(cors::Any),
-        );
+        )
+        .layer(axum::middleware::from_fn(crate::middleware::request_id))
+        .layer(axum::middleware::from_fn(crate::middleware::log));
 
     Router::new().merge(mk_router!(cx, v1)).layer(stack)
 }

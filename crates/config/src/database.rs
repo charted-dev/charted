@@ -113,4 +113,11 @@ impl Config {
             Config::SQLite(sqlite) => sqlite.max_connections,
         }
     }
+
+    pub fn can_run_migrations(&self) -> bool {
+        match self {
+            Config::PostgreSQL(psql) => psql.run_migrations,
+            Config::SQLite(sqlite) => sqlite.run_migrations,
+        }
+    }
 }

@@ -31,13 +31,23 @@ azalia = { workspace = true, features = [
     "log-writers",
     "log-tracing-log",
 ] }
+charted-authz = { version = "0.1.0", path = "../authz" }
+charted-authz-ldap = { version = "0.1.0", path = "../authz/ldap" }
+charted-authz-local = { version = "0.1.0", path = "../authz/local" }
 charted-config = { version = "0.1.0", path = "../config" }
 charted-core = { workspace = true, default-features = false }
+charted-database.workspace = true
 charted-server = { version = "0.1.0", path = "../server" }
 clap = { workspace = true, features = ["derive", "env"] }
 clap_complete = "4.5.24"
 eyre.workspace = true
 num_cpus = "1.16.0"
 owo-colors = { version = "4.0.0", features = ["supports-colors"] }
+remi-azure = { workspace = true, features = ["tracing"] }
+remi-fs = { workspace = true, features = ["tracing"] }
+remi-s3 = { workspace = true, features = ["tracing"] }
+sentry.workspace = true
+sentry-tracing = "0.34.0"
 tracing.workspace = true
+tracing-error = "0.2.0"
 tracing-subscriber.workspace = true

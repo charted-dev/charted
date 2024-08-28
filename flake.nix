@@ -89,7 +89,7 @@
 
       helm-plugin = rustPlatform.buildRustPackage {
         nativeBuildInputs = with pkgs; [pkg-config protobuf installShellFiles];
-        buildInputs = with pkgs; [openssl];
+        buildInputs = with pkgs; [openssl sqlite postgresql];
         cargoSha256 = pkgs.lib.fakeSha256;
         version = "${cargoTOML.workspace.package.version}";
         name = "charted-helm-plugin";

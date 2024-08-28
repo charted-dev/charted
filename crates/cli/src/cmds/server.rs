@@ -13,9 +13,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use azalia::log::{
+    writers::{self, default::Writer},
+    WriteLayer,
+};
+use charted_config::{sessions::Backend, storage, Config};
 use charted_core::Distribution;
+use charted_server::ServerContext;
 use owo_colors::{OwoColorize, Stream::Stdout};
-use std::{io, io::Write as _, path::PathBuf};
+use std::{
+    borrow::Cow,
+    io::{self, Write as _},
+    path::PathBuf,
+    sync::{atomic::AtomicUsize, Arc},
+};
+use tracing::level_filters::LevelFilter;
+use tracing::{info, warn};
+use tracing_subscriber::prelude::*;
 
 /// Runs the API server.
 #[derive(Debug, Clone, clap::Parser)]
@@ -31,10 +45,88 @@ pub struct Args {
     pub workers: usize,
 }
 
-pub async fn run(_: Args) -> eyre::Result<()> {
+pub async fn run(Args { config, .. }: Args) -> eyre::Result<()> {
     print_banner();
 
-    Ok(())
+    let config =
+        config
+            .map(|path| Config::new(Some(path)))
+            .unwrap_or(match Config::get_default_conf_location_if_any() {
+                Ok(Some(path)) => Config::new(Some(path)),
+                _ => Config::new::<&str>(None),
+            })?;
+
+    let _guard = sentry::init(sentry::ClientOptions {
+        attach_stacktrace: true,
+        server_name: Some(Cow::Borrowed("charted-server")),
+        release: Some(Cow::Borrowed(charted_core::version())),
+        dsn: config.sentry_dsn.clone(),
+
+        ..Default::default()
+    });
+
+    init_logger(&config);
+    info!("initializing systems...");
+
+    let pool = charted_database::create_pool(&config.database)?;
+    let version = charted_database::version(&pool)?;
+
+    info!("retrieved server version from database: {version}; determined that it works.");
+    if config.database.can_run_migrations() {
+        info!("running all migrations that need to happen!");
+        charted_database::migrations::migrate(&pool)?;
+    }
+
+    info!("initializing data storage...");
+    let storage = match config.storage.clone() {
+        storage::Config::Filesystem(fs) => {
+            azalia::remi::StorageService::Filesystem(remi_fs::StorageService::with_config(fs))
+        }
+
+        storage::Config::Azure(azure) => azalia::remi::StorageService::Azure(remi_azure::StorageService::new(azure)),
+        storage::Config::S3(s3) => azalia::remi::StorageService::S3(remi_s3::StorageService::new(s3)),
+    };
+
+    azalia::remi::remi::StorageService::init(&storage).await?;
+    info!("initialized data storage successfully!");
+
+    info!("initializing authz backend...");
+    let authz: Arc<dyn charted_authz::Authenticator> = match config.sessions.backend {
+        Backend::Local => Arc::new(charted_authz_local::Backend),
+        _ => {
+            warn!("using other authz backends is not supported as of this time, using local backend as fallback");
+            Arc::new(charted_authz_local::Backend)
+        }
+    };
+
+    let cx = ServerContext {
+        requests: AtomicUsize::new(0),
+        features: Vec::new(),
+        config,
+        authz,
+        pool,
+    };
+
+    charted_server::start(cx).await
+}
+
+fn init_logger(config: &Config) {
+    tracing_subscriber::registry()
+        .with(
+            match config.logging.json {
+                false => WriteLayer::new_with(io::stdout(), Writer::default()),
+                true => WriteLayer::new_with(io::stdout(), writers::json),
+            }
+            .with_filter(LevelFilter::from_level(config.logging.level))
+            .with_filter(tracing_subscriber::filter::filter_fn(|meta| {
+                // disallow from getting logs from `tokio` since it doesn't contain anything
+                // useful to us
+                !meta.target().starts_with("tokio::")
+            })),
+        )
+        .with(sentry_tracing::layer())
+        .with(tracing_error::ErrorLayer::default())
+        .init();
 }
 
 fn print_banner() {

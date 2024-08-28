@@ -64,7 +64,7 @@ impl TryFromEnv for Config {
                 false,
             )?,
 
-            db_path: env!("CHARTED_DATABASE_PATH", as PathBuf)?,
+            db_path: env!("CHARTED_DATABASE_PATH", as PathBuf).unwrap_or(__db_path()),
         })
     }
 }

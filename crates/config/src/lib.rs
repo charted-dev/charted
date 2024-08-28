@@ -66,19 +66,19 @@ pub struct Config {
     #[merge(strategy = azalia::config::merge::strategy::bool::only_if_falsy)]
     pub single_user: bool,
 
-    #[serde(default)]
+    #[serde(default, serialize_with = "hcl::ser::labeled_block")]
     pub database: database::Config,
 
-    #[serde(default)]
+    #[serde(default, serialize_with = "hcl::ser::labeled_block")]
     pub storage: storage::Config,
 
-    #[serde(default)]
+    #[serde(default, serialize_with = "hcl::ser::block")]
     pub logging: logging::Config,
 
-    #[serde(default)]
+    #[serde(default, serialize_with = "hcl::ser::block")]
     pub server: server::Config,
 
-    #[serde(default)]
+    #[serde(default, serialize_with = "hcl::ser::block")]
     pub sessions: sessions::Config,
 }
 

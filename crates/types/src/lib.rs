@@ -13,13 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![allow(clippy::too_long_first_doc_paragraph)]
+
 //! The `charted-types` crate defines types that can be used within the lifecycle
 //! of the API server.
 
 mod db;
-
-use std::fmt::Display;
-
 pub use db::*;
 
 pub mod helm;
@@ -35,6 +34,7 @@ use diesel::{
     sql_types::{Text, Timestamp, Timestamptz},
 };
 use serde::{Deserialize, Serialize};
+use std::fmt::Display;
 use utoipa::{
     openapi::{KnownFormat, ObjectBuilder, RefOr, Schema, SchemaFormat, SchemaType},
     ToSchema,

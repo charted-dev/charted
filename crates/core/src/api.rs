@@ -349,7 +349,7 @@ pub fn ok<T>(status: StatusCode, data: T) -> Response<T> {
 pub fn err<E: Into<Error>>(status: StatusCode, error: E) -> Response {
     let error = error.into();
     Response {
-        success: true,
+        success: false,
         errors: vec![error],
         status,
         data: None,

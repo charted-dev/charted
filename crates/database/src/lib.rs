@@ -22,7 +22,7 @@ use diesel::{
     r2d2::{self, ConnectionManager, Pool},
 };
 use eyre::Context;
-use tracing::error;
+use tracing::{error, trace};
 
 /// [`Pool`] that wraps a [`ConnectionManager`] of our multi-connection type.
 pub type DbPool = Pool<ConnectionManager<DbConnection>>;
@@ -36,6 +36,8 @@ pub enum DbConnection {
 pub fn create_pool(config: &Config) -> eyre::Result<DbPool> {
     // connection string is the Display impl for `Config`.
     let url = config.to_string();
+    trace!(database.url = url, "creating pool for db url");
+
     let manager = ConnectionManager::new(url);
 
     Pool::builder()
@@ -54,7 +56,7 @@ impl<E: std::error::Error + 'static> r2d2::HandleError<E> for ErrorHandler {
     }
 }
 
-pub fn version(pool: DbPool) -> eyre::Result<String> {
+pub fn version(pool: &DbPool) -> eyre::Result<String> {
     connection!(pool, {
         PostgreSQL(conn) {
             diesel::define_sql_function! {
@@ -112,7 +114,7 @@ mod tests {
         }))
         .expect("failed to create in-memory sqlite database");
 
-        let Ok(s) = crate::version(db) else {
+        let Ok(s) = crate::version(&db) else {
             panic!("failed to get sqlite version")
         };
 
