@@ -26,8 +26,8 @@ pub fn run(Args { common }: Args) -> eyre::Result<()> {
     crate::cargo(
         common.cargo.as_ref(),
         match common.args.is_empty() {
-            true => "run",
-            false => "build",
+            true => "build",
+            false => "run",
         },
         |cmd| {
             cmd.arg("--locked");

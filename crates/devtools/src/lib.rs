@@ -96,10 +96,10 @@ pub fn execute<C: AsRef<OsStr>, F: FnOnce(&mut Command)>(command: C, builder: F)
 
     // By default, `stdin` is closed; `stdout`/`stderr` are piped so you can access the output
     // of the command.
-    cmd.stdin(Stdio::null()).stderr(Stdio::piped()).stdout(Stdio::piped());
+    cmd.stdin(Stdio::null());
 
     let args = cmd.get_args().map(|x| x.to_string_lossy()).collect::<Vec<_>>();
-    trace!("$ {} {}", name.to_string_lossy(), args.join(" "));
+    info!("$ {} {}", name.to_string_lossy(), args.join(" "));
 
     let output = cmd
         .output()

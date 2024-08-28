@@ -26,36 +26,30 @@ const KUBERNETES_NAMESPACE_FILE: &str = "/run/secrets/kubernetes.io/serviceaccou
 /// * `/run/secrets/kubernetes.io/serviceaccount/token`
 /// * `/run/secrets/kubernetes.io/serviceaccount/namespace`
 fn is_in_k8s() -> bool {
-    static ONCE: OnceLock<bool> = OnceLock::new();
-    *ONCE.get_or_init(|| {
-        if env::var("KUBERNETES_SERVICE_HOST").is_ok() {
-            return true;
-        }
+    if env::var("KUBERNETES_SERVICE_HOST").is_ok() {
+        return true;
+    }
 
-        PathBuf::from(KUBERNETES_SERVICE_TOKEN_FILE)
-            .try_exists()
-            .or_else(|_| PathBuf::from(KUBERNETES_NAMESPACE_FILE).try_exists())
-            .unwrap_or_default()
-    })
+    PathBuf::from(KUBERNETES_SERVICE_TOKEN_FILE)
+        .try_exists()
+        .or_else(|_| PathBuf::from(KUBERNETES_NAMESPACE_FILE).try_exists())
+        .unwrap_or_default()
 }
 
 /// Detects if charted-server is running as a Docker container, it'll check if `/.dockerenv` exists or if
 /// `/proc/self/cgroup` contains `docker` in it.
 fn is_in_docker_container() -> bool {
-    static ONCE: OnceLock<bool> = OnceLock::new();
-    *ONCE.get_or_init(|| {
-        let has_dockerenv = PathBuf::from("/.dockerenv").try_exists().unwrap_or_default();
-        let has_cgroup = {
-            let cgroup = PathBuf::from("/proc/self/cgroup");
-            let Ok(contents) = fs::read_to_string(cgroup) else {
-                return false;
-            };
-
-            contents.contains("docker")
+    let has_dockerenv = PathBuf::from("/.dockerenv").try_exists().unwrap_or_default();
+    let has_cgroup = {
+        let cgroup = PathBuf::from("/proc/self/cgroup");
+        let Ok(contents) = fs::read_to_string(cgroup) else {
+            return false;
         };
 
-        has_dockerenv || has_cgroup
-    })
+        contents.contains("docker")
+    };
+
+    has_dockerenv || has_cgroup
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Default, PartialEq, Eq, ToSchema)]

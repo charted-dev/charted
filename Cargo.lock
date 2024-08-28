@@ -737,6 +737,7 @@ dependencies = [
  "owo-colors 4.0.0",
  "serde_json",
  "tracing",
+ "tracing-log",
  "tracing-subscriber",
 ]
 
@@ -1097,6 +1098,17 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 [[package]]
 name = "charted"
 version = "0.1.0"
+dependencies = [
+ "charted-cli",
+ "charted-core",
+ "clap",
+ "color-eyre",
+ "dotenvy",
+ "eyre",
+ "mimalloc",
+ "num_cpus",
+ "tokio",
+]
 
 [[package]]
 name = "charted-authz"
@@ -1129,8 +1141,17 @@ dependencies = [
 name = "charted-cli"
 version = "0.1.0"
 dependencies = [
+ "azalia",
+ "charted-config",
+ "charted-core",
+ "charted-server",
  "clap",
  "clap_complete",
+ "eyre",
+ "num_cpus",
+ "owo-colors 4.0.0",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]
@@ -1401,6 +1422,7 @@ dependencies = [
  "once_cell",
  "owo-colors 3.5.0",
  "tracing-error",
+ "url",
 ]
 
 [[package]]
@@ -1767,6 +1789,12 @@ dependencies = [
  "serde",
  "serde_json",
 ]
+
+[[package]]
+name = "dotenvy"
+version = "0.15.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1aaf95b3e5c8f23aa320147307562d361db0ae0d51242340f558153b4eb2439b"
 
 [[package]]
 name = "dsl_auto_type"
@@ -2802,6 +2830,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "libmimalloc-sys"
+version = "0.1.39"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "23aa6811d3bd4deb8a84dde645f943476d13b248d818edcf8ce0b2f37f036b44"
+dependencies = [
+ "cc",
+ "libc",
+]
+
+[[package]]
 name = "libredox"
 version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2921,6 +2959,15 @@ dependencies = [
  "migrations_internals",
  "proc-macro2",
  "quote",
+]
+
+[[package]]
+name = "mimalloc"
+version = "0.1.43"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "68914350ae34959d83f732418d51e2427a794055d0b9529f48259ac07af65633"
+dependencies = [
+ "libmimalloc-sys",
 ]
 
 [[package]]
@@ -3094,6 +3141,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
 dependencies = [
  "autocfg",
+]
+
+[[package]]
+name = "num_cpus"
+version = "1.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4161fcb6d602d4d2081af7c3a45852d875a03dd337a6bfdd6e06407b61342a43"
+dependencies = [
+ "hermit-abi 0.3.9",
+ "libc",
 ]
 
 [[package]]

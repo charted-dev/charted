@@ -36,9 +36,9 @@ rust-version = "1.78"
 [workspace.dependencies]
 argon2 = "0.5.3"
 axum = { version = "0.7.5", features = ["macros", "http2"] }
-charted-core = { version = "0.1.0", path = "./crates/core" }
+charted-core = { version = "0.1.0", path = "./crates/core", default-features = false }
 charted-database = { version = "0.1.0", path = "./crates/database" }
-charted-types = { version = "0.1.0", path = "./crates/types" }
+charted-types = { version = "0.1.0", path = "./crates/types", default-features = false }
 chrono = { version = "0.4.23", features = ["serde"] }
 clap = { version = "4.5.16", features = ["derive", "env"] }
 derive_more = "1.0.0"
