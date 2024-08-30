@@ -56,3 +56,6 @@ tower-http = { version = "0.5.2", features = [
 ] }
 tracing.workspace = true
 utoipa.workspace = true
+
+[package.metadata.cargo-machete]
+ignored = ["charted-helm-charts"]
