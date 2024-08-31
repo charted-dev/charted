@@ -57,7 +57,10 @@
 
       charted = rustPlatform.buildRustPackage {
         nativeBuildInputs = with pkgs; [pkg-config installShellFiles];
-        buildInputs = with pkgs; [openssl sqlite postgresql];
+        buildInputs = with pkgs;
+          [openssl sqlite postgresql]
+          ++ (lib.optional stdenv.isDarwin (with darwin.apple_sdk.frameworks; [CoreFoundation Security]));
+
         version = "${cargoTOML.workspace.package.version}";
         name = "charted";
         src = ./.;
@@ -89,7 +92,9 @@
 
       helm-plugin = rustPlatform.buildRustPackage {
         nativeBuildInputs = with pkgs; [pkg-config protobuf];
-        buildInputs = with pkgs; [openssl sqlite postgresql];
+        buildInputs = with pkgs;
+          [openssl sqlite postgresql]
+          ++ (lib.optional stdenv.isDarwin (with darwin.apple_sdk.frameworks; [CoreFoundation Security]));
         cargoSha256 = pkgs.lib.fakeSha256;
         version = "${cargoTOML.workspace.package.version}";
         name = "charted-helm-plugin";
