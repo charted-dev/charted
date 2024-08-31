@@ -113,7 +113,6 @@
         '';
 
         postInstall = ''
-          install -Dm755 $out/charted-helm-plugin
           install -Dm644 plugin.yaml $out/charted-helm-plugin/plugin.yaml
           mv $out/bin $out/charted-helm-plugin
         '';
