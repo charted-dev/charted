@@ -88,7 +88,7 @@
       };
 
       helm-plugin = rustPlatform.buildRustPackage {
-        nativeBuildInputs = with pkgs; [pkg-config protobuf installShellFiles];
+        nativeBuildInputs = with pkgs; [pkg-config protobuf];
         buildInputs = with pkgs; [openssl sqlite postgresql];
         cargoSha256 = pkgs.lib.fakeSha256;
         version = "${cargoTOML.workspace.package.version}";
@@ -108,11 +108,6 @@
         '';
 
         postInstall = ''
-          installShellCompletion --cmd charted-helm-plugin \
-            --bash <($out/bin/charted-helm-plugin completions bash) \
-            --fish <($out/bin/charted-helm-plugin completions fish) \
-            --zsh <($out/bin/charted-helm-plugin completions zsh)
-
           install -Dm755 $out/charted-helm-plugin
           install -Dm644 plugin.yaml $out/charted-helm-plugin/plugin.yaml
           mv $out/bin $out/charted-helm-plugin
