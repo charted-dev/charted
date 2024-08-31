@@ -1196,7 +1196,6 @@ dependencies = [
  "rustc_version 0.4.0",
  "serde",
  "serde_json",
- "testcontainers",
  "testcontainers-modules",
  "utoipa",
  "which 6.0.3",

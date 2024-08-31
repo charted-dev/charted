@@ -26,7 +26,7 @@ repository.workspace = true
 authors.workspace = true
 
 [features]
-testkit = ["dep:charted-testkit", "dep:testcontainers"]
+testkit = ["dep:charted-testkit", "dep:testcontainers-modules"]
 default = ["testkit"]
 merge = ["azalia/config"]
 
@@ -40,8 +40,9 @@ rand = "0.8.5"
 serde.workspace = true
 serde_json.workspace = true
 utoipa.workspace = true
-testcontainers = { workspace = true, optional = true }
-testcontainers-modules = { workspace = true, features = ["postgres"] }
+testcontainers-modules = { workspace = true, optional = true, features = [
+    "postgres",
+] }
 
 [build-dependencies]
 chrono.workspace = true
