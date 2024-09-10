@@ -1153,7 +1153,7 @@ dependencies = [
  "clap_complete",
  "eyre",
  "num_cpus",
- "owo-colors 4.0.0",
+ "owo-colors 5.0.0",
  "remi-azure",
  "remi-fs",
  "remi-s3",
@@ -3262,7 +3262,17 @@ version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "caff54706df99d2a78a5a4e3455ff45448d81ef1bb63c22cd14052ca0e993a3f"
 dependencies = [
- "supports-color",
+ "supports-color 2.1.0",
+]
+
+[[package]]
+name = "owo-colors"
+version = "5.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8f1fd1e2f6b8c2caa4ede09a3c1b8fcab7b8b3c0c82987e685eb0df047b044f5"
+dependencies = [
+ "supports-color 2.1.0",
+ "supports-color 3.0.1",
 ]
 
 [[package]]
@@ -4561,6 +4571,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d6398cde53adc3c4557306a96ce67b302968513830a77a95b2b17305d9719a89"
 dependencies = [
  "is-terminal",
+ "is_ci",
+]
+
+[[package]]
+name = "supports-color"
+version = "3.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8775305acf21c96926c900ad056abeef436701108518cf890020387236ac5a77"
+dependencies = [
  "is_ci",
 ]
 
