@@ -13,15 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_helm_plugin::Program;
-use clap::Parser;
+use url::Url;
 
-#[tokio::main(flavor = "current_thread")]
-async fn main() -> eyre::Result<()> {
-    color_eyre::install()?;
-
-    let program = Program::parse();
-    program.init_logger();
-
-    program.cmd.run().await
+/// This command is only used by Helm for the `charted://` downloader protocol. This
+/// shouldn't be used outside of that.
+#[derive(Debug, Clone, clap::Parser)]
+pub struct Args {
+    cert_file: String,
+    key_file: String,
+    ca_file: String,
+    url: Url,
 }

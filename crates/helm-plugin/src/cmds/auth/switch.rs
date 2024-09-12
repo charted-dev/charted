@@ -13,15 +13,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_helm_plugin::Program;
-use clap::Parser;
+use crate::{args, auth::Auth};
 
-#[tokio::main(flavor = "current_thread")]
-async fn main() -> eyre::Result<()> {
-    color_eyre::install()?;
+#[derive(Debug, Clone, clap::Parser)]
+pub struct Args {
+    /// context to switch to
+    context: String,
 
-    let program = Program::parse();
-    program.init_logger();
+    #[clap(flatten)]
+    auth: args::Auth,
+}
 
-    program.cmd.run().await
+pub fn run(
+    Args {
+        context,
+        auth: args::Auth { path },
+    }: Args,
+) -> eyre::Result<()> {
+    let mut auth = Auth::load(path.as_ref())?;
+    auth.switch(path.as_ref(), context)
 }

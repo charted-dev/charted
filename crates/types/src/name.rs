@@ -24,6 +24,9 @@ use utoipa::{
     ToSchema,
 };
 
+#[cfg(feature = "jsonschema")]
+use schemars::{gen::*, schema::*, JsonSchema};
+
 #[derive(Debug)]
 pub enum Error {
     /// When a name was over 32 characters. The first element is how many characters
@@ -195,5 +198,36 @@ where
 {
     fn from_sql(bytes: <B as Backend>::RawValue<'_>) -> diesel::deserialize::Result<Self> {
         Ok(Name::try_new(<&str as FromSql<Text, B>>::from_sql(bytes)?).map_err(Box::new)?)
+    }
+}
+
+#[cfg(feature = "jsonschema")]
+impl JsonSchema for Name {
+    fn is_referenceable() -> bool {
+        false
+    }
+
+    fn schema_id() -> Cow<'static, str> {
+        Cow::Borrowed("charted::types::Name")
+    }
+
+    fn schema_name() -> String {
+        String::from("Name")
+    }
+
+    fn json_schema(_: &mut SchemaGenerator) -> schemars::schema::Schema {
+        schemars::schema::Schema::Object(SchemaObject {
+            instance_type: Some(SingleOrVec::Single(InstanceType::String.into())),
+            string: Some(
+                StringValidation {
+                    min_length: Some(2),
+                    max_length: Some(32),
+                    pattern: Some("^([A-z]{2,}|[0-9]|_|-)*$".into()),
+                }
+                .into(),
+            ),
+
+            ..Default::default()
+        })
     }
 }

@@ -13,15 +13,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_helm_plugin::Program;
-use clap::Parser;
+//! The `charted_helm_plugin::ops` module contains all the operations.
 
-#[tokio::main(flavor = "current_thread")]
-async fn main() -> eyre::Result<()> {
-    color_eyre::install()?;
+mod common;
+mod download;
+mod middleware;
 
-    let program = Program::parse();
-    program.init_logger();
+use std::sync::LazyLock;
 
-    program.cmd.run().await
-}
+pub static HTTP: LazyLock<reqwest_middleware::ClientWithMiddleware> = LazyLock::new(|| {
+    let reqwest = ::reqwest::ClientBuilder::new()
+        .user_agent(format!(
+            "Noelware/charted-helm-plugin (+{}; https://github.com/charted-dev/charted/tree/main/crates/helm-plugin)",
+            charted_core::version()
+        ))
+        .build()
+        .unwrap();
+
+    reqwest_middleware::ClientBuilder::new(reqwest)
+        .with(middleware::logging)
+        .build()
+});

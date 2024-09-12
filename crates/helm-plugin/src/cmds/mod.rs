@@ -13,15 +13,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_helm_plugin::Program;
-use clap::Parser;
+mod auth;
+mod completions;
+mod download;
+mod init;
+mod login;
+mod pull;
+mod version;
 
-#[tokio::main(flavor = "current_thread")]
-async fn main() -> eyre::Result<()> {
-    color_eyre::install()?;
+#[derive(Debug, Clone, clap::Subcommand)]
+pub enum Cmd {
+    Completions(completions::Args),
 
-    let program = Program::parse();
-    program.init_logger();
+    #[command(subcommand)]
+    Auth(auth::Cmd),
+}
 
-    program.cmd.run().await
+impl Cmd {
+    pub async fn run(self) -> eyre::Result<()> {
+        match self {
+            Cmd::Auth(cmd) => cmd.run(),
+            Cmd::Completions(args) => completions::run(args),
+        }
+    }
 }

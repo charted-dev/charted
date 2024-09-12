@@ -43,6 +43,8 @@ utoipa.workspace = true
 testcontainers-modules = { workspace = true, optional = true, features = [
     "postgres",
 ] }
+serde_repr = "0.1.19"
+schemars.workspace = true
 
 [build-dependencies]
 chrono.workspace = true

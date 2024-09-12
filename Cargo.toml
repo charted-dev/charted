@@ -41,6 +41,7 @@ charted-database = { version = "0.1.0", path = "./crates/database" }
 charted-types = { version = "0.1.0", path = "./crates/types", default-features = false }
 chrono = { version = "0.4.23", features = ["serde"] }
 clap = { version = "4.5.16", features = ["derive", "env"] }
+clap_complete = "4.5.26"
 derive_more = "1.0.0"
 diesel = "2.2.3"
 eyre = "0.6.12"

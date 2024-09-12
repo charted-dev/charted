@@ -13,15 +13,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_helm_plugin::Program;
-use clap::Parser;
+mod delete;
+mod list;
+mod switch;
+mod token;
 
-#[tokio::main(flavor = "current_thread")]
-async fn main() -> eyre::Result<()> {
-    color_eyre::install()?;
+/// Subcommand to perform auth-related actions.
+#[derive(Debug, Clone, clap::Subcommand)]
+pub enum Cmd {
+    /// Switch to a different context when pulling or pushing Helm charts onto a registry.
+    Switch(switch::Args),
 
-    let program = Program::parse();
-    program.init_logger();
+    /// Lists all the different authentications avaliable
+    List(list::Args),
+}
 
-    program.cmd.run().await
+impl Cmd {
+    pub fn run(self) -> eyre::Result<()> {
+        match self {
+            Cmd::List(args) => list::run(args),
+            Cmd::Switch(args) => switch::run(args),
+        }
+    }
 }

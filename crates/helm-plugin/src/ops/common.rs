@@ -13,15 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_helm_plugin::Program;
-use clap::Parser;
-
-#[tokio::main(flavor = "current_thread")]
-async fn main() -> eyre::Result<()> {
-    color_eyre::install()?;
-
-    let program = Program::parse();
-    program.init_logger();
-
-    program.cmd.run().await
+pub async fn _ping_registry() -> eyre::Result<()> {
+    Ok(())
 }

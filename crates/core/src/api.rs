@@ -20,10 +20,86 @@ use axum::{
     http::{header, StatusCode},
     response::IntoResponse,
 };
+use schemars::{
+    gen::SchemaGenerator,
+    schema::{InstanceType, Schema, SchemaObject, SingleOrVec},
+    JsonSchema,
+};
 use serde::Serialize;
 use serde_json::Value;
+use serde_repr::{Deserialize_repr, Serialize_repr};
 use std::borrow::Cow;
 use utoipa::ToSchema;
+
+/// Represents the REST version that an API controller is supported on.
+#[derive(Debug, Clone, Copy, Default, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize_repr, Deserialize_repr)]
+#[repr(u8)]
+pub enum Version {
+    #[default]
+    V1 = 1,
+}
+
+impl Version {
+    pub fn as_str(&self) -> &str {
+        match self {
+            Version::V1 => "v1",
+        }
+    }
+}
+
+impl std::fmt::Display for Version {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl JsonSchema for Version {
+    fn is_referenceable() -> bool {
+        false
+    }
+
+    fn schema_id() -> Cow<'static, str> {
+        Cow::Borrowed("charted_core::api::Version")
+    }
+
+    fn schema_name() -> String {
+        String::from("Version")
+    }
+
+    fn json_schema(_: &mut SchemaGenerator) -> Schema {
+        Schema::Object(SchemaObject {
+            instance_type: Some(SingleOrVec::Single(InstanceType::Number.into())),
+            enum_values: Some(vec![Value::Number(1.into())]),
+
+            ..Default::default()
+        })
+    }
+}
+
+impl From<u8> for Version {
+    fn from(value: u8) -> Self {
+        match value {
+            1 => Version::V1,
+            _ => panic!("reached an unexpected value for From<u8> -> APIVersion"),
+        }
+    }
+}
+
+impl From<Version> for u8 {
+    fn from(value: Version) -> Self {
+        match value {
+            Version::V1 => 1,
+        }
+    }
+}
+
+impl From<Version> for serde_json::Number {
+    fn from(value: Version) -> Self {
+        match value {
+            Version::V1 => serde_json::Number::from(1),
+        }
+    }
+}
 
 /// Represents a response object for all REST endpoints.
 #[derive(Debug, Serialize, ToSchema)]

@@ -40,6 +40,13 @@ use utoipa::{
     ToSchema,
 };
 
+charted_core::mk_from_newtype!(
+    DateTime => ::chrono::DateTime<::chrono::Utc>,
+    Version => ::semver::Version,
+    VersionReq => ::semver::VersionReq,
+    Ulid => ::ulid::Ulid
+);
+
 charted_core::create_newtype_wrapper! {
     /// Newtype wrapper for the [`chrono::DateTime`]<[`chrono::Utc`]> type. It implements
     /// the following traits:
@@ -175,6 +182,12 @@ charted_core::create_newtype_wrapper! {
     pub VersionReq for ::semver::VersionReq;
 }
 
+impl VersionReq {
+    pub fn parse(v: &str) -> Result<VersionReq, semver::Error> {
+        ::semver::VersionReq::parse(v).map(Self)
+    }
+}
+
 impl<'s> ToSchema<'s> for VersionReq {
     fn schema() -> (&'s str, RefOr<Schema>) {
         (
@@ -209,6 +222,12 @@ impl ::schemars::JsonSchema for VersionReq {
             ..Default::default()
         }
         .into()
+    }
+}
+
+impl Display for VersionReq {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        <::semver::VersionReq as Display>::fmt(&self.0, f)
     }
 }
 

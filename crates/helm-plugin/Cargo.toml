@@ -24,3 +24,32 @@ license.workspace = true
 publish.workspace = true
 repository.workspace = true
 authors.workspace = true
+
+[dependencies]
+async-trait = "0.1.82"
+azalia = { workspace = true, features = [
+    "log",
+    "log-writers",
+    "log-tracing-log",
+] }
+charted-core.workspace = true
+charted-types = { workspace = true, features = ["jsonschema"] }
+clap = { workspace = true, features = ["derive", "env"] }
+clap-help = "1.3.0"
+clap_complete.workspace = true
+color-eyre = "0.6.3"
+comfy-table = "7.1.1"
+dirs = "5.0.1"
+eyre.workspace = true
+http = "1.1.0"
+reqwest = "0.12.7"
+reqwest-middleware = { version = "0.3.3", features = ["json", "http2"] }
+schemars = { workspace = true, features = ["url"] }
+serde.workspace = true
+serde_json.workspace = true
+tokio = { workspace = true, features = ["rt", "macros"] }
+toml = "0.8.19"
+tracing.workspace = true
+tracing-subscriber.workspace = true
+url = { version = "2.5.2", features = ["serde"] }
+which = { workspace = true, features = ["tracing"] }

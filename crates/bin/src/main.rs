@@ -13,13 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::sync::atomic::{AtomicUsize, Ordering};
-
 use charted_cli::{cmds::Cmd, Program};
 use clap::Parser;
 use color_eyre::config::HookBuilder;
 use dotenvy::dotenv;
 use mimalloc::MiMalloc;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use tokio::runtime::Builder;
 
 #[global_allocator]

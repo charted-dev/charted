@@ -39,7 +39,7 @@ charted-core = { workspace = true, default-features = false }
 charted-database.workspace = true
 charted-server = { version = "0.1.0", path = "../server" }
 clap = { workspace = true, features = ["derive", "env"] }
-clap_complete = "4.5.24"
+clap_complete.workspace = true
 eyre.workspace = true
 num_cpus = "1.16.0"
 owo-colors = { version = "4.0.0", features = ["supports-colors"] }
