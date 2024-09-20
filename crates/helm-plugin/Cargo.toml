@@ -26,7 +26,6 @@ repository.workspace = true
 authors.workspace = true
 
 [dependencies]
-async-trait = "0.1.82"
 azalia = { workspace = true, features = [
     "log",
     "log-writers",
@@ -35,7 +34,6 @@ azalia = { workspace = true, features = [
 charted-core.workspace = true
 charted-types = { workspace = true, features = ["jsonschema"] }
 clap = { workspace = true, features = ["derive", "env"] }
-clap-help = "1.3.0"
 clap_complete.workspace = true
 color-eyre = "0.6.3"
 comfy-table = "7.1.1"

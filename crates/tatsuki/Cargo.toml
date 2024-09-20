@@ -52,3 +52,6 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(noeldoc)'] }
+
+[package.metadata.cargo-machete]
+ignored = ["serde"]

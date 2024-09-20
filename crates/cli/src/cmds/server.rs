@@ -27,8 +27,8 @@ use std::{
     path::PathBuf,
     sync::{atomic::AtomicUsize, Arc},
 };
+use tracing::info;
 use tracing::level_filters::LevelFilter;
-use tracing::{info, warn};
 use tracing_subscriber::prelude::*;
 
 /// Runs the API server.
@@ -91,12 +91,9 @@ pub async fn run(Args { config, .. }: Args) -> eyre::Result<()> {
     info!("initialized data storage successfully!");
 
     info!("initializing authz backend...");
-    let authz: Arc<dyn charted_authz::Authenticator> = match config.sessions.backend {
+    let authz: Arc<dyn charted_authz::Authenticator> = match config.sessions.backend.clone() {
         Backend::Local => Arc::new(charted_authz_local::Backend),
-        _ => {
-            warn!("using other authz backends is not supported as of this time, using local backend as fallback");
-            Arc::new(charted_authz_local::Backend)
-        }
+        Backend::Ldap(config) => Arc::new(charted_authz_ldap::Backend::new(config)),
     };
 
     let cx = ServerContext {

@@ -66,10 +66,11 @@
         src = ./.;
 
         env.CHARTED_DISTRIBUTION_KIND = "nix";
+        cargoBuildFlags = ["--package" "charted"];
         cargoLock = {
           lockFile = ./Cargo.lock;
           outputHashes = {
-            "azalia-0.1.0" = "sha256-ftI7yUzqhjoTk8dl/4+zkXYai1rG6PF3t5anhOElgLM=";
+            "azalia-0.1.0" = "sha256-b0C26qCYQ1aLqgbVXwM+j8WCJxKA19a3lMfveVxSrFs=";
           };
         };
 
@@ -100,11 +101,13 @@
         name = "charted-helm-plugin";
         src = ./.;
 
+        env.CHARTED_DISTRIBUTION_KIND = "nix";
+
         cargoBuildFlags = ["--package" "charted-helm-plugin"];
         cargoLock = {
           lockFile = ./Cargo.lock;
           outputHashes = {
-            "azalia-0.1.0" = "sha256-ftI7yUzqhjoTk8dl/4+zkXYai1rG6PF3t5anhOElgLM=";
+            "azalia-0.1.0" = "sha256-b0C26qCYQ1aLqgbVXwM+j8WCJxKA19a3lMfveVxSrFs=";
           };
         };
 

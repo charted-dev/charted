@@ -124,13 +124,13 @@ impl<R: rt::Runtime + 'static, C: Clock + 'static> Scheduler<R, C> {
         #[cfg(feature = "tracing")]
         ::tracing::trace!(
             "we have {} scheduled jobs, determining which ones are going to be executed...",
-            me.jobs.len()
+            self.jobs.len()
         );
 
         #[cfg(feature = "log")]
         ::log::trace!(
             "we have {} scheduled jobs, determining which ones are going to be executed...",
-            me.jobs.len()
+            self.jobs.len()
         );
     }
 
