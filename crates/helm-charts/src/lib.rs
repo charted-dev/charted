@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use azalia::remi::{remi::StorageService as _, StorageService};
+use azalia::remi::{core::StorageService as _, StorageService};
 use charted_types::{helm::ChartIndex, Ulid, Version};
 use eyre::{eyre, Context, Report};
 use flate2::bufread::MultiGzDecoder;
@@ -161,7 +161,7 @@ pub fn get_chart<'asyncfn, V: AsRef<str> + Send + 'asyncfn>(
     repo: Ulid,
     version: V,
     allow_prereleases: bool,
-) -> Pin<Box<dyn Future<Output = eyre::Result<Option<azalia::remi::remi::Bytes>>> + Send + 'asyncfn>> {
+) -> Pin<Box<dyn Future<Output = eyre::Result<Option<azalia::remi::core::Bytes>>> + Send + 'asyncfn>> {
     Box::pin(async move {
         let version = version.as_ref();
         if version == "latest" || version == "current" {
@@ -202,7 +202,7 @@ pub fn get_chart_provenance<'asyncfn, V: AsRef<str> + Send + 'asyncfn>(
     repo: Ulid,
     version: V,
     allow_prereleases: bool,
-) -> Pin<Box<dyn Future<Output = eyre::Result<Option<azalia::remi::remi::Bytes>>> + Send + 'asyncfn>> {
+) -> Pin<Box<dyn Future<Output = eyre::Result<Option<azalia::remi::core::Bytes>>> + Send + 'asyncfn>> {
     Box::pin(async move {
         let version = version.as_ref();
         if version == "latest" || version == "current" {
@@ -351,7 +351,7 @@ mod tests {
                 #[tokio::test]
                 #[cfg_attr(windows, ignore = "fails on windows because it feels like it i guess")]
                 async fn $name() {
-                    use ::azalia::remi::remi::StorageService;
+                    use ::azalia::remi::core::StorageService;
 
                     let tempdir = ::tempfile::TempDir::new().unwrap();
                     let path = tempdir.into_path();
@@ -388,7 +388,7 @@ mod tests {
             let repo = Ulid::new("01J5SG1JAEG4RJCGYC5KJ6QYS2").unwrap();
 
             for version in ["0.1.0-beta", "0.2.1", "1.0.0-beta.1", "2024.3.24", "1.0.0+d1cebae"] {
-                let request = azalia::remi::remi::UploadRequest::default()
+                let request = azalia::remi::core::UploadRequest::default()
                     .with_content_type(Some("application/tar+gzip"))
                     .with_data(contents.clone());
 
@@ -410,7 +410,7 @@ mod tests {
             let repo = Ulid::new("01J5SG1JAEG4RJCGYC5KJ6QYS2").unwrap();
 
             for version in ["0.1.0-beta", "0.2.1", "1.0.0-beta.1", "2024.3.24", "1.0.0+d1cebae"] {
-                let request = azalia::remi::remi::UploadRequest::default()
+                let request = azalia::remi::core::UploadRequest::default()
                     .with_content_type(Some("application/tar+gzip"))
                     .with_data(contents.clone());
 

@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS `users`(
     verified_publisher BOOLEAN NOT NULL DEFAULT false,
     gravatar_email TEXT NULL DEFAULT NULL,
     description VARCHAR(240) NULL DEFAULT NULL,
-    avatar_hash TEXT NOT NULL DEFAULT NULL,
+    avatar_hash TEXT NULL DEFAULT NULL,
     created_at DATETIME NOT NULL DEFAULT(NOW()),
     updated_at DATETIME NOT NULL DEFAULT(NOW()),
     username VARCHAR(64) NOT NULL,
@@ -33,9 +33,9 @@ CREATE UNIQUE INDEX idx_users_email ON users(email);
 
 CREATE TABLE IF NOT EXISTS `user_connections`(
     noelware_account_id BIGINT NULL DEFAULT NULL,
-    google_account_id TEXT NOT NULL DEFAULT NULL,
-    github_account_id TEXT NOT NULL DEFAULT NULL,
-    apple_account_id TEXT NOT NULL DEFAULT NULL,
+    google_account_id TEXT NULL DEFAULT NULL,
+    github_account_id TEXT NULL DEFAULT NULL,
+    apple_account_id TEXT NULL DEFAULT NULL,
     created_at DATETIME NOT NULL DEFAULT(NOW()),
     updated_at DATETIME NOT NULL DEFAULT(NOW()),
     account TEXT NOT NULL,

@@ -42,7 +42,7 @@ clap = { workspace = true, features = ["derive", "env"] }
 clap_complete.workspace = true
 eyre.workspace = true
 num_cpus = "1.16.0"
-owo-colors = { version = "4.0.0", features = ["supports-colors"] }
+owo-colors = { version = "4.1.0", features = ["supports-colors"] }
 remi-azure = { workspace = true, features = ["tracing"] }
 remi-fs = { workspace = true, features = ["tracing"] }
 remi-s3 = { workspace = true, features = ["tracing"] }

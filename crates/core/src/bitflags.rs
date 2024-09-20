@@ -38,6 +38,12 @@ impl<F: Bitflags> Bitfield<F> {
 // Since both `ApiKeyScope` and `MemberPermission` use `u64` as its `Bit` type,
 // we will do our own silly impls here.
 impl<F: Bitflags<Bit = u64>> Bitfield<F> {
+    /// Returns all the possible enabled bits in the bitfield to determine
+    pub fn flags(&self) -> Vec<(&'static str, F::Bit)> {
+        let flags = F::flags();
+        flags.into_iter().filter(|(_, bit)| self.contains(*bit)).collect()
+    }
+
     /// Adds multiple bits to this [`Bitfield`] and updating the current
     /// value to what was acculumated.
     ///
@@ -127,6 +133,17 @@ impl<F: Bitflags<Bit = u64>> Bitfield<F> {
 
         self.0 &= min(removed, 0)
     }
+
+    /// Determines if `bit` is contained in the inner bit.
+    pub fn contains<B: Into<F::Bit>>(&self, bit: B) -> bool {
+        (self.value() & bit.into()) != 0
+    }
+}
+
+impl<F: Bitflags<Bit = u64>> Default for Bitfield<F> {
+    fn default() -> Self {
+        Bitfield(u64::default(), PhantomData)
+    }
 }
 
 /// Trait that is implemented by the [`bitflags`][bitflags] macro.
@@ -197,141 +214,3 @@ macro_rules! bitflags {
         }
     };
 }
-
-/*
-// mod apikeyscope;
-// pub use apikeyscope::*;
-
-// use std::{
-//     collections::HashMap,
-//     marker::PhantomData,
-//     ops::{Add, BitAnd, BitOrAssign},
-// };
-
-// #[derive(Debug, Clone)]
-// pub struct Bitfield<F: Bitflags> {
-//     value: F::Bit,
-//     _marker: PhantomData<F>,
-// }
-
-// impl<F: Bitflags> Bitfield<F> {
-//     /// Creates a new [`Bitfield`] instance with a given value.
-//     pub const fn new(value: F::Bit) -> Bitfield<F> {
-//         Bitfield {
-//             value,
-//             _marker: PhantomData,
-//         }
-//     }
-
-//     /*
-//     ` where <F as bitflags::Bitflags>::Bit: std::ops::BitOrAssign<u64>`
-
-//                let mut bits = bits.into_iter();
-//            let first = bits.next();
-//            if first.is_none() {
-//                return;
-//            }
-
-//            let mut additional = 0u64;
-//            additional |= first.unwrap();
-
-//            let max = self.max();
-//            for bit in bits {
-//                if bit == u64::MAX {
-//                    continue;
-//                }
-
-//                if bit > max {
-//                    continue;
-//                }
-
-//                additional |= bit;
-//            }
-
-//            self.value |= additional;
-//         */
-//     pub fn contains<I: Into<F::Bit>>(&self, value: I) -> bool
-//     where
-//         <F as Bitflags>::Bit: BitAnd,
-//         <<F as Bitflags>::Bit as BitAnd>::Output: PartialEq<u64>,
-//     {
-//         let value = value.into();
-//         (self.value & value) != 0
-//     }
-// }
-
-// impl<F: Bitflags> Add for Bitfield<F>
-// where
-//     F::Bit: PartialEq<u64>,
-//     F::Bit: std::ops::BitOrAssign<u64>,
-// {
-//     type Output = Bitfield<F>;
-
-//     fn add(mut self, rhs: Self) -> Self::Output {
-//         if rhs.value == u64::MAX {
-//             return self;
-//         }
-
-//         self.value |= rhs.value;
-//         Bitfield {
-//             value: self.value,
-//             _marker: PhantomData,
-//         }
-//     }
-// }
-
-/*
-        <F as Bitflags>::Bit: BitAnd,
-        <<F as Bitflags>::Bit as BitAnd>::Output: PartialEq<u64>,
-
-    pub fn add<S: IntoIterator<Item = u64>>(mut self, values: S) -> Bitfield<F>
-    where
-        <F as Bitflags>::Bit: BitOrAssign<u64>,
-    {
-        let mut bits = values.into_iter();
-        let mut value = 0u64;
-
-        for element in bits {
-            if element == u64::MAX {
-                continue;
-            }
-
-            value |= element;
-        }
-
-        self.value |= value;
-        Bitfield {
-            value: self.value,
-            _marker: PhantomData,
-        }
-    }
-*/
-
-// fn heck() {
-//     let bitfield = Bitfield::<apikeyscope::ApiKeyScope>::new(0);
-//     bitfield.contains(apikeyscope::ApiKeyScope::AdminOrgDelete);
-// }
-
-// impl<F: Bitflags> Bitfield<F> {
-//     /// Creates a new [`Bitfield`] object.
-//     pub const fn new(value: F::Bit) -> Bitfield<F> {
-//         Bitfield {
-//             value,
-//             _marker: PhantomData,
-//         }
-//     }
-
-//     pub fn contains(&self, value: F::Bit) -> bool
-//     where
-//         F::Bit: BitAnd,
-//         <F::Bit as BitAnd>::Output: PartialEq<u64>,
-//     {
-//         (self.value & value) != 0
-//     }
-// }
-
-// fn test() {
-//     let bit = Bitfield::<apikeyscope::ApiKeyScope>::new(0);
-//     bit.contains(apikeyscope::ApiKeyScope::AdminOrgDelete as u64);
-// }
-*/

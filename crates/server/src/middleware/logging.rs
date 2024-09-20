@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use super::XRequestId;
 use crate::ServerContext;
 use axum::{
     body::Body,
@@ -23,8 +24,6 @@ use axum::{
 };
 use std::{sync::atomic::Ordering, time::Instant};
 use tracing::{info, instrument};
-
-use super::XRequestId;
 
 #[derive(FromRequestParts)]
 pub struct Metadata {

@@ -13,6 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use std::fmt::Display;
+
 use charted_types::{name::Name, Ulid};
 use serde::Deserialize;
 
@@ -29,6 +31,15 @@ use serde::Deserialize;
 pub enum NameOrUlid {
     Ulid(charted_types::Ulid),
     Name(charted_types::name::Name),
+}
+
+impl Display for NameOrUlid {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Ulid(ulid) => Display::fmt(ulid, f),
+            Self::Name(name) => Display::fmt(name, f),
+        }
+    }
 }
 
 impl NameOrUlid {
@@ -60,6 +71,12 @@ impl From<Name> for NameOrUlid {
 impl From<Ulid> for NameOrUlid {
     fn from(value: Ulid) -> Self {
         Self::Ulid(value)
+    }
+}
+
+impl From<!> for NameOrUlid {
+    fn from(_: !) -> Self {
+        unimplemented!()
     }
 }
 

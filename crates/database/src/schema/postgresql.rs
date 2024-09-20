@@ -141,9 +141,9 @@ diesel::table! {
 
     user_connections (id) {
         noelware_account_id -> Nullable<Int8>,
-        google_account_id -> Text,
-        github_account_id -> Text,
-        apple_account_id -> Text,
+        google_account_id -> Nullable<Text>,
+        github_account_id -> Nullable<Text>,
+        apple_account_id -> Nullable<Text>,
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
         account -> Text,
@@ -160,7 +160,7 @@ diesel::table! {
         gravatar_email -> Nullable<Text>,
         #[max_length = 240]
         description -> Nullable<Varchar>,
-        avatar_hash -> Text,
+        avatar_hash -> Nullable<Text>,
         created_at -> Timestamptz,
         updated_at -> Timestamptz,
         #[max_length = 64]

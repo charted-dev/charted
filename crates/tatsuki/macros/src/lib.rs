@@ -1,5 +1,5 @@
-// 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
-// Copyright 2022-2024 Noelware, LLC. <team@noelware.org>
+// 🐻‍❄️🗻 tatsuki: Dead simple asynchronous job scheduler that is runtime-agnostic.
+// Copyright 2024 Noel Towa <cutie@floofy.dev>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,14 +12,3 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-pub mod postgresql;
-pub mod sqlite;
-
-/// All of the custom SQL types
-pub mod sql_types {
-    #[derive(Debug, diesel::QueryId, diesel::SqlType, diesel::FromSqlRow)]
-    #[diesel(postgres_type(name = "chart_type"))]
-    #[diesel(sqlite_type(name = "Text"))]
-    pub struct ChartType;
-}

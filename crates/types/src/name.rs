@@ -14,8 +14,13 @@
 // limitations under the License.
 
 use diesel::{
-    backend::Backend, deserialize::FromSql, expression::AsExpression,
-    query_builder::bind_collector::RawBytesBindCollector, serialize::ToSql, sql_types::Text,
+    backend::Backend,
+    deserialize::{FromSql, FromSqlRow},
+    expression::AsExpression,
+    pg::Pg,
+    serialize::ToSql,
+    sql_types::Text,
+    sqlite::Sqlite,
 };
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, fmt::Display, ops::Deref, str::FromStr, sync::Arc};
@@ -74,7 +79,7 @@ impl std::error::Error for Error {}
 /// * Only UTF-8 strings are valid.
 /// * Only alphanumeric characters, `-`, `_`, and `~` are allowed.
 /// * They must contain a length of two minimum and 32 maximum.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, AsExpression)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, AsExpression, FromSqlRow)]
 #[diesel(sql_type = Text)]
 pub struct Name(Arc<str>);
 impl Name {
@@ -181,23 +186,25 @@ impl<'de> Deserialize<'de> for Name {
     }
 }
 
-impl<B> ToSql<Text, B> for Name
+impl<B: Backend> FromSql<Text, B> for Name
 where
-    for<'c> B: Backend<BindCollector<'c> = RawBytesBindCollector<B>>,
-    str: ToSql<Text, B>,
+    String: FromSql<Text, B>,
 {
-    fn to_sql<'b>(&'b self, out: &mut diesel::serialize::Output<'b, '_, B>) -> diesel::serialize::Result {
-        let v = &*self.0;
-        v.to_sql(&mut out.reborrow())
+    fn from_sql(bytes: <B as Backend>::RawValue<'_>) -> diesel::deserialize::Result<Self> {
+        let name = <String as FromSql<Text, B>>::from_sql(bytes)?;
+        Name::try_new(name).map_err(Into::into)
     }
 }
 
-impl<'s, B: Backend> FromSql<Text, B> for Name
-where
-    &'s str: FromSql<Text, B>,
-{
-    fn from_sql(bytes: <B as Backend>::RawValue<'_>) -> diesel::deserialize::Result<Self> {
-        Ok(Name::try_new(<&str as FromSql<Text, B>>::from_sql(bytes)?).map_err(Box::new)?)
+impl ToSql<Text, Pg> for Name {
+    fn to_sql<'b>(&'b self, out: &mut diesel::serialize::Output<'b, '_, Pg>) -> diesel::serialize::Result {
+        <str as ToSql<Text, Pg>>::to_sql(self.as_str(), out)
+    }
+}
+
+impl ToSql<Text, Sqlite> for Name {
+    fn to_sql<'b>(&'b self, out: &mut diesel::serialize::Output<'b, '_, Sqlite>) -> diesel::serialize::Result {
+        <str as ToSql<Text, Sqlite>>::to_sql(self.as_str(), out)
     }
 }
 

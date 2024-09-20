@@ -14,8 +14,16 @@
 // limitations under the License.
 
 use crate::{DateTime, Version, VersionReq};
+use charted_database::schema::sql_types;
 use chrono::Utc;
-use diesel::{deserialize::FromSqlRow, expression::AsExpression, sql_types::Text};
+use diesel::{
+    deserialize::{FromSql, FromSqlRow},
+    expression::AsExpression,
+    pg::Pg,
+    serialize::ToSql,
+    sql_types::{Binary, Text},
+    sqlite::Sqlite,
+};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, str::FromStr};
 use utoipa::ToSchema;
@@ -39,7 +47,7 @@ pub enum ChartSpecVersion {
 /// when serializing to valid Helm objects
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq, ToSchema, FromSqlRow, AsExpression)]
 #[serde(rename_all = "lowercase")]
-#[diesel(sql_type = charted_database::schema::sql_types::ChartType)]
+#[diesel(sql_type = sql_types::ChartType)]
 #[diesel(sql_type = Text)]
 pub enum ChartType {
     /// Default chart type and represents a standard chart which can operate on a Kubernetes
@@ -60,6 +68,81 @@ pub enum ChartType {
     /// This will be replaced with "application" and the `charts.noelware.org/kind: "operator"`
     /// annotation will be readily avaliable.
     Operator,
+}
+
+impl FromSql<sql_types::ChartType, Pg> for ChartType {
+    fn from_sql(bytes: <Pg as diesel::backend::Backend>::RawValue<'_>) -> diesel::deserialize::Result<Self> {
+        let bytes = bytes.as_bytes();
+        match bytes {
+            b"application" => Ok(ChartType::Application),
+            b"library" => Ok(ChartType::Library),
+            b"operator" => Ok(ChartType::Operator),
+            v => Err(format!("unknown enum variant: {}", String::from_utf8_lossy(v)).into()),
+        }
+    }
+}
+
+impl ToSql<sql_types::ChartType, Pg> for ChartType {
+    fn to_sql<'b>(&'b self, out: &mut diesel::serialize::Output<'b, '_, Pg>) -> diesel::serialize::Result {
+        <str as ToSql<Text, Pg>>::to_sql(
+            match self {
+                ChartType::Application => "application",
+                ChartType::Library => "library",
+                ChartType::Operator => "operator",
+            },
+            out,
+        )
+    }
+}
+
+impl FromSql<Text, Sqlite> for ChartType {
+    fn from_sql(bytes: <Sqlite as diesel::backend::Backend>::RawValue<'_>) -> diesel::deserialize::Result<Self> {
+        let data = <String as FromSql<Text, Sqlite>>::from_sql(bytes)?;
+        match data.as_bytes() {
+            b"application" => Ok(ChartType::Application),
+            b"library" => Ok(ChartType::Library),
+            b"operator" => Ok(ChartType::Operator),
+            v => Err(format!("unknown enum variant: {}", String::from_utf8_lossy(v)).into()),
+        }
+    }
+}
+
+impl ToSql<Text, Sqlite> for ChartType {
+    fn to_sql<'b>(&'b self, out: &mut diesel::serialize::Output<'b, '_, Sqlite>) -> diesel::serialize::Result {
+        <str as ToSql<Text, Sqlite>>::to_sql(
+            match self {
+                ChartType::Application => "application",
+                ChartType::Library => "library",
+                ChartType::Operator => "operator",
+            },
+            out,
+        )
+    }
+}
+
+impl FromSql<sql_types::ChartType, Sqlite> for ChartType {
+    fn from_sql(bytes: <Sqlite as diesel::backend::Backend>::RawValue<'_>) -> diesel::deserialize::Result<Self> {
+        let bytes = <Vec<u8> as FromSql<Binary, Sqlite>>::from_sql(bytes)?;
+        match bytes.as_slice() {
+            b"application" => Ok(ChartType::Application),
+            b"library" => Ok(ChartType::Library),
+            b"operator" => Ok(ChartType::Operator),
+            v => Err(format!("unknown enum variant: {}", String::from_utf8_lossy(v)).into()),
+        }
+    }
+}
+
+impl ToSql<sql_types::ChartType, Sqlite> for ChartType {
+    fn to_sql<'b>(&'b self, out: &mut diesel::serialize::Output<'b, '_, Sqlite>) -> diesel::serialize::Result {
+        <str as ToSql<Text, Sqlite>>::to_sql(
+            match self {
+                ChartType::Application => "application",
+                ChartType::Library => "library",
+                ChartType::Operator => "operator",
+            },
+            out,
+        )
+    }
 }
 
 impl FromStr for ChartType {

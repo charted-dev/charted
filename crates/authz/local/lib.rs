@@ -21,15 +21,15 @@ use tracing::error;
 
 pub struct Backend;
 impl charted_authz::Authenticator for Backend {
-    fn authenticate(&self, user: User, password: String) -> charted_core::BoxedFuture<eyre::Result<()>> {
+    fn authenticate<'u>(&'u self, user: &'u User, password: String) -> charted_core::BoxedFuture<'u, eyre::Result<()>> {
         Box::pin(async move {
-            let Some(pass) = user.password else {
+            let Some(ref pass) = user.password else {
                 return Err(eyre!(
                     "missing `password` field, did you migrate all users from previous backends?"
                 ));
             };
 
-            let hash = PasswordHash::new(&pass)
+            let hash = PasswordHash::new(pass)
                 .inspect_err(|e| {
                     error!(error = %e, "failed to compute argon2 hash for password");
                 })

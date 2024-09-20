@@ -13,6 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![feature(never_type)]
+
 mod state;
 pub use state::*;
 
@@ -23,6 +25,7 @@ pub mod extract;
 pub mod middleware;
 pub mod multipart;
 pub mod openapi;
+pub(crate) mod ops;
 pub mod responses;
 pub mod routing;
 

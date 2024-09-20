@@ -13,18 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_core::BoxedFuture;
 use charted_types::User;
-use std::error::Error;
 
-/// [`Error`] that represents that the password given is invalid.
-#[derive(Debug, derive_more::Display)]
-#[display("invalid password given")]
-pub struct InvalidPassword;
-impl Error for InvalidPassword {}
+/// `Session` is a Axum extractor avaliable when a route has its session middleware configured.
+#[derive(Debug, Clone)]
+pub struct Session {
+    /// Session data from Redis, if this is `Bearer`. Otherwise, `None` is returned.
+    pub session: Option<charted_types::Session>,
 
-/// Trait that allows to build an authenticator that allows to authenticate users.
-pub trait Authenticator: Send + Sync {
-    /// Authenticate a given [`User`] with the password given.
-    fn authenticate<'u>(&'u self, user: &'u User, password: String) -> BoxedFuture<'u, eyre::Result<()>>;
+    /// User that is executing this route; always avaliable
+    pub user: User,
 }

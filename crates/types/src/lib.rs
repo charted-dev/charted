@@ -14,12 +14,17 @@
 // limitations under the License.
 
 #![allow(clippy::too_long_first_doc_paragraph)]
+#![feature(decl_macro)]
+// #![feature(trivial_bounds)]
+// #![deny(trivial_bounds)]
 
 //! The `charted-types` crate defines types that can be used within the lifecycle
 //! of the API server.
 
 mod db;
 pub use db::*;
+
+pub(crate) mod util;
 
 pub mod helm;
 pub mod name;
@@ -29,9 +34,11 @@ use diesel::{
     backend::Backend,
     deserialize::{FromSql, FromSqlRow},
     expression::AsExpression,
+    pg::Pg,
     query_builder::bind_collector::RawBytesBindCollector,
-    serialize::ToSql,
-    sql_types::{Text, Timestamp, Timestamptz},
+    serialize::{IsNull, ToSql},
+    sql_types::{Text, Timestamp, Timestamptz, TimestamptzSqlite},
+    sqlite::Sqlite,
 };
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
@@ -51,13 +58,14 @@ charted_core::create_newtype_wrapper! {
     /// Newtype wrapper for the [`chrono::DateTime`]<[`chrono::Utc`]> type. It implements
     /// the following traits:
     ///
-    /// * [`AsExpression`]<[`Timestamp`]>
+    /// * [`AsExpression`]<[`TimestamptzSqlite`]>
     /// * [`AsExpression`]<[`Timestamptz`]>
     /// * [`utoipa::ToSchema`]
     #[cfg_attr(feature = "jsonschema", doc = "* [`schemars::JsonSchema`](https://docs.rs/schemars/*/schemars/trait.JsonSchema.html)")]
-    #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, AsExpression)]
-    #[diesel(sql_type = Timestamp)]
+    #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, AsExpression, FromSqlRow)]
+    #[diesel(sql_type = TimestamptzSqlite)]
     #[diesel(sql_type = Timestamptz)]
+    #[diesel(sql_type = Timestamp)]
     pub DateTime for ::chrono::DateTime<::chrono::Utc>;
 }
 
@@ -96,6 +104,67 @@ impl ::schemars::JsonSchema for DateTime {
     }
 }
 
+#[allow(trivial_bounds)]
+impl ToSql<Timestamptz, Pg> for DateTime
+where
+    ::chrono::DateTime<::chrono::Utc>: ToSql<Timestamptz, Pg>,
+{
+    fn to_sql<'b>(&'b self, out: &mut diesel::serialize::Output<'b, '_, Pg>) -> diesel::serialize::Result {
+        <chrono::DateTime<chrono::Utc> as diesel::serialize::ToSql<Timestamptz, Pg>>::to_sql(
+            &self.0,
+            &mut out.reborrow(),
+        )
+    }
+}
+
+#[allow(trivial_bounds)]
+impl FromSql<Timestamptz, Pg> for DateTime
+where
+    ::chrono::DateTime<::chrono::Utc>: FromSql<Timestamptz, Pg>,
+{
+    fn from_sql(bytes: <Pg as Backend>::RawValue<'_>) -> diesel::deserialize::Result<Self> {
+        let result: ::chrono::DateTime<::chrono::Utc> =
+            <::chrono::DateTime<::chrono::Utc> as FromSql<Timestamptz, Pg>>::from_sql(bytes)?;
+
+        Ok(Self(result))
+    }
+}
+
+#[allow(trivial_bounds)]
+impl ToSql<TimestamptzSqlite, Sqlite> for DateTime
+where
+    ::chrono::DateTime<::chrono::Utc>: ToSql<TimestamptzSqlite, Sqlite>,
+{
+    fn to_sql<'b>(&'b self, out: &mut diesel::serialize::Output<'b, '_, Sqlite>) -> diesel::serialize::Result {
+        <chrono::DateTime<chrono::Utc> as diesel::serialize::ToSql<TimestamptzSqlite, Sqlite>>::to_sql(&self.0, out)
+    }
+}
+
+#[allow(trivial_bounds)]
+impl FromSql<TimestamptzSqlite, Sqlite> for DateTime
+where
+    ::chrono::DateTime<::chrono::Utc>: FromSql<TimestamptzSqlite, Sqlite>,
+{
+    fn from_sql(bytes: <Sqlite as Backend>::RawValue<'_>) -> diesel::deserialize::Result<Self> {
+        let result: ::chrono::DateTime<::chrono::Utc> =
+            <::chrono::DateTime<::chrono::Utc> as FromSql<TimestamptzSqlite, Sqlite>>::from_sql(bytes)?;
+
+        Ok(Self(result))
+    }
+}
+
+impl FromSql<Timestamp, Sqlite> for DateTime
+where
+    chrono::NaiveDateTime: FromSql<Timestamp, Sqlite>,
+{
+    fn from_sql(bytes: <Sqlite as Backend>::RawValue<'_>) -> diesel::deserialize::Result<Self> {
+        let datetime = <chrono::NaiveDateTime as FromSql<Timestamp, Sqlite>>::from_sql(bytes)?;
+        let converted = chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(datetime, chrono::Utc);
+
+        Ok(Self(converted))
+    }
+}
+
 charted_core::create_newtype_wrapper! {
     /// Newtype wrapper for [`semver::Version`] which implements common traits that charted-server uses for
     /// API entities.
@@ -127,12 +196,12 @@ where
     }
 }
 
-impl<'s, B: Backend> FromSql<Text, B> for Version
+impl<B: Backend> FromSql<Text, B> for Version
 where
-    &'s str: FromSql<Text, B>,
+    String: FromSql<Text, B>,
 {
     fn from_sql(bytes: <B as Backend>::RawValue<'_>) -> diesel::deserialize::Result<Self> {
-        Ok(semver::Version::parse(<&str as FromSql<Text, B>>::from_sql(bytes)?)
+        Ok(semver::Version::parse(&<String as FromSql<Text, B>>::from_sql(bytes)?)
             .map(Self)
             .map_err(Box::new)?)
     }
@@ -238,9 +307,14 @@ charted_core::create_newtype_wrapper! {
     /// * [`utoipa::ToSchema`]
     /// * [`ToSql`]<[`Text`], [`B`][diesel::backend::Backend]>
     /// * [`FromSql`]<[`Text`], [`B`][diesel::backend::Backend]>
-    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, AsExpression)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, AsExpression, FromSqlRow)]
     #[diesel(sql_type = Text)]
     pub Ulid for ::ulid::Ulid;
+}
+
+/// Exposes types from the [`ulid`] crate that can be accessible from other `charted` crates.
+pub mod ulid {
+    pub use ::ulid::{DecodeError, EncodeError, ULID_LEN};
 }
 
 impl Display for Ulid {
@@ -271,26 +345,38 @@ impl<'s> ToSchema<'s> for Ulid {
     }
 }
 
-impl<B> ToSql<Text, B> for Ulid
+impl ToSql<Text, Pg> for Ulid
 where
-    for<'c> B: Backend<BindCollector<'c> = RawBytesBindCollector<B>>,
-    str: ToSql<Text, B>,
+    str: ToSql<Text, Pg>,
 {
-    fn to_sql<'b>(&'b self, out: &mut diesel::serialize::Output<'b, '_, B>) -> diesel::serialize::Result {
+    fn to_sql<'b>(&'b self, out: &mut diesel::serialize::Output<'b, '_, Pg>) -> diesel::serialize::Result {
         let mut buf = [0; ulid::ULID_LEN];
         let v = self.array_to_str(&mut buf);
 
-        (*v).to_sql(&mut out.reborrow())
+        <str as ToSql<Text, diesel::pg::Pg>>::to_sql(&(*v), &mut out.reborrow())
     }
 }
 
-impl<'s, B: Backend> FromSql<Text, B> for Ulid
+// Sqlite's bind collector doesn't use `RawBytesBindCollector` like Postgres does, so we kind have to
+// do it like this. Abeit, not being the best way or probably the recommended way.
+impl ToSql<Text, Sqlite> for Ulid {
+    fn to_sql<'b>(&'b self, out: &mut diesel::serialize::Output<'b, '_, Sqlite>) -> diesel::serialize::Result {
+        let v = self.to_string();
+        out.set_value(v);
+
+        Ok(IsNull::No)
+    }
+}
+
+impl<B: Backend> FromSql<Text, B> for Ulid
 where
-    &'s str: FromSql<Text, B>,
+    String: FromSql<Text, B>,
 {
     fn from_sql(bytes: <B as Backend>::RawValue<'_>) -> diesel::deserialize::Result<Self> {
-        Ok(ulid::Ulid::from_string(<&str as FromSql<Text, B>>::from_sql(bytes)?)
-            .map(Self)
-            .map_err(Box::new)?)
+        Ok(
+            ::ulid::Ulid::from_string(&<String as FromSql<Text, B>>::from_sql(bytes)?)
+                .map(Self)
+                .map_err(Box::new)?,
+        )
     }
 }

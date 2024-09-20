@@ -87,7 +87,7 @@ pub async fn run(Args { config, .. }: Args) -> eyre::Result<()> {
         storage::Config::S3(s3) => azalia::remi::StorageService::S3(remi_s3::StorageService::new(s3)),
     };
 
-    azalia::remi::remi::StorageService::init(&storage).await?;
+    azalia::remi::core::StorageService::init(&storage).await?;
     info!("initialized data storage successfully!");
 
     info!("initializing authz backend...");

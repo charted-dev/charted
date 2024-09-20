@@ -199,6 +199,9 @@ pub enum ErrorCode {
     /// was unable to decode expected Base64 data.
     UnableToDecodeBase64,
 
+    /// was unable to decode into a ULID.
+    UnableToDecodeUlid,
+
     /// received invalid UTF-8 data
     InvalidUtf8,
 

@@ -82,21 +82,48 @@ pub fn version(pool: &DbPool) -> eyre::Result<String> {
 
 #[macro_export]
 macro_rules! connection {
+    (@raw $conn:ident {
+        $(
+            $db:ident($c:ident) => $code:expr;
+        )*
+    }) => {{
+        #[allow(unused)]
+        use ::diesel::prelude::*;
+        match *$conn {
+            $(
+                $crate::DbConnection::$db(ref mut $c) => $code,
+            )*
+        }
+    }};
+
+    (@raw $conn:ident {
+        $(
+            $db:ident($c:ident) $code:block;
+        )*
+    }) => {{
+        #[allow(unused)]
+        use ::diesel::prelude::*;
+        match *$conn {
+            $(
+                $crate::DbConnection::$db(ref mut $c) => $code,
+            )*
+        }
+    }};
+
     ($pool:ident, {
         $(
             $db:ident($conn:ident) $code:block;
         )*
     }) => {{
         #[allow(unused)]
-        use ::diesel::prelude::*;
         use ::eyre::Context;
 
-        let mut conn = ($pool).get().context("failed to get connection from pool")?;
-        match *conn {
+        let mut conn = ($pool).get().context("failed to get db connection")?;
+        $crate::connection!(@raw conn {
             $(
-                $crate::DbConnection::$db(ref mut $conn) => $code,
+                $db($conn) $code;
             )*
-        }
+        })
     }};
 }
 

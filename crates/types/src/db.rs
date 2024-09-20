@@ -13,15 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{helm::ChartType, name::Name, DateTime, Ulid, Version};
+use crate::{helm::ChartType, name::Name, util, DateTime, Ulid, Version};
 use charted_core::bitflags::ApiKeyScopes;
-use diesel::prelude::{Insertable, Queryable};
+use diesel::prelude::*;
 use serde::Serialize;
 use utoipa::ToSchema;
 
 #[derive(Debug, Clone, Serialize, ToSchema, Queryable, Insertable)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite, diesel::pg::Pg))]
 #[diesel(table_name = charted_database::schema::postgresql::users)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite, diesel::pg::Pg))]
 #[diesel(table_name = charted_database::schema::sqlite::users)]
 pub struct User {
     /// whether or not if this user is considered a verified publisher.
@@ -53,6 +53,12 @@ pub struct User {
     /// Name of this user that can be identified easier.
     pub username: Name,
 
+    #[serde(skip)]
+    pub password: Option<String>,
+
+    #[serde(skip)]
+    pub email: String,
+
     /// Whether if this User is an Administrator of this instance
     #[serde(default)]
     #[schema(read_only)]
@@ -64,13 +70,22 @@ pub struct User {
 
     /// Unique identifier to locate this user via the REST API.
     pub id: Ulid,
-
-    #[serde(skip)]
-    pub password: Option<String>,
-
-    #[serde(skip)]
-    pub email: Option<String>,
 }
+
+util::selectable!(users for User => [
+    verified_publisher: bool,
+    gravatar_email: Option<String>,
+    description: Option<String>,
+    avatar_hash: Option<String>,
+    created_at: DateTime,
+    updated_at: DateTime,
+    username: Name,
+    password: Option<String>,
+    email: String,
+    admin: bool,
+    name: Option<String>,
+    id: Ulid
+]);
 
 #[derive(Debug, Clone, Serialize, ToSchema, Queryable, Insertable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite, diesel::pg::Pg))]
@@ -102,6 +117,15 @@ pub struct UserConnections {
     #[schema(read_only)]
     pub id: Ulid,
 }
+
+util::selectable!(user_connections for UserConnections => [
+    noelware_account_id: Option<i64>,
+    google_account_id: Option<String>,
+    github_account_id: Option<String>,
+    created_at: DateTime,
+    updated_at: DateTime,
+    id: Ulid
+]);
 
 #[derive(Debug, Clone, Serialize, ToSchema, Queryable, Insertable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite, diesel::pg::Pg))]
@@ -156,6 +180,20 @@ pub struct Repository {
     pub id: Ulid,
 }
 
+util::selectable!(repositories for Repository => [
+    description: Option<String>,
+    deprecated: bool,
+    created_at: DateTime,
+    updated_at: DateTime,
+    icon_hash: Option<String>,
+    creator: Option<Ulid>,
+    private: bool,
+    owner: Ulid,
+    name: Name,
+    type_: ChartType,
+    id: Ulid
+]);
+
 /// Represents a resource that contains a release from a [Repository] release. Releases
 /// are a way to group releases of new versions of Helm charts that can be easily
 /// fetched from the API server.
@@ -192,6 +230,15 @@ pub struct RepositoryRelease {
     #[schema(read_only)]
     pub id: Ulid,
 }
+
+util::selectable!(repository_releases for RepositoryRelease => [
+    update_text: Option<String>,
+    repository: Ulid,
+    created_at: DateTime,
+    updated_at: DateTime,
+    tag: Version,
+    id: Ulid
+]);
 
 macro_rules! create_member_struct {
     ($name:ident -> $table:ident) => {
@@ -233,6 +280,15 @@ macro_rules! create_member_struct {
                     ::charted_core::bitflags::MemberPermissions::new(self.permissions.try_into().expect("cannot convert to u64"))
                 }
             }
+
+            $crate::util::selectable!($table for [<$name Member>] => [
+                display_name: Option<String>,
+                permissions: i64,
+                updated_at: DateTime,
+                joined_at: DateTime,
+                account: Ulid,
+                id: Ulid
+            ]);
         }
     };
 }
@@ -292,6 +348,20 @@ pub struct Organization {
     pub id: Ulid,
 }
 
+util::selectable!(organizations for Organization => [
+    verified_publisher: bool,
+    twitter_handle: Option<String>,
+    gravatar_email: Option<String>,
+    display_name: Option<String>,
+    created_at: DateTime,
+    updated_at: DateTime,
+    icon_hash: Option<String>,
+    private: bool,
+    owner: Ulid,
+    name: Name,
+    id: Ulid
+]);
+
 /// A resource for personal-managed API tokens that is created by a User. This is useful
 /// for command line tools or scripts that need to interact with charted-server, but
 /// the main use-case is for the [Helm plugin](https://charts.noelware.org/docs/helm-plugin/current).
@@ -323,9 +393,9 @@ pub struct ApiKey {
 
     /// The token itself. This is never revealed when querying, but only revealed
     /// when you create the token.
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "String::is_empty")]
     #[schema(read_only)]
-    pub token: Option<String>,
+    pub token: String,
 
     /// User resource that owns this API key. This is skipped
     /// when using the API as this is pretty useless.
@@ -346,4 +416,69 @@ impl ApiKey {
     pub fn bitfield(&self) -> ApiKeyScopes {
         ApiKeyScopes::new(self.scopes.try_into().unwrap())
     }
+
+    /// Sanitize the output of [`ApiKey`] when serializing it or else the token will be
+    /// exposed and we don't want that. :(
+    pub fn sanitize(self) -> ApiKey {
+        ApiKey {
+            token: String::new(),
+            ..self
+        }
+    }
 }
+
+util::selectable!(api_keys for ApiKey => [
+    description: Option<String>,
+    created_at: DateTime,
+    updated_at: DateTime,
+    expires_in: Option<DateTime>,
+    scopes: i64,
+    token: String,
+    owner: Ulid,
+    name: Name,
+    id: Ulid
+]);
+
+/// Resource that represents a user session present.
+#[derive(Debug, Clone, Serialize, ToSchema, Queryable, Insertable)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite, diesel::pg::Pg))]
+#[diesel(table_name = charted_database::schema::postgresql::sessions)]
+#[diesel(table_name = charted_database::schema::sqlite::sessions)]
+pub struct Session {
+    /// Refresh token to refresh this session.
+    ///
+    /// When refreshed, the session will still be alive but `access_token`
+    /// and this field will be different.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub refresh_token: String,
+
+    /// Access token to access data from the REST service.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub access_token: String,
+
+    /// ULID of the user that owns this session
+    pub owner: Ulid,
+
+    /// Unique identifier of this session.
+    pub id: Ulid,
+}
+
+impl Session {
+    /// Sanitize the `access_token` and `refresh_token` fields so that it can be passed
+    /// from the user sessions API.
+    pub fn sanitize(self) -> Session {
+        Session {
+            refresh_token: String::new(),
+            access_token: String::new(),
+            owner: self.owner,
+            id: self.id,
+        }
+    }
+}
+
+util::selectable!(sessions for Session => [
+    refresh_token: String,
+    access_token: String,
+    owner: Ulid,
+    id: Ulid
+]);

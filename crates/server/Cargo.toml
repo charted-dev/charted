@@ -30,6 +30,7 @@ azalia = { workspace = true, features = ["remi", "remi-all"] }
 async-trait = "0.1.81"
 axum.workspace = true
 axum-server = { version = "0.7.1", features = ["tls-rustls"] }
+base64 = "0.22.1"
 charted-authz = { version = "0.1.0", path = "../authz" }
 charted-core = { version = "0.1.0", path = "../core" }
 charted-config = { version = "0.1.0", path = "../config" }
@@ -37,8 +38,10 @@ charted-database = { version = "0.1.0", path = "../database" }
 charted-features = { version = "0.1.0", path = "../features" }
 charted-helm-charts = { version = "0.1.0", path = "../helm-charts" }
 charted-types = { version = "0.1.0", path = "../types" }
+diesel = { workspace = true, features = ["postgres", "sqlite"] }
 eyre.workspace = true
 inventory = "0.3.15"
+jsonwebtoken = "9.3.0"
 mime = "0.3.17"
 multer.workspace = true
 sentry.workspace = true
@@ -49,7 +52,8 @@ serde_path_to_error = "0.1.16"
 serde_yaml_ng.workspace = true
 tokio = { workspace = true, features = ["signal", "net"] }
 tower = "0.5.0"
-tower-http = { version = "0.5.2", features = [
+tower-http = { version = "0.6.0", features = [
+    "auth",
     "catch-panic",
     "compression-gzip",
     "cors",
