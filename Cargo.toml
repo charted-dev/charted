@@ -62,8 +62,8 @@ utoipa = { version = "4.2.3", features = [
     "non_strict_integers",
     "uuid",
 ] }
-testcontainers = "0.22.0"
-testcontainers-modules = "0.10.0"
+testcontainers = "0.23.0"
+testcontainers-modules = "0.11.0"
 tokio = "1.39.3"
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
