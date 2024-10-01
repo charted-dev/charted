@@ -59,7 +59,7 @@
         nativeBuildInputs = with pkgs; [pkg-config installShellFiles];
         buildInputs = with pkgs;
           [openssl sqlite postgresql]
-          ++ (lib.optional stdenv.isDarwin (with darwin.apple_sdk.frameworks; [CoreFoundation Security]));
+          ++ (lib.optional stdenv.isDarwin (with darwin.apple_sdk.frameworks; [CoreFoundation Security SystemConfiguration]));
 
         version = "${cargoTOML.workspace.package.version}";
         name = "charted";
@@ -95,7 +95,7 @@
         nativeBuildInputs = with pkgs; [pkg-config protobuf];
         buildInputs = with pkgs;
           [openssl sqlite postgresql]
-          ++ (lib.optional stdenv.isDarwin (with darwin.apple_sdk.frameworks; [CoreFoundation Security]));
+          ++ (lib.optional stdenv.isDarwin (with darwin.apple_sdk.frameworks; [CoreFoundation Security SystemConfiguration]));
         cargoSha256 = pkgs.lib.fakeSha256;
         version = "${cargoTOML.workspace.package.version}";
         name = "charted-helm-plugin";
@@ -144,7 +144,7 @@
         nativeBuildInputs = with pkgs;
           [pkg-config sqlite postgresql.lib]
           ++ (lib.optional stdenv.isLinux [mold lldb])
-          ++ (lib.optional stdenv.isDarwin (with darwin.apple_sdk.frameworks; [CoreFoundation Security]));
+          ++ (lib.optional stdenv.isDarwin (with darwin.apple_sdk.frameworks; [CoreFoundation Security SystemConfiguration]));
 
         buildInputs = with pkgs;
           [
