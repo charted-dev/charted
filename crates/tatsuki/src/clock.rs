@@ -40,11 +40,11 @@ impl<Tz: TimeZone + 'static> TestClock<Tz> {
     ///
     /// ## Example
     /// ```
-    /// # use tatsuki::{tokio, Scheduler, rt::Tokio, TestClock};
-    /// # use chrono::DateTime;
-    /// #
-    /// let scheduler: Scheduler<Tokio, TestClock> = tokio()
-    ///     .with_clock(TestClock::new(DateTime::MIN_UTC));
+    /// # use tatsuki::{tokio, Scheduler, rt::tokio::Tokio, TestClock};
+    /// use chrono::{DateTime, Utc};
+    ///
+    /// let scheduler: Scheduler<Tokio, TestClock<Utc>> = tokio()
+    ///     .with_clock(TestClock::new(DateTime::<Utc>::MIN_UTC));
     /// ```
     pub fn new<DT: Into<DateTime<Tz>>>(dt: DT) -> TestClock<Tz> {
         TestClock(dt.into())
