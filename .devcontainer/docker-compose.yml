@@ -23,7 +23,7 @@ services:
         volumes:
             - ..:/workspaces/charted:cached
     redis:
-        image: bitnami/redis:7.4.0
+        image: bitnami/redis:7.4.1
         restart: unless-stopped
         environment:
             - ALLOW_EMPTY_PASSWORD=yes
