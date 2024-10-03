@@ -25,7 +25,7 @@ repository.workspace = true
 authors.workspace = true
 
 [dependencies]
-aws-sdk-s3 = "1.46.0"
+aws-sdk-s3 = "1.53.0"
 azalia = { workspace = true, features = [
     "config",
     "config-derive",
