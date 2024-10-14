@@ -15,7 +15,6 @@
 
 [package]
 name = "charted-server"
-description = "🐻‍❄️📦 Implementation of charted's REST specification"
 version.workspace = true
 documentation.workspace = true
 edition.workspace = true
@@ -26,9 +25,16 @@ repository.workspace = true
 authors.workspace = true
 
 [dependencies]
-azalia = { workspace = true, features = ["remi", "remi-all"] }
+azalia = { workspace = true, features = [
+    "remi",
+    "remi-fs",
+    "remi-s3",
+    "remi-azure",
+    "remi-tracing",
+    "remi-serde",
+] }
 async-trait = "0.1.81"
-axum.workspace = true
+axum = { workspace = true, features = ["matched-path"] }
 axum-server = { version = "0.7.1", features = ["tls-rustls"] }
 base64 = "0.22.1"
 charted-authz = { version = "0.1.0", path = "../authz" }
@@ -37,6 +43,7 @@ charted-config = { version = "0.1.0", path = "../config" }
 charted-database = { version = "0.1.0", path = "../database" }
 charted-features = { version = "0.1.0", path = "../features" }
 charted-helm-charts = { version = "0.1.0", path = "../helm-charts" }
+charted-proc-macros = { version = "0.1.0", path = "../proc-macros" }
 charted-types = { version = "0.1.0", path = "../types" }
 diesel = { workspace = true, features = ["postgres", "sqlite"] }
 eyre.workspace = true
@@ -45,6 +52,7 @@ jsonwebtoken = "9.3.0"
 mime = "0.3.17"
 multer.workspace = true
 sentry.workspace = true
+sentry-eyre = "0.1.0"
 sentry-tower = { version = "0.34.0", features = ["axum", "http"] }
 serde.workspace = true
 serde_json.workspace = true
@@ -59,7 +67,7 @@ tower-http = { version = "0.6.0", features = [
     "cors",
 ] }
 tracing.workspace = true
-utoipa.workspace = true
+utoipa = { workspace = true, features = ["debug"] }
 
 [package.metadata.cargo-machete]
 ignored = ["charted-helm-charts"]

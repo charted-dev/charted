@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM rustlang/rust:nightly-bullseye-slim AS build
-
-FROM alpine:3.20
+failure-threshold: error
+trustedRegistries:
+  - docker.noelware.org
+  - docker.io

@@ -33,6 +33,7 @@ use utoipa::ToSchema;
 /// Charts supporting previous Helm versions should have an [`apiVersion`] set to v1 and are
 /// installable by Helm 3.
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
+#[serde(rename_all = "lowercase")]
 pub enum ChartSpecVersion {
     /// Chart supports running on Helm 2 or 3.
     V1,

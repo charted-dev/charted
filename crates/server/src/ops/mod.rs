@@ -15,4 +15,5 @@
 
 //! The `charted_server::ops` module contains all the operations for most routes.
 
+pub mod charts;
 pub mod db;

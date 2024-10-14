@@ -15,20 +15,20 @@
 
 use serde::{de, Deserialize, Serialize};
 use std::{
+    borrow::Cow,
     fmt::{Debug, Display},
     ops::Deref,
     str::FromStr,
 };
 use utoipa::{
-    openapi::{KnownFormat, ObjectBuilder, OneOfBuilder, RefOr, Schema, SchemaFormat, SchemaType},
-    ToSchema,
+    openapi::{schema::SchemaType, KnownFormat, ObjectBuilder, OneOfBuilder, RefOr, Schema, SchemaFormat, Type},
+    PartialSchema, ToSchema,
 };
 
 /// Newtype wrapper for [`std::time::Duration`] that implements [`serde::Serialize`], [`serde::Deserialize`]
 /// and [`utoipa::ToSchema`].
 #[derive(Clone, Copy, Default, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub struct Duration(::std::time::Duration);
-
 impl Duration {
     /// Creates a new `Duration` from the specified number of whole seconds.
     ///
@@ -133,28 +133,31 @@ impl Deref for Duration {
     }
 }
 
-impl<'s> ToSchema<'s> for Duration {
-    fn schema() -> (&'s str, utoipa::openapi::RefOr<utoipa::openapi::schema::Schema>) {
+impl PartialSchema for Duration {
+    fn schema() -> RefOr<Schema> {
         let oneof = OneOfBuilder::new()
-            .description(Some("Generalised type to represents a span of time. charted-server supports passing in a unsigned 64-bit integer (represented in milliseconds) or a human-based format (like `1s`)."))
+            .description(Some("`Duration` is represented as a span of time, usually for system timeouts. `charted-server` supports passing in a unsigned 64-bot integer (represented in milliseconds) or with a string literal (i.e, `1s`) to represent time."))
             .item({
-                let object = ObjectBuilder::new()
-                    .schema_type(SchemaType::Number)
+                ObjectBuilder::new()
+                    .schema_type(SchemaType::Type(Type::Number))
                     .format(Some(SchemaFormat::KnownFormat(KnownFormat::UInt64)))
-                    .description(Some("A span of time represented in milliseconds"));
-
-                Schema::Object(object.build())
+                    .description(Some("Span of time represented in milliseconds"))
+                    .build()
             })
             .item({
-                let object = ObjectBuilder::new()
-                    .schema_type(SchemaType::String)
-                    .description(Some("Allows passing in durations as a string (i.e, `1s`, `15 days`, etc.)"));
+                ObjectBuilder::new()
+                    .schema_type(SchemaType::Type(Type::String))
+                    .description(Some("Span of time represented in a humane format like `1s`, `15 days`, etc."))
+                    .build()
+            });
 
-                Schema::Object(object.build())
-            })
-            .build();
+        RefOr::T(Schema::OneOf(oneof.build()))
+    }
+}
 
-        ("Duration", RefOr::T(Schema::OneOf(oneof)))
+impl ToSchema for Duration {
+    fn name() -> Cow<'static, str> {
+        Cow::Borrowed("Duration")
     }
 }
 

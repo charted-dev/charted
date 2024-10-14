@@ -4,14 +4,14 @@
     "editor.formatOnPaste": true,
     "rust-analyzer.check.command": "clippy",
     "rust-analyzer.showUnlinkedFileNotification": false,
-    "rust-analyzer.cargo.extraEnv": {
-        // Enable --cfg tokio_unstable with rust-analyzer so we can
-        // use Tokio unstable features.
-        //
-        // This is really only meant for src/metrics/collectors/tokio.rs to
-        // access the Handle::metrics method.
-        "RUSTFLAGS": "--cfg tokio_unstable"
+
+    // Ensure that we don't lock up `cargo check` (i.e, for `cargo expand` to debug macros)
+    // but this comes at the cost of duplicate artifacts, which I think we can sacrifice.
+    "rust-analyzer.cargo.targetDir": "${workspaceFolder}/target/rust-analyzer",
+    "rust-analyzer.server.extraEnv": {
+        "CARGO_TARGET_DIR": "${workspaceFolder}/target/rust-analyzer"
     },
+
     "rust-analyzer.runnables.extraEnv": {
         // Allows to run integration tests with logging enabled
         "INTEGTEST_LOG": "trace",

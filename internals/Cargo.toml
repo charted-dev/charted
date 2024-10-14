@@ -13,6 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM rustlang/rust:nightly-bullseye-slim AS build
+[package]
+name = "charted-internals"
+version = "0.0.0-devel.0"
+documentation.workspace = true
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+publish.workspace = true
+repository.workspace = true
+authors.workspace = true
 
-FROM alpine:3.20
+[dependencies]
+azalia = { workspace = true, features = ["log", "log-writers"] }
+charted-helm-plugin = { version = "0.1.0", path = "../crates/helm-plugin" }
+charted-server = { version = "0.1.0", path = "../crates/server" }
+clap.workspace = true
+color-eyre = "0.6.3"
+eyre.workspace = true
+tracing.workspace = true
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
+utoipa = { workspace = true, features = [] }

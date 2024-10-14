@@ -14,6 +14,7 @@
 // limitations under the License.
 
 use axum::extract::FromRef;
+use azalia::remi::StorageService;
 use charted_authz::Authenticator;
 use charted_config::Config;
 use charted_database::DbPool;
@@ -34,6 +35,9 @@ pub struct ServerContext {
     /// List of enabled features.
     pub features: Vec<Arc<dyn Feature>>,
 
+    /// [`StorageService`] to faciliate data storage operations.
+    pub storage: StorageService,
+
     /// Parsed configuration from `charted.hcl` or system environment variables.
     pub config: Config,
 
@@ -49,6 +53,7 @@ impl Clone for ServerContext {
         ServerContext {
             requests: AtomicUsize::new(self.requests.load(Ordering::SeqCst)),
             features: self.features.clone(),
+            storage: self.storage.clone(),
             config: self.config.clone(),
             authz: self.authz.clone(),
             pool: self.pool.clone(),

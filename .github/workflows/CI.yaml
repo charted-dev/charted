@@ -55,21 +55,18 @@ jobs:
                 runner: [ubuntu-latest, macos-latest, windows-latest]
                 rust-version: [nightly]
         steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+            - uses: actions/checkout@v4
 
             # remove the `rust-toolchain.toml` since it'll be overwritten.
             - run: rm ${GITHUB_WORKSPACE}/rust-toolchain.toml
               shell: bash
 
-            - name: Setup Rust toolchain
-              uses: dtolnay/rust-toolchain@master
+            - uses: dtolnay/rust-toolchain@master
               with:
                   toolchain: ${{matrix.rust-version}}
                   components: clippy, rustfmt
 
-            - name: Setup Rust cache
-              uses: Swatinem/rust-cache@v2
+            - uses: Swatinem/rust-cache@v2
 
             - name: Setup `VCPKG_ROOT` environment variable
               if: matrix.runner == 'windows-latest'
@@ -91,57 +88,39 @@ jobs:
               if: matrix.runner == 'windows-latest'
 
             # On Windows, we'll also need nasm for use with BoringSSL via aws-lc-sys.
-            - name: Install NASM on Windows
-              uses: ilammy/setup-nasm@v1
+            - uses: ilammy/setup-nasm@v1
               if: matrix.runner == 'windows-latest'
 
-            - name: Install `libpq` on macOS
-              if: matrix.runner == 'macos-latest'
+            # on macOS, `libpq` is not avaliable
+            - if: matrix.runner == 'macos-latest'
               run: brew install postgresql
 
-            - name: Install `cargo-nextest`
-              uses: taiki-e/cache-cargo-install-action@v2
+            - uses: taiki-e/cache-cargo-install-action@v2
               with:
-                tool: cargo-nextest
+                  tool: cargo-nextest
 
-            - name: Build project
-              run: cargo build --all-features --workspace
-
-            - name: Run tests
-              run: cargo nextest run --all-features --workspace
-
-            - name: Run doctests
-              run: cargo test --doc --all-features --workspace
-
+            - run: cargo build --all-features --workspace
+            - run: cargo nextest run --all-features --workspace
+            - run: cargo test --doc --all-features --workspace
     cargo-deny:
         name: '`cargo deny`'
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
-
-            - name: Install `cargo-deny`
-              uses: taiki-e/cache-cargo-install-action@v2
+            - uses: actions/checkout@v4
+            - uses: taiki-e/cache-cargo-install-action@v2
               with:
                   tool: cargo-deny
-
-            - name: Run "cargo deny"
-              run: cargo deny check all
+            - run: cargo deny check all
 
     report-missing-deps:
         name: Report Missing Dependencies
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
-
-            - name: Install `cargo-machete`
-              uses: taiki-e/cache-cargo-install-action@v2
+            - uses: actions/checkout@v4
+            - uses: taiki-e/cache-cargo-install-action@v2
               with:
-                tool: cargo-machete
-
-            - name: Run `cargo machete`
-              run: cargo machete
+                  tool: cargo-machete
+            - run: cargo machete
 
     # we perform Cachix builds on each commit and each release, and Noel uses
     # NixOS, so this is probably a must!
@@ -178,24 +157,31 @@ jobs:
             matrix:
                 rust-version: [nightly]
         steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+            - uses: actions/checkout@v4
 
             # remove the `rust-toolchain.toml` since it'll be overwritten.
             - run: rm ${GITHUB_WORKSPACE}/rust-toolchain.toml
-
-            - name: Setup Rust toolchain
-              uses: dtolnay/rust-toolchain@master
+            - uses: dtolnay/rust-toolchain@master
               with:
                   toolchain: ${{matrix.rust-version}}
                   components: clippy, rustfmt
-
-            - name: Setup Rust cache
-              uses: Swatinem/rust-cache@v2
-
-            - name: Clippy!
-              uses: auguwu/clippy-action@1.4.0
+            - uses: Swatinem/rust-cache@v2
+            - uses: auguwu/clippy-action@1.4.0
               with:
                   all-features: true
                   check-args: --workspace --locked
                   token: ${{github.token}}
+    hadolint:
+        name: Hadolint [${{matrix.dockerfile}}]
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                dockerfile:
+                    - ./distribution/charted/docker/alpine.Dockerfile
+                    - ./distribution/charted/docker/debian.Dockerfile
+                    - ./distribution/helm-plugin/docker/Dockerfile
+        steps:
+            - uses: actions/checkout@v4
+            - uses: hadolint/hadolint-action@v3.1.0
+              with:
+                  dockerfile: ${{matrix.dockerfile}}

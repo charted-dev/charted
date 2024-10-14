@@ -18,6 +18,7 @@ use std::{ffi::OsString, path::PathBuf};
 
 mod cli;
 mod helm_plugin;
+mod internals;
 mod server;
 
 /// Represents all the common arguments that *mostly* are present in all CLI commands
@@ -49,6 +50,7 @@ pub struct CommonArgs {
 #[derive(clap::Subcommand)]
 pub enum Cmd {
     HelmPlugin(helm_plugin::Args),
+    Internals(internals::Args),
     Server(server::Args),
     Cli(cli::Args),
 }
@@ -58,5 +60,6 @@ pub fn run(cmd: Cmd) -> eyre::Result<()> {
         Cmd::Server(args) => server::run(args),
         Cmd::HelmPlugin(args) => helm_plugin::run(args),
         Cmd::Cli(args) => cli::run(args),
+        Cmd::Internals(args) => internals::run(args),
     }
 }

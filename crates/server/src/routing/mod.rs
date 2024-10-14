@@ -19,7 +19,7 @@ use axum::{
     extract::DefaultBodyLimit,
     http::{Method, Response, StatusCode},
     response::IntoResponse,
-    Router,
+    BoxError, Router,
 };
 use charted_core::api;
 use serde_json::json;
@@ -31,14 +31,6 @@ use tower_http::{
 };
 
 pub mod v1;
-
-charted_core::create_newtype_wrapper! {
-    /// Newtype wrapper for [`utoipa::openapi::PathItem`] so it can be used
-    /// with the [`inventory`] crate.
-    pub PathItem for ::utoipa::openapi::PathItem;
-}
-
-inventory::collect!(PathItem);
 
 macro_rules! mk_router {
     ($cx:ident, $($version:ident),*) => {{
@@ -66,6 +58,13 @@ fn panic_handler(message: Box<dyn Any + Send + 'static>) -> Response<Body> {
             "report_url": "https://github.com/charted-dev/charted/issues/new"
         }))
     }).into_response()
+}
+
+// TODO(@auguwu): properly implement `HandleErrorLayer` -- at the moment, it doesn't
+// want to work.
+#[allow(unused)]
+fn handle_error(error: BoxError) -> api::Response {
+    todo!()
 }
 
 pub fn create_router(cx: &ServerContext) -> Router<ServerContext> {

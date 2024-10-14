@@ -101,6 +101,8 @@ impl From<Version> for serde_json::Number {
     }
 }
 
+pub type Result<T> = std::result::Result<Response<T>, Response>;
+
 /// Represents a response object for all REST endpoints.
 #[derive(Debug, Serialize, ToSchema)]
 pub struct Response<T = ()> {
@@ -423,6 +425,10 @@ pub fn ok<T>(status: StatusCode, data: T) -> Response<T> {
         status,
         data: Some(data),
     }
+}
+
+pub fn from_default<T: Default>(status: StatusCode) -> Response<T> {
+    ok(status, T::default())
 }
 
 pub fn err<E: Into<Error>>(status: StatusCode, error: E) -> Response {

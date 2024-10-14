@@ -13,10 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::fmt::Display;
-
 use charted_types::{name::Name, Ulid};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use std::fmt::Display;
+use utoipa::ToSchema;
 
 /// `NameOrUlid` is a "union" enum that can represent either:
 ///
@@ -26,7 +26,7 @@ use serde::Deserialize;
 /// This exists as an Axum extractor that implements [`FromRequestParts`]. This is mainly
 /// used to identify an API response from its [`Name`][charted_types::name::Name] or their
 /// ID (as a [`Ulid`][charted_types::Ulid]).
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, ToSchema)]
 #[serde(untagged)]
 pub enum NameOrUlid {
     Ulid(charted_types::Ulid),

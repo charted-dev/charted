@@ -99,6 +99,7 @@ pub async fn run(Args { config, .. }: Args) -> eyre::Result<()> {
     let cx = ServerContext {
         requests: AtomicUsize::new(0),
         features: Vec::new(),
+        storage,
         config,
         authz,
         pool,

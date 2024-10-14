@@ -15,7 +15,7 @@
 
 [workspace]
 resolver = "2"
-members = ["crates/*", "crates/authz/*", "crates/tatsuki/macros"]
+members = ["crates/*", "crates/authz/*", "crates/tatsuki/macros", "internals"]
 
 [workspace.package]
 version = "0.1.0"
@@ -35,7 +35,7 @@ rust-version = "1.78"
 
 [workspace.dependencies]
 argon2 = "0.5.3"
-axum = { version = "0.7.5", features = ["macros", "http2"] }
+axum = { version = "0.7.7", features = ["macros", "http2"] }
 charted-core = { version = "0.1.0", path = "./crates/core", default-features = false }
 charted-database = { version = "0.1.0", path = "./crates/database" }
 charted-types = { version = "0.1.0", path = "./crates/types", default-features = false }
@@ -46,6 +46,7 @@ derive_more = "1.0.0"
 diesel = { version = "2.2.4", features = ["postgres", "sqlite", "chrono"] }
 eyre = "0.6.12"
 multer = "3.1.0"
+opentelemetry = "0.26.0"
 remi = "0.8.0"
 remi-azure = { version = "0.8.0", features = ["tracing"] }
 remi-fs = { version = "0.8.0", features = ["tracing"] }
@@ -57,11 +58,7 @@ serde = { version = "1.0.204", features = ["derive"] }
 serde_json = "1.0.122"
 serde_yaml_ng = "0.10.0"
 tempfile = "3.12.0"
-utoipa = { version = "4.2.3", features = [
-    "chrono",
-    "non_strict_integers",
-    "uuid",
-] }
+utoipa = { version = "5.0.0", features = ["chrono", "non_strict_integers"] }
 testcontainers = "0.23.0"
 testcontainers-modules = "0.11.0"
 tokio = "1.39.3"

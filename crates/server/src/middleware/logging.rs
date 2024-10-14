@@ -17,7 +17,7 @@ use super::XRequestId;
 use crate::ServerContext;
 use axum::{
     body::Body,
-    extract::{FromRequestParts, Request, State},
+    extract::{FromRequestParts, MatchedPath, Request, State},
     http::{header::USER_AGENT, Extensions, HeaderMap, Method, Uri, Version},
     middleware::Next,
     response::IntoResponse,
@@ -30,11 +30,13 @@ pub struct Metadata {
     extensions: Extensions,
     version: Version,
     headers: HeaderMap,
+    matched: MatchedPath,
     method: Method,
     uri: Uri,
 }
 
 #[instrument(name = "charted.http.request", skip_all, fields(
+    req.matched_path = %metadata.matched.as_str(),
     req.ua = ?get_user_agent(&metadata),
     req.id = %metadata.extensions.get::<XRequestId>().unwrap(),
     http.version = http_version(&metadata),

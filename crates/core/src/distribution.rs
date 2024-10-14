@@ -74,9 +74,9 @@ pub enum Distribution {
 }
 
 impl Distribution {
-    pub fn detect() -> &'static Distribution {
+    pub fn detect() -> Distribution {
         static ONCE: OnceLock<Distribution> = OnceLock::new();
-        ONCE.get_or_init(|| {
+        *ONCE.get_or_init(|| {
             if is_in_k8s() {
                 return Distribution::Kubernetes;
             }

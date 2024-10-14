@@ -70,4 +70,7 @@ pub async fn get<ID: Into<NameOrUlid>>(ctx: &ServerContext, id: ID) -> eyre::Res
             }
         });
     })
+    .inspect_err(|err| {
+        sentry_eyre::capture_report(err);
+    })
 }

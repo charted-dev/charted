@@ -41,10 +41,11 @@ use diesel::{
     sqlite::Sqlite,
 };
 use serde::{Deserialize, Serialize};
-use std::fmt::Display;
+use serde_json::json;
+use std::{borrow::Cow, fmt::Display};
 use utoipa::{
-    openapi::{KnownFormat, ObjectBuilder, RefOr, Schema, SchemaFormat, SchemaType},
-    ToSchema,
+    openapi::{schema::SchemaType, KnownFormat, ObjectBuilder, RefOr, Schema, SchemaFormat, Type},
+    PartialSchema, ToSchema,
 };
 
 charted_core::mk_from_newtype!(
@@ -69,18 +70,21 @@ charted_core::create_newtype_wrapper! {
     pub DateTime for ::chrono::DateTime<::chrono::Utc>;
 }
 
-impl<'s> ToSchema<'s> for DateTime {
-    fn schema() -> (&'s str, RefOr<Schema>) {
-        (
-            "DateTime",
-            RefOr::T(Schema::Object(
-                ObjectBuilder::new()
-                    .schema_type(SchemaType::String)
-                    .format(Some(SchemaFormat::KnownFormat(KnownFormat::DateTime)))
-                    .description(Some("ISO 8601 combined date and time using local time"))
-                    .build(),
-            )),
-        )
+impl PartialSchema for DateTime {
+    fn schema() -> RefOr<Schema> {
+        let object = ObjectBuilder::new()
+            .schema_type(SchemaType::Type(Type::String))
+            .format(Some(SchemaFormat::KnownFormat(KnownFormat::DateTime)))
+            .description(Some("ISO 8601 combined date and time using local time"))
+            .build();
+
+        RefOr::T(Schema::Object(object))
+    }
+}
+
+impl ToSchema for DateTime {
+    fn name() -> Cow<'static, str> {
+        Cow::Borrowed("DateTime")
     }
 }
 
@@ -207,16 +211,22 @@ where
     }
 }
 
-impl<'s> ToSchema<'s> for Version {
-    fn schema() -> (&'s str, RefOr<Schema>) {
-        ("Version", RefOr::T(Schema::Object(
-            ObjectBuilder::new()
-                .schema_type(SchemaType::String)
-                .description(Some("Type that represents a semantic version (https://semver.org)."))
-                .pattern(Some(r"^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"))
-                .example(Some(serde_json::json!("1.2.3")))
-                .build(),
-        )))
+impl PartialSchema for Version {
+    fn schema() -> RefOr<Schema> {
+        let object = ObjectBuilder::new()
+            .schema_type(SchemaType::Type(Type::String))
+            .description(Some("Type that represents a semantic version (https://semver.org)."))
+            .pattern(Some(r"^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"))
+            .examples([json!("1.2.3")])
+            .build();
+
+        RefOr::T(Schema::Object(object))
+    }
+}
+
+impl ToSchema for Version {
+    fn name() -> Cow<'static, str> {
+        Cow::Borrowed("Version")
     }
 }
 
@@ -257,21 +267,23 @@ impl VersionReq {
     }
 }
 
-impl<'s> ToSchema<'s> for VersionReq {
-    fn schema() -> (&'s str, RefOr<Schema>) {
-        (
-            "VersionReq",
-            RefOr::T(Schema::Object(
-                ObjectBuilder::new()
-                    .schema_type(SchemaType::String)
-                    .description(Some(
-                        "A semantic version requirement (https://semver.org) that Helm and charted-server supports",
-                    ))
-                    .example(Some(serde_json::json!(">=1.2.3")))
-                    .example(Some(serde_json::json!("~1")))
-                    .build(),
-            )),
-        )
+impl PartialSchema for VersionReq {
+    fn schema() -> RefOr<Schema> {
+        let object = ObjectBuilder::new()
+            .schema_type(SchemaType::Type(Type::String))
+            .description(Some(
+                "A semantic version requirement (https://semver.org) that Helm and charted-server supports",
+            ))
+            .examples([json!(">=1.2.3"), json!("~1")])
+            .build();
+
+        RefOr::T(Schema::Object(object))
+    }
+}
+
+impl ToSchema for VersionReq {
+    fn name() -> Cow<'static, str> {
+        Cow::Borrowed("VersionReq")
     }
 }
 
@@ -329,19 +341,22 @@ impl Ulid {
     }
 }
 
-impl<'s> ToSchema<'s> for Ulid {
-    fn schema() -> (&'s str, RefOr<Schema>) {
-        (
-            "Ulid",
-            RefOr::T(Schema::Object(
-                ObjectBuilder::new()
-                    .schema_type(SchemaType::String)
-                    .description(Some("`Ulid` is a unique 128-bit lexicographically sortable identifier"))
-                    .max_length(Some(ulid::ULID_LEN))
-                    .example(Some(serde_json::json!("01D39ZY06FGSCTVN4T2V9PKHFZ")))
-                    .build(),
-            )),
-        )
+impl PartialSchema for Ulid {
+    fn schema() -> RefOr<Schema> {
+        let object = ObjectBuilder::new()
+            .schema_type(SchemaType::Type(Type::String))
+            .description(Some("ULID is a unique 128-bit lexicographically sortable identifier"))
+            .max_length(Some(ulid::ULID_LEN))
+            .examples([serde_json::json!("01D39ZY06FGSCTVN4T2V9PKHFZ")])
+            .build();
+
+        RefOr::T(Schema::Object(object))
+    }
+}
+
+impl ToSchema for Ulid {
+    fn name() -> Cow<'static, str> {
+        Cow::Borrowed("Ulid")
     }
 }
 

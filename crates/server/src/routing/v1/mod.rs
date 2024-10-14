@@ -13,9 +13,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+pub mod heartbeat;
+pub mod index;
+pub mod info;
+pub mod main;
+pub mod openapi;
+
 use crate::ServerContext;
-use axum::Router;
+use axum::{routing, Router};
 
 pub fn create_router(_: &ServerContext) -> Router<ServerContext> {
     Router::new()
+        .route("/indexes/:idOrName", routing::get(index::get_chart_index))
+        .route("/heartbeat", routing::get(heartbeat::heartbeat))
+        .route("/openapi.json", routing::get(openapi::openapi))
+        .route("/info", routing::get(info::info))
+        .route("/", routing::get(main::main))
 }

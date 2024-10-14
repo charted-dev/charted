@@ -25,8 +25,8 @@ use diesel::{
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, fmt::Display, ops::Deref, str::FromStr, sync::Arc};
 use utoipa::{
-    openapi::{ObjectBuilder, RefOr, Schema, SchemaType},
-    ToSchema,
+    openapi::{schema::SchemaType, ObjectBuilder, RefOr, Schema, Type},
+    PartialSchema, ToSchema,
 };
 
 #[cfg(feature = "jsonschema")]
@@ -142,20 +142,23 @@ impl FromStr for Name {
     }
 }
 
-impl<'s> ToSchema<'s> for Name {
-    fn schema() -> (&'s str, RefOr<Schema>) {
-        (
-            "Name",
-            RefOr::T(Schema::Object(
-                ObjectBuilder::new()
-                    .schema_type(SchemaType::String)
-                    .description(Some("Valid UTF-8 string that is used to identify a resource from the REST API in a humane fashion. This is meant to help identify a resource without trying to figure out how to calculate their ID."))
-                    .pattern(Some(r"^(?<name>[A-z]|-|_|~|\d{0,9}){1,32}$"))
-                    .min_length(Some(1))
-                    .max_length(Some(32))
-                    .build()
-            ))
-        )
+impl PartialSchema for Name {
+    fn schema() -> RefOr<Schema> {
+        let object = ObjectBuilder::new()
+            .schema_type(SchemaType::Type(Type::String))
+                .description(Some("Valid UTF-8 string that is used to identify a resource from the REST API in a humane fashion. This is meant to help identify a resource without trying to figure out how to calculate their ID."))
+                .pattern(Some(r"^(?<name>[A-z]|-|_|~|\d{0,9}){1,32}$"))
+                .min_length(Some(1))
+                .max_length(Some(32))
+            .build();
+
+        RefOr::T(Schema::Object(object))
+    }
+}
+
+impl ToSchema for Name {
+    fn name() -> Cow<'static, str> {
+        Cow::Borrowed("Name")
     }
 }
 

@@ -13,6 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM rustlang/rust:nightly-bullseye-slim AS build
-
-FROM alpine:3.20
+[package]
+name = "charted-client"
+description = "🐻‍❄️📦 Fully fledged client-based library to interact with charted-server"
+version.workspace = true
+documentation.workspace = true
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+publish.workspace = true
+repository.workspace = true
+authors.workspace = true
