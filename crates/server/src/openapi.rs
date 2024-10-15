@@ -131,12 +131,17 @@ use utoipa::{
             charted_types::Ulid
         ),
         responses(
+            crate::routing::v1::info::InfoResponse,
+            crate::routing::v1::main::MainResponse,
+
             EmptyApiResponse,
             ApiErrorResponse
         )
     ),
     paths(
-        crate::routing::v1::index::get_chart_index
+        crate::routing::v1::index::get_chart_index,
+        crate::routing::v1::info::info,
+        crate::routing::v1::main::main,
     ),
     servers(
         (

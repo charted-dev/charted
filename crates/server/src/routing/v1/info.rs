@@ -15,6 +15,7 @@
 
 use axum::http::StatusCode;
 use charted_core::{api, Distribution, BUILD_DATE, COMMIT_HASH, VERSION};
+use charted_proc_macros::generate_api_response;
 use serde::Serialize;
 use utoipa::ToSchema;
 
@@ -53,6 +54,23 @@ impl Default for InfoResponse {
     }
 }
 
+generate_api_response!(InfoResponse);
+
+/// Shows information about this running instance.
+#[utoipa::path(
+    get,
+    path = "/v1/info",
+    operation_id = "info",
+    tags = ["Main"],
+    responses(
+        (
+            status = 200,
+            description = "Successful response",
+            body = InfoResponse,
+            content_type = "application/json"
+        )
+    )
+)]
 #[cfg_attr(debug_assertions, axum::debug_handler)]
 pub async fn info() -> api::Response<InfoResponse> {
     api::from_default(StatusCode::OK)

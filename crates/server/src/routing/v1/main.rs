@@ -44,6 +44,21 @@ impl Default for MainResponse {
 
 generate_api_response!(MainResponse);
 
+/// Main entrypoint response to the API. Nothing too important.
+#[utoipa::path(
+    get,
+    path = "/v1",
+    operation_id = "main",
+    tags = ["Main"],
+    responses(
+        (
+            status = 200,
+            description = "Successful response",
+            body = MainResponse,
+            content_type = "application/json"
+        )
+    )
+)]
 #[cfg_attr(debug_assertions, axum::debug_handler)]
 pub async fn main() -> api::Response<MainResponse> {
     api::from_default(StatusCode::OK)

@@ -19,6 +19,7 @@ use charted_core::api;
 use charted_types::helm;
 use serde_json::json;
 
+/// Retrieve a chart index for a User or Organization.
 #[utoipa::path(
     get,
     path = "/v1/indexes/{idOrName}",
