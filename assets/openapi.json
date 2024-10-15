@@ -138,7 +138,7 @@
                     },
                     "success": {
                         "type": "boolean",
-                        "description": "Whether if this response was a success or not (always false)",
+                        "description": "Whether if this request was a success or not (always false)",
                         "default": false
                     }
                 }
@@ -1232,7 +1232,7 @@
                                 },
                                 "success": {
                                     "type": "boolean",
-                                    "description": "Whether if this response was a success or not (always false)",
+                                    "description": "Whether if this request was a success or not (always false)",
                                     "default": false
                                 }
                             }
@@ -1249,8 +1249,7 @@
                             "properties": {
                                 "success": {
                                     "type": "boolean",
-                                    "description": "Whether if this response was a success or not (always false)",
-                                    "default": false
+                                    "description": "Whether if this request was a success"
                                 }
                             }
                         }
