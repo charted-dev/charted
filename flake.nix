@@ -13,10 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 {
-  description = "charted is a free, open, and reliable way to distribute Helm charts";
+  description = "🐻‍❄️📦 Free, open-source way to distribute Helm charts across the world";
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
+    systems.url = "github:nix-systems/default";
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs = {
@@ -32,143 +32,32 @@
 
   outputs = {
     nixpkgs,
-    flake-utils,
     rust-overlay,
+    systems,
     ...
-  }:
-    flake-utils.lib.eachDefaultSystem (system: let
-      pkgs = import nixpkgs {
-        inherit system;
-        overlays = [(import rust-overlay)];
+  }: let
+    eachSystem = nixpkgs.lib.genAttrs (import systems);
+    overlays = [(import rust-overlay)];
+    nixpkgsFor = system:
+      import nixpkgs {
+        inherit system overlays;
       };
-
-      cargoTOML = builtins.fromTOML (builtins.readFile ./Cargo.toml);
-      rust = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
-      rustflags =
-        if pkgs.stdenv.isLinux
-        then ''-C link-arg=-fuse-ld=mold -C target-cpu=native $RUSTFLAGS''
-        else ''$RUSTFLAGS'';
-
-      # We use Rust nightly for all crates, so we want to match it.
-      rustPlatform = pkgs.makeRustPlatform {
-        cargo = rust;
-        rustc = rust;
-      };
-
-      charted = rustPlatform.buildRustPackage {
-        nativeBuildInputs = with pkgs; [pkg-config installShellFiles];
-        buildInputs = with pkgs;
-          [openssl sqlite postgresql]
-          ++ (lib.optional stdenv.isDarwin (with darwin.apple_sdk.frameworks; [CoreFoundation Security SystemConfiguration]));
-
-        version = "${cargoTOML.workspace.package.version}";
-        name = "charted";
-        src = ./.;
-
-        env.CHARTED_DISTRIBUTION_KIND = "nix";
-        cargoBuildFlags = ["--package" "charted"];
-        cargoLock = {
-          lockFile = ./Cargo.lock;
-          outputHashes = {
-            "azalia-0.1.0" = "sha256-b0C26qCYQ1aLqgbVXwM+j8WCJxKA19a3lMfveVxSrFs=";
-          };
-        };
-
-        postInstall = ''
-          installShellCompletion --cmd charted \
-            --bash <($out/bin/charted completions bash) \
-            --fish <($out/bin/charted completions fish) \
-            --zsh <($out/bin/charted completions zsh)
-        '';
-
-        useNextest = true;
-        meta = with pkgs.lib; {
-          description = "charted is a free, open, and reliable way to distribute Helm charts";
-          homepage = "https://charts.noelware.org";
-          license = with licenses; [asl20];
-          maintainers = with maintainers; [auguwu spotlightishere noelware];
-          mainProgram = "charted";
-        };
-      };
-
-      helm-plugin = rustPlatform.buildRustPackage {
-        nativeBuildInputs = with pkgs; [pkg-config protobuf];
-        buildInputs = with pkgs;
-          [openssl sqlite postgresql]
-          ++ (lib.optional stdenv.isDarwin (with darwin.apple_sdk.frameworks; [CoreFoundation Security SystemConfiguration]));
-        cargoSha256 = pkgs.lib.fakeSha256;
-        version = "${cargoTOML.workspace.package.version}";
-        name = "charted-helm-plugin";
-        src = ./.;
-
-        env.CHARTED_DISTRIBUTION_KIND = "nix";
-
-        cargoBuildFlags = ["--package" "charted-helm-plugin"];
-        cargoLock = {
-          lockFile = ./Cargo.lock;
-          outputHashes = {
-            "azalia-0.1.0" = "sha256-b0C26qCYQ1aLqgbVXwM+j8WCJxKA19a3lMfveVxSrFs=";
-          };
-        };
-
-        postPatch = ''
-          sed -i '/^hooks:/,+2 d' plugin.yaml
-        '';
-
-        postInstall = ''
-          install -Dm644 plugin.yaml $out/charted-helm-plugin/plugin.yaml
-          mv $out/bin $out/charted-helm-plugin
-        '';
-
-        useNextest = true;
-        meta = with pkgs.lib; {
-          description = "Helm plugin to help aid developing Helm charts with charted";
-          homepage = "https://charts.noelware.org";
-          license = with licenses; [asl20];
-          maintainers = with maintainers; [auguwu spotlightishere noelware];
-        };
-      };
+  in {
+    formatter = eachSystem (system: (nixpkgsFor system).alejandra);
+    packages = eachSystem (system: let
+      pkgs = nixpkgsFor system;
+      charted = pkgs.callPackage ./nix/packages/charted.nix {};
+      helm-plugin = pkgs.callPackage ./nix/packages/helm-plugin.nix {};
     in {
-      packages = {
-        inherit charted helm-plugin;
+      inherit charted helm-plugin;
 
-        default = charted;
-        all = pkgs.symlinkJoin {
-          name = "charted-${cargoTOML.workspace.package.version}";
-          paths = [charted helm-plugin];
-        };
-      };
-
-      devShells.default = pkgs.mkShell {
-        LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath (with pkgs; [openssl sqlite postgresql]);
-        nativeBuildInputs = with pkgs;
-          [pkg-config sqlite postgresql.lib]
-          ++ (lib.optional stdenv.isLinux [mold lldb])
-          ++ (lib.optional stdenv.isDarwin (with darwin.apple_sdk.frameworks; [CoreFoundation Security SystemConfiguration]));
-
-        buildInputs = with pkgs;
-          [
-            cargo-nextest
-            cargo-machete
-            cargo-deny
-
-            # I don't plan to add MySQL support and probably never will.
-            (diesel-cli.override {
-              mysqlSupport = false;
-              postgresqlSupport = true;
-              sqliteSupport = true;
-            })
-
-            openssl
-            git
-
-            rust
-          ]
-          ++ (lib.optional stdenv.isLinux [glibc]);
-
-        shellHook = ''
-          export RUSTFLAGS="--cfg tokio_unstable ${rustflags}"
-        '';
-      };
+      default = charted;
     });
+
+    devShells = eachSystem (system: let
+      pkgs = nixpkgsFor system;
+    in {
+      default = import ./nix/devshell.nix {inherit pkgs;};
+    });
+  };
 }

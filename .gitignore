@@ -110,12 +110,8 @@ coverage
 
 # nyc test coverage
 .nyc_output
-
-# Grunt intermediate storage (https://gruntjs.com/creating-plugins#storing-task-files)
-.grunt
-
-# Bower dependency directory (https://bower.io/)
-bower_components
+name: Checkout repository
+              s
 
 # node-waf configuration
 .lock-wscript
@@ -692,6 +688,7 @@ FodyWeavers.xsd
 
 !crates/helm-charts/__fixtures__/*.tgz
 crates/database/data.db
+!nix/packages/*.nix
 !hack/release/
 !crates/bin/
 !Cargo.lock
