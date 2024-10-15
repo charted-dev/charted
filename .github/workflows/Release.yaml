@@ -145,7 +145,7 @@ jobs:
     #         - name: Login
     #           uses: docker/login-action@v2
     #           with:
-    #             registry: cr.noelware.cloud
+    #             registry: docker.noelware.org
     #             username: noelbot
     #             password: ${{secrets.REGISTRY_PASSWORD}}
 
@@ -158,10 +158,10 @@ jobs:
     #             cache-from: type=gha,scope=debian-${{matrix.arch}}
     #             file: ./distribution/docker/debian.Dockerfile
     #             tags: |
-    #                 cr.noelware.cloud/charted/charted:${{steps.tag.outputs.version}}-${{matrix.arch}},
-    #                 cr.noelware.cloud/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-${{matrix.arch}},
-    #                 cr.noelware.cloud/charted/charted:${{steps.tag.outputs.major}}-${{matrix.arch}},
-    #                 cr.noelware.cloud/charted/charted:latest-${{matrix.arch}}
+    #                 docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}-${{matrix.arch}},
+    #                 docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-${{matrix.arch}},
+    #                 docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}-${{matrix.arch}},
+    #                 docker.noelware.org/charted/charted:latest-${{matrix.arch}}
     # docker-alpine:
     #     name: Build Alpine image
     #     runs-on: ${{matrix.runner}}
@@ -187,7 +187,7 @@ jobs:
     #         - name: Login
     #           uses: docker/login-action@v2
     #           with:
-    #             registry: cr.noelware.cloud
+    #             registry: docker.noelware.org
     #             username: noelbot
     #             password: ${{secrets.REGISTRY_PASSWORD}}
 
@@ -200,10 +200,10 @@ jobs:
     #             cache-from: type=gha,scope=alpine-${{matrix.arch}}
     #             file: ./distribution/docker/alpine.Dockerfile
     #             tags: |
-    #                 cr.noelware.cloud/charted/charted:${{steps.tag.outputs.version}}-alpine-${{matrix.arch}},
-    #                 cr.noelware.cloud/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine-${{matrix.arch}},
-    #                 cr.noelware.cloud/charted/charted:${{steps.tag.outputs.major}}-alpine-${{matrix.arch}},
-    #                 cr.noelware.cloud/charted/charted:alpine-${{matrix.arch}}
+    #                 docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}-alpine-${{matrix.arch}},
+    #                 docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine-${{matrix.arch}},
+    #                 docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}-alpine-${{matrix.arch}},
+    #                 docker.noelware.org/charted/charted:alpine-${{matrix.arch}}
     # docker-manifests:
     #     name: Merge Manifests
     #     runs-on: ubuntu-latest
@@ -217,64 +217,64 @@ jobs:
     #         - name: Login
     #           uses: docker/login-action@v2
     #           with:
-    #             registry: cr.noelware.cloud
+    #             registry: docker.noelware.org
     #             username: noelbot
     #             password: ${{secrets.REGISTRY_PASSWORD}}
 
-    #         - name: Merge Manifests [cr.noelware.cloud/charted/charted:latest]
+    #         - name: Merge Manifests [docker.noelware.org/charted/charted:latest]
     #           uses: Noelware/docker-manifest-action@0.4.0
     #           with:
-    #             images: cr.noelware.cloud/charted/charted:latest
-    #             inputs: cr.noelware.cloud/charted/charted:latest-amd64,cr.noelware.cloud/charted/charted:latest-arm64
+    #             images: docker.noelware.org/charted/charted:latest
+    #             inputs: docker.noelware.org/charted/charted:latest-amd64,docker.noelware.org/charted/charted:latest-arm64
     #             push: true
 
-    #         - name: Merge Manifests [cr.noelware.cloud/charted/charted:${{steps.tag.outputs.major}}]
+    #         - name: Merge Manifests [docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}]
     #           uses: Noelware/docker-manifest-action@0.4.0
     #           with:
-    #             images: cr.noelware.cloud/charted/charted:${{steps.tag.outputs.major}}
-    #             inputs: cr.noelware.cloud/charted/charted:${{steps.tag.outputs.major}}-amd64,cr.noelware.cloud/charted/charted:${{steps.tag.outputs.major}}-arm64
+    #             images: docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}
+    #             inputs: docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}-amd64,docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}-arm64
     #             push: true
 
-    #         - name: Merge Manifests [cr.noelware.cloud/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}]
+    #         - name: Merge Manifests [docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}]
     #           uses: Noelware/docker-manifest-action@0.4.0
     #           with:
-    #             images: cr.noelware.cloud/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}
-    #             inputs: cr.noelware.cloud/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-amd64,cr.noelware.cloud/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-arm64
+    #             images: docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}
+    #             inputs: docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-amd64,docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-arm64
     #             push: true
 
-    #         - name: Merge Manifests [cr.noelware.cloud/charted/charted:${{steps.tag.outputs.version}}]
+    #         - name: Merge Manifests [docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}]
     #           uses: Noelware/docker-manifest-action@0.4.0
     #           with:
-    #             images: cr.noelware.cloud/charted/charted:${{steps.tag.outputs.version}}
-    #             inputs: cr.noelware.cloud/charted/charted:${{steps.tag.outputs.version}}-amd64,cr.noelware.cloud/charted/charted:${{steps.tag.outputs.version}}-arm64
+    #             images: docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}
+    #             inputs: docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}-amd64,docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}-arm64
     #             push: true
 
-    #         - name: Merge Manifests [cr.noelware.cloud/charted/charted:alpine]
+    #         - name: Merge Manifests [docker.noelware.org/charted/charted:alpine]
     #           uses: Noelware/docker-manifest-action@0.4.0
     #           with:
-    #             images: cr.noelware.cloud/charted/charted:alpine
-    #             inputs: cr.noelware.cloud/charted/charted:alpine-amd64,cr.noelware.cloud/charted/charted:alpine-arm64
+    #             images: docker.noelware.org/charted/charted:alpine
+    #             inputs: docker.noelware.org/charted/charted:alpine-amd64,docker.noelware.org/charted/charted:alpine-arm64
     #             push: true
 
-    #         - name: Merge Manifests [cr.noelware.cloud/charted/charted:${{steps.tag.outputs.major}}-alpine]
+    #         - name: Merge Manifests [docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}-alpine]
     #           uses: Noelware/docker-manifest-action@0.4.0
     #           with:
-    #             images: cr.noelware.cloud/charted/charted:${{steps.tag.outputs.major}}-alpine
-    #             inputs: cr.noelware.cloud/charted/charted:${{steps.tag.outputs.major}}-alpine-amd64,cr.noelware.cloud/charted/charted:${{steps.tag.outputs.major}}-alpine-arm64
+    #             images: docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}-alpine
+    #             inputs: docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}-alpine-amd64,docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}-alpine-arm64
     #             push: true
 
-    #         - name: Merge Manifests [cr.noelware.cloud/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine]
+    #         - name: Merge Manifests [docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine]
     #           uses: Noelware/docker-manifest-action@0.4.0
     #           with:
-    #             images: cr.noelware.cloud/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine
-    #             inputs: cr.noelware.cloud/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}--alpineamd64,cr.noelware.cloud/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine-arm64
+    #             images: docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine
+    #             inputs: docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}--alpineamd64,docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine-arm64
     #             push: true
 
-    #         - name: Merge Manifests [cr.noelware.cloud/charted/charted:${{steps.tag.outputs.version}}-alpine]
+    #         - name: Merge Manifests [docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}-alpine]
     #           uses: Noelware/docker-manifest-action@0.4.0
     #           with:
-    #             images: cr.noelware.cloud/charted/charted:${{steps.tag.outputs.version}}-alpine
-    #             inputs: cr.noelware.cloud/charted/charted:${{steps.tag.outputs.version}}-alpine-amd64,cr.noelware.cloud/charted/charted:${{steps.tag.outputs.version}}-alpine-arm64
+    #             images: docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}-alpine
+    #             inputs: docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}-alpine-amd64,docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}-alpine-arm64
     #             push: true
     # helm-docker-debian:
     #     name: Build Docker image (helm-plugin, Debian)
@@ -305,7 +305,7 @@ jobs:
     #         - name: Login
     #           uses: docker/login-action@v2
     #           with:
-    #             registry: cr.noelware.cloud
+    #             registry: docker.noelware.org
     #             username: noelbot
     #             password: ${{secrets.REGISTRY_PASSWORD}}
 
@@ -318,10 +318,10 @@ jobs:
     #             cache-from: type=gha,scope=helm-debian-${{matrix.arch}}
     #             file: ./distribution/docker/debian.Dockerfile
     #             tags: |
-    #                 cr.noelware.cloud/charted/charted:${{steps.tag.outputs.version}}-${{matrix.arch}},
-    #                 cr.noelware.cloud/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-${{matrix.arch}},
-    #                 cr.noelware.cloud/charted/charted:${{steps.tag.outputs.major}}-${{matrix.arch}},
-    #                 cr.noelware.cloud/charted/charted:latest-${{matrix.arch}}
+    #                 docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}-${{matrix.arch}},
+    #                 docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-${{matrix.arch}},
+    #                 docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}-${{matrix.arch}},
+    #                 docker.noelware.org/charted/charted:latest-${{matrix.arch}}
     # sentry:
     #     name: Create Sentry release
     #     runs-on: ubuntu-latest
@@ -354,7 +354,7 @@ jobs:
     #           run: echo "${{secrets.KUBECONFIG}}" >> ~/.kube/config
 
     #         - name: Rollout
-    #           run: kubectl set image deployment/charted-server charted-server=cr.noelware.cloud/charted/charted:${{steps.tag.outputs.version}}-alpine
+    #           run: kubectl set image deployment/charted-server charted-server=docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}-alpine
 
     #         - name: Wait for completion!
     #           run: kubectl rollout status deployment/charted-server

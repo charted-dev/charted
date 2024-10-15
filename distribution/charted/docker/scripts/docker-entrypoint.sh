@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
 # Copyright 2022-2024 Noelware, LLC. <team@noelware.org>
 #
@@ -13,7 +15,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM alpine/helm:3.16.2
+set -o errexit
+set -o nounset
+set -o pipefail
 
-ARG CHARTED_VERSION
-RUN helm plugin install https://artifacts.noelware.org/charted/helm-plugin/${CHARTED_VERSION}/distribution.tar.gz
+. /app/noelware/charted/server/scripts/liblog.sh
+
+if ! [[ "${CHARTED_ENABLE_WELCOME_PROMPT:-yes}" =~ ^(no|false|0)$ ]]; then
+  info ""
+  info "  Welcome to the ${BOLD}charted-server${RESET} container image."
+  info "  🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust."
+  info ""
+  info "  * Subscribe to the project for updates:        https://github.com/charted-dev/charted"
+  info "  * Any issues occur? Report it to us at GitHub: https://github.com/charted-dev/charted/issues"
+  info ""
+fi
+
+debug "$ tini -s $@"
+tini -s "$@"

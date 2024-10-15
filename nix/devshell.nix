@@ -43,6 +43,7 @@ in
         })
 
         toolchain # rust toolchain
+        hadolint
         openssl
         git
       ]

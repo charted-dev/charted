@@ -15,5 +15,7 @@
 
 failure-threshold: error
 trustedRegistries:
-  - docker.noelware.org
-  - docker.io
+    - docker.noelware.org
+    - docker.io
+ignored:
+    - DL3018 # Pin versions in `apk add`.

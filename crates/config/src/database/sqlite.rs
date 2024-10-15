@@ -37,7 +37,7 @@ pub struct Config {
 
     /// Path to the SQLite database. By default, this will be in `./data/charted.db`.
     ///
-    /// The [official Docker image](https://cr.noelware.cloud/~/charted/server) will overwrite this path to `/var/lib/noelware/charted/data/charted.db`.
+    /// The [official Docker image](https://docker.noelware.org/~/charted/server) will overwrite this path to `/var/lib/noelware/charted/data/charted.db`.
     #[serde(default = "__db_path")]
     pub db_path: PathBuf,
 }

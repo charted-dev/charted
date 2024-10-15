@@ -13,7 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM alpine/helm:3.16.2
+# This is the default configuration for `charted-server` when running as
+# a Docker container. You can mount the data directory from `/var/lib/noelware/charted/data`
+# as a regular filesystem mount with `-v $(pwd)/w:/var/lib/noelware/charted/data`.
 
-ARG CHARTED_VERSION
-RUN helm plugin install https://artifacts.noelware.org/charted/helm-plugin/${CHARTED_VERSION}/distribution.tar.gz
+database "sqlite" {
+  db_path = "/var/lib/noelware/charted/data/charted.db"
+}
+
+storage "filesystem" {
+  directory = "/var/lib/noelware/charted/data"
+}

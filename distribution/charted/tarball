@@ -21,6 +21,6 @@
 # | ~~~~~~~~~~~~~~~~~~~~~~ |
 # | - config/charted.hcl   |
 # | - bin/charted          |
+# | - charted.service      |
 # | - LICENSE              |
-# | - README               |
 # | ~~~~~~~~~~~~~~~~~~~~~~ |
