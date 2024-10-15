@@ -47,7 +47,6 @@ charted-proc-macros = { version = "0.1.0", path = "../proc-macros" }
 charted-types = { version = "0.1.0", path = "../types" }
 diesel = { workspace = true, features = ["postgres", "sqlite"] }
 eyre.workspace = true
-inventory = "0.3.15"
 jsonwebtoken = "9.3.0"
 mime = "0.3.17"
 multer.workspace = true

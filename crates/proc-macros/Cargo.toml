@@ -28,10 +28,6 @@ authors.workspace = true
 proc-macro = true
 
 [dependencies]
-azalia = { workspace = true, features = ["proc-macros"] }
-charted-core = { version = "0.1.0", path = "../core", default-features = false }
-heck = "0.5.0"
-proc-macro2 = { version = "1.0.87", features = ["nightly"] }
 quote = "1.0.37"
 syn = "2.0.79"
 utoipa.workspace = true

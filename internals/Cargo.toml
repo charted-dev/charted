@@ -28,9 +28,14 @@ authors.workspace = true
 azalia = { workspace = true, features = ["log", "log-writers"] }
 charted-helm-plugin = { version = "0.1.0", path = "../crates/helm-plugin" }
 charted-server = { version = "0.1.0", path = "../crates/server" }
-clap.workspace = true
 color-eyre = "0.6.3"
 eyre.workspace = true
 tracing.workspace = true
 tracing-subscriber = { workspace = true, features = ["env-filter"] }
 utoipa = { workspace = true, features = [] }
+
+[package.metadata.cargo-machete]
+ignored = [
+    # the schema for .charted.toml is not finished yet
+    "charted-helm-plugin",
+]

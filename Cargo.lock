@@ -742,7 +742,6 @@ source = "git+https://github.com/Noelware/azalia?rev=1a722a0e785e4abfad62bce6738
 dependencies = [
  "azalia-config",
  "azalia-log",
- "azalia-proc-macros",
  "azalia-remi",
  "azalia-serde",
  "once_cell",
@@ -779,16 +778,6 @@ dependencies = [
  "tracing",
  "tracing-log",
  "tracing-subscriber",
-]
-
-[[package]]
-name = "azalia-proc-macros"
-version = "0.1.0"
-source = "git+https://github.com/Noelware/azalia?rev=1a722a0e785e4abfad62bce6738516e47afce89c#1a722a0e785e4abfad62bce6738516e47afce89c"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.79",
 ]
 
 [[package]]
@@ -1356,7 +1345,6 @@ dependencies = [
  "azalia",
  "charted-helm-plugin",
  "charted-server",
- "clap",
  "color-eyre",
  "eyre",
  "tracing",
@@ -1368,10 +1356,6 @@ dependencies = [
 name = "charted-proc-macros"
 version = "0.1.0"
 dependencies = [
- "azalia",
- "charted-core",
- "heck 0.5.0",
- "proc-macro2",
  "quote",
  "syn 2.0.79",
  "utoipa",
@@ -1396,7 +1380,6 @@ dependencies = [
  "charted-types",
  "diesel",
  "eyre",
- "inventory",
  "jsonwebtoken",
  "mime",
  "multer",
@@ -2920,12 +2903,6 @@ checksum = "e0242819d153cba4b4b05a5a8f2a7e9bbf97b6055b2a002b395c96b5ff3c0222"
 dependencies = [
  "cfg-if",
 ]
-
-[[package]]
-name = "inventory"
-version = "0.3.15"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f958d3d68f4167080a18141e10381e7634563984a537f2a49a30fd8e53ac5767"
 
 [[package]]
 name = "ipconfig"
