@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM alpine/helm:3.16.1
+FROM alpine/helm:3.16.2
 
 ARG CHARTED_VERSION
 RUN helm plugin install https://artifacts.noelware.cloud/charted/helm-plugin/${CHARTED_VERSION}/distribution.tar.gz
