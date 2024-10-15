@@ -51,7 +51,7 @@ jsonwebtoken = "9.3.0"
 mime = "0.3.17"
 multer.workspace = true
 sentry.workspace = true
-sentry-eyre = "0.1.0"
+sentry-eyre = "0.2.0"
 sentry-tower = { version = "0.34.0", features = ["axum", "http"] }
 serde.workspace = true
 serde_json.workspace = true
