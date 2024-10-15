@@ -785,7 +785,7 @@ name = "azalia-remi"
 version = "0.1.0"
 source = "git+https://github.com/Noelware/azalia?rev=1a722a0e785e4abfad62bce6738516e47afce89c#1a722a0e785e4abfad62bce6738516e47afce89c"
 dependencies = [
- "azure_core",
+ "azure_core 0.20.0",
  "remi",
  "remi-azure",
  "remi-fs",
@@ -834,6 +834,36 @@ dependencies = [
 ]
 
 [[package]]
+name = "azure_core"
+version = "0.21.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7b552ad43a45a746461ec3d3a51dfb6466b4759209414b439c165eb6a6b7729e"
+dependencies = [
+ "async-trait",
+ "base64 0.22.1",
+ "bytes",
+ "dyn-clone",
+ "futures",
+ "getrandom 0.2.15",
+ "hmac",
+ "http-types",
+ "once_cell",
+ "paste",
+ "pin-project",
+ "quick-xml",
+ "rand 0.8.5",
+ "reqwest",
+ "rustc_version 0.4.1",
+ "serde",
+ "serde_json",
+ "sha2",
+ "time",
+ "tracing",
+ "url",
+ "uuid",
+]
+
+[[package]]
 name = "azure_storage"
 version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -842,7 +872,26 @@ dependencies = [
  "RustyXML",
  "async-lock",
  "async-trait",
- "azure_core",
+ "azure_core 0.20.0",
+ "bytes",
+ "serde",
+ "serde_derive",
+ "time",
+ "tracing",
+ "url",
+ "uuid",
+]
+
+[[package]]
+name = "azure_storage"
+version = "0.21.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "59f838159f4d29cb400a14d9d757578ba495ae64feb07a7516bf9e4415127126"
+dependencies = [
+ "RustyXML",
+ "async-lock",
+ "async-trait",
+ "azure_core 0.21.0",
  "bytes",
  "serde",
  "serde_derive",
@@ -859,8 +908,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c5b3a31dd8f920739437b827d0c9f9a4011eb3f06f79a121764aa11af6c51ee2"
 dependencies = [
  "RustyXML",
- "azure_core",
- "azure_storage",
+ "azure_core 0.20.0",
+ "azure_storage 0.20.0",
  "azure_svc_blobstorage",
  "bytes",
  "futures",
@@ -879,7 +928,7 @@ version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0ef37ba6180df451042f1c277d4d0898e2447f0a5d5072e0ff11ee6ea5e7ef38"
 dependencies = [
- "azure_core",
+ "azure_core 0.20.0",
  "bytes",
  "futures",
  "log",
@@ -1225,7 +1274,7 @@ version = "0.1.0"
 dependencies = [
  "aws-sdk-s3",
  "azalia",
- "azure_storage",
+ "azure_storage 0.21.0",
  "charted-core",
  "eyre",
  "hcl-rs",
@@ -3949,8 +3998,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2c8b86be423a634e6fba4b0bbd879d248e5f7d19f0060ae2462a8cb1c4a74630"
 dependencies = [
  "async-trait",
- "azure_core",
- "azure_storage",
+ "azure_core 0.20.0",
+ "azure_storage 0.20.0",
  "azure_storage_blobs",
  "bytes",
  "futures-util",

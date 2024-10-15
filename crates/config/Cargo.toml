@@ -32,7 +32,7 @@ azalia = { workspace = true, features = [
     "serde",
     "serde-tracing",
 ] }
-azure_storage = "0.20.0"
+azure_storage = "0.21.0"
 charted-core = { version = "0.1.0", path = "../core", default-features = false, features = [
     "merge",
 ] }
