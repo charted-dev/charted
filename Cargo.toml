@@ -70,7 +70,7 @@ which = "6.0.3"
 [workspace.dependencies.azalia]
 version = "0.1.0"
 git = "https://github.com/Noelware/azalia"
-rev = "1a722a0e785e4abfad62bce6738516e47afce89c"
+rev = "a08c495a81b37ea6684c94d8b6c67f32b37b67e1"
 
 [profile.release]
 opt-level = "z"
