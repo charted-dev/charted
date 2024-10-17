@@ -33,15 +33,6 @@ targets = [
 #
 # See also: https://github.com/EmbarkStudios/cargo-deny/pull/611
 version = 2
-ignore = [
-  # This does not directly affect us at the moment,
-  # and we only encouter this due to transient usage.
-  #
-  # We'll need to wait for a new version of 
-  # `utopia` to be released:
-  # https://github.com/juhaku/utoipa/issues/1028
-  "RUSTSEC-2024-0370"
-]
 
 [bans]
 multiple-versions = "warn" # only warn since `tonic` doesn't support Axum 0.7 / Hyper 1
@@ -63,6 +54,7 @@ allow = [
     "MPL-2.0",
     "BSD-3-Clause",
     "ISC",
+    "Zlib",
 ]
 exceptions = [
     # unicode-ident includes data generated from Unicode Character Database
