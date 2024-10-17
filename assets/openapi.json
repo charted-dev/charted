@@ -249,7 +249,7 @@
                         "description": "A list of keywords about this project. These keywords can be searched\nvia the /search endpoint if it's enabled."
                     },
                     "kubeVersion": {
-                        "allOf": [
+                        "oneOf": [
                             { "type": "null" },
                             {
                                 "$ref": "#/components/schemas/VersionReq",
@@ -317,7 +317,7 @@
                         "description": "List of tags that can be used to group charts to enable/disable together."
                     },
                     "version": {
-                        "allOf": [
+                        "oneOf": [
                             { "type": "null" },
                             {
                                 "$ref": "#/components/schemas/Version",
@@ -802,7 +802,7 @@
                         "description": "Updates or removes the description of the API key.\n\n* If this is `null`, this will not do any patching\n* If this is a empty string, this will act as \"removing\" it from the metadata\n* If the comparsion (`old.description == this.description`) is false, then this will update it."
                     },
                     "name": {
-                        "allOf": [
+                        "oneOf": [
                             { "type": "null" },
                             {
                                 "$ref": "#/components/schemas/Name",
@@ -825,7 +825,7 @@
                         "description": "Optional field to update this organization's gravatar email. If this organization doesn't\nhave an avatar that is used or prefers not to use their previously uploaded\navatars and they set their Gravatar email, their Gravatar will be used."
                     },
                     "name": {
-                        "allOf": [
+                        "oneOf": [
                             { "type": "null" },
                             {
                                 "$ref": "#/components/schemas/Name",
@@ -865,7 +865,7 @@
                         "description": "The contents of the README that will be displayed on the repository. If you're\nusing charted's official Helm plugin, new releases can update its README and it'll\nbe reflected.\n\nThis should be valid Markdown, but XSS cross scripting is impossible as scripts\nin codeblocks or via `<script>` won't be executed.\n\nYou can retrieve a repository's README (if it is public or if you have access) with\nthe [`GET /cdn`](https://charts.noelware.org/docs/server/latest/api/cdn#GET-{...params}) REST\nendpoint if the instance has the CDN feature enabled. It'll be under `/repositories/{id}/README.md`."
                     },
                     "type": {
-                        "allOf": [
+                        "oneOf": [
                             { "type": "null" },
                             {
                                 "$ref": "#/components/schemas/ChartType",
@@ -902,7 +902,7 @@
                         "description": "Optional field to update this user's gravatar email. If this user doesn't\nhave an avatar that is used or prefers not to use their previously uploaded\navatars and they set their Gravatar email, their Gravatar will be used."
                     },
                     "name": {
-                        "allOf": [
+                        "oneOf": [
                             { "type": "null" },
                             {
                                 "$ref": "#/components/schemas/Name",
@@ -916,7 +916,7 @@
                         "pattern": "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$"
                     },
                     "username": {
-                        "allOf": [
+                        "oneOf": [
                             { "type": "null" },
                             {
                                 "$ref": "#/components/schemas/Name",
@@ -944,7 +944,7 @@
                         "readOnly": true
                     },
                     "creator": {
-                        "allOf": [
+                        "oneOf": [
                             { "type": "null" },
                             {
                                 "$ref": "#/components/schemas/Ulid",
