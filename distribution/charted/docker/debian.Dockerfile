@@ -16,55 +16,53 @@
 ###### BINARY BUILD
 FROM rustlang/rust:nightly-bookworm-slim AS build
 
-# ENV DEBIAN_FRONTEND=noninteractive
-# RUN apt update &&                          \
-#     apt upgrade -y &&                      \
-#     apt install -y --no-install-recommends \
-#         git                                \
-#         mold                               \
-#         ca-certificates                    \
-#         libssl-dev                         \
-#         build-essential                    \
-#         pkg-config                         \
-#         libpq5                             \
-#         libsqlite3-0
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt update &&                          \
+    apt upgrade -y &&                      \
+    apt install -y --no-install-recommends \
+        git                                \
+        mold                               \
+        ca-certificates                    \
+        libssl-dev                         \
+        build-essential                    \
+        pkg-config
 
-# WORKDIR /build
-# COPY . .
+WORKDIR /build
+COPY . .
 
-# # We want to use the Nightly version of Rust from the image itself, not what we
-# # defined in `rust-toolchain.toml`.
-# RUN rm rust-toolchain.toml
+# We want to use the Nightly version of Rust from the image itself, not what we
+# defined in `rust-toolchain.toml`.
+RUN rm rust-toolchain.toml
 
-# ENV RUSTFLAGS="--cfg tokio_unstable -C link-arg=-fuse-ld=mold -Ctarget-cpu=native"
-# RUN cargo build --locked --release --package charted
+ENV RUSTFLAGS="--cfg tokio_unstable -C link-arg=-fuse-ld=mold -Ctarget-cpu=native"
+RUN cargo build --locked --release --package charted --features bundled-sqlite --features bundled-pq
 
 ##### FINAL STAGE
 FROM debian:bookworm-slim
 
-# RUN apt update && apt upgrade -y && apt install -y bash tini curl libssl-dev pkg-config libpq5 libsqlite3-0
+RUN apt update && apt upgrade -y && apt install -y bash tini curl libssl-dev
 
-# WORKDIR /app/noelware/charted/server
+WORKDIR /app/noelware/charted/server
 
-# COPY --from=build /build/target/release/charted /app/noelware/charted/server/bin/charted
-# COPY distribution/charted/docker/scripts        /app/noelware/charted/server/scripts
-# COPY distribution/charted/docker/config         /app/noelware/charted/server/config
+COPY --from=build /build/target/release/charted /app/noelware/charted/server/bin/charted
+COPY distribution/charted/docker/scripts        /app/noelware/charted/server/scripts
+COPY distribution/charted/docker/config         /app/noelware/charted/server/config
 
-# ENV CHARTED_DISTRIBUTION_TYPE=docker
-# EXPOSE 3651
-# VOLUME /var/lib/noelware/charted/data
+ENV CHARTED_DISTRIBUTION_TYPE=docker
+EXPOSE 3651
+VOLUME /var/lib/noelware/charted/data
 
-# RUN mkdir -p /var/lib/noelware/charted/data
-# RUN groupadd -g 1001 noelware && \
-#     useradd -rm -s /bin/bash -g noelware -u 1001 noelware &&  \
-#     chown noelware:noelware /app/noelware/charted/server &&   \
-#     chown noelware:noelware /var/lib/noelware/charted/data && \
-#     chmod +x /app/noelware/charted/server/scripts/docker-entrypoint.sh
+RUN mkdir -p /var/lib/noelware/charted/data
+RUN groupadd -g 1001 noelware && \
+    useradd -rm -s /bin/bash -g noelware -u 1001 noelware &&  \
+    chown noelware:noelware /app/noelware/charted/server &&   \
+    chown noelware:noelware /var/lib/noelware/charted/data && \
+    chmod +x /app/noelware/charted/server/scripts/docker-entrypoint.sh
 
-# # Create a symbolic link so you can just run `charted` without specifying
-# # the full path.
-# RUN ln -s /app/noelware/charted/server/bin/charted /usr/bin/charted
+# Create a symbolic link so you can just run `charted` without specifying
+# the full path.
+RUN ln -s /app/noelware/charted/server/bin/charted /usr/bin/charted
 
-# USER noelware
-# ENTRYPOINT ["/app/noelware/charted/server/scripts/docker-entrypoint.sh"]
-# CMD ["/app/noelware/charted/server/bin/charted", "server"]
+USER noelware
+ENTRYPOINT ["/app/noelware/charted/server/scripts/docker-entrypoint.sh"]
+CMD ["/app/noelware/charted/server/bin/charted", "server"]

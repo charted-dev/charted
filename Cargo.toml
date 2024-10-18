@@ -73,7 +73,9 @@ git = "https://github.com/Noelware/azalia"
 rev = "a08c495a81b37ea6684c94d8b6c67f32b37b67e1"
 
 [profile.release]
-opt-level = "z"
-strip = true
-debug = 0
-lto = "thin"
+codegen-units = 1 # use a single codegen unit
+opt-level = "s" # optimize for size
+panic = "abort" # abort the process when a panic occurs
+strip = true # strip all debug symbols
+debug = 0 # disable debug information
+lto = true # perform LTO on all crates (even our own)

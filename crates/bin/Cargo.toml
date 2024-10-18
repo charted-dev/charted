@@ -25,6 +25,12 @@ publish.workspace = true
 repository.workspace = true
 authors.workspace = true
 
+[features]
+default = []
+
+bundled-pq = ["dep:pq-sys", "pq-sys/bundled"]
+bundled-sqlite = ["dep:libsqlite3-sys", "libsqlite3-sys/bundled"]
+
 [dependencies]
 charted-cli = { version = "0.1.0", path = "../cli" }
 charted-core.workspace = true
@@ -32,6 +38,8 @@ clap.workspace = true
 color-eyre = { version = "0.6.3", features = ["issue-url"] }
 dotenvy = "0.15.7"
 eyre.workspace = true
+libsqlite3-sys = { version = "0.30.1", optional = true }
 mimalloc = "0.1.43"
 num_cpus = "1.16.0"
+pq-sys = { version = "0.6.3", optional = true }
 tokio = { workspace = true, features = ["rt", "rt-multi-thread"] }

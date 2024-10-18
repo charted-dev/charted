@@ -25,9 +25,7 @@ RUN apk upgrade && apk add --no-cache \
     gcompat                           \
     pkgconfig                         \
     openssl-dev                       \
-    build-base                        \
-    sqlite-dev                        \
-    postgresql-dev
+    build-base
 
 WORKDIR /build
 COPY . .
@@ -37,7 +35,7 @@ COPY . .
 RUN rm rust-toolchain.toml
 
 ENV RUSTFLAGS="--cfg tokio_unstable -C link-arg=-fuse-ld=mold -Ctarget-cpu=native -Ctarget-feature=-crt-static"
-RUN cargo build --locked --release --package charted
+RUN cargo build --locked --release --package charted --features bundled-sqlite --features bundled-pq
 
 ##### FINAL STAGE
 FROM alpine:3.20
@@ -45,10 +43,7 @@ FROM alpine:3.20
 RUN apk upgrade && apk add --no-cache \
     bash                              \
     tini                              \
-    curl                              \
-    libgcc                            \
-    sqlite-dev                        \
-    postgresql-dev
+    curl
 
 WORKDIR /app/noelware/charted/server
 
