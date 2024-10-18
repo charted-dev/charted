@@ -63,6 +63,7 @@ exceptions = [
     { name = "unicode-ident", allow = ["Unicode-DFS-2016"] },
     { name = "aws-lc-sys", allow = ["OpenSSL"] },
     { name = "ring", allow = ["OpenSSL"] },
+    { name = "pq-src", allow = ["PostgreSQL"] },
 ]
 
 # Sigh
