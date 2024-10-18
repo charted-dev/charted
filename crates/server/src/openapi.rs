@@ -220,7 +220,13 @@ impl Modify for RevisedDocument {
         //    |          ^^^^^^^
         //
         // so we manually do it ourselves here
-        let components: ComponentsBuilder = Into::<ComponentsBuilder>::into(openapi.components.take().unwrap())
+
+        let mut components = openapi.components.take().unwrap();
+
+        // Unsure why `Response_EntrypointResponse` is here, but I guess it stays
+        // until we figure out why? ...it is a dirty hack indeed
+        let _ = components.schemas.remove_entry("Response_EntrypointResponse");
+        let components: ComponentsBuilder = Into::<ComponentsBuilder>::into(components)
             .schema_from::<charted_types::DateTime>()
             .schemas_from_iter({
                 let mut schemas = Vec::new();

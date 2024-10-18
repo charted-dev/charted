@@ -71,7 +71,7 @@ fn preinit() -> eyre::Result<()> {
                 ..Default::default()
             },
         ))
-        .with(EnvFilter::new("info"))
+        .with(EnvFilter::from_default_env())
         .init();
 
     Ok(())

@@ -1233,37 +1233,6 @@
                     }
                 }
             },
-            "Response_EntrypointResponse": {
-                "type": "object",
-                "description": "Represents a response object for all REST endpoints.",
-                "required": ["success"],
-                "properties": {
-                    "data": {
-                        "type": "object",
-                        "description": "Generic entrypoint message for any API route like `/users`.",
-                        "required": ["message", "docs"],
-                        "properties": {
-                            "docs": {
-                                "type": "string",
-                                "description": "URI to the documentation for this entrypoint."
-                            },
-                            "message": {
-                                "type": "string",
-                                "description": "Humane message to greet you."
-                            }
-                        }
-                    },
-                    "errors": {
-                        "type": "array",
-                        "items": { "$ref": "#/components/schemas/Error" },
-                        "description": "If the request failed, this is a list of errors as a \"stacktrace.\" `success` is always\n*false*; if not the case, blame it on Noel."
-                    },
-                    "success": {
-                        "type": "boolean",
-                        "description": "Was the request a success or not?"
-                    }
-                }
-            },
             "Session": {
                 "type": "object",
                 "description": "Resource that represents a user session present.",
