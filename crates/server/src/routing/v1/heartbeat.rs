@@ -13,6 +13,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// Healthcheck endpoint to determine if services are OK.
+#[utoipa::path(
+    get,
+    path = "/v1/heartbeat",
+    operation_id = "heartbeat",
+    tags = ["Main"],
+    responses(
+        (
+            status = 200,
+            description = "Successful response",
+            content_type = "text/plain"
+        )
+    )
+)]
 #[cfg_attr(debug_assertions, axum::debug_handler)]
 pub async fn heartbeat() -> &'static str {
     "Ok."

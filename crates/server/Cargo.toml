@@ -33,11 +33,13 @@ azalia = { workspace = true, features = [
     "remi-tracing",
     "remi-serde",
 ] }
+argon2.workspace = true
 async-trait = "0.1.81"
 axum = { workspace = true, features = ["matched-path"] }
 axum-server = { version = "0.7.1", features = ["tls-rustls"] }
 base64 = "0.22.1"
 charted-authz = { version = "0.1.0", path = "../authz" }
+charted-authz-local = { version = "0.1.0", path = "../authz/local" }
 charted-core = { version = "0.1.0", path = "../core" }
 charted-config = { version = "0.1.0", path = "../config" }
 charted-database = { version = "0.1.0", path = "../database" }
@@ -67,6 +69,8 @@ tower-http = { version = "0.6.0", features = [
 ] }
 tracing.workspace = true
 utoipa = { workspace = true, features = ["debug"] }
+validator = "0.18.1"
+chrono.workspace = true
 
 [package.metadata.cargo-machete]
 ignored = ["charted-helm-charts"]

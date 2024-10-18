@@ -16,4 +16,5 @@
 //! Contains the database operations for most entities so it doesn't get repeated as much.
 
 pub mod apikey;
+pub mod organization;
 pub mod user;

@@ -18,7 +18,7 @@ use azalia::log::{
     WriteLayer,
 };
 use charted_config::{sessions::Backend, storage, Config};
-use charted_core::Distribution;
+use charted_core::{ulid::AtomicGenerator, Distribution};
 use charted_server::ServerContext;
 use owo_colors::{OwoColorize, Stream::Stdout};
 use std::{
@@ -97,6 +97,7 @@ pub async fn run(Args { config, .. }: Args) -> eyre::Result<()> {
     };
 
     let cx = ServerContext {
+        ulid_generator: AtomicGenerator::new(),
         requests: AtomicUsize::new(0),
         features: Vec::new(),
         storage,

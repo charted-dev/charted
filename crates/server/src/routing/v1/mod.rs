@@ -18,15 +18,63 @@ pub mod index;
 pub mod info;
 pub mod main;
 pub mod openapi;
+pub mod user;
 
 use crate::ServerContext;
-use axum::{routing, Router};
+use axum::{extract::Request, http::StatusCode, response::IntoResponse, routing, Router};
+use charted_core::{api, VERSION};
+use charted_proc_macros::generate_api_response;
+use serde::Serialize;
+use serde_json::json;
+use std::borrow::Cow;
+use utoipa::ToSchema;
+
+/// Generic entrypoint message for any API route like `/users`.
+#[derive(Serialize, ToSchema)]
+pub struct EntrypointResponse {
+    /// Humane message to greet you.
+    pub message: Cow<'static, str>,
+
+    /// URI to the documentation for this entrypoint.
+    pub docs: Cow<'static, str>,
+}
+
+impl EntrypointResponse {
+    pub fn new(entity: impl AsRef<str>) -> EntrypointResponse {
+        let entity = entity.as_ref();
+        EntrypointResponse {
+            message: Cow::Owned(format!("welcome to the {entity} API")),
+            docs: Cow::Owned(format!(
+                "https://charts.noelware.org/docs/server/{VERSION}/api/reference/{}",
+                entity.to_lowercase().replace(' ', "")
+            )),
+        }
+    }
+}
+
+generate_api_response!(EntrypointResponse);
 
 pub fn create_router(_: &ServerContext) -> Router<ServerContext> {
     Router::new()
+        .nest("/users", user::create_router())
         .route("/indexes/:idOrName", routing::get(index::get_chart_index))
         .route("/heartbeat", routing::get(heartbeat::heartbeat))
         .route("/openapi.json", routing::get(openapi::openapi))
         .route("/info", routing::get(info::info))
         .route("/", routing::get(main::main))
+        .fallback(fallback)
+}
+
+async fn fallback(req: Request) -> impl IntoResponse {
+    api::err(
+        StatusCode::NOT_FOUND,
+        (
+            api::ErrorCode::HandlerNotFound,
+            "endpoint was not found",
+            json!({
+                "method": req.method().as_str(),
+                "uri": req.uri().path()
+            }),
+        ),
+    )
 }

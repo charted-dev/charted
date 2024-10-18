@@ -35,7 +35,7 @@ targets = [
 version = 2
 
 [bans]
-multiple-versions = "warn" # only warn since `tonic` doesn't support Axum 0.7 / Hyper 1
+multiple-versions = "warn"
 wildcards = "deny"
 
 [sources]

@@ -22,7 +22,7 @@ use axum::{
     middleware::Next,
     response::IntoResponse,
 };
-use std::{sync::atomic::Ordering, time::Instant};
+use std::{fmt::Display, sync::atomic::Ordering, time::Instant};
 use tracing::{info, instrument};
 
 #[derive(FromRequestParts)]
@@ -30,14 +30,14 @@ pub struct Metadata {
     extensions: Extensions,
     version: Version,
     headers: HeaderMap,
-    matched: MatchedPath,
+    matched: Option<MatchedPath>,
     method: Method,
     uri: Uri,
 }
 
 #[instrument(name = "charted.http.request", skip_all, fields(
-    req.matched_path = %metadata.matched.as_str(),
-    req.ua = ?get_user_agent(&metadata),
+    req.matched_path = %display_opt(metadata.matched.as_ref().map(MatchedPath::as_str)),
+    req.ua = %display_opt(get_user_agent(&metadata)),
     req.id = %metadata.extensions.get::<XRequestId>().unwrap(),
     http.version = http_version(&metadata),
     http.method = metadata.method.as_str(),
@@ -81,4 +81,18 @@ fn get_user_agent(Metadata { headers, .. }: &Metadata) -> Option<String> {
     headers
         .get(USER_AGENT)
         .map(|f| String::from_utf8_lossy(f.as_bytes()).to_string())
+}
+
+fn display_opt<T: Display>(opt: Option<T>) -> impl Display {
+    struct Helper<T: Display>(Option<T>);
+    impl<T: Display> Display for Helper<T> {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            match self.0 {
+                Some(ref display) => Display::fmt(display, f),
+                None => f.write_str("<unknown>"),
+            }
+        }
+    }
+
+    Helper(opt)
 }

@@ -14,8 +14,11 @@
 // limitations under the License.
 
 use crate::ServerContext;
-use azalia::remi::core::StorageService;
-use charted_types::{helm, Ulid};
+use azalia::remi::core::{Bytes, StorageService, UploadRequest};
+use charted_types::{
+    helm::{self, ChartIndex},
+    Ulid, User,
+};
 use eyre::Context;
 use tracing::{error, instrument};
 
@@ -40,4 +43,24 @@ pub async fn get_index(ctx: &ServerContext, id: Ulid) -> eyre::Result<Option<hel
             sentry::capture_error(e);
         })
         .context("failed to deserialize chart into `helm::ChartIndex`")
+}
+
+#[instrument(name = "charted.server.ops.indexes.get", skip_all, fields(user.id))]
+pub async fn create_index(cx: &ServerContext, user: &User) -> eyre::Result<()> {
+    let index = ChartIndex::default();
+    let serialized = serde_yaml_ng::to_string(&index)?;
+
+    cx.storage
+        .upload(
+            format!("./metadata/{}/index.yaml", user.id),
+            UploadRequest::default()
+                .with_content_type(Some("application/yaml"))
+                .with_data(Bytes::from(serialized)),
+        )
+        .await
+        .inspect_err(|e| {
+            error!(error = %e, %user.id, "unable to upload chart index for user");
+            sentry::capture_error(e);
+        })
+        .context("failed to upload chart index")
 }

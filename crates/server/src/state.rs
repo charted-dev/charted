@@ -17,6 +17,7 @@ use axum::extract::FromRef;
 use azalia::remi::StorageService;
 use charted_authz::Authenticator;
 use charted_config::Config;
+use charted_core::ulid::AtomicGenerator;
 use charted_database::DbPool;
 use charted_features::Feature;
 use std::sync::{
@@ -29,6 +30,9 @@ static INSTANCE: OnceLock<ServerContext> = OnceLock::new();
 /// Represents the context of the API server. This contains all the dependencies
 /// that are initialized when the '`charted server`' command is executed.
 pub struct ServerContext {
+    /// The generator for new ULIDs.
+    pub ulid_generator: AtomicGenerator,
+
     /// Amount of requests the server has been hit with so far.
     pub requests: AtomicUsize,
 
@@ -51,6 +55,7 @@ pub struct ServerContext {
 impl Clone for ServerContext {
     fn clone(&self) -> Self {
         ServerContext {
+            ulid_generator: self.ulid_generator.clone(),
             requests: AtomicUsize::new(self.requests.load(Ordering::SeqCst)),
             features: self.features.clone(),
             storage: self.storage.clone(),

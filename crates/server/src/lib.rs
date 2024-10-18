@@ -29,11 +29,32 @@ pub(crate) mod ops;
 pub mod responses;
 pub mod routing;
 
+use argon2::{
+    password_hash::{rand_core::OsRng, SaltString},
+    PasswordHasher,
+};
 use axum::Router;
 use axum_server::{tls_rustls::RustlsConfig, Handle};
+use charted_core::ARGON2;
 use eyre::Context;
 use std::time::Duration;
-use tracing::{info, warn};
+use tracing::{error, info, warn};
+
+pub fn hash_password<P: AsRef<[u8]>>(password: P) -> eyre::Result<String> {
+    let salt = SaltString::generate(&mut OsRng);
+    let password = password.as_ref();
+
+    ARGON2
+        .hash_password(password, &salt)
+        .map(|hash| hash.to_string())
+        .inspect_err(|e| {
+            error!(error = %e, "failed to compute argon2 password");
+        })
+        // since `argon2::Error` doesn't implement `std::error::Error`,
+        // we implicitlly pass it into the `eyre!` macro, which will create
+        // an adhoc error.
+        .map_err(|e| eyre::eyre!(e))
+}
 
 pub async fn start(cx: ServerContext) -> eyre::Result<()> {
     // Put a clone of `ServerContext` since we still need to access it.

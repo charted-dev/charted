@@ -80,7 +80,37 @@ pub async fn get_chart_index(
             Ok((StatusCode::OK, result).into())
         }
 
-        Ok(None) => todo!(),
+        Ok(None) => match ops::db::organization::get(&ctx, id_or_name.clone()).await {
+            Ok(Some(org)) => {
+                let Some(result) = ops::charts::get_index(&ctx, org.id)
+                    .await
+                    .map_err(|_| api::internal_server_error())?
+                else {
+                    return Err(api::err(
+                        StatusCode::NOT_FOUND,
+                        (
+                            api::ErrorCode::EntityNotFound,
+                            "index for organization doesn't exist, this is definitely a bug",
+                            json!({"class":"Organization","id_or_name":id_or_name}),
+                        ),
+                    ));
+                };
+
+                Ok((StatusCode::OK, result).into())
+            }
+
+            Ok(None) => Err(api::err(
+                StatusCode::NOT_FOUND,
+                (
+                    api::ErrorCode::EntityNotFound,
+                    "unable to find user or organization",
+                    json!({"id_or_name":id_or_name}),
+                ),
+            )),
+
+            Err(_) => Err(api::internal_server_error()),
+        },
+
         Err(_) => Err(api::internal_server_error()),
     }
 }

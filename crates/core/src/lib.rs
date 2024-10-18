@@ -14,6 +14,7 @@
 // limitations under the License.
 
 #![feature(once_cell_try)]
+#![feature(ptr_as_ref_unchecked)]
 
 mod distribution;
 pub use distribution::*;
@@ -22,6 +23,7 @@ pub mod api;
 pub mod bitflags;
 pub mod openapi;
 pub mod serde;
+pub mod ulid;
 
 #[cfg(feature = "testkit")]
 pub mod testkit;

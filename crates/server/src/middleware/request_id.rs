@@ -64,7 +64,7 @@ pub async fn request_id(mut req: Request<Body>, next: Next) -> impl IntoResponse
         "server",
         HeaderValue::from_str(
             format!(
-                "Noelware/charted-server (+https://github.com/charted-dev/charted; v{})",
+                "Noelware/charted-server (+https://github.com/charted-dev/charted; {})",
                 charted_core::version()
             )
             .as_str(),

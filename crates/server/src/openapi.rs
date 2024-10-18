@@ -35,6 +35,7 @@ use utoipa::{
         version = charted_core::VERSION,
         terms_of_service = "https://charts.noelware.org/legal/tos",
         license(
+            identifier = "Apache-2.0",
             name = "Apache 2.0 License",
             url = "https://apache.org/licenses/LICENSE-2.0"
         ),
@@ -76,10 +77,6 @@ use utoipa::{
     ),
     components(
         schemas(
-            // ==== Responses ====
-            crate::routing::v1::info::InfoResponse,
-            crate::routing::v1::main::MainResponse,
-
             // ==== Request Bodies ====
             charted_types::payloads::repository::release::CreateRepositoryReleasePayload,
             charted_types::payloads::repository::release::PatchRepositoryReleasePayload,
@@ -131,14 +128,19 @@ use utoipa::{
             charted_types::Ulid
         ),
         responses(
+            crate::routing::v1::user::UserResponse,
             crate::routing::v1::info::InfoResponse,
             crate::routing::v1::main::MainResponse,
+            crate::routing::v1::EntrypointResponse,
 
             EmptyApiResponse,
             ApiErrorResponse
         )
     ),
     paths(
+        crate::routing::v1::user::main,
+
+        crate::routing::v1::heartbeat::heartbeat,
         crate::routing::v1::index::get_chart_index,
         crate::routing::v1::info::info,
         crate::routing::v1::main::main,
