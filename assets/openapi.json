@@ -30,7 +30,7 @@
         }
     ],
     "paths": {
-        "": {
+        "/": {
             "get": {
                 "tags": ["Main"],
                 "summary": "Main entrypoint response to the API. Nothing too important.",
