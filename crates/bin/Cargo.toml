@@ -43,3 +43,8 @@ mimalloc = "0.1.43"
 num_cpus = "1.16.0"
 pq-sys = { version = "0.6.3", optional = true }
 tokio = { workspace = true, features = ["rt", "rt-multi-thread"] }
+
+[package.metadata.cargo-machete]
+# The drivers here aren't actually used in the crate, they're mainly here
+# to statically link them if their respected features is enabled
+ignored = ["libsqlite3-sys", "pq-sys"]
