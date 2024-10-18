@@ -11,7 +11,8 @@
         },
         "license": {
             "name": "Apache 2.0 License",
-            "url": "https://apache.org/licenses/LICENSE-2.0"
+            "url": "https://apache.org/licenses/LICENSE-2.0",
+            "identifier": "Apache-2.0"
         },
         "version": "0.1.0"
     },
@@ -29,9 +30,42 @@
         }
     ],
     "paths": {
+        "": {
+            "get": {
+                "tags": ["Main"],
+                "summary": "Main entrypoint response to the API. Nothing too important.",
+                "operationId": "main",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MainResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/heartbeat": {
+            "get": {
+                "tags": ["Main"],
+                "summary": "Healthcheck endpoint to determine if services are OK.",
+                "operationId": "heartbeat",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": { "text/plain": {} }
+                    }
+                }
+            }
+        },
         "/indexes/{idOrName}": {
             "get": {
                 "tags": ["Main"],
+                "summary": "Retrieve a chart index for a User or Organization.",
                 "operationId": "getChartIndex",
                 "parameters": [
                     {
@@ -77,9 +111,80 @@
                 }
             }
         },
+        "/info": {
+            "get": {
+                "tags": ["Main"],
+                "summary": "Shows information about this running instance.",
+                "operationId": "info",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InfoResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "get": {
+                "tags": ["Users"],
+                "summary": "Entrypoint to the Users API.",
+                "operationId": "users",
+                "responses": {
+                    "200": {
+                        "description": "Entrypoint response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Response_EntrypointResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1": {
+            "get": {
+                "tags": ["Main"],
+                "summary": "Main entrypoint response to the API. Nothing too important.",
+                "operationId": "main",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MainResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/heartbeat": {
+            "get": {
+                "tags": ["Main"],
+                "summary": "Healthcheck endpoint to determine if services are OK.",
+                "operationId": "heartbeat",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": { "text/plain": {} }
+                    }
+                }
+            }
+        },
         "/v1/indexes/{idOrName}": {
             "get": {
                 "tags": ["Main"],
+                "summary": "Retrieve a chart index for a User or Organization.",
                 "operationId": "getChartIndex",
                 "parameters": [
                     {
@@ -118,6 +223,44 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/info": {
+            "get": {
+                "tags": ["Main"],
+                "summary": "Shows information about this running instance.",
+                "operationId": "info",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InfoResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users": {
+            "get": {
+                "tags": ["Users"],
+                "summary": "Entrypoint to the Users API.",
+                "operationId": "users",
+                "responses": {
+                    "200": {
+                        "description": "Entrypoint response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Response_EntrypointResponse"
                                 }
                             }
                         }
@@ -533,6 +676,21 @@
                     }
                 ],
                 "description": "`Duration` is represented as a span of time, usually for system timeouts. `charted-server` supports passing in a unsigned 64-bot integer (represented in milliseconds) or with a string literal (i.e, `1s`) to represent time."
+            },
+            "EntrypointResponse": {
+                "type": "object",
+                "description": "Generic entrypoint message for any API route like `/users`.",
+                "required": ["message", "docs"],
+                "properties": {
+                    "docs": {
+                        "type": "string",
+                        "description": "URI to the documentation for this entrypoint."
+                    },
+                    "message": {
+                        "type": "string",
+                        "description": "Humane message to greet you."
+                    }
+                }
             },
             "Error": {
                 "type": "object",
@@ -1075,6 +1233,37 @@
                     }
                 }
             },
+            "Response_EntrypointResponse": {
+                "type": "object",
+                "description": "Represents a response object for all REST endpoints.",
+                "required": ["success"],
+                "properties": {
+                    "data": {
+                        "type": "object",
+                        "description": "Generic entrypoint message for any API route like `/users`.",
+                        "required": ["message", "docs"],
+                        "properties": {
+                            "docs": {
+                                "type": "string",
+                                "description": "URI to the documentation for this entrypoint."
+                            },
+                            "message": {
+                                "type": "string",
+                                "description": "Humane message to greet you."
+                            }
+                        }
+                    },
+                    "errors": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/Error" },
+                        "description": "If the request failed, this is a list of errors as a \"stacktrace.\" `success` is always\n*false*; if not the case, blame it on Noel."
+                    },
+                    "success": {
+                        "type": "boolean",
+                        "description": "Was the request a success or not?"
+                    }
+                }
+            },
             "Session": {
                 "type": "object",
                 "description": "Resource that represents a user session present.",
@@ -1250,6 +1439,84 @@
                                 "success": {
                                     "type": "boolean",
                                     "description": "Whether if this request was a success"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "EntrypointResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/components/schemas/EntrypointResponse"
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "whether if this request was successful"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "InfoResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/components/schemas/InfoResponse"
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "whether if this request was successful"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "MainResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": {
+                                    "$ref": "#/components/schemas/MainResponse"
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "whether if this request was successful"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "UserResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success", "data"],
+                            "properties": {
+                                "data": { "$ref": "#/components/schemas/User" },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "whether if this request was successful"
                                 }
                             }
                         }
