@@ -21,7 +21,6 @@ pub use distribution::*;
 
 pub mod api;
 pub mod bitflags;
-pub mod openapi;
 pub mod serde;
 pub mod ulid;
 

@@ -37,3 +37,6 @@ prettyplease = "0.2.22"
 progenitor = "0.8.0"
 serde_json.workspace = true
 syn = "2.0.79"
+
+[package.metadata.cargo-machete]
+ignored = ["futures", "progenitor-client", "reqwest", "serde", "serde_json"]

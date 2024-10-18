@@ -179,11 +179,15 @@ impl Modify for RevisedDocument {
                     .then_some((key, path))
             })
             .map(|(key, path)| {
-                (
-                    key.trim_start_matches(&format!("/{}", default_api_version.as_str()))
-                        .to_owned(),
-                    path,
-                )
+                let mut path_key = key
+                    .trim_start_matches(&format!("/{}", default_api_version.as_str()))
+                    .to_owned();
+
+                if path_key.is_empty() {
+                    path_key = "/".into();
+                }
+
+                (path_key, path)
             })
             .collect::<BTreeMap<_, _>>();
 
