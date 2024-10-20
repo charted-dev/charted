@@ -15,34 +15,53 @@
 
 use axum::http::StatusCode;
 use charted_core::{api, VERSION};
-use charted_proc_macros::generate_api_response;
 use serde::Serialize;
-use utoipa::ToSchema;
+use utoipa::{
+    openapi::{ContentBuilder, Ref, RefOr, Response, ResponseBuilder},
+    ToResponse, ToSchema,
+};
 
 /// Response object for the `GET /` REST controller.
 #[derive(Serialize, ToSchema)]
 pub struct MainResponse {
     /// The message, which will always be "Hello, world!"
-    message: String,
+    pub message: &'static str,
 
     /// You know, for Helm charts?
-    tagline: String,
+    pub tagline: &'static str,
 
     /// Documentation URL for this generic entrypoint response.
-    docs: String,
+    pub docs: String,
 }
 
 impl Default for MainResponse {
     fn default() -> Self {
         MainResponse {
-            message: "Hello, world! 👋".into(),
-            tagline: "You know, for Helm charts?".into(),
+            message: "Hello, world! 👋",
+            tagline: "You know, for Helm charts?",
             docs: format!("https://charts.noelware.org/docs/server/{VERSION}"),
         }
     }
 }
 
-generate_api_response!(MainResponse);
+impl<'r> ToResponse<'r> for MainResponse {
+    fn response() -> (&'r str, RefOr<Response>) {
+        (
+            "MainResponse",
+            RefOr::T(
+                ResponseBuilder::new()
+                    .description("Response for the `/` REST handler")
+                    .content(
+                        "application/json",
+                        ContentBuilder::new()
+                            .schema(Some(RefOr::Ref(Ref::from_schema_name("MainResponse"))))
+                            .build(),
+                    )
+                    .build(),
+            ),
+        )
+    }
+}
 
 /// Main entrypoint response to the API. Nothing too important.
 #[utoipa::path(
@@ -54,7 +73,7 @@ generate_api_response!(MainResponse);
         (
             status = 200,
             description = "Successful response",
-            body = MainResponse,
+            body = inline(api::Response<MainResponse>),
             content_type = "application/json"
         )
     )

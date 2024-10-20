@@ -13,13 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#![feature(never_type)]
+#![feature(never_type, decl_macro)]
 
 mod state;
 pub use state::*;
 
 mod types;
 pub use types::*;
+
+#[macro_use]
+pub mod macros;
 
 pub mod extract;
 pub mod middleware;

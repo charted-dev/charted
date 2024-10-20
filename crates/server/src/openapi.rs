@@ -13,22 +13,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_core::api;
+mod modifiers;
+use modifiers::*;
+
 use serde_json::Value;
-use std::{borrow::Cow, collections::BTreeMap};
+use std::borrow::Cow;
 use utoipa::{
     openapi::{
-        schema::SchemaType,
-        security::{ApiKey, ApiKeyValue, HttpAuthScheme, HttpBuilder, SecurityScheme},
-        ArrayBuilder, ComponentsBuilder, ContentBuilder, ObjectBuilder, Ref, RefOr, Response, ResponseBuilder, Schema,
+        schema::SchemaType, ArrayBuilder, ContentBuilder, ObjectBuilder, Ref, RefOr, Response, ResponseBuilder, Schema,
         Type,
     },
-    Modify, OpenApi, PartialSchema, ToResponse, ToSchema,
+    OpenApi, PartialSchema, ToResponse, ToSchema,
 };
 
 #[derive(OpenApi)]
 #[openapi(
-    modifiers(&RevisedDocument),
+    modifiers(
+        &UpdatePathsToIncludeDefaultVersion,
+        &IncludeErrorProneDatatypes,
+        &SecuritySchemes
+    ),
     info(
         title = "charted-server",
         description = "🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust",
@@ -71,7 +75,7 @@ use utoipa::{
             description = "Endpoints that create, modify, delete, or fetch organization metadata"
         ),
         (
-            name = "Repository/Members",
+            name = "Organization/Members",
             description = "Endpoints that create, modify, delete, or fetch organization members"
         ),
     ),
@@ -88,6 +92,9 @@ use utoipa::{
             charted_types::payloads::apikey::PatchApiKeyPayload,
             charted_types::payloads::user::CreateUserPayload,
             charted_types::payloads::user::PatchUserPayload,
+
+            // ==== Response Datatypes ====
+            crate::routing::v1::EntrypointResponse,
 
             // ==== Helm ====
             charted_types::helm::StringOrImportValue,
@@ -128,16 +135,12 @@ use utoipa::{
             charted_types::Ulid
         ),
         responses(
-            crate::routing::v1::user::UserResponse,
-            crate::routing::v1::info::InfoResponse,
-            crate::routing::v1::main::MainResponse,
-            crate::routing::v1::EntrypointResponse,
-
             EmptyApiResponse,
             ApiErrorResponse
         )
     ),
     paths(
+        crate::routing::v1::user::create_user,
         crate::routing::v1::user::main,
 
         crate::routing::v1::heartbeat::heartbeat,
@@ -164,103 +167,6 @@ use utoipa::{
     )
 )]
 pub struct Document;
-
-struct RevisedDocument;
-impl Modify for RevisedDocument {
-    fn modify(&self, openapi: &mut utoipa::openapi::OpenApi) {
-        // This could be a lot more efficient but I really don't care
-        // how it looks right now.
-        let default_api_version = api::Version::default();
-        let paths = openapi.paths.paths.clone();
-        let new_paths = paths
-            .into_iter()
-            .filter_map(|(key, path)| {
-                key.starts_with(&format!("/{}", default_api_version.as_str()))
-                    .then_some((key, path))
-            })
-            .map(|(key, path)| {
-                let mut path_key = key
-                    .trim_start_matches(&format!("/{}", default_api_version.as_str()))
-                    .to_owned();
-
-                if path_key.is_empty() {
-                    path_key = "/".into();
-                }
-
-                (path_key, path)
-            })
-            .collect::<BTreeMap<_, _>>();
-
-        openapi.paths.paths.extend(new_paths);
-
-        // TODO(@auguwu): don't know why `DateTime` and `serde::Duration` won't compile
-        //                into the `components(schemas())` directive in the `#[openapi]`
-        //                attribute:
-        //
-        // error: expected expression, found `,`
-        //   --> crates/server/src/openapi.rs:28:10
-        //    |
-        // 28 | #[derive(OpenApi)]
-        //    |          ^^^^^^^ expected expression
-        //    |
-        //    = note: this error originates in the derive macro `OpenApi` (in Nightly builds, run with -Z macro-backtrace for more info)
-        //
-        // error: expected one of `.`, `;`, `?`, `else`, or an operator, found `)`
-        //   --> crates/server/src/openapi.rs:28:10
-        //    |
-        // 28 | #[derive(OpenApi)]
-        //    |          ^^^^^^^ expected one of `.`, `;`, `?`, `else`, or an operator
-        //    |
-        //    = note: this error originates in the derive macro `OpenApi` (in Nightly builds, run with -Z macro-backtrace for more info)
-        //
-        // error: proc-macro derive produced unparsable tokens
-        //   --> crates/server/src/openapi.rs:28:10
-        //    |
-        // 28 | #[derive(OpenApi)]
-        //    |          ^^^^^^^
-        //
-        // so we manually do it ourselves here
-
-        let mut components = openapi.components.take().unwrap();
-
-        // Unsure why `Response_EntrypointResponse` is here, but I guess it stays
-        // until we figure out why? ...it is a dirty hack indeed
-        let _ = components.schemas.remove_entry("Response_EntrypointResponse");
-        let components: ComponentsBuilder = Into::<ComponentsBuilder>::into(components)
-            .schema_from::<charted_types::DateTime>()
-            .schemas_from_iter({
-                let mut schemas = Vec::new();
-                <charted_types::DateTime as utoipa::ToSchema>::schemas(&mut schemas);
-
-                schemas
-            })
-            .schema_from::<charted_core::serde::Duration>()
-            .schemas_from_iter({
-                let mut schemas = Vec::new();
-                <charted_core::serde::Duration as utoipa::ToSchema>::schemas(&mut schemas);
-
-                schemas
-            }).security_scheme(
-                "ApiKey",
-                SecurityScheme::ApiKey(ApiKey::Header(ApiKeyValue::new("ApiKey"))),
-            ).security_scheme(
-                "Bearer",
-                SecurityScheme::Http(
-                    HttpBuilder::new()
-                        .scheme(HttpAuthScheme::Bearer)
-                        .description(Some("Signed JWT that is made to safely be authenticated"))
-                        .build(),
-                ),
-            ).security_scheme("Basic", SecurityScheme::Http(
-                HttpBuilder::new()
-                    .scheme(HttpAuthScheme::Basic)
-                    .description(Some("> WARN: On some instances, this is disabled\n\nAllows the use of the HTTP Basic Auth scheme to use authenticated endpoints as a user."))
-                    .build()
-            ));
-
-        openapi.components = Some(components.build());
-    }
-}
 
 /// Represents a generic empty API response, please do not use this in actual code,
 /// it is only meant for utoipa for OpenAPI code generation.

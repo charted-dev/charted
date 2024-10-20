@@ -15,7 +15,6 @@
 
 use axum::http::StatusCode;
 use charted_core::{api, Distribution, BUILD_DATE, COMMIT_HASH, VERSION};
-use charted_proc_macros::generate_api_response;
 use serde::Serialize;
 use utoipa::ToSchema;
 
@@ -26,35 +25,33 @@ pub struct InfoResponse {
     pub distribution: Distribution,
 
     /// The commit hash from the Git repository.
-    pub commit_sha: String,
+    pub commit_sha: &'static str,
 
     /// Build date in RFC3339 format
-    pub build_date: String,
+    pub build_date: &'static str,
 
     /// Product name. Will always be "charted-server"
-    pub product: String,
+    pub product: &'static str,
 
     /// Valid SemVer 2 of the current version of this instance
-    pub version: String,
+    pub version: &'static str,
 
     /// Vendor of charted-server, will always be "Noelware, LLC."
-    pub vendor: String,
+    pub vendor: &'static str,
 }
 
 impl Default for InfoResponse {
     fn default() -> InfoResponse {
         InfoResponse {
             distribution: Distribution::detect(),
-            commit_sha: COMMIT_HASH.to_string(),
-            build_date: BUILD_DATE.to_string(),
-            product: "charted-server".into(),
-            version: VERSION.to_string(),
-            vendor: "Noelware, LLC.".into(),
+            commit_sha: COMMIT_HASH,
+            build_date: BUILD_DATE,
+            product: "charted-server",
+            version: VERSION,
+            vendor: "Noelware, LLC.",
         }
     }
 }
-
-generate_api_response!(InfoResponse);
 
 /// Shows information about this running instance.
 #[utoipa::path(
@@ -66,7 +63,7 @@ generate_api_response!(InfoResponse);
         (
             status = 200,
             description = "Successful response",
-            body = InfoResponse,
+            body = inline(api::Response<InfoResponse>),
             content_type = "application/json"
         )
     )

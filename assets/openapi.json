@@ -41,7 +41,45 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/MainResponse"
+                                    "type": "object",
+                                    "description": "Represents a response object for all REST endpoints.",
+                                    "required": ["success"],
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "description": "Response object for the `GET /` REST controller.",
+                                            "required": [
+                                                "message",
+                                                "tagline",
+                                                "docs"
+                                            ],
+                                            "properties": {
+                                                "docs": {
+                                                    "type": "string",
+                                                    "description": "Documentation URL for this generic entrypoint response."
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "description": "The message, which will always be \"Hello, world!\""
+                                                },
+                                                "tagline": {
+                                                    "type": "string",
+                                                    "description": "You know, for Helm charts?"
+                                                }
+                                            }
+                                        },
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "If the request failed, this is a list of errors as a \"stacktrace.\" `success` is always\n*false*; if not the case, blame it on Noel."
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Was the request a success or not?"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -122,7 +160,60 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/InfoResponse"
+                                    "type": "object",
+                                    "description": "Represents a response object for all REST endpoints.",
+                                    "required": ["success"],
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "description": "Represents the response for the `GET /info` REST handler.",
+                                            "required": [
+                                                "distribution",
+                                                "commit_sha",
+                                                "build_date",
+                                                "product",
+                                                "version",
+                                                "vendor"
+                                            ],
+                                            "properties": {
+                                                "build_date": {
+                                                    "type": "string",
+                                                    "description": "Build date in RFC3339 format"
+                                                },
+                                                "commit_sha": {
+                                                    "type": "string",
+                                                    "description": "The commit hash from the Git repository."
+                                                },
+                                                "distribution": {
+                                                    "$ref": "#/components/schemas/Distribution",
+                                                    "description": "The distribution the server is running off from"
+                                                },
+                                                "product": {
+                                                    "type": "string",
+                                                    "description": "Product name. Will always be \"charted-server\""
+                                                },
+                                                "vendor": {
+                                                    "type": "string",
+                                                    "description": "Vendor of charted-server, will always be \"Noelware, LLC.\""
+                                                },
+                                                "version": {
+                                                    "type": "string",
+                                                    "description": "Valid SemVer 2 of the current version of this instance"
+                                                }
+                                            }
+                                        },
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "If the request failed, this is a list of errors as a \"stacktrace.\" `success` is always\n*false*; if not the case, blame it on Noel."
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Was the request a success or not?"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -141,7 +232,163 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Response_EntrypointResponse"
+                                    "type": "object",
+                                    "description": "Represents a response object for all REST endpoints.",
+                                    "required": ["success"],
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "description": "Generic entrypoint message for any API route like `/users`.",
+                                            "required": ["message", "docs"],
+                                            "properties": {
+                                                "docs": {
+                                                    "type": "string",
+                                                    "description": "URI to the documentation for this entrypoint."
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "description": "Humane message to greet you."
+                                                }
+                                            }
+                                        },
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "If the request failed, this is a list of errors as a \"stacktrace.\" `success` is always\n*false*; if not the case, blame it on Noel."
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Was the request a success or not?"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Users"],
+                "operationId": "createUser",
+                "requestBody": {
+                    "description": "Payload for creating a new user. The `password` field can be omitted if the session backend is not `Local`.",
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "CreateUserPayload" }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User has been created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "description": "Represents a response object for all REST endpoints.",
+                                    "required": ["success"],
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "required": [
+                                                "created_at",
+                                                "updated_at",
+                                                "username",
+                                                "id"
+                                            ],
+                                            "properties": {
+                                                "admin": {
+                                                    "type": "boolean",
+                                                    "description": "Whether if this User is an Administrator of this instance",
+                                                    "readOnly": true
+                                                },
+                                                "avatar_hash": {
+                                                    "type": ["string", "null"],
+                                                    "description": "Unique hash that identifies the user's avatar that they uploaded via the REST API."
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "description": "Date of when this user was created. This uses the host system's local time instead\nof UTC.",
+                                                    "readOnly": true
+                                                },
+                                                "description": {
+                                                    "type": ["string", "null"],
+                                                    "description": "Short description about this user."
+                                                },
+                                                "gravatar_email": {
+                                                    "type": ["string", "null"],
+                                                    "description": "Email address that is the Gravatar email to which we should use the user's avatar."
+                                                },
+                                                "id": {
+                                                    "$ref": "#/components/schemas/Ulid",
+                                                    "description": "Unique identifier to locate this user via the REST API."
+                                                },
+                                                "name": {
+                                                    "type": ["string", "null"],
+                                                    "description": "Display name for this user, it should be displayed as '{name} (@{username})' or just '@{username}' if there is no display name"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "description": "Date of when the server has last updated this user's metadata",
+                                                    "readOnly": true
+                                                },
+                                                "username": {
+                                                    "$ref": "#/components/schemas/Name",
+                                                    "description": "Name of this user that can be identified easier."
+                                                },
+                                                "verified_publisher": {
+                                                    "type": "boolean",
+                                                    "description": "whether or not if this user is considered a verified publisher.",
+                                                    "readOnly": true
+                                                }
+                                            }
+                                        },
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "If the request failed, this is a list of errors as a \"stacktrace.\" `success` is always\n*false*; if not the case, blame it on Noel."
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Was the request a success or not?"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Returned if the server doesn't allow user registrations or if this is a single-user registry",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "Returned if the authentication backend requires a `password` field or the `email` field is not a valid email",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Returned if the `username` or `email` provided is already registered",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiErrorResponse"
                                 }
                             }
                         }
@@ -160,7 +407,45 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/MainResponse"
+                                    "type": "object",
+                                    "description": "Represents a response object for all REST endpoints.",
+                                    "required": ["success"],
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "description": "Response object for the `GET /` REST controller.",
+                                            "required": [
+                                                "message",
+                                                "tagline",
+                                                "docs"
+                                            ],
+                                            "properties": {
+                                                "docs": {
+                                                    "type": "string",
+                                                    "description": "Documentation URL for this generic entrypoint response."
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "description": "The message, which will always be \"Hello, world!\""
+                                                },
+                                                "tagline": {
+                                                    "type": "string",
+                                                    "description": "You know, for Helm charts?"
+                                                }
+                                            }
+                                        },
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "If the request failed, this is a list of errors as a \"stacktrace.\" `success` is always\n*false*; if not the case, blame it on Noel."
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Was the request a success or not?"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -241,7 +526,60 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/InfoResponse"
+                                    "type": "object",
+                                    "description": "Represents a response object for all REST endpoints.",
+                                    "required": ["success"],
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "description": "Represents the response for the `GET /info` REST handler.",
+                                            "required": [
+                                                "distribution",
+                                                "commit_sha",
+                                                "build_date",
+                                                "product",
+                                                "version",
+                                                "vendor"
+                                            ],
+                                            "properties": {
+                                                "build_date": {
+                                                    "type": "string",
+                                                    "description": "Build date in RFC3339 format"
+                                                },
+                                                "commit_sha": {
+                                                    "type": "string",
+                                                    "description": "The commit hash from the Git repository."
+                                                },
+                                                "distribution": {
+                                                    "$ref": "#/components/schemas/Distribution",
+                                                    "description": "The distribution the server is running off from"
+                                                },
+                                                "product": {
+                                                    "type": "string",
+                                                    "description": "Product name. Will always be \"charted-server\""
+                                                },
+                                                "vendor": {
+                                                    "type": "string",
+                                                    "description": "Vendor of charted-server, will always be \"Noelware, LLC.\""
+                                                },
+                                                "version": {
+                                                    "type": "string",
+                                                    "description": "Valid SemVer 2 of the current version of this instance"
+                                                }
+                                            }
+                                        },
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "If the request failed, this is a list of errors as a \"stacktrace.\" `success` is always\n*false*; if not the case, blame it on Noel."
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Was the request a success or not?"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -260,7 +598,163 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Response_EntrypointResponse"
+                                    "type": "object",
+                                    "description": "Represents a response object for all REST endpoints.",
+                                    "required": ["success"],
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "description": "Generic entrypoint message for any API route like `/users`.",
+                                            "required": ["message", "docs"],
+                                            "properties": {
+                                                "docs": {
+                                                    "type": "string",
+                                                    "description": "URI to the documentation for this entrypoint."
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "description": "Humane message to greet you."
+                                                }
+                                            }
+                                        },
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "If the request failed, this is a list of errors as a \"stacktrace.\" `success` is always\n*false*; if not the case, blame it on Noel."
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Was the request a success or not?"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Users"],
+                "operationId": "createUser",
+                "requestBody": {
+                    "description": "Payload for creating a new user. The `password` field can be omitted if the session backend is not `Local`.",
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "CreateUserPayload" }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User has been created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "description": "Represents a response object for all REST endpoints.",
+                                    "required": ["success"],
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "required": [
+                                                "created_at",
+                                                "updated_at",
+                                                "username",
+                                                "id"
+                                            ],
+                                            "properties": {
+                                                "admin": {
+                                                    "type": "boolean",
+                                                    "description": "Whether if this User is an Administrator of this instance",
+                                                    "readOnly": true
+                                                },
+                                                "avatar_hash": {
+                                                    "type": ["string", "null"],
+                                                    "description": "Unique hash that identifies the user's avatar that they uploaded via the REST API."
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "description": "Date of when this user was created. This uses the host system's local time instead\nof UTC.",
+                                                    "readOnly": true
+                                                },
+                                                "description": {
+                                                    "type": ["string", "null"],
+                                                    "description": "Short description about this user."
+                                                },
+                                                "gravatar_email": {
+                                                    "type": ["string", "null"],
+                                                    "description": "Email address that is the Gravatar email to which we should use the user's avatar."
+                                                },
+                                                "id": {
+                                                    "$ref": "#/components/schemas/Ulid",
+                                                    "description": "Unique identifier to locate this user via the REST API."
+                                                },
+                                                "name": {
+                                                    "type": ["string", "null"],
+                                                    "description": "Display name for this user, it should be displayed as '{name} (@{username})' or just '@{username}' if there is no display name"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "description": "Date of when the server has last updated this user's metadata",
+                                                    "readOnly": true
+                                                },
+                                                "username": {
+                                                    "$ref": "#/components/schemas/Name",
+                                                    "description": "Name of this user that can be identified easier."
+                                                },
+                                                "verified_publisher": {
+                                                    "type": "boolean",
+                                                    "description": "whether or not if this user is considered a verified publisher.",
+                                                    "readOnly": true
+                                                }
+                                            }
+                                        },
+                                        "errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Error"
+                                            },
+                                            "description": "If the request failed, this is a list of errors as a \"stacktrace.\" `success` is always\n*false*; if not the case, blame it on Noel."
+                                        },
+                                        "success": {
+                                            "type": "boolean",
+                                            "description": "Was the request a success or not?"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Returned if the server doesn't allow user registrations or if this is a single-user registry",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "406": {
+                        "description": "Returned if the authentication backend requires a `password` field or the `email` field is not a valid email",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Returned if the `username` or `email` provided is already registered",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiErrorResponse"
                                 }
                             }
                         }
@@ -780,63 +1274,6 @@
                     "parent": {
                         "type": "string",
                         "description": "The destination path in the parent chart's values."
-                    }
-                }
-            },
-            "InfoResponse": {
-                "type": "object",
-                "description": "Represents the response for the `GET /info` REST handler.",
-                "required": [
-                    "distribution",
-                    "commit_sha",
-                    "build_date",
-                    "product",
-                    "version",
-                    "vendor"
-                ],
-                "properties": {
-                    "build_date": {
-                        "type": "string",
-                        "description": "Build date in RFC3339 format"
-                    },
-                    "commit_sha": {
-                        "type": "string",
-                        "description": "The commit hash from the Git repository."
-                    },
-                    "distribution": {
-                        "$ref": "#/components/schemas/Distribution",
-                        "description": "The distribution the server is running off from"
-                    },
-                    "product": {
-                        "type": "string",
-                        "description": "Product name. Will always be \"charted-server\""
-                    },
-                    "vendor": {
-                        "type": "string",
-                        "description": "Vendor of charted-server, will always be \"Noelware, LLC.\""
-                    },
-                    "version": {
-                        "type": "string",
-                        "description": "Valid SemVer 2 of the current version of this instance"
-                    }
-                }
-            },
-            "MainResponse": {
-                "type": "object",
-                "description": "Response object for the `GET /` REST controller.",
-                "required": ["message", "tagline", "docs"],
-                "properties": {
-                    "docs": {
-                        "type": "string",
-                        "description": "Documentation URL for this generic entrypoint response."
-                    },
-                    "message": {
-                        "type": "string",
-                        "description": "The message, which will always be \"Hello, world!\""
-                    },
-                    "tagline": {
-                        "type": "string",
-                        "description": "You know, for Helm charts?"
                     }
                 }
             },
@@ -1413,84 +1850,6 @@
                         }
                     }
                 }
-            },
-            "EntrypointResponse": {
-                "description": "",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "required": ["success", "data"],
-                            "properties": {
-                                "data": {
-                                    "$ref": "#/components/schemas/EntrypointResponse"
-                                },
-                                "success": {
-                                    "type": "boolean",
-                                    "description": "whether if this request was successful"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "InfoResponse": {
-                "description": "",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "required": ["success", "data"],
-                            "properties": {
-                                "data": {
-                                    "$ref": "#/components/schemas/InfoResponse"
-                                },
-                                "success": {
-                                    "type": "boolean",
-                                    "description": "whether if this request was successful"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "MainResponse": {
-                "description": "",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "required": ["success", "data"],
-                            "properties": {
-                                "data": {
-                                    "$ref": "#/components/schemas/MainResponse"
-                                },
-                                "success": {
-                                    "type": "boolean",
-                                    "description": "whether if this request was successful"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "UserResponse": {
-                "description": "",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "required": ["success", "data"],
-                            "properties": {
-                                "data": { "$ref": "#/components/schemas/User" },
-                                "success": {
-                                    "type": "boolean",
-                                    "description": "whether if this request was successful"
-                                }
-                            }
-                        }
-                    }
-                }
             }
         },
         "securitySchemes": {
@@ -1498,12 +1857,12 @@
             "Basic": {
                 "type": "http",
                 "scheme": "basic",
-                "description": "> WARN: On some instances, this is disabled\n\nAllows the use of the HTTP Basic Auth scheme to use authenticated endpoints as a user."
+                "description": "Allows to use basic authentication (base64 of `username:password`). Do note that some instances might have this disabled and it isn't recommended to be used in production environments."
             },
             "Bearer": {
                 "type": "http",
                 "scheme": "bearer",
-                "description": "Signed JWT that is made to safely be authenticated"
+                "description": "Signed token by the server to safely authenticate yourself"
             }
         }
     },
@@ -1533,7 +1892,7 @@
             "description": "Endpoints that create, modify, delete, or fetch organization metadata"
         },
         {
-            "name": "Repository/Members",
+            "name": "Organization/Members",
             "description": "Endpoints that create, modify, delete, or fetch organization members"
         }
     ],

@@ -23,7 +23,6 @@ pub mod user;
 use crate::ServerContext;
 use axum::{extract::Request, http::StatusCode, response::IntoResponse, routing, Router};
 use charted_core::{api, VERSION};
-use charted_proc_macros::generate_api_response;
 use serde::Serialize;
 use serde_json::json;
 use std::borrow::Cow;
@@ -40,9 +39,9 @@ pub struct EntrypointResponse {
 }
 
 impl EntrypointResponse {
-    pub fn new(entity: impl AsRef<str>) -> EntrypointResponse {
+    pub fn new(entity: impl AsRef<str>) -> Self {
         let entity = entity.as_ref();
-        EntrypointResponse {
+        Self {
             message: Cow::Owned(format!("welcome to the {entity} API")),
             docs: Cow::Owned(format!(
                 "https://charts.noelware.org/docs/server/{VERSION}/api/reference/{}",
@@ -51,8 +50,6 @@ impl EntrypointResponse {
         }
     }
 }
-
-generate_api_response!(EntrypointResponse);
 
 pub fn create_router(_: &ServerContext) -> Router<ServerContext> {
     Router::new()

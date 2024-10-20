@@ -25,14 +25,10 @@ use charted_database::{
     connection,
     schema::{postgresql, sqlite},
 };
-use charted_proc_macros::generate_api_response;
 use charted_types::{payloads::user::CreateUserPayload, User};
 use serde_json::json;
 use tracing::{error, instrument};
 use validator::ValidateEmail;
-
-pub struct UserResponse;
-generate_api_response!(UserResponse for User);
 
 pub fn create_router() -> Router<ServerContext> {
     Router::new().route("/", routing::get(main))
@@ -48,7 +44,7 @@ pub fn create_router() -> Router<ServerContext> {
         (
             status = 200,
             description = "Entrypoint response",
-            body = api::Response<EntrypointResponse>,
+            body = inline(api::Response<EntrypointResponse>),
             content_type = "application/json"
         )
     )
@@ -72,12 +68,12 @@ pub async fn main() -> api::Response<EntrypointResponse> {
         (
             status = 201,
             description = "User has been created",
-            body = api::Response<User>,
+            body = inline(api::Response<User>),
             content_type = "application/json"
         ),
         (
             status = 403,
-            description = "Returned if the server doesn't allow user registrations",
+            description = "Returned if the server doesn't allow user registrations or if this is a single-user registry",
             body = ApiErrorResponse,
             content_type = "application/json"
         ),
@@ -109,7 +105,7 @@ pub async fn create_user(
         username,
     }): Json<CreateUserPayload>,
 ) -> api::Result<User> {
-    if !cx.config.registrations {
+    if !cx.config.registrations || cx.config.single_user {
         return Err(api::err(
             StatusCode::FORBIDDEN,
             (
@@ -287,6 +283,9 @@ pub async fn create_user(
     ops::charts::create_index(&cx, &user)
         .await
         .map_err(|_| api::internal_server_error())?;
+
+    // TODO(@auguwu): if this is a single organization registry, then add
+    // them as an organization member
 
     Ok(api::ok(StatusCode::CREATED, user))
 }

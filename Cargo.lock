@@ -1366,15 +1366,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "charted-proc-macros"
-version = "0.1.0"
-dependencies = [
- "quote",
- "syn 2.0.79",
- "utoipa",
-]
-
-[[package]]
 name = "charted-server"
 version = "0.1.0"
 dependencies = [
@@ -1391,7 +1382,6 @@ dependencies = [
  "charted-database",
  "charted-features",
  "charted-helm-charts",
- "charted-proc-macros",
  "charted-types",
  "chrono",
  "diesel",
