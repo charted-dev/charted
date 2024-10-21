@@ -15,7 +15,7 @@
 {
   cargoTOML = builtins.fromTOML (builtins.readFile ../Cargo.toml);
   outputHashes = {
-    "azalia-0.1.0" = "sha256-iNJUkPGDcWm3w1iWYqnyAk4ike4rqnVw8nUPcrAL0Ks=";
+    "azalia-0.1.0" = "sha256-1fM2ow7JesakkKa+jaTphy9iCzLi97K2m3sZyiTKNbw=";
   };
 
   rustflags = stdenv:

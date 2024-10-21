@@ -29,6 +29,7 @@ authors.workspace = true
 path = "lib.rs"
 
 [dependencies]
+azalia.workspace = true
 charted-core = { workspace = true, default-features = false }
 charted-types = { workspace = true, default-features = false }
 derive_more = { workspace = true, features = ["display"] }

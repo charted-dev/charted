@@ -25,14 +25,12 @@ repository.workspace = true
 authors.workspace = true
 
 [dependencies]
-aws-sdk-s3 = "1.56.0"
 azalia = { workspace = true, features = [
     "config",
     "config-derive",
     "serde",
     "serde-tracing",
 ] }
-azure_storage = "0.21.0"
 charted-core = { version = "0.1.0", path = "../core", default-features = false, features = [
     "merge",
 ] }

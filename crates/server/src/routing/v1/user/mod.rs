@@ -18,20 +18,38 @@ pub mod repositories;
 pub mod sessions;
 
 use super::EntrypointResponse;
-use crate::{extract::Json, hash_password, openapi::ApiErrorResponse, ops, ServerContext};
-use axum::{extract::State, http::StatusCode, routing, Router};
-use charted_core::api;
+use crate::{
+    extract::{Json, Path},
+    hash_password,
+    middleware::session::{self, Session},
+    openapi::ApiErrorResponse,
+    ops, NameOrUlid, ServerContext,
+};
+use axum::{extract::State, http::StatusCode, routing, Extension, Router};
+use charted_core::{api, bitflags::ApiKeyScope};
 use charted_database::{
     connection,
     schema::{postgresql, sqlite},
 };
 use charted_types::{payloads::user::CreateUserPayload, User};
 use serde_json::json;
+use tower_http::auth::AsyncRequireAuthorizationLayer;
 use tracing::{error, instrument};
 use validator::ValidateEmail;
 
 pub fn create_router() -> Router<ServerContext> {
-    Router::new().route("/", routing::get(main))
+    let id_or_name = Router::new().route("/", routing::get(get_user));
+    let at_me = Router::new().route(
+        "/",
+        routing::get(get_self).layer(AsyncRequireAuthorizationLayer::new(
+            session::Middleware::default().scopes([ApiKeyScope::UserAccess]),
+        )),
+    );
+
+    Router::new()
+        .route("/", routing::get(main).put(create_user))
+        .nest("/@me", at_me)
+        .nest("/:idOrName", id_or_name)
 }
 
 /// Entrypoint to the Users API.
@@ -288,4 +306,66 @@ pub async fn create_user(
     // them as an organization member
 
     Ok(api::ok(StatusCode::CREATED, user))
+}
+
+/// Locate a user by their ID or username.
+#[utoipa::path(
+    get,
+    path = "/v1/users/{idOrName}",
+    tags = ["Users"],
+    operation_id = "getUserByIdOrName",
+    params(
+        (
+            "idOrName" = NameOrUlid,
+            Path,
+
+            description = "Parameter that can take a `Name` or `Ulid`"
+        )
+    ),
+    responses(
+        (
+            status = 200,
+            description = "A single user found",
+            body = inline(api::Response<User>),
+            content_type = "application/json"
+        ),
+        (
+            status = 400,
+            description = "Invalid ID or name specified",
+            body = ApiErrorResponse,
+            content_type = "application/json"
+        ),
+        (
+            status = 404,
+            description = "Entity Not Found",
+            body = ApiErrorResponse,
+            content_type = "application/json"
+        )
+    )
+)]
+pub async fn get_user(State(cx): State<ServerContext>, Path(id_or_name): Path<NameOrUlid>) -> api::Result<User> {
+    match ops::db::user::get(&cx, id_or_name.clone()).await {
+        Ok(Some(user)) => Ok(api::ok(StatusCode::OK, user)),
+        Ok(None) => Err(api::err(
+            StatusCode::NOT_FOUND,
+            (
+                api::ErrorCode::EntityNotFound,
+                "user with id or name was not found",
+                json!({"idOrName":id_or_name}),
+            ),
+        )),
+
+        Err(_) => Err(api::internal_server_error()),
+    }
+}
+
+/// Returns information about yourself via an authenticated request.
+#[utoipa::path(
+    get,
+    path = "/v1/users/@me",
+    operation_id = "getSelfUser",
+    tags = ["Users"]
+)]
+pub async fn get_self(Extension(Session { user, .. }): Extension<Session>) -> api::Response<User> {
+    api::ok(StatusCode::OK, user)
 }

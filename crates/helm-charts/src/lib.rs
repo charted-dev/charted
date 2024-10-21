@@ -356,7 +356,7 @@ mod tests {
                     let tempdir = ::tempfile::TempDir::new().unwrap();
                     let path = tempdir.into_path();
                     let $storage = ::azalia::remi::StorageService::Filesystem(::remi_fs::StorageService::with_config(
-                        remi_fs::Config::new(&path),
+                        remi_fs::StorageConfig::new(&path),
                     ));
 
                     ($storage).init().await.expect("failed to initialize");

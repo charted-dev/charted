@@ -14,17 +14,16 @@
 // limitations under the License.
 
 use crate::helpers;
-use aws_sdk_s3::{
-    config::Region,
-    types::{BucketCannedAcl, ObjectCannedAcl},
-};
 use azalia::{
     config::{env, merge::Merge, TryFromEnv},
     TRUTHY_REGEX,
 };
-use azure_storage::CloudLocation;
 use eyre::{eyre, Context, Report};
-use remi_azure::Credential;
+use remi_azure::{core::storage::CloudLocation, Credential};
+use remi_s3::aws::s3::{
+    config::Region,
+    types::{BucketCannedAcl, ObjectCannedAcl},
+};
 use serde::{Deserialize, Serialize};
 use std::{borrow::Cow, path::PathBuf, str::FromStr};
 
@@ -33,7 +32,7 @@ use std::{borrow::Cow, path::PathBuf, str::FromStr};
 #[serde(rename_all = "lowercase")]
 pub enum Config {
     /// Uses the local filesystem to store external media and chart indexes.
-    Filesystem(remi_fs::Config),
+    Filesystem(remi_fs::StorageConfig),
 
     /// Uses Microsoft's [Azure Blob Storage](https://azure.microsoft.com/en-us/products/storage/blobs) to store
     /// external media and chart indexes.
@@ -182,7 +181,7 @@ impl Merge for Config {
 
 impl Default for Config {
     fn default() -> Config {
-        Config::Filesystem(remi_fs::Config {
+        Config::Filesystem(remi_fs::StorageConfig {
             directory: PathBuf::from("./data"),
         })
     }
@@ -195,14 +194,14 @@ impl TryFromEnv for Config {
     fn try_from_env() -> Result<Self::Output, Self::Error> {
         match env!("CHARTED_STORAGE_SERVICE") {
             Ok(res) => match res.to_lowercase().as_str() {
-                "filesystem" | "fs" => Ok(Config::Filesystem(remi_fs::Config {
+                "filesystem" | "fs" => Ok(Config::Filesystem(remi_fs::StorageConfig {
                     directory: helpers::env_from_str("CHARTED_STORAGE_FILESYSTEM_DIRECTORY", PathBuf::from("./data"))?,
                 })),
 
                 "azure" => Ok(Config::Azure(remi_azure::StorageConfig {
                     credentials: to_env_credentials()?,
                     location: to_env_location()?,
-                    container: env!("CHARTED_STORAGE_AZURE_CONTAINER", optional).unwrap_or("ume".into()),
+                    container: env!("CHARTED_STORAGE_AZURE_CONTAINER", optional).unwrap_or("charted".into()),
                 })),
 
                 "s3" => Ok(Config::S3(remi_s3::StorageConfig {
@@ -221,7 +220,7 @@ impl TryFromEnv for Config {
                     endpoint: env!("CHARTED_STORAGE_S3_ENDPOINT", optional),
                     prefix: env!("CHARTED_STORAGE_S3_PREFIX", optional),
                     region: env!("CHARTED_STORAGE_S3_REGION", |val| Some(Region::new(Cow::Owned(val))); or Some(Region::new(Cow::Owned("us-east-1".to_owned())))),
-                    bucket: env!("CHARTED_STORAGE_S3_BUCKET", optional).unwrap_or("ume".into()),
+                    bucket: env!("CHARTED_STORAGE_S3_BUCKET", optional).unwrap_or("charted".into()),
                 })),
 
                 loc => Err(eyre!("expected [filesystem/fs, azure, s3]; received '{loc}'")),
@@ -262,27 +261,27 @@ fn to_env_credentials() -> eyre::Result<Credential> {
     }
 }
 
-fn to_env_location() -> eyre::Result<azure_storage::CloudLocation> {
+fn to_env_location() -> eyre::Result<CloudLocation> {
     match env!("CHARTED_STORAGE_AZURE_LOCATION") {
         Ok(res) => match res.as_str() {
-            "public" => Ok(azure_storage::CloudLocation::Public {
+            "public" => Ok(CloudLocation::Public {
                 account: env!("CHARTED_STORAGE_AZURE_ACCOUNT")
                     .context("missing required env [CHARTED_STORAGE_AZURE_ACCOUNT]")?,
             }),
 
-            "china" => Ok(azure_storage::CloudLocation::China {
+            "china" => Ok(CloudLocation::China {
                 account: env!("CHARTED_STORAGE_AZURE_ACCOUNT")
                     .context("missing required env [CHARTED_STORAGE_AZURE_ACCOUNT]")?,
             }),
 
-            "emulator" => Ok(azure_storage::CloudLocation::Emulator {
+            "emulator" => Ok(CloudLocation::Emulator {
                 address: env!("CHARTED_STORAGE_AZURE_EMULATOR_ADDRESS")
                     .context("missing required env [CHARTED_STORAGE_AZURE_EMULATOR_ADDRESS]")?,
 
                 port: helpers::env_from_str("CHARTED_STORAGE_AZURE_EMULATOR_PORT", 10000u16)?,
             }),
 
-            "custom" => Ok(azure_storage::CloudLocation::Custom {
+            "custom" => Ok(CloudLocation::Custom {
                 account: env!("CHARTED_STORAGE_AZURE_ACCOUNT")
                     .context("missing required env [CHARTED_STORAGE_AZURE_ACCOUNT]")?,
 

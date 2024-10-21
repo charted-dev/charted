@@ -30,9 +30,7 @@ use serde_json::json;
             "idOrName" = NameOrUlid,
             Path,
 
-            description = "Parameter that can take a `Name` or `Ulid`",
-            example = json!("noel"),
-            example = json!("01J647WVTPF2W5W99H5MBT0YQE")
+            description = "Parameter that can take a `Name` or `Ulid`"
         ),
     ),
     responses(

@@ -738,7 +738,7 @@ dependencies = [
 [[package]]
 name = "azalia"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/azalia?rev=a08c495a81b37ea6684c94d8b6c67f32b37b67e1#a08c495a81b37ea6684c94d8b6c67f32b37b67e1"
+source = "git+https://github.com/Noelware/azalia?rev=e70e14b9df6cea6759031ef20f9e4829af588e6b#e70e14b9df6cea6759031ef20f9e4829af588e6b"
 dependencies = [
  "azalia-config",
  "azalia-log",
@@ -751,7 +751,7 @@ dependencies = [
 [[package]]
 name = "azalia-config"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/azalia?rev=a08c495a81b37ea6684c94d8b6c67f32b37b67e1#a08c495a81b37ea6684c94d8b6c67f32b37b67e1"
+source = "git+https://github.com/Noelware/azalia?rev=e70e14b9df6cea6759031ef20f9e4829af588e6b#e70e14b9df6cea6759031ef20f9e4829af588e6b"
 dependencies = [
  "azalia-config-derive",
 ]
@@ -759,7 +759,7 @@ dependencies = [
 [[package]]
 name = "azalia-config-derive"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/azalia?rev=a08c495a81b37ea6684c94d8b6c67f32b37b67e1#a08c495a81b37ea6684c94d8b6c67f32b37b67e1"
+source = "git+https://github.com/Noelware/azalia?rev=e70e14b9df6cea6759031ef20f9e4829af588e6b#e70e14b9df6cea6759031ef20f9e4829af588e6b"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -769,7 +769,7 @@ dependencies = [
 [[package]]
 name = "azalia-log"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/azalia?rev=a08c495a81b37ea6684c94d8b6c67f32b37b67e1#a08c495a81b37ea6684c94d8b6c67f32b37b67e1"
+source = "git+https://github.com/Noelware/azalia?rev=e70e14b9df6cea6759031ef20f9e4829af588e6b#e70e14b9df6cea6759031ef20f9e4829af588e6b"
 dependencies = [
  "cfg-if",
  "chrono",
@@ -783,9 +783,8 @@ dependencies = [
 [[package]]
 name = "azalia-remi"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/azalia?rev=a08c495a81b37ea6684c94d8b6c67f32b37b67e1#a08c495a81b37ea6684c94d8b6c67f32b37b67e1"
+source = "git+https://github.com/Noelware/azalia?rev=e70e14b9df6cea6759031ef20f9e4829af588e6b#e70e14b9df6cea6759031ef20f9e4829af588e6b"
 dependencies = [
- "azure_core",
  "remi",
  "remi-azure",
  "remi-fs",
@@ -797,7 +796,7 @@ dependencies = [
 [[package]]
 name = "azalia-serde"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/azalia?rev=a08c495a81b37ea6684c94d8b6c67f32b37b67e1#a08c495a81b37ea6684c94d8b6c67f32b37b67e1"
+source = "git+https://github.com/Noelware/azalia?rev=e70e14b9df6cea6759031ef20f9e4829af588e6b#e70e14b9df6cea6759031ef20f9e4829af588e6b"
 dependencies = [
  "serde",
  "tracing",
@@ -1155,6 +1154,7 @@ dependencies = [
 name = "charted-authz"
 version = "0.1.0"
 dependencies = [
+ "azalia",
  "charted-core",
  "charted-types",
  "derive_more 1.0.0",
@@ -1235,9 +1235,7 @@ dependencies = [
 name = "charted-config"
 version = "0.1.0"
 dependencies = [
- "aws-sdk-s3",
  "azalia",
- "azure_storage",
  "charted-core",
  "eyre",
  "hcl-rs",
@@ -4051,9 +4049,9 @@ dependencies = [
 
 [[package]]
 name = "remi"
-version = "0.8.1"
+version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ad9599a838aa4bb298fb42a834e48806dd57bb461b17453660bbec4d80568706"
+checksum = "64c4338dc59046b354af1f87258f88a55dc46ee4e3633c98e4026ac92e82cfaa"
 dependencies = [
  "async-trait",
  "bytes",
@@ -4061,9 +4059,9 @@ dependencies = [
 
 [[package]]
 name = "remi-azure"
-version = "0.8.1"
+version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1eb4d62317ea5f97cc20cfe6beb26c14002b25f5c5fe06df55e17503156c92d7"
+checksum = "5fbc256e20a300d85745bb878047f9aab08eac7ab632f3060854a779b66421b6"
 dependencies = [
  "async-trait",
  "azure_core",
@@ -4078,13 +4076,11 @@ dependencies = [
 
 [[package]]
 name = "remi-fs"
-version = "0.8.1"
+version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0e48bfa13a249c695c3a2d4b43e273181ec1082c9b55e6911e75913915d22c1a"
+checksum = "bc8234ca5950a3fd4c7968d121e0df3c66fdd8700f705969f8cd2602f7f1fc87"
 dependencies = [
- "async-trait",
- "bytes",
- "dirs",
+ "etcetera",
  "file-format",
  "infer 0.16.0",
  "remi",
@@ -4096,9 +4092,9 @@ dependencies = [
 
 [[package]]
 name = "remi-gridfs"
-version = "0.8.1"
+version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c5f0a32999ac77ae606164ae8e509134494e41bee82b8e0ae84400eda4424c97"
+checksum = "4ae97978ced16901d0c80fa1f87bc64eeaa425069ae3a2cfd811705f384fb824"
 dependencies = [
  "async-trait",
  "bytes",
@@ -4112,16 +4108,14 @@ dependencies = [
 
 [[package]]
 name = "remi-s3"
-version = "0.8.1"
+version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "074a62b372a4d30452382d35a1cf8c89b2467ed2c927e097f737642aea470d68"
+checksum = "46024388d5b6897be550595040fb1036dc09e1d420343aaf9df2222add901628"
 dependencies = [
- "async-trait",
  "aws-config",
  "aws-credential-types",
  "aws-sdk-s3",
  "aws-smithy-runtime-api",
- "bytes",
  "remi",
  "serde",
  "tracing",

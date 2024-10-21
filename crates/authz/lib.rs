@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use azalia::rust::AsArcAny;
 use charted_core::BoxedFuture;
 use charted_types::User;
 use std::{
@@ -27,7 +28,7 @@ pub struct InvalidPassword;
 impl Error for InvalidPassword {}
 
 /// Trait that allows to build an authenticator that allows to authenticate users.
-pub trait Authenticator: Send + Sync {
+pub trait Authenticator: AsArcAny + Send + Sync {
     /// Authenticate a given [`User`] with the password given.
     fn authenticate<'u>(&'u self, user: &'u User, password: String) -> BoxedFuture<'u, eyre::Result<()>>;
 }

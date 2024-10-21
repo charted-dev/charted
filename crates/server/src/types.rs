@@ -22,10 +22,6 @@ use utoipa::ToSchema;
 ///
 /// * [`Name`][charted_types::name::Name]
 /// * [`Ulid`][charted_types::Ulid]
-///
-/// This exists as an Axum extractor that implements [`FromRequestParts`]. This is mainly
-/// used to identify an API response from its [`Name`][charted_types::name::Name] or their
-/// ID (as a [`Ulid`][charted_types::Ulid]).
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, ToSchema)]
 #[serde(untagged)]
 pub enum NameOrUlid {
