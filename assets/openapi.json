@@ -111,8 +111,7 @@
                         "in": "path",
                         "description": "Parameter that can take a `Name` or `Ulid`",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrUlid" },
-                        "example": "01J647WVTPF2W5W99H5MBT0YQE"
+                        "schema": { "$ref": "#/components/schemas/NameOrUlid" }
                     }
                 ],
                 "responses": {
@@ -477,8 +476,7 @@
                         "in": "path",
                         "description": "Parameter that can take a `Name` or `Ulid`",
                         "required": true,
-                        "schema": { "$ref": "#/components/schemas/NameOrUlid" },
-                        "example": "01J647WVTPF2W5W99H5MBT0YQE"
+                        "schema": { "$ref": "#/components/schemas/NameOrUlid" }
                     }
                 ],
                 "responses": {
@@ -1289,7 +1287,7 @@
                     { "$ref": "#/components/schemas/Ulid" },
                     { "$ref": "#/components/schemas/Name" }
                 ],
-                "description": "`NameOrUlid` is a \"union\" enum that can represent either:\n\n* [`Name`][charted_types::name::Name]\n* [`Ulid`][charted_types::Ulid]\n\nThis exists as an Axum extractor that implements [`FromRequestParts`]. This is mainly\nused to identify an API response from its [`Name`][charted_types::name::Name] or their\nID (as a [`Ulid`][charted_types::Ulid])."
+                "description": "`NameOrUlid` is a \"union\" enum that can represent either:\n\n* [`Name`][charted_types::name::Name]\n* [`Ulid`][charted_types::Ulid]"
             },
             "Organization": {
                 "type": "object",
