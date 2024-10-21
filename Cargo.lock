@@ -786,9 +786,9 @@ version = "0.1.0"
 source = "git+https://github.com/Noelware/azalia?rev=a08c495a81b37ea6684c94d8b6c67f32b37b67e1#a08c495a81b37ea6684c94d8b6c67f32b37b67e1"
 dependencies = [
  "azure_core",
- "remi",
+ "remi 0.8.1",
  "remi-azure",
- "remi-fs",
+ "remi-fs 0.8.1",
  "remi-gridfs",
  "remi-s3",
  "serde",
@@ -1208,7 +1208,7 @@ dependencies = [
  "num_cpus",
  "owo-colors 4.1.0",
  "remi-azure",
- "remi-fs",
+ "remi-fs 0.9.1",
  "remi-s3",
  "sentry",
  "sentry-tracing",
@@ -1242,7 +1242,7 @@ dependencies = [
  "eyre",
  "hcl-rs",
  "remi-azure",
- "remi-fs",
+ "remi-fs 0.9.1",
  "remi-s3",
  "sentry-types",
  "serde",
@@ -1313,8 +1313,8 @@ dependencies = [
  "flate2",
  "itertools 0.13.0",
  "multer",
- "remi",
- "remi-fs",
+ "remi 0.8.1",
+ "remi-fs 0.9.1",
  "semver",
  "sentry",
  "serde_yaml_ng",
@@ -4060,6 +4060,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "remi"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "64c4338dc59046b354af1f87258f88a55dc46ee4e3633c98e4026ac92e82cfaa"
+dependencies = [
+ "async-trait",
+ "bytes",
+]
+
+[[package]]
 name = "remi-azure"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4071,7 +4081,7 @@ dependencies = [
  "azure_storage_blobs",
  "bytes",
  "futures-util",
- "remi",
+ "remi 0.8.1",
  "serde",
  "tracing",
 ]
@@ -4087,7 +4097,23 @@ dependencies = [
  "dirs",
  "file-format",
  "infer 0.16.0",
- "remi",
+ "remi 0.8.1",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "remi-fs"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bc8234ca5950a3fd4c7968d121e0df3c66fdd8700f705969f8cd2602f7f1fc87"
+dependencies = [
+ "etcetera",
+ "file-format",
+ "infer 0.16.0",
+ "remi 0.9.1",
  "serde",
  "serde_json",
  "tokio",
@@ -4104,7 +4130,7 @@ dependencies = [
  "bytes",
  "futures-util",
  "mongodb",
- "remi",
+ "remi 0.8.1",
  "serde",
  "tokio-util",
  "tracing",
@@ -4122,7 +4148,7 @@ dependencies = [
  "aws-sdk-s3",
  "aws-smithy-runtime-api",
  "bytes",
- "remi",
+ "remi 0.8.1",
  "serde",
  "tracing",
 ]
