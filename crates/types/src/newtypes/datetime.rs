@@ -18,7 +18,7 @@ use diesel::{
     deserialize::{FromSql, FromSqlRow},
     expression::AsExpression,
     pg::Pg,
-    serialize::{self, IsNull, Output, ToSql},
+    serialize::{self, Output, ToSql},
     sql_types::{Timestamp, Timestamptz, TimestamptzSqlite},
     sqlite::Sqlite,
 };

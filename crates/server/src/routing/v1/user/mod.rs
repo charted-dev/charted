@@ -291,28 +291,29 @@ pub async fn create_user(
     };
 
     connection!(@raw conn {
-        PostgreSQL(conn) => conn.build_transaction().read_write().run::<(), eyre::Report, _>(|txn| {
+        PostgreSQL(conn) => conn.build_transaction().read_write().run::<_, eyre::Report, _>(|txn| {
             use postgresql::users::table;
 
-            let _ = diesel::insert_into(table)
+            diesel::insert_into(table)
                 .values(&user)
-                .get_result(txn)
-                .context("failed to insert user into database")?;
-
-            Ok(())
+                .execute(txn)
+                .context("failed to insert user into database")
         });
 
         SQLite(conn) => conn.immediate_transaction(|txn| {
             use sqlite::users::table;
 
-            let _ = diesel::insert_into(table)
+            diesel::insert_into(table)
                 .values(&user)
-                .get_result(txn)
-                .context("failed to insert user into database")?;
-
-            Ok(())
+                .execute(txn)
+                .context("failed to insert user into database")
         });
-    });
+    })
+    .inspect_err(|e| {
+        error!(error = %e, "failed to persist user into database");
+        sentry_eyre::capture_report(e);
+    })
+    .map_err(|_| api::internal_server_error())?;
 
     ops::charts::create_index(&cx, &user)
         .await
