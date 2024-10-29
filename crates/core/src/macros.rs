@@ -55,7 +55,7 @@ macro_rules! create_newtype_wrapper {
 /// The `mk_from_newtype!` macro allows to implement [`core::convert::From`]<T> -> U easily.
 #[macro_export]
 macro_rules! mk_from_newtype {
-    ($($T:ty => $U:ty),*) => {
+    ($(from $T:ty as $U:ty),*) => {
         $(
             impl ::core::convert::From<$T> for $U {
                 fn from(value: $T) -> Self {

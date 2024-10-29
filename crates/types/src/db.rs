@@ -20,8 +20,8 @@ use serde::Serialize;
 use utoipa::ToSchema;
 
 #[derive(Debug, Clone, Serialize, ToSchema, Queryable, Insertable)]
-#[diesel(table_name = charted_database::schema::postgresql::users)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite, diesel::pg::Pg))]
+#[diesel(table_name = charted_database::schema::postgresql::users)]
 #[diesel(table_name = charted_database::schema::sqlite::users)]
 pub struct User {
     /// whether or not if this user is considered a verified publisher.

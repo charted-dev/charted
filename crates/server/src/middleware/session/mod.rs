@@ -83,7 +83,14 @@ impl Middleware {
 
 impl Middleware {
     /// Performs basic authentication if the server has enabled it.
-    #[instrument(name = "charted.server.authz.basic", skip_all)]
+    #[instrument(
+        name = "charted.server.authz.basic",
+        skip_all,
+        fields(
+            req.uri = req.uri().path(),
+            req.method = req.method().as_str()
+        )
+    )]
     async fn basic_auth(
         self,
         mut req: Request<Body>,

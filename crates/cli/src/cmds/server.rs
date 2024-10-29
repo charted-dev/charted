@@ -96,10 +96,13 @@ pub async fn run(Args { config, .. }: Args) -> eyre::Result<()> {
         Backend::Ldap(config) => Arc::new(charted_authz_ldap::Backend::new(config)),
     };
 
+    #[allow(unused)]
+    let features = Vec::new();
+
     let cx = ServerContext {
         ulid_generator: AtomicGenerator::new(),
         requests: AtomicUsize::new(0),
-        features: Vec::new(),
+        features,
         storage,
         config,
         authz,

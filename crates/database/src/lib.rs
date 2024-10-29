@@ -18,6 +18,7 @@ pub mod schema;
 
 use charted_config::database::Config;
 use diesel::{
+    connection::{set_default_instrumentation, InstrumentationEvent},
     prelude::*,
     r2d2::{self, ConnectionManager, Pool},
 };
@@ -39,6 +40,7 @@ pub fn create_pool(config: &Config) -> eyre::Result<DbPool> {
     trace!(database.url = url, "creating pool for db url");
 
     let manager = ConnectionManager::new(url);
+    set_default_instrumentation(|| Some(Box::new(instrumentation)))?;
 
     Pool::builder()
         .max_size(config.max_connections())
@@ -78,6 +80,35 @@ pub fn version(pool: &DbPool) -> eyre::Result<String> {
                 .context("failed to get database version")
         };
     })
+}
+
+fn instrumentation(event: InstrumentationEvent<'_>) {
+    match event {
+        InstrumentationEvent::BeginTransaction { depth, .. } => {
+            trace!("started transation (depth={depth})");
+        }
+
+        InstrumentationEvent::CommitTransaction { depth, .. } => {
+            trace!("transaction with depth [{depth}] was committed");
+        }
+
+        InstrumentationEvent::RollbackTransaction { depth, .. } => {
+            trace!("transaction with depth [{depth}] was rolled back");
+        }
+
+        InstrumentationEvent::FinishQuery { query, error, .. } => {
+            trace!(sql = %query, "finished query{}", if error.is_some() { " with an error" } else { "" });
+            if let Some(err) = error {
+                sentry::capture_error(err);
+            }
+        }
+
+        InstrumentationEvent::StartQuery { query, .. } => {
+            trace!(sql = %query, "starting query");
+        }
+
+        _ => {}
+    }
 }
 
 #[macro_export]

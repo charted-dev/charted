@@ -33,6 +33,7 @@ azalia = { workspace = true, features = ["config"] }
 chrono.workspace = true
 charted-core = { version = "0.1.0", default-features = false, path = "../core" }
 charted-database = { version = "0.1.0", path = "../database" }
+derive_more = { workspace = true, features = ["display"] }
 diesel.workspace = true
 paste = "1.0.15"
 schemars = { workspace = true, optional = true }

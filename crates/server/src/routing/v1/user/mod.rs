@@ -32,6 +32,7 @@ use charted_database::{
     schema::{postgresql, sqlite},
 };
 use charted_types::{payloads::user::CreateUserPayload, User};
+use eyre::Context;
 use serde_json::json;
 use tower_http::auth::AsyncRequireAuthorizationLayer;
 use tracing::{error, instrument};
@@ -154,17 +155,17 @@ pub async fn create_user(
         ));
     }
 
+    let mut conn = cx
+        .pool
+        .get()
+        .inspect_err(|e| {
+            sentry::capture_error(e);
+            error!(error = %e, "failed to get db connection");
+        })
+        .map_err(|_| api::internal_server_error())?;
+
     // Check if we already have this `User` by their username
     {
-        let mut conn = cx
-            .pool
-            .get()
-            .inspect_err(|e| {
-                sentry::capture_error(e);
-                error!(error = %e, "failed to get db connection");
-            })
-            .map_err(|_| api::internal_server_error())?;
-
         let uname = &username;
         let exists = connection!(@raw conn {
             PostgreSQL(conn) => conn.build_transaction().read_only().run::<_, eyre::Report, _>(|txn| {
@@ -207,15 +208,6 @@ pub async fn create_user(
 
     // Check if we already have this `User` by their email address
     {
-        let mut conn = cx
-            .pool
-            .get()
-            .inspect_err(|e| {
-                sentry::capture_error(e);
-                error!(error = %e, "failed to get db connection");
-            })
-            .map_err(|_| api::internal_server_error())?;
-
         let em = &email;
         let exists = connection!(@raw conn {
             PostgreSQL(conn) => conn.build_transaction().read_only().run::<_, eyre::Report, _>(|txn| {
@@ -297,6 +289,30 @@ pub async fn create_user(
         name: None,
         id: id.into(),
     };
+
+    connection!(@raw conn {
+        PostgreSQL(conn) => conn.build_transaction().read_write().run::<(), eyre::Report, _>(|txn| {
+            use postgresql::users::table;
+
+            let _ = diesel::insert_into(table)
+                .values(&user)
+                .get_result(txn)
+                .context("failed to insert user into database")?;
+
+            Ok(())
+        });
+
+        SQLite(conn) => conn.immediate_transaction(|txn| {
+            use sqlite::users::table;
+
+            let _ = diesel::insert_into(table)
+                .values(&user)
+                .get_result(txn)
+                .context("failed to insert user into database")?;
+
+            Ok(())
+        });
+    });
 
     ops::charts::create_index(&cx, &user)
         .await

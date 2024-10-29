@@ -1436,6 +1436,7 @@ dependencies = [
  "charted-core",
  "charted-database",
  "chrono",
+ "derive_more 1.0.0",
  "diesel",
  "paste",
  "schemars",
