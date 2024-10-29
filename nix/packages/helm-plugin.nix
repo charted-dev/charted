@@ -37,8 +37,9 @@ in
 
     cargoBuildFlags = ["--package" "charted-helm-plugin"];
     cargoLock = {
+      inherit (common) outputHashes;
+
       lockFile = ../../Cargo.lock;
-      outputHashes = common.outputHashes;
     };
 
     checkFlags = [

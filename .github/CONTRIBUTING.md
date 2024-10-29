@@ -1,110 +1,81 @@
-# 🐻‍❄️📦 Contributing to charted-server
+# 🐻‍❄️📦 Contributing to `charted-server`
 
-Thanks for considering to help build and make **charted-server** even better! We full heartily accept contributions from the community — you! We will accept any contributing from any major feature to small, grammatical bugs.
+Before we begin, thanks for considering your time to help make **charted-server** even better than we can! We full heartly accept contributions from everyone — including you! We accept major features, minor features to small, grammatical bugs.
 
 ## Bug Reporting
 
-Think you found an issue that you ran into? To submit a bug report, please use the latest release of the server because it might've been fixed by us, but if it hasn't then, you can surf through the [issue board](https://github.com/charted-dev/charted/issues) if the issue was already been reported, it'll be tagged with the `bug` label and be added onto Noelware's internal issue board.
+Think you might've ran into a bug that should never happen? It happens to the best of us sometimes! To submit a bug report, you can create one via [GitHub Issues][issue-board].
 
--   Be clear and concise with the title and description of the bug, it will help others link their issues & solutions to yours!
--   Specify any way to reproduce the bug, so we know what to fix.
+Before you do, make sure that it's something that someone hasn't already reported! You can surf through the [issue board] to see if anyone has already reported it. It'll be tagged with the `bug` label.
 
-To test REST API-related issues, we recommend using `cURL` so it can be easier to reproduce on the latest version.
+-   Be clear and concise with the title and description of the bug! It'll help others link their issues and possible solution to yours.
+-   Please specify any way to reproduce the bug, so we know where to look and fix it!
 
--   Use number-formatted prefixes (i.e, `1. {step}`) to determine a step.
--   Prefix the expected result with `#>`, and the actual result with `#?>`
+If the bug is related to the REST API, please reproduce the bug with the `curl` utility. We recommend this format:
 
-Example:
+-   Use a number-formatted list to determine a step
+-   Prefix expected results with `#>` and actual results with `#!>`.
 
 ```shell
-# 1. Create a repository
-$ curl -XPUT -H "Content-Type: application/json" -d '{"name":"repo1"}' http://localhost:3651/users/@me/repositories
+# 1. Ensure a repository exists
+$ curl -u myuser:password -XPUT \
+    -H "Content-Type: application/json" \
+    -d '{"name":"weow","private":true,"type":"application"}' \
+    http://localhost:3651/users/@me/repositories
+
 #> {"success": true}
 
-# 2. Invite a member.
-$ curl -XPOST -H "Content-Type: application/json" -d '{"user_id":1234}' http://localhost:3651/repositories/1/members/invite
-#> {"success": true}
+# 2. Invite a member to the repository
+$ curl -u myuser:password -XPUT http://localhost:3651/repositories/1/members/invite?user_id=1&force=true
+#> {"success": true,"data":{...}}
 
-# 3. Once they were invited, check if they can be queried.
-$ curl http://localhost:3651/repositories/1/members
-#> {"success": true,"data":[{...}]}
+# 3. Check if they are invited
+$ curl -u myuser:password http://localhost:3651/repositories/1/members
+#> {"success":true,"data":[{"account":1,...}]}
 
 # 4. Kick them!
-$ curl -XDELETE -H "Content-Type: application/json" http://localhost:3651/repositories/1/members/1234/kick
+$ curl -u myuser:password -XDELETE http://localhost:3651/repositories/1/members/1
 #> {"success":true}
-#?> {"success":false,"errors":[{...}]}
+#!> {"success":false,"errors":[{"code":"INTERNAL_SERVER_ERROR","message":"Internal Server Error"}]}
 ```
 
 ## Security Vulnerabilities
 
-If you found any security vulnerabilities when using **charted-server**, please refer to our [Security Policy](https://github.com/charted-dev/charted/blob/master/SECURITY.md).
+If you find any security-related issues when using **charted-server**: please refer to our [security policy] for more information. We do not recommend creating an issue UNTIL you contact the team and fix the issue already.
 
-## Code Contributions
+## Development Environment
 
-We alweays accept code contributions since your contributions to anything related to the project makes it more powerful and secure than our team can if we just kept this closed sourced, since it is based off community feedback!
+For Nix/NixOS users, we maintain a [direnv] to standardise the development workflow, it includes the following tools:
 
-This repository is a monorepo, so the codebase might be intimidating, but this guide is here to help you aid in how we structured the project and such.
+-   **rustc**, **cargo**, **rustfmt**, **clippy**
+-   **cargo-machete** (`cargo machete`), **cargo-expand** (`cargo expand`), **cargo-deny** (`cargo-deny`)
+-   [Diesel] CLI (for database migrations)
+-   Hadolint (for Dockerfile linting)
+-   Git
 
-> **Note**: We do support using [GitHub Codespaces](https://github.com/codespaces) or [Coder](https://coder.com) (with [Noel's Coder templates](https://github.com/auguwu/coder-images) -- it is recommended since it'll run all preinit scripts and the Docker compose project in `.coder/docker-compose.yml`)
->
-> Both Codespaces and Coder have the necessary tooling to help you build and run charted-server easily from a remote environment!
-
-### How is the project structured?
-
-The project is a monorepo that is structured into multiple folders:
-
--   `cli/` is the actual CLI source code.
--   `crates/` is the different crates that is used through-out the `cli` and `server` folders.
--   `distribution/` is related to how **charted-server** is distributed once a release is settled.
--   `scripts/` is any script that helps to not write long commands, or anything really.
--   `server/` is the actual REST API.
--   `tools/` is tools and services that help aid the `server/` folder.
--   `web/` is the actual web interface that is packaged with the server!
-
-Originally, **charted-server** was written in Kotlin, which made it impossible to include both the `web/` and `server/` together without magic with Gradle, Rust and Bun helps us build a monorepo that brings in what **charted-server** brings to the table without trying to separate it between repositories and make it harder on the team.
-
-We don't do any specification for Git commit messages, like [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0), but all Git commits that are pushed to `main` should be helpful with an optional body payload.
-
-> [!NOTE]
->
-> In a pull request, you can add meaningless Git commit messages since we merge `main` branches with the PR title (#id) with the README from that PR as the optional body.
-
-## FAQ
-
-### :question: Why do I get a `container unhealthy` error when I run `./dev docker up`?
-
-Because Bitnami's PostgreSQL and Redis containers expect the filesystem path of `./.cache/docker/postgresql` and `./.cache/docker/redis` be with uid and gid `1001`.
-
-To fix it, just run the `down` subcommand of the `docker` subcommand of `./dev` and then `chown`:
+To enter the workflow, you can use `direnv allow` and it'll propagate a [direnv]:
 
 ```shell
-$ ./dev docker down
-$ sudo chown -R 1001:1001 ./.cache/docker/postgresql ./.cache/docker/redis
+direnv: loading ~/git/charted/.envrc
+direnv: loading https://raw.githubusercontent.com/nix-community/nix-direnv/3.0.6/direnvrc (sha256-RYcUJaRMf8oF5LznDrlCXbkOQrywm0HDv1VjYGaJGdM=)
+direnv: using flake
+direnv: nix-direnv: Using cached dev shell
+direnv: export +AR +AR_FOR_TARGET +AS +AS_FOR_TARGET +CC +CC_FOR_TARGET +CHARTED_DISTRIBUTION_KIND +CONFIG_SHELL +CXX +CXX_FOR_TARGET +HOST_PATH +IN_NIX_SHELL +LD +LD_FOR_TARGET +NIX_BINTOOLS +NIX_BINTOOLS_FOR_TARGET +NIX_BINTOOLS_WRAPPER_TARGET_HOST_x86_64_unknown_linux_gnu +NIX_BINTOOLS_WRAPPER_TARGET_TARGET_x86_64_unknown_linux_gnu +NIX_BUILD_CORES +NIX_CC +NIX_CC_FOR_TARGET +NIX_CC_WRAPPER_TARGET_HOST_x86_64_unknown_linux_gnu +NIX_CC_WRAPPER_TARGET_TARGET_x86_64_unknown_linux_gnu +NIX_CFLAGS_COMPILE +NIX_CFLAGS_COMPILE_FOR_TARGET +NIX_ENFORCE_NO_NATIVE +NIX_HARDENING_ENABLE +NIX_LDFLAGS +NIX_LDFLAGS_FOR_TARGET +NIX_PKG_CONFIG_WRAPPER_TARGET_HOST_x86_64_unknown_linux_gnu +NIX_STORE +NM +NM_FOR_TARGET +OBJCOPY +OBJCOPY_FOR_TARGET +OBJDUMP +OBJDUMP_FOR_TARGET +PKG_CONFIG +PKG_CONFIG_PATH +RANLIB +RANLIB_FOR_TARGET +READELF +READELF_FOR_TARGET +RUSTFLAGS +SIZE +SIZE_FOR_TARGET +SOURCE_DATE_EPOCH +STRINGS +STRINGS_FOR_TARGET +STRIP +STRIP_FOR_TARGET +__structuredAttrs +buildInputs +buildPhase +builder +cmakeFlags +configureFlags +depsBuildBuild +depsBuildBuildPropagated +depsBuildTarget +depsBuildTargetPropagated +depsHostHost +depsHostHostPropagated +depsTargetTarget +depsTargetTargetPropagated +doCheck +doInstallCheck +dontAddDisableDepTrack +mesonFlags +name +nativeBuildInputs +out +outputs +patches +phases +preferLocalBuild +propagatedBuildInputs +propagatedNativeBuildInputs +shell +shellHook +stdenv +strictDeps +system ~LD_LIBRARY_PATH ~PATH ~XDG_DATA_DIRS
 ```
 
-Once you do that, you can run `./dev docker up` and it should run as usual:
+You can also use `nix shell` or `nix develop` as well. Since we use [Nix flakes], we provide a fallback for people who don't use Nix flakes.
 
-```shell filename="$ docker logs -f charted_redis"
-# » docker logs -f charted_redis
-redis 01:37:57.63
-redis 01:37:57.63 Welcome to the Bitnami redis container
-redis 01:37:57.63 Subscribe to project updates by watching https://github.com/bitnami/containers
-redis 01:37:57.63 Submit issues and feature requests at https://github.com/bitnami/containers/issues
-redis 01:37:57.63
-redis 01:37:57.64 INFO  ==> ** Starting Redis setup **
-redis 01:37:57.64 WARN  ==> You set the environment variable ALLOW_EMPTY_PASSWORD=yes. For safety reasons, do not use this flag in a production environment.
-redis 01:37:57.65 INFO  ==> Initializing Redis
-redis 01:37:57.65 INFO  ==> Setting Redis config file
-redis 01:37:57.67 INFO  ==> ** Redis setup finished! **
-redis 01:37:57.68 INFO  ==> ** Starting Redis **
-1:C 17 Oct 2023 01:37:57.687 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
-1:C 17 Oct 2023 01:37:57.687 # Redis version=7.0.11, bits=64, commit=00000000, modified=0, pid=1, just started
-1:C 17 Oct 2023 01:37:57.687 # Configuration loaded
-1:M 17 Oct 2023 01:37:57.688 * monotonic clock: POSIX clock_gettime
-1:M 17 Oct 2023 01:37:57.688 * Running mode=standalone, port=6379.
-1:M 17 Oct 2023 01:37:57.688 # Server initialized
-1:M 17 Oct 2023 01:37:57.688 # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. Being disabled, it can can also cause failures without low memory condition, see https://github.com/jemalloc/jemalloc/issues/1328. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
-1:M 17 Oct 2023 01:37:57.691 * Creating AOF base file appendonly.aof.1.base.rdb on server start
-1:M 17 Oct 2023 01:37:57.693 * Creating AOF incr file appendonly.aof.1.incr.aof on server start
-1:M 17 Oct 2023 01:37:57.693 * Ready to accept connections
-```
+---
+
+For non Nix/NixOS users, we recommend installing the following tools on your system (if you haven't already):
+
+-   Rustup
+-   Git
+
+**Rustup** is recommended since it'll bootstrap the Rust toolchain that is defined in the `rust-toolchain.toml` file.
+
+[security policy]: ../SECURITY.md
+[issue-board]: https://github.com/charted-dev/charted/issues
+[Nix flakes]: https://nixos.wiki/wiki/flakes
+[Diesel]: https://diesel.rs
+[direnv]: https://github.com/direnv/direnv

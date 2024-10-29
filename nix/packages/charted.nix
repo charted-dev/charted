@@ -37,8 +37,9 @@ in
 
     cargoBuildFlags = ["--package" "charted"];
     cargoLock = {
+      inherit (common) outputHashes;
+
       lockFile = ../../Cargo.lock;
-      outputHashes = common.outputHashes;
     };
 
     nativeBuildInputs = [pkg-config installShellFiles];
