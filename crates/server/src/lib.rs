@@ -59,11 +59,16 @@ pub fn hash_password<P: AsRef<[u8]>>(password: P) -> eyre::Result<String> {
         .map_err(|e| eyre::eyre!(e))
 }
 
-pub async fn start(cx: ServerContext) -> eyre::Result<()> {
+pub async fn start(cx: charted_app::Context) -> eyre::Result<()> {
+    info!("starting API server...");
+
+    #[allow(unused)]
+    let features = Vec::new();
+
+    let cx = ServerContext::new(cx, features);
+
     // Put a clone of `ServerContext` since we still need to access it.
     set_global(cx.clone());
-
-    info!("starting charted-server...");
 
     let server_config = cx.config.server.clone();
     let router: Router = self::routing::create_router(&cx).with_state(cx);

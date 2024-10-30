@@ -1,5 +1,5 @@
-<img align="right" src="https://cdn.floofy.dev/images/trans.png" alt="Noelware logo" />
 <div align="center">
+    <img src="https://cdn.floofy.dev/images/trans.png" alt="Noelware logo" />
     <h3>🐻‍❄️📦 <code>charted-server</code> by <a href="https://noelware.org" target="_blank">Noelware, LLC.</a></h3>
     <h4>Free, open, and reliable <a href="https://helm.sh">Helm</a> chart registry made in <a href="https://rust-lang.org">Rust</a>.</h4>
     <hr />

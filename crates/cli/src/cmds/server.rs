@@ -17,15 +17,13 @@ use azalia::log::{
     writers::{self, default::Writer},
     WriteLayer,
 };
-use charted_config::{sessions::Backend, storage, Config};
-use charted_core::{ulid::AtomicGenerator, Distribution};
-use charted_server::ServerContext;
+use charted_config::Config;
+use charted_core::Distribution;
 use owo_colors::{OwoColorize, Stream::Stdout};
 use std::{
     borrow::Cow,
     io::{self, Write as _},
     path::PathBuf,
-    sync::{atomic::AtomicUsize, Arc},
 };
 use tracing::info;
 use tracing::level_filters::LevelFilter;
@@ -68,47 +66,7 @@ pub async fn run(Args { config, .. }: Args) -> eyre::Result<()> {
     init_logger(&config);
     info!("initializing systems...");
 
-    let pool = charted_database::create_pool(&config.database)?;
-    let version = charted_database::version(&pool)?;
-
-    info!("retrieved server version from database: {version}; determined that it works.");
-    if config.database.can_run_migrations() {
-        info!("running all migrations that need to happen!");
-        charted_database::migrations::migrate(&pool)?;
-    }
-
-    info!("initializing data storage...");
-    let storage = match config.storage.clone() {
-        storage::Config::Filesystem(fs) => {
-            azalia::remi::StorageService::Filesystem(remi_fs::StorageService::with_config(fs))
-        }
-
-        storage::Config::Azure(azure) => azalia::remi::StorageService::Azure(remi_azure::StorageService::new(azure)),
-        storage::Config::S3(s3) => azalia::remi::StorageService::S3(remi_s3::StorageService::new(s3)),
-    };
-
-    azalia::remi::core::StorageService::init(&storage).await?;
-    info!("initialized data storage successfully!");
-
-    info!("initializing authz backend...");
-    let authz: Arc<dyn charted_authz::Authenticator> = match config.sessions.backend.clone() {
-        Backend::Local => Arc::new(charted_authz_local::Backend),
-        Backend::Ldap(config) => Arc::new(charted_authz_ldap::Backend::new(config)),
-    };
-
-    #[allow(unused)]
-    let features = Vec::new();
-
-    let cx = ServerContext {
-        ulid_generator: AtomicGenerator::new(),
-        requests: AtomicUsize::new(0),
-        features,
-        storage,
-        config,
-        authz,
-        pool,
-    };
-
+    let cx = charted_app::Context::new(config).await?;
     charted_server::start(cx).await
 }
 

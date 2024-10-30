@@ -23,12 +23,9 @@ use eyre::Report;
 use tracing::instrument;
 
 #[instrument(name = "charted.server.ops.db.getOrganization", skip_all)]
-pub async fn get<ID: Into<NameOrUlid>>(
-    ServerContext { pool, .. }: &ServerContext,
-    id: ID,
-) -> eyre::Result<Option<Organization>> {
+pub async fn get<ID: Into<NameOrUlid>>(cx: &ServerContext, id: ID) -> eyre::Result<Option<Organization>> {
     let nou = id.into();
-    let mut conn = pool.get()?;
+    let mut conn = cx.pool.get()?;
 
     connection!(@raw conn {
         PostgreSQL(conn) => conn.build_transaction().read_only().run::<_, eyre::Report, _>(|txn| {

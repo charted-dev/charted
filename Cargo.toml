@@ -15,7 +15,13 @@
 
 [workspace]
 resolver = "2"
-members = ["crates/*", "crates/authz/*", "crates/tatsuki/macros", "internals"]
+members = [
+    "crates/*",
+    "crates/authz/*",
+    "crates/features/totp",
+    "crates/tatsuki/macros",
+    "internals",
+]
 
 [workspace.package]
 version = "0.1.0"

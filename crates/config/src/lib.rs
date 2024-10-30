@@ -13,6 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use azalia::{
+    config::{env, merge::Merge, FromEnv, TryFromEnv},
+    TRUTHY_REGEX,
+};
+use sentry_types::Dsn;
+use serde::{Deserialize, Serialize};
 use std::{
     env::VarError,
     fs::File,
@@ -20,16 +26,10 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use azalia::{
-    config::{env, merge::Merge, FromEnv, TryFromEnv},
-    TRUTHY_REGEX,
-};
-use sentry_types::Dsn;
-use serde::{Deserialize, Serialize};
-
 pub(crate) mod helpers;
 
 pub mod database;
+pub mod features;
 pub mod logging;
 pub mod metrics;
 pub mod server;

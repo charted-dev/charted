@@ -14,55 +14,27 @@
 // limitations under the License.
 
 use axum::extract::FromRef;
-use azalia::remi::StorageService;
-use charted_authz::Authenticator;
-use charted_config::Config;
-use charted_core::ulid::AtomicGenerator;
-use charted_database::DbPool;
 use charted_features::Feature;
-use std::sync::{
-    atomic::{AtomicUsize, Ordering},
-    Arc, OnceLock,
-};
+use std::sync::{Arc, OnceLock};
 
 static INSTANCE: OnceLock<ServerContext> = OnceLock::new();
 
-/// Represents the context of the API server. This contains all the dependencies
-/// that are initialized when the '`charted server`' command is executed.
+/// Represents the context of the API server.
+///
+/// It extends the [`charted_app::Context`] object which also holds the
+/// list of features that extend the functionality of the `charted_server`
+/// crate.
+#[derive(Clone, derive_more::Deref)]
 pub struct ServerContext {
-    /// The generator for new ULIDs.
-    pub ulid_generator: AtomicGenerator,
+    #[deref]
+    inner: charted_app::Context,
 
-    /// Amount of requests the server has been hit with so far.
-    pub requests: AtomicUsize,
-
-    /// List of enabled features.
     pub features: Vec<Arc<dyn Feature>>,
-
-    /// [`StorageService`] to faciliate data storage operations.
-    pub storage: StorageService,
-
-    /// Parsed configuration from `charted.hcl` or system environment variables.
-    pub config: Config,
-
-    /// [`charted_authz::Authenticator`] for authenticating users from session middleware.
-    pub authz: Arc<dyn Authenticator>,
-
-    /// [`DbPool`] that contains the connection pool for all database connections.
-    pub pool: DbPool,
 }
 
-impl Clone for ServerContext {
-    fn clone(&self) -> Self {
-        ServerContext {
-            ulid_generator: self.ulid_generator.clone(),
-            requests: AtomicUsize::new(self.requests.load(Ordering::SeqCst)),
-            features: self.features.clone(),
-            storage: self.storage.clone(),
-            config: self.config.clone(),
-            authz: self.authz.clone(),
-            pool: self.pool.clone(),
-        }
+impl ServerContext {
+    pub(crate) fn new(cx: charted_app::Context, features: Vec<Arc<dyn Feature>>) -> ServerContext {
+        ServerContext { inner: cx, features }
     }
 }
 

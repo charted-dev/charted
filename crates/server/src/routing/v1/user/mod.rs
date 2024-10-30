@@ -267,7 +267,7 @@ pub async fn create_user(
     };
 
     let id = cx
-        .ulid_generator
+        .ulid_gen
         .generate()
         .inspect_err(|e| {
             sentry::capture_error(e);

@@ -17,8 +17,8 @@ use crate::DbPool;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations};
 use eyre::eyre;
 
-const POSTGRESQL_MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations/postgresql");
-const SQLITE_MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations/sqlite");
+pub const POSTGRESQL_MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations/postgresql");
+pub const SQLITE_MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations/sqlite");
 
 pub fn migrate(pool: &DbPool) -> eyre::Result<()> {
     use diesel_migrations::MigrationHarness;

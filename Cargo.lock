@@ -1151,6 +1151,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "charted-app"
+version = "0.1.0"
+dependencies = [
+ "azalia",
+ "charted-authz",
+ "charted-authz-ldap",
+ "charted-authz-local",
+ "charted-config",
+ "charted-core",
+ "charted-database",
+ "eyre",
+ "tracing",
+]
+
+[[package]]
 name = "charted-authz"
 version = "0.1.0"
 dependencies = [
@@ -1195,12 +1210,9 @@ name = "charted-cli"
 version = "0.1.0"
 dependencies = [
  "azalia",
- "charted-authz",
- "charted-authz-ldap",
- "charted-authz-local",
+ "charted-app",
  "charted-config",
  "charted-core",
- "charted-database",
  "charted-server",
  "clap",
  "clap_complete",
@@ -1295,10 +1307,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "charted-feature-totp"
+version = "0.1.0"
+dependencies = [
+ "charted-config",
+ "charted-core",
+ "charted-database",
+ "charted-features",
+ "eyre",
+]
+
+[[package]]
 name = "charted-features"
 version = "0.1.0"
 dependencies = [
+ "axum",
  "azalia",
+ "charted-app",
+ "charted-core",
+ "charted-database",
+ "eyre",
+ "utoipa",
 ]
 
 [[package]]
@@ -1373,6 +1402,7 @@ dependencies = [
  "axum-server",
  "azalia",
  "base64 0.22.1",
+ "charted-app",
  "charted-authz",
  "charted-authz-local",
  "charted-config",
@@ -1382,6 +1412,7 @@ dependencies = [
  "charted-helm-charts",
  "charted-types",
  "chrono",
+ "derive_more 1.0.0",
  "diesel",
  "eyre",
  "jsonwebtoken",

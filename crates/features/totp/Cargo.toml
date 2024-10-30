@@ -14,8 +14,7 @@
 # limitations under the License.
 
 [package]
-name = "charted-features"
-description = "🐻‍❄️📦 Defines traits and methods for encapsulating features"
+name = "charted-feature-totp"
 version.workspace = true
 documentation.workspace = true
 edition.workspace = true
@@ -25,20 +24,12 @@ publish.workspace = true
 repository.workspace = true
 authors.workspace = true
 
-[lib]
-path = "lib.rs"
-
-[features]
-default = []
-
-extends-openapi = ["dep:utoipa"]
-extends-db = ["dep:charted-database"]
-
 [dependencies]
-axum.workspace = true
-azalia.workspace = true
-charted-app = { version = "0.1.0", path = "../app" }
+charted-config = { version = "0.1.0", path = "../../config" }
 charted-core.workspace = true
-charted-database = { workspace = true, optional = true }
+charted-database.workspace = true
+charted-features = { version = "0.1.0", path = "..", features = [
+    "extends-db",
+    "extends-openapi",
+] }
 eyre.workspace = true
-utoipa = { workspace = true, optional = true }
