@@ -41,45 +41,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "description": "Represents a response object for all REST endpoints.",
-                                    "required": ["success"],
-                                    "properties": {
-                                        "data": {
-                                            "type": "object",
-                                            "description": "Response object for the `GET /` REST controller.",
-                                            "required": [
-                                                "message",
-                                                "tagline",
-                                                "docs"
-                                            ],
-                                            "properties": {
-                                                "docs": {
-                                                    "type": "string",
-                                                    "description": "Documentation URL for this generic entrypoint response."
-                                                },
-                                                "message": {
-                                                    "type": "string",
-                                                    "description": "The message, which will always be \"Hello, world!\""
-                                                },
-                                                "tagline": {
-                                                    "type": "string",
-                                                    "description": "You know, for Helm charts?"
-                                                }
-                                            }
-                                        },
-                                        "errors": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/Error"
-                                            },
-                                            "description": "If the request failed, this is a list of errors as a \"stacktrace.\" `success` is always\n*false*; if not the case, blame it on Noel."
-                                        },
-                                        "success": {
-                                            "type": "boolean",
-                                            "description": "Was the request a success or not?"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/MainResponse"
                                 }
                             }
                         }
@@ -231,37 +193,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "description": "Represents a response object for all REST endpoints.",
-                                    "required": ["success"],
-                                    "properties": {
-                                        "data": {
-                                            "type": "object",
-                                            "description": "Generic entrypoint message for any API route like `/users`.",
-                                            "required": ["message", "docs"],
-                                            "properties": {
-                                                "docs": {
-                                                    "type": "string",
-                                                    "description": "URI to the documentation for this entrypoint."
-                                                },
-                                                "message": {
-                                                    "type": "string",
-                                                    "description": "Humane message to greet you."
-                                                }
-                                            }
-                                        },
-                                        "errors": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/Error"
-                                            },
-                                            "description": "If the request failed, this is a list of errors as a \"stacktrace.\" `success` is always\n*false*; if not the case, blame it on Noel."
-                                        },
-                                        "success": {
-                                            "type": "boolean",
-                                            "description": "Was the request a success or not?"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/EntrypointResponse"
                                 }
                             }
                         }
@@ -285,79 +217,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "description": "Represents a response object for all REST endpoints.",
-                                    "required": ["success"],
-                                    "properties": {
-                                        "data": {
-                                            "type": "object",
-                                            "required": [
-                                                "created_at",
-                                                "updated_at",
-                                                "username",
-                                                "id"
-                                            ],
-                                            "properties": {
-                                                "admin": {
-                                                    "type": "boolean",
-                                                    "description": "Whether if this User is an Administrator of this instance",
-                                                    "readOnly": true
-                                                },
-                                                "avatar_hash": {
-                                                    "type": ["string", "null"],
-                                                    "description": "Unique hash that identifies the user's avatar that they uploaded via the REST API."
-                                                },
-                                                "created_at": {
-                                                    "type": "string",
-                                                    "format": "date-time",
-                                                    "description": "Date of when this user was created. This uses the host system's local time instead\nof UTC.",
-                                                    "readOnly": true
-                                                },
-                                                "description": {
-                                                    "type": ["string", "null"],
-                                                    "description": "Short description about this user."
-                                                },
-                                                "gravatar_email": {
-                                                    "type": ["string", "null"],
-                                                    "description": "Email address that is the Gravatar email to which we should use the user's avatar."
-                                                },
-                                                "id": {
-                                                    "$ref": "#/components/schemas/Ulid",
-                                                    "description": "Unique identifier to locate this user via the REST API."
-                                                },
-                                                "name": {
-                                                    "type": ["string", "null"],
-                                                    "description": "Display name for this user, it should be displayed as '{name} (@{username})' or just '@{username}' if there is no display name"
-                                                },
-                                                "updated_at": {
-                                                    "type": "string",
-                                                    "format": "date-time",
-                                                    "description": "Date of when the server has last updated this user's metadata",
-                                                    "readOnly": true
-                                                },
-                                                "username": {
-                                                    "$ref": "#/components/schemas/Name",
-                                                    "description": "Name of this user that can be identified easier."
-                                                },
-                                                "verified_publisher": {
-                                                    "type": "boolean",
-                                                    "description": "whether or not if this user is considered a verified publisher.",
-                                                    "readOnly": true
-                                                }
-                                            }
-                                        },
-                                        "errors": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/Error"
-                                            },
-                                            "description": "If the request failed, this is a list of errors as a \"stacktrace.\" `success` is always\n*false*; if not the case, blame it on Noel."
-                                        },
-                                        "success": {
-                                            "type": "boolean",
-                                            "description": "Was the request a success or not?"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/UserResponse"
                                 }
                             }
                         }
@@ -406,45 +266,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "description": "Represents a response object for all REST endpoints.",
-                                    "required": ["success"],
-                                    "properties": {
-                                        "data": {
-                                            "type": "object",
-                                            "description": "Response object for the `GET /` REST controller.",
-                                            "required": [
-                                                "message",
-                                                "tagline",
-                                                "docs"
-                                            ],
-                                            "properties": {
-                                                "docs": {
-                                                    "type": "string",
-                                                    "description": "Documentation URL for this generic entrypoint response."
-                                                },
-                                                "message": {
-                                                    "type": "string",
-                                                    "description": "The message, which will always be \"Hello, world!\""
-                                                },
-                                                "tagline": {
-                                                    "type": "string",
-                                                    "description": "You know, for Helm charts?"
-                                                }
-                                            }
-                                        },
-                                        "errors": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/Error"
-                                            },
-                                            "description": "If the request failed, this is a list of errors as a \"stacktrace.\" `success` is always\n*false*; if not the case, blame it on Noel."
-                                        },
-                                        "success": {
-                                            "type": "boolean",
-                                            "description": "Was the request a success or not?"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/MainResponse"
                                 }
                             }
                         }
@@ -596,37 +418,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "description": "Represents a response object for all REST endpoints.",
-                                    "required": ["success"],
-                                    "properties": {
-                                        "data": {
-                                            "type": "object",
-                                            "description": "Generic entrypoint message for any API route like `/users`.",
-                                            "required": ["message", "docs"],
-                                            "properties": {
-                                                "docs": {
-                                                    "type": "string",
-                                                    "description": "URI to the documentation for this entrypoint."
-                                                },
-                                                "message": {
-                                                    "type": "string",
-                                                    "description": "Humane message to greet you."
-                                                }
-                                            }
-                                        },
-                                        "errors": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/Error"
-                                            },
-                                            "description": "If the request failed, this is a list of errors as a \"stacktrace.\" `success` is always\n*false*; if not the case, blame it on Noel."
-                                        },
-                                        "success": {
-                                            "type": "boolean",
-                                            "description": "Was the request a success or not?"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/EntrypointResponse"
                                 }
                             }
                         }
@@ -650,79 +442,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "description": "Represents a response object for all REST endpoints.",
-                                    "required": ["success"],
-                                    "properties": {
-                                        "data": {
-                                            "type": "object",
-                                            "required": [
-                                                "created_at",
-                                                "updated_at",
-                                                "username",
-                                                "id"
-                                            ],
-                                            "properties": {
-                                                "admin": {
-                                                    "type": "boolean",
-                                                    "description": "Whether if this User is an Administrator of this instance",
-                                                    "readOnly": true
-                                                },
-                                                "avatar_hash": {
-                                                    "type": ["string", "null"],
-                                                    "description": "Unique hash that identifies the user's avatar that they uploaded via the REST API."
-                                                },
-                                                "created_at": {
-                                                    "type": "string",
-                                                    "format": "date-time",
-                                                    "description": "Date of when this user was created. This uses the host system's local time instead\nof UTC.",
-                                                    "readOnly": true
-                                                },
-                                                "description": {
-                                                    "type": ["string", "null"],
-                                                    "description": "Short description about this user."
-                                                },
-                                                "gravatar_email": {
-                                                    "type": ["string", "null"],
-                                                    "description": "Email address that is the Gravatar email to which we should use the user's avatar."
-                                                },
-                                                "id": {
-                                                    "$ref": "#/components/schemas/Ulid",
-                                                    "description": "Unique identifier to locate this user via the REST API."
-                                                },
-                                                "name": {
-                                                    "type": ["string", "null"],
-                                                    "description": "Display name for this user, it should be displayed as '{name} (@{username})' or just '@{username}' if there is no display name"
-                                                },
-                                                "updated_at": {
-                                                    "type": "string",
-                                                    "format": "date-time",
-                                                    "description": "Date of when the server has last updated this user's metadata",
-                                                    "readOnly": true
-                                                },
-                                                "username": {
-                                                    "$ref": "#/components/schemas/Name",
-                                                    "description": "Name of this user that can be identified easier."
-                                                },
-                                                "verified_publisher": {
-                                                    "type": "boolean",
-                                                    "description": "whether or not if this user is considered a verified publisher.",
-                                                    "readOnly": true
-                                                }
-                                            }
-                                        },
-                                        "errors": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/Error"
-                                            },
-                                            "description": "If the request failed, this is a list of errors as a \"stacktrace.\" `success` is always\n*false*; if not the case, blame it on Noel."
-                                        },
-                                        "success": {
-                                            "type": "boolean",
-                                            "description": "Was the request a success or not?"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/UserResponse"
                                 }
                             }
                         }
@@ -1165,7 +885,7 @@
                 ],
                 "description": "`Duration` is represented as a span of time, usually for system timeouts. `charted-server` supports passing in a unsigned 64-bot integer (represented in milliseconds) or with a string literal (i.e, `1s`) to represent time."
             },
-            "EntrypointResponse": {
+            "Entrypoint": {
                 "type": "object",
                 "description": "Generic entrypoint message for any API route like `/users`.",
                 "required": ["message", "docs"],
@@ -1177,6 +897,23 @@
                     "message": {
                         "type": "string",
                         "description": "Humane message to greet you."
+                    }
+                }
+            },
+            "EntrypointResponse": {
+                "type": "object",
+                "description": "Response datatype for the `Entrypoint` type",
+                "required": ["success"],
+                "properties": {
+                    "data": { "$ref": "#/components/schemas/Entrypoint" },
+                    "errors": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/Error" },
+                        "description": "If the request failed, this is a list of errors as a \"stacktrace.\" `success` is always\n*false*; if not the case, blame it on Noel."
+                    },
+                    "success": {
+                        "type": "boolean",
+                        "description": "Was the request a success or not?"
                     }
                 }
             },
@@ -1268,6 +1005,80 @@
                     "parent": {
                         "type": "string",
                         "description": "The destination path in the parent chart's values."
+                    }
+                }
+            },
+            "Info": {
+                "type": "object",
+                "description": "Represents the response for the `GET /info` REST handler.",
+                "required": [
+                    "distribution",
+                    "commit_sha",
+                    "build_date",
+                    "product",
+                    "version",
+                    "vendor"
+                ],
+                "properties": {
+                    "build_date": {
+                        "type": "string",
+                        "description": "Build date in RFC3339 format"
+                    },
+                    "commit_sha": {
+                        "type": "string",
+                        "description": "The commit hash from the Git repository."
+                    },
+                    "distribution": {
+                        "$ref": "#/components/schemas/Distribution",
+                        "description": "The distribution the server is running off from"
+                    },
+                    "product": {
+                        "type": "string",
+                        "description": "Product name. Will always be \"charted-server\""
+                    },
+                    "vendor": {
+                        "type": "string",
+                        "description": "Vendor of charted-server, will always be \"Noelware, LLC.\""
+                    },
+                    "version": {
+                        "type": "string",
+                        "description": "Valid SemVer 2 of the current version of this instance"
+                    }
+                }
+            },
+            "Main": {
+                "type": "object",
+                "description": "Response object for the `GET /` REST controller.",
+                "required": ["message", "tagline", "docs"],
+                "properties": {
+                    "docs": {
+                        "type": "string",
+                        "description": "Documentation URL for this generic entrypoint response."
+                    },
+                    "message": {
+                        "type": "string",
+                        "description": "The message, which will always be \"Hello, world!\""
+                    },
+                    "tagline": {
+                        "type": "string",
+                        "description": "You know, for Helm charts?"
+                    }
+                }
+            },
+            "MainResponse": {
+                "type": "object",
+                "description": "Response datatype for the `Main` type",
+                "required": ["success"],
+                "properties": {
+                    "data": { "$ref": "#/components/schemas/Main" },
+                    "errors": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/Error" },
+                        "description": "If the request failed, this is a list of errors as a \"stacktrace.\" `success` is always\n*false*; if not the case, blame it on Noel."
+                    },
+                    "success": {
+                        "type": "boolean",
+                        "description": "Was the request a success or not?"
                     }
                 }
             },
@@ -1789,6 +1600,23 @@
                         "type": "string",
                         "format": "date-time",
                         "description": "Last timestamp of when the API server has modified this entity."
+                    }
+                }
+            },
+            "UserResponse": {
+                "type": "object",
+                "description": "Response datatype for the `User` type",
+                "required": ["success"],
+                "properties": {
+                    "data": { "$ref": "#/components/schemas/User" },
+                    "errors": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/Error" },
+                        "description": "If the request failed, this is a list of errors as a \"stacktrace.\" `success` is always\n*false*; if not the case, blame it on Noel."
+                    },
+                    "success": {
+                        "type": "boolean",
+                        "description": "Was the request a success or not?"
                     }
                 }
             },

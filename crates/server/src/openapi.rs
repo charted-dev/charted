@@ -31,7 +31,8 @@ use utoipa::{
     modifiers(
         &UpdatePathsToIncludeDefaultVersion,
         &IncludeErrorProneDatatypes,
-        &SecuritySchemes
+        &SecuritySchemes,
+        &ResponseModifiers,
     ),
     info(
         title = "charted-server",
@@ -94,7 +95,9 @@ use utoipa::{
             charted_types::payloads::user::PatchUserPayload,
 
             // ==== Response Datatypes ====
-            crate::routing::v1::EntrypointResponse,
+            crate::routing::v1::info::Info,
+            crate::routing::v1::main::Main,
+            crate::routing::v1::Entrypoint,
 
             // ==== Helm ====
             charted_types::helm::StringOrImportValue,

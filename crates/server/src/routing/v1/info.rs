@@ -20,7 +20,7 @@ use utoipa::ToSchema;
 
 /// Represents the response for the `GET /info` REST handler.
 #[derive(Serialize, ToSchema)]
-pub struct InfoResponse {
+pub struct Info {
     /// The distribution the server is running off from
     pub distribution: Distribution,
 
@@ -40,9 +40,9 @@ pub struct InfoResponse {
     pub vendor: &'static str,
 }
 
-impl Default for InfoResponse {
-    fn default() -> InfoResponse {
-        InfoResponse {
+impl Default for Info {
+    fn default() -> Self {
+        Self {
             distribution: Distribution::detect(),
             commit_sha: COMMIT_HASH,
             build_date: BUILD_DATE,
@@ -63,12 +63,12 @@ impl Default for InfoResponse {
         (
             status = 200,
             description = "Successful response",
-            body = inline(api::Response<InfoResponse>),
+            body = api::Response<Info>,
             content_type = "application/json"
         )
     )
 )]
 #[cfg_attr(debug_assertions, axum::debug_handler)]
-pub async fn info() -> api::Response<InfoResponse> {
+pub async fn info() -> api::Response<Info> {
     api::from_default(StatusCode::OK)
 }

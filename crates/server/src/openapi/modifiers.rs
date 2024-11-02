@@ -14,11 +14,11 @@
 // limitations under the License.
 
 use charted_core::api::Version;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap, HashSet};
 use utoipa::{
     openapi::{
         security::{ApiKey, ApiKeyValue, HttpAuthScheme, HttpBuilder, SecurityScheme},
-        ComponentsBuilder, OpenApi,
+        ComponentsBuilder, OpenApi, Ref, RefOr, Schema,
     },
     Modify,
 };
@@ -139,22 +139,131 @@ impl Modify for SecuritySchemes {
     }
 }
 
+/// [Modifier][Modify] that replaces `Response_<type>` as `<type>Response`.
+pub struct ResponseModifiers;
+
+// While the implementation can be cleaned and optimized, for now it works.
+impl Modify for ResponseModifiers {
+    fn modify(&self, openapi: &mut OpenApi) {
+        let mut components = openapi.components.take().unwrap();
+
+        // 1. First, we need to update all `Response_<>` with `<>Response` and update the
+        //    `data` field to be the type that we want
+        let mut scheduled_to_be_removed = HashSet::new();
+        let mut scheduled_to_be_created = HashMap::new();
+        let schemas = components.schemas.clone();
+
+        for (key, schema) in schemas
+            .iter()
+            .filter_map(|(key, schema)| key.starts_with("Response_").then_some((key, schema)))
+        {
+            // First, we need to schedule the deletion of `key` since we will
+            // no longer be using it
+            scheduled_to_be_removed.insert(key.as_str());
+
+            // Update the schema's description
+            //
+            // We only expect `"type": "object"` as response types are only objects
+            // and cannot be anything else
+            let RefOr::T(Schema::Object(mut object)) = schema.clone() else {
+                unreachable!();
+            };
+
+            let (_, mut ty) = key.split_once('_').unwrap();
+            if ty.ends_with("Response") {
+                ty = ty.trim_end_matches("Response");
+            }
+
+            object.description = Some(format!("Response datatype for the `{ty}` type"));
+            assert!(object.properties.remove("data").is_some());
+
+            object
+                .properties
+                .insert("data".into(), RefOr::Ref(Ref::from_schema_name(ty)));
+
+            scheduled_to_be_created.insert(format!("{ty}Response"), RefOr::T(Schema::Object(object)));
+        }
+
+        scheduled_to_be_removed
+            .iter()
+            .map(|x| components.schemas.remove(*x))
+            .for_each(drop);
+
+        scheduled_to_be_created
+            .iter()
+            .map(|(key, value)| components.schemas.insert(key.to_owned(), value.clone()))
+            .for_each(drop);
+
+        // 2. Now, we need to go to every path and check if there is a ref
+        //    with the `Response_<>` suffix
+        {
+            for item in openapi.paths.paths.values_mut() {
+                macro_rules! do_update {
+                    ($kind:ident as $op:expr) => {
+                        if let Some(ref mut op) = $op {
+                            for resp in op
+                                .responses
+                                .responses
+                                .values_mut()
+                                .filter_map(|resp| match resp {
+                                    RefOr::T(resp) => Some(resp),
+                                    _ => None,
+                                })
+                            {
+                                for content in resp.content.values_mut() {
+                                    if let Some(RefOr::Ref(ref_)) = content.schema.as_ref() {
+                                        if ref_.ref_location.contains("Response_") {
+                                            let reference = ref_.ref_location.split("/").last().unwrap();
+
+                                            let (_, ty) = reference.split_once('_').unwrap();
+                                            assert!(!ty.contains("_"));
+
+                                            content.schema =
+                                                Some(RefOr::Ref(Ref::from_schema_name(format!("{ty}Response"))));
+                                        }
+                                    }
+                                }
+                            }
+
+                            item.$kind = ($op).clone();
+                        }
+                    };
+                }
+
+                do_update!(get as item.get);
+                do_update!(put as item.put);
+                do_update!(head as item.head);
+                do_update!(post as item.post);
+                do_update!(patch as item.patch);
+                do_update!(trace as item.trace);
+                do_update!(delete as item.delete);
+                do_update!(delete as item.delete);
+                do_update!(options as item.options);
+            }
+        }
+
+        openapi.components = Some(components);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use utoipa::OpenApi;
-
-    /// a dummy route that exists
-    #[utoipa::path(get, path = "/v1/weow")]
-    #[allow(dead_code)]
-    fn dummy_route() {}
-
-    #[utoipa::path(get, path = "/v1")]
-    #[allow(dead_code)]
-    fn other_dummy_route() {}
+    use charted_core::api;
+    use charted_types::User;
+    use utoipa::{openapi::HttpMethod, OpenApi};
 
     #[test]
     fn update_paths_to_include_default_api_version() {
+        // a dummy route that exists
+        #[utoipa::path(get, path = "/v1/weow")]
+        #[allow(dead_code)]
+        fn dummy_route() {}
+
+        #[utoipa::path(get, path = "/v1")]
+        #[allow(dead_code)]
+        fn other_dummy_route() {}
+
         #[derive(OpenApi)]
         #[openapi(paths(dummy_route, other_dummy_route), modifiers(&UpdatePathsToIncludeDefaultVersion))]
         struct Document;
@@ -163,5 +272,61 @@ mod tests {
         let paths = openapi.paths.paths.keys().collect::<Vec<_>>();
 
         assert_eq!(&paths, &["/", "/v1", "/v1/weow", "/weow"]);
+    }
+
+    // This test combats using `Response_<>` as `<>Response`, where `<>` is
+    // the type that is registered as a schema.
+    #[test]
+    fn update_response_types() {
+        #[utoipa::path(get, path = "/", responses((status = 200, body = api::Response<User>)))]
+        #[allow(unused)]
+        fn test_path() {}
+
+        #[derive(OpenApi)]
+        #[openapi(paths(test_path), modifiers(&ResponseModifiers))]
+        struct Document;
+
+        let openapi = Document::openapi();
+
+        // Check that `UserResponse` has the modified description and reference
+        {
+            let components = openapi.components.unwrap();
+            let RefOr::T(Schema::Object(object)) = components.schemas.get("UserResponse").unwrap() else {
+                unreachable!();
+            };
+
+            assert_eq!(
+                object.description,
+                Some("Response datatype for the `User` type".to_string())
+            );
+
+            let Some(RefOr::Ref(ref_)) = object.properties.get("data") else {
+                unreachable!();
+            };
+
+            assert_eq!(ref_.ref_location, "#/components/schemas/User");
+        }
+
+        // Check if `GET /` has the updated response type
+        {
+            let paths = openapi.paths.clone();
+            let Some(path) = paths.get_path_operation("/", HttpMethod::Get) else {
+                unreachable!();
+            };
+
+            let Some(RefOr::T(resp)) = path.responses.responses.get("200") else {
+                unreachable!();
+            };
+
+            let Some(content) = resp.content.get("application/json") else {
+                unreachable!();
+            };
+
+            let Some(RefOr::Ref(ref ref_)) = content.schema else {
+                unreachable!()
+            };
+
+            assert_eq!(ref_.ref_location, "#/components/responses/UserResponse");
+        }
     }
 }

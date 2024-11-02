@@ -17,7 +17,7 @@ pub mod avatars;
 pub mod repositories;
 pub mod sessions;
 
-use super::EntrypointResponse;
+use super::Entrypoint;
 use crate::{
     extract::{Json, Path},
     hash_password,
@@ -63,14 +63,14 @@ pub fn create_router() -> Router<ServerContext> {
         (
             status = 200,
             description = "Entrypoint response",
-            body = inline(api::Response<EntrypointResponse>),
+            body = api::Response<Entrypoint>,
             content_type = "application/json"
         )
     )
 )]
 #[cfg_attr(debug_assertions, axum::debug_handler)]
-pub async fn main() -> api::Response<EntrypointResponse> {
-    api::ok(StatusCode::OK, EntrypointResponse::new("Users"))
+pub async fn main() -> api::Response<Entrypoint> {
+    api::ok(StatusCode::OK, Entrypoint::new("Users"))
 }
 
 #[utoipa::path(
@@ -87,7 +87,7 @@ pub async fn main() -> api::Response<EntrypointResponse> {
         (
             status = 201,
             description = "User has been created",
-            body = inline(api::Response<User>),
+            body = api::Response<User>,
             content_type = "application/json"
         ),
         (
@@ -166,13 +166,12 @@ pub async fn create_user(
 
     // Check if we already have this `User` by their username
     {
-        let uname = &username;
         let exists = connection!(@raw conn {
             PostgreSQL(conn) => conn.build_transaction().read_only().run::<_, eyre::Report, _>(|txn| {
-                use postgresql::users::{dsl::*, table};
+                use postgresql::users::{dsl, table};
                 use diesel::pg::Pg;
 
-                match table.select(<User as SelectableHelper<Pg>>::as_select()).filter(username.eq(uname)).first(txn) {
+                match table.select(<User as SelectableHelper<Pg>>::as_select()).filter(dsl::username.eq(&username)).first(txn) {
                     Ok(_) => Ok(true),
                     Err(diesel::result::Error::NotFound) => Ok(false),
                     Err(e) => Err(eyre::Report::from(e))
@@ -180,10 +179,10 @@ pub async fn create_user(
             });
 
             SQLite(conn) => conn.immediate_transaction(|txn| {
-                use sqlite::users::{dsl::*, table};
+                use sqlite::users::{dsl, table};
                 use diesel::sqlite::Sqlite;
 
-                match table.select(<User as SelectableHelper<Sqlite>>::as_select()).filter(username.eq(uname)).first(txn) {
+                match table.select(<User as SelectableHelper<Sqlite>>::as_select()).filter(dsl::username.eq(&username)).first(txn) {
                     Ok(_) => Ok(true),
                     Err(diesel::result::Error::NotFound) => Ok(false),
                     Err(e) => Err(eyre::Report::from(e))
@@ -200,7 +199,7 @@ pub async fn create_user(
                 (
                     api::ErrorCode::EntityAlreadyExists,
                     "a user with `username` already exists",
-                    json!({"username":uname.as_str()}),
+                    json!({"username":username.as_str()}),
                 ),
             ));
         }
@@ -208,13 +207,12 @@ pub async fn create_user(
 
     // Check if we already have this `User` by their email address
     {
-        let em = &email;
         let exists = connection!(@raw conn {
             PostgreSQL(conn) => conn.build_transaction().read_only().run::<_, eyre::Report, _>(|txn| {
-                use postgresql::users::{dsl::*, table};
+                use postgresql::users::{dsl, table};
                 use diesel::pg::Pg;
 
-                match table.select(<User as SelectableHelper<Pg>>::as_select()).filter(email.eq(em)).first(txn) {
+                match table.select(<User as SelectableHelper<Pg>>::as_select()).filter(dsl::email.eq(&email)).first(txn) {
                     Ok(_) => Ok(true),
                     Err(diesel::result::Error::NotFound) => Ok(false),
                     Err(e) => Err(eyre::Report::from(e))
@@ -222,10 +220,10 @@ pub async fn create_user(
             });
 
             SQLite(conn) => conn.immediate_transaction(|txn| {
-                use sqlite::users::{dsl::*, table};
+                use sqlite::users::{dsl, table};
                 use diesel::sqlite::Sqlite;
 
-                match table.select(<User as SelectableHelper<Sqlite>>::as_select()).filter(email.eq(em)).first(txn) {
+                match table.select(<User as SelectableHelper<Sqlite>>::as_select()).filter(dsl::email.eq(&email)).first(txn) {
                     Ok(_) => Ok(true),
                     Err(diesel::result::Error::NotFound) => Ok(false),
                     Err(e) => Err(eyre::Report::from(e))
@@ -234,7 +232,7 @@ pub async fn create_user(
         })
         .inspect_err(|e| {
             sentry_eyre::capture_report(e);
-            error!(user.email = em, error = %e, "failed to query user by email");
+            error!(user.email = email, error = %e, "failed to query user by email");
         })
         .map_err(|_| api::internal_server_error())?;
 
@@ -244,7 +242,7 @@ pub async fn create_user(
                 (
                     api::ErrorCode::EntityAlreadyExists,
                     "a user with the `email` given already exists",
-                    json!({"email":em}),
+                    json!({"email":email}),
                 ),
             ));
         }
@@ -343,7 +341,7 @@ pub async fn create_user(
         (
             status = 200,
             description = "A single user found",
-            body = inline(api::Response<User>),
+            body = api::Response<User>,
             content_type = "application/json"
         ),
         (

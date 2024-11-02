@@ -23,7 +23,7 @@ use utoipa::{
 
 /// Response object for the `GET /` REST controller.
 #[derive(Serialize, ToSchema)]
-pub struct MainResponse {
+pub struct Main {
     /// The message, which will always be "Hello, world!"
     pub message: &'static str,
 
@@ -34,9 +34,9 @@ pub struct MainResponse {
     pub docs: String,
 }
 
-impl Default for MainResponse {
+impl Default for Main {
     fn default() -> Self {
-        MainResponse {
+        Self {
             message: "Hello, world! 👋",
             tagline: "You know, for Helm charts?",
             docs: format!("https://charts.noelware.org/docs/server/{VERSION}"),
@@ -44,10 +44,10 @@ impl Default for MainResponse {
     }
 }
 
-impl<'r> ToResponse<'r> for MainResponse {
+impl<'r> ToResponse<'r> for Main {
     fn response() -> (&'r str, RefOr<Response>) {
         (
-            "MainResponse",
+            "Main",
             RefOr::T(
                 ResponseBuilder::new()
                     .description("Response for the `/` REST handler")
@@ -73,12 +73,12 @@ impl<'r> ToResponse<'r> for MainResponse {
         (
             status = 200,
             description = "Successful response",
-            body = inline(api::Response<MainResponse>),
+            body = api::Response<Main>,
             content_type = "application/json"
         )
     )
 )]
 #[cfg_attr(debug_assertions, axum::debug_handler)]
-pub async fn main() -> api::Response<MainResponse> {
+pub async fn main() -> api::Response<Main> {
     api::from_default(StatusCode::OK)
 }

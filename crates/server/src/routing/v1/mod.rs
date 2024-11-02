@@ -30,7 +30,7 @@ use utoipa::ToSchema;
 
 /// Generic entrypoint message for any API route like `/users`.
 #[derive(Serialize, ToSchema)]
-pub struct EntrypointResponse {
+pub struct Entrypoint {
     /// Humane message to greet you.
     pub message: Cow<'static, str>,
 
@@ -38,7 +38,7 @@ pub struct EntrypointResponse {
     pub docs: Cow<'static, str>,
 }
 
-impl EntrypointResponse {
+impl Entrypoint {
     pub fn new(entity: impl AsRef<str>) -> Self {
         let entity = entity.as_ref();
         Self {

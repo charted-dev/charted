@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#![feature(never_type, decl_macro)]
+#![feature(never_type, decl_macro, entry_insert)]
 
 mod state;
 pub use state::*;
