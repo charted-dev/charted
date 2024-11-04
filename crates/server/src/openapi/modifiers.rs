@@ -326,7 +326,7 @@ mod tests {
                 unreachable!()
             };
 
-            assert_eq!(ref_.ref_location, "#/components/responses/UserResponse");
+            assert_eq!(ref_.ref_location, "#/components/schemas/UserResponse");
         }
     }
 }
