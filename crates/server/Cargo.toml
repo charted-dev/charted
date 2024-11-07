@@ -43,7 +43,10 @@ charted-authz-local = { version = "0.1.0", path = "../authz/local" }
 charted-core = { version = "0.1.0", path = "../core" }
 charted-config = { version = "0.1.0", path = "../config" }
 charted-database = { version = "0.1.0", path = "../database" }
-charted-features = { version = "0.1.0", path = "../features" }
+charted-features = { version = "0.1.0", path = "../features", features = [
+    "extends-db",
+    "extends-openapi",
+] }
 charted-helm-charts = { version = "0.1.0", path = "../helm-charts" }
 charted-types = { version = "0.1.0", path = "../types" }
 diesel = { workspace = true, features = ["postgres", "sqlite"] }

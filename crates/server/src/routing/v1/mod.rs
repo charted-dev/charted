@@ -25,7 +25,7 @@ use axum::{extract::Request, http::StatusCode, response::IntoResponse, routing, 
 use charted_core::{api, VERSION};
 use serde::Serialize;
 use serde_json::json;
-use std::borrow::Cow;
+use std::{borrow::Cow, ops::Deref};
 use utoipa::ToSchema;
 
 /// Generic entrypoint message for any API route like `/users`.
@@ -51,15 +51,21 @@ impl Entrypoint {
     }
 }
 
-pub fn create_router(_: &ServerContext) -> Router<ServerContext> {
-    Router::new()
+pub fn create_router(cx: &ServerContext) -> Router<ServerContext> {
+    let mut router = Router::new()
         .nest("/users", user::create_router())
         .route("/indexes/:idOrName", routing::get(index::get_chart_index))
         .route("/heartbeat", routing::get(heartbeat::heartbeat))
         .route("/openapi.json", routing::get(openapi::openapi))
         .route("/info", routing::get(info::info))
         .route("/", routing::get(main::main))
-        .fallback(fallback)
+        .fallback(fallback);
+
+    for feature in &cx.features {
+        router = feature.extend_router().with_state(cx.deref().clone());
+    }
+
+    router
 }
 
 async fn fallback(req: Request) -> impl IntoResponse {

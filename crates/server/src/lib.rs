@@ -41,7 +41,7 @@ use axum_server::{tls_rustls::RustlsConfig, Handle};
 use charted_core::ARGON2;
 use eyre::Context;
 use std::time::Duration;
-use tracing::{error, info, warn};
+use tracing::{error, info, info_span, warn, Instrument};
 
 pub fn hash_password<P: AsRef<[u8]>>(password: P) -> eyre::Result<String> {
     let salt = SaltString::generate(&mut OsRng);
@@ -66,6 +66,20 @@ pub async fn start(cx: charted_app::Context) -> eyre::Result<()> {
     let features = Vec::new();
 
     let cx = ServerContext::new(cx, features);
+    for feature in &cx.features {
+        // Initialize the feature first
+        feature
+            .init(&cx)
+            .instrument(info_span!("charted.server.feature.init"))
+            .await?;
+
+        // If it needs to extend the database, then we will
+        // allow it to extend it to have its own attributes.
+        feature
+            .extends_db(&cx.pool)
+            .instrument(info_span!("charted.server.feature.extends[database]"))
+            .await?;
+    }
 
     // Put a clone of `ServerContext` since we still need to access it.
     set_global(cx.clone());

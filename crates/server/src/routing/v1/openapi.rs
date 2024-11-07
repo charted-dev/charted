@@ -15,17 +15,28 @@
 
 #![allow(clippy::incompatible_msrv)]
 
-use crate::openapi::Document;
-use std::sync::LazyLock;
+use crate::{openapi::Document, ServerContext};
+use axum::extract::State;
+use std::sync::OnceLock;
 use utoipa::OpenApi;
 
-// The only reason this is in a `LazyLock` and not used as `Document::openapi` is because
-// it can prevent unnecessary allocations and computations in the `Modify` implementation
-// for it (since it needs to pre-generate routes for the default API revision) and I would prefer
-// it is done once rather than every request.
-static CACHED: LazyLock<utoipa::openapi::OpenApi> = LazyLock::new(Document::openapi);
+// This is wrapped in a `OnceLock` and initialized on the first request is due to
+// that any feature can extend the OpenAPI document to document routes when the
+// feature is enabled.
+static CACHED: OnceLock<utoipa::openapi::OpenApi> = OnceLock::new();
 
 #[cfg_attr(debug_assertions, axum::debug_handler)]
-pub async fn openapi() -> String {
-    serde_json::to_string(&*CACHED).expect("it should be serialized to a JSON value")
+pub async fn openapi(State(cx): State<ServerContext>) -> String {
+    let document = CACHED.get_or_init(|| {
+        let cx = cx.clone();
+        let mut doc = Document::openapi();
+
+        for feature in &cx.features {
+            feature.extends_openapi(&mut doc);
+        }
+
+        doc
+    });
+
+    serde_json::to_string_pretty(document).expect("serialize")
 }
