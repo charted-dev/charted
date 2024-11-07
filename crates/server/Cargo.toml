@@ -71,7 +71,7 @@ tower-http = { version = "0.6.0", features = [
 ] }
 tracing.workspace = true
 utoipa = { workspace = true, features = ["debug"] }
-validator = "0.18.1"
+validator = "0.19.0"
 chrono.workspace = true
 charted-app = { version = "0.1.0", path = "../app" }
 derive_more = { version = "1.0.0", features = ["deref"] }
