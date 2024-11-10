@@ -146,6 +146,15 @@ impl<F: Bitflags<Bit = u64>> Default for Bitfield<F> {
     }
 }
 
+impl<F: Bitflags<Bit = u64>> FromIterator<u64> for Bitfield<F> {
+    fn from_iter<T: IntoIterator<Item = u64>>(iter: T) -> Self {
+        let mut bitfield = Bitfield::<F>::default();
+        bitfield.add(iter);
+
+        bitfield
+    }
+}
+
 /// Trait that is implemented by the [`bitflags`][bitflags] macro.
 pub trait Bitflags: Sized + Send + Sync {
     /// Type that represents the bit.
@@ -182,6 +191,12 @@ macro_rules! bitflags {
             $(
                 $field = $value,
             )*
+        }
+
+        impl $name {
+            pub const fn as_bit(self) -> $bit {
+               self as u64
+            }
         }
 
         impl ::core::convert::From<$name> for $bit {

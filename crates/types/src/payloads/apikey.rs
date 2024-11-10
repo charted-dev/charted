@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use crate::name::Name;
-use charted_core::serde::Duration;
+use charted_core::{bitflags::ApiKeyScope, serde::Duration};
 use serde::Deserialize;
 use utoipa::ToSchema;
 
@@ -32,6 +32,10 @@ super::create_modifying_payload! {
         /// Maximum of time that this API key can live. Minimum allowed is 30 seconds.
         #[serde(default)]
         pub expires_in: Option<Duration>,
+
+        /// List of scopes (which can be either a `u64` or `string`).
+        #[serde(default)]
+        pub scopes: Vec<ApiKeyScope>,
 
         /// Name of the API key.
         pub name: Name,

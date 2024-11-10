@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+pub mod apikeys;
 pub mod heartbeat;
 pub mod index;
 pub mod info;
@@ -53,6 +54,7 @@ impl Entrypoint {
 
 pub fn create_router(cx: &ServerContext) -> Router<ServerContext> {
     let mut router = Router::new()
+        .nest("/apikeys", apikeys::create_router())
         .nest("/users", user::create_router())
         .route("/indexes/{idOrName}", routing::get(index::get_chart_index))
         .route("/heartbeat", routing::get(heartbeat::heartbeat))

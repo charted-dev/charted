@@ -60,6 +60,10 @@ use utoipa::{
             description = "Endpoints that create, modify, delete, or fetch user metadata"
         ),
         (
+            name = "API Keys",
+            description = "Endpoints that allow authenticating users with a secret key that is trusted by the server."
+        ),
+        (
             name = "Repositories",
             description = "Endpoints that create, modify, delete, or fetch user/organization repository metadata"
         ),
@@ -93,6 +97,9 @@ use utoipa::{
             charted_types::payloads::apikey::PatchApiKeyPayload,
             charted_types::payloads::user::CreateUserPayload,
             charted_types::payloads::user::PatchUserPayload,
+
+            // ==== scopes ====
+            charted_core::bitflags::ApiKeyScope,
 
             // ==== Response Datatypes ====
             crate::routing::v1::info::Info,
@@ -143,6 +150,8 @@ use utoipa::{
         )
     ),
     paths(
+        crate::routing::v1::apikeys::entrypoint,
+
         crate::routing::v1::user::create_user,
         crate::routing::v1::user::main,
 

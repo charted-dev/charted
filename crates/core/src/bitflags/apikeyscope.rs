@@ -13,6 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use serde::{Deserialize, Serialize};
+use std::borrow::Cow;
+use utoipa::{
+    openapi::{schema::SchemaType, KnownFormat, ObjectBuilder, OneOfBuilder, RefOr, Schema, SchemaFormat, Type},
+    PartialSchema, ToSchema,
+};
+
 pub type ApiKeyScopes = crate::bitflags::Bitfield<ApiKeyScope>;
 
 crate::bitflags! {
@@ -154,5 +161,167 @@ crate::bitflags! {
         AdminUserUpdate["admin:users:update"]: 1u64 << 49u64;
         AdminOrgDelete["admin:orgs:delete"]: 1u64 << 50u64;
         AdminOrgUpdate["admin:orgs:update"]: 1u64 << 51u64;
+    }
+}
+
+impl Serialize for ApiKeyScope {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_u64(self.as_bit())
+    }
+}
+
+impl<'de> Deserialize<'de> for ApiKeyScope {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        use serde::de::Error;
+
+        let content = <serde::__private::de::Content as serde::Deserialize>::deserialize(deserializer)?;
+        let deserializer = serde::__private::de::ContentRefDeserializer::<D::Error>::new(&content);
+        let flags = <ApiKeyScope as crate::bitflags::Bitflags>::flags();
+
+        if let Ok(s) = <String as serde::Deserialize>::deserialize(deserializer) {
+            if let Some(value) = flags.get(s.as_str()).copied() {
+                // Safety: the implementation of the `bitflags!` macro will ensure
+                //         that `value` is a discriminant of `ApiKeyScope`.
+                return Ok(unsafe { std::mem::transmute::<u64, ApiKeyScope>(value) });
+            }
+
+            return Err(D::Error::custom(format!("unknown value [{s}]")));
+        }
+
+        if let Ok(value) = <u64 as serde::Deserialize>::deserialize(deserializer) {
+            let max = <ApiKeyScope as crate::bitflags::Bitflags>::max();
+            if value >= 1 && value <= max {
+                // Safety: the condition above checks if value is greater than once, since
+                //         we can't accept `0` as a value and therefore, will not pass the check
+                //
+                //         And, we check if the `value` is less than or equal to the
+                //         possible maximum value from the `bitflags!` impl. Therefore,
+                //         it is safe to assume that we can transmute from `u64` -> `ApiKeyScope`.
+                return Ok(unsafe { std::mem::transmute::<u64, ApiKeyScope>(value) });
+            }
+
+            return Err(D::Error::custom(format!("out of range: [1..{max})")));
+        }
+
+        Err(D::Error::custom("invalid path: expected a `string` or `uint64`"))
+    }
+}
+
+impl PartialSchema for ApiKeyScope {
+    fn schema() -> RefOr<Schema> {
+        let flags = <ApiKeyScope as crate::bitflags::Bitflags>::flags();
+        let max = <ApiKeyScope as crate::bitflags::Bitflags>::max();
+
+        RefOr::T(Schema::OneOf({
+            let oneof = OneOfBuilder::new()
+                .description(Some(
+                    "Representation of a API key scope. A scope determines a permission between an API key",
+                ))
+                .item(Schema::Object({
+                    let object = ObjectBuilder::new()
+                        .schema_type(SchemaType::Type(Type::String))
+                        .description(Some("A humane name of the scope. This allows to determine the scope without knowing the integer representation of it."))
+                        .enum_values(Some(flags.keys().copied().collect::<Vec<_>>()));
+
+                    object.build()
+                }))
+                .item(Schema::Object({
+                    let object = ObjectBuilder::new()
+                        .schema_type(SchemaType::Type(Type::Number))
+                        .format(Some(SchemaFormat::KnownFormat(KnownFormat::UInt64)))
+                        .description(Some("The actual representation of the scope. This is the repsentation the server checks and stores as AND is used when comparing permissions"))
+                        .minimum(Some(1))
+                        .maximum(Some(max));
+
+                    object.build()
+                }));
+
+            oneof.build()
+        }))
+    }
+}
+
+impl ToSchema for ApiKeyScope {
+    fn name() -> Cow<'static, str> {
+        Cow::Borrowed("ApiKeyScope")
+    }
+}
+
+impl FromIterator<ApiKeyScope> for crate::bitflags::ApiKeyScopes {
+    fn from_iter<T: IntoIterator<Item = ApiKeyScope>>(iter: T) -> Self {
+        let mut bitfield = ApiKeyScopes::default();
+        bitfield.add(iter);
+
+        bitfield
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::ApiKeyScope;
+    use crate::bitflags::Bitflags;
+
+    #[test]
+    fn test_deserialize_str() {
+        let a = "\"user:access\"";
+        let deserialized = serde_json::from_str::<ApiKeyScope>(a).unwrap();
+
+        assert_eq!(deserialized, ApiKeyScope::UserAccess);
+
+        let b = "true";
+        assert!(serde_json::from_str::<ApiKeyScope>(b).is_err());
+    }
+
+    #[test]
+    fn test_deserialize_u64() {
+        {
+            let value: ApiKeyScope = serde_json::from_str("1").unwrap();
+            assert_eq!(value, ApiKeyScope::UserAccess);
+        }
+
+        {
+            let value: ApiKeyScope = serde_json::from_str("16384").unwrap();
+            assert_eq!(value, ApiKeyScope::RepoReleaseUpdate);
+        }
+
+        {
+            let value: ApiKeyScope =
+                serde_json::from_str::<ApiKeyScope>(&format!("{}", <ApiKeyScope as Bitflags>::max())).unwrap();
+
+            assert_eq!(value, ApiKeyScope::ApiKeyList);
+        }
+
+        // error case #1: if we pass in zero
+        {
+            let e = serde_json::from_str::<ApiKeyScope>("0").unwrap_err();
+            let e = e.to_string();
+
+            assert_eq!(e, format!("out of range: [1..{})", <ApiKeyScope as Bitflags>::max()));
+        }
+
+        {
+            let Err(e) = serde_json::from_str::<ApiKeyScope>(&format!("{}", <ApiKeyScope as Bitflags>::max() + 1))
+            else {
+                unreachable!()
+            };
+
+            let e = e.to_string();
+            assert_eq!(e, format!("out of range: [1..{})", <ApiKeyScope as Bitflags>::max()));
+        }
+
+        {
+            let Err(e) = serde_json::from_str::<ApiKeyScope>("false") else {
+                unreachable!()
+            };
+
+            let e = e.to_string();
+            assert_eq!(e, "invalid path: expected a `string` or `uint64`");
+        }
     }
 }
