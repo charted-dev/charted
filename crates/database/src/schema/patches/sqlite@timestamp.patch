@@ -6,21 +6,22 @@ index 1287d455..7c5c312a 100644
  diesel::table! {
      use diesel::sql_types::*;
      use crate::schema::sql_types::*;
- 
+
      api_keys (id) {
          description -> Nullable<Text>,
 -        created_at -> Timestamp,
 -        updated_at -> Timestamp,
 +        created_at -> TimestamptzSqlite,
 +        updated_at -> TimestamptzSqlite,
-         expires_in -> Nullable<Timestamp>,
+-        expires_in -> Nullable<Timestamp>,
++        expires_in -> Nullable<TimestamptzSqlite>,
          scopes -> BigInt,
          owner -> Text,
          token -> Text,
          name -> Text,
          id -> Text,
 @@ -36,14 +36,14 @@ diesel::table! {
- 
+
      organization_members (id) {
          public_visibility -> Bool,
          display_name -> Nullable<Text>,
@@ -34,10 +35,10 @@ index 1287d455..7c5c312a 100644
          id -> Text,
      }
  }
- 
+
  diesel::table! {
 @@ -52,14 +52,14 @@ diesel::table! {
- 
+
      organizations (id) {
          verified_publisher -> Bool,
          twitter_handle -> Nullable<Text>,
@@ -56,7 +57,7 @@ index 1287d455..7c5c312a 100644
 @@ -69,14 +69,14 @@ diesel::table! {
      use diesel::sql_types::*;
      use crate::schema::sql_types::*;
- 
+
      repositories (id) {
          description -> Nullable<Text>,
          deprecated -> Bool,
@@ -71,7 +72,7 @@ index 1287d455..7c5c312a 100644
          #[sql_name = "type"]
          type_ -> Text,
 @@ -91,28 +91,28 @@ diesel::table! {
- 
+
      repository_members (id) {
          public_visibility -> Bool,
          display_name -> Nullable<Text>,
@@ -85,11 +86,11 @@ index 1287d455..7c5c312a 100644
          id -> Text,
      }
  }
- 
+
  diesel::table! {
      use diesel::sql_types::*;
      use crate::schema::sql_types::*;
- 
+
      repository_releases (id) {
          repository -> Text,
          update_text -> Nullable<Text>,
@@ -101,10 +102,10 @@ index 1287d455..7c5c312a 100644
          id -> Text,
      }
  }
- 
+
  diesel::table! {
 @@ -133,14 +133,14 @@ diesel::table! {
- 
+
      user_connections (id) {
          noelware_account_id -> Nullable<BigInt>,
          google_account_id -> Nullable<Text>,
@@ -118,10 +119,10 @@ index 1287d455..7c5c312a 100644
          id -> Text,
      }
  }
- 
+
  diesel::table! {
 @@ -149,14 +149,14 @@ diesel::table! {
- 
+
      users (id) {
          verified_publisher -> Bool,
          gravatar_email -> Nullable<Text>,
