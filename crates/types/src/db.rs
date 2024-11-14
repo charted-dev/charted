@@ -249,8 +249,13 @@ macro_rules! create_member_struct {
             #[diesel(table_name = charted_database::schema::postgresql::$table)]
             #[diesel(table_name = charted_database::schema::sqlite::$table)]
             pub struct [<$name Member>] {
-                /// Display name for this member. This should be formatted as '[{display_name}][Member::display_name] (@[{username}][User::username])' if this
-                /// is set, otherwise '@[{username}][User::username]' is used.
+                /// Display name for this member.
+                ///
+                /// This should be formatted as `{display_name} (@{username})` where:
+                /// - `{display_name}` is this property
+                /// - `{username}` is the user's username.
+                ///
+                /// If a display name is not visible, then using `@{username}` is also possible.
                 pub display_name: Option<String>,
 
                 /// Bitfield value of this member's permissions.

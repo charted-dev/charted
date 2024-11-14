@@ -25,7 +25,12 @@ repository.workspace = true
 authors.workspace = true
 
 [dependencies]
-azalia = { workspace = true, features = ["remi", "remi-all"] }
+azalia = { workspace = true, features = [
+    "remi",
+    "remi-fs",
+    "remi-s3",
+    "remi-azure",
+] }
 charted-authz = { version = "0.1.0", path = "../authz" }
 charted-authz-ldap = { version = "0.1.0", path = "../authz/ldap" }
 charted-authz-local = { version = "0.1.0", path = "../authz/local" }

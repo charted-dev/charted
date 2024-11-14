@@ -16,10 +16,23 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/*",
+    "crates/app",
+    "crates/authz",
     "crates/authz/*",
+    "crates/bin",
+    "crates/cli",
+    "crates/client",
+    "crates/config",
+    "crates/core",
+    "crates/database",
+    "crates/devtools",
+    "crates/features",
     "crates/features/totp",
-    "crates/tatsuki/macros",
+    "crates/helm-charts",
+    "crates/helm-plugin",
+    "crates/server",
+    "crates/types",
+
     "internals",
 ]
 
@@ -27,7 +40,6 @@ members = [
 version = "0.1.0"
 authors = [
     "Noel Towa <cutie@floofy.dev>",
-    "Noelware, LLC. <team@noelware.org>",
     "Spotlight <spotlight@joscomputing.space>",
     "John Burke <winter@winterfox.tech>",
 ]
@@ -75,7 +87,7 @@ which = "7.0.0"
 [workspace.dependencies.azalia]
 version = "0.1.0"
 git = "https://github.com/Noelware/azalia"
-rev = "310dc5ef2e54bc11361f5bac74dd61f2cb069f4b"
+rev = "88b72f595aea5f179911787971b68becae49a843"
 
 [profile.release]
 codegen-units = 1 # use a single codegen unit

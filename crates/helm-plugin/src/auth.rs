@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use etcetera::{choose_app_strategy, AppStrategy, AppStrategyArgs};
 use eyre::{Context as _, ContextCompat};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -91,11 +92,15 @@ impl Default for Auth {
 impl Auth {
     /// Loads the `auth.toml` configuration file with a *optional* file path.
     pub fn load<P: AsRef<Path>>(path: Option<P>) -> eyre::Result<Auth> {
-        let path = path.map(|x| x.as_ref().to_path_buf()).unwrap_or(
-            dirs::config_local_dir()
-                .context("unsupported platform")?
-                .join("Noelware/charted-server/auth.toml"),
-        );
+        let strategy = choose_app_strategy(AppStrategyArgs {
+            top_level_domain: "org".to_string(),
+            author: "Noelware".to_string(),
+            app_name: "charted helm plugin".to_string(),
+        })?;
+
+        let path = path
+            .map(|x| x.as_ref().to_path_buf())
+            .unwrap_or(strategy.config_dir().join("Noelware/charted-server/auth.toml"));
 
         trace!(path = %path.display(), "loading `auth.toml`...");
         if !path.try_exists()? {
@@ -126,11 +131,16 @@ impl Auth {
         use std::io::Write;
 
         info!("syncing `auth.toml` changes...");
-        let path = path.map(|x| x.as_ref().to_path_buf()).unwrap_or(
-            dirs::config_local_dir()
-                .context("unsupported platform")?
-                .join("Noelware/charted-server/auth.toml"),
-        );
+
+        let strategy = choose_app_strategy(AppStrategyArgs {
+            top_level_domain: "org".to_string(),
+            author: "Noelware".to_string(),
+            app_name: "charted helm plugin".to_string(),
+        })?;
+
+        let path = path
+            .map(|x| x.as_ref().to_path_buf())
+            .unwrap_or(strategy.config_dir().join("Noelware/charted-server/auth.toml"));
 
         let mut file = OpenOptions::new()
             .create(false)

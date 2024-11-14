@@ -150,8 +150,6 @@ use utoipa::{
         )
     ),
     paths(
-        crate::routing::v1::apikeys::entrypoint,
-
         crate::routing::v1::user::create_user,
         crate::routing::v1::user::main,
 

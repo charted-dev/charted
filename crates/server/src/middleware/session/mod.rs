@@ -425,6 +425,7 @@ async fn noop(request: Request<Body>) -> Result<Request<Body>, Response<Body>> {
     Ok(request)
 }
 
+#[cold]
 async fn error(error: Error) -> Result<Request<Body>, Response<Body>> {
     Err(error.into_response())
 }

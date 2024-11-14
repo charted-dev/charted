@@ -31,19 +31,26 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 use std::borrow::Cow;
 use utoipa::ToSchema;
 
-/// Represents the REST version that an API controller is supported on.
+/// REST Specification version for charted's HTTP API.
 #[derive(Debug, Clone, Copy, Default, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
 pub enum Version {
+    /// ## `v1`
+    ///
+    /// Released since the initial release of **charted**.
     #[default]
     V1 = 1,
 }
 
 impl Version {
-    pub fn as_str(&self) -> &str {
+    pub const fn as_str(&self) -> &str {
         match self {
             Version::V1 => "v1",
         }
+    }
+
+    pub const fn as_slice<'a>() -> &'a [Version] {
+        &[Version::V1]
     }
 }
 

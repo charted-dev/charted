@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+pub mod apikeys;
 pub mod avatars;
 pub mod repositories;
 pub mod sessions;
@@ -384,3 +385,9 @@ pub async fn get_user(State(cx): State<ServerContext>, Path(id_or_name): Path<Na
 pub async fn get_self(Extension(Session { user, .. }): Extension<Session>) -> api::Response<User> {
     api::ok(StatusCode::OK, user)
 }
+
+#[utoipa::path(patch, path = "/v1/users/@me", operation_id = "patchSelf", tag = "Users")]
+pub async fn patch() {}
+
+#[utoipa::path(delete, path = "/v1/users/@me", operation_id = "deleteSelf", tag = "Users")]
+pub async fn delete() {}

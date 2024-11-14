@@ -75,5 +75,9 @@ chrono.workspace = true
 charted-app = { version = "0.1.0", path = "../app" }
 derive_more = { version = "1.0.0", features = ["deref"] }
 
+[dev-dependencies]
+tempfile.workspace = true
+tokio = { workspace = true, features = ["rt", "macros"] }
+
 [package.metadata.cargo-machete]
 ignored = ["charted-helm-charts"]

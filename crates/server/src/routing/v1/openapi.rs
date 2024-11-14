@@ -28,7 +28,6 @@ static CACHED: OnceLock<utoipa::openapi::OpenApi> = OnceLock::new();
 #[cfg_attr(debug_assertions, axum::debug_handler)]
 pub async fn openapi(State(cx): State<ServerContext>) -> String {
     let document = CACHED.get_or_init(|| {
-        let cx = cx.clone();
         let mut doc = Document::openapi();
 
         for feature in &cx.features {

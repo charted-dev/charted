@@ -13,41 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::Entrypoint;
-use crate::{extract::Json, middleware::session::Session, openapi::ApiErrorResponse, ServerContext};
-use axum::{extract::State, http::StatusCode, routing, Extension, Router};
-use charted_core::{api, bitflags::ApiKeyScopes, rand_string};
-use charted_database::schema::{postgresql, sqlite};
-use charted_types::{payloads::apikey::CreateApiKeyPayload, ApiKey};
-use chrono::Local;
-use eyre::Context;
-use serde_json::json;
-use tracing::{error, instrument};
+use crate::ServerContext;
+use axum::Router;
 
 pub fn create_router() -> Router<ServerContext> {
-    Router::new().route("/", routing::get(entrypoint))
+    Router::new()
 }
 
-/// Entrypoint response for the `/apikeys` route.
-#[utoipa::path(
-    get,
-    path = "/v1/apikeys",
-    operation_id = "apikeys",
-    tag = "API Keys",
-    responses(
-        (
-            status = 200,
-            description = "Entrypoint response",
-            body = api::Response<Entrypoint>,
-            content_type = "application/json"
-        )
-    )
-)]
-#[cfg_attr(debug_assertions, axum::debug_handler)]
-pub async fn entrypoint() -> api::Response<Entrypoint> {
-    api::ok(StatusCode::OK, Entrypoint::new("API Keys"))
-}
-
+/*
 /// Generate an API key from the current authenticated user.
 #[utoipa::path(
     put,
@@ -89,7 +62,7 @@ pub async fn create(
     Json(CreateApiKeyPayload {
         name,
         description,
-        expires_in,
+        expires_in: _,
         scopes,
     }): Json<CreateApiKeyPayload>,
 ) -> api::Result<ApiKey> {
@@ -181,15 +154,25 @@ pub async fn create(
         PostgreSQL(conn) => conn.build_transaction().read_write().run(|txn| {
             use postgresql::api_keys::table;
 
-            diesel::insert_into(table).values(&key).execute(txn).context("failed to insert api key into database")
+            diesel::insert_into(table).values(&key).execute(txn)
         });
 
         SQLite(conn) => conn.immediate_transaction(|txn| {
             use sqlite::api_keys::table;
 
-            diesel::insert_into(table).values(&key).execute(txn).context("failed to insert api key into database")
+            diesel::insert_into(table).values(&key).execute(txn)
         });
-    });
+    })
+    .inspect_err(|e| {
+        sentry::capture_error(e);
+        error!(error = %e, "failed to insert api key into database");
+    })
+    .map_err(|_| api::internal_server_error())?;
 
-    todo!()
+    // TODO(@auguwu): register api key to a scheduled background job
+    // to be deleted within today + `expires_in`
+
+    Ok(api::ok(StatusCode::CREATED, key))
 }
+
+*/
