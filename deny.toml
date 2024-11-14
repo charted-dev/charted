@@ -33,6 +33,13 @@ targets = [
 #
 # See also: https://github.com/EmbarkStudios/cargo-deny/pull/611
 version = 2
+ignore = [
+  # We do not use remi-gridfs, yet mongodb is pulled in via it.
+  # We need to either rework how Remi in pulled in,
+  # or wait for a new version of mongodb upstream:
+  # https://github.com/mongodb/mongo-rust-driver/pull/1245
+  "RUSTSEC-2024-0388"
+]
 
 [bans]
 multiple-versions = "warn"
