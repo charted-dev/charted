@@ -41,7 +41,7 @@ dirs = "5.0.1"
 eyre.workspace = true
 http = "1.1.0"
 reqwest = "0.12.7"
-reqwest-middleware = { version = "0.3.3", features = ["json", "http2"] }
+reqwest-middleware = { version = "0.4.0", features = ["json", "http2"] }
 schemars = { workspace = true, features = ["url"] }
 serde.workspace = true
 serde_json.workspace = true
