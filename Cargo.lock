@@ -783,8 +783,8 @@ name = "azalia-remi"
 version = "0.1.0"
 source = "git+https://github.com/Noelware/azalia?rev=e70e14b9df6cea6759031ef20f9e4829af588e6b#e70e14b9df6cea6759031ef20f9e4829af588e6b"
 dependencies = [
- "remi",
- "remi-azure",
+ "remi 0.9.1",
+ "remi-azure 0.9.1",
  "remi-fs",
  "remi-gridfs",
  "remi-s3",
@@ -1217,7 +1217,7 @@ dependencies = [
  "eyre",
  "num_cpus",
  "owo-colors 4.1.0",
- "remi-azure",
+ "remi-azure 0.10.0",
  "remi-fs",
  "remi-s3",
  "sentry",
@@ -1249,7 +1249,7 @@ dependencies = [
  "charted-core",
  "eyre",
  "hcl-rs",
- "remi-azure",
+ "remi-azure 0.10.0",
  "remi-fs",
  "remi-s3",
  "sentry-types 0.35.0",
@@ -1338,7 +1338,7 @@ dependencies = [
  "flate2",
  "itertools 0.13.0",
  "multer",
- "remi",
+ "remi 0.9.1",
  "remi-fs",
  "semver",
  "sentry",
@@ -4217,6 +4217,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "remi"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fe3c79b3a6c88c780d8fedc9d0fa83512757d50545a65bb5f1b6ec4e504daea0"
+dependencies = [
+ "async-trait",
+ "bytes",
+]
+
+[[package]]
 name = "remi-azure"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4228,7 +4238,24 @@ dependencies = [
  "azure_storage_blobs",
  "bytes",
  "futures-util",
- "remi",
+ "remi 0.9.1",
+ "serde",
+ "tracing",
+]
+
+[[package]]
+name = "remi-azure"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "115571fce4169d992999acd1fc0171cef7a0f57399e906a2bfa38f8c6361138f"
+dependencies = [
+ "async-trait",
+ "azure_core",
+ "azure_storage",
+ "azure_storage_blobs",
+ "bytes",
+ "futures-util",
+ "remi 0.10.0",
  "serde",
  "tracing",
 ]
@@ -4242,7 +4269,7 @@ dependencies = [
  "etcetera",
  "file-format",
  "infer 0.16.0",
- "remi",
+ "remi 0.9.1",
  "serde",
  "serde_json",
  "tokio",
@@ -4259,7 +4286,7 @@ dependencies = [
  "bytes",
  "futures-util",
  "mongodb",
- "remi",
+ "remi 0.9.1",
  "serde",
  "tokio-util",
  "tracing",
@@ -4275,7 +4302,7 @@ dependencies = [
  "aws-credential-types",
  "aws-sdk-s3",
  "aws-smithy-runtime-api",
- "remi",
+ "remi 0.9.1",
  "serde",
  "tracing",
 ]

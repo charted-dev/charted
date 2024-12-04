@@ -53,7 +53,7 @@ eyre = "0.6.12"
 multer = "3.1.0"
 opentelemetry = "0.27.0"
 remi = "0.9.1"
-remi-azure = { version = "0.9.1", features = ["tracing", "export-azure"] }
+remi-azure = { version = "0.10.0", features = ["tracing", "export-azure"] }
 remi-fs = { version = "0.9.1", features = ["tracing"] }
 remi-s3 = { version = "0.9.1", features = ["tracing", "export-crates"] }
 schemars = "0.8.21"
