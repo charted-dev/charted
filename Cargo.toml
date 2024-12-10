@@ -55,19 +55,28 @@ argon2 = "0.5.3"
 axum = { version = "0.8.1", features = ["macros", "http2"] }
 charted-core = { version = "0.1.0", path = "./crates/core", default-features = false }
 charted-database = { version = "0.1.0", path = "./crates/database" }
+charted-testkit = "0.1.2"
 charted-types = { version = "0.1.0", path = "./crates/types", default-features = false }
 chrono = { version = "0.4.23", features = ["serde"] }
 clap = { version = "4.5.20", features = ["derive", "env"] }
 clap_complete = "4.5.33"
 derive_more = "1.0.0"
 diesel = { version = "2.2.4", features = ["postgres", "sqlite", "chrono"] }
+diesel_migrations = { version = "2.2.0", features = ["postgres", "sqlite"] }
 eyre = "0.6.12"
 multer = "3.1.0"
 opentelemetry = "0.27.0"
+rayon = "1.10.0"
 remi = "0.10.0"
 remi-azure = { version = "0.10.0", features = ["tracing", "export-azure"] }
 remi-fs = { version = "0.10.0", features = ["tracing"] }
 remi-s3 = { version = "0.10.0", features = ["tracing", "export-crates"] }
+reqwest = { version = "0.12.9", default-features = false, features = [
+    "http2",
+    "macos-system-configuration",
+    "charset",
+    "rustls-tls",
+] }
 schemars = "0.8.21"
 semver = { version = "1.0.23", features = ["serde"] }
 sentry = "0.36.0"

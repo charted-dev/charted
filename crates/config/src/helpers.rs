@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use eyre::eyre;
-use std::{env::VarError, str::FromStr};
+use std::{env::VarError, fmt::Display, str::FromStr};
 
 pub fn env_from_result<T>(res: Result<T, VarError>, default: T) -> eyre::Result<T> {
     match res {
@@ -35,12 +35,15 @@ pub fn env_from_str<F: FromStr>(key: &str, default: F) -> eyre::Result<F> {
     }
 }
 
-pub fn env_optional_from_str<F: FromStr>(key: &str, default: Option<F>) -> eyre::Result<Option<F>> {
+pub fn env_optional_from_str<F: FromStr>(key: &str, default: Option<F>) -> eyre::Result<Option<F>>
+where
+    F::Err: Display,
+{
     match azalia::config::env!(key) {
         Ok(value) => value
             .parse::<F>()
             .map(Some)
-            .map_err(|_| eyre!("failed to parse environment variable `${key}`")),
+            .map_err(|e| eyre!("failed to parse environment variable `${key}`: {e}")),
 
         Err(VarError::NotPresent) => Ok(default),
         Err(VarError::NotUnicode(_)) => Err(eyre!("received non-unicode in `${}` environment variable", key)),

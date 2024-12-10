@@ -34,7 +34,8 @@ diesel = { workspace = true, features = [
     "uuid",
     "r2d2",
 ] }
-diesel_migrations = { version = "2.2.0", features = ["postgres", "sqlite"] }
+diesel_migrations.workspace = true
 eyre.workspace = true
 sentry.workspace = true
+serde.workspace = true
 tracing.workspace = true

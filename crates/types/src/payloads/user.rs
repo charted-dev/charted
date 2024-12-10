@@ -37,15 +37,14 @@ super::create_modifying_payload! {
     /// Request body payload for modifying a user's metadata
     #[derive(Debug, Clone, Deserialize, ToSchema)]
     patch {
-        /// Optional field to update this user's gravatar email. If this user doesn't
-        /// have an avatar that is used or prefers not to use their previously uploaded
-        /// avatars and they set their Gravatar email, their Gravatar will be used.
+        /// Determines if the user avatar should use their Gravatar email.
+        #[serde(default)]
+        pub prefers_gravatar: Option<bool>,
+
+        /// Updates the email address to fetch the Gravatar email from.
         pub gravatar_email: Option<String>,
 
-        /// Short description about this user. If this field was provided, then the
-        /// description will be overwritten. If this field is `null`, then nothing
-        /// will happen. If this field is a empty string, then the description
-        /// will be wiped.
+        /// Short description about this user.
         pub description: Option<String>,
 
         /// Updates this user's username.
@@ -62,38 +61,3 @@ super::create_modifying_payload! {
         pub name: Option<Name>,
     }
 }
-
-/*
-/// Payload for patching your user metadata.
-#[derive(Debug, Clone, Deserialize, ToSchema, Validate)]
-pub struct PatchUserPayload {
-    /// Optional field to update this user's gravatar email. If this user doesn't
-    /// have an avatar that is used or prefers not to use their previously uploaded
-    /// avatars and they set their Gravatar email, their Gravatar will be used.
-    #[validate(email)]
-    pub gravatar_email: Option<String>,
-
-    /// Short description about this user. If this field was provided, then the
-    /// description will be overwritten. If this field is `null`, then nothing
-    /// will happen. If this field is a empty string, then the description
-    /// will be wiped.
-    #[validate(length(max = 140))]
-    pub description: Option<String>,
-
-    /// Updates this user's username.
-    #[schema(value_type = Name)]
-    pub username: Option<Name>,
-
-    /// Updates this user's password, if the session manager configured allows it.
-    #[schema(pattern = "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$")]
-    #[validate(length(min = 8))]
-    pub password: Option<String>,
-
-    /// Updates this user's email.
-    #[validate(email)]
-    pub email: Option<String>,
-
-    /// Updates this user's display name.
-    pub name: Option<Name>,
-}
-*/

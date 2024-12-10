@@ -37,7 +37,7 @@ use utoipa::ToSchema;
 pub enum Version {
     /// ## `v1`
     ///
-    /// Released since the initial release of **charted**.
+    /// Released since the initial release of **charted-server**.
     #[default]
     V1 = 1,
 }
@@ -160,6 +160,33 @@ pub struct Error {
     pub details: Option<Value>,
 }
 
+impl From<eyre::Report> for Error {
+    fn from(err: eyre::Report) -> Self {
+        if cfg!(debug_assertions) {
+            return Error {
+                code: ErrorCode::SystemFailure,
+                message: Cow::Owned(format!("system failure occurred: {err}")),
+                details: {
+                    let mut values = Vec::new();
+                    for err in err.chain().take(5) {
+                        values.push(serde_json::Value::String(err.to_string()));
+                    }
+
+                    Some(serde_json::json!({
+                        "causes": values,
+                    }))
+                },
+            };
+        }
+
+        Error {
+            code: ErrorCode::SystemFailure,
+            message: Cow::Borrowed("system failure occurred"),
+            details: None,
+        }
+    }
+}
+
 /// Error object when a internal error had occurred.
 pub const INTERNAL_SERVER_ERROR: Error = Error {
     code: ErrorCode::InternalServerError,
@@ -241,6 +268,9 @@ pub enum ErrorCode {
 
     /// missing a `Content-Type` header in your request
     MissingContentType,
+
+    /// system failure occurred.
+    SystemFailure,
 
     // ~ PATH PARAMETERS
     /// received the wrong list of path parameters, this is usually a bug within the code
@@ -452,4 +482,9 @@ pub fn err<E: Into<Error>>(status: StatusCode, error: E) -> Response {
 /// and the [`INTERNAL_SERVER_ERROR`] error details.
 pub fn internal_server_error() -> Response {
     err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
+}
+
+/// Propagate a system failure response.
+pub fn system_failure<E: Into<Error>>(error: E) -> Response {
+    err(StatusCode::INTERNAL_SERVER_ERROR, error.into())
 }

@@ -18,6 +18,7 @@ use charted_authz::Authenticator;
 use charted_config::{sessions::Backend, storage, Config};
 use charted_core::ulid::AtomicGenerator;
 use charted_database::DbPool;
+use eyre::Context as _;
 use std::sync::{
     atomic::{AtomicUsize, Ordering},
     Arc,
@@ -59,31 +60,44 @@ impl Clone for Context {
     }
 }
 
+/// Creates a [`StorageService`][azalia::remi::StorageService] that is idempotent from a [`Context`].
+pub async fn create_data_storage(config: &Config) -> eyre::Result<azalia::remi::StorageService> {
+    let storage = match config.storage.clone() {
+        storage::Config::Filesystem(fs) => {
+            StorageService::Filesystem(azalia::remi::fs::StorageService::with_config(fs))
+        }
+
+        storage::Config::Azure(azure) => StorageService::Azure(azalia::remi::azure::StorageService::new(azure)),
+        storage::Config::S3(s3) => StorageService::S3(azalia::remi::s3::StorageService::new(s3)),
+    };
+
+    <StorageService as azalia::remi::core::StorageService>::init(&storage)
+        .await
+        .map(|()| storage)
+        .context("failed to build data storage")
+}
+
+/// Creates a [`DbPool`] that is idempotent from a [`Context`].
+pub fn create_db_pool(config: &Config) -> eyre::Result<DbPool> {
+    let pool = charted_database::create_pool(&config.database)?;
+    let version = charted_database::version(&pool)?;
+
+    info!("received database version [{version}]: connection succeeded.");
+    if config.database.can_run_migrations() {
+        info!("performing data migration!");
+        charted_database::migrations::migrate(&pool)?;
+    }
+
+    Ok(pool)
+}
+
 impl Context {
     /// Creates a new [`Context`] object with the given configuration.
     pub async fn new(config: Config) -> eyre::Result<Self> {
-        let pool = charted_database::create_pool(&config.database)?;
-        let version = charted_database::version(&pool)?;
-
-        info!("received database version [{version}]: connection succeeded.");
-        if config.database.can_run_migrations() {
-            info!("performing data migration!");
-            charted_database::migrations::migrate(&pool)?;
-        }
+        let pool = create_db_pool(&config)?;
 
         info!("initializing data storage!");
-        let storage = match config.storage.clone() {
-            storage::Config::Filesystem(fs) => {
-                StorageService::Filesystem(azalia::remi::fs::StorageService::with_config(fs))
-            }
-            storage::Config::Azure(azure) => StorageService::Azure(
-                azalia::remi::azure::StorageService::new(azure)
-                    .expect("should be able to create Azure storage service"),
-            ),
-            storage::Config::S3(s3) => StorageService::S3(azalia::remi::s3::StorageService::new(s3)),
-        };
-
-        <StorageService as azalia::remi::core::StorageService>::init(&storage).await?;
+        let storage = create_data_storage(&config).await?;
 
         info!("initializing authentication backend");
         let authz: Arc<dyn Authenticator> = match config.sessions.backend.clone() {

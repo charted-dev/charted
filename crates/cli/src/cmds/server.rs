@@ -29,11 +29,13 @@ use tracing::info;
 use tracing::level_filters::LevelFilter;
 use tracing_subscriber::prelude::*;
 
+use crate::util;
+
 /// Runs the API server.
 #[derive(Debug, Clone, clap::Parser)]
 pub struct Args {
     /// location to a relative/absolute path to a configuration file. by default, this will locate
-    /// in `./config/charted.yml`/`./config.yml` if found.
+    /// in `./config/charted.hcl`/`./config.hcl` if found.
     #[arg(short = 'c', long, env = "CHARTED_CONFIG_FILE")]
     config: Option<PathBuf>,
 
@@ -46,14 +48,7 @@ pub struct Args {
 pub async fn run(Args { config, .. }: Args) -> eyre::Result<()> {
     print_banner();
 
-    let config =
-        config
-            .map(|path| Config::new(Some(path)))
-            .unwrap_or(match Config::get_default_conf_location_if_any() {
-                Ok(Some(path)) => Config::new(Some(path)),
-                _ => Config::new::<&str>(None),
-            })?;
-
+    let config = util::load_config(config)?;
     let _guard = sentry::init(sentry::ClientOptions {
         attach_stacktrace: true,
         server_name: Some(Cow::Borrowed("charted-server")),
@@ -67,6 +62,8 @@ pub async fn run(Args { config, .. }: Args) -> eyre::Result<()> {
     info!("initializing systems...");
 
     let cx = charted_app::Context::new(config).await?;
+    charted_helm_charts::init(&cx.storage).await?;
+
     charted_server::start(cx).await
 }
 

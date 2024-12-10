@@ -28,9 +28,12 @@ pub mod extract;
 pub mod middleware;
 pub mod multipart;
 pub mod openapi;
-pub(crate) mod ops;
+pub mod ops;
 pub mod responses;
 pub mod routing;
+
+#[cfg(test)]
+pub mod test;
 
 use argon2::{
     password_hash::{rand_core::OsRng, SaltString},

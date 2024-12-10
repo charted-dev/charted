@@ -18,7 +18,6 @@ pub use error::*;
 
 mod extract;
 pub use extract::*;
-use tower_http::auth::AsyncAuthorizeRequest;
 
 use crate::{ops, ServerContext};
 use axum::{
@@ -43,6 +42,7 @@ use diesel::sqlite::Sqlite;
 use jsonwebtoken::{DecodingKey, Validation};
 use serde_json::{json, Value};
 use std::{borrow::Cow, collections::HashMap, str::FromStr};
+use tower_http::auth::AsyncAuthorizeRequest;
 use tracing::{error, instrument, trace};
 
 pub const JWT_ISS: &str = "Noelware";

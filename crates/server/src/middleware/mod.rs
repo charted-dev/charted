@@ -19,4 +19,5 @@ pub use request_id::*;
 mod logging;
 pub use logging::*;
 
+pub mod permissions;
 pub mod session;

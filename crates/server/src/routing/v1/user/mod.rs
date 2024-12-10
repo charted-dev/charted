@@ -32,7 +32,10 @@ use charted_database::{
     connection,
     schema::{postgresql, sqlite},
 };
-use charted_types::{payloads::user::CreateUserPayload, User};
+use charted_types::{
+    payloads::user::{CreateUserPayload, PatchUserPayload},
+    User,
+};
 use eyre::Context;
 use serde_json::json;
 use tower_http::auth::AsyncRequireAuthorizationLayer;
@@ -41,12 +44,14 @@ use validator::ValidateEmail;
 
 pub fn create_router() -> Router<ServerContext> {
     let id_or_name = Router::new().route("/", routing::get(get_user));
-    let at_me = Router::new().route(
-        "/",
-        routing::get(get_self).layer(AsyncRequireAuthorizationLayer::new(
-            session::Middleware::default().scopes([ApiKeyScope::UserAccess]),
-        )),
-    );
+    let at_me = Router::new()
+        .route(
+            "/",
+            routing::get(get_self).layer(AsyncRequireAuthorizationLayer::new(
+                session::Middleware::default().scopes([ApiKeyScope::UserAccess]),
+            )),
+        )
+        .nest("/apikeys", apikeys::create_router());
 
     Router::new()
         .route("/", routing::get(main).put(create_user))
@@ -386,8 +391,23 @@ pub async fn get_self(Extension(Session { user, .. }): Extension<Session>) -> ap
     api::ok(StatusCode::OK, user)
 }
 
+/// Patch metadata about the current user.
 #[utoipa::path(patch, path = "/v1/users/@me", operation_id = "patchSelf", tag = "Users")]
-pub async fn patch() {}
+pub async fn patch(
+    State(cx): State<ServerContext>,
+    Extension(Session { user, .. }): Extension<Session>,
+    Json(PatchUserPayload {
+        prefers_gravatar,
+        gravatar_email,
+        description,
+        username,
+        password,
+        email,
+        name,
+    }): Json<PatchUserPayload>,
+) -> api::Result<()> {
+    todo!()
+}
 
 #[utoipa::path(delete, path = "/v1/users/@me", operation_id = "deleteSelf", tag = "Users")]
 pub async fn delete() {}

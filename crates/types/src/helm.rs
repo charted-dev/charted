@@ -371,7 +371,7 @@ pub struct ChartIndex {
 
     /// [`DateTime`] constant on when the chart index was generated at, this will not
     /// be modified at all.
-    pub generated_at: DateTime,
+    pub generated: DateTime,
 
     /// Map of [`ChartIndexSpec`]s for the Helm charts that Helm uses to install a Helm chart.
     pub entries: HashMap<String, Vec<ChartIndexSpec>>,
@@ -381,7 +381,7 @@ impl Default for ChartIndex {
     fn default() -> ChartIndex {
         ChartIndex {
             api_version: "v1".into(),
-            generated_at: Utc::now().into(),
+            generated: Utc::now().into(),
             entries: azalia::hashmap!(),
         }
     }

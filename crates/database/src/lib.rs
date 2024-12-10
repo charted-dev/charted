@@ -14,6 +14,7 @@
 // limitations under the License.
 
 pub mod migrations;
+pub mod paginate;
 pub mod schema;
 
 use charted_config::database::Config;
@@ -141,7 +142,23 @@ macro_rules! connection {
         }
     }};
 
-    ($pool:ident, {
+    ($pool:expr, {
+        $(
+            $db:ident($c:ident) => $code:expr;
+        )*
+    }) => {{
+        #[allow(unused)]
+        use ::eyre::Context;
+
+        let mut conn = ($pool).get().context("failed to get db connection")?;
+        $crate::connection!(@raw conn {
+            $(
+                $db($c) => $code;
+            )*
+        })
+    }};
+
+    ($pool:expr, {
         $(
             $db:ident($conn:ident) $code:block;
         )*

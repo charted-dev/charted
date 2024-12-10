@@ -18,6 +18,8 @@ pub mod index;
 pub mod info;
 pub mod main;
 pub mod openapi;
+pub mod organization;
+pub mod repository;
 pub mod user;
 
 use crate::ServerContext;

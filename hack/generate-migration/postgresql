@@ -44,7 +44,3 @@ echo "$ diesel $@ ${additionalargs[@]}"
 diesel $@ ${additionalargs[@]}
 
 popd >/dev/null
-
-if [ -n "${env_var+isset}" ]; then
-echo "The environment variable 'env_var' exists."
-fi

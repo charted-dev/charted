@@ -25,6 +25,7 @@ use std::{
     io::Read,
     path::{Path, PathBuf},
 };
+use url::Url;
 
 pub(crate) mod helpers;
 
@@ -38,6 +39,10 @@ pub mod storage;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Merge)]
 pub struct Config {
+    /// Base URL to point Helm chart objects to.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub base_url: Option<Url>,
+
     /// whether or not if users can be registered on this instance
     #[serde(default = "__truthy")]
     #[merge(strategy = azalia::config::merge::strategy::bool::only_if_falsy)]
@@ -93,6 +98,7 @@ impl TryFromEnv for Config {
             single_user: env!("CHARTED_SINGLE_USER", |val| TRUTHY_REGEX.is_match(&val); or false),
             single_org: env!("CHARTED_SINGLE_ORG", |val| TRUTHY_REGEX.is_match(&val); or false),
             sentry_dsn: helpers::env_optional_from_str("CHARTED_SENTRY_DSN", None)?,
+            base_url: helpers::env_optional_from_str("CHARTED_BASE_URL", None)?,
 
             database: database::Config::try_from_env()?,
             sessions: sessions::Config::try_from_env()?,
@@ -161,6 +167,18 @@ impl Config {
                 If any other key replaces this, then all JWT tokens will no longer be able to be verified, so it is recommended to keep this safe somewhere");
 
             config.jwt_secret_key = key;
+        }
+
+        if config.base_url.is_none() {
+            let scheme = match config.server.ssl {
+                Some(_) => "https",
+                None => "http",
+            };
+
+            let url = Url::parse(&format!("{scheme}://{}", config.server.addr()))?;
+            eprintln!("[charted WARN] `base_url` was not configured properly! All URLs will be mapped to {url}.");
+
+            config.base_url = Some(url);
         }
 
         Ok(config)

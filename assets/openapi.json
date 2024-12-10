@@ -450,6 +450,77 @@
                     }
                 }
             },
+            "ApiKeyScope": {
+                "oneOf": [
+                    {
+                        "type": "string",
+                        "description": "A humane name of the scope. This allows to determine the scope without knowing the integer representation of it.",
+                        "enum": [
+                            "org:webhooks:update",
+                            "admin:users:delete",
+                            "admin:orgs:delete",
+                            "repo:access",
+                            "apikeys:create",
+                            "user:update",
+                            "user:avatar:update",
+                            "user:sessions:list",
+                            "admin:orgs:update",
+                            "repo:webhooks:events:access",
+                            "repo:update",
+                            "org:webhooks:events:delete",
+                            "admin:users:create",
+                            "org:webhooks:delete",
+                            "repo:webhooks:create",
+                            "repo:members:list",
+                            "repo:members:kick",
+                            "repo:releases:delete",
+                            "repo:webhooks:events:delete",
+                            "user:notifications",
+                            "user:connections",
+                            "repo:create",
+                            "repo:write",
+                            "org:access",
+                            "org:members:update",
+                            "user:access",
+                            "apikeys:list",
+                            "org:webhooks:create",
+                            "org:members:list",
+                            "repo:members:invites:access",
+                            "org:delete",
+                            "org:webhooks:events:list",
+                            "admin:stats",
+                            "repo:members:invites:update",
+                            "admin:users:update",
+                            "repo:webhooks:update",
+                            "repo:webhooks:delete",
+                            "apikeys:view",
+                            "apikeys:update",
+                            "repo:members:invites:delete",
+                            "repo:releases:update",
+                            "repo:members:update",
+                            "repo:webhooks:list",
+                            "org:create",
+                            "org:members:invites",
+                            "org:members:kick",
+                            "repo:releases:create",
+                            "user:delete",
+                            "apikeys:delete",
+                            "org:update",
+                            "org:webhooks:list",
+                            "repo:icon:update",
+                            "repo:delete"
+                        ]
+                    },
+                    {
+                        "type": "number",
+                        "format": "u-int64",
+                        "description": "The actual representation of the scope. This is the repsentation the server checks and stores as AND is used when comparing permissions",
+                        "maximum": 4503599627370496,
+                        "minimum": 1
+                    }
+                ],
+                "description": "Representation of a API key scope. A scope determines a permission between an API key"
+            },
             "Chart": {
                 "type": "object",
                 "description": "Represents the skeleton of a `Chart.yaml` file.",
@@ -672,6 +743,11 @@
                     "name": {
                         "$ref": "#/components/schemas/Name",
                         "description": "Name of the API key."
+                    },
+                    "scopes": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/ApiKeyScope" },
+                        "description": "List of scopes (which can be either a `u64` or `string`)."
                     }
                 }
             },
@@ -1079,7 +1155,7 @@
                     },
                     "display_name": {
                         "type": ["string", "null"],
-                        "description": "Display name for this member. This should be formatted as '[{display_name}][Member::display_name] (@[{username}][User::username])' if this\nis set, otherwise '@[{username}][User::username]' is used."
+                        "description": "Display name for this member.\n\nThis should be formatted as `{display_name} (@{username})` where:\n- `{display_name}` is this property\n- `{username}` is the user's username.\n\nIf a display name is not visible, then using `@{username}` is also possible."
                     },
                     "id": {
                         "$ref": "#/components/schemas/Ulid",
@@ -1320,7 +1396,7 @@
                     },
                     "display_name": {
                         "type": ["string", "null"],
-                        "description": "Display name for this member. This should be formatted as '[{display_name}][Member::display_name] (@[{username}][User::username])' if this\nis set, otherwise '@[{username}][User::username]' is used."
+                        "description": "Display name for this member.\n\nThis should be formatted as `{display_name} (@{username})` where:\n- `{display_name}` is this property\n- `{username}` is the user's username.\n\nIf a display name is not visible, then using `@{username}` is also possible."
                     },
                     "id": {
                         "$ref": "#/components/schemas/Ulid",
@@ -1607,6 +1683,10 @@
         {
             "name": "Users",
             "description": "Endpoints that create, modify, delete, or fetch user metadata"
+        },
+        {
+            "name": "API Keys",
+            "description": "Endpoints that allow authenticating users with a secret key that is trusted by the server."
         },
         {
             "name": "Repositories",

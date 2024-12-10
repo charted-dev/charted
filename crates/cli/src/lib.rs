@@ -14,6 +14,7 @@
 // limitations under the License.
 
 pub mod cmds;
+pub(crate) mod util;
 
 use azalia::log::{writers::default::Writer, WriteLayer};
 use clap::Parser;

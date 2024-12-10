@@ -34,14 +34,25 @@ azalia = { workspace = true, features = [
 charted-app = { version = "0.1.0", path = "../app" }
 charted-config = { version = "0.1.0", path = "../config" }
 charted-core = { workspace = true, default-features = false }
+charted-database.workspace = true
+charted-helm-charts = { version = "0.1.0", path = "../helm-charts" }
 charted-server = { version = "0.1.0", path = "../server" }
+charted-types.workspace = true
 clap = { workspace = true, features = ["derive", "env"] }
 clap_complete.workspace = true
+cli-table = "0.4.9"
+diesel.workspace = true
+diesel_migrations.workspace = true
 eyre.workspace = true
 num_cpus = "1.16.0"
 owo-colors = { version = "4.1.0", features = ["supports-colors"] }
+rayon.workspace = true
+reqwest.workspace = true
 sentry.workspace = true
 sentry-tracing = "0.36.0"
+serde_yaml_ng.workspace = true
+tokio = { workspace = true, features = ["rt"] }
 tracing.workspace = true
 tracing-error = "0.2.0"
 tracing-subscriber.workspace = true
+url.workspace = true

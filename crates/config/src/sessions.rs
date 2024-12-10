@@ -31,6 +31,12 @@ pub enum Backend {
     Local,
 }
 
+impl Backend {
+    pub const fn is_local(&self) -> bool {
+        matches!(self, Backend::Local)
+    }
+}
+
 impl Merge for Backend {
     fn merge(&mut self, other: Self) {
         match (self.clone(), other) {

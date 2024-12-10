@@ -60,6 +60,14 @@ use utoipa::{
             description = "Endpoints that create, modify, delete, or fetch user metadata"
         ),
         (
+            name = "Users/Avatars",
+            description = "Endpoints that can create, modify, delete, and fetch user avatars"
+        ),
+        (
+            name = "Users/Sessions",
+            description = "Endpoints that allow to login as a user and get an access token."
+        ),
+        (
             name = "API Keys",
             description = "Endpoints that allow authenticating users with a secret key that is trusted by the server."
         ),
@@ -150,9 +158,52 @@ use utoipa::{
         )
     ),
     paths(
+        // === ORGANIZATIONS / AVATARS ===
+
+        // === ORGANIZATIONS / MEMBERS ===
+
+        // === ORGANIZATIONS / REPOSITORIES ===
+
+        // === REPOSITORIES / ICONS ===
+
+        // === REPOSITORIES / MEMBERS ===
+
+        // === REPOSITORIES / RELEASES ===
+
+        // === USERS / REPOSITORIES ===
+        crate::routing::v1::user::repositories::list_self_user_repositories,
+        crate::routing::v1::user::repositories::list_user_repositories,
+        crate::routing::v1::user::repositories::create_user_repository,
+
+        // === USERS / AVATARS ===
+        crate::routing::v1::user::avatars::get_all_user_avatars,
+        crate::routing::v1::user::avatars::get_all_self_user_avatars,
+        crate::routing::v1::user::avatars::get_user_avatar,
+        crate::routing::v1::user::avatars::get_self_user_avatar,
+        crate::routing::v1::user::avatars::upload_avatar,
+        crate::routing::v1::user::avatars::delete_avatar,
+
+        // === USERS / SESSIONS ===
+        crate::routing::v1::user::sessions::login,
+        crate::routing::v1::user::sessions::logout,
+        crate::routing::v1::user::sessions::refresh_session_token,
+
+        // === USERS / APIKEYS ===
+        crate::routing::v1::user::apikeys::list,
+        crate::routing::v1::user::apikeys::get,
+        crate::routing::v1::user::apikeys::create,
+        crate::routing::v1::user::apikeys::patch,
+        crate::routing::v1::user::apikeys::delete,
+
+        // === USERS ===
         crate::routing::v1::user::create_user,
+        crate::routing::v1::user::get_user,
+        crate::routing::v1::user::get_self,
+        crate::routing::v1::user::delete,
+        crate::routing::v1::user::patch,
         crate::routing::v1::user::main,
 
+        // === MAIN ===
         crate::routing::v1::heartbeat::heartbeat,
         crate::routing::v1::index::get_chart_index,
         crate::routing::v1::info::info,

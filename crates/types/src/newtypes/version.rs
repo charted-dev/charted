@@ -37,7 +37,7 @@ charted_core::create_newtype_wrapper!(
     /// * [`AsExpression`]<[`Text`]>
     /// * [`ToSchema`], [`PartialSchema`] for OpenAPI
     #[cfg_attr(feature = "jsonschema", doc = "* [`JsonSchema`][schemasrs::JsonSchema] for JSON schemas")]
-    #[derive(Debug, Clone, Display, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash, AsExpression, FromSqlRow)]
+    #[derive(Debug, Clone, Display, Serialize, PartialEq, Eq, PartialOrd, Ord, Hash, AsExpression, FromSqlRow)]
     #[diesel(sql_type = Text)]
     pub Version for ::semver::Version;
 );
@@ -47,8 +47,49 @@ charted_core::mk_from_newtype!(from Version as semver::Version);
 impl Version {
     /// Forwards to [`semver::Version::parse`] to return this newtype wrapper.
     pub fn parse(v: &str) -> Result<Version, semver::Error> {
-        semver::Version::parse(v).map(Self)
+        semver::Version::parse(&v.trim_start_matches('v').replace(['x', 'X'], "0")).map(Self)
     }
+}
+
+impl<'de> Deserialize<'de> for Version {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        struct Visitor;
+        impl<'de> serde::de::Visitor<'de> for Visitor {
+            type Value = Version;
+
+            fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                f.write_str("valid semantic version string")
+            }
+
+            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                self.visit_string(v.to_string())
+            }
+
+            fn visit_string<E>(self, v: String) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                Version::parse(&v).map_err(E::custom)
+            }
+        }
+
+        deserializer.deserialize_str(Visitor)
+    }
+}
+
+#[cfg(test)]
+#[test]
+fn test_deserialization_of_version() {
+    assert!(serde_json::from_str::<Version>("\"1.2.x\"").is_ok());
+    assert!(serde_json::from_str::<Version>("\"1.x.x\"").is_ok());
+    assert!(serde_json::from_str::<Version>("\"1.2.X\"").is_ok());
+    assert!(serde_json::from_str::<Version>("\"1.X.X\"").is_ok());
 }
 
 ////// ============================ SCHEMAS ============================ \\\\\\

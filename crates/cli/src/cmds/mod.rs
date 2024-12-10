@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod admin;
 mod completions;
 mod migrations;
 mod server;
@@ -21,12 +22,16 @@ mod server;
 pub enum Cmd {
     Completions(completions::Args),
     Server(server::Args),
+
+    #[command(subcommand)]
+    Migrate(migrations::Cmd),
 }
 
 impl Cmd {
     pub async fn run(self) -> eyre::Result<()> {
         match self {
             Cmd::Server(args) => server::run(args).await,
+            Cmd::Migrate(cmd) => cmd.execute().await,
             Cmd::Completions(args) => completions::run(args),
         }
     }

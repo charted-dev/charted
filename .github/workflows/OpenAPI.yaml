@@ -47,7 +47,7 @@ jobs:
 
             - name: Generate OpenAPI document
               run: |
-                  cargo dev internals -- openapi ${GITHUB_WORKSPACE}/assets/openapi.json
+                  cargo internals openapi ${GITHUB_WORKSPACE}/assets/openapi.json
                   bunx prettier --write --config ${GITHUB_WORKSPACE}/.prettierrc.json ./assets/*.json
 
             - name: Commit changes (if we can)

@@ -82,3 +82,18 @@ impl<'r> ToResponse<'r> for Main {
 pub async fn main() -> api::Response<Main> {
     api::from_default(StatusCode::OK)
 }
+
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+//     use charted_testkit::TestContext;
+
+//     #[charted_testkit::test(router)]
+//     async fn test_main_endpoint(cx: &mut TestContext) -> eyre::Result<()> {
+//         let (tmpdir, ctx) = crate::test::create_server_context(&[|_| {}]).await?;
+//         let router = crate::routing::create_router(&ctx).with_state(ctx);
+//         cx.serve(router).await;
+
+//         Ok(())
+//     }
+// }

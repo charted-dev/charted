@@ -15,8 +15,10 @@
 
 //! An atomic Ulid generator.
 
+use crate::api;
 use rand::{rngs::OsRng, Rng};
 use std::{
+    borrow::Cow,
     fmt::Display,
     sync::atomic::{AtomicPtr, Ordering},
     time::{Duration, SystemTime},
@@ -36,6 +38,15 @@ impl Display for MonotonicTimeOverflow {
 }
 
 impl std::error::Error for MonotonicTimeOverflow {}
+impl From<MonotonicTimeOverflow> for api::Error {
+    fn from(_: MonotonicTimeOverflow) -> Self {
+        api::Error {
+            code: api::ErrorCode::SystemFailure,
+            message: Cow::Borrowed("monotonic clock when generating ulids overflowed?!"),
+            details: None,
+        }
+    }
+}
 
 /// An atomic Ulid generator.
 #[derive(Debug)]

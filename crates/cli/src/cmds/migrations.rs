@@ -13,5 +13,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod chart;
 mod list;
+mod revert;
 mod run;
+
+/// Allows doing database migrations or Helm chart index migrations.
+#[derive(Debug, Clone, clap::Subcommand)]
+pub enum Cmd {
+    Chart(chart::Args),
+    List(list::Args),
+    Revert(revert::Args),
+    Run(run::Args),
+}
+
+impl Cmd {
+    pub async fn execute(self) -> eyre::Result<()> {
+        match self {
+            Cmd::Run(args) => run::run(args),
+            Cmd::List(args) => list::run(args),
+            Cmd::Chart(args) => chart::run(args).await,
+            Cmd::Revert(args) => revert::run(args),
+        }
+    }
+}

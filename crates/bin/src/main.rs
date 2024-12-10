@@ -50,7 +50,7 @@ fn main() -> eyre::Result<()> {
             program.init_logger();
             Builder::new_current_thread()
                 .worker_threads(1)
-                .enable_io()
+                .enable_all()
                 .thread_name_fn(thread_name_fn)
                 .build()?
         }
