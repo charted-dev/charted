@@ -789,7 +789,7 @@ dependencies = [
 [[package]]
 name = "azalia"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/azalia?rev=88b72f595aea5f179911787971b68becae49a843#88b72f595aea5f179911787971b68becae49a843"
+source = "git+https://github.com/Noelware/azalia?rev=46037bbe850082e833ff01068355180c771621db#46037bbe850082e833ff01068355180c771621db"
 dependencies = [
  "azalia-config",
  "azalia-log",
@@ -802,7 +802,7 @@ dependencies = [
 [[package]]
 name = "azalia-config"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/azalia?rev=88b72f595aea5f179911787971b68becae49a843#88b72f595aea5f179911787971b68becae49a843"
+source = "git+https://github.com/Noelware/azalia?rev=46037bbe850082e833ff01068355180c771621db#46037bbe850082e833ff01068355180c771621db"
 dependencies = [
  "azalia-config-derive",
 ]
@@ -810,7 +810,7 @@ dependencies = [
 [[package]]
 name = "azalia-config-derive"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/azalia?rev=88b72f595aea5f179911787971b68becae49a843#88b72f595aea5f179911787971b68becae49a843"
+source = "git+https://github.com/Noelware/azalia?rev=46037bbe850082e833ff01068355180c771621db#46037bbe850082e833ff01068355180c771621db"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -820,7 +820,7 @@ dependencies = [
 [[package]]
 name = "azalia-log"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/azalia?rev=88b72f595aea5f179911787971b68becae49a843#88b72f595aea5f179911787971b68becae49a843"
+source = "git+https://github.com/Noelware/azalia?rev=46037bbe850082e833ff01068355180c771621db#46037bbe850082e833ff01068355180c771621db"
 dependencies = [
  "cfg-if",
  "chrono",
@@ -834,20 +834,20 @@ dependencies = [
 [[package]]
 name = "azalia-remi"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/azalia?rev=88b72f595aea5f179911787971b68becae49a843#88b72f595aea5f179911787971b68becae49a843"
+source = "git+https://github.com/Noelware/azalia?rev=46037bbe850082e833ff01068355180c771621db#46037bbe850082e833ff01068355180c771621db"
 dependencies = [
- "remi 0.9.1",
- "remi-azure 0.9.1",
- "remi-fs 0.9.1",
+ "remi",
+ "remi-azure",
+ "remi-fs",
  "remi-gridfs",
- "remi-s3 0.9.1",
+ "remi-s3",
  "serde",
 ]
 
 [[package]]
 name = "azalia-serde"
 version = "0.1.0"
-source = "git+https://github.com/Noelware/azalia?rev=88b72f595aea5f179911787971b68becae49a843#88b72f595aea5f179911787971b68becae49a843"
+source = "git+https://github.com/Noelware/azalia?rev=46037bbe850082e833ff01068355180c771621db#46037bbe850082e833ff01068355180c771621db"
 dependencies = [
  "serde",
  "tracing",
@@ -1185,6 +1185,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
+name = "cfg_aliases"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "613afe47fcd5fac7ccf1db93babcb082c5994d996f20b8b159f2ad1658eb5724"
+
+[[package]]
 name = "charted"
 version = "0.1.0"
 dependencies = [
@@ -1310,9 +1316,9 @@ dependencies = [
  "charted-core",
  "eyre",
  "hcl-rs",
- "remi-azure 0.10.0",
- "remi-fs 0.10.0",
- "remi-s3 0.10.0",
+ "remi-azure",
+ "remi-fs",
+ "remi-s3",
  "sentry-types 0.36.0",
  "serde",
  "tracing",
@@ -1405,8 +1411,7 @@ dependencies = [
  "flate2",
  "itertools 0.14.0",
  "multer",
- "remi 0.10.0",
- "remi-fs 0.10.0",
+ "remi-fs",
  "semver",
  "sentry",
  "serde_yaml_ng",
@@ -1774,9 +1779,9 @@ dependencies = [
 
 [[package]]
 name = "crossbeam-deque"
-version = "0.8.5"
+version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "613f8cc01fe9cf1a3eb3d7f488fd2fa8388403e97039e2f73692932e291a770d"
+checksum = "9dd111b7b7f7d55b72c0a6ae361660ee5853c9af73f70c3c2ef6858b950e2e51"
 dependencies = [
  "crossbeam-epoch",
  "crossbeam-utils",
@@ -2271,12 +2276,6 @@ dependencies = [
  "rand_core 0.6.4",
  "subtle",
 ]
-
-[[package]]
-name = "file-format"
-version = "0.25.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9ffe3a660c3a1b10e96f304a9413d673b2118d62e4520f7ddf4a4faccfe8b9b9"
 
 [[package]]
 name = "file-format"
@@ -4135,9 +4134,9 @@ dependencies = [
 
 [[package]]
 name = "quinn"
-version = "0.11.3"
+version = "0.11.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b22d8e7369034b9a7132bc2008cac12f2013c8132b45e0554e6e20e2617f2156"
+checksum = "62e96808277ec6f97351a2380e6c25114bc9e67037775464979f3037c92d05ef"
 dependencies = [
  "bytes",
  "pin-project-lite",
@@ -4146,39 +4145,43 @@ dependencies = [
  "rustc-hash 2.1.0",
  "rustls 0.23.20",
  "socket2",
- "thiserror 1.0.69",
+ "thiserror 2.0.10",
  "tokio",
  "tracing",
 ]
 
 [[package]]
 name = "quinn-proto"
-version = "0.11.6"
+version = "0.11.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ba92fb39ec7ad06ca2582c0ca834dfeadcaf06ddfc8e635c80aa7e1c05315fdd"
+checksum = "a2fe5ef3495d7d2e377ff17b1a8ce2ee2ec2a18cde8b6ad6619d65d0701c135d"
 dependencies = [
  "bytes",
+ "getrandom 0.2.15",
  "rand 0.8.5",
  "ring 0.17.8",
  "rustc-hash 2.1.0",
  "rustls 0.23.20",
+ "rustls-pki-types",
  "slab",
- "thiserror 1.0.69",
+ "thiserror 2.0.10",
  "tinyvec",
  "tracing",
+ "web-time",
 ]
 
 [[package]]
 name = "quinn-udp"
-version = "0.5.4"
+version = "0.5.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8bffec3605b73c6f1754535084a85229fa8a30f86014e6c81aeec4abb68b0285"
+checksum = "1c40286217b4ba3a71d644d752e6a0b71f13f1b6a2c5311acfcbe0c2418ed904"
 dependencies = [
+ "cfg_aliases",
  "libc",
  "once_cell",
  "socket2",
  "tracing",
- "windows-sys 0.52.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -4378,39 +4381,12 @@ dependencies = [
 
 [[package]]
 name = "remi"
-version = "0.9.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64c4338dc59046b354af1f87258f88a55dc46ee4e3633c98e4026ac92e82cfaa"
-dependencies = [
- "async-trait",
- "bytes",
-]
-
-[[package]]
-name = "remi"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fe3c79b3a6c88c780d8fedc9d0fa83512757d50545a65bb5f1b6ec4e504daea0"
 dependencies = [
  "async-trait",
  "bytes",
-]
-
-[[package]]
-name = "remi-azure"
-version = "0.9.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5fbc256e20a300d85745bb878047f9aab08eac7ab632f3060854a779b66421b6"
-dependencies = [
- "async-trait",
- "azure_core",
- "azure_storage",
- "azure_storage_blobs",
- "bytes",
- "futures-util",
- "remi 0.9.1",
- "serde",
- "tracing",
 ]
 
 [[package]]
@@ -4425,24 +4401,8 @@ dependencies = [
  "azure_storage_blobs",
  "bytes",
  "futures-util",
- "remi 0.10.0",
+ "remi",
  "serde",
- "tracing",
-]
-
-[[package]]
-name = "remi-fs"
-version = "0.9.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc8234ca5950a3fd4c7968d121e0df3c66fdd8700f705969f8cd2602f7f1fc87"
-dependencies = [
- "etcetera",
- "file-format 0.25.0",
- "infer 0.16.0",
- "remi 0.9.1",
- "serde",
- "serde_json",
- "tokio",
  "tracing",
 ]
 
@@ -4453,9 +4413,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "99621b113276ba096c8ee56e09781a1ce209393b9f29dc22c9307c4111936791"
 dependencies = [
  "etcetera",
- "file-format 0.26.0",
+ "file-format",
  "infer 0.16.0",
- "remi 0.10.0",
+ "remi",
  "rustc_version",
  "serde",
  "serde_json",
@@ -4465,32 +4425,17 @@ dependencies = [
 
 [[package]]
 name = "remi-gridfs"
-version = "0.9.1"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4ae97978ced16901d0c80fa1f87bc64eeaa425069ae3a2cfd811705f384fb824"
+checksum = "141a4e406f67d9154eb740b7bc018edaf143424e5aaf41505c1641309df19125"
 dependencies = [
  "async-trait",
  "bytes",
  "futures-util",
  "mongodb",
- "remi 0.9.1",
+ "remi",
  "serde",
  "tokio-util",
- "tracing",
-]
-
-[[package]]
-name = "remi-s3"
-version = "0.9.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "46024388d5b6897be550595040fb1036dc09e1d420343aaf9df2222add901628"
-dependencies = [
- "aws-config",
- "aws-credential-types",
- "aws-sdk-s3",
- "aws-smithy-runtime-api",
- "remi 0.9.1",
- "serde",
  "tracing",
 ]
 
@@ -4504,7 +4449,7 @@ dependencies = [
  "aws-credential-types",
  "aws-sdk-s3",
  "aws-smithy-runtime-api",
- "remi 0.10.0",
+ "remi",
  "serde",
  "tracing",
 ]
@@ -4761,6 +4706,9 @@ name = "rustls-pki-types"
 version = "1.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d2bf47e6ff922db3825eb750c4e2ff784c6ff8fb9e13046ef6a1d1c5401b0b37"
+dependencies = [
+ "web-time",
+]
 
 [[package]]
 name = "rustls-webpki"

@@ -96,7 +96,7 @@ which = "7.0.0"
 [workspace.dependencies.azalia]
 version = "0.1.0"
 git = "https://github.com/Noelware/azalia"
-rev = "88b72f595aea5f179911787971b68becae49a843"
+rev = "46037bbe850082e833ff01068355180c771621db"
 
 [profile.release]
 codegen-units = 1 # use a single codegen unit

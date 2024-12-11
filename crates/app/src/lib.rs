@@ -67,7 +67,7 @@ pub async fn create_data_storage(config: &Config) -> eyre::Result<azalia::remi::
             StorageService::Filesystem(azalia::remi::fs::StorageService::with_config(fs))
         }
 
-        storage::Config::Azure(azure) => StorageService::Azure(azalia::remi::azure::StorageService::new(azure)),
+        storage::Config::Azure(azure) => StorageService::Azure(azalia::remi::azure::StorageService::new(azure)?),
         storage::Config::S3(s3) => StorageService::S3(azalia::remi::s3::StorageService::new(s3)),
     };
 

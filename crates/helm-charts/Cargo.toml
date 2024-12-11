@@ -31,7 +31,6 @@ eyre.workspace = true
 flate2 = "1.0.32"
 itertools = "0.14.0"
 multer.workspace = true
-remi.workspace = true
 sentry.workspace = true
 serde_yaml_ng.workspace = true
 tar = "0.4.41"

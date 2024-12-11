@@ -13,13 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use azalia::remi::{core::StorageService as _, StorageService};
+use azalia::remi::{
+    core::{Blob, StorageService as _, UploadRequest},
+    StorageService,
+};
 use charted_types::{helm::ChartIndex, Ulid, Version};
 use eyre::{eyre, Context, Report};
 use flate2::bufread::MultiGzDecoder;
 use itertools::Itertools;
 use multer::Multipart;
-use remi::{Blob, UploadRequest};
 use std::{future::Future, pin::Pin};
 use tar::Archive;
 use tracing::{error, info, instrument, trace, warn};
@@ -355,8 +357,8 @@ mod tests {
 
                     let tempdir = ::tempfile::TempDir::new().unwrap();
                     let path = tempdir.into_path();
-                    let $storage = ::azalia::remi::StorageService::Filesystem(::remi_fs::StorageService::with_config(
-                        remi_fs::StorageConfig::new(&path),
+                    let $storage = ::azalia::remi::StorageService::Filesystem(::azalia::remi::fs::StorageService::with_config(
+                        azalia::remi::fs::StorageConfig::new(&path),
                     ));
 
                     ($storage).init().await.expect("failed to initialize");

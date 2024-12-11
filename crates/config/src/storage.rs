@@ -32,15 +32,15 @@ use std::{borrow::Cow, path::PathBuf, str::FromStr};
 #[serde(rename_all = "lowercase")]
 pub enum Config {
     /// Uses the local filesystem to store external media and chart indexes.
-    Filesystem(remi_fs::StorageConfig),
+    Filesystem(azalia::remi::fs::StorageConfig),
 
     /// Uses Microsoft's [Azure Blob Storage](https://azure.microsoft.com/en-us/products/storage/blobs) to store
     /// external media and chart indexes.
-    Azure(remi_azure::StorageConfig),
+    Azure(azalia::remi::azure::StorageConfig),
 
     /// Uses Amazon's Simple Storage Service (S3) service or a S3-compatible server to store
     /// external media and chart indexes.
-    S3(remi_s3::StorageConfig),
+    S3(azalia::remi::s3::StorageConfig),
 }
 
 macro_rules! merge_tuple {
@@ -89,7 +89,7 @@ impl Merge for Config {
                     }
 
                     (CloudLocation::China(acc1), CloudLocation::China(acc2)) if acc1 != acc2 => {
-                        me.location = CloudLocation::China(acc2.clone());
+                        me.location = CloudLocation::Public(acc2.clone());
                     }
 
                     (
