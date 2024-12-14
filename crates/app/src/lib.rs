@@ -76,7 +76,10 @@ impl Context {
             storage::Config::Filesystem(fs) => {
                 StorageService::Filesystem(azalia::remi::fs::StorageService::with_config(fs))
             }
-            storage::Config::Azure(azure) => StorageService::Azure(azalia::remi::azure::StorageService::new(azure)),
+            storage::Config::Azure(azure) => StorageService::Azure(
+                azalia::remi::azure::StorageService::new(azure)
+                    .expect("should be able to create Azure storage service"),
+            ),
             storage::Config::S3(s3) => StorageService::S3(azalia::remi::s3::StorageService::new(s3)),
         };
 

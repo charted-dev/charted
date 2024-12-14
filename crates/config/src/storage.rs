@@ -19,7 +19,7 @@ use azalia::{
     TRUTHY_REGEX,
 };
 use eyre::{eyre, Context, Report};
-use remi_azure::{core::storage::CloudLocation, Credential};
+use remi_azure::{CloudLocation, Credential};
 use remi_s3::aws::s3::{
     config::Region,
     types::{BucketCannedAcl, ObjectCannedAcl},
@@ -84,16 +84,12 @@ impl Merge for Config {
                 me.container.merge(other.container);
 
                 match (&me.location, &other.location) {
-                    (CloudLocation::Public { account: acc1 }, CloudLocation::Public { account: acc2 })
-                        if acc1 != acc2 =>
-                    {
-                        me.location = CloudLocation::Public { account: acc2.clone() };
+                    (CloudLocation::Public(acc1), CloudLocation::Public(acc2)) if acc1 != acc2 => {
+                        me.location = CloudLocation::Public(acc2.clone());
                     }
 
-                    (CloudLocation::China { account: acc1 }, CloudLocation::China { account: acc2 })
-                        if acc1 != acc2 =>
-                    {
-                        me.location = CloudLocation::China { account: acc2.clone() };
+                    (CloudLocation::China(acc1), CloudLocation::China(acc2)) if acc1 != acc2 => {
+                        me.location = CloudLocation::China(acc2.clone());
                     }
 
                     (
@@ -264,15 +260,15 @@ fn to_env_credentials() -> eyre::Result<Credential> {
 fn to_env_location() -> eyre::Result<CloudLocation> {
     match env!("CHARTED_STORAGE_AZURE_LOCATION") {
         Ok(res) => match res.as_str() {
-            "public" => Ok(CloudLocation::Public {
-                account: env!("CHARTED_STORAGE_AZURE_ACCOUNT")
+            "public" => Ok(CloudLocation::Public(
+                env!("CHARTED_STORAGE_AZURE_ACCOUNT")
                     .context("missing required env [CHARTED_STORAGE_AZURE_ACCOUNT]")?,
-            }),
+            )),
 
-            "china" => Ok(CloudLocation::China {
-                account: env!("CHARTED_STORAGE_AZURE_ACCOUNT")
+            "china" => Ok(CloudLocation::China(
+                env!("CHARTED_STORAGE_AZURE_ACCOUNT")
                     .context("missing required env [CHARTED_STORAGE_AZURE_ACCOUNT]")?,
-            }),
+            )),
 
             "emulator" => Ok(CloudLocation::Emulator {
                 address: env!("CHARTED_STORAGE_AZURE_EMULATOR_ADDRESS")
