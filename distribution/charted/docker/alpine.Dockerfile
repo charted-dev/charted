@@ -38,7 +38,7 @@ ENV RUSTFLAGS="--cfg tokio_unstable -C link-arg=-fuse-ld=mold -Ctarget-cpu=nativ
 RUN cargo build --locked --release --package charted --features bundled-sqlite --features bundled-pq
 
 ##### FINAL STAGE
-FROM alpine:3.20
+FROM alpine:3.21
 
 RUN apk upgrade && apk add --no-cache \
     bash                              \
