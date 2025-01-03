@@ -17,9 +17,9 @@
 FROM rustlang/rust:nightly-bookworm-slim AS build
 
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt update &&                          \
-    apt upgrade -y &&                      \
-    apt install -y --no-install-recommends \
+RUN apt-get update &&                          \
+    apt-get upgrade -y &&                      \
+    apt-get install -y --no-install-recommends \
         git                                \
         mold                               \
         ca-certificates                    \
@@ -40,7 +40,7 @@ RUN cargo build --locked --release --package charted --features bundled-sqlite -
 ##### FINAL STAGE
 FROM debian:bookworm-slim
 
-RUN apt update && apt upgrade -y && apt install -y bash tini curl libssl-dev
+RUN apt-get update && apt-get upgrade -y && apt-get install -y bash tini curl libssl-dev
 
 WORKDIR /app/noelware/charted/server
 
