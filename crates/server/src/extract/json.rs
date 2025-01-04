@@ -13,7 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use async_trait::async_trait;
 use axum::{
     body::Bytes,
     extract::{self, FromRequest},
@@ -33,7 +32,6 @@ charted_core::create_newtype_wrapper! {
     pub Json<T> for pub T;
 }
 
-#[async_trait]
 impl<T: DeserializeOwned, S: Send + Sync> FromRequest<S> for Json<T> {
     type Rejection = api::Response;
 

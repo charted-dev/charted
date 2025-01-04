@@ -27,7 +27,6 @@ charted_core::create_newtype_wrapper! {
     pub Path<T> for pub T;
 }
 
-#[async_trait::async_trait]
 impl<S: Send + Sync, T: DeserializeOwned + Send + Sync> FromRequestParts<S> for Path<T> {
     type Rejection = api::Response;
 

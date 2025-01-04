@@ -54,7 +54,7 @@ impl Entrypoint {
 pub fn create_router(cx: &ServerContext) -> Router<ServerContext> {
     let mut router = Router::new()
         .nest("/users", user::create_router())
-        .route("/indexes/:idOrName", routing::get(index::get_chart_index))
+        .route("/indexes/{idOrName}", routing::get(index::get_chart_index))
         .route("/heartbeat", routing::get(heartbeat::heartbeat))
         .route("/openapi.json", routing::get(openapi::openapi))
         .route("/info", routing::get(info::info))
