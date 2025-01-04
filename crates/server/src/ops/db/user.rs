@@ -1,5 +1,5 @@
 // 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
-// Copyright 2022-2024 Noelware, LLC. <team@noelware.org>
+// Copyright 2022-2025 Noelware, LLC. <team@noelware.org>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ use charted_database::{
 };
 use charted_types::User;
 use eyre::Report;
-use tracing::instrument;
+use tracing::{instrument, trace};
 
 #[instrument(name = "charted.server.ops.db.getUser", skip_all)]
 pub async fn get<ID: Into<NameOrUlid>>(ctx: &ServerContext, id: ID) -> eyre::Result<Option<User>> {
@@ -73,4 +73,23 @@ pub async fn get<ID: Into<NameOrUlid>>(ctx: &ServerContext, id: ID) -> eyre::Res
     .inspect_err(|err| {
         sentry_eyre::capture_report(err);
     })
+}
+
+pub async fn delete(ctx: &ServerContext, user: User) {
+    // The actual delete is here so we can discard the result and send error reports to Sentry
+    // and log the error if any occur since we only want to do `tokio::spawn`.
+    #[instrument(name = "charted.server.users.delete", skip_all, fields(%user.id, %user.username))]
+    async fn actual_delete(ctx: &ServerContext, user: User) -> eyre::Result<()> {
+        trace!("performing deletion of user...");
+
+        Ok(())
+    }
+
+    actual_delete(ctx, user)
+        .await
+        .inspect_err(|e| {
+            sentry_eyre::capture_report(e);
+            tracing::error!(error = %e, "failed to delete user");
+        })
+        .ok();
 }

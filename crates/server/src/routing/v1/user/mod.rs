@@ -1,5 +1,5 @@
 // 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
-// Copyright 2022-2024 Noelware, LLC. <team@noelware.org>
+// Copyright 2022-2025 Noelware, LLC. <team@noelware.org>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ use charted_types::{
     payloads::user::{CreateUserPayload, PatchUserPayload},
     User,
 };
+use diesel::{backend::Backend, ExpressionMethods, QueryDsl};
 use eyre::Context;
 use serde_json::json;
 use tower_http::auth::AsyncRequireAuthorizationLayer;
@@ -406,6 +407,39 @@ pub async fn patch(
         name,
     }): Json<PatchUserPayload>,
 ) -> api::Result<()> {
+    let mut conn = cx
+        .pool
+        .get()
+        .inspect_err(|e| {
+            sentry::capture_error(e);
+            tracing::error!(error = %e, "failed to establish database connection");
+        })
+        .map_err(|x| api::system_failure::<eyre::Report>(x.into()))?;
+
+    let _: Result<(), diesel::result::Error> = charted_database::connection!(@raw conn {
+        PostgreSQL(conn) => conn.build_transaction().run(|txn| {
+            use postgresql::users::{dsl, table};
+
+            // We have to box this query since we are doing multiple conditions
+            let mut update = diesel::update(table.filter(dsl::id.eq(user.id))).into_boxed::<diesel::pg::Pg>();
+
+            // `prefers_gravatar` != null; perform update
+            if let Some(prefers_gravatar) = prefers_gravatar {
+                //update = update.set(dsl::prefers_gravatar.eq(prefers_gravatar));
+            }
+
+            todo!()
+        });
+
+        SQLite(conn) => conn.immediate_transaction(|txn| {
+            use sqlite::users::{dsl, table};
+
+            let mut update = diesel::update(table.filter(dsl::id.eq(user.id))).into_boxed::<diesel::sqlite::Sqlite>();
+
+            todo!()
+        });
+    });
+
     todo!()
 }
 

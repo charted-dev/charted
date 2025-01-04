@@ -1,5 +1,5 @@
 # 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
-# Copyright 2022-2024 Noelware, LLC. <team@noelware.org>
+# Copyright 2022-2025 Noelware, LLC. <team@noelware.org>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 # limitations under the License.
 
 name: charted
-version: "0.1.0"
+version: '0.1.0'
 description: 🐻‍❄️🌺 Helm plugin to help you push your Helm charts into charted-server easily!~
 command: '$HELM_PLUGIN_DIR/bin/charted-helm-plugin'
 useTunnel: false

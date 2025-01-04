@@ -5,11 +5,14 @@ description: Describes all the possible ways to interact with charted's REST API
 
 ## API Reference
 
-charted's REST API is designed to be consumable by developers who want to easily modify, create, fetch, or delete **entities** from the server without manual intervention.
+charted's REST API is designed to be consumable by developers who want to easily modify, create, fetch, or delete **entities** from the server.
 
 ```shell
 # REST API :: Production Server
 https://charts.noelware.org/api
+
+# REST API :: Staging Server
+https://staging-charts.noelware.org/api
 ```
 
 ## API Versioning
