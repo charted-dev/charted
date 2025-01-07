@@ -56,7 +56,7 @@ mime = "0.3.17"
 multer.workspace = true
 sentry.workspace = true
 sentry-eyre = "0.2.0"
-sentry-tower = { version = "0.35.0", features = ["axum", "http"] }
+sentry-tower = { version = "0.36.0", features = ["axum", "http"] }
 serde.workspace = true
 serde_json.workspace = true
 serde_path_to_error = "0.1.16"
