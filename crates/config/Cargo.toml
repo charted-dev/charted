@@ -39,7 +39,7 @@ hcl-rs = "0.18.2"
 remi-azure = { workspace = true, features = ["serde"] }
 remi-fs = { workspace = true, features = ["serde"] }
 remi-s3 = { workspace = true, features = ["serde"] }
-sentry-types = "0.35.0"
+sentry-types = "0.36.0"
 serde.workspace = true
 tracing.workspace = true
 
