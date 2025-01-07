@@ -40,7 +40,7 @@ repository = "https://github.com/charted-dev/charted"
 
 [workspace.dependencies]
 argon2 = "0.5.3"
-axum = { version = "0.7.7", features = ["macros", "http2"] }
+axum = { version = "0.8.1", features = ["macros", "http2"] }
 charted-core = { version = "0.1.0", path = "./crates/core", default-features = false }
 charted-database = { version = "0.1.0", path = "./crates/database" }
 charted-types = { version = "0.1.0", path = "./crates/types", default-features = false }

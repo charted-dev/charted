@@ -34,7 +34,6 @@ azalia = { workspace = true, features = [
     "remi-serde",
 ] }
 argon2.workspace = true
-async-trait = "0.1.81"
 axum = { workspace = true, features = ["matched-path"] }
 axum-server = { version = "0.7.1", features = ["tls-rustls"] }
 base64 = "0.22.1"

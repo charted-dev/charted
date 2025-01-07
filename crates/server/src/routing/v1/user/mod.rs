@@ -50,7 +50,7 @@ pub fn create_router() -> Router<ServerContext> {
     Router::new()
         .route("/", routing::get(main).put(create_user))
         .nest("/@me", at_me)
-        .nest("/:idOrName", id_or_name)
+        .nest("/{idOrName}", id_or_name)
 }
 
 /// Entrypoint to the Users API.

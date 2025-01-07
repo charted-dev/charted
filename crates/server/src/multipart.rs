@@ -36,7 +36,6 @@ impl DerefMut for Multipart {
     }
 }
 
-#[async_trait::async_trait]
 impl<S: Send + Sync> FromRequest<S> for Multipart {
     type Rejection = Rejection;
 
