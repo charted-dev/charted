@@ -35,7 +35,7 @@ argon2.workspace = true
 axum.workspace = true
 azalia = { workspace = true, features = ["lazy", "regex"] }
 charted-testkit = { version = "0.1.0", features = ["macros"], optional = true }
-cron = "0.13.0"
+cron = "0.14.0"
 eyre.workspace = true
 humantime = "2.1.0"
 rand = "0.8.5"
