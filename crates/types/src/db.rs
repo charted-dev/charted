@@ -29,6 +29,12 @@ pub struct User {
     #[serde(default)]
     pub verified_publisher: bool,
 
+    /// whether or not if the user prefers to use their Gravatar email
+    /// as their profile picture.
+    #[schema(read_only)]
+    #[serde(default)]
+    pub prefers_gravatar: bool,
+
     /// Email address that is the Gravatar email to which we should use the user's avatar.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub gravatar_email: Option<String>,
@@ -74,6 +80,23 @@ pub struct User {
 
 util::selectable!(users for User => [
     verified_publisher: bool,
+    prefers_gravatar: bool,
+    gravatar_email: Option<String>,
+    description: Option<String>,
+    avatar_hash: Option<String>,
+    created_at: DateTime,
+    updated_at: DateTime,
+    username: Name,
+    password: Option<String>,
+    email: String,
+    admin: bool,
+    name: Option<String>,
+    id: Ulid
+]);
+
+crate::mk_db_based_types!(users for User => [
+    verified_publisher: bool,
+    prefers_gravatar: bool,
     gravatar_email: Option<String>,
     description: Option<String>,
     avatar_hash: Option<String>,
@@ -119,6 +142,15 @@ pub struct UserConnections {
 }
 
 util::selectable!(user_connections for UserConnections => [
+    noelware_account_id: Option<i64>,
+    google_account_id: Option<String>,
+    github_account_id: Option<String>,
+    created_at: DateTime,
+    updated_at: DateTime,
+    id: Ulid
+]);
+
+crate::mk_db_based_types!(user_connections for UserConnections => [
     noelware_account_id: Option<i64>,
     google_account_id: Option<String>,
     github_account_id: Option<String>,
@@ -194,6 +226,20 @@ util::selectable!(repositories for Repository => [
     id: Ulid
 ]);
 
+crate::mk_db_based_types!(repositories for Repository => [
+    description: Option<String>,
+    deprecated: bool,
+    created_at: DateTime,
+    updated_at: DateTime,
+    icon_hash: Option<String>,
+    creator: Option<Ulid>,
+    private: bool,
+    owner: Ulid,
+    name: Name,
+    type_: ChartType,
+    id: Ulid
+]);
+
 /// Represents a resource that contains a release from a [Repository] release. Releases
 /// are a way to group releases of new versions of Helm charts that can be easily
 /// fetched from the API server.
@@ -232,6 +278,15 @@ pub struct RepositoryRelease {
 }
 
 util::selectable!(repository_releases for RepositoryRelease => [
+    update_text: Option<String>,
+    repository: Ulid,
+    created_at: DateTime,
+    updated_at: DateTime,
+    tag: Version,
+    id: Ulid
+]);
+
+crate::mk_db_based_types!(repository_releases for RepositoryRelease => [
     update_text: Option<String>,
     repository: Ulid,
     created_at: DateTime,
@@ -299,7 +354,26 @@ macro_rules! create_member_struct {
 }
 
 create_member_struct!(Repository -> repository_members);
+
+crate::mk_db_based_types!(repository_members for RepositoryMember => [
+    display_name: Option<String>,
+    permissions: i64,
+    updated_at: DateTime,
+    joined_at: DateTime,
+    account: Ulid,
+    id: Ulid
+]);
+
 create_member_struct!(Organization -> organization_members);
+
+crate::mk_db_based_types!(organization_members for OrganizationMember => [
+    display_name: Option<String>,
+    permissions: i64,
+    updated_at: DateTime,
+    joined_at: DateTime,
+    account: Ulid,
+    id: Ulid
+]);
 
 #[derive(Debug, Clone, Serialize, ToSchema, Queryable, Insertable)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite, diesel::pg::Pg))]
@@ -354,6 +428,20 @@ pub struct Organization {
 }
 
 util::selectable!(organizations for Organization => [
+    verified_publisher: bool,
+    twitter_handle: Option<String>,
+    gravatar_email: Option<String>,
+    display_name: Option<String>,
+    created_at: DateTime,
+    updated_at: DateTime,
+    icon_hash: Option<String>,
+    private: bool,
+    owner: Ulid,
+    name: Name,
+    id: Ulid
+]);
+
+crate::mk_db_based_types!(organizations for Organization => [
     verified_publisher: bool,
     twitter_handle: Option<String>,
     gravatar_email: Option<String>,
@@ -433,6 +521,18 @@ impl ApiKey {
 }
 
 util::selectable!(api_keys for ApiKey => [
+    description: Option<String>,
+    created_at: DateTime,
+    updated_at: DateTime,
+    expires_in: Option<DateTime>,
+    scopes: i64,
+    token: String,
+    owner: Ulid,
+    name: Name,
+    id: Ulid
+]);
+
+crate::mk_db_based_types!(api_keys for ApiKey => [
     description: Option<String>,
     created_at: DateTime,
     updated_at: DateTime,

@@ -23,7 +23,7 @@ use crate::{
     extract::{Json, Path},
     hash_password,
     middleware::session::{self, Session},
-    openapi::ApiErrorResponse,
+    openapi::{ApiErrorResponse, EmptyApiResponse},
     ops, NameOrUlid, ServerContext,
 };
 use axum::{extract::State, http::StatusCode, routing, Extension, Router};
@@ -34,7 +34,7 @@ use charted_database::{
 };
 use charted_types::{
     payloads::user::{CreateUserPayload, PatchUserPayload},
-    User,
+    PGUser, SqliteUser, User,
 };
 use diesel::{backend::Backend, ExpressionMethods, QueryDsl};
 use eyre::Context;
@@ -282,6 +282,7 @@ pub async fn create_user(
 
     let user = User {
         verified_publisher: false,
+        prefers_gravatar: false,
         gravatar_email: None,
         description: None,
         avatar_hash: None,
@@ -386,17 +387,55 @@ pub async fn get_user(State(cx): State<ServerContext>, Path(id_or_name): Path<Na
     get,
     path = "/v1/users/@me",
     operation_id = "getSelfUser",
-    tags = ["Users"]
+    tags = ["Users"],
+    responses(
+        (
+            status = 200,
+            description = "A single user found",
+            body = api::Response<User>,
+            content_type = "application/json"
+        ),
+        (
+            status = 4XX,
+            description = "Any occurrence when authentication fails",
+            body = ApiErrorResponse,
+            content_type = "application/json"
+        )
+    )
 )]
 pub async fn get_self(Extension(Session { user, .. }): Extension<Session>) -> api::Response<User> {
     api::ok(StatusCode::OK, user)
 }
 
 /// Patch metadata about the current user.
-#[utoipa::path(patch, path = "/v1/users/@me", operation_id = "patchSelf", tag = "Users")]
+#[utoipa::path(
+    patch,
+    path = "/v1/users/@me",
+    operation_id = "patchSelf",
+    tag = "Users",
+    request_body(
+        content_type = "application/json",
+        description = "Update payload for the `User` entity",
+        content = ref("PatchUserPayload")
+    ),
+    responses(
+        (
+            status = 204,
+            description = "Patch was successfully reflected",
+            body = EmptyApiResponse,
+            content_type = "application/json"
+        ),
+        (
+            status = 4XX,
+            description = "Any occurrence when authentication fails or if the patch couldn't be reflected",
+            body = ApiErrorResponse,
+            content_type = "application/json"
+        )
+    )
+)]
 pub async fn patch(
     State(cx): State<ServerContext>,
-    Extension(Session { user, .. }): Extension<Session>,
+    Extension(Session { mut user, .. }): Extension<Session>,
     Json(PatchUserPayload {
         prefers_gravatar,
         gravatar_email,
@@ -407,6 +446,114 @@ pub async fn patch(
         name,
     }): Json<PatchUserPayload>,
 ) -> api::Result<()> {
+    if let Some(prefers_gravatar) = prefers_gravatar {
+        if user.prefers_gravatar != prefers_gravatar {
+            user.prefers_gravatar = prefers_gravatar;
+        }
+    }
+
+    if let Some(gravatar_email) = gravatar_email.as_deref() {
+        // if `old` == None, then update the description
+        // if `old` == Some(..) && `old` != `gravatar_email`, commit update
+        // if `old` == Some(..) && `old` == `""`, commit as `None`
+        let old = user.gravatar_email.as_deref();
+        if old.is_none() && !gravatar_email.is_empty() {
+            user.gravatar_email = Some(gravatar_email.to_owned());
+        } else if let Some(old) = old
+            && !old.is_empty()
+            && old != gravatar_email
+        {
+            user.gravatar_email = Some(gravatar_email.to_owned());
+        } else if gravatar_email.is_empty() {
+            user.description = None;
+        }
+    }
+
+    if let Some(description) = description {
+        if description.len() > 140 {
+            let len = description.len();
+            return Err(api::err(
+                StatusCode::NOT_ACCEPTABLE,
+                (
+                    api::ErrorCode::ValidationFailed,
+                    "expected `description` to be less than 140 characters",
+                    json!({
+                        "expected": 140,
+                        "received": {
+                            "over": len - 140,
+                            "length": len
+                        }
+                    }),
+                ),
+            ));
+        }
+
+        // if `old` == None, then update the description
+        // if `old` == Some(..) && `old` != `descroption`, commit update
+        // if `old` == Some(..) && `old` == `""`, commit as `None`
+        let old = user.description.as_deref();
+        if old.is_none() {
+            user.description = Some(description);
+        } else if let Some(old) = old
+            && !old.is_empty()
+            && old != description
+        {
+            user.description = Some(description);
+        } else if description.is_empty() {
+            user.description = None;
+        }
+    }
+
+    if let Some(username) = username {
+        // We need to validate that the username isn't already taken, so we will get a
+        // temporary connection.
+        match ops::db::user::get(&cx, NameOrUlid::Name(username.clone())).await {
+            Ok(None) => {}
+            Ok(Some(_)) => {
+                return Err(api::err(
+                    StatusCode::CONFLICT,
+                    (
+                        api::ErrorCode::EntityAlreadyExists,
+                        "user with username already exists",
+                        json!({"username":&username}),
+                    ),
+                ))
+            }
+
+            Err(e) => return Err(api::system_failure(e)),
+        };
+
+        // In deserialization of the request body, it'll validate that
+        // the name is correct anyway, so it is ok to set it here without
+        // even more validation.
+        user.username = username;
+    }
+
+    if let Some(password) = password.as_deref() {
+        let authz = cx.authz.as_ref();
+        if authz.downcast::<charted_authz_local::Backend>().is_none() {
+            return Err(api::err(
+                StatusCode::NOT_ACCEPTABLE,
+                (
+                    api::ErrorCode::InvalidBody,
+                    "`password` is only supported on the local authz backend",
+                ),
+            ));
+        }
+
+        if password.len() < 8 {
+            return Err(api::err(
+                StatusCode::NOT_ACCEPTABLE,
+                (
+                    api::ErrorCode::InvalidPassword,
+                    "`password` length was expected to be 8 characters or longer",
+                ),
+            ));
+        }
+
+        user.password = Some(hash_password(password).map_err(|_| api::internal_server_error())?);
+    }
+
     let mut conn = cx
         .pool
         .get()
@@ -414,34 +561,62 @@ pub async fn patch(
             sentry::capture_error(e);
             tracing::error!(error = %e, "failed to establish database connection");
         })
-        .map_err(|x| api::system_failure::<eyre::Report>(x.into()))?;
+        .map_err(|_| api::internal_server_error())?;
 
-    let _: Result<(), diesel::result::Error> = charted_database::connection!(@raw conn {
+    charted_database::connection!(@raw conn {
         PostgreSQL(conn) => conn.build_transaction().run(|txn| {
             use postgresql::users::{dsl, table};
 
-            // We have to box this query since we are doing multiple conditions
-            let mut update = diesel::update(table.filter(dsl::id.eq(user.id))).into_boxed::<diesel::pg::Pg>();
-
-            // `prefers_gravatar` != null; perform update
-            if let Some(prefers_gravatar) = prefers_gravatar {
-                //update = update.set(dsl::prefers_gravatar.eq(prefers_gravatar));
-            }
-
-            todo!()
+            diesel::update(table.filter(dsl::id.eq(user.id)))
+                .set(user.into_pg())
+                .execute(txn)
+                .map(|_| ())
         });
 
         SQLite(conn) => conn.immediate_transaction(|txn| {
             use sqlite::users::{dsl, table};
 
-            let mut update = diesel::update(table.filter(dsl::id.eq(user.id))).into_boxed::<diesel::sqlite::Sqlite>();
-
-            todo!()
+            diesel::update(table.filter(dsl::id.eq(user.id)))
+                .set(user.into_sqlite())
+                .execute(txn)
+                .map(|_| ())
         });
-    });
+    })
+    .inspect_err(|e| {
+        sentry::capture_error(e);
+        tracing::error!(error = %e, "failed to update user");
+    })
+    .map_err(|_| api::internal_server_error())?;
 
-    todo!()
+    Ok(api::no_content())
 }
 
-#[utoipa::path(delete, path = "/v1/users/@me", operation_id = "deleteSelf", tag = "Users")]
-pub async fn delete() {}
+#[utoipa::path(
+    delete,
+
+    path = "/v1/users/@me",
+    operation_id = "deleteSelf",
+    tag = "Users",
+    responses(
+        (
+            status = 204,
+            description = "User is scheduled for deletion and will be deleted",
+            body = EmptyApiResponse,
+            content_type = "application/json"
+        )
+    )
+)]
+pub async fn delete(
+    State(cx): State<ServerContext>,
+    Extension(Session { user, .. }): Extension<Session>,
+) -> api::Result<()> {
+    ops::db::user::delete(cx, user)
+        .await
+        .inspect_err(|e| {
+            sentry_eyre::capture_report(e);
+            tracing::error!(error = %e, "failed to delete user");
+        })
+        .map_err(|_| api::internal_server_error())?;
+
+    Ok(api::no_content())
+}

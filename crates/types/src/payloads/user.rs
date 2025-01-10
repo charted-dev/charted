@@ -58,6 +58,6 @@ super::create_modifying_payload! {
         pub email: Option<String>,
 
         /// Updates this user's display name.
-        pub name: Option<Name>,
+        pub name: Option<String>,
     }
 }

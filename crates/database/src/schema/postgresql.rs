@@ -171,7 +171,7 @@ diesel::table! {
         #[max_length = 64]
         name -> Nullable<Varchar>,
         id -> Text,
-        prefers_gravatar -> Nullable<Bool>,
+        prefers_gravatar -> Bool,
     }
 }
 

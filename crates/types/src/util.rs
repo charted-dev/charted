@@ -13,7 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-macro dummy_const($($tt:tt)*) {
+#[doc(hidden)]
+pub macro dummy_const($($tt:tt)*) {
     #[allow(unused_imports)]
     const _: () = {
         $($tt)*
@@ -100,4 +101,101 @@ pub macro selectable {
             {}
         }
     }
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! mk_db_based_types {
+    ($table:ident for $ty:ty => [$($field:ident: $fty:ty),*]) => {
+        $crate::mk_db_based_types!(@__impl sqlite $table $ty [$($field -> $fty),*]);
+        $crate::mk_db_based_types!(@__impl postgresql $table $ty [$($field -> $fty),*]);
+    };
+
+    (@__impl sqlite $table:ident $ty:ty [$($field:ident -> $fty:ty),*]) => {
+        paste::paste! {
+            #[derive(Debug, Clone)]
+            pub struct [<Sqlite $ty>]($ty);
+
+            impl From<$ty> for [<Sqlite $ty>] {
+                fn from(value: $ty) -> Self {
+                    Self(value)
+                }
+            }
+
+            impl $ty {
+                #[doc = " Takes ownership of `self` and returns a [`" [<Sqlite $ty>] "`] object."]
+                pub fn into_sqlite(self) -> [<Sqlite $ty>] {
+                    [<Sqlite $ty>](self)
+                }
+            }
+
+            $crate::util::dummy_const! {
+                use ::diesel::ExpressionMethods;
+
+                impl ::diesel::AsChangeset for [<Sqlite $ty>] {
+                    type Target = ::charted_database::schema::sqlite::$table::table;
+                    type Changeset = <(
+                        $(
+                            ::diesel::dsl::Eq<
+                                ::charted_database::schema::sqlite::$table::$field,
+                                $fty,
+                            >,
+                        )*
+                    ) as ::diesel::AsChangeset>::Changeset;
+
+                    fn as_changeset(self) -> Self::Changeset {
+                        (
+                            $(
+                                ::charted_database::schema::sqlite::$table::$field.eq(self.0.$field),
+                            )*
+                        ).as_changeset()
+                    }
+                }
+            }
+        }
+    };
+
+    (@__impl postgresql $table:ident $ty:ty [$($field:ident -> $fieldty:ty),*]) => {
+        paste::paste! {
+            #[derive(Debug, Clone)]
+            pub struct [<PG $ty>]($ty);
+
+            impl From<$ty> for [<PG $ty>] {
+                fn from(value: $ty) -> Self {
+                    Self(value)
+                }
+            }
+
+            impl $ty {
+                #[doc = " Takes ownership of `self` and returns a [`" [<PG $ty>] "`] object."]
+                pub fn into_pg(self) -> [<PG $ty>] {
+                    [<PG $ty>](self)
+                }
+            }
+
+            $crate::util::dummy_const! {
+                use ::diesel::ExpressionMethods;
+
+                impl ::diesel::AsChangeset for [<PG $ty>] {
+                    type Target = ::charted_database::schema::postgresql::$table::table;
+                    type Changeset = <(
+                        $(
+                            ::diesel::dsl::Eq<
+                                ::charted_database::schema::postgresql::$table::$field,
+                                $fieldty,
+                            >,
+                        )*
+                    ) as ::diesel::AsChangeset>::Changeset;
+
+                    fn as_changeset(self) -> Self::Changeset {
+                        (
+                            $(
+                                ::charted_database::schema::postgresql::$table::$field.eq(self.0.$field),
+                            )*
+                        ).as_changeset()
+                    }
+                }
+            }
+        }
+    };
 }

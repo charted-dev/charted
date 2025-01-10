@@ -464,6 +464,10 @@ pub fn ok<T>(status: StatusCode, data: T) -> Response<T> {
     }
 }
 
+pub fn no_content() -> Response<()> {
+    from_default(StatusCode::NO_CONTENT)
+}
+
 pub fn from_default<T: Default>(status: StatusCode) -> Response<T> {
     ok(status, T::default())
 }

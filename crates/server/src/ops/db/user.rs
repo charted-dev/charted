@@ -75,21 +75,21 @@ pub async fn get<ID: Into<NameOrUlid>>(ctx: &ServerContext, id: ID) -> eyre::Res
     })
 }
 
-pub async fn delete(ctx: &ServerContext, user: User) {
-    // The actual delete is here so we can discard the result and send error reports to Sentry
-    // and log the error if any occur since we only want to do `tokio::spawn`.
-    #[instrument(name = "charted.server.users.delete", skip_all, fields(%user.id, %user.username))]
-    async fn actual_delete(ctx: &ServerContext, user: User) -> eyre::Result<()> {
-        trace!("performing deletion of user...");
+#[instrument(name = "charted.server.users.delete", skip_all, fields(%user.id, %user.username))]
+pub async fn delete(ctx: ServerContext, user: User) -> eyre::Result<()> {
+    trace!("deleting user from database");
 
-        Ok(())
-    }
+    Ok(())
+}
 
-    actual_delete(ctx, user)
-        .await
-        .inspect_err(|e| {
-            sentry_eyre::capture_report(e);
-            tracing::error!(error = %e, "failed to delete user");
-        })
-        .ok();
+async fn delete_all_repositories(ctx: &ServerContext, user: &User) -> eyre::Result<()> {
+    Ok(())
+}
+
+async fn delete_all_organizations(ctx: &ServerContext, user: &User) -> eyre::Result<()> {
+    Ok(())
+}
+
+async fn delete_persistent_metadata(ctx: &ServerContext, user: &User) -> eyre::Result<()> {
+    Ok(())
 }

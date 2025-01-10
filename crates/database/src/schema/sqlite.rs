@@ -160,7 +160,7 @@ diesel::table! {
         admin -> Bool,
         name -> Nullable<Text>,
         id -> Text,
-        prefers_gravatar -> Nullable<Bool>,
+        prefers_gravatar -> Bool,
     }
 }
 
