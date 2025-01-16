@@ -14,7 +14,7 @@
 # limitations under the License.
 
 [toolchain]
-channel = "nightly-2024-08-26"
+channel = "nightly-2025-01-16"
 profile = "minimal"
 components = [
     "rustc",
