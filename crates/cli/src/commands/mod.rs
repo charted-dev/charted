@@ -13,16 +13,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod create;
-mod delete;
-mod list;
-mod make_admin;
-mod make_vp;
+mod admin;
+mod completions;
+mod migrations;
+pub mod server;
 
-/// User administrative commands.
 #[derive(Debug, clap::Subcommand)]
-pub enum Subcommand {}
+pub enum Subcommand {
+    Completions(completions::Args),
+    Server(server::Args),
 
-pub async fn run(subcmd: Subcommand) -> eyre::Result<()> {
-    match subcmd {}
+    #[command(subcommand)]
+    Admin(admin::Subcommand),
+
+    #[command(subcommand)]
+    Migrations(migrations::Subcommand),
+}
+
+pub async fn execute(subcmd: Subcommand) -> eyre::Result<()> {
+    match subcmd {
+        Subcommand::Server(args) => server::run(args).await,
+        Subcommand::Migrations(subcmd) => migrations::run(subcmd).await,
+        Subcommand::Admin(subcmd) => admin::run(subcmd).await,
+        Subcommand::Completions(args) => completions::run(args),
+    }
 }

@@ -23,3 +23,12 @@ license.workspace = true
 publish.workspace = true
 repository.workspace = true
 authors.workspace = true
+
+[dependencies]
+azalia = { workspace = true, features = ["log", "log-writers"] }
+clap.workspace = true
+clap_complete.workspace = true
+eyre.workspace = true
+num_cpus.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true

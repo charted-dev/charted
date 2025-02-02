@@ -13,4 +13,62 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-fn main() {}
+use charted_cli::{
+    commands::{server, Subcommand},
+    Program,
+};
+use clap::Parser;
+use color_eyre::config::HookBuilder;
+use mimalloc::MiMalloc;
+use std::sync::atomic::{AtomicUsize, Ordering};
+use tokio::runtime::Builder;
+
+#[global_allocator]
+static GLOBAL: MiMalloc = MiMalloc;
+
+fn main() -> eyre::Result<()> {
+    // You can also configure charted-server via system environment
+    // variables and can be placed in a `.env` file to load them.
+    dotenvy::dotenv().unwrap_or_default();
+
+    HookBuilder::new()
+        .issue_url(concat!(env!("CARGO_PKG_REPOSITORY"), "/issues/new?labels=rust"))
+        .capture_span_trace_by_default(true)
+        .add_issue_metadata("version", "???")
+        .add_issue_metadata("rustc", "???")
+        .install()?;
+
+    let program = Program::parse();
+    let runtime = match program.command {
+        Subcommand::Server(server::Args { workers, .. }) => {
+            let mut builder = Builder::new_multi_thread();
+            builder.worker_threads(workers);
+            configure_runtime(&mut builder);
+
+            builder.build()?
+        }
+
+        _ => {
+            program.init_logger();
+
+            let mut builder = Builder::new_current_thread();
+            builder.worker_threads(1);
+            configure_runtime(&mut builder);
+
+            builder.build()?
+        }
+    };
+
+    runtime.block_on(program.execute())
+}
+
+fn configure_runtime(builder: &mut Builder) {
+    builder.enable_all().thread_name_fn(thread_name_fn);
+}
+
+fn thread_name_fn() -> String {
+    static WORKER_ID: AtomicUsize = AtomicUsize::new(0);
+
+    let id = WORKER_ID.fetch_add(1, Ordering::SeqCst);
+    format!("charted-worker-pool[#{id}]")
+}
