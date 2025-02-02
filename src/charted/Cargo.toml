@@ -35,5 +35,4 @@ color-eyre.workspace = true
 dotenvy = "0.15.7"
 eyre.workspace = true
 mimalloc = "0.1.43"
-num_cpus.workspace = true
 tokio = { workspace = true, features = ["rt", "rt-multi-thread"] }

@@ -251,7 +251,6 @@ dependencies = [
  "dotenvy",
  "eyre",
  "mimalloc",
- "num_cpus",
  "tokio",
 ]
 
