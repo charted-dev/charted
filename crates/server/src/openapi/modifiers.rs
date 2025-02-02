@@ -17,8 +17,9 @@ use charted_core::api::Version;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use utoipa::{
     openapi::{
+        schema::ArrayItems,
         security::{ApiKey, ApiKeyValue, HttpAuthScheme, HttpBuilder, SecurityScheme},
-        ComponentsBuilder, OpenApi, Ref, RefOr, Schema,
+        ArrayBuilder, ComponentsBuilder, OpenApi, Ref, RefOr, Schema,
     },
     Modify,
 };
@@ -216,10 +217,26 @@ impl Modify for ResponseModifiers {
                                             let reference = ref_.ref_location.split("/").last().unwrap();
 
                                             let (_, ty) = reference.split_once('_').unwrap();
-                                            assert!(!ty.contains("_"));
 
-                                            content.schema =
-                                                Some(RefOr::Ref(Ref::from_schema_name(format!("{ty}Response"))));
+                                            // if we get Response_Vec_ApiKey, then we will transform
+                                            // it into `ApiResponse<Vec<ApiKey>>` by
+                                            let schema = if ty.starts_with("Vec_") {
+                                                let (_, inner) = ty.split_once('_').unwrap();
+                                                assert!(!inner.contains("_"));
+
+                                                RefOr::T(Schema::Array(
+                                                    ArrayBuilder::new()
+                                                        .items(ArrayItems::RefOrSchema(Box::new(RefOr::Ref(
+                                                            Ref::from_schema_name(inner),
+                                                        ))))
+                                                        .build(),
+                                                ))
+                                            } else {
+                                                assert!(!ty.contains("_"));
+                                                RefOr::Ref(Ref::from_schema_name(format!("{ty}Response")))
+                                            };
+
+                                            content.schema = Some(schema);
                                         }
                                     }
                                 }

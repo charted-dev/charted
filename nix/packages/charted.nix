@@ -35,7 +35,7 @@ in
     pname = "charted";
     src = ../../.;
 
-    cargoBuildFlags = ["--package" "charted"];
+    cargoBuildFlags = ["--bin" "charted"];
     cargoLock = {
       inherit (common) outputHashes;
 

@@ -69,7 +69,7 @@ impl<T: DeserializeOwned, S: Send + Sync> FromRequest<S> for Json<T> {
         })?;
 
         let has_ct =
-            mime.type_() == "application" && (mime.subtype() == "json" || mime.suffix().map_or(false, |n| n == "json"));
+            mime.type_() == "application" && (mime.subtype() == "json" || mime.suffix().is_some_and(|n| n == "json"));
 
         if !has_ct {
             return Err(api::err(

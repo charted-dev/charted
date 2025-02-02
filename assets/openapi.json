@@ -202,6 +202,313 @@
                 }
             }
         },
+        "/users/@me": {
+            "get": {
+                "tags": ["Users"],
+                "summary": "Returns information about yourself via an authenticated request.",
+                "operationId": "getSelfUser",
+                "responses": {
+                    "200": {
+                        "description": "A single user found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "4": {
+                        "description": "Any occurrence when authentication fails",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["Users"],
+                "operationId": "deleteSelf",
+                "responses": {
+                    "204": {
+                        "description": "User is scheduled for deletion and will be deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmptyApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": ["Users"],
+                "summary": "Patch metadata about the current user.",
+                "operationId": "patchSelf",
+                "requestBody": {
+                    "description": "Update payload for the `User` entity",
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "PatchUserPayload" }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Patch was successfully reflected",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmptyApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "4": {
+                        "description": "Any occurrence when authentication fails or if the patch couldn't be reflected",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/@me/apikeys": {
+            "get": {
+                "tags": ["API Keys"],
+                "summary": "Lists all the user's API keys avaliable.",
+                "operationId": "listAPIKeys",
+                "responses": {
+                    "200": {
+                        "description": "Successful request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListApiKeyResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": ["API Keys"],
+                "summary": "Generate an API key from the current authenticated user.",
+                "operationId": "createAPIKey",
+                "requestBody": {
+                    "description": "Request body for creating a new API key",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateApiKeyPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "API key was created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiKeyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "If the API key with the name is already registered under the user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/@me/apikeys/{idOrName}": {
+            "get": {
+                "tags": ["API Keys"],
+                "summary": "Retrieve a single API key's metadata",
+                "operationId": "getAPIKey",
+                "responses": {
+                    "200": {
+                        "description": "Successful request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiKeyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "API key was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["API Keys"],
+                "summary": "Wipes the API key off the system.",
+                "operationId": "createAPIKey",
+                "responses": {}
+            },
+            "patch": {
+                "tags": ["API Keys"],
+                "summary": "Patch metadata about a API key.",
+                "operationId": "createAPIKey",
+                "responses": {}
+            }
+        },
+        "/users/@me/avatar": {
+            "get": {
+                "tags": ["Users/Avatars"],
+                "operationId": "getSelfUserAvatar",
+                "responses": {}
+            }
+        },
+        "/users/@me/avatars": {
+            "get": {
+                "tags": ["Users/Avatars"],
+                "operationId": "getSelfUserAvatars",
+                "responses": {}
+            }
+        },
+        "/users/@me/repositories": {
+            "get": {
+                "tags": ["Repositories"],
+                "summary": "Lists all of this user's repositories.",
+                "operationId": "listMyRepositories",
+                "responses": {}
+            },
+            "put": {
+                "tags": ["Repositories"],
+                "summary": "Creates a repository under this user.",
+                "operationId": "createRepository",
+                "responses": {}
+            }
+        },
+        "/users/@me/sessions": {
+            "post": {
+                "tags": ["Users/Sessions"],
+                "operationId": "login",
+                "responses": {}
+            },
+            "delete": {
+                "tags": ["Users/Sessions"],
+                "operationId": "logout",
+                "responses": {}
+            }
+        },
+        "/users/@me/sessions/refresh": {
+            "post": {
+                "tags": ["Users/Sessions"],
+                "operationId": "refreshSessionToken",
+                "responses": {}
+            }
+        },
+        "/users/{idOrName}": {
+            "get": {
+                "tags": ["Users"],
+                "summary": "Locate a user by their ID or username.",
+                "operationId": "getUserByIdOrName",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Parameter that can take a `Name` or `Ulid`",
+                        "required": true,
+                        "schema": { "$ref": "#/components/schemas/NameOrUlid" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A single user found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID or name specified",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Entity Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{idOrName}/avatar": {
+            "post": {
+                "tags": ["Users/Avatars"],
+                "operationId": "uploadUserAvatar",
+                "responses": {}
+            }
+        },
+        "/users/{idOrName}/avatar/{hash}": {
+            "get": {
+                "tags": ["Users/Avatars"],
+                "operationId": "getUserAvatar",
+                "responses": {}
+            },
+            "delete": {
+                "tags": ["Users/Avatars"],
+                "operationId": "deleteUserAvatar",
+                "responses": {}
+            }
+        },
+        "/users/{idOrName}/avatars": {
+            "get": {
+                "tags": ["Users/Avatars"],
+                "operationId": "getUserAvatars",
+                "responses": {}
+            }
+        },
+        "/users/{idOrName}/repositories": {
+            "get": {
+                "tags": ["Repositories"],
+                "summary": "Lists all the avaliable user repositories.",
+                "description": "If the user is logged in with credentials, this will also show their private repositories as well.",
+                "operationId": "listRepositories",
+                "responses": {}
+            }
+        },
         "/v1": {
             "get": {
                 "tags": ["Main"],
@@ -373,6 +680,313 @@
                     }
                 }
             }
+        },
+        "/v1/users/@me": {
+            "get": {
+                "tags": ["Users"],
+                "summary": "Returns information about yourself via an authenticated request.",
+                "operationId": "getSelfUser",
+                "responses": {
+                    "200": {
+                        "description": "A single user found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "4": {
+                        "description": "Any occurrence when authentication fails",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["Users"],
+                "operationId": "deleteSelf",
+                "responses": {
+                    "204": {
+                        "description": "User is scheduled for deletion and will be deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmptyApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": ["Users"],
+                "summary": "Patch metadata about the current user.",
+                "operationId": "patchSelf",
+                "requestBody": {
+                    "description": "Update payload for the `User` entity",
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "PatchUserPayload" }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Patch was successfully reflected",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmptyApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "4": {
+                        "description": "Any occurrence when authentication fails or if the patch couldn't be reflected",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/@me/apikeys": {
+            "get": {
+                "tags": ["API Keys"],
+                "summary": "Lists all the user's API keys avaliable.",
+                "operationId": "listAPIKeys",
+                "responses": {
+                    "200": {
+                        "description": "Successful request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListApiKeyResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": ["API Keys"],
+                "summary": "Generate an API key from the current authenticated user.",
+                "operationId": "createAPIKey",
+                "requestBody": {
+                    "description": "Request body for creating a new API key",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateApiKeyPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "API key was created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiKeyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "If the API key with the name is already registered under the user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/@me/apikeys/{idOrName}": {
+            "get": {
+                "tags": ["API Keys"],
+                "summary": "Retrieve a single API key's metadata",
+                "operationId": "getAPIKey",
+                "responses": {
+                    "200": {
+                        "description": "Successful request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiKeyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "API key was not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["API Keys"],
+                "summary": "Wipes the API key off the system.",
+                "operationId": "createAPIKey",
+                "responses": {}
+            },
+            "patch": {
+                "tags": ["API Keys"],
+                "summary": "Patch metadata about a API key.",
+                "operationId": "createAPIKey",
+                "responses": {}
+            }
+        },
+        "/v1/users/@me/avatar": {
+            "get": {
+                "tags": ["Users/Avatars"],
+                "operationId": "getSelfUserAvatar",
+                "responses": {}
+            }
+        },
+        "/v1/users/@me/avatars": {
+            "get": {
+                "tags": ["Users/Avatars"],
+                "operationId": "getSelfUserAvatars",
+                "responses": {}
+            }
+        },
+        "/v1/users/@me/repositories": {
+            "get": {
+                "tags": ["Repositories"],
+                "summary": "Lists all of this user's repositories.",
+                "operationId": "listMyRepositories",
+                "responses": {}
+            },
+            "put": {
+                "tags": ["Repositories"],
+                "summary": "Creates a repository under this user.",
+                "operationId": "createRepository",
+                "responses": {}
+            }
+        },
+        "/v1/users/@me/sessions": {
+            "post": {
+                "tags": ["Users/Sessions"],
+                "operationId": "login",
+                "responses": {}
+            },
+            "delete": {
+                "tags": ["Users/Sessions"],
+                "operationId": "logout",
+                "responses": {}
+            }
+        },
+        "/v1/users/@me/sessions/refresh": {
+            "post": {
+                "tags": ["Users/Sessions"],
+                "operationId": "refreshSessionToken",
+                "responses": {}
+            }
+        },
+        "/v1/users/{idOrName}": {
+            "get": {
+                "tags": ["Users"],
+                "summary": "Locate a user by their ID or username.",
+                "operationId": "getUserByIdOrName",
+                "parameters": [
+                    {
+                        "name": "idOrName",
+                        "in": "path",
+                        "description": "Parameter that can take a `Name` or `Ulid`",
+                        "required": true,
+                        "schema": { "$ref": "#/components/schemas/NameOrUlid" }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A single user found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID or name specified",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Entity Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/{idOrName}/avatar": {
+            "post": {
+                "tags": ["Users/Avatars"],
+                "operationId": "uploadUserAvatar",
+                "responses": {}
+            }
+        },
+        "/v1/users/{idOrName}/avatar/{hash}": {
+            "get": {
+                "tags": ["Users/Avatars"],
+                "operationId": "getUserAvatar",
+                "responses": {}
+            },
+            "delete": {
+                "tags": ["Users/Avatars"],
+                "operationId": "deleteUserAvatar",
+                "responses": {}
+            }
+        },
+        "/v1/users/{idOrName}/avatars": {
+            "get": {
+                "tags": ["Users/Avatars"],
+                "operationId": "getUserAvatars",
+                "responses": {}
+            }
+        },
+        "/v1/users/{idOrName}/repositories": {
+            "get": {
+                "tags": ["Repositories"],
+                "summary": "Lists all the avaliable user repositories.",
+                "description": "If the user is logged in with credentials, this will also show their private repositories as well.",
+                "operationId": "listRepositories",
+                "responses": {}
+            }
         }
     },
     "components": {
@@ -450,65 +1064,82 @@
                     }
                 }
             },
+            "ApiKeyResponse": {
+                "type": "object",
+                "description": "Response datatype for the `ApiKey` type",
+                "required": ["success"],
+                "properties": {
+                    "data": { "$ref": "#/components/schemas/ApiKey" },
+                    "errors": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/Error" },
+                        "description": "If the request failed, this is a list of errors as a \"stacktrace.\" `success` is always\n*false*; if not the case, blame it on Noel."
+                    },
+                    "success": {
+                        "type": "boolean",
+                        "description": "Was the request a success or not?"
+                    }
+                }
+            },
             "ApiKeyScope": {
                 "oneOf": [
                     {
                         "type": "string",
                         "description": "A humane name of the scope. This allows to determine the scope without knowing the integer representation of it.",
                         "enum": [
-                            "org:webhooks:update",
-                            "admin:users:delete",
                             "admin:orgs:delete",
-                            "repo:access",
-                            "apikeys:create",
-                            "user:update",
-                            "user:avatar:update",
-                            "user:sessions:list",
                             "admin:orgs:update",
-                            "repo:webhooks:events:access",
-                            "repo:update",
-                            "org:webhooks:events:delete",
-                            "admin:users:create",
-                            "org:webhooks:delete",
-                            "repo:webhooks:create",
-                            "repo:members:list",
-                            "repo:members:kick",
-                            "repo:releases:delete",
-                            "repo:webhooks:events:delete",
-                            "user:notifications",
-                            "user:connections",
-                            "repo:create",
-                            "repo:write",
-                            "org:access",
-                            "org:members:update",
-                            "user:access",
-                            "apikeys:list",
-                            "org:webhooks:create",
-                            "org:members:list",
-                            "repo:members:invites:access",
-                            "org:delete",
-                            "org:webhooks:events:list",
                             "admin:stats",
-                            "repo:members:invites:update",
+                            "admin:users:create",
+                            "admin:users:delete",
                             "admin:users:update",
-                            "repo:webhooks:update",
-                            "repo:webhooks:delete",
-                            "apikeys:view",
+                            "apikeys:create",
+                            "apikeys:delete",
+                            "apikeys:list",
                             "apikeys:update",
-                            "repo:members:invites:delete",
-                            "repo:releases:update",
-                            "repo:members:update",
-                            "repo:webhooks:list",
+                            "apikeys:view",
+                            "org:access",
                             "org:create",
+                            "org:delete",
                             "org:members:invites",
                             "org:members:kick",
-                            "repo:releases:create",
-                            "user:delete",
-                            "apikeys:delete",
+                            "org:members:list",
+                            "org:members:update",
                             "org:update",
+                            "org:webhooks:create",
+                            "org:webhooks:delete",
+                            "org:webhooks:events:delete",
+                            "org:webhooks:events:list",
                             "org:webhooks:list",
+                            "org:webhooks:update",
+                            "repo:access",
+                            "repo:create",
+                            "repo:delete",
                             "repo:icon:update",
-                            "repo:delete"
+                            "repo:members:invites:access",
+                            "repo:members:invites:delete",
+                            "repo:members:invites:update",
+                            "repo:members:kick",
+                            "repo:members:list",
+                            "repo:members:update",
+                            "repo:releases:create",
+                            "repo:releases:delete",
+                            "repo:releases:update",
+                            "repo:update",
+                            "repo:webhooks:create",
+                            "repo:webhooks:delete",
+                            "repo:webhooks:events:access",
+                            "repo:webhooks:events:delete",
+                            "repo:webhooks:list",
+                            "repo:webhooks:update",
+                            "repo:write",
+                            "user:access",
+                            "user:avatar:update",
+                            "user:connections",
+                            "user:delete",
+                            "user:notifications",
+                            "user:sessions:list",
+                            "user:update"
                         ]
                     },
                     {
@@ -650,7 +1281,7 @@
             "ChartIndex": {
                 "type": "object",
                 "description": "Schema skeleton for a `index.yaml` file, that represents a [`Chart`] index.",
-                "required": ["apiVersion", "generatedAt", "entries"],
+                "required": ["apiVersion", "generated", "entries"],
                 "properties": {
                     "apiVersion": {
                         "type": "string",
@@ -667,7 +1298,7 @@
                         },
                         "propertyNames": { "type": "string" }
                     },
-                    "generatedAt": {
+                    "generated": {
                         "type": "string",
                         "format": "date-time",
                         "description": "[`DateTime`] constant on when the chart index was generated at, this will not\nbe modified at all."
@@ -855,6 +1486,15 @@
                 ],
                 "description": "`Duration` is represented as a span of time, usually for system timeouts. `charted-server` supports passing in a unsigned 64-bot integer (represented in milliseconds) or with a string literal (i.e, `1s`) to represent time."
             },
+            "EmptyApiResponse": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "description": "Whether if this request was a success"
+                    }
+                }
+            },
             "Entrypoint": {
                 "type": "object",
                 "description": "Generic entrypoint message for any API route like `/users`.",
@@ -932,6 +1572,7 @@
                     "INVALID_TYPE",
                     "BAD_REQUEST",
                     "MISSING_CONTENT_TYPE",
+                    "SYSTEM_FAILURE",
                     "WRONG_PARAMETERS",
                     "PARSING_FAILED_IN_PATH_PARAM",
                     "PARSING_QUERY_PARAMS_FAILED",
@@ -1022,6 +1663,26 @@
                 "required": ["success"],
                 "properties": {
                     "data": { "$ref": "#/components/schemas/Info" },
+                    "errors": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/Error" },
+                        "description": "If the request failed, this is a list of errors as a \"stacktrace.\" `success` is always\n*false*; if not the case, blame it on Noel."
+                    },
+                    "success": {
+                        "type": "boolean",
+                        "description": "Was the request a success or not?"
+                    }
+                }
+            },
+            "ListApiKeyResponse": {
+                "type": "object",
+                "description": "Represents a response object for all REST endpoints.",
+                "required": ["success"],
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": { "$ref": "#/components/schemas/ApiKey" }
+                    },
                     "errors": {
                         "type": "array",
                         "items": { "$ref": "#/components/schemas/Error" },
@@ -1278,7 +1939,7 @@
                 "properties": {
                     "description": {
                         "type": ["string", "null"],
-                        "description": "Short description about this user. If this field was provided, then the\ndescription will be overwritten. If this field is `null`, then nothing\nwill happen. If this field is a empty string, then the description\nwill be wiped."
+                        "description": "Short description about this user."
                     },
                     "email": {
                         "type": ["string", "null"],
@@ -1286,21 +1947,20 @@
                     },
                     "gravatar_email": {
                         "type": ["string", "null"],
-                        "description": "Optional field to update this user's gravatar email. If this user doesn't\nhave an avatar that is used or prefers not to use their previously uploaded\navatars and they set their Gravatar email, their Gravatar will be used."
+                        "description": "Updates the email address to fetch the Gravatar email from."
                     },
                     "name": {
-                        "oneOf": [
-                            { "type": "null" },
-                            {
-                                "$ref": "#/components/schemas/Name",
-                                "description": "Updates this user's display name."
-                            }
-                        ]
+                        "type": ["string", "null"],
+                        "description": "Updates this user's display name."
                     },
                     "password": {
                         "type": ["string", "null"],
                         "description": "Updates this user's password, if the session manager configured allows it.",
                         "pattern": "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$"
+                    },
+                    "prefers_gravatar": {
+                        "type": ["boolean", "null"],
+                        "description": "Determines if the user avatar should use their Gravatar email."
                     },
                     "username": {
                         "oneOf": [
@@ -1539,6 +2199,11 @@
                         "type": ["string", "null"],
                         "description": "Display name for this user, it should be displayed as '{name} (@{username})' or just '@{username}' if there is no display name"
                     },
+                    "prefers_gravatar": {
+                        "type": "boolean",
+                        "description": "whether or not if the user prefers to use their Gravatar email\nas their profile picture.",
+                        "readOnly": true
+                    },
                     "updated_at": {
                         "type": "string",
                         "format": "date-time",
@@ -1683,6 +2348,14 @@
         {
             "name": "Users",
             "description": "Endpoints that create, modify, delete, or fetch user metadata"
+        },
+        {
+            "name": "Users/Avatars",
+            "description": "Endpoints that can create, modify, delete, and fetch user avatars"
+        },
+        {
+            "name": "Users/Sessions",
+            "description": "Endpoints that allow to login as a user and get an access token."
         },
         {
             "name": "API Keys",

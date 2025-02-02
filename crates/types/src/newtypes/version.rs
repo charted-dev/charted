@@ -57,7 +57,7 @@ impl<'de> Deserialize<'de> for Version {
         D: serde::Deserializer<'de>,
     {
         struct Visitor;
-        impl<'de> serde::de::Visitor<'de> for Visitor {
+        impl serde::de::Visitor<'_> for Visitor {
             type Value = Version;
 
             fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {

@@ -28,13 +28,13 @@ use utoipa::OpenApi;
 
 const HELP: &str = r#"
 ━━━━━━━━━━━━━━━━━━━━━━ USAGE ━━━━━━━━━━━━━━━━━━━━━
-    cargo dev internals -- <COMMAND> [...ARGS]
+    cargo dev internals <COMMAND> [...ARGS]
 
 ━━━━━━━━━━━━━━━━━━━━ COMMANDS ━━━━━━━━━━━━━━━━━━━━
-`cargo dev internals -- openapi <PATH>`
+`cargo dev internals openapi <PATH>`
     ↳ Generates the OpenAPI specification into <PATH>
 
-`cargo dev internals -- jsonschema <PATH>`
+`cargo dev internals jsonschema <PATH>`
     ↳ Generates the JSON schema for `.charted.toml`
       into <PATH>.
 "#;

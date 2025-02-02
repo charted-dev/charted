@@ -16,6 +16,8 @@
 use crate::ServerContext;
 use axum::Router;
 
+crate::macros::impl_list_response!(RepositoryListResponse as "Repository");
+
 pub fn create_router() -> Router<ServerContext> {
     Router::new()
 }

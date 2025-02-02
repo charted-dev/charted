@@ -84,7 +84,7 @@ impl<'de> Deserialize<'de> for Duration {
         D: serde::Deserializer<'de>,
     {
         struct Visitor;
-        impl<'de> serde::de::Visitor<'de> for Visitor {
+        impl serde::de::Visitor<'_> for Visitor {
             type Value = Duration;
 
             fn expecting(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {

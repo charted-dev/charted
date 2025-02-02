@@ -35,7 +35,7 @@ in
     pname = "charted-helm-plugin";
     src = ../../.;
 
-    cargoBuildFlags = ["--package" "charted-helm-plugin"];
+    cargoBuildFlags = ["--bin" "charted-helm-plugin"];
     cargoLock = {
       inherit (common) outputHashes;
 

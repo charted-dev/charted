@@ -34,9 +34,8 @@ use charted_database::{
 };
 use charted_types::{
     payloads::user::{CreateUserPayload, PatchUserPayload},
-    PGUser, SqliteUser, User,
+    User,
 };
-use diesel::{backend::Backend, ExpressionMethods, QueryDsl};
 use eyre::Context;
 use serde_json::json;
 use tower_http::auth::AsyncRequireAuthorizationLayer;

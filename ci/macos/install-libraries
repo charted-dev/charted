@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
 # Copyright 2022-2025 Noelware, LLC. <team@noelware.org>
 #
@@ -13,11 +15,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[build]
-rustflags = ["--cfg", "tokio_unstable"]
+set -euo pipefail
 
-[alias]
-dev = "run --release --package charted-devtools --"
-internals = "run --release --package charted-internals --"
-cli = "dev cli"
-server = "dev server"
+source "$(cd "$(dirname $0)" && pwd)/../_shared.sh"
+
+main() {
+    echo "--> Installing PostgreSQL 16..."
+    brew install postgresql@16
+}
+
+noelware::startGroup "Installing system libraries"
+main
+noelware::endGroup

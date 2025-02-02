@@ -19,7 +19,7 @@ pub use apikeyscope::*;
 mod member_permission;
 pub use member_permission::*;
 
-use std::{cmp::min, collections::HashMap, fmt::Debug, marker::PhantomData};
+use std::{cmp::min, collections::BTreeMap, fmt::Debug, marker::PhantomData};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Bitfield<F: Bitflags>(F::Bit, PhantomData<F>);
@@ -160,8 +160,8 @@ pub trait Bitflags: Sized + Send + Sync {
     /// Type that represents the bit.
     type Bit: Copy;
 
-    /// Returns a [`HashMap`] of mappings of `flag => bit value`
-    fn flags() -> HashMap<&'static str, Self::Bit>;
+    /// Returns a [`BTreeMap`] of mappings of `flag => bit value`
+    fn flags() -> BTreeMap<&'static str, Self::Bit>;
 
     /// Returns an immutable slice of the avaliable bits
     fn values<'v>() -> &'v [Self::Bit];
@@ -209,8 +209,8 @@ macro_rules! bitflags {
             type Bit = $bit;
 
             #[inline]
-            fn flags() -> ::std::collections::HashMap<&'static str, u64> {
-                ::azalia::hashmap! {
+            fn flags() -> ::std::collections::BTreeMap<&'static str, u64> {
+                ::azalia::btreemap! {
                     $($key => $value),*
                 }
             }

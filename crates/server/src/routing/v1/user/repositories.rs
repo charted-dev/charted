@@ -13,15 +13,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[utoipa::path(get, path = "/v1/users/{idOrName}/repositories")]
+/// Lists all the avaliable user repositories.
+///
+/// If the user is logged in with credentials, this will also show their private repositories as well.
+#[utoipa::path(
+    get,
+    path = "/v1/users/{idOrName}/repositories",
+    operation_id = "listRepositories",
+    tag = "Repositories"
+)]
 #[cfg_attr(debug_assertions, axum::debug_handler)]
 pub async fn list_user_repositories() {}
 
-#[utoipa::path(get, path = "/v1/users/@me/repositories")]
+/// Lists all of this user's repositories.
+#[utoipa::path(
+    get,
+    path = "/v1/users/@me/repositories",
+    operation_id = "listMyRepositories",
+    tag = "Repositories"
+)]
 #[cfg_attr(debug_assertions, axum::debug_handler)]
 pub async fn list_self_user_repositories() {}
 
-#[utoipa::path(put, path = "/v1/users/@me/repositories")]
+/// Creates a repository under this user.
+#[utoipa::path(
+    put,
+    path = "/v1/users/@me/repositories",
+    operation_id = "createRepository",
+    tag = "Repositories"
+)]
 #[cfg_attr(debug_assertions, axum::debug_handler)]
 pub async fn create_user_repository() {}
 

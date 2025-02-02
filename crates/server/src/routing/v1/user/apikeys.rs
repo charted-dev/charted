@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use crate::{
-    extract::{Json, Path},
+    extract::{Json, Path, Query},
     middleware::session::{Middleware, Session},
     openapi::ApiErrorResponse,
     NameOrUlid, ServerContext,
@@ -25,7 +25,10 @@ use charted_core::{
     bitflags::{ApiKeyScope, ApiKeyScopes},
     rand_string,
 };
-use charted_database::schema::{postgresql, sqlite};
+use charted_database::{
+    paginate::Paginated,
+    schema::{postgresql, sqlite},
+};
 use charted_types::{
     payloads::apikey::{CreateApiKeyPayload, PatchApiKeyPayload},
     ApiKey,
@@ -34,6 +37,8 @@ use chrono::Local;
 use serde_json::json;
 use tower_http::auth::AsyncRequireAuthorizationLayer;
 use tracing::{error, instrument};
+
+crate::macros::impl_list_response!(ListApiKeyResponse as "ApiKey");
 
 pub fn create_router() -> Router<ServerContext> {
     Router::new()
@@ -70,7 +75,7 @@ pub fn create_router() -> Router<ServerContext> {
         (
             status = 200,
             description = "Successful request",
-            body = api::Response<Vec<ApiKey>>,
+            body = ListApiKeyResponse,
             content_type = "application/json"
         )
     )
@@ -229,7 +234,7 @@ pub async fn get(
     operation_id = "createAPIKey",
     tag = "API Keys",
     request_body(
-        content = ref("CreateApiKeyPayload"),
+        content = ref("#/components/schemas/CreateApiKeyPayload"),
         description = "Request body for creating a new API key",
         content_type = "application/json"
     ),

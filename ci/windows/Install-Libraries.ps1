@@ -12,12 +12,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-[build]
-rustflags = ["--cfg", "tokio_unstable"]
-
-[alias]
-dev = "run --release --package charted-devtools --"
-internals = "run --release --package charted-internals --"
-cli = "dev cli"
-server = "dev server"

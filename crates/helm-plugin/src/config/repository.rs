@@ -78,7 +78,7 @@ mod __repository_name {
         use serde::de::Error;
 
         struct Visitor;
-        impl<'de> de::Visitor<'de> for Visitor {
+        impl de::Visitor<'_> for Visitor {
             type Value = (Name, Name);
 
             fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {

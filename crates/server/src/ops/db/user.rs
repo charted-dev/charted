@@ -76,20 +76,20 @@ pub async fn get<ID: Into<NameOrUlid>>(ctx: &ServerContext, id: ID) -> eyre::Res
 }
 
 #[instrument(name = "charted.server.users.delete", skip_all, fields(%user.id, %user.username))]
-pub async fn delete(ctx: ServerContext, user: User) -> eyre::Result<()> {
+pub async fn delete(_: ServerContext, user: User) -> eyre::Result<()> {
     trace!("deleting user from database");
 
     Ok(())
 }
 
-async fn delete_all_repositories(ctx: &ServerContext, user: &User) -> eyre::Result<()> {
+async fn _delete_all_repositories(_: &ServerContext, _: &User) -> eyre::Result<()> {
     Ok(())
 }
 
-async fn delete_all_organizations(ctx: &ServerContext, user: &User) -> eyre::Result<()> {
+async fn _delete_all_organizations(_: &ServerContext, _: &User) -> eyre::Result<()> {
     Ok(())
 }
 
-async fn delete_persistent_metadata(ctx: &ServerContext, user: &User) -> eyre::Result<()> {
+async fn _delete_persistent_metadata(_: &ServerContext, _: &User) -> eyre::Result<()> {
     Ok(())
 }
