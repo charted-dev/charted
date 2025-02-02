@@ -14,7 +14,7 @@
 # limitations under the License.
 
 [package]
-name = "charted"
+name = "charted-helm-charts"
 version.workspace = true
 documentation.workspace = true
 edition.workspace = true
@@ -24,16 +24,5 @@ publish.workspace = true
 repository.workspace = true
 authors.workspace = true
 
-[[bin]]
-name = "charted"
-path = "main.rs"
-
-[dependencies]
-charted-cli.workspace = true
-clap.workspace = true
-color-eyre.workspace = true
-dotenvy = "0.15.7"
-eyre.workspace = true
-mimalloc = "0.1.43"
-num_cpus = "1.16.0"
-tokio = { workspace = true, features = ["rt", "rt-multi-thread"] }
+[lib]
+path = "lib.rs"
