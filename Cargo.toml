@@ -21,13 +21,14 @@ members = [
     "crates/cli",
     # "crates/client",
     # "crates/config",
-    # "crates/core",
+    "crates/core",
     # "crates/database",
     # "crates/devtools",
     # "crates/features",
     # "crates/features/totp",
     # "crates/helm-charts",
     # "crates/helm-plugin",
+    "crates/helm/types",
     # "crates/server",
     "crates/types",
 
@@ -67,6 +68,7 @@ charted-search = { path = "./crates/search" }
 charted-server = { path = "./crates/server" }
 charted-types = { path = "./crates/types", version = "0.1.0" }
 
+axum = { version = "0.8.1", features = ["macros", "http2"] }
 chrono = { version = "0.4.39", features = ["serde"] }
 clap = { version = "4.5.27", features = ["derive", "env"] }
 clap_complete = "4.5.44"
@@ -74,6 +76,7 @@ color-eyre = { version = "0.6.3", features = ["issue-url"] }
 derive_more = "1.0.0"
 eyre = "0.6.12"
 num_cpus = "1.16.0"
+rand = "0.9.0"
 rustc_version = "0.4.1"
 schemars = { version = "0.8.21", features = ["chrono", "semver", "url"] }
 sea-orm = { version = "1.1.4", default-features = false, features = [

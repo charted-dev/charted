@@ -30,6 +30,62 @@ mod newtypes;
 pub use entities::*;
 pub use newtypes::*;
 
+// Not public API, used by macros in this crate.
+#[doc(hidden)]
+pub mod __private {
+    pub use paste::paste;
+}
+
+mod helm {
+    use sea_orm::entity::prelude::*;
+    use serde::{Deserialize, Serialize};
+    use std::str::FromStr;
+
+    /// Representation of a Helm chart.
+    #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq, derive_more::Display)]
+    #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+    #[cfg_attr(feature = "__internal_db", derive(sea_orm::EnumIter, sea_orm::DeriveActiveEnum))]
+    #[cfg_attr(
+        feature = "__internal_db",
+        sea_orm(
+            rs_type = "String",
+            db_type = "String(StringLen::None)",
+            rename_all = "lowercase",
+            enum_name = "chart_type"
+        )
+    )]
+    pub enum ChartType {
+        /// The default chart type and represents a standard Helm chart.
+        ///
+        /// **Note**: Application charts can also act like library charts! Set `type` to `"library"`.
+        #[default]
+        #[display("application")]
+        Application,
+
+        /// The chart provide utilities or functions for building application Helm charts.
+        ///
+        /// Library charts cannot expose Helm templates since it cannot create Kubernetes
+        /// objects from `helm install`
+        #[display("library")]
+        Library,
+    }
+
+    impl FromStr for ChartType {
+        type Err = ();
+
+        fn from_str(s: &str) -> Result<Self, Self::Err> {
+            match &*s.to_ascii_lowercase() {
+                "application" => Ok(ChartType::Application),
+                "library" => Ok(ChartType::Library),
+
+                _ => Err(()),
+            }
+        }
+    }
+}
+
+pub use helm::*;
+
 #[macro_export]
 #[doc(hidden)]
 macro_rules! cfg_sea_orm {
@@ -64,10 +120,4 @@ macro_rules! cfg_jsonschema {
             $($item)*
         };
     };
-}
-
-// Not public API, used by macros in this crate.
-#[doc(hidden)]
-pub mod __private {
-    pub use paste::paste;
 }
