@@ -13,61 +13,80 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! # 🐻‍❄️📦 `charted_authz`
+//! This crate holds the `Authenticator` trait, which other implementations
+//! in `crates/authz` can use to safely authenticate a user.
+
 use azalia::rust::AsArcAny;
-use charted_core::BoxedFuture;
-use charted_types::User;
 use std::{
     any::{Any, TypeId},
-    error::Error,
+    future::Future,
+    pin::Pin,
 };
 
-/// [`Error`] that represents that the password given is invalid.
+/// Error type to safely throw in a [`Authenticator`] implementation
+/// when a invalid password is given.
 #[derive(Debug, derive_more::Display)]
-#[display("invalid password given")]
+#[display("invalid password")]
 pub struct InvalidPassword;
-impl Error for InvalidPassword {}
+impl std::error::Error for InvalidPassword {}
 
-/// Trait that allows to build an authenticator that allows to authenticate users.
+/// Safely authenticate a user from any source.
 pub trait Authenticator: AsArcAny + Send + Sync {
-    /// Authenticate a given [`User`] with the password given.
-    fn authenticate<'u>(&'u self, user: &'u User, password: String) -> BoxedFuture<'u, eyre::Result<()>>;
+    fn authenticate<'a>(
+        &'a self,
+        user: &'a (),
+        password: &'a str,
+    ) -> Pin<Box<dyn Future<Output = eyre::Result<()>> + Send + 'a>>;
 }
 
 impl dyn Authenticator {
-    /// Compares if [`self`] is `T`, similar to [`Any::is`].
-    ///
-    /// This method might fail (as in, returns `false`) if `T` doesn't implement [`Authenticator`].
+    /// Compares if [`self`] is a instance of `T`. Similar implementation
+    /// of [`Any::is`].
     ///
     /// [`Any::is`]: https://doc.rust-lang.org/std/any/trait.Any.html#method.is
     pub fn is<T: Any>(&self) -> bool {
-        // get the `TypeId` of the concrete type (`self` being whatever authenticator is avaliable)
-        let t = self.type_id();
-
-        // get the `TypeId` of `T`.
-        let other = TypeId::of::<T>();
-
-        t == other
+        self.type_id() == TypeId::of::<T>()
     }
 
-    /// Attempts to downcast `T` from this <code>dyn [`Authenticator`]</code>.
+    /// Downcasts `self` to `T`. Returns `None` if `T` is
+    /// not comparable to `self`.
     pub fn downcast<T: Any>(&self) -> Option<&T> {
-        if self.is::<T>() {
-            // Safety: we checked if `T` is `dyn Registry`.
-            Some(unsafe { self.downcast_unchecked() })
-        } else {
-            None
+        self.is::<T>().then_some(
+            // Safety: we already checked if `self` is `T`.
+            unsafe { &*(self as *const dyn Authenticator as *const T) },
+        )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    struct Dummy;
+    impl Authenticator for Dummy {
+        fn authenticate<'a>(
+            &'a self,
+            _: &'a (),
+            _: &'a str,
+        ) -> Pin<Box<dyn Future<Output = eyre::Result<()>> + Send + 'a>> {
+            todo!()
         }
     }
 
-    /// This method is the same as [`Any::downcast_ref_unchecked`] but uses `dyn Registry`
-    /// instead of [`dyn Any`].
-    ///
-    /// Since the purpose of this is for the `downcast` method, this is not public
-    /// and probably never will be.
-    unsafe fn downcast_unchecked<T: Any>(&self) -> &T {
-        debug_assert!(self.is::<T>());
+    #[test]
+    fn dyn_authenticator_is() {
+        let me = Dummy;
 
-        // SAFETY: caller has ensured that `self` is `dyn Registry`.
-        unsafe { &*(self as *const dyn Authenticator as *const T) }
+        assert!(<dyn Authenticator>::is::<Dummy>(&me));
+        assert!(!(<dyn Authenticator>::is::<String>(&me)));
+    }
+
+    #[test]
+    fn dyn_authenticator_downcast() {
+        let me: Box<dyn Authenticator> = Box::new(Dummy);
+
+        assert!(me.downcast::<Dummy>().is_some());
+        assert!(me.downcast::<String>().is_none());
     }
 }

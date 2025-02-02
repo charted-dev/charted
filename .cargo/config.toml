@@ -18,6 +18,6 @@ rustflags = ["--cfg", "tokio_unstable"]
 
 [alias]
 dev = "run --release --package charted-devtools --"
-internals = "run --release --package charted-internals --"
+internals = "run --release --bin internals --"
 cli = "dev cli"
 server = "dev server"

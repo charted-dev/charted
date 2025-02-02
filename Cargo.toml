@@ -16,24 +16,23 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/app",
     "crates/authz",
     "crates/authz/*",
-    "crates/bin",
-    "crates/cli",
-    "crates/client",
-    "crates/config",
-    "crates/core",
-    "crates/database",
-    "crates/devtools",
-    "crates/features",
-    "crates/features/totp",
-    "crates/helm-charts",
-    "crates/helm-plugin",
-    "crates/server",
-    "crates/types",
+    # "crates/cli",
+    # "crates/client",
+    # "crates/config",
+    # "crates/core",
+    # "crates/database",
+    # "crates/devtools",
+    # "crates/features",
+    # "crates/features/totp",
+    # "crates/helm-charts",
+    # "crates/helm-plugin",
+    # "crates/server",
+    # "crates/types",
 
-    "internals",
+    "src/charted",
+    "src/internals",
 ]
 
 [workspace.package]
@@ -51,52 +50,71 @@ publish = false
 repository = "https://github.com/charted-dev/charted"
 
 [workspace.dependencies]
-argon2 = "0.5.3"
-axum = { version = "0.8.1", features = ["macros", "http2"] }
-charted-core = { version = "0.1.0", path = "./crates/core", default-features = false }
-charted-database = { version = "0.1.0", path = "./crates/database" }
-charted-testkit = "0.1.2"
-charted-types = { version = "0.1.0", path = "./crates/types", default-features = false }
-chrono = { version = "0.4.23", features = ["serde"] }
-clap = { version = "4.5.20", features = ["derive", "env"] }
-clap_complete = "4.5.33"
+charted-authz = { path = "./crates/authz" }
+charted-authz-local = { path = "./crates/authz/local" }
+charted-authz-ldap = { path = "./crates/authz/ldap" }
+charted-authz-static = { path = "./crates/authz/static" }
+charted-cli = { path = "./crates/cli" }
+charted-client = { path = "./crates/client", version = "0.1.0" }
+charted-config = { path = "./crates/configuration" }
+charted-core = { path = "./crates/core" }
+charted-database = { path = "./crates/database" }
+charted-helm-charts = { path = "./crates/helm/charts" }
+charted-helm-plugin = { path = "./crates/helm/plugin" }
+charted-helm-types = { path = "./crates/helm/types" }
+charted-metrics = { path = "./crates/metrics" }
+charted-search = { path = "./crates/search" }
+charted-server = { path = "./crates/server" }
+charted-types = { path = "./crates/types", version = "0.1.0" }
+
 derive_more = "1.0.0"
-diesel = { version = "2.2.4", features = ["postgres", "sqlite", "chrono"] }
-diesel_migrations = { version = "2.2.0", features = ["postgres", "sqlite"] }
 eyre = "0.6.12"
-multer = "3.1.0"
-opentelemetry = "0.27.0"
-rayon = "1.10.0"
-remi = "0.10.0"
-remi-azure = { version = "0.10.0", features = ["tracing", "export-azure"] }
-remi-fs = { version = "0.10.0", features = ["tracing"] }
-remi-s3 = { version = "0.10.0", features = ["tracing", "export-crates"] }
-reqwest = { version = "0.12.9", default-features = false, features = [
-    "http2",
-    "macos-system-configuration",
-    "charset",
-    "rustls-tls",
-] }
-schemars = "0.8.21"
-semver = { version = "1.0.23", features = ["serde"] }
-sentry = "0.36.0"
-serde = { version = "1.0.204", features = ["derive"] }
-serde_json = "1.0.122"
-serde_yaml_ng = "0.10.0"
-tempfile = "3.12.0"
-utoipa = { version = "5.1.1", features = ["chrono", "non_strict_integers"] }
-testcontainers = "0.23.0"
-testcontainers-modules = "0.11.0"
-tokio = "1.39.3"
-tracing = "0.1.40"
-tracing-subscriber = "0.3.18"
-url = "2.5.2"
-which = "7.0.0"
+
+# [workspace.dependencies]
+# argon2 = "0.5.3"
+# axum = { version = "0.8.1", features = ["macros", "http2"] }
+# charted-core = { version = "0.1.0", path = "./crates/core", default-features = false }
+# charted-database = { version = "0.1.0", path = "./crates/database" }
+# charted-testkit = "0.1.2"
+# charted-types = { version = "0.1.0", path = "./crates/types", default-features = false }
+# chrono = { version = "0.4.23", features = ["serde"] }
+# clap = { version = "4.5.20", features = ["derive", "env"] }
+# clap_complete = "4.5.33"
+# derive_more = "1.0.0"
+# eyre = "0.6.12"
+# multer = "3.1.0"
+# opentelemetry = "0.27.0"
+# rayon = "1.10.0"
+# remi = "0.10.0"
+# remi-azure = { version = "0.10.0", features = ["tracing", "export-azure"] }
+# remi-fs = { version = "0.10.0", features = ["tracing"] }
+# remi-s3 = { version = "0.10.0", features = ["tracing", "export-crates"] }
+# reqwest = { version = "0.12.9", default-features = false, features = [
+#     "http2",
+#     "macos-system-configuration",
+#     "charset",
+#     "rustls-tls",
+# ] }
+# schemars = "0.8.21"
+# semver = { version = "1.0.23", features = ["serde"] }
+# sentry = "0.36.0"
+# serde = { version = "1.0.204", features = ["derive"] }
+# serde_json = "1.0.122"
+# serde_yaml_ng = "0.10.0"
+# tempfile = "3.12.0"
+# utoipa = { version = "5.1.1", features = ["chrono", "non_strict_integers"] }
+# testcontainers = "0.23.0"
+# testcontainers-modules = "0.11.0"
+# tokio = "1.39.3"
+# tracing = "0.1.40"
+# tracing-subscriber = "0.3.18"
+# url = "2.5.2"
+# which = "7.0.0"
 
 [workspace.dependencies.azalia]
 version = "0.1.0"
 git = "https://github.com/Noelware/azalia"
-rev = "46037bbe850082e833ff01068355180c771621db"
+rev = "f4600130658cfe523350222717b4530ce4d30123"
 
 [profile.release]
 codegen-units = 1 # use a single codegen unit

@@ -15,7 +15,6 @@
 
 [package]
 name = "charted-authz-local"
-description = "🐻‍❄️📦 Local implementation that uses charted's database to authorize users"
 version.workspace = true
 documentation.workspace = true
 edition.workspace = true
@@ -27,11 +26,3 @@ authors.workspace = true
 
 [lib]
 path = "lib.rs"
-
-[dependencies]
-argon2.workspace = true
-charted-authz = { version = "0.1.0", path = ".." }
-charted-core = { version = "0.1.0", path = "../../core", default-features = false }
-charted-types = { version = "0.1.0", path = "../../types", default-features = false }
-eyre.workspace = true
-tracing.workspace = true
