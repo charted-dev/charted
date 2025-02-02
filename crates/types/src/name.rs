@@ -180,7 +180,18 @@ cfg_sea_orm! {
 }
 
 cfg_openapi! {
-    use utoipa::{PartialSchema, ToSchema, openapi::{RefOr, Schema, ObjectBuilder}};
+    use utoipa::{
+        PartialSchema,
+        ToSchema,
+        openapi::{
+            RefOr,
+            Schema,
+            ObjectBuilder,
+            Type,
+
+            schema::SchemaType,
+        }
+    };
 
     #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "openapi")))]
     impl PartialSchema for Name {

@@ -54,7 +54,7 @@ pub struct DateTime(chrono::DateTime<Utc>);
 
 cfg_openapi! {
     use utoipa::{
-        openapi::{schema::SchemaType, ObjectBuilder, RefOr, Schema, Type},
+        openapi::{schema::SchemaType, ObjectBuilder, RefOr, Schema, Type, SchemaFormat, KnownFormat},
         PartialSchema, ToSchema,
     };
 
