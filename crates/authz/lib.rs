@@ -18,8 +18,6 @@
 //! in `crates/authz` can use to safely authenticate a user.
 
 use azalia::rust::AsArcAny;
-use charted_core::BoxedFuture;
-use charted_types::User;
 use std::{
     any::{Any, TypeId},
     borrow::Cow,
