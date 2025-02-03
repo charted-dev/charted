@@ -30,12 +30,16 @@ RUN apt-get update &&                          \
 WORKDIR /build
 COPY . .
 
-# We want to use the Nightly version of Rust from the image itself, not what we
-# defined in `rust-toolchain.toml`.
+# We want to use the Nightly toolchain that is provided by the image
+# itself and not what we have (this will eliminate most of the `components`
+# section, which is fine since we don't need them for a simple build)
 RUN rm rust-toolchain.toml
 
-ENV RUSTFLAGS="--cfg tokio_unstable -C link-arg=-fuse-ld=mold -Ctarget-cpu=native"
-RUN cargo build --locked --release --package charted --features bundled-sqlite --features bundled-pq
+# It might be a bad choice but we decided to not opt into `cargo-chef` since
+# releases aren't being pushed as frequently so cache will be stale either way
+# and the compute we have *should* not take 5-6 hours.
+ENV RUSTFLAGS="--cfg tokio_unstable -Clink-arg=-fuse-ld=mold -Ctarget-cpu=native -Ctarget-feature=-crt-static"
+RUN cargo build --locked --release --bin charted
 
 ##### FINAL STAGE
 FROM debian:bookworm-slim

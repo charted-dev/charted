@@ -19,8 +19,8 @@
 # with the following contents:
 #
 # | ~~~~~~~~~~~~~~~~~~~~~~ |
-# | - config/charted.hcl   |
-# | - bin/charted          |
+# | - config/charted.toml  |
 # | - charted.service      |
+# | - bin/charted          |
 # | - LICENSE              |
 # | ~~~~~~~~~~~~~~~~~~~~~~ |

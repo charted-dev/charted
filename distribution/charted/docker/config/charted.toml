@@ -17,10 +17,8 @@
 # a Docker container. You can mount the data directory from `/var/lib/noelware/charted/data`
 # as a regular filesystem mount with `-v $(pwd)/w:/var/lib/noelware/charted/data`.
 
-database "sqlite" {
-  db_path = "/var/lib/noelware/charted/data/charted.db"
-}
+[database.sqlite]
+path = "/var/lib/noelware/charted/data/charted.db"
 
-storage "filesystem" {
-  directory = "/var/lib/noelware/charted/data"
-}
+[storage.filesystem]
+directory = "/var/lib/noelware/charted/data"

@@ -1,8 +1,9 @@
 ---
 title: Configuration
-description: Reference for the `charted.hcl` file
+description: Reference for the `charted.toml` file
 ---
 
+<!--
 **charted-server** uses the [HashiCorp Configuration Language](https://github.com/hashicorp/hcl) built by [HashiCorp](https://hashicorp.com). It doesn't have functions or variables, so it's just static configuration.
 
 **charted-server** also supports environment variables that can be overwritten when the configuration loader is being ran. The priority is **Environment Variables > Configuration File**.
@@ -71,8 +72,6 @@ storage <a href="#charted_storage_azure">"azure"</a> {}
 | <a id="#charted_sentry_dsn"></a> `sentry_dsn` (`CHARTED_SENTRY_DSN`)                 | Whether or not to opt-in to <a href="https://sentry.io" target="_blank">Sentry</a> to have error reporting and tracing features be sent to a Sentry server.       | `string`, formatted as <a href="https://docs.sentry.io/concepts/key-terms/dsn-explainer/" target="_blank">Data Source Name</a> (DSN) | No.       | `null`                                                                                                                |
 | <a id="#charted_base_url"></a> `base_url` (`CHARTED_BASE_URL`)                       | URI that will redirect all API requests and Helm chart downloads towards.                                                                                         | `string`                                                                                                                             | No.       | <code>http://<a href="#charted_server_host">{server.host}</a>:<a href="#charted_server_port">{server.port}</a></code> |
 
-<!-- prettier-ignore-start -->
-
 <a id="#charted_logging"></a>
 ## block `logging {}`
 | Name                                                              | Description                                                                | Type                                                | Required? | Default Value |
@@ -112,4 +111,4 @@ storage <a href="#charted_storage_azure">"azure"</a> {}
 <a id="#charted_storage_azure"></a>
 ## block `storage "azure" {}` (`CHARTED_STORAGE_SERVICE` = `"azure"`)
 
-<!-- prettier-ignore-end -->
+-->

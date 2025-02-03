@@ -36,7 +36,10 @@ version = 2
 
 [bans]
 multiple-versions = "warn"
-wildcards = "deny"
+
+# Allow wildcards in dependencies to happen, this is an issue in
+# `src/charted` when it can't use `charted-cli` for some reason
+wildcards = "warn"
 
 [sources]
 unknown-registry = "deny"
@@ -64,7 +67,6 @@ exceptions = [
     { name = "unicode-ident", allow = ["Unicode-DFS-2016"] },
     { name = "aws-lc-sys", allow = ["OpenSSL"] },
     { name = "ring", allow = ["OpenSSL"] },
-    { name = "pq-src", allow = ["PostgreSQL"] },
 ]
 
 # Sigh
