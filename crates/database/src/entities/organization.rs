@@ -13,5 +13,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub mod entities;
-pub mod migrations;
+mod member;
+
+/*
+CREATE TABLE IF NOT EXISTS "organizations"(
+    verified_publisher BOOLEAN NOT NULL DEFAULT false,
+    twitter_handle TEXT NULL DEFAULT NULL,
+    gravatar_email TEXT NULL DEFAULT NULL,
+    display_name VARCHAR(32) NULL DEFAULT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT(NOW()),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT(NOW()),
+    icon_hash TEXT NULL DEFAULT NULL,
+    private BOOLEAN NOT NULL DEFAULT false,
+    owner TEXT NOT NULL,
+    name VARCHAR(32) NOT NULL UNIQUE,
+    id TEXT NOT NULL PRIMARY KEY,
+
+    CONSTRAINT "fk_organization_owner_id" FOREIGN KEY(owner) REFERENCES users(id)
+);
+*/

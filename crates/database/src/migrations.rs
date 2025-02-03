@@ -13,5 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub mod entities;
-pub mod migrations;
+use sea_orm_migration::MigratorTrait;
+
+pub(crate) mod m02_02_2025_000001_init;
+
+pub struct Migrator;
+
+impl MigratorTrait for Migrator {
+    fn migrations() -> Vec<Box<dyn sea_orm_migration::MigrationTrait>> {
+        vec![Box::new(m02_02_2025_000001_init::migration())]
+    }
+}

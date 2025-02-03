@@ -13,5 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub mod entities;
-pub mod migrations;
+pub mod apikey;
+pub mod organization;
+pub mod repository;
+pub mod session;
+pub mod user;
+pub mod user_connections;
+
+pub use session::Entity as SessionEntity;
+pub use user::Entity as UserEntity;
+pub use user_connections::Entity as UserConnectionsEntity;

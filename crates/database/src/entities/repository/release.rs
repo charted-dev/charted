@@ -13,5 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub mod entities;
-pub mod migrations;
+/*
+CREATE TABLE IF NOT EXISTS "repository_releases"(
+    repository TEXT NOT NULL UNIQUE,
+    update_text TEXT NULL DEFAULT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT(NOW()),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT(NOW()),
+    tag TEXT NOT NULL,
+    id TEXT NOT NULL PRIMARY KEY,
+
+    CONSTRAINT "fk_repository_release_owner" FOREIGN KEY(repository) REFERENCES repositories(id)
+);
+*/

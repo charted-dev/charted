@@ -26,9 +26,9 @@
 //! * A **Name** can never overflow since we require names to have a minimum
 //!   length of 2 and a maximum length of 32.
 
-use crate::{cfg_jsonschema, cfg_openapi, cfg_sea_orm};
+use crate::{cfg_jsonschema, cfg_openapi};
 use serde::{Deserialize, Serialize};
-use std::{any::type_name, borrow::Cow, ops::Deref, str::FromStr, sync::Arc};
+use std::{borrow::Cow, ops::Deref, str::FromStr, sync::Arc};
 
 const MAX_LENGTH: usize = 32;
 const MIN_LENGTH: usize = 2;
@@ -134,28 +134,30 @@ impl FromStr for Name {
     }
 }
 
-cfg_sea_orm! {
+#[cfg(feature = "__internal_db")]
+const _: () = {
     use sea_orm::{
-        TryGetable,
-        ColIdx,
-        QueryResult,
-        TryGetError,
-        DbErr,
-
-        sea_query::{ValueType, Value, ValueTypeErr, ArrayType, ColumnType},
+        sea_query::{ArrayType, ColumnType, Value, ValueType, ValueTypeErr},
+        ColIdx, DbErr, QueryResult, TryGetError, TryGetable,
     };
+    use std::any::type_name;
+
+    impl From<Name> for Value {
+        fn from(value: Name) -> Self {
+            Value::String(Some(Box::new(value.as_str().to_owned())))
+        }
+    }
 
     impl TryGetable for Name {
-        fn try_get_by<I: ColIdx>(
-            query: &QueryResult,
-            idx: I
-        ) -> Result<Self, TryGetError> {
+        fn try_get_by<I: ColIdx>(query: &QueryResult, idx: I) -> Result<Self, TryGetError> {
             let contents = <String as TryGetable>::try_get_by(query, idx)?;
-            contents.parse::<Name>().map_err(|e| TryGetError::DbErr(DbErr::TryIntoErr {
-                from: type_name::<String>(),
-                into: type_name::<Name>(),
-                source: Box::new(e),
-            }))
+            contents.parse::<Name>().map_err(|e| {
+                TryGetError::DbErr(DbErr::TryIntoErr {
+                    from: type_name::<String>(),
+                    into: type_name::<Name>(),
+                    source: Box::new(e),
+                })
+            })
         }
     }
 
@@ -177,7 +179,7 @@ cfg_sea_orm! {
             ColumnType::Char(Some(32))
         }
     }
-}
+};
 
 cfg_openapi! {
     use utoipa::{

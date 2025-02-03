@@ -13,5 +13,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub mod entities;
-pub mod migrations;
+mod member;
+mod release;
+
+/*
+CREATE TABLE IF NOT EXISTS "repositories"(
+    description VARCHAR(64) NULL DEFAULT NULL,
+    deprecated BOOLEAN NOT NULL DEFAULT false,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT(NOW()),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT(NOW()),
+    icon_hash TEXT NULL DEFAULT NULL,
+    private BOOLEAN NOT NULL DEFAULT false,
+
+    -- `creator` is only null if `owner` is not a *User*.
+    creator TEXT NULL DEFAULT NULL,
+    owner TEXT NOT NULL,
+    name VARCHAR(32) NOT NULL,
+    type chart_type NOT NULL DEFAULT('application'),
+    id TEXT NOT NULL PRIMARY KEY
+);
+*/

@@ -19,21 +19,21 @@ members = [
     "crates/authz",
     "crates/authz/*",
     "crates/cli",
-    # "crates/client",
-    # "crates/config",
+    "crates/client",
+    "crates/configuration",
     "crates/core",
-    # "crates/database",
-    # "crates/devtools",
-    # "crates/features",
-    # "crates/features/totp",
-    # "crates/helm-charts",
-    # "crates/helm-plugin",
+    "crates/database",
+    "crates/features",
+    "crates/helm/charts",
+    "crates/helm/plugin",
     "crates/helm/types",
-    # "crates/server",
+    "crates/server",
     "crates/types",
 
     "src/charted",
     "src/internals",
+
+    "features/totp",
 ]
 
 [workspace.package]
@@ -58,7 +58,7 @@ charted-authz-static = { path = "./crates/authz/static" }
 charted-cli = { path = "./crates/cli" }
 charted-client = { path = "./crates/client", version = "0.1.0" }
 charted-config = { path = "./crates/configuration" }
-charted-core = { path = "./crates/core" }
+charted-core = { path = "./crates/core", version = "0.1.0" }
 charted-database = { path = "./crates/database" }
 charted-helm-charts = { path = "./crates/helm/charts" }
 charted-helm-plugin = { path = "./crates/helm/plugin" }
@@ -84,6 +84,15 @@ sea-orm = { version = "1.1.4", default-features = false, features = [
     "with-chrono",
     "runtime-tokio",
     "runtime-tokio-rustls",
+    "sqlx-postgres",
+    "sqlx-sqlite",
+] }
+sea-orm-migration = { version = "1.1.4", default-features = false, features = [
+    "runtime-tokio",
+    "runtime-tokio-rustls",
+    "sqlx-postgres",
+    "sqlx-sqlite",
+    "with-chrono",
 ] }
 serde = { version = "1.0.217", features = ["derive", "rc"] }
 serde_json = "1.0.138"

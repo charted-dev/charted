@@ -37,7 +37,6 @@ openapi = ["dep:utoipa"]
 [dependencies]
 axum = { workspace = true, optional = true }
 derive_more = { workspace = true, features = ["display"] }
-charted-types.workspace = true
 humantime = "2.1.0"
 rand.workspace = true
 serde.workspace = true

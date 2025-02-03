@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{cfg_jsonschema, cfg_openapi, cfg_sea_orm};
+use crate::{cfg_jsonschema, cfg_openapi};
 use serde::{Deserialize, Serialize};
 
 /// Newtype wrapper for [`semver::Version`].
@@ -138,29 +138,24 @@ cfg_jsonschema! {
     }
 }
 
-cfg_sea_orm! {
-    use std::any::type_name;
+#[cfg(feature = "__internal_db")]
+const _: () = {
     use sea_orm::{
-        TryGetable,
-        ColIdx,
-        QueryResult,
-        TryGetError,
-        DbErr,
-
-        sea_query::{ValueType, Value, ValueTypeErr, ArrayType, ColumnType},
+        sea_query::{ArrayType, ColumnType, Value, ValueType, ValueTypeErr},
+        ColIdx, DbErr, QueryResult, TryGetError, TryGetable,
     };
+    use std::any::type_name;
 
     impl TryGetable for Version {
-        fn try_get_by<I: ColIdx>(
-            query: &QueryResult,
-            idx: I
-        ) -> Result<Self, TryGetError> {
+        fn try_get_by<I: ColIdx>(query: &QueryResult, idx: I) -> Result<Self, TryGetError> {
             let contents = <String as TryGetable>::try_get_by(query, idx)?;
-            contents.parse::<semver::Version>().map(Self).map_err(|e| TryGetError::DbErr(DbErr::TryIntoErr {
-                from: type_name::<String>(),
-                into: type_name::<semver::Version>(),
-                source: Box::new(e),
-            }))
+            contents.parse::<semver::Version>().map(Self).map_err(|e| {
+                TryGetError::DbErr(DbErr::TryIntoErr {
+                    from: type_name::<String>(),
+                    into: type_name::<semver::Version>(),
+                    source: Box::new(e),
+                })
+            })
         }
     }
 
@@ -182,7 +177,7 @@ cfg_sea_orm! {
             ColumnType::Char(None)
         }
     }
-}
+};
 
 /// Newtype wrapper for [`semver::VersionReq`].
 ///
@@ -262,36 +257,33 @@ cfg_jsonschema! {
     }
 }
 
-cfg_sea_orm! {
-    use std::any::type_name;
+#[cfg(feature = "__internal_db")]
+const _: () = {
     use sea_orm::{
-        TryGetable,
-        ColIdx,
-        QueryResult,
-        TryGetError,
-        DbErr,
-
-        sea_query::{ValueType, Value, ValueTypeErr, ArrayType, ColumnType},
+        sea_query::{ArrayType, ColumnType, Value, ValueType, ValueTypeErr},
+        ColIdx, DbErr, QueryResult, TryGetError, TryGetable,
     };
 
     impl TryGetable for VersionReq {
-        fn try_get_by<I: ColIdx>(
-            query: &QueryResult,
-            idx: I
-        ) -> Result<Self, TryGetError> {
+        fn try_get_by<I: ColIdx>(query: &QueryResult, idx: I) -> Result<Self, TryGetError> {
             let contents = <String as TryGetable>::try_get_by(query, idx)?;
-            contents.parse::<semver::VersionReq>().map(Self).map_err(|e| TryGetError::DbErr(DbErr::TryIntoErr {
-                from: type_name::<String>(),
-                into: type_name::<semver::VersionReq>(),
-                source: Box::new(e),
-            }))
+            contents.parse::<semver::VersionReq>().map(Self).map_err(|e| {
+                TryGetError::DbErr(DbErr::TryIntoErr {
+                    from: ::std::any::type_name::<String>(),
+                    into: ::std::any::type_name::<semver::VersionReq>(),
+                    source: Box::new(e),
+                })
+            })
         }
     }
 
     impl ValueType for VersionReq {
         fn try_from(v: Value) -> Result<Self, ValueTypeErr> {
             let contents = <String as ValueType>::try_from(v)?;
-            contents.parse::<semver::VersionReq>().map(Self).map_err(|_| ValueTypeErr)
+            contents
+                .parse::<semver::VersionReq>()
+                .map(Self)
+                .map_err(|_| ValueTypeErr)
         }
 
         fn type_name() -> String {
@@ -306,4 +298,4 @@ cfg_sea_orm! {
             ColumnType::Char(None)
         }
     }
-}
+};

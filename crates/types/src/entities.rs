@@ -13,579 +13,414 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/*
-use crate::{helm::ChartType, name::Name, util, DateTime, Ulid, Version};
+use crate::{name::Name, ChartType, DateTime, Ulid, Version};
 use charted_core::bitflags::ApiKeyScopes;
-use diesel::prelude::*;
 use serde::Serialize;
-use utoipa::ToSchema;
 
-#[derive(Debug, Clone, Serialize, ToSchema, Queryable, Insertable)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite, diesel::pg::Pg))]
-#[diesel(table_name = charted_database::schema::postgresql::users)]
-#[diesel(table_name = charted_database::schema::sqlite::users)]
+/// The baseline entity.
+///
+/// Users can manage and create repositories and organizations, be apart
+/// of repository & organizations and much more.
+#[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct User {
-    /// whether or not if this user is considered a verified publisher.
-    #[schema(read_only)]
+    /// Determines whether if this user is a verified publisher or not.
+    #[cfg_attr(feature = "openapi", schema(read_only))]
     #[serde(default)]
     pub verified_publisher: bool,
 
-    /// whether or not if the user prefers to use their Gravatar email
-    /// as their profile picture.
-    #[schema(read_only)]
+    /// Determines whether or not if this user prefers to use their
+    /// Gravatar email associated as their profile picture.
     #[serde(default)]
     pub prefers_gravatar: bool,
 
-    /// Email address that is the Gravatar email to which we should use the user's avatar.
+    /// Valid email address that points to their Gravatar account.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub gravatar_email: Option<String>,
 
-    /// Short description about this user.
+    /// Short and concise description about this user.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
 
-    /// Unique hash that identifies the user's avatar that they uploaded via the REST API.
+    /// Unique hash by the API server to identify their avatar, if they have uploaded one.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub avatar_hash: Option<String>,
 
-    /// Date of when this user was created. This uses the host system's local time instead
-    /// of UTC.
-    #[schema(read_only, value_type = DateTime)]
+    /// datetime of when this user was created
+    #[cfg_attr(feature = "openapi", schema(read_only))]
     pub created_at: DateTime,
 
-    /// Date of when the server has last updated this user's metadata
-    #[schema(read_only, value_type = DateTime)]
+    /// datetime of when this user was last updated
+    #[cfg_attr(feature = "openapi", schema(read_only))]
     pub updated_at: DateTime,
 
-    /// Name of this user that can be identified easier.
+    /// the user's username
     pub username: Name,
 
-    #[serde(skip)]
-    pub password: Option<String>,
-
-    #[serde(skip)]
-    pub email: String,
-
-    /// Whether if this User is an Administrator of this instance
+    /// whether if this user is an administrator of this instance
     #[serde(default)]
-    #[schema(read_only)]
+    #[cfg_attr(feature = "openapi", schema(read_only))]
     pub admin: bool,
 
-    /// Display name for this user, it should be displayed as '{name} (@{username})' or just '@{username}' if there is no display name
-    #[serde(default)]
+    /// the user's display name.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
-    /// Unique identifier to locate this user via the REST API.
+    /// the user's unique identifier
+    #[cfg_attr(feature = "openapi", schema(read_only))]
     pub id: Ulid,
 }
 
-util::selectable!(users for User => [
-    verified_publisher: bool,
-    prefers_gravatar: bool,
-    gravatar_email: Option<String>,
-    description: Option<String>,
-    avatar_hash: Option<String>,
-    created_at: DateTime,
-    updated_at: DateTime,
-    username: Name,
-    password: Option<String>,
-    email: String,
-    admin: bool,
-    name: Option<String>,
-    id: Ulid
-]);
-
-crate::mk_db_based_types!(users for User => [
-    verified_publisher: bool,
-    prefers_gravatar: bool,
-    gravatar_email: Option<String>,
-    description: Option<String>,
-    avatar_hash: Option<String>,
-    created_at: DateTime,
-    updated_at: DateTime,
-    username: Name,
-    password: Option<String>,
-    email: String,
-    admin: bool,
-    name: Option<String>,
-    id: Ulid
-]);
-
-#[derive(Debug, Clone, Serialize, ToSchema, Queryable, Insertable)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite, diesel::pg::Pg))]
-#[diesel(table_name = charted_database::schema::postgresql::user_connections)]
-#[diesel(table_name = charted_database::schema::sqlite::user_connections)]
+/// Connections that a [`User`] is connected to.
+///
+/// This allows OIDC implementations of charted's authz system to lookup
+/// a user by a unique identifier so the flow is easier.
+///
+/// ## Supported Providers
+/// - [Noelware](https://account.noelware.org)
+/// - [Google](https://google.com)
+/// - [GitHub](https://github.com)
+/// - [GitLab](https://gitlab.com)
+#[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct UserConnections {
-    /// Snowflake ID that was sourced from [Noelware's Accounts System](https://accounts.noelware.org)
-    #[serde(default)]
-    pub noelware_account_id: Option<i64>,
+    /// Account ID (formatted as a [`Ulid`]) that is from [Noelware](https://account.noelware.org).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub noelware_account_id: Option<Ulid>,
 
-    /// Account ID that was sourced from Google OAuth2
-    #[serde(default)]
+    /// Account ID that is from [Google](https://google.com)
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub google_account_id: Option<String>,
 
-    /// Account ID that was sourced from GitHub OAuth2. This can differ from
-    /// GitHub (https://github.com) and GitHub Enterprise usage.
-    #[serde(default)]
+    /// Account ID that is from [GitHub](https://github.com)
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub github_account_id: Option<String>,
 
-    /// Date of when this entity was created. In most cases, this will be mere milliseconds
-    /// or seconds to when a [`User`] is created.
-    #[schema(read_only)]
+    /// Account ID that is from [GitLab](https://gitlab.com)
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub gitlab_account_id: Option<String>,
+
+    /// datetime of when this object was created.
+    ///
+    /// this should be in range of when the [`User`] was created, but
+    /// it is not 100% a guarantee.
+    #[cfg_attr(feature = "openapi", schema(read_only))]
     pub created_at: DateTime,
 
-    /// Last timestamp of when the API server has modified this entity.
+    /// datetime of when this object was last modified.
+    #[cfg_attr(feature = "openapi", schema(read_only))]
     pub updated_at: DateTime,
 
-    /// Unique identifier of this entity.
-    #[schema(read_only)]
+    /// the object's unique identifier
     pub id: Ulid,
 }
 
-util::selectable!(user_connections for UserConnections => [
-    noelware_account_id: Option<i64>,
-    google_account_id: Option<String>,
-    github_account_id: Option<String>,
-    created_at: DateTime,
-    updated_at: DateTime,
-    id: Ulid
-]);
-
-crate::mk_db_based_types!(user_connections for UserConnections => [
-    noelware_account_id: Option<i64>,
-    google_account_id: Option<String>,
-    github_account_id: Option<String>,
-    created_at: DateTime,
-    updated_at: DateTime,
-    id: Ulid
-]);
-
-#[derive(Debug, Clone, Serialize, ToSchema, Queryable, Insertable)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite, diesel::pg::Pg))]
-#[diesel(table_name = charted_database::schema::postgresql::repositories)]
-#[diesel(table_name = charted_database::schema::sqlite::repositories)]
+/// A **Helm** chart that can be associated by a [`User`] or [`Organization`].
+#[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct Repository {
-    /// Short description about this user, can be `null` if none was provided.
-    #[serde(default)]
+    /// Short and concise description about this repository.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
 
-    /// whether if this repository is deprecated or not.
+    /// whether or not if this repository is marked **deprecated**.
     #[serde(default)]
     pub deprecated: bool,
 
-    /// Timestamp of when this entity was created.
-    #[schema(read_only)]
+    /// datetime of when this repository was created.
+    #[cfg_attr(feature = "openapi", schema(read_only))]
     pub created_at: DateTime,
 
-    /// Timestamp of when the API server has last updated this entity.
+    /// datetime of when this repository was last modified.
+    #[cfg_attr(feature = "openapi", schema(read_only))]
     pub updated_at: DateTime,
 
-    /// Hash identifier for the repository's icon, if one was uploaded.
-    #[serde(default)]
-    #[schema(read_only)]
+    /// unique icon hash for the repository generated by the API server.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub icon_hash: Option<String>,
 
-    /// The "creator" of the repository. This will return `null` if the
-    /// owner is already a [`User`], otherwise, this will point to the
-    /// user's ID that made the repository under the organization.
-    #[serde(default)]
-    #[schema(read_only)]
+    /// The creator of the repository.
+    ///
+    /// This field was added to determine if this is a organization
+    /// or user repository without having another db enumeration
+    /// to manage.
+    ///
+    /// This can be `null` if this is a user repository as the [`owner`]
+    /// field will be set to the user that created the repository. This
+    /// is non-null to the organization member that created the repository as
+    /// the [`owner`] field will always be the organization.
+    ///
+    /// [`owner`]: #
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "openapi", schema(read_only))]
     pub creator: Option<Ulid>,
 
-    /// whether if the repository is private and only its members can view it.
+    /// whether or not if this repository is marked **private**.
     #[serde(default)]
     pub private: bool,
 
-    /// The owner of the repository. This will return either a [`User`] or [`Organization`]
-    /// identifier.
-    #[schema(read_only)]
+    /// the [`User`] account or [`Organization`] that created this repository.
+    #[cfg_attr(feature = "openapi", schema(read_only))]
     pub owner: Ulid,
 
-    /// Name of the repository.
-    pub name: Name,
-
-    /// What kind of chart this repository is.
-    #[serde(rename = "type")]
+    /// representation of this repository.
+    ///
+    /// Repositories can also be considered as a library chart and can be
+    /// pulled from a user or organization's Helm chart index.
     pub type_: ChartType,
 
-    /// Unique identifier of this entity.
-    #[schema(read_only)]
+    /// the name of this repository.
+    pub name: Name,
+
+    /// the repository's unique identifier.
+    #[cfg_attr(feature = "openapi", schema(read_only))]
     pub id: Ulid,
 }
 
-util::selectable!(repositories for Repository => [
-    description: Option<String>,
-    deprecated: bool,
-    created_at: DateTime,
-    updated_at: DateTime,
-    icon_hash: Option<String>,
-    creator: Option<Ulid>,
-    private: bool,
-    owner: Ulid,
-    name: Name,
-    type_: ChartType,
-    id: Ulid
-]);
-
-crate::mk_db_based_types!(repositories for Repository => [
-    description: Option<String>,
-    deprecated: bool,
-    created_at: DateTime,
-    updated_at: DateTime,
-    icon_hash: Option<String>,
-    creator: Option<Ulid>,
-    private: bool,
-    owner: Ulid,
-    name: Name,
-    type_: ChartType,
-    id: Ulid
-]);
-
-/// Represents a resource that contains a release from a [Repository] release. Releases
-/// are a way to group releases of new versions of Helm charts that can be easily
-/// fetched from the API server.
+/// Resource that contains a [`Repository`] release.
 ///
-/// Any repository can have an unlimited amount of releases, but tags cannot clash
-/// into each other, so the API server will not accept it. Each tag should be
-/// a SemVer 2 comformant string, parsing is related to how Cargo evaluates SemVer 2 tags.
-#[derive(Debug, Clone, Serialize, ToSchema, Queryable, Insertable)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite, diesel::pg::Pg))]
-#[diesel(table_name = charted_database::schema::postgresql::repository_releases)]
-#[diesel(table_name = charted_database::schema::sqlite::repository_releases)]
+/// **Releases** are a way to group new releases of Helm charts that can
+/// be easily used and fetched from the API server.
+///
+/// Any [`Repository`] can have a number of releases but release tags
+/// cannot clash between one and another. All release tags must comply
+/// to the [SemVer v2] format.
+///
+/// [SemVer v2]: https://semver.org/
+#[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct RepositoryRelease {
-    /// Markdown-formatted string that contains a changelog of this release.
-    #[serde(default)]
+    /// The "changelog" or update text of this release.
+    ///
+    /// This can be formatted into Markdown and applications like
+    /// [Hoshi] can render the Markdown into HTML.
+    ///
+    /// [Hoshi]: https://charts.noelware.org/docs/hoshi/latest
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub update_text: Option<String>,
 
-    /// Repository that owns this release
-    #[schema(read_only)]
+    /// [`Repository`] that owns this release.
+    #[cfg_attr(feature = "openapi", schema(read_only))]
     pub repository: Ulid,
 
-    /// Date of when this release was registered to this instance
-    #[schema(read_only)]
+    /// datetime of when this release was created.
+    #[cfg_attr(feature = "openapi", schema(read_only))]
     pub created_at: DateTime,
 
-    /// Date of when the server has last updated this repository release
-    #[schema(read_only)]
+    /// datetime of when this release was last modified.
+    #[cfg_attr(feature = "openapi", schema(read_only))]
     pub updated_at: DateTime,
 
-    /// SemVer 2 comformant string that represents this tag.
-    #[schema(read_only)]
+    /// whether or not if this release was yanked.
+    #[serde(default)]
+    pub yanked: bool,
+
+    /// the title of this release.
+    ///
+    /// If no title is provided, then consumers can place their own title. For
+    /// [Hoshi], this will render to "Release [`{tag}`]"
+    ///
+    /// [`{tag}`]: #
+    /// [Hoshi]: https://charts.noelware.org/docs/hoshi/latest
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+
+    /// the release tag.
+    #[cfg_attr(feature = "openapi", schema(read_only))]
     pub tag: Version,
 
-    /// Unique identifier to locate this repository release resource from the API.
-    #[schema(read_only)]
+    /// the release's unique identifier.
+    #[cfg_attr(feature = "openapi", schema(read_only))]
     pub id: Ulid,
 }
 
-util::selectable!(repository_releases for RepositoryRelease => [
-    update_text: Option<String>,
-    repository: Ulid,
-    created_at: DateTime,
-    updated_at: DateTime,
-    tag: Version,
-    id: Ulid
-]);
-
-crate::mk_db_based_types!(repository_releases for RepositoryRelease => [
-    update_text: Option<String>,
-    repository: Ulid,
-    created_at: DateTime,
-    updated_at: DateTime,
-    tag: Version,
-    id: Ulid
-]);
-
-macro_rules! create_member_struct {
-    ($name:ident -> $table:ident) => {
-        paste::paste! {
-            #[doc = "Resource that correlates to a " $name:lower " member entity."]
-            #[derive(Debug, Clone, Serialize, ToSchema, Queryable, Insertable)]
-            #[diesel(check_for_backend(diesel::sqlite::Sqlite, diesel::pg::Pg))]
-            #[diesel(table_name = charted_database::schema::postgresql::$table)]
-            #[diesel(table_name = charted_database::schema::sqlite::$table)]
-            pub struct [<$name Member>] {
-                /// Display name for this member.
-                ///
-                /// This should be formatted as `{display_name} (@{username})` where:
-                /// - `{display_name}` is this property
-                /// - `{username}` is the user's username.
-                ///
-                /// If a display name is not visible, then using `@{username}` is also possible.
-                pub display_name: Option<String>,
-
-                /// Bitfield value of this member's permissions.
-                pub permissions: i64,
-
-                /// Date-time of when this member resource was last updated by the API server.
-                #[schema(read_only)]
-                pub updated_at: DateTime,
-
-                /// Date-time of when this member resource was created by the API server.
-                #[schema(read_only)]
-                pub joined_at: DateTime,
-
-                /// [User] resource that this member is.
-                #[schema(read_only)]
-                pub account: Ulid,
-
-                /// Unique identifier to locate this member with the API
-                #[schema(read_only)]
-                pub id: Ulid,
-            }
-
-            impl [<$name Member>] {
-                #[doc = "Creates a [`MemberPermissions`][::charted_core::bitflags::MemberPermissions] for"]
-                #[doc = "this " $name:lower " member."]
-                pub fn bitfield(&self) -> ::charted_core::bitflags::MemberPermissions {
-                    ::charted_core::bitflags::MemberPermissions::new(self.permissions.try_into().expect("cannot convert to u64"))
-                }
-            }
-
-            $crate::util::selectable!($table for [<$name Member>] => [
-                display_name: Option<String>,
-                permissions: i64,
-                updated_at: DateTime,
-                joined_at: DateTime,
-                account: Ulid,
-                id: Ulid
-            ]);
-        }
-    };
-}
-
-create_member_struct!(Repository -> repository_members);
-
-crate::mk_db_based_types!(repository_members for RepositoryMember => [
-    display_name: Option<String>,
-    permissions: i64,
-    updated_at: DateTime,
-    joined_at: DateTime,
-    account: Ulid,
-    id: Ulid
-]);
-
-create_member_struct!(Organization -> organization_members);
-
-crate::mk_db_based_types!(organization_members for OrganizationMember => [
-    display_name: Option<String>,
-    permissions: i64,
-    updated_at: DateTime,
-    joined_at: DateTime,
-    account: Ulid,
-    id: Ulid
-]);
-
-#[derive(Debug, Clone, Serialize, ToSchema, Queryable, Insertable)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite, diesel::pg::Pg))]
-#[diesel(table_name = charted_database::schema::postgresql::organizations)]
-#[diesel(table_name = charted_database::schema::sqlite::organizations)]
+/// An organization is a shared resource for users to build, test, and push Helm charts.
+#[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct Organization {
-    /// Whether if this Organization is a Verified Publisher or not.
+    /// whether if this organization is a verified publisher
     #[serde(default)]
-    #[schema(read_only)]
     pub verified_publisher: bool,
 
-    /// Returns the twitter handle for this organization, if populated.
+    /// whether if this organization prefers their Gravatar email as their icon
     #[serde(default)]
-    pub twitter_handle: Option<String>,
+    pub prefers_gravatar: bool,
 
-    /// Valid email address that points to a Gravatar avatar, or `null` if it shouldn't use one as the primary avatar
-    #[serde(default)]
+    /// valid email address that points to their Gravatar account.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub gravatar_email: Option<String>,
 
-    /// Display name for this organization. It should be formatted as '[{display_name}][Organization::display_name] (@[{name}][Organization::name])'
-    /// or '@[{name}][Organization::name]'.
-    #[serde(default)]
+    /// the organization's display name.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub display_name: Option<String>,
 
-    /// Date of when this organization was registered to this instance
-    #[schema(read_only)]
+    /// datetime of when this organization was created.
+    #[cfg_attr(feature = "openapi", schema(read_only))]
     pub created_at: DateTime,
 
-    /// Date of when the server has last updated this organization
-    #[schema(read_only)]
+    /// datetime of when this organization was last modified.
+    #[cfg_attr(feature = "openapi", schema(read_only))]
     pub updated_at: DateTime,
 
-    /// Unique hash to locate an organization's icon, this also includes the extension that this icon is, i.e, `png`.
-    #[serde(default)]
+    /// a unique hash generated by the API server to the organization's icon.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "openapi", schema(read_only))]
     pub icon_hash: Option<String>,
 
-    /// Whether this organization is private and only its member can access this resource.
+    /// whether if this organization is marked private
     #[serde(default)]
     pub private: bool,
 
-    /// User ID that owns this organization
-    #[schema(read_only)]
+    /// reference to the owner of this organization
     pub owner: Ulid,
 
-    /// The name for this organization.
-    #[schema(read_only)]
+    /// the organization's name
     pub name: Name,
 
-    /// Unique identifier to locate this organization with the API
-    #[schema(read_only)]
+    /// the organization's unique identifier.
     pub id: Ulid,
 }
 
-util::selectable!(organizations for Organization => [
-    verified_publisher: bool,
-    twitter_handle: Option<String>,
-    gravatar_email: Option<String>,
-    display_name: Option<String>,
-    created_at: DateTime,
-    updated_at: DateTime,
-    icon_hash: Option<String>,
-    private: bool,
-    owner: Ulid,
-    name: Name,
-    id: Ulid
-]);
-
-crate::mk_db_based_types!(organizations for Organization => [
-    verified_publisher: bool,
-    twitter_handle: Option<String>,
-    gravatar_email: Option<String>,
-    display_name: Option<String>,
-    created_at: DateTime,
-    updated_at: DateTime,
-    icon_hash: Option<String>,
-    private: bool,
-    owner: Ulid,
-    name: Name,
-    id: Ulid
-]);
-
-/// A resource for personal-managed API tokens that is created by a User. This is useful
-/// for command line tools or scripts that need to interact with charted-server, but
-/// the main use-case is for the [Helm plugin](https://charts.noelware.org/docs/helm-plugin/current).
-#[derive(Debug, Clone, Serialize, ToSchema, Queryable, Insertable)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite, diesel::pg::Pg))]
-#[diesel(table_name = charted_database::schema::postgresql::api_keys)]
-#[diesel(table_name = charted_database::schema::sqlite::api_keys)]
+/// Resource for personal-managed API tokens that is created by a [`User`].
+///
+/// User API keys are useful for command-line tools or scripts that might need
+/// to interact with the API server.
+#[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct ApiKey {
-    /// Short description about this API key.
-    #[serde(default)]
+    /// the api key's display name.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub display_name: Option<String>,
+
+    /// short and concise description about this api key.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
 
-    /// Date of when this API key was created
-    #[schema(read_only, value_type = DateTime)]
+    /// datetime of when this api key was created.
+    #[cfg_attr(feature = "openapi", schema(read_only))]
     pub created_at: DateTime,
 
-    /// Date of when the server has last updated this API key
-    #[schema(read_only, value_type = DateTime)]
+    /// datetime of when this api key was last modified.
+    #[cfg_attr(feature = "openapi", schema(read_only))]
     pub updated_at: DateTime,
 
-    /// Date-time of when this API token expires in, `null` can be returned
-    /// if the token doesn't expire
-    #[serde(default)]
-    #[schema(read_only, value_type = DateTime)]
+    /// datetime of when this api key should be deleted from the server
+    /// and can no longer be used.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "openapi", schema(read_only))]
     pub expires_in: Option<DateTime>,
 
-    /// The scopes that are attached to this API key resource.
+    /// the list of permissions that this api key has as a [bitfield] data structure.
+    ///
+    /// [bitfield]: https://charts.noelware.org/docs/server/latest/api/reference#bitfield-data-structure
+    #[serde(default)]
     pub scopes: i64,
 
-    /// The token itself. This is never revealed when querying, but only revealed
-    /// when you create the token.
-    #[serde(default, skip_serializing_if = "String::is_empty")]
-    #[schema(read_only)]
-    pub token: String,
-
-    /// User resource that owns this API key. This is skipped
-    /// when using the API as this is pretty useless.
-    #[schema(read_only)]
+    /// reference to the [`User`] that owns this api key
     pub owner: Ulid,
 
-    /// The name of the API key.
-    #[schema(read_only)]
+    /// the name of the api key
     pub name: Name,
 
-    /// Unique identifer to locate this resource in the API server.
-    #[schema(read_only)]
+    /// the api key's unique identifier.
     pub id: Ulid,
 }
 
 impl ApiKey {
-    /// Returns a new [`Bitfield`], but the API key scopes are filled in
+    /// Returns a new [`Bitfield`][charted_core::bitflags::Bitfield] of the
+    /// avaliable scopes.
     pub fn bitfield(&self) -> ApiKeyScopes {
         ApiKeyScopes::new(self.scopes.try_into().unwrap())
     }
+}
 
-    /// Sanitize the output of [`ApiKey`] when serializing it or else the token will be
-    /// exposed and we don't want that. :(
-    pub fn sanitize(self) -> ApiKey {
-        ApiKey {
-            token: String::new(),
+/// Resource that represents a [`User`] session.
+#[derive(Debug, Clone, Serialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct Session {
+    /// A token that is used to refresh this session via the [`GET /users/@me/sessions/refresh`] REST endpoint.
+    ///
+    /// When this session was refreshed, the session is still alive and can still be used
+    /// but both the [`refresh_token`] and [`access_token`] fields are different values.
+    ///
+    /// [`GET /users/@me/sessions/refresh`]: #
+    /// [`refresh_token`]: #
+    /// [`access_token`]: #
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "openapi", schema(read_only))]
+    pub refresh_token: Option<String>,
+
+    /// The token that is used to send API requests.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "openapi", schema(read_only))]
+    pub access_token: Option<String>,
+
+    /// reference to the [`User`] that owns this api key
+    pub owner: Ulid,
+
+    /// the api key's unique identifier.
+    pub id: Ulid,
+}
+
+impl Session {
+    /// Sanitizes and removes the `refresh_token` and `access_token` fields.
+    ///
+    /// Since the `From` implementation from database queries sets the `refresh_token`
+    /// and `access_token`, we will need to sanitize the input.
+    pub fn sanitize(self) -> Session {
+        Session {
+            refresh_token: None,
+            access_token: None,
             ..self
         }
     }
 }
 
-util::selectable!(api_keys for ApiKey => [
-    description: Option<String>,
-    created_at: DateTime,
-    updated_at: DateTime,
-    expires_in: Option<DateTime>,
-    scopes: i64,
-    token: String,
-    owner: Ulid,
-    name: Name,
-    id: Ulid
-]);
+macro_rules! mk_member_struct {
+    ($name:ident) => {
+        $crate::__private::paste! {
+            #[doc = "Resource that correlates to a " $name:lower " member."]
+            #[derive(Debug, Clone, Serialize)]
+            #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+            pub struct [<$name Member>] {
+                /// the member's display name.
+                #[serde(default, skip_serializing_if = "Option::is_none")]
+                pub display_name: Option<String>,
 
-crate::mk_db_based_types!(api_keys for ApiKey => [
-    description: Option<String>,
-    created_at: DateTime,
-    updated_at: DateTime,
-    expires_in: Option<DateTime>,
-    scopes: i64,
-    token: String,
-    owner: Ulid,
-    name: Name,
-    id: Ulid
-]);
+                /// the permissions that this member has as a [bitfield] data structure.
+                ///
+                /// [bitfield]: https://charts.noelware.org/docs/server/latest/api/reference#bitfield-data-structure
+                #[serde(default)]
+                pub permissions: u64,
 
-/// Resource that represents a user session present.
-#[derive(Debug, Clone, Serialize, ToSchema, Queryable, Insertable)]
-#[diesel(check_for_backend(diesel::sqlite::Sqlite, diesel::pg::Pg))]
-#[diesel(table_name = charted_database::schema::postgresql::sessions)]
-#[diesel(table_name = charted_database::schema::sqlite::sessions)]
-pub struct Session {
-    /// Refresh token to refresh this session.
-    ///
-    /// When refreshed, the session will still be alive but `access_token`
-    /// and this field will be different.
-    #[serde(default, skip_serializing_if = "String::is_empty")]
-    pub refresh_token: String,
+                /// datetime of when this release was last modified.
+                #[cfg_attr(feature = "openapi", schema(read_only))]
+                pub updated_at: DateTime,
 
-    /// Access token to access data from the REST service.
-    #[serde(default, skip_serializing_if = "String::is_empty")]
-    pub access_token: String,
+                #[doc = "datetime of when this member joined this " $name:lower "."]
+                #[cfg_attr(feature = "openapi", schema(read_only))]
+                pub joined_at: DateTime,
 
-    /// ULID of the user that owns this session
-    pub owner: Ulid,
+                /// reference to their user account.
+                #[cfg_attr(feature = "openapi", schema(read_only))]
+                pub account: Ulid,
 
-    /// Unique identifier of this session.
-    pub id: Ulid,
-}
+                /// the member's unique identifier.
+                #[cfg_attr(feature = "openapi", schema(read_only))]
+                pub id: Ulid,
+            }
 
-impl Session {
-    /// Sanitize the `access_token` and `refresh_token` fields so that it can be passed
-    /// from the user sessions API.
-    pub fn sanitize(self) -> Session {
-        Session {
-            refresh_token: String::new(),
-            access_token: String::new(),
-            owner: self.owner,
-            id: self.id,
+            impl [<$name Member>] {
+                pub fn bitfield(&self) -> ::charted_core::bitflags::MemberPermissions {
+                    let perms_as_u64: u64 = self.permissions.try_into().unwrap();
+                    ::charted_core::bitflags::MemberPermissions::new(
+                        perms_as_u64
+                    )
+                }
+            }
         }
-    }
+    };
 }
 
-util::selectable!(sessions for Session => [
-    refresh_token: String,
-    access_token: String,
-    owner: Ulid,
-    id: Ulid
-]);
-*/
+mk_member_struct!(Repository);
+mk_member_struct!(Organization);

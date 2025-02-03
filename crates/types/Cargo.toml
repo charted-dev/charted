@@ -30,7 +30,7 @@ rust-version = "1.77"
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(noeldoc)'] }
 
 [features]
-default = ["__internal_db"]
+default = []
 
 jsonschema = ["dep:schemars"]
 openapi = ["dep:utoipa"]
@@ -39,6 +39,7 @@ __internal_db = ["dep:sea-orm"]
 
 [dependencies]
 chrono.workspace = true
+charted-core.workspace = true
 derive_more = { workspace = true, features = ["display", "from", "deref"] }
 paste = "1.0.15"
 schemars = { workspace = true, optional = true }

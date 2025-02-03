@@ -37,14 +37,16 @@ pub mod __private {
 }
 
 mod helm {
-    use sea_orm::entity::prelude::*;
     use serde::{Deserialize, Serialize};
-    use std::str::FromStr;
+    use std::{fmt::Write, str::FromStr};
+
+    #[cfg(feature = "__internal_db")]
+    use sea_orm::entity::prelude::*;
 
     /// Representation of a Helm chart.
     #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq, derive_more::Display)]
     #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
-    #[cfg_attr(feature = "__internal_db", derive(sea_orm::EnumIter, sea_orm::DeriveActiveEnum))]
+    #[cfg_attr(feature = "__internal_db", derive(EnumIter, DeriveActiveEnum))]
     #[cfg_attr(
         feature = "__internal_db",
         sea_orm(
@@ -82,20 +84,35 @@ mod helm {
             }
         }
     }
+
+    #[cfg(feature = "__internal_db")]
+    impl Iden for ChartType {
+        fn unquoted(&self, s: &mut dyn Write) {
+            s.write_str(match self {
+                ChartType::Application => "application",
+                ChartType::Library => "library",
+            })
+            .unwrap();
+        }
+    }
 }
 
 pub use helm::*;
 
+#[cfg(feature = "__internal_db")]
 #[macro_export]
 #[doc(hidden)]
 macro_rules! cfg_sea_orm {
     ($($item:item)*) => {
-        #[cfg(feature = "__internal_db")]
-        #[doc(hidden)]
-        const _: () = {
-            $($item)*
-        };
+        $($item)*
     };
+}
+
+#[cfg(not(feature = "__internal_db"))]
+#[macro_export]
+#[doc(hidden)]
+macro_rules! cfg_sea_orm {
+    ($(tt:tt)*) => {};
 }
 
 #[macro_export]

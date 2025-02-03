@@ -13,5 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub mod entities;
-pub mod migrations;
+/*
+CREATE TABLE IF NOT EXISTS "api_keys"(
+    description VARCHAR(140) NULL DEFAULT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT(NOW()),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT(NOW()),
+    expires_in TIMESTAMP WITH TIME ZONE NULL DEFAULT NULL,
+    scopes BIGINT NOT NULL DEFAULT 0,
+    owner TEXT NOT NULL,
+    token TEXT NOT NULL,
+    name VARCHAR(32) NOT NULL,
+    id TEXT NOT NULL PRIMARY KEY,
+
+    CONSTRAINT "fk_api_keys_owner_id" FOREIGN KEY(owner) REFERENCES users(id)
+);
+*/

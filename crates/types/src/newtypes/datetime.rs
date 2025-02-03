@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{cfg_jsonschema, cfg_openapi, cfg_sea_orm};
+use crate::{cfg_jsonschema, cfg_openapi};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 
@@ -107,21 +107,15 @@ cfg_jsonschema! {
     }
 }
 
-cfg_sea_orm! {
+#[cfg(feature = "__internal_db")]
+const _: () = {
     use sea_orm::{
-        TryGetable,
-        ColIdx,
-        QueryResult,
-        TryGetError,
-
-        sea_query::{ValueType, Value, ValueTypeErr, ArrayType, ColumnType},
+        sea_query::{ArrayType, ColumnType, Value, ValueType, ValueTypeErr},
+        ColIdx, QueryResult, TryGetError, TryGetable,
     };
 
     impl TryGetable for DateTime {
-        fn try_get_by<I: ColIdx>(
-            query: &QueryResult,
-            idx: I
-        ) -> Result<Self, TryGetError> {
+        fn try_get_by<I: ColIdx>(query: &QueryResult, idx: I) -> Result<Self, TryGetError> {
             <chrono::DateTime<chrono::Utc> as TryGetable>::try_get_by(query, idx).map(DateTime)
         }
     }
@@ -143,4 +137,4 @@ cfg_sea_orm! {
             <chrono::DateTime<chrono::Utc> as ValueType>::column_type()
         }
     }
-}
+};

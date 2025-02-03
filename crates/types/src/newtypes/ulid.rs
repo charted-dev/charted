@@ -13,9 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::{cfg_jsonschema, cfg_openapi};
 use serde::{Deserialize, Serialize};
-
-use crate::{cfg_jsonschema, cfg_openapi, cfg_sea_orm};
 
 /// Newtype wrapper for [`ulid::Ulid`].
 ///
@@ -119,29 +118,42 @@ cfg_jsonschema! {
     }
 }
 
-cfg_sea_orm! {
-    use std::any::type_name;
+#[cfg(feature = "__internal_db")]
+const _: () = {
     use sea_orm::{
-        TryGetable,
-        ColIdx,
-        QueryResult,
-        TryGetError,
-        DbErr,
-
-        sea_query::{ValueType, Value, ValueTypeErr, ArrayType, ColumnType},
+        sea_query::{ArrayType, ColumnType, Nullable, Value, ValueType, ValueTypeErr},
+        ColIdx, DbErr, QueryResult, TryFromU64, TryGetError, TryGetable,
     };
+    use std::any::type_name;
+
+    impl TryFromU64 for Ulid {
+        fn try_from_u64(_: u64) -> Result<Self, DbErr> {
+            Err(DbErr::ConvertFromU64("ulid"))
+        }
+    }
+
+    impl Nullable for Ulid {
+        fn null() -> sea_orm::Value {
+            Value::String(None)
+        }
+    }
+
+    impl From<Ulid> for Value {
+        fn from(value: Ulid) -> Self {
+            Value::String(Some(Box::new(value.0.to_string())))
+        }
+    }
 
     impl TryGetable for Ulid {
-        fn try_get_by<I: ColIdx>(
-            query: &QueryResult,
-            idx: I
-        ) -> Result<Self, TryGetError> {
+        fn try_get_by<I: ColIdx>(query: &QueryResult, idx: I) -> Result<Self, TryGetError> {
             let contents = <String as TryGetable>::try_get_by(query, idx)?;
-            contents.parse::<::ulid::Ulid>().map(Self).map_err(|e| TryGetError::DbErr(DbErr::TryIntoErr {
-                from: type_name::<String>(),
-                into: type_name::<::ulid::Ulid>(),
-                source: Box::new(e),
-            }))
+            contents.parse::<::ulid::Ulid>().map(Self).map_err(|e| {
+                TryGetError::DbErr(DbErr::TryIntoErr {
+                    from: type_name::<String>(),
+                    into: type_name::<::ulid::Ulid>(),
+                    source: Box::new(e),
+                })
+            })
         }
     }
 
@@ -163,4 +175,4 @@ cfg_sea_orm! {
             ColumnType::Char(None)
         }
     }
-}
+};
