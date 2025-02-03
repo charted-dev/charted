@@ -87,8 +87,8 @@ impl<F: Bitflags<Bit = u64>> Bitfield<F> {
     /// #     #[allow(clippy::enum_clike_unportable_variant)]
     /// #     #[repr(u64)]
     /// #     pub Scope[u64] {
-    /// #         Hello["hello"]: 1u64 << 0u64;
-    /// #         World["world"]: 1u64 << 1u64;
+    /// #         Hello["hello"] => 1u64 << 0u64;
+    /// #         World["world"] => 1u64 << 1u64;
     /// #     }
     /// # }
     /// #
@@ -126,7 +126,7 @@ impl<F: Bitflags<Bit = u64>> Bitfield<F> {
     /// value to what was acculumated.
     ///
     /// ## Example
-    /// ```no_run
+    /// ```
     /// # use charted_core::{bitflags, bitflags::Bitfield};
     /// #
     /// # bitflags! {
@@ -134,8 +134,8 @@ impl<F: Bitflags<Bit = u64>> Bitfield<F> {
     /// #     #[allow(clippy::enum_clike_unportable_variant)]
     /// #     #[repr(u64)]
     /// #     pub Scope[u64] {
-    /// #         Hello["hello"]: 1u64 << 0u64;
-    /// #         World["world"]: 1u64 << 1u64;
+    /// #         Hello["hello"] => 1u64 << 0u64;
+    /// #         World["world"] => 1u64 << 1u64;
     /// #     }
     /// # }
     /// #
