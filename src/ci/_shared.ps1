@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 # 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
 # Copyright 2022-2025 Noelware, LLC. <team@noelware.org>
 #
@@ -15,15 +13,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -euo pipefail
-
-source "$(cd "$(dirname $0)" && pwd)/../_shared.sh"
-
-main() {
-    echo "--> Installing PostgreSQL 16..."
-    brew install postgresql@16
+function IsContinousIntegration {
+    return $null -ne $env:CI || IsGitHubActions
 }
 
-noelware::startGroup "Installing system libraries"
-main
-noelware::endGroup
+function IsGitHubActions {
+    return $null -ne $env:GITHUB_ACTIONS
+}
+
+function StartGroup {
+    Param(
+        [Parameter(Mandatory=$true, Position=0)]
+        [string]$Label
+    )
+
+    if (IsGitHubActions) {
+        Write-Host "::group::$Label"
+    } else {
+        Write-Host "~>     $label"
+    }
+}
+
+function EndGroup {
+    if (IsGitHubActions) {
+        Write-Host "::endgroup::"
+    }
+}

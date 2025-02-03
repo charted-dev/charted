@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: CI
+name: CI Pipeline
 on:
     workflow_dispatch: {}
     push:
@@ -21,100 +21,108 @@ on:
             - 'issues/gh-**'
             - 'feat/**'
             - main
+
         paths-ignore:
             - '.github/**'
-            - '.coder/**'
-            - '.devcontainer/**'
             - '.vscode/**'
+            - 'assets/**'
+            - 'distribution/**'
             - 'docs/**'
-            - 'scripts/**'
             - '.*ignore'
             - '**.md'
-            - renovate.json
+
+            - .envrc
+            - .noeldoc
+            - .prettierrc.json
+            - rustfmt.toml
+            - taplo.toml
             - LICENSE
+            - renovate.json
     pull_request:
         types: [opened, synchronize]
         branches:
+            - 'issues/gh-**'
+            - 'feat/**'
             - main
-        paths-ignore:
-            - '.coder/**'
-            - '.devcontainer/**'
-            - '.vscode/**'
-            - 'docs/**'
-            - '.*ignore'
-            - '**.md'
-            - renovate.json
-            - LICENSE
+permissions:
+    contents: read
+    checks: write
+concurrency:
+    group: ${{github.workflow}}-${{github.ref}}
+    cancel-in-progress: true
 jobs:
-    ci:
-        name: Rust CI (${{matrix.runner == 'ubuntu-latest' && 'Linux (x86_64)' || matrix.runner == 'self-hosted' && 'Linux (arm64)' || matrix.runner == 'macos-latest' && 'macOS (x86_64)' || matrix.runner == 'macos-14-arm64' && 'macOS (M1)' || matrix.runner == 'windows-latest' && 'Windows' || 'Unknown'}}, Rust ${{matrix.rust-version}})
+    rust:
+        name: "Rust CI / ${{matrix.runner == 'ubuntu-24.04' && 'Linux (x64)' || matrix.runner == 'linux-aarch64' && 'Linux (aarch64)' || matrix.runner == 'macos-latest' && 'macOS (x64)' || matrix.runner == 'macos-14-arm64' && 'macOS (aarch64)' || matrix.runner == 'windows-latest' && 'Windows (x64)'}}"
         runs-on: ${{matrix.runner}}
         strategy:
             fail-fast: true
             matrix:
-                runner: [ubuntu-latest, macos-latest, windows-latest]
-                rust-version: [nightly]
+                runner:
+                    [
+                        ubuntu-24.04,
+                        linux-aarch64,
+                        macos-latest,
+                        macos-14-xlarge,
+                        windows-latest
+                    ]
         steps:
             - uses: actions/checkout@v4
 
-            # remove the `rust-toolchain.toml` since it'll be overwritten.
+            # Ensure that we test on the recent Nightly compiler toolchain
             - run: rm ${GITHUB_WORKSPACE}/rust-toolchain.toml
               shell: bash
 
-            - uses: dtolnay/rust-toolchain@master
-              with:
-                  toolchain: ${{matrix.rust-version}}
-                  components: clippy, rustfmt
-
+            - uses: dtolnay/rust-toolchain@nightly
             - uses: Swatinem/rust-cache@v2
 
-            - name: Setup `VCPKG_ROOT` environment variable
-              if: matrix.runner == 'windows-latest'
-              id: vcpkg
-              run: |
-                  echo "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" | Out-File -FilePath $env:GITHUB_ENV -Append
-                  echo "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+            - name: 'Windows: Setup vcpkg'
+              if: ${{matrix.runner == 'windows-latest'}}
+              run: ./src/ci/windows/Setup-Vcpkg.ps1
 
-            - name: Setup vcpkg cache
-              if: matrix.runner == 'windows-latest'
+            - name: 'Windows: Setup vcpkg cache'
+              if: ${{matrix.runner == 'windows-latest'}}
               uses: actions/cache@v4
               with:
                   key: vcpkg-cache
                   path: |
-                      ${{steps.vcpkg.outputs.VCPKG_ROOT}}
+                      ${{env.VCPKG_ROOT}}
 
-            - name: Install libraries via `vcpkg`
-              run: vcpkg --triplet x64-windows-static-md install openssl sqlite3 libpq
-              if: matrix.runner == 'windows-latest'
+            # - name: Setup vcpkg cache
+            #   if: matrix.runner == 'windows-latest'
+            #   uses: actions/cache@v4
+            #   with:
+            #       key: vcpkg-cache
+            #       path: |
+            #           ${{steps.vcpkg.outputs.VCPKG_ROOT}}
 
-            # On Windows, we'll also need nasm for use with BoringSSL via aws-lc-sys.
-            - uses: ilammy/setup-nasm@v1
-              if: matrix.runner == 'windows-latest'
-
-            # on macOS, `libpq` is not avaliable
-            - if: matrix.runner == 'macos-latest'
-              run: brew install postgresql
+            - name: 'Windows: Install libraries'
+              if: ${{matrix.runner == 'windows-latest'}}
+              run: ./src/ci/windows/Install-Libraries.ps1
 
             - uses: taiki-e/cache-cargo-install-action@v2
               with:
                   tool: cargo-nextest
 
-            - run: cargo build --all-features --workspace
-            - run: cargo nextest run --all-features --workspace
-            - run: cargo test --doc --all-features --workspace
+            - run: cargo build --workspace --all-features
+            - run: cargo nextest run --workspace --all-features
+            - run: cargo test --doc --workspace --all-features
+
     cargo-deny:
-        name: '`cargo deny`'
-        runs-on: ubuntu-latest
+        name: 'Rust / `cargo deny`'
+        runs-on: ubuntu-24.04
+        if: ${{github.event == 'pull_request'}}
         steps:
             - uses: actions/checkout@v4
             - uses: taiki-e/cache-cargo-install-action@v2
               with:
                   tool: cargo-deny
+
             - run: cargo deny check all
 
-    report-missing-deps:
-        name: Report Missing Dependencies
+    report-missing-dependencies:
+        name: 'Rust / Report Missing Dependencies'
         runs-on: ubuntu-latest
+        if: ${{github.event_name == 'pull_request'}}
         steps:
             - uses: actions/checkout@v4
             - uses: taiki-e/cache-cargo-install-action@v2
@@ -122,66 +130,49 @@ jobs:
                   tool: cargo-machete
             - run: cargo machete
 
-    # we perform Cachix builds on each commit and each release, and Noel uses
-    # NixOS, so this is probably a must!
-    #
-    # useful for users who don't pin to a specific Git tag and pointed to `main` branch
+    # Perform Cachix builds on each commit (for bleeding edge cases)
+    # and each release (for `Noelware/nixpkgs-noelware`).
     nix-build:
-        name: Nix Build
+        name: 'Nix / Build'
         runs-on: ubuntu-latest
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: ${{github.event_name == 'push' && github.ref == 'refs/heads/main'}}
         steps:
-            - name: Checkout source code
-              uses: actions/checkout@v4
+            - uses: actions/checkout@v4
+            - uses: cachix/install-nix-action@v30
 
-            - name: Install `nix` binary
-              uses: cachix/install-nix-action@v30
-              with:
-                  nix_path: nixpkgs=channel:nixos-unstable
+            # TODO(@auguwu): switch to https://nix.noelware.org,
+            #                which uses Attic as the binary cache
+            #                service.
+            # - uses: ryanccn/attic-action@v0
+            #   with:
+            #       endpoint: https://nix.noelware.org
+            #       cache: noelware
+            #       token: ${{secrets.NIX_BINARY_CACHE_TOKEN}}
 
-            - name: Setup Cachix
-              uses: cachix/cachix-action@v15
+            - uses: cachix/cachix-action@v15
               with:
                   name: noelware
                   authToken: ${{secrets.CACHIX_AUTH_TOKEN}}
 
-            - name: Build `charted` binary
+            - name: 'Build :: `charted`'
               run: nix build .#charted
 
-            - name: Build `charted-helm-plugin` binary
+            - name: 'Build :: `charted-helm-plugin`'
               run: nix build .#helm-plugin
     clippy:
-        name: Clippy!
-        runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                rust-version: [nightly]
+        name: 'Rust / Clippy'
+        runs-on: ubuntu-24.04
         steps:
             - uses: actions/checkout@v4
 
-            # remove the `rust-toolchain.toml` since it'll be overwritten.
+            # Ensure that we test on the recent Nightly compiler toolchain
             - run: rm ${GITHUB_WORKSPACE}/rust-toolchain.toml
-            - uses: dtolnay/rust-toolchain@master
-              with:
-                  toolchain: ${{matrix.rust-version}}
-                  components: clippy, rustfmt
+              shell: bash
+
+            - uses: dtolnay/rust-toolchain@nightly
             - uses: Swatinem/rust-cache@v2
             - uses: auguwu/clippy-action@1.4.0
               with:
                   all-features: true
                   check-args: --workspace --locked
                   token: ${{github.token}}
-    hadolint:
-        name: Hadolint [${{matrix.dockerfile}}]
-        runs-on: ubuntu-latest
-        strategy:
-            matrix:
-                dockerfile:
-                    - ./distribution/charted/docker/alpine.Dockerfile
-                    - ./distribution/charted/docker/debian.Dockerfile
-                    - ./distribution/helm-plugin/docker/Dockerfile
-        steps:
-            - uses: actions/checkout@v4
-            - uses: hadolint/hadolint-action@v3.1.0
-              with:
-                  dockerfile: ${{matrix.dockerfile}}

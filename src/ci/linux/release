@@ -24,6 +24,10 @@ root=$(cd "$(dirname $0)/../.." && pwd)
 cargo=${CARGO:-cargo}
 rustflags=${RUSTFLAGS:-}
 
+prepare() {
+    apt-get install -y mold
+}
+
 build() {
     if ! command -v "$cargo" >/dev/null; then
         echo "~> Missing \`cargo\` binary (defined from \`\$CARGO\`: $cargo)"
@@ -53,6 +57,10 @@ build() {
 release() {
     local bin="$1"
 }
+
+noelware::startGroup "Prepare"
+prepare
+noelware::endGroup
 
 noelware::startGroup "[charted] Building \`linux-x86_64\` binary"
 build "charted"

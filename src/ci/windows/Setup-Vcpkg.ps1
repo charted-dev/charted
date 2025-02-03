@@ -13,24 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '3.8'
-services:
-    workspace:
-        user: noel
-        command: sleep infinity
-        depends_on: [postgres, redis]
-        image: ghcr.io/auguwu/coder-images/rust
-        volumes:
-            - ..:/workspaces/charted:cached
-    redis:
-        image: bitnami/redis:7.4.2
-        restart: unless-stopped
-        environment:
-            - ALLOW_EMPTY_PASSWORD=yes
-    postgres:
-        image: bitnami/postgresql:15.10.0
-        restart: unless-stopped
-        environment:
-            - POSTGRESQL_DATABASE=charted
-            - POSTGRESQL_USERNAME=charted
-            - POSTGRESQL_PASSWORD=charted
+$ErrorActionPreference = "Stop"
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+
+. "$PSScriptRoot\..\_shared.ps1"
+
+Write-Host "$ Setup \`VCPKG_ROOT\` environment variable -> $env:VCPKG_INSTALLATION_ROOT"
+Write-Output "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT" | Out-File -FilePath $env:GITHUB_ENV -Append
