@@ -102,7 +102,6 @@ jobs:
     cargo-deny:
         name: 'Rust / `cargo deny`'
         runs-on: ubuntu-24.04
-        if: ${{github.event.pull_request != null}}
         steps:
             - uses: actions/checkout@v4
             - uses: taiki-e/cache-cargo-install-action@v2
@@ -114,7 +113,6 @@ jobs:
     report-missing-dependencies:
         name: 'Rust / Report Missing Dependencies'
         runs-on: ubuntu-latest
-        if: ${{github.event.pull_request != null}}
         steps:
             - uses: actions/checkout@v4
             - uses: taiki-e/cache-cargo-install-action@v2
