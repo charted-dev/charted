@@ -60,7 +60,7 @@ charted-types = { version = "0.1.0", path = "./crates/types", default-features =
 chrono = { version = "0.4.23", features = ["serde"] }
 clap = { version = "4.5.20", features = ["derive", "env"] }
 clap_complete = "4.5.33"
-derive_more = "1.0.0"
+derive_more = "2.0.0"
 diesel = { version = "2.2.4", features = ["postgres", "sqlite", "chrono"] }
 diesel_migrations = { version = "2.2.0", features = ["postgres", "sqlite"] }
 eyre = "0.6.12"
