@@ -130,6 +130,7 @@ impl Deref for Duration {
 
 #[cfg(feature = "openapi")]
 const _: () = {
+    use std::borrow::Cow;
     use utoipa::{
         openapi::{schema::SchemaType, KnownFormat, ObjectBuilder, OneOfBuilder, RefOr, Schema, SchemaFormat, Type},
         PartialSchema, ToSchema,
