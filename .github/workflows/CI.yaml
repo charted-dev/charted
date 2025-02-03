@@ -52,7 +52,7 @@ concurrency:
     cancel-in-progress: true
 jobs:
     rust:
-        name: "Rust CI / ${{matrix.runner == 'ubuntu-24.04' && 'Linux (x64)' || matrix.runner == 'linux-aarch64' && 'Linux (aarch64)' || matrix.runner == 'macos-latest' && 'macOS (x64)' || matrix.runner == 'macos-14-arm64' && 'macOS (aarch64)' || matrix.runner == 'windows-latest' && 'Windows (x64)'}}"
+        name: "Rust CI / ${{matrix.runner == 'ubuntu-24.04' && 'Linux (x64)' || matrix.runner == 'linux-aarch64' && 'Linux (aarch64)' || matrix.runner == 'macos-latest' && 'macOS (x64)' || matrix.runner == 'macos-14-xlarge' && 'macOS (aarch64)' || matrix.runner == 'windows-latest' && 'Windows (x64)'}}"
         runs-on: ${{matrix.runner}}
         strategy:
             fail-fast: true
@@ -87,14 +87,6 @@ jobs:
                   path: |
                       ${{env.VCPKG_ROOT}}
 
-            # - name: Setup vcpkg cache
-            #   if: matrix.runner == 'windows-latest'
-            #   uses: actions/cache@v4
-            #   with:
-            #       key: vcpkg-cache
-            #       path: |
-            #           ${{steps.vcpkg.outputs.VCPKG_ROOT}}
-
             - name: 'Windows: Install libraries'
               if: ${{matrix.runner == 'windows-latest'}}
               run: ./src/ci/windows/Install-Libraries.ps1
@@ -110,7 +102,7 @@ jobs:
     cargo-deny:
         name: 'Rust / `cargo deny`'
         runs-on: ubuntu-24.04
-        if: ${{github.event == 'pull_request'}}
+        if: ${{github.event.pull_request != null}}
         steps:
             - uses: actions/checkout@v4
             - uses: taiki-e/cache-cargo-install-action@v2
@@ -122,7 +114,7 @@ jobs:
     report-missing-dependencies:
         name: 'Rust / Report Missing Dependencies'
         runs-on: ubuntu-latest
-        if: ${{github.event_name == 'pull_request'}}
+        if: ${{github.event.pull_request != null}}
         steps:
             - uses: actions/checkout@v4
             - uses: taiki-e/cache-cargo-install-action@v2
@@ -170,6 +162,9 @@ jobs:
               shell: bash
 
             - uses: dtolnay/rust-toolchain@nightly
+              with:
+                  components: clippy
+
             - uses: Swatinem/rust-cache@v2
             - uses: auguwu/clippy-action@1.4.0
               with:
