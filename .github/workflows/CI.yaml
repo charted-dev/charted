@@ -44,6 +44,8 @@ on:
             - 'issues/gh-**'
             - 'feat/**'
             - main
+        paths:
+            - '**'
 permissions:
     contents: read
     checks: write
@@ -90,6 +92,10 @@ jobs:
             - name: 'Windows: Install libraries'
               if: ${{matrix.runner == 'windows-latest'}}
               run: ./src/ci/windows/Install-Libraries.ps1
+
+            - name: 'Windows: Install `nasm` for `aws-lc-sys`'
+              if: ${{matrix.runner == 'windows-latest'}}
+              uses: ilammy/setup-nasm@v1
 
             - uses: taiki-e/cache-cargo-install-action@v2
               with:

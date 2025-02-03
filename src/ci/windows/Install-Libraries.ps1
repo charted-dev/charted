@@ -19,6 +19,6 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 . "$PSScriptRoot\..\_shared.ps1"
 
 StartGroup "Installing system libraries..."
-Write-Host "$ vcpkg --triplet x64-windows-static-md install openssl nasm"
-vcpkg --triplet x64-windows-static-md install openssl nasm
+Write-Host "$ vcpkg --triplet x64-windows-static-md install openssl"
+vcpkg --triplet x64-windows-static-md install openssl
 EndGroup
