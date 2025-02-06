@@ -146,6 +146,12 @@ const _: () = {
     };
     use std::any::type_name;
 
+    impl From<Version> for Value {
+        fn from(v: Version) -> Self {
+            Value::String(Some(Box::new(v.0.to_string())))
+        }
+    }
+
     impl TryGetable for Version {
         fn try_get_by<I: ColIdx>(query: &QueryResult, idx: I) -> Result<Self, TryGetError> {
             let contents = <String as TryGetable>::try_get_by(query, idx)?;

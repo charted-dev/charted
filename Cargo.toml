@@ -73,7 +73,7 @@ chrono = { version = "0.4.39", features = ["serde"] }
 clap = { version = "4.5.27", features = ["derive", "env"] }
 clap_complete = "4.5.44"
 color-eyre = { version = "0.6.3", features = ["issue-url"] }
-derive_more = "1.0.0"
+derive_more = "2.0.0"
 eyre = "0.6.12"
 num_cpus = "1.16.0"
 rand = "0.9.0"

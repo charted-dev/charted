@@ -45,6 +45,10 @@ impl MigrationTrait for Impl {
         manager.create_table(entities::user::table()).await?;
         manager.create_table(entities::user_connections::table()).await?;
         manager.create_table(entities::session::table()).await?;
+        manager.create_table(entities::repository::table()).await?;
+        manager.create_table(entities::repository::release::table()).await?;
+        manager.create_table(entities::organization::table()).await?;
+        manager.create_table(entities::apikey::table()).await?;
 
         Ok(())
     }
@@ -57,6 +61,8 @@ impl MigrationTrait for Impl {
                     .table(entities::user::Idens::Table)
                     .table(entities::user_connections::Idens::Table)
                     .table(entities::session::Idens::Table)
+                    .table(entities::repository::Idens::Table)
+                    .table(entities::repository::release::Idens::Table)
                     .to_owned(),
             )
             .await?;

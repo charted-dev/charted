@@ -20,6 +20,8 @@ use sea_orm::{
 };
 use sea_orm_migration::schema::*;
 
+use super::{create_table, id};
+
 #[derive(Debug, Clone, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "user_connections")]
 pub struct Model {
@@ -84,14 +86,14 @@ pub(crate) enum Idens {
 }
 
 pub(crate) fn table() -> TableCreateStatement {
-    table_auto(Idens::Table)
+    create_table(Idens::Table)
         .if_not_exists()
         .col(text_null(Column::NoelwareAccountId))
         .col(text_null(Column::GoogleAccountId))
         .col(text_null(Column::GithubAccountId))
         .col(text_null(Column::GitlabAccountId))
         .col(text_null(Column::Account))
-        .col(text(Column::Id).primary_key())
+        .col(id())
         .foreign_key(
             ForeignKey::create()
                 .name("fk_user_connections_account")

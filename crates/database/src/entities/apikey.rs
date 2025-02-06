@@ -13,18 +13,77 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/*
-CREATE TABLE IF NOT EXISTS "api_keys"(
-    description VARCHAR(140) NULL DEFAULT NULL,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT(NOW()),
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT(NOW()),
-    expires_in TIMESTAMP WITH TIME ZONE NULL DEFAULT NULL,
-    scopes BIGINT NOT NULL DEFAULT 0,
-    owner TEXT NOT NULL,
-    token TEXT NOT NULL,
-    name VARCHAR(32) NOT NULL,
-    id TEXT NOT NULL PRIMARY KEY,
+use super::{create_table, id};
+use charted_types::{name::Name, ApiKey, Ulid};
+use sea_orm::{entity::prelude::*, sea_query::TableCreateStatement};
+use sea_orm_migration::schema::*;
 
-    CONSTRAINT "fk_api_keys_owner_id" FOREIGN KEY(owner) REFERENCES users(id)
-);
-*/
+#[derive(Debug, Clone, PartialEq, Eq, DeriveEntityModel)]
+#[sea_orm(table_name = "apikeys")]
+pub struct Model {
+    pub display_name: Option<String>,
+    pub description: Option<String>,
+    pub expires_in: Option<ChronoDateTimeUtc>,
+    pub created_at: ChronoDateTimeUtc,
+    pub updated_at: ChronoDateTimeUtc,
+    pub scopes: i64,
+    pub owner: Ulid,
+    pub name: Name,
+
+    #[sea_orm(column_type = "Text", primary_key, auto_increment = false)]
+    pub id: Ulid,
+}
+
+impl From<Model> for ApiKey {
+    fn from(model: Model) -> Self {
+        ApiKey {
+            display_name: model.display_name,
+            description: model.description,
+            expires_in: model.expires_in.map(Into::into),
+            created_at: model.created_at.into(),
+            updated_at: model.updated_at.into(),
+            scopes: model.scopes,
+            owner: model.owner,
+            name: model.name,
+            id: model.id,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, EnumIter, DeriveRelation)]
+pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::user::Entity",
+        from = "Column::Owner",
+        to = "super::user::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    User,
+}
+
+impl Related<super::user::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::User.def()
+    }
+}
+
+impl ActiveModelBehavior for ActiveModel {}
+
+#[derive(DeriveIden)]
+pub(crate) enum Idens {
+    #[sea_orm(rename = "apikeys")]
+    Table,
+}
+
+pub(crate) fn table() -> TableCreateStatement {
+    create_table(Idens::Table)
+        .col(string_len_null(Column::DisplayName, 32))
+        .col(string_len_null(Column::Description, 140))
+        .col(timestamp_null(Column::ExpiresIn))
+        .col(big_integer(Column::Scopes))
+        .col(text(Column::Owner))
+        .col(Name::into_column(Column::Name))
+        .col(id())
+        .to_owned()
+}

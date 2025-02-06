@@ -17,6 +17,8 @@ use charted_types::{name::Name, Ulid, User};
 use sea_orm::{entity::prelude::*, sea_query::TableCreateStatement};
 use sea_orm_migration::schema::*;
 
+use super::create_table;
+
 #[derive(Debug, Clone, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "users")]
 pub struct Model {
@@ -64,16 +66,34 @@ impl From<Model> for User {
 
 #[derive(Debug, Clone, Copy, EnumIter, DeriveRelation)]
 pub enum Relation {
+    #[sea_orm(has_many = "super::apikey::Entity")]
+    ApiKey,
+
+    #[sea_orm(has_many = "super::organization::Entity")]
+    Organization,
+
     #[sea_orm(has_many = "super::session::Entity")]
-    Sessions,
+    Session,
 
     #[sea_orm(has_one = "super::user_connections::Entity")]
-    UserConnections,
+    UserConnection,
 }
 
 impl Related<super::user_connections::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::UserConnections.def()
+        Relation::UserConnection.def()
+    }
+}
+
+impl Related<super::session::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Session.def()
+    }
+}
+
+impl Related<super::organization::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Organization.def()
     }
 }
 
@@ -86,7 +106,7 @@ pub(crate) enum Idens {
 }
 
 pub(crate) fn table() -> TableCreateStatement {
-    table_auto(Idens::Table)
+    create_table(Idens::Table)
         .if_not_exists()
         .col(boolean(Column::VerifiedPublisher))
         .col(boolean(Column::PrefersGravatar))
@@ -101,17 +121,3 @@ pub(crate) fn table() -> TableCreateStatement {
         .col(text(Column::Id).primary_key())
         .to_owned()
 }
-
-/*
-#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {
-    #[sea_orm(has_many = "super::api_keys::Entity")]
-    ApiKeys,
-    #[sea_orm(has_many = "super::organization_members::Entity")]
-    OrganizationMembers,
-    #[sea_orm(has_many = "super::organizations::Entity")]
-    Organizations,
-    #[sea_orm(has_many = "super::repository_members::Entity")]
-    RepositoryMembers,
-}
-*/

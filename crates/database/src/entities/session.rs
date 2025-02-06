@@ -20,6 +20,8 @@ use sea_orm::{
 };
 use sea_orm_migration::schema::*;
 
+use super::{create_table, id};
+
 #[derive(Debug, Clone, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "sessions")]
 pub struct Model {
@@ -74,12 +76,12 @@ pub(crate) enum Idens {
 }
 
 pub(crate) fn table() -> TableCreateStatement {
-    table_auto(Idens::Table)
+    create_table(Idens::Table)
         .if_not_exists()
         .col(text(Column::RefreshToken))
         .col(text(Column::AccessToken))
         .col(text(Column::Account))
-        .col(text(Column::Id).primary_key())
+        .col(id())
         .foreign_key(
             ForeignKey::create()
                 .name("fk_session_account")

@@ -135,6 +135,13 @@ impl FromStr for Name {
 }
 
 #[cfg(feature = "__internal_db")]
+impl Name {
+    pub fn into_column<T: sea_orm::sea_query::IntoIden>(col: T) -> sea_orm::sea_query::ColumnDef {
+        sea_orm::sea_query::ColumnDef::new(col).string_len(32).not_null().take()
+    }
+}
+
+#[cfg(feature = "__internal_db")]
 const _: () = {
     use sea_orm::{
         sea_query::{ArrayType, ColumnType, Value, ValueType, ValueTypeErr},

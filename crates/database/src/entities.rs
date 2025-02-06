@@ -20,6 +20,40 @@ pub mod session;
 pub mod user;
 pub mod user_connections;
 
+pub use apikey::Entity as ApiKeyEntity;
+pub use repository::release::Entity as RepositoryReleaseEntity;
+pub use repository::Entity as RepositoryEntity;
 pub use session::Entity as SessionEntity;
 pub use user::Entity as UserEntity;
 pub use user_connections::Entity as UserConnectionsEntity;
+
+use sea_orm::{
+    prelude::Expr,
+    sea_query::{ColumnDef, IntoIden, Table, TableCreateStatement},
+    DeriveIden,
+};
+use sea_orm_migration::schema::{text, timestamp};
+
+#[derive(DeriveIden)]
+#[sea_orm(rename_all = "snake_case")]
+enum Idens {
+    CreatedAt,
+    UpdatedAt,
+    Id,
+}
+
+/// Utility function like [`table_auto`][sea_orm_migration::schema::table_auto] but uses
+/// `snake_case` on `created_at` and `updated_at` fields.
+pub(in crate::entities) fn create_table<T: IntoIden + 'static>(name: T) -> TableCreateStatement {
+    Table::create()
+        .table(name)
+        .if_not_exists()
+        .col(timestamp(Idens::CreatedAt).default(Expr::current_timestamp()))
+        .col(timestamp(Idens::UpdatedAt).default(Expr::current_timestamp()))
+        .take()
+}
+
+/// Returns a [column definition][ColumnDef] that returns `id TEXT NOT NULL PRIMARY KEY`.
+pub(in crate::entities) fn id() -> ColumnDef {
+    text(Idens::Id).primary_key().take()
+}
