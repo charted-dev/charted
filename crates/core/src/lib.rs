@@ -19,17 +19,18 @@
 
 pub mod api;
 pub mod bitflags;
+pub mod di;
 pub mod serde;
 
 #[macro_use]
 mod macros;
 mod distribution;
 
-use std::sync::{LazyLock, OnceLock};
+pub use distribution::*;
 
 use argon2::Argon2;
-pub use distribution::*;
 use rand::distr::{Alphanumeric, SampleString};
+use std::sync::{LazyLock, OnceLock};
 
 /// Type-alias that represents a boxed future.
 pub type BoxedFuture<'a, Output> =
@@ -52,6 +53,9 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// A lazily cached [`Argon2`] instance that is used within
 /// the internal `charted-*` crates.
 pub static ARGON2: LazyLock<Argon2> = LazyLock::new(Argon2::default);
+
+#[doc(hidden)]
+pub static CONTAINER: OnceLock<di::Container> = OnceLock::new();
 
 /// Returns a formatted string of the version that combines the [`VERSION`] and [`COMMIT_HASH`]
 /// constants as <code>v[{version}][VERSION]+[{commit.hash}][COMMIT_HASH]</code>.
@@ -81,4 +85,10 @@ pub fn version() -> &'static str {
 /// Generates a random string with `len`.
 pub fn rand_string(len: usize) -> String {
     Alphanumeric.sample_string(&mut rand::rng(), len)
+}
+
+pub fn set_container(container: di::Container) {
+    CONTAINER
+        .set(container)
+        .expect("di container should be empty when called");
 }
