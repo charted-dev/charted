@@ -26,3 +26,23 @@ authors.workspace = true
 
 [lib]
 path = "lib.rs"
+
+[dependencies]
+azalia = { workspace = true, features = ["remi", "remi-fs"] }
+charted-types.workspace = true
+charted-helm-types.workspace = true
+eyre.workspace = true
+flate2 = "1.0.32"
+itertools = "0.14.0"
+multer.workspace = true
+sentry.workspace = true
+serde_yaml_ng.workspace = true
+tar = "0.4.41"
+tokio = { workspace = true, features = ["io-std", "io-util"] }
+tracing.workspace = true
+
+[dev-dependencies]
+remi-fs.workspace = true
+semver.workspace = true
+tempfile.workspace = true
+tokio = { workspace = true, features = ["rt", "macros"] }
