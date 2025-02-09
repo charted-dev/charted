@@ -15,16 +15,16 @@
 
 [package]
 name = "charted-core"
-description = "🐻‍❄️📦 Essential bindings for the charted project."
+description = "🐻‍❄️📦 Essential core utilities for the charted project."
 version.workspace = true
 documentation.workspace = true
 edition.workspace = true
 homepage.workspace = true
 license.workspace = true
-publish.workspace = true
+publish = true
 repository.workspace = true
 authors.workspace = true
-rust-version = "1.77"
+rust-version.workspace = true
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(noeldoc)'] }
@@ -35,6 +35,7 @@ default = ["axum"]
 openapi = ["dep:utoipa"]
 
 [dependencies]
+argon2.workspace = true
 axum = { workspace = true, optional = true }
 derive_more = { workspace = true, features = ["display"] }
 humantime = "2.1.0"

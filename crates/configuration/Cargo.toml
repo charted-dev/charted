@@ -23,3 +23,32 @@ license.workspace = true
 publish.workspace = true
 repository.workspace = true
 authors.workspace = true
+
+[dependencies]
+azalia = { workspace = true, features = [
+    "config",
+    "config-derive",
+    "config-url",
+
+    "serde",
+    "serde-tracing",
+
+    "remi",
+    "remi-fs",
+    "remi-s3",
+    "remi-azure",
+    "remi-serde",
+
+    "regex",
+    "lazy",
+] }
+charted-core.workspace = true
+derive_more = { workspace = true, features = ["display", "deref"] }
+eyre.workspace = true
+sentry-types = "0.36.0"
+serde.workspace = true
+toml = "0.8.20"
+url = { workspace = true, features = ["serde"] }
+
+[dev-dependencies]
+derive_more = { workspace = true, features = ["deref"] }

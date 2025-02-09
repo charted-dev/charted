@@ -21,10 +21,10 @@ documentation.workspace = true
 edition.workspace = true
 homepage.workspace = true
 license.workspace = true
-publish.workspace = true
+publish = true
 repository.workspace = true
 authors.workspace = true
-rust-version = "1.77"
+rust-version.workspace = true
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(noeldoc)'] }

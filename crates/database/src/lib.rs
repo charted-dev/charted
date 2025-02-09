@@ -13,5 +13,57 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use std::ops::Deref;
+
+use charted_config::database::Config;
+use charted_core::serde::Duration;
+use migrations::Migrator;
+use sea_orm::{metric::Info, ConnectOptions, DatabaseBackend, DatabaseConnection, SqlxPostgresConnector};
+use sea_orm_migration::MigratorTrait;
+use tracing::{info, instrument, trace};
+
 pub mod entities;
 pub mod migrations;
+
+#[instrument(name = "charted.database.createDbPool", skip_all)]
+pub async fn create_pool(config: &Config) -> eyre::Result<DatabaseConnection> {
+    let mut conn = match config {
+        Config::PostgreSQL(_) => SqlxPostgresConnector::connect(connect_options_with(config)).await?,
+        Config::SQLite(_) => SqlxPostgresConnector::connect(connect_options_with(config)).await?,
+    };
+
+    conn.set_metric_callback(metric_callback);
+
+    if config.common().run_migrations {
+        info!("now running pending migrations!");
+
+        Migrator::install(&conn).await?;
+        Migrator::up(&conn, None).await?;
+    }
+
+    Ok(conn)
+}
+
+fn metric_callback(info: &Info<'_>) {
+    let elapsed: Duration = info.elapsed.into();
+    let backend = match info.statement.db_backend {
+        DatabaseBackend::Sqlite => "sqlite",
+        DatabaseBackend::MySql => "mysql",
+        DatabaseBackend::Postgres => "postgres",
+    };
+
+    trace!(%elapsed, failed = %info.failed, %backend, stmt.sql = info.statement.sql, stmt.values = ?info.statement.values);
+}
+
+fn connect_options_with(config: &Config) -> ConnectOptions {
+    let common = config.common();
+
+    ConnectOptions::new(config.to_string())
+        .max_connections(common.max_connections)
+        .acquire_timeout(common.acquire_timeout.deref().into())
+        .connect_timeout(common.connect_timeout.deref().into())
+        .idle_timeout(common.idle_timeout.deref().into())
+        .sqlx_logging_level(tracing::log::LevelFilter::Trace)
+        .sqlx_slow_statements_logging_settings(tracing::log::LevelFilter::Warn, std::time::Duration::from_secs(3))
+        .to_owned()
+}

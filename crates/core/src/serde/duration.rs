@@ -28,7 +28,7 @@ use std::{fmt::Display, ops::Deref, str::FromStr};
 ///
 /// [`utoipa::PartialSchema`]: https://docs.rs/utoipa/*/utoipa/trait.PartialSchema.html
 /// [`utoipa::ToSchema`]: https://docs.rs/utoipa/*/utoipa/trait.ToSchema.html
-#[derive(Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Duration(std::time::Duration);
 impl Duration {
     /// Creates a new `Duration` from the specified number of whole seconds.
@@ -117,6 +117,12 @@ impl From<std::time::Duration> for Duration {
 
 impl From<Duration> for std::time::Duration {
     fn from(value: Duration) -> Self {
+        value.0
+    }
+}
+
+impl From<&Duration> for std::time::Duration {
+    fn from(value: &Duration) -> Self {
         value.0
     }
 }

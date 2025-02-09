@@ -25,7 +25,7 @@
     Security
   ];
 
-  linuxNativeBuildInputs = with pkgs; [mold lldb];
+  linuxNativeBuildInputs = with pkgs; [mold];
 
   nativeBuildInputs = with pkgs;
     [pkg-config]

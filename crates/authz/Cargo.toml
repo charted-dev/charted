@@ -29,5 +29,8 @@ path = "lib.rs"
 
 [dependencies]
 azalia.workspace = true
+charted-core.workspace = true
+charted-database.workspace = true
+charted-types.workspace = true
 derive_more = { workspace = true, features = ["display"] }
 eyre.workspace = true

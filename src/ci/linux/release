@@ -25,6 +25,7 @@ cargo=${CARGO:-cargo}
 rustflags=${RUSTFLAGS:-}
 
 prepare() {
+    echo "~> install "
     apt-get install -y mold
 }
 
@@ -54,13 +55,11 @@ build() {
     popd >/dev/null
 }
 
-release() {
-    local bin="$1"
-}
-
-noelware::startGroup "Prepare"
-prepare
-noelware::endGroup
+if noelware::isGitHubActions; then
+    noelware::startGroup "Prepare"
+    prepare
+    noelware::endGroup
+fi
 
 noelware::startGroup "[charted] Building \`linux-x86_64\` binary"
 build "charted"
@@ -68,12 +67,4 @@ noelware::endGroup
 
 noelware::startGroup "[helm-plugin] Building \`linux-x86_64\` binary"
 build "charted-helm-plugin"
-noelware::endGroup
-
-noelware::startGroup "[charted] Releasing \`linux-x86_64\` binary"
-release "charted"
-noelware::endGroup
-
-noelware::startGroup "[helm-plugin] Releasing \`linux-x86_64\` binary"
-release "helm-plugin"
 noelware::endGroup

@@ -37,7 +37,7 @@ function Main {
         Exit 1
     }
 
-    StartGroup "Build  / Windows (x64)"
+    StartGroup "Build / Windows (x64)"
 
     # Create the `.result` directory in the root project
     # so we can put our files in there.

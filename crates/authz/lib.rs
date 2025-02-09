@@ -18,11 +18,20 @@
 //! in `crates/authz` can use to safely authenticate a user.
 
 use azalia::rust::AsArcAny;
+use charted_core::BoxedFuture;
+use charted_types::User;
 use std::{
     any::{Any, TypeId},
-    future::Future,
-    pin::Pin,
+    borrow::Cow,
 };
+
+/// Request object for the [`Authenticator::authenticate`] method.
+#[derive(Debug, Clone)]
+pub struct Request<'a> {
+    pub user: User,
+    pub password: Cow<'a, str>,
+    pub model: charted_database::entities::user::Model,
+}
 
 /// Error type to safely throw in a [`Authenticator`] implementation
 /// when a invalid password is given.
@@ -33,11 +42,7 @@ impl std::error::Error for InvalidPassword {}
 
 /// Safely authenticate a user from any source.
 pub trait Authenticator: AsArcAny + Send + Sync {
-    fn authenticate<'a>(
-        &'a self,
-        user: &'a (),
-        password: &'a str,
-    ) -> Pin<Box<dyn Future<Output = eyre::Result<()>> + Send + 'a>>;
+    fn authenticate<'a>(&'a self, request: Request<'a>) -> BoxedFuture<'a, eyre::Result<()>>;
 }
 
 impl dyn Authenticator {
@@ -65,12 +70,8 @@ mod tests {
 
     struct Dummy;
     impl Authenticator for Dummy {
-        fn authenticate<'a>(
-            &'a self,
-            _: &'a (),
-            _: &'a str,
-        ) -> Pin<Box<dyn Future<Output = eyre::Result<()>> + Send + 'a>> {
-            todo!()
+        fn authenticate<'a>(&'a self, _: Request<'a>) -> BoxedFuture<'a, eyre::Result<()>> {
+            Box::pin(async { Ok(()) })
         }
     }
 

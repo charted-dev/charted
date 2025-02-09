@@ -25,4 +25,60 @@ pub mod serde;
 mod macros;
 mod distribution;
 
+use std::sync::{LazyLock, OnceLock};
+
+use argon2::Argon2;
 pub use distribution::*;
+use rand::distr::{Alphanumeric, SampleString};
+
+/// Type-alias that represents a boxed future.
+pub type BoxedFuture<'a, Output> =
+    ::core::pin::Pin<::std::boxed::Box<dyn ::core::future::Future<Output = Output> + Send + 'a>>;
+
+/// Returns the version of the Rust compiler that charted-server
+/// was compiled on.
+pub const RUSTC_VERSION: &str = env!("CHARTED_RUSTC_VERSION");
+
+/// Returns the Git commit hash from the charted-server repository that
+/// this build was built off from.
+pub const COMMIT_HASH: &str = env!("CHARTED_COMMIT_HASH");
+
+/// RFC3339-formatted date of when charted-server was last built at.
+pub const BUILD_DATE: &str = env!("CHARTED_BUILD_DATE");
+
+/// Returns the current version of `charted-server`.
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+
+/// A lazily cached [`Argon2`] instance that is used within
+/// the internal `charted-*` crates.
+pub static ARGON2: LazyLock<Argon2> = LazyLock::new(Argon2::default);
+
+/// Returns a formatted string of the version that combines the [`VERSION`] and [`COMMIT_HASH`]
+/// constants as <code>v[{version}][VERSION]+[{commit.hash}][COMMIT_HASH]</code>.
+///
+/// If the [`COMMIT_HASH`] is empty (i.e, not by using `git` or wasn't found on system), it'll
+/// return <code>v[{version}][VERSION]</code> instead. This is also returned on the `nixpkgs`
+/// version of **charted** and **charted-helm-plugin**.
+pub fn version() -> &'static str {
+    static ONCE: OnceLock<String> = OnceLock::new();
+    ONCE.get_or_init(|| {
+        use std::fmt::Write;
+
+        let mut buf = String::new();
+        write!(buf, "v{VERSION}").unwrap();
+
+        // the lint here is correct, but `git rev-parse --short=8 HEAD` can possibly
+        // return nothing, so the lint is wrong in that case.
+        #[allow(clippy::const_is_empty)]
+        if !(COMMIT_HASH == "d1cebae" || COMMIT_HASH.is_empty()) {
+            write!(buf, "+{COMMIT_HASH}").unwrap();
+        }
+
+        buf
+    })
+}
+
+/// Generates a random string with `len`.
+pub fn rand_string(len: usize) -> String {
+    Alphanumeric.sample_string(&mut rand::rng(), len)
+}

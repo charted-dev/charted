@@ -26,3 +26,10 @@ authors.workspace = true
 
 [lib]
 path = "lib.rs"
+
+[dependencies]
+argon2.workspace = true
+charted-authz.workspace = true
+charted-core.workspace = true
+eyre.workspace = true
+tracing.workspace = true
