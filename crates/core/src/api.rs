@@ -255,6 +255,9 @@ pub enum ErrorCode {
     /// missing a `Content-Type` header in your request
     MissingContentType,
 
+    /// reached an unexpected EOF marker.
+    ReachedUnexpectedEof,
+
     // ~ PATH PARAMETERS
     /// unable to parse a path parameter.
     UnableToParsePathParameter,
@@ -487,9 +490,7 @@ pub fn internal_server_error() -> Response {
 /// Propagate a system failure response.
 #[cfg(feature = "axum")]
 #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "axum")))]
-pub fn system_failure<E: std::error::Error>(error: impl Into<E>) -> Response {
-    let error = error.into();
-
+pub fn system_failure<E: std::error::Error>(error: E) -> Response {
     if cfg!(debug_assertions) {
         let mut errors = Vec::new();
         for err in error.source().iter().take(5) {

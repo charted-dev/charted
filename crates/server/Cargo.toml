@@ -23,3 +23,27 @@ license.workspace = true
 publish.workspace = true
 repository.workspace = true
 authors.workspace = true
+
+[dependencies]
+axum = { workspace = true, features = ["matched-path"] }
+axum-extra = { version = "0.10.0", features = ["typed-header"] }
+axum-server = { version = "0.7.1", features = ["tls-rustls", "tokio-rustls"] }
+base64 = "0.22.1"
+charted-authz.workspace = true
+charted-authz-local.workspace = true
+charted-config.workspace = true
+charted-core = { workspace = true, features = ["openapi"] }
+charted-database.workspace = true
+charted-helm-charts.workspace = true
+charted-helm-types = { workspace = true, features = ["openapi"] }
+charted-types = { workspace = true, features = ["openapi"] }
+derive_more = { workspace = true, features = ["display", "from", "error"] }
+eyre.workspace = true
+jsonwebtoken = "9.3.1"
+mime = "0.3.17"
+sea-orm.workspace = true
+sentry.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+serde_path_to_error = "0.1.16"
+tracing.workspace = true

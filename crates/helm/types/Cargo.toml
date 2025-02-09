@@ -40,6 +40,5 @@ openapi = ["dep:utoipa", "charted-types/openapi"]
 [dependencies]
 charted-types.workspace = true
 chrono.workspace = true
-derive_more = { workspace = true, features = ["display", "from", "deref"] }
 serde.workspace = true
 utoipa = { workspace = true, optional = true }
