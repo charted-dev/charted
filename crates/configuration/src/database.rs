@@ -293,7 +293,7 @@ mod tests {
             (postgresql::USERNAME, "noel"),
         ]);
 
-        let mut c1 = Config::default();
+        let mut c1 = Config::PostgreSQL(postgresql::Config::default());
         let c2 = Config::try_from_env().expect("failed to parse configuration from system environment variables");
 
         let old = c1.clone();

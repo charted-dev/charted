@@ -18,13 +18,19 @@ pub mod features;
 pub mod logging;
 pub mod metrics;
 pub mod server;
+pub mod sessions;
 pub mod storage;
 pub mod tracing;
 pub(crate) mod util;
 
-use azalia::config::merge::Merge;
-use sentry_types::{protocol::v7::Url, Dsn};
+use azalia::config::{env, merge::Merge, FromEnv, TryFromEnv};
+use sentry_types::Dsn;
 use serde::{Deserialize, Serialize};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
+use url::Url;
 
 /// The root configuration for the API server.
 ///
@@ -33,7 +39,7 @@ use serde::{Deserialize, Serialize};
 /// **charted-server** also supports environment variables that can be overwritten when the configuration is
 /// being loaded. The priority is **Environment Variables > Configuration File**.
 #[derive(Debug, Clone, Serialize, Deserialize, Merge)]
-pub struct Configuration {
+pub struct Config {
     /// A secret key for generating JWT tokens for session-based authentication.
     ///
     /// It is recommended to set this as the `CHARTED_JWT_SECRET_KEY` environment
@@ -41,7 +47,7 @@ pub struct Configuration {
     ///
     /// If this is ever messed with, sessions that are on-going will be permanently corrupted.
     #[serde(default)]
-    #[merge(skip)]
+    #[merge(strategy = azalia::config::merge::strategy::strings::overwrite_empty)]
     pub jwt_secret_key: String,
 
     /// Whether if this instance accepts user registrations.
@@ -75,7 +81,130 @@ pub struct Configuration {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub base_url: Option<Url>,
 
-    /// Database configuration.
     #[serde(default)]
     pub database: database::Config,
+
+    #[serde(default)]
+    pub logging: logging::Config,
+
+    #[serde(default)]
+    pub server: server::Config,
+
+    #[serde(default)]
+    pub storage: storage::Config,
+
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tracing: Option<tracing::Config>,
+
+    #[serde(default)]
+    pub sessions: sessions::Config,
+}
+
+impl Config {
+    pub fn find_default_location() -> eyre::Result<Option<PathBuf>> {
+        const VALID_FILE_NAMES: &[&str; 2] = &["charted.toml", "config.toml"];
+
+        let config_dir = PathBuf::from("./config");
+        if config_dir.is_dir() && config_dir.try_exists()? {
+            let charted_toml = config_dir.join(VALID_FILE_NAMES[0]);
+            if charted_toml.try_exists()? && charted_toml.is_file() {
+                return Ok(Some(charted_toml));
+            }
+        }
+
+        for file in VALID_FILE_NAMES {
+            let path = PathBuf::from(format!("./{file}"));
+            if path.try_exists()? && path.is_file() {
+                return Ok(Some(path));
+            }
+        }
+
+        Ok(None)
+    }
+
+    pub fn load<P: AsRef<Path>>(path: Option<P>) -> eyre::Result<Self> {
+        let Some(path) = path.as_ref() else {
+            return Config::try_from_env();
+        };
+
+        let path = path.as_ref();
+        if !path.try_exists()? {
+            eprintln!(
+                "[charted :: WARN] file [{}] doesn't exist; using system environment variables instead",
+                path.display()
+            );
+
+            return Config::try_from_env();
+        }
+
+        let mut config = Config::try_from_env()?;
+        let contents = fs::read_to_string(path)?;
+
+        let file: Config = toml::from_str(&contents)?;
+        config.merge(file);
+
+        if config.jwt_secret_key.is_empty() {
+            let key = charted_core::rand_string(16);
+            eprintln!(
+                r#"""[charted :: WARN] You are missing a JWT secret key either from
+the `${env}` environment variable or from the `jwt_secret_key` configuration property in your `config.toml`
+
+I generated one for you here: `{secret}`
+
+!! DO NOT LOSE IT !!"""#,
+                env = JWT_SECRET_KEY,
+                secret = key
+            );
+
+            config.jwt_secret_key = key;
+        }
+
+        if config.base_url.is_none() {
+            let scheme = match config.server.ssl {
+                Some(_) => "https",
+                None => "http",
+            };
+
+            let url = Url::parse(&format!("{scheme}://{}", config.server.to_socket_addr()))?;
+            eprintln!("[charted :: WARN] `base_url` was not configured properly! All URLs will be mapped to {url}");
+
+            config.base_url = Some(url);
+        }
+
+        Ok(config)
+    }
+}
+
+pub const JWT_SECRET_KEY: &str = "CHARTED_JWT_SECRET_KEY";
+pub const REGISTRATIONS: &str = "CHARTED_ENABLE_REGISTRATIONS";
+pub const SINGLE_USER: &str = "CHARTED_SINGLE_USER";
+pub const SINGLE_ORG: &str = "CHARTED_SINGLE_ORGANIZATION";
+pub const SENTRY_DSN: &str = "CHARTED_SENTRY_DSN";
+pub const BASE_URL: &str = "CHARTED_BASE_URL";
+
+impl TryFromEnv for Config {
+    type Output = Self;
+    type Error = eyre::Report;
+
+    fn try_from_env() -> Result<Self::Output, Self::Error> {
+        Ok(Self {
+            jwt_secret_key: util::env_from_result_lazy(env!(JWT_SECRET_KEY), || Ok(String::default()))?,
+            registrations: util::bool_env(REGISTRATIONS)?,
+            single_user: util::bool_env(SINGLE_USER)?,
+            single_org: util::bool_env(SINGLE_ORG)?,
+            sentry_dsn: util::env_optional_from_str(SENTRY_DSN, None)?,
+            base_url: util::env_optional_from_str(BASE_URL, None)?,
+            database: database::Config::try_from_env()?,
+            sessions: sessions::Config::try_from_env()?,
+            logging: logging::Config::from_env(),
+            storage: storage::Config::try_from_env()?,
+            server: server::Config::try_from_env()?,
+
+            tracing: match util::bool_env(tracing::ENABLED) {
+                Ok(true) => Some(tracing::Config::try_from_env()?),
+                Ok(false) => None,
+                Err(e) => return Err(e),
+            },
+        })
+    }
 }

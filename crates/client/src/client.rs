@@ -62,7 +62,7 @@ impl Client {
         let endpoint = endpoint.as_ref();
 
         #[cfg(feature = "tracing")]
-        ::tracing::debug("<- {} {}", method, endpoint);
+        ::tracing::debug!("<- {} {}", method, endpoint);
 
         let mut builder = self.inner.request(method, self.base.join(endpoint)?);
         if let Some(headers) = headers {

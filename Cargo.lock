@@ -1082,6 +1082,7 @@ dependencies = [
  "sentry-types",
  "serde",
  "toml",
+ "tracing",
  "url",
 ]
 

@@ -34,6 +34,17 @@ pub fn env_from_result<T>(result: Result<T, VarError>, default: T) -> eyre::Resu
     }
 }
 
+pub fn env_from_result_lazy<T>(
+    result: Result<T, VarError>,
+    default: impl FnOnce() -> eyre::Result<T>,
+) -> eyre::Result<T> {
+    match result {
+        Ok(value) => Ok(value),
+        Err(VarError::NotPresent) => Ok(default()?),
+        Err(VarError::NotUnicode(_)) => bail!("received non-unicode value in environment variable"),
+    }
+}
+
 pub fn env_from_str<F: FromStr>(key: &str, default: F) -> eyre::Result<F>
 where
     F::Err: Display,
@@ -55,11 +66,12 @@ pub fn bool_env(key: &str) -> eyre::Result<bool> {
     )
 }
 
-pub fn btreemap_env<V: FromStr>(key: &str) -> eyre::Result<BTreeMap<String, V>>
+pub fn btreemap_env<K: FromStr + Ord, V: FromStr>(key: &str) -> eyre::Result<BTreeMap<K, V>>
 where
+    K::Err: Display,
     V::Err: Display,
 {
-    let mut map = azalia::btreemap!(String, V);
+    let mut map = azalia::btreemap!(K, V);
     let result = match azalia::config::env!(key) {
         Ok(res) => res,
         Err(VarError::NotPresent) => return Ok(map),
@@ -73,7 +85,15 @@ where
             }
 
             map.insert(
-                key.to_string(),
+                match K::from_str(val) {
+                    Ok(v) => v,
+                    Err(e) => bail!(
+                        "failed to parse environment variable `${}`: at index #{}, failed to parse key: {}",
+                        key,
+                        i,
+                        e
+                    ),
+                },
                 match V::from_str(val) {
                     Ok(v) => v,
                     Err(e) => bail!(

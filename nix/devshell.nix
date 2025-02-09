@@ -27,6 +27,10 @@
 
   linuxNativeBuildInputs = with pkgs; [mold];
 
+  rpathInputs = with pkgs; [
+    openssl
+  ];
+
   nativeBuildInputs = with pkgs;
     [pkg-config]
     ++ (lib.optional stdenv.isLinux linuxNativeBuildInputs)
@@ -50,6 +54,9 @@ in
   mkShell {
     inherit buildInputs nativeBuildInputs;
 
+    LD_LIBRARY_PATH = lib.makeLibraryPath rpathInputs;
+
+    name = "charted-dev";
     shellHook = ''
       export RUSTFLAGS="--cfg tokio_unstable ${rustflags}"
     '';
