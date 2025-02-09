@@ -32,7 +32,7 @@ base64 = "0.22.1"
 charted-authz.workspace = true
 charted-authz-local.workspace = true
 charted-config.workspace = true
-charted-core = { workspace = true, features = ["openapi"] }
+charted-core = { workspace = true, features = ["openapi", "axum"] }
 charted-database.workspace = true
 charted-helm-charts.workspace = true
 charted-helm-types = { workspace = true, features = ["openapi"] }

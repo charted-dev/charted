@@ -30,7 +30,7 @@ rust-version.workspace = true
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(noeldoc)'] }
 
 [features]
-default = ["axum"]
+default = []
 
 openapi = ["dep:utoipa"]
 
