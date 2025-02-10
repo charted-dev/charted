@@ -65,7 +65,7 @@ diesel = { version = "2.2.4", features = ["postgres", "sqlite", "chrono"] }
 diesel_migrations = { version = "2.2.0", features = ["postgres", "sqlite"] }
 eyre = "0.6.12"
 multer = "3.1.0"
-opentelemetry = "0.27.0"
+opentelemetry = "0.28.0"
 rayon = "1.10.0"
 remi = "0.10.0"
 remi-azure = { version = "0.10.0", features = ["tracing", "export-azure"] }
