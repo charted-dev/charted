@@ -29,6 +29,13 @@ path = "lib.rs"
 
 [dependencies]
 argon2.workspace = true
+azalia.workspace = true
 charted-authz.workspace = true
 charted-core.workspace = true
 charted-types.workspace = true
+eyre.workspace = true
+tracing.workspace = true
+
+[dev-dependencies]
+charted-database.workspace = true
+tokio = { workspace = true, features = ["rt", "macros"] }

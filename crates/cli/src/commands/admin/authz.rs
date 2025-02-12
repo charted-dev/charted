@@ -13,10 +13,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-mod json;
-mod path;
-mod query;
+mod hash_password;
 
-pub use json::*;
-pub use path::*;
-pub use query::*;
+/// Administrative commands related to authentication
+#[derive(Debug, clap::Subcommand)]
+pub enum Subcmd {
+    #[command(name = "hash-password")]
+    HashPassword(hash_password::Args),
+}
+
+pub fn run(subcmd: Subcmd) -> eyre::Result<()> {
+    match subcmd {
+        Subcmd::HashPassword(args) => hash_password::run(args),
+    }
+}

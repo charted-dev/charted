@@ -25,7 +25,9 @@ repository.workspace = true
 authors.workspace = true
 
 [dependencies]
+argon2.workspace = true
 azalia = { workspace = true, features = ["log", "log-writers"] }
+charted-core.workspace = true
 clap.workspace = true
 clap_complete.workspace = true
 eyre.workspace = true

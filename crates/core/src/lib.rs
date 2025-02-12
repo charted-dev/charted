@@ -19,7 +19,6 @@
 
 pub mod api;
 pub mod bitflags;
-pub mod di;
 pub mod serde;
 
 #[macro_use]
@@ -54,9 +53,6 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// the internal `charted-*` crates.
 pub static ARGON2: LazyLock<Argon2> = LazyLock::new(Argon2::default);
 
-#[doc(hidden)]
-pub static CONTAINER: OnceLock<di::Container> = OnceLock::new();
-
 /// Returns a formatted string of the version that combines the [`VERSION`] and [`COMMIT_HASH`]
 /// constants as <code>v[{version}][VERSION]+[{commit.hash}][COMMIT_HASH]</code>.
 ///
@@ -85,10 +81,4 @@ pub fn version() -> &'static str {
 /// Generates a random string with `len`.
 pub fn rand_string(len: usize) -> String {
     Alphanumeric.sample_string(&mut rand::rng(), len)
-}
-
-pub fn set_container(container: di::Container) {
-    CONTAINER
-        .set(container)
-        .expect("di container should be empty when called");
 }

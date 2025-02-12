@@ -18,20 +18,15 @@ use std::io;
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Representation of any error that could've occurred in this crate.
-#[derive(Debug, derive_more::From, derive_more::Display)]
+#[derive(Debug, derive_more::From, derive_more::Display, derive_more::Error)]
 #[non_exhaustive]
 pub enum Error {
+    /// URL given failed to parse.
     ParseUrl(url::ParseError),
-    Reqwest(reqwest::Error),
-    Io(io::Error),
-}
 
-impl std::error::Error for Error {
-    fn cause(&self) -> Option<&dyn std::error::Error> {
-        match self {
-            Error::ParseUrl(err) => Some(err),
-            Error::Reqwest(err) => Some(err),
-            Error::Io(err) => Some(err),
-        }
-    }
+    /// Something related to [`reqwest`] failed.
+    Reqwest(reqwest::Error),
+
+    /// I/o error that occurred.
+    Io(io::Error),
 }

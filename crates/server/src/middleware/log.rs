@@ -13,12 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::REQUESTS;
-
 use super::XRequestId;
+use crate::Context;
 use axum::{
     body::Body,
-    extract::{FromRequestParts, MatchedPath, Request},
+    extract::{FromRequestParts, MatchedPath, Request, State},
     http::{header::USER_AGENT, Extensions, HeaderMap, Method, Uri, Version},
     middleware::Next,
     response::IntoResponse,
@@ -44,13 +43,13 @@ pub struct Metadata {
     http.method = metadata.method.as_str(),
     http.uri = metadata.uri.path(),
 ))]
-pub async fn log(metadata: Metadata, req: Request<Body>, next: Next) -> impl IntoResponse {
+pub async fn log(metadata: Metadata, State(ctx): State<Context>, req: Request<Body>, next: Next) -> impl IntoResponse {
     let uri = metadata.uri.path();
     if uri.contains("/heartbeat") {
         return next.run(req).await;
     }
 
-    REQUESTS.fetch_add(1, Ordering::SeqCst);
+    ctx.requests.fetch_add(1, Ordering::SeqCst);
 
     let start = Instant::now();
     info!("processing request");

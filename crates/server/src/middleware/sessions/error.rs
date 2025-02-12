@@ -15,6 +15,7 @@
 
 use axum::{http::StatusCode, response::IntoResponse};
 use charted_core::api;
+use charted_types::name;
 use std::borrow::Cow;
 
 /// Error type when the session middleware is running and it failed.
@@ -29,6 +30,14 @@ pub enum Error {
     Message(#[error(not(source))] Cow<'static, str>),
 
     DecodeUlid(charted_types::ulid::DecodeError),
+
+    #[display("invalid input ({}) for Name: {}", input, error)]
+    InvalidName {
+        input: Cow<'static, str>,
+        #[error(source)]
+        error: name::Error,
+    },
+
     Database(sea_orm::DbErr),
     Unknown(eyre::Report),
     Jwt(jsonwebtoken::errors::Error),
@@ -64,7 +73,8 @@ impl Error {
             | E::Message(_)
             | E::DecodeBase64(_)
             | E::RefreshTokenRequired
-            | E::DecodeUlid(_) => StatusCode::NOT_ACCEPTABLE,
+            | E::DecodeUlid(_)
+            | E::InvalidName { .. } => StatusCode::NOT_ACCEPTABLE,
 
             E::InvalidPassword => StatusCode::UNAUTHORIZED,
             E::UnknownSession => StatusCode::NOT_FOUND,
@@ -91,6 +101,7 @@ impl Error {
             E::DecodeBase64(_) => UnableToDecodeBase64,
             E::DecodeUlid(_) => UnableToDecodeUlid,
             E::Database(_) | E::Unknown(_) => InternalServerError,
+            E::InvalidName { .. } => InvalidInput,
             E::Jwt(err) => match err.kind() {
                 jsonwebtoken::errors::ErrorKind::ExpiredSignature => SessionExpired,
                 jsonwebtoken::errors::ErrorKind::InvalidToken => InvalidSessionToken,

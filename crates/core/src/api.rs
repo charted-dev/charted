@@ -15,7 +15,7 @@
 
 //! Types that are used with the API server.
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use std::borrow::Cow;
@@ -113,11 +113,13 @@ impl ::schemars::JsonSchema for Version {
 pub type Result<T> = std::result::Result<Response<T>, Response>;
 
 /// Representation of a response that the API server sends for each request.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct Response<T = ()> {
+    /// The status of the response.
+    #[cfg(feature = "axum")]
     #[serde(skip)]
-    pub(crate) status: axum::http::StatusCode,
+    pub status: ::axum::http::StatusCode,
 
     /// Was the request that was processed a success?
     pub success: bool,
@@ -156,7 +158,7 @@ impl<T: Serialize> ::axum::response::IntoResponse for Response<T> {
 }
 
 /// Representation of a error from an error trace.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct Error {
     /// Contextualized error code on why this request failed.
@@ -178,7 +180,7 @@ pub struct Error {
 ///
 /// This field can be looked up from the documentation to give
 /// a better representation of the error.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum ErrorCode {
@@ -257,6 +259,9 @@ pub enum ErrorCode {
 
     /// reached an unexpected EOF marker.
     ReachedUnexpectedEof,
+
+    /// invalid input was given
+    InvalidInput,
 
     // ~ PATH PARAMETERS
     /// unable to parse a path parameter.
@@ -485,6 +490,27 @@ pub fn internal_server_error() -> Response {
         axum::http::StatusCode::INTERNAL_SERVER_ERROR,
         (ErrorCode::InternalServerError, "Internal Server Error"),
     )
+}
+
+/// Propagate a system failure response from [`eyre::Report`].
+#[cfg(feature = "axum")]
+#[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "axum")))]
+pub fn system_failure_from_report(report: eyre::Report) -> Response {
+    #[derive(Debug)]
+    struct AError<'a>(&'a dyn std::error::Error);
+    impl std::fmt::Display for AError<'_> {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            std::fmt::Display::fmt(&self.0, f)
+        }
+    }
+
+    impl std::error::Error for AError<'_> {
+        fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+            self.0.source()
+        }
+    }
+
+    system_failure(AError(report.as_ref()))
 }
 
 /// Propagate a system failure response.

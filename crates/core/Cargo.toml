@@ -33,11 +33,13 @@ unexpected_cfgs = { level = "warn", check-cfg = ['cfg(noeldoc)'] }
 default = []
 
 openapi = ["dep:utoipa"]
+axum = ["dep:axum", "dep:eyre"]
 
 [dependencies]
 argon2.workspace = true
 axum = { workspace = true, optional = true }
 derive_more = { workspace = true, features = ["display"] }
+eyre = { workspace = true, optional = true }
 humantime = "2.1.0"
 rand.workspace = true
 serde.workspace = true

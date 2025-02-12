@@ -26,3 +26,18 @@ authors.workspace = true
 
 [lib]
 path = "lib.rs"
+
+[features]
+default = []
+
+extends-openapi = ["dep:utoipa"]
+extends-database = ["dep:sea-orm-migration"]
+
+[dependencies]
+axum.workspace = true
+azalia.workspace = true
+charted-core.workspace = true
+charted-server.workspace = true
+eyre.workspace = true
+sea-orm-migration = { workspace = true, optional = true }
+utoipa = { workspace = true, optional = true }

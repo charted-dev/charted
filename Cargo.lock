@@ -164,6 +164,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-compression"
+version = "0.4.18"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "df895a515f70646414f4b45c0b79082783b80552b373a68283012928df56f522"
+dependencies = [
+ "flate2",
+ "futures-core",
+ "memchr",
+ "pin-project-lite",
+ "tokio",
+]
+
+[[package]]
 name = "async-lock"
 version = "3.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1156,16 +1169,23 @@ name = "charted-authz-static"
 version = "0.1.0"
 dependencies = [
  "argon2",
+ "azalia",
  "charted-authz",
  "charted-core",
+ "charted-database",
  "charted-types",
+ "eyre",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
 name = "charted-cli"
 version = "0.1.0"
 dependencies = [
+ "argon2",
  "azalia",
+ "charted-core",
  "clap",
  "clap_complete",
  "eyre",
@@ -1211,6 +1231,7 @@ dependencies = [
  "axum",
  "chrono",
  "derive_more 2.0.0",
+ "eyre",
  "humantime",
  "rand 0.9.0",
  "rustc_version",
@@ -1245,6 +1266,15 @@ version = "0.1.0"
 [[package]]
 name = "charted-features"
 version = "0.1.0"
+dependencies = [
+ "axum",
+ "azalia",
+ "charted-core",
+ "charted-server",
+ "eyre",
+ "sea-orm-migration",
+ "utoipa",
+]
 
 [[package]]
 name = "charted-helm-charts"
@@ -1292,9 +1322,11 @@ dependencies = [
  "axum",
  "axum-extra",
  "axum-server",
+ "azalia",
  "base64 0.22.1",
  "charted-authz",
  "charted-authz-local",
+ "charted-authz-static",
  "charted-config",
  "charted-core",
  "charted-database",
@@ -1310,6 +1342,9 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_path_to_error",
+ "tokio",
+ "tower 0.5.2",
+ "tower-http",
  "tracing",
 ]
 
@@ -5536,6 +5571,30 @@ dependencies = [
  "pin-project-lite",
  "sync_wrapper",
  "tokio",
+ "tower-layer",
+ "tower-service",
+ "tracing",
+]
+
+[[package]]
+name = "tower-http"
+version = "0.6.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "403fa3b783d4b626a8ad51d766ab03cb6d2dbfc46b1c5d4448395e6628dc9697"
+dependencies = [
+ "async-compression",
+ "base64 0.22.1",
+ "bitflags 2.8.0",
+ "bytes",
+ "futures-core",
+ "futures-util",
+ "http 1.2.0",
+ "http-body 1.0.1",
+ "http-body-util",
+ "mime",
+ "pin-project-lite",
+ "tokio",
+ "tokio-util",
  "tower-layer",
  "tower-service",
  "tracing",

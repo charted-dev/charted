@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod authz;
 mod user;
 
 /// Administrative commands.
@@ -20,10 +21,14 @@ mod user;
 pub enum Subcommand {
     #[command(subcommand)]
     User(user::Subcommand),
+
+    #[command(subcommand)]
+    Authz(authz::Subcmd),
 }
 
 pub async fn run(subcmd: Subcommand) -> eyre::Result<()> {
     match subcmd {
         Subcommand::User(subcmd) => user::run(subcmd).await,
+        Subcommand::Authz(subcmd) => authz::run(subcmd),
     }
 }
