@@ -14,11 +14,13 @@
 // limitations under the License.
 
 mod datetime;
+mod nameorulid;
 mod semver;
 
 #[path = "newtypes/ulid.rs"]
 mod ulid_;
 
 pub use datetime::*;
+pub use nameorulid::*;
 pub use semver::*;
 pub use ulid_::{ulid, Ulid};

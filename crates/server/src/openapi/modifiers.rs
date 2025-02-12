@@ -101,6 +101,13 @@ impl Modify for IncludeErrorProneDatatypes {
 
                 schemas
             })
+            .schema_from::<charted_types::Ulid>()
+            .schemas_from_iter({
+                let mut schemas = Vec::new();
+                <charted_types::Ulid as utoipa::ToSchema>::schemas(&mut schemas);
+
+                schemas
+            })
             .build();
 
         openapi.components = Some(components);

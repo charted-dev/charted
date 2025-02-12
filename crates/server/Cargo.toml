@@ -47,6 +47,7 @@ sentry.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 serde_path_to_error = "0.1.16"
+serde_yaml_ng.workspace = true
 tower = "0.5.2"
 tower-http = { version = "0.6.2", features = [
     "auth",
@@ -55,6 +56,7 @@ tower-http = { version = "0.6.2", features = [
     "cors",
 ] }
 tracing.workspace = true
+utoipa.workspace = true
 
 [dev-dependencies]
 charted-authz-static.workspace = true

@@ -16,6 +16,9 @@
 //! Types that can effictively create or patch a object's metadata. Used by
 //! the API server for the `PUT` and `PATCH` REST endpoints.
 
+use crate::{name::Name, DateTime};
+use serde::Deserialize;
+
 macro_rules! mk_payload_structs {
     (
         $name:ident;
@@ -59,96 +62,179 @@ macro_rules! mk_payload_structs {
 mk_payload_structs! {
     ApiKey;
 
-    create {}
+    /// Payload object for creating a API key.
+    #[derive(Debug, Clone, Deserialize)]
+    #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+    create {
+        /// the api key's display name.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub display_name: Option<String>,
 
-    patch {}
+        /// short and concise description about this api key.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub description: Option<String>,
+
+        /// datetime of when this api key should be deleted from the server
+        /// and can no longer be used.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[cfg_attr(feature = "openapi", schema(read_only))]
+        pub expires_in: Option<DateTime>,
+
+        /// the list of permissions that this api key has as a [bitfield] data structure.
+        ///
+        /// [bitfield]: https://charts.noelware.org/docs/server/latest/api/reference#bitfield-data-structure
+        #[serde(default)]
+        pub scopes: i64,
+
+        /// the name of the api key
+        pub name: Name,
+    }
+
+    /// Payload object for patching the metadata of a API key.
+    #[derive(Debug, Clone, Deserialize)]
+    #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+    patch {
+        /// changes the api key's display name.
+        ///
+        /// - `null` or empty: field will not be updated
+        /// - an empty string: field is set to nothing
+        /// - string that is different: field will update
+        /// - string that is the same: field will not update
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub display_name: Option<String>,
+
+        /// changes the api key's display name.
+        ///
+        /// - `null` or empty: field will not be updated
+        /// - an empty string: field is set to nothing
+        /// - string that is different: field will update
+        /// - string that is the same: field will not update
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub description: Option<String>,
+
+        /// changes the api key's name.
+        ///
+        /// if the name of the api key already conflicts with another
+        /// key, then a 409 Conflict HTTP response is sent instead.
+        ///
+        /// - `null` or empty: field will not be updated
+        /// - an empty string: field is set to nothing
+        /// - string that is different: field will update
+        /// - string that is the same: field will not update
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub name: Option<Name>,
+    }
 }
 
 mk_payload_structs! {
     User;
 
-    create {}
+    #[derive(Debug, Clone, Deserialize)]
+    #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+    create {
+        /// User handle to use to identify yourself.
+        pub username: Name,
 
-    patch {}
+        /// The password to use when authenticating, this is optional on non-local sessions.
+        #[cfg_attr(feature = "openapi", schema(pattern = "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$"))]
+        pub password: Option<String>,
+
+        /// Email address to identify this user
+        pub email: String,
+    }
+
+    #[derive(Debug, Clone, Deserialize)]
+    #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+    patch {
+        /// Toggle to use when preferring the Gravatar avatar
+        /// over the ones used by the API server locally.
+        ///
+        /// - `null` or empty: field will not be updated
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub prefers_gravatar: Option<bool>,
+
+        /// Changes the Gravatar email address associated
+        /// for this user.
+        ///
+        /// - `null` or empty: field will not be updated
+        /// - an empty string: field is set to nothing
+        /// - string that is different: field will update
+        /// - string that is the same: field will not update
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub gravatar_email: Option<String>,
+
+        /// Changes the description about yourself.
+        ///
+        /// - `null` or empty: field will not be updated
+        /// - an empty string: field is set to nothing
+        /// - string that is different: field will update
+        /// - string that is the same: field will not update
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub description: Option<String>,
+
+        /// changes your username.
+        ///
+        /// if any user has the username already taken, a 409 Conflict
+        /// HTTP response is sent.
+        ///
+        /// - `null` or empty: field will not be updated
+        /// - an empty string: field is set to nothing
+        /// - string that is different: field will update
+        /// - string that is the same: field will not update
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub username: Option<Name>,
+    }
 }
 
 mk_payload_structs! {
     Repository;
 
+    #[derive(Debug, Clone, Deserialize)]
+    #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
     create {}
 
+    #[derive(Debug, Clone, Deserialize)]
+    #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
     patch {}
 }
 
 mk_payload_structs! {
     RepositoryRelease;
 
+    #[derive(Debug, Clone, Deserialize)]
+    #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
     create {}
 
+    #[derive(Debug, Clone, Deserialize)]
+    #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
     patch {}
 }
 
 mk_payload_structs! {
     Organization;
 
+    #[derive(Debug, Clone, Deserialize)]
+    #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
     create {}
 
+    #[derive(Debug, Clone, Deserialize)]
+    #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
     patch {}
 }
 
 mk_payload_structs! {
     Member;
 
+    #[derive(Debug, Clone, Deserialize)]
+    #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
     create {}
 
+    #[derive(Debug, Clone, Deserialize)]
+    #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
     patch {}
 }
 
 /*
-super::create_modifying_payload! {
-    ApiKey;
-
-    /// Payload object for constructing an API key.
-    #[derive(Debug, Clone, Deserialize, ToSchema)]
-    create {
-        /// Short description about the API key. Used to visibility distinct
-        /// an API key other than its name.
-        #[serde(default)]
-        pub description: Option<String>,
-
-        /// Maximum of time that this API key can live. Minimum allowed is 30 seconds.
-        #[serde(default)]
-        pub expires_in: Option<Duration>,
-
-        /// List of scopes (which can be either a `u64` or `string`).
-        #[serde(default)]
-        pub scopes: Vec<ApiKeyScope>,
-
-        /// Name of the API key.
-        pub name: Name,
-    }
-
-    /// Payload object for modifying a API key.
-    #[derive(Debug, Clone, Deserialize, ToSchema)]
-    patch {
-        /// Updates or removes the description of the API key.
-        ///
-        /// * If this is `null`, this will not do any patching
-        /// * If this is a empty string, this will act as "removing" it from the metadata
-        /// * If the comparsion (`old.description == this.description`) is false, then this will update it.
-        #[serde(default)]
-        pub description: Option<String>,
-
-        /// key name to use to identify the key
-        #[serde(default)]
-        pub name: Option<Name>,
-    }
-}
-
-use crate::name::Name;
-use serde::Deserialize;
-use utoipa::ToSchema;
-
 super::create_modifying_payload! {
     Organization;
 

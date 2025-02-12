@@ -22,6 +22,9 @@ pub mod routing;
 #[cfg(test)]
 pub mod testing;
 
+mod yaml;
+pub use yaml::*;
+
 use azalia::remi::StorageService;
 use charted_authz::Authenticator;
 use charted_config::Config;

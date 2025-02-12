@@ -36,6 +36,7 @@ pub mod __private {
     pub use paste::paste;
 }
 
+#[allow(unused_imports)]
 mod helm {
     use serde::{Deserialize, Serialize};
     use std::{fmt::Write, str::FromStr};
