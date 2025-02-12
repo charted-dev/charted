@@ -34,6 +34,7 @@ pub enum Error {
     #[display("invalid input ({}) for Name: {}", input, error)]
     InvalidName {
         input: Cow<'static, str>,
+
         #[error(source)]
         error: name::Error,
     },
@@ -113,7 +114,7 @@ impl Error {
 
 impl IntoResponse for Error {
     fn into_response(self) -> axum::response::Response {
-        <api::Response as From<Error>>::from(self).into_response()
+        api::err(self.status_code(), (self.api_error_code(), self.to_string())).into_response()
     }
 }
 

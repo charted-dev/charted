@@ -113,7 +113,7 @@ impl ::schemars::JsonSchema for Version {
 pub type Result<T> = std::result::Result<Response<T>, Response>;
 
 /// Representation of a response that the API server sends for each request.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct Response<T = ()> {
     /// The status of the response.
@@ -143,6 +143,14 @@ pub struct Response<T = ()> {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub errors: Vec<Error>,
 }
+
+impl<T: PartialEq> PartialEq for Response<T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.success == other.success && self.data.eq(&other.data) && self.errors.eq(&other.errors)
+    }
+}
+
+impl<T: Eq> Eq for Response<T> {}
 
 #[cfg(feature = "axum")]
 #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "axum")))]

@@ -12,3 +12,64 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+use crate::Context;
+use azalia::remi::StorageService;
+use charted_config::{
+    database,
+    sessions::{self, Backend},
+    Config,
+};
+use sea_orm::DatabaseConnection;
+use std::sync::{atomic::AtomicUsize, Arc};
+
+// so that sessions are "consistent" enough between tests
+const JWT_SECRET_KEY: &str =
+    "ahashthatshouldbeavalidhashfromopensslbutidontwanttodothatandnooneshouldusethisvaluetobeginwithuwu";
+
+/// Creates a configuration object for test purposes.
+pub fn create_config(override_fn: impl FnOnce(&mut Config)) -> Config {
+    let mut config = Config {
+        jwt_secret_key: String::from(JWT_SECRET_KEY),
+        registrations: true,
+        single_user: false,
+        single_org: false,
+        sentry_dsn: None,
+        base_url: None,
+        logging: Default::default(),
+        storage: Default::default(),
+        tracing: None,
+        server: Default::default(),
+
+        sessions: sessions::Config {
+            enable_basic_auth: false,
+            backend: Backend::Local,
+        },
+
+        database: database::Config::SQLite(database::sqlite::Config {
+            common: Default::default(),
+            path: String::from(":memory:").into(),
+        }),
+    };
+
+    override_fn(&mut config);
+    config
+}
+
+/// Sets the global context for tests.
+pub fn set_and_use_context(config: Config) -> Context {
+    let ctx = Context {
+        requests: AtomicUsize::default(),
+        storage: StorageService::__non_exhaustive,
+        config,
+        pool: DatabaseConnection::Disconnected,
+
+        authz: Arc::new(charted_authz_static::Backend::new(azalia::btreemap! {
+            // echo "noeliscutieuwu" | cargo cli admin authz hash-password --stdin
+            "noel" => "$argon2id$v=19$m=19456,t=2,p=1$gIcVA4mVHgr8ZWkmDrtJlw$sb5ypFAvphFCGrJXy9fRI1Gb/2vGIH1FTzDax458+xY"
+        })),
+    };
+
+    crate::set_context(ctx.clone());
+    ctx
+}

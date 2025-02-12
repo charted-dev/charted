@@ -28,6 +28,7 @@ pub struct Model {
     pub updated_at: ChronoDateTimeUtc,
     pub scopes: i64,
     pub owner: Ulid,
+    pub token: String,
     pub name: Name,
 
     #[sea_orm(column_type = "Text", primary_key, auto_increment = false)]
@@ -82,6 +83,7 @@ pub(crate) fn table() -> TableCreateStatement {
         .col(string_len_null(Column::Description, 140))
         .col(timestamp_null(Column::ExpiresIn))
         .col(big_integer(Column::Scopes))
+        .col(text(Column::Token))
         .col(text(Column::Owner))
         .col(Name::into_column(Column::Name))
         .col(id())

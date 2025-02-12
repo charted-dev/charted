@@ -18,12 +18,39 @@ use azalia::config::{env, merge::Merge, TryFromEnv};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
+/// Untagged enumeration to determine if a value is a [`PathBuf`] or a [`String`].
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, derive_more::From, derive_more::Display)]
+#[serde(untagged)]
+pub enum StringOrPath {
+    #[display("{}", _0.display())]
+    Path(PathBuf),
+    String(String),
+}
+
+impl Merge for StringOrPath {
+    fn merge(&mut self, other: Self) {
+        match (self, other) {
+            (Self::Path(p1), Self::Path(p2)) => {
+                p1.merge(p2);
+            }
+
+            (Self::String(s1), Self::String(s2)) => {
+                s1.merge(s2);
+            }
+
+            (me, other) => {
+                *me = other;
+            }
+        }
+    }
+}
+
 /// ## `[database.sqlite]`
 ///
 /// This database driver uses the almighty, holy [SQLite](https://sqlite.org). This is mainly used
 /// for development, evaluation purposes, or if PostgreSQL is too heavy for your use-cases.
 #[derive(Debug, Clone, Merge, Serialize, Deserialize, derive_more::Deref, derive_more::Display)]
-#[display("sqlite://{}", self.path.display())]
+#[display("sqlite://{}", self.path)]
 pub struct Config {
     #[serde(flatten)]
     #[deref]
@@ -33,7 +60,7 @@ pub struct Config {
     ///
     /// The [official Docker image](https://docker.noelware.org/~/charted/server) will overwrite this path to `/var/lib/noelware/charted/data/charted.db`.
     #[serde(default = "__db_path")]
-    pub path: PathBuf,
+    pub path: StringOrPath,
 }
 
 impl Default for Config {
@@ -54,12 +81,12 @@ impl TryFromEnv for Config {
     fn try_from_env() -> Result<Self::Output, Self::Error> {
         Ok(Config {
             common: common::Config::try_from_env()?,
-            path: env!(PATH).map(PathBuf::from).unwrap_or(__db_path()),
+            path: env!(PATH).map(|p| StringOrPath::Path(p.into())).unwrap_or(__db_path()),
         })
     }
 }
 
 #[inline]
-fn __db_path() -> PathBuf {
-    PathBuf::from("./data/charted.db")
+fn __db_path() -> StringOrPath {
+    PathBuf::from("./data/charted.db").into()
 }

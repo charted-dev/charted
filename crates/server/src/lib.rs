@@ -19,6 +19,9 @@ pub mod multipart;
 pub mod openapi;
 pub mod routing;
 
+#[cfg(test)]
+pub mod testing;
+
 use azalia::remi::StorageService;
 use charted_authz::Authenticator;
 use charted_config::Config;
@@ -56,7 +59,7 @@ impl Context {
     }
 }
 
-pub fn set(ctx: Context) {
+pub fn set_context(ctx: Context) {
     match SINGLETON.set(ctx) {
         Ok(_) => {}
         Err(_) => panic!("global context was already set"),

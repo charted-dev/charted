@@ -14,35 +14,38 @@
 // limitations under the License.
 
 mod error;
-use charted_authz::InvalidPassword;
 pub use error::*;
 
 mod extract;
 pub use extract::*;
 
+use crate::Context;
 use axum::{
     body::Body,
     http::{header::AUTHORIZATION, Request, StatusCode},
     response::{IntoResponse, Response},
 };
 use base64::{engine::general_purpose::STANDARD, Engine};
+use charted_authz::InvalidPassword;
 use charted_core::{
     api,
     bitflags::{ApiKeyScope, ApiKeyScopes},
     BoxedFuture,
 };
-use charted_database::entities::{user, UserEntity};
-use charted_types::{name::Name, User};
+use charted_database::entities::{apikey, session, user, ApiKeyEntity, SessionEntity, UserEntity};
+use charted_types::{name::Name, ApiKey, Ulid, User};
+use jsonwebtoken::{Algorithm, DecodingKey, Validation};
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
-use serde_json::json;
-use std::{borrow::Cow, str::FromStr};
+use serde_json::{json, Value};
+use std::{borrow::Cow, collections::HashMap, str::FromStr};
 use tower_http::auth::AsyncAuthorizeRequest;
-use tracing::{error, instrument};
-
-use crate::Context;
+use tracing::{error, instrument, trace};
 
 pub const JWT_ISS: &str = "Noelware";
 pub const JWT_AUD: &str = "charted-server";
+pub const JWT_ALGORITHM: Algorithm = Algorithm::HS512;
+pub const JWT_UID_FIELD: &str = "uid";
+pub const JWT_SID_FIELD: &str = "sid";
 
 /// The middleware that can be attached to a single route.
 #[derive(Clone, Default)]
@@ -194,205 +197,166 @@ impl Middleware {
             }
         }
     }
-}
 
-/*
-impl Middleware {
-    /// Performs JWT-based authentication for `Bearer` tokens.
-    #[instrument(name = "charted.server.authz.bearer", skip_all)]
-    async fn bearer_auth(
-        self,
-        mut req: Request<Body>,
-        ctx: &ServerContext,
-        token: String,
-    ) -> Result<Request<Body>, Response<Body>> {
-        let key = DecodingKey::from_secret(ctx.config.jwt_secret_key.as_ref());
-        let decoded = jsonwebtoken::decode::<HashMap<String, Value>>(
-            &token,
-            &key,
-            &Validation::new(jsonwebtoken::Algorithm::HS512),
+    #[instrument(
+        name = "charted.server.authz.bearer",
+        skip_all,
+        fields(
+            req.uri = req.uri().path(),
+            req.method = req.method().as_str(),
         )
-        .inspect_err(|e| {
-            error!(error = %e, "failed to decode JWT token");
-            sentry::capture_error(e);
-        })
-        .map_err(Error::Jwt)
-        .map_err(IntoResponse::into_response)?;
-
-        // All JWT tokens created by the server will always have a `user_id` which
-        // will always be a valid ULID.
-        let uid = decoded
-            .claims
-            .get("user_id")
-            .filter(|x| matches!(x, Value::String(_)))
-            .and_then(Value::as_str)
-            .map(Ulid::new)
-            .ok_or_else(|| Error::msg("missing `user_id` JWT claim").into_response())?
-            .map_err(Error::DecodeUlid)
-            .map_err(IntoResponse::into_response)?;
-
-        let session = decoded
-            .claims
-            .get("session_id")
-            .filter(|x| matches!(x, Value::String(_)))
-            .and_then(Value::as_str)
-            .map(Ulid::new)
-            .ok_or_else(|| Error::msg("missing `session_id` JWT claim").into_response())?
-            .map_err(Error::DecodeUlid)
-            .map_err(IntoResponse::into_response)?;
-
-        let mut conn = ctx
-            .pool
-            .get()
+    )]
+    pub(self) async fn bearer_auth<'ctx>(
+        self,
+        ctx: &'ctx Context,
+        mut req: Request<Body>,
+        token: String,
+    ) -> Result<Request<Body>, Response> {
+        let key = DecodingKey::from_secret(ctx.config.jwt_secret_key.as_ref());
+        let decoded = jsonwebtoken::decode::<HashMap<String, Value>>(&token, &key, &Validation::new(JWT_ALGORITHM))
             .inspect_err(|e| {
-                error!(error = %e, "failed to get database connection");
+                error!(error = %e, "failed to decode JWT token");
                 sentry::capture_error(e);
             })
-            .map_err(|_| api::internal_server_error().into_response())?;
+            .map_err(Error::Jwt)
+            .map_err(as_response)?;
 
-        let session = connection!(@raw conn {
-            PostgreSQL(conn) => conn.build_transaction().read_only().run::<charted_types::Session, Error, _>(|txn| {
-                use postgresql::sessions::{dsl::*, table};
-                use diesel::pg::Pg;
+        // All tokens created by us will always have `uid` and `sid` fields.
+        let uid = decoded
+            .claims
+            .get(JWT_UID_FIELD)
+            .filter(|x| matches!(x, Value::String(_)))
+            .and_then(Value::as_str)
+            .map(Ulid::new)
+            .ok_or_else(|| as_response(Error::msg(format!("missing `{}` JWT claim", JWT_UID_FIELD))))?
+            .map_err(Error::DecodeUlid)
+            .map_err(as_response)?;
 
-                table
-                    .select(<charted_types::Session as SelectableHelper<Pg>>::as_select())
-                    .filter(owner.eq(uid))
-                    .filter(id.eq(&session))
-                    .first(txn)
-                    .map_err(Into::into)
-            });
+        let sid = decoded
+            .claims
+            .get(JWT_SID_FIELD)
+            .filter(|x| matches!(x, Value::String(_)))
+            .and_then(Value::as_str)
+            .map(Ulid::new)
+            .ok_or_else(|| as_response(Error::msg(format!("missing `{}` JWT claim", JWT_SID_FIELD))))?
+            .map_err(Error::DecodeUlid)
+            .map_err(as_response)?;
 
-            SQLite(conn) => conn.immediate_transaction(|txn| {
-                use sqlite::sessions::{dsl::*, table};
-
-                table
-                    .select(<charted_types::Session as SelectableHelper<Sqlite>>::as_select())
-                    .filter(owner.eq(uid))
-                    .filter(id.eq(&session))
-                    .first(txn)
-                    .map_err(Into::into)
-            });
-        })
-        .map_err(|e| match e {
-            Error::Database(diesel::result::Error::NotFound) => api::err(
-                StatusCode::NOT_FOUND,
-                (
-                    api::ErrorCode::EntityNotFound,
-                    "session with id doesn't exist",
-                    json!({"session":session}),
-                ),
-            )
-            .into_response(),
-
-            err => err.into_response(),
-        })?;
-
-        if session.owner != uid {
-            error!("FATAL: assertion of `session.owner` == {uid} failed");
-            return Err(Error::UnknownSession.into_response());
-        }
+        let Some(session) = SessionEntity::find_by_id(sid)
+            .filter(session::Column::Account.eq(uid))
+            .one(&ctx.pool)
+            .await
+            .map_err(Error::Database)
+            .map_err(as_response)?
+        else {
+            return Err(as_response(Error::UnknownSession));
+        };
 
         if self.refresh_token_required && session.refresh_token != token {
-            return Err(Error::RefreshTokenRequired.into_response());
+            return Err(as_response(Error::RefreshTokenRequired));
         }
 
-        let Some(user) = ops::db::user::get(ctx, uid)
+        let Some(user) = UserEntity::find_by_id(uid)
+            .one(&ctx.pool)
             .await
-            .map_err(Error::Unknown)
-            .map_err(IntoResponse::into_response)?
+            .map_err(Error::Database)
+            .map_err(as_response)?
+            .map(Into::<User>::into)
         else {
-            return Err(api::err(
+            return Err(as_response(api::err(
                 StatusCode::NOT_FOUND,
                 (
                     api::ErrorCode::EntityNotFound,
                     "user with id doesn't exist",
-                    json!({"user":uid}),
+                    json!({
+                        "id": uid,
+                    }),
                 ),
-            )
-            .into_response());
+            )));
         };
 
         req.extensions_mut().insert(Session {
-            session: Some(session),
+            session: Some(session.into()),
             user,
         });
 
         Ok(req)
     }
 
-    /// Performs API Key-based authentication
-    #[instrument(name = "charted.server.authz.apikey", skip_all)]
-    async fn apikey_auth(
+    #[instrument(
+        name = "charted.server.authz.apikey",
+        skip_all,
+        fields(
+            req.uri = req.uri().path(),
+            req.method = req.method().as_str(),
+        )
+    )]
+    async fn apikey_auth<'ctx>(
         self,
+        ctx: &'ctx Context,
         mut req: Request<Body>,
-        ctx: &ServerContext,
         token: String,
-    ) -> Result<Request<Body>, Response<Body>> {
+    ) -> Result<Request<Body>, Response> {
         if self.refresh_token_required {
-            return Err(api::err(
-                StatusCode::NOT_ACCEPTABLE,
-                (
-                    api::ErrorCode::RefreshTokenRequired,
-                    "cannot use api key authentication on a bearer-only route",
-                ),
-            )
-            .into_response());
+            return Err(as_response(Error::RefreshTokenRequired));
         }
 
-        let Some(apikey) = ops::db::apikey::get(ctx, token, None::<!>)
+        let Some(apikey) = ApiKeyEntity::find()
+            .filter(apikey::Column::Token.eq(token))
+            .one(&ctx.pool)
             .await
-            .map_err(Error::Unknown)
-            .map_err(IntoResponse::into_response)?
+            .map_err(Error::Database)
+            .map_err(as_response)?
+            .map(Into::<ApiKey>::into)
         else {
-            return Err(api::err(
+            return Err(as_response(api::err(
                 StatusCode::NOT_FOUND,
-                (
-                    api::ErrorCode::EntityNotFound,
-                    "api key with received token was not found",
-                ),
-            )
-            .into_response());
+                (api::ErrorCode::EntityNotFound, "api key from token was not found?"),
+            )));
         };
 
         let scopes = apikey.bitfield();
         for (scope, bit) in self.scopes.flags() {
-            trace!(%apikey.name, "checking if api key has scope [{scope}] enabled");
+            trace!(%apikey.name, %scope, "checking if api key enabled the scope required for this route");
             if !scopes.contains(bit) {
-                trace!(%apikey.name, %scope, "api key scope is not enabled");
-                return Err(api::err(
+                trace!(%apikey.name, %scope, "scope is not enabled!");
+                return Err(as_response(api::err(
                     StatusCode::FORBIDDEN,
                     (
                         api::ErrorCode::AccessNotPermitted,
-                        "api key doesn't have access to this route due to not enabling the required flag",
-                        json!({"scope":scope,"$repr":bit}),
+                        "api key doesn't have required scope for this route enabled",
+                        json!({
+                            "scope": scope,
+                            "repr": bit,
+                        }),
                     ),
-                )
-                .into_response());
+                )));
             }
         }
 
-        let Some(user) = ops::db::user::get(ctx, apikey.owner)
+        let Some(user) = UserEntity::find_by_id(apikey.owner)
+            .one(&ctx.pool)
             .await
-            .map_err(Error::Unknown)
-            .map_err(IntoResponse::into_response)?
+            .map_err(Error::Database)
+            .map_err(as_response)?
+            .map(Into::<User>::into)
         else {
-            return Err(api::err(
+            return Err(as_response(api::err(
                 StatusCode::NOT_FOUND,
                 (
                     api::ErrorCode::EntityNotFound,
                     "user with id doesn't exist",
-                    json!({"user":apikey.owner}),
+                    json!({
+                        "id": apikey.owner,
+                    }),
                 ),
-            )
-            .into_response());
+            )));
         };
 
-        req.extensions_mut().insert(extract::Session { session: None, user });
+        req.extensions_mut().insert(Session { session: None, user });
         Ok(req)
     }
 }
-*/
 
 impl AsyncAuthorizeRequest<Body> for Middleware {
     type ResponseBody = Body;
@@ -400,7 +364,6 @@ impl AsyncAuthorizeRequest<Body> for Middleware {
     type Future = BoxedFuture<'static, Result<Request<Self::RequestBody>, Response<Self::ResponseBody>>>;
 
     fn authorize(&mut self, request: Request<Body>) -> Self::Future {
-        let ctx = Context::get();
         let headers = request.headers();
 
         let Some(header) = headers.get(AUTHORIZATION) else {
@@ -442,9 +405,12 @@ impl AsyncAuthorizeRequest<Body> for Middleware {
             }
         };
 
+        let ctx = Context::get();
         let me = self.to_owned();
         match ty {
             AuthType::Basic => Box::pin(me.basic_auth(ctx, request, value.to_owned())),
+            AuthType::Bearer => Box::pin(me.bearer_auth(ctx, request, value.to_owned())),
+
             _ => unreachable!(),
         }
     }
@@ -498,6 +464,9 @@ async fn noop(request: Request<Body>) -> Result<Request<Body>, Response<Body>> {
 fn as_response<R: IntoResponse>(e: R) -> Response {
     e.into_response()
 }
+
+#[cfg(test)]
+mod tests;
 
 // #[cfg(test)]
 // mod tests {
