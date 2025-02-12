@@ -1272,7 +1272,6 @@ dependencies = [
  "charted-core",
  "charted-server",
  "eyre",
- "sea-orm-migration",
  "utoipa",
 ]
 

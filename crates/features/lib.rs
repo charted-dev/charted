@@ -92,16 +92,6 @@ pub trait Feature: AsArcAny + Send + Sync + 'static {
         None
     }
 
-    /// If a feature ever extends the database, this is where all migrations
-    /// can be initialized in.
-    ///
-    /// It must extend the [`sea_orm_migration::MigratorTrait`] trait so that
-    /// CLI commands like `charted migrations` can work as needed.
-    #[cfg(feature = "extends-database")]
-    fn migrator<M: ::sea_orm_migration::MigratorTrait>(&self) -> Option<M> {
-        None
-    }
-
     /// Extends the OpenAPI document.
     #[cfg(feature = "extends-openapi")]
     fn extends_openapi<'feature, 'a: 'feature>(&'feature self, _doc: &'a mut ::utoipa::openapi::OpenApi) {}
