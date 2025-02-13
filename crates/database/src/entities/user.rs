@@ -13,11 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use super::create_table;
 use charted_types::{name::Name, Ulid, User};
 use sea_orm::{entity::prelude::*, sea_query::TableCreateStatement};
 use sea_orm_migration::schema::*;
-
-use super::create_table;
 
 #[derive(Debug, Clone, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "users")]

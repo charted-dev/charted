@@ -12,29 +12,3 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-mod admin;
-mod completions;
-mod migrate;
-pub mod server;
-
-#[derive(Debug, clap::Subcommand)]
-pub enum Subcommand {
-    Completions(completions::Args),
-    Server(server::Args),
-
-    #[command(subcommand)]
-    Admin(admin::Subcommand),
-
-    #[command(subcommand)]
-    Migrate(migrate::Subcommand),
-}
-
-pub async fn execute(subcmd: Subcommand) -> eyre::Result<()> {
-    match subcmd {
-        Subcommand::Server(args) => server::run(args).await,
-        Subcommand::Migrate(subcmd) => migrate::run(subcmd).await,
-        Subcommand::Admin(subcmd) => admin::run(subcmd).await,
-        Subcommand::Completions(args) => completions::run(args),
-    }
-}

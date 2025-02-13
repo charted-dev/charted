@@ -44,10 +44,12 @@ jsonwebtoken = "9.3.1"
 mime = "0.3.17"
 sea-orm.workspace = true
 sentry.workspace = true
+sentry-tower = { version = "0.36.0", features = ["axum", "axum-matched-path"] }
 serde.workspace = true
 serde_json.workspace = true
 serde_path_to_error = "0.1.16"
 serde_yaml_ng.workspace = true
+tokio = { workspace = true, features = ["net", "signal"] }
 tower = "0.5.2"
 tower-http = { version = "0.6.2", features = [
     "auth",

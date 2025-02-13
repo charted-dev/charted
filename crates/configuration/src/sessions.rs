@@ -25,10 +25,13 @@ use crate::util;
 pub const BACKEND: &str = "CHARTED_SESSIONS_BACKEND";
 pub const STATIC_USERS: &str = "CHARTED_SESSIONS_STATIC_USERS";
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, derive_more::Display)]
 #[serde(rename_all = "lowercase")]
 pub enum Backend {
+    #[display("static")]
     Static(BTreeMap<String, String>),
+
+    #[display("ldap")]
     Ldap(ldap::Config),
 
     #[default]

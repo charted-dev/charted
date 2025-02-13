@@ -27,11 +27,27 @@ authors.workspace = true
 [dependencies]
 argon2.workspace = true
 azalia = { workspace = true, features = ["log", "log-writers"] }
+charted-authz.workspace = true
+charted-authz-local.workspace = true
+charted-authz-static.workspace = true
 charted-core.workspace = true
+charted-config.workspace = true
+charted-database.workspace = true
+charted-helm-charts.workspace = true
+charted-server.workspace = true
 clap.workspace = true
 clap_complete.workspace = true
+color-eyre.workspace = true
 eyre.workspace = true
 num_cpus.workspace = true
+opentelemetry = "0.28.0"
+opentelemetry-otlp = { version = "0.28.0", features = ["grpc-tonic"] }
+opentelemetry_sdk = "0.28.0"
+owo-colors = { version = "4.1.0", features = ["supports-color"] }
 sea-orm-migration.workspace = true
+sentry.workspace = true
+sentry-tracing = { version = "0.36.0", features = ["backtrace"] }
 tracing.workspace = true
+tracing-error = "0.2.1"
+tracing-opentelemetry = "0.29.0"
 tracing-subscriber.workspace = true

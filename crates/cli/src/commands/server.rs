@@ -13,7 +13,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::path::PathBuf;
+use crate::install_eyre_hook;
+use azalia::{
+    config::TryFromEnv,
+    log::{writers, WriteLayer},
+    remi::{core::StorageService as _, StorageService},
+};
+use charted_authz::Authenticator;
+use charted_config::{sessions::Backend, storage, Config};
+use charted_core::Distribution;
+use charted_server::set_context;
+use eyre::bail;
+use opentelemetry::{trace::TracerProvider, InstrumentationScope, KeyValue};
+use opentelemetry_otlp::SpanExporter;
+use opentelemetry_sdk::trace::{SdkTracer, SdkTracerProvider};
+use owo_colors::{OwoColorize, Stream::Stdout};
+use std::{
+    borrow::Cow,
+    io::{self, Write},
+    path::PathBuf,
+    sync::{atomic::AtomicUsize, Arc},
+};
+use tracing::level_filters::LevelFilter;
+use tracing::{info, warn};
+use tracing_subscriber::{filter, prelude::*};
 
 /// Runs the API server.
 #[derive(Debug, clap::Parser)]
@@ -30,6 +53,210 @@ pub struct Args {
     pub workers: usize,
 }
 
-pub(crate) async fn run(_: Args) -> eyre::Result<()> {
-    Ok(())
+pub(crate) async fn run(Args { config, .. }: Args) -> eyre::Result<()> {
+    print_banner();
+
+    let config = load_config(config)?;
+    install_eyre_hook()?;
+
+    let _guard = sentry::init(sentry::ClientOptions {
+        attach_stacktrace: true,
+        server_name: Some(Cow::Borrowed("charted-server")),
+        release: Some(Cow::Borrowed(charted_core::version())),
+        dsn: config.sentry_dsn.clone(),
+
+        ..Default::default()
+    });
+
+    init_logger(&config)?;
+    info!("Hello world!");
+
+    let pool = charted_database::create_pool(&config.database).await?;
+    let storage = match config.storage.clone() {
+        storage::Config::Filesystem(fs) => {
+            StorageService::Filesystem(azalia::remi::fs::StorageService::with_config(fs))
+        }
+
+        storage::Config::Azure(azure) => StorageService::Azure(azalia::remi::azure::StorageService::new(azure)?),
+        storage::Config::S3(s3) => StorageService::S3(azalia::remi::s3::StorageService::new(s3)),
+    };
+
+    azalia::remi::StorageService::init(&storage).await?;
+    charted_helm_charts::init(&storage).await?;
+
+    let authz: Arc<dyn Authenticator> = match config.sessions.backend.clone() {
+        Backend::Static(mapping) => Arc::new(charted_authz_static::Backend::new(mapping)),
+        Backend::Local => Arc::new(charted_authz_local::Backend::default()),
+        b => {
+            warn!("using the {} backend is not supported! switching to local backend", b);
+            Arc::new(charted_authz_local::Backend::default())
+        }
+    };
+
+    let context = charted_server::Context {
+        requests: AtomicUsize::new(0),
+        storage,
+        config,
+        authz,
+        pool,
+    };
+
+    set_context(context);
+    charted_server::drive().await
+}
+
+fn load_config(config: Option<PathBuf>) -> eyre::Result<Config> {
+    config
+        .map(|path| Config::load(Some(path)))
+        .unwrap_or_else(|| match Config::find_default_location() {
+            Ok(Some(path)) => Config::load(Some(path)),
+            Err(err) => {
+                eprintln!("[charted :: WARN] failed to load configuration files from default locations: {err}");
+                Config::try_from_env()
+            }
+
+            _ => Config::load::<&str>(None),
+        })
+}
+
+fn init_logger(config: &Config) -> eyre::Result<()> {
+    let tracer = match config.tracing.as_ref().map(get_otel_tracer) {
+        Some(Ok(tracer)) => Some(tracer),
+        Some(Err(report)) => return Err(report),
+
+        _ => None,
+    };
+
+    tracing_subscriber::registry()
+        .with(
+            if config.logging.json {
+                WriteLayer::new_with(io::stdout(), writers::json)
+            } else {
+                WriteLayer::new_with(io::stdout(), writers::default::Writer::default())
+            }
+            .with_filter(LevelFilter::from_level(config.logging.level))
+            .with_filter(filter::filter_fn(|meta| {
+                // disallow from getting logs from `tokio` since it doesn't contain anything
+                // useful to us
+                !meta.target().starts_with("tokio::")
+            })),
+        )
+        .with(sentry_tracing::layer())
+        .with(tracer.map(|tracer| {
+            tracing_opentelemetry::layer()
+                .with_tracer(tracer)
+                .with_filter(LevelFilter::from_level(config.logging.level))
+        }))
+        .with(tracing_error::ErrorLayer::default())
+        .try_init()
+        .map_err(Into::into)
+}
+
+fn get_otel_tracer(config: &charted_config::tracing::Config) -> eyre::Result<SdkTracer> {
+    let mut provider = SdkTracerProvider::builder();
+    match config.url.scheme() {
+        "http" | "https" => {
+            let exporter = SpanExporter::builder().with_http().build()?;
+            provider = provider.with_simple_exporter(exporter);
+        }
+
+        "grpc" | "grpcs" => {
+            let exporter = SpanExporter::builder().with_tonic().build()?;
+            provider = provider.with_simple_exporter(exporter);
+        }
+
+        scheme => bail!("unknown scheme for OpenTelemetry Collector: {}", scheme),
+    }
+
+    let provider = provider.build();
+    let mut attrs = config
+        .labels
+        .iter()
+        .map(|(key, value)| KeyValue::new(key.clone(), value.clone()))
+        .collect::<Vec<_>>();
+
+    attrs.push(KeyValue::new("service.name", "charted-server"));
+    attrs.push(KeyValue::new("service.vendor", "Noelware, LLC."));
+    attrs.push(KeyValue::new("charted.version", charted_core::version()));
+
+    Ok(provider.tracer_with_scope(
+        InstrumentationScope::builder("charted-server")
+            .with_version(charted_core::version())
+            .with_attributes(attrs)
+            .build(),
+    ))
+}
+
+fn print_banner() {
+    let mut stdout = io::stdout().lock();
+    let _ = writeln!(
+        stdout,
+        "{}",
+        "«~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~»"
+            .if_supports_color(Stdout, |x| x.fg_rgb::<134, 134, 134>())
+    );
+
+    let _ = writeln!(
+        stdout,
+        "{}        {}                {}           {}                                     {}",
+        "«".if_supports_color(Stdout, |x| x.fg_rgb::<134, 134, 134>()),
+        "_".if_supports_color(Stdout, |x| x.fg_rgb::<212, 171, 216>()),
+        "_".if_supports_color(Stdout, |x| x.fg_rgb::<212, 171, 216>()),
+        "_".if_supports_color(Stdout, |x| x.fg_rgb::<212, 171, 216>()),
+        "»".if_supports_color(Stdout, |x| x.fg_rgb::<134, 134, 134>())
+    );
+
+    let _ = writeln!(
+        stdout,
+        "{}    {}  {}",
+        "«".if_supports_color(Stdout, |x| x.fg_rgb::<134, 134, 134>()),
+        "___| |__   __ _ _ __| |_ ___  __| |      ___  ___ _ ____   _____ _ __"
+            .if_supports_color(Stdout, |x| x.fg_rgb::<212, 171, 216>()),
+        "»".if_supports_color(Stdout, |x| x.fg_rgb::<134, 134, 134>())
+    );
+
+    let _ = writeln!(
+        stdout,
+        "{}   {} {}",
+        "«".if_supports_color(Stdout, |x| x.fg_rgb::<134, 134, 134>()),
+        "/ __| '_ \\ / _` | '__| __/ _ \\/ _` |_____/ __|/ _ \\ '__\\ \\ / / _ \\ '__|"
+            .if_supports_color(Stdout, |x| x.fg_rgb::<212, 171, 216>()),
+        "»".if_supports_color(Stdout, |x| x.fg_rgb::<134, 134, 134>())
+    );
+
+    let _ = writeln!(
+        stdout,
+        "{}  {}    {}",
+        "«".if_supports_color(Stdout, |x| x.fg_rgb::<134, 134, 134>()),
+        "| (__| | | | (_| | |  | ||  __/ (_| |_____\\__ \\  __/ |   \\ V /  __/ |"
+            .if_supports_color(Stdout, |x| x.fg_rgb::<212, 171, 216>()),
+        "»".if_supports_color(Stdout, |x| x.fg_rgb::<134, 134, 134>())
+    );
+
+    let _ = writeln!(
+        stdout,
+        "{}   {}    {}",
+        "«".if_supports_color(Stdout, |x| x.fg_rgb::<134, 134, 134>()),
+        "\\___|_| |_|\\__,_|_|   \\__\\___|\\__,_|     |___/\\___|_|    \\_/ \\___|_|"
+            .if_supports_color(Stdout, |x| x.fg_rgb::<212, 171, 216>()),
+        "»".if_supports_color(Stdout, |x| x.fg_rgb::<134, 134, 134>())
+    );
+
+    let _ = writeln!(
+        stdout,
+        "{}",
+        "«~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~+~»"
+            .if_supports_color(Stdout, |x| x.fg_rgb::<134, 134, 134>())
+    );
+
+    let _ = writeln!(stdout);
+    let distribution = Distribution::detect();
+
+    let _ = writeln!(
+        stdout,
+        "» Booting up {} {}, compiled with Rust {} on {distribution}",
+        "charted-server".if_supports_color(Stdout, |x| x.bold()),
+        charted_core::version().if_supports_color(Stdout, |x| x.bold()),
+        charted_core::RUSTC_VERSION.if_supports_color(Stdout, |x| x.bold())
+    );
 }

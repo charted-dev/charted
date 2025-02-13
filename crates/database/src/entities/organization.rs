@@ -95,7 +95,6 @@ pub(crate) fn table() -> TableCreateStatement {
         .col(string_len_null(Column::DisplayName, 32))
         .col(boolean(Column::Private).default(false))
         .col(text(Column::IconHash))
-        .col(text(Column::Owner))
         .col(Name::into_column(Column::Owner))
         .col(Name::into_column(Column::Name))
         .col(id())

@@ -15,10 +15,9 @@
 
 use charted_cli::{
     commands::{server, Subcommand},
-    Program,
+    install_eyre_hook, Program,
 };
 use clap::Parser;
-use color_eyre::config::HookBuilder;
 use mimalloc::MiMalloc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use tokio::runtime::Builder;
@@ -31,13 +30,6 @@ fn main() -> eyre::Result<()> {
     // variables and can be placed in a `.env` file to load them.
     dotenvy::dotenv().unwrap_or_default();
 
-    HookBuilder::new()
-        .issue_url(concat!(env!("CARGO_PKG_REPOSITORY"), "/issues/new?labels=rust"))
-        .capture_span_trace_by_default(true)
-        .add_issue_metadata("version", "???")
-        .add_issue_metadata("rustc", "???")
-        .install()?;
-
     let program = Program::parse();
     let runtime = match program.command {
         Subcommand::Server(server::Args { workers, .. }) => {
@@ -49,6 +41,11 @@ fn main() -> eyre::Result<()> {
         }
 
         _ => {
+            // We defer the installation of this after the configuration
+            // loads in `charted server` since, for TOML errors, it is
+            // pretty wonky.
+            install_eyre_hook()?;
+
             program.init_logger();
 
             let mut builder = Builder::new_current_thread();

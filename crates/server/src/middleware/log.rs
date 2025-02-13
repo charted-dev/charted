@@ -43,13 +43,13 @@ pub struct Metadata {
     http.method = metadata.method.as_str(),
     http.uri = metadata.uri.path(),
 ))]
-pub async fn log(metadata: Metadata, State(ctx): State<Context>, req: Request<Body>, next: Next) -> impl IntoResponse {
+pub async fn log(metadata: Metadata, State(cx): State<Context>, req: Request<Body>, next: Next) -> impl IntoResponse {
     let uri = metadata.uri.path();
     if uri.contains("/heartbeat") {
         return next.run(req).await;
     }
 
-    ctx.requests.fetch_add(1, Ordering::SeqCst);
+    cx.requests.fetch_add(1, Ordering::SeqCst);
 
     let start = Instant::now();
     info!("processing request");

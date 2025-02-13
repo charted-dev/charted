@@ -27,7 +27,7 @@ pub const PORT: &[&str; 2] = &["CHARTED_SERVER_PORT", "PORT"];
 
 /// ## `[server]` table
 /// This configures the HTTP service that the API server creates.
-#[derive(Debug, Clone, Default, Merge, Serialize, Deserialize)]
+#[derive(Debug, Clone, Merge, Serialize, Deserialize)]
 pub struct Config {
     /// A list of headers to append to all responses.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
@@ -43,6 +43,17 @@ pub struct Config {
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub ssl: Option<ssl::Config>,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            headers: BTreeMap::new(),
+            host: __default_host(),
+            port: __default_port(),
+            ssl: None,
+        }
+    }
 }
 
 impl Config {

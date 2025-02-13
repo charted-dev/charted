@@ -22,49 +22,11 @@ pub mod routing;
 #[cfg(test)]
 pub mod testing;
 
+mod context;
+pub use context::*;
+
+mod drive;
+pub use drive::drive;
+
 mod yaml;
 pub use yaml::*;
-
-use azalia::remi::StorageService;
-use charted_authz::Authenticator;
-use charted_config::Config;
-use sea_orm::DatabaseConnection;
-use std::sync::{
-    atomic::{AtomicUsize, Ordering},
-    Arc, OnceLock,
-};
-
-static SINGLETON: OnceLock<Context> = OnceLock::new();
-
-pub struct Context {
-    pub requests: AtomicUsize,
-    pub storage: StorageService,
-    pub config: Config,
-    pub authz: Arc<dyn Authenticator>,
-    pub pool: DatabaseConnection,
-}
-
-impl Clone for Context {
-    fn clone(&self) -> Self {
-        Context {
-            requests: AtomicUsize::new(self.requests.load(Ordering::SeqCst)),
-            storage: self.storage.clone(),
-            config: self.config.clone(),
-            authz: self.authz.clone(),
-            pool: self.pool.clone(),
-        }
-    }
-}
-
-impl Context {
-    pub fn get<'ctx>() -> &'ctx Context {
-        SINGLETON.get().unwrap()
-    }
-}
-
-pub fn set_context(ctx: Context) {
-    match SINGLETON.set(ctx) {
-        Ok(_) => {}
-        Err(_) => panic!("global context was already set"),
-    }
-}

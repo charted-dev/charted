@@ -15,7 +15,7 @@
 
 use crate::entities;
 use charted_types::ChartType;
-use sea_orm::{sea_query::extension::postgres::Type, ActiveEnum};
+use sea_orm::{sea_query::extension::postgres::Type, ActiveEnum, DatabaseBackend};
 use sea_orm_migration::prelude::*;
 
 pub fn migration() -> impl MigrationTrait {
@@ -33,14 +33,16 @@ impl MigrationName for Impl {
 #[async_trait::async_trait]
 impl MigrationTrait for Impl {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        manager
-            .create_type(
-                Type::create()
-                    .as_enum(ChartType::name())
-                    .values([ChartType::Application, ChartType::Library])
-                    .to_owned(),
-            )
-            .await?;
+        if manager.get_connection().get_database_backend() == DatabaseBackend::Postgres {
+            manager
+                .create_type(
+                    Type::create()
+                        .as_enum(ChartType::name())
+                        .values([ChartType::Application, ChartType::Library])
+                        .to_owned(),
+                )
+                .await?;
+        }
 
         manager.create_table(entities::user::table()).await?;
         manager.create_table(entities::user_connections::table()).await?;

@@ -13,13 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::ops::Deref;
-
 use charted_config::database::Config;
 use charted_core::serde::Duration;
 use migrations::Migrator;
-use sea_orm::{metric::Info, ConnectOptions, DatabaseBackend, DatabaseConnection, SqlxPostgresConnector};
+use sea_orm::{
+    metric::Info, ConnectOptions, DatabaseBackend, DatabaseConnection, SqlxPostgresConnector, SqlxSqliteConnector,
+};
 use sea_orm_migration::MigratorTrait;
+use std::ops::Deref;
 use tracing::{info, instrument, trace};
 
 pub mod entities;
@@ -27,17 +28,16 @@ pub mod migrations;
 
 #[instrument(name = "charted.database.createDbPool", skip_all)]
 pub async fn create_pool(config: &Config) -> eyre::Result<DatabaseConnection> {
+    info!("establishing database connection");
     let mut conn = match config {
         Config::PostgreSQL(_) => SqlxPostgresConnector::connect(connect_options_with(config)).await?,
-        Config::SQLite(_) => SqlxPostgresConnector::connect(connect_options_with(config)).await?,
+        Config::SQLite(_) => SqlxSqliteConnector::connect(connect_options_with(config)).await?,
     };
 
     conn.set_metric_callback(metric_callback);
-
     if config.common().run_migrations {
         info!("now running pending migrations!");
 
-        Migrator::install(&conn).await?;
         Migrator::up(&conn, None).await?;
     }
 

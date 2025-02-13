@@ -16,6 +16,7 @@
 pub mod commands;
 
 use azalia::log::{writers::default::Writer, WriteLayer};
+use color_eyre::config::HookBuilder;
 use commands::Subcommand;
 use std::{future::Future, io};
 use tracing::{level_filters::LevelFilter, Level};
@@ -71,6 +72,15 @@ impl Program {
     pub fn execute(self) -> impl Future<Output = eyre::Result<()>> {
         commands::execute(self.command)
     }
+}
+
+pub fn install_eyre_hook() -> eyre::Result<()> {
+    HookBuilder::new()
+        .issue_url(concat!(env!("CARGO_PKG_REPOSITORY"), "/issues/new?labels=rust"))
+        .capture_span_trace_by_default(true)
+        .add_issue_metadata("version", charted_core::version())
+        .add_issue_metadata("rustc", charted_core::RUSTC_VERSION)
+        .install()
 }
 
 #[cfg(test)]
