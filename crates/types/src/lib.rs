@@ -46,6 +46,7 @@ mod helm {
 
     /// Representation of a Helm chart.
     #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq, derive_more::Display)]
+    #[serde(rename_all = "lowercase")]
     #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
     #[cfg_attr(feature = "__internal_db", derive(EnumIter, DeriveActiveEnum))]
     #[cfg_attr(

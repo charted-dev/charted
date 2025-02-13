@@ -13,14 +13,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod index;
 mod list;
 mod rollback;
 mod run;
 
+pub type IndexArgs = index::Args;
+
 /// Database migrations.
 #[derive(Debug, clap::Subcommand)]
-pub enum Subcommand {}
+pub enum Subcommand {
+    List(list::Args),
+    Index(Box<index::Args>),
+}
 
 pub async fn run(subcmd: Subcommand) -> eyre::Result<()> {
-    match subcmd {}
+    match subcmd {
+        Subcommand::List(args) => list::run(args).await,
+        Subcommand::Index(args) => index::run(*args).await,
+    }
 }

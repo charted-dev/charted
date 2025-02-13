@@ -37,6 +37,7 @@ pub use charted_types::ChartType;
 /// installable by Helm 3.
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[serde(rename_all = "lowercase")]
 pub enum ChartSpecVersion {
     /// Chart supports running on Helm 2 or 3.
     V1,
@@ -52,6 +53,7 @@ pub enum ChartSpecVersion {
 /// in Rust is [`StringOrImportValue`].
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[serde(rename_all = "camelCase")]
 pub struct ImportValue {
     /// The destination path in the parent chart's values.
     pub parent: String,
@@ -80,6 +82,7 @@ pub enum StringOrImportValue {
 /// in the `dependencies` field.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[serde(rename_all = "camelCase")]
 pub struct ChartDependency {
     /// The name of the chart
     pub name: String,
@@ -120,6 +123,7 @@ pub struct ChartDependency {
 /// to query the user from the API server and show a "Maintainers" list in the UI.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[serde(rename_all = "camelCase")]
 pub struct ChartMaintainer {
     /// The maintainer's name
     pub name: String,
@@ -136,6 +140,7 @@ pub struct ChartMaintainer {
 /// Skeleton schema of a `Chart.yaml` file.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[serde(rename_all = "camelCase")]
 pub struct Chart {
     /// The `apiVersion` field should be v2 for Helm charts that require at least Helm 3. Charts supporting previous
     /// Helm versions have an apiVersion set to v1 and are still installable by Helm 3.
@@ -232,6 +237,7 @@ pub struct Chart {
 /// Specification of the `index.yaml` file used for Helm chart repositories.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[serde(rename_all = "camelCase")]
 pub struct ChartIndexSpec {
     /// The Chart specification itself, this will be flatten when (de)serializing.
     #[serde(flatten)]
@@ -257,23 +263,37 @@ pub struct ChartIndexSpec {
 /// Schema skeleton for a `index.yaml` file, that represents a [`Chart`] index.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
-#[serde(rename_all = "camelCase")]
-pub struct ChartIndex {
-    /// API version for the schema itself, will always be `v1`.
-    pub api_version: String,
+#[serde(rename_all = "camelCase", tag = "apiVersion")]
+pub enum ChartIndex {
+    V1 {
+        /// [`DateTime`] constant on when the chart index was generated at, this will not
+        /// be modified at all.
+        generated: DateTime,
 
-    /// [`DateTime`] constant on when the chart index was generated at, this will not
-    /// be modified at all.
-    pub generated: DateTime,
+        /// Map of [`ChartIndexSpec`]s for the Helm charts that Helm uses to install a Helm chart.
+        entries: HashMap<String, Vec<ChartIndexSpec>>,
+    },
+}
 
-    /// Map of [`ChartIndexSpec`]s for the Helm charts that Helm uses to install a Helm chart.
-    pub entries: HashMap<String, Vec<ChartIndexSpec>>,
+impl ChartIndex {
+    /// Returns the [`DateTime`] of when this chart index was generated at.
+    pub fn generated_at(&self) -> DateTime {
+        match self {
+            Self::V1 { generated, .. } => *generated,
+        }
+    }
+
+    /// Returns a referenced [`HashMap`] of all the chart entries avaliable.
+    pub fn entries(&self) -> &HashMap<String, Vec<ChartIndexSpec>> {
+        match self {
+            Self::V1 { entries, .. } => entries,
+        }
+    }
 }
 
 impl Default for ChartIndex {
     fn default() -> ChartIndex {
-        ChartIndex {
-            api_version: "v1".into(),
+        ChartIndex::V1 {
             generated: Utc::now().into(),
             entries: HashMap::default(),
         }

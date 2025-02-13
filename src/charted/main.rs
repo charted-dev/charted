@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use charted_cli::{
-    commands::{server, Subcommand},
+    commands::{migrate, server, Subcommand},
     install_eyre_hook, Program,
 };
 use clap::Parser;
@@ -33,6 +33,18 @@ fn main() -> eyre::Result<()> {
     let program = Program::parse();
     let runtime = match program.command {
         Subcommand::Server(server::Args { workers, .. }) => {
+            let mut builder = Builder::new_multi_thread();
+            builder.worker_threads(workers);
+            configure_runtime(&mut builder);
+
+            builder.build()?
+        }
+
+        Subcommand::Migrate(migrate::Subcommand::Index(ref args)) => {
+            let workers = args.workers;
+
+            program.init_logger();
+
             let mut builder = Builder::new_multi_thread();
             builder.worker_threads(workers);
             configure_runtime(&mut builder);

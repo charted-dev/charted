@@ -102,6 +102,13 @@ impl Config {
         }
     }
 
+    pub fn common_mut(&mut self) -> &mut common::Config {
+        match self {
+            Config::PostgreSQL(c) => &mut c.common,
+            Config::SQLite(c) => &mut c.common,
+        }
+    }
+
     #[cfg(test)]
     pub(crate) fn as_sqlite(&self) -> Option<&sqlite::Config> {
         match self {

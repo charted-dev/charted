@@ -55,7 +55,7 @@ impl Program {
         tracing_subscriber::registry()
             .with(
                 WriteLayer::new_with(
-                    io::stderr(),
+                    io::stdout(),
                     Writer {
                         print_module: false,
                         print_thread: false,

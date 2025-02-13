@@ -105,7 +105,7 @@ pub(crate) async fn run(Args { config, .. }: Args) -> eyre::Result<()> {
     charted_server::drive().await
 }
 
-fn load_config(config: Option<PathBuf>) -> eyre::Result<Config> {
+pub(in crate::commands) fn load_config(config: Option<PathBuf>) -> eyre::Result<Config> {
     config
         .map(|path| Config::load(Some(path)))
         .unwrap_or_else(|| match Config::find_default_location() {

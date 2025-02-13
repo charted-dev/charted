@@ -81,6 +81,15 @@ multer = "3.1.0"
 num_cpus = "1.16.0"
 rand = "0.9.0"
 remi-fs = { version = "0.10.0", features = ["tracing"] }
+reqwest = { version = "0.12.12", default-features = false, features = [
+    "charset",
+    "http2",
+    "macos-system-configuration",
+    "gzip",
+    "rustls-tls",
+    "rustls-tls-webpki-roots",
+    "json",
+] }
 rustc_version = "0.4.1"
 schemars = { version = "0.8.21", features = ["chrono", "semver", "url"] }
 sea-orm = { version = "1.1.4", default-features = false, features = [

@@ -15,7 +15,7 @@
 
 mod admin;
 mod completions;
-mod migrate;
+pub mod migrate;
 pub mod server;
 
 #[derive(Debug, clap::Subcommand)]

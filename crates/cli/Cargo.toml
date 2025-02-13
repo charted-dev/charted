@@ -34,9 +34,12 @@ charted-core.workspace = true
 charted-config.workspace = true
 charted-database.workspace = true
 charted-helm-charts.workspace = true
+charted-helm-types.workspace = true
 charted-server.workspace = true
+charted-types.workspace = true
 clap.workspace = true
 clap_complete.workspace = true
+cli-table = "0.4.9"
 color-eyre.workspace = true
 eyre.workspace = true
 num_cpus.workspace = true
@@ -44,10 +47,15 @@ opentelemetry = "0.28.0"
 opentelemetry-otlp = { version = "0.28.0", features = ["grpc-tonic"] }
 opentelemetry_sdk = "0.28.0"
 owo-colors = { version = "4.1.0", features = ["supports-color"] }
+rayon = "1.10.0"
+reqwest.workspace = true
 sea-orm-migration.workspace = true
 sentry.workspace = true
 sentry-tracing = { version = "0.36.0", features = ["backtrace"] }
+serde_yaml_ng.workspace = true
+tokio.workspace = true
 tracing.workspace = true
 tracing-error = "0.2.1"
 tracing-opentelemetry = "0.29.0"
 tracing-subscriber.workspace = true
+url.workspace = true
