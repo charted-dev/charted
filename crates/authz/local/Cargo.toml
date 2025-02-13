@@ -33,3 +33,8 @@ charted-authz.workspace = true
 charted-core.workspace = true
 eyre.workspace = true
 tracing.workspace = true
+
+[dev-dependencies]
+charted-database.workspace = true
+charted-types.workspace = true
+tokio = { workspace = true, features = ["rt", "macros"] }

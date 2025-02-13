@@ -35,5 +35,5 @@ sea-orm-migration.workspace = true
 sqlx.workspace = true
 tracing = { workspace = true, features = ["log"] }
 
-[package.metadata.docs.rs]
+[package.metadata.cargo-machete]
 ignored = ["sqlx"]
