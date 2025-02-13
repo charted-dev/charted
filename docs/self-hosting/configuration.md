@@ -1,9 +1,9 @@
 ---
 title: Configuration
-description: Reference for the `charted.hcl` file
+description: Reference for the `charted.toml` file
 ---
 
-**charted-server** uses the [HashiCorp Configuration Language](https://github.com/hashicorp/hcl) built by [HashiCorp](https://hashicorp.com). It doesn't have functions or variables, so it's just static configuration.
+<!-- **charted-server** uses the [HashiCorp Configuration Language](https://github.com/hashicorp/hcl) built by [HashiCorp](https://hashicorp.com). It doesn't have functions or variables, so it's just static configuration.
 
 **charted-server** also supports environment variables that can be overwritten when the configuration loader is being ran. The priority is **Environment Variables > Configuration File**.
 
@@ -71,45 +71,53 @@ storage <a href="#charted_storage_azure">"azure"</a> {}
 | <a id="#charted_sentry_dsn"></a> `sentry_dsn` (`CHARTED_SENTRY_DSN`)                 | Whether or not to opt-in to <a href="https://sentry.io" target="_blank">Sentry</a> to have error reporting and tracing features be sent to a Sentry server.       | `string`, formatted as <a href="https://docs.sentry.io/concepts/key-terms/dsn-explainer/" target="_blank">Data Source Name</a> (DSN) | No.       | `null`                                                                                                                |
 | <a id="#charted_base_url"></a> `base_url` (`CHARTED_BASE_URL`)                       | URI that will redirect all API requests and Helm chart downloads towards.                                                                                         | `string`                                                                                                                             | No.       | <code>http://<a href="#charted_server_host">{server.host}</a>:<a href="#charted_server_port">{server.port}</a></code> |
 
-<!-- prettier-ignore-start -->
-
 <a id="#charted_logging"></a>
+
 ## block `logging {}`
+
 | Name                                                              | Description                                                                | Type                                                | Required? | Default Value |
 | :---------------------------------------------------------------- | :------------------------------------------------------------------------- | :-------------------------------------------------- | :-------- | :------------ |
 | <a id="#charted_logging_level"></a> `level` (`CHARTED_LOG_LEVEL`) | The log level that all console / JSON logs will be sent as.                | `"trace"`, `"debug"`, `"info"`, `"warn"`, `"error"` | No.       | `"info"`      |
 | <a id="#charted_logging_json"></a> `json` (`CHARTED_LOG_JSON`)    | whether if all console logs should be printed as a JSON-formatted payload. | `boolean` (`true`, `false`)                         | No.       | `false`       |
 
 <a id="#charted_server"></a>
+
 ## block `server {}`
+
 | Name                                                                     | Description                                                        | Type                | Required? | Default Value |
 | :----------------------------------------------------------------------- | :----------------------------------------------------------------- | :------------------ | :-------- | :------------ |
 | <a id="#charted_server_host"></a> `host` (`CHARTED_SERVER_HOST`, `HOST`) | Host address that the server will accept incoming requests from.   | `string`            | No.       | `0.0.0.0`     |
 | <a id="#charted_server_port"></a> `port` (`CHARTED_SERVER_PORT`, `PORT`) | The port that the host address will accept incoming requests from. | `uint16` (1..65535] | No.       | `3651`        |
 
 <a id="#charted_server_ssl"></a>
+
 ### block `ssl {}` (`CHARTED_SERVER_SSL`)
+
 | Name                                                                                 | Description                                                       | Type                               | Required? | Default Value |
 | :----------------------------------------------------------------------------------- | :---------------------------------------------------------------- | :--------------------------------- | :-------- | :------------ |
 | <a id="#charted_server_ssl_cert"></a> `cert` (`CHARTED_SERVER_SSL_CERT`)             | Path to a SSL certificate that is used to enable TLS connections. | Path (either relative or absolute) | Yes       | `null`        |
 | <a id="#charted_server_ssl_cert_key"></a> `cert_key` (`CHARTED_SERVER_SSL_CERT_KEY`) | Path to a SSL certificate key.                                    | Path (either relative or absolute) | Yes       | `null`        |
 
 <a id="#charted_sessions"></a>
+
 ## block `sessions {}`
 
 <a id="#charted_database_sqlite"></a>
+
 ## block `database "sqlite" {}` (`CHARTED_DATABASE_DRIVER` = `"sqlite"`)
 
 <a id="#charted_database_postgresql"></a>
+
 ## block `database "postgresql" {}` (`CHARTED_DATABASE_DRIVER` = `"postgresql"`)
 
 <a id="#charted_storage_filesystem"></a>
+
 ## block `storage "filesystem" {}` (`CHARTED_STORAGE_SERVICE` = `"filesystem"`)
 
 <a id="#charted_storage_s3"></a>
+
 ## block `storage "s3" {}` (`CHARTED_STORAGE_SERVICE` = `"s3"`)
 
 <a id="#charted_storage_azure"></a>
-## block `storage "azure" {}` (`CHARTED_STORAGE_SERVICE` = `"azure"`)
 
-<!-- prettier-ignore-end -->
+## block `storage "azure" {}` (`CHARTED_STORAGE_SERVICE` = `"azure"`) -->

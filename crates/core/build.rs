@@ -105,7 +105,7 @@ fn main() {
         }
 
         Err(which::Error::CannotFindBinaryPath) => {
-            warn!("`git` was not found -- using `d1cebae` as hash instead");
+            warn!("`git` was not found: using `d1cebae` as hash instead");
             rustc_env!("CHARTED_COMMIT_HASH" = "d1cebae");
         }
 

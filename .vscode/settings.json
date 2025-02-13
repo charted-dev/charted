@@ -4,6 +4,11 @@
     "editor.formatOnPaste": true,
     "rust-analyzer.check.command": "clippy",
     "rust-analyzer.showUnlinkedFileNotification": false,
+    "rust-analyzer.cargo.extraEnv": {
+        // We use Tokio's unstable cfg flag so we can collect metrics
+        // so it is easier for us to track.
+        "RUSTFLAGS": "--cfg tokio_unstable"
+    },
 
     // Ensure that we don't lock up `cargo check` (i.e, for `cargo expand` to debug macros)
     // but this comes at the cost of duplicate artifacts, which I think we can sacrifice.
@@ -24,8 +29,5 @@
     },
     "[toml]": {
         "editor.defaultFormatter": "tamasfe.even-better-toml"
-    },
-    "yaml.schemas": {
-        "https://json.schemastore.org/github-workflow.json": "/.github/actions/*"
     }
 }

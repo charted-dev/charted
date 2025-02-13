@@ -24,14 +24,11 @@ use serde_json::{error::Category, json};
 use std::borrow::Cow;
 use tracing::error;
 
-charted_core::create_newtype_wrapper! {
-    /// `Json` is a Axum extractor that implements [`FromRequest`] to transform
-    /// `T` into a deserialized struct from a JSON payload via the [`serde_json`]
-    /// crate.
-    #[derive(Debug, Clone)]
-    pub Json<T> for pub T;
-}
-
+/// `Json` is a Axum extractor that implements [`FromRequest`] to transform
+/// `T` into a deserialized struct from a JSON payload via the [`serde_json`]
+/// crate.
+#[derive(Debug, Clone)]
+pub struct Json<T>(pub T);
 impl<T: DeserializeOwned, S: Send + Sync> FromRequest<S> for Json<T> {
     type Rejection = api::Response;
 
@@ -116,7 +113,7 @@ impl<T: DeserializeOwned, S: Send + Sync> FromRequest<S> for Json<T> {
                     StatusCode::BAD_REQUEST,
                     (
                         ErrorCode::ReachedUnexpectedEof,
-                        "reached an unexpected 'end of file' marker -- this is a bug, please report this!",
+                        "reached an unexpected 'end of file' marker; this is a bug, please report this!",
                         json!({
                             "report_url": "https://github.com/charted-dev/charted/issues/new",
                             "path": path
@@ -128,7 +125,7 @@ impl<T: DeserializeOwned, S: Send + Sync> FromRequest<S> for Json<T> {
                     StatusCode::INTERNAL_SERVER_ERROR,
                     (
                         ErrorCode::Io,
-                        "input/output error reached -- this is a bug, please report this!",
+                        "input/output error reached; this is a bug, please report this!",
                         json!({
                             "report_url": "https://github.com/charted-dev/charted/issues/new",
                             "path": path

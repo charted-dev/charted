@@ -14,10 +14,9 @@
 // limitations under the License.
 
 mod modifiers;
-use modifiers::*;
 
+use modifiers::*;
 use serde_json::Value;
-use std::borrow::Cow;
 use utoipa::{
     openapi::{
         schema::SchemaType, ArrayBuilder, ContentBuilder, ObjectBuilder, Ref, RefOr, Response, ResponseBuilder, Schema,
@@ -28,12 +27,6 @@ use utoipa::{
 
 #[derive(OpenApi)]
 #[openapi(
-    modifiers(
-        &UpdatePathsToIncludeDefaultVersion,
-        &IncludeErrorProneDatatypes,
-        &SecuritySchemes,
-        &ResponseModifiers,
-    ),
     info(
         title = "charted-server",
         description = "🐻‍❄️📦 Free, open source, and reliable Helm Chart registry made in Rust",
@@ -48,6 +41,65 @@ use utoipa::{
             name = "Noelware, LLC.",
             email = "team@noelware.org",
             url = "https://noelware.org"
+        )
+    ),
+    modifiers(
+        &UpdatePathsToIncludeDefaultVersion,
+        &IncludeErrorProneDatatypes,
+        &SecuritySchemes,
+        &ResponseModifiers
+    ),
+    components(
+        schemas(
+            //                          request bodies                          \\
+            charted_types::payloads::CreateRepositoryReleasePayload,
+            charted_types::payloads::PatchRepositoryReleasePayload,
+            charted_types::payloads::CreateOrganizationPayload,
+            charted_types::payloads::PatchOrganizationPayload,
+            charted_types::payloads::CreateRepositoryPayload,
+            charted_types::payloads::PatchRepositoryPayload,
+            charted_types::payloads::CreateApiKeyPayload,
+            charted_types::payloads::PatchApiKeyPayload,
+            charted_types::payloads::CreateUserPayload,
+            charted_types::payloads::PatchUserPayload,
+
+            //                                scopes                            \\
+            charted_core::bitflags::ApiKeyScope,
+
+            //                              helm types                          \\
+            charted_helm_types::StringOrImportValue,
+            charted_helm_types::ChartSpecVersion,
+            charted_helm_types::ChartMaintainer,
+            charted_helm_types::ChartDependency,
+            charted_helm_types::ChartIndexSpec,
+            charted_helm_types::ImportValue,
+            charted_helm_types::ChartIndex,
+            charted_helm_types::ChartType,
+            charted_helm_types::Chart,
+
+            //                                entities                          \\
+            charted_types::RepositoryRelease,
+            charted_types::RepositoryMember,
+            charted_types::Repository,
+
+            charted_types::OrganizationMember,
+            charted_types::Organization,
+
+            charted_types::UserConnections,
+            charted_types::Session,
+            charted_types::ApiKey,
+            charted_types::User,
+
+            charted_core::api::ErrorCode,
+            charted_core::api::Error,
+
+            charted_core::Distribution,
+            charted_types::name::Name,
+            charted_types::VersionReq,
+            charted_types::Version
+        ),
+        responses(
+
         )
     ),
     tags(
@@ -92,140 +144,20 @@ use utoipa::{
             description = "Endpoints that create, modify, delete, or fetch organization members"
         ),
     ),
-    components(
-        schemas(
-            // ==== Request Bodies ====
-            charted_types::payloads::repository::release::CreateRepositoryReleasePayload,
-            charted_types::payloads::repository::release::PatchRepositoryReleasePayload,
-            charted_types::payloads::organization::CreateOrganizationPayload,
-            charted_types::payloads::organization::PatchOrganizationPayload,
-            charted_types::payloads::repository::CreateRepositoryPayload,
-            charted_types::payloads::repository::PatchRepositoryPayload,
-            charted_types::payloads::apikey::CreateApiKeyPayload,
-            charted_types::payloads::apikey::PatchApiKeyPayload,
-            charted_types::payloads::user::CreateUserPayload,
-            charted_types::payloads::user::PatchUserPayload,
-
-            // ==== scopes ====
-            charted_core::bitflags::ApiKeyScope,
-
-            // ==== Response Datatypes ====
-            crate::routing::v1::info::Info,
-            crate::routing::v1::main::Main,
-            crate::routing::v1::Entrypoint,
-
-            // ==== Helm ====
-            charted_types::helm::StringOrImportValue,
-            charted_types::helm::ChartSpecVersion,
-            charted_types::helm::ChartMaintainer,
-            charted_types::helm::ChartDependency,
-            charted_types::helm::ChartIndexSpec,
-            charted_types::helm::ImportValue,
-            charted_types::helm::ChartIndex,
-            charted_types::helm::ChartType,
-            charted_types::helm::Chart,
-
-            // ==== Entities ====
-            charted_types::RepositoryRelease,
-            charted_types::RepositoryMember,
-            charted_types::Repository,
-
-            charted_types::OrganizationMember,
-            charted_types::Organization,
-
-            charted_types::UserConnections,
-            charted_types::Session,
-            charted_types::ApiKey,
-            charted_types::User,
-
-            // // ==== API Entities ====
-            charted_core::api::ErrorCode,
-            charted_core::api::Error,
-
-            // ==== Generic ====
-            //charted_core::serde::Duration,
-            charted_core::Distribution,
-            charted_types::name::Name,
-            charted_types::VersionReq,
-            crate::types::NameOrUlid,
-            // charted_types::DateTime,
-            charted_types::Version,
-            charted_types::Ulid
-        ),
-        responses(
-            EmptyApiResponse,
-            ApiErrorResponse
-        )
-    ),
-    paths(
-        // === ORGANIZATIONS / AVATARS ===
-
-        // === ORGANIZATIONS / MEMBERS ===
-
-        // === ORGANIZATIONS / REPOSITORIES ===
-
-        // === REPOSITORIES / ICONS ===
-
-        // === REPOSITORIES / MEMBERS ===
-
-        // === REPOSITORIES / RELEASES ===
-
-        // === USERS / REPOSITORIES ===
-        crate::routing::v1::user::repositories::list_self_user_repositories,
-        crate::routing::v1::user::repositories::list_user_repositories,
-        crate::routing::v1::user::repositories::create_user_repository,
-
-        // === USERS / AVATARS ===
-        crate::routing::v1::user::avatars::get_all_user_avatars,
-        crate::routing::v1::user::avatars::get_all_self_user_avatars,
-        crate::routing::v1::user::avatars::get_user_avatar,
-        crate::routing::v1::user::avatars::get_self_user_avatar,
-        crate::routing::v1::user::avatars::upload_avatar,
-        crate::routing::v1::user::avatars::delete_avatar,
-
-        // === USERS / SESSIONS ===
-        crate::routing::v1::user::sessions::login,
-        crate::routing::v1::user::sessions::logout,
-        crate::routing::v1::user::sessions::refresh_session_token,
-
-        // === USERS / APIKEYS ===
-        crate::routing::v1::user::apikeys::list,
-        crate::routing::v1::user::apikeys::get,
-        crate::routing::v1::user::apikeys::create,
-        crate::routing::v1::user::apikeys::patch,
-        crate::routing::v1::user::apikeys::delete,
-
-        // === USERS ===
-        crate::routing::v1::user::create_user,
-        crate::routing::v1::user::get_user,
-        crate::routing::v1::user::get_self,
-        crate::routing::v1::user::delete,
-        crate::routing::v1::user::patch,
-        crate::routing::v1::user::main,
-
-        // === MAIN ===
-        crate::routing::v1::heartbeat::heartbeat,
-        crate::routing::v1::index::get_chart_index,
-        crate::routing::v1::info::info,
-        crate::routing::v1::main::main,
-    ),
     servers(
         (
             url = "https://charts.noelware.org/api/v{version}",
-            description = "Official, Production Service by Noelware, LLC.",
+            description = "Production Server",
             variables(
                 ("version" = (
                     default = "1",
-                    description = "API revision of the charted HTTP specification",
+                    description = "Revision of the HTTP specification",
                     enum_values("1")
                 ))
             )
         )
     ),
-    external_docs(
-        url = "https://charts.noelware.org/docs/server/latest",
-        description = "charted-server :: Documentation"
-    )
+    external_docs(url = "https://charts.noelware.org/docs/server/latest")
 )]
 pub struct Document;
 
@@ -251,11 +183,7 @@ impl PartialSchema for EmptyApiResponse {
     }
 }
 
-impl ToSchema for EmptyApiResponse {
-    fn name() -> Cow<'static, str> {
-        Cow::Borrowed("EmptyApiResponse")
-    }
-}
+impl ToSchema for EmptyApiResponse {}
 
 impl<'r> ToResponse<'r> for EmptyApiResponse {
     fn response() -> (&'r str, RefOr<Response>) {
@@ -305,11 +233,7 @@ impl PartialSchema for ApiErrorResponse {
     }
 }
 
-impl ToSchema for ApiErrorResponse {
-    fn name() -> Cow<'static, str> {
-        Cow::Borrowed("ApiErrorResponse")
-    }
-}
+impl ToSchema for ApiErrorResponse {}
 
 impl<'r> ToResponse<'r> for ApiErrorResponse {
     fn response() -> (&'r str, RefOr<Response>) {
@@ -323,4 +247,12 @@ impl<'r> ToResponse<'r> for ApiErrorResponse {
 
         ("ApiErrorResponse", RefOr::T(response))
     }
+}
+
+#[cfg(test)]
+mod tests {
+    /// A sanity check for all tests if all the references that are
+    /// used are all correct and avaliable.
+    #[test]
+    fn sanity_check_if_all_references_are_correct() {}
 }

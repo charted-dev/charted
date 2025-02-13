@@ -686,29 +686,11 @@ FodyWeavers.xsd
 !crates/helm-plugin/src/bin/
 !crates/devtools/src/bin/
 
-!crates/helm-charts/__fixtures__/*.tgz
-crates/database/data.db
+!crates/helm/charts/__fixtures__/*.tgz
 !nix/packages/*.nix
-!hack/release/
 !crates/bin/
 !Cargo.lock
-config.hcl
+config.toml
 .direnv/
 data/
 .env
-
-# !server/src/routing/**/repository/releases/
-# !crates/charts/tests/__fixtures__/*.tgz
-# !src/charts/__fixtures__/*.tgz
-# !distribution/bin/
-# !scripts/publish/
-# !crates/bin/
-# web/.output
-# !Cargo.lock
-# config.hcl
-# !src/bin/
-# .direnv/
-# .cache/
-# .data/
-# data/
-# .env

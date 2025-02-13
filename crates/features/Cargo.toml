@@ -15,7 +15,6 @@
 
 [package]
 name = "charted-features"
-description = "🐻‍❄️📦 Defines traits and methods for encapsulating features"
 version.workspace = true
 documentation.workspace = true
 edition.workspace = true
@@ -32,13 +31,11 @@ path = "lib.rs"
 default = []
 
 extends-openapi = ["dep:utoipa"]
-extends-db = ["dep:charted-database"]
 
 [dependencies]
 axum.workspace = true
 azalia.workspace = true
-charted-app = { version = "0.1.0", path = "../app" }
 charted-core.workspace = true
-charted-database = { workspace = true, optional = true }
+charted-server.workspace = true
 eyre.workspace = true
 utoipa = { workspace = true, optional = true }

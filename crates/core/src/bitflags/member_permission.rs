@@ -22,39 +22,39 @@ crate::bitflags! {
     pub MemberPermission[u64] {
         /// This member has permission to invite new members into this repository or organization
         /// and can view all other pending invites.
-        MemberInvite["member:invite"]: 1u64 << 0u64;
+        MemberInvite["member:invite"] => 1u64 << 0u64;
 
         /// This member has the permission to update any other member's permissions
-        MemberUpdate["member:update"]: 1u64 << 1u64;
+        MemberUpdate["member:update"] => 1u64 << 1u64;
 
         /// This member has the permission to kick other members from the repository or organization
-        MemberKick["member:kick"]: 1u64 << 2u64;
+        MemberKick["member:kick"] => 1u64 << 2u64;
 
         /// This member has permission to update any repository or organization metadata
-        MetadataUpdate["metadata:update"]: 1u64 << 3u64;
+        MetadataUpdate["metadata:update"] => 1u64 << 3u64;
 
         /// > This is only for organization members, this will be nop for repository members
         ///
         /// This member has permission to create repositories in an organization.
-        RepoCreate["repo:create"]: 1u64 << 4u64;
+        RepoCreate["repo:create"] => 1u64 << 4u64;
 
         /// > This is only for organization members, this will be nop for repository members
         ///
         /// This member has permission to delete repositories in an organization.
-        RepoDelete["repo:delete"]: 1u64 << 5u64;
+        RepoDelete["repo:delete"] => 1u64 << 5u64;
 
         /// This member has permission to create additional repository or organization
         /// webhooks.
-        WebhookCreate["webhooks:create"]: 1u64 << 6u64;
+        WebhookCreate["webhooks:create"] => 1u64 << 6u64;
 
         /// This member has permission to update repository or organization webhooks.
-        WebhookUpdate["webhooks:update"]: 1u64 << 7u64;
+        WebhookUpdate["webhooks:update"] => 1u64 << 7u64;
 
         /// This member has permission to delete additional repository or organization webhooks.
-        WebhookDelete["webhooks:delete"]: 1u64 << 8u64;
+        WebhookDelete["webhooks:delete"] => 1u64 << 8u64;
 
         /// This member has permission to delete external metadata in an organization
         /// or repository, like repository releases
-        MetadataDelete["metadata:delete"]: 1u64 << 9u64;
+        MetadataDelete["metadata:delete"] => 1u64 << 9u64;
     }
 }

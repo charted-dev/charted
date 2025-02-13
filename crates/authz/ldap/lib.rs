@@ -13,15 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_authz::{Authenticator, InvalidPassword};
-use charted_config::sessions::ldap::Config;
-use charted_core::BoxedFuture;
-use charted_types::User;
-use eyre::eyre;
-use ldap3::{Ldap, LdapConnAsync, LdapConnSettings};
-use std::future::Future;
-use tracing::error;
-use url::Url;
+/*
 
 #[derive(Clone)]
 pub struct Backend {
@@ -81,4 +73,4 @@ impl Authenticator for Backend {
             .await
         })
     }
-}
+*/

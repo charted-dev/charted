@@ -15,7 +15,6 @@
 
 use serde::Serialize;
 use std::{env, fmt::Display, fs, path::PathBuf, sync::OnceLock};
-use utoipa::ToSchema;
 
 const KUBERNETES_SERVICE_TOKEN_FILE: &str = "/run/secrets/kubernetes.io/serviceaccount/token";
 const KUBERNETES_NAMESPACE_FILE: &str = "/run/secrets/kubernetes.io/serviceaccount/namespace";
@@ -52,7 +51,8 @@ fn is_in_docker_container() -> bool {
     has_dockerenv || has_cgroup
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Default, PartialEq, Eq, ToSchema)]
+#[derive(Debug, Clone, Copy, Serialize, Default, PartialEq, Eq)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[serde(rename_all = "lowercase")]
 pub enum Distribution {
     /// Running on a Kubernetes cluster.

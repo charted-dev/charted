@@ -1,0 +1,68 @@
+# 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
+# Copyright 2022-2025 Noelware, LLC. <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# |------------------------------------------------------------------------------------|
+# |                                                                                    |
+# | This is the TOML configuration reference for `charted-server` by Noelware, LLC.    |
+# | To load a custom configuration file, you can either:                               |
+# |                                                                                    |
+# |  - Place a `config.toml` in the root directory where you invoke `charted server`   |
+# |                                                                                    |
+# |  - As a environment variable named `CHARTED_CONFIG_FILE` set to a relative         |
+# |    or an absolute path like `./hello.toml`, `/root/hello.toml`. The process        |
+# |    just needs to read the contents of the file.                                    |
+# |                                                                                    |
+# |  - Have a `config/` directory with either a `config.toml` or `charted.toml` file   |
+# |    with the properly formatted properties.                                         |
+# |                                                                                    |
+# | You can view a prettier version on the documentation site:                         |
+# |                                                                                    |
+# |     https://charts.noelware.org/docs/server/latest/self-hosting/configuration      |
+# |                                                                                    |
+# |------------------------------------------------------------------------------------|
+#
+# jwt_secret_key = "{random string}"
+# registrations  = true
+# single_user    = false
+# single_org     = false
+# sentry_dsn     = null
+# base_url       = "http://{server.host}:{server.port}"
+#
+# [database.sqlite]
+#
+# [database.postgresql]
+#
+# [logging]
+#
+# [metrics]
+#
+# [metrics.prometheus]
+#
+# [metrics.opentelemetry]
+#
+# [server]
+#
+# [server.ratelimits]
+#
+# [server.ssl]
+#
+# [storage.filesystem]
+#
+# [storage.s3]
+#
+# [storage.azure]
+#
+# [tracing]
+#
+# [tracing.opentelemetry]

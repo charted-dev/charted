@@ -15,48 +15,86 @@
 
 use axum::Router;
 use azalia::rust::AsArcAny;
-use charted_app::Context;
 use charted_core::BoxedFuture;
-use std::any::{Any, TypeId};
+use charted_server::Context;
+use std::{
+    any::{type_name, Any, TypeId},
+    collections::HashMap,
+    ops::Deref,
+    sync::{Arc, LazyLock, Mutex},
+};
 
-/// Represents a feature that can be enabled or disabled by the `features` object
-/// in the API server configuration file.
+static FEATURES: LazyLock<Mutex<HashMap<TypeId, Arc<dyn Feature>>>> = LazyLock::new(|| Mutex::new(azalia::hashmap!()));
+
+fn all() -> HashMap<TypeId, Arc<dyn Feature>> {
+    FEATURES.lock().unwrap().clone()
+}
+
+/// Returns a owned `F` if it is avaliable.
 ///
-/// For now, this is a marker trait for the `ServerContext` object to determine
-/// a list of features enabled.
-pub trait Feature: AsArcAny + Send + Sync {
-    // If the feature requires to be initialized before being in use, then this is
-    // method that does pre-initialization.
-    fn init<'feat, 'cx>(&'feat self, _cx: &'cx Context) -> BoxedFuture<'cx, eyre::Result<()>>
-    where
-        'cx: 'feat,
-    {
+/// Due to dark magic, `F` is required to have the `Clone` requirement
+/// so we can get `F` out of its internal `Arc` so it can be shared
+/// and clone-able.
+///
+/// - Is this cursed? yes!
+/// - Do I want to keep it this way? NO!
+/// - Is there any other way? Probably! I don't want to think about it right now
+///   since I could care less at this point.
+pub fn get<F: Feature + Clone>() -> Option<F> {
+    if let Some(feat) = all().get(&TypeId::of::<F>()).cloned() {
+        let inner = feat.deref();
+        debug_assert!(inner.is::<F>());
+
+        return Some((unsafe { &*(inner as *const dyn Feature as *const F) }).clone());
+    }
+
+    None
+}
+
+/// Checks if `F` is in the feature list.
+pub fn has<F: Feature + 'static>() -> bool {
+    all().contains_key(&TypeId::of::<F>())
+}
+
+/// Adds a feature.
+pub fn add<F: Feature + 'static>(feature: F) {
+    let features = &mut *FEATURES.lock().unwrap();
+    let id = TypeId::of::<F>();
+
+    if features.contains_key(&id) {
+        panic!("feature with type `{}` ({id:?}) already exists", type_name::<F>());
+    }
+
+    features.insert(id, Arc::new(feature));
+}
+
+/// Removes a feature.
+pub fn remove<F: Feature + 'static>() -> bool {
+    let features = &mut *FEATURES.lock().unwrap();
+    if !features.contains_key(&TypeId::of::<F>()) {
+        return false;
+    }
+
+    let _ = features.remove(&TypeId::of::<F>());
+    true
+}
+
+/// Marker trait that can be enabled or disabled by the configuration file.
+pub trait Feature: AsArcAny + Send + Sync + 'static {
+    /// Does pre-initialization of this feature, if needed.
+    fn init<'feature, 'cx: 'feature>(&'feature self, _cx: &'cx Context) -> BoxedFuture<'cx, eyre::Result<()>> {
         Box::pin(async { Ok(()) })
     }
 
-    /// Extends the API router to include endpoints.
-    fn extend_router(&self) -> Router<Context> {
-        Router::new()
-    }
-
-    /// Extends the database with a given [`DbPool`][charted_database::DbPool].
-    ///
-    /// This is mainly meant to run database migrations.
-    #[cfg(feature = "extends-db")]
-    fn extends_db<'feat, 'a>(&'feat self, _pool: &'a charted_database::DbPool) -> BoxedFuture<'a, eyre::Result<()>>
-    where
-        'a: 'feat,
-    {
-        Box::pin(async { Ok(()) })
+    /// If this feature adds additional functionality to the REST server, then this
+    /// is where you set the [`Router`] to be used.
+    fn extend_router(&self) -> Option<Router<Context>> {
+        None
     }
 
     /// Extends the OpenAPI document.
     #[cfg(feature = "extends-openapi")]
-    fn extends_openapi<'feat, 'a>(&'feat self, _openapi: &'a mut utoipa::openapi::OpenApi)
-    where
-        'a: 'feat,
-    {
-    }
+    fn extends_openapi<'feature, 'a: 'feature>(&'feature self, _doc: &'a mut ::utoipa::openapi::OpenApi) {}
 }
 
 impl dyn Feature + 'static {
@@ -84,12 +122,44 @@ impl dyn Feature + 'static {
     /// let x: Box<dyn Feature> = Box::new(MyFeature);
     /// assert!(x.downcast::<MyFeature>().is_some());
     /// ```
-    pub fn downcast<F: Feature + 'static>(&self) -> Option<&F> {
+    pub fn downcast<F: Feature>(&self) -> Option<&F> {
         if self.is::<F>() {
             // Safety: we ensured that `self` is `F`.
             Some(unsafe { &*(self as *const dyn Feature as *const F) })
         } else {
             None
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[derive(Default, Clone, Copy, PartialEq)]
+    struct AFeature {
+        _priv: (),
+    }
+
+    impl Feature for AFeature {}
+
+    struct __Drop<T: Feature>(T);
+    impl<T: Feature> Drop for __Drop<T> {
+        fn drop(&mut self) {
+            remove::<T>();
+        }
+    }
+
+    #[test]
+    fn interior_mutability() {
+        {
+            let _guard = __Drop(AFeature::default());
+            add(_guard.0);
+
+            assert!(has::<AFeature>());
+            assert!(get::<AFeature>().unwrap() == _guard.0);
+        }
+
+        assert!(!has::<AFeature>());
     }
 }

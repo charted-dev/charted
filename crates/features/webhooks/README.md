@@ -1,2 +1,0 @@
-# HTTP Webhooks
-This is the main implementation of the HTTP webhooks feature that can be enabled with the `feature "webhooks"` flag in the HCL configuration format. **charted-server** has security features placed so you can't easily poll data that you need in a fast interval, so this is where this features comes in. It implements the [Standard Webhooks Specification](https://github.com/standard-webhooks/standard-webhooks/blob/main/spec/standard-webhooks.md) to allow transmitting events to HTTP callbacks easily.

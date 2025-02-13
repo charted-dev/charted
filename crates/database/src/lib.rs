@@ -13,187 +13,57 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub mod controller;
-pub mod migrations;
-pub mod paginate;
-pub mod schema;
+use std::ops::Deref;
 
 use charted_config::database::Config;
-use diesel::{
-    connection::{set_default_instrumentation, InstrumentationEvent},
-    prelude::*,
-    r2d2::{self, ConnectionManager, Pool},
-};
-use eyre::Context;
-use tracing::{error, trace};
+use charted_core::serde::Duration;
+use migrations::Migrator;
+use sea_orm::{metric::Info, ConnectOptions, DatabaseBackend, DatabaseConnection, SqlxPostgresConnector};
+use sea_orm_migration::MigratorTrait;
+use tracing::{info, instrument, trace};
 
-/// [`Pool`] that wraps a [`ConnectionManager`] of our multi-connection type.
-pub type DbPool = Pool<ConnectionManager<DbConnection>>;
+pub mod entities;
+pub mod migrations;
 
-#[derive(diesel::MultiConnection)]
-pub enum DbConnection {
-    PostgreSQL(diesel::pg::PgConnection),
-    SQLite(diesel::sqlite::SqliteConnection),
-}
+#[instrument(name = "charted.database.createDbPool", skip_all)]
+pub async fn create_pool(config: &Config) -> eyre::Result<DatabaseConnection> {
+    let mut conn = match config {
+        Config::PostgreSQL(_) => SqlxPostgresConnector::connect(connect_options_with(config)).await?,
+        Config::SQLite(_) => SqlxPostgresConnector::connect(connect_options_with(config)).await?,
+    };
 
-pub fn create_pool(config: &Config) -> eyre::Result<DbPool> {
-    // connection string is the Display impl for `Config`.
-    let url = config.to_string();
-    trace!(database.url = url, "creating pool for db url");
+    conn.set_metric_callback(metric_callback);
 
-    let manager = ConnectionManager::new(url);
-    set_default_instrumentation(|| Some(Box::new(instrumentation)))?;
+    if config.common().run_migrations {
+        info!("now running pending migrations!");
 
-    Pool::builder()
-        .max_size(config.max_connections())
-        .error_handler(Box::new(ErrorHandler))
-        .build(manager)
-        .context("failed to create db pool")
-}
-
-#[derive(Debug)]
-struct ErrorHandler;
-impl<E: std::error::Error + 'static> r2d2::HandleError<E> for ErrorHandler {
-    fn handle_error(&self, error: E) {
-        sentry::capture_error(&error);
-        error!(%error, "failed to manage connection or perform query");
+        Migrator::install(&conn).await?;
+        Migrator::up(&conn, None).await?;
     }
+
+    Ok(conn)
 }
 
-pub fn version(pool: &DbPool) -> eyre::Result<String> {
-    connection!(pool, {
-        PostgreSQL(conn) {
-            diesel::define_sql_function! {
-                fn version() -> diesel::sql_types::Text;
-            }
+fn metric_callback(info: &Info<'_>) {
+    let elapsed: Duration = info.elapsed.into();
+    let backend = match info.statement.db_backend {
+        DatabaseBackend::Sqlite => "sqlite",
+        DatabaseBackend::MySql => "mysql",
+        DatabaseBackend::Postgres => "postgres",
+    };
 
-            diesel::select(version())
-                .get_result::<String>(conn)
-                .context("failed to get database version")
-        };
-
-        SQLite(conn) {
-            diesel::define_sql_function! {
-                fn sqlite_version() -> diesel::sql_types::Text;
-            }
-
-            diesel::select(sqlite_version())
-                .get_result::<String>(conn)
-                .context("failed to get database version")
-        };
-    })
+    trace!(%elapsed, failed = %info.failed, %backend, stmt.sql = info.statement.sql, stmt.values = ?info.statement.values);
 }
 
-fn instrumentation(event: InstrumentationEvent<'_>) {
-    match event {
-        InstrumentationEvent::BeginTransaction { depth, .. } => {
-            trace!("started transation (depth={depth})");
-        }
+fn connect_options_with(config: &Config) -> ConnectOptions {
+    let common = config.common();
 
-        InstrumentationEvent::CommitTransaction { depth, .. } => {
-            trace!("transaction with depth [{depth}] was committed");
-        }
-
-        InstrumentationEvent::RollbackTransaction { depth, .. } => {
-            trace!("transaction with depth [{depth}] was rolled back");
-        }
-
-        InstrumentationEvent::FinishQuery { query, error, .. } => {
-            trace!(sql = %query, "finished query{}", if error.is_some() { " with an error" } else { "" });
-            if let Some(err) = error {
-                sentry::capture_error(err);
-            }
-        }
-
-        InstrumentationEvent::StartQuery { query, .. } => {
-            trace!(sql = %query, "starting query");
-        }
-
-        _ => {}
-    }
-}
-
-#[macro_export]
-macro_rules! connection {
-    (@raw $conn:ident {
-        $(
-            $db:ident($c:ident) => $code:expr;
-        )*
-    }) => {{
-        #[allow(unused)]
-        use ::diesel::prelude::*;
-        match *$conn {
-            $(
-                $crate::DbConnection::$db(ref mut $c) => $code,
-            )*
-        }
-    }};
-
-    (@raw $conn:ident {
-        $(
-            $db:ident($c:ident) $code:block;
-        )*
-    }) => {{
-        #[allow(unused)]
-        use ::diesel::prelude::*;
-        match *$conn {
-            $(
-                $crate::DbConnection::$db(ref mut $c) => $code,
-            )*
-        }
-    }};
-
-    ($pool:expr, {
-        $(
-            $db:ident($c:ident) => $code:expr;
-        )*
-    }) => {{
-        #[allow(unused)]
-        use ::eyre::Context;
-
-        let mut conn = ($pool).get().context("failed to get db connection")?;
-        $crate::connection!(@raw conn {
-            $(
-                $db($c) => $code;
-            )*
-        })
-    }};
-
-    ($pool:expr, {
-        $(
-            $db:ident($conn:ident) $code:block;
-        )*
-    }) => {{
-        #[allow(unused)]
-        use ::eyre::Context;
-
-        let mut conn = ($pool).get().context("failed to get db connection")?;
-        $crate::connection!(@raw conn {
-            $(
-                $db($conn) $code;
-            )*
-        })
-    }};
-}
-
-#[cfg(test)]
-mod tests {
-    use charted_config::database::{sqlite, Config};
-    use std::path::PathBuf;
-
-    #[test]
-    fn test_sqlite_version() {
-        let db = crate::create_pool(&Config::SQLite(sqlite::Config {
-            db_path: PathBuf::from(":memory:"),
-            max_connections: 1,
-            run_migrations: false,
-        }))
-        .expect("failed to create in-memory sqlite database");
-
-        let Ok(s) = crate::version(&db) else {
-            panic!("failed to get sqlite version")
-        };
-
-        assert!(!s.is_empty());
-    }
+    ConnectOptions::new(config.to_string())
+        .max_connections(common.max_connections)
+        .acquire_timeout(common.acquire_timeout.deref().into())
+        .connect_timeout(common.connect_timeout.deref().into())
+        .idle_timeout(common.idle_timeout.deref().into())
+        .sqlx_logging_level(tracing::log::LevelFilter::Trace)
+        .sqlx_slow_statements_logging_settings(tracing::log::LevelFilter::Warn, std::time::Duration::from_secs(3))
+        .to_owned()
 }

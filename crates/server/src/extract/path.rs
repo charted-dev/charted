@@ -21,12 +21,9 @@ use charted_core::api;
 use serde::de::DeserializeOwned;
 use serde_json::json;
 
-charted_core::create_newtype_wrapper! {
-    /// `Path` is a newtype wrapper for [`axum::extract::Path`], in which it uses
-    /// [`api::Response`] to transmit errors properly.
-    pub Path<T> for pub T;
-}
-
+/// `Path` is a newtype wrapper for [`axum::extract::Path`], in which it uses
+/// [`api::Response`] to transmit errors properly.
+pub struct Path<T>(pub T);
 impl<S: Send + Sync, T: DeserializeOwned + Send + Sync> FromRequestParts<S> for Path<T> {
     type Rejection = api::Response;
 

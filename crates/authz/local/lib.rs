@@ -13,12 +13,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use argon2::{PasswordHash, PasswordVerifier};
-use charted_core::ARGON2;
-use charted_types::User;
-use eyre::eyre;
-use tracing::error;
+use charted_authz::{Authenticator, Request};
+use charted_core::BoxedFuture;
 
+/// Main implementation of the **local** session management
+#[derive(Debug, Clone, Copy, Default)]
+pub struct Backend {
+    _priv: (),
+}
+
+impl Authenticator for Backend {
+    fn authenticate<'a>(
+        &'a self,
+        Request {
+            user: _,
+            password: _,
+            model: _,
+        }: Request<'a>,
+    ) -> BoxedFuture<'a, eyre::Result<()>> {
+        Box::pin(async move { Ok(()) })
+    }
+}
+
+/*
 pub struct Backend;
 impl charted_authz::Authenticator for Backend {
     fn authenticate<'u>(&'u self, user: &'u User, password: String) -> charted_core::BoxedFuture<'u, eyre::Result<()>> {
@@ -44,3 +61,4 @@ impl charted_authz::Authenticator for Backend {
         })
     }
 }
+*/

@@ -13,27 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::DbPool;
-use diesel_migrations::{embed_migrations, EmbeddedMigrations};
-use eyre::eyre;
+use sea_orm_migration::MigratorTrait;
 
-pub const POSTGRESQL_MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations/postgresql");
-pub const SQLITE_MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations/sqlite");
+pub(crate) mod m02_02_2025_000001_init;
 
-pub fn migrate(pool: &DbPool) -> eyre::Result<()> {
-    use diesel_migrations::MigrationHarness;
+pub struct Migrator;
 
-    crate::connection!(pool, {
-        PostgreSQL(conn) {
-            conn.run_pending_migrations(POSTGRESQL_MIGRATIONS)
-                .map(|_| ())
-                .map_err(|e| eyre!("failed to run PostgreSQL migrations: {e}"))
-        };
-
-        SQLite(conn) {
-            conn.run_pending_migrations(SQLITE_MIGRATIONS)
-                .map(|_| ())
-                .map_err(|e| eyre!("failed to run SQLite migrations: {e}"))
-        };
-    })
+impl MigratorTrait for Migrator {
+    fn migrations() -> Vec<Box<dyn sea_orm_migration::MigrationTrait>> {
+        vec![Box::new(m02_02_2025_000001_init::migration())]
+    }
 }
