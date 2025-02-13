@@ -32,6 +32,4 @@ charted-types = { workspace = true, features = ["__internal_db"] }
 eyre.workspace = true
 sea-orm.workspace = true
 sea-orm-migration.workspace = true
-sqlx.workspace = true
 tracing = { workspace = true, features = ["log"] }
-url.workspace = true

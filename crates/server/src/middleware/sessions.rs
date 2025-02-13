@@ -128,6 +128,7 @@ impl Middleware {
             Some((_, pass)) if pass.contains(':') => {
                 return Err(as_response(Error::msg(
                     "received more than one `:` in basic auth input",
+                    None,
                 )))
             }
 
@@ -135,6 +136,7 @@ impl Middleware {
             None => {
                 return Err(as_response(Error::msg(
                     "input must be in the form of 'username:password'",
+                    None,
                 )))
             }
         };
@@ -228,7 +230,12 @@ impl Middleware {
             .filter(|x| matches!(x, Value::String(_)))
             .and_then(Value::as_str)
             .map(Ulid::new)
-            .ok_or_else(|| as_response(Error::msg(format!("missing `{}` JWT claim", JWT_UID_FIELD))))?
+            .ok_or_else(|| {
+                as_response(Error::msg(
+                    format!("missing `{}` JWT claim", JWT_UID_FIELD),
+                    Some(api::ErrorCode::InvalidJwtClaim),
+                ))
+            })?
             .map_err(Error::DecodeUlid)
             .map_err(as_response)?;
 
@@ -238,7 +245,12 @@ impl Middleware {
             .filter(|x| matches!(x, Value::String(_)))
             .and_then(Value::as_str)
             .map(Ulid::new)
-            .ok_or_else(|| as_response(Error::msg(format!("missing `{}` JWT claim", JWT_SID_FIELD))))?
+            .ok_or_else(|| {
+                as_response(Error::msg(
+                    format!("missing `{}` JWT claim", JWT_SID_FIELD),
+                    Some(api::ErrorCode::InvalidJwtClaim),
+                ))
+            })?
             .map_err(Error::DecodeUlid)
             .map_err(as_response)?;
 
@@ -385,9 +397,10 @@ impl AsyncAuthorizeRequest<Body> for Middleware {
             Some((_, value)) if value.contains(' ') => {
                 let space = value.chars().position(|x| x == ' ').unwrap_or_default();
                 return Box::pin(async move {
-                    Err(as_response(Error::msg(format!(
-                        "received extra space at {space} when parsing header"
-                    ))))
+                    Err(as_response(Error::msg(
+                        format!("received extra space at {space} when parsing header"),
+                        None,
+                    )))
                 });
             }
 
@@ -400,6 +413,7 @@ impl AsyncAuthorizeRequest<Body> for Middleware {
                 return Box::pin(async {
                     Err(as_response(Error::msg(
                         "auth header must be in the form of 'Type Value', i.e, 'ApiKey hjdjshdjs'",
+                        None,
                     )))
                 })
             }

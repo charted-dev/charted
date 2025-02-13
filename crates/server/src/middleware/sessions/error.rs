@@ -26,8 +26,14 @@ pub enum Error {
     UnknownAuthType(#[error(not(source))] Cow<'static, str>),
     DecodeBase64(base64::DecodeError),
 
-    #[display("{}", _0)]
-    Message(#[error(not(source))] Cow<'static, str>),
+    #[display("{}", message)]
+    Message {
+        #[error(not(source))]
+        message: Cow<'static, str>,
+
+        #[error(not(source))]
+        code: Option<api::ErrorCode>,
+    },
 
     DecodeUlid(charted_types::ulid::DecodeError),
 
@@ -58,11 +64,14 @@ pub enum Error {
 
 impl Error {
     pub(crate) fn invalid_utf8() -> Self {
-        Error::msg("invalid utf-8 content")
+        Error::msg("invalid utf-8 content", Some(api::ErrorCode::InvalidUtf8))
     }
 
-    pub(crate) fn msg<M: Into<Cow<'static, str>>>(msg: M) -> Self {
-        Error::Message(msg.into())
+    pub(crate) fn msg<M: Into<Cow<'static, str>>>(msg: M, code: Option<api::ErrorCode>) -> Self {
+        Error::Message {
+            message: msg.into(),
+            code,
+        }
     }
 
     pub fn status_code(&self) -> StatusCode {
@@ -71,7 +80,7 @@ impl Error {
         match self {
             E::MissingAuthorizationHeader
             | E::UnknownAuthType(_)
-            | E::Message(_)
+            | E::Message { .. }
             | E::DecodeBase64(_)
             | E::RefreshTokenRequired
             | E::DecodeUlid(_)
@@ -97,7 +106,7 @@ impl Error {
             E::InvalidPassword => InvalidPassword,
             E::UnknownSession => UnknownSession,
             E::MissingAuthorizationHeader => MissingAuthorizationHeader,
-            E::Message(_) => InvalidAuthorizationParts,
+            E::Message { code, .. } => code.unwrap_or(api::ErrorCode::InvalidAuthorizationParts),
             E::UnknownAuthType(_) => InvalidAuthenticationType,
             E::DecodeBase64(_) => UnableToDecodeBase64,
             E::DecodeUlid(_) => UnableToDecodeUlid,

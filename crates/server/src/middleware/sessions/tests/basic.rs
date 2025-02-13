@@ -23,6 +23,7 @@ use axum::{
 };
 use base64::{engine::general_purpose::STANDARD, Engine};
 use charted_core::api::{self, ErrorCode};
+use charted_types::name;
 use std::borrow::Cow;
 use tower::{Service, ServiceExt};
 
@@ -78,7 +79,11 @@ async fn decoding_error_missing_colon() {
     let body = consume_body::<api::Response>(res.into_body()).await;
     assert_eq!(
         body,
-        Error::Message(Cow::Borrowed("input must be in the form of 'username:password'")).into()
+        Error::Message {
+            message: Cow::Borrowed("input must be in the form of 'username:password'"),
+            code: None
+        }
+        .into()
     );
 }
 
@@ -107,7 +112,11 @@ async fn decoding_error_more_than_one_colon() {
     let body = consume_body::<api::Response>(res.into_body()).await;
     assert_eq!(
         body,
-        Error::Message(Cow::Borrowed("received more than one `:` in basic auth input")).into()
+        Error::Message {
+            message: Cow::Borrowed("received more than one `:` in basic auth input"),
+            code: None
+        }
+        .into()
     );
 }
 
@@ -136,7 +145,15 @@ async fn invalid_name_in_username() {
     let body = consume_body::<api::Response>(res.into_body()).await;
     assert_eq!(
         body,
-        Error::Message(Cow::Borrowed("invalid input (noelisTHEbEST!!!!~) for Name: invalid character '!' received (index 13 in input: \"noelisthebest!!!!~\")")).into()
+        Error::InvalidName {
+            input: Cow::Borrowed("noelisTHEbEST!!!!~"),
+            error: name::Error::InvalidCharacter {
+                input: Cow::Borrowed("noelisthebest!!!!~"),
+                at: 13,
+                ch: '!'
+            }
+        }
+        .into()
     );
 }
 
@@ -165,6 +182,10 @@ async fn empty_username() {
     let body = consume_body::<api::Response>(res.into_body()).await;
     assert_eq!(
         body,
-        Error::Message(Cow::Borrowed("invalid input () for Name: name cannot be empty")).into()
+        Error::InvalidName {
+            input: Cow::Borrowed(""),
+            error: name::Error::Empty,
+        }
+        .into()
     );
 }

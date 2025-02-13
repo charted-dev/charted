@@ -1133,7 +1133,6 @@ dependencies = [
  "dotenvy",
  "eyre",
  "mimalloc",
- "num_cpus",
  "tokio",
 ]
 
@@ -1254,9 +1253,7 @@ dependencies = [
  "eyre",
  "sea-orm",
  "sea-orm-migration",
- "sqlx",
  "tracing",
- "url",
 ]
 
 [[package]]
@@ -3323,7 +3320,7 @@ dependencies = [
  "tokio-util",
  "typed-builder",
  "uuid",
- "webpki-roots 0.25.4",
+ "webpki-roots",
 ]
 
 [[package]]
@@ -4257,7 +4254,6 @@ checksum = "47796c98c480fce5406ef69d1c76378375492c3b0a0de587be0c1d9feb12f395"
 dependencies = [
  "aws-lc-rs",
  "once_cell",
- "ring",
  "rustls-pki-types",
  "rustls-webpki 0.102.8",
  "subtle",
@@ -4995,18 +4991,13 @@ dependencies = [
  "memchr",
  "once_cell",
  "percent-encoding",
- "rustls 0.23.23",
- "rustls-pemfile 2.2.0",
  "serde",
  "serde_json",
  "sha2",
  "smallvec",
  "thiserror 2.0.11",
- "tokio",
- "tokio-stream",
  "tracing",
  "url",
- "webpki-roots 0.26.8",
 ]
 
 [[package]]
@@ -5044,7 +5035,6 @@ dependencies = [
  "sqlx-sqlite",
  "syn 2.0.98",
  "tempfile",
- "tokio",
  "url",
 ]
 
@@ -5484,17 +5474,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5f6d0975eaace0cf0fcadee4e4aaa5da15b5c079146f2cffb67c113be122bf37"
 dependencies = [
  "rustls 0.23.23",
- "tokio",
-]
-
-[[package]]
-name = "tokio-stream"
-version = "0.1.17"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eca58d7bba4a75707817a2c44174253f9236b2d5fbd055602e9d5c07c139a047"
-dependencies = [
- "futures-core",
- "pin-project-lite",
  "tokio",
 ]
 
@@ -6037,15 +6016,6 @@ name = "webpki-roots"
 version = "0.25.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5f20c57d8d7db6d3b86154206ae5d8fba62dd39573114de97c2cb0578251f8e1"
-
-[[package]]
-name = "webpki-roots"
-version = "0.26.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2210b291f7ea53617fbafcc4939f10914214ec15aace5ba62293a668f322c5c9"
-dependencies = [
- "rustls-pki-types",
-]
 
 [[package]]
 name = "which"
