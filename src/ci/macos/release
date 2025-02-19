@@ -17,12 +17,27 @@
 
 set -euo pipefail
 
-source "$(cd "$(dirname $0)/.." && pwd)/_shared.sh"
+source "$(cd "$(dirname $0)" && pwd)/../_shared.sh"
 
 buildflags=${BUILDFLAGS:-}
 root=$(cd "$(dirname $0)/../.." && pwd)
 cargo=${CARGO:-cargo}
 rustflags=${RUSTFLAGS:-}
+cargoflags=${CARGOFLAGS:-}
+
+arch=""
+if noelware::arch::x86_64; then
+    arch="x86_64"
+fi
+
+if noelware::arch::aarch64; then
+    arch="aarch64"
+fi
+
+prepare() {
+    echo "~> install \`mold\`"
+    apt-get install -y mold
+}
 
 build() {
     if ! command -v "$cargo" >/dev/null; then
@@ -31,20 +46,35 @@ build() {
     fi
 
     local bin="$1"
-    arch="unknown"
 
-    if noelware::arch::x86_64; then
-        arch="x86_64"
-    elif noelware::arch::aarch64; then
-        arch="aarch64"
-    fi
+    export RUSTFLAGS="--cfg tokio_unstable -C link-arg=-fuse-ld=mold -Ctarget-cpu=native $rustflags"
 
-    [ "$arch" == "unknown" ] && {
-        echo "~> unable to determine architecture; cannot run build"
-        exit 1
-    }
+    ! [ -d "$root/.result" ] && mkdir -p "$root/.result"
+    pushd "$root/.result" >/dev/null
+
+    echo "~> Performing compilation of binary \`$bin\`                  [buildflags=$buildflags] [\$CARGO=$cargo] [os=linux] [arch=x86_64]"
+    echo "   $ RUSTFLAGS=\"$RUSTFLAGS\" $cargo $cargoflags build --release --locked --bin $bin $buildflags"
+    "$cargo" build $cargoflags --release --locked $buildflags --bin $bin || exit 1
+
+    mv $root/target/release/"$bin" ./"$bin"-darwin-$arch
+    echo "~> Generating checksum                                        [binary=$bin]"
+    sha256sum "$bin-linux-x86_64" > ./"$bin"-darwin-$arch.sha256
+
+    echo "~> Completed. Artifacts are in $root/.result"
+
+    popd >/dev/null
 }
 
-# noelware::startGroup ""
-# main
-# noelware::endGroup
+if noelware::isGitHubActions; then
+    noelware::startGroup "Prepare"
+    prepare
+    noelware::endGroup
+fi
+
+noelware::startGroup "[charted] Building \`darwin-$arch\` binary"
+build "charted"
+noelware::endGroup
+
+noelware::startGroup "[helm-plugin] Building \`darwin-$arch\` binary"
+build "charted-helm-plugin"
+noelware::endGroup

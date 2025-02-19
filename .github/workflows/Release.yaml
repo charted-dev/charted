@@ -13,348 +13,221 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Release CI (Stable)
+name: Release / Stable
 on:
     push:
         tags:
             - 'v?[0-9]+.[0-9]+.[0-9]'
 jobs:
     binaries:
-        name: Build `cli` and `helm-plugin` binaries
+        name: "Rust Build :: ${{matrix.binary}} / ${{matrix.runner == 'ubuntu-24.04' && 'Linux (x64)' || matrix.runner == 'linux-aarch64' && 'Linux (aarch64)' || matrix.runner == 'macos-latest' && 'macOS (x64)' || matrix.runner == 'macos-14-xlarge' && 'macOS (aarch64)' || matrix.runner == 'windows-latest' && 'Windows (x64)'}}"
         runs-on: ${{matrix.runner}}
+        if: ${{github.repository == 'charted-dev/charted'}}
         strategy:
             fail-fast: true
             matrix:
-                runner: [ubuntu-latest, macos-latest, windows-latest]
+                binary: [charted, charted-helm-plugin]
+                include:
+                    - runner: ubuntu-24.04
+                      os: linux
+                      arch: x86_64
+
+                    - runner: linux-aarch64
+                      os: linux
+                      arch: aarch64
+
+                    - runner: macos-latest
+                      os: darwin
+                      arch: x86_64
+
+                    - runner: macos-14-xlarge
+                      os: darwin
+                      arch: aarch64
+
+                    - runner: windows-latest
+                      os: windows
+                      arch: x86_64
+        env:
+            CARGOFLAGS: -Zbuild-std=std,panic_abort -Zbuild-std-features=optimize_for_size,panic_immediate_abort,backtrace
         steps:
-            - name: Checkout source code
-              uses: actions/checkout@v4
+            - uses: actions/checkout@v4
+            - uses: Swatinem/rust-cache@v2
+            - uses: auguwu/git-tag-action@master
+              id: tag
 
-    #         - name: Checkout source code
-    #           uses: actions/checkout@v3
+            - name: 'Windows: Setup vcpkg'
+              if: ${{matrix.runner == 'windows-latest'}}
+              run: ./src/ci/windows/Setup-Vcpkg.ps1
 
-    #         - name: Get current release tag
-    #           uses: auguwu/git-tag-action@master
-    #           id: tag
+            - name: 'Windows: Setup vcpkg cache'
+              if: ${{matrix.runner == 'windows-latest'}}
+              uses: actions/cache@v4
+              with:
+                  key: vcpkg-cache
+                  path: |
+                      ${{env.VCPKG_ROOT}}
 
-    #         - name: Setup Bazel cache
-    #           uses: actions/cache@v3
-    #           with:
-    #             path: |
-    #                 ${{runner.temp}}/_bazel_${{runner.os}}_${{runner.arch}}
-    #                 ${{matrix.data.runner}}
-    #             restore-keys: bazel-cache-${{matrix.data.runner}}-
-    #             key: bazel-cache-${{matrix.data.runner}}-${{ hashFiles('WORKSPACE', 'BUILD.bazel', '.bazelversion') }}
+            - name: 'Windows: Install libraries'
+              if: ${{matrix.runner == 'windows-latest'}}
+              run: ./src/ci/windows/Install-Libraries.ps1
 
-    #         - name: Build release binary
-    #           id: binary
-    #           run: |
-    #             echo "===> Building release binary..."
-    #             bazel ${{env.BAZEL_ARGS}} ${{matrix.data.bazel-args}} build //cli
+            - name: 'Windows: Install `nasm` for `aws-lc-sys`'
+              if: ${{matrix.runner == 'windows-latest'}}
+              uses: ilammy/setup-nasm@v1
 
-    #             echo "===> Marking location as an output"
-    #             echo "location=${{github.workspace}}/bazel-bin/cli/cli" >> $GITHUB_OUTPUT
+            - run: "./src/ci/${{matrix.os == 'darwin' && 'macos' || matrix.os}}/${{matrix.os == 'windows' && 'Release.ps1' || 'release'}}"
+              env:
+                  RUSTFLAGS: ''
+                  CARGOFLAGS: ${{env.CARGOFLAGS}}
 
-    #         - name: Build Helm plugin binary
-    #           id: helm-binary
-    #           run: |
-    #             bazel ${{env.BAZEL_ARGS}} ${{matrix.data.bazel-args}} build //tools/helm-plugin
+            - name: Upload (/charted/${{matrix.binary == 'charted-helm-plugin' && 'helm-plugin' || 'server'}}/${{steps.tag.outputs.version}})
+              uses: Noelware/s3-action@2.2.6
+              with:
+                  enforce-path-access-style: true
+                  access-key-id: ${{secrets.S3_ACCESS_KEY}}
+                  path-format: "$(prefix)/charted/${{matrix.binary == 'charted-helm-plugin' && 'helm-plugin' || 'server'}}/${{steps.tag.outputs.version}}/charted-${{matrix.os}}-${{matrix.arch}}${{matrix.os == 'windows' && '.exe' || ''}}"
+                  secret-key: ${{secrets.S3_SECRET_KEY}}
+                  directories: ./.result
+                  endpoint: ${{secrets.S3_ENDPOINT}}
+                  region: us-east-1
+                  prefix: /noelware/artifacts
+                  bucket: august
 
-    #             echo "===> Marking location as an output"
-    #             echo "location=${{github.workspace}}/bazel-bin/tools/helm-plugin/helm-plugin" >> $GITHUB_OUTPUT
+            - name: Upload (/charted/${{matrix.binary == 'charted-helm-plugin' && 'helm-plugin' || 'server'}}/latest)
+              uses: Noelware/s3-action@2.2.6
+              with:
+                  enforce-path-access-style: true
+                  access-key-id: ${{secrets.S3_ACCESS_KEY}}
+                  path-format: "$(prefix)/charted/${{matrix.binary == 'charted-helm-plugin' && 'helm-plugin' || 'server'}}/latest/${{matrix.binary}}-${{matrix.os}}-${{matrix.arch}}${{matrix.os == 'windows' && '.exe' || ''}}"
+                  secret-key: ${{secrets.S3_SECRET_KEY}}
+                  directories: ./.result
+                  endpoint: ${{secrets.S3_ENDPOINT}}
+                  region: us-east-1
+                  prefix: /noelware/artifacts
+                  bucket: august
+    docker:
+        name: 'Docker / `charted` [${{matrix.platform}} / ${{matrix.kind}}]'
+        runs-on: ${{matrix.runner}}
+        if: ${{github.repository == 'charted-dev/charted'}}
+        strategy:
+            fail-fast: true
+            matrix:
+                runner: [ubuntu-24.04, linux-aarch64]
+                kind: [alpine, debian]
+                include:
+                    - runner: ubuntu-24.04
+                      platform: linux/amd64
+                      arch: amd64
+                    - runner: linux-aarch64
+                      platform: linux/arm64/v8
+                      arch: arm64
+        steps:
+            - uses: actions/checkout@v4
+            - uses: auguwu/git-tag-action@master
+              id: tag
 
-    #         - name: Shutdown Bazel server
-    #           run: bazel shutdown
+            - uses: docker/setup-buildx-action@v3
+            - uses: docker/login-action@v3
+              with:
+                  registry: docker.noelware.org
+                  username: noelbot
+                  password: ${{secrets.REGISTRY_PASSWORD}}
 
-    #         - name: Upload to S3 bucket (/charted/server/${{steps.tag.outputs.version}})
-    #           uses: Noelware/s3-action@2.2.1
-    #           with:
-    #             enforce-path-access-style: true
-    #             access-key-id: ${{secrets.S3_ACCESS_KEY}}
-    #             path-format: $(prefix)/charted/server/${{steps.tag.outputs.version}}/charted-${{matrix.data.os}}-${{matrix.data.arch}}${{matrix.data.ext}}
-    #             secret-key: ${{secrets.S3_SECRET_KEY}}
-    #             endpoint: ${{secrets.S3_ENDPOINT}}
-    #             region: us-east-1
-    #             prefix: /noelware/artifacts
-    #             bucket: august
-    #             files: ${{steps.binary.outputs.location}}
+            - uses: docker/build-push-action@v4
+              with:
+                  provenance: false
+                  platforms: ${{matrix.platform}}
+                  context: .
+                  file: ./distribution/charted/${{matrix.kind}}.Dockerfile
+                  push: true
+                  tags: |
+                      docker.noelware.org/charted/server:${{steps.tag.outputs.version}}${{matrix.kind == 'alpine' && '-alpine' || '-'}}${{matrix.arch}},
+                      docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}${{matrix.kind == 'alpine' && '-alpine' || '-'}}${{matrix.arch}},
+                      docker.noelware.org/charted/server:${{steps.tag.outputs.major}}${{matrix.kind == 'alpine' && '-alpine' || '-'}}${{matrix.arch}},
+                      docker.noelware.org/charted/server:latest${{matrix.kind == 'alpine' && '-alpine' || '-'}}${{matrix.arch}}
+    manifests:
+        name: 'Docker / Manifests (`charted`)'
+        runs-on: ubuntu-24.04
+        needs: [docker]
+        if: ${{github.repository == 'charted-dev/charted'}}
+        steps:
+            - uses: auguwu/git-tag-action@master
+              id: tag
 
-    #         - name: Upload to S3 bucket (/charted/server/latest)
-    #           uses: Noelware/s3-action@2.2.1
-    #           with:
-    #             enforce-path-access-style: true
-    #             access-key-id: ${{secrets.S3_ACCESS_KEY}}
-    #             path-format: $(prefix)/charted/server/latest/charted-${{matrix.data.os}}-${{matrix.data.arch}}${{matrix.data.ext}}
-    #             secret-key: ${{secrets.S3_SECRET_KEY}}
-    #             endpoint: ${{secrets.S3_ENDPOINT}}
-    #             region: us-east-1
-    #             prefix: /noelware/artifacts
-    #             bucket: august
-    #             files: ${{steps.binary.outputs.location}}
+            - uses: docker/login-action@v3
+              with:
+                  registry: docker.noelware.org
+                  username: noelbot
+                  password: ${{secrets.REGISTRY_PASSWORD}}
 
-    #         - name: Upload to S3 bucket (/charted/helm-plugin/${{steps.tag.outputs.version}})
-    #           uses: Noelware/s3-action@2.2.1
-    #           with:
-    #             enforce-path-access-style: true
-    #             access-key-id: ${{secrets.S3_ACCESS_KEY}}
-    #             path-format: $(prefix)/charted/helm-plugin/${{steps.tag.outputs.version}}/charted-helm-plugin-${{matrix.data.os}}-${{matrix.data.arch}}${{matrix.data.ext}}
-    #             secret-key: ${{secrets.S3_SECRET_KEY}}
-    #             endpoint: ${{secrets.S3_ENDPOINT}}
-    #             region: us-east-1
-    #             prefix: /noelware/artifacts
-    #             bucket: august
-    #             files: ${{steps.helm-binary.outputs.location}}
+            - name: 'docker.noelware.org/charted/server:latest'
+              uses: Noelware/docker-manifest-action@0.4.2
+              with:
+                  images: docker.noelware.org/charted/server:latest
+                  inputs: docker.noelware.org/charted/server:latest-amd64,docker.noelware.org/charted/server:latest-arm64
+                  push: true
 
-    #         - name: Upload to S3 bucket (/charted/helm-plugin/latest)
-    #           uses: Noelware/s3-action@2.2.1
-    #           with:
-    #             enforce-path-access-style: true
-    #             access-key-id: ${{secrets.S3_ACCESS_KEY}}
-    #             path-format: $(prefix)/charted/helm-plugin/latest/charted-helm-plugin-${{matrix.data.os}}-${{matrix.data.arch}}${{matrix.data.ext}}
-    #             secret-key: ${{secrets.S3_SECRET_KEY}}
-    #             endpoint: ${{secrets.S3_ENDPOINT}}
-    #             region: us-east-1
-    #             prefix: /noelware/artifacts
-    #             bucket: august
-    #             files: ${{steps.helm-binary.outputs.location}}
-    # docker-debian:
-    #     name: Build Debian image
-    #     runs-on: ${{matrix.runner}}
-    #     strategy:
-    #         fail-fast: true
-    #         matrix:
-    #             runner: [ubuntu-latest, self-hosted]
-    #             include:
-    #                 - runner: ubuntu-latest
-    #                   platform: linux/amd64
-    #                   arch: amd64
-    #                 - runner: self-hosted
-    #                   platform: linux/arm64
-    #                   arch: arm64
-    #     steps:
-    #         - name: Checkout source code
-    #           uses: actions/checkout@v3
+            - name: 'docker.noelware.org/charted/server:${{steps.tag.outputs.version}}'
+              uses: Noelware/docker-manifest-action@0.4.2
+              with:
+                  images: docker.noelware.org/charted/server:${{steps.tag.outputs.version}}
+                  inputs: docker.noelware.org/charted/server:${{steps.tag.outputs.version}}-amd64,docker.noelware.org/charted/server:${{steps.tag.outputs.version}}-arm64
+                  push: true
 
-    #         - name: Get current release tag
-    #           uses: auguwu/git-tag-action@master
-    #           id: tag
+            - name: 'docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}'
+              uses: Noelware/docker-manifest-action@0.4.2
+              with:
+                  images: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}
+                  inputs: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-amd64,docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-arm64
+                  push: true
 
-    #         - name: Setup Docker buildx
-    #           uses: docker/setup-buildx-action@v2
+            - name: 'docker.noelware.org/charted/server:${{steps.tag.outputs.major}}'
+              uses: Noelware/docker-manifest-action@0.4.2
+              with:
+                  images: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}
+                  inputs: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}-amd64,docker.noelware.org/charted/server:${{steps.tag.outputs.major}}-arm64
+                  push: true
 
-    #         - name: Login
-    #           uses: docker/login-action@v2
-    #           with:
-    #             registry: docker.noelware.org
-    #             username: noelbot
-    #             password: ${{secrets.REGISTRY_PASSWORD}}
+            - name: 'docker.noelware.org/charted/server:alpine'
+              uses: Noelware/docker-manifest-action@0.4.2
+              with:
+                  images: docker.noelware.org/charted/server:alpine
+                  inputs: docker.noelware.org/charted/server:alpine-amd64,docker.noelware.org/charted/server:alpine-arm64
+                  push: true
 
-    #         - name: Build and push
-    #           uses: docker/build-push-action@v4
-    #           with:
-    #             provenance: false
-    #             platforms: ${{matrix.platform}}
-    #             context: .
-    #             cache-from: type=gha,scope=debian-${{matrix.arch}}
-    #             file: ./distribution/docker/debian.Dockerfile
-    #             tags: |
-    #                 docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}-${{matrix.arch}},
-    #                 docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-${{matrix.arch}},
-    #                 docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}-${{matrix.arch}},
-    #                 docker.noelware.org/charted/charted:latest-${{matrix.arch}}
-    # docker-alpine:
-    #     name: Build Alpine image
-    #     runs-on: ${{matrix.runner}}
-    #     strategy:
-    #         fail-fast: true
-    #         matrix:
-    #             runner: [ubuntu-latest]
-    #             include:
-    #                 - runner: ubuntu-latest
-    #                   platform: linux/amd64
-    #                   arch: amd64
-    #     steps:
-    #         - name: Checkout source code
-    #           uses: actions/checkout@v3
+            - name: 'docker.noelware.org/charted/server:${{steps.tag.outputs.version}}-alpine'
+              uses: Noelware/docker-manifest-action@0.4.2
+              with:
+                  images: docker.noelware.org/charted/server:${{steps.tag.outputs.version}}-alpine
+                  inputs: docker.noelware.org/charted/server:${{steps.tag.outputs.version}}-alpine-amd64,docker.noelware.org/charted/server:${{steps.tag.outputs.version}}-alpine-arm64
+                  push: true
 
-    #         - name: Get current release tag
-    #           uses: auguwu/git-tag-action@master
-    #           id: tag
+            - name: 'docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine'
+              uses: Noelware/docker-manifest-action@0.4.2
+              with:
+                  images: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine
+                  inputs: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine-amd64,docker.noelware.org/charted/server:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine-arm64
+                  push: true
 
-    #         - name: Setup Docker buildx
-    #           uses: docker/setup-buildx-action@v2
+            - name: 'docker.noelware.org/charted/server:${{steps.tag.outputs.major}}-alpine'
+              uses: Noelware/docker-manifest-action@0.4.2
+              with:
+                  images: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}-alpine
+                  inputs: docker.noelware.org/charted/server:${{steps.tag.outputs.major}}-alpine-amd64,docker.noelware.org/charted/server:${{steps.tag.outputs.major}}-alpine-arm64
+                  push: true
+    sentry:
+        name: Sentry
+        runs-on: ubuntu-24.04
+        if: ${{github.repository == 'charted-dev/charted'}}
+        steps:
+            - uses: auguwu/git-tag-action@master
+              id: tag
 
-    #         - name: Login
-    #           uses: docker/login-action@v2
-    #           with:
-    #             registry: docker.noelware.org
-    #             username: noelbot
-    #             password: ${{secrets.REGISTRY_PASSWORD}}
-
-    #         - name: Build and push
-    #           uses: docker/build-push-action@v4
-    #           with:
-    #             provenance: false
-    #             platforms: ${{matrix.platform}}
-    #             context: .
-    #             cache-from: type=gha,scope=alpine-${{matrix.arch}}
-    #             file: ./distribution/docker/alpine.Dockerfile
-    #             tags: |
-    #                 docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}-alpine-${{matrix.arch}},
-    #                 docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine-${{matrix.arch}},
-    #                 docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}-alpine-${{matrix.arch}},
-    #                 docker.noelware.org/charted/charted:alpine-${{matrix.arch}}
-    # docker-manifests:
-    #     name: Merge Manifests
-    #     runs-on: ubuntu-latest
-    #     needs: [docker-alpine, docker-debian]
-    #     if: ${{github.repository == 'charted-dev/charted'}}
-    #     steps:
-    #         - name: Get current release tag
-    #           uses: auguwu/git-tag-action@master
-    #           id: tag
-
-    #         - name: Login
-    #           uses: docker/login-action@v2
-    #           with:
-    #             registry: docker.noelware.org
-    #             username: noelbot
-    #             password: ${{secrets.REGISTRY_PASSWORD}}
-
-    #         - name: Merge Manifests [docker.noelware.org/charted/charted:latest]
-    #           uses: Noelware/docker-manifest-action@0.4.0
-    #           with:
-    #             images: docker.noelware.org/charted/charted:latest
-    #             inputs: docker.noelware.org/charted/charted:latest-amd64,docker.noelware.org/charted/charted:latest-arm64
-    #             push: true
-
-    #         - name: Merge Manifests [docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}]
-    #           uses: Noelware/docker-manifest-action@0.4.0
-    #           with:
-    #             images: docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}
-    #             inputs: docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}-amd64,docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}-arm64
-    #             push: true
-
-    #         - name: Merge Manifests [docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}]
-    #           uses: Noelware/docker-manifest-action@0.4.0
-    #           with:
-    #             images: docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}
-    #             inputs: docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-amd64,docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-arm64
-    #             push: true
-
-    #         - name: Merge Manifests [docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}]
-    #           uses: Noelware/docker-manifest-action@0.4.0
-    #           with:
-    #             images: docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}
-    #             inputs: docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}-amd64,docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}-arm64
-    #             push: true
-
-    #         - name: Merge Manifests [docker.noelware.org/charted/charted:alpine]
-    #           uses: Noelware/docker-manifest-action@0.4.0
-    #           with:
-    #             images: docker.noelware.org/charted/charted:alpine
-    #             inputs: docker.noelware.org/charted/charted:alpine-amd64,docker.noelware.org/charted/charted:alpine-arm64
-    #             push: true
-
-    #         - name: Merge Manifests [docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}-alpine]
-    #           uses: Noelware/docker-manifest-action@0.4.0
-    #           with:
-    #             images: docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}-alpine
-    #             inputs: docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}-alpine-amd64,docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}-alpine-arm64
-    #             push: true
-
-    #         - name: Merge Manifests [docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine]
-    #           uses: Noelware/docker-manifest-action@0.4.0
-    #           with:
-    #             images: docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine
-    #             inputs: docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}--alpineamd64,docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-alpine-arm64
-    #             push: true
-
-    #         - name: Merge Manifests [docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}-alpine]
-    #           uses: Noelware/docker-manifest-action@0.4.0
-    #           with:
-    #             images: docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}-alpine
-    #             inputs: docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}-alpine-amd64,docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}-alpine-arm64
-    #             push: true
-    # helm-docker-debian:
-    #     name: Build Docker image (helm-plugin, Debian)
-    #     runs-on: ${{matrix.runner}}
-    #     needs: [binary]
-    #     strategy:
-    #         fail-fast: true
-    #         matrix:
-    #             runner: [ubuntu-latest, self-hosted]
-    #             include:
-    #                 - runner: ubuntu-latest
-    #                   platform: linux/amd64
-    #                   arch: amd64
-    #                 - runner: self-hosted
-    #                   platform: linux/arm64
-    #                   arch: arm64
-    #     steps:
-    #         - name: Checkout source code
-    #           uses: actions/checkout@v3
-
-    #         - name: Get current release tag
-    #           uses: auguwu/git-tag-action@master
-    #           id: tag
-
-    #         - name: Setup Docker buildx
-    #           uses: docker/setup-buildx-action@v2
-
-    #         - name: Login
-    #           uses: docker/login-action@v2
-    #           with:
-    #             registry: docker.noelware.org
-    #             username: noelbot
-    #             password: ${{secrets.REGISTRY_PASSWORD}}
-
-    #         - name: Build and push
-    #           uses: docker/build-push-action@v4
-    #           with:
-    #             provenance: false
-    #             platforms: ${{matrix.platform}}
-    #             context: .
-    #             cache-from: type=gha,scope=helm-debian-${{matrix.arch}}
-    #             file: ./distribution/docker/debian.Dockerfile
-    #             tags: |
-    #                 docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}-${{matrix.arch}},
-    #                 docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}.${{steps.tag.outputs.minor}}-${{matrix.arch}},
-    #                 docker.noelware.org/charted/charted:${{steps.tag.outputs.major}}-${{matrix.arch}},
-    #                 docker.noelware.org/charted/charted:latest-${{matrix.arch}}
-    # sentry:
-    #     name: Create Sentry release
-    #     runs-on: ubuntu-latest
-    #     if: ${{github.repository == 'charted-dev/charted'}}
-    #     steps:
-    #         - name: Get current release tag
-    #           uses: auguwu/git-tag-action@master
-    #           id: tag
-
-    #         - name: Create!
-    #           uses: getsentry/action-release@v1
-    #           env:
-    #             SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
-    #             SENTRY_PROJECT: charted-server
-    #             SENTRY_URL: https://sentry.noelware.cloud
-    #           with:
-    #             environment: production
-    #             version: ${{steps.tag.outputs.version}}
-    # prod:
-    #     name: Push to Production
-    #     runs-on: ubuntu-latest
-    #     if: ${{github.repository == 'charted-dev/charted'}}
-    #     needs: [sentry, docker-manifests]
-    #     steps:
-    #         - name: Get current release tag
-    #           uses: auguwu/git-tag-action@master
-    #           id: tag
-
-    #         - name: Update ~/.kube/config file
-    #           run: echo "${{secrets.KUBECONFIG}}" >> ~/.kube/config
-
-    #         - name: Rollout
-    #           run: kubectl set image deployment/charted-server charted-server=docker.noelware.org/charted/charted:${{steps.tag.outputs.version}}-alpine
-
-    #         - name: Wait for completion!
-    #           run: kubectl rollout status deployment/charted-server
+            - uses: getsentry/action-release@v1
+              env:
+                  SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
+                  SENTRY_PROJECT: charted-server
+                  SENTRY_URL: https://sentry.noelware.org
+              with:
+                  environment: production
+                  version: ${{steps.tag.outputs.version}}

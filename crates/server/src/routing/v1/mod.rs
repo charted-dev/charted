@@ -13,9 +13,43 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+pub mod features;
+pub mod info;
+pub mod main;
+pub mod openapi;
+pub mod organization;
+pub mod repository;
+pub mod user;
+
 use crate::Context;
-use axum::Router;
+use axum::{routing, Router};
+use charted_core::VERSION;
+use serde::Serialize;
+use utoipa::ToSchema;
+
+/// Generic entrypoint message for any API route like `/users`.
+#[derive(Serialize, ToSchema)]
+pub struct Entrypoint {
+    /// Humane message to greet you.
+    pub message: String,
+
+    /// URI to the documentation for this entrypoint.
+    pub docs: String,
+}
+
+impl Entrypoint {
+    pub fn new(entity: impl AsRef<str>) -> Self {
+        let entity = entity.as_ref();
+        Self {
+            message: format!("welcome to the {entity} API"),
+            docs: format!(
+                "https://charts.noelware.org/docs/server/{VERSION}/api/reference/{}",
+                entity.to_lowercase().replace(' ', "")
+            ),
+        }
+    }
+}
 
 pub fn create_router(_: &Context) -> Router<Context> {
-    Router::new()
+    Router::new().route("/", routing::get(main::main))
 }

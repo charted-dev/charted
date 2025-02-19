@@ -144,6 +144,9 @@ use utoipa::{
             description = "Endpoints that create, modify, delete, or fetch organization members"
         ),
     ),
+    paths(
+        crate::routing::v1::main::main,
+    ),
     servers(
         (
             url = "https://charts.noelware.org/api/v{version}",
@@ -160,6 +163,12 @@ use utoipa::{
     external_docs(url = "https://charts.noelware.org/docs/server/latest")
 )]
 pub struct Document;
+
+impl Document {
+    pub fn to_json_pretty() -> serde_json::Result<String> {
+        serde_json::to_string_pretty(&Document::openapi())
+    }
+}
 
 /// Represents a generic empty API response, please do not use this in actual code,
 /// it is only meant for utoipa for OpenAPI code generation.

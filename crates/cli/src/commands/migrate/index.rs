@@ -15,6 +15,7 @@
 
 #![allow(dead_code)]
 
+use charted_core::ResultExt;
 use charted_helm_types::ChartIndex;
 use charted_types::name::Name;
 use eyre::{bail, Context};
@@ -125,6 +126,7 @@ fn build_rayon_pool(workers: usize) -> eyre::Result<()> {
             Ok(())
         })
         .build_global()
+        .into_report()
         .context("failed to build global rayon pool")
 }
 
@@ -136,6 +138,7 @@ fn build_http_client() -> eyre::Result<reqwest::Client> {
         ))
         .use_rustls_tls()
         .build()
+        .into_report()
         .context("failed to build HTTP client")
 }
 

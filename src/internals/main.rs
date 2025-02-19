@@ -13,102 +13,88 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-fn main() {}
+use azalia::log::writers;
+use charted_server::openapi::Document;
+use std::{
+    env,
+    fs::{self, File, OpenOptions},
+    io::{self, Write},
+    path::PathBuf,
+    process::exit,
+};
+use tracing::{error, info};
+use tracing_subscriber::{prelude::*, EnvFilter};
 
-// use azalia::log::writers;
-// use charted_server::openapi::Document;
-// use std::{
-//     env,
-//     fs::{self, File, OpenOptions},
-//     io::{self, Write},
-//     path::PathBuf,
-//     process::exit,
-// };
-// use tracing::{error, info, trace};
-// use tracing_subscriber::{prelude::*, EnvFilter};
-// use utoipa::OpenApi;
+fn main() -> eyre::Result<()> {
+    preinit()?;
 
-// const HELP: &str = r#"
-// ━━━━━━━━━━━━━━━━━━━━━━ USAGE ━━━━━━━━━━━━━━━━━━━━━
-//     cargo dev internals <COMMAND> [...ARGS]
+    let mut args = env::args();
+    match args.nth(1) {
+        Some(x) => match &*x.to_ascii_lowercase() {
+            "openapi" => openapi(args.next().map(PathBuf::from)),
+            _ => {
+                print_help();
+                exit(1);
+            }
+        },
+        None => {
+            print_help();
+            exit(1);
+        }
+    }
+}
 
-// ━━━━━━━━━━━━━━━━━━━━ COMMANDS ━━━━━━━━━━━━━━━━━━━━
-// `cargo dev internals openapi <PATH>`
-//     ↳ Generates the OpenAPI specification into <PATH>
+fn print_help() {
+    eprintln!("{:━^80}", " COMMANDS ");
+    eprintln!("$ cargo internals openapi <PATH>");
+    eprintln!("    ↳ Generates the OpenAPI specification into <PATH>");
+    eprintln!();
+    eprintln!("$ cargo internals jsonschema <PATH>");
+    eprintln!("    ↳ Generates the JSON schema for `.charted.toml` into <PATH>");
+}
 
-// `cargo dev internals jsonschema <PATH>`
-//     ↳ Generates the JSON schema for `.charted.toml`
-//       into <PATH>.
-// "#;
+fn preinit() -> eyre::Result<()> {
+    color_eyre::install()?;
+    tracing_subscriber::registry()
+        .with(azalia::log::WriteLayer::new_with(
+            io::stderr(),
+            writers::default::Writer {
+                print_thread: false,
+                print_module: false,
 
-// fn main() -> eyre::Result<()> {
-//     preinit()?;
+                ..Default::default()
+            },
+        ))
+        .with(EnvFilter::from_default_env())
+        .init();
 
-//     let mut args = env::args();
-//     match args.nth(1) {
-//         Some(res) => match &*res.to_ascii_lowercase() {
-//             "openapi" => openapi(args.next().map(PathBuf::from)),
-//             "jsonschema" => jsonschema(args.next().map(PathBuf::from)),
-//             _ => {
-//                 eprintln!("{HELP}");
-//                 exit(1);
-//             }
-//         },
-//         None => {
-//             eprintln!("{HELP}");
-//             exit(1);
-//         }
-//     }
-// }
+    Ok(())
+}
 
-// fn preinit() -> eyre::Result<()> {
-//     color_eyre::install()?;
-//     tracing_subscriber::registry()
-//         .with(azalia::log::WriteLayer::new_with(
-//             io::stderr(),
-//             writers::default::Writer {
-//                 print_thread: false,
-//                 print_module: false,
+fn openapi(path: Option<PathBuf>) -> eyre::Result<()> {
+    let path = path.unwrap_or_else(|| env::current_dir().unwrap().join("assets/openapi.json"));
 
-//                 ..Default::default()
-//             },
-//         ))
-//         .with(EnvFilter::from_default_env())
-//         .init();
+    info!("writing OpenAPI specification in {}", path.display());
+    let mut file = match path.try_exists() {
+        Ok(true) => File::create(&path)?,
+        Ok(false) => {
+            if let Some(parent) = path.parent() {
+                fs::create_dir_all(parent)?;
+            }
 
-//     Ok(())
-// }
+            OpenOptions::new().create_new(true).write(true).open(&path)?
+        }
 
-// fn openapi(path: Option<PathBuf>) -> eyre::Result<()> {
-//     let default = env::current_dir()?.join("assets/openapi.json");
-//     let path = path.unwrap_or(default);
+        Err(e) => {
+            error!(error = %e, path = %path.display(), "unable to validate that path exists");
+            exit(1);
+        }
+    };
 
-//     trace!(path = %path.display(), "writing OpenAPI specification");
-//     let mut file = match path.try_exists() {
-//         Ok(true) => File::create(&path)?,
-//         Ok(false) => {
-//             if let Some(parent) = path.parent() {
-//                 fs::create_dir_all(parent)?;
-//             }
+    let serialized = Document::to_json_pretty()?;
+    write!(file, "{serialized}")?;
 
-//             OpenOptions::new().create_new(true).write(true).open(&path)?
-//         }
+    info!("wrote OpenAPI specification in {}", path.display());
 
-//         Err(e) => {
-//             error!(error = %e, path = %path.display(), "unable to validate that path exists");
-//             exit(1);
-//         }
-//     };
-
-//     let document = Document::openapi();
-//     let serialized = document.to_json()?;
-
-//     write!(file, "{serialized}")?;
-//     info!(path = %path.display(), "wrote OpenAPI specification");
-
-//     Ok(())
-// }
-
-// fn jsonschema(_: Option<PathBuf>) -> eyre::Result<()> {
-//     Ok(())
-// }
+    Ok(())
+}

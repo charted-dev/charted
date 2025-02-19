@@ -24,8 +24,10 @@ pub mod serde;
 #[macro_use]
 mod macros;
 mod distribution;
+mod ext;
 
 pub use distribution::*;
+pub use ext::*;
 
 use argon2::Argon2;
 use rand::distr::{Alphanumeric, SampleString};

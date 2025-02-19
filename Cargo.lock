@@ -1368,6 +1368,15 @@ dependencies = [
 [[package]]
 name = "charted-internals"
 version = "0.0.0-devel.0"
+dependencies = [
+ "azalia",
+ "charted-server",
+ "color-eyre",
+ "eyre",
+ "tracing",
+ "tracing-subscriber",
+ "utoipa",
+]
 
 [[package]]
 name = "charted-server"

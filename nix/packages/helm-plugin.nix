@@ -42,12 +42,6 @@ in
       lockFile = ../../Cargo.lock;
     };
 
-    checkFlags = [
-      # TODO(@auguwu/@spotlightishere): try to fix this on Nix. Do we need special logic for this?
-      # It works in CI and on our machines, so we aren't sure why it is failing.
-      "--skip=ulid::tests::test_monotonicity"
-    ];
-
     nativeBuildInputs = [pkg-config installShellFiles];
     buildInputs =
       [openssl sqlite postgresql]

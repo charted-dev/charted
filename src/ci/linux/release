@@ -23,9 +23,29 @@ buildflags=${BUILDFLAGS:-}
 root=$(cd "$(dirname $0)/../.." && pwd)
 cargo=${CARGO:-cargo}
 rustflags=${RUSTFLAGS:-}
+cargoflags=${CARGOFLAGS:-}
+
+archtype() {
+    if noelware::arch::x86_64; then
+        echo "x86_64"
+    fi
+
+    if noelware::arch::aarch64; then
+        echo "aarch64"
+    fi
+}
+
+arch=""
+if noelware::arch::x86_64; then
+    arch="x86_64"
+fi
+
+if noelware::arch::aarch64; then
+    arch="aarch64"
+fi
 
 prepare() {
-    echo "~> install "
+    echo "~> install \`mold\`"
     apt-get install -y mold
 }
 
@@ -43,12 +63,12 @@ build() {
     pushd "$root/.result" >/dev/null
 
     echo "~> Performing compilation of binary \`$bin\`                  [buildflags=$buildflags] [\$CARGO=$cargo] [os=linux] [arch=x86_64]"
-    echo "   $ RUSTFLAGS=\"$RUSTFLAGS\" $cargo build --release --locked --bin $bin $buildflags"
-    "$cargo" build --release --locked $buildflags --bin $bin || exit 1
+    echo "   $ RUSTFLAGS=\"$RUSTFLAGS\" $cargo $cargoflags build --release --locked --bin $bin $buildflags"
+    "$cargo" build $cargoflags --release --locked $buildflags --bin $bin || exit 1
 
-    mv $root/target/release/"$bin" ./"$bin"-linux-x86_64
+    mv $root/target/release/"$bin" ./"$bin"-linux-$arch
     echo "~> Generating checksum                                        [binary=$bin]"
-    sha256sum "$bin-linux-x86_64" > ./"$bin"-linux-x86_64.sha256
+    sha256sum "$bin-linux-x86_64" > ./"$bin"-linux-$arch.sha256
 
     echo "~> Completed. Artifacts are in $root/.result"
 
@@ -61,10 +81,10 @@ if noelware::isGitHubActions; then
     noelware::endGroup
 fi
 
-noelware::startGroup "[charted] Building \`linux-x86_64\` binary"
+noelware::startGroup "[charted] Building \`linux-$arch\` binary"
 build "charted"
 noelware::endGroup
 
-noelware::startGroup "[helm-plugin] Building \`linux-x86_64\` binary"
+noelware::startGroup "[helm-plugin] Building \`linux-$arch\` binary"
 build "charted-helm-plugin"
 noelware::endGroup

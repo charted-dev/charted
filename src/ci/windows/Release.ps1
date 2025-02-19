@@ -39,12 +39,14 @@ function Main {
 
     StartGroup "Build / Windows (x64)"
 
+    $CargoFlags = [System.Environment]::GetEnvironmentVariable("CARGOFLAGS") || ""
+
     # Create the `.result` directory in the root project
     # so we can put our files in there.
     New-Item -Path . -Name ".result" -ItemType Directory
 
-    Write-Host "$ $Cargo build --release --locked --bin $Binary $BuildFlags"
-    Invoke-Expression "$Cargo build --release --locked --bin $Binary $BuildFlags"
+    Write-Host "$ $Cargo $CargoFlags build --release --locked --bin $Binary $BuildFlags"
+    Invoke-Expression "$Cargo $CargoFlags build --release --locked --bin $Binary $BuildFlags"
 
     Write-Host "$ mv ./target/release/$Binary.exe -> .result/$Binary-windows-x86_64.exe"
     Move-Item -Path "./target/release/$Binary.exe" ".result/$Binary-windows-x86_64.exe"
