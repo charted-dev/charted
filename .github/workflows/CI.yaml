@@ -149,8 +149,14 @@ jobs:
               if: ${{matrix.runner == 'windows-latest'}}
               uses: ilammy/setup-nasm@v1
 
+            - uses: taiki-e/cache-cargo-install-action@v2
+              with:
+                  tool: cargo-nextest
+
             - run: cargo miri setup
-            - run: cargo miri run --all-features --locked
+            - run: cargo miri run --all-features --locked --bin charted
+            - run: cargo miri run --all-features --locked --bin charted-helm-plugin
+            - run: cargo miri nextest --all-features
     cargo-deny:
         name: 'Rust / `cargo deny`'
         runs-on: ubuntu-24.04
