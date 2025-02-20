@@ -68,7 +68,7 @@ impl Client {
         #[cfg(feature = "tracing")]
         ::tracing::debug!("<- {} {}", method, endpoint);
 
-        let mut builder = self.inner.request(method, self.base.join(endpoint).unwrap());
+        let mut builder = self.inner.request(method.clone(), self.base.join(endpoint).unwrap());
         if let Some(headers) = headers {
             builder = builder.headers(headers);
         }
@@ -79,7 +79,7 @@ impl Client {
 
         builder
             .send()
-            .inspect_ok(|res| {
+            .inspect_ok(move |res| {
                 #[cfg(feature = "tracing")]
                 ::tracing::debug!(
                     "-> {} {}: {} (success: {})",
