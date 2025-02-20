@@ -20,6 +20,6 @@ pub use charted_types::{
     RepositoryRelease, Session, Ulid, User, UserConnections, Version, VersionReq,
 };
 
-pub use charted_core::api;
+pub use charted_core::api::{Error, ErrorCode, Response};
 pub use charted_core::serde::Duration;
 pub use charted_helm_types::*;

@@ -13,8 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use std::future::Future;
+
 use crate::{Error, Result};
 use charted_core::api;
+use futures_util::TryFutureExt;
 use reqwest::{header::HeaderMap, Body, ClientBuilder, Method, Response};
 use url::Url;
 
@@ -51,20 +54,21 @@ impl Client {
         }
     }
 
+    #[doc(hidden)]
     #[cfg_attr(feature = "tracing", tracing::instrument(name = "charted.client.request", skip_all))]
-    pub async fn send<B: Into<Option<Body>>>(
+    pub fn send<B: Into<Option<Body>>>(
         &self,
         method: Method,
         endpoint: impl AsRef<str>,
         headers: Option<HeaderMap>,
         body: B,
-    ) -> Result<Response> {
+    ) -> impl Future<Output = Result<Response>> + Send {
         let endpoint = endpoint.as_ref();
 
         #[cfg(feature = "tracing")]
         ::tracing::debug!("<- {} {}", method, endpoint);
 
-        let mut builder = self.inner.request(method, self.base.join(endpoint)?);
+        let mut builder = self.inner.request(method, self.base.join(endpoint).unwrap());
         if let Some(headers) = headers {
             builder = builder.headers(headers);
         }
@@ -73,7 +77,22 @@ impl Client {
             builder = builder.body(body);
         }
 
-        builder.send().await.map_err(Error::Reqwest)
+        builder
+            .send()
+            .inspect_ok(|res| {
+                #[cfg(feature = "tracing")]
+                ::tracing::debug!(
+                    "-> {} {}: {} (success: {})",
+                    method,
+                    endpoint,
+                    res.status(),
+                    res.status().is_success()
+                );
+
+                #[cfg(not(feature = "tracing"))]
+                let _ = res;
+            })
+            .map_err(Error::Reqwest)
     }
 }
 

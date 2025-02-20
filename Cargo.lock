@@ -1259,9 +1259,15 @@ dependencies = [
  "charted-helm-types",
  "charted-types",
  "derive_more 2.0.1",
+ "futures-util",
+ "proc-macro2",
+ "quote",
  "reqwest",
+ "serde_json",
+ "syn 2.0.98",
  "tracing",
  "url",
+ "utoipa",
 ]
 
 [[package]]

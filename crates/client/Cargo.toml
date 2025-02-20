@@ -33,10 +33,24 @@ unexpected_cfgs = { level = "warn", check-cfg = ['cfg(noeldoc)'] }
 default = []
 
 [dependencies]
-charted-core.workspace = true
+charted-core = { workspace = true, features = ["axum"] }
 charted-types.workspace = true
 charted-helm-types.workspace = true
 derive_more = { workspace = true, features = ["from", "display", "error"] }
+futures-util = { version = "0.3.31", default-features = false }
 reqwest = { version = "0.12.12", features = ["json", "multipart"] }
-url.workspace = true
+serde_json.workspace = true
 tracing = { workspace = true, optional = true }
+url.workspace = true
+
+[build-dependencies]
+proc-macro2 = { version = "1.0.93", default-features = false }
+quote = { version = "1.0.38", default-features = false }
+serde_json.workspace = true
+syn = { version = "2.0.98", default-features = false, features = [
+    "printing",
+    "parsing",
+    "clone-impls",
+    "full",
+] }
+utoipa = { workspace = true, features = ["debug"] }

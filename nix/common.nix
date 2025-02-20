@@ -20,7 +20,7 @@
 
   rustflags = stdenv:
     if stdenv.isLinux
-    then ''-C link-arg=-fuse-ld=mold -C target-cpu=native $RUSTFLAGS''
+    then ''-C linker=clang -C link-arg=-fuse-ld=mold -C target-cpu=native $RUSTFLAGS''
     else ''$RUSTFLAGS'';
 
   mkRustPlatform = rust: rust.fromRustupToolchainFile ../rust-toolchain.toml;
