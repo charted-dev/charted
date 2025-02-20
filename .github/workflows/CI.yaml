@@ -120,7 +120,6 @@ jobs:
                     ]
         steps:
             - uses: actions/checkout@v4
-            - run: rm rust-toolchain.toml
 
             # Ensure that we test on the recent Nightly compiler toolchain
             - run: rm ${GITHUB_WORKSPACE}/rust-toolchain.toml
