@@ -150,7 +150,7 @@ jobs:
               uses: ilammy/setup-nasm@v1
 
             - run: cargo miri setup
-            - run: cargo miri run --all-features --workspace --locked
+            - run: cargo miri run --all-features --locked
     cargo-deny:
         name: 'Rust / `cargo deny`'
         runs-on: ubuntu-24.04
