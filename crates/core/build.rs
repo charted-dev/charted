@@ -21,13 +21,13 @@ macro_rules! rerun_if_changed {
         println!("cargo::rerun-if-changed={}", $item);
     };
 
-    ($item:expr) => {
+    ($item:expr_2021) => {
         println!("cargo::rerun-if-changed={}", $item);
     };
 }
 
 macro_rules! rustc_env {
-    ($name:literal = $item:expr) => {
+    ($name:literal = $item:expr_2021) => {
         println!("cargo::rustc-env={}={}", $name, $item);
     };
 }
@@ -37,7 +37,7 @@ macro_rules! warn {
         println!("cargo::warning={}", $message);
     };
 
-    ($message:expr) => {
+    ($message:expr_2021) => {
         println!("cargo::warning={}", $message);
     };
 }

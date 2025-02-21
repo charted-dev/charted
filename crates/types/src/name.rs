@@ -144,8 +144,8 @@ impl Name {
 #[cfg(feature = "__internal_db")]
 const _: () = {
     use sea_orm::{
-        sea_query::{ArrayType, ColumnType, Value, ValueType, ValueTypeErr},
         ColIdx, DbErr, QueryResult, TryGetError, TryGetable,
+        sea_query::{ArrayType, ColumnType, Value, ValueType, ValueTypeErr},
     };
     use std::any::type_name;
 
@@ -222,7 +222,7 @@ cfg_openapi! {
 }
 
 cfg_jsonschema! {
-    use schemars::{gen::*, schema::*, JsonSchema};
+    use schemars::{r#gen::*, schema::*, JsonSchema};
 
     #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "openapi")))]
     impl JsonSchema for Name {

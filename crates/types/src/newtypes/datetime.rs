@@ -77,7 +77,7 @@ cfg_openapi! {
 cfg_jsonschema! {
     use schemars::{
         JsonSchema,
-        gen::SchemaGenerator,
+        r#gen::SchemaGenerator,
         schema::{
             Schema,
             InstanceType,
@@ -110,8 +110,8 @@ cfg_jsonschema! {
 #[cfg(feature = "__internal_db")]
 const _: () = {
     use sea_orm::{
-        sea_query::{ArrayType, ColumnType, Value, ValueType, ValueTypeErr},
         ColIdx, QueryResult, TryGetError, TryGetable,
+        sea_query::{ArrayType, ColumnType, Value, ValueType, ValueTypeErr},
     };
 
     impl TryGetable for DateTime {

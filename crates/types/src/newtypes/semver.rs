@@ -132,8 +132,8 @@ cfg_jsonschema! {
             <semver::Version as JsonSchema>::schema_name()
         }
 
-        fn json_schema(gen: &mut schemars::gen::SchemaGenerator) -> schemars::schema::Schema {
-            <semver::Version as JsonSchema>::json_schema(gen)
+        fn json_schema(g: &mut schemars::r#gen::SchemaGenerator) -> schemars::schema::Schema {
+            <semver::Version as JsonSchema>::json_schema(g)
         }
     }
 }
@@ -141,8 +141,8 @@ cfg_jsonschema! {
 #[cfg(feature = "__internal_db")]
 const _: () = {
     use sea_orm::{
-        sea_query::{ArrayType, ColumnType, Value, ValueType, ValueTypeErr},
         ColIdx, DbErr, QueryResult, TryGetError, TryGetable,
+        sea_query::{ArrayType, ColumnType, Value, ValueType, ValueTypeErr},
     };
     use std::any::type_name;
 
@@ -253,7 +253,7 @@ cfg_jsonschema! {
             String::from("VersionReq")
         }
 
-        fn json_schema(_: &mut schemars::gen::SchemaGenerator) -> schemars::schema::Schema {
+        fn json_schema(_: &mut schemars::r#gen::SchemaGenerator) -> schemars::schema::Schema {
             ::schemars::schema::SchemaObject {
                 instance_type: Some(::schemars::schema::InstanceType::String.into()),
                 ..Default::default()
@@ -266,8 +266,8 @@ cfg_jsonschema! {
 #[cfg(feature = "__internal_db")]
 const _: () = {
     use sea_orm::{
-        sea_query::{ArrayType, ColumnType, Value, ValueType, ValueTypeErr},
         ColIdx, DbErr, QueryResult, TryGetError, TryGetable,
+        sea_query::{ArrayType, ColumnType, Value, ValueType, ValueTypeErr},
     };
 
     impl TryGetable for VersionReq {

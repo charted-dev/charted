@@ -194,7 +194,7 @@ macro_rules! bitflags {
         $vis:vis $name:ident[$bit:ty] {
             $(
                 $(#[$doc:meta])*
-                $field:ident[$key:literal] => $value:expr;
+                $field:ident[$key:literal] => $value:expr_2021;
             )*
         }
     ) => {

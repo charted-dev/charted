@@ -91,7 +91,7 @@ cfg_openapi! {
 }
 
 cfg_jsonschema! {
-    use schemars::{JsonSchema, schema::*, gen::SchemaGenerator};
+    use schemars::{JsonSchema, schema::*, r#gen::SchemaGenerator};
     use std::borrow::Cow;
 
     impl JsonSchema for Ulid {
@@ -121,8 +121,8 @@ cfg_jsonschema! {
 #[cfg(feature = "__internal_db")]
 const _: () = {
     use sea_orm::{
-        sea_query::{ArrayType, ColumnType, Nullable, Value, ValueType, ValueTypeErr},
         ColIdx, DbErr, QueryResult, TryFromU64, TryGetError, TryGetable,
+        sea_query::{ArrayType, ColumnType, Nullable, Value, ValueType, ValueTypeErr},
     };
     use std::any::type_name;
 

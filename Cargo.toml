@@ -44,12 +44,12 @@ authors = [
     "John Burke <winter@winterfox.tech>",
 ]
 documentation = "https://charts.noelware.org/docs"
-edition = "2021"
+edition = "2024"
 homepage = "https://charts.noelware.org"
 license = "Apache-2.0"
 publish = false
 repository = "https://github.com/charted-dev/charted"
-rust-version = "1.80"
+rust-version = "1.85"
 
 [workspace.dependencies]
 charted-authz = { path = "./crates/authz" }

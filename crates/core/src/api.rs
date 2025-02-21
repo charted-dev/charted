@@ -97,7 +97,7 @@ impl ::schemars::JsonSchema for Version {
         String::from("Version")
     }
 
-    fn json_schema(_: &mut ::schemars::gen::SchemaGenerator) -> ::schemars::schema::Schema {
+    fn json_schema(_: &mut ::schemars::r#gen::SchemaGenerator) -> ::schemars::schema::Schema {
         ::schemars::schema::Schema::Object(::schemars::schema::SchemaObject {
             instance_type: Some(::schemars::schema::SingleOrVec::Single(
                 ::schemars::schema::InstanceType::Number.into(),
