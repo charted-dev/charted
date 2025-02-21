@@ -13,12 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::future::Future;
-
 use crate::{Error, Result};
 use charted_core::api;
 use futures_util::TryFutureExt;
-use reqwest::{header::HeaderMap, Body, ClientBuilder, Method, Response};
+use reqwest::{Body, ClientBuilder, Method, Response, header::HeaderMap};
 use url::Url;
 
 /// The default API endpoint.
@@ -59,16 +57,16 @@ impl Client {
     pub fn send<B: Into<Option<Body>>>(
         &self,
         method: Method,
-        endpoint: impl AsRef<str>,
+        endpoint: impl Into<String>,
         headers: Option<HeaderMap>,
         body: B,
     ) -> impl Future<Output = Result<Response>> + Send {
-        let endpoint = endpoint.as_ref();
+        let endpoint = endpoint.into();
 
         #[cfg(feature = "tracing")]
         ::tracing::debug!("<- {} {}", method, endpoint);
 
-        let mut builder = self.inner.request(method.clone(), self.base.join(endpoint).unwrap());
+        let mut builder = self.inner.request(method.clone(), self.base.join(&endpoint).unwrap());
         if let Some(headers) = headers {
             builder = builder.headers(headers);
         }
