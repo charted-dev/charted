@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use super::common;
-use azalia::config::{env, merge::Merge, TryFromEnv};
+use azalia::config::{TryFromEnv, env, merge::Merge};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -50,7 +50,7 @@ impl Merge for StringOrPath {
 /// This database driver uses the almighty, holy [SQLite](https://sqlite.org). This is mainly used
 /// for development, evaluation purposes, or if PostgreSQL is too heavy for your use-cases.
 #[derive(Debug, Clone, Merge, Serialize, Deserialize, derive_more::Deref, derive_more::Display)]
-#[display("sqlite://{}", self.path)]
+#[display("sqlite://{}?mode=rwc", self.path)]
 pub struct Config {
     #[serde(flatten)]
     #[deref]

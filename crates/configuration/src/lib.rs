@@ -23,7 +23,7 @@ pub mod storage;
 pub mod tracing;
 pub(crate) mod util;
 
-use azalia::config::{env, merge::Merge, FromEnv, TryFromEnv};
+use azalia::config::{FromEnv, TryFromEnv, env, merge::Merge};
 use sentry_types::Dsn;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -124,7 +124,10 @@ impl Config {
 
     pub fn load<P: AsRef<Path>>(path: Option<P>) -> eyre::Result<Self> {
         let Some(path) = path.as_ref() else {
-            return Config::try_from_env();
+            let mut config = Config::try_from_env()?;
+            update_config(&mut config)?;
+
+            return Ok(config);
         };
 
         let path = path.as_ref();
@@ -134,7 +137,10 @@ impl Config {
                 path.display()
             );
 
-            return Config::try_from_env();
+            let mut config = Config::try_from_env()?;
+            update_config(&mut config)?;
+
+            return Ok(config);
         }
 
         let mut config = Config::try_from_env()?;
@@ -143,33 +149,7 @@ impl Config {
         let file: Config = toml::from_str(&contents)?;
         config.merge(file);
 
-        if config.jwt_secret_key.is_empty() {
-            let key = charted_core::rand_string(16);
-            eprintln!(
-                r#"""[charted :: WARN] You are missing a JWT secret key either from
-the `${env}` environment variable or from the `jwt_secret_key` configuration property in your `config.toml`
-
-I generated one for you here: `{secret}`
-
-!! DO NOT LOSE IT !!"""#,
-                env = JWT_SECRET_KEY,
-                secret = key
-            );
-
-            config.jwt_secret_key = key;
-        }
-
-        if config.base_url.is_none() {
-            let scheme = match config.server.ssl {
-                Some(_) => "https",
-                None => "http",
-            };
-
-            let url = Url::parse(&format!("{scheme}://{}", config.server.to_socket_addr()))?;
-            eprintln!("[charted :: WARN] `base_url` was not configured properly! All URLs will be mapped to {url}");
-
-            config.base_url = Some(url);
-        }
+        update_config(&mut config)?;
 
         Ok(config)
     }
@@ -207,4 +187,35 @@ impl TryFromEnv for Config {
             },
         })
     }
+}
+
+fn update_config(config: &mut Config) -> eyre::Result<()> {
+    if config.jwt_secret_key.is_empty() {
+        let key = charted_core::rand_string(16);
+        eprintln!(
+            r#"[charted :: WARN] You are missing a JWT secret key either from the `${env}` environment variable or from the `jwt_secret_key` configuration property in your `config.toml`
+
+I generated one for you here: `{secret}`
+
+!! DO NOT LOSE IT !!"#,
+            env = JWT_SECRET_KEY,
+            secret = key
+        );
+
+        config.jwt_secret_key = key;
+    }
+
+    if config.base_url.is_none() {
+        let scheme = match config.server.ssl {
+            Some(_) => "https",
+            None => "http",
+        };
+
+        let url = Url::parse(&format!("{scheme}://{}", config.server.to_socket_addr()))?;
+        eprintln!("[charted :: WARN] `base_url` was not configured properly! All URLs will be mapped to {url}");
+
+        config.base_url = Some(url);
+    }
+
+    Ok(())
 }

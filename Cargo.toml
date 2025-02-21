@@ -129,6 +129,7 @@ url = "2.5.4"
 version = "0.1.0"
 git = "https://github.com/Noelware/azalia"
 rev = "f4600130658cfe523350222717b4530ce4d30123"
+features = ["remi-tracing"]
 
 [profile.release]
 codegen-units = 1 # use a single codegen unit

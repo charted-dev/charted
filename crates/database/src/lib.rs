@@ -13,15 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use charted_config::database::Config;
+use charted_config::database::{Config, sqlite::StringOrPath};
 use charted_core::serde::Duration;
 use migrations::Migrator;
 use sea_orm::{
-    metric::Info, ConnectOptions, DatabaseBackend, DatabaseConnection, SqlxPostgresConnector, SqlxSqliteConnector,
+    ConnectOptions, DatabaseBackend, DatabaseConnection, SqlxPostgresConnector, SqlxSqliteConnector, metric::Info,
 };
 use sea_orm_migration::MigratorTrait;
-use std::ops::Deref;
-use tracing::{info, instrument, trace};
+use std::{fs, ops::Deref, path::Path};
+use tracing::{info, instrument, trace, warn};
 
 pub mod entities;
 pub mod migrations;
@@ -31,7 +31,21 @@ pub async fn create_pool(config: &Config) -> eyre::Result<DatabaseConnection> {
     info!("establishing database connection");
     let mut conn = match config {
         Config::PostgreSQL(_) => SqlxPostgresConnector::connect(connect_options_with(config)).await?,
-        Config::SQLite(_) => SqlxSqliteConnector::connect(connect_options_with(config)).await?,
+        Config::SQLite(cfg) => {
+            // if we are a `Path`, then try to create the parent
+            // directories if we can so that we don't have to manually
+            // create it.
+            if let StringOrPath::Path(ref p) = cfg.path {
+                if let Some(parent) = p.parent() {
+                    if parent != Path::new("") && !parent.try_exists()? {
+                        warn!(path = %p.display(), "creating parent directories since it doesn't exist");
+                        fs::create_dir_all(parent)?;
+                    }
+                }
+            }
+
+            SqlxSqliteConnector::connect(connect_options_with(config)).await?
+        }
     };
 
     conn.set_metric_callback(metric_callback);
