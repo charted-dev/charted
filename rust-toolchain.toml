@@ -24,5 +24,4 @@ components = [
     "rust-std",
     "clippy",
     "rust-src",
-    "miri",
 ]
