@@ -37,7 +37,7 @@ clap = { workspace = true, features = ["derive", "env"] }
 clap_complete.workspace = true
 color-eyre = "0.6.3"
 comfy-table = "7.1.1"
-etcetera = "0.8.0"
+etcetera = "0.10.0"
 eyre.workspace = true
 http = "1.1.0"
 reqwest = "0.12.7"

@@ -1429,7 +1429,7 @@ dependencies = [
  "clap_complete",
  "color-eyre",
  "comfy-table",
- "etcetera",
+ "etcetera 0.10.0",
  "eyre",
  "http 1.2.0",
  "reqwest",
@@ -2209,6 +2209,17 @@ dependencies = [
  "cfg-if",
  "home",
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "etcetera"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "26c7b13d0780cb82722fd59f6f57f925e143427e4a75313a6c77243bf5326ae6"
+dependencies = [
+ "cfg-if",
+ "home",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -4412,7 +4423,7 @@ version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "99621b113276ba096c8ee56e09781a1ce209393b9f29dc22c9307c4111936791"
 dependencies = [
- "etcetera",
+ "etcetera 0.8.0",
  "file-format",
  "infer 0.16.0",
  "remi",
@@ -5630,7 +5641,7 @@ dependencies = [
  "bytes",
  "docker_credential",
  "either",
- "etcetera",
+ "etcetera 0.8.0",
  "futures",
  "log",
  "memchr",
