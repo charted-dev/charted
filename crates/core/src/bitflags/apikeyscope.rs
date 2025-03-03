@@ -13,7 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use serde::{Deserialize, Serialize, Serializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+use super::Bitflags;
 
 pub type ApiKeyScopes = crate::bitflags::Bitfield<ApiKeyScope>;
 
@@ -201,40 +203,37 @@ impl Serialize for ApiKeyScope {
 impl<'de> Deserialize<'de> for ApiKeyScope {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
-        D: serde::Deserializer<'de>,
+        D: Deserializer<'de>,
     {
         use serde::de::Error;
 
-        let content = <serde::__private::de::Content as serde::Deserialize>::deserialize(deserializer)?;
-        let deserializer = serde::__private::de::ContentRefDeserializer::<D::Error>::new(&content);
-        let flags = <ApiKeyScope as crate::bitflags::Bitflags>::flags();
+        let flags = ApiKeyScope::flags();
 
-        if let Ok(s) = <String as serde::Deserialize>::deserialize(deserializer) {
-            if let Some(value) = flags.get(s.as_str()).copied() {
-                // Safety: the implementation of the `bitflags!` macro will ensure
-                //         that `value` is a discriminant of `ApiKeyScope`.
-                return Ok(unsafe { std::mem::transmute::<u64, ApiKeyScope>(value) });
-            }
+        serde_untagged::UntaggedEnumVisitor::new()
+            .expecting("string or uint64")
+            .string(|v| {
+                if let Some(value) = flags.get(v).copied() {
+                    return Ok(unsafe {
+                        // SAFETY: the `bitflags!` macro will ensure that
+                        // `value` can be transmuted from a `u64` into
+                        // a `ApiKeyScope`.
+                        std::mem::transmute::<u64, ApiKeyScope>(value)
+                    });
+                }
 
-            return Err(D::Error::custom(format!("unknown value [{s}]")));
-        }
+                Err(serde_untagged::de::Error::custom(format!(
+                    "unknown variant of ApiKeyScope: {v}"
+                )))
+            })
+            .u64(|v| {
+                let max = <ApiKeyScope as Bitflags>::max();
+                if v >= 1 && v <= max {
+                    return Ok(unsafe { std::mem::transmute::<u64, ApiKeyScope>(v) });
+                }
 
-        if let Ok(value) = <u64 as serde::Deserialize>::deserialize(deserializer) {
-            let max = <ApiKeyScope as crate::bitflags::Bitflags>::max();
-            if value >= 1 && value <= max {
-                // Safety: the condition above checks if value is greater than once, since
-                //         we can't accept `0` as a value and therefore, will not pass the check
-                //
-                //         And, we check if the `value` is less than or equal to the
-                //         possible maximum value from the `bitflags!` impl. Therefore,
-                //         it is safe to assume that we can transmute from `u64` -> `ApiKeyScope`.
-                return Ok(unsafe { std::mem::transmute::<u64, ApiKeyScope>(value) });
-            }
-
-            return Err(D::Error::custom(format!("out of range: [1..{max})")));
-        }
-
-        Err(D::Error::custom("invalid path: expected a `string` or `uint64`"))
+                Err(serde_untagged::de::Error::custom(format!("out of range: [1..{max})")))
+            })
+            .deserialize(deserializer)
     }
 }
 
@@ -333,7 +332,13 @@ mod tests {
             let e = serde_json::from_str::<ApiKeyScope>("0").unwrap_err();
             let e = e.to_string();
 
-            assert_eq!(e, format!("out of range: [1..{})", <ApiKeyScope as Bitflags>::max()));
+            assert_eq!(
+                e,
+                format!(
+                    "out of range: [1..{}) at line 1 column 1",
+                    <ApiKeyScope as Bitflags>::max()
+                )
+            );
         }
 
         {
@@ -343,7 +348,13 @@ mod tests {
             };
 
             let e = e.to_string();
-            assert_eq!(e, format!("out of range: [1..{})", <ApiKeyScope as Bitflags>::max()));
+            assert_eq!(
+                e,
+                format!(
+                    "out of range: [1..{}) at line 1 column 15",
+                    <ApiKeyScope as Bitflags>::max()
+                )
+            );
         }
 
         {
@@ -352,7 +363,10 @@ mod tests {
             };
 
             let e = e.to_string();
-            assert_eq!(e, "invalid path: expected a `string` or `uint64`");
+            assert_eq!(
+                e,
+                "invalid type: boolean `false`, expected string or uint64 at line 1 column 5"
+            );
         }
     }
 }
