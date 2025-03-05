@@ -24,12 +24,11 @@
 #![doc(html_logo_url = "https://cdn.floofy.dev/images/trans.png")]
 #![doc(html_favicon_url = "https://cdn.floofy.dev/images/trans.png")]
 
+pub use charted_types::ChartType;
 use charted_types::{DateTime, Version, VersionReq};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-
-pub use charted_types::ChartType;
 
 /// The `apiVersion` field should be `v2` for Helm charts that require at least Helm 3.
 ///
@@ -77,9 +76,9 @@ pub enum StringOrImportValue {
 
 /// In Helm, one chart may depend on any number of other charts.
 ///
-/// These dependencies can be dynamically linked using the dependencies' field in `Chart.yaml` or brought in to
-/// the `charts/` directory and managed manually. The charts required by the current chart are defined as a list
-/// in the `dependencies` field.
+/// These dependencies can be dynamically linked using the dependencies' field in
+/// `Chart.yaml` or brought in to the `charts/` directory and managed manually. The charts
+/// required by the current chart are defined as a list in the `dependencies` field.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[serde(rename_all = "camelCase")]
@@ -105,8 +104,8 @@ pub struct ChartDependency {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub tags: Vec<String>,
 
-    /// [`ImportValues`][ImportValue] holds the mapping of source values to parent key to be imported.
-    /// Each item can be a string or pair of child/parent sublist items.
+    /// [`ImportValues`][ImportValue] holds the mapping of source values to parent key to
+    /// be imported. Each item can be a string or pair of child/parent sublist items.
     #[serde(default, rename = "import-values", skip_serializing_if = "Vec::is_empty")]
     pub import_values: Vec<StringOrImportValue>,
 
@@ -118,8 +117,8 @@ pub struct ChartDependency {
 
 /// Name and URL/email address combination as a maintainer.
 ///
-/// The maintainer's name can be a [`ULID`][charted_types::Ulid] or a [`Name`][charted_types::name::Name]
-/// and [Hoshi](https://charts.noelware.org/docs/hoshi/latest) can use the information
+/// The maintainer's name can be a [`ULID`][charted_types::Ulid] or a
+/// [`Name`][charted_types::name::Name] and [Hoshi](https://charts.noelware.org/docs/hoshi/latest) can use the information
 /// to query the user from the API server and show a "Maintainers" list in the UI.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
@@ -142,8 +141,9 @@ pub struct ChartMaintainer {
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[serde(rename_all = "camelCase")]
 pub struct Chart {
-    /// The `apiVersion` field should be v2 for Helm charts that require at least Helm 3. Charts supporting previous
-    /// Helm versions have an apiVersion set to v1 and are still installable by Helm 3.
+    /// The `apiVersion` field should be v2 for Helm charts that require at least Helm 3.
+    /// Charts supporting previous Helm versions have an apiVersion set to v1 and are
+    /// still installable by Helm 3.
     pub api_version: ChartSpecVersion,
 
     /// The name of the chart.
@@ -152,9 +152,10 @@ pub struct Chart {
     /// A SemVer 2 conformant version string of the chart.
     pub version: Version,
 
-    /// The optional `kubeVersion` field can define SemVer constraints on supported Kubernetes versions.
-    /// Helm will validate the version constraints when installing the chart and fail if the
-    /// cluster runs an unsupported Kubernetes version.
+    /// The optional `kubeVersion` field can define SemVer constraints on supported
+    /// Kubernetes versions. Helm will validate the version constraints when
+    /// installing the chart and fail if the cluster runs an unsupported Kubernetes
+    /// version.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub kube_version: Option<VersionReq>,
 
@@ -181,9 +182,10 @@ pub struct Chart {
 
     /// In Helm, one chart may depend on any number of other charts.
     ///
-    /// These dependencies can be dynamically linked using the dependencies' field in `Chart.yaml`
-    /// or brought in to the `charts/` directory and managed manually. The charts required by the current chart
-    /// are defined as a list in the dependencies field.
+    /// These dependencies can be dynamically linked using the dependencies' field in
+    /// `Chart.yaml` or brought in to the `charts/` directory and managed manually.
+    /// The charts required by the current chart are defined as a list in the
+    /// dependencies field.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub dependencies: Vec<ChartDependency>,
 
@@ -197,22 +199,27 @@ pub struct Chart {
 
     /// Note that the `appVersion` field is not related to the `version` field.
     ///
-    /// It is a way of specifying the version of the application. For example, the `drupal` chart may have an
-    /// `appVersion: "8.2.1"`, indicating that the version of Drupal included in the chart (by default) is `8.2.1`.
-    /// This field is informational, and has no impact on chart version calculations.
+    /// It is a way of specifying the version of the application. For example, the
+    /// `drupal` chart may have an `appVersion: "8.2.1"`, indicating that the version
+    /// of Drupal included in the chart (by default) is `8.2.1`. This field is
+    /// informational, and has no impact on chart version calculations.
     ///
-    /// Wrapping the version in quotes is highly recommended. It forces the YAML parser to treat the version number as a string.
-    /// Leaving it unquoted can lead to parsing issues in some cases. For example, YAML interprets 1.0 as a floating point value,
+    /// Wrapping the version in quotes is highly recommended. It forces the YAML parser to
+    /// treat the version number as a string. Leaving it unquoted can lead to parsing
+    /// issues in some cases. For example, YAML interprets 1.0 as a floating point value,
     /// and a git commit SHA like 1234e10 as scientific notation.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub app_version: Option<String>,
 
-    /// When managing charts in a Chart Repository, it is sometimes necessary to deprecate a chart.
+    /// When managing charts in a Chart Repository, it is sometimes necessary to deprecate
+    /// a chart.
     ///
-    /// The optional `deprecated` field in Chart.yaml can be used to mark a chart as deprecated. If the latest version
-    /// of a chart in the repository is marked as deprecated, then the chart as a whole is considered to be deprecated.
+    /// The optional `deprecated` field in Chart.yaml can be used to mark a chart as
+    /// deprecated. If the latest version of a chart in the repository is marked as
+    /// deprecated, then the chart as a whole is considered to be deprecated.
     ///
-    /// The chart name can be later reused by publishing a newer version that is not marked as deprecated.
+    /// The chart name can be later reused by publishing a newer version that is not
+    /// marked as deprecated.
     #[serde(default)]
     pub deprecated: bool,
 
@@ -270,7 +277,8 @@ pub enum ChartIndex {
         /// be modified at all.
         generated: DateTime,
 
-        /// Map of [`ChartIndexSpec`]s for the Helm charts that Helm uses to install a Helm chart.
+        /// Map of [`ChartIndexSpec`]s for the Helm charts that Helm uses to install a
+        /// Helm chart.
         entries: HashMap<String, Vec<ChartIndexSpec>>,
     },
 }

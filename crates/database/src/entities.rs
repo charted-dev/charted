@@ -21,18 +21,16 @@ pub mod user;
 pub mod user_connections;
 
 pub use apikey::Entity as ApiKeyEntity;
-pub use repository::release::Entity as RepositoryReleaseEntity;
-pub use repository::Entity as RepositoryEntity;
-pub use session::Entity as SessionEntity;
-pub use user::Entity as UserEntity;
-pub use user_connections::Entity as UserConnectionsEntity;
-
+pub use repository::{release::Entity as RepositoryReleaseEntity, Entity as RepositoryEntity};
 use sea_orm::{
     prelude::Expr,
     sea_query::{ColumnDef, IntoIden, Table, TableCreateStatement},
     DeriveIden,
 };
 use sea_orm_migration::schema::{text, timestamp};
+pub use session::Entity as SessionEntity;
+pub use user::Entity as UserEntity;
+pub use user_connections::Entity as UserConnectionsEntity;
 
 #[derive(DeriveIden)]
 #[sea_orm(rename_all = "snake_case")]

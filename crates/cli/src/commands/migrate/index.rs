@@ -73,8 +73,8 @@ pub struct Args {
     /// If the resource doesn't exist on the server, then it'll be created. If this is a
     /// single user registry, then this will fail if the owner doesn't exist.
     ///
-    /// If this is a single organization registry and if registrations are disabled, then this
-    /// will also fail.
+    /// If this is a single organization registry and if registrations are disabled, then
+    /// this will also fail.
     owner: Owner,
 
     /// the server that we should connect to.

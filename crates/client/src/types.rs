@@ -15,11 +15,12 @@
 
 //! All of the avaliable types that the REST client uses.
 
+pub use charted_core::{
+    api::{Error, ErrorCode, Response},
+    serde::Duration,
+};
+pub use charted_helm_types::*;
 pub use charted_types::{
     name, payloads, ApiKey, ChartType, DateTime, Organization, OrganizationMember, Repository, RepositoryMember,
     RepositoryRelease, Session, Ulid, User, UserConnections, Version, VersionReq,
 };
-
-pub use charted_core::api::{Error, ErrorCode, Response};
-pub use charted_core::serde::Duration;
-pub use charted_helm_types::*;

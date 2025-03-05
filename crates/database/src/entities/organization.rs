@@ -15,11 +15,10 @@
 
 pub mod member;
 
+use super::{create_table, id};
 use charted_types::{name::Name, Organization, Ulid};
 use sea_orm::{entity::prelude::*, sea_query::TableCreateStatement};
 use sea_orm_migration::schema::*;
-
-use super::{create_table, id};
 
 #[derive(Debug, Clone, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "organizations")]

@@ -33,10 +33,12 @@ pub enum Config {
     /// Alows the API server to use the local filesystem to store metadata in.
     Filesystem(remi::fs::StorageConfig),
 
-    /// Alows the API server to use Microsoft's Azure Blob Storage service to store metadata in.
+    /// Alows the API server to use Microsoft's Azure Blob Storage service to store
+    /// metadata in.
     Azure(remi::azure::StorageConfig),
 
-    /// Alows the API server to use Amazon S3 (or any compatible service) to store metadata in.
+    /// Alows the API server to use Amazon S3 (or any compatible service) to store
+    /// metadata in.
     S3(remi::s3::StorageConfig),
 }
 
@@ -49,8 +51,8 @@ impl Default for Config {
 }
 
 impl TryFromEnv for Config {
-    type Output = Self;
     type Error = eyre::Report;
+    type Output = Self;
 
     fn try_from_env() -> Result<Self::Output, Self::Error> {
         match env!(SERVICE) {

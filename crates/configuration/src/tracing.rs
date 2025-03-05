@@ -53,8 +53,8 @@ pub struct Config {
 }
 
 impl TryFromEnv for Config {
-    type Output = Self;
     type Error = eyre::Report;
+    type Output = Self;
 
     fn try_from_env() -> Result<Self::Output, Self::Error> {
         Ok(Config {

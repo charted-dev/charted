@@ -20,7 +20,8 @@ use eyre::bail;
 use std::io;
 use tracing::trace;
 
-/// Generates shell completions for a specified shell or from the `$SHELL` environment variable.
+/// Generates shell completions for a specified shell or from the `$SHELL` environment
+/// variable.
 #[derive(Debug, clap::Parser)]
 pub struct Args {
     /// Specified shell to generate completions from.

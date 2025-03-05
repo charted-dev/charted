@@ -19,7 +19,8 @@ use eyre::bail;
 use std::io::{self, BufRead};
 use tracing::warn;
 
-/// Generates a Argon2 password that is compatible with the `static` authentication backend.
+/// Generates a Argon2 password that is compatible with the `static` authentication
+/// backend.
 #[derive(Debug, clap::Parser)]
 pub struct Args {
     /// The password to hash (can be empty if `-x`/`--stdin` is provided)

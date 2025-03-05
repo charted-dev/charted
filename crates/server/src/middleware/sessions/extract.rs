@@ -15,7 +15,8 @@
 
 use charted_types::User;
 
-/// `Session` is a Axum extractor avaliable when a route has its session middleware configured.
+/// `Session` is a Axum extractor avaliable when a route has its session middleware
+/// configured.
 #[derive(Debug, Clone)]
 pub struct Session {
     /// Session data, if this is `Bearer`. Otherwise, `None` is returned.

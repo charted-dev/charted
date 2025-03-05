@@ -16,15 +16,14 @@
 //! Valid UTF-8 string that can be used for names that can be
 //! addressed by the API server.
 //!
-//! * A **Name** is a wrapper for <code>[`Arc`]<[`str`]></code> as opposed of
-//!   a [`String`] since a **Name** can be never modified and reflected
-//!   on the database.
+//! * A **Name** is a wrapper for <code>[`Arc`]<[`str`]></code> as opposed of a [`String`]
+//!   since a **Name** can be never modified and reflected on the database.
 //!
-//! * A **Name** is also URL-encoded safe since we only use alphanumeric characters,
-//!   `-`, `_`, and `~`.
+//! * A **Name** is also URL-encoded safe since we only use alphanumeric characters, `-`,
+//!   `_`, and `~`.
 //!
-//! * A **Name** can never overflow since we require names to have a minimum
-//!   length of 2 and a maximum length of 32.
+//! * A **Name** can never overflow since we require names to have a minimum length of 2
+//!   and a maximum length of 32.
 
 use crate::{cfg_jsonschema, cfg_openapi};
 use serde::{Deserialize, Serialize};
@@ -58,15 +57,14 @@ impl std::error::Error for Error {}
 /// Valid UTF-8 string that can be used for names that can be
 /// addressed by the API server.
 ///
-/// * A **Name** is a wrapper for <code>[`Arc`]<[`str`]></code> as opposed of
-///   a [`String`] since a **Name** can be never modified and reflected
-///   on the database.
+/// * A **Name** is a wrapper for <code>[`Arc`]<[`str`]></code> as opposed of a [`String`]
+///   since a **Name** can be never modified and reflected on the database.
 ///
-/// * A **Name** is also URL-encoded safe since we only use alphanumeric characters,
-///   `-`, `_`, and `~`.
+/// * A **Name** is also URL-encoded safe since we only use alphanumeric characters, `-`,
+///   `_`, and `~`.
 ///
-/// * A **Name** can never overflow since we require names to have a minimum
-///   length of 2 and a maximum length of 32.
+/// * A **Name** can never overflow since we require names to have a minimum length of 2
+///   and a maximum length of 32.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, derive_more::Display)]
 #[display("{}", self.as_str())]
 pub struct Name(Arc<str>);
@@ -121,6 +119,7 @@ impl Name {
 
 impl Deref for Name {
     type Target = str;
+
     fn deref(&self) -> &Self::Target {
         &self.0
     }

@@ -38,11 +38,10 @@ pub mod __private {
 
 #[allow(unused_imports)]
 mod helm {
-    use serde::{Deserialize, Serialize};
-    use std::{fmt::Write, str::FromStr};
-
     #[cfg(feature = "__internal_db")]
     use sea_orm::entity::prelude::*;
+    use serde::{Deserialize, Serialize};
+    use std::{fmt::Write, str::FromStr};
 
     /// Representation of a Helm chart.
     #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq, derive_more::Display)]
@@ -61,7 +60,8 @@ mod helm {
     pub enum ChartType {
         /// The default chart type and represents a standard Helm chart.
         ///
-        /// **Note**: Application charts can also act like library charts! Set `type` to `"library"`.
+        /// **Note**: Application charts can also act like library charts! Set `type` to
+        /// `"library"`.
         #[default]
         #[display("application")]
         Application,

@@ -20,9 +20,11 @@ use utoipa::ToSchema;
 
 #[derive(ToSchema)]
 #[allow(unused)]
-struct Response {
+struct Main {
     #[schema(read_only)]
     distribution: Distribution,
+
+    #[schema(inline)]
     build_info: BuildInfo,
 }
 
@@ -53,7 +55,7 @@ struct BuildInfo {
         (
             status = OK,
             description = "200 OK",
-            body = inline(Response)
+            body = api::Response<Main>
         )
     )
 )]

@@ -20,12 +20,10 @@ use std::{fmt::Display, ops::Deref, str::FromStr};
 ///
 /// This newtype wrapper implements all the standard library types, [`serde::Serialize`],
 /// [`serde::Deserialize`], and others provided by feature flags:
-///
 #[cfg_attr(
     feature = "openapi",
     doc = "* [`utoipa::PartialSchema`], [`utoipa::ToSchema`] (via the `openapi` crate feature)"
 )]
-///
 /// [`utoipa::PartialSchema`]: https://docs.rs/utoipa/*/utoipa/trait.PartialSchema.html
 /// [`utoipa::ToSchema`]: https://docs.rs/utoipa/*/utoipa/trait.ToSchema.html
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -57,6 +55,7 @@ impl Display for Duration {
 
 impl FromStr for Duration {
     type Err = humantime::DurationError;
+
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         humantime::parse_duration(s).map(Duration)
     }
@@ -129,6 +128,7 @@ impl From<&Duration> for std::time::Duration {
 
 impl Deref for Duration {
     type Target = ::std::time::Duration;
+
     fn deref(&self) -> &Self::Target {
         &self.0
     }

@@ -20,7 +20,6 @@ use serde::{Deserialize, Serialize};
 ///
 /// This newtype wrapper implements all the standard library types and more
 /// configured by feature flags.
-///
 #[cfg_attr(
     feature = "openapi",
     doc = "* [`utoipa::PartialSchema`], [`utoipa::ToSchema`] (via the `openapi` crate feature)"
@@ -29,7 +28,6 @@ use serde::{Deserialize, Serialize};
     feature = "jsonschema",
     doc = "* [`schemars::JsonSchema`] (via the `jsonschema` crate feature)"
 )]
-///
 /// [`ulid::Ulid`]: https://docs.rs/ulid/*/ulid/struct.Ulid.html
 /// [`utoipa::PartialSchema`]: https://docs.rs/utoipa/*/utoipa/trait.PartialSchema.html
 /// [`utoipa::ToSchema`]: https://docs.rs/utoipa/*/utoipa/trait.ToSchema.html

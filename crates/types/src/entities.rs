@@ -338,7 +338,8 @@ impl ApiKey {
 #[derive(Debug, Clone, Serialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct Session {
-    /// A token that is used to refresh this session via the [`GET /users/@me/sessions/refresh`] REST endpoint.
+    /// A token that is used to refresh this session via the [`GET
+    /// /users/@me/sessions/refresh`] REST endpoint.
     ///
     /// When this session was refreshed, the session is still alive and can still be used
     /// but both the [`refresh_token`] and [`access_token`] fields are different values.

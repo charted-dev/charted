@@ -13,13 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::commands::server::load_config;
 use charted_database::migrations::Migrator;
 use cli_table::{format::Justify, Cell, Table};
 use sea_orm_migration::{MigrationStatus, MigratorTrait};
 use std::path::PathBuf;
 use tracing::warn;
-
-use crate::commands::server::load_config;
 
 #[derive(Table)]
 struct CliTable {

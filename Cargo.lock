@@ -1382,7 +1382,6 @@ dependencies = [
  "eyre",
  "tracing",
  "tracing-subscriber",
- "utoipa",
 ]
 
 [[package]]

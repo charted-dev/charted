@@ -54,15 +54,12 @@ impl Program {
 
         tracing_subscriber::registry()
             .with(
-                WriteLayer::new_with(
-                    io::stdout(),
-                    Writer {
-                        print_module: false,
-                        print_thread: false,
+                WriteLayer::new_with(io::stdout(), Writer {
+                    print_module: false,
+                    print_thread: false,
 
-                        ..Default::default()
-                    },
-                )
+                    ..Default::default()
+                })
                 .with_filter(LevelFilter::from_level(self.level)),
             )
             .init();

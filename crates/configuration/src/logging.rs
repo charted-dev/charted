@@ -25,8 +25,9 @@ const JSON: &str = "CHARTED_LOG_JSON";
 
 #[derive(Debug, Clone, Merge, Serialize, Deserialize)]
 pub struct Config {
-    /// Configures the log level of the API server's logging capabilities. The higher the level, the more verbose
-    /// messages you'll get. For production environments, the default (`INFO`) is fine.
+    /// Configures the log level of the API server's logging capabilities. The higher the
+    /// level, the more verbose messages you'll get. For production environments, the
+    /// default (`INFO`) is fine.
     #[serde(with = "azalia::serde::tracing")]
     #[merge(strategy = __merge_level)]
     pub level: Level,

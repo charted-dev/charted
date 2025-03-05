@@ -17,6 +17,7 @@ use crate::{Error, Result};
 use charted_core::api;
 use futures_util::TryFutureExt;
 use reqwest::{Body, ClientBuilder, Method, Response, header::HeaderMap};
+use std::future::Future;
 use url::Url;
 
 /// The default API endpoint.

@@ -17,8 +17,6 @@ mod error;
 pub use error::*;
 
 mod extract;
-pub use extract::*;
-
 use crate::Context;
 use axum::{
     body::Body,
@@ -34,6 +32,7 @@ use charted_core::{
 };
 use charted_database::entities::{apikey, session, user, ApiKeyEntity, SessionEntity, UserEntity};
 use charted_types::{name::Name, ApiKey, Ulid, User};
+pub use extract::*;
 use jsonwebtoken::{Algorithm, DecodingKey, Validation};
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use serde_json::{json, Value};
@@ -371,9 +370,9 @@ impl Middleware {
 }
 
 impl AsyncAuthorizeRequest<Body> for Middleware {
-    type ResponseBody = Body;
-    type RequestBody = Body;
     type Future = BoxedFuture<'static, Result<Request<Self::RequestBody>, Response<Self::ResponseBody>>>;
+    type RequestBody = Body;
+    type ResponseBody = Body;
 
     fn authorize(&mut self, request: Request<Body>) -> Self::Future {
         let headers = request.headers();
@@ -445,8 +444,8 @@ pub enum AuthType {
 }
 
 impl AuthType {
-    /// Returns a slice of the avaliable [`AuthType`]s. If `basic` is false, then [`AuthType::Basic`]
-    /// will not be avaliable.
+    /// Returns a slice of the avaliable [`AuthType`]s. If `basic` is false, then
+    /// [`AuthType::Basic`] will not be avaliable.
     pub const fn values(basic: bool) -> &'static [AuthType] {
         if basic {
             &[AuthType::ApiKey, AuthType::Basic, AuthType::Bearer]

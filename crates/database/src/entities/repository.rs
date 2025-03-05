@@ -16,11 +16,10 @@
 pub mod member;
 pub mod release;
 
+use super::{create_table, id};
 use charted_types::{name::Name, ChartType, Repository, Ulid};
 use sea_orm::{entity::prelude::*, sea_query::TableCreateStatement};
 use sea_orm_migration::schema::*;
-
-use super::{create_table, id};
 
 #[derive(Debug, Clone, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "repositories")]
@@ -92,11 +91,10 @@ pub(crate) fn table() -> TableCreateStatement {
         .col(text_null(Column::Creator))
         .col(text(Column::Owner))
         .col(string_len(Column::Name, 32))
-        .col(enumeration(
-            Column::Type,
-            ChartType::name(),
-            [ChartType::Application, ChartType::Library],
-        ))
+        .col(enumeration(Column::Type, ChartType::name(), [
+            ChartType::Application,
+            ChartType::Library,
+        ]))
         .col(id())
         .to_owned()
 }

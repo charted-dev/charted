@@ -42,8 +42,8 @@ impl Default for Config {
 }
 
 impl TryFromEnv for Config {
-    type Output = Config;
     type Error = eyre::Report;
+    type Output = Config;
 
     fn try_from_env() -> Result<Self::Output, Self::Error> {
         Ok(Config {

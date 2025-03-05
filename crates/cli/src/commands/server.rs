@@ -34,8 +34,7 @@ use std::{
     path::PathBuf,
     sync::{atomic::AtomicUsize, Arc},
 };
-use tracing::level_filters::LevelFilter;
-use tracing::{info, warn};
+use tracing::{info, level_filters::LevelFilter, warn};
 use tracing_subscriber::{filter, prelude::*};
 
 /// Runs the API server.

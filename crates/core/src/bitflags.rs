@@ -18,7 +18,6 @@ mod member_permission;
 
 pub use apikeyscope::*;
 pub use member_permission::*;
-
 use std::{cmp::min, collections::BTreeMap, marker::PhantomData};
 
 /// Trait that implements the "scopes" concept.
@@ -96,7 +95,6 @@ impl<F: Bitflags<Bit = u64>> Bitfield<F> {
     /// bitfield.add([Scope::Hello]);
     /// assert_eq!(bitfield.value(), 1);
     /// ```
-    //
     // I don't want to implement `Add` since I don't think doing:
     //
     //  let bitfield = Bitfield::<{some type}>::new();

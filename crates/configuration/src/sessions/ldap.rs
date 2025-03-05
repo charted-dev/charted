@@ -28,20 +28,21 @@ pub const SERVER: &str = "CHARTED_SESSIONS_LDAP_SERVER";
 
 #[derive(Debug, Clone, Merge, Serialize, Deserialize)]
 pub struct Config {
-    /// If `true`, then charted-server will try to establish a TLS connection with the LDAP
-    /// server without certificate verification. This is not recommended for production environments.
+    /// If `true`, then charted-server will try to establish a TLS connection with the
+    /// LDAP server without certificate verification. This is not recommended for
+    /// production environments.
     #[serde(default)]
     #[merge(strategy = azalia::config::merge::strategy::bool::only_if_falsy)]
     pub insecure_skip_tls_verify: bool,
 
-    /// Schedules a fixed time job (of 10 minutes) to create new charted-server users based off
-    /// all queried LDAP users.
+    /// Schedules a fixed time job (of 10 minutes) to create new charted-server users
+    /// based off all queried LDAP users.
     #[serde(default)]
     #[merge(strategy = azalia::config::merge::strategy::bool::only_if_falsy)]
     pub schedule_new_users: bool,
 
-    /// Schedules a fixed time job (of 10 minutes) to update users from the LDAP server if any
-    /// attributes change and be reflected in the database.
+    /// Schedules a fixed time job (of 10 minutes) to update users from the LDAP server if
+    /// any attributes change and be reflected in the database.
     #[serde(default)]
     #[merge(strategy = azalia::config::merge::strategy::bool::only_if_falsy)]
     pub schedule_user_updates: bool,
@@ -50,11 +51,11 @@ pub struct Config {
     #[serde(default = "__default_conn_timeout")]
     pub connect_timeout: Duration,
 
-    /// Query used to authenticate users as. If empty, then `<username>=%u` will be used as the default
-    /// bind DN.
+    /// Query used to authenticate users as. If empty, then `<username>=%u` will be used
+    /// as the default bind DN.
     ///
-    /// This is represented as a templated string, charted-server will replace the following variables
-    /// with what the bind DN should be used as:
+    /// This is represented as a templated string, charted-server will replace the
+    /// following variables with what the bind DN should be used as:
     ///
     /// * `<username>`: username, which will be replaced by the username to query as.
     #[serde(default = "__default_filter_query")]
@@ -83,8 +84,8 @@ pub struct Config {
 }
 
 impl TryFromEnv for Config {
-    type Output = Self;
     type Error = eyre::Report;
+    type Output = Self;
 
     fn try_from_env() -> Result<Self::Output, Self::Error> {
         Ok(Config {
@@ -137,8 +138,8 @@ pub const ATTRIBUTE_USERNAME: &str = "CHARTED_SESSIONS_LDAP_ATTR_USERNAME";
 pub const ATTRIBUTE_EMAIL: &str = "CHARTED_SESSIONS_LDAP_ATTR_EMAIL";
 
 impl TryFromEnv for Attributes {
-    type Output = Self;
     type Error = eyre::Report;
+    type Output = Self;
 
     fn try_from_env() -> Result<Self::Output, Self::Error> {
         Ok(Attributes {

@@ -13,9 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-
 use super::Bitflags;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 pub type ApiKeyScopes = crate::bitflags::Bitfield<ApiKeyScope>;
 

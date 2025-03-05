@@ -90,7 +90,7 @@ mod tests {
         assert_eq!(
             serde_json::from_str::<NameOrUlid>("\"some3name1with6numbers\"").unwrap(),
             NameOrUlid::Name(unsafe {
-                /* Safety: this passes all the validation it requires */
+                // Safety: this passes all the validation it requires
                 Name::new_unchecked("some3name1with6numbers")
             })
         );

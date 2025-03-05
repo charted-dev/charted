@@ -38,8 +38,8 @@ fn all() -> HashMap<TypeId, Arc<dyn Feature>> {
 ///
 /// - Is this cursed? yes!
 /// - Do I want to keep it this way? NO!
-/// - Is there any other way? Probably! I don't want to think about it right now
-///   since I could care less at this point.
+/// - Is there any other way? Probably! I don't want to think about it right now since I
+///   could care less at this point.
 pub fn get<F: Feature + Clone>() -> Option<F> {
     if let Some(feat) = all().get(&TypeId::of::<F>()).cloned() {
         let inner = feat.deref();
@@ -100,7 +100,8 @@ pub trait Feature: AsArcAny + Send + Sync + 'static {
 impl dyn Feature + 'static {
     /// Compares if [`self`] is `T`, similar to [`Any::is`].
     ///
-    /// This method might fail (as in, returns `false`) if `T` doesn't implement [`Feature`].
+    /// This method might fail (as in, returns `false`) if `T` doesn't implement
+    /// [`Feature`].
     ///
     /// [`Any::is`]: https://doc.rust-lang.org/std/any/trait.Any.html#method.is
     pub fn is<T: Any>(&self) -> bool {

@@ -13,14 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use super::{create_table, id};
 use charted_types::{Session, Ulid};
 use sea_orm::{
     entity::prelude::*,
     sea_query::{ForeignKey, TableCreateStatement},
 };
 use sea_orm_migration::schema::*;
-
-use super::{create_table, id};
 
 #[derive(Debug, Clone, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "sessions")]

@@ -37,13 +37,11 @@ const ALLOWED_FILES: &[&str] = &["README.md", "LICENSE", "values.yaml", "Chart.y
 /// Initializes the storage service to contain the following directories:
 ///
 /// * `$DATA_DIR/metadata` - used for holding user/organization indexes
-/// * `$DATA_DIR/repositories` - used for holding repository metadata (charts, readmes, etc)
+/// * `$DATA_DIR/repositories` - used for holding repository metadata (charts, readmes,
+///   etc)
 pub async fn init(storage: &StorageService) -> eyre::Result<()> {
     if let StorageService::Filesystem(fs) = storage {
-        let paths = [
-            fs.normalize("./metadata")?.unwrap(),
-            fs.normalize("./repositories")?.unwrap(),
-        ];
+        let paths = [fs.normalize("./metadata")?.unwrap(), fs.normalize("./repositories")?.unwrap()];
 
         for path in paths {
             if !tokio::fs::try_exists(&path).await? {

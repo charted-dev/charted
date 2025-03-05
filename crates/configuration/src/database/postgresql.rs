@@ -13,9 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::util;
-
 use super::common;
+use crate::util;
 use azalia::config::{env, merge::Merge, TryFromEnv};
 use serde::{Deserialize, Serialize};
 use url::Url;
@@ -66,8 +65,8 @@ pub const HOST: &str = "CHARTED_DATABASE_HOST";
 pub const PORT: &str = "CHARTED_DATABASE_PORT";
 
 impl TryFromEnv for Config {
-    type Output = Config;
     type Error = eyre::Report;
+    type Output = Config;
 
     fn try_from_env() -> Result<Self::Output, Self::Error> {
         Ok(Config {

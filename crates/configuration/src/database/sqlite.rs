@@ -48,7 +48,8 @@ impl Merge for StringOrPath {
 /// ## `[database.sqlite]`
 ///
 /// This database driver uses the almighty, holy [SQLite](https://sqlite.org). This is mainly used
-/// for development, evaluation purposes, or if PostgreSQL is too heavy for your use-cases.
+/// for development, evaluation purposes, or if PostgreSQL is too heavy for your
+/// use-cases.
 #[derive(Debug, Clone, Merge, Serialize, Deserialize, derive_more::Deref, derive_more::Display)]
 #[display("sqlite://{}?mode=rwc", self.path)]
 pub struct Config {
@@ -75,8 +76,8 @@ impl Default for Config {
 const PATH: &str = "CHARTED_DATABASE_PATH";
 
 impl TryFromEnv for Config {
-    type Output = Config;
     type Error = eyre::Report;
+    type Output = Config;
 
     fn try_from_env() -> Result<Self::Output, Self::Error> {
         Ok(Config {

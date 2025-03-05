@@ -19,8 +19,9 @@ use std::{env, fmt::Display, fs, path::PathBuf, sync::OnceLock};
 const KUBERNETES_SERVICE_TOKEN_FILE: &str = "/run/secrets/kubernetes.io/serviceaccount/token";
 const KUBERNETES_NAMESPACE_FILE: &str = "/run/secrets/kubernetes.io/serviceaccount/namespace";
 
-/// Automatic detection to check if the distribution of charted-server is running on a Kubernetes
-/// cluster as a pod or not. It'll check in the following paths and check if they exist:
+/// Automatic detection to check if the distribution of charted-server is running on a
+/// Kubernetes cluster as a pod or not. It'll check in the following paths and check if
+/// they exist:
 ///
 /// * `/run/secrets/kubernetes.io/serviceaccount/token`
 /// * `/run/secrets/kubernetes.io/serviceaccount/namespace`
@@ -35,8 +36,8 @@ fn is_in_k8s() -> bool {
         .unwrap_or_default()
 }
 
-/// Detects if charted-server is running as a Docker container, it'll check if `/.dockerenv` exists or if
-/// `/proc/self/cgroup` contains `docker` in it.
+/// Detects if charted-server is running as a Docker container, it'll check if
+/// `/.dockerenv` exists or if `/proc/self/cgroup` contains `docker` in it.
 fn is_in_docker_container() -> bool {
     let has_dockerenv = PathBuf::from("/.dockerenv").try_exists().unwrap_or_default();
     let has_cgroup = {

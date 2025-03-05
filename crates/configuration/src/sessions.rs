@@ -15,12 +15,11 @@
 
 pub mod ldap;
 
+use crate::util;
 use azalia::config::{env, merge::Merge, TryFromEnv};
 use eyre::bail;
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, env::VarError};
-
-use crate::util;
 
 pub const BACKEND: &str = "CHARTED_SESSIONS_BACKEND";
 pub const STATIC_USERS: &str = "CHARTED_SESSIONS_STATIC_USERS";
@@ -63,8 +62,8 @@ impl Merge for Backend {
 }
 
 impl TryFromEnv for Backend {
-    type Output = Self;
     type Error = eyre::Report;
+    type Output = Self;
 
     fn try_from_env() -> Result<Self::Output, Self::Error> {
         match env!(BACKEND) {
@@ -101,8 +100,8 @@ pub struct Config {
 pub const ENABLE_BASIC_AUTH: &str = "CHARTED_SESSIONS_ENABLE_BASIC_AUTH";
 
 impl TryFromEnv for Config {
-    type Output = Self;
     type Error = eyre::Report;
+    type Output = Self;
 
     fn try_from_env() -> Result<Self::Output, Self::Error> {
         Ok(Config {

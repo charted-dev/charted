@@ -67,7 +67,8 @@ pub struct IncludeErrorProneDatatypes;
 // 28 | #[derive(OpenApi)]
 //    |          ^^^^^^^ expected expression
 //    |
-//    = note: this error originates in the derive macro `OpenApi` (in Nightly builds, run with -Z macro-backtrace for more info)
+//    = note: this error originates in the derive macro `OpenApi` (in Nightly builds, run
+// with -Z macro-backtrace for more info)
 //
 // error: expected one of `.`, `;`, `?`, `else`, or an operator, found `)`
 //   --> crates/server/src/openapi.rs:28:10
@@ -75,7 +76,8 @@ pub struct IncludeErrorProneDatatypes;
 // 28 | #[derive(OpenApi)]
 //    |          ^^^^^^^ expected one of `.`, `;`, `?`, `else`, or an operator
 //    |
-//    = note: this error originates in the derive macro `OpenApi` (in Nightly builds, run with -Z macro-backtrace for more info)
+//    = note: this error originates in the derive macro `OpenApi` (in Nightly builds, run
+// with -Z macro-backtrace for more info)
 //
 // error: proc-macro derive produced unparsable tokens
 //   --> crates/server/src/openapi.rs:28:10
@@ -155,8 +157,8 @@ impl Modify for ResponseModifiers {
     fn modify(&self, openapi: &mut OpenApi) {
         let mut components = openapi.components.take().unwrap();
 
-        // 1. First, we need to update all `Response_<>` with `<>Response` and update the
-        //    `data` field to be the type that we want
+        // 1. First, we need to update all `Response_<>` with `<>Response` and update the `data`
+        //    field to be the type that we want
         let mut scheduled_to_be_removed = HashSet::new();
         let mut scheduled_to_be_created = HashMap::new();
         let schemas = components.schemas.clone();
@@ -202,8 +204,8 @@ impl Modify for ResponseModifiers {
             .map(|(key, value)| components.schemas.insert(key.to_owned(), value.clone()))
             .for_each(drop);
 
-        // 2. Now, we need to go to every path and check if there is a ref
-        //    with the `Response_<>` suffix
+        // 2. Now, we need to go to every path and check if there is a ref with the `Response_<>`
+        //    suffix
         {
             for item in openapi.paths.paths.values_mut() {
                 macro_rules! do_update {

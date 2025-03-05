@@ -26,10 +26,9 @@ mod macros;
 mod distribution;
 mod ext;
 
+use argon2::Argon2;
 pub use distribution::*;
 pub use ext::*;
-
-use argon2::Argon2;
 use rand::distr::{Alphanumeric, SampleString};
 use std::sync::{LazyLock, OnceLock};
 
@@ -55,12 +54,13 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// the internal `charted-*` crates.
 pub static ARGON2: LazyLock<Argon2> = LazyLock::new(Argon2::default);
 
-/// Returns a formatted string of the version that combines the [`VERSION`] and [`COMMIT_HASH`]
-/// constants as <code>v[{version}][VERSION]+[{commit.hash}][COMMIT_HASH]</code>.
+/// Returns a formatted string of the version that combines the [`VERSION`] and
+/// [`COMMIT_HASH`] constants as
+/// <code>v[{version}][VERSION]+[{commit.hash}][COMMIT_HASH]</code>.
 ///
-/// If the [`COMMIT_HASH`] is empty (i.e, not by using `git` or wasn't found on system), it'll
-/// return <code>v[{version}][VERSION]</code> instead. This is also returned on the `nixpkgs`
-/// version of **charted** and **charted-helm-plugin**.
+/// If the [`COMMIT_HASH`] is empty (i.e, not by using `git` or wasn't found on system),
+/// it'll return <code>v[{version}][VERSION]</code> instead. This is also returned on the
+/// `nixpkgs` version of **charted** and **charted-helm-plugin**.
 pub fn version() -> &'static str {
     static ONCE: OnceLock<String> = OnceLock::new();
     ONCE.get_or_init(|| {

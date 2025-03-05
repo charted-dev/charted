@@ -77,8 +77,8 @@ impl Display for Config {
 pub const DRIVER: &str = "CHARTED_DATABASE_DRIVER";
 
 impl TryFromEnv for Config {
-    type Output = Config;
     type Error = eyre::Report;
+    type Output = Config;
 
     fn try_from_env() -> Result<Self::Output, Self::Error> {
         match env!(DRIVER) {
@@ -184,8 +184,12 @@ mod tests {
         let old = c1.clone();
 
         c1.merge(c2);
-        let Some(c1) = c1.as_sqlite() else { unreachable!() };
-        let Some(old_c1) = old.as_sqlite() else { unreachable!() };
+        let Some(c1) = c1.as_sqlite() else {
+            unreachable!()
+        };
+        let Some(old_c1) = old.as_sqlite() else {
+            unreachable!()
+        };
 
         assert_eq!(c1.max_connections, 30);
         assert!(c1.run_migrations);
@@ -214,8 +218,12 @@ mod tests {
         let old = c1.clone();
 
         c1.database.merge(c2.database);
-        let Some(c1) = c1.as_sqlite() else { unreachable!() };
-        let Some(old_c1) = old.as_sqlite() else { unreachable!() };
+        let Some(c1) = c1.as_sqlite() else {
+            unreachable!()
+        };
+        let Some(old_c1) = old.as_sqlite() else {
+            unreachable!()
+        };
 
         assert_eq!(c1.max_connections, 30);
         assert!(c1.run_migrations);
@@ -244,8 +252,12 @@ mod tests {
         let old = c1.clone();
 
         c1.merge(c2);
-        let Some(c1) = c1.as_sqlite() else { unreachable!() };
-        let Some(old_c1) = old.as_sqlite() else { unreachable!() };
+        let Some(c1) = c1.as_sqlite() else {
+            unreachable!()
+        };
+        let Some(old_c1) = old.as_sqlite() else {
+            unreachable!()
+        };
 
         assert_eq!(c1.max_connections, 30);
         assert!(c1.run_migrations);
@@ -275,7 +287,9 @@ mod tests {
         let old = c1.clone();
         c1.merge(c2);
 
-        let Some(c1) = c1.as_postgresql() else { unreachable!() };
+        let Some(c1) = c1.as_postgresql() else {
+            unreachable!()
+        };
         let Some(old_c1) = old.as_postgresql() else {
             unreachable!()
         };
@@ -306,7 +320,9 @@ mod tests {
         let old = c1.clone();
         c1.merge(c2);
 
-        let Some(c1) = c1.as_postgresql() else { unreachable!() };
+        let Some(c1) = c1.as_postgresql() else {
+            unreachable!()
+        };
         let Some(old_c1) = old.as_postgresql() else {
             unreachable!()
         };

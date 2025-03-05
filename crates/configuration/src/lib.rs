@@ -36,8 +36,9 @@ use url::Url;
 ///
 /// **charted-server** uses a TOML-based configuration format for easy accessiblity.
 ///
-/// **charted-server** also supports environment variables that can be overwritten when the configuration is
-/// being loaded. The priority is **Environment Variables > Configuration File**.
+/// **charted-server** also supports environment variables that can be overwritten when
+/// the configuration is being loaded. The priority is **Environment Variables >
+/// Configuration File**.
 #[derive(Debug, Clone, Serialize, Deserialize, Merge)]
 pub struct Config {
     /// A secret key for generating JWT tokens for session-based authentication.
@@ -45,7 +46,8 @@ pub struct Config {
     /// It is recommended to set this as the `CHARTED_JWT_SECRET_KEY` environment
     /// variable and **charted-server** will load it into this property.
     ///
-    /// If this is ever messed with, sessions that are on-going will be permanently corrupted.
+    /// If this is ever messed with, sessions that are on-going will be permanently
+    /// corrupted.
     #[serde(default)]
     #[merge(strategy = azalia::config::merge::strategy::strings::overwrite_empty)]
     pub jwt_secret_key: String,
@@ -163,8 +165,8 @@ pub const SENTRY_DSN: &str = "CHARTED_SENTRY_DSN";
 pub const BASE_URL: &str = "CHARTED_BASE_URL";
 
 impl TryFromEnv for Config {
-    type Output = Self;
     type Error = eyre::Report;
+    type Output = Self;
 
     fn try_from_env() -> Result<Self::Output, Self::Error> {
         Ok(Self {

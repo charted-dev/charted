@@ -35,4 +35,3 @@ color-eyre.workspace = true
 eyre.workspace = true
 tracing.workspace = true
 tracing-subscriber = { workspace = true, features = ["env-filter"] }
-utoipa = { workspace = true, features = [] }

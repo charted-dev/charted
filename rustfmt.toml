@@ -13,9 +13,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-use_field_init_shorthand = true
-match_arm_leading_pipes = "Preserve"
-use_try_shorthand = true
-newline_style = "Unix"               # keep it consistent
+# The `rustfmt.toml` configuration file does use Nightly features, which
+# is OK since we are pointed to a Nightly release (via `rust-toolchain.toml`),
+#
+# Consumers who are only building the project don't need a Nightly toolchain
+# required unless distributors use Clippy / rustfmt to check if a project's
+# structure is ok like `nixpkgs`.
+
+### STABLE FEATURES
+array_width = 90
 max_width = 120
-edition = "2021"
+match_arm_leading_pipes = "Preserve"
+newline_style = "Unix"
+single_line_let_else_max_width = 0
+use_field_init_shorthand = true
+use_try_shorthand = true
+
+### NIGHTLY FEATURES
+binop_separator = "Back"
+combine_control_expr = true
+comment_width = 90
+condense_wildcard_suffixes = true
+group_imports = "One"
+imports_granularity = "Crate"
+normalize_comments = true
+overflow_delimited_expr = true
+reorder_impl_items = true
+wrap_comments = true

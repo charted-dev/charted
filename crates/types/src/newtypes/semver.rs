@@ -20,7 +20,6 @@ use serde::{Deserialize, Serialize};
 ///
 /// This newtype wrapper implements all the standard library types and more
 /// configured by feature flags.
-///
 #[cfg_attr(
     feature = "openapi",
     doc = "* [`utoipa::PartialSchema`], [`utoipa::ToSchema`] (via the `openapi` crate feature)"
@@ -29,7 +28,6 @@ use serde::{Deserialize, Serialize};
     feature = "jsonschema",
     doc = "* [`schemars::JsonSchema`] (via the `jsonschema` crate feature)"
 )]
-///
 /// [`utoipa::PartialSchema`]: https://docs.rs/utoipa/*/utoipa/trait.PartialSchema.html
 /// [`utoipa::ToSchema`]: https://docs.rs/utoipa/*/utoipa/trait.ToSchema.html
 /// [`schemars::JsonSchema`]: https://docs.rs/schemars/*/utoipa/trait.JsonSchema.html
@@ -189,7 +187,6 @@ const _: () = {
 ///
 /// This newtype wrapper implements all the standard library types and more
 /// configured by feature flags.
-///
 #[cfg_attr(
     feature = "openapi",
     doc = "* [`utoipa::PartialSchema`], [`utoipa::ToSchema`] (via the `openapi` crate feature)"
@@ -198,7 +195,6 @@ const _: () = {
     feature = "jsonschema",
     doc = "* [`schemars::JsonSchema`] (via the `jsonschema` crate feature)"
 )]
-///
 /// [`utoipa::PartialSchema`]: https://docs.rs/utoipa/*/utoipa/trait.PartialSchema.html
 /// [`utoipa::ToSchema`]: https://docs.rs/utoipa/*/utoipa/trait.ToSchema.html
 /// [`schemars::JsonSchema`]: https://docs.rs/schemars/*/utoipa/trait.JsonSchema.html

@@ -41,6 +41,8 @@
       cargo-machete
       cargo-nextest
       cargo-expand
+      cargo-about
+      cargo-bloat
       cargo-deny
 
       sea-orm-cli

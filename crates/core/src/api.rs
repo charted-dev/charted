@@ -278,7 +278,8 @@ pub enum ErrorCode {
     /// missing a required path parameter in the request.
     MissingPathParameter,
 
-    /// received the wrong list of path parameters, this is usually a bug within charted itself.
+    /// received the wrong list of path parameters, this is usually a bug within charted
+    /// itself.
     WrongParameters,
 
     /// the server had failed to validate the path parameter's content.

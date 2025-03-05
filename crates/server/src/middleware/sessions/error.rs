@@ -78,13 +78,13 @@ impl Error {
         use Error as E;
 
         match self {
-            E::MissingAuthorizationHeader
-            | E::UnknownAuthType(_)
-            | E::Message { .. }
-            | E::DecodeBase64(_)
-            | E::RefreshTokenRequired
-            | E::DecodeUlid(_)
-            | E::InvalidName { .. } => StatusCode::NOT_ACCEPTABLE,
+            E::MissingAuthorizationHeader |
+            E::UnknownAuthType(_) |
+            E::Message { .. } |
+            E::DecodeBase64(_) |
+            E::RefreshTokenRequired |
+            E::DecodeUlid(_) |
+            E::InvalidName { .. } => StatusCode::NOT_ACCEPTABLE,
 
             E::InvalidPassword => StatusCode::UNAUTHORIZED,
             E::UnknownSession => StatusCode::NOT_FOUND,
