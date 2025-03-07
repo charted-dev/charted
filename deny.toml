@@ -33,15 +33,7 @@ targets = [
 #
 # See also: https://github.com/EmbarkStudios/cargo-deny/pull/611
 version = 2
-ignore = [
-    # At the moment, all `rustls` versions we depend on enable
-    # the `ring` feature and I am unsure how to really fix it, but
-    # for now, it'll be disabled.
-    #
-    # https://github.com/briansmith/ring/discussions/2414
-    # https://rustsec.org/advisories/RUSTSEC-2025-0007
-    "RUSTSEC-2025-0007",
-]
+ignore = []
 
 [bans]
 multiple-versions = "warn"
