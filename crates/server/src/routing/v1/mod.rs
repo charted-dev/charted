@@ -22,8 +22,10 @@ pub mod repository;
 pub mod user;
 
 use crate::Context;
-use axum::{routing, Router};
+use axum::{Extension, Router, response::IntoResponse, routing};
+use charted_config::metrics;
 use charted_core::VERSION;
+use metrics_exporter_prometheus::PrometheusHandle;
 use serde::Serialize;
 use utoipa::ToSchema;
 
@@ -50,6 +52,25 @@ impl Entrypoint {
     }
 }
 
-pub fn create_router(_: &Context) -> Router<Context> {
-    Router::new().route("/", routing::get(main::main))
+pub fn create_router(ctx: &Context) -> Router<Context> {
+    let mut router = Router::new().route("/", routing::get(main::main));
+
+    match ctx.config.metrics {
+        metrics::Config::Prometheus(ref config) if config.standalone.is_none() => {
+            router = router.route(&config.endpoint, routing::get(prometheus_scrape));
+        }
+
+        _ => {}
+    }
+
+    router
+}
+
+#[cfg_attr(debug_assertions, axum::debug_handler)]
+pub(crate) async fn prometheus_scrape(Extension(handle): Extension<Option<PrometheusHandle>>) -> impl IntoResponse {
+    let Some(handle) = handle else {
+        unreachable!()
+    };
+
+    handle.render()
 }

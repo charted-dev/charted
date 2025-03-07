@@ -13,9 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use super::Duration;
 use crate::util;
-use azalia::config::{merge::Merge, TryFromEnv};
+use azalia::config::{TryFromEnv, merge::Merge};
+use charted_core::serde::Duration;
 use serde::{Deserialize, Serialize};
 
 pub const MAX_CONNECTIONS: &str = "CHARTED_DATABASE_MAX_CONNECTIONS";
@@ -42,14 +42,17 @@ pub struct Config {
 
     /// Maximum amount of time to spend waiting when acquiring a new connection.
     #[serde(default = "__acquire_timeout")]
+    #[merge(strategy = crate::util::merge_duration)]
     pub acquire_timeout: Duration,
 
     /// Maximum amount of time to spend for connecting to the database.
     #[serde(default = "__connect_timeout")]
+    #[merge(strategy = crate::util::merge_duration)]
     pub connect_timeout: Duration,
 
     /// Maximum amount of time to idle until it is relinquished and can be re-used.
     #[serde(default = "__idle_timeout")]
+    #[merge(strategy = crate::util::merge_duration)]
     pub idle_timeout: Duration,
 
     /// The database name.

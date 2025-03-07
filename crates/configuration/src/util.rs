@@ -13,12 +13,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use charted_core::serde::Duration;
 use eyre::{bail, eyre};
 use std::{collections::BTreeMap, env::VarError, fmt::Display, str::FromStr};
 
 #[inline(always)]
 pub const fn truthy() -> bool {
     true
+}
+
+pub fn merge_duration(me: &mut Duration, other: Duration) {
+    // Don't attempt to merge if both `me_std` and `other_std` are zero duration
+    if me.is_zero() && other.is_zero() {
+        return;
+    }
+
+    // If we are a non-zero duration and `other` is a zero duration
+    // (i.e, from `Default::default`), then don't merge.
+    if !me.is_zero() && other.is_zero() {
+        return;
+    }
+
+    *me = other;
 }
 
 /// Given a <code>[`Result`]<T, [`VarError`]></code> and default value:

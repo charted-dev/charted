@@ -74,9 +74,9 @@ fn connect_options_with(config: &Config) -> ConnectOptions {
 
     ConnectOptions::new(config.to_string())
         .max_connections(common.max_connections)
-        .acquire_timeout(common.acquire_timeout.deref().into())
-        .connect_timeout(common.connect_timeout.deref().into())
-        .idle_timeout(common.idle_timeout.deref().into())
+        .acquire_timeout(*common.acquire_timeout.deref())
+        .connect_timeout(*common.connect_timeout.deref())
+        .idle_timeout(*common.idle_timeout.deref())
         .sqlx_logging_level(tracing::log::LevelFilter::Trace)
         .sqlx_slow_statements_logging_settings(tracing::log::LevelFilter::Warn, std::time::Duration::from_secs(3))
         .to_owned()

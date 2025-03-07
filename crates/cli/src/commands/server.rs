@@ -20,7 +20,7 @@ use azalia::{
     remi::{StorageService, core::StorageService as _},
 };
 use charted_authz::Authenticator;
-use charted_config::{Config, sessions::Backend, storage};
+use charted_config::{Config, metrics, sessions::Backend, storage};
 use charted_core::Distribution;
 use charted_server::set_context;
 use eyre::bail;
@@ -92,6 +92,16 @@ pub(crate) async fn run(Args { config, .. }: Args) -> eyre::Result<()> {
         }
     };
 
+    let prom_handle = match config.metrics.clone() {
+        metrics::Config::Disabled => None,
+        metrics::Config::OpenTelemetry(config) => {
+            charted_metrics::init_opentelemetry(&config)?;
+            None
+        }
+
+        metrics::Config::Prometheus(config) => Some(charted_metrics::init_prometheus(&config)?),
+    };
+
     let context = charted_server::Context {
         requests: AtomicUsize::new(0),
         storage,
@@ -101,7 +111,7 @@ pub(crate) async fn run(Args { config, .. }: Args) -> eyre::Result<()> {
     };
 
     set_context(context.clone());
-    charted_server::drive().await?;
+    charted_server::drive(prom_handle.as_ref()).await?;
 
     warn!("server has been closed, closing resources...");
     context.pool.close().await?;

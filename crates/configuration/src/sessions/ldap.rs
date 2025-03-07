@@ -13,8 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{database::Duration, util};
-use azalia::config::{env, merge::Merge, TryFromEnv};
+use crate::util;
+use azalia::config::{TryFromEnv, env, merge::Merge};
+use charted_core::serde::Duration;
 use serde::{Deserialize, Serialize};
 
 pub const INSECURE_SKIP_TLS_VERIFY: &str = "CHARTED_SESSIONS_LDAP_INSECURE_SKIP_TLS_VERIFY";
@@ -49,6 +50,7 @@ pub struct Config {
 
     /// Timeout on when the connection should be dropped due to not being responsive.
     #[serde(default = "__default_conn_timeout")]
+    #[merge(strategy = crate::util::merge_duration)]
     pub connect_timeout: Duration,
 
     /// Query used to authenticate users as. If empty, then `<username>=%u` will be used

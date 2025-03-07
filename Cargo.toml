@@ -27,6 +27,7 @@ members = [
     "crates/helm/charts",
     "crates/helm/plugin",
     "crates/helm/types",
+    "crates/metrics",
     "crates/server",
     "crates/types",
 
@@ -79,6 +80,9 @@ color-eyre = { version = "0.6.3", features = ["issue-url"] }
 derive_more = "2.0.0"
 dotenvy = "0.15.7"
 eyre = "0.6.12"
+metrics-exporter-prometheus = { version = "0.16.2", default-features = false, features = [
+    "tracing",
+] }
 mimalloc = "0.1.43"
 multer = "3.1.0"
 num_cpus = "1.16.0"

@@ -17,10 +17,10 @@ pub mod common;
 pub mod postgresql;
 pub mod sqlite;
 
-use azalia::config::{env, merge::Merge, TryFromEnv};
+use azalia::config::{TryFromEnv, env, merge::Merge};
 use eyre::eyre;
 use serde::{Deserialize, Serialize};
-use std::{env::VarError, fmt::Display, str::FromStr};
+use std::{env::VarError, fmt::Display};
 
 /// The `database` table allows to configure the database that charted-server
 /// uses to store persistent data like users, repositories, and more.
@@ -123,43 +123,6 @@ impl Config {
             Config::PostgreSQL(c) => Some(c),
             _ => None,
         }
-    }
-}
-
-// another newtype wrapper around a newtype wrapper to implement `Merge`
-// since Azalia is not avaliable in crates.io
-//
-// shouldn't be used outside of `charted-database`.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, derive_more::Display, derive_more::Deref)]
-pub struct Duration(charted_core::serde::Duration);
-impl Duration {
-    pub(crate) const fn from_secs(secs: u64) -> Self {
-        Self(charted_core::serde::Duration::from_secs(secs))
-    }
-}
-
-impl FromStr for Duration {
-    type Err = <charted_core::serde::Duration as FromStr>::Err;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        charted_core::serde::Duration::from_str(s).map(Self)
-    }
-}
-
-impl Merge for Duration {
-    fn merge(&mut self, other: Self) {
-        // Don't attempt to merge if both `me_std` and `other_std` are zero duration
-        if self.0.is_zero() && other.0.is_zero() {
-            return;
-        }
-
-        // If we are a non-zero duration and `other` is a zero duration
-        // (i.e, from `Default::default`), then don't merge.
-        if !self.0.is_zero() && other.0.is_zero() {
-            return;
-        }
-
-        *self = Duration(other.0);
     }
 }
 

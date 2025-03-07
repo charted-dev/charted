@@ -95,6 +95,9 @@ pub struct Config {
     #[serde(default)]
     pub storage: storage::Config,
 
+    #[serde(default)]
+    pub metrics: metrics::Config,
+
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub tracing: Option<tracing::Config>,
 
@@ -180,6 +183,7 @@ impl TryFromEnv for Config {
             sessions: sessions::Config::try_from_env()?,
             logging: logging::Config::from_env(),
             storage: storage::Config::try_from_env()?,
+            metrics: metrics::Config::try_from_env()?,
             server: server::Config::try_from_env()?,
 
             tracing: match util::bool_env(tracing::ENABLED) {

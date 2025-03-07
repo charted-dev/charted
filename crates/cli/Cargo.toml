@@ -59,3 +59,5 @@ tracing-error = "0.2.1"
 tracing-opentelemetry = "0.29.0"
 tracing-subscriber.workspace = true
 url.workspace = true
+charted-metrics.workspace = true
+futures-util = "0.3.31"

@@ -16,12 +16,11 @@
 use crate::Context;
 use azalia::remi::StorageService;
 use charted_config::{
-    database,
+    Config, database, metrics,
     sessions::{self, Backend},
-    Config,
 };
 use sea_orm::DatabaseConnection;
-use std::sync::{atomic::AtomicUsize, Arc};
+use std::sync::{Arc, atomic::AtomicUsize};
 
 // so that sessions are "consistent" enough between tests
 const JWT_SECRET_KEY: &str =
@@ -39,6 +38,7 @@ pub fn create_config(override_fn: impl FnOnce(&mut Config)) -> Config {
         logging: Default::default(),
         storage: Default::default(),
         tracing: None,
+        metrics: metrics::Config::Disabled,
         server: Default::default(),
 
         sessions: sessions::Config {
