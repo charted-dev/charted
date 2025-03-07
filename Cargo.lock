@@ -1234,7 +1234,6 @@ dependencies = [
  "cli-table",
  "color-eyre",
  "eyre",
- "futures-util",
  "num_cpus",
  "opentelemetry",
  "opentelemetry-otlp",
