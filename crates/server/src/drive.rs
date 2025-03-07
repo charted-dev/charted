@@ -55,7 +55,7 @@ async fn start_https(config: &server::Config, ssl: &server::ssl::Config, router:
     let addr = config.to_socket_addr();
     let config = RustlsConfig::from_pem_file(&ssl.cert, &ssl.cert_key).await?;
 
-    #[cfg(feature = "libsystemd")]
+    #[cfg(all(target_os = "linux", feature = "libsystemd"))]
     systemd_notify_ready();
 
     info!(address = %addr, "binding to socket address");
@@ -72,7 +72,7 @@ async fn start_http(config: &server::Config, router: Router) -> eyre::Result<()>
     let addr = config.to_socket_addr();
     let listener = TcpListener::bind(addr).await?;
 
-    #[cfg(feature = "libsystemd")]
+    #[cfg(all(target_os = "linux", feature = "libsystemd"))]
     systemd_notify_ready();
 
     info!(address = %addr, "binding to socket address");
@@ -108,7 +108,7 @@ async fn shutdown_signal(handle: Option<Handle>) {
         handle.graceful_shutdown(Some(Duration::from_secs(10)));
     }
 
-    #[cfg(feature = "libsystemd")]
+    #[cfg(all(target_os = "linux", feature = "libsystemd"))]
     systemd_notify_stopping();
 }
 
@@ -144,7 +144,7 @@ async fn start_standalone_metrics_server(
     }
 }
 
-#[cfg(feature = "libsystemd")]
+#[cfg(all(target_os = "linux", feature = "libsystemd"))]
 fn systemd_notify_ready() {
     if libsystemd::daemon::booted() {
         if let Err(e) = libsystemd::daemon::notify(false, &[libsystemd::daemon::NotifyState::Ready]) {
@@ -153,7 +153,7 @@ fn systemd_notify_ready() {
     }
 }
 
-#[cfg(feature = "libsystemd")]
+#[cfg(all(target_os = "linux", feature = "libsystemd"))]
 fn systemd_notify_stopping() {
     if libsystemd::daemon::booted() {
         if let Err(e) = libsystemd::daemon::notify(false, &[libsystemd::daemon::NotifyState::Stopping]) {
