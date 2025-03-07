@@ -55,6 +55,9 @@ async fn start_https(config: &server::Config, ssl: &server::ssl::Config, router:
     let addr = config.to_socket_addr();
     let config = RustlsConfig::from_pem_file(&ssl.cert, &ssl.cert_key).await?;
 
+    #[cfg(feature = "libsystemd")]
+    systemd_notify_ready();
+
     info!(address = %addr, "binding to socket address");
     axum_server::bind_rustls(addr, config)
         .handle(handle)
@@ -68,6 +71,9 @@ async fn start_http(config: &server::Config, router: Router) -> eyre::Result<()>
 
     let addr = config.to_socket_addr();
     let listener = TcpListener::bind(addr).await?;
+
+    #[cfg(feature = "libsystemd")]
+    systemd_notify_ready();
 
     info!(address = %addr, "binding to socket address");
     axum::serve(listener, router.into_make_service())
@@ -101,6 +107,9 @@ async fn shutdown_signal(handle: Option<Handle>) {
     if let Some(handle) = handle {
         handle.graceful_shutdown(Some(Duration::from_secs(10)));
     }
+
+    #[cfg(feature = "libsystemd")]
+    systemd_notify_stopping();
 }
 
 async fn start_standalone_metrics_server(
@@ -132,5 +141,23 @@ async fn start_standalone_metrics_server(
         }
 
         _ => Ok(()),
+    }
+}
+
+#[cfg(feature = "libsystemd")]
+fn systemd_notify_ready() {
+    if libsystemd::daemon::booted() {
+        if let Err(e) = libsystemd::daemon::notify(false, &[libsystemd::daemon::NotifyState::Ready]) {
+            warn!(error = %e, "received error when notifying systemd that we're ready!");
+        }
+    }
+}
+
+#[cfg(feature = "libsystemd")]
+fn systemd_notify_stopping() {
+    if libsystemd::daemon::booted() {
+        if let Err(e) = libsystemd::daemon::notify(false, &[libsystemd::daemon::NotifyState::Stopping]) {
+            warn!(error = %e, "received error when notifying systemd that we're ready!");
+        }
     }
 }

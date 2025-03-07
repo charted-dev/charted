@@ -24,6 +24,11 @@ publish.workspace = true
 repository.workspace = true
 authors.workspace = true
 
+[features]
+default = ["libsystemd"]
+
+libsystemd = ["charted-cli/libsystemd"]
+
 [[bin]]
 name = "charted"
 path = "main.rs"

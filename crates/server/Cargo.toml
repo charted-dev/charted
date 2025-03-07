@@ -41,6 +41,7 @@ derive_more = { workspace = true, features = ["display", "from", "error"] }
 eyre.workspace = true
 futures-util = "0.3.31"
 jsonwebtoken = "9.3.1"
+libsystemd = { version = "0.7.0", optional = true }
 metrics-exporter-prometheus.workspace = true
 mime = "0.3.17"
 sea-orm.workspace = true

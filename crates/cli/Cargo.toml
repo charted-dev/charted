@@ -24,6 +24,11 @@ publish.workspace = true
 repository.workspace = true
 authors.workspace = true
 
+[features]
+default = ["libsystemd"]
+
+libsystemd = ["charted-server/libsystemd"]
+
 [dependencies]
 argon2.workspace = true
 azalia = { workspace = true, features = ["log", "log-writers"] }

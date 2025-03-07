@@ -45,6 +45,7 @@ RUN cargo build                                                               \
     -Z build-std-features="optimize_for_size,panic_immediate_abort,backtrace" \
     --locked                                                                  \
     --release                                                                 \
+    --no-default-features                                                     \
     --bin charted
 
 ##### FINAL STAGE
