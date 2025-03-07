@@ -189,19 +189,26 @@ const _: () = {
 /// configured by feature flags.
 #[cfg_attr(
     feature = "openapi",
-    doc = "* [`utoipa::PartialSchema`], [`utoipa::ToSchema`] (via the `openapi` crate feature)"
+    doc = "* [`utoipa::PartialSchema`](https://docs.rs/utoipa/*/utoipa/trait.PartialSchema.html), [`utoipa::ToSchema`](https://docs.rs/utoipa/*/utoipa/trait.ToSchema.html) (via the `openapi` crate feature)"
 )]
 #[cfg_attr(
     feature = "jsonschema",
-    doc = "* [`schemars::JsonSchema`] (via the `jsonschema` crate feature)"
+    doc = "* [`schemars::JsonSchema`](https://docs.rs/schemars/*/utoipa/trait.JsonSchema.html) (via the `jsonschema` crate feature)"
 )]
-/// [`utoipa::PartialSchema`]: https://docs.rs/utoipa/*/utoipa/trait.PartialSchema.html
-/// [`utoipa::ToSchema`]: https://docs.rs/utoipa/*/utoipa/trait.ToSchema.html
-/// [`schemars::JsonSchema`]: https://docs.rs/schemars/*/utoipa/trait.JsonSchema.html
 #[derive(
     Debug, Clone, Serialize, Deserialize, PartialEq, Eq, derive_more::Display, derive_more::From, derive_more::Deref,
 )]
 pub struct VersionReq(semver::VersionReq);
+impl VersionReq {
+    pub fn parse(x: &str) -> Result<Self, semver::Error> {
+        semver::VersionReq::parse(x).map(Self)
+    }
+
+    /// Checks if `self` is a [`VersionReq::STAR`](semver::VersionReq::STAR).
+    pub fn is_wildcard(&self) -> bool {
+        **self == semver::VersionReq::STAR
+    }
+}
 
 cfg_openapi! {
     use serde_json::json;

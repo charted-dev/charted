@@ -13,20 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::path::PathBuf;
-use url::Url;
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 
-/// Implements Helm's [Downloader Protocol] feature for plugins.
-///
-/// [Downloader Protocol]: https://helm.sh/docs/topics/plugins/#downloader-plugins
-#[derive(Debug, clap::Parser)]
-pub struct Args {
-    cert_file: PathBuf,
-    key_file: PathBuf,
-    ca_file: PathBuf,
-    url: Url,
-}
-
-pub async fn run(Args { .. }: Args) -> eyre::Result<()> {
-    Ok(())
-}
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct Repository {}

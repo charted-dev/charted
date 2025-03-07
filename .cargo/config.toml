@@ -19,5 +19,9 @@ rustflags = ["--cfg", "tokio_unstable"]
 [alias]
 internals = "run --release --bin internals --"
 server = "cli server"
+
 cli-rl = "run --release --bin charted --"
 cli = "run --bin charted --"
+
+helm = "run --bin charted-helm-plugin --"
+helm-rl = "run --bin charted-helm-plugin --release --"

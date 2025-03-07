@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
 # Copyright 2022-2025 Noelware, LLC. <team@noelware.org>
 #
@@ -12,26 +14,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-[package]
-name = "charted"
-version.workspace = true
-documentation.workspace = true
-edition.workspace = true
-homepage.workspace = true
-license.workspace = true
-publish.workspace = true
-repository.workspace = true
-authors.workspace = true
-
-[[bin]]
-name = "charted"
-path = "main.rs"
-
-[dependencies]
-charted-cli.workspace = true
-clap.workspace = true
-dotenvy.workspace = true
-eyre.workspace = true
-mimalloc.workspace = true
-tokio = { workspace = true, features = ["rt", "rt-multi-thread"] }

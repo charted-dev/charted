@@ -27,3 +27,30 @@ authors.workspace = true
 [[bin]]
 name = "charted-helm-plugin"
 path = "../../../src/helm-plugin/main.rs"
+
+[dependencies]
+azalia = { workspace = true, features = [
+    "log",
+    "log-writers",
+    "log-tracing-log",
+] }
+base64.workspace = true
+charted-core = { workspace = true, features = ["schemars"] }
+charted-types = { workspace = true, features = ["jsonschema"] }
+clap.workspace = true
+clap_complete.workspace = true
+derive_more = { workspace = true, features = ["display"] }
+dotenvy.workspace = true
+etcetera = "0.10.0"
+eyre.workspace = true
+mimalloc.workspace = true
+reqwest.workspace = true
+schemars.workspace = true
+secrecy = { version = "0.10.3", features = ["serde"] }
+serde.workspace = true
+serde_yaml_ng.workspace = true
+tokio = { workspace = true, features = ["rt"] }
+toml = "0.8.20"
+tracing.workspace = true
+tracing-subscriber = { workspace = true, features = ["tracing-log"] }
+url = { workspace = true, features = ["serde"] }

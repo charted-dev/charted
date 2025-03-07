@@ -16,15 +16,15 @@
 use crate::install_eyre_hook;
 use azalia::{
     config::TryFromEnv,
-    log::{writers, WriteLayer},
-    remi::{core::StorageService as _, StorageService},
+    log::{WriteLayer, writers},
+    remi::{StorageService, core::StorageService as _},
 };
 use charted_authz::Authenticator;
-use charted_config::{sessions::Backend, storage, Config};
+use charted_config::{Config, sessions::Backend, storage};
 use charted_core::Distribution;
 use charted_server::set_context;
 use eyre::bail;
-use opentelemetry::{trace::TracerProvider, InstrumentationScope, KeyValue};
+use opentelemetry::{InstrumentationScope, KeyValue, trace::TracerProvider};
 use opentelemetry_otlp::SpanExporter;
 use opentelemetry_sdk::trace::{SdkTracer, SdkTracerProvider};
 use owo_colors::{OwoColorize, Stream::Stdout};
@@ -32,7 +32,7 @@ use std::{
     borrow::Cow,
     io::{self, Write},
     path::PathBuf,
-    sync::{atomic::AtomicUsize, Arc},
+    sync::{Arc, atomic::AtomicUsize},
 };
 use tracing::{info, level_filters::LevelFilter, warn};
 use tracing_subscriber::{filter, prelude::*};
@@ -100,8 +100,14 @@ pub(crate) async fn run(Args { config, .. }: Args) -> eyre::Result<()> {
         pool,
     };
 
-    set_context(context);
-    charted_server::drive().await
+    set_context(context.clone());
+    charted_server::drive().await?;
+
+    warn!("server has been closed, closing resources...");
+    context.pool.close().await?;
+
+    warn!("goodbye.");
+    Ok(())
 }
 
 pub(in crate::commands) fn load_config(config: Option<PathBuf>) -> eyre::Result<Config> {

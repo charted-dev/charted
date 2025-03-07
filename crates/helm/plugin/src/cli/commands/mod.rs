@@ -13,20 +13,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::path::PathBuf;
-use url::Url;
+mod auth;
+mod completions;
+mod context;
+mod download;
+mod init;
+mod login;
+mod logout;
+mod repository;
 
-/// Implements Helm's [Downloader Protocol] feature for plugins.
-///
-/// [Downloader Protocol]: https://helm.sh/docs/topics/plugins/#downloader-plugins
-#[derive(Debug, clap::Parser)]
-pub struct Args {
-    cert_file: PathBuf,
-    key_file: PathBuf,
-    ca_file: PathBuf,
-    url: Url,
+#[derive(Debug, clap::Subcommand)]
+pub enum Subcommand {
+    Completions(completions::Args),
+
+    #[command(hide(true))]
+    Download(download::Args),
 }
 
-pub async fn run(Args { .. }: Args) -> eyre::Result<()> {
-    Ok(())
+impl Subcommand {
+    pub async fn run(self) -> eyre::Result<()> {
+        match self {
+            Subcommand::Completions(args) => completions::run(args),
+            Subcommand::Download(args) => download::run(args).await,
+        }
+    }
 }

@@ -13,20 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::path::PathBuf;
-use url::Url;
+/// [serde] support for [`SecretString`](secrecy::SecretString)
+pub mod secret_string {
+    use secrecy::{ExposeSecret, SecretString};
+    use serde::{Deserialize, Deserializer, Serializer};
 
-/// Implements Helm's [Downloader Protocol] feature for plugins.
-///
-/// [Downloader Protocol]: https://helm.sh/docs/topics/plugins/#downloader-plugins
-#[derive(Debug, clap::Parser)]
-pub struct Args {
-    cert_file: PathBuf,
-    key_file: PathBuf,
-    ca_file: PathBuf,
-    url: Url,
-}
+    pub fn serialize<S: Serializer>(ss: &SecretString, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_str(ss.expose_secret())
+    }
 
-pub async fn run(Args { .. }: Args) -> eyre::Result<()> {
-    Ok(())
+    pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<SecretString, D::Error> {
+        Ok(SecretString::new(String::deserialize(deserializer)?.into()))
+    }
 }

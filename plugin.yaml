@@ -14,13 +14,29 @@
 # limitations under the License.
 
 name: charted
+description: '🐻‍❄️🌺 Faciliate Helm operations with charted-server easily'
 version: '0.1.0'
-description: 🐻‍❄️🌺 Helm plugin to help you push your Helm charts into charted-server easily!~
-command: '$HELM_PLUGIN_DIR/bin/charted-helm-plugin'
-useTunnel: false
 downloaders:
     - command: bin/charted-helm-plugin download
       protocols: [charted]
-hooks:
-    install: 'cd $HELM_PLUGIN_DIR; ./hack/helm-plugin/update.sh'
-    update: 'cd $HELM_PLUGIN_DIR; ./hack/helm-plugin/update.sh'
+platformCommand:
+    - command: $HELM_PLUGIN_DIR/bin/charted-helm-plugin
+platformHooks:
+    install:
+        - command: $HELM_PLUGIN_DIR/hack/helm-plugin/_action
+          args: install
+        - os: windows
+          command: $HELM_PLUGIN_DIR/hack/helm-plugin/Action.ps1
+          args: -Install
+    update:
+        - command: $HELM_PLUGIN_DIR/hack/helm-plugin/_action
+          args: update
+        - os: windows
+          command: $HELM_PLUGIN_DIR/hack/helm-plugin/Action.ps1
+          args: -Update
+    delete:
+        - command: $HELM_PLUGIN_DIR/hack/helm-plugin/_action
+          args: delete
+        - os: windows
+          command: $HELM_PLUGIN_DIR/hack/helm-plugin/Action.ps1
+          args: -Delete

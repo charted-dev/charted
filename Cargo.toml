@@ -71,12 +71,15 @@ charted-types = { path = "./crates/types", version = "0.1.0" }
 
 argon2 = "0.5.3"
 axum = { version = "0.8.1", features = ["macros", "http2"] }
+base64 = "0.22.1"
 chrono = { version = "0.4.39", features = ["serde"] }
 clap = { version = "4.5.27", features = ["derive", "env"] }
 clap_complete = "4.5.44"
 color-eyre = { version = "0.6.3", features = ["issue-url"] }
 derive_more = "2.0.0"
+dotenvy = "0.15.7"
 eyre = "0.6.12"
+mimalloc = "0.1.43"
 multer = "3.1.0"
 num_cpus = "1.16.0"
 rand = "0.9.0"
