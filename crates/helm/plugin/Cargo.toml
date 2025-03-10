@@ -50,7 +50,7 @@ secrecy = { version = "0.10.3", features = ["serde"] }
 serde.workspace = true
 serde_yaml_ng.workspace = true
 tokio = { workspace = true, features = ["rt"] }
-toml = "0.8.20"
+toml.workspace = true
 tracing.workspace = true
 tracing-subscriber = { workspace = true, features = ["tracing-log"] }
 url = { workspace = true, features = ["serde"] }

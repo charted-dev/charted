@@ -14,7 +14,8 @@
 // limitations under the License.
 
 pub mod features;
-pub mod info;
+pub mod healthz;
+pub mod index;
 pub mod main;
 pub mod openapi;
 pub mod organization;
@@ -23,7 +24,6 @@ pub mod user;
 
 use crate::Context;
 use axum::{Extension, Router, response::IntoResponse, routing};
-use charted_config::metrics;
 use charted_core::VERSION;
 use metrics_exporter_prometheus::PrometheusHandle;
 use serde::Serialize;
@@ -53,14 +53,15 @@ impl Entrypoint {
 }
 
 pub fn create_router(ctx: &Context) -> Router<Context> {
-    let mut router = Router::new().route("/", routing::get(main::main));
+    let mut router = Router::new()
+        .route("/indexes/{idOrName}", routing::get(index::fetch))
+        .route("/openapi.json", routing::get(openapi::get))
+        .route("/features", routing::get(features::features))
+        .route("/_healthz", routing::get(healthz::healthz))
+        .route("/", routing::get(main::main));
 
-    match ctx.config.metrics {
-        metrics::Config::Prometheus(ref config) if config.standalone.is_none() => {
-            router = router.route(&config.endpoint, routing::get(prometheus_scrape));
-        }
-
-        _ => {}
+    if let Some(config) = ctx.config.metrics.as_prometheus() {
+        router = router.route(&config.endpoint, routing::get(prometheus_scrape));
     }
 
     router

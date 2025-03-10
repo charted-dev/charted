@@ -13,20 +13,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::feature;
 use axum::extract::FromRef;
 use azalia::remi::StorageService;
 use charted_authz::Authenticator;
 use charted_config::Config;
 use sea_orm::DatabaseConnection;
 use std::sync::{
-    atomic::{AtomicUsize, Ordering},
     Arc, OnceLock,
+    atomic::{AtomicUsize, Ordering},
 };
 
 static SINGLETON: OnceLock<Context> = OnceLock::new();
 
 pub struct Context {
     pub requests: AtomicUsize,
+    pub features: feature::Collection,
     pub storage: StorageService,
     pub config: Config,
     pub authz: Arc<dyn Authenticator>,
@@ -37,6 +39,7 @@ impl Clone for Context {
     fn clone(&self) -> Self {
         Context {
             requests: AtomicUsize::new(self.requests.load(Ordering::SeqCst)),
+            features: self.features.clone(),
             storage: self.storage.clone(),
             config: self.config.clone(),
             authz: self.authz.clone(),

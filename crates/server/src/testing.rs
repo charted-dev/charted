@@ -60,6 +60,7 @@ pub fn create_config(override_fn: impl FnOnce(&mut Config)) -> Config {
 pub fn set_and_use_context(config: Config) -> Context {
     let ctx = Context {
         requests: AtomicUsize::default(),
+        features: azalia::hashmap!(),
         storage: StorageService::__non_exhaustive,
         config,
         pool: DatabaseConnection::Disconnected,

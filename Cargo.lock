@@ -1437,6 +1437,7 @@ dependencies = [
  "charted-config",
  "charted-core",
  "charted-database",
+ "charted-helm-charts",
  "charted-helm-types",
  "charted-types",
  "derive_more 2.0.1",
@@ -6461,8 +6462,7 @@ checksum = "06abde3611657adf66d383f00b093d7faecc7fa57071cce2578660c9f1010821"
 [[package]]
 name = "utoipa"
 version = "5.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "435c6f69ef38c9017b4b4eea965dfb91e71e53d869e896db40d1cf2441dd75c0"
+source = "git+https://github.com/Noelware/utoipa?branch=toresponse-cow#b65b9d9df53ecbe92be299a9437fb2accb251067"
 dependencies = [
  "indexmap 2.7.1",
  "serde",
@@ -6473,8 +6473,7 @@ dependencies = [
 [[package]]
 name = "utoipa-gen"
 version = "5.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a77d306bc75294fd52f3e99b13ece67c02c1a2789190a6f31d32f736624326f7"
+source = "git+https://github.com/Noelware/utoipa?branch=toresponse-cow#b65b9d9df53ecbe92be299a9437fb2accb251067"
 dependencies = [
  "proc-macro2",
  "quote",

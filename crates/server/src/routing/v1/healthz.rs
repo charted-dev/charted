@@ -12,3 +12,22 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+/// Healthcheck endpoint to determine if services are OK.
+#[cfg_attr(debug_assertions, axum::debug_handler)]
+#[utoipa::path(
+    get,
+    path = "/v1/_healthz",
+    operation_id = "healthz",
+    tags = ["Main"],
+    responses(
+        (
+            status = 200,
+            description = "Successful response",
+            content_type = "text/plain"
+        )
+    )
+)]
+pub async fn healthz() -> &'static str {
+    "Ok."
+}

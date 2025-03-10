@@ -22,15 +22,12 @@ use serde::{Deserialize, Serialize};
 /// configured by feature flags.
 #[cfg_attr(
     feature = "openapi",
-    doc = "* [`utoipa::PartialSchema`], [`utoipa::ToSchema`] (via the `openapi` crate feature)"
+    doc = "* [`utoipa::PartialSchema`](https://docs.rs/utoipa/*/utoipa/trait.PartialSchema.html), [`utoipa::ToSchema`](https://docs.rs/utoipa/*/utoipa/trait.ToSchema.html) (via the `openapi` crate feature)"
 )]
 #[cfg_attr(
     feature = "jsonschema",
-    doc = "* [`schemars::JsonSchema`] (via the `jsonschema` crate feature)"
+    doc = "* [`schemars::JsonSchema`](https://docs.rs/schemars/*/utoipa/trait.JsonSchema.html) (via the `jsonschema` crate feature)"
 )]
-/// [`utoipa::PartialSchema`]: https://docs.rs/utoipa/*/utoipa/trait.PartialSchema.html
-/// [`utoipa::ToSchema`]: https://docs.rs/utoipa/*/utoipa/trait.ToSchema.html
-/// [`schemars::JsonSchema`]: https://docs.rs/schemars/*/utoipa/trait.JsonSchema.html
 #[derive(
     Debug, Clone, Serialize, PartialEq, Eq, PartialOrd, Ord, derive_more::Display, derive_more::From, derive_more::Deref,
 )]

@@ -124,12 +124,13 @@ sqlx = { version = "0.8.3", features = [
 tempfile = "3.12.0"
 tracing = "0.1.41"
 tracing-subscriber = "0.3.19"
+toml = "0.8.20"
 tokio = "1.43.0"
-utoipa = { version = "5.3.1", features = [
-    "chrono",
-    "non_strict_integers",
-    "ulid",
-] }
+# utoipa = { version = "5.3.1", features = [
+#     "chrono",
+#     "non_strict_integers",
+#     "ulid",
+# ] }
 url = "2.5.4"
 
 [workspace.dependencies.azalia]
@@ -137,6 +138,13 @@ version = "0.1.0"
 git = "https://github.com/Noelware/azalia"
 rev = "f4600130658cfe523350222717b4530ce4d30123"
 features = ["remi-tracing"]
+
+# A forked version of `utoipa` until https://github.com/juhaku/utoipa/issues/1335 lands
+[workspace.dependencies.utoipa]
+version = "5.3.1"
+git = "https://github.com/Noelware/utoipa"
+branch = "toresponse-cow"
+features = ["chrono", "non_strict_integers", "ulid"]
 
 [profile.release]
 codegen-units = 1 # use a single codegen unit

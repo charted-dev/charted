@@ -14,7 +14,7 @@
 // limitations under the License.
 
 use super::{create_table, id};
-use charted_types::{name::Name, ApiKey, Ulid};
+use charted_types::{ApiKey, Ulid, name::Name};
 use sea_orm::{entity::prelude::*, sea_query::TableCreateStatement};
 use sea_orm_migration::schema::*;
 
@@ -73,7 +73,7 @@ impl ActiveModelBehavior for ActiveModel {}
 
 #[derive(DeriveIden)]
 pub(crate) enum Idens {
-    #[sea_orm(rename = "apikeys")]
+    #[sea_orm(iden = "apikeys")]
     Table,
 }
 

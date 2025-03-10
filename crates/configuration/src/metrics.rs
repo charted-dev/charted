@@ -76,3 +76,12 @@ impl TryFromEnv for Config {
         }
     }
 }
+
+impl Config {
+    pub fn as_prometheus(&self) -> Option<&prometheus::Config> {
+        match self {
+            Config::Prometheus(c) => Some(c),
+            _ => None,
+        }
+    }
+}

@@ -52,6 +52,7 @@ fn is_in_docker_container() -> bool {
     has_dockerenv || has_cgroup
 }
 
+/// Deployment strategy that was used for this instance.
 #[derive(Debug, Clone, Copy, Serialize, Default, PartialEq, Eq)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[serde(rename_all = "lowercase")]

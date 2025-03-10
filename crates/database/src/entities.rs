@@ -21,11 +21,12 @@ pub mod user;
 pub mod user_connections;
 
 pub use apikey::Entity as ApiKeyEntity;
-pub use repository::{release::Entity as RepositoryReleaseEntity, Entity as RepositoryEntity};
+pub use organization::Entity as OrganizationEntity;
+pub use repository::{Entity as RepositoryEntity, release::Entity as RepositoryReleaseEntity};
 use sea_orm::{
+    DeriveIden,
     prelude::Expr,
     sea_query::{ColumnDef, IntoIden, Table, TableCreateStatement},
-    DeriveIden,
 };
 use sea_orm_migration::schema::{text, timestamp};
 pub use session::Entity as SessionEntity;

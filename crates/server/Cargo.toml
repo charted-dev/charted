@@ -34,7 +34,7 @@ charted-authz.workspace = true
 charted-config.workspace = true
 charted-core = { workspace = true, features = ["openapi", "axum"] }
 charted-database.workspace = true
-#charted-helm-charts.workspace = true
+charted-helm-charts.workspace = true
 charted-helm-types = { workspace = true, features = ["openapi"] }
 charted-types = { workspace = true, features = ["openapi"] }
 derive_more = { workspace = true, features = ["display", "from", "error"] }

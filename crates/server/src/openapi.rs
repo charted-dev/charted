@@ -15,14 +15,16 @@
 
 mod modifiers;
 
+use crate::routing::v1::{features::Features, main::Main};
 use modifiers::*;
 use serde_json::Value;
+use std::{borrow::Cow, marker::PhantomData};
 use utoipa::{
-    openapi::{
-        schema::SchemaType, ArrayBuilder, ContentBuilder, ObjectBuilder, Ref, RefOr, Response, ResponseBuilder, Schema,
-        Type,
-    },
     OpenApi, PartialSchema, ToResponse, ToSchema,
+    openapi::{
+        Array, ArrayBuilder, Content, ContentBuilder, Object, ObjectBuilder, Ref, RefOr, Response, ResponseBuilder,
+        Schema, Type, schema::SchemaType,
+    },
 };
 
 #[derive(OpenApi)]
@@ -92,15 +94,23 @@ use utoipa::{
 
             charted_core::api::ErrorCode,
             charted_core::api::Error,
-
             charted_core::Distribution,
+            charted_core::BuildInfo,
+
             charted_types::name::Name,
             charted_types::VersionReq,
-            charted_types::Version
+            charted_types::Version,
         ),
         responses(
-
+            ApiResponse<Features>,
+            ApiResponse<Main>
         )
+    ),
+    paths(
+        crate::routing::v1::features::features,
+        crate::routing::v1::healthz::healthz,
+        crate::routing::v1::index::fetch,
+        crate::routing::v1::main::main,
     ),
     tags(
         (
@@ -143,9 +153,6 @@ use utoipa::{
             name = "Organization/Members",
             description = "Endpoints that create, modify, delete, or fetch organization members"
         ),
-    ),
-    paths(
-        crate::routing::v1::main::main,
     ),
     servers(
         (
@@ -195,7 +202,7 @@ impl PartialSchema for EmptyApiResponse {
 impl ToSchema for EmptyApiResponse {}
 
 impl<'r> ToResponse<'r> for EmptyApiResponse {
-    fn response() -> (&'r str, RefOr<Response>) {
+    fn response() -> (Cow<'r, str>, RefOr<Response>) {
         let response = ResponseBuilder::new()
             .description("API response that doesn't contain any data")
             .content(
@@ -204,7 +211,7 @@ impl<'r> ToResponse<'r> for EmptyApiResponse {
             )
             .build();
 
-        ("EmptyApiResponse", RefOr::T(response))
+        (Cow::Borrowed("EmptyApiResponse"), RefOr::T(response))
     }
 }
 
@@ -245,7 +252,7 @@ impl PartialSchema for ApiErrorResponse {
 impl ToSchema for ApiErrorResponse {}
 
 impl<'r> ToResponse<'r> for ApiErrorResponse {
-    fn response() -> (&'r str, RefOr<Response>) {
+    fn response() -> (Cow<'r, str>, RefOr<Response>) {
         let response = ResponseBuilder::new()
             .description("API response that is returned during a error path")
             .content(
@@ -254,10 +261,104 @@ impl<'r> ToResponse<'r> for ApiErrorResponse {
             )
             .build();
 
-        ("ApiErrorResponse", RefOr::T(response))
+        (Cow::Borrowed("ApiErrorResponse"), RefOr::T(response))
     }
 }
 
+// TODO(@auguwu): once https://github.com/juhaku/utoipa/issues/1335 is fixed, move
+// `ApiResponse`'s impl of ToResponse to `api::Response` and `ListApiResponse` to
+// `charted_core`.
+
+/// A [`Response`](utoipa::openapi::Response) type for
+/// <code>[`api::Response`](charted_core::api::Response)\<T\></code> types.
+pub struct ApiResponse<T: ?Sized>(PhantomData<T>);
+
+impl<T: ToSchema> utoipa::__dev::ComposeSchema for ApiResponse<T> {
+    fn compose(_: Vec<RefOr<Schema>>) -> RefOr<Schema> {
+        T::schema()
+    }
+}
+
+impl<T: ToSchema> ToSchema for ApiResponse<T> {
+    fn name() -> Cow<'static, str> {
+        <ApiResponse<T> as ToResponse<'_>>::response().0
+    }
+}
+
+impl<'r, T: ToSchema> ToResponse<'r> for ApiResponse<T> {
+    fn response() -> (
+        Cow<'r, str>,
+        utoipa::openapi::RefOr<utoipa::openapi::response::Response>,
+    ) {
+        let name = T::name();
+        let RefOr::T(Schema::Object(response_schema)) = <charted_core::api::Response<()> as PartialSchema>::schema()
+        else {
+            unreachable!()
+        };
+
+        let success = response_schema.properties.get("success").unwrap();
+        let errors = response_schema.properties.get("errors").unwrap();
+        let response = Response::builder()
+            .description(format!("Response datatype for a list of `{name}`"))
+            .content(
+                "application/json",
+                Content::builder()
+                    .schema(Some(RefOr::T(Schema::Object(
+                        Object::builder()
+                            .property("success", success.to_owned())
+                            .required("success")
+                            .property("data", RefOr::T(Schema::Array(Array::new(T::schema()))))
+                            .property("errors", errors.to_owned())
+                            .build(),
+                    ))))
+                    .build(),
+            )
+            .build();
+
+        (Cow::Owned(format!("{}Response", name)), RefOr::T(response))
+    }
+}
+
+/// A [`Response`](utoipa::openapi::Response) type for
+/// <code>[`api::Response`](charted_core::api::Response)\<[`Vec`]\<T\>\></code> types.
+#[derive(Debug, Clone, Copy)]
+pub struct ListApiResponse<T>(PhantomData<T>);
+impl<T> Default for ListApiResponse<T> {
+    fn default() -> Self {
+        Self(PhantomData)
+    }
+}
+
+impl<'r, T: ToSchema> ToResponse<'r> for ListApiResponse<T> {
+    fn response() -> (Cow<'r, str>, RefOr<Response>) {
+        let name = T::name();
+        let RefOr::T(Schema::Object(response_schema)) = <charted_core::api::Response<()> as PartialSchema>::schema()
+        else {
+            unreachable!()
+        };
+
+        let success = response_schema.properties.get("success").unwrap();
+        let errors = response_schema.properties.get("errors").unwrap();
+        let response = Response::builder()
+            .description(format!("Response datatype for a list of `{name}`"))
+            .content(
+                "application/json",
+                Content::builder()
+                    .schema(Some(RefOr::T(Schema::Object(
+                        Object::builder()
+                            .property("success", success.to_owned())
+                            .required("success")
+                            .property("data", RefOr::T(Schema::Array(Array::new(T::schema()))))
+                            .property("errors", errors.to_owned())
+                            .build(),
+                    ))))
+                    .build(),
+            )
+            .build();
+
+        (Cow::Owned(format!("List{}Response", name)), RefOr::T(response))
+    }
+}
 #[cfg(test)]
 mod tests {
     /// A sanity check for all tests if all the references that are

@@ -15,7 +15,7 @@
 
 [package]
 name = "charted-helm-types"
-description = "🐻‍❄️📦 Generic crate that holds all types related to Helm (https://helm.sh)"
+description = "🐻‍❄️📦 Generic crate that holds all types related to Helm (https://helm.sh) in use by the project"
 version.workspace = true
 documentation.workspace = true
 edition.workspace = true
@@ -42,3 +42,12 @@ charted-types.workspace = true
 chrono.workspace = true
 serde.workspace = true
 utoipa = { workspace = true, optional = true }
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = [
+    "--generate-link-to-definition",
+    "--extern-html-root-url=core=https://doc.rust-lang.org",
+    "--extern-html-root-url=alloc=https://doc.rust-lang.org",
+    "--extern-html-root-url=std=https://doc.rust-lang.org",
+]

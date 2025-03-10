@@ -14,6 +14,7 @@
 // limitations under the License.
 
 pub mod extract;
+pub mod feature;
 pub mod middleware;
 pub mod multipart;
 pub mod openapi;

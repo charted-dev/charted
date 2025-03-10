@@ -102,8 +102,11 @@ pub(crate) async fn run(Args { config, .. }: Args) -> eyre::Result<()> {
         metrics::Config::Prometheus(config) => Some(charted_metrics::init_prometheus(&config)?),
     };
 
+    #[allow(unused_mut)]
+    let mut features = azalia::hashmap!();
     let context = charted_server::Context {
         requests: AtomicUsize::new(0),
+        features,
         storage,
         config,
         authz,

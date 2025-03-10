@@ -54,6 +54,42 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// the internal `charted-*` crates.
 pub static ARGON2: LazyLock<Argon2> = LazyLock::new(Argon2::default);
 
+/// A structure defining the build information of **charted-server**.
+#[derive(Debug, Clone, Copy, ::serde::Serialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct BuildInfo {
+    /// The current version of **charted-server**.
+    #[cfg_attr(feature = "openapi", schema(read_only))]
+    pub version: &'static str,
+
+    /// Returns the Git commit hash from the charted-server repository that
+    /// this build was built off from.
+    #[cfg_attr(feature = "openapi", schema(read_only))]
+    pub commit_hash: &'static str,
+
+    /// RFC3339-formatted date of when charted-server was last built at.
+    #[cfg_attr(feature = "openapi", schema(read_only))]
+    pub build_timestamp: &'static str,
+
+    /// Returns the version of the Rust compiler that charted-server
+    /// was compiled on, used for diagnostics.
+    #[cfg_attr(feature = "openapi", schema(read_only))]
+    pub rustc: &'static str,
+}
+
+impl BuildInfo {
+    /// Constructs a new [`BuildInfo`] object.
+    #[allow(clippy::new_without_default)]
+    pub const fn new() -> BuildInfo {
+        BuildInfo {
+            version: VERSION,
+            commit_hash: COMMIT_HASH,
+            build_timestamp: BUILD_DATE,
+            rustc: RUSTC_VERSION,
+        }
+    }
+}
+
 /// Returns a formatted string of the version that combines the [`VERSION`] and
 /// [`COMMIT_HASH`] constants as
 /// <code>v[{version}][VERSION]+[{commit.hash}][COMMIT_HASH]</code>.

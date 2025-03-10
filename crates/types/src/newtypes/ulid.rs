@@ -16,22 +16,18 @@
 use crate::{cfg_jsonschema, cfg_openapi};
 use serde::{Deserialize, Serialize};
 
-/// Newtype wrapper for [`ulid::Ulid`].
+/// Newtype wrapper for [`ulid::Ulid`](https://docs.rs/ulid/*/ulid/struct.Ulid.html).
 ///
 /// This newtype wrapper implements all the standard library types and more
-/// configured by feature flags.
+/// configured by feature flags:
 #[cfg_attr(
     feature = "openapi",
-    doc = "* [`utoipa::PartialSchema`], [`utoipa::ToSchema`] (via the `openapi` crate feature)"
+    doc = "* [`utoipa::PartialSchema`](https://docs.rs/utoipa/*/utoipa/trait.PartialSchema.html), [`utoipa::ToSchema`](https://docs.rs/utoipa/*/utoipa/trait.ToSchema.html) (via the `openapi` crate feature)"
 )]
 #[cfg_attr(
     feature = "jsonschema",
-    doc = "* [`schemars::JsonSchema`] (via the `jsonschema` crate feature)"
+    doc = "* [`schemars::JsonSchema`](https://docs.rs/schemars/*/utoipa/trait.JsonSchema.html) (via the `jsonschema` crate feature)"
 )]
-/// [`ulid::Ulid`]: https://docs.rs/ulid/*/ulid/struct.Ulid.html
-/// [`utoipa::PartialSchema`]: https://docs.rs/utoipa/*/utoipa/trait.PartialSchema.html
-/// [`utoipa::ToSchema`]: https://docs.rs/utoipa/*/utoipa/trait.ToSchema.html
-/// [`schemars::JsonSchema`]: https://docs.rs/schemars/*/utoipa/trait.JsonSchema.html
 #[derive(
     Debug,
     Clone,

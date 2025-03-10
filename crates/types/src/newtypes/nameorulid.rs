@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{name::Name, Ulid};
+use crate::{Ulid, name::Name};
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
@@ -92,6 +92,16 @@ mod tests {
             NameOrUlid::Name(unsafe {
                 // Safety: this passes all the validation it requires
                 Name::new_unchecked("some3name1with6numbers")
+            })
+        );
+
+        // another edge case if the username is somewhat like a ULID, it should
+        // be parsed as `Name`.
+        assert_eq!(
+            serde_json::from_str::<NameOrUlid>("\"01aWeRDnaEMtaTcaNBEAvaLIDu\"").unwrap(),
+            NameOrUlid::Name(unsafe {
+                // Safety: this passes all the validation it requires
+                Name::new_unchecked("01aWeRDnaEMtaTcaNBEAvaLIDu")
             })
         );
     }

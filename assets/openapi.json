@@ -36,23 +36,7 @@
                 "operationId": "main",
                 "responses": {
                     "200": {
-                        "description": "200 OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": ["distribution", "build_info"],
-                                    "properties": {
-                                        "build_info": {
-                                            "$ref": "#/components/schemas/BuildInfo"
-                                        },
-                                        "distribution": {
-                                            "$ref": "#/components/schemas/Distribution"
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        "$ref": "#/components/responses/MainResponse"
                     }
                 }
             }
@@ -180,33 +164,6 @@
                 ],
                 "description": "Representation of a API key scope. A scope determines a permission between an API key"
             },
-            "BuildInfo": {
-                "type": "object",
-                "required": [
-                    "version",
-                    "commit_hash",
-                    "build_timestamp",
-                    "rustc"
-                ],
-                "properties": {
-                    "build_timestamp": {
-                        "type": "string",
-                        "readOnly": true
-                    },
-                    "commit_hash": {
-                        "type": "string",
-                        "readOnly": true
-                    },
-                    "rustc": {
-                        "type": "string",
-                        "readOnly": true
-                    },
-                    "version": {
-                        "type": "string",
-                        "readOnly": true
-                    }
-                }
-            },
             "Chart": {
                 "type": "object",
                 "description": "Skeleton schema of a `Chart.yaml` file.",
@@ -224,22 +181,22 @@
                     },
                     "apiVersion": {
                         "$ref": "#/components/schemas/ChartSpecVersion",
-                        "description": "The `apiVersion` field should be v2 for Helm charts that require at least Helm 3. Charts supporting previous\nHelm versions have an apiVersion set to v1 and are still installable by Helm 3."
+                        "description": "The `apiVersion` field should be v2 for Helm charts that require at least Helm 3.\nCharts supporting previous Helm versions have an apiVersion set to v1 and are\nstill installable by Helm 3."
                     },
                     "appVersion": {
                         "type": ["string", "null"],
-                        "description": "Note that the `appVersion` field is not related to the `version` field.\n\nIt is a way of specifying the version of the application. For example, the `drupal` chart may have an\n`appVersion: \"8.2.1\"`, indicating that the version of Drupal included in the chart (by default) is `8.2.1`.\nThis field is informational, and has no impact on chart version calculations.\n\nWrapping the version in quotes is highly recommended. It forces the YAML parser to treat the version number as a string.\nLeaving it unquoted can lead to parsing issues in some cases. For example, YAML interprets 1.0 as a floating point value,\nand a git commit SHA like 1234e10 as scientific notation."
+                        "description": "Note that the `appVersion` field is not related to the `version` field.\n\nIt is a way of specifying the version of the application. For example, the\n`drupal` chart may have an `appVersion: \"8.2.1\"`, indicating that the version\nof Drupal included in the chart (by default) is `8.2.1`. This field is\ninformational, and has no impact on chart version calculations.\n\nWrapping the version in quotes is highly recommended. It forces the YAML parser to\ntreat the version number as a string. Leaving it unquoted can lead to parsing\nissues in some cases. For example, YAML interprets 1.0 as a floating point value,\nand a git commit SHA like 1234e10 as scientific notation."
                     },
                     "dependencies": {
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/ChartDependency"
                         },
-                        "description": "In Helm, one chart may depend on any number of other charts.\n\nThese dependencies can be dynamically linked using the dependencies' field in `Chart.yaml`\nor brought in to the `charts/` directory and managed manually. The charts required by the current chart\nare defined as a list in the dependencies field."
+                        "description": "In Helm, one chart may depend on any number of other charts.\n\nThese dependencies can be dynamically linked using the dependencies' field in\n`Chart.yaml` or brought in to the `charts/` directory and managed manually.\nThe charts required by the current chart are defined as a list in the\ndependencies field."
                     },
                     "deprecated": {
                         "type": "boolean",
-                        "description": "When managing charts in a Chart Repository, it is sometimes necessary to deprecate a chart.\n\nThe optional `deprecated` field in Chart.yaml can be used to mark a chart as deprecated. If the latest version\nof a chart in the repository is marked as deprecated, then the chart as a whole is considered to be deprecated.\n\nThe chart name can be later reused by publishing a newer version that is not marked as deprecated."
+                        "description": "When managing charts in a Chart Repository, it is sometimes necessary to deprecate\na chart.\n\nThe optional `deprecated` field in Chart.yaml can be used to mark a chart as\ndeprecated. If the latest version of a chart in the repository is marked as\ndeprecated, then the chart as a whole is considered to be deprecated.\n\nThe chart name can be later reused by publishing a newer version that is not\nmarked as deprecated."
                     },
                     "description": {
                         "type": ["string", "null"],
@@ -267,7 +224,7 @@
                             },
                             {
                                 "$ref": "#/components/schemas/VersionReq",
-                                "description": "The optional `kubeVersion` field can define SemVer constraints on supported Kubernetes versions.\nHelm will validate the version constraints when installing the chart and fail if the\ncluster runs an unsupported Kubernetes version."
+                                "description": "The optional `kubeVersion` field can define SemVer constraints on supported\nKubernetes versions. Helm will validate the version constraints when\ninstalling the chart and fail if the cluster runs an unsupported Kubernetes\nversion."
                             }
                         ]
                     },
@@ -301,7 +258,7 @@
             },
             "ChartDependency": {
                 "type": "object",
-                "description": "In Helm, one chart may depend on any number of other charts.\n\nThese dependencies can be dynamically linked using the dependencies' field in `Chart.yaml` or brought in to\nthe `charts/` directory and managed manually. The charts required by the current chart are defined as a list\nin the `dependencies` field.",
+                "description": "In Helm, one chart may depend on any number of other charts.\n\nThese dependencies can be dynamically linked using the dependencies' field in\n`Chart.yaml` or brought in to the `charts/` directory and managed manually. The charts\nrequired by the current chart are defined as a list in the `dependencies` field.",
                 "required": ["name"],
                 "properties": {
                     "alias": {
@@ -317,7 +274,7 @@
                         "items": {
                             "$ref": "#/components/schemas/StringOrImportValue"
                         },
-                        "description": "[`ImportValues`][ImportValue] holds the mapping of source values to parent key to be imported.\nEach item can be a string or pair of child/parent sublist items."
+                        "description": "[`ImportValues`][ImportValue] holds the mapping of source values to parent key to\nbe imported. Each item can be a string or pair of child/parent sublist items."
                     },
                     "name": {
                         "type": "string",
@@ -359,7 +316,7 @@
                             },
                             "entries": {
                                 "type": "object",
-                                "description": "Map of [`ChartIndexSpec`]s for the Helm charts that Helm uses to install a Helm chart.",
+                                "description": "Map of [`ChartIndexSpec`]s for the Helm charts that Helm uses to install a\nHelm chart.",
                                 "additionalProperties": {
                                     "type": "array",
                                     "items": {
@@ -412,7 +369,7 @@
             },
             "ChartMaintainer": {
                 "type": "object",
-                "description": "Name and URL/email address combination as a maintainer.\n\nThe maintainer's name can be a [`ULID`][charted_types::Ulid] or a [`Name`][charted_types::name::Name]\nand [Hoshi](https://charts.noelware.org/docs/hoshi/latest) can use the information\nto query the user from the API server and show a \"Maintainers\" list in the UI.",
+                "description": "Name and URL/email address combination as a maintainer.\n\nThe maintainer's name can be a [`ULID`][charted_types::Ulid] or a\n[`Name`][charted_types::name::Name] and [Hoshi](https://charts.noelware.org/docs/hoshi/latest) can use the information\nto query the user from the API server and show a \"Maintainers\" list in the UI.",
                 "required": ["name"],
                 "properties": {
                     "email": {
@@ -965,7 +922,7 @@
                     },
                     "refresh_token": {
                         "type": ["string", "null"],
-                        "description": "A token that is used to refresh this session via the [`GET /users/@me/sessions/refresh`] REST endpoint.\n\nWhen this session was refreshed, the session is still alive and can still be used\nbut both the [`refresh_token`] and [`access_token`] fields are different values.\n\n[`GET /users/@me/sessions/refresh`]: #\n[`refresh_token`]: #\n[`access_token`]: #",
+                        "description": "A token that is used to refresh this session via the [`GET\n/users/@me/sessions/refresh`] REST endpoint.\n\nWhen this session was refreshed, the session is still alive and can still be used\nbut both the [`refresh_token`] and [`access_token`] fields are different values.\n\n[`GET /users/@me/sessions/refresh`]: #\n[`refresh_token`]: #\n[`access_token`]: #",
                         "readOnly": true
                     }
                 }
@@ -1099,6 +1056,52 @@
                 "type": "string",
                 "description": "A semantic version requirement (https://semver.org) that Helm and charted-server supports",
                 "examples": [">=1.2.3", "~1"]
+            }
+        },
+        "responses": {
+            "MainResponse": {
+                "description": "Response datatype for a list of `Main`",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "required": ["success"],
+                            "properties": {
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [
+                                            "distribution",
+                                            "build_info"
+                                        ],
+                                        "properties": {
+                                            "build_info": {
+                                                "$ref": "#/components/schemas/BuildInfo",
+                                                "description": "build information."
+                                            },
+                                            "distribution": {
+                                                "$ref": "#/components/schemas/Distribution",
+                                                "description": "current distribution this instance is running as."
+                                            }
+                                        }
+                                    }
+                                },
+                                "errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Error"
+                                    },
+                                    "description": "The error trace for the request that was processed by\nthe API server.\n\nThe `success` field will always be set to `false` when\nthe `errors` field is avaliable."
+                                },
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "Was the request that was processed a success?"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "securitySchemes": {

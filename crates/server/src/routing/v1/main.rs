@@ -13,63 +13,53 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::openapi::ApiResponse;
 use axum::http::StatusCode;
-use charted_core::{api, Distribution};
-use serde_json::{json, Value};
-use utoipa::ToSchema;
+use charted_core::{BuildInfo, Distribution, api};
+use serde::Serialize;
+use std::collections::BTreeMap;
+use utoipa::{
+    IntoResponses, ToResponse, ToSchema,
+    openapi::{Ref, RefOr, Response},
+};
 
-#[derive(ToSchema)]
-#[allow(unused)]
-struct Main {
+#[derive(Serialize, ToSchema)]
+pub struct Main {
+    /// current distribution this instance is running as.
     #[schema(read_only)]
     distribution: Distribution,
 
-    #[schema(inline)]
+    /// build information.
     build_info: BuildInfo,
 }
 
-#[derive(ToSchema)]
-#[allow(unused)]
-struct BuildInfo {
-    #[schema(read_only)]
-    version: String,
-
-    #[schema(read_only)]
-    commit_hash: String,
-
-    #[schema(read_only)]
-    build_timestamp: String,
-
-    #[schema(read_only)]
-    rustc: String,
+impl Default for Main {
+    fn default() -> Self {
+        Main {
+            distribution: Distribution::detect(),
+            build_info: BuildInfo::new(),
+        }
+    }
 }
 
+impl IntoResponses for ApiResponse<Main> {
+    fn responses() -> BTreeMap<String, RefOr<Response>> {
+        azalia::btreemap! {
+            "200" => RefOr::Ref(Ref::from_response_name(ApiResponse::<Main>::response().0))
+        }
+    }
+}
+
+/// Main entrypoint of the API server.
 #[cfg_attr(debug_assertions, axum::debug_handler)]
 #[utoipa::path(
     get,
 
-    path = "/",
+    path = "/v1",
     operation_id = "main",
     tag = "Main",
-    responses(
-        (
-            status = OK,
-            description = "200 OK",
-            body = api::Response<Main>
-        )
-    )
+    responses(ApiResponse<Main>)
 )]
-pub async fn main() -> api::Response<Value> {
-    api::ok(
-        StatusCode::OK,
-        json!({
-            "distribution": Distribution::detect(),
-            "build_info": {
-                "version": charted_core::VERSION,
-                "commit_hash": charted_core::COMMIT_HASH,
-                "build_timestamp": charted_core::BUILD_DATE,
-                "rustc": charted_core::RUSTC_VERSION
-            }
-        }),
-    )
+pub async fn main() -> api::Response<Main> {
+    api::ok(StatusCode::OK, Main::default())
 }

@@ -47,7 +47,7 @@ derive_more = { workspace = true, features = ["display", "deref"] }
 eyre.workspace = true
 sentry-types = "0.36.0"
 serde.workspace = true
-toml = "0.8.20"
+toml.workspace = true
 tracing.workspace = true
 url = { workspace = true, features = ["serde"] }
 

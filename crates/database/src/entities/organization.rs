@@ -16,7 +16,7 @@
 pub mod member;
 
 use super::{create_table, id};
-use charted_types::{name::Name, Organization, Ulid};
+use charted_types::{Organization, Ulid, name::Name};
 use sea_orm::{entity::prelude::*, sea_query::TableCreateStatement};
 use sea_orm_migration::schema::*;
 
@@ -82,7 +82,7 @@ impl ActiveModelBehavior for ActiveModel {}
 
 #[derive(DeriveIden)]
 pub(crate) enum Idens {
-    #[sea_orm(rename = "organizations")]
+    #[sea_orm(iden = "organizations")]
     Table,
 }
 
