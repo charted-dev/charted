@@ -15,7 +15,6 @@
 
 [package]
 name = "charted-cli"
-description = "🐻‍❄️📦 Implementation of the `charted` CLI"
 version.workspace = true
 documentation.workspace = true
 edition.workspace = true
@@ -25,34 +24,44 @@ publish.workspace = true
 repository.workspace = true
 authors.workspace = true
 
+[features]
+default = ["libsystemd"]
+
+libsystemd = ["charted-server/libsystemd"]
+
 [dependencies]
-azalia = { workspace = true, features = [
-    "log",
-    "log-writers",
-    "log-tracing-log",
-] }
-charted-app = { version = "0.1.0", path = "../app" }
-charted-config = { version = "0.1.0", path = "../config" }
-charted-core = { workspace = true, default-features = false }
+argon2.workspace = true
+azalia = { workspace = true, features = ["log", "log-writers"] }
+charted-authz.workspace = true
+charted-authz-local.workspace = true
+charted-authz-static.workspace = true
+charted-core.workspace = true
+charted-config.workspace = true
 charted-database.workspace = true
-charted-helm-charts = { version = "0.1.0", path = "../helm-charts" }
-charted-server = { version = "0.1.0", path = "../server" }
+charted-helm-charts.workspace = true
+charted-helm-types.workspace = true
+charted-metrics.workspace = true
+charted-server.workspace = true
 charted-types.workspace = true
-clap = { workspace = true, features = ["derive", "env"] }
+clap.workspace = true
 clap_complete.workspace = true
 cli-table = "0.4.9"
-diesel.workspace = true
-diesel_migrations.workspace = true
+color-eyre.workspace = true
 eyre.workspace = true
-num_cpus = "1.16.0"
-owo-colors = { version = "4.1.0", features = ["supports-colors"] }
-rayon.workspace = true
+num_cpus.workspace = true
+opentelemetry = "0.28.0"
+opentelemetry-otlp = { version = "0.28.0", features = ["grpc-tonic"] }
+opentelemetry_sdk = "0.28.0"
+owo-colors = { version = "4.1.0", features = ["supports-color"] }
+rayon = "1.10.0"
 reqwest.workspace = true
+sea-orm-migration.workspace = true
 sentry.workspace = true
-sentry-tracing = "0.36.0"
+sentry-tracing = { version = "0.36.0", features = ["backtrace"] }
 serde_yaml_ng.workspace = true
-tokio = { workspace = true, features = ["rt"] }
+tokio.workspace = true
 tracing.workspace = true
-tracing-error = "0.2.0"
+tracing-error = "0.2.1"
+tracing-opentelemetry = "0.29.0"
 tracing-subscriber.workspace = true
 url.workspace = true

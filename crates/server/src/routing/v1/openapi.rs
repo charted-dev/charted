@@ -13,29 +13,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#![allow(clippy::incompatible_msrv)]
-
-use crate::{openapi::Document, ServerContext};
+use crate::{Context, openapi::Document};
 use axum::extract::State;
 use std::sync::OnceLock;
-use utoipa::OpenApi;
+use utoipa::{OpenApi as _, openapi::OpenApi};
 
-// This is wrapped in a `OnceLock` and initialized on the first request is due to
-// that any feature can extend the OpenAPI document to document routes when the
-// feature is enabled.
-static CACHED: OnceLock<utoipa::openapi::OpenApi> = OnceLock::new();
+// We stash it in a OnceLock since we iterate through the server features
+// and to compute all features for each request is kinda dirty.
+static CACHED: OnceLock<OpenApi> = OnceLock::new();
 
 #[cfg_attr(debug_assertions, axum::debug_handler)]
-pub async fn openapi(State(cx): State<ServerContext>) -> String {
+pub async fn get(State(cx): State<Context>) -> String {
     let document = CACHED.get_or_init(|| {
         let mut doc = Document::openapi();
-
-        for feature in &cx.features {
-            feature.extends_openapi(&mut doc);
+        for feat in cx.features.values() {
+            feat.extends_openapi(&mut doc);
         }
 
         doc
     });
 
-    serde_json::to_string_pretty(document).expect("serialize")
+    document.to_pretty_json().expect("to be serialized correctly")
 }

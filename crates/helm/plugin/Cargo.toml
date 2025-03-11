@@ -1,0 +1,56 @@
+# 🐻‍❄️📦 charted-server: Free, open source, and reliable Helm Chart registry made in Rust
+# Copyright 2022-2025 Noelware, LLC. <team@noelware.org>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[package]
+name = "charted-helm-plugin"
+version.workspace = true
+documentation.workspace = true
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+publish.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "charted-helm-plugin"
+path = "../../../src/helm-plugin/main.rs"
+
+[dependencies]
+azalia = { workspace = true, features = [
+    "log",
+    "log-writers",
+    "log-tracing-log",
+] }
+base64.workspace = true
+charted-core = { workspace = true, features = ["schemars"] }
+charted-types = { workspace = true, features = ["jsonschema"] }
+clap.workspace = true
+clap_complete.workspace = true
+derive_more = { workspace = true, features = ["display"] }
+dotenvy.workspace = true
+etcetera = "0.10.0"
+eyre.workspace = true
+mimalloc.workspace = true
+reqwest.workspace = true
+schemars.workspace = true
+secrecy = { version = "0.10.3", features = ["serde"] }
+serde.workspace = true
+serde_yaml_ng.workspace = true
+tokio = { workspace = true, features = ["rt"] }
+toml.workspace = true
+tracing.workspace = true
+tracing-subscriber = { workspace = true, features = ["tracing-log"] }
+url = { workspace = true, features = ["serde"] }

@@ -13,87 +13,53 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use crate::openapi::ApiResponse;
 use axum::http::StatusCode;
-use charted_core::{api, VERSION};
+use charted_core::{BuildInfo, Distribution, api};
 use serde::Serialize;
+use std::collections::BTreeMap;
 use utoipa::{
-    openapi::{ContentBuilder, Ref, RefOr, Response, ResponseBuilder},
-    ToResponse, ToSchema,
+    IntoResponses, ToResponse, ToSchema,
+    openapi::{Ref, RefOr, Response},
 };
 
-/// Response object for the `GET /` REST controller.
 #[derive(Serialize, ToSchema)]
 pub struct Main {
-    /// The message, which will always be "Hello, world!"
-    pub message: &'static str,
+    /// current distribution this instance is running as.
+    #[schema(read_only)]
+    distribution: Distribution,
 
-    /// You know, for Helm charts?
-    pub tagline: &'static str,
-
-    /// Documentation URL for this generic entrypoint response.
-    pub docs: String,
+    /// build information.
+    build_info: BuildInfo,
 }
 
 impl Default for Main {
     fn default() -> Self {
-        Self {
-            message: "Hello, world! 👋",
-            tagline: "You know, for Helm charts?",
-            docs: format!("https://charts.noelware.org/docs/server/{VERSION}"),
+        Main {
+            distribution: Distribution::detect(),
+            build_info: BuildInfo::new(),
         }
     }
 }
 
-impl<'r> ToResponse<'r> for Main {
-    fn response() -> (&'r str, RefOr<Response>) {
-        (
-            "Main",
-            RefOr::T(
-                ResponseBuilder::new()
-                    .description("Response for the `/` REST handler")
-                    .content(
-                        "application/json",
-                        ContentBuilder::new()
-                            .schema(Some(RefOr::Ref(Ref::from_schema_name("MainResponse"))))
-                            .build(),
-                    )
-                    .build(),
-            ),
-        )
+impl IntoResponses for ApiResponse<Main> {
+    fn responses() -> BTreeMap<String, RefOr<Response>> {
+        azalia::btreemap! {
+            "200" => RefOr::Ref(Ref::from_response_name(ApiResponse::<Main>::response().0))
+        }
     }
 }
 
-/// Main entrypoint response to the API. Nothing too important.
+/// Main entrypoint of the API server.
+#[cfg_attr(debug_assertions, axum::debug_handler)]
 #[utoipa::path(
     get,
+
     path = "/v1",
     operation_id = "main",
-    tags = ["Main"],
-    responses(
-        (
-            status = 200,
-            description = "Successful response",
-            body = api::Response<Main>,
-            content_type = "application/json"
-        )
-    )
+    tag = "Main",
+    responses(ApiResponse<Main>)
 )]
-#[cfg_attr(debug_assertions, axum::debug_handler)]
 pub async fn main() -> api::Response<Main> {
-    api::from_default(StatusCode::OK)
+    api::ok(StatusCode::OK, Main::default())
 }
-
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     use charted_testkit::TestContext;
-
-//     #[charted_testkit::test(router)]
-//     async fn test_main_endpoint(cx: &mut TestContext) -> eyre::Result<()> {
-//         let (tmpdir, ctx) = crate::test::create_server_context(&[|_| {}]).await?;
-//         let router = crate::routing::create_router(&ctx).with_state(ctx);
-//         cx.serve(router).await;
-
-//         Ok(())
-//     }
-// }

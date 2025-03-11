@@ -13,187 +13,71 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub mod controller;
-pub mod migrations;
-pub mod paginate;
-pub mod schema;
-
-use charted_config::database::Config;
-use diesel::{
-    connection::{set_default_instrumentation, InstrumentationEvent},
-    prelude::*,
-    r2d2::{self, ConnectionManager, Pool},
+use charted_config::database::{Config, sqlite::StringOrPath};
+use charted_core::serde::Duration;
+use migrations::Migrator;
+use sea_orm::{
+    ConnectOptions, DatabaseBackend, DatabaseConnection, SqlxPostgresConnector, SqlxSqliteConnector, metric::Info,
 };
-use eyre::Context;
-use tracing::{error, trace};
+use sea_orm_migration::MigratorTrait;
+use std::{fs, ops::Deref, path::Path};
+use tracing::{info, instrument, trace, warn};
 
-/// [`Pool`] that wraps a [`ConnectionManager`] of our multi-connection type.
-pub type DbPool = Pool<ConnectionManager<DbConnection>>;
+pub mod entities;
+pub mod migrations;
 
-#[derive(diesel::MultiConnection)]
-pub enum DbConnection {
-    PostgreSQL(diesel::pg::PgConnection),
-    SQLite(diesel::sqlite::SqliteConnection),
-}
-
-pub fn create_pool(config: &Config) -> eyre::Result<DbPool> {
-    // connection string is the Display impl for `Config`.
-    let url = config.to_string();
-    trace!(database.url = url, "creating pool for db url");
-
-    let manager = ConnectionManager::new(url);
-    set_default_instrumentation(|| Some(Box::new(instrumentation)))?;
-
-    Pool::builder()
-        .max_size(config.max_connections())
-        .error_handler(Box::new(ErrorHandler))
-        .build(manager)
-        .context("failed to create db pool")
-}
-
-#[derive(Debug)]
-struct ErrorHandler;
-impl<E: std::error::Error + 'static> r2d2::HandleError<E> for ErrorHandler {
-    fn handle_error(&self, error: E) {
-        sentry::capture_error(&error);
-        error!(%error, "failed to manage connection or perform query");
-    }
-}
-
-pub fn version(pool: &DbPool) -> eyre::Result<String> {
-    connection!(pool, {
-        PostgreSQL(conn) {
-            diesel::define_sql_function! {
-                fn version() -> diesel::sql_types::Text;
+#[instrument(name = "charted.database.createDbPool", skip_all)]
+pub async fn create_pool(config: &Config) -> eyre::Result<DatabaseConnection> {
+    info!("establishing database connection");
+    let mut conn = match config {
+        Config::PostgreSQL(_) => SqlxPostgresConnector::connect(connect_options_with(config)).await?,
+        Config::SQLite(cfg) => {
+            // if we are a `Path`, then try to create the parent
+            // directories if we can so that we don't have to manually
+            // create it.
+            if let StringOrPath::Path(ref p) = cfg.path {
+                if let Some(parent) = p.parent() {
+                    if parent != Path::new("") && !parent.try_exists()? {
+                        warn!(path = %p.display(), "creating parent directories since it doesn't exist");
+                        fs::create_dir_all(parent)?;
+                    }
+                }
             }
 
-            diesel::select(version())
-                .get_result::<String>(conn)
-                .context("failed to get database version")
-        };
-
-        SQLite(conn) {
-            diesel::define_sql_function! {
-                fn sqlite_version() -> diesel::sql_types::Text;
-            }
-
-            diesel::select(sqlite_version())
-                .get_result::<String>(conn)
-                .context("failed to get database version")
-        };
-    })
-}
-
-fn instrumentation(event: InstrumentationEvent<'_>) {
-    match event {
-        InstrumentationEvent::BeginTransaction { depth, .. } => {
-            trace!("started transation (depth={depth})");
+            SqlxSqliteConnector::connect(connect_options_with(config)).await?
         }
+    };
 
-        InstrumentationEvent::CommitTransaction { depth, .. } => {
-            trace!("transaction with depth [{depth}] was committed");
-        }
+    conn.set_metric_callback(metric_callback);
+    if config.common().run_migrations {
+        info!("now running pending migrations!");
 
-        InstrumentationEvent::RollbackTransaction { depth, .. } => {
-            trace!("transaction with depth [{depth}] was rolled back");
-        }
-
-        InstrumentationEvent::FinishQuery { query, error, .. } => {
-            trace!(sql = %query, "finished query{}", if error.is_some() { " with an error" } else { "" });
-            if let Some(err) = error {
-                sentry::capture_error(err);
-            }
-        }
-
-        InstrumentationEvent::StartQuery { query, .. } => {
-            trace!(sql = %query, "starting query");
-        }
-
-        _ => {}
+        Migrator::up(&conn, None).await?;
     }
+
+    Ok(conn)
 }
 
-#[macro_export]
-macro_rules! connection {
-    (@raw $conn:ident {
-        $(
-            $db:ident($c:ident) => $code:expr;
-        )*
-    }) => {{
-        #[allow(unused)]
-        use ::diesel::prelude::*;
-        match *$conn {
-            $(
-                $crate::DbConnection::$db(ref mut $c) => $code,
-            )*
-        }
-    }};
+fn metric_callback(info: &Info<'_>) {
+    let elapsed: Duration = info.elapsed.into();
+    let backend = match info.statement.db_backend {
+        DatabaseBackend::Sqlite => "sqlite",
+        DatabaseBackend::MySql => "mysql",
+        DatabaseBackend::Postgres => "postgres",
+    };
 
-    (@raw $conn:ident {
-        $(
-            $db:ident($c:ident) $code:block;
-        )*
-    }) => {{
-        #[allow(unused)]
-        use ::diesel::prelude::*;
-        match *$conn {
-            $(
-                $crate::DbConnection::$db(ref mut $c) => $code,
-            )*
-        }
-    }};
-
-    ($pool:expr, {
-        $(
-            $db:ident($c:ident) => $code:expr;
-        )*
-    }) => {{
-        #[allow(unused)]
-        use ::eyre::Context;
-
-        let mut conn = ($pool).get().context("failed to get db connection")?;
-        $crate::connection!(@raw conn {
-            $(
-                $db($c) => $code;
-            )*
-        })
-    }};
-
-    ($pool:expr, {
-        $(
-            $db:ident($conn:ident) $code:block;
-        )*
-    }) => {{
-        #[allow(unused)]
-        use ::eyre::Context;
-
-        let mut conn = ($pool).get().context("failed to get db connection")?;
-        $crate::connection!(@raw conn {
-            $(
-                $db($conn) $code;
-            )*
-        })
-    }};
+    trace!(%elapsed, failed = %info.failed, %backend, stmt.sql = info.statement.sql, stmt.values = ?info.statement.values);
 }
 
-#[cfg(test)]
-mod tests {
-    use charted_config::database::{sqlite, Config};
-    use std::path::PathBuf;
+fn connect_options_with(config: &Config) -> ConnectOptions {
+    let common = config.common();
 
-    #[test]
-    fn test_sqlite_version() {
-        let db = crate::create_pool(&Config::SQLite(sqlite::Config {
-            db_path: PathBuf::from(":memory:"),
-            max_connections: 1,
-            run_migrations: false,
-        }))
-        .expect("failed to create in-memory sqlite database");
-
-        let Ok(s) = crate::version(&db) else {
-            panic!("failed to get sqlite version")
-        };
-
-        assert!(!s.is_empty());
-    }
+    ConnectOptions::new(config.to_string())
+        .max_connections(common.max_connections)
+        .acquire_timeout(*common.acquire_timeout.deref())
+        .connect_timeout(*common.connect_timeout.deref())
+        .idle_timeout(*common.idle_timeout.deref())
+        .sqlx_logging_level(tracing::log::LevelFilter::Trace)
+        .sqlx_slow_statements_logging_settings(tracing::log::LevelFilter::Warn, std::time::Duration::from_secs(3))
+        .to_owned()
 }

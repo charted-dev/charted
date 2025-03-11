@@ -15,7 +15,6 @@
 
 [package]
 name = "charted-authz"
-description = "🐻‍❄️📦 Abstraction on how to authenticate a user"
 version.workspace = true
 documentation.workspace = true
 edition.workspace = true
@@ -30,10 +29,8 @@ path = "lib.rs"
 
 [dependencies]
 azalia.workspace = true
-charted-core = { workspace = true, default-features = false }
-charted-types = { workspace = true, default-features = false }
+charted-core.workspace = true
+charted-database.workspace = true
+charted-types.workspace = true
 derive_more = { workspace = true, features = ["display"] }
 eyre.workspace = true
-
-[dev-dependencies]
-tokio = { workspace = true, features = ["rt", "macros"] }

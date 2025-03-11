@@ -15,7 +15,6 @@
 
 [package]
 name = "charted-database"
-description = "🐻‍❄️📦 Crate that abstracts over the database for charted."
 version.workspace = true
 documentation.workspace = true
 edition.workspace = true
@@ -26,16 +25,15 @@ repository.workspace = true
 authors.workspace = true
 
 [dependencies]
-charted-config = { version = "0.1.0", path = "../config" }
-diesel = { workspace = true, features = [
-    "chrono",
-    "postgres",
-    "sqlite",
-    "uuid",
-    "r2d2",
-] }
-diesel_migrations.workspace = true
+async-trait = "0.1.86"
+charted-config.workspace = true
+charted-core.workspace = true
+charted-types = { workspace = true, features = ["__internal_db"] }
 eyre.workspace = true
-sentry.workspace = true
-serde.workspace = true
-tracing.workspace = true
+sea-orm.workspace = true
+sea-orm-migration.workspace = true
+sqlx.workspace = true
+tracing = { workspace = true, features = ["log"] }
+
+[package.metadata.cargo-machete]
+ignored = ["sqlx"]

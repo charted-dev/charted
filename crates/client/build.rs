@@ -13,24 +13,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// use std::{
-//     fs::{self, File},
-//     path::PathBuf,
-// };
+// #[path = "build/generate_path_item.rs"]
+// mod generate_path_item;
 
-const OPENAPI: &str = "../../assets/openapi.json";
+use serde_json::Value;
+use std::fs;
+use utoipa::openapi::Paths;
+
+const OPENAPI_DOCUMENT: &str = "../../assets/openapi.json";
 
 fn main() {
-    println!("cargo::rerun-if-changed={OPENAPI}");
     println!("cargo::rerun-if-changed=build.rs");
+    println!("cargo::rerun-if-changed={}", OPENAPI_DOCUMENT);
 
-    // let file = File::open(OPENAPI).unwrap();
-    // let spec = serde_json::from_reader(file).unwrap();
+    let contents = fs::read_to_string(OPENAPI_DOCUMENT).unwrap();
+    let as_value: Value = serde_json::from_str(&contents).unwrap();
+    let contents = Value::Object(
+        as_value
+            .get("paths")
+            .expect("`paths` is missing from openapi document")
+            .as_object()
+            .expect("`paths` was not a object")
+            .clone(),
+    );
 
-    // let tokens = progenitor::Generator::default().generate_tokens(&spec).unwrap();
-    // let ast = syn::parse2(tokens).unwrap();
-    // let content = prettyplease::unparse(&ast);
-
-    // let out = PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "src/generated.rs"));
-    // fs::write(out, content).unwrap();
+    let Paths { paths, .. } = serde_json::from_value(contents).unwrap();
+    eprintln!("{:#?}", paths);
 }

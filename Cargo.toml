@@ -16,24 +16,24 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/app",
     "crates/authz",
     "crates/authz/*",
-    "crates/bin",
     "crates/cli",
     "crates/client",
-    "crates/config",
+    "crates/configuration",
     "crates/core",
     "crates/database",
-    "crates/devtools",
-    "crates/features",
-    "crates/features/totp",
-    "crates/helm-charts",
-    "crates/helm-plugin",
+    "crates/helm/charts",
+    "crates/helm/plugin",
+    "crates/helm/types",
+    "crates/metrics",
     "crates/server",
     "crates/types",
 
-    "internals",
+    "src/charted",
+    "src/internals",
+
+    "features/totp",
 ]
 
 [workspace.package]
@@ -44,59 +44,106 @@ authors = [
     "John Burke <winter@winterfox.tech>",
 ]
 documentation = "https://charts.noelware.org/docs"
-edition = "2021"
+edition = "2024"
 homepage = "https://charts.noelware.org"
 license = "Apache-2.0"
 publish = false
 repository = "https://github.com/charted-dev/charted"
+rust-version = "1.85"
 
 [workspace.dependencies]
+charted-authz = { path = "./crates/authz" }
+charted-authz-local = { path = "./crates/authz/local" }
+charted-authz-ldap = { path = "./crates/authz/ldap" }
+charted-authz-static = { path = "./crates/authz/static" }
+charted-cli = { path = "./crates/cli" }
+charted-client = { path = "./crates/client", version = "0.1.0" }
+charted-config = { path = "./crates/configuration" }
+charted-core = { path = "./crates/core", version = "0.1.0", features = [
+    "collect-backtrace-frames",
+] }
+charted-database = { path = "./crates/database" }
+charted-helm-charts = { path = "./crates/helm/charts" }
+charted-helm-plugin = { path = "./crates/helm/plugin" }
+charted-helm-types = { path = "./crates/helm/types" }
+charted-metrics = { path = "./crates/metrics" }
+charted-search = { path = "./crates/search" }
+charted-server = { path = "./crates/server" }
+charted-types = { path = "./crates/types", version = "0.1.0" }
+
 argon2 = "0.5.3"
 axum = { version = "0.8.1", features = ["macros", "http2"] }
-charted-core = { version = "0.1.0", path = "./crates/core", default-features = false }
-charted-database = { version = "0.1.0", path = "./crates/database" }
-charted-testkit = "0.1.2"
-charted-types = { version = "0.1.0", path = "./crates/types", default-features = false }
-chrono = { version = "0.4.23", features = ["serde"] }
-clap = { version = "4.5.20", features = ["derive", "env"] }
-clap_complete = "4.5.33"
-derive_more = "1.0.0"
-diesel = { version = "2.2.4", features = ["postgres", "sqlite", "chrono"] }
-diesel_migrations = { version = "2.2.0", features = ["postgres", "sqlite"] }
+base64 = "0.22.1"
+chrono = { version = "0.4.39", features = ["serde"] }
+clap = { version = "4.5.27", features = ["derive", "env"] }
+clap_complete = "4.5.44"
+color-eyre = { version = "0.6.3", features = ["issue-url"] }
+derive_more = "2.0.0"
+dotenvy = "0.15.7"
 eyre = "0.6.12"
+metrics-exporter-prometheus = { version = "0.16.2", default-features = false, features = [
+    "tracing",
+] }
+mimalloc = "0.1.43"
 multer = "3.1.0"
-opentelemetry = "0.27.0"
-rayon = "1.10.0"
-remi = "0.10.0"
-remi-azure = { version = "0.10.0", features = ["tracing", "export-azure"] }
+num_cpus = "1.16.0"
+rand = "0.9.0"
 remi-fs = { version = "0.10.0", features = ["tracing"] }
-remi-s3 = { version = "0.10.0", features = ["tracing", "export-crates"] }
-reqwest = { version = "0.12.9", default-features = false, features = [
+reqwest = { version = "0.12.12", default-features = false, features = [
+    "charset",
     "http2",
     "macos-system-configuration",
-    "charset",
+    "gzip",
     "rustls-tls",
+    "rustls-tls-webpki-roots",
+    "json",
 ] }
-schemars = "0.8.21"
-semver = { version = "1.0.23", features = ["serde"] }
+rustc_version = "0.4.1"
+schemars = { version = "0.8.21", features = ["chrono", "semver", "url"] }
+sea-orm = { version = "1.1.4", default-features = false, features = [
+    "macros",
+    "with-chrono",
+    "sqlx-sqlite",
+    "sqlx-postgres",
+] }
+sea-orm-migration = { version = "1.1.4", default-features = false, features = [
+    "with-chrono",
+    "sqlx-sqlite",
+    "sqlx-postgres",
+] }
+semver = { version = "1.0.25", features = ["serde"] }
 sentry = "0.36.0"
-serde = { version = "1.0.204", features = ["derive"] }
-serde_json = "1.0.122"
+serde = { version = "1.0.217", features = ["derive", "rc"] }
+serde_json = "1.0.138"
 serde_yaml_ng = "0.10.0"
+sqlx = { version = "0.8.3", features = [
+    "sqlite",
+    "postgres",
+    "runtime-tokio",
+    "runtime-tokio-rustls",
+] }
 tempfile = "3.12.0"
-utoipa = { version = "5.1.1", features = ["chrono", "non_strict_integers"] }
-testcontainers = "0.23.0"
-testcontainers-modules = "0.11.0"
-tokio = "1.39.3"
-tracing = "0.1.40"
-tracing-subscriber = "0.3.18"
-url = "2.5.2"
-which = "7.0.0"
+tracing = "0.1.41"
+tracing-subscriber = "0.3.19"
+toml = "0.8.20"
+tokio = "1.43.0"
+ulid = { version = "1.1.4", features = ["serde"] }
+utoipa = { version = "5.3.1", features = [
+    "chrono",
+    "non_strict_integers",
+    "ulid",
+] }
+url = "2.5.4"
 
 [workspace.dependencies.azalia]
 version = "0.1.0"
 git = "https://github.com/Noelware/azalia"
-rev = "46037bbe850082e833ff01068355180c771621db"
+rev = "f4600130658cfe523350222717b4530ce4d30123"
+features = ["remi-tracing"]
+
+[patch.crates-io]
+# https://github.com/juhaku/utoipa/issues/1335
+utoipa = { git = "https://github.com/Noelware/utoipa", branch = "toresponse-cow" }
 
 [profile.release]
 codegen-units = 1 # use a single codegen unit

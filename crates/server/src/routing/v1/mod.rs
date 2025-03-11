@@ -13,73 +13,86 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub mod heartbeat;
+pub mod features;
+pub mod healthz;
 pub mod index;
-pub mod info;
 pub mod main;
 pub mod openapi;
 pub mod organization;
 pub mod repository;
 pub mod user;
 
-use crate::ServerContext;
-use axum::{extract::Request, http::StatusCode, response::IntoResponse, routing, Router};
-use charted_core::{api, VERSION};
+use crate::{Context, openapi::ApiResponse};
+use axum::{Extension, Router, response::IntoResponse, routing};
+use charted_core::VERSION;
+use metrics_exporter_prometheus::PrometheusHandle;
 use serde::Serialize;
-use serde_json::json;
-use std::{borrow::Cow, ops::Deref};
-use utoipa::ToSchema;
+use std::collections::BTreeMap;
+use utoipa::{
+    IntoResponses, ToSchema,
+    openapi::{Ref, RefOr, Response},
+};
 
 /// Generic entrypoint message for any API route like `/users`.
 #[derive(Serialize, ToSchema)]
 pub struct Entrypoint {
     /// Humane message to greet you.
-    pub message: Cow<'static, str>,
+    pub message: String,
 
     /// URI to the documentation for this entrypoint.
-    pub docs: Cow<'static, str>,
+    pub docs: String,
 }
 
 impl Entrypoint {
     pub fn new(entity: impl AsRef<str>) -> Self {
         let entity = entity.as_ref();
         Self {
-            message: Cow::Owned(format!("welcome to the {entity} API")),
-            docs: Cow::Owned(format!(
+            message: format!("welcome to the {entity} API"),
+            docs: format!(
                 "https://charts.noelware.org/docs/server/{VERSION}/api/reference/{}",
                 entity.to_lowercase().replace(' ', "")
-            )),
+            ),
         }
     }
 }
 
-pub fn create_router(cx: &ServerContext) -> Router<ServerContext> {
-    let mut router = Router::new()
-        .nest("/users", user::create_router())
-        .route("/indexes/{idOrName}", routing::get(index::get_chart_index))
-        .route("/heartbeat", routing::get(heartbeat::heartbeat))
-        .route("/openapi.json", routing::get(openapi::openapi))
-        .route("/info", routing::get(info::info))
-        .route("/", routing::get(main::main))
-        .fallback(fallback);
+pub type EntrypointResponse = ApiResponse<Entrypoint>;
+impl IntoResponses for EntrypointResponse {
+    fn responses() -> BTreeMap<String, RefOr<Response>> {
+        azalia::btreemap!(
+            "200" => RefOr::Ref(Ref::from_response_name("EntrypointResponse"))
+        )
+    }
+}
 
-    for feature in &cx.features {
-        router = feature.extend_router().with_state(cx.deref().clone());
+pub fn create_router(ctx: &Context) -> Router<Context> {
+    let mut router = Router::new()
+        .nest("/users", user::create_router(ctx))
+        .route("/indexes/{idOrName}", routing::get(index::fetch))
+        .route("/openapi.json", routing::get(openapi::get))
+        .route("/features", routing::get(features::features))
+        .route("/_healthz", routing::get(healthz::healthz))
+        .route("/", routing::get(main::main));
+
+    if let Some(config) = ctx.config.metrics.as_prometheus() &&
+        config.standalone.is_none()
+    {
+        router = router.route(&config.endpoint, routing::get(prometheus_scrape));
+    }
+
+    for feat in ctx.features.values() {
+        let (path, extended) = feat.extend_router();
+        router = router.nest(path, extended);
     }
 
     router
 }
 
-async fn fallback(req: Request) -> impl IntoResponse {
-    api::err(
-        StatusCode::NOT_FOUND,
-        (
-            api::ErrorCode::HandlerNotFound,
-            "endpoint was not found",
-            json!({
-                "method": req.method().as_str(),
-                "uri": req.uri().path()
-            }),
-        ),
-    )
+#[cfg_attr(debug_assertions, axum::debug_handler)]
+pub(crate) async fn prometheus_scrape(Extension(handle): Extension<Option<PrometheusHandle>>) -> impl IntoResponse {
+    let Some(handle) = handle else {
+        unreachable!()
+    };
+
+    handle.render()
 }

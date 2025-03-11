@@ -13,97 +13,100 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use diesel::{
-    backend::Backend,
-    deserialize::{FromSql, FromSqlRow},
-    expression::AsExpression,
-    pg::Pg,
-    serialize::ToSql,
-    sql_types::Text,
-    sqlite::Sqlite,
-};
+//! Valid UTF-8 string that can be used for names that can be
+//! addressed by the API server.
+//!
+//! * A **Name** is a wrapper for <code>[`Arc`]<[`str`]></code> as opposed of a [`String`]
+//!   since a **Name** can be never modified and reflected on the database.
+//!
+//! * A **Name** is also URL-encoded safe since we only use alphanumeric characters, `-`,
+//!   `_`, and `~`.
+//!
+//! * A **Name** can never overflow since we require names to have a minimum length of 2
+//!   and a maximum length of 32.
+
+use crate::{cfg_jsonschema, cfg_openapi};
 use serde::{Deserialize, Serialize};
-use std::{borrow::Cow, fmt::Display, ops::Deref, str::FromStr, sync::Arc};
-use utoipa::{
-    openapi::{schema::SchemaType, ObjectBuilder, RefOr, Schema, Type},
-    PartialSchema, ToSchema,
-};
+use std::{borrow::Cow, ops::Deref, str::FromStr, sync::Arc};
 
-#[cfg(feature = "jsonschema")]
-use schemars::{gen::*, schema::*, JsonSchema};
+const MAX_LENGTH: usize = 32;
+const MIN_LENGTH: usize = 2;
 
-#[derive(Debug)]
+/// Error type when name validation goes wrong.
+#[derive(Debug, derive_more::Display)]
 pub enum Error {
-    /// When a name was over 32 characters. The first element is how many characters
-    /// it surpassed.
-    ExceededMaximumLength(usize),
+    #[display("name was over 32 characters")]
+    ExceededLength,
 
-    /// Variant where the name was empty.
-    Empty,
+    #[display("minimum length is lower or equal to 2.")]
+    Minimum,
 
-    /// Variant that the given input had an invalid character.
-    InvalidChar {
-        /// Input that was given
+    #[display("invalid character '{}' received (index {} in input: \"{}\")", ch, at, input)]
+    InvalidCharacter {
         input: Cow<'static, str>,
-
-        /// Index from the input where it was found.
         at: usize,
-
-        /// The bad character itself
         ch: char,
     },
-}
 
-impl Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        use Error as E;
-        match self {
-            E::InvalidChar { input, at, ch } => {
-                write!(f, "invalid character '{ch}' at {at} from given input: [{input}]")
-            }
-
-            E::ExceededMaximumLength(over) => write!(f, "exceeded {over} characters"),
-            E::Empty => f.write_str("name cannot be empty"),
-        }
-    }
+    #[display("name cannot be empty")]
+    Empty,
 }
 
 impl std::error::Error for Error {}
 
-/// Name is a valid UTF-8 string that is used to identify a resource from the REST
-/// API in a humane fashion. This is meant to help identify a resource without
-/// trying to figure out how to calculate their ID.
+/// Valid UTF-8 string that can be used for names that can be
+/// addressed by the API server.
 ///
-/// **Name** has a strict ruleset on how it can be parsed:
+/// * A **Name** is a wrapper for <code>[`Arc`]<[`str`]></code> as opposed of a [`String`]
+///   since a **Name** can be never modified and reflected on the database.
 ///
-/// * Only UTF-8 strings are valid.
-/// * Only alphanumeric characters, `-`, `_`, and `~` are allowed.
-/// * They must contain a length of two minimum and 32 maximum.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, AsExpression, FromSqlRow)]
-#[diesel(sql_type = Text)]
+/// * A **Name** is also URL-encoded safe since we only use alphanumeric characters, `-`,
+///   `_`, and `~`.
+///
+/// * A **Name** can never overflow since we require names to have a minimum length of 2
+///   and a maximum length of 32.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, derive_more::Display)]
+#[display("{}", self.as_str())]
 pub struct Name(Arc<str>);
 impl Name {
-    /// Constructs a [`Name`] instance if `input` follows the ruleset, otherwise
-    /// `Error` is returned.
-    pub fn try_new<S: AsRef<str>>(input: S) -> Result<Name, Error> {
-        let name = input.as_ref();
+    /// Create a new [`Name`] without any input validation.
+    ///
+    /// ## Safety
+    /// We marked this method as `unsafe` since it doesn't do any
+    /// input validation. This should be only used by unit
+    /// tests.
+    pub unsafe fn new_unchecked(v: impl AsRef<str>) -> Name {
+        Name(Arc::from(v.as_ref()))
+    }
+
+    /// Returns as a string slice.
+    pub fn as_str(&self) -> &str {
+        self.0.as_ref()
+    }
+
+    /// Create a new [`Name`] object if `v` is valid input.
+    pub fn try_new(v: impl AsRef<str>) -> Result<Name, Error> {
+        let name = v.as_ref();
         if name.is_empty() {
             return Err(Error::Empty);
         }
 
-        if name.len() > 32 {
-            let over = name.len() - 32;
-            return Err(Error::ExceededMaximumLength(over));
+        if name.len() <= MIN_LENGTH {
+            return Err(Error::Minimum);
         }
 
-        let lower = name.to_ascii_lowercase();
-        for (at, ch) in lower.chars().enumerate() {
+        if name.len() > MAX_LENGTH {
+            return Err(Error::ExceededLength);
+        }
+
+        let as_lower = name.to_ascii_lowercase();
+        for (at, ch) in as_lower.chars().enumerate() {
             if ch.is_alphanumeric() || ch == '_' || ch == '-' || ch == '~' {
                 continue;
             }
 
-            return Err(Error::InvalidChar {
-                input: Cow::Owned(lower),
+            return Err(Error::InvalidCharacter {
+                input: Cow::Owned(as_lower),
                 at,
                 ch,
             });
@@ -112,24 +115,11 @@ impl Name {
         // Safety: validated the user input above
         Ok(unsafe { Name::new_unchecked(name) })
     }
-
-    /// Returns a string slice of the given name.
-    pub fn as_str(&self) -> &str {
-        self.0.as_ref()
-    }
-
-    /// Create a [`Name`] while going through no validation.
-    ///
-    /// ## Safety
-    /// The [`Name::new_unchecked`] method is marked *unsafe* due to giving
-    /// any user input, which violates the validation contract.
-    pub unsafe fn new_unchecked<S: AsRef<str>>(input: S) -> Name {
-        Name(Arc::from(input.as_ref()))
-    }
 }
 
 impl Deref for Name {
     type Target = str;
+
     fn deref(&self) -> &Self::Target {
         &self.0
     }
@@ -137,107 +127,130 @@ impl Deref for Name {
 
 impl FromStr for Name {
     type Err = Error;
+
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Name::try_new(s)
+        Self::try_new(s)
     }
 }
 
-impl PartialSchema for Name {
-    fn schema() -> RefOr<Schema> {
-        let object = ObjectBuilder::new()
-            .schema_type(SchemaType::Type(Type::String))
-                .description(Some("Valid UTF-8 string that is used to identify a resource from the REST API in a humane fashion. This is meant to help identify a resource without trying to figure out how to calculate their ID."))
-                .pattern(Some(r"^(?<name>[A-z]|-|_|~|\d{0,9}){1,32}$"))
-                .min_length(Some(1))
-                .max_length(Some(32))
-            .build();
-
-        RefOr::T(Schema::Object(object))
+#[cfg(feature = "__internal_db")]
+impl Name {
+    pub fn into_column<T: sea_orm::sea_query::IntoIden>(col: T) -> sea_orm::sea_query::ColumnDef {
+        sea_orm::sea_query::ColumnDef::new(col).string_len(32).not_null().take()
     }
 }
 
-impl ToSchema for Name {
-    fn name() -> Cow<'static, str> {
-        Cow::Borrowed("Name")
+#[cfg(feature = "__internal_db")]
+const _: () = {
+    use sea_orm::{
+        ColIdx, DbErr, QueryResult, TryGetError, TryGetable,
+        sea_query::{ArrayType, ColumnType, Value, ValueType, ValueTypeErr},
+    };
+    use std::any::type_name;
+
+    impl From<Name> for Value {
+        fn from(value: Name) -> Self {
+            Value::String(Some(Box::new(value.as_str().to_owned())))
+        }
     }
+
+    impl TryGetable for Name {
+        fn try_get_by<I: ColIdx>(query: &QueryResult, idx: I) -> Result<Self, TryGetError> {
+            let contents = <String as TryGetable>::try_get_by(query, idx)?;
+            contents.parse::<Name>().map_err(|e| {
+                TryGetError::DbErr(DbErr::TryIntoErr {
+                    from: type_name::<String>(),
+                    into: type_name::<Name>(),
+                    source: Box::new(e),
+                })
+            })
+        }
+    }
+
+    impl ValueType for Name {
+        fn try_from(v: Value) -> Result<Self, ValueTypeErr> {
+            let contents = <String as ValueType>::try_from(v)?;
+            contents.parse::<Name>().map_err(|_| ValueTypeErr)
+        }
+
+        fn type_name() -> String {
+            "Name".to_owned()
+        }
+
+        fn array_type() -> ArrayType {
+            ArrayType::String
+        }
+
+        fn column_type() -> ColumnType {
+            ColumnType::Char(Some(32))
+        }
+    }
+};
+
+cfg_openapi! {
+    use utoipa::{
+        PartialSchema,
+        ToSchema,
+        openapi::{
+            RefOr,
+            Schema,
+            ObjectBuilder,
+            Type,
+
+            schema::SchemaType,
+        }
+    };
+
+    #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "openapi")))]
+    impl PartialSchema for Name {
+        fn schema() -> RefOr<Schema> {
+            let object = ObjectBuilder::new()
+                .schema_type(SchemaType::Type(Type::String))
+                    .description(Some("Valid UTF-8 string that is used to identify a resource from the REST API in a humane fashion. This is meant to help identify a resource without trying to figure out how to calculate their ID."))
+                    .pattern(Some(r"^(?<name>[A-z]|-|_|~|\d{0,9}){1,32}$"))
+                    .min_length(Some(1))
+                    .max_length(Some(32))
+                .build();
+
+            RefOr::T(Schema::Object(object))
+        }
+    }
+
+    #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "openapi")))]
+    impl ToSchema for Name {}
 }
 
-impl Display for Name {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(self)
-    }
-}
+cfg_jsonschema! {
+    use schemars::{r#gen::*, schema::*, JsonSchema};
 
-impl Serialize for Name {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self)
-    }
-}
+    #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "openapi")))]
+    impl JsonSchema for Name {
+        fn is_referenceable() -> bool {
+            false
+        }
 
-impl<'de> Deserialize<'de> for Name {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        use serde::de::Error;
+        fn schema_id() -> Cow<'static, str> {
+            Cow::Borrowed("charted::types::Name")
+        }
 
-        let value = String::deserialize(deserializer)?;
-        Name::try_new(value).map_err(D::Error::custom)
-    }
-}
+        fn schema_name() -> String {
+            String::from("Name")
+        }
 
-impl<B: Backend> FromSql<Text, B> for Name
-where
-    String: FromSql<Text, B>,
-{
-    fn from_sql(bytes: <B as Backend>::RawValue<'_>) -> diesel::deserialize::Result<Self> {
-        let name = <String as FromSql<Text, B>>::from_sql(bytes)?;
-        Name::try_new(name).map_err(Into::into)
-    }
-}
+        fn json_schema(_: &mut SchemaGenerator) -> schemars::schema::Schema {
+            schemars::schema::Schema::Object(SchemaObject {
+                instance_type: Some(SingleOrVec::Single(InstanceType::String.into())),
+                string: Some(
+                    StringValidation {
+                        min_length: Some(2),
+                        max_length: Some(32),
+                        pattern: Some("^([A-z]{2,}|[0-9]|_|-)*$".into()),
+                    }
+                    .into(),
+                ),
 
-impl ToSql<Text, Pg> for Name {
-    fn to_sql<'b>(&'b self, out: &mut diesel::serialize::Output<'b, '_, Pg>) -> diesel::serialize::Result {
-        <str as ToSql<Text, Pg>>::to_sql(self.as_str(), out)
-    }
-}
-
-impl ToSql<Text, Sqlite> for Name {
-    fn to_sql<'b>(&'b self, out: &mut diesel::serialize::Output<'b, '_, Sqlite>) -> diesel::serialize::Result {
-        <str as ToSql<Text, Sqlite>>::to_sql(self.as_str(), out)
-    }
-}
-
-#[cfg(feature = "jsonschema")]
-impl JsonSchema for Name {
-    fn is_referenceable() -> bool {
-        false
-    }
-
-    fn schema_id() -> Cow<'static, str> {
-        Cow::Borrowed("charted::types::Name")
-    }
-
-    fn schema_name() -> String {
-        String::from("Name")
-    }
-
-    fn json_schema(_: &mut SchemaGenerator) -> schemars::schema::Schema {
-        schemars::schema::Schema::Object(SchemaObject {
-            instance_type: Some(SingleOrVec::Single(InstanceType::String.into())),
-            string: Some(
-                StringValidation {
-                    min_length: Some(2),
-                    max_length: Some(32),
-                    pattern: Some("^([A-z]{2,}|[0-9]|_|-)*$".into()),
-                }
-                .into(),
-            ),
-
-            ..Default::default()
-        })
+                ..Default::default()
+            })
+        }
     }
 }

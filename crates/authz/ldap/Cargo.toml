@@ -15,7 +15,6 @@
 
 [package]
 name = "charted-authz-ldap"
-description = "🐻‍❄️📦 Allow authentication with OpenLDAP or Active Directory"
 version.workspace = true
 documentation.workspace = true
 edition.workspace = true
@@ -27,17 +26,3 @@ authors.workspace = true
 
 [lib]
 path = "lib.rs"
-
-[dependencies]
-charted-authz = { version = "0.1.0", path = ".." }
-charted-config = { version = "0.1.0", path = "../../config" }
-charted-core = { version = "0.1.0", path = "../../core", default-features = false }
-charted-types = { version = "0.1.0", path = "../../types", default-features = false }
-eyre.workspace = true
-ldap3 = { version = "0.11.5", features = [
-    "tls-rustls",
-], default-features = false }
-sentry.workspace = true
-tokio.workspace = true
-tracing.workspace = true
-url.workspace = true

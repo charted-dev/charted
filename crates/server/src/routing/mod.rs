@@ -13,81 +13,114 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::ServerContext;
+use crate::Context;
 use axum::{
+    Router,
     body::Body,
-    extract::DefaultBodyLimit,
+    extract::{DefaultBodyLimit, Request},
     http::{Method, Response, StatusCode},
     response::IntoResponse,
-    BoxError, Router,
 };
 use charted_core::api;
 use serde_json::json;
 use std::{any::Any, borrow::Cow};
 use tower::ServiceBuilder;
-use tower_http::{
-    compression::CompressionLayer,
-    cors::{self, CorsLayer},
-};
+use tower_http::compression::CompressionLayer;
+use tracing::error;
 
 pub mod v1;
 
-macro_rules! mk_router {
-    ($cx:ident, $($version:ident),*) => {{
+macro_rules! mk_router(
+    ($cx:ident, $default:ident $(,)? $($version:ident),*) => {{
+        #[allow(unused_mut)]
         let mut router = ::axum::Router::new()
-            .merge(v1::create_router(&$cx));
+            .merge($crate::routing::$default::create_router($cx))
+            .nest(
+                concat!("/", stringify!($default)),
+                $crate::routing::$default::create_router($cx)
+            );
 
         $(
             router = router
                 .clone()
-                .nest(concat!("/", stringify!($version)), $crate::routing::$version::create_router(&$cx));
+                .nest(
+                    concat!("/", stringify!($version)),
+                    $crate::routing::$version::create_router($cx)
+                );
         )*
 
         router
     }};
-}
+);
 
 fn panic_handler(message: Box<dyn Any + Send + 'static>) -> Response<Body> {
     let details = azalia::message_from_panic(message);
-    tracing::error!(%details, "http server has panicked");
+    error!("HTTP service has panicked: {}", details);
 
     api::err(StatusCode::INTERNAL_SERVER_ERROR, api::Error {
         code: api::ErrorCode::InternalServerError,
         message: Cow::Borrowed("unable to process this request at this time. if this keeps occurring, report this to Noelware via GitHub issues!"),
         details: Some(json!({
-            "report_url": "https://github.com/charted-dev/charted/issues/new"
+            "report_url": concat!(env!("CARGO_PKG_REPOSITORY"), "/issues/new?labels=rust"),
         }))
     }).into_response()
 }
 
-// TODO(@auguwu): properly implement `HandleErrorLayer` -- at the moment, it doesn't
-// want to work.
-#[allow(unused)]
-fn handle_error(error: BoxError) -> api::Response {
-    todo!()
+async fn four_oh_four_not_found(req: Request) -> api::Response {
+    api::err(
+        StatusCode::NOT_FOUND,
+        (
+            api::ErrorCode::RestEndpointNotFound,
+            "rest endpoint was not found",
+            json!({
+                "method": req.method().as_str(),
+                "uri": req.uri().path(),
+            }),
+        ),
+    )
 }
 
-pub fn create_router(cx: &ServerContext) -> Router<ServerContext> {
-    let stack = ServiceBuilder::new()
-        .layer(sentry_tower::NewSentryLayer::new_from_top())
-        .layer(sentry_tower::SentryHttpLayer::with_transaction())
-        .layer(tower_http::catch_panic::CatchPanicLayer::custom(panic_handler))
-        .layer(CompressionLayer::new().gzip(true))
-        .layer(DefaultBodyLimit::max(100 * 1024 * 1024))
-        .layer(
-            CorsLayer::new()
-                .allow_methods([
-                    Method::GET,
-                    Method::PUT,
-                    Method::HEAD,
-                    Method::POST,
-                    Method::PATCH,
-                    Method::DELETE,
-                ])
-                .allow_origin(cors::Any),
-        )
-        .layer(axum::middleware::from_fn(crate::middleware::request_id))
-        .layer(axum::middleware::from_fn(crate::middleware::log));
+async fn four_oh_five_method_not_allowed(req: Request) -> api::Response {
+    api::err(
+        StatusCode::METHOD_NOT_ALLOWED,
+        (
+            api::ErrorCode::InvalidHttpMethod,
+            "HTTP method allowed for this rest endpoint don't correlate with the one you sent",
+            json!({
+                "method": req.method().as_str(),
+                "uri": req.uri().path(),
+            }),
+        ),
+    )
+}
 
-    Router::new().merge(mk_router!(cx, v1)).layer(stack)
+// TODO(@auguwu): customise this with `server.max_body_size`?
+const MAX_BODY_LIMIT: usize = 100 * 1024 * 1024;
+
+pub fn create_router(cx: &Context) -> Router<Context> {
+    mk_router!(cx, v1)
+        .layer(
+            ServiceBuilder::new()
+                .layer(sentry_tower::NewSentryLayer::new_from_top())
+                .layer(sentry_tower::SentryHttpLayer::with_transaction())
+                .layer(tower_http::catch_panic::CatchPanicLayer::custom(panic_handler))
+                .layer(CompressionLayer::new().gzip(true))
+                .layer(DefaultBodyLimit::max(MAX_BODY_LIMIT))
+                .layer(
+                    tower_http::cors::CorsLayer::new()
+                        .allow_methods([
+                            Method::GET,
+                            Method::PUT,
+                            Method::HEAD,
+                            Method::POST,
+                            Method::PATCH,
+                            Method::DELETE,
+                        ])
+                        .allow_origin(tower_http::cors::Any),
+                )
+                .layer(axum::middleware::from_fn(crate::middleware::request_id))
+                .layer(axum::middleware::from_fn(crate::middleware::log)),
+        )
+        .fallback(four_oh_four_not_found)
+        .method_not_allowed_fallback(four_oh_five_method_not_allowed)
 }

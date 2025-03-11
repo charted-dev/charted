@@ -34,14 +34,12 @@ jobs:
     openapi:
         name: Generate
         runs-on: ubuntu-latest
-        if: ${{github.repository == 'charted-dev/charted'}}
+        if: ${{ github.repository == 'charted-dev/charted' }}
         steps:
             - uses: actions/checkout@v4
               with:
                   submodules: recursive
-            - uses: dtolnay/rust-toolchain@master
-              with:
-                  toolchain: nightly
+            - uses: dtolnay/rust-toolchain@nightly
             - uses: Swatinem/rust-cache@v2
             - uses: oven-sh/setup-bun@v2
 
@@ -50,8 +48,7 @@ jobs:
                   cargo internals openapi ${GITHUB_WORKSPACE}/assets/openapi.json
                   bunx prettier --write --config ${GITHUB_WORKSPACE}/.prettierrc.json ./assets/*.json
 
-            - name: Commit changes (if we can)
-              uses: EndBug/add-and-commit@v9
+            - uses: EndBug/add-and-commit@v9
               with:
                   author_name: Noel[bot]
                   default_author: user_info

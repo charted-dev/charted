@@ -20,12 +20,9 @@ use axum::{
 use charted_core::api;
 use serde::de::DeserializeOwned;
 
-charted_core::create_newtype_wrapper! {
-    /// `Query` is a newtype wrapper for [`axum::extract::Query`], in which it uses
-    /// [`api::Response`] to transmit errors properly.
-    pub Query<T> for pub T;
-}
-
+/// `Query` is a newtype wrapper for [`axum::extract::Query`], in which it uses
+/// [`api::Response`] to transmit errors properly.
+pub struct Query<T>(pub T);
 impl<S: Send + Sync, T: DeserializeOwned> FromRequestParts<S> for Query<T> {
     type Rejection = api::Response;
 

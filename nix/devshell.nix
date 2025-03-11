@@ -12,43 +12,54 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-{pkgs}:
-with pkgs; let
+{pkgs}: let
+  inherit (pkgs) mkShell lib darwin stdenv;
+
   common = import ./common.nix;
   toolchain = common.mkRustPlatform pkgs.rust-bin;
   rustflags = common.rustflags stdenv;
+
+  darwinNativeBuildInputs = with darwin.apple_sdk.frameworks; [
+    SystemConfiguration
+    CoreFoundation
+    Security
+  ];
+
+  linuxNativeBuildInputs = with pkgs; [mold];
+
+  rpathInputs = with pkgs; [
+    openssl
+  ];
+
+  nativeBuildInputs = with pkgs;
+    [pkg-config]
+    ++ (lib.optional stdenv.isLinux linuxNativeBuildInputs)
+    ++ (lib.optional stdenv.isDarwin darwinNativeBuildInputs);
+
+  buildInputs = with pkgs;
+    [
+      (callPackage ./packages/cargo-upgrades.nix {})
+      cargo-machete
+      cargo-nextest
+      cargo-expand
+      cargo-about
+      cargo-bloat
+      cargo-deny
+
+      sea-orm-cli
+
+      toolchain
+      openssl
+      git
+    ]
+    ++ (lib.optional stdenv.isLinux [glibc]);
 in
   mkShell {
-    LD_LIBRARY_PATH = lib.makeLibraryPath [openssl sqlite postgresql];
-    nativeBuildInputs =
-      [pkg-config sqlite postgresql.lib]
-      ++ (lib.optional stdenv.isLinux [mold lldb])
-      ++ (lib.optional stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
-        CoreFoundation
-        Security
-        SystemConfiguration
-      ]));
+    inherit buildInputs nativeBuildInputs;
 
-    buildInputs =
-      [
-        cargo-nextest # replacement for `cargo test`
-        cargo-machete # used to validate dependencies
-        cargo-deny # used to validate licenses, vulns, etc.
+    LD_LIBRARY_PATH = lib.makeLibraryPath rpathInputs;
 
-        # I don't plan to add MySQL support and probably never will.
-        (diesel-cli.override {
-          mysqlSupport = false;
-          postgresqlSupport = true;
-          sqliteSupport = true;
-        })
-
-        toolchain # rust toolchain
-        hadolint
-        openssl
-        git
-      ]
-      ++ (lib.optional stdenv.isLinux [glibc]);
-
+    name = "charted-dev";
     shellHook = ''
       export RUSTFLAGS="--cfg tokio_unstable ${rustflags}"
     '';

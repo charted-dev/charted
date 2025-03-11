@@ -14,17 +14,46 @@
 // limitations under the License.
 
 mod apikeyscope;
-pub use apikeyscope::*;
-
 mod member_permission;
+
+pub use apikeyscope::*;
 pub use member_permission::*;
+use std::{cmp::min, collections::BTreeMap, marker::PhantomData};
 
-use std::{cmp::min, collections::BTreeMap, fmt::Debug, marker::PhantomData};
+/// Trait that implements the "scopes" concept.
+///
+/// The "scopes" concept is similar to [Discord's Permissions] where essentially
+/// a **bitflags** represents a list of flags that will be serialized as a string
+/// which uses bit-wise operations to determine if a flag is included.
+///
+/// [Discord's Permissions]: https://github.com/discord/discord-api-docs/blob/main/docs/topics/Permissions.md
+pub trait Bitflags: Sized + Send + Sync {
+    /// Type representation of a single bit.
+    type Bit: Copy;
 
+    /// Constant that represents a zero of the type representation
+    /// of this trait.
+    const ZERO: Self::Bit;
+
+    /// Returns a [`BTreeMap`] of all possible flags avaliable.
+    fn flags() -> BTreeMap<&'static str, Self::Bit>;
+
+    /// Returns a slice of all avaliable bits from `0..{flags.len()}`.
+    fn values<'v>() -> &'v [Self::Bit];
+
+    fn max() -> Self::Bit
+    where
+        Self::Bit: Ord,
+    {
+        Self::values().iter().max().copied().unwrap_or(Self::ZERO)
+    }
+}
+
+/// Data structure that easily do computations with `F::Bit` easily.
 #[derive(Debug, Clone, Copy)]
 pub struct Bitfield<F: Bitflags>(F::Bit, PhantomData<F>);
 impl<F: Bitflags> Bitfield<F> {
-    /// Creates a new [`Bitfield`] instance.
+    /// Create a new [`Bitfield`] data structure.
     pub const fn new(value: F::Bit) -> Bitfield<F> {
         Bitfield(value, PhantomData)
     }
@@ -35,13 +64,14 @@ impl<F: Bitflags> Bitfield<F> {
     }
 }
 
-// Since both `ApiKeyScope` and `MemberPermission` use `u64` as its `Bit` type,
-// we will do our own silly impls here.
+// Our implementation of bitflags (via `bitflags!`) use `u64` as the
+// bit type repr. so it'll be tailoured to what we use for now.
+//
+// submit a pull request if you want other number types to be supported.
 impl<F: Bitflags<Bit = u64>> Bitfield<F> {
     /// Returns all the possible enabled bits in the bitfield to determine
     pub fn flags(&self) -> Vec<(&'static str, F::Bit)> {
-        let flags = F::flags();
-        flags.into_iter().filter(|(_, bit)| self.contains(*bit)).collect()
+        F::flags().into_iter().filter(|(_, bit)| self.contains(*bit)).collect()
     }
 
     /// Adds multiple bits to this [`Bitfield`] and updating the current
@@ -56,8 +86,8 @@ impl<F: Bitflags<Bit = u64>> Bitfield<F> {
     /// #     #[allow(clippy::enum_clike_unportable_variant)]
     /// #     #[repr(u64)]
     /// #     pub Scope[u64] {
-    /// #         Hello["hello"]: 1u64 << 0u64;
-    /// #         World["world"]: 1u64 << 1u64;
+    /// #         Hello["hello"] => 1u64 << 0u64;
+    /// #         World["world"] => 1u64 << 1u64;
     /// #     }
     /// # }
     /// #
@@ -65,7 +95,6 @@ impl<F: Bitflags<Bit = u64>> Bitfield<F> {
     /// bitfield.add([Scope::Hello]);
     /// assert_eq!(bitfield.value(), 1);
     /// ```
-    //
     // I don't want to implement `Add` since I don't think doing:
     //
     //  let bitfield = Bitfield::<{some type}>::new();
@@ -95,7 +124,7 @@ impl<F: Bitflags<Bit = u64>> Bitfield<F> {
     /// value to what was acculumated.
     ///
     /// ## Example
-    /// ```no_run
+    /// ```
     /// # use charted_core::{bitflags, bitflags::Bitfield};
     /// #
     /// # bitflags! {
@@ -103,8 +132,8 @@ impl<F: Bitflags<Bit = u64>> Bitfield<F> {
     /// #     #[allow(clippy::enum_clike_unportable_variant)]
     /// #     #[repr(u64)]
     /// #     pub Scope[u64] {
-    /// #         Hello["hello"]: 1u64 << 0u64;
-    /// #         World["world"]: 1u64 << 1u64;
+    /// #         Hello["hello"] => 1u64 << 0u64;
+    /// #         World["world"] => 1u64 << 1u64;
     /// #     }
     /// # }
     /// #
@@ -140,9 +169,9 @@ impl<F: Bitflags<Bit = u64>> Bitfield<F> {
     }
 }
 
-impl<F: Bitflags<Bit = u64>> Default for Bitfield<F> {
+impl<F: Bitflags> Default for Bitfield<F> {
     fn default() -> Self {
-        Bitfield(u64::default(), PhantomData)
+        Bitfield(F::ZERO, PhantomData)
     }
 }
 
@@ -155,26 +184,7 @@ impl<F: Bitflags<Bit = u64>> FromIterator<u64> for Bitfield<F> {
     }
 }
 
-/// Trait that is implemented by the [`bitflags`][bitflags] macro.
-pub trait Bitflags: Sized + Send + Sync {
-    /// Type that represents the bit.
-    type Bit: Copy;
-
-    /// Returns a [`BTreeMap`] of mappings of `flag => bit value`
-    fn flags() -> BTreeMap<&'static str, Self::Bit>;
-
-    /// Returns an immutable slice of the avaliable bits
-    fn values<'v>() -> &'v [Self::Bit];
-
-    /// Returns the maximum element
-    fn max() -> Self::Bit
-    where
-        Self::Bit: Ord,
-    {
-        Self::values().iter().max().copied().unwrap()
-    }
-}
-
+/// Macro that create a enumeration to implement the [`Bitflags`] trait.
 #[macro_export]
 macro_rules! bitflags {
     (
@@ -182,7 +192,7 @@ macro_rules! bitflags {
         $vis:vis $name:ident[$bit:ty] {
             $(
                 $(#[$doc:meta])*
-                $field:ident[$key:literal]: $value:expr;
+                $field:ident[$key:literal] => $value:expr_2021;
             )*
         }
     ) => {
@@ -199,6 +209,12 @@ macro_rules! bitflags {
             }
         }
 
+        impl ::std::fmt::Display for $name {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                write!(f, "{}", self.as_bit())
+            }
+        }
+
         impl ::core::convert::From<$name> for $bit {
             fn from(value: $name) -> $bit {
                 value as $bit
@@ -207,12 +223,14 @@ macro_rules! bitflags {
 
         impl $crate::bitflags::Bitflags for $name {
             type Bit = $bit;
+            const ZERO: Self::Bit = 0;
 
             #[inline]
             fn flags() -> ::std::collections::BTreeMap<&'static str, u64> {
-                ::azalia::btreemap! {
-                    $($key => $value),*
-                }
+                let mut map = ::std::collections::BTreeMap::new();
+                $(map.insert($key, $value);)*
+
+                map
             }
 
             fn values<'v>() -> &'v [$bit] {

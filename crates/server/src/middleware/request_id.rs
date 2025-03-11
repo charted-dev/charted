@@ -42,6 +42,7 @@ impl Display for XRequestId {
 
 impl Deref for XRequestId {
     type Target = str;
+
     fn deref(&self) -> &Self::Target {
         &self.0
     }

@@ -13,26 +13,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! The `api` module contains types that go along with the API server.
+//! Types that are used with the API server.
 
-use axum::{
-    body::Body,
-    http::{header, StatusCode},
-    response::IntoResponse,
-};
-use schemars::{
-    gen::SchemaGenerator,
-    schema::{InstanceType, Schema, SchemaObject, SingleOrVec},
-    JsonSchema,
-};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use std::borrow::Cow;
-use utoipa::ToSchema;
 
-/// REST Specification version for charted's HTTP API.
-#[derive(Debug, Clone, Copy, Default, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize_repr, Deserialize_repr)]
+/// Specification version for charted's HTTP specification.
+#[derive(
+    Debug,
+    Clone,
+    Copy,
+    Default,
+    Hash,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Serialize_repr,
+    Deserialize_repr,
+    derive_more::Display,
+)]
+#[display("{}", self.as_str())]
 #[repr(u8)]
 pub enum Version {
     /// ## `v1`
@@ -51,35 +54,6 @@ impl Version {
 
     pub const fn as_slice<'a>() -> &'a [Version] {
         &[Version::V1]
-    }
-}
-
-impl std::fmt::Display for Version {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl JsonSchema for Version {
-    fn is_referenceable() -> bool {
-        false
-    }
-
-    fn schema_id() -> Cow<'static, str> {
-        Cow::Borrowed("charted_core::api::Version")
-    }
-
-    fn schema_name() -> String {
-        String::from("Version")
-    }
-
-    fn json_schema(_: &mut SchemaGenerator) -> Schema {
-        Schema::Object(SchemaObject {
-            instance_type: Some(SingleOrVec::Single(InstanceType::Number.into())),
-            enum_values: Some(vec![Value::Number(1.into())]),
-
-            ..Default::default()
-        })
     }
 }
 
@@ -108,134 +82,156 @@ impl From<Version> for serde_json::Number {
     }
 }
 
+#[cfg(feature = "schemars")]
+#[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "schemars")))]
+impl ::schemars::JsonSchema for Version {
+    fn is_referenceable() -> bool {
+        false
+    }
+
+    fn schema_id() -> ::std::borrow::Cow<'static, str> {
+        ::std::borrow::Cow::Borrowed("charted_core::api::Version")
+    }
+
+    fn schema_name() -> String {
+        String::from("Version")
+    }
+
+    fn json_schema(_: &mut ::schemars::r#gen::SchemaGenerator) -> ::schemars::schema::Schema {
+        ::schemars::schema::Schema::Object(::schemars::schema::SchemaObject {
+            instance_type: Some(::schemars::schema::SingleOrVec::Single(
+                ::schemars::schema::InstanceType::Number.into(),
+            )),
+
+            enum_values: Some(vec![::serde_json::Value::Number(1.into())]),
+
+            ..Default::default()
+        })
+    }
+}
+
 pub type Result<T> = std::result::Result<Response<T>, Response>;
 
-/// Represents a response object for all REST endpoints.
-#[derive(Debug, Serialize, ToSchema)]
+/// Representation of a response that the API server sends for each request.
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct Response<T = ()> {
+    /// The status of the response.
+    #[cfg(feature = "axum")]
     #[serde(skip)]
-    pub(crate) status: StatusCode,
+    pub status: ::axum::http::StatusCode,
 
-    /// Was the request a success or not?
+    /// Was the request that was processed a success?
     pub success: bool,
 
-    /// If the request sends a payload, this is where it'll be sent. `success` is always
-    /// *true*; if not the case, blame it on Noel.
+    /// The data that the REST endpoint sends back, if any.
+    ///
+    /// When this field is empty, it'll always respond with a `204 No Content`
+    /// status code if `errors` is also empty.
+    ///
+    /// The `success` field will always be set to `true` when
+    /// the `data` field is avaliable. All errors are handled
+    /// by the `errors` field.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub data: Option<T>,
 
-    /// If the request failed, this is a list of errors as a "stacktrace." `success` is always
-    /// *false*; if not the case, blame it on Noel.
+    /// The error trace for the request that was processed by
+    /// the API server.
+    ///
+    /// The `success` field will always be set to `false` when
+    /// the `errors` field is avaliable.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub errors: Vec<Error>,
 }
 
-impl<T: Serialize> IntoResponse for Response<T> {
-    fn into_response(self) -> axum::response::Response {
-        // Safety: we know that the derive macro for serde will always succeed. If this isn't
-        // the case, then it is considered undefined behaviour -- please file an issue
-        // if this is the case.
-        let data = unsafe { serde_json::to_string(&self).unwrap_unchecked() };
-        axum::http::Response::builder()
-            .status(self.status)
-            .header(header::CONTENT_TYPE, "application/json; charset=utf-8")
-            .body(Body::from(data))
-            .expect("this should succeed")
+impl<T: PartialEq> PartialEq for Response<T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.success == other.success && self.data.eq(&other.data) && self.errors.eq(&other.errors)
     }
 }
 
-/// Error that happened when going through a request.
-#[derive(Debug, Serialize, ToSchema)]
+impl<T: Eq> Eq for Response<T> {}
+
+#[cfg(feature = "axum")]
+#[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "axum")))]
+impl<T: Serialize> ::axum::response::IntoResponse for Response<T> {
+    fn into_response(self) -> axum::response::Response {
+        let data = serde_json::to_string(&self).unwrap();
+        axum::http::Response::builder()
+            .status(self.status)
+            .header(axum::http::header::CONTENT_TYPE, "application/json; charset=utf-8")
+            .body(axum::body::Body::from(data))
+            .unwrap()
+    }
+}
+
+/// Representation of a error from an error trace.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct Error {
-    /// A contextual error code that can be looked up from the documentation to see
-    /// why the request failed.
+    /// Contextualized error code on why this request failed.
+    ///
+    /// This field can be looked up from the documentation to give
+    /// a better representation of the error.
     pub code: ErrorCode,
 
-    /// Humane message that is based off the contextual [error code][Error::code] to give
-    /// a brief description.
+    /// A humane description based off the contextualised `"code"` field.
     pub message: Cow<'static, str>,
 
-    /// Other details to send to the user to give even more context about this error.
+    /// If provided, this gives more information about the error
+    /// and why it could've possibly failed.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub details: Option<Value>,
 }
 
-impl From<eyre::Report> for Error {
-    fn from(err: eyre::Report) -> Self {
-        if cfg!(debug_assertions) {
-            return Error {
-                code: ErrorCode::SystemFailure,
-                message: Cow::Owned(format!("system failure occurred: {err}")),
-                details: {
-                    let mut values = Vec::new();
-                    for err in err.chain().take(5) {
-                        values.push(serde_json::Value::String(err.to_string()));
-                    }
-
-                    Some(serde_json::json!({
-                        "causes": values,
-                    }))
-                },
-            };
-        }
-
-        Error {
-            code: ErrorCode::SystemFailure,
-            message: Cow::Borrowed("system failure occurred"),
-            details: None,
-        }
-    }
-}
-
-/// Error object when a internal error had occurred.
-pub const INTERNAL_SERVER_ERROR: Error = Error {
-    code: ErrorCode::InternalServerError,
-    message: Cow::Borrowed("internal server error"),
-    details: None,
-};
-
-/// Represents what kind this error is.
-#[derive(Debug, Serialize, ToSchema)]
+/// Contextualized error code on why this request failed.
+///
+/// This field can be looked up from the documentation to give
+/// a better representation of the error.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum ErrorCode {
-    // ~ COMMON
-    /// Internal Server Error
-    InternalServerError,
+    /// A system failure occurred.
+    SystemFailure,
 
-    /// reached an unexpected 'end-of-file' marker
-    ReachedUnexpectedEof,
+    /// Unexpected EOF when encoding or decoding data.
+    UnexpectedEOF,
 
-    /// was unable to process something internally
-    UnableToProcess,
+    /// The endpoint that you're trying to reach is not avaliable.
+    RestEndpointNotFound,
 
-    /// given REST handler by your request was not found.
-    HandlerNotFound,
+    /// The endpoint that you're trying to reach is using an invalid HTTP method.
+    InvalidHttpMethod,
 
-    /// given entity to lookup was not found.
+    /// The entity was not found.
     EntityNotFound,
 
-    /// given entity to create already exists.
+    /// The entity already exists.
     EntityAlreadyExists,
 
-    /// unable to validate the input data successfully
+    /// Unexpected internal server error.
+    InternalServerError,
+
+    /// Validation for the input data received failed.
     ValidationFailed,
 
-    /// the query given for the CDN was not found.
-    UnknownCdnQuery,
-
-    /// received an invalid `Content-Type` header value
+    /// The `Content-Type` header value was invalid.
     InvalidContentType,
 
-    /// this route requires a `Bearer` session to work.
-    SessionOnlyRoute,
+    /// Received an invalid HTTP header name.
+    InvalidHttpHeaderName,
 
-    /// received an invalid HTTP header key or value
-    InvalidHttpHeader,
+    /// Received an invalid HTTP header name.
+    InvalidHttpHeaderValue,
 
-    /// was unable to decode expected Base64 data.
+    /// This endpoint only allows Bearer tokens.
+    RequiresSessionToken,
+
+    /// Unable to decode base64 content given.
     UnableToDecodeBase64,
 
-    /// was unable to decode into a ULID.
+    /// Unable to decode ULID given.
     UnableToDecodeUlid,
 
     /// received invalid UTF-8 data
@@ -269,12 +265,21 @@ pub enum ErrorCode {
     /// missing a `Content-Type` header in your request
     MissingContentType,
 
-    /// system failure occurred.
-    SystemFailure,
+    /// reached an unexpected EOF marker.
+    ReachedUnexpectedEof,
+
+    /// invalid input was given
+    InvalidInput,
 
     // ~ PATH PARAMETERS
-    /// received the wrong list of path parameters, this is usually a bug within the code
-    /// and nothing with you.
+    /// unable to parse a path parameter.
+    UnableToParsePathParameter,
+
+    /// missing a required path parameter in the request.
+    MissingPathParameter,
+
+    /// received the wrong list of path parameters, this is usually a bug within charted
+    /// itself.
     WrongParameters,
 
     /// the server had failed to validate the path parameter's content.
@@ -316,13 +321,6 @@ pub enum ErrorCode {
     /// the `?per_page` query parameter is maxed out to 100
     MaxPerPageExceeded,
 
-    // ~ PATH PARAMETERS
-    /// unable to parse a path parameter.
-    UnableToParsePathParameter,
-
-    /// missing a required path parameter in the request.
-    MissingPathParameter,
-
     // ~ JSON BODY
     /// while parsing through the JSON tree received, something went wrong
     InvalidJsonPayload,
@@ -343,7 +341,7 @@ pub enum ErrorCode {
     /// missing a multipart boundry to parse
     MissingMultipartBoundary,
 
-    /// expected multipart/form-data; received something else
+    /// expected `multipart/form-data`; received something else
     NoMultipartReceived,
 
     /// received incomplete multipart stream
@@ -454,8 +452,10 @@ impl From<(ErrorCode, Cow<'static, str>, Option<Value>)> for Error {
     }
 }
 
-/// Returns a successful API response.
-pub fn ok<T>(status: StatusCode, data: T) -> Response<T> {
+/// Return a successful API response.
+#[cfg(feature = "axum")]
+#[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "axum")))]
+pub fn ok<T>(status: axum::http::StatusCode, data: T) -> Response<T> {
     Response {
         success: true,
         errors: Vec::new(),
@@ -464,15 +464,24 @@ pub fn ok<T>(status: StatusCode, data: T) -> Response<T> {
     }
 }
 
+/// Returns a empty HTTP API response.
+#[cfg(feature = "axum")]
+#[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "axum")))]
 pub fn no_content() -> Response<()> {
-    from_default(StatusCode::NO_CONTENT)
+    from_default(axum::http::StatusCode::NO_CONTENT)
 }
 
-pub fn from_default<T: Default>(status: StatusCode) -> Response<T> {
+/// Return a success HTTP API response from `T`'s [`Default`] implementation.
+#[cfg(feature = "axum")]
+#[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "axum")))]
+pub fn from_default<T: Default>(status: axum::http::StatusCode) -> Response<T> {
     ok(status, T::default())
 }
 
-pub fn err<E: Into<Error>>(status: StatusCode, error: E) -> Response {
+/// Returns a failed HTTP API response.
+#[cfg(feature = "axum")]
+#[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "axum")))]
+pub fn err<E: Into<Error>>(status: axum::http::StatusCode, error: E) -> Response {
     let error = error.into();
     Response {
         success: false,
@@ -482,13 +491,155 @@ pub fn err<E: Into<Error>>(status: StatusCode, error: E) -> Response {
     }
 }
 
-/// Propagate a [`Response`] with the `500 Internal Server Error` HTTP status
-/// and the [`INTERNAL_SERVER_ERROR`] error details.
+/// Propagate a HTTP API response as a internal server error.
+#[cfg(feature = "axum")]
+#[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "axum")))]
 pub fn internal_server_error() -> Response {
-    err(StatusCode::INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR)
+    err(
+        axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+        (ErrorCode::InternalServerError, "Internal Server Error"),
+    )
+}
+
+/// Propagate a system failure response from [`eyre::Report`].
+#[cfg(feature = "axum")]
+#[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "axum")))]
+pub fn system_failure_from_report(report: eyre::Report) -> Response {
+    #[derive(Debug)]
+    struct AError<'a>(&'a dyn std::error::Error);
+    impl std::fmt::Display for AError<'_> {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            std::fmt::Display::fmt(&self.0, f)
+        }
+    }
+
+    impl std::error::Error for AError<'_> {
+        fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+            self.0.source()
+        }
+    }
+
+    system_failure(AError(report.as_ref()))
 }
 
 /// Propagate a system failure response.
-pub fn system_failure<E: Into<Error>>(error: E) -> Response {
-    err(StatusCode::INTERNAL_SERVER_ERROR, error.into())
+#[cfg(feature = "axum")]
+#[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "axum")))]
+pub fn system_failure<E: std::error::Error>(error: E) -> Response {
+    if cfg!(debug_assertions) {
+        use serde_json::json;
+
+        let mut errors = Vec::new();
+        for err in error.source().iter().take(5) {
+            errors.push(Value::String(err.to_string()));
+        }
+
+        let backtrace = collect_backtrace();
+
+        return err(
+            axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+            (
+                ErrorCode::SystemFailure,
+                format!("system failure occurred: {error}"),
+                json!({
+                    "caused_by": errors,
+                    "backtrace": backtrace,
+                }),
+            ),
+        );
+    }
+
+    #[cfg(not(debug_assertions))]
+    const _: serde_json::Value = collect_backtrace();
+
+    err(
+        axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+        (ErrorCode::SystemFailure, "system failure occurred"),
+    )
+}
+
+#[cfg(all(debug_assertions, feature = "collect-backtrace-frames"))]
+#[inline(never)]
+#[cold] // system failures should theorically never happen
+fn collect_backtrace() -> Value {
+    use backtrace::Backtrace;
+    use serde_json::json;
+
+    /// A list of functions to skip since they don't really matter.
+    const FUNCTIONS_TO_SKIP: &[&str] = &[
+        "<core::pin::Pin",
+        "<futures_util::future::",
+        "<alloc::boxed::Box",
+        "core::ops::function::Fn",
+        "std::sys::pal",
+        "<unknown>",
+        "start_thread",
+        "__GI",
+        "std::thread::Builder::spawn_",
+        "__rust_try",
+        "std::panicking::try::do_call",
+        "<core::panic::unwind_safe::",
+        "tokio::runtime",
+        "<tokio::runtime",
+        "tokio::loom",
+        "std::thread::local",
+        "<axum::serve",
+        "<core::future",
+        "<hyper_util",
+        "hyper_util",
+        "<hyper",
+        "hyper",
+        "<axum::routing",
+        "<tower",
+        "<tower_http",
+        "<F as futures_core::future::TryFuture>",
+        "<sentry_core::futures",
+        "<sentry_tower::http",
+        "<axum::middleware::from_fn",
+        "axum::middleware::from_fn",
+        "<tracing::instrument::Instrumented",
+        "<axum::handler::future",
+        "<F as axum::handler::Handler",
+        "std::panic",
+    ];
+
+    let bt = Backtrace::new();
+    let mut stack = match sentry_backtrace::backtrace_to_stacktrace(&bt) {
+        Some(bt) => bt,
+        None => return Value::Null,
+    };
+
+    stack.frames.reverse();
+
+    let iter = stack.frames.iter().skip(1).filter(|f| {
+        let Some(ref f) = f.function else {
+            return false;
+        };
+
+        !FUNCTIONS_TO_SKIP.iter().any(|p| f.starts_with(p))
+    });
+
+    let mut data = Vec::with_capacity(iter.size_hint().0);
+    for frame in iter {
+        let Some(ref f) = frame.function.as_ref() else {
+            continue;
+        };
+
+        data.push(json!({
+            "function": f,
+            "file": frame.abs_path,
+            "line": frame.lineno
+        }));
+    }
+
+    Value::Array(data)
+}
+
+// Don't attempt to collect one if we don't have `nightly-backtrace-frames`.
+#[cfg(not(all(debug_assertions, feature = "collect-backtrace-frames")))]
+#[cfg_attr(debug_assertions, allow(unused))]
+#[inline(never)]
+#[cold]
+const fn collect_backtrace() -> Value {
+    Value::Null
 }

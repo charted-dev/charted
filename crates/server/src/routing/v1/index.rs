@@ -13,102 +13,145 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{extract::Path, openapi::ApiErrorResponse, ops, responses::Yaml, NameOrUlid, ServerContext};
+use crate::{Context, Yaml, extract::Path, openapi::ApiErrorResponse};
 use axum::{extract::State, http::StatusCode};
 use charted_core::api;
-use charted_types::helm;
+use charted_database::entities::{OrganizationEntity, UserEntity, organization, user};
+use charted_helm_types::ChartIndex;
+use charted_types::{NameOrUlid, Organization, Ulid, User, name::Name};
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use serde_json::json;
+use std::collections::BTreeMap;
+use tracing::instrument;
+use utoipa::{
+    IntoResponses, PartialSchema, ToSchema,
+    openapi::{Content, Ref, RefOr, Response},
+};
 
-/// Retrieve a chart index for a User or Organization.
+struct R;
+impl IntoResponses for R {
+    fn responses() -> BTreeMap<String, RefOr<Response>> {
+        azalia::btreemap!(
+            "200" => utoipa::openapi::Response::builder()
+                .content(
+                    "application/yaml",
+                    Content::builder()
+                        .schema(Some(RefOr::Ref(Ref::from_schema_name(ChartIndex::name()))))
+                        .build()
+                ),
+
+            "404" => utoipa::openapi::Response::builder()
+                .description("User or Organization wasn't found")
+                .content("application/json", Content::builder().schema(Some(ApiErrorResponse::schema())).build()),
+
+            "500" => utoipa::openapi::Response::builder()
+                .description("Internal Server Error")
+                .content("application/json", Content::builder().schema(Some(ApiErrorResponse::schema())).build())
+        )
+    }
+}
+
+/// Retrieve a chart index from a **User** or **Organization**.
+#[cfg_attr(debug_assertions, axum::debug_handler)]
 #[utoipa::path(
     get,
+
     path = "/v1/indexes/{idOrName}",
     operation_id = "getChartIndex",
     tag = "Main",
     params(
-        (
-            "idOrName" = NameOrUlid,
-            Path,
-
-            description = "Parameter that can take a `Name` or `Ulid`"
-        ),
+        ("idOrName" = NameOrUlid, Path)
     ),
-    responses(
-        (
-            status = 200,
-            description = "Chart index for a specific [`User`] or [`Organization`]",
-            body = helm::ChartIndex,
-            content_type = "application/yaml"
-        ),
-        (
-            status = 404,
-            description = "Entity was not found",
-            body = ApiErrorResponse,
-            content_type = "application/json"
-        ),
-        (
-            status = 500,
-            description = "Internal Server Error",
-            body = ApiErrorResponse,
-            content_type = "application/json"
-        )
-    )
+    responses(R)
 )]
-#[cfg_attr(debug_assertions, axum::debug_handler)]
-pub async fn get_chart_index(
-    State(ctx): State<ServerContext>,
+pub async fn fetch(
+    State(cx): State<Context>,
     Path(id_or_name): Path<NameOrUlid>,
-) -> Result<Yaml<helm::ChartIndex>, api::Response> {
-    match ops::db::user::get(&ctx, id_or_name.clone()).await {
-        Ok(Some(user)) => {
-            let Some(result) = ops::charts::get_index(&ctx, user.id)
-                .await
-                .map_err(|_| api::internal_server_error())?
-            else {
-                return Err(api::err(
-                    StatusCode::NOT_FOUND,
-                    (
-                        api::ErrorCode::EntityNotFound,
-                        "index for user doesn't exist, this is definitely a bug",
-                        json!({"class":"User","id_or_name":id_or_name}),
-                    ),
-                ));
-            };
-
-            Ok((StatusCode::OK, result).into())
-        }
-
-        Ok(None) => match ops::db::organization::get(&ctx, id_or_name.clone()).await {
-            Ok(Some(org)) => {
-                let Some(result) = ops::charts::get_index(&ctx, org.id)
-                    .await
-                    .map_err(|_| api::internal_server_error())?
-                else {
-                    return Err(api::err(
-                        StatusCode::NOT_FOUND,
-                        (
-                            api::ErrorCode::EntityNotFound,
-                            "index for organization doesn't exist, this is definitely a bug",
-                            json!({"class":"Organization","id_or_name":id_or_name}),
-                        ),
-                    ));
-                };
-
-                Ok((StatusCode::OK, result).into())
-            }
-
-            Ok(None) => Err(api::err(
-                StatusCode::NOT_FOUND,
-                (
-                    api::ErrorCode::EntityNotFound,
-                    "unable to find user or organization",
-                    json!({"id_or_name":id_or_name}),
-                ),
-            )),
-
-            Err(_) => Err(api::internal_server_error()),
-        },
-
-        Err(_) => Err(api::internal_server_error()),
+) -> Result<Yaml<ChartIndex>, api::Response> {
+    match id_or_name {
+        NameOrUlid::Name(name) => fetch_by_name(&cx, name).await,
+        NameOrUlid::Ulid(ulid) => fetch_by_id(&cx, ulid).await,
     }
+}
+
+#[instrument(name = "charted.server.indexes.get", skip(cx))]
+async fn fetch_by_name(cx: &Context, name: Name) -> Result<Yaml<ChartIndex>, api::Response> {
+    if let Some(user) = UserEntity::find()
+        .filter(user::Column::Username.eq(name.clone()))
+        .one(&cx.pool)
+        .await
+        .map_err(api::system_failure)?
+        .map(Into::<User>::into)
+    {
+        let index = charted_helm_charts::get_chart_index(&cx.storage, user.id)
+            .await
+            .map_err(api::system_failure_from_report)?
+            .unwrap_or_default();
+
+        return Ok((StatusCode::OK, index).into());
+    }
+
+    if let Some(org) = OrganizationEntity::find()
+        .filter(organization::Column::Name.eq(name.clone()))
+        .one(&cx.pool)
+        .await
+        .map_err(api::system_failure)?
+        .map(Into::<Organization>::into)
+    {
+        let index = charted_helm_charts::get_chart_index(&cx.storage, org.id)
+            .await
+            .map_err(api::system_failure_from_report)?
+            .unwrap_or_default();
+
+        return Ok((StatusCode::OK, index).into());
+    }
+
+    Err(api::err(
+        StatusCode::NOT_FOUND,
+        (
+            api::ErrorCode::EntityNotFound,
+            "user or organization by name doesn't exist",
+            json!({"name":name}),
+        ),
+    ))
+}
+
+#[instrument(name = "charted.server.indexes.get", skip(cx))]
+async fn fetch_by_id(cx: &Context, id: Ulid) -> Result<Yaml<ChartIndex>, api::Response> {
+    if let Some(user) = UserEntity::find_by_id(id)
+        .one(&cx.pool)
+        .await
+        .map_err(api::system_failure)?
+        .map(Into::<User>::into)
+    {
+        let index = charted_helm_charts::get_chart_index(&cx.storage, user.id)
+            .await
+            .map_err(api::system_failure_from_report)?
+            .unwrap_or_default();
+
+        return Ok((StatusCode::OK, index).into());
+    }
+
+    if let Some(org) = OrganizationEntity::find_by_id(id)
+        .one(&cx.pool)
+        .await
+        .map_err(api::system_failure)?
+        .map(Into::<Organization>::into)
+    {
+        let index = charted_helm_charts::get_chart_index(&cx.storage, org.id)
+            .await
+            .map_err(api::system_failure_from_report)?
+            .unwrap_or_default();
+
+        return Ok((StatusCode::OK, index).into());
+    }
+
+    Err(api::err(
+        StatusCode::NOT_FOUND,
+        (
+            api::ErrorCode::EntityNotFound,
+            "user or organization by id doesn't exist",
+            json!({"id":id}),
+        ),
+    ))
 }

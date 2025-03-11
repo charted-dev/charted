@@ -15,13 +15,13 @@
 
 use serde::Serialize;
 use std::{env, fmt::Display, fs, path::PathBuf, sync::OnceLock};
-use utoipa::ToSchema;
 
 const KUBERNETES_SERVICE_TOKEN_FILE: &str = "/run/secrets/kubernetes.io/serviceaccount/token";
 const KUBERNETES_NAMESPACE_FILE: &str = "/run/secrets/kubernetes.io/serviceaccount/namespace";
 
-/// Automatic detection to check if the distribution of charted-server is running on a Kubernetes
-/// cluster as a pod or not. It'll check in the following paths and check if they exist:
+/// Automatic detection to check if the distribution of charted-server is running on a
+/// Kubernetes cluster as a pod or not. It'll check in the following paths and check if
+/// they exist:
 ///
 /// * `/run/secrets/kubernetes.io/serviceaccount/token`
 /// * `/run/secrets/kubernetes.io/serviceaccount/namespace`
@@ -36,8 +36,8 @@ fn is_in_k8s() -> bool {
         .unwrap_or_default()
 }
 
-/// Detects if charted-server is running as a Docker container, it'll check if `/.dockerenv` exists or if
-/// `/proc/self/cgroup` contains `docker` in it.
+/// Detects if charted-server is running as a Docker container, it'll check if
+/// `/.dockerenv` exists or if `/proc/self/cgroup` contains `docker` in it.
 fn is_in_docker_container() -> bool {
     let has_dockerenv = PathBuf::from("/.dockerenv").try_exists().unwrap_or_default();
     let has_cgroup = {
@@ -52,7 +52,9 @@ fn is_in_docker_container() -> bool {
     has_dockerenv || has_cgroup
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Default, PartialEq, Eq, ToSchema)]
+/// Deployment strategy that was used for this instance.
+#[derive(Debug, Clone, Copy, Serialize, Default, PartialEq, Eq)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[serde(rename_all = "lowercase")]
 pub enum Distribution {
     /// Running on a Kubernetes cluster.

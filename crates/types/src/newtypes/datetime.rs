@@ -13,152 +13,123 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use diesel::{
-    backend::Backend,
-    deserialize::{FromSql, FromSqlRow},
-    expression::AsExpression,
-    pg::Pg,
-    serialize::{self, Output, ToSql},
-    sql_types::{Timestamp, Timestamptz, TimestamptzSqlite},
-    sqlite::Sqlite,
-};
+use crate::{cfg_jsonschema, cfg_openapi};
+use chrono::Utc;
 use serde::{Deserialize, Serialize};
-use std::borrow::Cow;
-use utoipa::{
-    openapi::{schema::SchemaType, KnownFormat, ObjectBuilder, RefOr, Schema, SchemaFormat, Type},
-    PartialSchema, ToSchema,
-};
 
-charted_core::create_newtype_wrapper!(
-    /// Newtype wrapper for the <code>[`chrono::DateTime`]<[`chrono::Utc`]></code> type.
-    ///
-    /// The wrapper implements the following types:
-    /// * [`AsExpression`]<[`TimestamptzSqlite`]>
-    /// * [`AsExpression`]<[`TimestampTz`]>
-    /// * [`AsExpression`]<[`Timestamp`]>
-    /// * [`ToSchema`], [`PartialSchema`] for OpenAPI
-    #[cfg_attr(feature = "jsonschema", doc = "* [`JsonSchema`][schemasrs::JsonSchema] for JSON schemas")]
-    #[derive(
-        Debug,
-        Clone,
-        Copy,
-        Default,
-        Serialize,
-        Deserialize,
-        PartialEq, Eq,
-        PartialOrd, Ord,
-        AsExpression,
-        FromSqlRow
-    )]
-    #[diesel(sql_type = TimestamptzSqlite)]
-    #[diesel(sql_type = Timestamptz)]
-    #[diesel(sql_type = Timestamp)]
-    pub DateTime for ::chrono::DateTime<::chrono::Utc>;
-);
+/// Newtype wrapper for <code>[`chrono::DateTime`]<[`chrono::Utc`]></code>.
+///
+/// This newtype wrapper implements all the standard library types and more
+/// configured by feature flags:
+#[cfg_attr(
+    feature = "openapi",
+    doc = "* [`utoipa::PartialSchema`](https://docs.rs/utoipa/*/utoipa/trait.PartialSchema.html), [`utoipa::ToSchema`](https://docs.rs/utoipa/*/utoipa/trait.ToSchema.html) (via the `openapi` crate feature)"
+)]
+#[cfg_attr(
+    feature = "jsonschema",
+    doc = "* [`schemars::JsonSchema`](https://docs.rs/schemars/*/utoipa/trait.JsonSchema.html) (via the `jsonschema` crate feature)"
+)]
+#[derive(
+    Debug,
+    Clone,
+    Copy,
+    Default,
+    Serialize,
+    Deserialize,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    derive_more::Display,
+    derive_more::From,
+    derive_more::Deref,
+)]
+#[display("{}", self.0)]
+pub struct DateTime(chrono::DateTime<Utc>);
 
-charted_core::mk_from_newtype!(from DateTime as chrono::DateTime<chrono::Utc>);
+cfg_openapi! {
+    use utoipa::{
+        openapi::{schema::SchemaType, ObjectBuilder, RefOr, Schema, Type, SchemaFormat, KnownFormat},
+        PartialSchema, ToSchema,
+    };
 
-impl PartialSchema for DateTime {
-    fn schema() -> RefOr<Schema> {
-        let object = ObjectBuilder::new()
-            .schema_type(SchemaType::Type(Type::String))
-            .format(Some(SchemaFormat::KnownFormat(KnownFormat::DateTime)))
-            .build();
+    #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "openapi")))]
+    impl PartialSchema for DateTime {
+        fn schema() -> RefOr<Schema> {
+            let object = ObjectBuilder::new()
+                .schema_type(SchemaType::Type(Type::String))
+                .format(Some(SchemaFormat::KnownFormat(KnownFormat::DateTime)))
+                .build();
 
-        RefOr::T(Schema::Object(object))
-    }
-}
-
-impl ToSchema for DateTime {
-    fn name() -> Cow<'static, str> {
-        Cow::Borrowed("DateTime")
-    }
-}
-
-#[cfg(feature = "jsonschema")]
-impl ::schemars::JsonSchema for DateTime {
-    fn schema_id() -> ::std::borrow::Cow<'static, str> {
-        ::std::borrow::Cow::Borrowed("chrono::DateTime<chrono::Utc>")
-    }
-
-    fn schema_name() -> String {
-        String::from("DateTime")
-    }
-
-    fn json_schema(_: &mut ::schemars::gen::SchemaGenerator) -> ::schemars::schema::Schema {
-        ::schemars::schema::SchemaObject {
-            instance_type: Some(::schemars::schema::InstanceType::String.into()),
-            format: Some("date-time".into()),
-            ..Default::default()
+            RefOr::T(Schema::Object(object))
         }
-        .into()
+    }
+
+    #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "openapi")))]
+    impl ToSchema for DateTime {}
+}
+
+cfg_jsonschema! {
+    use schemars::{
+        JsonSchema,
+        r#gen::SchemaGenerator,
+        schema::{
+            Schema,
+            InstanceType,
+            SchemaObject
+        }
+    };
+    use std::borrow::Cow;
+
+    #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "jsonschema")))]
+    impl JsonSchema for DateTime {
+        fn schema_id() -> Cow<'static, str> {
+            Cow::Borrowed("chrono::DateTime<chrono::Utc>")
+        }
+
+        fn schema_name() -> String {
+            String::from("DateTime")
+        }
+
+        fn json_schema(_: &mut SchemaGenerator) -> Schema {
+            SchemaObject {
+                instance_type: Some(InstanceType::String.into()),
+                format: Some("date-time".into()),
+                ..Default::default()
+            }
+            .into()
+        }
     }
 }
 
-////// ============================ TO SQL ============================ \\\\\\
-impl ToSql<Timestamptz, Pg> for DateTime
-where
-    chrono::DateTime<chrono::Utc>: ToSql<Timestamptz, Pg>,
-{
-    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, Pg>) -> serialize::Result {
-        <chrono::DateTime<chrono::Utc> as serialize::ToSql<Timestamptz, Pg>>::to_sql(&self.0, &mut out.reborrow())
+#[cfg(feature = "__internal_db")]
+const _: () = {
+    use sea_orm::{
+        ColIdx, QueryResult, TryGetError, TryGetable,
+        sea_query::{ArrayType, ColumnType, Value, ValueType, ValueTypeErr},
+    };
+
+    impl TryGetable for DateTime {
+        fn try_get_by<I: ColIdx>(query: &QueryResult, idx: I) -> Result<Self, TryGetError> {
+            <chrono::DateTime<chrono::Utc> as TryGetable>::try_get_by(query, idx).map(DateTime)
+        }
     }
-}
 
-impl ToSql<TimestamptzSqlite, Sqlite> for DateTime
-where
-    chrono::DateTime<chrono::Utc>: ToSql<TimestamptzSqlite, Sqlite>,
-{
-    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, Sqlite>) -> diesel::serialize::Result {
-        <chrono::DateTime<chrono::Utc> as serialize::ToSql<TimestamptzSqlite, Sqlite>>::to_sql(&self.0, out)
+    impl ValueType for DateTime {
+        fn try_from(v: Value) -> Result<Self, ValueTypeErr> {
+            <chrono::DateTime<chrono::Utc> as ValueType>::try_from(v).map(Self)
+        }
+
+        fn type_name() -> String {
+            <chrono::DateTime<chrono::Utc> as ValueType>::type_name()
+        }
+
+        fn array_type() -> ArrayType {
+            <chrono::DateTime<chrono::Utc> as ValueType>::array_type()
+        }
+
+        fn column_type() -> ColumnType {
+            <chrono::DateTime<chrono::Utc> as ValueType>::column_type()
+        }
     }
-}
-
-////// ============================ FROM SQL ============================ \\\\\\
-impl FromSql<Timestamptz, Pg> for DateTime
-where
-    chrono::DateTime<chrono::Utc>: FromSql<Timestamptz, Pg>,
-{
-    fn from_sql(bytes: <Pg as Backend>::RawValue<'_>) -> diesel::deserialize::Result<Self> {
-        let result: chrono::DateTime<chrono::Utc> =
-            <chrono::DateTime<chrono::Utc> as FromSql<Timestamptz, Pg>>::from_sql(bytes)?;
-
-        Ok(Self(result))
-    }
-}
-
-impl FromSql<TimestamptzSqlite, Sqlite> for DateTime
-where
-    chrono::DateTime<chrono::Utc>: FromSql<TimestamptzSqlite, Sqlite>,
-{
-    fn from_sql(bytes: <Sqlite as Backend>::RawValue<'_>) -> diesel::deserialize::Result<Self> {
-        let result: chrono::DateTime<::chrono::Utc> =
-            <chrono::DateTime<chrono::Utc> as FromSql<TimestamptzSqlite, Sqlite>>::from_sql(bytes)?;
-
-        Ok(Self(result))
-    }
-}
-
-impl FromSql<Timestamp, Pg> for DateTime
-where
-    chrono::NaiveDateTime: FromSql<Timestamp, Sqlite>,
-{
-    fn from_sql(bytes: <Pg as Backend>::RawValue<'_>) -> diesel::deserialize::Result<Self> {
-        let datetime = <chrono::NaiveDateTime as FromSql<Timestamp, Pg>>::from_sql(bytes)?;
-        let converted = chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(datetime, chrono::Utc);
-
-        Ok(Self(converted))
-    }
-}
-
-impl FromSql<Timestamp, Sqlite> for DateTime
-where
-    chrono::NaiveDateTime: FromSql<Timestamp, Sqlite>,
-{
-    fn from_sql(bytes: <Sqlite as Backend>::RawValue<'_>) -> diesel::deserialize::Result<Self> {
-        let datetime = <chrono::NaiveDateTime as FromSql<Timestamp, Sqlite>>::from_sql(bytes)?;
-        let converted = chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(datetime, chrono::Utc);
-
-        Ok(Self(converted))
-    }
-}
+};

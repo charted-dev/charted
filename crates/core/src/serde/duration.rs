@@ -13,22 +13,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use serde::{de, Deserialize, Serialize};
-use std::{
-    borrow::Cow,
-    fmt::{Debug, Display},
-    ops::Deref,
-    str::FromStr,
-};
-use utoipa::{
-    openapi::{schema::SchemaType, KnownFormat, ObjectBuilder, OneOfBuilder, RefOr, Schema, SchemaFormat, Type},
-    PartialSchema, ToSchema,
-};
+use jiff::{SignedDuration, Span};
+use serde::{Deserialize, Serialize, de};
+use std::{fmt::Display, ops::Deref, str::FromStr};
 
-/// Newtype wrapper for [`std::time::Duration`] that implements [`serde::Serialize`], [`serde::Deserialize`]
-/// and [`utoipa::ToSchema`].
-#[derive(Clone, Copy, Default, PartialEq, PartialOrd, Eq, Ord, Hash)]
-pub struct Duration(::std::time::Duration);
+/// Newtype wrapper for <code>[`std::time::Duration`]</code>.
+///
+/// This newtype wrapper implements all the standard library types, [`serde::Serialize`],
+/// [`serde::Deserialize`], and others provided by feature flags:
+#[cfg_attr(
+    feature = "openapi",
+    doc = "* [`utoipa::PartialSchema`](https://docs.rs/utoipa/*/utoipa/trait.PartialSchema.html), [`utoipa::ToSchema`](https://docs.rs/utoipa/*/utoipa/trait.ToSchema.html) (via the `openapi` crate feature)"
+)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Duration(std::time::Duration);
 impl Duration {
     /// Creates a new `Duration` from the specified number of whole seconds.
     ///
@@ -47,23 +45,19 @@ impl Duration {
     }
 }
 
-impl Debug for Duration {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        Debug::fmt(&self.0, f)
-    }
-}
-
 impl Display for Duration {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let fmter = humantime::format_duration(self.0);
-        <humantime::FormattedDuration as Display>::fmt(&fmter, f)
+        let duration = SignedDuration::try_from(self.0).map_err(|_| std::fmt::Error)?;
+        write!(f, "{duration:#}")
     }
 }
 
 impl FromStr for Duration {
-    type Err = humantime::DurationError;
+    type Err = jiff::Error;
+
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        humantime::parse_duration(s).map(Duration)
+        let duration: SignedDuration = Span::from_str(s)?.try_into()?;
+        <SignedDuration as TryInto<std::time::Duration>>::try_into(duration).map(Self)
     }
 }
 
@@ -99,7 +93,7 @@ impl<'de> Deserialize<'de> for Duration {
             where
                 E: de::Error,
             {
-                humantime::parse_duration(v).map(Duration).map_err(de::Error::custom)
+                Duration::from_str(v).map_err(de::Error::custom)
             }
 
             fn visit_string<E>(self, v: String) -> Result<Self::Value, E>
@@ -126,16 +120,32 @@ impl From<Duration> for std::time::Duration {
     }
 }
 
+impl From<&Duration> for std::time::Duration {
+    fn from(value: &Duration) -> Self {
+        value.0
+    }
+}
+
 impl Deref for Duration {
     type Target = ::std::time::Duration;
+
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-impl PartialSchema for Duration {
-    fn schema() -> RefOr<Schema> {
-        let oneof = OneOfBuilder::new()
+#[cfg(feature = "openapi")]
+const _: () = {
+    use std::borrow::Cow;
+    use utoipa::{
+        PartialSchema, ToSchema,
+        openapi::{KnownFormat, ObjectBuilder, OneOfBuilder, RefOr, Schema, SchemaFormat, Type, schema::SchemaType},
+    };
+
+    #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "openapi")))]
+    impl PartialSchema for Duration {
+        fn schema() -> RefOr<Schema> {
+            let oneof = OneOfBuilder::new()
             .description(Some("`Duration` is represented as a span of time, usually for system timeouts. `charted-server` supports passing in a unsigned 64-bot integer (represented in milliseconds) or with a string literal (i.e, `1s`) to represent time."))
             .item({
                 ObjectBuilder::new()
@@ -151,32 +161,17 @@ impl PartialSchema for Duration {
                     .build()
             });
 
-        RefOr::T(Schema::OneOf(oneof.build()))
-    }
-}
-
-impl ToSchema for Duration {
-    fn name() -> Cow<'static, str> {
-        Cow::Borrowed("Duration")
-    }
-}
-
-#[cfg(feature = "merge")]
-impl ::azalia::config::merge::Merge for Duration {
-    fn merge(&mut self, other: Duration) {
-        // if both durations are zero, then don't attempt to merge
-        if self.is_zero() && other.is_zero() {
-            return;
+            RefOr::T(Schema::OneOf(oneof.build()))
         }
-
-        // If `self` isn't zero AND `other` is zero, don't attempt to merge
-        if !self.is_zero() && other.is_zero() {
-            return;
-        }
-
-        *self = other;
     }
-}
+
+    #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "openapi")))]
+    impl ToSchema for Duration {
+        fn name() -> Cow<'static, str> {
+            Cow::Borrowed("Duration")
+        }
+    }
+};
 
 #[cfg(test)]
 mod tests {
