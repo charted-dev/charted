@@ -23,6 +23,7 @@ pub mod feature;
 pub mod middleware;
 pub mod multipart;
 pub mod openapi;
+pub mod pagination;
 pub mod routing;
 
 #[cfg(test)]

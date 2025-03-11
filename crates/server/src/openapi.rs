@@ -105,8 +105,21 @@ use utoipa::{
 
             crate::routing::v1::main::Main,
             crate::routing::v1::features::Features,
+
+            crate::pagination::PaginationRequest,
+            crate::pagination::PaginatedRepository,
+            crate::pagination::PaginatedRepositoryMember,
+            crate::pagination::PaginatedOrganization,
+            crate::pagination::PaginatedOrganizationMember,
+            crate::pagination::PaginatedApiKey,
         ),
         responses(
+            crate::pagination::PaginatedRepository,
+            crate::pagination::PaginatedRepositoryMember,
+            crate::pagination::PaginatedOrganization,
+            crate::pagination::PaginatedOrganizationMember,
+            crate::pagination::PaginatedApiKey,
+
             ApiResponse<Entrypoint>,
             ApiResponse<Features>,
             ApiResponse<User>,
@@ -114,9 +127,15 @@ use utoipa::{
         )
     ),
     paths(
+        crate::routing::v1::user::repositories::list_self_user_repositories,
+        crate::routing::v1::user::repositories::list_user_repositories,
+        crate::routing::v1::user::repositories::create_user_repository,
+
         crate::routing::v1::user::get_self,
-        crate::routing::v1::user::fetch,
         crate::routing::v1::user::create,
+        crate::routing::v1::user::delete,
+        crate::routing::v1::user::patch,
+        crate::routing::v1::user::fetch,
         crate::routing::v1::user::main,
 
         crate::routing::v1::features::features,
@@ -284,18 +303,6 @@ impl<'r> ToResponse<'r> for ApiErrorResponse {
 /// A [`Response`] type for
 /// <code>[`api::Response`](charted_core::api::Response)\<T\></code> types.
 pub struct ApiResponse<T: ?Sized>(PhantomData<T>);
-
-impl<T: ToSchema> utoipa::__dev::ComposeSchema for ApiResponse<T> {
-    fn compose(_: Vec<RefOr<Schema>>) -> RefOr<Schema> {
-        T::schema()
-    }
-}
-
-impl<T: ToSchema> ToSchema for ApiResponse<T> {
-    fn name() -> Cow<'static, str> {
-        <ApiResponse<T> as ToResponse<'_>>::response().0
-    }
-}
 
 impl<'r, T: ToSchema> ToResponse<'r> for ApiResponse<T> {
     fn response() -> (

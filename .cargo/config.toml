@@ -17,7 +17,7 @@
 rustflags = ["--cfg", "tokio_unstable"]
 
 [alias]
-internals = "run --release --bin internals --"
+internals = "run --release --bin internals --all-features --"
 server = "cli server"
 
 cli-rl = "run --release --bin charted --"
