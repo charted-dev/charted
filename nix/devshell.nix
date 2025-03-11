@@ -38,6 +38,7 @@
 
   buildInputs = with pkgs;
     [
+      (callPackage ./packages/cargo-upgrades.nix {})
       cargo-machete
       cargo-nextest
       cargo-expand
