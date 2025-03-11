@@ -14,12 +14,12 @@
 // limitations under the License.
 
 use azalia::remi::{
-    core::{Blob, StorageService as _, UploadRequest},
     StorageService,
+    core::{Blob, StorageService as _, UploadRequest},
 };
 use charted_helm_types::ChartIndex;
 use charted_types::{Ulid, Version};
-use eyre::{eyre, Context, Report};
+use eyre::{Context, Report, eyre};
 use flate2::bufread::MultiGzDecoder;
 use itertools::Itertools;
 use multer::Multipart;
@@ -57,11 +57,12 @@ pub async fn init(storage: &StorageService) -> eyre::Result<()> {
 /// Sorts all of the versions that were contained in a user or organization's
 /// repository. The first item *should* be the latest version, or the latest
 /// pre-release if `prereleases` is true.
+#[instrument(name = "charted.helm.indexes.sort-versions", skip_all, fields(%owner, %repo, allow_prereleases = prereleases))]
 pub async fn sort_versions(
     storage: &StorageService,
     owner: Ulid,
     repo: Ulid,
-    preleases: bool,
+    prereleases: bool,
 ) -> eyre::Result<Vec<Version>> {
     // If the object storage tells us that it doesn't exist, then it don't exist.
     if !storage.exists(format!("./repositories/{owner}/{repo}")).await? {
@@ -92,7 +93,7 @@ pub async fn sort_versions(
         // We should never get directories in this case -- all files are named
         // '{version}.tgz' in object storage.
         Blob::Directory(_) => None,
-    }).filter(|v| match preleases {
+    }).filter(|v| match prereleases {
         false => v.pre.is_empty(),
         true => true
     }).sorted_by(|a, b| b.cmp(a)).collect();
@@ -101,7 +102,7 @@ pub async fn sort_versions(
 }
 
 /// Returns a [`ChartIndex`] from the `owner`
-#[instrument(name = "charted.helm.indexes.fetch", skip(storage))]
+#[instrument(name = "charted.helm.indexes.fetch", skip_all, fields(%owner))]
 pub async fn get_chart_index(storage: &StorageService, owner: Ulid) -> eyre::Result<Option<ChartIndex>> {
     match storage.open(format!("./metadata/{owner}/index.yaml")).await {
         Ok(Some(bytes)) => serde_yaml_ng::from_slice(&bytes).context("failed to parse `index.yaml`"),
@@ -116,7 +117,7 @@ pub async fn get_chart_index(storage: &StorageService, owner: Ulid) -> eyre::Res
 }
 
 /// Creates a [`ChartIndex`] for the owner.
-#[instrument(name = "charted.helm.indexes.create", skip(storage))]
+#[instrument(name = "charted.helm.indexes.create", skip_all, fields(%owner))]
 pub async fn create_chart_index(storage: &StorageService, owner: Ulid) -> eyre::Result<ChartIndex> {
     info!(owner.id = %owner, "creating `index.yaml`...");
     if let StorageService::Filesystem(fs) = storage {
@@ -140,7 +141,7 @@ pub async fn create_chart_index(storage: &StorageService, owner: Ulid) -> eyre::
 }
 
 /// Deletes a user or organization's `index.yaml` file.
-#[instrument(name = "charted.helm.indexes.delete", skip(storage))]
+#[instrument(name = "charted.helm.indexes.delete", skip_all, fields(%owner))]
 pub async fn delete_chart_index(storage: &StorageService, owner: Ulid) -> eyre::Result<()> {
     warn!(owner.id = %owner, "deleting `index.yaml`");
     storage
@@ -151,8 +152,11 @@ pub async fn delete_chart_index(storage: &StorageService, owner: Ulid) -> eyre::
 
 #[instrument(
     name = "charted.helm.chart.fetch",
-    skip(storage, version),
+    skip_all,
     fields(
+        %owner,
+        %repo,
+        allow_prereleases,
         version = version.as_ref()
     )
 )]
@@ -192,8 +196,11 @@ pub fn get_chart<'asyncfn, V: AsRef<str> + Send + 'asyncfn>(
 
 #[instrument(
     name = "charted.helm.chart.fetch[provenance]",
-    skip(storage, version),
+    skip_all,
     fields(
+        %owner,
+        %repo,
+        allow_prereleases,
         version = version.as_ref()
     )
 )]
@@ -233,7 +240,7 @@ pub fn get_chart_provenance<'asyncfn, V: AsRef<str> + Send + 'asyncfn>(
     })
 }
 
-#[instrument(name = "charted.helm.charts.upload", skip(storage, version, multipart), fields(version = version.as_ref()))]
+#[instrument(name = "charted.helm.charts.upload", skip_all, fields(%owner, %repo, version = version.as_ref()))]
 pub async fn upload<'m, V: AsRef<str>>(
     storage: &StorageService,
     mut multipart: Multipart<'m>,
@@ -248,7 +255,7 @@ pub async fn upload<'m, V: AsRef<str>>(
             return Err(multer::Error::IncompleteFieldData {
                 field_name: Some("{first field}".into()),
             }
-            .into())
+            .into());
         }
     };
 

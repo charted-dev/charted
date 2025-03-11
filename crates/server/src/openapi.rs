@@ -107,6 +107,9 @@ use utoipa::{
         )
     ),
     paths(
+        crate::routing::v1::user::create,
+        crate::routing::v1::user::main,
+
         crate::routing::v1::features::features,
         crate::routing::v1::healthz::healthz,
         crate::routing::v1::index::fetch,
@@ -307,7 +310,7 @@ impl<'r, T: ToSchema> ToResponse<'r> for ApiResponse<T> {
                         Object::builder()
                             .property("success", success.to_owned())
                             .required("success")
-                            .property("data", RefOr::T(Schema::Array(Array::new(T::schema()))))
+                            .property("data", T::schema())
                             .property("errors", errors.to_owned())
                             .build(),
                     ))))

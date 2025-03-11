@@ -22,12 +22,16 @@ pub mod organization;
 pub mod repository;
 pub mod user;
 
-use crate::Context;
+use crate::{Context, openapi::ApiResponse};
 use axum::{Extension, Router, response::IntoResponse, routing};
 use charted_core::VERSION;
 use metrics_exporter_prometheus::PrometheusHandle;
 use serde::Serialize;
-use utoipa::ToSchema;
+use std::collections::BTreeMap;
+use utoipa::{
+    IntoResponses, ToSchema,
+    openapi::{Ref, RefOr, Response},
+};
 
 /// Generic entrypoint message for any API route like `/users`.
 #[derive(Serialize, ToSchema)]
@@ -52,8 +56,18 @@ impl Entrypoint {
     }
 }
 
+pub type EntrypointResponse = ApiResponse<Entrypoint>;
+impl IntoResponses for EntrypointResponse {
+    fn responses() -> BTreeMap<String, RefOr<Response>> {
+        azalia::btreemap!(
+            "200" => RefOr::Ref(Ref::from_response_name("EntrypointResponse"))
+        )
+    }
+}
+
 pub fn create_router(ctx: &Context) -> Router<Context> {
     let mut router = Router::new()
+        .nest("/users", user::create_router(ctx))
         .route("/indexes/{idOrName}", routing::get(index::fetch))
         .route("/openapi.json", routing::get(openapi::get))
         .route("/features", routing::get(features::features))

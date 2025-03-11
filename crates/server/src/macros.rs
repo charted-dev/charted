@@ -12,3 +12,26 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+/// Extracts the `T` from [`RefOr`].
+#[macro_export]
+macro_rules! extract_refor_t {
+    ($val:expr) => {
+        match $val {
+            val => {
+                let ::utoipa::openapi::RefOr::T(v) = val else {
+                    unreachable!()
+                };
+
+                v
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! modify_property {
+    ($($val:expr; $field:ident($arg:expr))*) => {
+        $($val.$field = From::from($arg);)*
+    };
+}

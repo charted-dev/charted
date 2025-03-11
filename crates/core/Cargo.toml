@@ -40,7 +40,7 @@ axum = ["dep:axum"]
 argon2.workspace = true
 axum = { workspace = true, optional = true }
 backtrace = { version = "0.3.48", optional = true }
-derive_more = { workspace = true, features = ["display"] }
+derive_more = { workspace = true, features = ["display", "error"] }
 eyre.workspace = true
 humantime = "2.1.0"
 rand.workspace = true
@@ -51,6 +51,7 @@ sentry-backtrace = { version = "0.36.0", optional = true }
 serde_repr = "0.1.19"
 serde-untagged = "0.1.7"
 utoipa = { workspace = true, optional = true }
+ulid.workspace = true
 
 [build-dependencies]
 chrono.workspace = true

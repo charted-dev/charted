@@ -50,6 +50,7 @@
 pub mod api;
 pub mod bitflags;
 pub mod serde;
+pub mod ulid;
 
 #[macro_use]
 mod macros;

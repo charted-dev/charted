@@ -36,7 +36,6 @@ comment_width = 90
 condense_wildcard_suffixes = true
 group_imports = "One"
 imports_granularity = "Crate"
-normalize_comments = true
 overflow_delimited_expr = true
 reorder_impl_items = true
 wrap_comments = true

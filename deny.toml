@@ -33,7 +33,11 @@ targets = [
 #
 # See also: https://github.com/EmbarkStudios/cargo-deny/pull/611
 version = 2
-ignore = []
+ignore = [
+    # We rely on `paste` in `charted-types` and there isn't a safe
+    # replacement for it yet.
+    "RUSTSEC-2024-0436",
+]
 
 [bans]
 multiple-versions = "warn"

@@ -15,6 +15,9 @@
 
 #![feature(let_chains)]
 
+#[macro_use]
+extern crate tracing;
+
 pub mod extract;
 pub mod feature;
 pub mod middleware;
@@ -25,11 +28,36 @@ pub mod routing;
 #[cfg(test)]
 pub mod testing;
 
+#[macro_use]
+mod macros;
+
 mod context;
-pub use context::*;
-
 mod drive;
-pub use drive::drive;
-
 mod yaml;
+
+use argon2::{
+    PasswordHasher,
+    password_hash::{SaltString, rand_core::OsRng},
+};
+use charted_core::{ARGON2, ulid};
+pub use context::*;
+pub use drive::drive;
 pub use yaml::*;
+
+pub(crate) static ULID_GENERATOR: ulid::Generator = ulid::Generator::new();
+
+pub fn hash_password<P: AsRef<[u8]>>(password: P) -> eyre::Result<String> {
+    let salt = SaltString::generate(&mut OsRng);
+    let password = password.as_ref();
+
+    ARGON2
+        .hash_password(password, &salt)
+        .map(|hash| hash.to_string())
+        .inspect_err(|e| {
+            error!(error = %e, "failed to compute argon2 password");
+        })
+        // since `argon2::Error` doesn't implement `std::error::Error`,
+        // we implicitlly pass it into the `eyre!` macro, which will create
+        // an adhoc error.
+        .map_err(|e| eyre::eyre!(e))
+}

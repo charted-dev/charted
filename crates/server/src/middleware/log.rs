@@ -49,15 +49,30 @@ pub async fn log(metadata: Metadata, State(cx): State<Context>, req: Request<Bod
         return next.run(req).await;
     }
 
+    let counter = charted_metrics::counter!("charted.server.request",
+        "req.matched_path" => display_opt(metadata.matched.as_ref().map(MatchedPath::as_str)).to_string(),
+        "req.user_agent"   => display_opt(get_user_agent(&metadata)).to_string(),
+        "req.id"           => display_opt(metadata.extensions.get::<XRequestId>()).to_string()
+    );
+
+    counter.increment(1);
     cx.requests.fetch_add(1, Ordering::SeqCst);
+
+    let latency = charted_metrics::histogram!("charted.server.request[latency]",
+        "req.matched_path" => display_opt(metadata.matched.as_ref().map(MatchedPath::as_str)).to_string(),
+        "req.user_agent"   => display_opt(get_user_agent(&metadata)).to_string(),
+        "req.id"           => display_opt(metadata.extensions.get::<XRequestId>()).to_string()
+    );
 
     let start = Instant::now();
     info!("processing request");
 
     let res = next.run(req).await;
-    let elapsed: charted_core::serde::Duration = start.elapsed().into();
+    let elapsed = start.elapsed();
 
-    info!(latency = %elapsed, "processed request");
+    latency.record(elapsed);
+
+    info!(latency = %charted_core::serde::Duration::from(elapsed), "processed request");
     res
 }
 
