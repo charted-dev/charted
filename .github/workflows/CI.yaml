@@ -133,7 +133,7 @@ jobs:
         if: ${{github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'charted-dev/charted'}}
         steps:
             - uses: actions/checkout@v4
-            - uses: cachix/install-nix-action@v30
+            - uses: cachix/install-nix-action@v31
 
             # TODO(@auguwu): switch to https://nix.noelware.org,
             #                which uses Attic as the binary cache
