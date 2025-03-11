@@ -133,7 +133,7 @@ jobs:
                   username: noelbot
                   password: ${{secrets.REGISTRY_PASSWORD}}
 
-            - uses: docker/build-push-action@v4
+            - uses: docker/build-push-action@v6
               with:
                   provenance: false
                   platforms: ${{matrix.platform}}
