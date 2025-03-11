@@ -23,7 +23,6 @@ members = [
     "crates/configuration",
     "crates/core",
     "crates/database",
-    "crates/features",
     "crates/helm/charts",
     "crates/helm/plugin",
     "crates/helm/types",
@@ -60,7 +59,9 @@ charted-authz-static = { path = "./crates/authz/static" }
 charted-cli = { path = "./crates/cli" }
 charted-client = { path = "./crates/client", version = "0.1.0" }
 charted-config = { path = "./crates/configuration" }
-charted-core = { path = "./crates/core", version = "0.1.0" }
+charted-core = { path = "./crates/core", version = "0.1.0", features = [
+    "collect-backtrace-frames",
+] }
 charted-database = { path = "./crates/database" }
 charted-helm-charts = { path = "./crates/helm/charts" }
 charted-helm-plugin = { path = "./crates/helm/plugin" }
@@ -126,11 +127,11 @@ tracing = "0.1.41"
 tracing-subscriber = "0.3.19"
 toml = "0.8.20"
 tokio = "1.43.0"
-# utoipa = { version = "5.3.1", features = [
-#     "chrono",
-#     "non_strict_integers",
-#     "ulid",
-# ] }
+utoipa = { version = "5.3.1", features = [
+    "chrono",
+    "non_strict_integers",
+    "ulid",
+] }
 url = "2.5.4"
 
 [workspace.dependencies.azalia]
@@ -139,12 +140,9 @@ git = "https://github.com/Noelware/azalia"
 rev = "f4600130658cfe523350222717b4530ce4d30123"
 features = ["remi-tracing"]
 
-# A forked version of `utoipa` until https://github.com/juhaku/utoipa/issues/1335 lands
-[workspace.dependencies.utoipa]
-version = "5.3.1"
-git = "https://github.com/Noelware/utoipa"
-branch = "toresponse-cow"
-features = ["chrono", "non_strict_integers", "ulid"]
+[patch.crates-io]
+# https://github.com/juhaku/utoipa/issues/1335
+utoipa = { git = "https://github.com/Noelware/utoipa", branch = "toresponse-cow" }
 
 [profile.release]
 codegen-units = 1 # use a single codegen unit

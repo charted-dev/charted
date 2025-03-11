@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use serde::{de, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de};
 use std::{fmt::Display, ops::Deref, str::FromStr};
 
 /// Newtype wrapper for <code>[`std::time::Duration`]</code>.
@@ -22,10 +22,8 @@ use std::{fmt::Display, ops::Deref, str::FromStr};
 /// [`serde::Deserialize`], and others provided by feature flags:
 #[cfg_attr(
     feature = "openapi",
-    doc = "* [`utoipa::PartialSchema`], [`utoipa::ToSchema`] (via the `openapi` crate feature)"
+    doc = "* [`utoipa::PartialSchema`](https://docs.rs/utoipa/*/utoipa/trait.PartialSchema.html), [`utoipa::ToSchema`](https://docs.rs/utoipa/*/utoipa/trait.ToSchema.html) (via the `openapi` crate feature)"
 )]
-/// [`utoipa::PartialSchema`]: https://docs.rs/utoipa/*/utoipa/trait.PartialSchema.html
-/// [`utoipa::ToSchema`]: https://docs.rs/utoipa/*/utoipa/trait.ToSchema.html
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Duration(std::time::Duration);
 impl Duration {
@@ -138,8 +136,8 @@ impl Deref for Duration {
 const _: () = {
     use std::borrow::Cow;
     use utoipa::{
-        openapi::{schema::SchemaType, KnownFormat, ObjectBuilder, OneOfBuilder, RefOr, Schema, SchemaFormat, Type},
         PartialSchema, ToSchema,
+        openapi::{KnownFormat, ObjectBuilder, OneOfBuilder, RefOr, Schema, SchemaFormat, Type, schema::SchemaType},
     };
 
     #[cfg_attr(any(noeldoc, docsrs), doc(cfg(feature = "openapi")))]

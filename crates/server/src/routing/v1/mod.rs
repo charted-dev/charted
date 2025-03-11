@@ -60,8 +60,15 @@ pub fn create_router(ctx: &Context) -> Router<Context> {
         .route("/_healthz", routing::get(healthz::healthz))
         .route("/", routing::get(main::main));
 
-    if let Some(config) = ctx.config.metrics.as_prometheus() {
+    if let Some(config) = ctx.config.metrics.as_prometheus() &&
+        config.standalone.is_none()
+    {
         router = router.route(&config.endpoint, routing::get(prometheus_scrape));
+    }
+
+    for feat in ctx.features.values() {
+        let (path, extended) = feat.extend_router();
+        router = router.nest(path, extended);
     }
 
     router

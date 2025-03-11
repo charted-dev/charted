@@ -13,6 +13,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//! # 🐻‍❄️📦 `charted_core`
+//! The **charted_core** Rust crate is the core library that defines primitives
+//! and other types for **charted-server** by [Noelware, LLC.]
+//!
+//! This crate is publically avaliable for the [`charted_client`] Rust crate,
+//! which uses the `api` module.
+//!
+//! <div class="warning">
+//!
+//! The **charted_core** crate is inheritally unstable and there is no plans
+//! on stablising the API of it, even in major stable releases.
+//!
+//! </div>
+//!
+//! ## Crate Features
+//! - `collect-backtrace-frames`: Uses the **backtrace** crate to collect backtrace
+//!   frames.
+//!
+//! - `openapi`: Enables the [`utoipa`] crate to define OpenAPI types for the `api`
+//!   module.
+//!
+//!  - `axum`: Enables the [`axum`] crate to define types for Axum, which
+//!    **charted-server** uses under the hood.
+//!
+//! [`api::system_failure`]: api/fn.system_failure.html
+//! [`charted_client`]: https://crates.io/crates/charted-client
+//! [Noelware, LLC.]: https://noelware.org
+//! [`utoipa`]: https://crates.io/crates/utoipa
+//! [`axum`]: https://crates.io/crates/axum
+
 #![cfg_attr(any(noeldoc, docsrs), feature(doc_cfg))]
 #![doc(html_logo_url = "https://cdn.floofy.dev/images/trans.png")]
 #![doc(html_favicon_url = "https://cdn.floofy.dev/images/trans.png")]

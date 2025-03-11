@@ -32,12 +32,14 @@ unexpected_cfgs = { level = "warn", check-cfg = ['cfg(noeldoc)'] }
 [features]
 default = []
 
+collect-backtrace-frames = ["dep:backtrace", "dep:sentry-backtrace"]
 openapi = ["dep:utoipa"]
 axum = ["dep:axum"]
 
 [dependencies]
 argon2.workspace = true
 axum = { workspace = true, optional = true }
+backtrace = { version = "0.3.48", optional = true }
 derive_more = { workspace = true, features = ["display"] }
 eyre.workspace = true
 humantime = "2.1.0"
@@ -45,6 +47,7 @@ rand.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 schemars = { workspace = true, optional = true }
+sentry-backtrace = { version = "0.36.0", optional = true }
 serde_repr = "0.1.19"
 serde-untagged = "0.1.7"
 utoipa = { workspace = true, optional = true }

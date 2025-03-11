@@ -62,14 +62,16 @@ impl dyn Feature {
         us == other
     }
 
-    /// Downcast `self` into [`F`], otherwise `None` is returned if `F` is not `self`.
+    /// Downcast `self` into type `F`, otherwise `None` is returned if `F` is not `self`.
     ///
     /// ## Example
     /// ```
     /// # use charted_server::feature::Feature;
     /// #
     /// pub struct MyFeature;
-    /// impl Feature for MyFeature {}
+    /// impl Feature for MyFeature {
+    ///     fn extend_router(&self) -> (&'static str, ::axum::routing::Router<charted_server::Context>) { todo!() }
+    /// }
     ///
     /// let x: Box<dyn Feature> = Box::new(MyFeature);
     /// assert!(x.downcast::<MyFeature>().is_some());

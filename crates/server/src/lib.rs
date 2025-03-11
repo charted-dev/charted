@@ -13,6 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#![feature(let_chains)]
+
 pub mod extract;
 pub mod feature;
 pub mod middleware;

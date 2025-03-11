@@ -269,7 +269,7 @@ impl<'r> ToResponse<'r> for ApiErrorResponse {
 // `ApiResponse`'s impl of ToResponse to `api::Response` and `ListApiResponse` to
 // `charted_core`.
 
-/// A [`Response`](utoipa::openapi::Response) type for
+/// A [`Response`] type for
 /// <code>[`api::Response`](charted_core::api::Response)\<T\></code> types.
 pub struct ApiResponse<T: ?Sized>(PhantomData<T>);
 
@@ -319,7 +319,7 @@ impl<'r, T: ToSchema> ToResponse<'r> for ApiResponse<T> {
     }
 }
 
-/// A [`Response`](utoipa::openapi::Response) type for
+/// A [`Response`] type for
 /// <code>[`api::Response`](charted_core::api::Response)\<[`Vec`]\<T\>\></code> types.
 #[derive(Debug, Clone, Copy)]
 pub struct ListApiResponse<T>(PhantomData<T>);
