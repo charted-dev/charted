@@ -27,6 +27,7 @@ use std::sync::{
 static SINGLETON: OnceLock<Context> = OnceLock::new();
 
 pub struct Context {
+    pub ulid_generator: charted_core::ulid::Generator,
     pub requests: AtomicUsize,
     pub features: feature::Collection,
     pub storage: StorageService,
@@ -38,6 +39,7 @@ pub struct Context {
 impl Clone for Context {
     fn clone(&self) -> Self {
         Context {
+            ulid_generator: self.ulid_generator.clone(),
             requests: AtomicUsize::new(self.requests.load(Ordering::SeqCst)),
             features: self.features.clone(),
             storage: self.storage.clone(),

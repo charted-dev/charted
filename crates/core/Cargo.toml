@@ -40,7 +40,7 @@ axum = ["dep:axum"]
 argon2.workspace = true
 axum = { workspace = true, optional = true }
 backtrace = { version = "0.3.48", optional = true }
-derive_more = { workspace = true, features = ["display", "error"] }
+derive_more = { workspace = true, features = ["display", "error", "from"] }
 eyre.workspace = true
 humantime = "2.1.0"
 rand.workspace = true

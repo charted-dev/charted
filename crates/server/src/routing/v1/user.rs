@@ -18,21 +18,26 @@ pub mod repositories;
 pub mod sessions;
 
 use crate::{
-    Context, ULID_GENERATOR,
+    Context,
     extract::{Json, Path},
     extract_refor_t, hash_password,
     middleware::sessions::Session,
     modify_property,
-    openapi::{ApiErrorResponse, ApiResponse},
+    openapi::{ApiErrorResponse, ApiResponse, EmptyApiResponse},
     routing::v1::{Entrypoint, EntrypointResponse},
 };
-use axum::{Extension, Router, extract::State, http::StatusCode, routing};
+use axum::{Extension, Router, extract::State, handler::Handler, http::StatusCode, routing};
 use charted_core::{api, bitflags::ApiKeyScope};
 use charted_database::entities::{UserEntity, user};
-use charted_types::{NameOrUlid, User, payloads::CreateUserPayload};
-use sea_orm::{ColumnTrait, EntityTrait, IntoActiveModel, QueryFilter, sqlx::types::chrono};
+use charted_types::{
+    NameOrUlid, User,
+    payloads::{CreateUserPayload, PatchUserPayload},
+};
+use sea_orm::{
+    ActiveModelTrait, ActiveValue, ColumnTrait, EntityTrait, IntoActiveModel, QueryFilter, sqlx::types::chrono,
+};
 use serde_json::json;
-use std::collections::BTreeMap;
+use std::{borrow::Cow, collections::BTreeMap};
 use tower_http::auth::AsyncRequireAuthorizationLayer;
 use utoipa::{
     IntoResponses, ToResponse,
@@ -49,12 +54,39 @@ pub fn create_router(cx: &Context) -> Router<Context> {
     };
 
     let id_or_name = Router::new().route("/", routing::get(fetch));
-    let at_me = Router::new().route(
-        "/",
-        routing::get(get_self).layer(AsyncRequireAuthorizationLayer::new(
-            crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::UserAccess),
-        )),
-    );
+    let at_me = {
+        let mut base = Router::new();
+        match cx.config.single_user {
+            true => {
+                base = base.route(
+                    "/",
+                    routing::get(get_self.layer(AsyncRequireAuthorizationLayer::new(
+                        crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::UserAccess),
+                    )))
+                    .patch(patch.layer(AsyncRequireAuthorizationLayer::new(
+                        crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::UserUpdate),
+                    ))),
+                )
+            }
+
+            false => {
+                base = base.route(
+                    "/",
+                    routing::get(get_self.layer(AsyncRequireAuthorizationLayer::new(
+                        crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::UserAccess),
+                    )))
+                    .patch(patch.layer(AsyncRequireAuthorizationLayer::new(
+                        crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::UserUpdate),
+                    )))
+                    .delete(delete.layer(AsyncRequireAuthorizationLayer::new(
+                        crate::middleware::sessions::Middleware::default().with_scope(ApiKeyScope::UserDelete),
+                    ))),
+                )
+            }
+        }
+
+        base
+    };
 
     router.nest("/@me", at_me).nest("/{idOrName}", id_or_name)
 }
@@ -227,7 +259,8 @@ pub async fn create(
         None
     };
 
-    let id = ULID_GENERATOR
+    let id = cx
+        .ulid_generator
         .generate()
         .inspect_err(|e| {
             sentry::capture_error(e);
@@ -367,40 +400,45 @@ pub async fn get_self(Extension(Session { user, .. }): Extension<Session>) -> ap
     api::ok(StatusCode::OK, user)
 }
 
-/*
-pub async fn get_self(Extension(Session { user, .. }): Extension<Session>) -> api::Response<User> {
-    api::ok(StatusCode::OK, user)
+struct PatchUserR;
+impl IntoResponses for PatchUserR {
+    fn responses() -> BTreeMap<String, RefOr<Response>> {
+        azalia::btreemap! {
+            "204" => {
+                let mut response = extract_refor_t!(EmptyApiResponse::response().1);
+                modify_property!(response; description("Patch was successful"));
+
+                response
+            },
+
+            "4XX" => {
+                let mut response = extract_refor_t!(ApiErrorResponse::response().1);
+                modify_property!(response; description("Any occurrence when authentication fails or if the patch couldn't be applied"));
+
+                response
+            }
+        }
+    }
 }
 
-/// Patch metadata about the current user.
+/// Patch the authenticated user's metadata.
+#[cfg_attr(debug_assertions, axum::debug_handler)]
 #[utoipa::path(
     patch,
+
     path = "/v1/users/@me",
     operation_id = "patchSelf",
     tag = "Users",
     request_body(
         content_type = "application/json",
-        description = "Update payload for the `User` entity",
-        content = ref("PatchUserPayload")
+        description = "Payload object for patching user metadata",
+        content = ref("#/components/schemas/PatchUserPayload")
     ),
-    responses(
-        (
-            status = 204,
-            description = "Patch was successfully reflected",
-            body = EmptyApiResponse,
-            content_type = "application/json"
-        ),
-        (
-            status = 4XX,
-            description = "Any occurrence when authentication fails or if the patch couldn't be reflected",
-            body = ApiErrorResponse,
-            content_type = "application/json"
-        )
-    )
+    responses(PatchUserR)
 )]
 pub async fn patch(
-    State(cx): State<ServerContext>,
-    Extension(Session { mut user, .. }): Extension<Session>,
+    State(cx): State<Context>,
+    Extension(Session { user, .. }): Extension<Session>,
     Json(PatchUserPayload {
         prefers_gravatar,
         gravatar_email,
@@ -411,151 +449,193 @@ pub async fn patch(
         name,
     }): Json<PatchUserPayload>,
 ) -> api::Result<()> {
-    if let Some(prefers_gravatar) = prefers_gravatar {
-        if user.prefers_gravatar != prefers_gravatar {
-            user.prefers_gravatar = prefers_gravatar;
-        }
+    let mut model = UserEntity::find_by_id(user.id)
+        .one(&cx.pool)
+        .await
+        .map_err(api::system_failure)?
+        .map(Into::<user::ActiveModel>::into)
+        .unwrap();
+
+    let mut errors = Vec::new();
+
+    if let Some(prefers_gravatar) = prefers_gravatar &&
+        user.prefers_gravatar != prefers_gravatar
+    {
+        model.prefers_gravatar = ActiveValue::Set(prefers_gravatar);
     }
 
     if let Some(gravatar_email) = gravatar_email.as_deref() {
-        // if `old` == None, then update the description
-        // if `old` == Some(..) && `old` != `gravatar_email`, commit update
-        // if `old` == Some(..) && `old` == `""`, commit as `None`
         let old = user.gravatar_email.as_deref();
         if old.is_none() && !gravatar_email.is_empty() {
-            user.gravatar_email = Some(gravatar_email.to_owned());
-        } else if let Some(old) = old
-            && !old.is_empty()
-            && old != gravatar_email
+            model.gravatar_email = ActiveValue::set(Some(gravatar_email.to_owned()));
+        } else if let Some(old) = old &&
+            !old.is_empty() &&
+            old != gravatar_email
         {
-            user.gravatar_email = Some(gravatar_email.to_owned());
-        } else if gravatar_email.is_empty() {
-            user.description = None;
+            model.gravatar_email = ActiveValue::set(Some(gravatar_email.to_owned()));
+        } else {
+            model.gravatar_email = ActiveValue::set(None);
         }
     }
 
-    if let Some(description) = description {
+    if let Some(description) = description.as_deref() {
         if description.len() > 140 {
             let len = description.len();
-            return Err(api::err(
-                StatusCode::NOT_ACCEPTABLE,
-                (
-                    api::ErrorCode::ValidationFailed,
-                    "expected `description` to be less than 140 characters",
-                    json!({
-                        "expected": 140,
-                        "received": {
-                            "over": len - 140,
-                            "length": len
-                        }
-                    }),
-                ),
-            ));
+            errors.push(api::Error {
+                code: api::ErrorCode::ValidationFailed,
+                message: Cow::Borrowed("expected to be less than 140 characters"),
+                details: Some(json!({
+                    "path": "description",
+                    "expected": 140,
+                    "received": [len - 140, len]
+                })),
+            });
+        } else {
+            let old = user.description.as_deref();
+            if old.is_none() && !description.is_empty() {
+                model.description = ActiveValue::set(Some(description.to_owned()));
+            } else if let Some(old) = old &&
+                !old.is_empty() &&
+                old != description
+            {
+                model.description = ActiveValue::set(Some(description.to_owned()));
+            } else {
+                model.description = ActiveValue::set(None);
+            }
         }
+    }
 
-        // if `old` == None, then update the description
-        // if `old` == Some(..) && `old` != `descroption`, commit update
-        // if `old` == Some(..) && `old` == `""`, commit as `None`
-        let old = user.description.as_deref();
-        if old.is_none() {
-            user.description = Some(description);
-        } else if let Some(old) = old
-            && !old.is_empty()
-            && old != description
+    if let Some(email) = email.as_deref() {
+        if !email.validate_email() {
+            errors.push(api::Error {
+                code: api::ErrorCode::ValidationFailed,
+                message: Cow::Borrowed("invalid email address"),
+                details: Some(json!({
+                    "path": "email",
+                    "email": email
+                })),
+            });
+        } else if UserEntity::find()
+            .filter(user::Column::Email.eq(email.to_owned()))
+            .one(&cx.pool)
+            .await
+            .map_err(api::system_failure)?
+            .map(Into::<User>::into)
+            .is_some()
         {
-            user.description = Some(description);
-        } else if description.is_empty() {
-            user.description = None;
+            errors.push(api::Error {
+                code: api::ErrorCode::EntityAlreadyExists,
+                message: Cow::Borrowed("an existing user already exists with that email"),
+                details: Some(json!({
+                    "path": "email",
+                    "email": email
+                })),
+            });
+        } else {
+            model.email = ActiveValue::set(email.to_owned());
         }
     }
 
     if let Some(username) = username {
-        // We need to validate that the username isn't already taken, so we will get a
-        // temporary connection.
-        match ops::db::user::get(&cx, NameOrUlid::Name(username.clone())).await {
-            Ok(None) => {}
-            Ok(Some(_)) => {
-                return Err(api::err(
-                    StatusCode::CONFLICT,
-                    (
-                        api::ErrorCode::EntityAlreadyExists,
-                        "user with username already exists",
-                        json!({"username":&username}),
-                    ),
-                ))
-            }
-
-            Err(e) => return Err(api::system_failure(e)),
-        };
-
-        // In deserialization of the request body, it'll validate that
-        // the name is correct anyway, so it is ok to set it here without
-        // even more validation.
-        user.username = username;
+        if UserEntity::find()
+            .filter(user::Column::Username.eq(username.to_owned()))
+            .one(&cx.pool)
+            .await
+            .map_err(api::system_failure)?
+            .map(Into::<User>::into)
+            .is_some()
+        {
+            errors.push(api::Error {
+                code: api::ErrorCode::EntityAlreadyExists,
+                message: Cow::Borrowed("an existing user already exists with that name"),
+                details: Some(json!({
+                    "path": "username",
+                    "username": &username
+                })),
+            });
+        } else {
+            model.username = ActiveValue::set(username);
+        }
     }
 
     if let Some(password) = password.as_deref() {
-        let authz = cx.authz.as_ref();
-        if authz.downcast::<charted_authz_local::Backend>().is_none() {
+        if !cx.authz.is::<charted_authz_local::Backend>() {
             return Err(api::err(
                 StatusCode::NOT_ACCEPTABLE,
                 (
                     api::ErrorCode::InvalidBody,
-                    "`password` is only supported on the local authz backend",
+                    "user.password: authz backend doesn't require this field",
                 ),
             ));
         }
 
         if password.len() < 8 {
-            return Err(api::err(
-                StatusCode::NOT_ACCEPTABLE,
-                (
-                    api::ErrorCode::InvalidPassword,
-                    "`password` length was expected to be 8 characters or longer",
-                ),
-            ));
+            let len = password.len();
+            errors.push(api::Error {
+                code: api::ErrorCode::InvalidPassword,
+                message: Cow::Borrowed("length of password was expected to be 8 characters or longer"),
+                details: Some(json!({
+                    "path": "password",
+                    "expected": 8,
+                    "received": [len - 8, len]
+                })),
+            });
+        } else {
+            model.password = crate::hash_password(password)
+                .map_err(api::system_failure_from_report)
+                .map(|s| ActiveValue::set(Some(s)))?;
         }
-
-        user.password = Some(hash_password(password).map_err(|_| api::internal_server_error())?);
     }
 
-    let mut conn = cx
-        .pool
-        .get()
+    if let Some(name) = name.as_deref() {
+        if name.len() > 64 {
+            let len = name.len();
+            errors.push(api::Error {
+                code: api::ErrorCode::ValidationFailed,
+                message: Cow::Borrowed("expected to be less than 140 characters"),
+                details: Some(json!({
+                    "path": "name",
+                    "expected": 64,
+                    "received": [len - 64, len]
+                })),
+            });
+        } else {
+            let old = user.name.as_deref();
+            if old.is_none() && !name.is_empty() {
+                model.name = ActiveValue::set(Some(name.to_owned()));
+            } else if let Some(old) = old &&
+                !old.is_empty() &&
+                old != name
+            {
+                model.name = ActiveValue::set(Some(name.to_owned()));
+            } else {
+                model.name = ActiveValue::set(None);
+            }
+        }
+    }
+
+    if !errors.is_empty() {
+        return Err(api::Response {
+            success: false,
+            status: StatusCode::CONFLICT,
+            errors,
+            data: None::<()>,
+        });
+    }
+
+    model
+        .update(&cx.pool)
+        .await
         .inspect_err(|e| {
+            error!(error = %e, %user.username, "failed to commit changes for patch");
             sentry::capture_error(e);
-            tracing::error!(error = %e, "failed to establish database connection");
         })
-        .map_err(|_| api::internal_server_error())?;
-
-    charted_database::connection!(@raw conn {
-        PostgreSQL(conn) => conn.build_transaction().run(|txn| {
-            use postgresql::users::{dsl, table};
-
-            diesel::update(table.filter(dsl::id.eq(user.id)))
-                .set(user.into_pg())
-                .execute(txn)
-                .map(|_| ())
-        });
-
-        SQLite(conn) => conn.immediate_transaction(|txn| {
-            use sqlite::users::{dsl, table};
-
-            diesel::update(table.filter(dsl::id.eq(user.id)))
-                .set(user.into_sqlite())
-                .execute(txn)
-                .map(|_| ())
-        });
-    })
-    .inspect_err(|e| {
-        sentry::capture_error(e);
-        tracing::error!(error = %e, "failed to update user");
-    })
-    .map_err(|_| api::internal_server_error())?;
-
-    Ok(api::no_content())
+        .map_err(api::system_failure)
+        .map(|_| api::no_content())
 }
 
+/// Delete yourself.
+#[cfg_attr(debug_assertions, axum::debug_handler)]
 #[utoipa::path(
     delete,
 
@@ -571,18 +651,14 @@ pub async fn patch(
         )
     )
 )]
-pub async fn delete(
-    State(cx): State<ServerContext>,
-    Extension(Session { user, .. }): Extension<Session>,
-) -> api::Result<()> {
-    ops::db::user::delete(cx, user)
+pub async fn delete(State(cx): State<Context>, Extension(Session { user, .. }): Extension<Session>) -> api::Result<()> {
+    UserEntity::delete_by_id(user.id)
+        .exec(&cx.pool)
         .await
         .inspect_err(|e| {
-            sentry_eyre::capture_report(e);
-            tracing::error!(error = %e, "failed to delete user");
+            error!(error = %e, %user.id, %user.username, "failed to delete user");
+            sentry::capture_error(e);
         })
-        .map_err(|_| api::internal_server_error())?;
-
-    Ok(api::no_content())
+        .map_err(api::system_failure)
+        .map(|_| api::no_content())
 }
-*/

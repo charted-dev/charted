@@ -21,7 +21,7 @@ use azalia::{
 };
 use charted_authz::Authenticator;
 use charted_config::{Config, metrics, sessions::Backend, storage};
-use charted_core::Distribution;
+use charted_core::{Distribution, ulid::Generator};
 use charted_server::set_context;
 use eyre::bail;
 use opentelemetry::{InstrumentationScope, KeyValue, trace::TracerProvider};
@@ -105,6 +105,7 @@ pub(crate) async fn run(Args { config, .. }: Args) -> eyre::Result<()> {
     #[allow(unused_mut)]
     let mut features = azalia::hashmap!();
     let context = charted_server::Context {
+        ulid_generator: Generator::new(),
         requests: AtomicUsize::new(0),
         features,
         storage,

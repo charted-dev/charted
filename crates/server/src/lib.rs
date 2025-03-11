@@ -39,12 +39,10 @@ use argon2::{
     PasswordHasher,
     password_hash::{SaltString, rand_core::OsRng},
 };
-use charted_core::{ARGON2, ulid};
+use charted_core::ARGON2;
 pub use context::*;
 pub use drive::drive;
 pub use yaml::*;
-
-pub(crate) static ULID_GENERATOR: ulid::Generator = ulid::Generator::new();
 
 pub fn hash_password<P: AsRef<[u8]>>(password: P) -> eyre::Result<String> {
     let salt = SaltString::generate(&mut OsRng);

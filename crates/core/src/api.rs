@@ -549,6 +549,9 @@ pub fn system_failure<E: std::error::Error>(error: E) -> Response {
         );
     }
 
+    #[cfg(not(debug_assertions))]
+    const _: serde_json::Value = collect_backtrace();
+
     err(
         axum::http::StatusCode::INTERNAL_SERVER_ERROR,
         (ErrorCode::SystemFailure, "system failure occurred"),
@@ -634,8 +637,9 @@ fn collect_backtrace() -> Value {
 
 // Don't attempt to collect one if we don't have `nightly-backtrace-frames`.
 #[cfg(not(all(debug_assertions, feature = "collect-backtrace-frames")))]
+#[cfg_attr(debug_assertions, allow(unused))]
 #[inline(never)]
 #[cold]
-fn collect_backtrace() -> Value {
+const fn collect_backtrace() -> Value {
     Value::Null
 }

@@ -17,7 +17,7 @@ pub mod member;
 pub mod release;
 
 use super::{create_table, id};
-use charted_types::{name::Name, ChartType, Repository, Ulid};
+use charted_types::{ChartType, Repository, Ulid, name::Name};
 use sea_orm::{entity::prelude::*, sea_query::TableCreateStatement};
 use sea_orm_migration::schema::*;
 
@@ -54,8 +54,8 @@ impl From<Model> for Repository {
             private: model.private,
             creator: model.creator,
             owner: model.owner,
-            name: model.name,
             type_: model.type_,
+            name: model.name,
             id: model.id,
         }
     }

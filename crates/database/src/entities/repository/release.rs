@@ -60,7 +60,7 @@ pub enum Relation {
         from = "Column::Repository",
         to = "super::Column::Id",
         on_update = "NoAction",
-        on_delete = "NoAction"
+        on_delete = "Cascade"
     )]
     Repository,
 }

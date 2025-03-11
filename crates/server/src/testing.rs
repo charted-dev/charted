@@ -19,6 +19,7 @@ use charted_config::{
     Config, database, metrics,
     sessions::{self, Backend},
 };
+use charted_core::ulid::Generator;
 use sea_orm::DatabaseConnection;
 use std::sync::{Arc, atomic::AtomicUsize};
 
@@ -59,6 +60,7 @@ pub fn create_config(override_fn: impl FnOnce(&mut Config)) -> Config {
 /// Sets the global context for tests.
 pub fn set_and_use_context(config: Config) -> Context {
     let ctx = Context {
+        ulid_generator: Generator::new(),
         requests: AtomicUsize::default(),
         features: azalia::hashmap!(),
         storage: StorageService::__non_exhaustive,

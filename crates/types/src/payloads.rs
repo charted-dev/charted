@@ -16,7 +16,7 @@
 //! Types that can effictively create or patch a object's metadata. Used by
 //! the API server for the `PUT` and `PATCH` REST endpoints.
 
-use crate::{name::Name, DateTime};
+use crate::{DateTime, name::Name};
 use serde::Deserialize;
 
 macro_rules! mk_payload_structs {
@@ -67,16 +67,16 @@ mk_payload_structs! {
     #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
     create {
         /// the api key's display name.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         pub display_name: Option<String>,
 
         /// short and concise description about this api key.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         pub description: Option<String>,
 
         /// datetime of when this api key should be deleted from the server
         /// and can no longer be used.
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         #[cfg_attr(feature = "openapi", schema(read_only))]
         pub expires_in: Option<DateTime>,
 
@@ -100,7 +100,7 @@ mk_payload_structs! {
         /// - an empty string: field is set to nothing
         /// - string that is different: field will update
         /// - string that is the same: field will not update
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         pub display_name: Option<String>,
 
         /// changes the api key's display name.
@@ -109,7 +109,7 @@ mk_payload_structs! {
         /// - an empty string: field is set to nothing
         /// - string that is different: field will update
         /// - string that is the same: field will not update
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         pub description: Option<String>,
 
         /// changes the api key's name.
@@ -121,7 +121,7 @@ mk_payload_structs! {
         /// - an empty string: field is set to nothing
         /// - string that is different: field will update
         /// - string that is the same: field will not update
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         pub name: Option<Name>,
     }
 }
@@ -150,7 +150,7 @@ mk_payload_structs! {
         /// over the ones used by the API server locally.
         ///
         /// - `null` or empty: field will not be updated
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         pub prefers_gravatar: Option<bool>,
 
         /// Changes the Gravatar email address associated
@@ -160,7 +160,7 @@ mk_payload_structs! {
         /// - an empty string: field is set to nothing
         /// - string that is different: field will update
         /// - string that is the same: field will not update
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         pub gravatar_email: Option<String>,
 
         /// Changes the description about yourself.
@@ -169,7 +169,7 @@ mk_payload_structs! {
         /// - an empty string: field is set to nothing
         /// - string that is different: field will update
         /// - string that is the same: field will not update
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         pub description: Option<String>,
 
         /// changes your username.
@@ -181,8 +181,20 @@ mk_payload_structs! {
         /// - an empty string: field is set to nothing
         /// - string that is different: field will update
         /// - string that is the same: field will not update
-        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[serde(default)]
         pub username: Option<Name>,
+
+        /// Updates this user's password, if the session backend is allowed to do so.
+        #[serde(default)]
+        #[cfg_attr(feature = "openapi", schema(pattern = "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$"))]
+        pub password: Option<String>,
+
+        /// Updates this user's email.
+        #[serde(default)]
+        pub email: Option<String>,
+
+        /// Updates this user's display name.
+        pub name: Option<String>,
     }
 }
 

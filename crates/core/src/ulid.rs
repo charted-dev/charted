@@ -13,52 +13,50 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! An atomic Ulid generator.
+//! An atomically, monotonic ULID generator.
 //!
-//! The implementation is loosely based off from the [`ulid`'s Generator] but
-//! can be used atomically without `&mut self`. Credit for the implementation
-//! goes to them, not us.
-//!
-//! [`ulid`'s Generator]: https://github.com/dylanhart/ulid-rs/blob/master/src/generator.rs
+//! The implementation of `Generator` is loosely based off ulid's `Generator`
+//! but it uses atomic pointers so that `&mut self` isn't required. Credits
+//! to the ulid-rs crate for the implementation.
 
-use crate::api;
-use rand::Rng;
+use rand::{TryRngCore, rngs::OsRng};
 use std::{
-    ptr::null,
+    ptr::null_mut,
     sync::atomic::{AtomicPtr, Ordering},
     time::{Duration, SystemTime},
 };
 use ulid::Ulid;
 
-/// A error when the ULID will overflow into the next millisecond
+/// Error type that occurred when generating a ULID.
 #[derive(Debug, derive_more::Display, derive_more::Error)]
-#[display("monotonic clock overflow in ulid generator?!")]
-pub struct MonotonicTimeOverflow {
-    _priv: (),
+pub enum Error {
+    #[display("monotonic time overflow occurred")]
+    MonotonicTimeOverflow,
+
+    #[display("os rng failure: {}", _0)]
+    Rng(<rand::rngs::OsRng as rand::TryRngCore>::Error),
 }
 
-impl From<MonotonicTimeOverflow> for api::Error {
-    fn from(_: MonotonicTimeOverflow) -> Self {
-        api::Error::from((
-            api::ErrorCode::SystemFailure,
-            "monotonic clock failure when generating a new ulid",
-        ))
-    }
-}
-
-/// Atomic generator for ULIDs.
+/// An atomically, monotonic ULID generator.
 #[derive(Debug)]
 pub struct Generator {
     previous: AtomicPtr<Ulid>,
 }
 
+impl Clone for Generator {
+    fn clone(&self) -> Self {
+        Generator {
+            previous: AtomicPtr::new(self.previous()),
+        }
+    }
+}
+
 impl Generator {
-    /// Creates a new [`Generator`] object with the previous ULID
-    /// pointing to a nil ULID.
+    /// Creates a new [`Generator`].
     #[allow(clippy::new_without_default)]
     pub const fn new() -> Generator {
         Generator {
-            previous: AtomicPtr::new(null::<Ulid>() as *mut Ulid),
+            previous: AtomicPtr::new(null_mut()),
         }
     }
 
@@ -66,72 +64,76 @@ impl Generator {
         self.previous.load(Ordering::SeqCst)
     }
 
-    /// Generate a new [`Ulid`] atomically with the current system time and the operating
-    /// system's generator as the entropy source.
-    #[track_caller]
-    pub fn generate(&self) -> Result<Ulid, MonotonicTimeOverflow> {
-        self.generate_with_time(SystemTime::now())
+    /// Generates a new [`Ulid`] atomically with the current system time and the OS'
+    /// random generator as the entropy source.
+    pub fn generate(&self) -> Result<Ulid, Error> {
+        self._generate(SystemTime::now(), &mut OsRng)
     }
 
-    /// Generate a new [`Ulid`] atomically with a specified [`SystemTime`].
-    #[track_caller]
-    pub fn generate_with_time(&self, time: SystemTime) -> Result<Ulid, MonotonicTimeOverflow> {
-        self._generate(time, &mut rand::rng())
+    /// Generates a new [`Ulid`] atomically with a specified [`SystemTime`] and uses the
+    /// operating system's random generator as the entropy source.
+    pub fn generate_with_time(&self, time: SystemTime) -> Result<Ulid, Error> {
+        self._generate(time, &mut OsRng)
     }
 
-    // Credit for the implementation: https://github.com/dylanhart/ulid-rs/blob/b39ecb97c6a1e4dba34a67d38f12d97b7305ded1/src/generator.rs
-    fn _generate<R: Rng + ?Sized>(&self, time: SystemTime, entropy: &mut R) -> Result<Ulid, MonotonicTimeOverflow> {
-        // If it is a null ptr, then we will just generate it.
-        let ulid = if self.previous().is_null() {
-            &Ulid::nil()
+    /// Generates a new [`Ulid`] atomically with a specified [`SystemTime`] and uses the
+    /// operating system's random generator as the entropy source.
+    pub fn generate_with_source_and_time<R: TryRngCore + Clone>(
+        &self,
+        time: SystemTime,
+        entropy: &mut R,
+    ) -> Result<Ulid, Error> {
+        self._generate(time, entropy)
+    }
+
+    // credit: https://github.com/dylanhart/ulid-rs/blob/b39ecb97c6a1e4dba34a67d38f12d97b7305ded1/src/generator.rs
+    fn _generate<R: TryRngCore + Clone>(&self, time: SystemTime, entropy: &mut R) -> Result<Ulid, Error> {
+        let ulid = if !self.previous().is_null() {
+            unsafe { *self.previous() }
         } else {
-            // Safety: we checked that `self.previous()` is null and we are not
-            // in that branch.
-            unsafe { &*self.previous() }
+            Ulid::nil()
         };
-
-        let last_timestamp = ulid.timestamp_ms();
 
         // We are going to assume either time went backwards OR it is the same
         // millisecond timestamp. If so, then we should increment that it is
         // monotonic.
+        let ts = ulid.timestamp_ms();
         if time
             .duration_since(SystemTime::UNIX_EPOCH)
             .unwrap_or(Duration::ZERO)
             .as_millis() <=
-            u128::from(last_timestamp)
+            u128::from(ts)
         {
             if let Some(mut next) = ulid.increment() {
                 self.previous.store(&mut next, Ordering::SeqCst);
                 return Ok(next);
             } else {
-                return Err(MonotonicTimeOverflow { _priv: () });
+                return Err(Error::MonotonicTimeOverflow);
             }
         }
 
-        let mut next = Ulid::from_datetime_with_source(time, entropy);
+        let mut next = Ulid::from_datetime_with_source(time, &mut entropy.clone().unwrap_err());
         self.previous.store(&mut next, Ordering::SeqCst);
 
         Ok(next)
     }
 }
 
-impl Clone for Generator {
-    fn clone(&self) -> Self {
-        Generator {
-            previous: AtomicPtr::new(self.previous.load(Ordering::SeqCst)),
-        }
-    }
-}
+const _: () = {
+    static _CAN_BE_USED_IN_STATIC: Generator = Generator::new();
+
+    const fn __assert_send<T: Send>() {}
+    const fn __assert_sync<T: Sync>() {}
+
+    __assert_send::<Generator>();
+    __assert_sync::<Generator>();
+};
 
 #[cfg(test)]
 mod tests {
     use super::Generator;
     use std::time::{Duration, SystemTime};
     use ulid::Ulid;
-
-    fn __assert_send<S: Send>() {}
-    fn __assert_sync<S: Sync>() {}
 
     #[test]
     fn test_monotonicity() {
@@ -145,11 +147,5 @@ mod tests {
         assert_eq!(ulid1.0 + 1, ulid2.0);
         assert!(ulid2 < ulid3);
         assert!(ulid2.timestamp_ms() < ulid3.timestamp_ms());
-    }
-
-    #[test]
-    fn test_send_sync() {
-        __assert_send::<Generator>();
-        __assert_sync::<Generator>();
     }
 }
