@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use jiff::{SignedDuration, Span};
 use serde::{Deserialize, Serialize, de};
 use std::{fmt::Display, ops::Deref, str::FromStr};
 
@@ -46,16 +47,17 @@ impl Duration {
 
 impl Display for Duration {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let fmter = humantime::format_duration(self.0);
-        <humantime::FormattedDuration as Display>::fmt(&fmter, f)
+        let duration = SignedDuration::try_from(self.0).map_err(|_| std::fmt::Error)?;
+        write!(f, "{duration:#}")
     }
 }
 
 impl FromStr for Duration {
-    type Err = humantime::DurationError;
+    type Err = jiff::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        humantime::parse_duration(s).map(Duration)
+        let duration: SignedDuration = Span::from_str(s)?.try_into()?;
+        <SignedDuration as TryInto<std::time::Duration>>::try_into(duration).map(Self)
     }
 }
 
@@ -91,7 +93,7 @@ impl<'de> Deserialize<'de> for Duration {
             where
                 E: de::Error,
             {
-                humantime::parse_duration(v).map(Duration).map_err(de::Error::custom)
+                Duration::from_str(v).map_err(de::Error::custom)
             }
 
             fn visit_string<E>(self, v: String) -> Result<Self::Value, E>
