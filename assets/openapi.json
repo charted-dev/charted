@@ -1363,9 +1363,22 @@
                         "type": ["string", "null"],
                         "description": "Changes the description about yourself.\n\n- `null` or empty: field will not be updated\n- an empty string: field is set to nothing\n- string that is different: field will update\n- string that is the same: field will not update"
                     },
+                    "email": {
+                        "type": ["string", "null"],
+                        "description": "Updates this user's email."
+                    },
                     "gravatar_email": {
                         "type": ["string", "null"],
                         "description": "Changes the Gravatar email address associated\nfor this user.\n\n- `null` or empty: field will not be updated\n- an empty string: field is set to nothing\n- string that is different: field will update\n- string that is the same: field will not update"
+                    },
+                    "name": {
+                        "type": ["string", "null"],
+                        "description": "Updates this user's display name."
+                    },
+                    "password": {
+                        "type": ["string", "null"],
+                        "description": "Updates this user's password, if the session backend is allowed to do so.",
+                        "pattern": "^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\\d)?(?=.*[!#$%&? \"])?.*$"
                     },
                     "prefers_gravatar": {
                         "type": ["boolean", "null"],
