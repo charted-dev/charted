@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use crate::{name::Name, ChartType, DateTime, Ulid, Version};
+use crate::{ChartType, DateTime, Ulid, Version, name::Name};
 use charted_core::bitflags::ApiKeyScopes;
 use serde::Serialize;
 
@@ -167,6 +167,7 @@ pub struct Repository {
     ///
     /// Repositories can also be considered as a library chart and can be
     /// pulled from a user or organization's Helm chart index.
+    #[serde(rename = "type")]
     pub type_: ChartType,
 
     /// the name of this repository.

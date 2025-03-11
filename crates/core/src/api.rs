@@ -202,7 +202,7 @@ pub enum ErrorCode {
     RestEndpointNotFound,
 
     /// The endpoint that you're trying to reach is using an invalid HTTP method.
-    InvalidHTTPMethod,
+    InvalidHttpMethod,
 
     /// The entity was not found.
     EntityNotFound,
@@ -220,10 +220,10 @@ pub enum ErrorCode {
     InvalidContentType,
 
     /// Received an invalid HTTP header name.
-    InvalidHTTPHeaderName,
+    InvalidHttpHeaderName,
 
     /// Received an invalid HTTP header name.
-    InvalidHTTPHeaderValue,
+    InvalidHttpHeaderValue,
 
     /// This endpoint only allows Bearer tokens.
     RequiresSessionToken,

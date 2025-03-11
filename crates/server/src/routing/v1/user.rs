@@ -36,7 +36,7 @@ use std::collections::BTreeMap;
 use tower_http::auth::AsyncRequireAuthorizationLayer;
 use utoipa::{
     IntoResponses, ToResponse,
-    openapi::{RefOr, Response},
+    openapi::{Ref, RefOr, Response},
 };
 use validator::ValidateEmail;
 
@@ -76,13 +76,7 @@ struct CreateUserR;
 impl IntoResponses for CreateUserR {
     fn responses() -> BTreeMap<String, RefOr<Response>> {
         azalia::btreemap!(
-            "201" => {
-                let mut response = extract_refor_t!(UserResponse::response().1);
-                modify_property!(response; description("User was successfully created"));
-
-                response
-            },
-
+            "201" => Ref::from_response_name("UserResponse"),
             "403" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
                 modify_property!(response; description("Instance doesn't allow registrations"));
@@ -132,7 +126,7 @@ impl IntoResponses for CreateUserR {
     operation_id = "createUser",
     request_body(
         description = "Request body for creating a new user on this instance. The `password` field can be omitted if the session backend isn't the local one.",
-        content = ref("CreateUserPayload")
+        content = ref("#/components/schemas/CreateUserPayload")
     ),
     responses(CreateUserR)
 )]
@@ -274,13 +268,7 @@ struct FetchUserR;
 impl IntoResponses for FetchUserR {
     fn responses() -> BTreeMap<String, RefOr<Response>> {
         azalia::btreemap! {
-            "200" => {
-                let mut response = extract_refor_t!(UserResponse::response().1);
-                modify_property!(response; description("A single user was found by name or id."));
-
-                response
-            },
-
+            "200" => Ref::from_response_name("UserResponse"),
             "400" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
                 modify_property!(response; description("Invalid ID or name specified"));
@@ -355,7 +343,7 @@ struct FetchSelfR;
 impl IntoResponses for FetchSelfR {
     fn responses() -> BTreeMap<String, RefOr<Response>> {
         azalia::btreemap! {
-            "200" => extract_refor_t!(UserResponse::response().1),
+            "200" => Ref::from_response_name("UserResponse"),
             "4XX" => {
                 let mut response = extract_refor_t!(ApiErrorResponse::response().1);
                 modify_property!(response; description("The occurrence when authentication fails"));

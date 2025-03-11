@@ -15,7 +15,8 @@
 
 mod modifiers;
 
-use crate::routing::v1::{features::Features, main::Main};
+use crate::routing::v1::{Entrypoint, features::Features, main::Main};
+use charted_types::User;
 use modifiers::*;
 use serde_json::Value;
 use std::{borrow::Cow, marker::PhantomData};
@@ -97,16 +98,24 @@ use utoipa::{
             charted_core::Distribution,
             charted_core::BuildInfo,
 
+            charted_types::NameOrUlid,
             charted_types::name::Name,
             charted_types::VersionReq,
             charted_types::Version,
+
+            crate::routing::v1::main::Main,
+            crate::routing::v1::features::Features,
         ),
         responses(
+            ApiResponse<Entrypoint>,
             ApiResponse<Features>,
+            ApiResponse<User>,
             ApiResponse<Main>
         )
     ),
     paths(
+        crate::routing::v1::user::get_self,
+        crate::routing::v1::user::fetch,
         crate::routing::v1::user::create,
         crate::routing::v1::user::main,
 
@@ -302,7 +311,7 @@ impl<'r, T: ToSchema> ToResponse<'r> for ApiResponse<T> {
         let success = response_schema.properties.get("success").unwrap();
         let errors = response_schema.properties.get("errors").unwrap();
         let response = Response::builder()
-            .description(format!("Response datatype for a list of `{name}`"))
+            .description(format!("Response datatype that returns a `{name}` object"))
             .content(
                 "application/json",
                 Content::builder()
@@ -310,7 +319,7 @@ impl<'r, T: ToSchema> ToResponse<'r> for ApiResponse<T> {
                         Object::builder()
                             .property("success", success.to_owned())
                             .required("success")
-                            .property("data", T::schema())
+                            .property("data", RefOr::Ref(Ref::from_schema_name(T::name())))
                             .property("errors", errors.to_owned())
                             .build(),
                     ))))
@@ -351,7 +360,10 @@ impl<'r, T: ToSchema> ToResponse<'r> for ListApiResponse<T> {
                         Object::builder()
                             .property("success", success.to_owned())
                             .required("success")
-                            .property("data", RefOr::T(Schema::Array(Array::new(T::schema()))))
+                            .property(
+                                "data",
+                                RefOr::T(Schema::Array(Array::new(RefOr::Ref(Ref::from_schema_name(T::name()))))),
+                            )
                             .property("errors", errors.to_owned())
                             .build(),
                     ))))

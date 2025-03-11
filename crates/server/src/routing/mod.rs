@@ -15,11 +15,11 @@
 
 use crate::Context;
 use axum::{
+    Router,
     body::Body,
     extract::{DefaultBodyLimit, Request},
     http::{Method, Response, StatusCode},
     response::IntoResponse,
-    Router,
 };
 use charted_core::api;
 use serde_json::json;
@@ -84,7 +84,7 @@ async fn four_oh_five_method_not_allowed(req: Request) -> api::Response {
     api::err(
         StatusCode::METHOD_NOT_ALLOWED,
         (
-            api::ErrorCode::InvalidHTTPMethod,
+            api::ErrorCode::InvalidHttpMethod,
             "HTTP method allowed for this rest endpoint don't correlate with the one you sent",
             json!({
                 "method": req.method().as_str(),
