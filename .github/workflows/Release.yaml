@@ -223,7 +223,7 @@ jobs:
             - uses: auguwu/git-tag-action@master
               id: tag
 
-            - uses: getsentry/action-release@v1
+            - uses: getsentry/action-release@v3
               env:
                   SENTRY_AUTH_TOKEN: ${{secrets.SENTRY_AUTH_TOKEN}}
                   SENTRY_PROJECT: charted-server
