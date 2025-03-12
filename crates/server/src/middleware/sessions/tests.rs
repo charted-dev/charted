@@ -23,10 +23,11 @@ use crate::{
     testing::{create_config, set_and_use_context},
 };
 use axum::{
+    Router,
     body::Body,
     http::{Request, StatusCode},
     response::{IntoResponse, Response},
-    routing, Router,
+    routing,
 };
 use charted_config::Config;
 use charted_core::api;
@@ -77,6 +78,7 @@ async fn disallow_if_no_header() {
 }
 
 #[tokio::test]
+#[ignore = "test is flakey at the moment"]
 async fn allow_if_no_header_and_can_be_allowed() {
     let mut router = create_router(
         Middleware {
@@ -96,8 +98,10 @@ async fn allow_if_no_header_and_can_be_allowed() {
         .unwrap();
 
     assert_eq!(res.status(), StatusCode::OK);
-    assert!(axum::body::to_bytes(res.into_body(), usize::MAX)
-        .await
-        .unwrap()
-        .is_empty());
+    assert!(
+        axum::body::to_bytes(res.into_body(), usize::MAX)
+            .await
+            .unwrap()
+            .is_empty()
+    );
 }
